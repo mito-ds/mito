@@ -212,7 +212,7 @@ const Plans: NextPage = () => {
             </section>
             <section className={plansStyles.plan_cards}>
               <div className={plansStyles.plan_card + ' ' + pageStyles.background_card}>
-                <h1>
+                <h1 className={plansStyles.plan_card_header}>
                   Open Source
                 </h1>
                 <p className={plansStyles.price_text}>
@@ -221,26 +221,28 @@ const Plans: NextPage = () => {
                 <p className={plansStyles.plan_description}>
                   Perfect for solo data analytics for work or for fun. Includes <a href={'#' + PRIVATE_TELEMTRY_FAQ_ID} className={plansStyles.private_telemtry_link}> private telemetry</a>.
                 </p>
-                <PlanBullet>
-                  <p>
-                    Data exploration tools
-                  </p>
-                </PlanBullet>
-                <PlanBullet>
-                  <p>
-                    Data transformation tools
-                  </p>
-                </PlanBullet>
-                <PlanBullet>
-                  <p>
-                    Automatic code generation
-                  </p>
-                </PlanBullet>
-                <PlanBullet>
-                  <p>
-                    Customer support
-                  </p>
-                </PlanBullet>
+                <div className={plansStyles.plan_bullets_container}> 
+                  <PlanBullet>
+                    <p>
+                      Data exploration tools
+                    </p>
+                  </PlanBullet>
+                  <PlanBullet>
+                    <p>
+                      Data transformation tools
+                    </p>
+                  </PlanBullet>
+                  <PlanBullet>
+                    <p>
+                      Automatic code generation
+                    </p>
+                  </PlanBullet>
+                  <PlanBullet>
+                    <p>
+                      Customer support
+                    </p>
+                  </PlanBullet>
+                </div>
                 <div className={plansStyles.plan_cta}>
                   <TextButton 
                     text='Get Started'
@@ -250,7 +252,7 @@ const Plans: NextPage = () => {
               </div>
 
               <div className={plansStyles.plan_card + ' ' + pageStyles.gradient_card} id={PRO_PLAN_ID}>
-                <h1>
+                <h1 className={plansStyles.plan_card_header}>
                   Pro
                 </h1>
                 <p className={plansStyles.price_text}>
@@ -259,26 +261,28 @@ const Plans: NextPage = () => {
                 <p className={plansStyles.plan_description}>
                   Mito’s analysis tools, with no telemetry and advanced support.
                 </p>
-                <PlanBullet>
-                  <p>
-                    All of Open Source: and:
-                  </p>
-                </PlanBullet>
-                <PlanBullet>
-                  <p>
-                    Turn off private telemetry
-                  </p>
-                </PlanBullet>
-                <PlanBullet>
-                  <p>
-                    Dedicated customer support
-                  </p>
-                </PlanBullet>
-                <PlanBullet>
-                  <p>
-                    Future Pro functionality
-                  </p>
-                </PlanBullet>
+                <div className={plansStyles.plan_bullets_container}> 
+                  <PlanBullet>
+                    <p>
+                      All of Open Source: and:
+                    </p>
+                  </PlanBullet>
+                  <PlanBullet>
+                    <p>
+                      Turn off private telemetry
+                    </p>
+                  </PlanBullet>
+                  <PlanBullet>
+                    <p>
+                      Dedicated customer support
+                    </p>
+                  </PlanBullet>
+                  <PlanBullet>
+                    <p>
+                      Future Pro functionality
+                    </p>
+                  </PlanBullet>
+                </div>
                 <div className={plansStyles.plan_cta}>
                   <TextButton 
                     text="Get Started"
@@ -288,7 +292,7 @@ const Plans: NextPage = () => {
               </div>
 
               <div className={plansStyles.plan_card + ' ' + pageStyles.background_card}>
-                <h1>
+                <h1 className={plansStyles.plan_card_header}>
                   Enterprise
                 </h1>
                 <p className={plansStyles.price_text}>
@@ -297,26 +301,29 @@ const Plans: NextPage = () => {
                 <p className={plansStyles.plan_description}>
                   Advanced support and integrations for teams.
                 </p>
-                <PlanBullet>
-                  <p>
-                    The power of Pro, and:
-                  </p>
-                </PlanBullet>
-                <PlanBullet>
-                  <p>
-                    Customer success manager
-                  </p>
-                </PlanBullet>
-                <PlanBullet>
-                  <p>
-                    Onboarding Program
-                  </p>
-                </PlanBullet>
-                <PlanBullet>
-                  <p>
-                    Custom integration
-                  </p>
-                </PlanBullet>
+                <div className={plansStyles.plan_bullets_container}> 
+                  <PlanBullet>
+                    <p>
+                      The power of Pro, and:
+                    </p>
+                  </PlanBullet>
+                  <PlanBullet>
+                    <p>
+                      Customer success manager
+                    </p>
+                  </PlanBullet>
+                  <PlanBullet>
+                    <p>
+                      Onboarding Program
+                    </p>
+                  </PlanBullet>
+                  <PlanBullet>
+                    <p>
+                      Custom integration
+                    </p>
+                  </PlanBullet>
+                </div>
+                
                 <div className={plansStyles.plan_cta}>
                   <TextButton 
                     text='Contact Us'
