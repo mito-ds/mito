@@ -1,0 +1,20 @@
+.cta_buttons_container {
+    padding-top: 5rem;
+    padding-bottom: 0rem;
+    text-align: center;
+}
+    
+.cta_subbutton {
+    color: var(--color-text-highlight)
+}
+
+.cta_subbutton:hover {
+    color: var(--color-text-highlight-light)
+}
+
+@media only screen and (min-width: 50em) {
+    .cta_buttons_container {
+        padding-top: 3rem;
+        padding-bottom: 2rem;
+    }
+}

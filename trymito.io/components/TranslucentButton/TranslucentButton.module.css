@@ -1,0 +1,32 @@
+.translucent_button {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+
+    background: rgba(157, 108, 255, 0.1);
+    border: 2px solid rgba(157, 108, 255, 0.4);
+    box-sizing: border-box;
+    border-radius: 10px;
+    width: 110px;
+    font-size: 2rem;
+    height: 35px;
+    color: var(--color-text-highlight);
+    
+    cursor: pointer;
+}
+
+.translucent_button:hover {
+    background: var(--color-background)
+}
+
+.translucent_button p {
+    margin-top: 0
+}
+
+@media only screen and (min-width: 50em) {
+    .translucent_button {
+        font-size: 1rem;
+    }
+    
+}

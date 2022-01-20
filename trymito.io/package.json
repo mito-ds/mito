@@ -1,0 +1,25 @@
+{
+  "name": "trymito.io",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "fscreen": "^1.2.0",
+    "next": "12.0.7",
+    "react": "17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@types/fscreen": "^1.0.1",
+    "@types/node": "16.11.12",
+    "@types/react": "17.0.37",
+    "@types/react-dom": "^17.0.11",
+    "eslint": "8.4.1",
+    "eslint-config-next": "12.0.7",
+    "typescript": "4.5.3"
+  }
+}

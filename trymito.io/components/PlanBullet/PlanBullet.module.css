@@ -1,0 +1,31 @@
+.plan_bullet_container {
+    margin-top: 1.5rem;
+    align-items: center;
+}
+
+.checkmark_container {
+    display: flex;
+    height: 1.25rem;
+    width: 2rem;
+    margin-right: 1rem;
+    align-items: center;
+}
+
+.text_container p {
+    margin-top: 0;
+}
+
+@media only screen and (min-width: 50em) {
+    .plan_bullet_container p {
+        font-size: 1rem;
+    }
+
+    .checkmark_container {
+        height: .75rem;
+        width: 1.5rem;
+    }
+
+    .text_container p {
+        font-size: 1rem;
+    }
+}

@@ -1,0 +1,48 @@
+.feature_row_container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 60px;
+    width: 100%;
+    border-bottom: 2px solid var(--color-text-secondary);
+}
+
+.feature_row_container p {
+    margin-top: 0
+} 
+
+.section_header {
+    margin-top: 8rem;
+}
+
+.feature_row_content {
+    flex: 1;
+}
+
+/*
+Note: I can't figure out how to select only the
+feture_row_containers that are followed directly by something else
+.feature_row_container {
+    border-bottom: 0;
+}
+*/
+
+.section_header p {
+    color: var(--color-text-primary);
+    font-weight: 400;
+}
+
+.row_label {
+    width: 75%;
+    margin-left: 6vw;
+}
+
+@media only screen and (min-width: 50em) {
+    .row_label {
+        width: 40%;
+    }
+
+    .section_header {
+        margin-top: 4rem;
+    }
+}

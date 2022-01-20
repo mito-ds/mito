@@ -1,0 +1,36 @@
+.title_card {
+    padding-top: 4rem;
+    padding-bottom: 2rem;
+}
+
+.grid_card {
+    background-image: url('../public/BackgroundGrid.svg');
+    background-size: contain;
+    --aspect-ratio: 2.8;
+}
+
+.title {
+    margin: 0;
+    line-height: 1.15;
+    font-size: 4rem;
+}
+
+.title,
+.description {
+    text-align: center;
+}
+
+.description {
+    line-height: 1.5;
+}
+
+@media only screen and (min-width: 50em) {
+    .title {
+        font-size: 3rem;
+        max-width: 80vw;
+    }
+
+    .description {
+        max-width: 40rem;
+    }
+}

@@ -1,0 +1,109 @@
+.cta_button_and_video_spacer {
+  margin-bottom: 32px;
+}
+
+.video {
+  max-width: 100%;
+  border-radius: 2rem;
+  padding: 1.5rem 2rem; 
+  background: var(--color-video-background);
+  border: 5px solid rgba(198, 169, 255, 0.25);
+}
+
+.functionality_media {
+  margin-top: 3rem;
+  background: linear-gradient(98.53deg, rgba(157, 108, 255, 0.2) -10.41%, rgba(157, 108, 255, 0.05) 28.96%, rgba(157, 108, 255, 0.2) 60.31%, rgba(157, 108, 255, 0.05) 115.15%);
+  height: 20rem;
+  border-radius: 5px;
+}
+
+.metrics_container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  text-align: center;
+}
+
+.metric_container {
+  margin: 3rem 0;
+}
+
+.gradient_text {
+  font-size: 10vw;
+  background: -webkit-linear-gradient(-90deg, #9D6CFF, rgba(125, 26, 255, 0.39));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: linear-gradient(180deg, #FFFFFF, #000000)
+}
+
+.metrics_label {
+  margin-top: .5rem;
+}
+
+.tweet_section_header {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.tweet_section_header button {
+  margin-top: 2rem;
+}
+
+.open_source_section_logos {
+  margin-top: 8rem !important;
+}
+
+
+@media only screen and (min-width: 50em) {
+
+  .video {
+    max-width: 85vw;
+    max-height: 40rem;
+    padding: 1rem 1rem; 
+  }
+
+  .functionality_text {
+    max-width: 30rem;
+  }
+
+  .functionality_media {
+    margin: 0;
+    max-width: 45rem;
+  }
+
+  .metrics_container {
+    flex-direction: row;
+  }
+
+  .gradient_text {
+    font-size: 5vw;
+  }
+
+  .tweet_section {
+    max-width: 80vw;
+  }
+
+  .open_source_section {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+  }
+
+  .open_source_section_header {
+    width: 40vw !important;
+    height: 100%;
+    margin-left: 10vw;
+  }
+
+  .open_source_section_logos {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin-top: 0 !important;
+  }
+}

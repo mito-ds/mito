@@ -1,0 +1,44 @@
+
+.text_button {
+  font-style: medium;
+  font-weight: 400;
+  font-size: 2rem;
+  color: var(--color-text-primary);
+
+  background-color: var(--color-text-highlight);
+  max-width: 20rem;
+  padding: 10px 15px;
+  border-radius: 10px;
+  box-sizing: border-box;
+  text-align: center;
+
+  cursor: pointer;
+
+  /* 
+    This is required to make the TextButton the same exact height
+    across the a tag and button implmentations! Without it, the max-width doesn't
+    apply to the a tag.
+  */
+  display: inline-block;
+}
+
+.text_button:hover {
+  background-color: var(--color-text-highlight-light);
+}
+
+.text_button button,
+.text_button a {
+  box-sizing: border-box;
+  line-height: 2.5rem;
+}
+
+@media only screen and (min-width: 50em) {
+  .text_button {
+    font-size: 1.5rem;
+  }
+
+  .text_button button,
+  .text_button a {
+    line-height: 2rem;
+  }
+}

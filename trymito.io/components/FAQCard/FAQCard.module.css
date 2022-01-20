@@ -1,0 +1,40 @@
+.faq_card_container {
+    /* 
+        Reduce the padding so we can increase the size of the header to 
+        make it easily clickable w/o making it look rediculous
+    */
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.faq_card_container + .faq_card_container {
+    margin-top: 3rem;
+}
+
+.header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    /* Set a large height so make the div easily clickable to open/close the FAQ */
+    height: 40px;
+    cursor: pointer;
+}
+
+.faq_card_container h1 {
+    font-size: 2rem;
+}
+
+.faq_card_container p:first-of-type {
+    margin-top: 0;
+}
+
+@media only screen and (min-width: 50em) { 
+    .faq_card_container {
+        max-width: 70rem;
+    }
+
+    .header {
+        height: 70px;
+    }
+}

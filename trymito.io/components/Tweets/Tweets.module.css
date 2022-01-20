@@ -1,0 +1,75 @@
+.tweets_container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    text-overflow: hidden;
+    /* 
+        Define the height so the page does not move as 
+        longer/shorter tweets are displayed
+    */
+    height: 40rem;
+}
+
+.tweet_card {
+    display: flex;
+    flex-direction: column;
+    max-width: 90vw;
+
+    margin-top: 5rem;
+    padding: 5rem;
+    border-radius: 3rem;
+    background-color: var(--color-light-background);
+}
+
+.tweet_card + .tweet_card {
+    margin-left: 2rem;
+}
+
+.tweet_header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tweet_header_left {
+    display: flex;
+    flex-direction: row;
+}
+
+.tweet_header p {
+    margin-top: 0;
+    margin-left: 10px;
+}
+
+.tweet_username {
+    font-style: medium;
+    font-weight: 500;
+    color: var(--color-text-primary)
+}
+
+@media only screen and (min-width: 50em) {
+
+    .tweets_container {
+        /* 
+            Define the height so the page does not move as 
+            longer/shorter tweets are displayed
+        */
+        height: 25rem;
+    }
+
+    .tweets_container p {
+        font-size: 1.125rem;
+    }
+
+    .tweet_card {
+        min-width: 28rem;
+        max-width: 30vw;
+        padding: 2rem;
+    }
+    
+    .tweet_card {
+        min-width: 28rem;
+    }
+}
+

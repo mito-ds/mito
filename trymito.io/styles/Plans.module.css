@@ -1,0 +1,60 @@
+.plan_card {
+    display: flex;
+    flex-direction: column;
+    /* When we scroll to a plan card, make sure its not cutoff by the header */
+    scroll-margin-top: 7rem; 
+}
+
+.plan_card + .plan_card {
+    margin-top: 8rem;
+}
+
+.price_text {
+    color: var(--color-text-primary);
+    font-size: 3rem;
+}
+
+.features_in_text {
+    margin-right: 20px;
+}
+
+.plan_cta {
+    margin-top: 3rem;
+}
+
+/*
+    To make sure that there is room for the plan cards, 
+    we use 55rem as the breakpoint instead of 50rem, like 
+    most of the rest of the website uses.  
+*/
+@media only screen and (min-width: 60em) {
+    .plan_cards {
+        max-width: 85rem; /* Must be the max-width of the plan_card * 3 + 10 */
+        flex-direction: row;
+        justify-content: space-evenly;
+        flex: 1;
+    }
+
+    .plan_card + .plan_card {
+        margin-top: 0;
+        margin-left: 1rem;
+    }
+
+    .plan_card {
+        max-width: 25rem;
+    }
+
+    .price_text {
+        font-size: 2rem;
+    }
+
+    .plan_description {
+        height: 3rem;
+        font-size: 1rem;
+    }
+    
+    .plan_cards h1 {
+        font-size: 2.5rem;
+    }
+}
+

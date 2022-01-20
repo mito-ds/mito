@@ -1,0 +1,29 @@
+.github_button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: var(--color-light-background);
+    border-radius: 10px;
+    margin-right: 10px;
+    padding: 0 10px;
+    height: 35px;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.github_button:hover {
+    background-color: var(--color-light-background-accent)
+}
+
+.github_button p {
+    margin-top: 0;
+    margin-left: 1rem;
+    font-size: 1.6rem;
+}  
+
+@media only screen and (min-width: 50em) { 
+    .github_button p {
+        margin-left: .5rem;
+        font-size: .8rem;
+    }
+}

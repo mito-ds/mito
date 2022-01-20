@@ -1,0 +1,244 @@
+:root {
+  --color-background: #2D2D2D;
+  --color-light-background: #363637; 
+  --color-light-background-accent: #3a3a3a; 
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #D0D0D0;
+  --color-text-highlight: #9D6CFF; 
+  --color-text-highlight-light: #ac84fc; 
+
+  --color-text-gradient: linear-gradient(180deg, #9D6CFF 0.63%, rgba(157, 108, 255, 0.39) 100%);
+  --color-twitter-blue: #479BE9;
+  
+  --color-video-background: #725F98;
+  --color-video-border: #7D68A8;
+
+  --mito-light-blue: #E8EBF8;
+  --mito-gray: #494650;
+
+  /* 
+    We can't currently use css variables in media queries unforuntetly! 
+    See here: https://bholmes.dev/blog/alternative-to-css-variable-media-queries/
+
+    So we leave documentation here to say that the breakpoint used in this project
+    to swtich between mobile and desktop views is 50rem. It should be used everywhere!
+  */
+}
+
+/* 
+  Import Graphik Font
+*/
+
+@font-face {
+  font-family: "Graphik";
+  src: url("/fonts/Graphik/GraphikRegular.otf");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Graphik";
+  src: url("/fonts/Graphik/GraphikMedium.otf");
+  font-style: medium;
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Graphik";
+  src: url("/fonts/Graphik/GraphikSemibold.otf");
+  font-style: semibold;
+  font-weight: 500;
+  font-display: swap;
+}
+
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  background-color: var(--color-background);
+  font-size: 8px;
+
+  /* 
+    We ensure that there is no horizontal scrolling, 
+    especially useful for the tweets section!
+  */
+  overflow-x: hidden;
+  width: 100vw;
+
+  /* 
+    Make clicking a link to navigate to another part of the page, 
+    a smooth scroll instead of jumping. This is nice for the plans FAQ 
+    that links back to the pro plan. 
+
+    However, adding this lead to behavior where using the navbar to 
+    switch between pages didn't start the new page at the top. See
+    here: https://stackoverflow.com/a/68769366/14993381
+
+    scroll-behavior: smooth;
+  */
+}
+
+/* Set default margin and padding to 0 */
+body,
+h1,
+h2,
+h3,
+p,
+ol,
+ul,
+li,
+a,
+button {
+  margin: 0;
+  padding: 0;
+  font-family: Graphik;
+}
+
+.img, .video {
+  display: block;
+  max-width: 100%;
+}
+
+section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+section + section {
+  margin-top: 10rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button {
+  border: none; 
+}
+
+h1 {
+  color: var(--color-text-primary);
+  font-size: 3.75rem;
+  font-family: Graphik;
+  font-style: semibold;
+}
+
+p, a {
+  font-size: 2rem;
+  line-height: 1.5;
+}
+
+p {
+  margin-top: 3rem;
+  color: var(--color-text-secondary);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  display: inline-block
+}
+
+.display-desktop-only-inline-block,
+.display-desktop-only-flex {
+  display: none !important;
+}
+
+.display-mobile-only {
+  display: flex !important;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@media only screen and (min-width: 50em) {
+  html,body {
+    font-size: 16px;
+  }
+
+  h1 {
+    font-size: 3rem;
+  }
+
+  p, a {
+    font-size: 1.375rem;
+    line-height: 1.25;
+  }
+
+  p {
+    margin-top: 2rem;
+  }
+
+  section + section {
+    margin-top: 8rem;
+  }
+
+  .display-desktop-only-inline-block {
+    display: inline-block !important;
+  }
+
+  .display-desktop-only-flex {
+    display: flex !important;
+  }
+
+  .display-mobile-only {
+    display: none !important;
+  }
+
+}
+
+.center {
+  text-align: center;
+}
+
+.vertical-center {
+  display: flex;
+  align-items: center;
+}
+
+/* 
+  Text styles
+*/
+
+.text-nav {
+  color: var(--color-text-primary);
+  font-size: 1.25rem;
+}
+
+.text-nav:hover {
+  color: var(--color-text-highlight);
+}
+
+.text-highlight {
+  color: var(--color-text-highlight)
+}
+
+.text-primary {
+  color: var(--color-text-primary);
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.text-dark {
+  color: var(--color-background);
+}
+
+.text-twitter-blue {
+  color: var(--color-twitter-blue)
+}
+
+
