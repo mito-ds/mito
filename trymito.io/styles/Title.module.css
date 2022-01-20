@@ -7,6 +7,8 @@
     background-image: url('../public/BackgroundGrid.svg');
     background-size: contain;
     --aspect-ratio: 2.8;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 .title {
