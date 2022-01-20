@@ -314,7 +314,7 @@ const Plans: NextPage = () => {
                   </PlanBullet>
                   <PlanBullet>
                     <p>
-                      Onboarding Program
+                      Onboarding program
                     </p>
                   </PlanBullet>
                   <PlanBullet>
