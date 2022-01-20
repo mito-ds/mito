@@ -32,6 +32,8 @@ Nobody is perfect when they are writing code, least of all us. That being said, 
 - Test your code before submitting it. Even the smallest changes can have unexpected consequences, so make sure you verify that the changes you make do what you want them to.
 - Write good commit messages. We're not super picky here, but try and stick to the format "Area changed: change that was made". A good commit message looks like "Pivot: removed limitation where using a column in multiple sections caused errors". A bad commit message looks like "fix bug".
 - Match the style of the surrounding code. We're working on a more helpful style guide currently!
+- Make sure all tests are passing on your PR. We like to review PRs that have all tests passing :-)
+- 
 
 **Don't:**
 - Touch pieces of the code outside the scope of the PR.
@@ -40,8 +42,16 @@ Nobody is perfect when they are writing code, least of all us. That being said, 
 
 ## Pull Request Q&A
 
-**Coming soon**
+### I've submitted a PR and it passes CI. When can I expect to get some review feedback?
 
-## Code of Conduct
+We aim to review all outstanding PRs within the week they are posted, and will do our best to get to them quicker if possible. If a week has passed without any feedback, consider posting in our Discord!
+
+### Who maintains Mito?
+
+This repo is maintained by [@naterush](https://github.com/naterush) and [@aarondr77](https://github.com/aarondr77), on behalf of [Mito](https://trymito.io) (the company). Being a maintainer is by invitation only, from the Mito company.
+
+We also thank the maintainers of [SerenityOS](https://github.com/SerenityOS/serenity/blob/master/CONTRIBUTING.md) for their help; these documents are heavily inspired by theirs!
+
+## Contributor Agreement
 
 **Coming soon**
