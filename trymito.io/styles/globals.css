@@ -153,6 +153,10 @@ a {
   display: flex !important;
 }
 
+.display-mobile-only-block {
+  display: block !important;
+}
+
 .flex-row {
   display: flex;
   flex-direction: row;
@@ -193,7 +197,8 @@ a {
     display: flex !important;
   }
 
-  .display-mobile-only {
+  .display-mobile-only,
+  .display-mobile-only-block {
     display: none !important;
   }
 

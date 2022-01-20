@@ -68,13 +68,13 @@ const Home: NextPage = () => {
                 </a>
               </div>
               <div className={homeStyles.functionality_media}>
-                <Image src={'/explore.png'} alt='pandas logo' width={500} height={250} layout='responsive'/>
+                <Image src={'/explore.png'} alt='Explore your data with Mito' width={500} height={250} layout='responsive'/>
               </div>
             </div>
 
             <div className={pageStyles.subsection}>
               <div className={homeStyles.functionality_media + ' display-desktop-only-inline-block'}>
-                <Image src={'/transform.png'} alt='pandas logo' width={500} height={250} layout='responsive'/>
+                <Image src={'/transform.png'} alt='Use Mito to transform your data' width={500} height={250} layout='responsive'/>
               </div>
               <div className={homeStyles.functionality_text}>
                 <h1>
@@ -94,8 +94,8 @@ const Home: NextPage = () => {
                   Learn More →
                 </a>
               </div>
-              <div className={homeStyles.functionality_media + ' display-mobile-only'}>
-                Big Block
+              <div className={homeStyles.functionality_media + ' display-mobile-only-block'}>
+                <Image src={'/transform.png'} alt='Use Mito to transform your data' width={500} height={250} layout='responsive'/>
               </div>
             </div>
 
@@ -119,7 +119,7 @@ const Home: NextPage = () => {
                 </a>
               </div>
               <div className={homeStyles.functionality_media}>
-                <Image src={'/automate.png'} alt='pandas logo' width={500} height={250} layout='responsive'/>
+                <Image src={'/automate.png'} alt='Automate analysis with Mito' width={500} height={250} layout='responsive'/>
               </div>
             </div>
             
