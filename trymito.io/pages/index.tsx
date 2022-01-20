@@ -43,7 +43,7 @@ const Home: NextPage = () => {
               
             <div id='video'>
               <video autoPlay loop controls className={homeStyles.video}>
-                <source src="/test.mp4" />
+                <source src="/demo.mp4" />
               </video>
             </div>
           </section>
@@ -69,13 +69,13 @@ const Home: NextPage = () => {
                 </a>
               </div>
               <div className={homeStyles.functionality_media}>
-                Big Block
+                <Image src={'/explore.png'} alt='Explore your data with Mito' width={500} height={250} layout='responsive'/>
               </div>
             </div>
 
             <div className={pageStyles.subsection}>
               <div className={homeStyles.functionality_media + ' display-desktop-only-inline-block'}>
-                Big Block
+                <Image src={'/transform.png'} alt='Use Mito to transform your data' width={500} height={250} layout='responsive'/>
               </div>
               <div className={homeStyles.functionality_text}>
                 <h1>
@@ -95,8 +95,8 @@ const Home: NextPage = () => {
                   Learn More →
                 </a>
               </div>
-              <div className={homeStyles.functionality_media + ' display-mobile-only'}>
-                Big Block
+              <div className={homeStyles.functionality_media + ' display-mobile-only-block'}>
+                <Image src={'/transform.png'} alt='Use Mito to transform your data' width={500} height={250} layout='responsive'/>
               </div>
             </div>
 
@@ -120,7 +120,7 @@ const Home: NextPage = () => {
                 </a>
               </div>
               <div className={homeStyles.functionality_media}>
-                Big Block
+                <Image src={'/automate.png'} alt='Automate analysis with Mito' width={500} height={250} layout='responsive'/>
               </div>
             </div>
             

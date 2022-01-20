@@ -11,10 +11,10 @@
 }
 
 .functionality_media {
+  height: min-content;
+  display: block;
   margin-top: 3rem;
-  background: linear-gradient(98.53deg, rgba(157, 108, 255, 0.2) -10.41%, rgba(157, 108, 255, 0.05) 28.96%, rgba(157, 108, 255, 0.2) 60.31%, rgba(157, 108, 255, 0.05) 115.15%);
-  height: 20rem;
-  border-radius: 5px;
+  margin-bottom: 10rem;
 }
 
 .metrics_container {
