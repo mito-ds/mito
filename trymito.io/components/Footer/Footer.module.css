@@ -59,9 +59,9 @@
     }
 
     .footer_container ol, 
-    .footer_container li,
+    .footer_container li a,
     .footer_container p  {
-        font-size: 1rem;
+        font-size: 1.5rem;
     }
 
     .site_map_container {

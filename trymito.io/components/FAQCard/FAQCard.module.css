@@ -5,10 +5,11 @@
     */
     padding-top: 1rem;
     padding-bottom: 1rem;
-}
-
-.faq_card_container + .faq_card_container {
     margin-top: 3rem;
+
+    /* When we scroll to a card, make sure its not cutoff by the header */
+    scroll-margin-top: 7rem; 
+
 }
 
 .header {

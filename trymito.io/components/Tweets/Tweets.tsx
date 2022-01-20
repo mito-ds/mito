@@ -42,25 +42,25 @@ const tweetData: Tweet[] = [
         imageSrc: PaigeTwitterProfilePicture,
         username: '👩‍💻 Paige Bailey #BlackLivesMatter',
         handle: '@DynamicWebPaige',
-        text: <p>😮 Oh, wow - this is also rad: make changes to a spreadsheet with <span className='text-twitter-blue'>@TryMito</span>, and generate Python equivalent functions:</p>
+        text: <p>😮 <b className='text-primary'>Oh, wow - this is also rad</b>: make changes to a spreadsheet with <span className='text-twitter-blue'>@TryMito</span>, and generate Python equivalent functions:</p>
     },
     {
         imageSrc: IsaacTwitterProfilePicture,
         username: 'Isaac🚀',
         handle: '@isaacayz',
-        text: <p>Okay, just learning about <span className='text-twitter-blue'>#mitosheet</span> and I must say that library is SICK! 😲 </p>
+        text: <p>Okay, just learning about <span className='text-twitter-blue'>#mitosheet</span> and I must say <b className='text-primary'>that library is SICK!</b> 😲 </p>
     },
     {
         imageSrc: RobTwitterProfilePicture,
         username: 'Rob Riedlinger',
         handle: '@creativerob',
-        text: <p>Just had my mind blown by <span className='text-twitter-blue'>@tryMito</span>. What an incredible product! <span className='text-twitter-blue'> #DataAnalytics #DataScience </span> Like its name suggests... Mito is going to empower the data world as we know it.</p>
+        text: <p><b className='text-primary'>Just had my mind blown</b> by <span className='text-twitter-blue'>@tryMito</span>. What an incredible product! <span className='text-twitter-blue'> #DataAnalytics #DataScience </span> Like its name suggests... Mito is going to empower the data world as we know it.</p>
     },
     {
         imageSrc: UnkownTwitterProfilePicture,
         username: 'Matt Blome',
         handle: '@mattblome',
-        text: <p>You guys are implementing new and useful features at lightning speed! So glad to have the opportunity to work with you all, keep up the good work!!</p>
+        text: <p><b className='text-primary'>You guys are implementing new and useful features at lightning speed!</b> So glad to have the opportunity to work with you all, keep up the good work!!</p>
     },   
 ]
 

@@ -5,7 +5,7 @@ import { useState } from "react"
 import stylesHeader from './Header.module.css'
 import CloseButton from '../../public/CloseButton.png'
 import TranslucentButton from "../TranslucentButton/TranslucentButton"
-import GithubButton from "../GithubButton/GithubButton"
+import GithubButton, { MITO_GITHUB_LINK } from "../GithubButton/GithubButton"
 
 
 const Header = (): JSX.Element => {
@@ -93,7 +93,7 @@ const Header = (): JSX.Element => {
                   <a href='https://docs.trymito.io' target="_blank" rel="noreferrer">Docs</a>
                 </li>
                 <li className='text-nav'>
-                  <a href='https://github.com' target="_blank" rel="noreferrer">GitHub</a>
+                  <a href={MITO_GITHUB_LINK} target="_blank" rel="noreferrer">GitHub</a>
                 </li>
               </ul>
             </nav>

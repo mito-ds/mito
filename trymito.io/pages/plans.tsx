@@ -17,11 +17,12 @@ import CTACard from '../components/CTACard/CTACard'
 import TextButton from '../components/TextButton/TextButton'
 
 /* 
-  Label used to identify the Pro plan from the faq, so we can scroll to it.
+  Labels used to scroll to specific location of the page
 */
-const PRO_PLAN_ID = "PRO_PLAN"
+const PRO_PLAN_ID = "pro-plan"
+const PRIVATE_TELEMTRY_FAQ_ID = 'private-telemetry-faq'
 
-type PlanType = 'Starter' | 'Pro' | 'Enterprise'
+type PlanType = 'Open Source' | 'Pro' | 'Enterprise'
 interface PlanFeatures {
   'Integration': Record<PlanType, string>,
   'JupyterLab 2 & 3': Record<PlanType, boolean>,
@@ -41,9 +42,9 @@ interface PlanFeatures {
   'Deduplication': Record<PlanType, boolean>,
   'Privacy': Record<PlanType, string>,
   'Local Extension': Record<PlanType, boolean>,
-  'Turn off telemetry': Record<PlanType, boolean>,
+  'Turn off Telemetry': Record<PlanType, boolean>,
   'Support': Record<PlanType, string>,
-  'Customer support': Record<PlanType, boolean>,
+  'Customer Support': Record<PlanType, boolean>,
   'Success Manager': Record<PlanType, boolean>,
   'Onboarding Program': Record<PlanType, boolean>,
   'Custom Features': Record<PlanType, boolean>,
@@ -52,133 +53,137 @@ interface PlanFeatures {
 
 const planFeatures: PlanFeatures = {
   'Integration': {
-    'Starter': 'Starter',
+    'Open Source': 'Open Source',
     'Pro': 'Pro',
     'Enterprise': 'Enterprise' 
   },
   'JupyterLab 2 & 3': {
-    'Starter': true,
+    'Open Source': true,
     'Pro': true,
     'Enterprise': true 
   },
   'CSV, XLSX Import': {
-    'Starter': true,
+    'Open Source': true,
     'Pro': true,
     'Enterprise': true 
   },
   'Dataframe Import': {
-    'Starter': true,
+    'Open Source': true,
     'Pro': true,
     'Enterprise': true 
   },
   'Exploration': {
-    'Starter': 'Starter',
+    'Open Source': 'Open Source',
     'Pro': 'Pro',
     'Enterprise': 'Enterprise' 
   },
   'Plotly Graph Generation': {
-    'Starter': true,
+    'Open Source': true,
     'Pro': true,
     'Enterprise': true 
   },
   'Summary Statistics': {
-    'Starter': true,
+    'Open Source': true,
     'Pro': true,
     'Enterprise': true 
   },
   'Search Functionality': {
-    'Starter': true,
+    'Open Source': true,
     'Pro': true,
     'Enterprise': true 
   },
   'Transformation': {
-    'Starter': 'Starter',
+    'Open Source': 'Open Source',
     'Pro': 'Pro',
     'Enterprise': 'Enterprise' 
   },
   'Pivot Tables': {
-    'Starter': true,
+    'Open Source': true,
     'Pro': true,
     'Enterprise': true 
   },
   'Filtering and Sorting': {
-    'Starter': true,
+    'Open Source': true,
     'Pro': true,
     'Enterprise': true 
   },
   'Merge (Lookups)': {
-    'Starter': true,
+    'Open Source': true,
     'Pro': true,
     'Enterprise': true 
   },
   'Type Handling': {
-    'Starter': true,
+    'Open Source': true,
     'Pro': true,
     'Enterprise': true 
   },
   'Add/Remove Columns': {
-    'Starter': true,
+    'Open Source': true,
     'Pro': true,
     'Enterprise': true 
   },
   'Excel-Style Formulas': {
-    'Starter': true,
+    'Open Source': true,
     'Pro': true,
     'Enterprise': true 
   },
   'Deduplication': {
-    'Starter': true,
+    'Open Source': true,
     'Pro': true,
     'Enterprise': true 
   },
   'Privacy': {
-    'Starter': 'Starter',
+    'Open Source': 'Open Source',
     'Pro': 'Pro',
     'Enterprise': 'Enterprise' 
   },
   'Local Extension': {
-    'Starter': true,
+    'Open Source': true,
     'Pro': true,
     'Enterprise': true 
   },
-  'Turn off telemetry': {
-    'Starter': false,
+  'Turn off Telemetry': {
+    'Open Source': false,
     'Pro': true,
     'Enterprise': true 
   },
   'Support': {
-    'Starter': 'Starter',
+    'Open Source': 'Open Source',
     'Pro': 'Pro',
     'Enterprise': 'Enterprise' 
   },
-  'Customer support': {
-    'Starter': true,
+  'Customer Support': {
+    'Open Source': true,
     'Pro': true,
     'Enterprise': true 
   },
   'Success Manager': {
-    'Starter': false,
+    'Open Source': false,
     'Pro': true,
     'Enterprise': true 
   },
   'Onboarding Program': {
-    'Starter': false,
+    'Open Source': false,
     'Pro': false,
     'Enterprise': true 
   },
   'Custom Features': {
-    'Starter': false,
+    'Open Source': false,
     'Pro': false,
     'Enterprise': true 
   },
   'Custom Integration': {
-    'Starter': false,
+    'Open Source': false,
     'Pro': false,
     'Enterprise': true 
   },
 }
 
 
+// We keep track of the last features in each section as a bit of a hacky workaround
+// to not display the separator line in the plans feature grid
+// when the feature is the last feature in the section.
+const LAST_FEATURES_IN_SECTION = ['Custom Integration', 'Turn off Telemetry', 'Deduplication', 'Search Functionality', 'Dataframe Import']
 
 const Plans: NextPage = () => {
 
@@ -207,35 +212,37 @@ const Plans: NextPage = () => {
             </section>
             <section className={plansStyles.plan_cards}>
               <div className={plansStyles.plan_card + ' ' + pageStyles.background_card}>
-                <h1>
-                  Starter
+                <h1 className={plansStyles.plan_card_header}>
+                  Open Source
                 </h1>
                 <p className={plansStyles.price_text}>
                   $0
                 </p>
                 <p className={plansStyles.plan_description}>
-                  Perfect for solo data analytics for work or for fun.
+                  Perfect for solo data analytics for work or for fun. Includes <a href={'#' + PRIVATE_TELEMTRY_FAQ_ID} className={plansStyles.private_telemtry_link}> private telemetry</a>.
                 </p>
-                <PlanBullet>
-                  <p>
-                    Data exploration tools
-                  </p>
-                </PlanBullet>
-                <PlanBullet>
-                  <p>
-                    Data transformation tools
-                  </p>
-                </PlanBullet>
-                <PlanBullet>
-                  <p>
-                    Automatic code generation
-                  </p>
-                </PlanBullet>
-                <PlanBullet>
-                  <p>
-                    Customer support
-                  </p>
-                </PlanBullet>
+                <div className={plansStyles.plan_bullets_container}> 
+                  <PlanBullet>
+                    <p>
+                      Data exploration tools
+                    </p>
+                  </PlanBullet>
+                  <PlanBullet>
+                    <p>
+                      Data transformation tools
+                    </p>
+                  </PlanBullet>
+                  <PlanBullet>
+                    <p>
+                      Automatic code generation
+                    </p>
+                  </PlanBullet>
+                  <PlanBullet>
+                    <p>
+                      Customer support
+                    </p>
+                  </PlanBullet>
+                </div>
                 <div className={plansStyles.plan_cta}>
                   <TextButton 
                     text='Get Started'
@@ -245,7 +252,7 @@ const Plans: NextPage = () => {
               </div>
 
               <div className={plansStyles.plan_card + ' ' + pageStyles.gradient_card} id={PRO_PLAN_ID}>
-                <h1>
+                <h1 className={plansStyles.plan_card_header}>
                   Pro
                 </h1>
                 <p className={plansStyles.price_text}>
@@ -254,26 +261,28 @@ const Plans: NextPage = () => {
                 <p className={plansStyles.plan_description}>
                   Mito’s analysis tools, with no telemetry and advanced support.
                 </p>
-                <PlanBullet>
-                  <p>
-                    All of Starter: and:
-                  </p>
-                </PlanBullet>
-                <PlanBullet>
-                  <p>
-                    Turn off private telemetry
-                  </p>
-                </PlanBullet>
-                <PlanBullet>
-                  <p>
-                    Dedicated customer support
-                  </p>
-                </PlanBullet>
-                <PlanBullet>
-                  <p>
-                    Future Pro functionality
-                  </p>
-                </PlanBullet>
+                <div className={plansStyles.plan_bullets_container}> 
+                  <PlanBullet>
+                    <p>
+                      All of Open Source: and:
+                    </p>
+                  </PlanBullet>
+                  <PlanBullet>
+                    <p>
+                      Turn off private telemetry
+                    </p>
+                  </PlanBullet>
+                  <PlanBullet>
+                    <p>
+                      Dedicated customer support
+                    </p>
+                  </PlanBullet>
+                  <PlanBullet>
+                    <p>
+                      Future Pro functionality
+                    </p>
+                  </PlanBullet>
+                </div>
                 <div className={plansStyles.plan_cta}>
                   <TextButton 
                     text="Get Started"
@@ -283,7 +292,7 @@ const Plans: NextPage = () => {
               </div>
 
               <div className={plansStyles.plan_card + ' ' + pageStyles.background_card}>
-                <h1>
+                <h1 className={plansStyles.plan_card_header}>
                   Enterprise
                 </h1>
                 <p className={plansStyles.price_text}>
@@ -292,26 +301,29 @@ const Plans: NextPage = () => {
                 <p className={plansStyles.plan_description}>
                   Advanced support and integrations for teams.
                 </p>
-                <PlanBullet>
-                  <p>
-                    The power of Pro, and:
-                  </p>
-                </PlanBullet>
-                <PlanBullet>
-                  <p>
-                    Customer success manager
-                  </p>
-                </PlanBullet>
-                <PlanBullet>
-                  <p>
-                    Onboarding Program
-                  </p>
-                </PlanBullet>
-                <PlanBullet>
-                  <p>
-                    Custom integration
-                  </p>
-                </PlanBullet>
+                <div className={plansStyles.plan_bullets_container}> 
+                  <PlanBullet>
+                    <p>
+                      The power of Pro, and:
+                    </p>
+                  </PlanBullet>
+                  <PlanBullet>
+                    <p>
+                      Customer success manager
+                    </p>
+                  </PlanBullet>
+                  <PlanBullet>
+                    <p>
+                      Onboarding program
+                    </p>
+                  </PlanBullet>
+                  <PlanBullet>
+                    <p>
+                      Custom integration
+                    </p>
+                  </PlanBullet>
+                </div>
+                
                 <div className={plansStyles.plan_cta}>
                   <TextButton 
                     text='Contact Us'
@@ -339,8 +351,8 @@ const Plans: NextPage = () => {
                       closeDropdown={() => setDisplayDropdown(false)}
                     >
                       <DropdownItem 
-                        title='Starter'
-                        onClick={() => setMobilePlanDisplayed('Starter')}
+                        title='Open Source'
+                        onClick={() => setMobilePlanDisplayed('Open Source')}
                       />
                       <DropdownItem 
                         title='Pro'
@@ -363,25 +375,30 @@ const Plans: NextPage = () => {
                     key={idx}
                     rowLabel={key} 
                     featureRowContent={[value[mobilePlanDisplayed]]}
+                    lastFeature={LAST_FEATURES_IN_SECTION.includes(key)}
                   />
                 )
               })}
             </section>
-            <section className={pageStyles.suppress_section_margin_top + ' display-desktop-only-inline-block'}>
+            <section className={pageStyles.suppress_section_margin_top + ' ' + plansStyles.plan_feature_grid_container + ' display-desktop-only-inline-block'}>
               {Object.entries(planFeatures).map(([key, value], idx) => {
-                const values: string[] | boolean [] = [value['Starter'], value['Pro'], value['Enterprise']]
+                const values: string[] | boolean [] = [value['Open Source'], value['Pro'], value['Enterprise']]
                 return (
                   <FeatureRow 
                     key={idx}
                     rowLabel={key} 
                     featureRowContent={values}
+                    lastFeature={LAST_FEATURES_IN_SECTION.includes(key)}
                   />
                 )
               })}
             </section>
               
             <section>
-              <FAQCard title='What telemetry do we collect?'>
+              <h1>
+                Frequently Asked Questions
+              </h1>
+              <FAQCard title='What telemetry do we collect?' id={PRIVATE_TELEMTRY_FAQ_ID}>
                 <div>
                   <p>
                     We collect no information about your data. We never get access to the shape, size, color, or any other specific information about your private data, and we never will.

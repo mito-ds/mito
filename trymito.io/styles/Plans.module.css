@@ -1,10 +1,10 @@
 .plan_card {
     display: flex;
     flex-direction: column;
-    /* When we scroll to a plan card, make sure its not cutoff by the header */
+    /* When we scroll to a card, make sure its not cutoff by the header */
     scroll-margin-top: 7rem; 
 }
-
+    
 .plan_card + .plan_card {
     margin-top: 8rem;
 }
@@ -22,6 +22,10 @@
     margin-top: 3rem;
 }
 
+.private_telemtry_link {
+    text-decoration: underline;
+}
+
 /*
     To make sure that there is room for the plan cards, 
     we use 55rem as the breakpoint instead of 50rem, like 
@@ -35,26 +39,37 @@
         flex: 1;
     }
 
+    .plan_card {
+        max-width: 25rem;
+    }
+
     .plan_card + .plan_card {
         margin-top: 0;
         margin-left: 1rem;
     }
 
-    .plan_card {
-        max-width: 25rem;
+    .plan_card_header {
+        height: 6rem;
+        font-size: 2.5rem;
     }
-
+    
     .price_text {
         font-size: 2rem;
+        margin-top: 1rem;
     }
 
-    .plan_description {
+    .plan_description, 
+    .private_telemtry_link {
         height: 3rem;
         font-size: 1rem;
     }
+
+    .plan_bullets_container {
+        height: 12rem;
+        margin-top: 1rem;
+    }
     
-    .plan_cards h1 {
-        font-size: 2.5rem;
+    .plan_feature_grid_container {
+        max-width: 90rem;
     }
 }
-

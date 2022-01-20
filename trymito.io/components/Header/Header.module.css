@@ -28,7 +28,7 @@
     position: fixed;
     inset: 0 0 0 30%;
     z-index: 1000;
-    padding: 2rem 1rem;
+    padding: 2rem 2rem 2rem 6rem;
     background: var(--color-background);
 }
 
@@ -108,15 +108,13 @@
     }
 }
 
-@media only screen and (min-width: 65em) {
+@media only screen and (min-width: 80em) {
     /* 
-        We add an additional media query to change the spacing 
+        We add an additional media query to change the spacing of the
         left, center, and right nav bar in desktop mode. 
-
         When the screen gets big enough, we evenly space all three
         nav bar elements to ensure that the center nav var is always
         exactly in the middle of the screen. 
-
         When the screen is smaller than this, the center nav bar
         and right nav bar get too close together when the nav bar
         is centered in the middle of the screen. So if the screen
@@ -130,4 +128,3 @@
         flex: 1;
     }
 }
-
