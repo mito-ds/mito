@@ -1,2 +1,3 @@
-# monorepo
-All public Mito code lives here. Browse, provide feedback, and contribute if ya want :-}
+# Mito DS Monorepo
+
+All of [Mito's](https://trymito.io)'s public code lives here. 
