@@ -68,13 +68,13 @@ const Home: NextPage = () => {
                 </a>
               </div>
               <div className={homeStyles.functionality_media}>
-                Big Block
+                <Image src={'/explore.png'} alt='pandas logo' width={500} height={250} layout='responsive'/>
               </div>
             </div>
 
             <div className={pageStyles.subsection}>
               <div className={homeStyles.functionality_media + ' display-desktop-only-inline-block'}>
-                Big Block
+                <Image src={'/transform.png'} alt='pandas logo' width={500} height={250} layout='responsive'/>
               </div>
               <div className={homeStyles.functionality_text}>
                 <h1>
@@ -119,7 +119,7 @@ const Home: NextPage = () => {
                 </a>
               </div>
               <div className={homeStyles.functionality_media}>
-                Big Block
+                <Image src={'/automate.png'} alt='pandas logo' width={500} height={250} layout='responsive'/>
               </div>
             </div>
             
