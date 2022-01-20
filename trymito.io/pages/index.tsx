@@ -42,7 +42,7 @@ const Home: NextPage = () => {
               
             <div id='video'>
               <video autoPlay loop controls className={homeStyles.video}>
-                <source src="/test.mp4" />
+                <source src="/demo.mp4" />
               </video>
             </div>
           </section>
