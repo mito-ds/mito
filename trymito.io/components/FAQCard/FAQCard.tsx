@@ -7,7 +7,7 @@ import faqCardStyles from './FAQCard.module.css'
 import OpenFaq from '../../public/OpenFaq.png'
 import CloseFaq from '../../public/CloseFaq.png'
 
-const FAQCard = (props: {title: string, children: JSX.Element}): JSX.Element => {
+const FAQCard = (props: {title: string, children: JSX.Element, id?: string}): JSX.Element => {
 
     const [faqCardOpen, setFaqCardOpen] = useState<boolean>(false)
     const imageSrc = faqCardOpen ? CloseFaq : OpenFaq
@@ -17,6 +17,7 @@ const FAQCard = (props: {title: string, children: JSX.Element}): JSX.Element => 
     return (
         <div 
             className={pageStyles.background_card + ' ' + faqCardStyles.faq_card_container}
+            id={props.id}
         >
             <div 
                 className={faqCardStyles.header}

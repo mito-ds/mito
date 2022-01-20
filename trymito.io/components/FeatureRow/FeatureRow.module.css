@@ -1,10 +1,14 @@
 .feature_row_container {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
     align-items: center;
     height: 60px;
     width: 100%;
-    border-bottom: 2px solid var(--color-text-secondary);
+}
+
+.display_bottom_border {
+    border-bottom: 1px solid var(--color-text-secondary);
 }
 
 .feature_row_container p {
@@ -16,7 +20,10 @@
 }
 
 .feature_row_content {
-    flex: 1;
+    flex: 1
+}
+.row_label {
+    flex: 1.5;
 }
 
 /*
@@ -34,15 +41,32 @@ feture_row_containers that are followed directly by something else
 
 .row_label {
     width: 75%;
-    margin-left: 6vw;
+    margin-left: 2rem;
 }
 
+.feature_row_content {
+    text-align: end;
+    margin-right: 8rem;
+}
+
+
 @media only screen and (min-width: 50em) {
-    .row_label {
-        width: 40%;
-    }
 
     .section_header {
         margin-top: 4rem;
+    }
+
+    .row_label {
+        max-width: 20rem;
+    }
+
+    .row_label,
+    .row_label + .feature_row_content  {
+        margin-left: 2rem;
+    }
+    
+    .feature_row_content {
+        text-align: start;
+        margin-right: 0;
     }
 }

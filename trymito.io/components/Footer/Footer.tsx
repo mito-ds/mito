@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from "next/image"
 import footerStyle from './Footer.module.css'
+import { MITO_GITHUB_LINK } from '../GithubButton/GithubButton';
 
 const Footer = (): JSX.Element => {
 
@@ -28,7 +29,7 @@ const Footer = (): JSX.Element => {
                         Product
                     </ol>
                     <li className='text-nav'>
-                        <a href='https://docs.trymito.io' target="_blank" rel="noreferrer">GitHub</a>
+                        <a href={MITO_GITHUB_LINK} target="_blank" rel="noreferrer">GitHub</a>
                     </li>
                     <li className='text-nav'>
                         <a href='https://docs.trymito.io/getting-started/installing-mito' target="_blank" rel="noreferrer">Install</a>
@@ -37,7 +38,7 @@ const Footer = (): JSX.Element => {
                         <Link href='/security'>Security</Link>
                     </li>
                     <li className='text-nav'>
-                        <a href='https://docs.trymito.io' target="_blank" rel="noreferrer">Support</a>
+                        <a href='https://discord.gg/XdJSZyejJU' target="_blank" rel="noreferrer">Support</a>
                     </li>
                 </div>
                 <div className='flex-column'>
@@ -61,9 +62,6 @@ const Footer = (): JSX.Element => {
                     <ol>
                         Company
                     </ol>
-                    <li className='text-nav'>
-                        <a href='https://docs.trymito.io' target="_blank" rel="noreferrer">About</a>
-                    </li>
                     <li className='text-nav'>
                         <a href='https://trymito.notion.site/Jobs-Mito-f7becf2466044c6199866addfbf45cba' target="_blank" rel="noreferrer">Jobs</a>
                     </li>

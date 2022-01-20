@@ -10,6 +10,7 @@ import pageStyles from '../styles/Page.module.css'
 import titleStyles from '../styles/Title.module.css'
 import CTAButtons from '../components/CTAButtons/CTAButtons';
 import GithubButton from '../components/GithubButton/GithubButton';
+import Link from 'next/link';
 
 const Home: NextPage = () => {
 
@@ -136,7 +137,7 @@ const Home: NextPage = () => {
             </div>
             <div className={homeStyles.metric_container}>
               <h1 className={homeStyles.gradient_text}>
-                1M
+                1M+
               </h1>
               <p className={homeStyles.metrics_label}>
                 Lines of Code Generated
@@ -176,8 +177,12 @@ const Home: NextPage = () => {
                 </h1>
               </div>
               <div className={pageStyles.subsection + ' ' + homeStyles.open_source_section_logos}>
-                <Image src={'/jupyter_main_logo.svg'} alt='jupyter logo' width={200} height={200}/>
-                <Image src={'/pandas_secondary_white.svg'} alt='pandas logo' width={200} height={200}/>
+                <a className={homeStyles.open_source_section_logo_container} href='https://numfocus.org/donate-to-jupyter' target='_blank' rel="noreferrer">
+                  <Image src={'/jupyter_main_logo.svg'} alt='jupyter logo' width={200} height={200}/>
+                </a>
+                <a className={homeStyles.open_source_section_logo_container} href='https://numfocus.org/donate-to-pandas' target='_blank' rel="noreferrer">
+                  <Image src={'/pandas_secondary_white.svg'} alt='pandas logo' width={200} height={200}/>
+                </a>
               </div>
           </section>
 

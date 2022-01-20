@@ -6,12 +6,13 @@ import FeatureIncludedDot from '../../public/FeatureIncludedDot.png'
 import FeatureNotIncludedDot from '../../public/FeatureNotIncludedDot.png'
 
 
-const FeatureRow = (props: {rowLabel: string, featureRowContent: boolean[] | string[]}): JSX.Element => {
+const FeatureRow = (props: {rowLabel: string, featureRowContent: boolean[] | string[], lastFeature: boolean}): JSX.Element => {
     const typeOfFeatureRow = typeof props.featureRowContent[0] === 'boolean' ? 'Feature' : 'Label'
-
+    const displayBottomBorderClass = props.lastFeature ? '' : featureRowStyles.display_bottom_border
+ 
     if (typeOfFeatureRow === 'Feature') {
         return (
-            <div className={featureRowStyles.feature_row_container}> 
+            <div className={featureRowStyles.feature_row_container + ' ' + displayBottomBorderClass}> 
                 <p className={featureRowStyles.row_label}>
                     {props.rowLabel}
                 </p>
@@ -34,7 +35,7 @@ const FeatureRow = (props: {rowLabel: string, featureRowContent: boolean[] | str
         )
     } else {
         return (
-            <div className={featureRowStyles.feature_row_container + ' ' + featureRowStyles.section_header}> 
+            <div className={featureRowStyles.feature_row_container + ' ' + displayBottomBorderClass + ' ' + featureRowStyles.section_header}> 
                 <p className={featureRowStyles.row_label}>
                     {props.rowLabel}
                 </p>

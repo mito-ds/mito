@@ -1,10 +1,10 @@
 .plan_card {
     display: flex;
     flex-direction: column;
-    /* When we scroll to a plan card, make sure its not cutoff by the header */
+    /* When we scroll to a card, make sure its not cutoff by the header */
     scroll-margin-top: 7rem; 
 }
-
+    
 .plan_card + .plan_card {
     margin-top: 8rem;
 }
@@ -20,6 +20,10 @@
 
 .plan_cta {
     margin-top: 3rem;
+}
+
+.private_telemtry_link {
+    text-decoration: underline;
 }
 
 /*
@@ -48,7 +52,8 @@
         font-size: 2rem;
     }
 
-    .plan_description {
+    .plan_description, 
+    .private_telemtry_link {
         height: 3rem;
         font-size: 1rem;
     }
@@ -56,5 +61,8 @@
     .plan_cards h1 {
         font-size: 2.5rem;
     }
-}
 
+    .plan_feature_grid_container {
+        max-width: 90rem;
+    }
+}

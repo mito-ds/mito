@@ -18,6 +18,7 @@ import SecurityIcon from '../public/security/SecurityIcon.svg'
 import BackgroundGrid from '../public/BackgroundGrid.svg'
 import BackgroundGridPng from '../public/Mask Group.png'
 import CTACard from '../components/CTACard/CTACard';
+import { MITO_GITHUB_LINK } from '../components/GithubButton/GithubButton';
 
 const Security: NextPage = () => {
 
@@ -65,7 +66,7 @@ const Security: NextPage = () => {
                 <p>
                   If you want to see the code that’s running on your computer, you can. Mito is dedicated to building in public. 
                 </p>
-                <a className={pageStyles.link_with_p_tag_margins} href='https://github.com/' rel="noreferrer" target='_blank'>
+                <a className={pageStyles.link_with_p_tag_margins} href={MITO_GITHUB_LINK} rel="noreferrer" target='_blank'>
                   See our Github →
                 </a>
               </div>
@@ -81,9 +82,11 @@ const Security: NextPage = () => {
                 <p>
                   We don’t see any of your data or metadata. Mito collects basic telemetry to improve our functionality.
                 </p>
-                <a className={pageStyles.link_with_p_tag_margins} href='https://privacy.trymito.io/privacy-policy' rel="noreferrer" target='_blank'>
-                  Learn about our private telemetry TODO: link → 
-                </a>
+                <Link href='/plans#private-telemetry-faq'>
+                  <a className={pageStyles.link_with_p_tag_margins}>
+                    Learn about our private telemetry → 
+                  </a>
+                </Link>
               </div>
               <div className={securityStyles.security_bullet_container + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
                 <div className={securityStyles.icon}>

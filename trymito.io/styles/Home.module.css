@@ -98,12 +98,19 @@
     width: 40vw !important;
     height: 100%;
     margin-left: 10vw;
+    text-align: left;
   }
 
   .open_source_section_logos {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     justify-content: space-evenly;
     margin-top: 0 !important;
+    max-width: 500px;
+  }
+
+  .open_source_section_logo_container {
+    text-align: center;
   }
 }
