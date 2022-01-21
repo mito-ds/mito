@@ -110,6 +110,7 @@
     justify-items: center;
     margin-top: 0 !important;
     max-width: 500px;
+    width: 100%;
   }
 
   .open_source_section_logo_container {
