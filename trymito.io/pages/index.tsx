@@ -42,7 +42,7 @@ const Home: NextPage = () => {
               </div>
               
             <div id='video'>
-              <video className={homeStyles.video} autoPlay loop controls disablePictureInPicture>
+              <video className={homeStyles.video} autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>
                 <source src="/demo.mp4" />
               </video>
             </div>
@@ -119,7 +119,7 @@ const Home: NextPage = () => {
                   Learn More →
                 </a>
               </div>
-              <div className={homeStyles.functionality_media}>
+              <div className={homeStyles.functionality_media + ' ' + homeStyles.functionality_media_supress_bottom_margin}>
                 <Image src={'/automate.png'} alt='Automate analysis with Mito' width={500} height={250} layout='responsive'/>
               </div>
             </div>
@@ -129,7 +129,7 @@ const Home: NextPage = () => {
           <section className={pageStyles.background_card + ' ' + homeStyles.metrics_container}>
             <div className={homeStyles.metric_container}>
               <h1 className={homeStyles.gradient_text}>
-                10,000+
+                20,000+
               </h1>
               <p className={homeStyles.metrics_label}>
                 Mito users

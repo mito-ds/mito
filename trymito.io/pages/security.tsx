@@ -15,8 +15,6 @@ import TelemetryIcon from '../public/security/TelemetryIcon.svg'
 import CCPAIcon from '../public/security/CCPAIcon.svg'
 import UpgradesIcon from '../public/security/UpgradesIcon.svg'
 import SecurityIcon from '../public/security/SecurityIcon.svg'
-import BackgroundGrid from '../public/BackgroundGrid.svg'
-import BackgroundGridPng from '../public/Mask Group.png'
 import CTACard from '../components/CTACard/CTACard';
 import { MITO_GITHUB_LINK } from '../components/GithubButton/GithubButton';
 

@@ -17,6 +17,10 @@
   margin-bottom: 10rem;
 }
 
+.functionality_media_supress_bottom_margin {
+  margin-bottom: 0rem;
+}
+
 .metrics_container {
   display: flex;
   flex-direction: column;
@@ -54,6 +58,16 @@
 }
 
 .open_source_section_logos {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+  justify-items: center;
+  width: 100%;
+}
+
+.open_source_section_logos {
   margin-top: 8rem !important;
 }
 
@@ -63,7 +77,7 @@
   .video {
     max-width: 85vw;
     max-height: 40rem;
-    padding: 1rem 1rem; 
+    padding: .5rem .5rem; 
   }
 
   .functionality_text {
@@ -102,12 +116,7 @@
   }
 
   .open_source_section_logos {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
     margin-top: 0 !important;
-    max-width: 500px;
   }
 
   .open_source_section_logo_container {
