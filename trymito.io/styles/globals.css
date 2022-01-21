@@ -110,7 +110,7 @@ section {
 }
 
 section + section {
-  margin-top: 10rem;
+  margin-top: 15rem;
 }
 
 * {
@@ -186,7 +186,7 @@ a {
   }
 
   section + section {
-    margin-top: 8rem;
+    margin-top: 10rem;
   }
 
   .display-desktop-only-inline-block {

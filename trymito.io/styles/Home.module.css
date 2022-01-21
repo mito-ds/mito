@@ -17,6 +17,10 @@
   margin-bottom: 10rem;
 }
 
+.functionality_media_supress_bottom_margin {
+  margin-bottom: 0rem;
+}
+
 .metrics_container {
   display: flex;
   flex-direction: column;
@@ -51,6 +55,16 @@
 
 .tweet_section_header button {
   margin-top: 2rem;
+}
+
+.open_source_section_logos {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+  justify-items: center;
+  width: 100%;
 }
 
 .open_source_section_logos {
@@ -102,14 +116,7 @@
   }
 
   .open_source_section_logos {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    align-items: center;
-    justify-items: center;
     margin-top: 0 !important;
-    width: 100%;
   }
 
   .open_source_section_logo_container {

@@ -119,7 +119,7 @@ const Home: NextPage = () => {
                   Learn More →
                 </a>
               </div>
-              <div className={homeStyles.functionality_media}>
+              <div className={homeStyles.functionality_media + ' ' + homeStyles.functionality_media_supress_bottom_margin}>
                 <Image src={'/automate.png'} alt='Automate analysis with Mito' width={500} height={250} layout='responsive'/>
               </div>
             </div>
