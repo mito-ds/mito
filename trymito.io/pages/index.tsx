@@ -42,7 +42,7 @@ const Home: NextPage = () => {
               </div>
               
             <div id='video'>
-              <video className={homeStyles.video} autoPlay loop controls disablePictureInPicture playsInline>
+              <video className={homeStyles.video} autoPlay loop controls disablePictureInPicture playsInline webkit-playsinline="true" muted>
                 <source src="/demo.mp4" />
               </video>
             </div>

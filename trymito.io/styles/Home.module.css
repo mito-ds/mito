@@ -106,6 +106,7 @@
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: space-evenly;
+    align-items: center;
     margin-top: 0 !important;
     max-width: 500px;
   }
