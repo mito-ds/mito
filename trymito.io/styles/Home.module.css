@@ -105,11 +105,10 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: space-evenly;
+    justify-content: space-around;
     align-items: center;
     justify-items: center;
     margin-top: 0 !important;
-    max-width: 500px;
     width: 100%;
   }
 
