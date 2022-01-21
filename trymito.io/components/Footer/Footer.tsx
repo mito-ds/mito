@@ -22,9 +22,11 @@ const Footer = (): JSX.Element => {
                 <p>
                     © Saga, Inc. 2021
                 </p>
-                <a className={pageStyle.link} href={"mailto:founders@sagacollab.com"}>
-                    founders@sagacollab.com
-                </a>
+                <div className={footerStyle.footer_link}>
+                    <a className={pageStyle.link} href={"mailto:founders@sagacollab.com"}>
+                        founders@sagacollab.com
+                    </a>
+                </div>
             </div>
             
             <div className={footerStyle.site_map_container}>
