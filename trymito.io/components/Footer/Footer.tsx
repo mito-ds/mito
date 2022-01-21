@@ -71,6 +71,9 @@ const Footer = (): JSX.Element => {
                     <li className='text-nav'>
                         <a href='https://www.youtube.com/channel/UCN9o_0m1fwCjigfIpnKr0oA/videos' target="_blank" rel="noreferrer">YouTube</a>
                     </li>
+                    <li className='text-nav'>
+                        <a href='https://discord.gg/XdJSZyejJU' target="_blank" rel="noreferrer">Contact</a>
+                    </li>
                 </div>
             </div>
         </footer>
