@@ -17,8 +17,6 @@ class MyDocument extends Document {
             {/* TODO: The favicon doesn't look too good, we should make some with the */}
             <link rel="icon" href="/favicons/favicon.ico" />
 
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
-
             <link
                 rel="preload"
                 href="/fonts/Graphik/GraphikRegular.otf"
