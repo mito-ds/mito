@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from "next/image"
 import footerStyle from './Footer.module.css'
+import pageStyle from '../../styles/Page.module.css'
 import { MITO_GITHUB_LINK } from '../GithubButton/GithubButton';
 
 const Footer = (): JSX.Element => {
@@ -21,6 +22,9 @@ const Footer = (): JSX.Element => {
                 <p>
                     © Saga, Inc. 2021
                 </p>
+                <a className={pageStyle.link} href={"mailto:founders@sagacollab.com"}>
+                    founders@sagacollab.com
+                </a>
             </div>
             
             <div className={footerStyle.site_map_container}>

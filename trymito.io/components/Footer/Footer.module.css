@@ -8,7 +8,8 @@
     margin-right: 2rem;
 }
 
-.footer_container p {
+.footer_container p,
+.footer_container a{
     margin-top: 1rem;
 }
 
