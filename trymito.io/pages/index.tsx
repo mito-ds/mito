@@ -42,7 +42,7 @@ const Home: NextPage = () => {
               </div>
               
             <div id='video'>
-              <video autoPlay loop controls className={homeStyles.video}>
+              <video className={homeStyles.video} autoPlay loop controls disablePictureInPicture>
                 <source src="/demo.mp4" />
               </video>
             </div>
