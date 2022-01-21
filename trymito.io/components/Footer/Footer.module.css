@@ -61,8 +61,9 @@
 
     .footer_container ol, 
     .footer_container li a,
-    .footer_container p  {
-        font-size: 1.5rem;
+    .footer_container p,
+    .footer_link a  {
+        font-size: 1rem;
     }
 
     .site_map_container {
@@ -71,6 +72,6 @@
 
     .footer_container ol + li,
     .footer_container li + li {
-        margin-top: 1rem;
+        margin-top: .25rem;
     }
 }
