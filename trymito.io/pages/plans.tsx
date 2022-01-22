@@ -40,6 +40,10 @@ interface PlanFeatures {
   'Add/Remove Columns': Record<PlanType, boolean>,
   'Excel-Style Formulas': Record<PlanType, boolean>,
   'Deduplication': Record<PlanType, boolean>,
+  'Presentation': Record<PlanType, string>,
+  'Basic Formatting': Record<PlanType, boolean>,
+  'Export Formatting (coming soon)': Record<PlanType, boolean>,
+  'Graph Styling (coming soon)': Record<PlanType, boolean>,
   'Privacy': Record<PlanType, string>,
   'Local Extension': Record<PlanType, boolean>,
   'Turn off Telemetry': Record<PlanType, boolean>,
@@ -129,6 +133,26 @@ const planFeatures: PlanFeatures = {
   },
   'Deduplication': {
     'Open Source': true,
+    'Pro': true,
+    'Enterprise': true 
+  },
+  'Presentation': {
+    'Open Source': 'Open Source',
+    'Pro': 'Pro',
+    'Enterprise': 'Enterprise' 
+  },
+  'Basic Formatting': {
+    'Open Source': true,
+    'Pro': true,
+    'Enterprise': true 
+  },
+  'Export Formatting (coming soon)': {
+    'Open Source': false,
+    'Pro': true,
+    'Enterprise': true 
+  },
+  'Graph Styling (coming soon)': {
+    'Open Source': false,
     'Pro': true,
     'Enterprise': true 
   },
@@ -259,12 +283,17 @@ const Plans: NextPage = () => {
                   $10 a month
                 </p>
                 <p className={plansStyles.plan_description}>
-                  Mito’s analysis tools, with no telemetry and advanced support.
+                  Mito’s analysis tools, with no telemetry, advanced features, and personal support.
                 </p>
                 <div className={plansStyles.plan_bullets_container}> 
                   <PlanBullet>
                     <p>
                       All of Open Source: and:
+                    </p>
+                  </PlanBullet>
+                  <PlanBullet>
+                    <p>
+                      Advanced features
                     </p>
                   </PlanBullet>
                   <PlanBullet>
@@ -275,11 +304,6 @@ const Plans: NextPage = () => {
                   <PlanBullet>
                     <p>
                       Dedicated customer support
-                    </p>
-                  </PlanBullet>
-                  <PlanBullet>
-                    <p>
-                      Future Pro functionality
                     </p>
                   </PlanBullet>
                 </div>
