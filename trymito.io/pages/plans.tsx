@@ -22,168 +22,218 @@ import TextButton from '../components/TextButton/TextButton'
 const PRO_PLAN_ID = "pro-plan"
 const PRIVATE_TELEMTRY_FAQ_ID = 'private-telemetry-faq'
 
-type PlanType = 'Open Source' | 'Pro' | 'Enterprise'
-interface PlanFeatures {
-  'Integration': Record<PlanType, string>,
-  'JupyterLab 2 & 3': Record<PlanType, boolean>,
-  'CSV, XLSX Import': Record<PlanType, boolean>,
-  'Dataframe Import': Record<PlanType, boolean>,
-  'Exploration': Record<PlanType, string>,
-  'Plotly Graph Generation': Record<PlanType, boolean>,
-  'Summary Statistics': Record<PlanType, boolean>,
-  'Search Functionality': Record<PlanType, boolean>,
-  'Transformation': Record<PlanType, string>,
-  'Pivot Tables': Record<PlanType, boolean>,
-  'Filtering and Sorting': Record<PlanType, boolean>,
-  'Merge (Lookups)': Record<PlanType, boolean>,
-  'Type Handling': Record<PlanType, boolean>,
-  'Add/Remove Columns': Record<PlanType, boolean>,
-  'Excel-Style Formulas': Record<PlanType, boolean>,
-  'Deduplication': Record<PlanType, boolean>,
-  'Privacy': Record<PlanType, string>,
-  'Local Extension': Record<PlanType, boolean>,
-  'Turn off Telemetry': Record<PlanType, boolean>,
-  'Support': Record<PlanType, string>,
-  'Customer Support': Record<PlanType, boolean>,
-  'Success Manager': Record<PlanType, boolean>,
-  'Onboarding Program': Record<PlanType, boolean>,
-  'Custom Features': Record<PlanType, boolean>,
-  'Custom Integration': Record<PlanType, boolean>,
+type PlanType = 'Open Source' | 'Pro' | 'Enterprise';
+interface Feature {
+  feature: string,
+  planSupport: Record<PlanType, string | boolean>
 }
 
-const planFeatures: PlanFeatures = {
-  'Integration': {
-    'Open Source': 'Open Source',
-    'Pro': 'Pro',
-    'Enterprise': 'Enterprise' 
+const INTEGRATION_FEATURES: Feature[] = [
+  {
+    feature: 'JupyterLab 2 & 3',
+    planSupport: {
+      'Open Source': true,
+      'Pro': true,
+      'Enterprise': true 
+    }
   },
-  'JupyterLab 2 & 3': {
-    'Open Source': true,
-    'Pro': true,
-    'Enterprise': true 
+  {
+    feature: 'CSV, XLSX Import',
+    planSupport: {
+      'Open Source': true,
+      'Pro': true,
+      'Enterprise': true 
+    }
   },
-  'CSV, XLSX Import': {
-    'Open Source': true,
-    'Pro': true,
-    'Enterprise': true 
+  {
+    feature: 'Dataframe Import',
+    planSupport: {
+      'Open Source': true,
+      'Pro': true,
+      'Enterprise': true 
+    }
   },
-  'Dataframe Import': {
-    'Open Source': true,
-    'Pro': true,
-    'Enterprise': true 
+  {
+    feature: 'CSV, XLSX Export',
+    planSupport: {
+      'Open Source': true,
+      'Pro': true,
+      'Enterprise': true 
+    }
   },
-  'Exploration': {
-    'Open Source': 'Open Source',
-    'Pro': 'Pro',
-    'Enterprise': 'Enterprise' 
+  {
+    feature: 'Formatting Export',
+    planSupport: {
+      'Open Source': false,
+      'Pro': 'Coming soon!',
+      'Enterprise': 'Coming soon!' 
+    }
   },
-  'Plotly Graph Generation': {
-    'Open Source': true,
-    'Pro': true,
-    'Enterprise': true 
-  },
-  'Summary Statistics': {
-    'Open Source': true,
-    'Pro': true,
-    'Enterprise': true 
-  },
-  'Search Functionality': {
-    'Open Source': true,
-    'Pro': true,
-    'Enterprise': true 
-  },
-  'Transformation': {
-    'Open Source': 'Open Source',
-    'Pro': 'Pro',
-    'Enterprise': 'Enterprise' 
-  },
-  'Pivot Tables': {
-    'Open Source': true,
-    'Pro': true,
-    'Enterprise': true 
-  },
-  'Filtering and Sorting': {
-    'Open Source': true,
-    'Pro': true,
-    'Enterprise': true 
-  },
-  'Merge (Lookups)': {
-    'Open Source': true,
-    'Pro': true,
-    'Enterprise': true 
-  },
-  'Type Handling': {
-    'Open Source': true,
-    'Pro': true,
-    'Enterprise': true 
-  },
-  'Add/Remove Columns': {
-    'Open Source': true,
-    'Pro': true,
-    'Enterprise': true 
-  },
-  'Excel-Style Formulas': {
-    'Open Source': true,
-    'Pro': true,
-    'Enterprise': true 
-  },
-  'Deduplication': {
-    'Open Source': true,
-    'Pro': true,
-    'Enterprise': true 
-  },
-  'Privacy': {
-    'Open Source': 'Open Source',
-    'Pro': 'Pro',
-    'Enterprise': 'Enterprise' 
-  },
-  'Local Extension': {
-    'Open Source': true,
-    'Pro': true,
-    'Enterprise': true 
-  },
-  'Turn off Telemetry': {
-    'Open Source': false,
-    'Pro': true,
-    'Enterprise': true 
-  },
-  'Support': {
-    'Open Source': 'Open Source',
-    'Pro': 'Pro',
-    'Enterprise': 'Enterprise' 
-  },
-  'Customer Support': {
-    'Open Source': true,
-    'Pro': true,
-    'Enterprise': true 
-  },
-  'Success Manager': {
-    'Open Source': false,
-    'Pro': true,
-    'Enterprise': true 
-  },
-  'Onboarding Program': {
-    'Open Source': false,
-    'Pro': false,
-    'Enterprise': true 
-  },
-  'Custom Features': {
-    'Open Source': false,
-    'Pro': false,
-    'Enterprise': true 
-  },
-  'Custom Integration': {
-    'Open Source': false,
-    'Pro': false,
-    'Enterprise': true 
-  },
-}
+]
 
+const EXPLORATION_FEATURES: Feature[] = [
+  {
+    feature: 'Summary Statistics',
+    planSupport: {
+      'Open Source': true,
+      'Pro': true,
+      'Enterprise': true 
+    }
+  },
+  {
+    feature: 'Search Functionality',
+    planSupport: {
+      'Open Source': true,
+      'Pro': true,
+      'Enterprise': true 
+    }
+  },
+  {
+    feature: 'Cell Formatting',
+    planSupport: {
+      'Open Source': true,
+      'Pro': true,
+      'Enterprise': true 
+    }
+  },
+  {
+    feature: 'Plotly Graph Generation',
+    planSupport: {
+      'Open Source': true,
+      'Pro': true,
+      'Enterprise': true 
+    }
+  },
+  {
+    feature: 'Graph Formatting',
+    planSupport: {
+      'Open Source': false,
+      'Pro': 'Coming soon!',
+      'Enterprise': 'Coming soon!' 
+    }
+  },
+]
 
-// We keep track of the last features in each section as a bit of a hacky workaround
-// to not display the separator line in the plans feature grid
-// when the feature is the last feature in the section.
-const LAST_FEATURES_IN_SECTION = ['Custom Integration', 'Turn off Telemetry', 'Deduplication', 'Search Functionality', 'Dataframe Import']
+const TRANSFORMATION_FEATURES: Feature[] = [
+  {
+    feature: 'Pivot Tables',
+    planSupport: {
+      'Open Source': true,
+      'Pro': true,
+      'Enterprise': true 
+    }
+  },
+  {
+    feature: 'Filtering and Sorting',
+    planSupport: {
+      'Open Source': true,
+      'Pro': true,
+      'Enterprise': true 
+    }
+  },
+  {
+    feature: 'Merge (Lookups)',
+    planSupport: {
+      'Open Source': true,
+      'Pro': true,
+      'Enterprise': true 
+    }
+  },
+  {
+    feature: 'Type Handling',
+    planSupport: {
+      'Open Source': true,
+      'Pro': true,
+      'Enterprise': true 
+    }
+  },
+  {
+    feature: 'Add/Remove Columns',
+    planSupport: {
+      'Open Source': true,
+      'Pro': true,
+      'Enterprise': true 
+    }
+  },
+  {
+    feature: 'Excel-Style Formulas',
+    planSupport: {
+      'Open Source': true,
+      'Pro': true,
+      'Enterprise': true 
+    }
+  },
+  {
+    feature: 'Deduplication',
+    planSupport: {
+      'Open Source': true,
+      'Pro': true,
+      'Enterprise': true 
+    }
+  },
+]
+
+const PRIVACY_FEATURES: Feature[] = [
+  {
+    feature: 'Local Extension',
+    planSupport: {
+      'Open Source': true,
+      'Pro': true,
+      'Enterprise': true 
+    }
+  },
+  {
+    feature: 'Turn off Telemetry',
+    planSupport: {
+      'Open Source': false,
+      'Pro': true,
+      'Enterprise': true 
+    }
+  },
+]
+
+const SUPPORT_FEATURES: Feature[] = [
+  {
+    feature: 'Customer Support',
+    planSupport: {
+      'Open Source': true,
+      'Pro': true,
+      'Enterprise': true 
+    }
+  },
+  {
+    feature: 'Success Manager',
+    planSupport: {
+      'Open Source': false,
+      'Pro': true,
+      'Enterprise': true 
+    }
+  },
+  {
+    feature: 'Onboarding Program',
+    planSupport: {
+      'Open Source': false,
+      'Pro': false,
+      'Enterprise': true 
+    }
+  },
+  {
+    feature: 'Custom Features',
+    planSupport: {
+      'Open Source': false,
+      'Pro': false,
+      'Enterprise': true 
+    }
+  },
+  {
+    feature: 'Custom Integration',
+    planSupport: {
+      'Open Source': false,
+      'Pro': false,
+      'Enterprise': true 
+    }
+  },
+]
 
 const Plans: NextPage = () => {
 
@@ -369,26 +419,155 @@ const Plans: NextPage = () => {
             </section>
 
             <section className={pageStyles.suppress_section_margin_top + ' display-mobile-only'}>
-              {Object.entries(planFeatures).map(([key, value], idx) => {
+              <FeatureRow
+                isHeader
+                rowLabel={'Integration'} 
+                featureRowContent={[mobilePlanDisplayed]}
+              />
+              {INTEGRATION_FEATURES.map((f, idx) => {
                 return (
-                  <FeatureRow 
+                  <FeatureRow
                     key={idx}
-                    rowLabel={key} 
-                    featureRowContent={[value[mobilePlanDisplayed]]}
-                    lastFeature={LAST_FEATURES_IN_SECTION.includes(key)}
+                    rowLabel={f.feature} 
+                    featureRowContent={[f.planSupport[mobilePlanDisplayed]]}
+                    lastFeature={idx == INTEGRATION_FEATURES.length - 1}
+                  />
+                )
+              })}
+              <FeatureRow
+                isHeader
+                rowLabel={'Exploration'} 
+                featureRowContent={[mobilePlanDisplayed]}
+              />
+              {EXPLORATION_FEATURES.map((f, idx) => {
+                return (
+                  <FeatureRow
+                    key={idx}
+                    rowLabel={f.feature} 
+                    featureRowContent={[f.planSupport[mobilePlanDisplayed]]}
+                    lastFeature={idx == EXPLORATION_FEATURES.length - 1}
+                  />
+                )
+              })}
+              <FeatureRow
+                isHeader
+                rowLabel={'Transformation'} 
+                featureRowContent={[mobilePlanDisplayed]}
+              />
+              {TRANSFORMATION_FEATURES.map((f, idx) => {
+                return (
+                  <FeatureRow
+                    key={idx}
+                    rowLabel={f.feature} 
+                    featureRowContent={[f.planSupport[mobilePlanDisplayed]]}
+                    lastFeature={idx == TRANSFORMATION_FEATURES.length - 1}
+                  />
+                )
+              })}
+              <FeatureRow
+                isHeader
+                rowLabel={'Privacy'} 
+                featureRowContent={[mobilePlanDisplayed]}
+              />
+              {PRIVACY_FEATURES.map((f, idx) => {
+                return (
+                  <FeatureRow
+                    key={idx}
+                    rowLabel={f.feature} 
+                    featureRowContent={[f.planSupport[mobilePlanDisplayed]]}
+                    lastFeature={idx == PRIVACY_FEATURES.length - 1}
+                  />
+                )
+              })}
+              <FeatureRow
+                isHeader
+                rowLabel={'Support'} 
+                featureRowContent={[mobilePlanDisplayed]}
+              />
+              {SUPPORT_FEATURES.map((f, idx) => {
+                return (
+                  <FeatureRow
+                    key={idx}
+                    rowLabel={f.feature} 
+                    featureRowContent={[f.planSupport[mobilePlanDisplayed]]}
+                    lastFeature={idx == SUPPORT_FEATURES.length - 1}
                   />
                 )
               })}
             </section>
             <section className={pageStyles.suppress_section_margin_top + ' ' + plansStyles.plan_feature_grid_container + ' display-desktop-only-inline-block'}>
-              {Object.entries(planFeatures).map(([key, value], idx) => {
-                const values: string[] | boolean [] = [value['Open Source'], value['Pro'], value['Enterprise']]
+              <FeatureRow
+                isHeader
+                rowLabel={'Integration'} 
+                featureRowContent={['Open Source', 'Pro', 'Enterprise']}
+              />
+              {INTEGRATION_FEATURES.map((f, idx) => {
                 return (
-                  <FeatureRow 
+                  <FeatureRow
                     key={idx}
-                    rowLabel={key} 
-                    featureRowContent={values}
-                    lastFeature={LAST_FEATURES_IN_SECTION.includes(key)}
+                    rowLabel={f.feature} 
+                    featureRowContent={[f.planSupport['Open Source'], f.planSupport['Pro'], f.planSupport['Enterprise']]}
+                    lastFeature={idx == INTEGRATION_FEATURES.length - 1}
+                  />
+                )
+              })}
+              <FeatureRow
+                isHeader
+                rowLabel={'Exploration'} 
+                featureRowContent={['Open Source', 'Pro', 'Enterprise']}
+              />
+              {EXPLORATION_FEATURES.map((f, idx) => {
+                return (
+                  <FeatureRow
+                    key={idx}
+                    rowLabel={f.feature} 
+                    featureRowContent={[f.planSupport['Open Source'], f.planSupport['Pro'], f.planSupport['Enterprise']]}
+                    lastFeature={idx == EXPLORATION_FEATURES.length - 1}
+                  />
+                )
+              })}
+              <FeatureRow
+                isHeader
+                rowLabel={'Transformation'} 
+                featureRowContent={['Open Source', 'Pro', 'Enterprise']}
+              />
+              {TRANSFORMATION_FEATURES.map((f, idx) => {
+                return (
+                  <FeatureRow
+                    key={idx}
+                    rowLabel={f.feature} 
+                    featureRowContent={[f.planSupport['Open Source'], f.planSupport['Pro'], f.planSupport['Enterprise']]}
+                    lastFeature={idx == TRANSFORMATION_FEATURES.length - 1}
+                  />
+                )
+              })}
+              <FeatureRow
+                isHeader
+                rowLabel={'Privacy'} 
+                featureRowContent={['Open Source', 'Pro', 'Enterprise']}
+              />
+              {PRIVACY_FEATURES.map((f, idx) => {
+                return (
+                  <FeatureRow
+                    key={idx}
+                    rowLabel={f.feature} 
+                    featureRowContent={[f.planSupport['Open Source'], f.planSupport['Pro'], f.planSupport['Enterprise']]}
+                    lastFeature={idx == PRIVACY_FEATURES.length - 1}
+                  />
+                )
+              })}
+              <FeatureRow
+                isHeader
+                rowLabel={'Support'} 
+                featureRowContent={['Open Source', 'Pro', 'Enterprise']}
+              />
+              {SUPPORT_FEATURES.map((f, idx) => {
+                return (
+                  <FeatureRow
+                    key={idx}
+                    rowLabel={f.feature} 
+                    featureRowContent={[f.planSupport['Open Source'], f.planSupport['Pro'], f.planSupport['Enterprise']]}
+                    lastFeature={idx == SUPPORT_FEATURES.length - 1}
                   />
                 )
               })}
