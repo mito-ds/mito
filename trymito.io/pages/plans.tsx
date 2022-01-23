@@ -11,10 +11,10 @@ import PlanBullet from '../components/PlanBullet/PlanBullet';
 import TranslucentButton from '../components/TranslucentButton/TranslucentButton';
 import DropdownItem from '../components/DropdownItem/DropdownItem';
 import Dropdown from '../components/Dropdown/Dropdown';
-import FeatureRow from '../components/FeatureRow/FeatureRow'
 import FAQCard from '../components/FAQCard/FAQCard'
 import CTACard from '../components/CTACard/CTACard'
 import TextButton from '../components/TextButton/TextButton'
+import FeatureSection from '../components/FeatureSection/FeatureSection'
 
 /* 
   Labels used to scroll to specific location of the page
@@ -22,8 +22,8 @@ import TextButton from '../components/TextButton/TextButton'
 const PRO_PLAN_ID = "pro-plan"
 const PRIVATE_TELEMTRY_FAQ_ID = 'private-telemetry-faq'
 
-type PlanType = 'Open Source' | 'Pro' | 'Enterprise';
-interface Feature {
+export type PlanType = 'Open Source' | 'Pro' | 'Enterprise';
+export interface Feature {
   feature: string,
   planSupport: Record<PlanType, string | boolean>
 }
@@ -419,158 +419,53 @@ const Plans: NextPage = () => {
             </section>
 
             <section className={pageStyles.suppress_section_margin_top + ' display-mobile-only'}>
-              <FeatureRow
-                isHeader
-                rowLabel={'Integration'} 
-                featureRowContent={[mobilePlanDisplayed]}
+              <FeatureSection
+                mobilePlanDisplayed={mobilePlanDisplayed}
+                sectionTitle='Integration'
+                features={INTEGRATION_FEATURES}
               />
-              {INTEGRATION_FEATURES.map((f, idx) => {
-                return (
-                  <FeatureRow
-                    key={idx}
-                    rowLabel={f.feature} 
-                    featureRowContent={[f.planSupport[mobilePlanDisplayed]]}
-                    lastFeature={idx == INTEGRATION_FEATURES.length - 1}
-                  />
-                )
-              })}
-              <FeatureRow
-                isHeader
-                rowLabel={'Exploration'} 
-                featureRowContent={[mobilePlanDisplayed]}
+              <FeatureSection
+                mobilePlanDisplayed={mobilePlanDisplayed}
+                sectionTitle='Exploration'
+                features={EXPLORATION_FEATURES}
               />
-              {EXPLORATION_FEATURES.map((f, idx) => {
-                return (
-                  <FeatureRow
-                    key={idx}
-                    rowLabel={f.feature} 
-                    featureRowContent={[f.planSupport[mobilePlanDisplayed]]}
-                    lastFeature={idx == EXPLORATION_FEATURES.length - 1}
-                  />
-                )
-              })}
-              <FeatureRow
-                isHeader
-                rowLabel={'Transformation'} 
-                featureRowContent={[mobilePlanDisplayed]}
+              <FeatureSection
+                mobilePlanDisplayed={mobilePlanDisplayed}
+                sectionTitle='Transformation'
+                features={TRANSFORMATION_FEATURES}
               />
-              {TRANSFORMATION_FEATURES.map((f, idx) => {
-                return (
-                  <FeatureRow
-                    key={idx}
-                    rowLabel={f.feature} 
-                    featureRowContent={[f.planSupport[mobilePlanDisplayed]]}
-                    lastFeature={idx == TRANSFORMATION_FEATURES.length - 1}
-                  />
-                )
-              })}
-              <FeatureRow
-                isHeader
-                rowLabel={'Privacy'} 
-                featureRowContent={[mobilePlanDisplayed]}
+              <FeatureSection
+                mobilePlanDisplayed={mobilePlanDisplayed}
+                sectionTitle='Privacy'
+                features={PRIVACY_FEATURES}
               />
-              {PRIVACY_FEATURES.map((f, idx) => {
-                return (
-                  <FeatureRow
-                    key={idx}
-                    rowLabel={f.feature} 
-                    featureRowContent={[f.planSupport[mobilePlanDisplayed]]}
-                    lastFeature={idx == PRIVACY_FEATURES.length - 1}
-                  />
-                )
-              })}
-              <FeatureRow
-                isHeader
-                rowLabel={'Support'} 
-                featureRowContent={[mobilePlanDisplayed]}
+              <FeatureSection
+                mobilePlanDisplayed={mobilePlanDisplayed}
+                sectionTitle='Support'
+                features={SUPPORT_FEATURES}
               />
-              {SUPPORT_FEATURES.map((f, idx) => {
-                return (
-                  <FeatureRow
-                    key={idx}
-                    rowLabel={f.feature} 
-                    featureRowContent={[f.planSupport[mobilePlanDisplayed]]}
-                    lastFeature={idx == SUPPORT_FEATURES.length - 1}
-                  />
-                )
-              })}
             </section>
             <section className={pageStyles.suppress_section_margin_top + ' ' + plansStyles.plan_feature_grid_container + ' display-desktop-only-inline-block'}>
-              <FeatureRow
-                isHeader
-                rowLabel={'Integration'} 
-                featureRowContent={['Open Source', 'Pro', 'Enterprise']}
+            <FeatureSection
+                sectionTitle='Integration'
+                features={INTEGRATION_FEATURES}
               />
-              {INTEGRATION_FEATURES.map((f, idx) => {
-                return (
-                  <FeatureRow
-                    key={idx}
-                    rowLabel={f.feature} 
-                    featureRowContent={[f.planSupport['Open Source'], f.planSupport['Pro'], f.planSupport['Enterprise']]}
-                    lastFeature={idx == INTEGRATION_FEATURES.length - 1}
-                  />
-                )
-              })}
-              <FeatureRow
-                isHeader
-                rowLabel={'Exploration'} 
-                featureRowContent={['Open Source', 'Pro', 'Enterprise']}
+              <FeatureSection
+                sectionTitle='Exploration'
+                features={EXPLORATION_FEATURES}
               />
-              {EXPLORATION_FEATURES.map((f, idx) => {
-                return (
-                  <FeatureRow
-                    key={idx}
-                    rowLabel={f.feature} 
-                    featureRowContent={[f.planSupport['Open Source'], f.planSupport['Pro'], f.planSupport['Enterprise']]}
-                    lastFeature={idx == EXPLORATION_FEATURES.length - 1}
-                  />
-                )
-              })}
-              <FeatureRow
-                isHeader
-                rowLabel={'Transformation'} 
-                featureRowContent={['Open Source', 'Pro', 'Enterprise']}
+              <FeatureSection
+                sectionTitle='Transformation'
+                features={TRANSFORMATION_FEATURES}
               />
-              {TRANSFORMATION_FEATURES.map((f, idx) => {
-                return (
-                  <FeatureRow
-                    key={idx}
-                    rowLabel={f.feature} 
-                    featureRowContent={[f.planSupport['Open Source'], f.planSupport['Pro'], f.planSupport['Enterprise']]}
-                    lastFeature={idx == TRANSFORMATION_FEATURES.length - 1}
-                  />
-                )
-              })}
-              <FeatureRow
-                isHeader
-                rowLabel={'Privacy'} 
-                featureRowContent={['Open Source', 'Pro', 'Enterprise']}
+              <FeatureSection
+                sectionTitle='Privacy'
+                features={PRIVACY_FEATURES}
               />
-              {PRIVACY_FEATURES.map((f, idx) => {
-                return (
-                  <FeatureRow
-                    key={idx}
-                    rowLabel={f.feature} 
-                    featureRowContent={[f.planSupport['Open Source'], f.planSupport['Pro'], f.planSupport['Enterprise']]}
-                    lastFeature={idx == PRIVACY_FEATURES.length - 1}
-                  />
-                )
-              })}
-              <FeatureRow
-                isHeader
-                rowLabel={'Support'} 
-                featureRowContent={['Open Source', 'Pro', 'Enterprise']}
+              <FeatureSection
+                sectionTitle='Support'
+                features={SUPPORT_FEATURES}
               />
-              {SUPPORT_FEATURES.map((f, idx) => {
-                return (
-                  <FeatureRow
-                    key={idx}
-                    rowLabel={f.feature} 
-                    featureRowContent={[f.planSupport['Open Source'], f.planSupport['Pro'], f.planSupport['Enterprise']]}
-                    lastFeature={idx == SUPPORT_FEATURES.length - 1}
-                  />
-                )
-              })}
             </section>
               
             <section>

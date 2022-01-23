@@ -60,9 +60,7 @@ const FeatureRow = (props: {
                             </div>
                             
                         )
-                    }
-                    // TODO: handle if a boolean
-                    
+                    }                    
                 })} 
             </div>
         )
