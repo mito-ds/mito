@@ -309,7 +309,7 @@ const Plans: NextPage = () => {
                   $10 a month
                 </p>
                 <p className={plansStyles.plan_description}>
-                  Mito’s analysis tools, with no telemetry and advanced support.
+                  Mito’s analysis tools, with no telemetry, advanced features, and personal support.
                 </p>
                 <div className={plansStyles.plan_bullets_container}> 
                   <PlanBullet>
@@ -324,12 +324,12 @@ const Plans: NextPage = () => {
                   </PlanBullet>
                   <PlanBullet>
                     <p>
-                      Dedicated customer support
+                      Advanced features
                     </p>
                   </PlanBullet>
                   <PlanBullet>
                     <p>
-                      Future Pro functionality
+                      Dedicated customer support
                     </p>
                   </PlanBullet>
                 </div>
