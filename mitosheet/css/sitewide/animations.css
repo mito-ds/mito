@@ -1,0 +1,40 @@
+/* This file is where we should define all animations that we can reuse */
+
+
+/* A little bounce, so the thing goes up and down a bit */
+@keyframes bounce {
+    0%,
+    25%,
+    50%,
+    75%,
+    100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-20px);
+    }
+    60% {
+      transform: translateY(-12px);
+    }
+}
+
+/* 
+  Used to make the draw-attention border pulse!
+  See documentation here: https://www.florin-pop.com/blog/2019/03/css-pulse-effect/
+*/
+@keyframes pulse {
+	0% {
+		transform: scale(0.95);
+		box-shadow: 0 0 0 0 rgb(0, 129, 222, 0.7)
+	}
+
+	70% {
+		transform: scale(1);
+		box-shadow: 0 0 0 5px rgb(0, 129, 222, 0);
+	}
+
+	100% {
+		transform: scale(0.95);
+		box-shadow: 0 0 0 0 rgb(0, 129, 222, 0);
+	}
+}

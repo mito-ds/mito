@@ -1,0 +1,27 @@
+
+# Basic Python ignore
+*.pyc
+.pytest_cache/
+venv/
+
+# Basic ignore for a TypeScript Project
+node_modules/
+
+# Ignore files bundled with Mito
+docs/source/_static
+mitosheet/nbextension/static
+mitosheet/labextension
+lib
+mitovenv
+*deployment/tutorial/.ipynb_checkpoints/
+*mitosheet/tests/.ipynb_checkpoints/
+
+# Ignore generated config files for deployment
+staging-config.yaml
+config.yaml
+
+# Ignore egg-info Python packing files
+*.egg-info
+
+# Build cache info
+tsconfig.tsbuildinfo

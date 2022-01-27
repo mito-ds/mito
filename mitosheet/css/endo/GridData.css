@@ -1,0 +1,58 @@
+
+/* Row */
+.row {
+    display: flex;
+    user-select: none;
+}
+
+.row-even {
+    background-color: var(--mito-very-light-gray);
+}
+
+.row-odd {
+    background-color: white;
+}
+
+/* Cell */
+.cell {
+    height: var(--cell-height);
+    padding: 0px 5px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+
+    color: var(--mito-gray);
+    box-sizing: border-box;
+    
+    /* Align vertically */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.cell:hover {
+    background-color: var(--mito-very-light-purple);
+}
+
+/* We make selected cells look different on even and odd rows */
+.row-even .cell-selected {
+    background-color: rgba(153, 102, 255, .15);
+}
+.row-odd .cell-selected {
+    background-color: rgba(153, 102, 255, 0.10);
+}
+
+.cell-hidden {
+    visibility: hidden;
+}
+
+.cell-searched {
+    background-color: rgba(153, 102, 255, 0.2);
+}
+
+.right-align-number-series {
+    /* Right align number series */
+    text-align: right;
+}

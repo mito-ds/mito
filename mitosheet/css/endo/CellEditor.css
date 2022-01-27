@@ -1,0 +1,55 @@
+.cell-editor {
+    height: min-content;
+
+    z-index: 2;
+    position: absolute;
+    box-sizing: border-box;
+    background: white;
+}
+
+.cell-editor-form {
+    border: 2px solid var(--mito-purple);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.cell-editor-input {
+    height: 25px;
+    width: 100%;
+    border: none;
+    box-sizing: border-box;
+}
+
+.cell-editor-dropdown-box {
+    background: white;
+    box-shadow: 1px 1px 5px grey;
+    
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+.cell-editor-suggestion {
+    display: flex;
+    flex-direction: column;
+    padding-left: 10px;
+
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.cell-editor-suggestion-selected {
+    background-color: var(--mito-light-blue);
+}
+
+.cell-editor-function-documentation-header {
+    background-color: var(--mito-light-blue);
+}
+
+.cell-editor-function-documentation-example {
+    color: var(--mito-purple);
+}
+
+.cell-editor-label {
+    background-color: var(--mito-very-light-gray)
+}

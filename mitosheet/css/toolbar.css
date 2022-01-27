@@ -1,0 +1,128 @@
+.toolbar-container {
+  width: 100%;
+  height: 47px;
+
+  /* We make the toolbar a flexbox, for the toolbar icons/actions */
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  background-color: var(--mito-light-blue);
+
+  /* border-box to set the border inside the div, so it doesn't get chopped */
+  box-sizing: border-box; 
+  -moz-box-sizing: border-box; /* Firefox */
+  -webkit-box-sizing: border-box; /* Older Webkit browsers */
+}
+
+.toolbar-left-half {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  /* 
+    The left toolbar gets flex:3 and the right toolbar gets flex:1 
+    because the left has 3x as many buttons
+  */
+  flex: 3; 
+}
+
+.toolbar-right-half {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+.toolbar-button-container {
+  /* Keep items evenly spaced */
+  display: flex;
+  max-width: 65px;
+  min-width: max-content;
+  width: 100%;
+
+  align-items: center;
+  justify-content: center;
+
+  /* Make input blend in with formula bar */
+  background-color: var(--mito-light-blue);
+
+  color: var(--mito-legacy-gray);
+}
+
+.toolbar-button {
+  /* Stack icon and label vertically */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  padding-top: 9px;
+  padding-bottom: 6px;
+  box-sizing: border-box;
+  height: 100%;
+  width: 100%;
+  
+  /* Put items in middle of div */ 
+  align-items: center;
+
+  /* Make input blend in with formula bar */
+  background-color: inherit;
+  border-radius: 0;
+  border-style: none;
+  outline: none;
+
+  color: inherit;
+
+  /* Use Roboto Condensed font for the toolbar item label */
+  font-family: Roboto Condensed;
+}
+
+.toolbar-button-container:hover {
+  background-color: var(--mito-purple);
+  color: var(--mito-white);
+}
+
+/* 
+  At rest, we show a dark icon in the toolbar. But when the 
+  toolbar item is hovered over, we change the background color
+  to purple and display a light color icon. This css swaps 
+  the visibility of the light and dark colored icons on hover.
+*/
+.toolbar-button-container .toolbar-button-icon-light {
+  display: none;
+}
+.toolbar-button-container:hover .toolbar-button-icon-dark {
+  display: none;
+}
+/* 
+  When we hover over the toolbar item, we set the 
+  light icon display to in-line block so it is visible. 
+  We don't need a similar class for the dark icon because
+  it is visible by default. The light icon starts as display none.
+*/
+.toolbar-button-container:hover .toolbar-button-icon-light {
+  display: inline-block;
+}
+
+.toolbar-button-icon-container {
+  height: 20px;
+  width: 30px;
+  margin: auto;
+}
+
+.toolbar-button-label {
+  margin-top: 4px;
+  font-size: 10px;
+}
+
+.toolbar-vertical-line {
+  border-left: 1px solid var(--mito-white);
+  height: 100%;
+}
+
+.toolbar-button-draw-attention {
+  border: 2px solid var(--mito-blue);
+  border-radius: 5px;
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 1);
+	transform: scale(1);
+	animation: pulse 2s infinite;
+}
