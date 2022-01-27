@@ -1,0 +1,18 @@
+.text-area {
+    resize: none;
+    margin: 0px;
+    padding: 5px;
+    background-color: var(--mito-very-light-gray);
+    
+    border: 1px solid var(--mito-lighter-gray);
+    border-radius: 3px;
+    box-sizing: border-box;
+}
+
+.text-area::placeholder {
+    color: var(--mito-medium-gray)
+}
+
+.text-area:hover {
+    border-color: var(--mito-medium-purple)
+}

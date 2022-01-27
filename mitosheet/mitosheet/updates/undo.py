@@ -1,0 +1,23 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# Copyright (c) Mito.
+# Distributed under the terms of the Modified BSD License.
+
+from typing import List
+
+UNDO_EVENT = 'undo'
+UNDO_PARAMS: List[str] = []
+
+def execute_undo_update(steps_manager):
+    steps_manager.execute_undo()
+
+"""
+This object wraps all the information
+that is needed for a undo step!
+"""
+UNDO_UPDATE = {
+    'event_type': UNDO_EVENT,
+    'params': UNDO_PARAMS,
+    'execute': execute_undo_update
+}

@@ -1,0 +1,53 @@
+.endo-grid-container {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template: 
+        /* First row is - and r-header*/
+        "- r-header" auto 
+        /* Second row is c-header and scroller, and takes up remaining space */
+        "c-header scroller" 1fr 
+        /* Two columns, one of 100px (which is auto) and the other of the remaining space */
+        / auto 1fr;
+    --cell-height: 25px;
+
+    /* 
+        Set position as relative so that the cell editor
+        positions itself in relation to the container
+    */
+    position: relative;
+
+    background-color: white;
+    
+    font-family: "Roboto Condensed";
+}
+
+.endo-scroller-and-renderer-container {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    position: relative;
+    grid-area: scroller;
+}
+
+.renderer {
+    top: 0;
+    left: 0;
+    position: absolute;
+}
+
+/* Handling an empty grid */
+.endo-grid-empty-container {
+    height: 100%;
+    width: 100%;
+}
+
+.endo-grid-empty-text-container {
+    height: 100%;
+    width: 100%;
+
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}

@@ -1,0 +1,23 @@
+/* 
+    Classes that allow us to show and hide SVG icons when
+    they are hovered on. 
+
+    In practice, this lets us change the colors of icons 
+    when they are hovered on. Simply apply the 
+    show-icon-on-hover class to one icon, and the hide-icon-on-hover
+    class to the other icon. 
+*/
+
+.icon-color-changer-container .icon-show-on-hover {
+    display: none;
+}
+.icon-color-changer-container:hover .icon-show-on-hover {
+    display: inline-block;
+}
+
+.icon-color-changer-container .icon-hide-on-hover {
+    display: inline-block;
+}
+.icon-color-changer-container:hover .icon-hide-on-hover {
+    display: none;
+}

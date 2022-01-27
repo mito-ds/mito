@@ -1,0 +1,40 @@
+.file-browser {
+    height: 90%;
+}
+
+.file-browser-path-selector {
+    padding-bottom: 10px;
+    
+    /* We make this scrollable sideways, but hide the scrollbar vertically */
+    overflow-x: scroll;
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+
+.file-browser-path-seperator {
+    padding: 0px 2px;
+}
+
+.file-browser-path-part {
+    padding: 0px 2px;
+}
+
+.file-browser-path-part:hover {
+    background: #F0E9FF;
+}
+
+.file-browser-element-list {
+    overflow-y: scroll;
+    overflow-x: hidden;
+
+    border-bottom: 1px solid grey;
+    height: 100%;
+}
+
+.file-browser-element:hover {
+    border-radius: 3px;
+}
+
+.file-browser-element:hover {
+    background: #F0E9FF;
+}

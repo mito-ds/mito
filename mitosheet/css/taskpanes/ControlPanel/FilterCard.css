@@ -1,0 +1,10 @@
+.filter-group {
+    width: 100%;
+
+    background: var(--mito-very-light-gray);
+    border: 0.5px solid var(--mito-legacy-gray);
+    box-sizing: border-box;
+    border-radius: 3px;
+
+    padding: 10px 5px;
+}
