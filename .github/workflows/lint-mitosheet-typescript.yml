@@ -1,0 +1,40 @@
+name: Lint Mitosheet TypeScript
+
+on:
+  push:
+    branches: [ dev ]
+    paths:
+      - 'mitosheet/**'
+  pull_request:
+    branches: [ dev ]
+    paths:
+      - 'mitosheet/**'
+
+jobs:
+  lint-mitosheet-typescript:
+    name: Run linters
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.7.0
+        with:
+          access_token: ${{ github.token }}
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Install Node.js dependencies
+        run: | 
+          cd mitosheet
+          python3 -m pip install jupyterlab
+          npm install
+      - name: Run Linters
+        run: |
+          cd mitosheet
+          npm run lint:check
+
+
