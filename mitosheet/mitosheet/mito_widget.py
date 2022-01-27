@@ -245,9 +245,13 @@ class MitoWidget(DOMWidget):
         previous_step_type = self.steps_manager.steps[self.steps_manager.curr_step_idx - 1].step_type
         
         if self.steps_manager.curr_step.step_type != previous_step_type and previous_step_type != 'bulk_old_rename':
+            """
+            Turn off usage triggered feedback
+
             if random.randint(1, 400) == 1:
                 self.usage_triggered_feedback_id = STEP_TYPE_TO_USAGE_TRIGGERED_FEEDBACK_ID[previous_step_type]
                 return
+            """
 
         self.usage_triggered_feedback_id = ''
 
