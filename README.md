@@ -1,4 +1,4 @@
-# Mito Monorepo
+# ![Mito Logo](https://www.trymito.io/_next/image?url=%2FMito.svg&w=128&q=75) Mito Monorepo 
 
 Mito is a spreadsheet that lives inside your JupyterLab notebooks. It allows you to edit Pandas dataframes like an Excel file, and generates Python code that corresponds to each of your edits. 
 
