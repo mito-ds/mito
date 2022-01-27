@@ -63,11 +63,6 @@ import { AnalysisData, MitoError, MitoStateUpdaters, SheetData, UserProfile } fr
 import { ModalEnum } from './components/modals/modals';
 
 export class ExampleView extends DOMWidgetView {
-    /*
-        We override the DOMWidgetView constructor, so that we can
-        create a logging instance for this view. 
-    */
-
     // Used to make code in the notebook not flash when read in for replaying.
     // See write-code-to-cell below.
     creationSeconds: undefined | number;
