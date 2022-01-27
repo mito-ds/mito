@@ -1,0 +1,229 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# Copyright (c) Mito.
+# Distributed under the terms of the Modified BSD License.
+
+"""
+Contains tests for setting cell value events.
+"""
+import sys
+import pytest
+import pandas as pd
+
+from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+
+SET_CELL_VALUE_TESTS = [
+    (
+        pd.DataFrame(data={'A': [1, 2, 3]}),
+        4,
+        pd.DataFrame(data={'A': [4, 2, 3]}),
+    ),
+    (
+        pd.DataFrame(data={'A': [1, 2, 3]}),
+        4.0,
+        pd.DataFrame(data={'A': [4.0, 2.0, 3.0]}),
+    ),
+    (
+        pd.DataFrame(data={'A': [1, 2, 3]}),
+        1.0,
+        pd.DataFrame(data={'A': [1.0, 2.0, 3.0]}),
+    ),
+    (
+        pd.DataFrame(data={'A': [1, 2, 3]}),
+        1,
+        pd.DataFrame(data={'A': [1, 2, 3]}),
+    ),
+    (
+        pd.DataFrame(data={'A': [1, 2, None]}),
+        4,
+        pd.DataFrame(data={'A': [4.0, 2.0, None]}),
+    ),
+    (
+        pd.DataFrame(data={'A': [1, 2, 3]}),
+        'NaN',
+        pd.DataFrame(data={'A': [None, 2, 3]}),
+    ),
+    (
+        pd.DataFrame(data={'A': [1, 2, 3]}),
+        '',
+        pd.DataFrame(data={'A': [None, 2, 3]}),
+    ),
+    (
+        pd.DataFrame(data={'A': [1.0, 2.0, 3.0]}),
+        4,
+        pd.DataFrame(data={'A': [4.0, 2.0, 3.0]}),
+    ),
+    (
+        pd.DataFrame(data={'A': [1.0, 2.0, 3.0]}),
+        4.0,
+        pd.DataFrame(data={'A': [4.0, 2.0, 3.0]}),
+    ),
+    (
+        pd.DataFrame(data={'A': [1, 2, None]}),
+        4,
+        pd.DataFrame(data={'A': [4.0, 2.0, None]}),
+    ),
+    (
+        pd.DataFrame(data={'A': [True, True, True]}),
+        'False',
+        pd.DataFrame(data={'A': [False, True, True]}),
+    ),
+    (
+        pd.DataFrame(data={'A': [True, True, True]}),
+        'F',
+        pd.DataFrame(data={'A': [False, True, True]}),
+    ),
+    (
+        pd.DataFrame(data={'A': [True, True, True]}),
+        'false',
+        pd.DataFrame(data={'A': [False, True, True]}),
+    ),
+    (
+        pd.DataFrame(data={'A': [False, True, True]}),
+        'True',
+        pd.DataFrame(data={'A': [True, True, True]}),
+    ),
+    (
+        pd.DataFrame(data={'A': [False, True, True]}),
+        'T',
+        pd.DataFrame(data={'A': [True, True, True]}),
+    ),
+    (
+        pd.DataFrame(data={'A': [False, True, True]}),
+        'true',
+        pd.DataFrame(data={'A': [True, True, True]}),
+    ),
+    (
+        pd.DataFrame(data={'A': [False, True, True]}),
+        '1',
+        pd.DataFrame(data={'A': [True, True, True]}),
+    ),
+    (
+        pd.DataFrame(data={'A': [True, True, True]}),
+        '0',
+        pd.DataFrame(data={'A': [False, True, True]}),
+    ),
+    (
+        pd.DataFrame(data={'A': pd.to_datetime(pd.Series(data=[
+            '12-2-2020', 
+            '12-3-2020',
+            '12-4-2020'
+        ]))}),
+        '12-1-2025',
+        pd.DataFrame(data={'A': pd.to_datetime(pd.Series(data=[
+            '12-1-2025', 
+            '12-3-2020',
+            '12-4-2020'
+        ]))}),
+    ),
+    (
+        pd.DataFrame(data={'A': pd.to_datetime(pd.Series(data=[
+            '12-2-2020', 
+            '12-3-2020',
+            '12-4-2020'
+        ]))}),
+        'nat',
+        pd.DataFrame(data={'A': pd.to_datetime(pd.Series(data=[
+            None, 
+            '12-3-2020',
+            '12-4-2020'
+        ]))}),
+    ),
+    (
+        pd.DataFrame(data={'A': [pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003')]}),
+        '2 days 06:05:01.1234',
+        pd.DataFrame(data={'A': [pd.to_timedelta('2 days 06:05:01.1234'), pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003')]}),
+    ),
+    (
+        pd.DataFrame(data={'A': [pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003')]}),
+        '12345678',
+        pd.DataFrame(data={'A': [pd.to_timedelta('0 days 00:00:00.012345678'), pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003')]}),
+    ),
+    (
+        pd.DataFrame(data={'A': [pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003')]}),
+        'nat',
+        pd.DataFrame(data={'A': [None, pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003')]}),
+    ),
+]
+
+@pytest.mark.skipif(sys.version_info.minor <= 6, reason="requires 3.7 or greater")
+@pytest.mark.parametrize("df,new_value,result", SET_CELL_VALUE_TESTS)
+def test_set_cell_value_direct(df, new_value, result):
+    mito = create_mito_wrapper_dfs(df)
+    mito.set_cell_value(0, 'A', 0, new_value)
+
+    assert mito.dfs[0].equals(result)
+
+def test_set_cell_value_change_int_to_int():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1, 2, 3]}))
+    mito.set_cell_value(0, 'A', 0, 4)
+    assert mito.transpiled_code == [
+        "df1.at[0, 'A'] = 4"
+    ]
+
+def test_set_cell_value_convert_int_to_float():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1, 2, 3]}))
+    mito.set_cell_value(0, 'A', 0, 4.0)
+    assert mito.transpiled_code == [
+        "df1['A'] = df1['A'].astype('float')",
+        "df1.at[0, 'A'] = 4.0"
+    ]
+
+def test_set_cell_value_convert_int_to_NaN():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1, 2, 3]}))
+    mito.set_cell_value(0, 'A', 0, "NaN")
+    assert mito.transpiled_code == [
+        "df1.at[0, 'A'] = None"
+    ]
+
+def test_set_cell_value_convert_int_to_empty():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1, 2, 3]}))
+    mito.set_cell_value(0, 'A', 0, "")
+    assert mito.transpiled_code == [
+        "df1.at[0, 'A'] = None"
+    ]
+
+def test_set_cell_value_convert_string():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': ["Aaron", "Jake", "Nate"]}))
+    mito.set_cell_value(0, 'A', 0, "Jon")
+    assert mito.transpiled_code == [
+        'df1.at[0, \'A\'] = "Jon"'
+    ]
+
+def test_set_cell_value_convert_string_to_None():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': ["Aaron", "Jake", "Nate"]}))
+    mito.set_cell_value(0, 'A', 0, "NaN")
+    assert mito.transpiled_code == [
+        'df1.at[0, \'A\'] = None'
+    ]
+
+def test_set_cell_value_convert_string_to_empty():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': ["Aaron", "Jake", "Nate"]}))
+    mito.set_cell_value(0, 'A', 0, "")
+    assert mito.transpiled_code == [
+        'df1.at[0, \'A\'] = None'
+    ]
+
+@pytest.mark.skipif(sys.version_info.minor <= 6, reason="requires 3.7 or greater")
+def test_set_cell_value_convert_datetime():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': pd.to_datetime(pd.Series(data=[
+            '12-1-2025', 
+            '12-3-2020',
+            '12-4-2020'
+        ]))}))
+    mito.set_cell_value(0, 'A', 0, "12-1-2030")
+    assert mito.transpiled_code == [
+        'df1.at[0, \'A\'] = "2030-12-01 00:00:00"'
+    ]
+
+def test_set_cell_value_convert_datetime_to_none():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': pd.to_datetime(pd.Series(data=[
+            '12-1-2025', 
+            '12-3-2020',
+            '12-4-2020'
+        ]))}))
+    mito.set_cell_value(0, 'A', 0, "NaT")
+    assert mito.transpiled_code == [
+        'df1.at[0, \'A\'] = None'
+    ]

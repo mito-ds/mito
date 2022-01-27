@@ -1,0 +1,4 @@
+analytics-python
+pytest
+colorama
+termcolor

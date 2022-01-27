@@ -1,0 +1,85 @@
+.graph-sidebar-div {
+    height: 100%;
+    width: 100%;
+
+    display: flex;
+    flex-direction: row;
+    
+    /* Give it absolute positioning so the column selecting popup can appear on top of it */
+    position: relative;
+
+    /* Set standard taskpane color */ 
+    color: var(--mito-legacy-gray);
+    /* We have to set the background, as the taskpane turns black on fullscreen for some reason */
+    background-color: white;
+
+    /* Stylize border of box, which we only need on some sides so we don't double up */ 
+    border-left: 1px solid var(--mito-border);
+    border-top: 1px solid var(--mito-border);
+    
+    box-sizing: border-box;
+}
+
+.graph-sidebar-no-data-div {
+    height: 100%;
+    width: 100%;
+    display: flex
+}
+
+.graph-sidebar-no-data-text {
+    margin: auto;
+}
+
+.graph-sidebar-graph-div {
+    display: flex;
+    flex-grow: 1;
+
+    /* Add standard spacing around the entire taskpane */
+    padding: 5px 10px;
+}
+
+.graph-sidebar-welcome-text {
+    width: 100%;
+    text-align: center;
+    align-self: center
+}
+
+.graph-sidebar-toolbar-div {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    border-left: 1px solid var(--mito-border);
+
+    width: 220px;
+    height: 100%;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.graph-sidebar-toolbar-content {
+    height: 90%;
+    overflow-y: scroll;
+}
+
+.graph-sidebar-toolbar-code-export-button {
+    height: 7.5%;
+    padding-top: 2.5%;
+    border-top: 1px solid var(--mito-border);
+}
+                        
+.popup-div { 
+    /* Make the popup div float above the sidebar */
+    z-index: 3;
+    position: absolute;
+
+    /* Place the popup div */
+    top: 35%;
+    left: 30%;
+
+    text-align: center;
+}
+
+.popup-text-div {
+  color: #8d8d8d;
+}

@@ -1,0 +1,94 @@
+:root {
+    --taskpane-width: 430px;
+}
+
+/* 
+    We override the the overflow behavior on the jupyter-widgets class, which 
+    seems to only be applied to the container of the widgets themselves (e.g.
+    which Mito is). 
+    
+    Specifically, we want overflow to be hidden. This keeps the Mitosheet, and
+    all other things inside the box. 
+
+    NOTE: do not change the name of this class. We didn't decide it, we inherited
+    it. 
+
+    To see where this class is used by Jupyter, search for it in the HTML. It is in
+    the parent of the parent of the .mito-container div!
+*/
+.jupyter-widgets {
+    overflow: hidden !important;
+}
+
+.mito-container {
+    height: 515px;
+    display: flex;
+    flex-direction: column;
+
+    border: 1px solid var(--mito-border);
+
+    /* Set the default font to Roboto */
+    font-family: Roboto;
+}
+
+
+/*
+    When the container is fullscreen, we expand it so it fills the 
+    entire view point. We do webkit as well, so it works on safari
+*/
+.mito-container:fullscreen .mito-container:-webkit-full-screen {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Contains the Toolbar, Mito Sheet, and Taskpane */ 
+.mito-main-sheet-div {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+}
+
+/* 
+    Contains the toolbar and Mito Sheet. This div should take up the entire width of 
+    mito-main-sheet-div when the taskpane is closed and only 70% when the taskpane is opened. 
+*/ 
+.mito-formula-bar-and-mitosheet-div {
+    /* Note that this is the whole height, less the height of the sheet tabs */
+    height: calc(100% - 30px);
+    width: 100%;
+}
+
+
+.mito-formula-bar-and-mitosheet-div-narrow-taskpane-open {
+    width: calc(100% - var(--taskpane-width));
+}
+
+.mito-formula-bar-and-mitosheet-div-wide-taskpane-open {
+    width: 30%;
+}
+
+.mito-default-wide-taskpane-open {
+    visibility: visible;
+    width: 70%;
+}
+
+.mito-default-narrow-taskpane-open {
+    visibility: visible;
+    width: var(--taskpane-width);
+}
+
+.mito-default-taskpane {
+    height: 100%;
+    width: 0%;
+    visibility: hidden;
+} 
+
+/* Note this only works with one div, p, etc. at a time. */
+.vertical-align-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}    

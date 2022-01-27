@@ -1,0 +1,15 @@
+.taskpane-error-container {
+    display: flex;
+    flex-direction: row;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.taskpane-error-error-icon{
+    width: 25px;
+    height: 25px;
+}
+
+.taskpane-error-message {
+    color: #E84849;
+}
