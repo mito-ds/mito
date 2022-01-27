@@ -235,7 +235,7 @@ class MitoWidget(DOMWidget):
         then it sets the feedback_id shared variable.
 
         Current Feedback Strategy:
-        - If the current step type is not the same as the previous step type, then there is a .25% chance that we ask the user for feedback
+        - Never ask for feedback
         """
         self.usage_triggered_feedback_id = ''
 
