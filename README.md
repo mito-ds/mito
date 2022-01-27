@@ -6,17 +6,17 @@ Mito is a spreadsheet that lives inside your JupyterLab notebooks. It allows you
   <img src="https://www.trymito.io/short-demo.gif">
 </p>
 
-Mito supports a large variety of data science tools, including:
-- CSV, XLSX import
+Mito aims to be the _first_ tool in your data science toolkit and supports:
+- Point-and-click CSV and XLSX import
 - Excel-style pivot tables
 - Graph generation
-- Point-and-click filtering and sorting
+- Filtering and sorting
 - Merge (lookups)
 - Excel-Style formulas
 - Column summary statistics
 - And much more!
 
-Mito is an open source tool (look around, duh), and will always be built by and for our community. See our [plans page](https://www.trymito.io/plans) for more detail about our features, and consider purchasing Mito Pro to help fund development. 
+Mito is an open source tool (look around...), and will always be built by and for our community. See our [plans page](https://www.trymito.io/plans) for more detail about our features, and consider purchasing Mito Pro to help fund development. 
 
 ## ⚡️ Quick start
 
