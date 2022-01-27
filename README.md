@@ -3,7 +3,7 @@
 Mito is a spreadsheet that lives inside your JupyterLab notebooks. It allows you to edit Pandas dataframes like an Excel file, and generates Python code that corresponds to each of your edits. 
 
 <p align="center">
-  <img width="460" height="300" src="https://www.trymito.io/short-demo.gif">
+  <img src="https://www.trymito.io/short-demo.gif">
 </p>
 
 Mito supports a large variety of data science tools, including:
