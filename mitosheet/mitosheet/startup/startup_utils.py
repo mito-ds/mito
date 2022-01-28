@@ -30,7 +30,7 @@ except:
 \tprint('Unable to automatically import mitosheet')
 """
 
-def create_startup_file():
+def create_startup_file() -> None:
     """
     Adds a file import_mitosheet.py to the user's IPython startup folder 
     so that Mito is automatically imported everytime they start an IPython kernel. 
@@ -51,7 +51,7 @@ def create_startup_file():
     log('created_df_button_startup_file')
 
 
-def remove_startup_file():
+def remove_startup_file() -> None:
     """
     Removes the import_mitosheet.py from the user's IPython startup folder
     so that the View in Mito button is not automatically displayed in 

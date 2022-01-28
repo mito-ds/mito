@@ -3,11 +3,17 @@
 
 # Copyright (c) Mito.
 # Distributed under the terms of the Modified BSD License.
-from typing import Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, Collection, List, Optional, Tuple
 import pandas as pd
 from mitosheet.mito_analytics import log
 from mitosheet.preprocessing.preprocess_step_performer import \
     PreprocessStepPerformer
+
+# To avoid circular imports
+if TYPE_CHECKING:
+    from mitosheet.steps_manager import StepsManager
+else: 
+    StepsManager = Any
 
 
 class CheckArgsTypePreprocessStepPerformer(PreprocessStepPerformer):
@@ -25,7 +31,7 @@ class CheckArgsTypePreprocessStepPerformer(PreprocessStepPerformer):
         return 'check_args_type'
 
     @classmethod
-    def execute(cls, args: List[Any]) -> Tuple[List[Any], Optional[Dict[str, Any]]]:
+    def execute(cls, args: Collection[Any]) -> Tuple[List[Any], Optional[Dict[str, Any]]]:
         # We first validate all the parameters as either dataframes or strings
         # but we also allow users to pass None values, which we just ignore (this
         # makes variable number of inputs to the sheet possible).
@@ -43,5 +49,5 @@ class CheckArgsTypePreprocessStepPerformer(PreprocessStepPerformer):
         return [arg for arg in args if arg is not None], None
 
     @classmethod
-    def transpile(cls, steps_manager, execution_data: Optional[Dict[str, Any]]) -> List[str]:
+    def transpile(cls, steps_manager: StepsManager, execution_data: Optional[Dict[str, Any]]) -> List[str]:
         return []

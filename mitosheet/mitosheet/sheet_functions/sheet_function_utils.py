@@ -11,7 +11,7 @@ from typing import List, Tuple, Union
 import pandas as pd
 import numpy as np
 
-def try_extend_series_to_index(series, index_to_fill):
+def try_extend_series_to_index(series: pd.Series, index_to_fill: Union[pd.Index, pd.MultiIndex]) -> pd.Series:
     """
     Extends a given series to contain the entire index, filling the series
     with the first defined value.

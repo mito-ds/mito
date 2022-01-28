@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, List
 import pandas as pd
 import plotly.graph_objects as go
 
@@ -7,7 +7,7 @@ from mitosheet.api.graph.graph_utils import CREATE_FIG_CODE, HISTOGRAM, SHOW_FIG
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
 
 
-def get_histogram(axis, df, column_headers):
+def get_histogram(axis: str, df: pd.DataFrame, column_headers: List[Any]) -> go.Figure:
     """
     Returns a histogram using the following heuristic:
 
@@ -52,7 +52,7 @@ def get_histogram_code(
         df: pd.DataFrame, 
         column_headers: List[str], 
         df_name: str
-    ):
+    ) -> str:
     """
     Generates code for a histogram, as above.
     """

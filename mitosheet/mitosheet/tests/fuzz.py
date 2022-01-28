@@ -1,3 +1,4 @@
+from typing import Any, Dict
 import atheris
 import pandas as pd
 import sys
@@ -13,7 +14,7 @@ with atheris.instrument_imports():
     )
 
 
-def get_random_event(fdp):
+def get_random_event(fdp: atheris.FuzzedDataProvider) -> Dict[str, Any]:
     """
     Takes a fuzz data provider, returns a random
     event to send to the backend.
@@ -32,7 +33,7 @@ def get_random_event(fdp):
     }
 
 
-def send_random_event(mito: MitoWidgetTestWrapper, fdp):
+def send_random_event(mito: MitoWidgetTestWrapper, fdp: atheris.FuzzedDataProvider) -> None:
 
     random_sheet_index = fdp.PickValueInList(list(range(len(mito.dfs))))
     random_existing_column_header = fdp.PickValueInList(list(mito.dfs[random_sheet_index].keys()))

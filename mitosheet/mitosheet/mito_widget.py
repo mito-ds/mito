@@ -7,6 +7,7 @@
 Main file containing the mito widget.
 """
 import json
+from typing import Any, Dict, List, Union
 import pandas as pd
 import random
 from ipywidgets import DOMWidget
@@ -42,7 +43,7 @@ class MitoWidget(DOMWidget):
     analysis_data_json = t.Unicode('').tag(sync=True)
     user_profile_json = t.Unicode('').tag(sync=True)
     
-    def __init__(self, *args):
+    def __init__(self, *args: List[Union[pd.DataFrame, str]]):
         """
         Takes a list of dataframes and strings that are paths to CSV files
         passed through *args.
@@ -62,7 +63,8 @@ class MitoWidget(DOMWidget):
         # We store static variables to make writing the shared
         # state variables quicker; we store them so we don't 
         # have to recompute them on each update
-        self.num_usages = len(get_user_field(UJ_MITOSHEET_LAST_FIFTY_USAGES))
+        last_50_usages = get_user_field(UJ_MITOSHEET_LAST_FIFTY_USAGES)
+        self.num_usages = len(last_50_usages if last_50_usages is not None else [])
         self.usage_triggered_feedback_id = ''
         self.is_local_deployment = is_local_deployment()
         self.should_upgrade_mitosheet = should_upgrade_mitosheet()
@@ -76,7 +78,7 @@ class MitoWidget(DOMWidget):
         return self.steps_manager.analysis_name
 
 
-    def update_shared_state_variables(self):
+    def update_shared_state_variables(self) -> None:
         """
         Helper function for updating all the variables that are shared
         between the backend and the frontend through trailets.
@@ -96,7 +98,7 @@ class MitoWidget(DOMWidget):
         })
 
 
-    def handle_edit_event(self, event):
+    def handle_edit_event(self, event: Dict[str, Any]) -> None:
         """
         Handles an edit_event. Per the spec, an edit_event
         updates both the sheet and the codeblock, and as such
@@ -129,7 +131,7 @@ class MitoWidget(DOMWidget):
 
 
 
-    def handle_update_event(self, event):
+    def handle_update_event(self, event: Dict[str, Any]) -> None:
         """
         This event is not the user editing the sheet, but rather information
         that has been collected from the frontend (after render) that is being
@@ -156,7 +158,7 @@ class MitoWidget(DOMWidget):
             'id': event['id']
         })
 
-    def receive_message(self, widget, content, buffers=None):
+    def receive_message(self, widget: Any, content: Dict[str, Any], buffers: Any=None) -> bool:
         """
         Handles all incoming messages from the JS widget. There are two main
         types of events:
@@ -179,7 +181,7 @@ class MitoWidget(DOMWidget):
                 self.handle_update_event(event)
             elif event['event'] == 'api_call':
                 self.api.process_new_api_call(event)
-                return 
+                return True
             
             # NOTE: we don't need to case on log_event above because it always gets
             # passed to this function, and thus is logged. However, we do not log
@@ -192,7 +194,7 @@ class MitoWidget(DOMWidget):
             print(e)
             
             # Log processing this event failed
-            log_event_processed(event, self.steps_manager, failed=True, edit_error=e)
+            log_event_processed(event, self.steps_manager, failed=True, mito_error=e)
 
             # If the error says to ignore the error modal, then we
             # send some data with the response so that the frontend
@@ -229,7 +231,7 @@ class MitoWidget(DOMWidget):
 
         return False
 
-    def set_usage_triggered_feedback_id(self):
+    def set_usage_triggered_feedback_id(self) -> None:
         """
         Determines if the user should be prompted for feedback. If it determines that we should ask the user for feedback, 
         then it sets the feedback_id shared variable.
@@ -240,8 +242,8 @@ class MitoWidget(DOMWidget):
         self.usage_triggered_feedback_id = ''
 
 def sheet(
-        *args,
-        view_df=False # We use this param to log if the mitosheet.sheet call is created from the df output button
+        *args: Any,
+        view_df: bool=False # We use this param to log if the mitosheet.sheet call is created from the df output button
         # NOTE: if you add named variables to this function, make sure argument parsing on the front-end still
         # works by updating the getArgsFromCellContent function.
     ) -> MitoWidget:

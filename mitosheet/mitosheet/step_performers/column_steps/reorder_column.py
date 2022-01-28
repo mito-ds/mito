@@ -7,12 +7,14 @@
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Set, Tuple
 
+import pandas as pd
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import \
+    column_header_to_transpiled_code
 
 
-def get_valid_index(dfs, sheet_index, new_column_index):
+def get_valid_index(dfs: List[pd.DataFrame], sheet_index: int, new_column_index: int) -> int:
     # make sure new_column_index is valid
     if new_column_index < 0:
         new_column_index = 0
@@ -46,7 +48,7 @@ class ReorderColumnStepPerformer(StepPerformer):
         return 'reorder_column_edit'
 
     @classmethod
-    def saturate(cls, prev_state: State, params) -> Dict[str, str]:
+    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 
     @classmethod
@@ -127,7 +129,7 @@ class ReorderColumnStepPerformer(StepPerformer):
         return {sheet_index}
 
 
-def _execute_reorder_column(df, column_header, new_column_index):
+def _execute_reorder_column(df: pd.DataFrame, column_header: Any, new_column_index: int) -> pd.DataFrame:
     """
     Helper function for reordering a column in the dataframe
     """

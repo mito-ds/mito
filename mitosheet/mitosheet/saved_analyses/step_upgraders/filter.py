@@ -9,7 +9,7 @@ from mitosheet.saved_analyses.step_upgraders.utils_column_header_to_column_id im
     replace_headers_with_id
 
 
-def update_filter_column_1_to_filter_column_2(step: Dict[str, Any], later_steps: List[Dict[str, Any]]): 
+def update_filter_column_1_to_filter_column_2(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]: 
     """
     Upgrades from a filter column version 1 step to version 2. This was
     part of the refactor that unified type handling across the codebase,
@@ -88,7 +88,7 @@ def update_filter_column_1_to_filter_column_2(step: Dict[str, Any], later_steps:
     }] + later_steps
 
 
-def upgrade_filter_column_2_to_3(step: Dict[str, Any], later_steps: List[Dict[str, Any]]):
+def upgrade_filter_column_2_to_3(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Moves to using column id instead of column header.
 

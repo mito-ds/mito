@@ -10,7 +10,7 @@ This file contains helpful functions and classes for testing operations.
 
 import json
 from functools import wraps
-from typing import Dict, List
+from typing import Any, Dict, List, Union
 
 import pandas as pd
 from mitosheet.mito_widget import MitoWidget, sheet
@@ -151,7 +151,7 @@ class MitoWidgetTestWrapper:
         return self.mito_widget.steps_manager.curr_step.column_format_types
 
     @check_transpiled_code_after_call
-    def add_column(self, sheet_index: int, column_header: str, column_header_index=-1):
+    def add_column(self, sheet_index: int, column_header: str, column_header_index: int=-1) -> bool:
         """
         Adds a column.
         """
@@ -174,8 +174,8 @@ class MitoWidgetTestWrapper:
             formula: str, 
             sheet_index: int,
             column_header: str, 
-            add_column=False,
-        ):
+            add_column: bool=False,
+        ) -> bool:
         """
         Sets the given column to have formula, and optionally
         adds the column if it does not already exist.
@@ -206,14 +206,14 @@ class MitoWidgetTestWrapper:
     @check_transpiled_code_after_call
     def merge_sheets(
             self, 
-            how,
-            sheet_index_one, 
-            merge_key_one, 
-            selected_columns_one,
-            sheet_index_two, 
-            merge_key_two,
-            selected_columns_two
-        ):
+            how: str,
+            sheet_index_one: int, 
+            merge_key_one: Any, 
+            selected_columns_one: List[Any],
+            sheet_index_two: int, 
+            merge_key_two: Any,
+            selected_columns_two: List[Any]
+        ) -> bool:
 
         merge_key_column_id_one = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
             sheet_index_one,
@@ -254,10 +254,10 @@ class MitoWidgetTestWrapper:
     @check_transpiled_code_after_call
     def drop_duplicates(
             self, 
-            sheet_index, 
-            column_headers, 
-            keep,
-        ):
+            sheet_index: int, 
+            column_headers: List[Any], 
+            keep: str,
+        ) -> bool:
 
         column_ids = [
             self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index, column_header)
@@ -282,14 +282,14 @@ class MitoWidgetTestWrapper:
     @check_transpiled_code_after_call
     def pivot_sheet(
             self, 
-            sheet_index, 
-            pivot_rows,
-            pivot_columns,
-            values,
-            flatten_column_headers=False,
-            destination_sheet_index=None,
-            step_id=None
-        ):
+            sheet_index: int, 
+            pivot_rows: List[int],
+            pivot_columns: List[int],
+            values: Dict[str, List[str]],
+            flatten_column_headers: bool=False,
+            destination_sheet_index: int=None,
+            step_id: str=None
+        ) -> bool:
 
         rows_ids = [
             self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index, column_header)
@@ -325,13 +325,13 @@ class MitoWidgetTestWrapper:
     @check_transpiled_code_after_call
     def filter(
             self, 
-            sheet_index, 
-            column_header,
-            operator,
-            type_,
-            condition, 
-            value
-        ):
+            sheet_index: int, 
+            column_header: Any,
+            operator: str,
+            type_: str,
+            condition: str, 
+            value: Any
+        ) -> bool:
 
         column_id = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
             sheet_index,
@@ -362,17 +362,16 @@ class MitoWidgetTestWrapper:
     @check_transpiled_code_after_call
     def filters(
             self, 
-            sheet_index, 
-            column_header,
-            operator,
-            filters
-        ):
+            sheet_index: int, 
+            column_header: Any,
+            operator: str,
+            filters: List[Dict[str, Any]]
+        ) -> bool:
 
         column_id = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
             sheet_index,
             column_header
         )
-
 
         return self.mito_widget.receive_message(
             self.mito_widget,
@@ -393,10 +392,10 @@ class MitoWidgetTestWrapper:
     @check_transpiled_code_after_call
     def sort(
             self, 
-            sheet_index, 
-            column_header,
-            sort_direction
-        ):
+            sheet_index: int, 
+            column_header: Any,
+            sort_direction: str
+        ) -> bool:
 
         column_id = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
             sheet_index,
@@ -421,10 +420,10 @@ class MitoWidgetTestWrapper:
     @check_transpiled_code_after_call
     def reorder_column(
             self, 
-            sheet_index, 
-            column_header, 
-            new_column_index
-        ):
+            sheet_index: int, 
+            column_header: Any, 
+            new_column_index: int
+        ) -> bool:
 
         column_id = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
             sheet_index,
@@ -447,7 +446,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def rename_column(self, sheet_index: int, old_column_header: str, new_column_header, level=None):
+    def rename_column(self, sheet_index: int, old_column_header: Any, new_column_header: Any, level: int=None) -> bool:
 
         column_id = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
             sheet_index,
@@ -471,7 +470,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def delete_columns(self, sheet_index: int, column_headers: List[str]):
+    def delete_columns(self, sheet_index: int, column_headers: List[Any]) -> bool:
         column_ids = [self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
             sheet_index,
             column_header 
@@ -492,7 +491,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def change_column_dtype(self, sheet_index: int, column_header: str, new_dtype: str):
+    def change_column_dtype(self, sheet_index: int, column_header: Any, new_dtype: str) -> bool:
 
         column_id = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
             sheet_index,
@@ -515,7 +514,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def change_column_format(self, sheet_index: int, column_headers: List[str], new_format: Dict[str, str]):
+    def change_column_format(self, sheet_index: int, column_headers: List[Any], new_format: Dict[str, str]) -> bool:
 
         column_ids = []
         for column_header in column_headers: 
@@ -541,7 +540,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def simple_import(self, file_names: List[str]):
+    def simple_import(self, file_names: List[str]) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
             {
@@ -556,7 +555,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def excel_import(self, file_name: str, sheet_names: List[str], has_headers: bool, skiprows: int):
+    def excel_import(self, file_name: str, sheet_names: List[str], has_headers: bool, skiprows: int) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
             {
@@ -574,7 +573,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def bulk_old_rename(self, move_to_deprecated_id_algorithm=False):
+    def bulk_old_rename(self, move_to_deprecated_id_algorithm: bool=False) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
             {
@@ -589,7 +588,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def undo(self):
+    def undo(self) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
             {
@@ -600,7 +599,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def redo(self):
+    def redo(self) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
             {
@@ -611,7 +610,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def clear(self):
+    def clear(self) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
             {
@@ -622,7 +621,7 @@ class MitoWidgetTestWrapper:
         )
     
 
-    def save_analysis(self, analysis_name):
+    def save_analysis(self, analysis_name: str) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
             {
@@ -635,7 +634,7 @@ class MitoWidgetTestWrapper:
 
 
     @check_transpiled_code_after_call
-    def delete_dataframe(self, sheet_index):
+    def delete_dataframe(self, sheet_index: int) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
             {
@@ -650,7 +649,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def duplicate_dataframe(self, sheet_index):
+    def duplicate_dataframe(self, sheet_index: int) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
             {
@@ -665,7 +664,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def rename_dataframe(self, sheet_index, new_dataframe_name):
+    def rename_dataframe(self, sheet_index: int, new_dataframe_name: str) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
             {
@@ -681,7 +680,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def set_cell_value(self, sheet_index, column_header, row_index, new_value):
+    def set_cell_value(self, sheet_index: int, column_header: Any, row_index: int, new_value: Any) -> bool:
         column_id = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
             sheet_index,
             column_header
@@ -704,7 +703,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def replay_analysis(self, analysis_name, import_summaries=None, clear_existing_analysis=False):
+    def replay_analysis(self, analysis_name: str, import_summaries: Dict[str, Any]=None, clear_existing_analysis: bool=False) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
             {
@@ -718,7 +717,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def checkout_step_by_idx(self, index):
+    def checkout_step_by_idx(self, index: int) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
             {
@@ -730,31 +729,31 @@ class MitoWidgetTestWrapper:
         )
 
 
-    def get_formula(self, sheet_index: int, column_header: str):
+    def get_formula(self, sheet_index: int, column_header: Any) -> str:
         """
         Gets the formula for a given column. Returns an empty
         string if nothing exists.
         """
-        column_id = self.mito_widget.steps_manager.curr_step.post_state.column_ids.get_column_id_by_header(
+        column_id = self.mito_widget.steps_manager.curr_step.get_column_id_by_header(
             sheet_index, column_header
         )
         if column_id not in self.mito_widget.steps_manager.curr_step.column_spreadsheet_code[sheet_index]:
             return ''
         return self.mito_widget.steps_manager.curr_step.column_spreadsheet_code[sheet_index][column_id]
 
-    def get_python_formula(self, sheet_index: int, column_header: str):
+    def get_python_formula(self, sheet_index: int, column_header: Any) -> str:
         """
         Gets the formula for a given column. Returns an empty
         string if nothing exists.
         """
-        column_id = self.mito_widget.steps_manager.curr_step.post_state.column_ids.get_column_id_by_header(
+        column_id = self.mito_widget.steps_manager.curr_step.get_column_id_by_header(
             sheet_index, column_header
         )
         if column_id not in self.mito_widget.steps_manager.curr_step.column_python_code[sheet_index]:
             return ''
         return self.mito_widget.steps_manager.curr_step.column_python_code[sheet_index][column_id]
 
-    def get_value(self, sheet_index: int, column_header: str, row: int):
+    def get_value(self, sheet_index: int, column_header: Any, row: int) -> Any:
         """
         Returns a value in a given dataframe at the given
         index in a column. NOTE: the row is 1 indexed!
@@ -763,7 +762,7 @@ class MitoWidgetTestWrapper:
         """
         return self.mito_widget.steps_manager.curr_step.dfs[sheet_index].at[row - 1, column_header]
 
-    def get_column(self, sheet_index: int, column_header: str, as_list: bool):
+    def get_column(self, sheet_index: int, column_header: Any, as_list: bool) -> Union[pd.Series, List]:
         """
         Returns a series object of the given column, or a list if
         as_list is True. 
@@ -776,7 +775,7 @@ class MitoWidgetTestWrapper:
 
     
 
-def create_mito_wrapper(sheet_one_A_data, sheet_two_A_data=None) -> MitoWidgetTestWrapper:
+def create_mito_wrapper(sheet_one_A_data: List[Any], sheet_two_A_data: List[Any]=None) -> MitoWidgetTestWrapper:
     """
     Returns a MitoWidgetTestWrapper instance wrapped around a MitoWidget
     that contains just a column A, containing sheet_one_A_data.
@@ -792,7 +791,7 @@ def create_mito_wrapper(sheet_one_A_data, sheet_two_A_data=None) -> MitoWidgetTe
     mito_widget = sheet(*dfs)
     return MitoWidgetTestWrapper(mito_widget)
 
-def create_mito_wrapper_dfs(*args):
+def create_mito_wrapper_dfs(*args: pd.DataFrame) -> MitoWidgetTestWrapper:
     """
     Creates a MitoWidgetTestWrapper with a mito instance with the given
     data frames.
@@ -800,7 +799,7 @@ def create_mito_wrapper_dfs(*args):
     mito_widget = sheet(*args)
     return MitoWidgetTestWrapper(mito_widget)
 
-def make_multi_index_header_df(data, column_headers, index=None):
+def make_multi_index_header_df(data: Dict[Union[str, int], List[Any]], column_headers: List[Any], index: List[Any]=None) -> pd.DataFrame:
     """
     A helper function that allows you to easily create a multi-index
     header dataframe. 

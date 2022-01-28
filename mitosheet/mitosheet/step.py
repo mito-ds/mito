@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Dict, List, Optional, Set, Type
 
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.column_steps.set_column_formula import SetColumnFormulaStepPerformer
@@ -112,8 +112,16 @@ class Step:
         step_performer = STEP_TYPE_TO_STEP_PERFORMER[self.step_type]
         return step_performer
 
+    @property
+    def final_defined_state(self) -> State:
+        """
+        Returns the final defined state in this step, as the prev and post
+        state are optional, but we also need a step to have a defined step
+        """
+        return self.post_state if self.post_state is not None else \
+            (self.prev_state if self.prev_state is not None else State([]))
 
-    def set_prev_state_and_execute(self, new_prev_state):
+    def set_prev_state_and_execute(self, new_prev_state: State) -> None:
         """
         Changes the prev_state of this step, which in turns triggers
         a reexecution with the same parameters. 
@@ -147,7 +155,7 @@ class Step:
         self.params = params
     
 
-    def step_indexes_to_skip(self, all_steps_before_this_step):
+    def step_indexes_to_skip(self, all_steps_before_this_step: List['Step']) -> Set[int]:
         """
         Given the steps that come before it, any step has the ability
         to skip these steps. 
@@ -161,7 +169,6 @@ class Step:
         step_indexes_to_skip = set()
 
         for step_index, step in enumerate(all_steps_before_this_step):
-            step: Step = step
             # Check (1)
             if step.step_type == FilterStepPerformer.step_type() and self.step_type == FilterStepPerformer.step_type():
                 if step.params['sheet_index'] == self.params['sheet_index'] \
@@ -183,5 +190,26 @@ class Step:
                     step_indexes_to_skip.add(len(all_steps_before_this_step) - 1)
 
         return step_indexes_to_skip
+
+    def get_column_headers_by_ids(self, sheet_index: int, column_ids: List[str]) -> List[Any]:
+        """
+        Utility for getting the column headers from column ids in a step.
+        First attempts to get them from the prev state, but if not 
+        """
+        return self.final_defined_state.column_ids.get_column_headers_by_ids(sheet_index, column_ids)
+            
+    def get_column_header_by_id(self, sheet_index: int, column_id: str) -> Any:
+        """
+        Utility for getting the column header from a column id in a step.
+        First attempts to get them from the prev state, but if not 
+        """
+        return self.final_defined_state.column_ids.get_column_header_by_id(sheet_index, column_id)
+
+    def get_column_id_by_header(self, sheet_index: int, column_header: Any) -> str:
+        """
+        Utility for getting the column id from a column header in a step.
+        First attempts to get them from the prev state, but if not 
+        """
+        return self.final_defined_state.column_ids.get_column_id_by_header(sheet_index, column_header)
 
 

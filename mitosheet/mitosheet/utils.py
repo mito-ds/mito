@@ -10,7 +10,7 @@ Contains helpful utility functions
 import json
 import re
 import uuid
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List, Optional, Set
 
 import numpy as np
 import pandas as pd
@@ -57,7 +57,7 @@ def get_valid_dataframe_name(existing_df_names: List[str], original_dataframe_na
     return get_first_unused_dataframe_name(existing_df_names, dataframe_name)
 
 
-def get_valid_dataframe_names(existing_df_names: List[str], original_df_names: List[str]):
+def get_valid_dataframe_names(existing_df_names: List[str], original_df_names: List[str]) -> List[str]:
     """
     Helper function for taking a list of potential and turning them into valid
     names for dataframes, that do not overlap with the existing dataframe names.
@@ -119,8 +119,8 @@ def df_to_json_dumpsable(
         column_mito_types: Dict[str, str],
         column_headers_to_column_ids: Dict[Any, str],
         column_format_types: Dict[str, Dict[str, str]],
-        max_length=MAX_ROWS, # How many items you want to display
-    ):
+        max_length: Optional[int]=MAX_ROWS, # How many items you want to display
+    ) -> Dict[str, Any]:
     """
     Returns a dataframe represented in a way that can be turned into a 
     JSON object with json.dumps.
@@ -221,14 +221,14 @@ def df_to_json_dumpsable(
     }
 
 
-def get_random_id():
+def get_random_id() -> str:
     """
     Creates a new random ID for the user, which for any given user,
     should only happen once.
     """
     return str(uuid.uuid1())
 
-def get_new_id():
+def get_new_id() -> str:
     return str(uuid.uuid4())
 
 

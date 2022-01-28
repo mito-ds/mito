@@ -4,7 +4,8 @@
 # Copyright (c) Mito.
 # Distributed under the terms of the Modified BSD License.
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, Collection, List, Optional, Tuple, Union
+
 import pandas as pd
 from mitosheet.errors import get_recent_traceback_as_list
 from mitosheet.mito_analytics import log
@@ -13,6 +14,12 @@ from mitosheet.preprocessing.preprocess_step_performer import \
 from mitosheet.step_performers.import_steps.simple_import import (
     generate_read_csv_code, get_valid_dataframe_names,
     read_csv_get_delimeter_and_encoding)
+
+    # To avoid circular imports
+if TYPE_CHECKING:
+    from mitosheet.steps_manager import StepsManager
+else: 
+    StepsManager = Any
 
 
 class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
@@ -31,7 +38,7 @@ class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
         return 'read_file_paths'
 
     @classmethod
-    def execute(cls, args: List[Any]) -> Tuple[List[Any], Dict[str, Any]]:
+    def execute(cls, args: Collection[Any]) -> Tuple[List[Any], Dict[str, Any]]:
         df_args: List[pd.DataFrame] = []
         delimeters: List[Optional[str]] = []
         encodings: List[Optional[str]] = []
@@ -69,7 +76,7 @@ class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
         }
 
     @classmethod
-    def transpile(cls, steps_manager, execution_data: Optional[Dict[str, Any]]) -> List[str]:
+    def transpile(cls, steps_manager: StepsManager, execution_data: Optional[Dict[str, Any]]) -> List[str]:
         """
         Transpiles the reading in of passed file paths to dataframe names, 
         with a simple pd.read_csv call.
@@ -109,5 +116,5 @@ class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
         return code
 
 
-def get_string_args(args):
+def get_string_args(args: Collection[Union[pd.DataFrame, str]]) -> List[str]:
     return [arg for arg in args if isinstance(arg, str)]

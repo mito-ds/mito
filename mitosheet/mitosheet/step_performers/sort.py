@@ -41,7 +41,7 @@ class SortStepPerformer(StepPerformer):
         return 'sort_edit'
 
     @classmethod
-    def saturate(cls, prev_state: State, params) -> Dict[str, str]:
+    def saturate(cls, prev_state: State, params: Any) -> Dict[str, str]:
         return params
 
     @classmethod

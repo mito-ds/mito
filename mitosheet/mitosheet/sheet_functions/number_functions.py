@@ -30,7 +30,7 @@ from mitosheet.sheet_functions.sheet_function_utils import try_extend_series_to_
     'error',
     ('default', np.NaN)
 )
-def ABS(series: pd.Series):
+def ABS(series: pd.Series) -> pd.Series:
     """
     {
         "function": "ABS",
@@ -95,7 +95,7 @@ def AVG(*argv: pd.Series) -> pd.Series:
     'error',
     ('default', np.NaN)
 )
-def CORR(s1, s2) -> pd.Series:
+def CORR(s1: pd.Series, s2: pd.Series) -> pd.Series:
     """
     {
         "function": "CORR",
@@ -130,7 +130,7 @@ def CORR(s1, s2) -> pd.Series:
     ('default', np.NaN)
 )
 # We don't use the @filter_nans decorator because kurtosis ignores NaN values
-def KURT(series) -> pd.Series:
+def KURT(series: pd.Series) -> pd.Series:
     """
     {
         "function": "KURT",
@@ -340,7 +340,7 @@ def ROUND(series, decimals=None):
     ('default', np.NaN)
 )
 # We don't use the @filter_nans decorator because skew ignores NaN values
-def SKEW(series) -> pd.Series:
+def SKEW(series: pd.Series) -> pd.Series:
     """
     {
         "function": "SKEW",
@@ -403,7 +403,7 @@ def SUM(*argv: pd.Series) -> pd.Series:
     ('default', np.NaN)
 )
 # We don't use the @filter_nans decorator because std ignores NaN values
-def STDEV(series) -> pd.Series:
+def STDEV(series: pd.Series) -> pd.Series:
     """
     {
         "function": "STDEV",
@@ -436,7 +436,7 @@ def STDEV(series) -> pd.Series:
     'error',
     ('default', np.NaN)
 )
-def VALUE(series) -> pd.Series:
+def VALUE(series: pd.Series) -> pd.Series:
     """
     {
         "function": "VALUE",
@@ -464,7 +464,7 @@ def VALUE(series) -> pd.Series:
     'error',
     ('default', np.NaN)
 )
-def EXP(series) -> pd.Series:
+def EXP(series: pd.Series) -> pd.Series:
     """
     {
         "function": "EXP",
@@ -492,7 +492,7 @@ def EXP(series) -> pd.Series:
     ('default', np.NaN)
 )
 # We don't use the @filter_nans decorator because var ignores NaN values
-def VAR(series) -> pd.Series:
+def VAR(series: pd.Series) -> pd.Series:
     """
     {
         "function": "VAR",

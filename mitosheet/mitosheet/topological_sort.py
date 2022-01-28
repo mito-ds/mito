@@ -11,11 +11,12 @@ nodes must be in the graph, even if they have no adj nodes, and
 should just have an empty set in this case.
 """
 from copy import deepcopy
+from typing import Dict, Collection, List, Set
 
 from mitosheet.errors import MitoError, make_circular_reference_error
 
 
-def visit(column_evaluation_graph, node, visited, finished_order, visited_loop):
+def visit(column_evaluation_graph: Dict[str, Set[str]], node: str, visited: Dict[str, bool], finished_order: List[str], visited_loop: Set[str]) -> None:
     """
     Recursive helper function for topological sort. Throws a
     circular_reference_error if there is a loop.
@@ -39,19 +40,19 @@ def visit(column_evaluation_graph, node, visited, finished_order, visited_loop):
     finished_order.append(node)
 
 
-def topological_sort_columns(column_evaluation_graph):
+def topological_sort_columns(column_evaluation_graph: Dict[str, Set[str]]) -> List[str]:
     """
     Topologically sorts by DFSing the graph, recording the finish order, and
     then returning nodes in reversed finish order.
     """
     visited = {node: False for node in column_evaluation_graph}
-    finish_order = []
+    finish_order: List[str] = []
     # Visit each node in the graph
     for node in column_evaluation_graph:
         if not visited[node]:
             # Keep track of the nodes visited during this set
             # of recursive calls, so we can detect cycles
-            visited_loop = set()
+            visited_loop: Set[str] = set()
             visit(
                 column_evaluation_graph,
                 node,
@@ -64,7 +65,7 @@ def topological_sort_columns(column_evaluation_graph):
     finish_order.reverse()
     return finish_order
 
-def subgraph_from_starting_column_id(column_evaluation_graph, starting_column_id):
+def subgraph_from_starting_column_id(column_evaluation_graph: Dict[str, Set[str]], starting_column_id: str) -> Dict[str, Set[str]]:
     """
     Filters down the column_evaluation_graph to just the nodes that can be reached
     from the starting_point, including the starting_point itself.
@@ -84,11 +85,11 @@ def subgraph_from_starting_column_id(column_evaluation_graph, starting_column_id
 
 
 def creates_circularity(
-        column_evaluation_graph,
-        column_id,
-        old_dependencies,
-        new_dependencies
-    ):
+        column_evaluation_graph: Dict[str, Set[str]],
+        column_id: str,
+        old_dependencies: Collection[str],
+        new_dependencies: Collection[str]
+    ) -> bool:
     """
     Given a column_evaluation_graph, checks if removing the
     old_dependencies and adding the new_dependencies to this

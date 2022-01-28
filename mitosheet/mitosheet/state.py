@@ -6,7 +6,7 @@
 
 from copy import deepcopy
 from collections import OrderedDict
-from typing import List, Dict
+from typing import Any, Collection, List, Dict, Set
 import pandas as pd
 
 from mitosheet.sheet_functions.types.utils import get_mito_type
@@ -41,21 +41,21 @@ class State():
     """
 
     def __init__(self, 
-            dfs: List[pd.DataFrame], 
+            dfs: Collection[pd.DataFrame], 
             df_names: List[str]=None,
             df_sources: List[str]=None,
             column_ids: ColumnIDMap=None,
-            column_metatype=None,
-            column_type=None,
-            column_spreadsheet_code=None,
-            column_python_code=None,
-            column_evaluation_graph=None,
-            column_filters=None,
+            column_metatype: List[Dict[str, str]]=None,
+            column_type: List[Dict[str, str]]=None,
+            column_spreadsheet_code: List[Dict[str, str]]=None,
+            column_python_code: List[Dict[str, str]]=None,
+            column_evaluation_graph: List[Dict[str, Set[str]]]=None,
+            column_filters: List[Dict[str, Any]]=None,
             column_format_types: List[Dict[str, Dict[str, str]]]=None
         ):
 
         # The dataframes that are in the state
-        self.dfs = dfs
+        self.dfs = list(dfs)
 
         # The df_names are composed of two parts:
         # 1. The names of the variables passed into the mitosheet.sheet call (which don't change over time).
@@ -158,11 +158,11 @@ class State():
             self, 
             new_df: pd.DataFrame, 
             df_source: str, 
-            sheet_index=None,
-            df_name=None,
-            format_types=None,
+            sheet_index: int=None,
+            df_name: str=None,
+            format_types: Dict[str, Any]=None,
             use_deprecated_id_algorithm: bool=False
-        ):
+        ) -> int:
         """
         Helper function for adding a new dataframe to this state,
         and keeping all the other variables in sync.
@@ -224,13 +224,13 @@ class State():
             # Return the index of this sheet
             return sheet_index
     
-    def does_sheet_index_exist_within_state(self, sheet_index):
+    def does_sheet_index_exist_within_state(self, sheet_index: int) -> bool:
         """
         Returns true iff a sheet_index exists within this state
         """
         return not (sheet_index < 0 or sheet_index >= len(self.dfs))
 
-    def move_to_deprecated_id_algorithm(self):
+    def move_to_deprecated_id_algorithm(self) -> None:
         """
         This helper function will move the entire state to the new IDs,
         for backwards compatibility reasons. Namely, users who pass

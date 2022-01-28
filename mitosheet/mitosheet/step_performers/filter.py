@@ -6,7 +6,7 @@
 from copy import deepcopy
 import functools
 from numbers import Number
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 import pandas as pd
 from datetime import date
 
@@ -227,7 +227,7 @@ class FilterStepPerformer(StepPerformer):
         return 'filter_column_edit'
 
     @classmethod
-    def saturate(cls, prev_state: State, params) -> Dict[str, str]:
+    def saturate(cls, prev_state: State, params: Any) -> Dict[str, str]:
         """
         Saturates the filter event with a `has_non_empty_filter` - which is useful
         for for logging
@@ -361,7 +361,7 @@ class FilterStepPerformer(StepPerformer):
         return {sheet_index}
 
 
-def get_applied_filter(df, column_header, filter_):
+def get_applied_filter(df: pd.DataFrame, column_header: Any, filter_: Dict[str, Any]) -> pd.Series:
     """
     Given a filter triple, returns the filter indexes for that
     actual dataframe
@@ -451,9 +451,9 @@ def get_applied_filter(df, column_header, filter_):
     else:
         raise Exception(f'Invalid type passed in filter {type_}')
 
-def combine_filters(operator, filters):
+def combine_filters(operator: str, filters: pd.Series) -> pd.Series:
 
-    def filter_reducer(filter_one, filter_two):
+    def filter_reducer(filter_one: pd.Series, filter_two: pd.Series) -> pd.Series:
         # Helper for combining filters based on the operations
         if operator == 'Or':
             return (filter_one) | (filter_two)
@@ -466,11 +466,11 @@ def combine_filters(operator, filters):
     return functools.reduce(filter_reducer, filters)
 
 def _execute_filter(
-        df, 
-        column_header,
-        operator,
-        filters
-    ):
+        df: pd.DataFrame, 
+        column_header: Any,
+        operator: str,
+        filters: List[Dict[str, Any]]
+    ) -> pd.DataFrame:
     """
     Executes a filter on the given column, filtering by removing any rows who
     don't meet the condition.
@@ -504,7 +504,7 @@ def _execute_filter(
         return df
 
 
-def get_single_filter_string(df_name, column_header, filter_):
+def get_single_filter_string(df_name: str, column_header: Any, filter_: Dict[str, Any]) -> str:
     """
     Transpiles a specific filter to a fitler string, to be used
     in constructing the final transpiled code
@@ -520,12 +520,13 @@ def get_single_filter_string(df_name, column_header, filter_):
         value=value
     )
 
-def get_multiple_filter_string(df_name, column_header, original_operator, condition, column_mito_type, filters):
+def get_multiple_filter_string(df_name: str, column_header: Any, original_operator: str, condition: str, column_mito_type: str, filters: List[Dict[str, Any]]) -> str:
     """
     Transpiles a list of filters with the same filter condition to a filter string. 
     """
 
     # Handle dates specially by wrapping the number in a string and adding the pd.to_datetime call
+    values: Union[str, List[str]]
     if column_mito_type == DATETIME_SERIES:
         values = [f'\'{filter["value"]}\'' for filter in filters]
         values = 'pd.to_datetime(' + list_to_string_without_internal_quotes(values) + ')'
@@ -540,7 +541,7 @@ def get_multiple_filter_string(df_name, column_header, original_operator, condit
         values=values,
     )
     
-def combine_filter_strings(operator, filter_strings, split_lines=False):
+def combine_filter_strings(operator: str, filter_strings: List[str], split_lines: bool=False) -> str:
     """
     Combines the given filter strings with the passed operator, optionally 
     splitting the lines at 120 characters.
@@ -572,7 +573,7 @@ def combine_filter_strings(operator, filter_strings, split_lines=False):
 
         return filter_string
 
-def create_filter_string_for_condition(condition, mito_filters, df_name, column_header, operator, column_mito_type) -> str:
+def create_filter_string_for_condition(condition: str, mito_filters: List[Dict[str, Any]], df_name: str, column_header: Any, operator: str, column_mito_type: str) -> str:
     """
     Returns a list of all the filter clauses for a specific filter condition in the list of passed filters
     Note: We use the nomenclature "mito_filters" here so the compiler doesn't get confused when we use the filter function 

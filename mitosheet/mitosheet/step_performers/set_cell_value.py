@@ -45,7 +45,7 @@ class SetCellValueStepPerformer(StepPerformer):
         return 'set_cell_value_edit'
 
     @classmethod
-    def saturate(cls, prev_state: State, params) -> Dict[str, str]:
+    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         # Mito doesn't allow empty cells, so if the new value is empty, change it to None.
         if params['new_value'] == '':
             params['new_value'] = None
@@ -176,7 +176,7 @@ class SetCellValueStepPerformer(StepPerformer):
         return {sheet_index}
 
 
-def cast_value_to_type(value: Union[str, None], mito_series_type: str):
+def cast_value_to_type(value: Union[str, None], mito_series_type: str) -> Optional[Any]:
     """
     Helper function for converting a value into the correct type for the 
     series that it is going to be added to. 

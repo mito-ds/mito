@@ -9,7 +9,7 @@ from mitosheet.user import initialize_user
 from mitosheet.user.schemas import UJ_MITOSHEET_PRO, UJ_MITOSHEET_TELEMETRY, UJ_USER_EMAIL
 from mitosheet.startup.startup_utils import create_startup_file, remove_startup_file
 
-def main():
+def main() -> None:
     """
     Currently, the main usage of this function is:
     python -m mitosheet turnofflogging
@@ -23,7 +23,7 @@ def main():
     """
     # Make sure the user is initalized first, but do not identify
     # then, in case they are turning off logging
-    initialize_user(identify=False)
+    initialize_user(call_identify=False)
 
     # Then, if we are being told to turn off logging, turn off logging
     if len(sys.argv) > 1:

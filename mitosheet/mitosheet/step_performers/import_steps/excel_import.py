@@ -36,7 +36,7 @@ class ExcelImportStepPerformer(StepPerformer):
         return 'excel_import_edit'
 
     @classmethod
-    def saturate(cls, prev_state: State, params) -> Dict[str, str]:
+    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 
     @classmethod

@@ -43,7 +43,7 @@ class SimpleImportStepPerformer(StepPerformer):
         return 'simple_import_edit'
 
     @classmethod
-    def saturate(cls, prev_state: State, params) -> Dict[str, str]:
+    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 
     @classmethod
@@ -135,7 +135,7 @@ class SimpleImportStepPerformer(StepPerformer):
         return {-1} # changes the new dataframe(s - there might be multiple made in this step)
 
 
-def generate_read_csv_code(file_name, df_name, delimeter, encoding):
+def generate_read_csv_code(file_name: str, df_name: str, delimeter: str, encoding: str) -> str:
     """
     Helper function for generating minimal read_csv code 
     depending on the delimeter and the encoding of a file
@@ -156,7 +156,7 @@ def generate_read_csv_code(file_name, df_name, delimeter, encoding):
         return f'{df_name} = pd.read_csv(r\'{file_name}\')'
 
 
-def read_csv_get_delimeter_and_encoding(file_name: str):
+def read_csv_get_delimeter_and_encoding(file_name: str) -> Tuple[pd.DataFrame, str, str]:
     """
     Given a file_name, will read in the file as a CSV, and
     return the df, delimeter, and encoding of the file
@@ -186,7 +186,7 @@ def read_csv_get_delimeter_and_encoding(file_name: str):
     return df, delimeter, encoding
 
 
-def guess_delimeter(file_name: str, encoding=None):
+def guess_delimeter(file_name: str, encoding: str=None) -> str:
     """
     Given a path to a file that is assumed to exist and be a CSV, this
     function guesses the delimeter that is used by that file

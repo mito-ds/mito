@@ -1,23 +1,24 @@
 import json
-from mitosheet.errors import get_recent_traceback
-from mitosheet.api.graph.box import get_box_code, get_box_plot
-from mitosheet.api.graph.bar import get_bar_chart, get_bar_code
-from mitosheet.api.graph.scatter import get_scatter_code, get_scatter_plot
-from mitosheet.api.graph.histogram import get_histogram, get_histogram_code
+from typing import Any, Dict, List
+
 import pandas as pd
 import plotly.express as px
-
-from mitosheet.mito_analytics import log, log_recent_error
-from mitosheet.sheet_functions.types.utils import get_mito_type, NUMBER_SERIES
-
+import plotly.graph_objects as go
+from mitosheet.api.graph.bar import get_bar_chart, get_bar_code
+from mitosheet.api.graph.box import get_box_code, get_box_plot
 from mitosheet.api.graph.graph_utils import (
-    MAX_UNIQUE_NON_NUMBER_VALUES, MAX_UNIQUE_NON_NUMBER_VALUES_COMMENT, X, Y,
-    HISTOGRAM, SCATTER, BAR, HISTOGRAM, BOX, SUMMARY_STAT,
-    filter_df_to_top_unique_values_in_series, get_html_and_script_from_figure
-)
+    BAR, BOX, HISTOGRAM, MAX_UNIQUE_NON_NUMBER_VALUES,
+    MAX_UNIQUE_NON_NUMBER_VALUES_COMMENT, SCATTER, SUMMARY_STAT, X, Y,
+    filter_df_to_top_unique_values_in_series, get_html_and_script_from_figure)
+from mitosheet.api.graph.histogram import get_histogram, get_histogram_code
+from mitosheet.api.graph.scatter import get_scatter_code, get_scatter_plot
+from mitosheet.errors import get_recent_traceback
+from mitosheet.mito_analytics import log, log_recent_error
+from mitosheet.sheet_functions.types.utils import NUMBER_SERIES, get_mito_type
+from mitosheet.steps_manager import StepsManager
 
 
-def get_column_summary_graph(axis, df, axis_data_array):
+def get_column_summary_graph(axis: str, df: pd.DataFrame, axis_data_array: List[Any]) -> go.Figure:
     """
     One Axis Graphs heuristics:
     1. Number Column - we do no filtering. These graphs are pretty efficient up to 1M rows
@@ -66,7 +67,7 @@ def get_column_summary_graph(axis, df, axis_data_array):
 
     return fig
 
-def get_graph(event, steps_manager):
+def get_graph(event: Dict[str, Any], steps_manager: StepsManager) -> str:
     """
     Creates a graph of the passed parameters, and sends it back as a PNG
     string to the frontend for display.
@@ -92,12 +93,12 @@ def get_graph(event, steps_manager):
 
     # Get the x axis params, if they were provided
     x_axis_column_ids = event['x_axis_column_ids'] if event['x_axis_column_ids'] is not None else []
-    x_axis_column_headers = steps_manager.curr_step.post_state.column_ids.get_column_headers_by_ids(sheet_index, x_axis_column_ids)
+    x_axis_column_headers = steps_manager.curr_step.get_column_headers_by_ids(sheet_index, x_axis_column_ids)
     x_axis = len(x_axis_column_headers) > 0
 
     # Get the y axis params, if they were provided
     y_axis_column_ids = event['y_axis_column_ids'] if event['y_axis_column_ids'] is not None else []
-    y_axis_column_headers = steps_manager.curr_step.post_state.column_ids.get_column_headers_by_ids(sheet_index, y_axis_column_ids)
+    y_axis_column_headers = steps_manager.curr_step.get_column_headers_by_ids(sheet_index, y_axis_column_ids)
     y_axis = len(y_axis_column_headers) > 0
     
     # Find the height and the width, defaulting to fill whatever container its in
@@ -182,7 +183,7 @@ def get_graph(event, steps_manager):
 
         return_object['generation_code'] = generation_code
 
-        return json.dumps(return_object),
+        return json.dumps(return_object)
 
     except Exception as e:
         print(get_recent_traceback())

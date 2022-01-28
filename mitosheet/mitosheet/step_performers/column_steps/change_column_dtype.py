@@ -54,7 +54,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
         return 'change_column_dtype_edit'
 
     @classmethod
-    def saturate(cls, prev_state: State, params) -> Dict[str, str]:
+    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         sheet_index = params['sheet_index']
         column_id = params['column_id']
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)

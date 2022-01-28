@@ -4,6 +4,7 @@ file with the current schema
 """
 
 from datetime import datetime
+from typing import List, Optional
 from mitosheet.user.utils import is_local_deployment
 from mitosheet.utils import get_random_id
 import os
@@ -18,7 +19,7 @@ from mitosheet.user.schemas import GITHUB_ACTION_EMAIL, GITHUB_ACTION_ID, USER_J
 from mitosheet.user.upgrade import try_upgrade_user_json_to_current_version
 from mitosheet.user.db import MITO_FOLDER, USER_JSON_PATH, get_user_json_object, set_user_field, get_user_field
 
-def is_user_json_exists_and_valid_json():
+def is_user_json_exists_and_valid_json() -> bool:
     """
     Helper function that determines if the current user.json both
     exists and is valid json
@@ -34,7 +35,7 @@ def is_user_json_exists_and_valid_json():
         return False
 
 
-def try_create_user_json_file():
+def try_create_user_json_file() -> None:
     # Create the mito folder if it does not exist
     if not os.path.exists(MITO_FOLDER):
         os.mkdir(MITO_FOLDER)
@@ -54,7 +55,7 @@ def try_create_user_json_file():
             set_user_field(UJ_USER_EMAIL, GITHUB_ACTION_EMAIL)
 
 
-def initialize_user(identify=True):
+def initialize_user(call_identify: bool=True) -> None:
     """
     Internal helper function that gets called every time mitosheet 
     is imported.
@@ -90,8 +91,11 @@ def initialize_user(identify=True):
 
     # We also note this import as a Mito usage, making sure to only 
     # mark this as usage once per day
-    last_fifty_usages = get_user_field(UJ_MITOSHEET_LAST_FIFTY_USAGES)
-    if len(last_fifty_usages) == 0 or last_fifty_usages[-1] != datetime.today().strftime('%Y-%m-%d'):
+    last_fifty_usages: Optional[List[str]] = get_user_field(UJ_MITOSHEET_LAST_FIFTY_USAGES)
+    if last_fifty_usages is None: 
+        last_fifty_usages = []
+
+    if last_fifty_usages is not None and len(last_fifty_usages) == 0 or last_fifty_usages[-1] != datetime.today().strftime('%Y-%m-%d'):
         last_fifty_usages.append(datetime.today().strftime('%Y-%m-%d'))
     # Then, we take the 50 most recent (or as many as there are), and save them
     if len(last_fifty_usages) < 50:
@@ -102,6 +106,6 @@ def initialize_user(identify=True):
 
     # Reidentify the user, just in case things have changed
     # but only if we were told to identify
-    if identify:
+    if call_identify:
         from mitosheet.mito_analytics import identify
         identify()

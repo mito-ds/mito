@@ -38,7 +38,7 @@ def check_step(
         step_performer: StepPerformer, 
         step_version: int, 
         step_type: str
-    ):
+    ) -> None:
     """
     Helper function that checks a given step definition against the 
     expected step_version, step_type, and params for that step. 

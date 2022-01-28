@@ -8,7 +8,7 @@
 For going to a timedelta series.
 """
 
-from typing import Tuple, Union
+from typing import Any, Tuple, Union
 import pandas as pd
 import numpy as np
 
@@ -16,9 +16,9 @@ from mitosheet.sheet_functions.types.utils import BOOLEAN_SERIES, DATETIME_SERIE
 
 
 def to_timedelta_series(
-        unknown_object,
-        on_uncastable_arg_element=('default', np.NaN), #Union[Literal['error'], Tuple[Literal['default'], any]]
-    ):
+        unknown_object: Any,
+        on_uncastable_arg_element: Any=('default', np.NaN), #Union[Literal['error'], Tuple[Literal['default'], any]]
+    ) -> pd.Series:
     """
     Converts the given object to a timedelta series. Note that on_uncastable_arg_element
     is irrelevant here.

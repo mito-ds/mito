@@ -62,7 +62,7 @@ def AND(*argv: pd.Series) -> pd.Series:
     'error', 
     ('default', True)
 )
-def BOOL(series) -> pd.Series:
+def BOOL(series: pd.Series) -> pd.Series:
     """
     {
         "function": "BOOL",
@@ -102,7 +102,7 @@ def BOOL(series) -> pd.Series:
     'error',
     'error'
 )
-def IF(condition: pd.Series, true_series, false_series) -> pd.Series:
+def IF(condition: pd.Series, true_series: pd.Series, false_series: pd.Series) -> pd.Series:
     """
     {
         "function": "IF",

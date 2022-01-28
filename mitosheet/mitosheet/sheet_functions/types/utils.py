@@ -8,7 +8,7 @@
 Utilities to help with type functions
 """
 
-from typing import Any, Set, Tuple, Union
+from typing import Any, List, Optional, Set, Tuple, Union
 import pandas as pd
 import numpy as np
 
@@ -34,33 +34,33 @@ STRING_SERIES = 'string_series'
 # of these types can be different varieties (e.g. int can be int64, uint64)
 # we try to check for them with simple expressions
 
-def is_bool_dtype(dtype):
+def is_bool_dtype(dtype: str) -> bool:
     return 'bool' == dtype
 
-def is_int_dtype(dtype):
+def is_int_dtype(dtype: str) -> bool:
     return 'int' in dtype
 
-def is_float_dtype(dtype):
+def is_float_dtype(dtype: str) -> bool:
     return 'float' in dtype
 
-def is_string_dtype(dtype):
+def is_string_dtype(dtype: str) -> bool:
     return dtype == 'object' or dtype == 'str' or dtype == 'string'
 
-def is_datetime_dtype(dtype):
+def is_datetime_dtype(dtype: str) -> bool:
     # NOTE: this should handle all different datetime columns, no matter
     # the timezone, as it checks for string inclusion
     return 'datetime' in dtype
 
-def is_timedelta_dtype(dtype):
+def is_timedelta_dtype(dtype: str) -> bool:
     return 'timedelta' in dtype
 
-def is_none_type(value: Union[str, None]):
+def is_none_type(value: Union[str, None]) -> bool:
     """
     Helper function for determining if a value should be treated as None
     """
     return True if value is None or str(value).lower() in ['nan', 'nat'] else False
 
-def get_float_dt_td_columns(df: pd.DataFrame):
+def get_float_dt_td_columns(df: pd.DataFrame) -> Tuple[List[Any], List[Any], List[Any]]:
     float_columns, date_columns, timedelta_columns = [], [], []
     for column_header in df.columns:
         dtype = str(df[column_header].dtype)
@@ -75,7 +75,7 @@ def get_float_dt_td_columns(df: pd.DataFrame):
 
     return float_columns, date_columns, timedelta_columns
 
-def get_mito_type(obj):
+def get_mito_type(obj: Any) -> str:
 
     if isinstance(obj, pd.Series):
         dtype = str(obj.dtype)
@@ -104,10 +104,10 @@ def get_mito_type(obj):
             if obj_type in value:
                 return key
 
-    return None
+    return STRING_SERIES
 
 
-def get_nan_indexes_metadata(*argv) -> Tuple[pd.Index, pd.Index]: 
+def get_nan_indexes_metadata(*argv: pd.Series) -> Tuple[pd.Index, pd.Index]: 
     """
     Given a list of series, this function returns data that is helpful
     in figuring out which of the rows of these series have a NaN in them.
@@ -149,7 +149,7 @@ def put_nan_indexes_back(series: pd.Series, original_index: pd.Index) -> pd.Seri
     return series.reindex(original_index)
 
 
-def get_datetime_format(string_series):
+def get_datetime_format(string_series: pd.Series) -> Optional[str]:
     """
     Given a series of datetime strings, detects if the format is MM-DD-YYYY,
     which is the most common format that pandas does not default to.

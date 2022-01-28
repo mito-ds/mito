@@ -1,8 +1,10 @@
 """
 Helpers for accessing the user.json file
 """
+from ctypes import Union
 import os
 import json
+from typing import Any, Dict, Optional
 
 # Where all global .mito files are stored
 MITO_FOLDER = os.path.join(os.path.expanduser("~"), '.mito')
@@ -10,7 +12,7 @@ MITO_FOLDER = os.path.join(os.path.expanduser("~"), '.mito')
 # The path of the user.json file
 USER_JSON_PATH = os.path.join(MITO_FOLDER, 'user.json')
 
-def get_user_json_object():
+def get_user_json_object() -> Optional[Dict[str, Any]]:
     """
     Gets the entire user json object
     """
@@ -20,7 +22,7 @@ def get_user_json_object():
     except: 
         return None
 
-def get_user_field(field):
+def get_user_field(field: str) -> Optional[Any]:
     """
     Returns the value stored at field in the user.json file,
     but may read a different file if it passed
@@ -31,14 +33,14 @@ def get_user_field(field):
     except: 
         return None
 
-def set_user_json_object(user_json_object):
+def set_user_json_object(user_json_object: Dict[str, Any]) -> None:
     """
     Updates the value of a specific feild in user.json
     """
     with open(USER_JSON_PATH, 'w+') as f:
         f.write(json.dumps(user_json_object))
 
-def set_user_field(field, value):
+def set_user_field(field: str, value: Any) -> None:
     """
     Updates the value of a specific feild in user.json
     """

@@ -5,7 +5,7 @@ THAT CANNOT CHANGE AND SO SHOULD NEVER BE CHANGED.
 
 import numbers
 import re
-from typing import Any, Dict, List
+from typing import Any, Callable, Dict, List
 from mitosheet.mito_analytics import log
 
 import pandas as pd
@@ -13,7 +13,7 @@ import pandas as pd
 import warnings
 import functools
 
-def deprecated(func):
+def deprecated(func: Callable) -> Callable:
     """
     This is a decorator which can be used to mark functions
     as deprecated. It will result in a warning being emitted
@@ -122,7 +122,7 @@ def get_invalid_headers(df: pd.DataFrame) -> List[Any]:
         if not is_valid_header(header)
     ]
 
-def get_header_renames(column_headers) -> Dict[Any, str]:
+def get_header_renames(column_headers: List[Any]) -> Dict[Any, str]:
     """
     Given a list of column headers, returns a mapping from old, invalid headers to
     new, valid headers. Empty if no renames are necessary.

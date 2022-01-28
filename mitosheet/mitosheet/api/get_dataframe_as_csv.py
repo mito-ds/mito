@@ -1,4 +1,8 @@
-def get_dataframe_as_csv(event, steps_manager):
+from typing import Any, Dict
+from mitosheet.steps_manager import StepsManager
+
+
+def get_dataframe_as_csv(event: Dict[str, Any], steps_manager: StepsManager) -> str:
     """
     Sends a dataframe as a CSV string
     """

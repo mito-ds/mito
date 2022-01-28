@@ -1,16 +1,20 @@
-from typing import List
+from typing import Any, List
+
 import pandas as pd
 import plotly.graph_objects as go
-from mitosheet.column_headers import get_column_header_display
-
+from mitosheet.api.graph.graph_utils import (BAR, CREATE_FIG_CODE,
+                                             GRAPH_FILTER_LABELS,
+                                             SHOW_FIG_CODE, X, Y,
+                                             filter_df_to_safe_size,
+                                             get_graph_labels, get_graph_title)
+from mitosheet.api.graph.histogram import get_histogram, get_histogram_code
 from mitosheet.mito_analytics import log
 from mitosheet.sheet_functions.types.utils import get_mito_type
-from mitosheet.api.graph.histogram import get_histogram, get_histogram_code
-from mitosheet.api.graph.graph_utils import BAR, BAR_CHART_MAX_NUMBER_OF_ROWS, CREATE_FIG_CODE, GRAPH_FILTER_LABELS, SHOW_FIG_CODE, X, Y, filter_df_to_safe_size, get_graph_labels, get_graph_title
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import \
+    column_header_to_transpiled_code
 
 
-def get_bar_chart(df, x_axis_column_headers, y_axis_column_headers):
+def get_bar_chart(df: pd.DataFrame, x_axis_column_headers: List[Any], y_axis_column_headers: List[Any]) -> go.Figure:
     """
     Returns a bar chart using the following heuristic:
     - Graphs the first BAR_CHART_MAX_NUMBER_OF_ROWS rows. 
@@ -92,7 +96,7 @@ def get_bar_code(
         x_axis_column_headers: List[str], 
         y_axis_column_headers: List[str],
         df_name: str
-    ):
+    ) -> str:
     """
     Generates the code for a bar graph, in the same way that the bar is
     created above (leaving out zooming).

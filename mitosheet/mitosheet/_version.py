@@ -1,14 +1,14 @@
 # Copyright (c) Mito.
 # Distributed under the terms of the Modified BSD License.
 
-# TODO: we have to update the bump version script
 import json
-from pathlib import Path
 import os
 import tarfile
-from typing import Union
+from pathlib import Path
+from typing import Any, Dict
 
-def get_package_json():
+
+def get_package_json() -> Dict[str, Any]:
     """
     This helper function is responsible for getting the package.json that is bundled
     with the javascript code bundle inside this Python package. 
@@ -35,7 +35,10 @@ def get_package_json():
         tar_file_path = os.path.join(lab_extension_folder, tar_file_name)
         with tarfile.open(tar_file_path, 'r:gz') as t:
             package_json_file = t.extractfile('package/package.json')
-            return json.loads(package_json_file.read())
+            if package_json_file is None:
+                raise Exception("Error: no package.json found in mitosheet/. Did you build the extension correctly.")
+            package_json_str = package_json_file.read()
+            return json.loads(package_json_str)
 
 package_json = get_package_json()
 

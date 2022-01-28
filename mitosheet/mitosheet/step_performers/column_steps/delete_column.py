@@ -36,7 +36,7 @@ class DeleteColumnStepPerformer(StepPerformer):
         return 'delete_column_edit'
 
     @classmethod
-    def saturate(cls, prev_state: State, params) -> Dict[str, str]:
+    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 
     @classmethod
@@ -101,7 +101,6 @@ def delete_column_ids(
     state: State,
     sheet_index: int,
     column_ids: List[str],
-    **params
 ) -> State:
 
     # Put the columns in a topological sorting so we delete columns that reference
@@ -120,9 +119,9 @@ def delete_column_ids(
     # If we weren't able to delete any of the columns, then raise an error
     if len(unable_to_delete_columns) > 0:
         column_headers = [state.column_ids.get_column_header_by_id(sheet_index, column_id) for column_id in unable_to_delete_columns]
-        dependant_columns = [list(state.column_evaluation_graph[sheet_index][column_id]) for column_id in unable_to_delete_columns]
+        dependant_columns_lists = [list(state.column_evaluation_graph[sheet_index][column_id]) for column_id in unable_to_delete_columns]
         # Flatten the list 
-        dependant_columns = [item for sublist in dependant_columns for item in sublist]
+        dependant_columns = [item for sublist in dependant_columns_lists for item in sublist]
     
         raise make_invalid_column_delete_error(column_headers, dependant_columns)
 
@@ -132,8 +131,7 @@ def delete_column_ids(
 def _delete_column_id( 
     state: State,
     sheet_index: int,
-    column_id: str,
-    **params
+    column_id: str
 ) -> Tuple[State, bool]:
     
     column_header = state.column_ids.get_column_header_by_id(sheet_index, column_id)

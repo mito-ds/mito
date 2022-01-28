@@ -8,20 +8,21 @@
 Decorators for sheet functions, that enable the sheet functions
 to make sure the inputs they are getting are the inputs they want
 """
-from mitosheet.sheet_functions.sheet_function_utils import is_series_of_constant
-from typing import Any, Union, Tuple
+from functools import partial, wraps
+from typing import Any, Callable
+
 import pandas as pd
-from functools import wraps, partial
-
-from mitosheet.sheet_functions.types.utils import (
-    get_mito_type,
-    get_nan_indexes_metadata, put_nan_indexes_back
-)
-from mitosheet.errors import MitoError, make_function_error, make_invalid_arguments_error
+from mitosheet.errors import (MitoError, make_function_error,
+                              make_invalid_arguments_error)
+from mitosheet.sheet_functions.sheet_function_utils import \
+    is_series_of_constant
 from mitosheet.sheet_functions.types import SERIES_CONVERSION_FUNCTIONS
+from mitosheet.sheet_functions.types.utils import (get_mito_type,
+                                                   get_nan_indexes_metadata,
+                                                   put_nan_indexes_back)
 
 
-def handle_sheet_function_errors(sheet_function):
+def handle_sheet_function_errors(sheet_function: Callable) -> Callable:
     """
     The first decorator that should be applied to every sheet function. Is 
     responsible for sensible error handling!
@@ -41,11 +42,11 @@ def handle_sheet_function_errors(sheet_function):
 
 def convert_arg_to_series_type(
         arg_index: int,
-        arg_target_series_type, # Union[MITO_SERIES_TYPE, Literal['series']]
-        on_uncastable_arg, # Literal['error', 'skip']
-        on_uncastable_arg_element, #Union[Literal['error'], Tuple[Literal['default'], any]]
-        optional=False
-    ):
+        arg_target_series_type: str, # Union[MITO_SERIES_TYPE, Literal['series']]
+        on_uncastable_arg: str, # Literal['error', 'skip']
+        on_uncastable_arg_element: Any, #Union[Literal['error'], Tuple[Literal['default'], any]]
+        optional: bool=False
+    ) -> Callable:
     """
     Wrapper for a sheet function that takes a fixed number of arguments, that takes
     - arg_index, which says which arg to force into which type
@@ -88,10 +89,10 @@ def convert_arg_to_series_type(
 
 
 def convert_args_to_series_type(
-        arg_target_series_type, #MITO_SERIES_TYPE,
-        on_uncastable_arg, # Literal['error', 'skip'],
-        on_uncastable_arg_element, # Union[Literal['error'], Tuple[Literal['default'], any]]
-    ):
+        arg_target_series_type: str,
+        on_uncastable_arg: str,
+        on_uncastable_arg_element: Any,
+    ) -> Callable:
     """
     A decorator for functions like SUM or CONCAT, takes:
     - arg_target_series_type, or which series type to get all arguments into
@@ -120,7 +121,7 @@ def convert_args_to_series_type(
     return wrap
 
 
-def filter_nans(sheet_function):
+def filter_nans(sheet_function: Callable) -> Callable:
     """
     A decorator for functions that do not want to receive any NaN values
     in their input. For every passed series, filters out the indexes that
@@ -153,8 +154,8 @@ def filter_nans(sheet_function):
 def fill_nans(
         arg_index: int,
         new_value: Any,
-        optional=False
-    ):
+        optional: bool=False
+    ) -> Callable:
     """
     Wrapper for a sheet function that, for a specific argument, fills any NaN values with
     the passed new_value. 
@@ -187,8 +188,8 @@ def fill_nans(
     return wrap
 
 def cast_output(
-        output_target_series_type # Union[MITO_SERIES_TYPE, Literal['first_input_type']]
-    ):
+        output_target_series_type: str
+    ) -> Callable:
     """
     Casts the output of the sheet function to the given type. If 'first_input_type' as given, then
     will cast the output to the type of the first passed argument. 

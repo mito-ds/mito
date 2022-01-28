@@ -5,7 +5,7 @@
 # Distributed under the terms of the Modified BSD License.
 
 from copy import copy
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Callable, Dict, Collection, List, Optional, Set, Tuple
 import pandas as pd
 
 from mitosheet.column_headers import flatten_column_header
@@ -59,7 +59,7 @@ class PivotStepPerformer(StepPerformer):
         return 'pivot_edit'
 
     @classmethod
-    def saturate(cls, prev_state: State, params) -> Dict[str, str]:
+    def saturate(cls, prev_state: State, params: Any) -> Dict[str, str]:
         """
         Saturates the pivot table with just a `created_non_empty_dataframe` key, which
         is useful for logging.
@@ -90,7 +90,7 @@ class PivotStepPerformer(StepPerformer):
         sheet_index: int,
         pivot_rows_column_ids: List[str],
         pivot_columns_column_ids: List[str],
-        values_column_ids_map: Dict[str, List[str]],
+        values_column_ids_map: Dict[str, Collection[str]],
         flatten_column_headers: bool,
         destination_sheet_index: int=None,
         use_deprecated_id_algorithm: bool=False,
@@ -152,7 +152,7 @@ class PivotStepPerformer(StepPerformer):
         sheet_index: int,
         pivot_rows_column_ids: List[str],
         pivot_columns_column_ids: List[str],
-        values_column_ids_map: Dict[str, List[str]],
+        values_column_ids_map: Dict[str, Collection[str]],
         flatten_column_headers: bool,
         destination_sheet_index: int=None,
         use_deprecated_id_algorithm: bool=False,
@@ -233,12 +233,12 @@ class PivotStepPerformer(StepPerformer):
     
 
 
-def values_to_functions(values):
+def values_to_functions(values: Dict[str, Collection[str]]) -> Dict[str, List[Callable]]:
     """
     Helper function for turning the values mapping sent by the frontend to 
     the value map of functions that can actually be passed to the pandas pivot function
     """
-    new_values = dict()
+    new_values: Dict[str, List[Callable]] = dict()
 
     for column_header, aggregation_function_names in values.items():
         new_values[column_header] = []
@@ -259,9 +259,9 @@ def _execute_pivot(
         df: pd.DataFrame, 
         pivot_rows: List[str], 
         pivot_columns: List[str], 
-        values,
-        flatten_column_headers
-    ):
+        values: Dict[str, Collection[str]],
+        flatten_column_headers: bool
+    ) -> pd.DataFrame:
     """
     Helper function for executing the pivot on a specific dataframe
     and then aggregating the values with the passed values mapping
@@ -274,7 +274,7 @@ def _execute_pivot(
     values_keys = list(values.keys())
 
     # Built the args, leaving out any unused values
-    args = {}
+    args: Dict[str, Any] = {}
 
     if len(pivot_rows) > 0:
         args['index'] = pivot_rows
@@ -304,7 +304,7 @@ def _execute_pivot(
 
     return pivot_table
 
-def values_to_functions_code(values):
+def values_to_functions_code(values: Dict[str, Collection[str]]) -> str:
     """
     Helper function for turning the values mapping sent by the frontend to the values
     mapping that works in generated code. Namely, needs to replay Count Unique with the
@@ -316,10 +316,10 @@ def values_to_functions_code(values):
     return string_values.replace('\'count unique\'', 'pd.Series.nunique')
 
 def build_args_code(
-        pivot_rows,
-        pivot_columns,
-        values
-    ):
+        pivot_rows: List[Any],
+        pivot_columns: List[Any],
+        values: Dict[str, Collection[str]]
+    ) -> str:
     """
     Helper function for building an arg string, while leaving
     out empty arguments. 
@@ -339,7 +339,7 @@ def build_args_code(
         
     return NEWLINE_TAB.join(args)
 
-def get_new_pivot_df_name (post_state, sheet_index): 
+def get_new_pivot_df_name(post_state: State, sheet_index: int) -> str: 
     """
     Creates the name for the new pivot table sheet using the format
     {source_sheet_name}_{pivot} or {source_sheet_name}_{pivot}_1, etc. 

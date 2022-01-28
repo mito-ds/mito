@@ -1,6 +1,7 @@
 import os
+from typing import Any, Dict
 
-def get_path_join(event):
+def get_path_join(event: Dict[str, Any]) -> str:
     """
     Takes an event with path parts in a list, turns them into
     an actual path, normalizes it, and sends it back.

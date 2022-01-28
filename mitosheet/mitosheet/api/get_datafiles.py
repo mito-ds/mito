@@ -1,8 +1,9 @@
 import os
 from pathlib import Path
+from typing import Any, Dict, List, Tuple
 
 
-def get_filenames_with_suffix(*suffixes):
+def get_filenames_with_suffix(*suffixes: str) -> List[str]:
     """
     Returns all the file names in the current folder that end with the given
     suffix, sorted from most-recently created to the oldest.
@@ -14,7 +15,7 @@ def get_filenames_with_suffix(*suffixes):
     return [str(filename) for filename in filenames if filename.suffix in suffixes]
 
 
-def get_datafiles(event):
+def get_datafiles(event: Dict[str, Any]) -> List[str]:
     """
     Handles a `datafiles` api call, and returns all the csv files
     in the current folder.

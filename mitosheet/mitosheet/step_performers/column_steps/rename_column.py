@@ -42,7 +42,7 @@ class RenameColumnStepPerformer(StepPerformer):
         return 'rename_column_edit'
 
     @classmethod
-    def saturate(cls, prev_state: State, params) -> Dict[str, str]:
+    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 
     @classmethod
@@ -150,7 +150,7 @@ def rename_column_headers_in_state(
         column_id: str,
         new_column_header: Any,
         level: Union[None, int]
-    ):
+    ) -> Any:
     """
     A helper function for updating a column header in the state, which is useful
     for both this rename step and for the bulk rename step.

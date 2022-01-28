@@ -1,9 +1,9 @@
 import io
-from typing import List
-import pandas as pd
-from mitosheet.column_headers import try_make_new_header_valid_if_multi_index_headers
+from typing import Any, Dict, List, Optional, Tuple
 
-from mitosheet.sheet_functions.types.utils import get_mito_type, NUMBER_SERIES
+import pandas as pd
+import plotly.graph_objects as go
+from mitosheet.sheet_functions.types.utils import NUMBER_SERIES, get_mito_type
 
 # We have a variety of heuristics to make sure that we never send too much data
 # to the frontend to display to the user. See comments below in the file for 
@@ -64,7 +64,7 @@ fig = go.Figure()
 # and JLab 3, and renders in line.
 SHOW_FIG_CODE = 'fig.show(renderer="iframe")'
 
-def is_all_number_series(df, column_headers):
+def is_all_number_series(df: pd.DataFrame, column_headers: List[Any]) -> bool:
     """
     Returns True if the Mito type of each series with the header column_header
     in column_headers is a NUMBER_SERIES. Returns False otherwise. 
@@ -75,13 +75,14 @@ def is_all_number_series(df, column_headers):
             return False
     return True
 
-def get_graph_title(x_axis_column_headers, y_axis_column_headers, filtered, graph_type, special_title=None):
+def get_graph_title(x_axis_column_headers: List[Any], y_axis_column_headers: List[Any], filtered: bool, graph_type: str, special_title: str=None) -> str:
     """
     Helper function for determing the title of the graph for the scatter plot and bar chart
     """
     # Get the label to let the user know that their graph had a filter applied.
 
     # Handle the special case for the box plot.
+    graph_filter_label: Optional[str]
     if graph_type == BOX and filtered:
         graph_filter_label = '(top 500k)' if len(x_axis_column_headers + y_axis_column_headers) == 3 else '(top 250k)'
     # Handle the special case for the scatter plot.
@@ -101,7 +102,7 @@ def get_graph_title(x_axis_column_headers, y_axis_column_headers, filtered, grap
     return (' ').join(graph_title_components)
 
 
-def get_graph_labels(x_axis_column_headers, y_axis_column_headers):
+def get_graph_labels(x_axis_column_headers: List[Any], y_axis_column_headers: List[Any]) -> Tuple[str, str]:
     """
     Helper function for determining the x and y axis titles, 
     for the scatter plot and bar chart. 
@@ -156,11 +157,11 @@ def filter_df_to_top_unique_values_in_series(
     return df[main_series.isin(most_frequent_values_list)]
 
 def filter_df_to_safe_size(
-        graph_type, 
+        graph_type: str, 
         df: pd.DataFrame, 
         column_headers: List[str],
         other_axis_column_headers: List[str]=None
-    ):
+    ) -> pd.DataFrame:
     """
     A helper function that filters a dataframe down to a safe size
     to display in a graph, depending on the type of graph.
@@ -209,7 +210,7 @@ def filter_df_to_safe_size(
         return df, len(df) < original_df_len
 
 
-def get_html_and_script_from_figure(fig, height, width):
+def get_html_and_script_from_figure(fig: go.Figure, height: int, width: int) -> Dict[str, str]:
     """
     Given a plotly figure, generates HTML from it, and returns
     a dictonary with the div and script for the frontend.
