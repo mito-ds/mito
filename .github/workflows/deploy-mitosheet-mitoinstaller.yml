@@ -1,0 +1,156 @@
+name: Deploy mitosheet and mitoinstaller
+on:
+  push:
+    branches:
+      - dev
+      - main
+
+jobs:
+  deploy-mitosheet:
+    name: Deploy mitosheet and mitosheet3
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8]
+    steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ steps.extract_branch.outputs.branch }}
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Setup Auth for PyPi
+        run: |
+          echo -e "[distutils]" >> ~/.pypirc
+          echo -e "index-servers =" >> ~/.pypirc
+          echo -e "    pypi" >> ~/.pypirc
+          echo -e "    testpypi" >> ~/.pypirc
+          echo -e "[pypi]" >> ~/.pypirc
+          echo -e "repository = https://pypi.python.org/pypi" >> ~/.pypirc
+          echo -e "username = __token__" >> ~/.pypirc
+          echo -e "password = ${{ secrets.PYPI_API_TOKEN }}" >> ~/.pypirc
+          echo -e "" >> ~/.pypirc
+          echo -e "[testpypi]" >> ~/.pypirc
+          echo -e "repository = https://test.pypi.org/legacy/" >> ~/.pypirc
+          echo -e "username = __token__" >> ~/.pypirc
+          echo -e "password = ${{ secrets.TEST_PYPI_API_TOKEN }}" >> ~/.pypirc
+      - name: Setup mitosheet
+        run: |
+          cd mito
+          python3 -m venv venv
+          source venv/bin/activate
+          python switch.py mitosheet
+          python deployment/bump_version.py mitosheet ${{ steps.extract_branch.outputs.branch }}
+          python -m pip install -e ".[test, deploy]"
+      - name: Deploy mitosheet
+        run: |
+          cd mito
+          source venv/bin/activate
+          python deployment/deploy.py ${{ steps.extract_branch.outputs.branch }}
+  deploy-mitosheet3:
+    name: Deploy mitosheet3
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8]
+    steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ steps.extract_branch.outputs.branch }}
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Setup Auth for PyPi
+        run: |
+          echo -e "[distutils]" >> ~/.pypirc
+          echo -e "index-servers =" >> ~/.pypirc
+          echo -e "    pypi" >> ~/.pypirc
+          echo -e "    testpypi" >> ~/.pypirc
+          echo -e "[pypi]" >> ~/.pypirc
+          echo -e "repository = https://pypi.python.org/pypi" >> ~/.pypirc
+          echo -e "username = __token__" >> ~/.pypirc
+          echo -e "password = ${{ secrets.PYPI_API_TOKEN }}" >> ~/.pypirc
+          echo -e "" >> ~/.pypirc
+          echo -e "[testpypi]" >> ~/.pypirc
+          echo -e "repository = https://test.pypi.org/legacy/" >> ~/.pypirc
+          echo -e "username = __token__" >> ~/.pypirc
+          echo -e "password = ${{ secrets.TEST_PYPI_API_TOKEN }}" >> ~/.pypirc
+      - name: Setup mitosheet3
+        run: |
+          cd mito
+          rm -rf venv
+          python3 -m venv venv
+          source venv/bin/activate
+          python switch.py mitosheet3
+          python deployment/bump_version.py mitosheet3 ${{ steps.extract_branch.outputs.branch }}
+          python -m pip install -e ".[test, deploy]"          
+      - name: Deploy mitosheet3
+        run: |
+          cd mito
+          source venv/bin/activate
+          python deployment/deploy.py ${{ steps.extract_branch.outputs.branch }}
+  deploy-mitoinstaller:
+    name: Deploy mitoinstaller
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8]
+    steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ steps.extract_branch.outputs.branch }}
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Setup Auth for PyPi
+        run: |
+          echo -e "[distutils]" >> ~/.pypirc
+          echo -e "index-servers =" >> ~/.pypirc
+          echo -e "    pypi" >> ~/.pypirc
+          echo -e "    testpypi" >> ~/.pypirc
+          echo -e "[pypi]" >> ~/.pypirc
+          echo -e "repository = https://pypi.python.org/pypi" >> ~/.pypirc
+          echo -e "username = __token__" >> ~/.pypirc
+          echo -e "password = ${{ secrets.PYPI_API_TOKEN }}" >> ~/.pypirc
+          echo -e "" >> ~/.pypirc
+          echo -e "[testpypi]" >> ~/.pypirc
+          echo -e "repository = https://test.pypi.org/legacy/" >> ~/.pypirc
+          echo -e "username = __token__" >> ~/.pypirc
+          echo -e "password = ${{ secrets.TEST_PYPI_API_TOKEN }}" >> ~/.pypirc
+      - name: Setup mitoinstaller
+        run: |
+          cd mito
+          python3 -m venv venv
+          source venv/bin/activate
+          python deployment/bump_version.py mitoinstaller ${{ steps.extract_branch.outputs.branch }}
+          cd installer
+          pip install -r requirements.txt
+      - name: Deploy mitoinstaller on testpypi
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          cd mito
+          source venv/bin/activate
+          cd installer 
+          python setup.py sdist upload --repository testpypi
+      - name: Deploy mitoinstaller on testpypi
+        if: github.ref == 'refs/heads/main'
+        run: |
+          cd mito
+          source venv/bin/activate
+          cd installer
+          python setup.py sdist upload
