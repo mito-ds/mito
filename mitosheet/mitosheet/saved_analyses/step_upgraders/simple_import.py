@@ -9,7 +9,7 @@ from mitosheet.saved_analyses.step_upgraders.utils_rename_column_headers import 
     BULK_OLD_RENAME_STEP
 
 
-def upgrade_simple_import_1_to_2_and_rename(step: Dict[str, Any], later_steps: List[Dict[str, Any]]):
+def upgrade_simple_import_1_to_2_and_rename(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Adds a rename step after a simple import, so that it is consistent
     with how simple import used to rename column headers after import.

@@ -7,7 +7,7 @@ import json
 import uuid 
 from copy import copy, deepcopy
 import pandas as pd
-from typing import List, Set, Tuple
+from typing import Any, Callable, Dict, Collection, List, Set, Tuple, Union
 
 from mitosheet.step_performers.import_steps.simple_import import SimpleImportStepPerformer
 from mitosheet.step_performers.import_steps.excel_import import ExcelImportStepPerformer
@@ -21,7 +21,7 @@ from mitosheet.transpiler.transpile import transpile
 from mitosheet.data_in_mito import DataTypeInMito, get_data_type_in_mito
 
 
-def get_step_indexes_to_skip(step_list: List[Step]):
+def get_step_indexes_to_skip(step_list: List[Step]) -> Set[int]:
     """
     Given a list of steps, will collect all of the steps
     from this list that should be skipped.
@@ -35,7 +35,7 @@ def get_step_indexes_to_skip(step_list: List[Step]):
     
     return step_indexes_to_skip
 
-def execute_step_list_from_index(step_list: List[Step], start_index=None):
+def execute_step_list_from_index(step_list: List[Step], start_index: int=None) -> List[Step]:
     """
     Given a list of steps, and a specific index to start from, will assume that 
     the step_list[start_index] is valid, and execute this list of steps from 
@@ -74,7 +74,7 @@ def execute_step_list_from_index(step_list: List[Step], start_index=None):
 
         # Set the previous state of the new step, and then update 
         # what the last valid step is
-        new_step.set_prev_state_and_execute(last_valid_step.post_state)
+        new_step.set_prev_state_and_execute(last_valid_step.final_defined_state)
         last_valid_step = new_step
 
         new_step_list.append(new_step)
@@ -152,7 +152,7 @@ class StepsManager():
     and parameters stay the same and are append-only.
     """
 
-    def __init__(self, args):
+    def __init__(self, args: Collection[Union[pd.DataFrame, str]]):
         """
         When initalizing the StepsManager, we also do preprocessing
         of the arguments that were passed to the mitosheet. 
@@ -216,7 +216,7 @@ class StepsManager():
         # We also cache some of the sheet data in a form suitable to turn
         # into json, so that we can package it and send it to the front-end
         # faster and with less work
-        self.saved_sheet_data = []
+        self.saved_sheet_data: List[Dict] = []
         self.last_step_index_we_wrote_sheet_json_on = 0
 
     @property
@@ -314,7 +314,7 @@ class StepsManager():
 
         return step_summary_list
 
-    def handle_edit_event(self, edit_event):
+    def handle_edit_event(self, edit_event: Dict[str, Any]) -> None:
         """
         Updates the widget state with a new step that was created
         by the edit_event. Each edit event creates one new step.
@@ -344,7 +344,7 @@ class StepsManager():
         # you cannot redo something after you make a new edit
         self.undone_step_list_store = []
 
-    def handle_update_event(self, update_event):
+    def handle_update_event(self, update_event: Dict[str, Any]) -> None:
         """
         Handles any event that isn't caused by an edit, but instead
         other types of new data coming from the frontend (e.g. the df names 
@@ -353,15 +353,15 @@ class StepsManager():
         for update in UPDATES:
             if update_event['type'] == update['event_type']:
                 # Get the params for this event
-                params = {key: value for key, value in update_event.items() if key in update['params']}
+                params = {key: value for key, value in update_event.items() if key in update['params']} # type: ignore
                 # Actually execute this event
-                update['execute'](self, **params)
+                update['execute'](self, **params) # type: ignore
                 # And then return
                 return
 
         raise Exception(f'{update_event} is not an update event!')
 
-    def find_last_valid_index(self, new_steps: List[Step]):
+    def find_last_valid_index(self, new_steps: List[Step]) -> int:
         """
         Given the new_steps, this function performs some logic to figure
         out what the last valid index in the steps is (that execution can
@@ -494,8 +494,8 @@ class StepsManager():
     def execute_and_update_steps(
             self, 
             new_steps: List[Step], 
-            last_valid_index=None
-        ):
+            last_valid_index: int=None
+        ) -> None:
         """
         Given a list of new_steps, runs them from the last valid index,
         based on what is skipped in these new_steps.
@@ -517,20 +517,21 @@ class StepsManager():
         self.steps = final_steps
         self.curr_step_idx = len(self.steps) - 1
 
-    def execute_steps_data(self, new_steps_data=None):
+    def execute_steps_data(self, new_steps_data: List[Dict[str, Any]]=None) -> None:
         """
         Given steps data (e.g. from a saved analysis), will turn
         this data  into steps and try to run them. If any of them
         fail, will take none of the new steps
         """
         new_steps = copy(self.steps)
-        for step_data in new_steps_data:
-            new_step = Step(
-                step_data['step_type'],
-                get_new_id(),
-                step_data['params']
-            )
+        if new_steps_data:
+            for step_data in new_steps_data:
+                new_step = Step(
+                    step_data['step_type'],
+                    get_new_id(),
+                    step_data['params']
+                )
 
-            new_steps.append(new_step)
+                new_steps.append(new_step)
 
         self.execute_and_update_steps(new_steps)

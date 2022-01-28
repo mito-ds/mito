@@ -1,7 +1,7 @@
 from typing import Any, List, Set, Union
 
 
-def column_header_list_to_transpiled_code(column_headers: Union[List[Any], Set[Any]] ):
+def column_header_list_to_transpiled_code(column_headers: Union[List[Any], Set[Any]]) -> str:
     """
     A helper function for turning a list of column headers into a 
     valid list of Python code.
@@ -14,7 +14,7 @@ def column_header_list_to_transpiled_code(column_headers: Union[List[Any], Set[A
     return f'[{joined_transpiled_column_headers}]'
 
 
-def column_header_to_transpiled_code(column_header: Any):
+def column_header_to_transpiled_code(column_header: Any) -> str:
     """
     Makes sure the column header is correctly transpiled to 
     code in a way that makes sure it's referenced properly.
@@ -33,7 +33,7 @@ def column_header_to_transpiled_code(column_header: Any):
         return str(column_header)
     return repr(column_header)
 
-def list_to_string_without_internal_quotes(list) -> str:
+def list_to_string_without_internal_quotes(list: List[Any]) -> str:
     """
     Helper function for formatting a list as a string without 
     leading and trailing '

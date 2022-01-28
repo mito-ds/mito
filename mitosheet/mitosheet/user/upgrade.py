@@ -31,14 +31,19 @@ the other.
 
 _Any change the user.json format must be met with a version bump._
 """
-from mitosheet.user.schemas import (
-    UJ_FEEDBACKS_V2, UJ_INTENDED_BEHAVIOR, UJ_CLOSED_FEEDBACK, UJ_MITOSHEET_PRO, UJ_MITOSHEET_LAST_FIVE_USAGES, UJ_MITOSHEET_TELEMETRY,
-    UJ_USER_JSON_VERSION, UJ_MITOSHEET_LAST_FIFTY_USAGES
-)
-from mitosheet.user.schemas import USER_JSON_DEFAULT, USER_JSON_VERSION_1
-from mitosheet.user.db import get_user_json_object, set_user_json_object
+from typing import Any, Dict
 
-def try_upgrade_to_final_user_json_version_1(user_json_object):
+from mitosheet.user.db import get_user_json_object, set_user_json_object
+from mitosheet.user.schemas import (UJ_CLOSED_FEEDBACK, UJ_FEEDBACKS_V2,
+                                    UJ_INTENDED_BEHAVIOR,
+                                    UJ_MITOSHEET_LAST_FIFTY_USAGES,
+                                    UJ_MITOSHEET_LAST_FIVE_USAGES,
+                                    UJ_MITOSHEET_PRO, UJ_MITOSHEET_TELEMETRY,
+                                    UJ_USER_JSON_VERSION, USER_JSON_DEFAULT,
+                                    USER_JSON_VERSION_1)
+
+
+def try_upgrade_to_final_user_json_version_1(user_json_object: Dict[str, Any]) -> Dict[str, Any]:
     """
     With user_json_version = 1, we used to make changes to the user.json 
     without changing the version number. We simply just added a bunch
@@ -70,7 +75,7 @@ def try_upgrade_to_final_user_json_version_1(user_json_object):
 
     return user_json_object
 
-def upgrade_final_user_json_version_1_to_2(final_user_json_version_1):
+def upgrade_final_user_json_version_1_to_2(final_user_json_version_1: Dict[str, Any]) -> Dict[str, Any]:
     """
     Two changes in this version: 
     1. removes the intended_behavior field, as we no longer user it
@@ -96,7 +101,7 @@ def upgrade_final_user_json_version_1_to_2(final_user_json_version_1):
 
     return final_user_json_version_1
 
-def upgrade_user_json_version_2_to_3(user_json_version_2):
+def upgrade_user_json_version_2_to_3(user_json_version_2: Dict[str, Any]) -> Dict[str, Any]:
     """
     Just adds the user json telemetry field, which may already
     be set (due to it being added to the installer). Thus, only
@@ -111,7 +116,7 @@ def upgrade_user_json_version_2_to_3(user_json_version_2):
 
     return user_json_version_2
 
-def upgrade_user_json_version_3_to_4(user_json_version_3):
+def upgrade_user_json_version_3_to_4(user_json_version_3: Dict[str, Any]) -> Dict[str, Any]:
     """
     Just adds the user json feedback_v2 field
     """
@@ -122,7 +127,7 @@ def upgrade_user_json_version_3_to_4(user_json_version_3):
     user_json_version_3[UJ_FEEDBACKS_V2] = {}
     return user_json_version_3
 
-def upgrade_user_json_version_4_to_5(user_json_version_4):
+def upgrade_user_json_version_4_to_5(user_json_version_4: Dict[str, Any]) -> Dict[str, Any]:
     """
     Just adds the UJ_MITOSHEET_PRO field, and sets it to False,
     if it is not already in the user json (which it may be,
@@ -136,9 +141,12 @@ def upgrade_user_json_version_4_to_5(user_json_version_4):
         user_json_version_4[UJ_MITOSHEET_PRO] = False
     return user_json_version_4
 
-def try_upgrade_user_json_to_current_version():
+def try_upgrade_user_json_to_current_version() -> None:
     user_json_object = get_user_json_object()
 
+    if user_json_object is None:
+        user_json_object = USER_JSON_DEFAULT
+    
     # If we don't need to upgrade, don't upgrade
     if UJ_USER_JSON_VERSION in user_json_object and user_json_object[UJ_USER_JSON_VERSION] == USER_JSON_DEFAULT[UJ_USER_JSON_VERSION]:
         return
@@ -156,7 +164,6 @@ def try_upgrade_user_json_to_current_version():
         user_json_object = upgrade_user_json_version_3_to_4(user_json_object)
     if user_json_object[UJ_USER_JSON_VERSION] == 4:
         user_json_object = upgrade_user_json_version_4_to_5(user_json_object)
-
 
     set_user_json_object(user_json_object)
 

@@ -11,7 +11,7 @@ from mitosheet.saved_analyses.step_upgraders.utils_rename_column_headers import 
     BULK_OLD_RENAME_STEP
 
 
-def upgrade_group_1_to_pivot_2(step: Dict[str, Any], later_steps: List[Dict[str, Any]]):
+def upgrade_group_1_to_pivot_2(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Upgrades from a group 1 step to a pivot 2 step, simply
     by changing the names of the params.
@@ -44,7 +44,7 @@ def upgrade_group_1_to_pivot_2(step: Dict[str, Any], later_steps: List[Dict[str,
     }] + later_steps
 
 
-def upgrade_pivot_2_to_pivot_3(step: Dict[str, Any], later_steps: List[Dict[str, Any]]):
+def upgrade_pivot_2_to_pivot_3(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Upgrades from a pivot 2 step to a pivot 3 step, which simple
     changes the formats of the values key to be a list rather than
@@ -80,7 +80,7 @@ def upgrade_pivot_2_to_pivot_3(step: Dict[str, Any], later_steps: List[Dict[str,
     }] + later_steps
 
 
-def upgrade_pivot_3_to_4(step: Dict[str, Any], later_steps: List[Dict[str, Any]]):
+def upgrade_pivot_3_to_4(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Moves to using column id instead of column header.
 
@@ -120,7 +120,7 @@ def upgrade_pivot_3_to_4(step: Dict[str, Any], later_steps: List[Dict[str, Any]]
     }] + later_steps
 
 
-def upgrade_pivot_4_to_5_and_rename(step: Dict[str, Any], later_steps: List[Dict[str, Any]]):
+def upgrade_pivot_4_to_5_and_rename(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Adds a rename step after pivot 4, as in the move from pivot 4 -> 5
     we got rid of the column headers that we used. Also makes sure that
@@ -168,7 +168,7 @@ def upgrade_pivot_4_to_5_and_rename(step: Dict[str, Any], later_steps: List[Dict
     ] + later_steps
 
 
-def upgrade_pivot_5_to_6(step: Dict[str, Any], later_steps: List[Dict[str, Any]]):
+def upgrade_pivot_5_to_6(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     When moving from pivot 5 to pivot 6, we got rid of the flattening that
     happened with column headers. As such, we add a parameter to the pivot

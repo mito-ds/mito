@@ -12,6 +12,7 @@ accepts inputs flexibly, even if it does not send them from frontend.
 
 Kinda inspired by this: https://en.wikipedia.org/wiki/Robustness_principle
 """
+from typing import Optional
 from mitosheet.tests.test_utils import create_mito_wrapper, create_mito_wrapper_dfs
 import pandas as pd
 import pytest
@@ -121,7 +122,7 @@ def test_string_to_other_types(new_dtype, result, code):
         assert len(mito.transpiled_code) == 0
 
 # Little helper function for less writing
-def ts(y=None, m=None, d=None):
+def ts(y: Optional[int]=None, m: Optional[int]=None, d: Optional[int]=None) -> pd.Timestamp:
     return pd.Timestamp(year=y, month=m, day=d)
      
 

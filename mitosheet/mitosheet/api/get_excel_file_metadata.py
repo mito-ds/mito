@@ -1,9 +1,12 @@
 import json
 import os
+from typing import Any, Dict
+
 import pandas as pd
+from mitosheet.steps_manager import StepsManager
 
 
-def get_excel_file_metadata(event, steps_manager):
+def get_excel_file_metadata(event: Dict[str, Any], steps_manager: StepsManager) -> str:
     """
     Given a 'file_name' that should be an XLSX file, 
     will get the metadata for that XLSX file. 

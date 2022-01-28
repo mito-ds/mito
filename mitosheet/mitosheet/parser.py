@@ -10,13 +10,13 @@ as well as the original dataframe, and returns the current state
 of the sheet as a dataframe
 """
 import re
-from typing import Any, List, Set, Tuple, Union
+from typing import Any, Collection, List, Optional, Set, Tuple, Union
 
 from mitosheet.column_headers import get_column_header_display
 from mitosheet.errors import make_invalid_formula_error
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
 
-def is_quote(char: str):
+def is_quote(char: str) -> bool:
     """
     A helper to detect if a character is a quote
     """
@@ -45,10 +45,10 @@ def get_string_matches(
 
     return list(string_matches_double_quotes) + list(string_matches_single_quotes)
 
-def match_covered_by_matches(
-        matches: List, 
-        match,
-    ):
+def match_covered_by_matches( # type: ignore
+        matches: List,
+        match 
+    ) -> bool:
     """
     Returns True iff a given match is contained by one
     of the matches in a string
@@ -70,7 +70,7 @@ def safe_contains(
         formula: str, 
         substring: str,
         column_headers: List[Any],
-    ):
+    ) -> bool:
     """
     Returns true if the formula contains substring. However, will not count
     the substring if it is inside of a string.
@@ -95,7 +95,7 @@ def safe_contains_function(
         formula: str, 
         function: str,
         column_headers: List[Any]
-    ):
+    ) -> bool:
     """
     Checks if a function is called in a formula. Returns False if the function
     is in a column header.
@@ -120,7 +120,7 @@ def safe_contains_function(
     return False
 
 
-def safe_count_function(formula, substring):
+def safe_count_function(formula: str, substring: str) -> int:
     """
     Counts the number of occurences of the substring in the formula
     not including the string ranges
@@ -178,7 +178,7 @@ def safe_replace(
 def check_common_errors(
         formula: str,
         column_headers: List[Any]
-    ):
+    ) -> None:
     """
     Helper function for checking a formula for common errors, for better
     communication with users. 
@@ -351,11 +351,11 @@ def replace_functions(
 
 
 def parse_formula(
-        formula, 
+        formula: Optional[str], 
         column_header: Any, 
         column_headers: List[Any],
-        throw_errors=True
-    ):
+        throw_errors: bool=True
+    ) -> Tuple[str, Set[str], Set[Any]]:
     """
     Returns a representation of the formula that is easy to handle, specifically
     by returning (python_code, functions, column_header_dependencies), where column_headers

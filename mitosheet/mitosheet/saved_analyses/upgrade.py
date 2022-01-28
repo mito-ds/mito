@@ -112,7 +112,7 @@ STEP_UPGRADES_FUNCTION_MAPPING_NEW_FORMAT = {
 }
 
 
-def should_add_initial_bulk_old_rename_step(version: str):
+def should_add_initial_bulk_old_rename_step(version: str) -> bool:
     """
     This utility returns True if upgrading should add an initial rename
     step to replace the preprocessing rename step that used to exist at

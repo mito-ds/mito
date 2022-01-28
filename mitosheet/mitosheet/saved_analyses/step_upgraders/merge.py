@@ -9,7 +9,7 @@ from mitosheet.saved_analyses.step_upgraders.utils_column_header_to_column_id im
     replace_headers_with_id
 
 
-def upgrade_merge_1_to_merge_2(step: Dict[str, Any], later_steps: List[Dict[str, Any]]): 
+def upgrade_merge_1_to_merge_2(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]: 
     """
     Upgrades from a merge 1 step to a merge 2 step, simply
     by adding the how param.
@@ -55,7 +55,7 @@ def upgrade_merge_1_to_merge_2(step: Dict[str, Any], later_steps: List[Dict[str,
     }] + later_steps
 
 
-def upgrade_merge_2_to_3(step: Dict[str, Any], later_steps: List[Dict[str, Any]]):
+def upgrade_merge_2_to_3(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Moves to using column id instead of column header.
 

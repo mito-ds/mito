@@ -1,12 +1,15 @@
 import json
+from typing import Any, Dict
+
 import pandas as pd
+from mitosheet.steps_manager import StepsManager
 from mitosheet.utils import df_to_json_dumpsable
 
 # The maximum number of values the front-end sends to the backend
 # See comments in function description below.
 MAX_UNIQUE_VALUES = 1_000
 
-def get_unique_value_counts(event, steps_manager):
+def get_unique_value_counts(event: Dict[str, Any], steps_manager: StepsManager) -> str:
     """
     Sends back a string that can be parsed to a JSON object that
     contains the normalized value counts for the series at column_id 

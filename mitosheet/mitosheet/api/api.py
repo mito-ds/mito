@@ -7,8 +7,10 @@
 """
 Contains handlers for the Mito API
 """
+from ast import Call
 from queue import Queue
 from threading import Thread
+from typing import Any, Callable, Dict, List, NoReturn, Union
 from mitosheet.api.get_column_describe import get_column_describe
 from mitosheet.api.get_column_dtype import get_column_dtype
 from mitosheet.api.get_datafiles import get_datafiles
@@ -22,6 +24,7 @@ from mitosheet.api.get_search_matches import get_search_matches
 from mitosheet.api.get_unique_value_counts import get_unique_value_counts
 from mitosheet.api.graph import get_graph
 from mitosheet.mito_analytics import log_event_processed
+from mitosheet.steps_manager import StepsManager
 
 # As the column summary statistics tab does three calls, we defaulted to this max
 MAX_QUEUED_API_CALLS = 3
@@ -42,8 +45,8 @@ class API():
     -   Note that printing inside of a thread does not work properly! Use sys.stdout.flush() after the print statement.
         See here: https://stackoverflow.com/questions/18234469/python-multithreaded-print-statements-delayed-until-all-threads-complete-executi
     """
-    def __init__(self, steps_manager, send):
-        self.api_queue = Queue(MAX_QUEUED_API_CALLS)
+    def __init__(self, steps_manager: StepsManager, send: Callable):
+        self.api_queue: Queue = Queue(MAX_QUEUED_API_CALLS)
         # Note that we make the thread a daemon thread, which practically means that when
         # The process that starts this thread terminate, our API will terminate as well.
         self.thread = Thread(target=handle_api_event_thread, args=(self.api_queue, steps_manager, send), daemon=True)
@@ -53,7 +56,7 @@ class API():
         self.steps_manager = steps_manager
         self.send = send
 
-    def process_new_api_call(self, event):
+    def process_new_api_call(self, event: Dict[str, Any]) -> None:
         """
         We privilege new API calls over old calls, and evict the old ones 
         if the API queue is full.
@@ -74,7 +77,7 @@ class API():
 
 
 
-def handle_api_event_thread(queue, steps_manager, send):
+def handle_api_event_thread(queue: Queue, steps_manager: StepsManager, send: Callable) -> NoReturn:
     """
     This is the worker thread function, that actually is 
     responsible for handling at the API call events.
@@ -96,12 +99,13 @@ def handle_api_event_thread(queue, steps_manager, send):
             # Log in error if it occurs
             log_event_processed(event, steps_manager, failed=True)
 
-def handle_api_event(send, event, steps_manager):
+def handle_api_event(send: Callable, event: Dict[str, Any], steps_manager: StepsManager) -> None:
     """
     Handler for all API calls. Note that any response to the
     API must return the same ID that the incoming message contains,
     so that the frontend knows how to match the responses.
     """    
+    result: Union[str, List[str]]
     if event['type'] == 'datafiles':
         result = get_datafiles(event)
     elif event['type'] == 'get_path_contents':

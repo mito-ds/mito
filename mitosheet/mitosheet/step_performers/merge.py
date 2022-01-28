@@ -8,10 +8,13 @@
 from copy import copy
 from typing import Any, Dict, List, Optional, Set, Tuple
 
-from mitosheet.errors import make_incompatible_merge_headers_error, make_incompatible_merge_key_error
+import pandas as pd
+from mitosheet.errors import (make_incompatible_merge_headers_error,
+                              make_incompatible_merge_key_error)
 from mitosheet.state import DATAFRAME_SOURCE_MERGED, State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import (
+    column_header_list_to_transpiled_code, column_header_to_transpiled_code)
 
 LOOKUP = 'lookup'
 UNIQUE_IN_LEFT = 'unique in left'
@@ -39,7 +42,7 @@ class MergeStepPerformer(StepPerformer):
         return 'merge_edit'
 
     @classmethod
-    def saturate(cls, prev_state: State, params) -> Dict[str, str]:
+    def saturate(cls, prev_state: State, params: Any) -> Dict[str, str]:
         return params
 
     @classmethod
@@ -192,16 +195,16 @@ class MergeStepPerformer(StepPerformer):
         return {-1}
 
 def _execute_merge(
-        dfs, 
-        df_names,
-        how,
-        sheet_index_one,
-        merge_key_one, 
-        selected_columns_one,
-        sheet_index_two,
-        merge_key_two,
-        selected_columns_two
-    ):
+        dfs: List[pd.DataFrame], 
+        df_names: List[str],
+        how: str,
+        sheet_index_one: int,
+        merge_key_one: Any, 
+        selected_columns_one: List[Any],
+        sheet_index_two: int,
+        merge_key_two: Any,
+        selected_columns_two: List[Any]
+    ) -> pd.DataFrame:
     """
     Executes a merge on the sheets with the given indexes, merging on the 
     given keys, and only keeping the selection columns from each df.

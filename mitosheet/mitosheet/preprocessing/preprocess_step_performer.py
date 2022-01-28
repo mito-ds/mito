@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Collection, List, Optional, Tuple
+
+from mitosheet.steps_manager import StepsManager
 
 
 class PreprocessStepPerformer(ABC, object):
@@ -29,7 +31,7 @@ class PreprocessStepPerformer(ABC, object):
 
     @classmethod
     @abstractmethod
-    def execute(cls, args: List[Any]) -> Tuple[List[Any], Optional[Dict[str, Any]]]:
+    def execute(cls, args: Collection[Any]) -> Tuple[List[Any], Optional[Dict[str, Any]]]:
         """
         Execute always returns the new list of arguments, as well as execution_data
         for this preprocess step.
@@ -38,7 +40,7 @@ class PreprocessStepPerformer(ABC, object):
 
     @classmethod
     @abstractmethod
-    def transpile(cls, steps_manager, execution_data: Optional[Dict[str, Any]]) -> List[str]:
+    def transpile(cls, steps_manager: StepsManager, execution_data: Optional[Dict[str, Any]]) -> List[str]:
         """
         Returns a list of the Python code lines that corresponds to this 
         preprocess step being executed

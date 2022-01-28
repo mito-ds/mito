@@ -12,13 +12,13 @@ of the column header. For string column headers, they are just
 themselves.
 """
 import random
-from typing import Any, Dict, List
+from typing import Any, Collection, Dict, List
 import pandas as pd
 
 from mitosheet.errors import make_no_column_error
 
 
-def flatten_column_header(column_header: Any):
+def flatten_column_header(column_header: Any) -> Any:
     """
     Given a pandas column header, if it is a list or tuple, it will
     flatten this header into a string. 
@@ -56,12 +56,12 @@ def get_column_header_display(column_header: Any) -> str:
     return str(column_header)
 
 
-def get_column_header_ids(column_headers: List[Any]):
+def get_column_header_ids(column_headers: List[Any]) -> List[str]:
     return [
         get_column_header_id(column_header) for column_header in column_headers
     ]
 
-def get_column_header_id(column_header: Any, use_deprecated_id_algorithm=False) -> str:
+def get_column_header_id(column_header: Any, use_deprecated_id_algorithm: bool=False) -> str:
     """
     Returns the ID that represents this column header, which is
     used to refer to the column as long as it is used in the 
@@ -84,7 +84,7 @@ def get_column_header_id(column_header: Any, use_deprecated_id_algorithm=False) 
     else:
         return str(column_header)
 
-def try_make_new_header_valid_if_multi_index_headers(column_headers: List[Any], new_column_header: Any):
+def try_make_new_header_valid_if_multi_index_headers(column_headers: List[Any], new_column_header: Any) -> Any:
     """
     Helper function for when you're adding a column to a
     dataframe that has multi-index headers. 
@@ -112,7 +112,7 @@ class ColumnIDMap():
     two of them.
     """
 
-    def __init__(self, dfs: List[pd.DataFrame]):
+    def __init__(self, dfs: Collection[pd.DataFrame]):
         self.column_id_to_column_header: List[Dict[str, Any]] = [dict() for _ in range(len(dfs))]
         self.column_header_to_column_id: List[Dict[Any, str]] = [dict() for _ in range(len(dfs))]
 
@@ -122,7 +122,7 @@ class ColumnIDMap():
                 self.column_id_to_column_header[sheet_index][column_id] = column_header
                 self.column_header_to_column_id[sheet_index][column_header] = column_id
 
-    def set_column_header(self, sheet_index: int, column_id: str, column_header: Any):
+    def set_column_header(self, sheet_index: int, column_id: str, column_header: Any) -> None:
         """
         Sets a column id and column header to match to eachother. 
 
@@ -145,7 +145,7 @@ class ColumnIDMap():
         self.column_id_to_column_header[sheet_index][column_id] = column_header
         self.column_header_to_column_id[sheet_index][column_header] = column_id
 
-    def add_df(self, df: pd.DataFrame, sheet_index: int=None, use_deprecated_id_algorithm=False) -> Dict[str, Any]:
+    def add_df(self, df: pd.DataFrame, sheet_index: int=None, use_deprecated_id_algorithm: bool=False) -> Dict[str, Any]:
         """
         Adds all of the keys for the new dataframe to the column id 
         mappings.
@@ -169,7 +169,7 @@ class ColumnIDMap():
         
         return self.column_id_to_column_header[sheet_index]
 
-    def remove_df(self, sheet_index: int):
+    def remove_df(self, sheet_index: int) -> None:
         """
         Deletes the tracking of this dataframe from the column
         id map.
@@ -177,7 +177,7 @@ class ColumnIDMap():
         self.column_id_to_column_header.pop(sheet_index)
         self.column_header_to_column_id.pop(sheet_index)
     
-    def add_column_header(self, sheet_index: int, column_header: Any):
+    def add_column_header(self, sheet_index: int, column_header: Any) -> str:
         """
         NOTE: this should only be called when adding a column to the dataframe,
         and not when renaming a column, as it creates a new id for the column
@@ -196,12 +196,12 @@ class ColumnIDMap():
 
         return column_id
     
-    def delete_column_id(self, sheet_index: int, column_id: str):
+    def delete_column_id(self, sheet_index: int, column_id: str) -> None:
         column_header = self.get_column_header_by_id(sheet_index, column_id)
         del self.column_id_to_column_header[sheet_index][column_id]
         self.column_header_to_column_id[sheet_index][column_header]
 
-    def get_column_ids(self, sheet_index: int, column_headers=None):
+    def get_column_ids(self, sheet_index: int, column_headers: Collection[Any]=None) -> List[str]:
         if column_headers is None:
             return list(self.column_id_to_column_header[sheet_index].keys())
         try:
@@ -212,22 +212,22 @@ class ColumnIDMap():
         except:
             raise make_no_column_error(column_headers)
 
-    def get_column_ids_map(self, sheet_index: int):
+    def get_column_ids_map(self, sheet_index: int) -> Dict[str, Any]:
         return self.column_id_to_column_header[sheet_index]
 
-    def get_column_id_by_header(self, sheet_index: int, column_header: Any):
+    def get_column_id_by_header(self, sheet_index: int, column_header: Any) -> str:
         return self.column_header_to_column_id[sheet_index][column_header]
 
-    def get_column_header_by_id(self, sheet_index: int, column_id: str):
+    def get_column_header_by_id(self, sheet_index: int, column_id: str) -> Any:
         return self.column_id_to_column_header[sheet_index][column_id]
 
-    def get_column_headers_by_ids(self, sheet_index: int, column_ids: List[str]):
+    def get_column_headers_by_ids(self, sheet_index: int, column_ids: List[str]) -> List[Any]:
         return [
             self.column_id_to_column_header[sheet_index][column_id] 
             for column_id in column_ids
         ]
 
-    def move_to_deprecated_id_format(self):
+    def move_to_deprecated_id_format(self) -> None:
         """
         Helper function to change the column IDs, specifically for the 
         purpose of backwards compability. This simulates a preprocessing 

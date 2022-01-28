@@ -10,9 +10,10 @@ analyses, we needed to upgrade a bunch of different steps.
 
 We have common utilities here for supporting in this task.
 """
+from typing import Any, Dict
 from mitosheet.column_headers import get_column_header_id, get_column_header_ids
 
-def replace_headers_with_id(params, old_key, new_key):
+def replace_headers_with_id(params: Dict[str, Any], old_key: str, new_key: str) -> Dict[str, Any]:
     """
     Helper function for upgrading from column headers 
     to column ids in the params of a step. Handles the
@@ -20,6 +21,7 @@ def replace_headers_with_id(params, old_key, new_key):
     """
 
     old_value_column_header = params[old_key]
+    new_value: Any = old_value_column_header
     if isinstance(old_value_column_header, str):
         new_value = get_column_header_id(old_value_column_header)
     elif isinstance(old_value_column_header, list):

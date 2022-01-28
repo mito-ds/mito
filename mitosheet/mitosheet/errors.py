@@ -15,14 +15,14 @@ See more about why we use errors here:
 https://stackoverflow.com/questions/16138232/is-it-a-good-practice-to-use-try-except-else-in-python
 """
 import traceback
-from typing import Set, List
+from typing import Any, Collection, Set, List
 
 
 class MitoError(Exception):
     """
     An error that occurs during the processing of an editing event.
     """
-    def __init__(self, type_, header, to_fix, error_modal=True):
+    def __init__(self, type_: str, header: str, to_fix: str, error_modal: bool=True):
         """
         Creates a creation error. 
 
@@ -35,7 +35,7 @@ class MitoError(Exception):
         self.to_fix = to_fix
         self.error_modal = error_modal
 
-def make_no_sheet_error(sheet_indexes: Set[int]):
+def make_no_sheet_error(sheet_indexes: Set[int]) -> MitoError:
     """
     Helper function for creating a no_sheet_error.
 
@@ -49,7 +49,7 @@ def make_no_sheet_error(sheet_indexes: Set[int]):
         to_fix
     )
 
-def make_incompatible_merge_headers_error(error_modal=True):
+def make_incompatible_merge_headers_error(error_modal: bool=True) -> MitoError:
     """
     Helper function for creating a incompatible_merge_headers_error
 
@@ -65,7 +65,7 @@ def make_incompatible_merge_headers_error(error_modal=True):
         error_modal=error_modal
     )
 
-def make_incompatible_merge_key_error(error_modal=True):
+def make_incompatible_merge_key_error(error_modal: bool=True) -> MitoError:
     """
     Helper function for creating a incompatible_merge_key_error
 
@@ -80,7 +80,7 @@ def make_incompatible_merge_key_error(error_modal=True):
         error_modal=error_modal
     )
 
-def make_no_column_error(column_headers: Set[str], error_modal=True):
+def make_no_column_error(column_headers: Collection[str], error_modal: bool=True) -> MitoError:
     """
     Helper function for creating a no_column_error.
 
@@ -98,7 +98,7 @@ def make_no_column_error(column_headers: Set[str], error_modal=True):
         error_modal=error_modal
     )
 
-def make_column_exists_error(column_header: str):
+def make_column_exists_error(column_header: Any) -> MitoError:
     """
     Helper function for creating a column_exists_error.
 
@@ -111,7 +111,7 @@ def make_column_exists_error(column_header: str):
         f'Sorry, a column already exists with the name {column_header}. Try picking a different name!'
     )
 
-def make_invalid_formula_error(formula: str, to_fix=None, error_modal=True):
+def make_invalid_formula_error(formula: str, to_fix: str=None, error_modal: bool=True) -> MitoError:
     """
     Helper function for creating a invalid_formula_error.
 
@@ -129,7 +129,7 @@ def make_invalid_formula_error(formula: str, to_fix=None, error_modal=True):
     )
 
 
-def make_cast_value_to_type_error(value: str, target_type: str, error_modal=True):
+def make_cast_value_to_type_error(value: str, target_type: str, error_modal: bool=True) -> MitoError:
     """
     Helper function for creating a cast_value_to_type_error.
 
@@ -144,7 +144,7 @@ def make_cast_value_to_type_error(value: str, target_type: str, error_modal=True
         error_modal=error_modal
     )
 
-def make_circular_reference_error(error_modal=True):
+def make_circular_reference_error(error_modal: bool=True) -> MitoError:
     """
     Helper function for creating a circular_reference_error.
 
@@ -158,7 +158,7 @@ def make_circular_reference_error(error_modal=True):
         error_modal=error_modal
     )
 
-def make_wrong_column_metatype_error(column_header: str, error_modal=True):
+def make_wrong_column_metatype_error(column_header: Any, error_modal: bool=True) -> MitoError:
     """
     Helper function for creating a wrong_column_metatype_error.
 
@@ -172,7 +172,7 @@ def make_wrong_column_metatype_error(column_header: str, error_modal=True):
         error_modal=error_modal
     )
 
-def make_invalid_column_headers_error(column_headers: List[str]):
+def make_invalid_column_headers_error(column_headers: List[Any]) -> MitoError:
     """
     Helper function for creating a invalid_column_headers_error.
 
@@ -187,7 +187,7 @@ def make_invalid_column_headers_error(column_headers: List[str]):
         to_fix
     )
 
-def make_function_error(function_name, error_modal=True):
+def make_function_error(function_name: str, error_modal: bool=True) -> MitoError:
     """
     Helper function for creating a function_error.
 
@@ -203,7 +203,7 @@ def make_function_error(function_name, error_modal=True):
     )
 
 
-def make_execution_error(error_modal=True):
+def make_execution_error(error_modal: bool=True) -> MitoError:
     """
     Helper function for creating a execution_error.
 
@@ -218,7 +218,7 @@ def make_execution_error(error_modal=True):
         error_modal=error_modal
     )
 
-def make_function_execution_error(function):
+def make_function_execution_error(function: str) -> MitoError:
     """
     Helper function for creating a function_execution_error.
 
@@ -232,7 +232,7 @@ def make_function_execution_error(function):
         f'Sorry, there was an error in the {function}. Please check the documentation to make sure you called it correctly.'
     )
 
-def make_unsupported_function_error(functions: Set[str], error_modal=True):
+def make_unsupported_function_error(functions: Set[str], error_modal: bool=True) -> MitoError:
     """
     Helper function for creating a unsupported_function_error.
 
@@ -252,7 +252,7 @@ def make_unsupported_function_error(functions: Set[str], error_modal=True):
         error_modal=error_modal
     )
 
-def make_invalid_column_delete_error(column_headers, dependents):
+def make_invalid_column_delete_error(column_headers: Any, dependents: Collection[Any]) -> MitoError:
     """
     Helper function for creating a invalid_column_delete_error.
 
@@ -268,7 +268,7 @@ def make_invalid_column_delete_error(column_headers, dependents):
         f'{(", ").join(column_headers)} cannot be deleted, as {"they are" if len(column_headers) > 1 else "it is"} referenced in {(", ".join(dependents))}. Please remove these references before deleting.'
     )
 
-def make_invalid_arguments_error(function):
+def make_invalid_arguments_error(function: str) -> MitoError:
     """
     Helper function for creating a invalid_arguments_error.
 
@@ -281,7 +281,7 @@ def make_invalid_arguments_error(function):
         f'It looks like you passed the wrong arguments to {function}. Try checking out the documentation to see correct usage!'
     )
 
-def make_invalid_aggregation_error():
+def make_invalid_aggregation_error() -> MitoError:
     """
     Helper function for creating a invalid_aggregation_error.
 
@@ -295,7 +295,7 @@ def make_invalid_aggregation_error():
         f'Sorry, you tried to aggregate with a function that could not be applied to that type of column. Please try again!'
     )
 
-def make_invalid_filter_error(filter_value, correct_type):
+def make_invalid_filter_error(filter_value: Any, correct_type: str) -> MitoError:
     """
     Helper function for creating a invalid_filter_error.
 
@@ -317,7 +317,7 @@ def make_invalid_filter_error(filter_value, correct_type):
         f'Sorry, the value {filter_value} is not a valid value for that {correct_type} filter. Please enter a value {correct_format}!'
     )
 
-def make_invalid_sort_error(column_header):
+def make_invalid_sort_error(column_header: Any) -> MitoError:
     """
     Helper function for creating a invalid_sort_error.
 
@@ -332,7 +332,7 @@ def make_invalid_sort_error(column_header):
         f'Sorry, the column {column_header} has mixed data types. Please make sure the column has one datatype before trying to sort.'
     )
 
-def make_df_exists_error(df_name):
+def make_df_exists_error(df_name: str) -> MitoError:
     """
     Helper function for creating a df_exists_error.
 
@@ -347,7 +347,7 @@ def make_df_exists_error(df_name):
         f'Sorry, the dataframe {df_name} already exists. Please pick a different name.'
     )
 
-def make_invalid_column_type_change_error(column_header, old_dtype, new_dtype):
+def make_invalid_column_type_change_error(column_header: Any, old_dtype: str, new_dtype: str) -> MitoError:
     """
     Helper function for creating a invalid_column_type_change_error.
 
@@ -362,7 +362,7 @@ def make_invalid_column_type_change_error(column_header, old_dtype, new_dtype):
         f'Sorry, the column {column_header} has a type {old_dtype}, which cannot be changed to the type {new_dtype}.'
     )
 
-def make_invalid_pivot_error():
+def make_invalid_pivot_error() -> MitoError:
     """
     Helper function for creating a invalid_pivot_error.
 
@@ -377,7 +377,7 @@ def make_invalid_pivot_error():
     )
 
 
-def make_is_directory_error(file_name):
+def make_is_directory_error(file_name: str) -> MitoError:
     """
     Helper function for creating directory_error
 
@@ -398,7 +398,7 @@ ARG_FULL_NAME = {
     'bool': 'boolean'
 }
 
-def make_operator_type_error(operator, arg_one_type, arg_two_type):
+def make_operator_type_error(operator: str, arg_one_type: str, arg_two_type: str) -> MitoError:
     """
     Helper function for creating a operator_type_error.
 
@@ -425,10 +425,10 @@ def make_operator_type_error(operator, arg_one_type, arg_two_type):
         to_fix
     )
 
-def get_recent_traceback():
+def get_recent_traceback() -> str:
     return traceback.format_exc()
 
-def get_recent_traceback_as_list():
+def get_recent_traceback_as_list() -> List[str]:
     """
     Helper function for getting the traceback of the most recent error.
     

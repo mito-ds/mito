@@ -12,9 +12,10 @@ in analyses.
 from mitosheet.step import Step
 import os
 import json
-from typing import List
+from typing import Any, Dict, List
 from mitosheet._version import __version__
 from mitosheet.mito_analytics import log
+from mitosheet.steps_manager import StepsManager
 
 # Where all global .mito files are stored
 MITO_FOLDER = os.path.expanduser("~/.mito")
@@ -112,7 +113,7 @@ def rename_saved_analysis(old_analysis_name, new_analysis_name):
         raise Exception(f'Invalid rename, with old and new analysis are {old_analysis_name} and {new_analysis_name}')
 
 
-def write_saved_analysis(analysis_path, steps_data, version=__version__):
+def write_saved_analysis(analysis_path: str, steps_data: List[Dict[str, Any]], version: str=__version__) -> None:
     with open(analysis_path, 'w+') as f:
         saved_analysis = {
             'version': version,
@@ -124,7 +125,7 @@ def write_saved_analysis(analysis_path, steps_data, version=__version__):
 
 def make_steps_json_obj(
         steps: List[Step]
-    ):
+    ) -> List[Dict[str, Any]]:
     """
     Given a steps dictonary from a steps_manager, puts the steps
     into a format that can be saved to a json file. 
@@ -173,7 +174,7 @@ def make_steps_json_obj(
 
     return steps_json_obj
 
-def write_analysis(steps_manager, analysis_name=None):
+def write_analysis(steps_manager: StepsManager, analysis_name: str=None) -> None:
     """
     Writes the analysis saved in steps_manager to
     ~/.mito/{analysis_name}. If analysis_name is none, gets the temporary

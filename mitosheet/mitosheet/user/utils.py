@@ -8,17 +8,17 @@
 Contains functions that are useful for determining the state of the
 current user.
 """
-import os
 import getpass
+import os
 from datetime import datetime
 
 from mitosheet._version import __version__
 from mitosheet.user.db import get_user_field
-from mitosheet.user.schemas import (
-    UJ_FEEDBACKS, UJ_MITOSHEET_LAST_UPGRADED_DATE, UJ_MITOSHEET_LAST_FIFTY_USAGES, UJ_MITOSHEET_PRO
-)
+from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_UPGRADED_DATE,
+                                    UJ_MITOSHEET_PRO)
 
-def is_running_test():
+
+def is_running_test() -> bool:
     """
     A helper function that quickly returns if the current code is running 
     inside of a test, which is useful for making sure we don't generate 
@@ -31,7 +31,7 @@ def is_running_test():
 
     return running_pytests or running_ci
 
-def is_on_kuberentes_mito():
+def is_on_kuberentes_mito() -> bool:
     """
     Returns True if the user is on Kuberentes Mito, on staging or on app
     """
@@ -39,15 +39,16 @@ def is_on_kuberentes_mito():
     return user == 'jovyan'
 
 
-def is_pro():
+def is_pro() -> bool:
     """
     Helper function for returning if this is a
     pro deployment of mito
     """
-    return get_user_field(UJ_MITOSHEET_PRO)  
+    is_pro = get_user_field(UJ_MITOSHEET_PRO)
+    return is_pro if is_pro is not None else False
 
 
-def is_local_deployment():
+def is_local_deployment() -> bool:
     """
     Helper function for figuring out if this a local deployment or a
     Mito server deployment
@@ -55,7 +56,7 @@ def is_local_deployment():
     return not is_on_kuberentes_mito()  
 
 
-def should_upgrade_mitosheet():
+def should_upgrade_mitosheet() -> bool:
     """
     A helper function that calculates if a user should upgrade, which does so by 
     checking if the user has upgraded in the past 21 days (3 weeks), since this is
@@ -70,6 +71,10 @@ def should_upgrade_mitosheet():
     if not is_local_deployment():
         return False
 
-    mitosheet_last_upgraded_date = datetime.strptime(get_user_field(UJ_MITOSHEET_LAST_UPGRADED_DATE), '%Y-%m-%d')
+    last_upgraded_date_stored = get_user_field(UJ_MITOSHEET_LAST_UPGRADED_DATE)
+    if last_upgraded_date_stored is None:
+        return False
+
+    mitosheet_last_upgraded_date = datetime.strptime(last_upgraded_date_stored, '%Y-%m-%d')
     return (datetime.now() - mitosheet_last_upgraded_date).days > 21
 

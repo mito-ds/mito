@@ -49,7 +49,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         return 'set_column_formula_edit'
 
     @classmethod
-    def saturate(cls, prev_state: State, params) -> Dict[str, str]:
+    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         sheet_index = params['sheet_index']
         column_id = params['column_id']
         params['old_formula'] = prev_state.column_spreadsheet_code[sheet_index][column_id]
@@ -204,7 +204,7 @@ def _update_column_formula_in_step(
         old_formula: str,
         new_formula: str,
         update_from_rename: bool=False
-    ):
+    ) -> None:
     """
     A  helper function for updating the formula of a column. It assumes
     that the passed information is all _correct_ and will not:
@@ -276,7 +276,7 @@ def _get_fixed_invalid_formula(
     return new_formula
 
 
-def get_details_from_operator_type_error(error):
+def get_details_from_operator_type_error(error: TypeError) -> Optional[Tuple[str, str, str]]:
     """
     We detect operator errors by checking the error string, which has the format:
 
@@ -330,7 +330,7 @@ def get_details_from_operator_type_error(error):
     return None
 
 
-def refresh_dependant_columns(post_state: State, df: pd.DataFrame, sheet_index: int):
+def refresh_dependant_columns(post_state: State, df: pd.DataFrame, sheet_index: int) -> None:
     """
     Helper function for refreshing the columns that are dependant on the column we are changing. 
     """

@@ -35,7 +35,7 @@ class DataframeRenameStepPerformer(StepPerformer):
         return 'dataframe_rename_edit'
 
     @classmethod
-    def saturate(cls, prev_state: State, params) -> Dict[str, str]:
+    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         sheet_index = params['sheet_index']
         old_dataframe_name = prev_state.df_names[sheet_index]
         params['old_dataframe_name'] = old_dataframe_name

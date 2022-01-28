@@ -8,16 +8,21 @@
 For going to a boolean series.
 """
 
-from typing import Tuple, Union
-import pandas as pd
+from typing import Any
+
 import numpy as np
-from mitosheet.sheet_functions.types.utils import BOOLEAN_SERIES, DATETIME_SERIES, NUMBER_SERIES, STRING_SERIES, get_mito_type
+import pandas as pd
+from mitosheet.sheet_functions.types.utils import (BOOLEAN_SERIES,
+                                                   DATETIME_SERIES,
+                                                   NUMBER_SERIES,
+                                                   STRING_SERIES,
+                                                   get_mito_type)
 
 
 def to_boolean_series(
-        unknown_object,
-        on_uncastable_arg_element=('default', np.NaN), # Union[Literal['error'], Tuple[Literal['default'], any]]
-    ):
+        unknown_object: Any,
+        on_uncastable_arg_element: Any=('default', np.NaN), # Union[Literal['error'], Tuple[Literal['default'], any]]
+    ) -> pd.Series:
     """
     Converts the given object to a boolean series. Note that on_uncastable_arg_element
     is irrelevant here, as anything can be turned into a boolean. 

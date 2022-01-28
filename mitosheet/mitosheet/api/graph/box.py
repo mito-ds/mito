@@ -1,11 +1,11 @@
-from typing import List
+from typing import Any, List
 import pandas as pd
 import plotly.graph_objects as go
 from mitosheet.mito_analytics import log
 from mitosheet.api.graph.graph_utils import BOX, CREATE_FIG_CODE, SHOW_FIG_CODE, X, filter_df_to_safe_size, get_graph_title, is_all_number_series
 
 
-def get_box_plot(axis, df, column_headers): 
+def get_box_plot(axis: str, df: pd.DataFrame, column_headers: List[Any]) -> go.Figure: 
     """
     Returns a box plot using the following heuristic:
 
@@ -57,7 +57,7 @@ def get_box_code(
         df: pd.DataFrame, 
         column_headers: List[str],
         df_name: str
-    ):
+    ) -> str:
     """
     Generates the code for a box plot, as is generated.
     """

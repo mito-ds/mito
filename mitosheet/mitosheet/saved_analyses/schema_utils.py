@@ -70,7 +70,7 @@ def upgrade_saved_analysis_format_to_steps_data(saved_analysis):
 
 
 
-def is_prev_version(version: str, curr_version: str=__version__):
+def is_prev_version(version: str, curr_version: str=__version__) -> bool:
     """
     Returns True if the passed version is a previous version compared
     to the current version; note that this assumes semantic versioning

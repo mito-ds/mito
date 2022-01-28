@@ -45,7 +45,7 @@ class BulkOldRenameStepPerformer(StepPerformer):
         return 'old_rename_only_use_this_in_testing'
 
     @classmethod
-    def saturate(cls, prev_state: State, params) -> Dict[str, str]:
+    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 
     @classmethod
@@ -53,7 +53,7 @@ class BulkOldRenameStepPerformer(StepPerformer):
         cls,
         prev_state: State,
         move_to_deprecated_id_algorithm: bool=False,
-        **params
+        **params: Any
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
         """
         If move_to_deprecated_id_algorithm, then this step is being
@@ -118,8 +118,8 @@ class BulkOldRenameStepPerformer(StepPerformer):
     @classmethod
     def describe(
         cls,
-        df_names=None,
-        **params
+        df_names: List[str]=None,
+        **params: Any
     ) -> str:
         return f'Renamed headers for compatibility with previous Mito versions'
 

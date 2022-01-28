@@ -14,8 +14,8 @@ def replace_column_header_in_params(
         old_column_header: str, 
         new_column_header: str, 
         params: Dict[str, Any],
-        keys=None
-    ):
+        keys: List[str]=None
+    ) -> Dict[str, Any]:
     """
     Replaces old_column_header with new_column_header wherever it occurs in params.
 
@@ -54,7 +54,7 @@ def change_column_header_in_all_future_steps(
         old_column_header: str, 
         new_column_header: str, 
         later_steps: List[Dict[str, Any]]
-    ):
+    ) -> List[Dict[str, Any]]:
     """
     This helper function changes all future steps in the analysis
     after the rename by switching new_column_header to old_column_header
@@ -105,7 +105,7 @@ def change_column_header_in_all_future_steps(
     return later_steps
 
 
-def upgrade_rename_column_1_to_2(step: Dict[str, Any], later_steps: List[Dict[str, Any]]):
+def upgrade_rename_column_1_to_2(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Moves to using column id instead of column header.
 

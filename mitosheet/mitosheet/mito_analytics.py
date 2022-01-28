@@ -18,6 +18,8 @@ Our general approach to logging can be understood as:
    This appears to be good practice, as it allows us to associate what actions are taken
    with their result very effectively!
 """
+from typing import Any, Dict, List
+from mitosheet.steps_manager import StepsManager
 from mitosheet.user.schemas import UJ_MITOSHEET_TELEMETRY
 import platform
 import sys
@@ -40,14 +42,15 @@ from mitosheet.user import (
 )
 from mitosheet.user import get_user_field, is_local_deployment, is_running_test, is_local_deployment
 from mitosheet._version import __version__
-from mitosheet.errors import get_recent_traceback_as_list
+from mitosheet.errors import MitoError, get_recent_traceback_as_list
 
-def telemetry_turned_on():
+def telemetry_turned_on() -> bool:
     """
     Helper function that tells if you if logging is turned on or
     turned off on the entire Mito instance
     """
-    return get_user_field(UJ_MITOSHEET_TELEMETRY)
+    telemetry = get_user_field(UJ_MITOSHEET_TELEMETRY) 
+    return telemetry if telemetry is not None else False
 
 # When we anonymize, we use some combination of these words
 # to construct new private words
@@ -57,7 +60,7 @@ valid_words = ['cat', 'dog', 'hat', 'time', 'person', 'year', 'way', 'thing', 'm
 # this salt in once the function is called for the first
 # time, to make sure it's initialized properly
 salt = None
-def anonymize_word(word):
+def anonymize_word(word: Any) -> str:
     """
     Helper function that turns a column header into
     a totally anonymous version of the column header,
@@ -80,7 +83,7 @@ def anonymize_word(word):
     return valid_words[index_one] + valid_words[index_two] + valid_words[index_three]
 
 
-def anonymize_formula(formula, sheet_index, steps_manager=None):
+def anonymize_formula(formula: str, sheet_index: int, steps_manager: StepsManager=None) -> str:
     """
     Helper function that anonymizes formula to 
     make sure that no private data is included in it.
@@ -145,7 +148,7 @@ def get_installed_mitosheets_pip_show():
         return []
 
 
-def log(log_event, params=None, steps_manager=None):
+def log(log_event: str, params: Dict[Any, Any]=None, steps_manager: StepsManager=None) -> None:
     """
     Helper function that logs an event with the given parameters. However,
     this function is also responsible for making sure _zero_ private data
@@ -174,7 +177,7 @@ def log(log_event, params=None, steps_manager=None):
     # Private params are where we _make sure_ that no private
     # user data leaves the user's machine. We replace any potentially
     # non-private params with private versions of them.
-    private_params = {}
+    private_params: Dict[str, Any] = {}
     try:
         for key, value in params.items():
             # We take any of the items that contain private user data, and we anonymize them
@@ -202,7 +205,7 @@ def log(log_event, params=None, steps_manager=None):
             elif 'filters' in key:
                 # For filters, we get rid of the values, but keep the conditions
                 # as well as if a value was put in
-                filter_log = []
+                filter_log: List[Any] = []
 
                 for filter_or_group in value:
                     if 'filters' in filter_or_group:
@@ -222,7 +225,8 @@ def log(log_event, params=None, steps_manager=None):
                     private_params[key] = value
             elif 'sheet_index' in key:
                 private_params[key] = value
-                private_params[key + '_df_source'] = steps_manager.curr_step.df_sources[value]
+                if steps_manager:
+                    private_params[key + '_df_source'] = steps_manager.curr_step.df_sources[value]
             else:
                 private_params[key] = value
     except:
@@ -249,7 +253,7 @@ def log(log_event, params=None, steps_manager=None):
         )
 
 
-def identify():
+def identify() -> None:
     """
     Helper function for identifying a user. We just take
     their python version, mito version, and email.
@@ -280,7 +284,7 @@ def identify():
         })
 
 
-def log_recent_error(log_event=None):
+def log_recent_error(log_event: str=None) -> None:
     """
     A helper function for logging the most recent error that has occured.
 
@@ -304,7 +308,7 @@ def log_recent_error(log_event=None):
     )
 
 
-def log_event_processed(event, steps_manager, failed=False, edit_error=None):
+def log_event_processed(event: Dict[str, Any], steps_manager: StepsManager, failed: bool=False, mito_error: MitoError=None) -> None:
     """
     Helper function for logging when an event is processed
     by the widget state container. 
@@ -328,10 +332,11 @@ def log_event_processed(event, steps_manager, failed=False, edit_error=None):
 
             # Try to log execution data for this step as well 
             try:
-                execution_data_properties = {
-                    'execution_data_' + key: value for key, value in steps_manager.curr_step.execution_data.items()
-                }
-                event_properties = {**event_properties, **execution_data_properties}
+                if steps_manager and steps_manager.curr_step.execution_data:
+                    execution_data_properties = {
+                        'execution_data_' + key: value for key, value in steps_manager.curr_step.execution_data.items()
+                    }
+                    event_properties = {**event_properties, **execution_data_properties}
             except:
                 pass
         else:
@@ -360,12 +365,12 @@ def log_event_processed(event, steps_manager, failed=False, edit_error=None):
             ]
 
         # We also check there is an edit_error, and if there is, then we add the error logs
-        if edit_error is not None:
+        if mito_error is not None:
             recent_traceback = get_recent_traceback_as_list()
             error_properties = {
-                'error_type': edit_error.type_,
-                'error_header': edit_error.header,
-                'error_to_fix': edit_error.to_fix,
+                'error_type': mito_error.type_,
+                'error_header': mito_error.header,
+                'error_to_fix': mito_error.to_fix,
                 'error_traceback': recent_traceback,
                 # We get the last line of the error as it makes it much easier
                 # to easily analyze on error messages 

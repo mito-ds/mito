@@ -37,7 +37,7 @@ def to_start(t: pd.Timestamp, freq: pd.DateOffset) -> pd.Timestamp:
     'error',
     'error'
 )
-def DATEVALUE(datetime_series) -> pd.Series:
+def DATEVALUE(datetime_series: pd.Series) -> pd.Series:
     """
     {
         "function": "DATEVALUE",
@@ -65,7 +65,7 @@ def DATEVALUE(datetime_series) -> pd.Series:
     'error',
     'error'
 )
-def DAY(datetime_series) -> pd.Series:
+def DAY(datetime_series: pd.Series) -> pd.Series:
     """
     {
         "function": "DAY",
@@ -93,7 +93,7 @@ def DAY(datetime_series) -> pd.Series:
     'error',
     'error'
 )
-def ENDOFBUSINESSMONTH(datetime_series) -> pd.Series:
+def ENDOFBUSINESSMONTH(datetime_series: pd.Series) -> pd.Series:
     """
     {
         "function": "ENDOFBUSINESSMONTH",
@@ -121,7 +121,7 @@ def ENDOFBUSINESSMONTH(datetime_series) -> pd.Series:
     'error',
     'error'
 )
-def ENDOFMONTH(datetime_series) -> pd.Series:
+def ENDOFMONTH(datetime_series: pd.Series) -> pd.Series:
     """
     {
         "function": "ENDOFMONTH",
@@ -149,7 +149,7 @@ def ENDOFMONTH(datetime_series) -> pd.Series:
     'error',
     'error'
 )
-def HOUR(datetime_series) -> pd.Series:
+def HOUR(datetime_series: pd.Series) -> pd.Series:
     """
     {
         "function": "HOUR",
@@ -177,7 +177,7 @@ def HOUR(datetime_series) -> pd.Series:
     'error',
     'error'
 )
-def MINUTE(datetime_series) -> pd.Series:
+def MINUTE(datetime_series: pd.Series) -> pd.Series:
     """
     {
         "function": "MINUTE",
@@ -205,7 +205,7 @@ def MINUTE(datetime_series) -> pd.Series:
     'error',
     'error'
 )
-def MONTH(datetime_series) -> pd.Series:
+def MONTH(datetime_series: pd.Series) -> pd.Series:
     """
     {
         "function": "MONTH",
@@ -233,7 +233,7 @@ def MONTH(datetime_series) -> pd.Series:
     'error',
     'error'
 )
-def QUARTER(datetime_series) -> pd.Series:
+def QUARTER(datetime_series: pd.Series) -> pd.Series:
     """
     {
         "function": "QUARTER",
@@ -261,7 +261,7 @@ def QUARTER(datetime_series) -> pd.Series:
     'error',
     'error'
 )
-def STARTOFBUSINESSMONTH(datetime_series) -> pd.Series:
+def STARTOFBUSINESSMONTH(datetime_series: pd.Series) -> pd.Series:
     """
     {
         "function": "STARTOFBUSINESSMONTH",
@@ -289,7 +289,7 @@ def STARTOFBUSINESSMONTH(datetime_series) -> pd.Series:
     'error',
     'error'
 )
-def STARTOFMONTH(datetime_series) -> pd.Series:
+def STARTOFMONTH(datetime_series: pd.Series) -> pd.Series:
     """
     {
         "function": "STARTOFMONTH",
@@ -318,7 +318,7 @@ def STARTOFMONTH(datetime_series) -> pd.Series:
     'error',
     'error'
 )
-def STRIPTIMETOMINUTES(datetime_series) -> pd.Series:
+def STRIPTIMETOMINUTES(datetime_series: pd.Series) -> pd.Series:
     """
     {
         "function": "STRIPTIMETOMINUTES",
@@ -346,7 +346,7 @@ def STRIPTIMETOMINUTES(datetime_series) -> pd.Series:
     'error',
     'error'
 )
-def STRIPTIMETOHOURS(datetime_series) -> pd.Series:
+def STRIPTIMETOHOURS(datetime_series: pd.Series) -> pd.Series:
     """
     {
         "function": "STRIPTIMETOHOURS",
@@ -375,7 +375,7 @@ def STRIPTIMETOHOURS(datetime_series) -> pd.Series:
     'error',
     'error'
 )
-def STRIPTIMETODAYS(datetime_series) -> pd.Series:
+def STRIPTIMETODAYS(datetime_series: pd.Series) -> pd.Series:
     """
     {
         "function": "STRIPTIMETODAYS",
@@ -403,7 +403,7 @@ def STRIPTIMETODAYS(datetime_series) -> pd.Series:
     'error',
     'error'
 )
-def STRIPTIMETOMONTHS(datetime_series) -> pd.Series:
+def STRIPTIMETOMONTHS(datetime_series: pd.Series) -> pd.Series:
     """
     {
         "function": "STRIPTIMETOMONTHS",
@@ -432,7 +432,7 @@ def STRIPTIMETOMONTHS(datetime_series) -> pd.Series:
     'error',
     'error'
 )
-def STRIPTIMETOYEARS(datetime_series) -> pd.Series:
+def STRIPTIMETOYEARS(datetime_series: pd.Series) -> pd.Series:
     """
     {
         "function": "STRIPTIMETOYEARS",
@@ -460,7 +460,7 @@ def STRIPTIMETOYEARS(datetime_series) -> pd.Series:
     'error',
     'error'
 )
-def SECOND(datetime_series) -> pd.Series:
+def SECOND(datetime_series: pd.Series) -> pd.Series:
     """
     {
         "function": "SECOND",
@@ -488,7 +488,7 @@ def SECOND(datetime_series) -> pd.Series:
     'error',
     'error'
 )
-def WEEK(datetime_series) -> pd.Series:
+def WEEK(datetime_series: pd.Series) -> pd.Series:
     """
     {
         "function": "WEEK",
@@ -516,7 +516,7 @@ def WEEK(datetime_series) -> pd.Series:
     'error',
     'error'
 )
-def WEEKDAY(datetime_series) -> pd.Series:
+def WEEKDAY(datetime_series: pd.Series) -> pd.Series:
     """
     {
         "function": "WEEKDAY",
@@ -544,7 +544,7 @@ def WEEKDAY(datetime_series) -> pd.Series:
     'error',
     'error'
 )
-def YEAR(datetime_series) -> pd.Series:
+def YEAR(datetime_series: pd.Series) -> pd.Series:
     """
     {
         "function": "YEAR",

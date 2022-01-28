@@ -1,10 +1,14 @@
-import io
 import base64
+import io
+from typing import Any, Dict
+
 import pandas as pd
 from mitosheet.sheet_functions.types.utils import NUMBER_SERIES, is_int_dtype
-from mitosheet.state import FORMAT_ACCOUNTING, FORMAT_CURRENCY, FORMAT_DEFAULT, FORMAT_K_M_B, FORMAT_PERCENTAGE, FORMAT_PLAIN_TEXT, FORMAT_ROUND_DECIMALS, FORMAT_SCIENTIFIC_NOTATION
-
+from mitosheet.state import (FORMAT_ACCOUNTING, FORMAT_DEFAULT, FORMAT_K_M_B,
+                             FORMAT_PERCENTAGE, FORMAT_PLAIN_TEXT,
+                             FORMAT_ROUND_DECIMALS, FORMAT_SCIENTIFIC_NOTATION)
 from mitosheet.steps_manager import StepsManager
+
 
 def get_excel_range_from_column_index(col_index: int) -> str:
     """
@@ -19,7 +23,7 @@ def get_excel_range_from_column_index(col_index: int) -> str:
     return name + ':' + name
 
 
-def get_dataframe_as_excel(event, steps_manager: StepsManager):
+def get_dataframe_as_excel(event: Dict[str, Any], steps_manager: StepsManager) -> str:
     """
     Sends a dataframe as a excel string.
     """

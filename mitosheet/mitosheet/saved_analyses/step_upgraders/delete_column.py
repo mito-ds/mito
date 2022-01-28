@@ -9,7 +9,7 @@ from mitosheet.saved_analyses.step_upgraders.utils_column_header_to_column_id im
     replace_headers_with_id
 
 
-def upgrade_delete_column_1_to_2(step: Dict[str, Any], later_steps: List[Dict[str, Any]]):
+def upgrade_delete_column_1_to_2(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Moves to using column id instead of column header.
 
@@ -41,7 +41,7 @@ def upgrade_delete_column_1_to_2(step: Dict[str, Any], later_steps: List[Dict[st
     }] + later_steps
 
 
-def upgrade_delete_column_2_to_3(step: Dict[str, Any], later_steps: List[Dict[str, Any]]):
+def upgrade_delete_column_2_to_3(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Moves from a single column to multiple columns
 

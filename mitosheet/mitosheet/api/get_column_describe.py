@@ -1,8 +1,12 @@
-from mitosheet.sheet_functions.types.utils import NUMBER_SERIES, get_mito_type
-import pandas as pd
 import json
+from typing import Any, Dict
 
-def get_column_describe(event, steps_manager):
+import pandas as pd
+from mitosheet.sheet_functions.types.utils import NUMBER_SERIES, get_mito_type
+from mitosheet.steps_manager import StepsManager
+
+
+def get_column_describe(event: Dict[str, Any], steps_manager: StepsManager) -> str:
     """
     Sends back a string that can be parsed to a JSON object that
     contains _all_ the results from the series .describe function
@@ -10,7 +14,7 @@ def get_column_describe(event, steps_manager):
     """
     sheet_index = event['sheet_index']
     column_id = event['column_id']
-    column_header = steps_manager.curr_step.post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
+    column_header = steps_manager.curr_step.get_column_header_by_id(sheet_index, column_id)
     
     series: pd.Series = steps_manager.dfs[sheet_index][column_header]
     describe = series.describe()

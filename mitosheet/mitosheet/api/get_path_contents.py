@@ -1,8 +1,9 @@
 import json
 import os
+from typing import Any, Dict, List
 
 
-def get_path_parts(path):
+def get_path_parts(path: str) -> List[str]:
     """
     For a path, returns a list of the path broken down into
     pieces.
@@ -30,7 +31,7 @@ def get_path_parts(path):
     return [drive] + folders + [file]
 
 
-def get_path_contents(event):
+def get_path_contents(event: Dict[str, Any]) -> str:
     """
     Takes an event with path parts in a list, turns them into
     an actual path, and then sends an API response with those 

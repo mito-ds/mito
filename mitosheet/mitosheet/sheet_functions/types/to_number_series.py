@@ -7,7 +7,7 @@
 """
 For going to a number series.
 """
-from typing import Tuple, Union
+from typing import Any, Tuple, Union
 import pandas as pd
 import numpy as np
 
@@ -92,8 +92,8 @@ def convert_string_to_number(
 
 def to_number_series_from_string_series(
         string_series: pd.Series, 
-        on_uncastable_arg_element #: Union[Literal['error'], Tuple[Literal['default'], any]]
-    ):
+        on_uncastable_arg_element: Any #: Union[Literal['error'], Tuple[Literal['default'], any]]
+    ) -> pd.Series:
     """
     Converts a string series to a number series, using a helper that
     handles special formatting of strings. 
@@ -102,7 +102,7 @@ def to_number_series_from_string_series(
     """
     return string_series.apply(convert_string_to_number, on_uncastable_arg_element=on_uncastable_arg_element).astype('float64')
 
-def to_number_series_from_boolean_series(boolean_series: pd.Series):
+def to_number_series_from_boolean_series(boolean_series: pd.Series) -> pd.Series:
     """
     As all boolean series are very easily convertable to a number_series, 
     and cannot fail on any element, so we can do this in one easy move.
@@ -113,9 +113,9 @@ def to_number_series_from_boolean_series(boolean_series: pd.Series):
 
 
 def to_number_series(
-        unknown_object,
-        on_uncastable_arg_element=('default', np.NaN), # Union[Literal['error'], Tuple[Literal['default'], any]]
-    ):
+        unknown_object: Any,
+        on_uncastable_arg_element: Any=('default', np.NaN), # Union[Literal['error'], Tuple[Literal['default'], any]]
+    ) -> pd.Series:
     from_type = get_mito_type(unknown_object)
 
     # If it is not a series, we put it in a series, and get the type again

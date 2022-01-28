@@ -7,7 +7,7 @@
 from typing import Any, Dict, List
 
 
-def upgrade_add_column_1_to_add_column_2(step: Dict[str, Any], later_steps: List[Dict[str, Any]]): 
+def upgrade_add_column_1_to_add_column_2(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]: 
     """
     Upgrades from a add column 1 step to a add column 2 step, simply
     by adding the column_header_index param

@@ -30,7 +30,7 @@ from mitosheet.sheet_functions.sheet_function_utils import fill_series_with_one_
     'error',
     'error'
 )
-def CLEAN(series) -> pd.Series:
+def CLEAN(series: pd.Series) -> pd.Series:
     """
     {
         "function": "CLEAN",
@@ -97,7 +97,7 @@ def CONCAT(*argv: pd.Series) -> pd.Series:
     'error',
     'error'
 )
-def FIND(series, substrings) -> pd.Series:
+def FIND(series: pd.Series, substrings: pd.Series) -> pd.Series:
     """
     {
         "function": "FIND",
@@ -145,7 +145,7 @@ def FIND(series, substrings) -> pd.Series:
     ('default', 1),
     optional=True
 )
-def LEFT(series, num_chars=None) -> pd.Series:
+def LEFT(series: pd.Series, num_chars: pd.Series=None) -> pd.Series:
     """
     {
         "function": "LEFT",
@@ -215,7 +215,7 @@ def LEN(series: pd.Series) -> pd.Series:
     'error',
     'error'
 )
-def LOWER(series) -> pd.Series:
+def LOWER(series: pd.Series) -> pd.Series:
     """
     {
         "function": "LOWER",
@@ -257,7 +257,7 @@ def LOWER(series) -> pd.Series:
     'error',
     ('default', 1)
 )
-def MID(series, start_loc, num_chars) -> pd.Series:
+def MID(series: pd.Series, start_loc: pd.Series, num_chars: pd.Series) -> pd.Series:
     """
     {
         "function": "MID",
@@ -304,7 +304,7 @@ def MID(series, start_loc, num_chars) -> pd.Series:
     'error',
     'error'
 )
-def PROPER(series) -> pd.Series:
+def PROPER(series: pd.Series) -> pd.Series:
     """
     {
         "function": "PROPER",
@@ -340,7 +340,7 @@ def PROPER(series) -> pd.Series:
     ('default', 1),
     optional=True
 )
-def RIGHT(series, num_chars=None) -> pd.Series:
+def RIGHT(series: pd.Series, num_chars: pd.Series=None) -> pd.Series:
     """
     {
         "function": "RIGHT",
@@ -401,7 +401,7 @@ def RIGHT(series, num_chars=None) -> pd.Series:
     ('default', -1),
     optional=True
 )
-def SUBSTITUTE(series, old_text, new_text, count=None):
+def SUBSTITUTE(series: pd.Series, old_text: pd.Series, new_text: pd.Series, count: pd.Series=None) -> pd.Series:
     """
     {
         "function": "SUBSTITUTE",
@@ -448,7 +448,7 @@ def SUBSTITUTE(series, old_text, new_text, count=None):
     'error',
     'error'
 )
-def TEXT(series) -> pd.Series:
+def TEXT(series: pd.Series) -> pd.Series:
     """
     {
         "function": "TEXT",
@@ -478,7 +478,7 @@ def TEXT(series) -> pd.Series:
     'error',
     'error'
 )
-def TRIM(series) -> pd.Series:
+def TRIM(series: pd.Series) -> pd.Series:
     """
     {
         "function": "TRIM",
@@ -508,7 +508,7 @@ def TRIM(series) -> pd.Series:
     'error',
     'error'
 )
-def UPPER(series) -> pd.Series:
+def UPPER(series: pd.Series) -> pd.Series:
     """
     {
         "function": "UPPER",

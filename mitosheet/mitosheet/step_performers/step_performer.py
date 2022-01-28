@@ -44,7 +44,7 @@ class StepPerformer(ABC, object):
         pass
 
     @classmethod
-    def saturate(cls, prev_state: State, params) -> Dict[str, str]:
+    def saturate(cls, prev_state: State, params: Any) -> Dict[str, str]:
         """
         Given the parameters of the step, will saturate the event with
         more parameters based on the passed prev_state. 
@@ -64,7 +64,7 @@ class StepPerformer(ABC, object):
 
     @classmethod
     @abstractmethod
-    def transpile(cls, prev_state: State, post_state: State, **params) -> List[str]:
+    def transpile(cls, prev_state: State, post_state: State, **params: Any) -> List[str]:
         """
         Returns a list of the Python code lines that corresponds to this 
         step being executed.
@@ -73,7 +73,7 @@ class StepPerformer(ABC, object):
 
     @classmethod
     @abstractmethod
-    def describe(cls, **params) -> str:
+    def describe(cls, **params: Any) -> str:
         """
         Describes the step in a single sentence, usually for comments or for presentation
         to the user in the frontend.
@@ -82,7 +82,7 @@ class StepPerformer(ABC, object):
 
     @classmethod
     @abstractmethod
-    def get_modified_dataframe_indexes(cls, **params) -> Set[int]:
+    def get_modified_dataframe_indexes(cls, **params: Any) -> Set[int]:
         """
         Returns a set of all the sheet indexes that were modified
         by this step.
