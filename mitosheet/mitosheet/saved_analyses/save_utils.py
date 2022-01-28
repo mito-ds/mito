@@ -12,10 +12,17 @@ in analyses.
 from mitosheet.step import Step
 import os
 import json
-from typing import Any, Dict, List
+from typing import TYPE_CHECKING, Any, Dict, List
 from mitosheet._version import __version__
 from mitosheet.mito_analytics import log
-from mitosheet.steps_manager import StepsManager
+
+# To avoid circular imports
+if TYPE_CHECKING:
+    from mitosheet.steps_manager import StepsManager
+else: 
+    StepsManager = Any
+
+
 
 # Where all global .mito files are stored
 MITO_FOLDER = os.path.expanduser("~/.mito")

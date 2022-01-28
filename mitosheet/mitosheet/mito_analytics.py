@@ -18,14 +18,20 @@ Our general approach to logging can be understood as:
    This appears to be good practice, as it allows us to associate what actions are taken
    with their result very effectively!
 """
-from typing import Any, Dict, List
-from mitosheet.steps_manager import StepsManager
+from typing import Any, Dict, List, TYPE_CHECKING
 from mitosheet.user.schemas import UJ_MITOSHEET_TELEMETRY
 import platform
 import sys
 import subprocess
 
 from mitosheet.parser import parse_formula
+
+# To avoid circular imports
+if TYPE_CHECKING:
+    from mitosheet.steps_manager import StepsManager
+else: 
+    StepsManager = Any
+
 
 try:
     from jupyterlab import __version__ as jupyterlab_version

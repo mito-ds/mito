@@ -1,7 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Collection, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, Collection, List, Optional, Tuple
 
-from mitosheet.steps_manager import StepsManager
+
+# To avoid circular imports
+if TYPE_CHECKING:
+    from mitosheet.steps_manager import StepsManager
+else: 
+    StepsManager = Any
 
 
 class PreprocessStepPerformer(ABC, object):
