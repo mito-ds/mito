@@ -384,6 +384,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
             case TaskpaneType.DOWNLOAD: return (
                 <DownloadTaskpane
                     dfNames={dfNames}
+                    userProfile={userProfile}
                     selectedSheetIndex={uiState.selectedSheetIndex}
                     uiState={uiState}
                     setUIState={setUIState}
