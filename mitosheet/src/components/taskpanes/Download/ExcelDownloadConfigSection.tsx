@@ -71,7 +71,20 @@ const ExcelDownloadConfigSection = (props: {
             {!props.userProfile.isPro &&
                 <Row justify='space-around'>
                     <p className='ma-25px text-align-center text-body-1'>
-                        Want to preserving your formatting when exporting to Excel? Consider upgrading to <a className='text-body-1-link' href='https://www.trymito.io/plans' target='_blank' rel="noreferrer">Mito Pro</a>.
+                        Want to preserving your formatting when exporting to Excel? Consider upgrading to&nbsp;
+                        <a 
+                            onClick={() => void props.mitoAPI.sendLogMessage('clicked_pro_button', 
+                                {
+                                    'pro_button_location': 'download_taskpane_excel_format_export',
+                                }
+                            )}
+                            className='text-body-1-link' 
+                            href='https://www.trymito.io/plans' 
+                            target='_blank' 
+                            rel="noreferrer"
+                        >
+                            Mito Pro
+                        </a>.
                     </p>
                 </Row>
             }
