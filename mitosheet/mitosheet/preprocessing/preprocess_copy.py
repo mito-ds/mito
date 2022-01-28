@@ -4,11 +4,16 @@
 # Copyright (c) Mito.
 # Distributed under the terms of the Modified BSD License.
 from copy import deepcopy
-from typing import Any, Dict, Collection, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, Collection, List, Optional, Tuple
 import pandas as pd
 from mitosheet.preprocessing.preprocess_step_performer import \
     PreprocessStepPerformer
-from mitosheet.steps_manager import StepsManager
+
+# To avoid circular imports
+if TYPE_CHECKING:
+    from mitosheet.steps_manager import StepsManager
+else: 
+    StepsManager = Any
 
 
 class CopyPreprocessStepPerformer(PreprocessStepPerformer):

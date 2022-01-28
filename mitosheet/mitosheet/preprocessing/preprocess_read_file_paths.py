@@ -4,7 +4,7 @@
 # Copyright (c) Mito.
 # Distributed under the terms of the Modified BSD License.
 
-from typing import Any, Dict, Collection, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, Collection, List, Optional, Tuple, Union
 
 import pandas as pd
 from mitosheet.errors import get_recent_traceback_as_list
@@ -14,7 +14,12 @@ from mitosheet.preprocessing.preprocess_step_performer import \
 from mitosheet.step_performers.import_steps.simple_import import (
     generate_read_csv_code, get_valid_dataframe_names,
     read_csv_get_delimeter_and_encoding)
-from mitosheet.steps_manager import StepsManager
+
+    # To avoid circular imports
+if TYPE_CHECKING:
+    from mitosheet.steps_manager import StepsManager
+else: 
+    StepsManager = Any
 
 
 class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
