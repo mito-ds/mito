@@ -237,20 +237,8 @@ class MitoWidget(DOMWidget):
         then it sets the feedback_id shared variable.
 
         Current Feedback Strategy:
-        - If the current step type is not the same as the previous step type, then there is a .25% chance that we ask the user for feedback
+        - Never ask for feedback
         """
-        # Don't set the feedback if we're on the first step, or if we're not logging
-        if self.steps_manager.curr_step_idx <= 1 or not telemetry_turned_on():
-            return
-
-        # If the current step type is not the same as the previous step type, then there is a .25% chance that we ask the user for feedback
-        previous_step_type = self.steps_manager.steps[self.steps_manager.curr_step_idx - 1].step_type
-        
-        if self.steps_manager.curr_step.step_type != previous_step_type and previous_step_type != 'bulk_old_rename':
-            if random.randint(1, 400) == 1:
-                self.usage_triggered_feedback_id = STEP_TYPE_TO_USAGE_TRIGGERED_FEEDBACK_ID[previous_step_type]
-                return
-
         self.usage_triggered_feedback_id = ''
 
 def sheet(
