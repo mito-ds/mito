@@ -51,7 +51,7 @@ class State():
             column_python_code: List[Dict[str, str]]=None,
             column_evaluation_graph: List[Dict[str, Set[str]]]=None,
             column_filters: List[Dict[str, Any]]=None,
-            column_format_types: List[Dict[str, Dict[str, str]]]=None
+            column_format_types: List[Dict[str, Dict[str, Any]]]=None
         ):
 
         # The dataframes that are in the state
@@ -110,7 +110,7 @@ class State():
             for sheet_index in range(len(dfs))
         ]
 
-        self.column_format_types = column_format_types if column_format_types is not None else [
+        self.column_format_types: List[Dict[str, Dict[str, Any]]] = column_format_types if column_format_types is not None else [
             {column_id: {'type': 'default'} for column_id in self.column_ids.get_column_ids(sheet_index)} 
             for sheet_index in range(len(dfs))
         ]

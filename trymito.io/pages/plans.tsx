@@ -65,8 +65,8 @@ const INTEGRATION_FEATURES: Feature[] = [
     feature: 'Formatting Export',
     planSupport: {
       'Open Source': false,
-      'Pro': 'Coming soon!',
-      'Enterprise': 'Coming soon!' 
+      'Pro': true,
+      'Enterprise': true 
     }
   },
 ]

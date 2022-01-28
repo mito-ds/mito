@@ -7,7 +7,7 @@ import MitoAPI from '../../../api';
 
 // Import 
 import TextButton from '../../elements/TextButton';
-import { SheetData, UIState } from '../../../types';
+import { SheetData, UIState, UserProfile } from '../../../types';
 import Row from '../../spacing/Row';
 import Select from '../../elements/Select';
 import DropdownItem from '../../elements/DropdownItem';
@@ -26,6 +26,7 @@ interface DownloadTaskpaneProps {
     selectedSheetIndex: number,
     sheetDataArray: SheetData[],
     dfNames: string[];
+    userProfile: UserProfile;
 }
 
 /*
@@ -175,6 +176,7 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                             <ExcelDownloadConfigSection 
                                 dfNames={props.dfNames}
                                 mitoAPI={props.mitoAPI}
+                                userProfile={props.userProfile}
                                 sheetDataArray={props.sheetDataArray}
                                 exportState={props.uiState.exportConfiguration}
                                 setUIState={props.setUIState}
