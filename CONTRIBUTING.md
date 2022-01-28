@@ -33,7 +33,6 @@ Nobody is perfect when they are writing code, least of all us. That being said, 
 - Write good commit messages. We're not super picky here, but try and stick to the format "Area changed: change that was made". A good commit message looks like "Pivot: removed limitation where using a column in multiple sections caused errors". A bad commit message looks like "fix bug".
 - Match the style of the surrounding code. We're working on a more helpful style guide currently!
 - Make sure all tests are passing on your PR. We like to review PRs that have all tests passing :-)
-- 
 
 **Don't:**
 - Touch pieces of the code outside the scope of the PR.
