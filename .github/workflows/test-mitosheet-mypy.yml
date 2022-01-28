@@ -35,4 +35,4 @@ jobs:
     - name: Check types with MyPY
       run: |
         cd mitosheet
-        mypy mitosheet/ --ignore-missing-imports
+        mypy mitosheet/ --ignore-missing-imports --disallow-untyped-calls --disallow-incomplete-defs
