@@ -41,7 +41,7 @@ jobs:
           echo -e "password = ${{ secrets.TEST_PYPI_API_TOKEN }}" >> ~/.pypirc
       - name: Setup mitosheet
         run: |
-          cd mito
+          cd mitosheet
           python3 -m venv venv
           source venv/bin/activate
           python switch.py mitosheet
@@ -49,7 +49,7 @@ jobs:
           python -m pip install -e ".[test, deploy]"
       - name: Deploy mitosheet
         run: |
-          cd mito
+          cd mitosheet
           source venv/bin/activate
           python deployment/deploy.py ${{ steps.extract_branch.outputs.branch }}
   deploy-mitosheet3:
@@ -87,7 +87,7 @@ jobs:
           echo -e "password = ${{ secrets.TEST_PYPI_API_TOKEN }}" >> ~/.pypirc
       - name: Setup mitosheet3
         run: |
-          cd mito
+          cd mitosheet
           rm -rf venv
           python3 -m venv venv
           source venv/bin/activate
@@ -96,7 +96,7 @@ jobs:
           python -m pip install -e ".[test, deploy]"          
       - name: Deploy mitosheet3
         run: |
-          cd mito
+          cd mitosheet
           source venv/bin/activate
           python deployment/deploy.py ${{ steps.extract_branch.outputs.branch }}
   deploy-mitoinstaller:
@@ -134,7 +134,7 @@ jobs:
           echo -e "password = ${{ secrets.TEST_PYPI_API_TOKEN }}" >> ~/.pypirc
       - name: Setup mitoinstaller
         run: |
-          cd mito
+          cd mitosheet
           python3 -m venv venv
           source venv/bin/activate
           python deployment/bump_version.py mitoinstaller ${{ steps.extract_branch.outputs.branch }}
@@ -143,14 +143,14 @@ jobs:
       - name: Deploy mitoinstaller on testpypi
         if: github.ref == 'refs/heads/dev'
         run: |
-          cd mito
+          cd mitosheet
           source venv/bin/activate
           cd installer 
           python setup.py sdist upload --repository testpypi
       - name: Deploy mitoinstaller on testpypi
         if: github.ref == 'refs/heads/main'
         run: |
-          cd mito
+          cd mitosheet
           source venv/bin/activate
           cd installer
           python setup.py sdist upload
