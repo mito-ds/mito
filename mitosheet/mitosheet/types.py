@@ -4,7 +4,11 @@
 # Copyright (c) Mito.
 
 """
-Contains some types
+Contains some types that are useful in the Mitosheet package. 
+
+We use type aliases to make many parts of the codebase more
+explicit and clear, and make sure to test the types in our 
+continous integration
 """
 
 from typing import List, Union, Tuple
