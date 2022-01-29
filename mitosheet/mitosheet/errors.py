@@ -17,6 +17,8 @@ https://stackoverflow.com/questions/16138232/is-it-a-good-practice-to-use-try-ex
 import traceback
 from typing import Any, Collection, Set, List
 
+from mitosheet.types import ColumnHeader
+
 
 class MitoError(Exception):
     """
@@ -98,7 +100,7 @@ def make_no_column_error(column_headers: Collection[str], error_modal: bool=True
         error_modal=error_modal
     )
 
-def make_column_exists_error(column_header: Any) -> MitoError:
+def make_column_exists_error(column_header: ColumnHeader) -> MitoError:
     """
     Helper function for creating a column_exists_error.
 
@@ -158,7 +160,7 @@ def make_circular_reference_error(error_modal: bool=True) -> MitoError:
         error_modal=error_modal
     )
 
-def make_wrong_column_metatype_error(column_header: Any, error_modal: bool=True) -> MitoError:
+def make_wrong_column_metatype_error(column_header: ColumnHeader, error_modal: bool=True) -> MitoError:
     """
     Helper function for creating a wrong_column_metatype_error.
 
@@ -172,7 +174,7 @@ def make_wrong_column_metatype_error(column_header: Any, error_modal: bool=True)
         error_modal=error_modal
     )
 
-def make_invalid_column_headers_error(column_headers: List[Any]) -> MitoError:
+def make_invalid_column_headers_error(column_headers: List[ColumnHeader]) -> MitoError:
     """
     Helper function for creating a invalid_column_headers_error.
 
@@ -252,7 +254,7 @@ def make_unsupported_function_error(functions: Set[str], error_modal: bool=True)
         error_modal=error_modal
     )
 
-def make_invalid_column_delete_error(column_headers: Any, dependents: Collection[Any]) -> MitoError:
+def make_invalid_column_delete_error(column_headers: Collection[ColumnHeader], dependents: Collection[ColumnHeader]) -> MitoError:
     """
     Helper function for creating a invalid_column_delete_error.
 
@@ -317,7 +319,7 @@ def make_invalid_filter_error(filter_value: Any, correct_type: str) -> MitoError
         f'Sorry, the value {filter_value} is not a valid value for that {correct_type} filter. Please enter a value {correct_format}!'
     )
 
-def make_invalid_sort_error(column_header: Any) -> MitoError:
+def make_invalid_sort_error(column_header: ColumnHeader) -> MitoError:
     """
     Helper function for creating a invalid_sort_error.
 
@@ -347,7 +349,7 @@ def make_df_exists_error(df_name: str) -> MitoError:
         f'Sorry, the dataframe {df_name} already exists. Please pick a different name.'
     )
 
-def make_invalid_column_type_change_error(column_header: Any, old_dtype: str, new_dtype: str) -> MitoError:
+def make_invalid_column_type_change_error(column_header: ColumnHeader, old_dtype: str, new_dtype: str) -> MitoError:
     """
     Helper function for creating a invalid_column_type_change_error.
 

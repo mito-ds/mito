@@ -12,6 +12,7 @@ from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.topological_sort import topological_sort_columns
 from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code
+from mitosheet.types import ColumnID
 
 
 class DeleteColumnStepPerformer(StepPerformer):
@@ -44,7 +45,7 @@ class DeleteColumnStepPerformer(StepPerformer):
         cls,
         prev_state: State,
         sheet_index: int,
-        column_ids: List[str],
+        column_ids: List[ColumnID],
         **params
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
 
@@ -64,7 +65,7 @@ class DeleteColumnStepPerformer(StepPerformer):
         post_state: State,
         execution_data: Optional[Dict[str, Any]],
         sheet_index: int,
-        column_ids: List[str]
+        column_ids: List[ColumnID]
     ) -> List[str]:
 
         df_name = post_state.df_names[sheet_index]
@@ -78,7 +79,7 @@ class DeleteColumnStepPerformer(StepPerformer):
     def describe( # type: ignore
         cls,
         sheet_index: int,
-        column_ids: List[str],
+        column_ids: List[ColumnID],
         df_names=None,
         **params
     ) -> str:
@@ -92,7 +93,7 @@ class DeleteColumnStepPerformer(StepPerformer):
     def get_modified_dataframe_indexes( # type: ignore
         cls, 
         sheet_index: int,
-        column_ids: List[str],
+        column_ids: List[ColumnID],
         **params
     ) -> Set[int]:
         return {sheet_index}
@@ -100,7 +101,7 @@ class DeleteColumnStepPerformer(StepPerformer):
 def delete_column_ids(
     state: State,
     sheet_index: int,
-    column_ids: List[str],
+    column_ids: List[ColumnID],
 ) -> State:
 
     # Put the columns in a topological sorting so we delete columns that reference
@@ -131,7 +132,7 @@ def delete_column_ids(
 def _delete_column_id( 
     state: State,
     sheet_index: int,
-    column_id: str
+    column_id: ColumnID
 ) -> Tuple[State, bool]:
     
     column_header = state.column_ids.get_column_header_by_id(sheet_index, column_id)

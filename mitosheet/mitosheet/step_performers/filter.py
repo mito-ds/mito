@@ -23,6 +23,7 @@ from mitosheet.errors import (
     make_invalid_filter_error
 )
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code, list_to_string_without_internal_quotes
+from mitosheet.types import ColumnHeader, ColumnID
 
 # SOME CONSTANTS USED IN THE FILTER STEP ITSELF
 FC_EMPTY = 'empty'
@@ -227,7 +228,7 @@ class FilterStepPerformer(StepPerformer):
         return 'filter_column_edit'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Any) -> Dict[str, str]:
+    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         """
         Saturates the filter event with a `has_non_empty_filter` - which is useful
         for for logging
@@ -250,7 +251,7 @@ class FilterStepPerformer(StepPerformer):
         cls,
         prev_state: State,
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         operator: str,
         filters,
         **params
@@ -284,7 +285,7 @@ class FilterStepPerformer(StepPerformer):
         post_state: State,
         execution_data: Optional[Dict[str, Any]],
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         operator: str,
         filters,
         **params
@@ -338,7 +339,7 @@ class FilterStepPerformer(StepPerformer):
     def describe( # type: ignore
         cls,
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         operator: str,
         filters,
         df_names=None,
@@ -353,7 +354,7 @@ class FilterStepPerformer(StepPerformer):
     def get_modified_dataframe_indexes( # type: ignore
         cls, 
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         operator: str,
         filters,
         **params
@@ -361,7 +362,7 @@ class FilterStepPerformer(StepPerformer):
         return {sheet_index}
 
 
-def get_applied_filter(df: pd.DataFrame, column_header: Any, filter_: Dict[str, Any]) -> pd.Series:
+def get_applied_filter(df: pd.DataFrame, column_header: ColumnHeader, filter_: Dict[str, Any]) -> pd.Series:
     """
     Given a filter triple, returns the filter indexes for that
     actual dataframe
@@ -467,7 +468,7 @@ def combine_filters(operator: str, filters: pd.Series) -> pd.Series:
 
 def _execute_filter(
         df: pd.DataFrame, 
-        column_header: Any,
+        column_header: ColumnHeader,
         operator: str,
         filters: List[Dict[str, Any]]
     ) -> pd.DataFrame:
@@ -504,7 +505,7 @@ def _execute_filter(
         return df
 
 
-def get_single_filter_string(df_name: str, column_header: Any, filter_: Dict[str, Any]) -> str:
+def get_single_filter_string(df_name: str, column_header: ColumnHeader, filter_: Dict[str, Any]) -> str:
     """
     Transpiles a specific filter to a fitler string, to be used
     in constructing the final transpiled code
@@ -520,7 +521,7 @@ def get_single_filter_string(df_name: str, column_header: Any, filter_: Dict[str
         value=value
     )
 
-def get_multiple_filter_string(df_name: str, column_header: Any, original_operator: str, condition: str, column_mito_type: str, filters: List[Dict[str, Any]]) -> str:
+def get_multiple_filter_string(df_name: str, column_header: ColumnHeader, original_operator: str, condition: str, column_mito_type: str, filters: List[Dict[str, Any]]) -> str:
     """
     Transpiles a list of filters with the same filter condition to a filter string. 
     """
@@ -573,7 +574,7 @@ def combine_filter_strings(operator: str, filter_strings: List[str], split_lines
 
         return filter_string
 
-def create_filter_string_for_condition(condition: str, mito_filters: List[Dict[str, Any]], df_name: str, column_header: Any, operator: str, column_mito_type: str) -> str:
+def create_filter_string_for_condition(condition: str, mito_filters: List[Dict[str, Any]], df_name: str, column_header: ColumnHeader, operator: str, column_mito_type: str) -> str:
     """
     Returns a list of all the filter clauses for a specific filter condition in the list of passed filters
     Note: We use the nomenclature "mito_filters" here so the compiler doesn't get confused when we use the filter function 

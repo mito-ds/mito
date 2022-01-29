@@ -8,6 +8,7 @@ from copy import copy, deepcopy
 from typing import Any, Dict, List, Optional, Set, Tuple
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
+from mitosheet.types import ColumnID
 
 class ChangeColumnFormatStepPerformer(StepPerformer):
     """"
@@ -39,7 +40,7 @@ class ChangeColumnFormatStepPerformer(StepPerformer):
         cls,
         prev_state: State,
         sheet_index: int,
-        column_ids: List[str],
+        column_ids: List[ColumnID],
         format_type: Dict[str, str],
         **params
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
@@ -61,7 +62,7 @@ class ChangeColumnFormatStepPerformer(StepPerformer):
         post_state: State,
         execution_data: Optional[Dict[str, Any]],
         sheet_index: int,
-        column_ids: List[str],
+        column_ids: List[ColumnID],
         format_type: Dict[str, str]
     ) -> List[str]:
         # Formatting columns only effects the display in Mito, not the generated code.
@@ -71,7 +72,7 @@ class ChangeColumnFormatStepPerformer(StepPerformer):
     def describe( # type: ignore
         cls,
         sheet_index: int,
-        column_ids: List[str],
+        column_ids: List[ColumnID],
         format_type: Dict[str,str],
         df_names=None,
         **params
@@ -83,7 +84,7 @@ class ChangeColumnFormatStepPerformer(StepPerformer):
     def get_modified_dataframe_indexes( # type: ignore
         cls, 
         sheet_index: int,
-        column_ids: List[str],
+        column_ids: List[ColumnID],
         **params
     ) -> Set[int]:
         return {sheet_index}
@@ -91,7 +92,7 @@ class ChangeColumnFormatStepPerformer(StepPerformer):
 def update_column_id_format(
     post_state: State,
     sheet_index: int,
-    column_id: str,
+    column_id: ColumnID,
     format_type: Dict[str, str]
 ) -> State: 
     post_state.column_format_types[sheet_index][column_id] = format_type

@@ -12,6 +12,7 @@ from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.transpiler.transpile_utils import \
     column_header_to_transpiled_code
+from mitosheet.types import ColumnHeader, ColumnID
 
 
 def get_valid_index(dfs: List[pd.DataFrame], sheet_index: int, new_column_index: int) -> int:
@@ -56,7 +57,7 @@ class ReorderColumnStepPerformer(StepPerformer):
         cls,
         prev_state: State,
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         new_column_index: int,
         **params
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
@@ -84,7 +85,7 @@ class ReorderColumnStepPerformer(StepPerformer):
         post_state: State,
         execution_data: Optional[Dict[str, Any]],
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         new_column_index: int
     ) -> List[str]:
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
@@ -108,7 +109,7 @@ class ReorderColumnStepPerformer(StepPerformer):
     def describe( # type: ignore
         cls,
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         new_column_index: int,
         df_names=None,
         **params
@@ -122,14 +123,14 @@ class ReorderColumnStepPerformer(StepPerformer):
     def get_modified_dataframe_indexes( # type: ignore
         cls, 
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         new_column_index: int,
         **params
     ) -> Set[int]:
         return {sheet_index}
 
 
-def _execute_reorder_column(df: pd.DataFrame, column_header: Any, new_column_index: int) -> pd.DataFrame:
+def _execute_reorder_column(df: pd.DataFrame, column_header: ColumnHeader, new_column_index: int) -> pd.DataFrame:
     """
     Helper function for reordering a column in the dataframe
     """

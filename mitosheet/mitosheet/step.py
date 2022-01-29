@@ -5,6 +5,7 @@ from mitosheet.step_performers.column_steps.set_column_formula import SetColumnF
 from mitosheet.step_performers.filter import FilterStepPerformer
 from mitosheet.state import State
 from mitosheet.step_performers import STEP_TYPE_TO_STEP_PERFORMER
+from mitosheet.types import ColumnHeader, ColumnID
 
 
 class Step:
@@ -191,21 +192,21 @@ class Step:
 
         return step_indexes_to_skip
 
-    def get_column_headers_by_ids(self, sheet_index: int, column_ids: List[str]) -> List[Any]:
+    def get_column_headers_by_ids(self, sheet_index: int, column_ids: List[ColumnID]) -> List[Any]:
         """
         Utility for getting the column headers from column ids in a step.
         First attempts to get them from the prev state, but if not 
         """
         return self.final_defined_state.column_ids.get_column_headers_by_ids(sheet_index, column_ids)
             
-    def get_column_header_by_id(self, sheet_index: int, column_id: str) -> Any:
+    def get_column_header_by_id(self, sheet_index: int, column_id: ColumnID) -> Any:
         """
         Utility for getting the column header from a column id in a step.
         First attempts to get them from the prev state, but if not 
         """
         return self.final_defined_state.column_ids.get_column_header_by_id(sheet_index, column_id)
 
-    def get_column_id_by_header(self, sheet_index: int, column_header: Any) -> str:
+    def get_column_id_by_header(self, sheet_index: int, column_header: ColumnHeader) -> str:
         """
         Utility for getting the column id from a column header in a step.
         First attempts to get them from the prev state, but if not 

@@ -44,7 +44,7 @@ class StepPerformer(ABC, object):
         pass
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Any) -> Dict[str, str]:
+    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         """
         Given the parameters of the step, will saturate the event with
         more parameters based on the passed prev_state. 
@@ -54,7 +54,7 @@ class StepPerformer(ABC, object):
 
     @classmethod
     @abstractmethod
-    def execute(cls, prev_state: State, **params: Any) -> Tuple[State, Optional[Dict[str, Any]]]:
+    def execute(cls, prev_state: State, **params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         """
         Execute always returns the post_state, and optionally returns a dictionary
         of execution_data, which is data that may be useful to the transpiler in
@@ -64,7 +64,7 @@ class StepPerformer(ABC, object):
 
     @classmethod
     @abstractmethod
-    def transpile(cls, prev_state: State, post_state: State, **params: Any) -> List[str]:
+    def transpile(cls, prev_state: State, post_state: State, **params: Dict[str, Any]) -> List[str]:
         """
         Returns a list of the Python code lines that corresponds to this 
         step being executed.

@@ -6,6 +6,7 @@
 
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from mitosheet.types import ColumnID
 import numpy as np
 
 from mitosheet.errors import make_cast_value_to_type_error, make_no_column_error
@@ -66,7 +67,7 @@ class SetCellValueStepPerformer(StepPerformer):
         cls,
         prev_state: State,
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         row_index: int,
         old_value: str,
         new_value: Union[str, None],
@@ -109,7 +110,7 @@ class SetCellValueStepPerformer(StepPerformer):
         post_state: State,
         execution_data: Optional[Dict[str, Any]],
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         row_index: int,
         old_value: str,
         new_value: Union[str, None],
@@ -148,7 +149,7 @@ class SetCellValueStepPerformer(StepPerformer):
     def describe( # type: ignore
         cls,
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         row_index: int,
         old_value: str,
         new_value: Union[str, None],
@@ -167,7 +168,7 @@ class SetCellValueStepPerformer(StepPerformer):
     def get_modified_dataframe_indexes( # type: ignore
         cls, 
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         row_index: int,
         old_value: str,
         new_value: Union[str, None],
