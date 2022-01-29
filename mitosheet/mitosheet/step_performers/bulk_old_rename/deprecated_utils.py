@@ -37,7 +37,7 @@ def deprecated(func: Callable) -> Callable:
     return new_func
 
 
-def make_valid_header(column_header: ColumnHeader) -> str:
+def make_valid_header(column_header: Any) -> str:
     """
     Takes a header, and performs replaces against common characters
     to make the column_header valid!

@@ -15,7 +15,7 @@ from typing import Any, Dict, List, Union
 import pandas as pd
 from mitosheet.mito_widget import MitoWidget, sheet
 from mitosheet.transpiler.transpile import transpile
-from mitosheet.types import ColumnHeader, ColumnID
+from mitosheet.types import ColumnHeader, ColumnID, MultiLevelColumnHeader, PrimativeColumnHeader
 from mitosheet.utils import dfs_to_array_for_json, get_new_id
 
 
@@ -820,14 +820,13 @@ def make_multi_index_header_df(data: Dict[Union[str, int], List[Any]], column_he
         if isinstance(column_header, tuple):
             max_length = max(max_length, len(column_header))
     
-    final_column_headers = []
+    final_column_headers: List[ColumnHeader] = []
     for column_header in column_headers:
-        if isinstance(column_header, tuple):
+        if isinstance(column_header, tuple) or isinstance(column_header, list):
             final_column_headers.append(column_header)
         else:
-            final_column_header = ['' for _ in range(max_length - 1)]
-            final_column_header.insert(0, column_header)
-            final_column_headers.append(tuple(final_column_header))
+            final_column_header: MultiLevelColumnHeader = [column_header] + ['' for _ in range(max_length - 1)]
+            final_column_headers.append(final_column_header)
 
     df.columns = pd.MultiIndex.from_tuples(final_column_headers)
     if index is not None:

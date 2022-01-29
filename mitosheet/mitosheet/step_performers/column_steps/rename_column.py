@@ -151,7 +151,7 @@ def rename_column_headers_in_state(
         column_id: ColumnID,
         new_column_header: ColumnHeader,
         level: Union[None, int]
-    ) -> ColumnHeader:
+    ) -> Optional[ColumnHeader]:
     """
     A helper function for updating a column header in the state, which is useful
     for both this rename step and for the bulk rename step.
@@ -165,6 +165,9 @@ def rename_column_headers_in_state(
     old_new_column_headers_to_update: Set[Tuple[str, Any, Any]] = set()
 
     if level is not None:
+        if not isinstance(old_column_header, tuple) and not isinstance(old_column_header, list):
+            raise ValueError(f'Error, cannot set level {level} on column header {old_column_header}')
+
         # If we have a level set, do the rename on the level value, rather than the column header
         # so that it matches the specific value in the dataframe
         old_level_value = old_column_header[level]

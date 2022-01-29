@@ -17,7 +17,7 @@ from typing import Any, Collection, Dict, List
 import pandas as pd
 
 from mitosheet.errors import make_no_column_error
-from mitosheet.types import ColumnHeader, ColumnID
+from mitosheet.types import ColumnHeader, ColumnID, MultiLevelColumnHeader
 
 
 def flatten_column_header(column_header: ColumnHeader) -> ColumnHeader:
@@ -95,11 +95,10 @@ def try_make_new_header_valid_if_multi_index_headers(column_headers: List[Column
     that is the length of the multi-index headers, so
     this function helps you make such a header
     """
-    if not isinstance(new_column_header, tuple) and len(column_headers) > 0:
+    if (not isinstance(new_column_header, tuple) and not isinstance(new_column_header, list)) and len(column_headers) > 0:
         other_column_header = random.choice(list(column_headers))
         if isinstance(other_column_header, tuple):
-            ending_list = ['' for _ in range(len(other_column_header) - 1)]
-            ending_list.insert(0, new_column_header)
+            ending_list: MultiLevelColumnHeader = [new_column_header] + ['' for _ in range(len(other_column_header) - 1)]
             return tuple(ending_list)
 
     # If we don't need to change the column header, don't change it

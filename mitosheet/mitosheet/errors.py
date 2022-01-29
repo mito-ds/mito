@@ -82,7 +82,7 @@ def make_incompatible_merge_key_error(error_modal: bool=True) -> MitoError:
         error_modal=error_modal
     )
 
-def make_no_column_error(column_headers: Collection[str], error_modal: bool=True) -> MitoError:
+def make_no_column_error(column_headers: Collection[ColumnHeader], error_modal: bool=True) -> MitoError:
     """
     Helper function for creating a no_column_error.
 
@@ -91,7 +91,7 @@ def make_no_column_error(column_headers: Collection[str], error_modal: bool=True
     if len(column_headers) == 1:
         to_fix = f'Sorry, there is no column with the name {next(iter(column_headers))}. Did you type it correctly?'
     else:
-        to_fix = f'Sorry, there are no column with the names {", ".join(column_headers)}. Did you type them correctly?'
+        to_fix = f'Sorry, there are no column with the names {", ".join(map(str, column_headers))}. Did you type them correctly?'
 
     return MitoError(
         'no_column_error', 
@@ -181,7 +181,7 @@ def make_invalid_column_headers_error(column_headers: List[ColumnHeader]) -> Mit
     Occurs when:
     -  a user creates (or renames) a column(s) that has an invalid name.
     """
-    to_fix = f'All headers in the dataframe must contain at least one letter and no symbols other than numbers and "_". Invalid headers: {", ".join(column_headers)}'
+    to_fix = f'All headers in the dataframe must contain at least one letter and no symbols other than numbers and "_". Invalid headers: {", ".join(map(str, column_headers))}'
 
     return MitoError(
         'invalid_column_header_error',
@@ -261,13 +261,11 @@ def make_invalid_column_delete_error(column_headers: Collection[ColumnHeader], d
     Occurs when:
     -  the user deletes a column that is referenced by other columns
     """
-    # We make sure it's a list, for easy accessing!
-    dependents = list(dependents)
 
     return MitoError(
         'invalid_column_delete_error',
         'Column Has Dependents',
-        f'{(", ").join(column_headers)} cannot be deleted, as {"they are" if len(column_headers) > 1 else "it is"} referenced in {(", ".join(dependents))}. Please remove these references before deleting.'
+        f'{(", ").join(map(str, column_headers))} cannot be deleted, as {"they are" if len(column_headers) > 1 else "it is"} referenced in {(", ".join(map(str, dependents)))}. Please remove these references before deleting.'
     )
 
 def make_invalid_arguments_error(function: str) -> MitoError:

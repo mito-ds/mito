@@ -144,8 +144,8 @@ def safe_count_function(formula: str, substring: str) -> int:
 
 def safe_replace(
         formula: str, 
-        old_column_header: str, 
-        new_column_header: str,
+        old_column_header: ColumnHeader, 
+        new_column_header: ColumnHeader,
         column_headers: List[ColumnHeader]
     ) -> str:
     """
@@ -209,8 +209,9 @@ def check_common_errors(
     # we throw an error if we're sure that it's unmatched
     if safe_count_function(formula, '\(') != safe_count_function(formula, '\)'):
         for column_header in column_headers:
-            if '(' in column_header or ')' in column_header:
-                pass
+            if isinstance(column_headers, str):
+                if '(' in column_header or ')' in column_header:
+                    pass
         
         raise make_invalid_formula_error(
             formula,
@@ -285,7 +286,7 @@ def replace_column_headers(
         formula: str,
         column_headers: List[ColumnHeader],
         string_matches: List
-    ) -> Tuple[str, Set[str]]:
+    ) -> Tuple[str, Set[ColumnHeader]]:
     """
     Returns a modified formula, where the column headers in the string
     have been replaced with references to the dataframe.
@@ -366,7 +367,7 @@ def parse_formula(
         return '', set(), set()
 
     if throw_errors:
-        check_common_errors(formula, column_header)
+        check_common_errors(formula, column_headers)
 
     # Chop off the =, if it exists. We also accept formulas
     # that don't have an equals

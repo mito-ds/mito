@@ -11,7 +11,7 @@ import json
 import re
 import uuid
 from typing import Any, Dict, List, Optional, Set
-from mitosheet.types import ColumnID
+from mitosheet.types import ColumnHeader, ColumnID
 
 import numpy as np
 import pandas as pd
@@ -118,7 +118,7 @@ def df_to_json_dumpsable(
         column_spreadsheet_code: Dict[ColumnID, str],
         column_filters: Dict[ColumnID, Any],
         column_mito_types: Dict[ColumnID, str],
-        column_headers_to_column_ids: Dict[ColumnID, str],
+        column_headers_to_column_ids: Dict[ColumnHeader, ColumnID],
         column_format_types: Dict[ColumnID, Dict[ColumnID, str]],
         max_length: Optional[int]=MAX_ROWS, # How many items you want to display
     ) -> Dict[str, Any]:
