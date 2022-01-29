@@ -235,12 +235,12 @@ class PivotStepPerformer(StepPerformer):
     
 
 
-def values_to_functions(values: Dict[str, Collection[str]]) -> Dict[str, List[Callable]]:
+def values_to_functions(values: Dict[ColumnID, Collection[str]]) -> Dict[ColumnID, List[Callable]]:
     """
     Helper function for turning the values mapping sent by the frontend to 
     the value map of functions that can actually be passed to the pandas pivot function
     """
-    new_values: Dict[str, List[Callable]] = dict()
+    new_values: Dict[ColumnID, List[Callable]] = dict()
 
     for column_header, aggregation_function_names in values.items():
         new_values[column_header] = []
@@ -306,7 +306,7 @@ def _execute_pivot(
 
     return pivot_table
 
-def values_to_functions_code(values: Dict[str, Collection[str]]) -> str:
+def values_to_functions_code(values: Dict[ColumnID, Collection[str]]) -> str:
     """
     Helper function for turning the values mapping sent by the frontend to the values
     mapping that works in generated code. Namely, needs to replay Count Unique with the
@@ -320,7 +320,7 @@ def values_to_functions_code(values: Dict[str, Collection[str]]) -> str:
 def build_args_code(
         pivot_rows: List[ColumnHeader],
         pivot_columns: List[ColumnHeader],
-        values: Dict[str, Collection[str]]
+        values: Dict[ColumnID, Collection[str]]
     ) -> str:
     """
     Helper function for building an arg string, while leaving

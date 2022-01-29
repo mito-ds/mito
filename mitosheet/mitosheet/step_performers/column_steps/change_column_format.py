@@ -41,7 +41,7 @@ class ChangeColumnFormatStepPerformer(StepPerformer):
         prev_state: State,
         sheet_index: int,
         column_ids: List[ColumnID],
-        format_type: Dict[str, str],
+        format_type: Dict[str, Any],
         **params
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
 
@@ -63,7 +63,7 @@ class ChangeColumnFormatStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
         sheet_index: int,
         column_ids: List[ColumnID],
-        format_type: Dict[str, str]
+        format_type: Dict[str, Any]
     ) -> List[str]:
         # Formatting columns only effects the display in Mito, not the generated code.
         return []
@@ -73,7 +73,7 @@ class ChangeColumnFormatStepPerformer(StepPerformer):
         cls,
         sheet_index: int,
         column_ids: List[ColumnID],
-        format_type: Dict[str,str],
+        format_type: Dict[str, Any],
         df_names=None,
         **params
     ) -> str:
@@ -93,7 +93,7 @@ def update_column_id_format(
     post_state: State,
     sheet_index: int,
     column_id: ColumnID,
-    format_type: Dict[str, str]
+    format_type: Dict[str, Any]
 ) -> State: 
     post_state.column_format_types[sheet_index][column_id] = format_type
     return post_state

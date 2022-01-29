@@ -15,7 +15,7 @@ from typing import Any, Dict, List, Union
 import pandas as pd
 from mitosheet.mito_widget import MitoWidget, sheet
 from mitosheet.transpiler.transpile import transpile
-from mitosheet.types import ColumnHeader
+from mitosheet.types import ColumnHeader, ColumnID
 from mitosheet.utils import dfs_to_array_for_json, get_new_id
 
 
@@ -284,9 +284,9 @@ class MitoWidgetTestWrapper:
     def pivot_sheet(
             self, 
             sheet_index: int, 
-            pivot_rows: List[int],
-            pivot_columns: List[int],
-            values: Dict[str, List[str]],
+            pivot_rows: List[ColumnHeader],
+            pivot_columns: List[ColumnHeader],
+            values: Dict[ColumnHeader, List[str]],
             flatten_column_headers: bool=False,
             destination_sheet_index: int=None,
             step_id: str=None
@@ -515,7 +515,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def change_column_format(self, sheet_index: int, column_headers: List[ColumnHeader], new_format: Dict[str, str]) -> bool:
+    def change_column_format(self, sheet_index: int, column_headers: List[ColumnHeader], new_format: Dict[str, Any]) -> bool:
 
         column_ids = []
         for column_header in column_headers: 
