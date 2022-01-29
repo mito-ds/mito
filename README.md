@@ -36,6 +36,10 @@ To get support, [join our Discord](https://discord.com/invite/XdJSZyejJU).
 
 Coming soon!
 
+## MyBinder
+
+MyBinder link for the main branch: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mito-ds/monorepo/HEAD?labpath=%2Fbinder%2Fmito-starter-notebook.ipynb)
+
 # Contributing
 
 This repo is the monorepo for the Mito project, and so contains the `mitosheet` package, the `trymito.io` website, and our documentation as well.
