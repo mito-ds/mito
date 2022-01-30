@@ -12,14 +12,16 @@ Currently, we take the following steps:
 3. If neither of them work, we give up, sadly. 
 """
 
-from installer.mitoinstaller.installer_steps.test_pypi_mitosheet3_installer_steps import TEST_PYPI_MITOSHEET3_INSTALLER_STEPS
 from mitoinstaller.commands import exit_after_error
 from mitoinstaller.installer_steps import (FINAL_INSTALLER_STEPS,
                                            INITIAL_INSTALLER_STEPS,
                                            MITOSHEET3_INSTALLER_STEPS,
                                            MITOSHEET_INSTALLER_STEPS,
                                            run_installer_steps)
-from mitoinstaller.installer_steps.initial_installer_steps import INITIAL_INSTALLER_STEPS_PRO
+from mitoinstaller.installer_steps.initial_installer_steps import \
+    INITIAL_INSTALLER_STEPS_PRO
+from mitoinstaller.installer_steps.test_pypi_mitosheet3_installer_steps import \
+    TEST_PYPI_MITOSHEET3_INSTALLER_STEPS
 from mitoinstaller.log_utils import log, log_error
 
 

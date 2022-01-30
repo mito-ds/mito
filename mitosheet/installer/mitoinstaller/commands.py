@@ -103,7 +103,7 @@ def install_pip_packages(*packages: str, test_pypi: bool=False) -> None:
 
     # Handle TestPyPi
     if test_pypi:
-        sys_call.extend(['--index-url' 'https://test.pypi.org/simple/', '--extra-index-url', 'https://pypi.org/simple/'])
+        sys_call.extend(['--index-url', 'https://test.pypi.org/simple/', '--extra-index-url', 'https://pypi.org/simple/'])
 
     for package in packages:
         sys_call.append(package)
