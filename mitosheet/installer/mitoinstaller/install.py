@@ -12,6 +12,7 @@ Currently, we take the following steps:
 3. If neither of them work, we give up, sadly. 
 """
 
+from installer.mitoinstaller.installer_steps.test_pypi_mitosheet3_installer_steps import TEST_PYPI_MITOSHEET3_INSTALLER_STEPS
 from mitoinstaller.commands import exit_after_error
 from mitoinstaller.installer_steps import (FINAL_INSTALLER_STEPS,
                                            INITIAL_INSTALLER_STEPS,
@@ -69,3 +70,18 @@ def do_install_or_upgrade(install_or_upgrade: str, is_pro: bool) -> None:
     run_installer_steps(FINAL_INSTALLER_STEPS)
 
     
+
+def do_install_mitosheet3_from_test_pypi(is_pro: bool) -> None:
+    print("Starting install from TestPyPi. This should be in a clean venv, and so must not have any installed dependencies")
+
+    # Change the installation depending if the user is a pro user or not
+    if not is_pro:
+        run_installer_steps(INITIAL_INSTALLER_STEPS)
+    else:
+        run_installer_steps(INITIAL_INSTALLER_STEPS_PRO)
+
+    installed_test_pypi_mitosheet3 = run_installer_steps(TEST_PYPI_MITOSHEET3_INSTALLER_STEPS) 
+    if installed_test_pypi_mitosheet3:
+        print("mitosheet3 installed from TestPyPi. Launch JLab to test")
+    else:
+        print("Error installing mitosheet3 from TestPyPi")

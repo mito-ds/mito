@@ -8,7 +8,8 @@ Long term, we aim to meet:
    help as possible while doing so.
 """
 from colorama import init
-from termcolor import colored # type: ignore
+from termcolor import colored
+from installer.mitoinstaller.install import do_install_mitosheet3_from_test_pypi # type: ignore
 
 from mitoinstaller.do_upgrade_to_jupyterlab_3 import do_upgrade_to_jupyterlab_3
 from mitoinstaller.install import do_install_or_upgrade
@@ -35,9 +36,14 @@ def main() -> None:
 
     # Check if it's a pro install
     is_pro = '--pro' in sys.argv
+    # Check if it's installing from test pypi install
+    is_test_pypi = '--test-pypi' in sys.argv
 
     if command == 'install':
-        do_install_or_upgrade('install', is_pro)
+        if not is_test_pypi:
+            do_install_or_upgrade('install', is_pro)
+        else:
+            do_install_mitosheet3_from_test_pypi(is_pro)
     elif command == 'uninstall':
         print('To uninstall, run,', colored('`pip uninstall mitosheet`', 'green'), 'and', colored('`pip uninstall mitosheet3`', 'green'))
     elif command == 'upgrade':

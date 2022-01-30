@@ -89,15 +89,21 @@ def uninstall_pip_packages(*packages: str) -> None:
     run_command(sys_call)
 
 
-def install_pip_packages(*packages: str) -> None:
+def install_pip_packages(*packages: str, test_pypi: bool=False) -> None:
     """
     This function installs the given packages in a single pass
     using pip, through the command line.
 
     https://stackoverflow.com/questions/12332975/installing-python-module-within-code
+
+    If you want to install from TestPyPu, just set test_pypi to true
     """
 
     sys_call = [sys.executable, "-m", "pip", "install"]
+
+    # Handle TestPyPi
+    if test_pypi:
+        sys_call.extend(['--index-url' 'https://test.pypi.org/simple/', '--extra-index-url', 'https://pypi.org/simple/'])
 
     for package in packages:
         sys_call.append(package)
