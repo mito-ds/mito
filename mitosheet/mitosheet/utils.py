@@ -11,6 +11,7 @@ import json
 import re
 import uuid
 from typing import Any, Dict, List, Optional, Set
+from mitosheet.types import ColumnHeader, ColumnID
 
 import numpy as np
 import pandas as pd
@@ -80,11 +81,11 @@ def dfs_to_array_for_json(
         dfs: List[pd.DataFrame],
         df_names: List[str],
         df_sources: List[str],
-        column_spreadsheet_code_array: List[Dict[str, str]],
-        column_filters_array: List[Dict[str, Any]],
-        column_mito_types_array: List[Dict[str, str]],
+        column_spreadsheet_code_array: List[Dict[ColumnID, str]],
+        column_filters_array: List[Dict[ColumnID, Any]],
+        column_mito_types_array: List[Dict[ColumnID, str]],
         column_ids: ColumnIDMap,
-        column_format_types: List[Dict[str, Dict[str, str]]]
+        column_format_types: List[Dict[ColumnID, Dict[str, str]]]
     ) -> List:
 
     new_array = []
@@ -114,11 +115,11 @@ def df_to_json_dumpsable(
         original_df: pd.DataFrame,
         df_name: str,
         df_source: str,
-        column_spreadsheet_code: Dict[str, str],
-        column_filters: Dict[str, Any],
-        column_mito_types: Dict[str, str],
-        column_headers_to_column_ids: Dict[Any, str],
-        column_format_types: Dict[str, Dict[str, str]],
+        column_spreadsheet_code: Dict[ColumnID, str],
+        column_filters: Dict[ColumnID, Any],
+        column_mito_types: Dict[ColumnID, str],
+        column_headers_to_column_ids: Dict[ColumnHeader, ColumnID],
+        column_format_types: Dict[ColumnID, Dict[ColumnID, str]],
         max_length: Optional[int]=MAX_ROWS, # How many items you want to display
     ) -> Dict[str, Any]:
     """

@@ -12,9 +12,10 @@ from mitosheet.mito_analytics import log
 from mitosheet.sheet_functions.types.utils import get_mito_type
 from mitosheet.transpiler.transpile_utils import \
     column_header_to_transpiled_code
+from mitosheet.types import ColumnHeader
 
 
-def get_bar_chart(df: pd.DataFrame, x_axis_column_headers: List[Any], y_axis_column_headers: List[Any]) -> go.Figure:
+def get_bar_chart(df: pd.DataFrame, x_axis_column_headers: List[ColumnHeader], y_axis_column_headers: List[ColumnHeader]) -> go.Figure:
     """
     Returns a bar chart using the following heuristic:
     - Graphs the first BAR_CHART_MAX_NUMBER_OF_ROWS rows. 
@@ -93,8 +94,8 @@ def get_bar_chart(df: pd.DataFrame, x_axis_column_headers: List[Any], y_axis_col
 
 def get_bar_code(
         df: pd.DataFrame, 
-        x_axis_column_headers: List[str], 
-        y_axis_column_headers: List[str],
+        x_axis_column_headers: List[ColumnHeader], 
+        y_axis_column_headers: List[ColumnHeader],
         df_name: str
     ) -> str:
     """

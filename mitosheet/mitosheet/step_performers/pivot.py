@@ -15,6 +15,8 @@ from mitosheet.state import DATAFRAME_SOURCE_PIVOTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from pandas.core.base import DataError
 
+from mitosheet.types import ColumnHeader, ColumnID
+
 # Aggregation types pivot supports
 PA_COUNT_UNIQUE = 'count unique'
 PIVOT_AGGREGATION_TYPES = [
@@ -59,7 +61,7 @@ class PivotStepPerformer(StepPerformer):
         return 'pivot_edit'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Any) -> Dict[str, str]:
+    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         """
         Saturates the pivot table with just a `created_non_empty_dataframe` key, which
         is useful for logging.
@@ -88,9 +90,9 @@ class PivotStepPerformer(StepPerformer):
         cls,
         prev_state: State,
         sheet_index: int,
-        pivot_rows_column_ids: List[str],
-        pivot_columns_column_ids: List[str],
-        values_column_ids_map: Dict[str, Collection[str]],
+        pivot_rows_column_ids: List[ColumnID],
+        pivot_columns_column_ids: List[ColumnID],
+        values_column_ids_map: Dict[ColumnID, Collection[str]],
         flatten_column_headers: bool,
         destination_sheet_index: int=None,
         use_deprecated_id_algorithm: bool=False,
@@ -150,9 +152,9 @@ class PivotStepPerformer(StepPerformer):
         post_state: State,
         execution_data: Optional[Dict[str, Any]],
         sheet_index: int,
-        pivot_rows_column_ids: List[str],
-        pivot_columns_column_ids: List[str],
-        values_column_ids_map: Dict[str, Collection[str]],
+        pivot_rows_column_ids: List[ColumnID],
+        pivot_columns_column_ids: List[ColumnID],
+        values_column_ids_map: Dict[ColumnID, Collection[str]],
         flatten_column_headers: bool,
         destination_sheet_index: int=None,
         use_deprecated_id_algorithm: bool=False,
@@ -233,12 +235,12 @@ class PivotStepPerformer(StepPerformer):
     
 
 
-def values_to_functions(values: Dict[str, Collection[str]]) -> Dict[str, List[Callable]]:
+def values_to_functions(values: Dict[ColumnHeader, Collection[str]]) -> Dict[ColumnHeader, List[Callable]]:
     """
     Helper function for turning the values mapping sent by the frontend to 
     the value map of functions that can actually be passed to the pandas pivot function
     """
-    new_values: Dict[str, List[Callable]] = dict()
+    new_values: Dict[ColumnHeader, List[Callable]] = dict()
 
     for column_header, aggregation_function_names in values.items():
         new_values[column_header] = []
@@ -257,9 +259,9 @@ def values_to_functions(values: Dict[str, Collection[str]]) -> Dict[str, List[Ca
 
 def _execute_pivot(
         df: pd.DataFrame, 
-        pivot_rows: List[str], 
-        pivot_columns: List[str], 
-        values: Dict[str, Collection[str]],
+        pivot_rows: List[ColumnHeader], 
+        pivot_columns: List[ColumnHeader], 
+        values: Dict[ColumnHeader, Collection[str]],
         flatten_column_headers: bool
     ) -> pd.DataFrame:
     """
@@ -304,7 +306,7 @@ def _execute_pivot(
 
     return pivot_table
 
-def values_to_functions_code(values: Dict[str, Collection[str]]) -> str:
+def values_to_functions_code(values: Dict[ColumnHeader, Collection[str]]) -> str:
     """
     Helper function for turning the values mapping sent by the frontend to the values
     mapping that works in generated code. Namely, needs to replay Count Unique with the
@@ -316,9 +318,9 @@ def values_to_functions_code(values: Dict[str, Collection[str]]) -> str:
     return string_values.replace('\'count unique\'', 'pd.Series.nunique')
 
 def build_args_code(
-        pivot_rows: List[Any],
-        pivot_columns: List[Any],
-        values: Dict[str, Collection[str]]
+        pivot_rows: List[ColumnHeader],
+        pivot_columns: List[ColumnHeader],
+        values: Dict[ColumnHeader, Collection[str]]
     ) -> str:
     """
     Helper function for building an arg string, while leaving

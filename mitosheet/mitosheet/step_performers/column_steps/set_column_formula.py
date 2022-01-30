@@ -24,6 +24,7 @@ from mitosheet.errors import (
     make_unsupported_function_error, 
     make_wrong_column_metatype_error
 )
+from mitosheet.types import ColumnHeader, ColumnID
 
 class SetColumnFormulaStepPerformer(StepPerformer):
     """
@@ -75,7 +76,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         cls,
         prev_state: State,
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         old_formula: str,
         new_formula: str,
         **params
@@ -161,7 +162,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         post_state: State,
         execution_data: Optional[Dict[str, Any]],
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         old_formula: str,
         new_formula: str
     ) -> List[str]:
@@ -174,7 +175,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
     def describe( # type: ignore
         cls,
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         old_formula: str,
         new_formula: str,
         df_names=None,
@@ -189,7 +190,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
     def get_modified_dataframe_indexes( # type: ignore
         cls, 
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         old_formula: str,
         new_formula: str,
         **params
@@ -200,7 +201,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
 def _update_column_formula_in_step(
         post_state: State,
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         old_formula: str,
         new_formula: str,
         update_from_rename: bool=False
@@ -244,8 +245,8 @@ def _update_column_formula_in_step(
 
 def _get_fixed_invalid_formula(
         new_formula: str, 
-        column_header: Any, 
-        column_headers: List[Any]
+        column_header: ColumnHeader, 
+        column_headers: List[ColumnHeader]
     ) -> str:
     """
     A helper function that, given a formula, will try and fix
@@ -367,7 +368,7 @@ def refresh_dependant_columns(post_state: State, df: pd.DataFrame, sheet_index: 
 def transpile_dependant_columns(
         post_state: State, 
         sheet_index: int, 
-        column_id: str
+        column_id: ColumnID
     ) -> List[str]: 
     """
     Use this helper function when making a change to a column and you want to transpile

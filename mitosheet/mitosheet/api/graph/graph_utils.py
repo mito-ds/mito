@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import pandas as pd
 import plotly.graph_objects as go
 from mitosheet.sheet_functions.types.utils import NUMBER_SERIES, get_mito_type
+from mitosheet.types import ColumnHeader
 
 # We have a variety of heuristics to make sure that we never send too much data
 # to the frontend to display to the user. See comments below in the file for 
@@ -64,7 +65,7 @@ fig = go.Figure()
 # and JLab 3, and renders in line.
 SHOW_FIG_CODE = 'fig.show(renderer="iframe")'
 
-def is_all_number_series(df: pd.DataFrame, column_headers: List[Any]) -> bool:
+def is_all_number_series(df: pd.DataFrame, column_headers: List[ColumnHeader]) -> bool:
     """
     Returns True if the Mito type of each series with the header column_header
     in column_headers is a NUMBER_SERIES. Returns False otherwise. 
@@ -75,7 +76,7 @@ def is_all_number_series(df: pd.DataFrame, column_headers: List[Any]) -> bool:
             return False
     return True
 
-def get_graph_title(x_axis_column_headers: List[Any], y_axis_column_headers: List[Any], filtered: bool, graph_type: str, special_title: str=None) -> str:
+def get_graph_title(x_axis_column_headers: List[ColumnHeader], y_axis_column_headers: List[ColumnHeader], filtered: bool, graph_type: str, special_title: str=None) -> str:
     """
     Helper function for determing the title of the graph for the scatter plot and bar chart
     """
@@ -102,7 +103,7 @@ def get_graph_title(x_axis_column_headers: List[Any], y_axis_column_headers: Lis
     return (' ').join(graph_title_components)
 
 
-def get_graph_labels(x_axis_column_headers: List[Any], y_axis_column_headers: List[Any]) -> Tuple[str, str]:
+def get_graph_labels(x_axis_column_headers: List[ColumnHeader], y_axis_column_headers: List[ColumnHeader]) -> Tuple[str, str]:
     """
     Helper function for determining the x and y axis titles, 
     for the scatter plot and bar chart. 
@@ -159,8 +160,8 @@ def filter_df_to_top_unique_values_in_series(
 def filter_df_to_safe_size(
         graph_type: str, 
         df: pd.DataFrame, 
-        column_headers: List[str],
-        other_axis_column_headers: List[str]=None
+        column_headers: List[ColumnHeader],
+        other_axis_column_headers: List[ColumnHeader]=None
     ) -> pd.DataFrame:
     """
     A helper function that filters a dataframe down to a safe size

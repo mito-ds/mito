@@ -2,6 +2,7 @@ import json
 from typing import Any, Dict, List
 
 import pandas as pd
+from mitosheet.types import ColumnHeader
 import plotly.express as px
 import plotly.graph_objects as go
 from mitosheet.api.graph.bar import get_bar_chart, get_bar_code
@@ -18,14 +19,14 @@ from mitosheet.sheet_functions.types.utils import NUMBER_SERIES, get_mito_type
 from mitosheet.steps_manager import StepsManager
 
 
-def get_column_summary_graph(axis: str, df: pd.DataFrame, axis_data_array: List[Any]) -> go.Figure:
+def get_column_summary_graph(axis: str, df: pd.DataFrame, axis_data_array: List[ColumnHeader]) -> go.Figure:
     """
     One Axis Graphs heuristics:
     1. Number Column - we do no filtering. These graphs are pretty efficient up to 1M rows
     2. Non-number column. We filter to the top 10k values, as the graphs get pretty laggy 
        beyond that
     """
-    column_header: str = axis_data_array[0]
+    column_header = axis_data_array[0]
     series: pd.Series = df[column_header]
     mito_type = get_mito_type(series)
 

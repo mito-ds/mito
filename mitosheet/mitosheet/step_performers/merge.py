@@ -15,6 +15,7 @@ from mitosheet.state import DATAFRAME_SOURCE_MERGED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.transpiler.transpile_utils import (
     column_header_list_to_transpiled_code, column_header_to_transpiled_code)
+from mitosheet.types import ColumnHeader, ColumnID
 
 LOOKUP = 'lookup'
 UNIQUE_IN_LEFT = 'unique in left'
@@ -42,7 +43,7 @@ class MergeStepPerformer(StepPerformer):
         return 'merge_edit'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Any) -> Dict[str, str]:
+    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 
     @classmethod
@@ -51,11 +52,11 @@ class MergeStepPerformer(StepPerformer):
         prev_state: State,
         how: str,
         sheet_index_one: int,
-        merge_key_column_id_one: str,
-        selected_column_ids_one: List[str],
+        merge_key_column_id_one: ColumnID,
+        selected_column_ids_one: List[ColumnID],
         sheet_index_two: int,
-        merge_key_column_id_two: str,
-        selected_column_ids_two: List[str],
+        merge_key_column_id_two: ColumnID,
+        selected_column_ids_two: List[ColumnID],
         **params
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
 
@@ -93,11 +94,11 @@ class MergeStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
         how: str,
         sheet_index_one: int,
-        merge_key_column_id_one: str,
-        selected_column_ids_one: List[str],
+        merge_key_column_id_one: ColumnID,
+        selected_column_ids_one: List[ColumnID],
         sheet_index_two: int,
-        merge_key_column_id_two: str,
-        selected_column_ids_two: List[str],
+        merge_key_column_id_two: ColumnID,
+        selected_column_ids_two: List[ColumnID],
     ) -> List[str]:
 
         merge_key_one = prev_state.column_ids.get_column_header_by_id(sheet_index_one, merge_key_column_id_one)
@@ -167,11 +168,11 @@ class MergeStepPerformer(StepPerformer):
         cls,
         how: str,
         sheet_index_one: int,
-        merge_key_column_id_one: str,
-        selected_column_ids_one: List[str],
+        merge_key_column_id_one: ColumnID,
+        selected_column_ids_one: List[ColumnID],
         sheet_index_two: int,
-        merge_key_column_id_two: str,
-        selected_column_ids_two: List[str],
+        merge_key_column_id_two: ColumnID,
+        selected_column_ids_two: List[ColumnID],
         df_names=None,
         **params
     ) -> str:
@@ -186,11 +187,11 @@ class MergeStepPerformer(StepPerformer):
         cls, 
         how: str,
         sheet_index_one: int,
-        merge_key_column_id_one: str,
-        selected_column_ids_one: List[str],
+        merge_key_column_id_one: ColumnID,
+        selected_column_ids_one: List[ColumnID],
         sheet_index_two: int,
-        merge_key_column_id_two: str,
-        selected_column_ids_two: List[str],
+        merge_key_column_id_two: ColumnID,
+        selected_column_ids_two: List[ColumnID],
     ) -> Set[int]:
         return {-1}
 
@@ -199,11 +200,11 @@ def _execute_merge(
         df_names: List[str],
         how: str,
         sheet_index_one: int,
-        merge_key_one: Any, 
-        selected_columns_one: List[Any],
+        merge_key_one: ColumnHeader, 
+        selected_columns_one: List[ColumnHeader],
         sheet_index_two: int,
-        merge_key_two: Any,
-        selected_columns_two: List[Any]
+        merge_key_two: ColumnHeader,
+        selected_columns_two: List[ColumnHeader]
     ) -> pd.DataFrame:
     """
     Executes a merge on the sheets with the given indexes, merging on the 

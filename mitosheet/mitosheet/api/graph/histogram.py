@@ -1,13 +1,16 @@
 from typing import Any, List
+
 import pandas as pd
 import plotly.graph_objects as go
-
+from mitosheet.api.graph.graph_utils import (CREATE_FIG_CODE, HISTOGRAM,
+                                             SHOW_FIG_CODE, X, get_graph_title)
 from mitosheet.mito_analytics import log
-from mitosheet.api.graph.graph_utils import CREATE_FIG_CODE, HISTOGRAM, SHOW_FIG_CODE, X, get_graph_title
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import \
+    column_header_to_transpiled_code
+from mitosheet.types import ColumnHeader
 
 
-def get_histogram(axis: str, df: pd.DataFrame, column_headers: List[Any]) -> go.Figure:
+def get_histogram(axis: str, df: pd.DataFrame, column_headers: List[ColumnHeader]) -> go.Figure:
     """
     Returns a histogram using the following heuristic:
 
@@ -50,7 +53,7 @@ def get_histogram(axis: str, df: pd.DataFrame, column_headers: List[Any]) -> go.
 def get_histogram_code(
         axis: str, 
         df: pd.DataFrame, 
-        column_headers: List[str], 
+        column_headers: List[ColumnHeader], 
         df_name: str
     ) -> str:
     """

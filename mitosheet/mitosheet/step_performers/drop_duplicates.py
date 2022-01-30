@@ -15,6 +15,7 @@ from mitosheet.errors import (
     make_invalid_sort_error
 )
 from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_to_transpiled_code
+from mitosheet.types import ColumnID
 
 # CONSTANTS USED IN THE SORT STEP ITSELF
 ASCENDING = 'ascending'
@@ -50,7 +51,7 @@ class DropDuplicatesStepPerformer(StepPerformer):
         cls,
         prev_state: State,
         sheet_index: int,
-        column_ids: List[str],
+        column_ids: List[ColumnID],
         keep: Union[str, bool],
         **params
     ):
@@ -81,7 +82,7 @@ class DropDuplicatesStepPerformer(StepPerformer):
         post_state: State,
         execution_data: Optional[Dict[str, Any]],
         sheet_index: int,
-        column_ids: List[str],
+        column_ids: List[ColumnID],
         keep: Union[str, bool],
     ) -> List[str]:
 
@@ -113,7 +114,7 @@ class DropDuplicatesStepPerformer(StepPerformer):
     def describe( # type: ignore
         cls,
         sheet_index: int,
-        column_ids: List[str],
+        column_ids: List[ColumnID],
         keep: str,
         df_names=None,
         **params
@@ -127,7 +128,7 @@ class DropDuplicatesStepPerformer(StepPerformer):
     def get_modified_dataframe_indexes( # type: ignore
         cls, 
         sheet_index: int,
-        column_ids: List[str],
+        column_ids: List[ColumnID],
         keep: str,
         **params
     ) -> Set[int]:
