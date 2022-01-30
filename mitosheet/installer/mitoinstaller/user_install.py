@@ -1,5 +1,6 @@
 import json
 import os
+from typing import Optional
 import uuid
 from copy import deepcopy
 
@@ -12,14 +13,14 @@ MITO_FOLDER = os.path.join(os.path.expanduser("~"), '.mito')
 # path as the USER_JSON_PATH in mitosheet
 USER_JSON_PATH = os.path.join(MITO_FOLDER, 'user.json')
 
-def get_random_id():
+def get_random_id() -> str:
     """
     Creates a new random ID for the user, which for any given user,
     should only happen once.
     """
     return str(uuid.uuid1())
 
-def is_running_test():
+def is_running_test() -> bool:
     """
     A helper function that quickly returns if the current code is running inside 
     of a test, which is useful for making sure we don't generate tons of logs 
@@ -41,7 +42,7 @@ USER_JSON_DEFAULT = {
     'mitosheet_pro': False,
 }
 
-def try_create_user_json_file(is_pro=False):
+def try_create_user_json_file(is_pro: bool=False) -> None:
     # Create the mito folder if it does not exist
     if not os.path.exists(MITO_FOLDER):
         os.mkdir(MITO_FOLDER)
@@ -65,21 +66,21 @@ def try_create_user_json_file(is_pro=False):
             f.write(json.dumps(updated_user_json))
 
 
-def get_static_user_id():
+def get_static_user_id() -> Optional[str]:
     try:
         with open(USER_JSON_PATH) as f:
             return json.load(f)['static_user_id']
     except: 
         return None
 
-def get_mitosheet_telemetry():
+def get_mitosheet_telemetry() -> Optional[bool]:
     try:
         with open(USER_JSON_PATH) as f:
             return json.load(f)['mitosheet_telemetry']
     except: 
         return True
 
-def user_json_only_has_static_user_id():
+def user_json_only_has_static_user_id() -> bool:
     """
     Returns True if the user.json file only has the static_user_id in it
     and otherwise returns False

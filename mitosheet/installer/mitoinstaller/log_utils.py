@@ -12,7 +12,7 @@ from typing import Any, Dict
 import sys
 
 import analytics
-from termcolor import colored
+from termcolor import colored # type: ignore
 
 analytics.write_key = '6I7ptc5wcIGC4WZ0N1t0NXvvAbjRGUgX' 
 
@@ -21,21 +21,21 @@ from mitoinstaller.user_install import (get_mitosheet_telemetry, get_static_user
                                         user_json_only_has_static_user_id)
 
 
-def is_on_kuberentes_mito():
+def is_on_kuberentes_mito() -> bool:
     """
     Returns True if the user is on Kuberentes Mito, on staging or on app
     """
     user = getpass.getuser()
     return user == 'jovyan'
 
-def is_local_deployment():
+def is_local_deployment() -> bool:
     """
     Helper function for figuring out if this a local deployment or a
     Mito server deployment
     """
     return not is_on_kuberentes_mito() 
 
-def identify():
+def identify() -> None:
     """
     This identify call identifies the user in our logs. Note that
     we make sure that the actual identify call only runs when
@@ -57,7 +57,7 @@ def identify():
             }
         )
 
-def log_error(event: str, params: Dict[str, Any]=None, print_to_user: bool=True):
+def log_error(event: str, params: Dict[str, Any]=None, print_to_user: bool=True) -> None:
     """
     Logs an error by optionally printing the traceback to the user, before
     actually logging it.
@@ -85,7 +85,7 @@ def log_error(event: str, params: Dict[str, Any]=None, print_to_user: bool=True)
     )
 
 
-def log(event: str, params: Dict[str, Any]=None):
+def log(event: str, params: Dict[str, Any]=None) -> None:
     """
     A utility that all logging should pass through
     """

@@ -8,13 +8,13 @@ Long term, we aim to meet:
    help as possible while doing so.
 """
 from colorama import init
-from termcolor import colored
+from termcolor import colored # type: ignore
 
 from mitoinstaller.do_upgrade_to_jupyterlab_3 import do_upgrade_to_jupyterlab_3
 from mitoinstaller.install import do_install_or_upgrade
 
 
-def main():
+def main() -> None:
     """
     The main function of the Mito installer, this function is responsible
     for either installing mitosheet or upgrading mitosheet.

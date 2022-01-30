@@ -7,7 +7,7 @@ from mitoinstaller.commands import (get_jupyterlab_metadata,
 from mitoinstaller.log_utils import log, log_error
 
 
-def do_upgrade_to_jupyterlab_3():
+def do_upgrade_to_jupyterlab_3() -> None:
     """
     Checks that a user has mitosheet installed on JLab 2.0, and
     if so attempts to upgrade them to JLab 3.0 and mitosheet3.
@@ -32,11 +32,12 @@ def do_upgrade_to_jupyterlab_3():
             'reason': 'Installed jupyterlab version is: {jupyterlab_version}'.format(jupyterlab_version=jupyterlab_version)
         })
         exit(1)
-    if (labextensions is not None and len(labextensions) > 2) or ('mitosheet' not in labextensions):
-        log_error('upgrade_to_jupyterlab_3_failed', {
-            'reason': 'Installed labextensions are: {labextensions}'.format(labextensions=labextensions)
-        })
-        exit(1)
+    if labextensions is not None:
+        if len(labextensions) > 2 or 'mitosheet' not in labextensions:
+            log_error('upgrade_to_jupyterlab_3_failed', {
+                'reason': 'Installed labextensions are: {labextensions}'.format(labextensions=labextensions)
+            })
+            exit(1)
     
     # First, uninstall mitosheet, jlab
     try:

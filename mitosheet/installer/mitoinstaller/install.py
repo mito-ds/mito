@@ -22,7 +22,7 @@ from mitoinstaller.installer_steps.initial_installer_steps import INITIAL_INSTAL
 from mitoinstaller.log_utils import log, log_error
 
 
-def do_install_or_upgrade(install_or_upgrade, is_pro: bool):
+def do_install_or_upgrade(install_or_upgrade: str, is_pro: bool) -> None:
     """
     install_or_upgrade is the workhorse of actually installing mito. 
     It first attempts mitosheet3, and if that fails, then mitosheet.
