@@ -48,6 +48,16 @@ This repo is the monorepo for the Mito project, and so contains the `mitosheet` 
 
 To see the code for the `mitosheet` package, see the `mitosheet` folder. 
 
+### Testing
+
+To test the current version of `mitosheet` that is deployed on Test PyPi, create an empty venv, and run the command
+```
+python3 -m pip install mitoinstaller
+python3 -m mitoinstaller install --test-pypi
+```
+
+Then, launch JLab to test the current version of the `mitosheet` package on Test PyPi.
+
 ## Trymito.io
 
 To see the code for our website, see the `trymito.io` folder. 
