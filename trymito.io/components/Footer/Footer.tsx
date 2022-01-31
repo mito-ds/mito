@@ -55,7 +55,7 @@ const Footer = (): JSX.Element => {
                         <a href='https://docs.trymito.io' target="_blank" rel="noreferrer">Docs</a>
                     </li>
                     <li className='text-nav'>
-                        <a href='https://docs.trymito.io/misc./terms-of-service' target="_blank" rel="noreferrer">Terms</a>
+                        <a href='https://docs.trymito.io/misc/terms-of-service' target="_blank" rel="noreferrer">Terms</a>
                     </li>
                     <li className='text-nav'>
                         <a href='https://privacy.trymito.io/privacy-policy' target="_blank" rel="noreferrer">Privacy</a>
