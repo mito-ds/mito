@@ -114,9 +114,7 @@ def test_create_startup_file(venv: VirtualEnvironment):
     assert os.path.exists(IMPORT_MITOSHEET_FILE_PATH) 
 
 def test_installs_from_test_pypi(venv: VirtualEnvironment):
-    venv.run_python_module_command(['pip', 'install', '-r', 'requirements.txt'])
-    venv.run_python_module_command(['pip', 'install', 'jupyterlab==3.0'])
-    
+    venv.run_python_module_command(['pip', 'install', '-r', 'requirements.txt'])    
     venv.run_python_module_command(['mitoinstaller', 'install', '--test-pypi'])
     
     mitosheet3_version = venv.get_package_version('mitosheet3')
