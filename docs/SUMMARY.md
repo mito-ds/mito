@@ -36,10 +36,10 @@
 
 * [Delete Columns with Missing Values](how-to-1/delete-columns-with-missing-values.md)
 
-## Misc.
+## Misc
 
-* [Videos](misc./videos.md)
-* [Release Notes](misc./release-notes.md)
-* [FAQ](misc./faq.md)
-* [Terms of Service](misc./terms-of-service.md)
-* [Privacy Policy](misc./privacy-policy.md)
+* [Videos](misc/videos.md)
+* [Release Notes](misc/release-notes.md)
+* [FAQ](misc/faq.md)
+* [Terms of Service](misc/terms-of-service.md)
+* [Privacy Policy](misc/privacy-policy.md)
