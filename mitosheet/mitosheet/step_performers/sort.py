@@ -13,6 +13,7 @@ from mitosheet.errors import (
     make_invalid_sort_error
 )
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+from mitosheet.types import ColumnID
 
 # CONSTANTS USED IN THE SORT STEP ITSELF
 ASCENDING = 'ascending'
@@ -41,7 +42,7 @@ class SortStepPerformer(StepPerformer):
         return 'sort_edit'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Any) -> Dict[str, str]:
+    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 
     @classmethod
@@ -49,7 +50,7 @@ class SortStepPerformer(StepPerformer):
         cls,
         prev_state: State,
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         sort_direction: str,
         **params
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
@@ -83,7 +84,7 @@ class SortStepPerformer(StepPerformer):
         post_state: State,
         execution_data: Optional[Dict[str, Any]],
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         sort_direction: str
     ) -> List[str]:
         df_name = post_state.df_names[sheet_index]
@@ -100,7 +101,7 @@ class SortStepPerformer(StepPerformer):
     def describe( # type: ignore
         cls,
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         sort_direction: str,
         df_names=None,
         **params
@@ -114,7 +115,7 @@ class SortStepPerformer(StepPerformer):
     def get_modified_dataframe_indexes( # type: ignore
         cls, 
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         sort_direction: str,
         **params
     ) -> Set[int]:

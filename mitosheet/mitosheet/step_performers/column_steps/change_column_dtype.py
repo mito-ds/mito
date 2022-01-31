@@ -27,6 +27,7 @@ from mitosheet.step_performers.column_steps.set_column_formula import (
     refresh_dependant_columns, transpile_dependant_columns)
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+from mitosheet.types import ColumnID
 
 
 class ChangeColumnDtypeStepPerformer(StepPerformer):
@@ -66,7 +67,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
         cls,
         prev_state: State,
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         old_dtype: str,
         new_dtype: str,
         **params
@@ -227,7 +228,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
         post_state: State,
         execution_data: Optional[Dict[str, Any]],
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         old_dtype: str,
         new_dtype: str
     ) -> List[str]:
@@ -350,7 +351,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
     def describe( # type: ignore
         cls,
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         old_dtype: str,
         new_dtype: str,
         df_names=None,
@@ -362,7 +363,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
     def get_modified_dataframe_indexes( # type: ignore
         cls, 
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         old_dtype: str,
         new_dtype: str,
         **params

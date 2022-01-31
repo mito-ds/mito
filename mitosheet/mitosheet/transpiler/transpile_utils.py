@@ -1,5 +1,7 @@
 from typing import Any, List, Set, Union
 
+from mitosheet.types import ColumnHeader
+
 
 def column_header_list_to_transpiled_code(column_headers: Union[List[Any], Set[Any]]) -> str:
     """
@@ -14,7 +16,7 @@ def column_header_list_to_transpiled_code(column_headers: Union[List[Any], Set[A
     return f'[{joined_transpiled_column_headers}]'
 
 
-def column_header_to_transpiled_code(column_header: Any) -> str:
+def column_header_to_transpiled_code(column_header: ColumnHeader) -> str:
     """
     Makes sure the column header is correctly transpiled to 
     code in a way that makes sure it's referenced properly.

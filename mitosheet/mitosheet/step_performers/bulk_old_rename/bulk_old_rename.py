@@ -49,7 +49,7 @@ class BulkOldRenameStepPerformer(StepPerformer):
         return params
 
     @classmethod
-    def execute(
+    def execute( # type: ignore
         cls,
         prev_state: State,
         move_to_deprecated_id_algorithm: bool=False,

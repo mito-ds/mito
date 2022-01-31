@@ -13,6 +13,8 @@ import pandas as pd
 import warnings
 import functools
 
+from mitosheet.types import ColumnHeader
+
 def deprecated(func: Callable) -> Callable:
     """
     This is a decorator which can be used to mark functions
@@ -91,7 +93,7 @@ def make_valid_header(column_header: Any) -> str:
 make_valid_header_external = deprecated(make_valid_header)
 
 
-def is_valid_header(column_header: Any) -> bool:
+def is_valid_header(column_header: ColumnHeader) -> bool:
     """
     A header is valid if it is a string that is made up of all word characters,
     with at least one non numeric char, and has at least one char.
@@ -122,7 +124,7 @@ def get_invalid_headers(df: pd.DataFrame) -> List[Any]:
         if not is_valid_header(header)
     ]
 
-def get_header_renames(column_headers: List[Any]) -> Dict[Any, str]:
+def get_header_renames(column_headers: List[ColumnHeader]) -> Dict[Any, str]:
     """
     Given a list of column headers, returns a mapping from old, invalid headers to
     new, valid headers. Empty if no renames are necessary.

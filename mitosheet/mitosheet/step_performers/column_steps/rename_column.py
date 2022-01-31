@@ -14,6 +14,7 @@ from mitosheet.step_performers.column_steps.set_column_formula import \
     _update_column_formula_in_step
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+from mitosheet.types import ColumnHeader, ColumnID
 
 
 class RenameColumnStepPerformer(StepPerformer):
@@ -50,7 +51,7 @@ class RenameColumnStepPerformer(StepPerformer):
         cls,
         prev_state: State,
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         new_column_header: str,
         level=None,
         **params
@@ -86,7 +87,7 @@ class RenameColumnStepPerformer(StepPerformer):
         post_state: State,
         execution_data: Optional[Dict[str, Any]],
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         new_column_header: str,
         level=None
     ) -> List[str]:
@@ -118,7 +119,7 @@ class RenameColumnStepPerformer(StepPerformer):
     def describe( # type: ignore
         cls,
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         new_column_header: str,
         level=None,
         df_names=None,
@@ -136,7 +137,7 @@ class RenameColumnStepPerformer(StepPerformer):
     def get_modified_dataframe_indexes( # type: ignore
         cls, 
         sheet_index: int,
-        column_id: str,
+        column_id: ColumnID,
         new_column_header: str,
         level=None,
         **params
@@ -147,10 +148,10 @@ class RenameColumnStepPerformer(StepPerformer):
 def rename_column_headers_in_state(
         post_state: State,
         sheet_index: int,
-        column_id: str,
-        new_column_header: Any,
+        column_id: ColumnID,
+        new_column_header: ColumnHeader,
         level: Union[None, int]
-    ) -> Any:
+    ) -> Optional[ColumnHeader]:
     """
     A helper function for updating a column header in the state, which is useful
     for both this rename step and for the bulk rename step.
@@ -164,6 +165,9 @@ def rename_column_headers_in_state(
     old_new_column_headers_to_update: Set[Tuple[str, Any, Any]] = set()
 
     if level is not None:
+        if not isinstance(old_column_header, tuple) and not isinstance(old_column_header, list):
+            raise ValueError(f'Error, cannot set level {level} on column header {old_column_header}')
+
         # If we have a level set, do the rename on the level value, rather than the column header
         # so that it matches the specific value in the dataframe
         old_level_value = old_column_header[level]

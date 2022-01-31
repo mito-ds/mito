@@ -15,6 +15,7 @@ from typing import Any, Collection, List, Optional, Set, Tuple, Union
 from mitosheet.column_headers import get_column_header_display
 from mitosheet.errors import make_invalid_formula_error
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+from mitosheet.types import ColumnHeader
 
 def is_quote(char: str) -> bool:
     """
@@ -69,7 +70,7 @@ def match_covered_by_matches( # type: ignore
 def safe_contains(
         formula: str, 
         substring: str,
-        column_headers: List[Any],
+        column_headers: List[ColumnHeader],
     ) -> bool:
     """
     Returns true if the formula contains substring. However, will not count
@@ -94,7 +95,7 @@ def safe_contains(
 def safe_contains_function(
         formula: str, 
         function: str,
-        column_headers: List[Any]
+        column_headers: List[ColumnHeader]
     ) -> bool:
     """
     Checks if a function is called in a formula. Returns False if the function
@@ -143,9 +144,9 @@ def safe_count_function(formula: str, substring: str) -> int:
 
 def safe_replace(
         formula: str, 
-        old_column_header: str, 
-        new_column_header: str,
-        column_headers: List[Any]
+        old_column_header: ColumnHeader, 
+        new_column_header: ColumnHeader,
+        column_headers: List[ColumnHeader]
     ) -> str:
     """
     Given a raw spreadsheet formula, will replace all instances of old_column_header
@@ -177,7 +178,7 @@ def safe_replace(
 
 def check_common_errors(
         formula: str,
-        column_headers: List[Any]
+        column_headers: List[ColumnHeader]
     ) -> None:
     """
     Helper function for checking a formula for common errors, for better
@@ -208,8 +209,9 @@ def check_common_errors(
     # we throw an error if we're sure that it's unmatched
     if safe_count_function(formula, '\(') != safe_count_function(formula, '\)'):
         for column_header in column_headers:
-            if '(' in column_header or ')' in column_header:
-                pass
+            if isinstance(column_headers, str):
+                if '(' in column_header or ')' in column_header:
+                    pass
         
         raise make_invalid_formula_error(
             formula,
@@ -219,16 +221,16 @@ def check_common_errors(
 
 def get_column_header_match_tuples(
         formula: str,
-        column_headers: List[Any],
+        column_headers: List[ColumnHeader],
         string_matches: List
-    ) -> List[Tuple[Any, Any]]:
+    ) -> List[Tuple[ColumnHeader, Any]]:
     """
     Returns a list of the column header that is matched, as well as the 
     match object where it was found. Note that the returned matches are
     sorted from the last match to the first, so you can easily iterate
     over them and replace.
     """
-    column_header_match_tuples: List[Tuple[Any, Any]] = []
+    column_header_match_tuples: List[Tuple[ColumnHeader, Any]] = []
 
     # We look for column headers from longest to shortest, to enable us
     # to issues if one column header is a substring of another
@@ -282,9 +284,9 @@ def get_column_header_match_tuples(
                 
 def replace_column_headers(
         formula: str,
-        column_headers: List[Any],
+        column_headers: List[ColumnHeader],
         string_matches: List
-    ) -> Tuple[str, Set[str]]:
+    ) -> Tuple[str, Set[ColumnHeader]]:
     """
     Returns a modified formula, where the column headers in the string
     have been replaced with references to the dataframe.
@@ -352,10 +354,10 @@ def replace_functions(
 
 def parse_formula(
         formula: Optional[str], 
-        column_header: Any, 
-        column_headers: List[Any],
+        column_header: ColumnHeader, 
+        column_headers: List[ColumnHeader],
         throw_errors: bool=True
-    ) -> Tuple[str, Set[str], Set[Any]]:
+    ) -> Tuple[str, Set[str], Set[ColumnHeader]]:
     """
     Returns a representation of the formula that is easy to handle, specifically
     by returning (python_code, functions, column_header_dependencies), where column_headers
@@ -365,7 +367,7 @@ def parse_formula(
         return '', set(), set()
 
     if throw_errors:
-        check_common_errors(formula, column_header)
+        check_common_errors(formula, column_headers)
 
     # Chop off the =, if it exists. We also accept formulas
     # that don't have an equals

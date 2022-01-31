@@ -15,6 +15,7 @@ from typing import Any, Dict, List, Union
 import pandas as pd
 from mitosheet.mito_widget import MitoWidget, sheet
 from mitosheet.transpiler.transpile import transpile
+from mitosheet.types import ColumnHeader, ColumnID, MultiLevelColumnHeader, PrimativeColumnHeader
 from mitosheet.utils import dfs_to_array_for_json, get_new_id
 
 
@@ -208,11 +209,11 @@ class MitoWidgetTestWrapper:
             self, 
             how: str,
             sheet_index_one: int, 
-            merge_key_one: Any, 
-            selected_columns_one: List[Any],
+            merge_key_one: ColumnHeader, 
+            selected_columns_one: List[ColumnHeader],
             sheet_index_two: int, 
-            merge_key_two: Any,
-            selected_columns_two: List[Any]
+            merge_key_two: ColumnHeader,
+            selected_columns_two: List[ColumnHeader]
         ) -> bool:
 
         merge_key_column_id_one = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
@@ -255,7 +256,7 @@ class MitoWidgetTestWrapper:
     def drop_duplicates(
             self, 
             sheet_index: int, 
-            column_headers: List[Any], 
+            column_headers: List[ColumnHeader], 
             keep: str,
         ) -> bool:
 
@@ -283,9 +284,9 @@ class MitoWidgetTestWrapper:
     def pivot_sheet(
             self, 
             sheet_index: int, 
-            pivot_rows: List[int],
-            pivot_columns: List[int],
-            values: Dict[str, List[str]],
+            pivot_rows: List[ColumnHeader],
+            pivot_columns: List[ColumnHeader],
+            values: Dict[ColumnHeader, List[str]],
             flatten_column_headers: bool=False,
             destination_sheet_index: int=None,
             step_id: str=None
@@ -326,7 +327,7 @@ class MitoWidgetTestWrapper:
     def filter(
             self, 
             sheet_index: int, 
-            column_header: Any,
+            column_header: ColumnHeader,
             operator: str,
             type_: str,
             condition: str, 
@@ -363,7 +364,7 @@ class MitoWidgetTestWrapper:
     def filters(
             self, 
             sheet_index: int, 
-            column_header: Any,
+            column_header: ColumnHeader,
             operator: str,
             filters: List[Dict[str, Any]]
         ) -> bool:
@@ -393,7 +394,7 @@ class MitoWidgetTestWrapper:
     def sort(
             self, 
             sheet_index: int, 
-            column_header: Any,
+            column_header: ColumnHeader,
             sort_direction: str
         ) -> bool:
 
@@ -421,7 +422,7 @@ class MitoWidgetTestWrapper:
     def reorder_column(
             self, 
             sheet_index: int, 
-            column_header: Any, 
+            column_header: ColumnHeader, 
             new_column_index: int
         ) -> bool:
 
@@ -446,7 +447,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def rename_column(self, sheet_index: int, old_column_header: Any, new_column_header: Any, level: int=None) -> bool:
+    def rename_column(self, sheet_index: int, old_column_header: ColumnHeader, new_column_header: ColumnHeader, level: int=None) -> bool:
 
         column_id = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
             sheet_index,
@@ -470,7 +471,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def delete_columns(self, sheet_index: int, column_headers: List[Any]) -> bool:
+    def delete_columns(self, sheet_index: int, column_headers: List[ColumnHeader]) -> bool:
         column_ids = [self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
             sheet_index,
             column_header 
@@ -491,7 +492,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def change_column_dtype(self, sheet_index: int, column_header: Any, new_dtype: str) -> bool:
+    def change_column_dtype(self, sheet_index: int, column_header: ColumnHeader, new_dtype: str) -> bool:
 
         column_id = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
             sheet_index,
@@ -514,7 +515,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def change_column_format(self, sheet_index: int, column_headers: List[Any], new_format: Dict[str, str]) -> bool:
+    def change_column_format(self, sheet_index: int, column_headers: List[ColumnHeader], new_format: Dict[str, Any]) -> bool:
 
         column_ids = []
         for column_header in column_headers: 
@@ -680,7 +681,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def set_cell_value(self, sheet_index: int, column_header: Any, row_index: int, new_value: Any) -> bool:
+    def set_cell_value(self, sheet_index: int, column_header: ColumnHeader, row_index: int, new_value: Any) -> bool:
         column_id = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
             sheet_index,
             column_header
@@ -729,7 +730,7 @@ class MitoWidgetTestWrapper:
         )
 
 
-    def get_formula(self, sheet_index: int, column_header: Any) -> str:
+    def get_formula(self, sheet_index: int, column_header: ColumnHeader) -> str:
         """
         Gets the formula for a given column. Returns an empty
         string if nothing exists.
@@ -741,7 +742,7 @@ class MitoWidgetTestWrapper:
             return ''
         return self.mito_widget.steps_manager.curr_step.column_spreadsheet_code[sheet_index][column_id]
 
-    def get_python_formula(self, sheet_index: int, column_header: Any) -> str:
+    def get_python_formula(self, sheet_index: int, column_header: ColumnHeader) -> str:
         """
         Gets the formula for a given column. Returns an empty
         string if nothing exists.
@@ -753,7 +754,7 @@ class MitoWidgetTestWrapper:
             return ''
         return self.mito_widget.steps_manager.curr_step.column_python_code[sheet_index][column_id]
 
-    def get_value(self, sheet_index: int, column_header: Any, row: int) -> Any:
+    def get_value(self, sheet_index: int, column_header: ColumnHeader, row: int) -> Any:
         """
         Returns a value in a given dataframe at the given
         index in a column. NOTE: the row is 1 indexed!
@@ -762,7 +763,7 @@ class MitoWidgetTestWrapper:
         """
         return self.mito_widget.steps_manager.curr_step.dfs[sheet_index].at[row - 1, column_header]
 
-    def get_column(self, sheet_index: int, column_header: Any, as_list: bool) -> Union[pd.Series, List]:
+    def get_column(self, sheet_index: int, column_header: ColumnHeader, as_list: bool) -> Union[pd.Series, List]:
         """
         Returns a series object of the given column, or a list if
         as_list is True. 
@@ -799,7 +800,7 @@ def create_mito_wrapper_dfs(*args: pd.DataFrame) -> MitoWidgetTestWrapper:
     mito_widget = sheet(*args)
     return MitoWidgetTestWrapper(mito_widget)
 
-def make_multi_index_header_df(data: Dict[Union[str, int], List[Any]], column_headers: List[Any], index: List[Any]=None) -> pd.DataFrame:
+def make_multi_index_header_df(data: Dict[Union[str, int], List[Any]], column_headers: List[ColumnHeader], index: List[Any]=None) -> pd.DataFrame:
     """
     A helper function that allows you to easily create a multi-index
     header dataframe. 
@@ -819,14 +820,13 @@ def make_multi_index_header_df(data: Dict[Union[str, int], List[Any]], column_he
         if isinstance(column_header, tuple):
             max_length = max(max_length, len(column_header))
     
-    final_column_headers = []
+    final_column_headers: List[ColumnHeader] = []
     for column_header in column_headers:
-        if isinstance(column_header, tuple):
+        if isinstance(column_header, tuple) or isinstance(column_header, list):
             final_column_headers.append(column_header)
         else:
-            final_column_header = ['' for _ in range(max_length - 1)]
-            final_column_header.insert(0, column_header)
-            final_column_headers.append(tuple(final_column_header))
+            final_column_header: MultiLevelColumnHeader = [column_header] + ['' for _ in range(max_length - 1)]
+            final_column_headers.append(final_column_header)
 
     df.columns = pd.MultiIndex.from_tuples(final_column_headers)
     if index is not None:

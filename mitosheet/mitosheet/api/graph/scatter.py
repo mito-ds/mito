@@ -1,5 +1,6 @@
 from typing import Any, List
 import pandas as pd
+from mitosheet.types import ColumnHeader
 import plotly.graph_objects as go
 from mitosheet.mito_analytics import log
 from mitosheet.sheet_functions.types.utils import get_mito_type
@@ -7,7 +8,7 @@ from mitosheet.api.graph.graph_utils import BAR, CREATE_FIG_CODE, SCATTER, SHOW_
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
 
 
-def get_scatter_plot(df: pd.DataFrame, x_axis_column_headers: List[Any], y_axis_column_headers: List[Any]) -> go.Figure:
+def get_scatter_plot(df: pd.DataFrame, x_axis_column_headers: List[ColumnHeader], y_axis_column_headers: List[ColumnHeader]) -> go.Figure:
     """
     Returns a scatter plot using the following heuristic:
 
@@ -97,8 +98,8 @@ def get_scatter_plot(df: pd.DataFrame, x_axis_column_headers: List[Any], y_axis_
 
 def get_scatter_code(
         df: pd.DataFrame, 
-        x_axis_column_headers: List[str], 
-        y_axis_column_headers: List[str],
+        x_axis_column_headers: List[ColumnHeader], 
+        y_axis_column_headers: List[ColumnHeader],
         df_name: str
     ) -> str:
     """

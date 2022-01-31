@@ -14,9 +14,10 @@ from copy import deepcopy
 from typing import Dict, Collection, List, Set
 
 from mitosheet.errors import MitoError, make_circular_reference_error
+from mitosheet.types import ColumnID
 
 
-def visit(column_evaluation_graph: Dict[str, Set[str]], node: str, visited: Dict[str, bool], finished_order: List[str], visited_loop: Set[str]) -> None:
+def visit(column_evaluation_graph: Dict[ColumnID, Set[ColumnID]], node: ColumnID, visited: Dict[ColumnID, bool], finished_order: List[ColumnID], visited_loop: Set[ColumnID]) -> None:
     """
     Recursive helper function for topological sort. Throws a
     circular_reference_error if there is a loop.
@@ -40,13 +41,13 @@ def visit(column_evaluation_graph: Dict[str, Set[str]], node: str, visited: Dict
     finished_order.append(node)
 
 
-def topological_sort_columns(column_evaluation_graph: Dict[str, Set[str]]) -> List[str]:
+def topological_sort_columns(column_evaluation_graph: Dict[ColumnID, Set[ColumnID]]) -> List[ColumnID]:
     """
     Topologically sorts by DFSing the graph, recording the finish order, and
     then returning nodes in reversed finish order.
     """
     visited = {node: False for node in column_evaluation_graph}
-    finish_order: List[str] = []
+    finish_order: List[ColumnID] = []
     # Visit each node in the graph
     for node in column_evaluation_graph:
         if not visited[node]:
@@ -65,7 +66,7 @@ def topological_sort_columns(column_evaluation_graph: Dict[str, Set[str]]) -> Li
     finish_order.reverse()
     return finish_order
 
-def subgraph_from_starting_column_id(column_evaluation_graph: Dict[str, Set[str]], starting_column_id: str) -> Dict[str, Set[str]]:
+def subgraph_from_starting_column_id(column_evaluation_graph: Dict[ColumnID, Set[ColumnID]], starting_column_id: ColumnID) -> Dict[ColumnID, Set[ColumnID]]:
     """
     Filters down the column_evaluation_graph to just the nodes that can be reached
     from the starting_point, including the starting_point itself.
@@ -85,10 +86,10 @@ def subgraph_from_starting_column_id(column_evaluation_graph: Dict[str, Set[str]
 
 
 def creates_circularity(
-        column_evaluation_graph: Dict[str, Set[str]],
-        column_id: str,
-        old_dependencies: Collection[str],
-        new_dependencies: Collection[str]
+        column_evaluation_graph: Dict[ColumnID, Set[ColumnID]],
+        column_id: ColumnID,
+        old_dependencies: Collection[ColumnID],
+        new_dependencies: Collection[ColumnID]
     ) -> bool:
     """
     Given a column_evaluation_graph, checks if removing the
