@@ -9,7 +9,7 @@ description: How to get a Mito sheet rendering on your own JupyterLab
 1. Check that you have **Python 3.6** **or above** by opening a terminal and running `python --version.`
 
 {% hint style="info" %}
-By installing Mito, you are agreeing to Mito's [Terms of Service](../../misc./terms-of-service.md) and [Privacy Policy](../../misc./privacy-policy.md). Please review both before installing.
+By installing Mito, you are agreeing to Mito's [Terms of Service](../../misc/terms-of-service.md) and [Privacy Policy](../../misc/privacy-policy.md). Please review both before installing.
 {% endhint %}
 
 ## Installing Mito
