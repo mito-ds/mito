@@ -36,6 +36,7 @@ class MitoError(Exception):
         self.header = header
         self.to_fix = to_fix
         self.error_modal = error_modal
+        self.traceback = get_recent_traceback() # record the most recent error when the error is created
 
 def make_no_sheet_error(sheet_indexes: Set[int]) -> MitoError:
     """

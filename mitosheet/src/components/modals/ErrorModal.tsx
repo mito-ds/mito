@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import React, {Fragment} from 'react';
+import React, {Fragment, useState} from 'react';
 import DefaultModal from '../DefaultModal'; 
 import { ModalEnum } from './modals';
 import TextButton from '../elements/TextButton';
@@ -17,6 +17,7 @@ const ErrorModal = (
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
         mitoAPI: MitoAPI
     }): JSX.Element => {
+    const [viewTraceback, setViewTraceback] = useState(false);
 
     if (props.error === undefined) {
         return (<></>)
@@ -28,9 +29,23 @@ const ErrorModal = (
             modalType={ModalEnum.Error}
             viewComponent={
                 <Fragment>
-                    <div>
-                        {props.error.to_fix} 
-                    </div>
+                    {props.error.to_fix &&
+                        <div className='text-align-left text-body-1' onClick={() => setViewTraceback((viewTraceback) => !viewTraceback)}>
+                            {props.error.to_fix} 
+                            {props.error.traceback && 
+                                <div className='text-body-1-link'>
+                                    Toggle view traceback.
+                                </div>
+                            }
+                        </div>
+                    }
+                    {props.error.traceback && viewTraceback &&
+                        <div className='flex flex-column text-align-left text-overflow-hidden text-overflow-scroll mt-5px' style={{height: '200px', border: '1px solid var(--mito-purple)'}}>
+                            {props.error.traceback.split('\n').map(p => {
+                                return <p>{p}</p>
+                            })} 
+                        </div>
+                    }
                 </Fragment>
             }
             buttons={
