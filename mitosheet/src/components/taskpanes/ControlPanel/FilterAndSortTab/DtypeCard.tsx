@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import MitoAPI from '../../../../api';
 import { StepType } from '../../../../types';
 import DropdownItem from '../../../elements/DropdownItem';
@@ -14,6 +14,7 @@ type DtypeCardProps = {
     selectedSheetIndex: number;
     columnID: string;
     columnFormula: string;
+    columnDtype: string;
     mitoAPI: MitoAPI;
     // NOTE: we added the lastStepIndex as a props so that we know when
     // to refresh the dtype of the column in the case of an undo. We also
@@ -61,23 +62,12 @@ export function getDtypeValue(dtype: string | undefined): ColumnDtypes {
 }
 
 /*
-    A card that allows a user to change
-    the dtype of a column, if it is not
-    a formula column. 
-
-    Otherwise, if it is a formula column,
-    just displays the dtype.
+    A card that allows a user to change the dtype of a column if it
+    is a data column. If it is a formula column, just displays the 
+    dtype.
 */
 function DtypeCard(props: DtypeCardProps): JSX.Element {
     const [stepID, setStepID] = useState<string | undefined>(undefined);
-    const [columnDtype, setColumnDtype] = useState<string | undefined>(undefined);
-
-    async function loadColumnDtype() {
-        const loadedColumnDtype = await props.mitoAPI.getColumnDtype(
-            props.selectedSheetIndex, props.columnID
-        );
-        setColumnDtype(loadedColumnDtype);
-    }
 
     async function changeColumnDtype(newDtype: string) {
         const newStepID = await props.mitoAPI.changeColumnDtype(
@@ -87,13 +77,7 @@ function DtypeCard(props: DtypeCardProps): JSX.Element {
             stepID
         )
         setStepID(newStepID);
-        await loadColumnDtype();
     }
-
-    useEffect(() => {
-        // If the formula has changed, or an undo has happened, then we refresh
-        void loadColumnDtype();
-    }, [props.columnFormula, props.lastStepIndex])
 
     return (  
         <> 
@@ -105,9 +89,9 @@ function DtypeCard(props: DtypeCardProps): JSX.Element {
                     </p>
                 </Col>
                 <Col offset={2} flex='1'>
-                    {columnDtype !== undefined && props.columnFormula === '' &&
+                    {props.columnFormula === '' &&
                         <Select
-                            value={getDtypeValue(columnDtype)}
+                            value={getDtypeValue(props.columnDtype)}
                             onChange={(newDtype: string) => {
                                 void changeColumnDtype(newDtype);
                             }}
@@ -133,9 +117,9 @@ function DtypeCard(props: DtypeCardProps): JSX.Element {
                             />
                         </Select>
                     }
-                    {columnDtype !== undefined && props.columnFormula !== '' &&
+                    {props.columnFormula !== '' &&
                         <p className='text-header-3 text-align-right'>
-                            {getDtypeValue(columnDtype)}
+                            {getDtypeValue(props.columnDtype)}
                         </p>
                     }
                 </Col>
