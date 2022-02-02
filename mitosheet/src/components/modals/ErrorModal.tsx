@@ -6,6 +6,7 @@ import { ModalEnum } from './modals';
 import TextButton from '../elements/TextButton';
 import MitoAPI from '../../api';
 import { MitoError, UIState } from '../../types';
+import { DISCORD_INVITE_LINK } from '../../data/documentationLinks';
 
 /*
     A modal that displays error messages and gives
@@ -50,7 +51,7 @@ const ErrorModal = (
                     <TextButton
                         variant='dark'
                         width='medium'
-                        href='https://discord.gg/XdJSZyejJU'
+                        href={DISCORD_INVITE_LINK}
                         target='_blank'
                         onClick={() => {
                             props.setUIState((prevUIState) => {
