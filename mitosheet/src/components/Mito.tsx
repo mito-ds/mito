@@ -55,6 +55,7 @@ import DropDuplicatesTaskpane from './taskpanes/DropDuplicates/DropDuplicates';
 import { createActions } from '../utils/actions';
 import SearchTaskpane from './taskpanes/Search/SearchTaskpane';
 import loadPlotly from '../utils/plotly';
+import ErrorBoundary from './elements/ErrorBoundary';
 
 export type MitoProps = {
     model_id: string;
@@ -547,65 +548,67 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     return (
         <div className="mito-container" data-jp-suppress-context-menu ref={mitoContainerRef}>
-            <Toolbar 
-                mitoAPI={props.mitoAPI}
-                currStepIdx={analysisData.currStepIdx}
-                lastStepIndex={lastStepSummary.step_idx}
-                highlightPivotTableButton={highlightPivotTableButton}
-                highlightAddColButton={highlightAddColButton}
-                actions={actions}
-                mitoContainerRef={mitoContainerRef}
-                gridState={gridState}
-                setGridState={setGridState}
-                uiState={uiState}
-                setUIState={setUIState}
-                sheetData={sheetDataArray[uiState.selectedSheetIndex]}
-            />
-            <div className="mito-main-sheet-div"> 
-                <div className={formulaBarAndSheetClassNames}>
-                    <EndoGrid
-                        sheetDataArray={sheetDataArray}
-                        mitoAPI={props.mitoAPI}
-                        uiState={uiState}
-                        setUIState={setUIState}
-                        sheetIndex={uiState.selectedSheetIndex}
-                        gridState={gridState}
-                        setGridState={setGridState}
-                        editorState={editorState}
-                        setEditorState={setEditorState}
-                    />
-                </div>
-                {uiState.currOpenTaskpane.type !== TaskpaneType.NONE && 
-                    <div className={taskpaneClassNames}>
-                        {getCurrOpenTaskpane()}
-                    </div>
-                }
-            </div>
-            {/* Display the tour if there is one */}
-            {getCurrTour()}
-            <Footer
-                sheetDataArray={sheetDataArray}
-                gridState={gridState}
-                setGridState={setGridState}
-                mitoAPI={props.mitoAPI}
-                closeOpenEditingPopups={closeOpenEditingPopups}
-                uiState={uiState}
-                setUIState={setUIState}
-                mitoContainerRef={mitoContainerRef}
-            />
-            {getCurrentModalComponent()}
-            {uiState.loading > 0 && <LoadingIndicator/>}      
-            {/* 
-                If the step index of the last step isn't the current step,
-                then we are out of date, and we tell the user this.
-            */}
-            {analysisData.currStepIdx !== lastStepSummary.step_idx && 
-                <CatchUpPopup
-                    fastForward={() => {
-                        void props.mitoAPI.checkoutStepByIndex(lastStepSummary.step_idx);
-                    }}
+            <ErrorBoundary mitoAPI={props.mitoAPI}>
+                <Toolbar 
+                    mitoAPI={props.mitoAPI}
+                    currStepIdx={analysisData.currStepIdx}
+                    lastStepIndex={lastStepSummary.step_idx}
+                    highlightPivotTableButton={highlightPivotTableButton}
+                    highlightAddColButton={highlightAddColButton}
+                    actions={actions}
+                    mitoContainerRef={mitoContainerRef}
+                    gridState={gridState}
+                    setGridState={setGridState}
+                    uiState={uiState}
+                    setUIState={setUIState}
+                    sheetData={sheetDataArray[uiState.selectedSheetIndex]}
                 />
-            }
+                <div className="mito-main-sheet-div"> 
+                    <div className={formulaBarAndSheetClassNames}>
+                        <EndoGrid
+                            sheetDataArray={sheetDataArray}
+                            mitoAPI={props.mitoAPI}
+                            uiState={uiState}
+                            setUIState={setUIState}
+                            sheetIndex={uiState.selectedSheetIndex}
+                            gridState={gridState}
+                            setGridState={setGridState}
+                            editorState={editorState}
+                            setEditorState={setEditorState}
+                        />
+                    </div>
+                    {uiState.currOpenTaskpane.type !== TaskpaneType.NONE && 
+                        <div className={taskpaneClassNames}>
+                            {getCurrOpenTaskpane()}
+                        </div>
+                    }
+                </div>
+                {/* Display the tour if there is one */}
+                {getCurrTour()}
+                <Footer
+                    sheetDataArray={sheetDataArray}
+                    gridState={gridState}
+                    setGridState={setGridState}
+                    mitoAPI={props.mitoAPI}
+                    closeOpenEditingPopups={closeOpenEditingPopups}
+                    uiState={uiState}
+                    setUIState={setUIState}
+                    mitoContainerRef={mitoContainerRef}
+                />
+                {getCurrentModalComponent()}
+                {uiState.loading > 0 && <LoadingIndicator/>}      
+                {/* 
+                    If the step index of the last step isn't the current step,
+                    then we are out of date, and we tell the user this.
+                */}
+                {analysisData.currStepIdx !== lastStepSummary.step_idx && 
+                    <CatchUpPopup
+                        fastForward={() => {
+                            void props.mitoAPI.checkoutStepByIndex(lastStepSummary.step_idx);
+                        }}
+                    />
+                }
+            </ErrorBoundary>
         </div>
     );
 }
