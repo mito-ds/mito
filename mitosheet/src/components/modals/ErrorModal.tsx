@@ -27,23 +27,22 @@ const ErrorModal = (
         <DefaultModal
             header={props.error.header}
             modalType={ModalEnum.Error}
+            wide
             viewComponent={
                 <Fragment>
                     {props.error.to_fix &&
                         <div className='text-align-left text-body-1' onClick={() => setViewTraceback((viewTraceback) => !viewTraceback)}>
-                            {props.error.to_fix} 
+                            {props.error.to_fix} {' '}
                             {props.error.traceback && 
-                                <div className='text-body-1-link'>
-                                    Toggle view traceback.
-                                </div>
+                                <span className='text-body-1-link'>
+                                    Click to view full traceback.
+                                </span>
                             }
                         </div>
                     }
                     {props.error.traceback && viewTraceback &&
-                        <div className='flex flex-column text-align-left text-overflow-hidden text-overflow-scroll mt-5px' style={{height: '200px', border: '1px solid var(--mito-purple)'}}>
-                            {props.error.traceback.split('\n').map(p => {
-                                return <p>{p}</p>
-                            })} 
+                        <div className='flex flex-column text-align-left text-overflow-hidden text-overflow-scroll mt-5px' style={{height: '200px', border: '1px solid var(--mito-purple)', borderRadius: '2px', padding: '5px'}}>
+                            <pre>{props.error.traceback}</pre>
                         </div>
                     }
                 </Fragment>
