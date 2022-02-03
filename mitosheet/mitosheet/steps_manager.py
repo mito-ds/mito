@@ -81,7 +81,7 @@ def execute_step_list_from_index(step_list: List[Step], start_index: int=None) -
     
     return new_step_list
 
-def get_modified_sheet_indexes(steps: List[Step], starting_step_index: int, ending_step_index: int) -> Set[int]:
+def get_output_sheet_indexes(steps: List[Step], starting_step_index: int, ending_step_index: int) -> Set[int]:
     """
     Returns a best guess for which sheets have been modified starting at
     starting_step_index and ending at (and including) ending_step_index.
@@ -94,31 +94,26 @@ def get_modified_sheet_indexes(steps: List[Step], starting_step_index: int, endi
     # otherwise we just say all of them (undo, replay might interact weird) 
     if starting_step_index == ending_step_index - 1:
         step = steps[ending_step_index]
-        modified_indexes = step.step_performer.get_modified_dataframe_indexes(**step.params)
+        output_indexes = step.step_performer.get_output_dataframe_indexes(**step.params)
 
         # If the set is empty, then we modified everything
-        if len(modified_indexes) == 0:
-            modified_indexes = {j for j in range(len(step.dfs))}
+        if len(output_indexes) == 0:
+            output_indexes = {j for j in range(len(step.dfs))}
         # If -1 is modified, then all new dataframes are modified, which
         # if nothing new was created, means there was a live updated event, 
         # and so we should just take the last element
-        elif -1 in modified_indexes:
-            prev_step = steps[ending_step_index - 1]
-            modified_indexes.remove(-1)
+        elif -1 in output_indexes:
+            output_indexes.remove(-1)
+            newly_created_indexes = step.new_sheet_indexes_this_step
 
-            if len(prev_step.dfs) != len(step.dfs):
-                modified_indexes.update({
-                    j for j in range(
-                        len(prev_step.dfs),
-                        len(step.dfs)
-                    )
-                })
+            if len(newly_created_indexes) != 0:
+                output_indexes.update(newly_created_indexes)
             else:
-                modified_indexes.add(len(step.dfs) - 1)            
+                output_indexes.add(len(step.dfs) - 1)            
     else: 
-        modified_indexes = {i for i in range(len(steps[ending_step_index].dfs))}
+        output_indexes = {i for i in range(len(steps[ending_step_index].dfs))}
     
-    return modified_indexes
+    return output_indexes
 
 
 class StepsManager():
@@ -220,6 +215,17 @@ class StepsManager():
         self.last_step_index_we_wrote_sheet_json_on = 0
 
     @property
+    def curr_unskipped_steps(self) -> List[Step]:
+        """
+        Returns all the current steps that are not currently skipped, or
+        in other words the current valid steps that have actually been run.
+        """
+        
+        step_indexes_to_skip = get_step_indexes_to_skip(self.steps)
+        return [step for step_index, step in enumerate(self.steps) if step_index not in step_indexes_to_skip]
+
+
+    @property
     def curr_step(self) -> Step:
         """
         Returns the current step object as a property of the object,
@@ -245,14 +251,14 @@ class StepsManager():
         for speed reasons. This results in way less data getting 
         passed around
         """
-        modified_sheet_indexes = get_modified_sheet_indexes(
+        output_sheet_indexes = get_output_sheet_indexes(
             self.steps, 
             self.last_step_index_we_wrote_sheet_json_on, 
             self.curr_step_idx
         )
 
         array = dfs_to_array_for_json(
-            modified_sheet_indexes,
+            output_sheet_indexes,
             self.saved_sheet_data,
             self.curr_step.dfs,
             self.curr_step.df_names,

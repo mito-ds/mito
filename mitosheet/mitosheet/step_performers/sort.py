@@ -112,7 +112,17 @@ class SortStepPerformer(StepPerformer):
         return f'Sorted {column_id} in {sort_direction} order'
 
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
+    def get_input_dataframe_indexes( # type: ignore
+        cls, 
+        sheet_index: int,
+        column_id: ColumnID,
+        sort_direction: str,
+        **params
+    ) -> Set[int]:
+        return {sheet_index}
+
+    @classmethod
+    def get_output_dataframe_indexes( # type: ignore
         cls, 
         sheet_index: int,
         column_id: ColumnID,

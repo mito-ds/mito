@@ -126,7 +126,16 @@ class SimpleImportStepPerformer(StepPerformer):
         return f'Imported {", ".join(file_names)}'
     
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
+    def get_input_dataframe_indexes( # type: ignore
+        cls, 
+        file_names: List[str],
+        use_deprecated_id_algorithm: bool=False,
+        **params
+    ) -> Set[int]:
+        return {}
+    
+    @classmethod
+    def get_output_dataframe_indexes( # type: ignore
         cls, 
         file_names: List[str],
         use_deprecated_id_algorithm: bool=False,

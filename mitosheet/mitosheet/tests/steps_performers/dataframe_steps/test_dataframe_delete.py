@@ -24,9 +24,7 @@ def test_can_delete_single_dataframe():
         if isinstance(value, list):
             assert len(value) == 0
 
-    assert mito.transpiled_code == [
-        'del df1'
-    ]
+    assert mito.transpiled_code == []
 
 
 def test_can_delete_then_add_to_other_sheet():
@@ -39,7 +37,6 @@ def test_can_delete_then_add_to_other_sheet():
     assert len(mito.dfs) == 1
 
     assert mito.transpiled_code == [
-        'del df1',
         'df2.insert(1, \'B\', 0)'
     ]
 
@@ -64,6 +61,22 @@ def test_can_delete_middle_of_multiple_dfs():
             assert len(value.column_header_to_column_id) == 2
             assert len(value.column_id_to_column_header) == 2
 
-    assert mito.transpiled_code == [
-        'del df2'
-    ]
+    assert mito.transpiled_code == []
+
+def test_pivot_then_delete():
+    df1 = pd.DataFrame({'A': [123]})
+    mito = create_mito_wrapper_dfs(df1)
+    mito.pivot_sheet(0, ['A'], [], {'A': ['sum']}, flatten_column_headers=True)
+    mito.delete_dataframe(0)
+
+    print(mito.dfs[0])
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [123], 'A sum': [123]}))
+
+def test_merge_then_delete():
+    df1 = pd.DataFrame({'A': [123]})
+    df2 = pd.DataFrame({'A': [123], 'B': [1234]})
+    mito = create_mito_wrapper_dfs(df1, df2)
+    mito.merge_sheets('left', 0, 'A', ['A'], 1, 'A', ['A', 'B'])
+    mito.delete_dataframe(0)
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [123], 'B': [1234]}))

@@ -76,7 +76,7 @@ def get_valid_dataframe_names(existing_df_names: List[str], original_df_names: L
     return final_names
 
 def dfs_to_array_for_json(
-        modified_sheet_indexes: Set[int],
+        output_sheet_indexes: Set[int],
         previous_array: List,
         dfs: List[pd.DataFrame],
         df_names: List[str],
@@ -90,7 +90,7 @@ def dfs_to_array_for_json(
 
     new_array = []
     for sheet_index, df in enumerate(dfs):
-        if sheet_index in modified_sheet_indexes:
+        if sheet_index in output_sheet_indexes:
             new_array.append(
                 df_to_json_dumpsable(
                     df, 

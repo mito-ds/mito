@@ -217,9 +217,22 @@ class PivotStepPerformer(StepPerformer):
             old_df_name = df_names[sheet_index]
             return f'Pivoted {old_df_name} into {new_df_name}'
         return f'Pivoted dataframe {sheet_index}'
-
+        
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
+    def get_input_dataframe_indexes( # type: ignore
+        cls, 
+        sheet_index,
+        pivot_rows_column_ids,
+        pivot_columns_column_ids,
+        values_column_ids_map,
+        destination_sheet_index=None,
+        use_deprecated_id_algorithm: bool=False,
+        **params
+    ) -> Set[int]:
+        return {sheet_index}
+    
+    @classmethod
+    def get_output_dataframe_indexes( # type: ignore
         cls, 
         sheet_index,
         pivot_rows_column_ids,

@@ -112,7 +112,17 @@ class AddColumnStepPerformer(StepPerformer):
         return f'Added column {column_header}' 
 
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
+    def get_input_dataframe_indexes( # type: ignore
+        cls, 
+        sheet_index: int,
+        column_header: str,
+        column_header_index: int,
+        **params
+    ) -> Set[int]:
+        return {sheet_index}
+
+    @classmethod
+    def get_output_dataframe_indexes( # type: ignore
         cls, 
         sheet_index: int,
         column_header: str,

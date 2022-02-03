@@ -9,11 +9,18 @@ Exports the transpile function, which takes the backend widget
 container and generates transpiled Python code.
 """
 
+from typing import TYPE_CHECKING, Any
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
+from mitosheet.transpiler.transpile_utils import get_steps_to_transpile
+
+if TYPE_CHECKING:
+    from mitosheet.steps_manager import StepsManager
+else:
+    StepsManager = Any
 
 IN_PREVIOUS_STEP_COMMENT = '# You\'re viewing a previous step. Click fast forward in the Mitosheet above to see the full analysis.'
 
-def transpile(steps_manager, add_comments=True):
+def transpile(steps_manager: StepsManager, add_comments=True):
     """
     Transpiles the code from the current steps in the steps_manager, 
     displaying up to the checked out step.
@@ -33,13 +40,11 @@ def transpile(steps_manager, add_comments=True):
         if len(preprocess_code) > 0:
             code.extend(preprocess_code)
 
-    from mitosheet.steps_manager import get_step_indexes_to_skip
-    step_indexes_to_skip = get_step_indexes_to_skip(steps_manager.steps)
-
     # We only transpile up to the currently checked out step
-    for step_index, step in enumerate(steps_manager.steps[:steps_manager.curr_step_idx + 1]):
+    steps_to_transpile = get_steps_to_transpile(steps_manager)
+    for step in steps_to_transpile:
         # Skip the initalize step, or any step we should skip
-        if step.step_type == 'initialize' or step_index in step_indexes_to_skip:
+        if step.step_type == 'initialize':
             continue
 
         # The total code for this step

@@ -90,7 +90,16 @@ class DeleteColumnStepPerformer(StepPerformer):
         return f'Deleted column{"s" if len(column_ids) > 1 else ""} {formated_column_ids}'
 
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
+    def get_input_dataframe_indexes( # type: ignore
+        cls, 
+        sheet_index: int,
+        column_ids: List[ColumnID],
+        **params
+    ) -> Set[int]:
+        return {sheet_index}
+    
+    @classmethod
+    def get_output_dataframe_indexes( # type: ignore
         cls, 
         sheet_index: int,
         column_ids: List[ColumnID],

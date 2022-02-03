@@ -121,6 +121,43 @@ class Step:
         """
         return self.post_state if self.post_state is not None else \
             (self.prev_state if self.prev_state is not None else State([]))
+        
+    @property
+    def new_sheet_indexes_this_step(self) -> Set[int]:
+        """
+        Returns the set of sheet indexes for sheets that were created 
+        during this step. This is useful for depedency detection
+        """
+        if self.prev_state is None:
+            return {i for i in range(len(self.post_state.dfs))}
+        
+        if self.post_state is None:
+            return {}
+
+        return {
+            i for i in range(
+                len(self.prev_state.dfs),
+                len(self.post_state.dfs)
+            )
+        }
+    
+    @property
+    def input_sheet_indexes(self) -> Set[int]:
+        """
+        TODO
+        """
+        return self.step_performer.get_input_dataframe_indexes(
+            **self.params
+        )
+
+    @property
+    def output_sheet_indexes(self) -> Set[int]:
+        """
+        TODO
+        """
+        return self.step_performer.get_output_dataframe_indexes(
+            **self.params
+        )
 
     def set_prev_state_and_execute(self, new_prev_state: State) -> None:
         """

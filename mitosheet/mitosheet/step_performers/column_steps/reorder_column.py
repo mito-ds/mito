@@ -120,7 +120,17 @@ class ReorderColumnStepPerformer(StepPerformer):
         return f'Reordered {column_id}'
     
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
+    def get_input_dataframe_indexes( # type: ignore
+        cls, 
+        sheet_index: int,
+        column_id: ColumnID,
+        new_column_index: int,
+        **params
+    ) -> Set[int]:
+        return {sheet_index}
+    
+    @classmethod
+    def get_output_dataframe_indexes( # type: ignore
         cls, 
         sheet_index: int,
         column_id: ColumnID,

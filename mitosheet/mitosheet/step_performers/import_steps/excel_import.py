@@ -125,7 +125,18 @@ class ExcelImportStepPerformer(StepPerformer):
         return f'Imported {file_name}'
 
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
+    def get_input_dataframe_indexes( # type: ignore
+        cls, 
+        file_name: str,
+        sheet_names: List[str],
+        has_headers: bool,
+        use_deprecated_id_algorithm: bool=False,
+        **params
+    ) -> Set[int]:
+        return {}
+
+    @classmethod
+    def get_output_dataframe_indexes( # type: ignore
         cls, 
         file_name: str,
         sheet_names: List[str],

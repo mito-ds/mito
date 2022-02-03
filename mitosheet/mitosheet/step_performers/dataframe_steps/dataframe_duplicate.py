@@ -80,9 +80,17 @@ class DataframeDuplicateStepPerformer(StepPerformer):
             new_df_name = df_names[len(df_names) - 1]
             return f'Duplicated {old_df_name} to {new_df_name}'
         return f'Duplicated a df'
+
+    @classmethod
+    def get_input_dataframe_indexes( # type: ignore
+        cls, 
+        sheet_index: int,
+        **params
+    ) -> Set[int]:
+        return {}
     
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
+    def get_output_dataframe_indexes( # type: ignore
         cls, 
         sheet_index: int,
         **params

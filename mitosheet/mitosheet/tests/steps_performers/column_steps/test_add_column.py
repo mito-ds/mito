@@ -71,10 +71,7 @@ def test_add_column_and_then_delete():
         if isinstance(value, list):
             assert len(value) == 0
 
-    assert mito.transpiled_code == [
-        'df1.insert(1, \'B\', 0)',
-        'del df1'
-    ]
+    assert mito.transpiled_code == []
 
 def test_add_column_in_middle():
     df = pd.DataFrame({'A': [123], 'B': [123]})

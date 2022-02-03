@@ -360,7 +360,18 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
         return f'Changed {column_id} from {old_dtype} to {new_dtype}'
 
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
+    def get_input_dataframe_indexes( # type: ignore
+        cls, 
+        sheet_index: int,
+        column_id: ColumnID,
+        old_dtype: str,
+        new_dtype: str,
+        **params
+    ) -> Set[int]:
+        return {sheet_index}
+    
+    @classmethod
+    def get_output_dataframe_indexes( # type: ignore
         cls, 
         sheet_index: int,
         column_id: ColumnID,

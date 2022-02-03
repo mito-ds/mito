@@ -124,7 +124,14 @@ class BulkOldRenameStepPerformer(StepPerformer):
         return f'Renamed headers for compatibility with previous Mito versions'
 
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
+    def get_output_dataframe_indexes( # type: ignore
+        cls, 
+        **params
+    ) -> Set[int]:
+        return {-1}
+    
+    @classmethod
+    def get_output_dataframe_indexes( # type: ignore
         cls, 
         **params
     ) -> Set[int]:

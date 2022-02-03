@@ -82,7 +82,21 @@ class StepPerformer(ABC, object):
 
     @classmethod
     @abstractmethod
-    def get_modified_dataframe_indexes(cls, **params: Any) -> Set[int]:
+    def get_input_dataframe_indexes(cls, **params: Any) -> Set[int]:
+        """
+        Returns a set of all the sheet indexes that were taken as input
+        during this step, and used
+
+        If it returns an empty set, then this step took no indexes.
+
+        If it returns a set with -1, then took all indexes. This is dumb
+        and we should make it match the get_output_dataframe_indexes...
+        """
+        pass
+
+    @classmethod
+    @abstractmethod
+    def get_output_dataframe_indexes(cls, **params: Any) -> Set[int]:
         """
         Returns a set of all the sheet indexes that were modified
         by this step.

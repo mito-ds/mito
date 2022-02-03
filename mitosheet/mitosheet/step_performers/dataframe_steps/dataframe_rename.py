@@ -87,7 +87,17 @@ class DataframeRenameStepPerformer(StepPerformer):
         return f'Renamed {old_dataframe_name} to {new_dataframe_name}'
 
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
+    def get_input_dataframe_indexes( # type: ignore
+        cls, 
+        sheet_index: int,
+        old_dataframe_name: str,
+        new_dataframe_name: str,
+        **params
+    ) -> Set[int]:
+        return {sheet_index}
+
+    @classmethod
+    def get_output_dataframe_indexes( # type: ignore
         cls, 
         sheet_index: int,
         old_dataframe_name: str,

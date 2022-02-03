@@ -165,7 +165,19 @@ class SetCellValueStepPerformer(StepPerformer):
         return f'Set column {column_id} at index {row_index} to {new_value}'
 
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
+    def get_input_dataframe_indexes( # type: ignore
+        cls, 
+        sheet_index: int,
+        column_id: ColumnID,
+        row_index: int,
+        old_value: str,
+        new_value: Union[str, None],
+        **params
+    ) -> Set[int]:
+        return {sheet_index}
+    
+    @classmethod
+    def get_output_dataframe_indexes( # type: ignore
         cls, 
         sheet_index: int,
         column_id: ColumnID,

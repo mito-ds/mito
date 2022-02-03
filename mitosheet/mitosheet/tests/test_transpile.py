@@ -4,6 +4,7 @@
 # Copyright (c) Mito.
 # Distributed under the terms of the Modified BSD License.
 
+import os
 import pytest
 import pandas as pd
 
@@ -242,3 +243,18 @@ def test_transpile_merge_then_sort():
         'df3 = df1.merge(temp_df, left_on=[\'Name\'], right_on=[\'Name\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
         'df3 = df3.sort_values(by=\'Number\', ascending=True, na_position=\'first\')',
     ]
+
+def test_transpile_removes_delete():
+    df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+    df.to_csv('test.csv', index=False)
+
+    # Create with no dataframes
+    mito = create_mito_wrapper_dfs()
+    # And then import just a test file
+    mito.simple_import(['test.csv'])
+    mito.delete_dataframe(0)
+
+    assert mito.transpiled_code == []
+
+    # Remove the test file
+    os.remove('test.csv')
