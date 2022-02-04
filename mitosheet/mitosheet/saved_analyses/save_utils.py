@@ -12,7 +12,7 @@ in analyses.
 from mitosheet.step import Step
 import os
 import json
-from typing import TYPE_CHECKING, Any, Dict, List
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 from mitosheet._version import __version__
 from mitosheet.mito_analytics import log
 
@@ -32,7 +32,7 @@ MITO_FOLDER = os.path.expanduser("~/.mito")
 SAVED_ANALYSIS_FOLDER = os.path.join(MITO_FOLDER, 'saved_analyses')
 
 
-def read_analysis(analysis_name):
+def read_analysis(analysis_name: str) -> Optional[Dict[str, Any]]:
     """
     Given an analysis_name, reads the saved analysis in
     ~/.mito/{analysis_name}.json and returns a JSON object
@@ -54,7 +54,7 @@ def read_analysis(analysis_name):
         except: 
             return None
 
-def read_and_upgrade_analysis(analysis_name):
+def read_and_upgrade_analysis(analysis_name: str) -> Optional[Dict[str, Any]]:
     """
     Given an analysis_name, reads the saved analysis in
     ~/.mito/{analysis_name}.json, does it's best to upgrade it to the current

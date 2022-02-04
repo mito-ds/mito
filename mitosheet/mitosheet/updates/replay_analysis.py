@@ -8,7 +8,12 @@
 Replays an existing analysis onto the sheet
 """
 
+from typing import TYPE_CHECKING, Any, Dict
 from mitosheet.saved_analyses import read_and_upgrade_analysis
+if TYPE_CHECKING:
+    from mitosheet.steps_manager import StepsManager
+else:
+    StepsManager = Any
 
 
 REPLAY_ANALYSIS_UPDATE_EVENT = 'replay_analysis_update'
@@ -19,11 +24,11 @@ REPLAY_ANALYSIS_UPDATE_PARAMS = [
 ]
 
 def execute_replay_analysis_update(
-        steps_manager,
-        analysis_name,
-        import_summaries,
-        clear_existing_analysis
-    ):
+        steps_manager: StepsManager,
+        analysis_name: str,
+        import_summaries: Dict[str, Any],
+        clear_existing_analysis: bool
+    ) -> None:
     """
     This function reapplies all the steps summarized in the passed step summaries, 
     which come from a saved analysis. 
@@ -46,7 +51,10 @@ def execute_replay_analysis_update(
         steps_manager.analysis_name = analysis_name
 
     # If we're getting an event telling us to update, we read in the steps from the file
-    analysis = read_and_upgrade_analysis(analysis_name)    
+    analysis = read_and_upgrade_analysis(analysis_name)
+    # If there is no analysis with this name, give up
+    if analysis is None:
+        return
 
     # When replaying an analysis with import events, you can also send over
     # new params to the import events to replace them. We replace them in the steps here
@@ -61,7 +69,7 @@ def execute_replay_analysis_update(
     # If the analysis is getting replayed because of replaying a saved analysis through the Mitosheet UI, 
     # then we filter out the set_cell_value steps 
     if not clear_existing_analysis:
-        steps_excluding_set_cell_value_steps = filter(skip_set_cell_value_steps, analysis['steps_data'])
+        steps_excluding_set_cell_value_steps = list(filter(skip_set_cell_value_steps, analysis['steps_data']))
     else: 
         steps_excluding_set_cell_value_steps = analysis['steps_data']
     steps_manager.execute_steps_data(new_steps_data=steps_excluding_set_cell_value_steps)
