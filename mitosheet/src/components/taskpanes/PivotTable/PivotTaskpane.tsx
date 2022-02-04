@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
-import React, { Fragment, useEffect, useRef, useState } from 'react';
-import DefaultTaskpane from '../DefaultTaskpane';
+import React, { useEffect, useRef, useState } from 'react';
+import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import PivotTableKeySelection from './PivotTableKeySelection';
 import PivotTableValueSelection from './PivotTableValueSelection';
 import MitoAPI from '../../../api';
@@ -13,6 +13,8 @@ import { allDfNamesToSelectableDfNameToSheetIndex, valuesArrayToRecord, valuesRe
 import { getDeduplicatedArray } from '../../../utils/arrays';
 import { ColumnIDsMap, SheetData, UIState } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
+import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
+import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 
 
 // NOTE: these aggregation functions need to be supported
@@ -331,125 +333,123 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
     */
     if (props.sheetDataArray.length === 0) {
         return (
-            <DefaultTaskpane
-                header={'Create a Pivot Table'}
-                setUIState={props.setUIState}
-                taskpaneBody = {
-                    <Fragment>
-                        Please import data before pivoting.
-                    </Fragment>
-                }
-            />
+            <DefaultTaskpane>
+                <DefaultTaskpaneHeader
+                    header='Create a Pivot Table'
+                    setUIState={props.setUIState}
+                />
+                 <DefaultTaskpaneBody>
+                    Please import data before pivoting.
+                </DefaultTaskpaneBody>
+            </DefaultTaskpane>
         )
     }
 
     const columnIDsMap = props.columnIDsMapArray[pivotState.selectedSheetIndex];
     
     return (
-        <DefaultTaskpane
-            header = {props.destinationSheetIndex ? 
-                `Edit Pivot Table ${props.dfNames[props.destinationSheetIndex]}` 
-                : `Create Pivot Table ${props.dfNames[props.dfNames.length - 1]}`
-            }
-            setUIState={props.setUIState}
-            taskpaneBody = {
-                <Fragment>
+        <DefaultTaskpane>
+            <DefaultTaskpaneHeader
+                header={props.destinationSheetIndex ? 
+                    `Edit Pivot Table ${props.dfNames[props.destinationSheetIndex]}` 
+                    : `Create Pivot Table ${props.dfNames[props.dfNames.length - 1]}`
+                }
+                setUIState={props.setUIState}
+            />
+            <DefaultTaskpaneBody>
+                <Row justify='space-between' align='center'>
+                    <Col>
+                        <p className='text-header-3'>
+                            Data Source
+                        </p>
+                    </Col>
+                    <Col>
+                        <Select
+                            width='medium'
+                            value={props.dfNames[pivotState.selectedSheetIndex]}
+                            // Safe to cast as dfNames are strings
+                            onChange={(newSheet: string) => setSelectedSheet(newSheet)}
+                        >
+                            {Object.keys(selectableDfNameToSheetIndex).map(dfName => {
+                                return (
+                                    <DropdownItem
+                                        key={dfName}
+                                        title={dfName}
+                                    />
+                                )
+                            })}
+                        </Select>
+                    </Col>
+                </Row>
+                {/* TODO: put this back in when you want to not flatten column header*/}
+                {false &&
                     <Row justify='space-between' align='center'>
                         <Col>
                             <p className='text-header-3'>
-                                Data Source
+                                Flatten Column Headers
                             </p>
                         </Col>
                         <Col>
                             <Select
                                 width='medium'
-                                value={props.dfNames[pivotState.selectedSheetIndex]}
+                                value={pivotState.flattenColumnHeaders ? 'Yes' : 'No'}
                                 // Safe to cast as dfNames are strings
-                                onChange={(newSheet: string) => setSelectedSheet(newSheet)}
+                                onChange={(newFlatten: string) => {
+                                    setPivotState(pivotState => {
+                                        return {
+                                            ...pivotState,
+                                            flattenColumnHeaders: newFlatten === 'Yes'
+                                        }
+                                    })
+                                }}
                             >
-                                {Object.keys(selectableDfNameToSheetIndex).map(dfName => {
-                                    return (
-                                        <DropdownItem
-                                            key={dfName}
-                                            title={dfName}
-                                        />
-                                    )
-                                })}
+                                <DropdownItem
+                                    title={'No'}
+                                />
+                                <DropdownItem
+                                    title={'Yes'}
+                                />
                             </Select>
                         </Col>
                     </Row>
-                    {/* TODO: put this back in when you want to not flatten column header*/}
-                    {false &&
-                        <Row justify='space-between' align='center'>
-                            <Col>
-                                <p className='text-header-3'>
-                                    Flatten Column Headers
-                                </p>
-                            </Col>
-                            <Col>
-                                <Select
-                                    width='medium'
-                                    value={pivotState.flattenColumnHeaders ? 'Yes' : 'No'}
-                                    // Safe to cast as dfNames are strings
-                                    onChange={(newFlatten: string) => {
-                                        setPivotState(pivotState => {
-                                            return {
-                                                ...pivotState,
-                                                flattenColumnHeaders: newFlatten === 'Yes'
-                                            }
-                                        })
-                                    }}
-                                >
-                                    <DropdownItem
-                                        title={'No'}
-                                    />
-                                    <DropdownItem
-                                        title={'Yes'}
-                                    />
-                                </Select>
-                            </Col>
-                        </Row>
-
-
-                    }
-                    
-                    <div className = 'default-taskpane-body-section-div'>
-                        <PivotTableKeySelection
-                            sectionTitle='Rows'
-                            columnIDsMap={columnIDsMap}
-                            selectedColumnIDs={pivotState.pivotRowColumnIDs}
-                            addKey={(columnID) => {addKey('row', columnID)}}
-                            removeKey={(keyIndex) => {removeKey('row', keyIndex)}}
-                            editKey={(keyIndex, newColumnID) => {editKey('row', keyIndex, newColumnID)}}
-                            mitoAPI={props.mitoAPI}
-                            rowOrColumn='row'
-                        />
-                    </div>
-                    <div className = 'default-taskpane-body-section-div'>
-                        <PivotTableKeySelection
-                            sectionTitle='Columns'
-                            columnIDsMap={columnIDsMap}
-                            selectedColumnIDs={pivotState.pivotColumnsColumnIDs}
-                            addKey={(columnID) => {addKey('column', columnID)}}
-                            removeKey={(keyIndex) => {removeKey('column', keyIndex)}}
-                            editKey={(keyIndex, newColumnID) => {editKey('column', keyIndex, newColumnID)}}
-                            mitoAPI={props.mitoAPI}
-                            rowOrColumn='column'
-                        />
-                    </div>
-                    <div className='default-taskpane-body-section-div'>
-                        <PivotTableValueSelection
-                            columnIDsMap={columnIDsMap}
-                            pivotValuesColumnIDsArray={pivotState.pivotValuesColumnIDsArray}
-                            addPivotValueAggregation={addPivotValueAggregation}
-                            removePivotValueAggregation={removePivotValueAggregation}
-                            editPivotValueAggregation={editPivotValueAggregation}
-                            mitoAPI={props.mitoAPI}
-                        />
-                    </div>
-                </Fragment>
-            }
-        />
+                }
+                
+                <div className = 'default-taskpane-body-section-div'>
+                    <PivotTableKeySelection
+                        sectionTitle='Rows'
+                        columnIDsMap={columnIDsMap}
+                        selectedColumnIDs={pivotState.pivotRowColumnIDs}
+                        addKey={(columnID) => {addKey('row', columnID)}}
+                        removeKey={(keyIndex) => {removeKey('row', keyIndex)}}
+                        editKey={(keyIndex, newColumnID) => {editKey('row', keyIndex, newColumnID)}}
+                        mitoAPI={props.mitoAPI}
+                        rowOrColumn='row'
+                    />
+                </div>
+                <div className = 'default-taskpane-body-section-div'>
+                    <PivotTableKeySelection
+                        sectionTitle='Columns'
+                        columnIDsMap={columnIDsMap}
+                        selectedColumnIDs={pivotState.pivotColumnsColumnIDs}
+                        addKey={(columnID) => {addKey('column', columnID)}}
+                        removeKey={(keyIndex) => {removeKey('column', keyIndex)}}
+                        editKey={(keyIndex, newColumnID) => {editKey('column', keyIndex, newColumnID)}}
+                        mitoAPI={props.mitoAPI}
+                        rowOrColumn='column'
+                    />
+                </div>
+                <div className='default-taskpane-body-section-div'>
+                    <PivotTableValueSelection
+                        columnIDsMap={columnIDsMap}
+                        pivotValuesColumnIDsArray={pivotState.pivotValuesColumnIDsArray}
+                        addPivotValueAggregation={addPivotValueAggregation}
+                        removePivotValueAggregation={removePivotValueAggregation}
+                        editPivotValueAggregation={editPivotValueAggregation}
+                        mitoAPI={props.mitoAPI}
+                    />
+                </div>
+            </DefaultTaskpaneBody>
+        </DefaultTaskpane> 
     ); 
 }
 

@@ -2,7 +2,7 @@
 // Distributed under the terms of the Modified BSD License.
 
 import React, { useState } from 'react';
-import DefaultTaskpane from '../DefaultTaskpane';
+import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import MitoAPI from '../../../api';
 import { ColumnHeader, SheetData, UIState } from '../../../types';
 import Row from '../../spacing/Row';
@@ -14,6 +14,8 @@ import MultiToggleItem from '../../elements/MultiToggleItem';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import LoadingDots from '../../elements/LoadingDots';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
+import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
+import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 
 
 // Millisecond delay between changing params, so that
@@ -54,15 +56,19 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
     const columnIDsAndHeaders: [string, ColumnHeader][] = props.sheetDataArray[dropDuplicateParams.sheetIndex].data.map(c => [c.columnID, c.columnHeader]);
     
     if (props.sheetDataArray.length === 0) {
-        return (<DefaultTaskpane
-            header='No Data'
-            setUIState={props.setUIState}   
-            taskpaneBody={
-                <p className='text-body-1 text-overflow-wrap'>
-                    Import data before dropping duplicates.
-                </p>
-            }     
-        />)
+        return (
+            <DefaultTaskpane>
+                <DefaultTaskpaneHeader
+                    header='No Data'
+                    setUIState={props.setUIState}   
+                />
+                <DefaultTaskpaneBody>
+                    <p className='text-body-1 text-overflow-wrap'>
+                        Import data before dropping duplicates.
+                    </p>
+                </DefaultTaskpaneBody>
+            </DefaultTaskpane>
+        )
     }
 
     const sendDropDuplicates = async (params: DropDuplicatesParams) => {
@@ -85,167 +91,166 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
     }, [dropDuplicateParams], SEND_MESSAGE_DELAY);
 
     return (
-        <DefaultTaskpane
-            header='Drop Duplicates'
-            setUIState={props.setUIState}   
-            taskpaneBody={
-                <>
-                    
-                    <Row justify='space-between' align='center'>
-                        <Col>
-                            <p className='text-header-3'>
-                                Sheet to Deduplicate
-                            </p>
-                        </Col>
-                        <Col>
-                            <Select
-                                width='medium'
-                                value={props.sheetDataArray[dropDuplicateParams.sheetIndex].dfName}
-                                onChange={(newDfName: string) => {
-                                    const newSheetIndex = props.dfNames.indexOf(newDfName);
+        <DefaultTaskpane>
+            <DefaultTaskpaneHeader
+                header='Drop Duplicates'
+                setUIState={props.setUIState}   
+            />
+            <DefaultTaskpaneBody>
+                <Row justify='space-between' align='center'>
+                    <Col>
+                        <p className='text-header-3'>
+                            Sheet to Deduplicate
+                        </p>
+                    </Col>
+                    <Col>
+                        <Select
+                            width='medium'
+                            value={props.sheetDataArray[dropDuplicateParams.sheetIndex].dfName}
+                            onChange={(newDfName: string) => {
+                                const newSheetIndex = props.dfNames.indexOf(newDfName);
 
-                                    setDropDuplicateParams(dropDuplicateParams => {
-                                        return {
-                                            ...dropDuplicateParams,
-                                            sheetIndex: newSheetIndex,
-                                            columnIDs: props.sheetDataArray[newSheetIndex].data.map(c => c.columnID),
-                                        }
-                                    })
-
-                                    setOriginalNumRows(props.sheetDataArray[newSheetIndex].numRows);
-
-                                    props.setUIState(prevUIState => {
-                                        return {
-                                            ...prevUIState,
-                                            selectedSheetIndex: newSheetIndex
-                                        }
-                                    });
-                                }}
-                            >
-                                {props.dfNames.map(dfName => {
-                                    return (
-                                        <DropdownItem
-                                            key={dfName}
-                                            title={dfName}
-                                        />
-                                    )
-                                })}
-                            </Select>
-                        </Col>
-                    </Row>
-                    <Row justify='space-between' align='center'>
-                        <Col>
-                            <p className='text-header-3'>
-                                Duplicates to Keep
-                            </p>
-                        </Col>
-                        <Col>
-                            <Select
-                                width='medium'
-                                value={dropDuplicateParams.keep + ''}
-                                onChange={(newKeep: string | boolean) => {
-                                    if (newKeep === 'false') {
-                                        newKeep = false;
-                                    }
-
-                                    setDropDuplicateParams(dropDuplicateParams => {
-                                        return {
-                                            ...dropDuplicateParams,
-                                            keep: newKeep as 'first' | 'last' | false
-                                        }
-                                    })
-                                }}
-                            >
-                                <DropdownItem
-                                    title={'first'}
-                                    subtext='Keep the first instance of the duplicated row.'
-                                />
-                                <DropdownItem
-                                    title={'last'}
-                                    subtext='Keep the last instance of the duplicated row.'
-                                />
-                                <DropdownItem
-                                    id='false'
-                                    title={'none'}
-                                    subtext='Keep none of the duplicated rows.'
-                                />
-                            </Select>
-                        </Col>
-                    </Row>
-                    <p className='text-header-3 mt-10px'>
-                        Columns to Deduplicate On
-                    </p>
-                    <MultiToggleBox
-                        searchable
-                        toggleAllIndexes={(indexesToToggle, newToggle) => {
-                            const columnIDsToToggle = indexesToToggle.map(index => columnIDsAndHeaders[index][0]);
-                            setDropDuplicateParams(oldDropDuplicateParams => {
-                                const newSelectedColumnIDs = [...oldDropDuplicateParams.columnIDs];
-                                columnIDsToToggle.forEach(columnID => {
-                                    if (newToggle) {
-                                        if (!newSelectedColumnIDs.includes(columnID)) {
-                                            newSelectedColumnIDs.push(columnID);
-                                        }
-                                    } else {
-                                        if (newSelectedColumnIDs.includes(columnID)) {
-                                            newSelectedColumnIDs.splice(newSelectedColumnIDs.indexOf(columnID), 1);
-                                        }
+                                setDropDuplicateParams(dropDuplicateParams => {
+                                    return {
+                                        ...dropDuplicateParams,
+                                        sheetIndex: newSheetIndex,
+                                        columnIDs: props.sheetDataArray[newSheetIndex].data.map(c => c.columnID),
                                     }
                                 })
 
-                                return {
-                                    ...oldDropDuplicateParams,
-                                    columnIDs: newSelectedColumnIDs
+                                setOriginalNumRows(props.sheetDataArray[newSheetIndex].numRows);
+
+                                props.setUIState(prevUIState => {
+                                    return {
+                                        ...prevUIState,
+                                        selectedSheetIndex: newSheetIndex
+                                    }
+                                });
+                            }}
+                        >
+                            {props.dfNames.map(dfName => {
+                                return (
+                                    <DropdownItem
+                                        key={dfName}
+                                        title={dfName}
+                                    />
+                                )
+                            })}
+                        </Select>
+                    </Col>
+                </Row>
+                <Row justify='space-between' align='center'>
+                    <Col>
+                        <p className='text-header-3'>
+                            Duplicates to Keep
+                        </p>
+                    </Col>
+                    <Col>
+                        <Select
+                            width='medium'
+                            value={dropDuplicateParams.keep + ''}
+                            onChange={(newKeep: string | boolean) => {
+                                if (newKeep === 'false') {
+                                    newKeep = false;
+                                }
+
+                                setDropDuplicateParams(dropDuplicateParams => {
+                                    return {
+                                        ...dropDuplicateParams,
+                                        keep: newKeep as 'first' | 'last' | false
+                                    }
+                                })
+                            }}
+                        >
+                            <DropdownItem
+                                title={'first'}
+                                subtext='Keep the first instance of the duplicated row.'
+                            />
+                            <DropdownItem
+                                title={'last'}
+                                subtext='Keep the last instance of the duplicated row.'
+                            />
+                            <DropdownItem
+                                id='false'
+                                title={'none'}
+                                subtext='Keep none of the duplicated rows.'
+                            />
+                        </Select>
+                    </Col>
+                </Row>
+                <p className='text-header-3 mt-10px'>
+                    Columns to Deduplicate On
+                </p>
+                <MultiToggleBox
+                    searchable
+                    toggleAllIndexes={(indexesToToggle, newToggle) => {
+                        const columnIDsToToggle = indexesToToggle.map(index => columnIDsAndHeaders[index][0]);
+                        setDropDuplicateParams(oldDropDuplicateParams => {
+                            const newSelectedColumnIDs = [...oldDropDuplicateParams.columnIDs];
+                            columnIDsToToggle.forEach(columnID => {
+                                if (newToggle) {
+                                    if (!newSelectedColumnIDs.includes(columnID)) {
+                                        newSelectedColumnIDs.push(columnID);
+                                    }
+                                } else {
+                                    if (newSelectedColumnIDs.includes(columnID)) {
+                                        newSelectedColumnIDs.splice(newSelectedColumnIDs.indexOf(columnID), 1);
+                                    }
                                 }
                             })
-                        }}
-                        height='large'
-                    >
-                        {columnIDsAndHeaders.map(([columnID, columnHeader], index) => {
-                            return (
-                                <MultiToggleItem
-                                    key={index}
-                                    title={getDisplayColumnHeader(columnHeader)}
-                                    toggled={dropDuplicateParams.columnIDs.includes(columnID)}
-                                    index={index}
-                                    onToggle={() => {
-                                        setDropDuplicateParams(oldDropDuplicateParams => {
-                                            const newSelectedColumnIDs = [...oldDropDuplicateParams.columnIDs];
 
-                                            if (!newSelectedColumnIDs.includes(columnID)) {
-                                                newSelectedColumnIDs.push(columnID);
-                                            } else {
-                                                newSelectedColumnIDs.splice(newSelectedColumnIDs.indexOf(columnID), 1);
-                                            }
-            
-                                            return {
-                                                ...oldDropDuplicateParams,
-                                                columnIDs: newSelectedColumnIDs
-                                            }
-                                        })
-                                    }}
-                                />
-                            ) 
-                        })}
-                    </MultiToggleBox>
-                    {loading &&
-                        <Row className='mt-5'>
-                            <p className='text-subtext-1'>
-                                Deduplicating {<LoadingDots/>}
-                            </p>
-                        </Row>
-                    }
-                    {stepID !== undefined && !loading &&
-                        <Row className='mt-5'>
-                            <p className='text-subtext-1'>
-                                Removed {originalNumRows - props.sheetDataArray[dropDuplicateParams.sheetIndex].numRows} rows
-                            </p>
-                        </Row>
-                    }
-                   
-                </>
-            }
-        />            
+                            return {
+                                ...oldDropDuplicateParams,
+                                columnIDs: newSelectedColumnIDs
+                            }
+                        })
+                    }}
+                    height='large'
+                >
+                    {columnIDsAndHeaders.map(([columnID, columnHeader], index) => {
+                        return (
+                            <MultiToggleItem
+                                key={index}
+                                title={getDisplayColumnHeader(columnHeader)}
+                                toggled={dropDuplicateParams.columnIDs.includes(columnID)}
+                                index={index}
+                                onToggle={() => {
+                                    setDropDuplicateParams(oldDropDuplicateParams => {
+                                        const newSelectedColumnIDs = [...oldDropDuplicateParams.columnIDs];
+
+                                        if (!newSelectedColumnIDs.includes(columnID)) {
+                                            newSelectedColumnIDs.push(columnID);
+                                        } else {
+                                            newSelectedColumnIDs.splice(newSelectedColumnIDs.indexOf(columnID), 1);
+                                        }
+        
+                                        return {
+                                            ...oldDropDuplicateParams,
+                                            columnIDs: newSelectedColumnIDs
+                                        }
+                                    })
+                                }}
+                            />
+                        ) 
+                    })}
+                </MultiToggleBox>
+                {loading &&
+                    <Row className='mt-5'>
+                        <p className='text-subtext-1'>
+                            Deduplicating {<LoadingDots/>}
+                        </p>
+                    </Row>
+                }
+                {stepID !== undefined && !loading &&
+                    <Row className='mt-5'>
+                        <p className='text-subtext-1'>
+                            Removed {originalNumRows - props.sheetDataArray[dropDuplicateParams.sheetIndex].numRows} rows
+                        </p>
+                    </Row>
+                }
+                
+            </DefaultTaskpaneBody>
+        </DefaultTaskpane>   
     )
 };
 

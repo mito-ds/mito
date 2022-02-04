@@ -2,7 +2,7 @@
 // Distributed under the terms of the Modified BSD License.
 
 import React, { useState } from 'react';
-import DefaultTaskpane from '../DefaultTaskpane';
+import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import MitoAPI from '../../../api';
 
 // Import 
@@ -17,6 +17,8 @@ import '../../../../css/taskpanes/Download/DownloadTaskpane.css'
 import LoadingDots from '../../elements/LoadingDots';
 import ExcelDownloadConfigSection from './ExcelDownloadConfigSection';
 import CSVDownloadConfigSection from './CSVDownloadConfigSection';
+import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
+import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 
 
 interface DownloadTaskpaneProps {
@@ -95,15 +97,19 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
     }
 
     if (emptySheet) {
-        return (<DefaultTaskpane
-            header='Nothing to Download'
-            setUIState={props.setUIState}   
-            taskpaneBody={
-                <p className='text-body-1 text-overflow-wrap'>
-                    Import data before exporting it.
-                </p>
-            }     
-        />)
+        return (
+            <DefaultTaskpane>
+                <DefaultTaskpaneHeader
+                    header='Nothing to Download'
+                    setUIState={props.setUIState}   
+                />
+                <DefaultTaskpaneBody>
+                    <p className='text-body-1 text-overflow-wrap'>
+                        Import data before exporting it.
+                    </p>
+                </DefaultTaskpaneBody>
+            </DefaultTaskpane>
+        )
     }
 
     let exportHRef = '';
@@ -127,10 +133,12 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
     }
 
     return (
-        <DefaultTaskpane
-            header='Download'
-            setUIState={props.setUIState}   
-            taskpaneBody={
+        <DefaultTaskpane>
+            <DefaultTaskpaneHeader
+                header='Download'
+                setUIState={props.setUIState}   
+            />
+            <DefaultTaskpaneBody>
                 <div className='download-taskpane'>
                     <div className='download-taskpane-flex-grow-1'>
                         <Row justify='space-between' align='center'>
@@ -217,8 +225,9 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                         {exportString === '' ? (<>Preparing data for download <LoadingDots /></>) : `Download ${props.uiState.exportConfiguration.exportType === 'csv' ? 'CSV file': 'Excel workbook'}`}
                     </TextButton>
                 </div>
-            }     
-        />            
+            </DefaultTaskpaneBody>
+
+        </DefaultTaskpane>
     )
 };
 
