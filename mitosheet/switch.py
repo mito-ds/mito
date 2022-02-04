@@ -40,7 +40,7 @@ MITOSHEET_PACKAGE_JSON = """{
     "extension": "lib/plugin"
   },
   "name": "mitosheet",
-  "license": "Other/Proprietary License",
+  "license": "AGPL-3.0-only",
   "author": {
     "name": "Mito Sheet",
     "email": "naterush1997@gmail.com"
@@ -146,7 +146,7 @@ MITOSHEET_THREE_PACKAGE_JSON = """{
     "extension": "lib/plugin"
   },
   "name": "mitosheet3",
-  "license": "Other/Proprietary License",
+  "license": "AGPL-3.0-only",
   "author": {
     "name": "Mito Sheet",
     "email": "naterush1997@gmail.com"
