@@ -12,6 +12,7 @@ import XIcon from '../../icons/XIcon';
 import Col from '../../spacing/Col';
 import Row from '../../spacing/Row';
 import { getDtypeValue } from '../ControlPanel/FilterAndSortTab/DtypeCard';
+import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
@@ -283,17 +284,7 @@ class MergeTaskpane extends React.Component<MergeTaskpaneProps, MergeTaskpaneSta
             then display this error message.
         */
         if (this.props.sheetDataArray.length < 2) {
-            return (
-                <DefaultTaskpane>
-                    <DefaultTaskpaneHeader
-                        header='Merge Sheets Together'
-                        setUIState={this.props.setUIState}
-                    />
-                    <DefaultTaskpaneBody>
-                        Make sure you have at least two dataframes in Mito before merging.
-                    </DefaultTaskpaneBody>
-                </DefaultTaskpane>
-            )
+            return <DefaultEmptyTaskpane setUIState={this.props.setUIState} message='You need two dataframes before you can merge them.'/>
         }
 
         /*

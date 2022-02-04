@@ -15,6 +15,7 @@ import { ColumnIDsMap, SheetData, UIState } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
+import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 
 
 // NOTE: these aggregation functions need to be supported
@@ -332,17 +333,7 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
         give an error message indicating so.
     */
     if (props.sheetDataArray.length === 0) {
-        return (
-            <DefaultTaskpane>
-                <DefaultTaskpaneHeader
-                    header='Create a Pivot Table'
-                    setUIState={props.setUIState}
-                />
-                 <DefaultTaskpaneBody>
-                    Please import data before pivoting.
-                </DefaultTaskpaneBody>
-            </DefaultTaskpane>
-        )
+        return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
     }
 
     const columnIDsMap = props.columnIDsMapArray[pivotState.selectedSheetIndex];

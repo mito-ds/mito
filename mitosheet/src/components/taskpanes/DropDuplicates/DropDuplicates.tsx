@@ -16,6 +16,7 @@ import LoadingDots from '../../elements/LoadingDots';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
+import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 
 
 // Millisecond delay between changing params, so that
@@ -54,19 +55,7 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
     })
     
     if (props.sheetDataArray.length === 0) {
-        return (
-            <DefaultTaskpane>
-                <DefaultTaskpaneHeader
-                    header='No Data'
-                    setUIState={props.setUIState}   
-                />
-                <DefaultTaskpaneBody>
-                    <p className='text-body-1 text-overflow-wrap'>
-                        Import data before dropping duplicates.
-                    </p>
-                </DefaultTaskpaneBody>
-            </DefaultTaskpane>
-        )
+        return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
     }
 
     const columnIDsAndHeaders: [string, ColumnHeader][] = props.sheetDataArray[dropDuplicateParams.sheetIndex].data.map(c => [c.columnID, c.columnHeader]);

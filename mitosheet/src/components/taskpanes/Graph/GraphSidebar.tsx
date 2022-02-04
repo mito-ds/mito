@@ -19,9 +19,7 @@ import DropdownItem from '../../elements/DropdownItem';
 // import css
 import '../../../../css/taskpanes/Graph/GraphSidebar.css'
 import '../../../../css/taskpanes/Graph/LoadingSpinner.css'
-import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
-import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
-import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
+import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 
 export enum GraphType {
     SCATTER = 'scatter',
@@ -339,17 +337,7 @@ const GraphSidebar = (props: {
             }
         })
 
-        return (
-            <DefaultTaskpane>
-                <DefaultTaskpaneHeader
-                    header='No Data'
-                    setUIState={props.setUIState}
-                />
-                <DefaultTaskpaneBody>
-                    Import data before graphing it. 
-                </DefaultTaskpaneBody>
-            </DefaultTaskpane>
-        )   
+        return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
     } else {
         return (
             <div className='graph-sidebar-div'>

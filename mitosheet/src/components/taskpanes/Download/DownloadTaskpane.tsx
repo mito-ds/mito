@@ -19,6 +19,7 @@ import ExcelDownloadConfigSection from './ExcelDownloadConfigSection';
 import CSVDownloadConfigSection from './CSVDownloadConfigSection';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
+import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 
 
 interface DownloadTaskpaneProps {
@@ -97,19 +98,7 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
     }
 
     if (emptySheet) {
-        return (
-            <DefaultTaskpane>
-                <DefaultTaskpaneHeader
-                    header='Nothing to Download'
-                    setUIState={props.setUIState}   
-                />
-                <DefaultTaskpaneBody>
-                    <p className='text-body-1 text-overflow-wrap'>
-                        Import data before exporting it.
-                    </p>
-                </DefaultTaskpaneBody>
-            </DefaultTaskpane>
-        )
+        return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
     }
 
     let exportHRef = '';
