@@ -45,15 +45,13 @@ interface DropDuplicatesParams {
 const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
 
     const [stepID, setStepID] = useState<string | undefined>(undefined);
-    const [originalNumRows, setOriginalNumRows] = useState(props.sheetDataArray[props.selectedSheetIndex].numRows);
+    const [originalNumRows, setOriginalNumRows] = useState(props.sheetDataArray[props.selectedSheetIndex]?.numRows || 0);
     const [loading, setLoading] = useState(false);
     const [dropDuplicateParams, setDropDuplicateParams] = useState<DropDuplicatesParams>({
         sheetIndex: props.selectedSheetIndex,
-        columnIDs: props.sheetDataArray[props.selectedSheetIndex].data.map(c => c.columnID),
+        columnIDs: props.sheetDataArray[props.selectedSheetIndex]?.data?.map(c => c.columnID) || [],
         keep: 'first',
     })
-
-    const columnIDsAndHeaders: [string, ColumnHeader][] = props.sheetDataArray[dropDuplicateParams.sheetIndex].data.map(c => [c.columnID, c.columnHeader]);
     
     if (props.sheetDataArray.length === 0) {
         return (
@@ -70,6 +68,9 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
             </DefaultTaskpane>
         )
     }
+
+    const columnIDsAndHeaders: [string, ColumnHeader][] = props.sheetDataArray[dropDuplicateParams.sheetIndex].data.map(c => [c.columnID, c.columnHeader]);
+
 
     const sendDropDuplicates = async (params: DropDuplicatesParams) => {
 

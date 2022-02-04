@@ -78,7 +78,7 @@ class MergeTaskpane extends React.Component<MergeTaskpaneProps, MergeTaskpaneSta
             ? sheetOneIndex + 1
             : (sheetOneIndex - 1 >= 0 ? sheetOneIndex - 1 : sheetOneIndex)
 
-        if (props.sheetDataArray.length === 0) {
+        if (props.sheetDataArray.length < 2) {
             // If there is no data, we just set default values
             this.state = {
                 mergeType: MergeType.LOOKUP,

@@ -529,7 +529,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         )
     }
 
-    const taskpaneOpen = uiState.currOpenTaskpane.type === TaskpaneType.NONE;
+    const taskpaneOpen = uiState.currOpenTaskpane.type !== TaskpaneType.NONE;
     const entireScreenTaskpaneOpen = ENTIRE_SCREEN_TASKPANES.includes(uiState.currOpenTaskpane.type);
     const wideTaskpaneOpen = WIDE_TASKPANES.includes(uiState.currOpenTaskpane.type);
     const narrowTaskpaneOpen = taskpaneOpen && (!entireScreenTaskpaneOpen && !wideTaskpaneOpen);
@@ -546,7 +546,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     })
 
     const taskpaneClassNames = classNames({
-        'mito-default-taskpane': taskpaneOpen,
+        'mito-default-taskpane': !taskpaneOpen,
         'mito-default-entire-screen-taskpane-open': entireScreenTaskpaneOpen,
         'mito-default-wide-taskpane-open': wideTaskpaneOpen,
         'mito-default-narrow-taskpane-open': narrowTaskpaneOpen,
