@@ -69,11 +69,8 @@ export const EDITING_TASKPANES: TaskpaneType[] = [
     TaskpaneType.DOWNLOAD
 ]
 
-/* 
-    Taskpanes that should take up more than normal taskpane width should be added
-    to the WIDE_TASKPANES list so the correct classes get applied to space things
-    properly
-*/
-export const WIDE_TASKPANES: TaskpaneType[] = [
+export const WIDE_TASKPANES: TaskpaneType[] = []   
+
+export const ENTIRE_SCREEN_TASKPANES: TaskpaneType[] = [
     TaskpaneType.GRAPH
-]   
+]
