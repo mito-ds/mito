@@ -81,14 +81,14 @@ if name == 'mitosheet':
         packages        = setuptools.find_packages(exclude=['deployment']),
         author          = 'Mito',
         author_email    = 'naterush1997@gmail.com',
-        license         = package_json["license"],
-        url             = 'https://github.com/mito/mito',
+        license         = "GNU Affero General Public License v3",
+        url             = 'https://github.com/mito-ds/monorepo',
         platforms       = "Linux, Mac OS X, Windows",
         keywords        = ['Jupyter', 'Widgets', 'IPython'],
         classifiers     = [
             'Intended Audience :: Developers',
             'Intended Audience :: Science/Research',
-            'License :: ' + package_json["license"],
+            "License :: OSI Approved :: GNU Affero General Public License v3",
             'Programming Language :: Python',
             'Programming Language :: Python :: 3',
             'Programming Language :: Python :: 3.6',
@@ -186,7 +186,7 @@ elif name == 'mitosheet3':
         author                  = package_json["author"]["name"],
         author_email            = package_json["author"]["email"],
         description             = package_json["description"],
-        license                 = package_json["license"],
+        license                 = "GNU Affero General Public License v3",
         long_description="""
             To learn more about Mito, checkout out our documentation: https://docs.trymito.io/getting-started/installing-mito\n\n
             Before installing Mito \n\n
@@ -236,7 +236,7 @@ elif name == 'mitosheet3':
         platforms               = "Linux, Mac OS X, Windows",
         keywords                = ["Jupyter", "JupyterLab", "JupyterLab3"],
         classifiers             = [
-            "License :: " + package_json["license"],
+            "License :: OSI Approved :: GNU Affero General Public License v3",
             "Programming Language :: Python",
             "Programming Language :: Python :: 3",
             "Programming Language :: Python :: 3.6",

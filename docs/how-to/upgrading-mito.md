@@ -28,4 +28,4 @@ python -m mitoinstaller upgrade
 
 After running the above commands, restart your JupyterLab kernel, and refresh your browser page to load the new version of Mito.&#x20;
 
-To see what is new in the Mitosheet since you last looked, check out the [release notes.](../misc./release-notes.md)
+To see what is new in the Mitosheet since you last looked, check out the [release notes.](../misc/release-notes.md)

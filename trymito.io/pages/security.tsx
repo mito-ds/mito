@@ -112,7 +112,7 @@ const Security: NextPage = () => {
                 <p>
                   Once you have Mito installed, you’re in total control of which version you run. Upgrade when you want to.
                 </p>
-                <a className={pageStyles.link_with_p_tag_margins} href='https://docs.trymito.io/misc./release-notes' rel="noreferrer" target='_blank'>
+                <a className={pageStyles.link_with_p_tag_margins} href='https://docs.trymito.io/misc/release-notes' rel="noreferrer" target='_blank'>
                   See our recent updates → 
                 </a>
               </div>

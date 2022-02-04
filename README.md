@@ -51,3 +51,7 @@ To see the code for the `mitosheet` package, see the `mitosheet` folder.
 ## Trymito.io
 
 To see the code for our website, see the `trymito.io` folder. 
+
+## Docs
+
+Our docs are hosted on Gitbooks [here](https://docs.trymito.io). You can see and edit the docs in the `/docs` folder, PRs greatly appreciated!
