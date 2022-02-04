@@ -3,33 +3,14 @@
 import React, { ReactNode } from 'react';
 import "../../../../css/taskpanes/DefaultTaskpane.css"
 
-export enum TaskpaneSize {
-    ENTIRE = 'entire',
-    WIDE = 'wide',
-    NARROW = 'narrow'
-}
-
 /*
-    DefaultTaskpane is a higher-order component that
-    takes a header and a taskpaneBbody, and displays it as a component.
-
-    The modal has props (TODO)
-    - a header string to be shown at the top of the taskpane
-    - a taskpaneBody, a react fragment which is the center segment of the taskpane
-    - a setTaskpaneOpenOrClosed function to close the taskpane
+    DefaultTaskpane is a higher-order component that usually takes a DefaultTaskpaneHeader
+    and DefaultTaskpaneBody component as it's child.
 */
-const DefaultTaskpane = (
-    props: {
-        children: ReactNode;
-        /* 
-            TODO: add doc strings 
-        */
-        backgroundImage?: string;
-        
-    }): JSX.Element => {
+const DefaultTaskpane = (props: {children: ReactNode;}): JSX.Element => {
 
     return (
-        <div className='default-taskpane-div' style={{backgroundImage: props.backgroundImage}}>
+        <div className='default-taskpane-div'>
             {props.children}
         </div>
     )

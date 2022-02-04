@@ -10,37 +10,38 @@ import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
 
 /*
-    DefaultTaskpane is a higher-order component that
-    takes a header and a taskpaneBbody, and displays it as a component.
-
-    The modal has props
-    - a header string to be shown at the top of the taskpane
-    - a taskpaneBody, a react fragment which is the center segment of the taskpane
-    - a setTaskpaneOpenOrClosed function to close the taskpane
+    A container for the main header of a taskpane, with some helpful props to 
+    make common header actions easy. Usually wrapped in a DefaultTaskpane.
 */
 const DefaultTaskpane = (
     props: {
+        /** 
+            * @param header - The actual content to display in the header
+        */
         header: string | JSX.Element;
-        // If you want the header to not be put inside the row and possibly wrap
-        headerOutsideRow?: boolean; 
+        /** 
+         * @param setUIState - sets the UI state of Mito
+         */
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
-        /* 
-            If you want to add a back button to the title of the taskpane, 
-            you can just provide a callback to be called when this is clicked
+        /** 
+            * @param [headerOutsideRow] - If you want the header to not be put inside the row and possibly wrap
+        */
+        headerOutsideRow?: boolean; 
+        /** 
+            * @param [backCallback] - If you want to add a back button to the title of the taskpane, 
+            * you can just provide a callback to be called when this is clicked
         */
         backCallback?: () => void;
-
-        /* 
-            If you want to run a function when the taskpane
+        /** 
+            * @param [callbackOnClose] -  If you want to run a function when the taskpane
             closes (e.g. for specific logging reasons), use this
         */
         callbackOnClose?: () => void;
-        /* 
-            If you want the taskpane to not be closeable, then
+        /** 
+            * @param [notCloseable] -  If you want the taskpane to not be closeable, then
             set this prop to true
         */
         notCloseable?: boolean;
-        
     }): JSX.Element => {
 
     return (

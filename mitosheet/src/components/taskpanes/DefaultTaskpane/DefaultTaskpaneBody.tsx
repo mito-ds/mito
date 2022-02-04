@@ -4,25 +4,20 @@ import React, { ReactNode } from 'react';
 import "../../../../css/taskpanes/DefaultTaskpane.css"
 import { classNames } from '../../../utils/classNames';
 
-export enum TaskpaneSize {
-    ENTIRE = 'entire',
-    WIDE = 'wide',
-    NARROW = 'narrow'
-}
-
 /*
-    TODO
+    A container for the main content of a taskpane. Usually wrapped in 
+    a DefaultTaskpane.
 */
 const DefaultTaskpaneBody = (
     props: {
+        /** 
+            * @param children - The actual content to display in the body
+        */
         children: ReactNode
-
-        /* 
-            Set this to false if you do not want th default taskpane
-            to be scrollable
+        /** 
+            * @param [noScroll] - Set to true if you don't want the body to be scrollable
         */
         noScroll?: boolean;
-        
     }): JSX.Element => {
 
     return (
