@@ -12,7 +12,6 @@ from queue import Queue
 from threading import Thread
 from typing import Any, Callable, Dict, List, NoReturn, Union
 from mitosheet.api.get_column_describe import get_column_describe
-from mitosheet.api.get_column_dtype import get_column_dtype
 from mitosheet.api.get_datafiles import get_datafiles
 from mitosheet.api.get_dataframe_as_csv import get_dataframe_as_csv
 from mitosheet.api.get_dataframe_as_excel import get_dataframe_as_excel
@@ -118,8 +117,6 @@ def handle_api_event(send: Callable, event: Dict[str, Any], steps_manager: Steps
         result = get_graph(event, steps_manager)
     elif event['type'] == 'get_column_describe':
         result = get_column_describe(event, steps_manager)
-    elif event['type'] == 'get_column_dtype':
-        result = get_column_dtype(event, steps_manager)
     elif event['type'] == 'get_pivot_params':
         result = get_pivot_params(event, steps_manager)
     elif event['type'] == 'get_excel_file_metadata':

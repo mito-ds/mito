@@ -87,6 +87,7 @@ export const getTypeIcon = (mitoType: ColumnMitoType, purpleOrDark?: 'purple' | 
 export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, rowIndex: number, columnIndex: number): {
     columnID: string | undefined,
     columnHeader: ColumnHeader | undefined,
+    columnDtype: string | undefined,
     columnFormula: string | undefined,
     columnMitoType: ColumnMitoType | undefined,
     cellValue: string | number | boolean | undefined,
@@ -96,6 +97,7 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
     const columnHeader = sheetData?.data[columnIndex]?.columnHeader;
     const columnFormula = columnID !== undefined ? sheetData?.columnSpreadsheetCodeMap[columnID] : undefined;
     const columnMitoType = columnID !== undefined ? sheetData?.columnMitoTypeMap[columnID] : undefined;
+    const columnDtype = columnID !== undefined ? sheetData?.data[columnIndex].columnDtype : undefined;
     const columnFilters = columnID !== undefined ? sheetData?.columnFiltersMap[columnID] : undefined;
     const cellValue = columnID !== undefined ? sheetData?.data[columnIndex].columnData[rowIndex] : undefined;
 
@@ -104,6 +106,7 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
         columnHeader: columnHeader,
         columnFormula: columnFormula,
         columnMitoType: columnMitoType,
+        columnDtype: columnDtype,
         columnFilters: columnFilters,
         cellValue: cellValue,
     }
