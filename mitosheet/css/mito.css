@@ -75,15 +75,6 @@
     width: 70%;
 }
 
-.mito-formula-bar-and-mitosheet-div-entire-screen-taskpane-open {
-    width: 0%;
-}
-
-.mito-default-entire-screen-taskpane-open {
-    visibility: visible;
-    width: 100%;
-}
-
 .mito-default-narrow-taskpane-open {
     visibility: visible;
     width: var(--taskpane-width);
