@@ -51,8 +51,6 @@ const Toolbar = (
         void props.mitoAPI.checkoutStepByIndex(props.lastStepIndex);
     }
 
-    throw new Error('I crashed!');
-
     return (
         <div className='toolbar-container'>
             <div className='toolbar-left-half'>
