@@ -36,16 +36,8 @@ def install_step_mitosheet3_check_dependencies():
     if jupyterlab_version.startswith('3'):
         return
 
+    # If the user has no extension, we can upgrade
     if len(extension_names) == 0:
-        return
-    elif len(extension_names) == 1 and extension_names[0] == 'mitosheet':
-        uninstall_pip_packages('mitosheet')
-        log('uninstalled_mitosheet_labextension',
-            {
-                'jupyterlab_version': jupyterlab_version,
-                'extension_names': extension_names
-            }
-        )
         return
     
     else:
