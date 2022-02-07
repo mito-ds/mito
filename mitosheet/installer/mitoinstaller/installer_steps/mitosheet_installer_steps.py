@@ -1,10 +1,20 @@
 from mitoinstaller.commands import (get_jupyterlab_metadata,
                                     install_pip_packages)
 from mitoinstaller.installer_steps.installer_step import InstallerStep
+from mitoinstaller.log_utils import log
 
 
 def install_step_mitosheet_check_dependencies():
     jupyterlab_version, extension_names = get_jupyterlab_metadata()
+
+    # We log if the user is upgrading their mitosheet3 extension
+    if extension_names is not None and ('mitosheet' in extension_names or 'mitosheet3' in extension_names):
+        log('upgrading_mitosheet_labextension',
+            {
+                'jupyterlab_version': jupyterlab_version,
+                'extension_names': extension_names
+            }
+        )
 
     # If no JupyterLab is installed, we can continue with install, as
     # there are no conflict dependencies

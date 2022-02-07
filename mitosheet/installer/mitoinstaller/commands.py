@@ -8,14 +8,14 @@ import sys
 from subprocess import CompletedProcess
 from typing import List, Tuple, Union
 
-from termcolor import colored
+from termcolor import colored # type: ignore
 
 # NOTE: Do not import subprocess here, we only want one
 # function to have it
 from mitoinstaller.user_install import is_running_test
 
 
-def get_output(completed_process: CompletedProcess):
+def get_output(completed_process: CompletedProcess) -> str:
     output = ""
     if completed_process.stdout is not None:
         output += completed_process.stdout
@@ -25,7 +25,7 @@ def get_output(completed_process: CompletedProcess):
     return output
 
 
-def run_command(command_array: List[str], fail_on_nonzero_exit_code=True):
+def run_command(command_array: List[str], fail_on_nonzero_exit_code: bool=True) -> Tuple[str, str]:
     """
     An internal command that should be used to run all commands
     that run on the command line, so that output from failing
@@ -54,7 +54,7 @@ def run_command(command_array: List[str], fail_on_nonzero_exit_code=True):
     stderr = completed_process.stderr if isinstance(completed_process.stderr, str) else ''
     return stdout, stderr
 
-def jupyter_labextension_list():
+def jupyter_labextension_list() -> Tuple[str, str]:
     """
     Returns the stdout, stderr pair for the currently
     installed jupyterlab extensions.
@@ -66,7 +66,7 @@ def jupyter_labextension_list():
     return run_command(sys_call)
 
 
-def uninstall_labextension(extension: str):
+def uninstall_labextension(extension: str) -> None:
     """
     Uninstall a labextension
     """
@@ -75,7 +75,7 @@ def uninstall_labextension(extension: str):
     run_command(sys_call)
 
 
-def uninstall_pip_packages(*packages: List[str]):
+def uninstall_pip_packages(*packages: str) -> None:
     """
     This function uninstalls the given packages in a single pass
     using pip, through the command line.
@@ -89,15 +89,21 @@ def uninstall_pip_packages(*packages: List[str]):
     run_command(sys_call)
 
 
-def install_pip_packages(*packages: List[str]):
+def install_pip_packages(*packages: str, test_pypi: bool=False) -> None:
     """
     This function installs the given packages in a single pass
     using pip, through the command line.
 
     https://stackoverflow.com/questions/12332975/installing-python-module-within-code
+
+    If you want to install from TestPyPu, just set test_pypi to true
     """
 
     sys_call = [sys.executable, "-m", "pip", "install"]
+
+    # Handle TestPyPi
+    if test_pypi:
+        sys_call.extend(['--index-url', 'https://test.pypi.org/simple/', '--extra-index-url', 'https://pypi.org/simple/'])
 
     for package in packages:
         sys_call.append(package)
@@ -105,14 +111,14 @@ def install_pip_packages(*packages: List[str]):
 
     run_command(sys_call)
 
-def upgrade_mito_installer():
+def upgrade_mito_installer() -> None:
     """
     Upgrades the mito installer package itself
     """
     run_command([sys.executable, "-m", "pip", "install", 'mitoinstaller', '--upgrade', '--no-cache-dir'])
 
 
-def check_running_jlab_3_processes(fail_on_nonzero_exit_code=False):
+def check_running_jlab_3_processes(fail_on_nonzero_exit_code: bool=False) -> bool:
     """
     Returns true if there are running JLab 3 processes, 
     returns false if there are not.
@@ -124,7 +130,7 @@ def check_running_jlab_3_processes(fail_on_nonzero_exit_code=False):
     stdout, stderr = run_command(sys_call, fail_on_nonzero_exit_code=fail_on_nonzero_exit_code)
     return len(stdout.strip().splitlines()) > 1
 
-def check_running_jlab_not_3_processes(fail_on_nonzero_exit_code=False):
+def check_running_jlab_not_3_processes(fail_on_nonzero_exit_code: bool=False) -> bool:
     """
     Returns true if there are running JLab processes, 
     returns false if there are not.
@@ -137,7 +143,7 @@ def check_running_jlab_not_3_processes(fail_on_nonzero_exit_code=False):
     return len(stdout.strip().splitlines()) > 1
 
 
-def check_running_jlab_processes(fail_on_nonzero_exit_code=False):
+def check_running_jlab_processes(fail_on_nonzero_exit_code: bool=False) -> bool:
     """
     Returns true if there are running JLab processes from any version
     returns false if there are not.
@@ -163,7 +169,7 @@ def get_extension_names_from_labextension_list_output(stdout: str, stderr: str) 
     (for some reason), so we append them with a newline so we make sure we 
     get all of the extensions correctly!
     """
-    def is_extension_line(line):
+    def is_extension_line(line: str) -> bool:
         # Check that it has a version
         if len(line) == 0:
             return False
@@ -203,7 +209,7 @@ def get_jupyterlab_metadata() -> Tuple[Union[str, None], Union[List[str], None]]
     return __version__, extension_names
 
 
-def exit_after_error(install_or_upgrade, error=None):
+def exit_after_error(install_or_upgrade: str, error: str=None) -> None:
     full_error = '\n\nSorry, looks like we hit a problem during {install_or_upgrade}. '.format(install_or_upgrade=install_or_upgrade) + \
         '\nWe\'re happy to help you fix it ASAP. Just hop on our discord, and and post in the install-help channel. We\'ll get you sorted in a few minutes:\n\n\t https://discord.gg/AAeYm6YV7B\n'
 
