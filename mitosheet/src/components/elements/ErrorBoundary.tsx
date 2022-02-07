@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo, ReactNode } from "react";
+import React, { Component, ReactNode } from "react";
 import MitoAPI from "../../api";
 import { DISCORD_INVITE_LINK } from "../../data/documentationLinks";
 
@@ -21,7 +21,7 @@ class ErrorBoundary extends Component<Props, State> {
         return { hasError: true };
     }
 
-    public componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+    public componentDidCatch(error: Error): void {
         void this.props.mitoAPI.sendLogMessage('frontend_render_failed', {
             'error_name': error.name,
             'error_message': error.message,
