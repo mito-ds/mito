@@ -1,12 +1,14 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import DefaultTaskpane from '../DefaultTaskpane';
+import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import { StepSummary } from '../../../types';
 import MitoAPI from '../../../api';
 import '../../../../css/taskpanes/Steps/StepTaskpane.css'
 import StepDataElement from './StepDataElement';
 import { UIState } from '../../../types';
+import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
+import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 
 
 export type StepTaskpaneProps = {
@@ -23,10 +25,12 @@ export type StepTaskpaneProps = {
 function StepTaskpane(props: StepTaskpaneProps): JSX.Element {
 
     return (
-        <DefaultTaskpane
-            header = {'Step History'}
-            setUIState={props.setUIState}
-            taskpaneBody = {
+        <DefaultTaskpane>
+            <DefaultTaskpaneHeader
+                header='Step History'
+                setUIState={props.setUIState}
+            />
+            <DefaultTaskpaneBody>
                 <div className='step-takspane-container'>
                     {props.stepSummaryList.map((stepSummary) => {
                         return (
@@ -41,8 +45,8 @@ function StepTaskpane(props: StepTaskpaneProps): JSX.Element {
                         )
                     })}
                 </div>
-            }
-        />
+            </DefaultTaskpaneBody>
+        </DefaultTaskpane>
     )
 }
 

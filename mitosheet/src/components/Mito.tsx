@@ -529,20 +529,24 @@ export const Mito = (props: MitoProps): JSX.Element => {
         )
     }
 
+    const taskpaneOpen = uiState.currOpenTaskpane.type !== TaskpaneType.NONE;
+    const wideTaskpaneOpen = WIDE_TASKPANES.includes(uiState.currOpenTaskpane.type);
+    const narrowTaskpaneOpen = taskpaneOpen && !wideTaskpaneOpen;
+
     /* 
         We detect whether the taskpane is open in wide mode, narrow mode, or not open at all. We then
         set the class of the div containing the Mitosheet and Formula bar, as well as the taskpane div accordingly.
         The class sets the width of the sheet. 
     */
     const formulaBarAndSheetClassNames = classNames('mito-formula-bar-and-mitosheet-div', {
-        'mito-formula-bar-and-mitosheet-div-wide-taskpane-open': WIDE_TASKPANES.includes(uiState.currOpenTaskpane.type),
-        'mito-formula-bar-and-mitosheet-div-narrow-taskpane-open': !WIDE_TASKPANES.includes(uiState.currOpenTaskpane.type) && uiState.currOpenTaskpane.type !== TaskpaneType.NONE
+        'mito-formula-bar-and-mitosheet-div-wide-taskpane-open': wideTaskpaneOpen,
+        'mito-formula-bar-and-mitosheet-div-narrow-taskpane-open': narrowTaskpaneOpen
     })
 
     const taskpaneClassNames = classNames({
-        'mito-default-taskpane': uiState.currOpenTaskpane.type === TaskpaneType.NONE,
-        'mito-default-wide-taskpane-open': WIDE_TASKPANES.includes(uiState.currOpenTaskpane.type),
-        'mito-default-narrow-taskpane-open': !WIDE_TASKPANES.includes(uiState.currOpenTaskpane.type) && uiState.currOpenTaskpane.type !== TaskpaneType.NONE,
+        'mito-default-taskpane': !taskpaneOpen,
+        'mito-default-wide-taskpane-open': wideTaskpaneOpen,
+        'mito-default-narrow-taskpane-open': narrowTaskpaneOpen,
     })
 
     return (
