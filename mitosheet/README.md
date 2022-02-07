@@ -34,6 +34,7 @@ Then, make sure that you have switched to `mitosheet` or `mitosheet3` as the cor
 ```
 python switch.py mitosheet
 ```
+Note that if you want to run `mitosheet3` (which should be identical), just switch the above command to `python switch.py mitosheet3`.
 
 Then, run the following commands to create a virtual enviorment, install a development version of `mitosheet` in it, and then launch Jupyter Lab 3.0.
 ```bash
@@ -90,9 +91,13 @@ jupyter labextension install .
 yarn cache clean
 jupyter lab --watch
 ```
+If the `jupyter labextension install .` command fails, then you need may need to run `export NODE_OPTIONS=--openssl-legacy-provider`. 
+
 
 In a seperate terminal, to recompile the front-end, run the command:
 ```
+npm run clean:all
+npm run build:labextension
 npm run watch:lib
 ```
 
