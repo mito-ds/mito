@@ -1,15 +1,7 @@
 """
-We specify the installer as a list of steps that 
-must run in order, for the installer.
+We specify the installer as a list of steps that must run in order.
 
-Currently, we take the following steps:
-1. First, try and install mitosheet3. Because mitosheet3 uses 
-   JLab 3, we first check if the user has any conflicting
-   JLab 2 dependencies installed. If they do, we abort. If they 
-   don't, we update them to JLab 3.
-2. Then, if the above installation of mitosheet3 fails for 
-   any reason, we try to install mitosheet on JLab 2. 
-3. If neither of them work, we give up, sadly. 
+Currently, we just attempt to install the mitosheet package. 
 """
 
 from mitoinstaller.commands import exit_after_error
@@ -19,15 +11,16 @@ from mitoinstaller.installer_steps import (FINAL_INSTALLER_STEPS,
                                            run_installer_steps)
 from mitoinstaller.installer_steps.initial_installer_steps import \
     INITIAL_INSTALLER_STEPS_PRO
-from mitoinstaller.installer_steps.test_pypi_mitosheet3_installer_steps import \
-    TEST_PYPI_MITOSHEET3_INSTALLER_STEPS
+from mitoinstaller.installer_steps.test_pypi_mitosheet_installer_steps import \
+    TEST_PYPI_MITOSHEET_INSTALLER_STEPS
 from mitoinstaller.log_utils import log, log_error
 
 
 def do_install_or_upgrade(install_or_upgrade: str, is_pro: bool) -> None:
     """
     install_or_upgrade is the workhorse of actually installing mito. 
-    It first attempts mitosheet3, and if that fails, then mitosheet.
+    It just attempts to install the `mitosheet` package, and then launch
+    JLab with a starter file.
 
     install_or_upgrade should be 'install' or 'upgrade'.
 
@@ -61,7 +54,7 @@ def do_install_or_upgrade(install_or_upgrade: str, is_pro: bool) -> None:
 
     
 
-def do_install_mitosheet3_from_test_pypi(is_pro: bool) -> None:
+def do_install_mitosheet_from_test_pypi(is_pro: bool) -> None:
     print("Starting install from TestPyPi. This should be in a clean venv, and so must not have any installed dependencies")
 
     # Change the installation depending if the user is a pro user or not
@@ -70,8 +63,8 @@ def do_install_mitosheet3_from_test_pypi(is_pro: bool) -> None:
     else:
         run_installer_steps(INITIAL_INSTALLER_STEPS_PRO)
 
-    installed_test_pypi_mitosheet3 = run_installer_steps(TEST_PYPI_MITOSHEET3_INSTALLER_STEPS) 
-    if installed_test_pypi_mitosheet3:
-        print("mitosheet3 installed from TestPyPi. Launch JLab to test")
+    installed_test_pypi_mitosheet = run_installer_steps(TEST_PYPI_MITOSHEET_INSTALLER_STEPS) 
+    if installed_test_pypi_mitosheet:
+        print("mitosheet installed from TestPyPi. Launch JLab to test")
     else:
-        print("Error installing mitosheet3 from TestPyPi")
+        print("Error installing mitosheet from TestPyPi")

@@ -18,7 +18,7 @@ def install_step_mitosheet_check_dependencies():
 
     jupyterlab_version, extension_names = get_jupyterlab_metadata()
 
-    # We log if the user is upgrading their mitosheet3 extension
+    # We log if the user is upgrading their mitosheet extension
     if extension_names is not None and ('mitosheet' in extension_names or 'mitosheet2' in extension_names or 'mitosheet3' in extension_names):
         log('upgrading_mitosheet_labextension',
             {

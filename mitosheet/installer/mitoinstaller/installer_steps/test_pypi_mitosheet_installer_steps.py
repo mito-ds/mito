@@ -6,7 +6,7 @@ from mitoinstaller.installer_steps.installer_step import InstallerStep
 def install_step_test_pypi_mitosheet_check_dependencies():
     """
     This step checks that there are not installed extensions (or JupyterLab), and 
-    then installs mitosheet3 from TestPyPi. 
+    then installs mitosheet from TestPyPi. 
 
     This is a useful command for testing the currently deployed staging version 
     of mitosheet.
@@ -26,7 +26,7 @@ def install_step_test_pypi_mitosheet_install_mitosheet3():
     install_pip_packages('mitosheet', test_pypi=True)
 
 
-TEST_PYPI_MITOSHEET3_INSTALLER_STEPS = [
+TEST_PYPI_MITOSHEET_INSTALLER_STEPS = [
     InstallerStep(
         'Checking to make sure JupyterLab and mitosheet are not installed',
         install_step_test_pypi_mitosheet_check_dependencies
