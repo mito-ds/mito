@@ -23,8 +23,10 @@ class ErrorBoundary extends Component<Props, State> {
 
     public componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
         void this.props.mitoAPI.sendLogMessage('frontend_render_failed', {
-            'error': error,
-            'errorInfo': errorInfo.componentStack
+            'error_name': error.name,
+            'error_message': error.message,
+            'error_stack': error.stack,
+            'error_info_component_stack': errorInfo.componentStack
         })
     }
 
