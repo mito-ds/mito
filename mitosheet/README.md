@@ -10,7 +10,7 @@ This folder contains a variety of packages and utilities for the `mitosheet` Pyt
 
 Notably, the `mitosheet` package is currently deployed under a variety of different names. Currently, we deploy `mitosheet` and `mitosheet3` as identical Python packages that both work as JupyterLab extensions for JupyterLab >3.0. We also deploy `mitosheet2` as an identical Python package, except that it is built for JupyterLab 2.0. 
 
-As there are mulitple platforms to develop on, we highly reccomend developing on JupyterLab 3.0, although, we provide setup instruction for all packages.
+As there are mulitple platforms to develop on, we highly reccomend developing on JupyterLab 3.0. We provide setup instruction for all packages below.
 
 ## Mitosheet with JupyterLab 3.0
 
