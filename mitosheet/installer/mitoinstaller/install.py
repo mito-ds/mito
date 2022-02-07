@@ -56,20 +56,9 @@ def do_install_or_upgrade(install_or_upgrade: str, is_pro: bool) -> None:
     else:
         # Otherwise, log the error (which prints to the user). Note that we don't give up here!
         log_error('install_failed_mitosheet3', print_to_user=False)
-
-    # Then, try to install mitosheet
-    installed_mitosheet = run_installer_steps(MITOSHEET_INSTALLER_STEPS)
-    if installed_mitosheet:
-        log('install_finished_mitosheet')
-    else:
-        # Log the error and give up if both our installations failed
-        log_error('install_failed_mitosheet', print_to_user=False)
         # TODO: we could make a clickable link to debugging instructions, or an email to send to Jake?
         # I think we should prompt users to do this, defaulting to Yes!
         exit_after_error(install_or_upgrade)
-
-    # Then, run the final installer steps
-    run_installer_steps(FINAL_INSTALLER_STEPS)
 
     
 
