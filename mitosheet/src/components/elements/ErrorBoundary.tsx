@@ -25,8 +25,7 @@ class ErrorBoundary extends Component<Props, State> {
         void this.props.mitoAPI.sendLogMessage('frontend_render_failed', {
             'error_name': error.name,
             'error_message': error.message,
-            'error_stack': error.stack,
-            'error_info_component_stack': errorInfo.componentStack.split('\n')
+            'error_stack': error.stack?.split('\n'),
         })
     }
 
