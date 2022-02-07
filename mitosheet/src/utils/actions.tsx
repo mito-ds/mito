@@ -6,6 +6,7 @@ import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFr
 import { ModalEnum } from "../components/modals/modals";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
 import { TaskpaneType } from "../components/taskpanes/taskpanes";
+import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../data/function_documentation";
 import { Action, ActionEnum, DFSource, EditorState, GridState, SheetData, UIState } from "../types"
 import { getDeduplicatedArray } from "./arrays";
@@ -393,7 +394,7 @@ export const createActions = (
                 setEditorState(undefined);
 
                 // Open discord
-                window.open('https://discord.gg/XdJSZyejJU', '_blank')
+                window.open(DISCORD_INVITE_LINK, '_blank')
             },
             isDisabled: () => {return undefined},
             searchTerms: ['help', 'contact', 'support'],

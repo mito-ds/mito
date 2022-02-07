@@ -204,14 +204,16 @@ class MitoWidget(DOMWidget):
                 'id': event['id'],
                 'type': e.type_,
                 'header': e.header,
-                'to_fix': e.to_fix
+                'to_fix': e.to_fix,
+                'traceback': e.traceback,
             }
             if not e.error_modal:
                 response['data'] = {
                     'event': 'edit_error',
                     'type': e.type_,
                     'header': e.header,
-                    'to_fix': e.to_fix
+                    'to_fix': e.to_fix,
+                    'traceback': e.traceback,
                 }
 
             # Report it to the user, and then return
@@ -226,7 +228,8 @@ class MitoWidget(DOMWidget):
                 'id': event['id'],
                 'type': 'execution_error',
                 'header': 'Execution Error',
-                'to_fix': 'Sorry, there was an error during executing this code.'
+                'to_fix': 'Sorry, there was an error during executing this code.',
+                'traceback': get_recent_traceback()
             })
 
         return False

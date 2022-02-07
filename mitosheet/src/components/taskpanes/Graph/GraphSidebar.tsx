@@ -19,6 +19,7 @@ import DropdownItem from '../../elements/DropdownItem';
 // import css
 import '../../../../css/taskpanes/Graph/GraphSidebar.css'
 import '../../../../css/taskpanes/Graph/LoadingSpinner.css'
+import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 
 export enum GraphType {
     SCATTER = 'scatter',
@@ -328,15 +329,15 @@ const GraphSidebar = (props: {
     }
 
     if (props.sheetDataArray.length === 0) {
-        return (
-            <div className='graph-sidebar-div'>
-                <div className='graph-sidebar-no-data-div'>
-                    <p className='graph-sidebar-no-data-text'> 
-                        You need to import data into Mito before graphing!
-                    </p>
-                </div>
-            </div>
-        )   
+        // Since the UI for the graphing takes up the whole screen, we don't even let the user keep it open
+        props.setUIState(prevUIState => {
+            return {
+                ...prevUIState,
+                currOpenTaskpane: {type: TaskpaneType.NONE}
+            }
+        })
+
+        return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
     } else {
         return (
             <div className='graph-sidebar-div'>

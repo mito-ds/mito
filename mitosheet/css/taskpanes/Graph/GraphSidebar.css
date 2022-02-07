@@ -13,8 +13,7 @@
     /* We have to set the background, as the taskpane turns black on fullscreen for some reason */
     background-color: white;
 
-    /* Stylize border of box, which we only need on some sides so we don't double up */ 
-    border-left: 1px solid var(--mito-border);
+    /* Stylize border of box, which we only need on one sides so we don't double up */ 
     border-top: 1px solid var(--mito-border);
     
     box-sizing: border-box;

@@ -34,7 +34,8 @@ const DefaultModal = (
         viewComponent?: React.ReactFragment;
         buttons: React.ReactFragment;
         setUIState?: React.Dispatch<React.SetStateAction<UIState>>;
-        overlay?: boolean
+        overlay?: boolean;
+        wide?: boolean;
     }): JSX.Element => {
 
     const headerColor = props.modalType === ModalEnum.Error ? '#ED4747' : '#343434' 
@@ -54,7 +55,7 @@ const DefaultModal = (
         */
         <div className={classNames({'modal-container': !displayOverlay}, {'overlay': displayOverlay})}>
             <div className={classNames({'modal-container': displayOverlay})}>
-                <div className='modal'>
+                <div className={classNames('modal', {'modal-wide': props.wide})}>
                     {props.setUIState !== undefined && 
                         <Row justify='end'>
                             <Col offsetRight={.25}>

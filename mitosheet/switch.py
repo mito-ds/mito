@@ -40,16 +40,16 @@ MITOSHEET_TWO_PACKAGE_JSON = """{
     "extension": "lib/plugin"
   },
   "name": "mitosheet2",
-  "license": "Other/Proprietary License",
+  "license": "AGPL-3.0-only",
   "author": {
     "name": "Mito Sheet",
     "email": "naterush1997@gmail.com"
   },
   "bugs": {
-    "url": "https://github.com/mito/mito/issues"
+    "url": "https://github.com/mito-ds/monorepo/issues"
   },
   "repository": {
-    "url": "https://github.com/mito/mito",
+    "url": "https://github.com/mito-ds/monorepo",
     "type": "git"
   },
   "version": "0.1.341",
@@ -128,7 +128,7 @@ MITOSHEET_TWO_PACKAGE_JSON = """{
     "widgets": "npm:@phosphor/widgets@^1.9.3"
   },
   "main": "lib/index.js",
-  "homepage": "https://github.com/mito/mito",
+  "homepage": "https://github.com/mito-ds/monorepo",
   "types": "./lib/index.d.ts",
   "description": "The Mito Spreadsheet"
 }"""
@@ -146,7 +146,7 @@ MITOSHEET_PACKAGE_JSON = """{
     "extension": "lib/plugin"
   },
   "name": "mitosheet",
-  "license": "Other/Proprietary License",
+  "license": "AGPL-3.0-only",
   "author": {
     "name": "Mito Sheet",
     "email": "naterush1997@gmail.com"
@@ -255,16 +255,16 @@ MITOSHEET_THREE_PACKAGE_JSON = """{
     "extension": "lib/plugin"
   },
   "name": "mitosheet3",
-  "license": "Other/Proprietary License",
+  "license": "AGPL-3.0-only",
   "author": {
     "name": "Mito Sheet",
     "email": "naterush1997@gmail.com"
   },
   "bugs": {
-    "url": "https://github.com/mito/mito/issues"
+    "url": "https://github.com/mito-ds/monorepo/issues"
   },
   "repository": {
-    "url": "https://github.com/mito/mito",
+    "url": "https://github.com/mito-ds/monorepo",
     "type": "git"
   },
   "version": "0.3.131",
@@ -343,7 +343,7 @@ MITOSHEET_THREE_PACKAGE_JSON = """{
     "widgets": "npm:@lumino/widgets@^1.16.1"
   },
   "main": "lib/index.js",
-  "homepage": "https://github.com/mito/mito",
+  "homepage": "https://github.com/mito-ds/monorepo",
   "types": "./lib/index.d.ts",
   "description": "The Mito Spreadsheet",
   "resolutions": {

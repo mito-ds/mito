@@ -368,25 +368,6 @@ export default class MitoAPI {
         }
     }
 
-    /*
-        Returns a string of the dtype of a column
-    */
-    async getColumnDtype(sheetIndex: number, columnID: string): Promise<string> {
-
-        const dtype = await this.send<string>({
-            'event': 'api_call',
-            'type': 'get_column_dtype',
-            'sheet_index': sheetIndex,
-            'column_id': columnID
-        }, {})
-    
-        if (dtype == undefined) {
-            return ''
-        }
-
-        return dtype;
-    }
-
 
     /*
         Returns a list of the key, values that is returned by .describing 

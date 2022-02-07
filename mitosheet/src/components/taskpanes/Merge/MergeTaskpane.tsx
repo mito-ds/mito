@@ -1,21 +1,24 @@
 // Copyright (c) Mito
 
-import React, { Fragment } from 'react';
-import DefaultTaskpane from '../DefaultTaskpane';
-import MultiToggleBox from '../../elements/MultiToggleBox';
+import React from 'react';
 import MitoAPI from '../../../api';
-import { getSuggestedKeysColumnID } from './mergeUtils';
-import MergeSheetAndKeySelection from './MergeSheetAndKeySelection';
-import Row from '../../spacing/Row';
-import Col from '../../spacing/Col';
-import Select from '../../elements/Select';
 import { ColumnIDsMap, SheetData, UIState } from '../../../types';
-import MultiToggleItem from '../../elements/MultiToggleItem';
-import { getDtypeValue } from '../ControlPanel/FilterAndSortTab/DtypeCard';
-import DropdownItem from '../../elements/DropdownItem';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
+import DropdownItem from '../../elements/DropdownItem';
+import MultiToggleBox from '../../elements/MultiToggleBox';
+import MultiToggleItem from '../../elements/MultiToggleItem';
+import Select from '../../elements/Select';
 import XIcon from '../../icons/XIcon';
+import Col from '../../spacing/Col';
+import Row from '../../spacing/Row';
+import { getDtypeValue } from '../ControlPanel/FilterAndSortTab/DtypeCard';
+import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
+import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
+import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
+import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import { TaskpaneType } from '../taskpanes';
+import MergeSheetAndKeySelection from './MergeSheetAndKeySelection';
+import { getSuggestedKeysColumnID } from './mergeUtils';
 
 
 // Enum to allow you to refer to the first or second sheet by name, for clarity
@@ -76,7 +79,7 @@ class MergeTaskpane extends React.Component<MergeTaskpaneProps, MergeTaskpaneSta
             ? sheetOneIndex + 1
             : (sheetOneIndex - 1 >= 0 ? sheetOneIndex - 1 : sheetOneIndex)
 
-        if (props.sheetDataArray.length === 0) {
+        if (props.sheetDataArray.length < 2) {
             // If there is no data, we just set default values
             this.state = {
                 mergeType: MergeType.LOOKUP,
@@ -281,17 +284,7 @@ class MergeTaskpane extends React.Component<MergeTaskpaneProps, MergeTaskpaneSta
             then display this error message.
         */
         if (this.props.sheetDataArray.length < 2) {
-            return (
-                <DefaultTaskpane
-                    header={'Merge Sheets Together'}
-                    setUIState={this.props.setUIState}
-                    taskpaneBody = {
-                        <Fragment>
-                            Make sure you have at least two dataframes in Mito before merging.
-                        </Fragment>
-                    }
-                />
-            )
+            return <DefaultEmptyTaskpane setUIState={this.props.setUIState} message='You need two dataframes before you can merge them.'/>
         }
 
         /*
@@ -342,156 +335,155 @@ class MergeTaskpane extends React.Component<MergeTaskpaneProps, MergeTaskpaneSta
         )
 
         return (
-            <DefaultTaskpane
-                header={header}
-                headerOutsideRow
-                setUIState={this.props.setUIState}
-                taskpaneBody = {
-                    <Fragment>
+            <DefaultTaskpane>
+                <DefaultTaskpaneHeader
+                    header={header}
+                    headerOutsideRow
+                    setUIState={this.props.setUIState}
+                />
+                <DefaultTaskpaneBody>
+                    <Row justify='space-between' align='center' suppressTopBottomMargin>
+                        <Col offsetRight={1}>
+                            <p className='text-header-3'>
+                                Merge Type
+                            </p>
+                        </Col>
+                        <Col>
+                            <Select 
+                                value={this.state.mergeType}
+                                onChange={(mergeType: string) => {
+                                    const newMergeTypeEnum = mergeType as MergeType
+                                    this.setNewMergeType(newMergeTypeEnum)
+                                }}
+                                width='medium'
+                            >
+                                <DropdownItem
+                                    title={MergeType.LOOKUP}
+                                    subtext="Includes all rows from the first sheet and only matching rows from the second sheet. If there are mulitple matches in the second sheet, only takes the first."
+                                />
+                                <DropdownItem
+                                    title={MergeType.LEFT}
+                                    subtext="Includes all rows from the first sheet and only matching rows from the second sheet. Includes all matches."
+                                />
+                                <DropdownItem
+                                    title={MergeType.RIGHT}
+                                    subtext="Includes all rows from the second sheet and only matching rows from the  first sheet. Includes all matches."
+                                />
+                                <DropdownItem
+                                    title={MergeType.INNER}
+                                    subtext="Only includes rows that have matches in both sheets."
+                                />
+                                <DropdownItem
+                                    title={MergeType.OUTER}
+                                    subtext="Includes all rows from both sheets, regardless of whether there is a match in the other sheet."
+                                />
+                                <DropdownItem
+                                    title={MergeType.UNIQUE_IN_LEFT}
+                                    subtext="Includes each row from the first sheet that doesn't have a match in the second sheet."
+                                />
+                                <DropdownItem
+                                    title={MergeType.UNIQUE_IN_RIGHT}
+                                    subtext="Includes each row from second sheet that doesn't have a match in the first sheet."
+                                />
+                            </Select>
+                        </Col>
+                    </Row>
+                    <MergeSheetAndKeySelection
+                        dfNames={this.state.originalDfNames}
+                        columnIDsMap={sheetOneColumnIDsMap}
                         
-                        <Row justify='space-between' align='center' suppressTopBottomMargin>
-                            <Col offsetRight={1}>
-                                <p className='text-header-3'>
-                                    Merge Type
-                                </p>
-                            </Col>
-                            <Col>
-                                <Select 
-                                    value={this.state.mergeType}
-                                    onChange={(mergeType: string) => {
-                                        const newMergeTypeEnum = mergeType as MergeType
-                                        this.setNewMergeType(newMergeTypeEnum)
-                                    }}
-                                    width='medium'
-                                >
-                                    <DropdownItem
-                                        title={MergeType.LOOKUP}
-                                        subtext="Includes all rows from the first sheet and only matching rows from the second sheet. If there are mulitple matches in the second sheet, only takes the first."
+                        sheetNum={MergeSheet.First}
+                        sheetIndex={this.state.sheetOneIndex}
+                        mergeKeyColumnID={this.state.mergeKeyColumnIDOne}
+                        otherSheetIndex={this.state.sheetTwoIndex}
+                        
+                        setNewSheetIndex={(newSheetIndex) => {this.setNewSheetIndex(MergeSheet.First, newSheetIndex)}}
+                        setNewMergeKeyColumnID={(newMergeKeyColumnID) => this.setNewMergeKeyColumnID(MergeSheet.First, newMergeKeyColumnID)}
+                    />
+                    <p className='text-header-3'>
+                        Columns to Keep
+                    </p>
+                    {this.state.mergeType !== MergeType.UNIQUE_IN_RIGHT &&
+                        <MultiToggleBox
+                            searchable
+                            toggleAllIndexes={(indexesToToggle, newToggle) => {
+                                const columnIDs = indexesToToggle.map(index => sheetOneColumnIDsAndDtypesListWithoutMergeKey[index][0]);
+                                this.toggleKeepColumnIDs(MergeSheet.First, columnIDs, newToggle);
+                            }}
+                            height='medium'
+                        >
+                            {sheetOneColumnIDsAndDtypesListWithoutMergeKey.map(([columnID, columnDtype], index) => {
+                                const columnHeader = sheetOneColumnIDsMap[columnID];
+                                return (
+                                    <MultiToggleItem
+                                        key={index}
+                                        title={getDisplayColumnHeader(columnHeader)}
+                                        rightText={getDtypeValue(columnDtype)}
+                                        toggled={sheetOneToggles[index]}
+                                        index={index}
+                                        onToggle={() => {
+                                            this.toggleKeepColumnIDs(MergeSheet.First, [columnID], !sheetOneToggles[index])
+                                        }}
                                     />
-                                    <DropdownItem
-                                        title={MergeType.LEFT}
-                                        subtext="Includes all rows from the first sheet and only matching rows from the second sheet. Includes all matches."
-                                    />
-                                    <DropdownItem
-                                        title={MergeType.RIGHT}
-                                        subtext="Includes all rows from the second sheet and only matching rows from the  first sheet. Includes all matches."
-                                    />
-                                    <DropdownItem
-                                        title={MergeType.INNER}
-                                        subtext="Only includes rows that have matches in both sheets."
-                                    />
-                                    <DropdownItem
-                                        title={MergeType.OUTER}
-                                        subtext="Includes all rows from both sheets, regardless of whether there is a match in the other sheet."
-                                    />
-                                    <DropdownItem
-                                        title={MergeType.UNIQUE_IN_LEFT}
-                                        subtext="Includes each row from the first sheet that doesn't have a match in the second sheet."
-                                    />
-                                    <DropdownItem
-                                        title={MergeType.UNIQUE_IN_RIGHT}
-                                        subtext="Includes each row from second sheet that doesn't have a match in the first sheet."
-                                    />
-                                </Select>
-                            </Col>
-                        </Row>
-                        <MergeSheetAndKeySelection
-                            dfNames={this.state.originalDfNames}
-                            columnIDsMap={sheetOneColumnIDsMap}
-                            
-                            sheetNum={MergeSheet.First}
-                            sheetIndex={this.state.sheetOneIndex}
-                            mergeKeyColumnID={this.state.mergeKeyColumnIDOne}
-                            otherSheetIndex={this.state.sheetTwoIndex}
-                            
-                            setNewSheetIndex={(newSheetIndex) => {this.setNewSheetIndex(MergeSheet.First, newSheetIndex)}}
-                            setNewMergeKeyColumnID={(newMergeKeyColumnID) => this.setNewMergeKeyColumnID(MergeSheet.First, newMergeKeyColumnID)}
-                        />
+                                ) 
+                            })}
+                        </MultiToggleBox>
+                    }
+                    {this.state.mergeType === MergeType.UNIQUE_IN_RIGHT &&
+                        <p>
+                            Finding the unique values in the second sheet doesn&apos;t keep any columns from the first sheet.
+                        </p>
+                    }
+                    <MergeSheetAndKeySelection
+                        dfNames={this.state.originalDfNames}
+                        columnIDsMap={sheetTwoColumnIDsMap}
+                        
+                        sheetNum={MergeSheet.Second}
+                        mergeKeyColumnID={this.state.mergeKeyColumnIDTwo}
+                        sheetIndex={this.state.sheetTwoIndex}
+                        otherSheetIndex={this.state.sheetOneIndex}
+
+                        setNewSheetIndex={(newSheetIndex) => {this.setNewSheetIndex(MergeSheet.Second, newSheetIndex)}}
+                        setNewMergeKeyColumnID={(newMergeKeyColumnID) => this.setNewMergeKeyColumnID(MergeSheet.Second, newMergeKeyColumnID)}
+                    />
+                    <div>
                         <p className='text-header-3'>
                             Columns to Keep
                         </p>
-                        {this.state.mergeType !== MergeType.UNIQUE_IN_RIGHT &&
+                        {this.state.mergeType !== MergeType.UNIQUE_IN_LEFT && 
                             <MultiToggleBox
                                 searchable
                                 toggleAllIndexes={(indexesToToggle, newToggle) => {
-                                    const columnIDs = indexesToToggle.map(index => sheetOneColumnIDsAndDtypesListWithoutMergeKey[index][0]);
-                                    this.toggleKeepColumnIDs(MergeSheet.First, columnIDs, newToggle);
+                                    const columnIDs = indexesToToggle.map(index => sheetTwoColumnIDsAndDtypesListWithoutMergeKey[index][0]);
+                                    this.toggleKeepColumnIDs(MergeSheet.Second, columnIDs, newToggle);
                                 }}
                                 height='medium'
                             >
-                                {sheetOneColumnIDsAndDtypesListWithoutMergeKey.map(([columnID, columnDtype], index) => {
-                                    const columnHeader = sheetOneColumnIDsMap[columnID];
+                                {sheetTwoColumnIDsAndDtypesListWithoutMergeKey.map(([columnID, columnDtype], index) => {
+                                    const columnHeader = sheetTwoColumnIDsMap[columnID];
                                     return (
                                         <MultiToggleItem
                                             key={index}
                                             title={getDisplayColumnHeader(columnHeader)}
                                             rightText={getDtypeValue(columnDtype)}
-                                            toggled={sheetOneToggles[index]}
+                                            toggled={sheetTwoToggles[index]}
                                             index={index}
                                             onToggle={() => {
-                                                this.toggleKeepColumnIDs(MergeSheet.First, [columnID], !sheetOneToggles[index])
+                                                this.toggleKeepColumnIDs(MergeSheet.Second, [columnID], !sheetTwoToggles[index])
                                             }}
                                         />
                                     ) 
                                 })}
                             </MultiToggleBox>
                         }
-                        {this.state.mergeType === MergeType.UNIQUE_IN_RIGHT &&
+                        {this.state.mergeType === MergeType.UNIQUE_IN_LEFT &&
                             <p>
-                                Finding the unique values in the second sheet doesn&apos;t keep any columns from the first sheet.
+                                Finding the unique values in the first sheet doesn&apos;t keep any columns from the second sheet.
                             </p>
                         }
-                        <MergeSheetAndKeySelection
-                            dfNames={this.state.originalDfNames}
-                            columnIDsMap={sheetTwoColumnIDsMap}
-                            
-                            sheetNum={MergeSheet.Second}
-                            mergeKeyColumnID={this.state.mergeKeyColumnIDTwo}
-                            sheetIndex={this.state.sheetTwoIndex}
-                            otherSheetIndex={this.state.sheetOneIndex}
-
-                            setNewSheetIndex={(newSheetIndex) => {this.setNewSheetIndex(MergeSheet.Second, newSheetIndex)}}
-                            setNewMergeKeyColumnID={(newMergeKeyColumnID) => this.setNewMergeKeyColumnID(MergeSheet.Second, newMergeKeyColumnID)}
-                        />
-                        <div>
-                            <p className='text-header-3'>
-                                Columns to Keep
-                            </p>
-                            {this.state.mergeType !== MergeType.UNIQUE_IN_LEFT && 
-                                <MultiToggleBox
-                                    searchable
-                                    toggleAllIndexes={(indexesToToggle, newToggle) => {
-                                        const columnIDs = indexesToToggle.map(index => sheetTwoColumnIDsAndDtypesListWithoutMergeKey[index][0]);
-                                        this.toggleKeepColumnIDs(MergeSheet.Second, columnIDs, newToggle);
-                                    }}
-                                    height='medium'
-                                >
-                                    {sheetTwoColumnIDsAndDtypesListWithoutMergeKey.map(([columnID, columnDtype], index) => {
-                                        const columnHeader = sheetTwoColumnIDsMap[columnID];
-                                        return (
-                                            <MultiToggleItem
-                                                key={index}
-                                                title={getDisplayColumnHeader(columnHeader)}
-                                                rightText={getDtypeValue(columnDtype)}
-                                                toggled={sheetTwoToggles[index]}
-                                                index={index}
-                                                onToggle={() => {
-                                                    this.toggleKeepColumnIDs(MergeSheet.Second, [columnID], !sheetTwoToggles[index])
-                                                }}
-                                            />
-                                        ) 
-                                    })}
-                                </MultiToggleBox>
-                            }
-                            {this.state.mergeType === MergeType.UNIQUE_IN_LEFT &&
-                                <p>
-                                    Finding the unique values in the first sheet doesn&apos;t keep any columns from the second sheet.
-                                </p>
-                            }
-                        </div>
-                    </Fragment>
-                }
-            />
+                    </div>
+                </DefaultTaskpaneBody>
+            </DefaultTaskpane>
         )
     }
 }

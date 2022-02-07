@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 
 // Import 
 import MitoAPI from '../../../api';
-import DefaultTaskpane from '../DefaultTaskpane';
+import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import { PathContents } from '../../../api';
 import FileBrowser from './FileBrowser';
 import { getFileEnding, getInvalidFileError } from './FileBrowserElement';
@@ -14,6 +14,8 @@ import XLSXImport from './XLSXImport';
 
 // CSS
 import '../../../../css/taskpanes/Import/ImportTaskpane.css'
+import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
+import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 
 interface ImportTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -162,14 +164,15 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
     const importButtonStatus = getImportButtonStatus(selectedElement);
 
     return (
-        <DefaultTaskpane
-            header = {fileForImportWizard === undefined ? 'Import Files' : `Import ${fileForImportWizard}`}
-            setUIState={props.setUIState}
-            noScroll={true}
-            backCallback={fileForImportWizard === undefined ? undefined : () => {
-                setFileForImportWizard(undefined);
-            }}
-            taskpaneBody = {
+        <DefaultTaskpane>
+            <DefaultTaskpaneHeader
+                header={fileForImportWizard === undefined ? 'Import Files' : `Import ${fileForImportWizard}`}
+                setUIState={props.setUIState}
+                backCallback={fileForImportWizard === undefined ? undefined : () => {
+                    setFileForImportWizard(undefined);
+                }}
+            />
+            <DefaultTaskpaneBody noScroll>
                 <div className='import-taskpane flexbox-column flexbox-space-between'>
                     {fileForImportWizard === undefined &&
                         <>
@@ -203,8 +206,9 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                         />
                     }
                 </div>
-            }
-        />
+            </DefaultTaskpaneBody>
+            
+        </DefaultTaskpane>            
     )
 }
 
