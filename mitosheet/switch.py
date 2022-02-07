@@ -371,7 +371,7 @@ def try_delete_folder_or_files(*paths):
 def switch(new_package):
     """
     Switches the package.json from the currently set package to the new_package,
-    which must be mitosheet or mitosheet3. Does so by updating the name, version
+    which must be mitosheet, mitosheet2, or mitosheet3. Does so by updating the name, version
     dependencies, and removing some ghost files that might be hanging around.
     """
 

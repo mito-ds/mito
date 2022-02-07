@@ -59,7 +59,7 @@ def bump_version_mitoinstaller(on_dev: bool):
 def bump_version(package, deploy_location: str, new_version: Tuple[int, int, int]=None):
     """
     Bumps the version of the Mito project to the next minor logical version. Must pass
-    the package as `mitosheet` or `mitosheet3`, so we know which version to bump.
+    the package as `mitosheet`, `mitosheet2`, or `mitosheet3`, so we know which version to bump.
 
     Alternatively, can bump the version of `mitoinstaller` by passing `mitoinstaller`, 
     which does not pass through the package.json.

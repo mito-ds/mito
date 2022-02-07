@@ -1,53 +1,19 @@
 # The Mito Spreadsheet
 
-This folder contains the `mitosheet` python package, as well as some other utilities for deploying Mito. 
+This folder contains a variety of packages and utilities for the `mitosheet` Python package. The primary folders of interesting:
+- `mitosheet` contains the Python code for the `mitosheet` Python package. 
+- `src` contains the TypeScript, React code for the `mitosheet` JupyterLab extension front-end.
+- `css` contains styling for the frontend.
+- `deployment` contains scripts helpful for deploying the `mitosheet` package
 
-Note that you can develop in with JLab 2 or JLab 3, as we currently support both!
+## The `mitosheet` Package
 
+Notably, the `mitosheet` package is currently deployed under a variety of different names. Currently, we deploy `mitosheet` and `mitosheet3` as identical Python packages that both work as JupyterLab extensions for JupyterLab >3.0. We also deploy `mitosheet2` as an identical Python package, except that it is built for JupyterLab 2.0. 
 
-## Mitosheet with JLab 2
+As there are mulitple platforms to develop on, we highly reccomend developing on JupyterLab 3.0, although, we provide setup instruction for all packages.
 
-First, delete any existing virtual enviornment that you have in this folder, and create a new virtual enviornment.
+## Mitosheet with JupyterLab 3.0
 
-On Mac:
-```
-rm -rf venv;
-python3 -m venv venv;
-source venv/bin/activate;
-```
-
-On Windows:
-```
-rmdir /s venv
-python3 -m venv venv
-venv\Scripts\activate.bat
-```
-
-Then, make sure that you have switched to `mitosheet` as the correct package (as this is the name of the package that we use with JLab 2). You can perform this with the command:
-```
-python switch.py mitosheet
-```
-
-Then, run the following commands to create a virtual enviorment, install a development version of `mitosheet` in it, and then launch Jupyter Lab 2.0.
-```bash
-pip install -e ".[test, deploy]"
-jupyter labextension install @jupyter-widgets/jupyterlab-manager@2 --no-build
-jupyter labextension install .
-yarn cache clean
-jupyter lab --watch
-```
-
-In a seperate terminal, to recompile the front-end, run the command:
-```
-npm run watch:lib
-```
-
-### One Liner Command for Mac
-```bash
-deactivate; rm -rf venv; python3 -m venv venv && source venv/bin/activate && python switch.py mitosheet && pip install -e ".[test, deploy]" && jupyter labextension install @jupyter-widgets/jupyterlab-manager@2 --no-build && jupyter labextension install . && yarn cache clean && jupyter lab --watch
-```
-
-## Mitosheet with JLab 3
 First, delete any existing virtual enviornment that you have in this folder, and create a new virtual enviornment. 
 
 On Mac:
@@ -64,9 +30,9 @@ python3 -m venv venv
 venv\Scripts\activate.bat
 ```
 
-Then, make sure that you have switched to `mitosheet3` as the correct package (as this is the name of the package that we use with JLab 3). You can perform this with the command:
+Then, make sure that you have switched to `mitosheet` or `mitosheet3` as the correct package (as these are the names of the packages that we use with JLab 3). You can perform this with the command:
 ```
-python switch.py mitosheet3
+python switch.py mitosheet
 ```
 
 Then, run the following commands to create a virtual enviorment, install a development version of `mitosheet` in it, and then launch Jupyter Lab 3.0.
@@ -90,7 +56,49 @@ If the folder `pip-wheel-metadata` exists in your Mito folder, delete it.
 
 ### One Liner Command for Mac
 ```bash
-deactivate; rm -rf venv; python3 -m venv venv && source venv/bin/activate && python switch.py mitosheet3 && pip install -e ".[test, deploy]" && jupyter labextension develop . --overwrite && jupyter lab
+deactivate; rm -rf venv; python3 -m venv venv && source venv/bin/activate && python switch.py mitosheet && pip install -e ".[test, deploy]" && jupyter labextension develop . --overwrite && jupyter lab
+```
+
+## Mitosheet with JupyterLab 2.0
+
+First, delete any existing virtual enviornment that you have in this folder, and create a new virtual enviornment.
+
+On Mac:
+```
+rm -rf venv;
+python3 -m venv venv;
+source venv/bin/activate;
+```
+
+On Windows:
+```
+rmdir /s venv
+python3 -m venv venv
+venv\Scripts\activate.bat
+```
+
+Then, make sure that you have switched to `mitosheet2` as the correct package (as this is the name of the package that we use with JLab 2). You can perform this with the command:
+```
+python switch.py mitosheet2
+```
+
+Then, run the following commands to create a virtual enviorment, install a development version of `mitosheet2` in it, and then launch Jupyter Lab 2.0.
+```bash
+pip install -e ".[test, deploy]"
+jupyter labextension install @jupyter-widgets/jupyterlab-manager@2 --no-build
+jupyter labextension install .
+yarn cache clean
+jupyter lab --watch
+```
+
+In a seperate terminal, to recompile the front-end, run the command:
+```
+npm run watch:lib
+```
+
+### One Liner Command for Mac
+```bash
+deactivate; rm -rf venv; python3 -m venv venv && source venv/bin/activate && python switch.py mitosheet2 && pip install -e ".[test, deploy]" && jupyter labextension install @jupyter-widgets/jupyterlab-manager@2 --no-build && jupyter labextension install . && yarn cache clean && jupyter lab --watch
 ```
 
 # Testing
@@ -147,4 +155,4 @@ Run the fuzzer with
 
 ### For JLab 3
 
-I am not totally sure.
+I am not totally sure yet! TODO.
