@@ -1,8 +1,8 @@
 """
 The switch.py package is responsible for switching the enviornment
-from mitosheet to mitosheet3 and vice versa. Proper usage is:
+between mitosheet, mitosheet2, and mitosheet3. Usage is:
 ```
-python switch.py [mitosheet | mitosheet3]
+python switch.py [mitosheet | mitosheet2 | mitosheet3]
 ```
 
 We save the entire package.json files in a string so that it is easy to
@@ -40,6 +40,112 @@ MITOSHEET_PACKAGE_JSON = """{
     "extension": "lib/plugin"
   },
   "name": "mitosheet",
+  "license": "Other/Proprietary License",
+  "author": {
+    "name": "Mito Sheet",
+    "email": "naterush1997@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/mito/mito/issues"
+  },
+  "repository": {
+    "url": "https://github.com/mito/mito",
+    "type": "git"
+  },
+  "version": "0.1.341",
+  "dependencies": {
+    "@jupyter-widgets/base": "^1.1.10 || ^2 || ^3",
+    "@jupyterlab/notebook": "^2.2.5",
+    "@types/fscreen": "^1.0.1",
+    "@types/jest": "^27.0.2",
+    "@types/react-dom": "^17.0.9",
+    "fscreen": "^1.1.0",
+    "react": "~16.9.0",
+    "react-dom": "~16.9.0",
+    "ts-jest": "^27.0.5"
+  },
+  "scripts": {
+    "test:jest": "jest",
+    "deploy:staging": "python3 deployment/deploy.py staging",
+    "build:prod": "jlpm run build:lib && jlpm run build:labextension",
+    "clean:labextension": "rimraf mitosheet/labextension",
+    "deploy:app": "python3 deployment/deploy.py app",
+    "build:labextension:dev": "jupyter labextension build --development True .",
+    "prepare": "",
+    "watch:lib": "tsc -w",
+    "build:labextension": "npm run clean:labextension && npm run build:lib && mkdirp mitosheet/labextension && cd mitosheet/labextension && npm pack ../..",
+    "deploy:all": "python3 deployment/deploy.py all",
+    "build": "npm run build:lib",
+    "build:lib": "tsc",
+    "deploy:pypi": "python3 setup.py sdist bdist_wheel upload",
+    "clean:nbextension": "rimraf mitosheet/nbextension/static/index.js",
+    "build:all": "npm run build:labextension",
+    "lint:check": "eslint src/ --ext .ts,.tsx",
+    "watch:nbextension": "webpack --watch",
+    "lint": "eslint src/ --ext .ts,.tsx --fix",
+    "watch": "tsc -w",
+    "watch:labextension": "jupyter labextension watch .",
+    "install:extension": "jupyter labextension develop --overwrite .",
+    "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
+    "prepack": "npm run build:lib",
+    "watch:src": "tsc -w",
+    "clean": "npm run clean:lib",
+    "clean:all": "npm run clean:lib && npm run clean:labextension"
+  },
+  "keywords": [
+    "jupyter",
+    "jupyterlab",
+    "jupyterlab-extension",
+    "widgets"
+  ],
+  "devDependencies": {
+    "@jupyterlab/builder": "^3.0.0",
+    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/react": "^12.1.2",
+    "@types/expect.js": "^0.3.29",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^16.10.2",
+    "@types/react": "^17.0.26",
+    "@typescript-eslint/eslint-plugin": "^4.4.0",
+    "@typescript-eslint/parser": "^4.4.0",
+    "acorn": "^8.5.0",
+    "application": "npm:@phosphor/application@^1.7.3",
+    "eslint": "^7.19.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-office-addins": "^1.0.3",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-react": "^7.26.1",
+    "expect.js": "^0.3.1",
+    "fs-extra": "^10.0.0",
+    "jest": "^27.2.4",
+    "jest-css-modules-transform": "^4.3.0",
+    "mkdirp": "^1.0.4",
+    "mocha": "^9.1.2",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.0.5",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.4.3",
+    "widgets": "npm:@phosphor/widgets@^1.9.3"
+  },
+  "main": "lib/index.js",
+  "homepage": "https://github.com/mito/mito",
+  "types": "./lib/index.d.ts",
+  "description": "The Mito Spreadsheet"
+}"""
+
+MITOSHEET_TWO_PACKAGE_JSON = """{
+  "files": [
+    "lib/**/*.js",
+    "fonts/**/*",
+    "dist/*.js",
+    "css/**/*.css",
+    "style/index.js"
+  ],
+  "jupyterlab": {
+    "outputDir": "mitosheet/labextension",
+    "extension": "lib/plugin"
+  },
+  "name": "mitosheet2",
   "license": "Other/Proprietary License",
   "author": {
     "name": "Mito Sheet",
@@ -280,9 +386,9 @@ def switch(new_package):
     )
 
     # Then, update the package.json
-    if new_package == 'mitosheet':
+    if new_package == 'mitosheet2':
         open('package.json', 'w+').write(MITOSHEET_PACKAGE_JSON)
-    elif new_package == 'mitosheet3':    
+    elif new_package == 'mitosheet' or new_package == 'mitosheet3':    
         open('package.json', 'w+').write(MITOSHEET_THREE_PACKAGE_JSON)
 
     
