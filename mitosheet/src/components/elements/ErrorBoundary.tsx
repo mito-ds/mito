@@ -26,7 +26,7 @@ class ErrorBoundary extends Component<Props, State> {
             'error_name': error.name,
             'error_message': error.message,
             'error_stack': error.stack,
-            'error_info_component_stack': errorInfo.componentStack
+            'error_info_component_stack': errorInfo.componentStack.split('\n')
         })
     }
 
