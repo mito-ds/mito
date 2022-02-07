@@ -190,6 +190,7 @@ export interface MitoError {
     type: string;
     header: string;
     to_fix: string;
+    traceback?: string;
 }
 
 /**
