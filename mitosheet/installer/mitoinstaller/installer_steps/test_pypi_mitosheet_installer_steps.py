@@ -22,7 +22,7 @@ def install_step_test_pypi_mitosheet_check_dependencies():
     raise Exception('Installed JupyterLab: {jupyterlab_version}, Installed extensions {extension_names}'.format(jupyterlab_version=jupyterlab_version, extension_names=extension_names))
 
 
-def install_step_test_pypi_mitosheet_install_mitosheet3():
+def install_step_test_pypi_mitosheet_install_mitosheet():
     install_pip_packages('mitosheet', test_pypi=True)
 
 
@@ -33,6 +33,6 @@ TEST_PYPI_MITOSHEET_INSTALLER_STEPS = [
     ),
     InstallerStep(
         'Installing mitosheet from TestPyPi',
-        install_step_test_pypi_mitosheet_install_mitosheet3
+        install_step_test_pypi_mitosheet_install_mitosheet
     ),
 ]
