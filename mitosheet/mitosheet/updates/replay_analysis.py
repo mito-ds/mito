@@ -8,12 +8,9 @@
 Replays an existing analysis onto the sheet
 """
 
-from typing import TYPE_CHECKING, Any, Dict
+from typing import Any, Dict
 from mitosheet.saved_analyses import read_and_upgrade_analysis
-if TYPE_CHECKING:
-    from mitosheet.steps_manager import StepsManager
-else:
-    StepsManager = Any
+from mitosheet.types import StepsManagerType
 
 
 REPLAY_ANALYSIS_UPDATE_EVENT = 'replay_analysis_update'
@@ -24,7 +21,7 @@ REPLAY_ANALYSIS_UPDATE_PARAMS = [
 ]
 
 def execute_replay_analysis_update(
-        steps_manager: StepsManager,
+        steps_manager: StepsManagerType,
         analysis_name: str,
         import_summaries: Dict[str, Any],
         clear_existing_analysis: bool

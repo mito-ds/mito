@@ -11,7 +11,8 @@ explicit and clear, and make sure to test the types in our
 continous integration
 """
 
-from typing import List, Union, Tuple
+from typing import TYPE_CHECKING, List, Union, Tuple, Any
+
 
 ColumnID = str
 
@@ -21,4 +22,10 @@ MultiLevelColumnHeader = Union[Tuple[PrimativeColumnHeader, ...], List[Primative
 # To a tuple of primative types (TODO: does this nest further?).
 ColumnHeader = Union[PrimativeColumnHeader, MultiLevelColumnHeader]
 
+# To resolve circular dependencies, we create a StepsManagerType here
+if TYPE_CHECKING:
+    from mitosheet.steps_manager import StepsManager
+    StepsManagerType = StepsManager
+else:
+    StepsManagerType = Any
 

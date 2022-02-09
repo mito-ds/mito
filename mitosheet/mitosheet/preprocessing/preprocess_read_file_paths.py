@@ -14,12 +14,7 @@ from mitosheet.preprocessing.preprocess_step_performer import \
 from mitosheet.step_performers.import_steps.simple_import import (
     generate_read_csv_code, get_valid_dataframe_names,
     read_csv_get_delimeter_and_encoding)
-
-    # To avoid circular imports
-if TYPE_CHECKING:
-    from mitosheet.steps_manager import StepsManager
-else: 
-    StepsManager = Any
+from mitosheet.types import StepsManagerType
 
 
 class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
@@ -76,7 +71,7 @@ class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
         }
 
     @classmethod
-    def transpile(cls, steps_manager: StepsManager, execution_data: Optional[Dict[str, Any]]) -> List[str]:
+    def transpile(cls, steps_manager: StepsManagerType, execution_data: Optional[Dict[str, Any]]) -> List[str]:
         """
         Transpiles the reading in of passed file paths to dataframe names, 
         with a simple pd.read_csv call.

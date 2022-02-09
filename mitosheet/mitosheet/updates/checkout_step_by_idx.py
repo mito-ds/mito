@@ -8,13 +8,7 @@
 Rolls back/forward to a specific step, by index
 """
 
-from typing import TYPE_CHECKING, Any
-
-
-if TYPE_CHECKING:
-    from mitosheet.steps_manager import StepsManager
-else:
-    StepsManager = Any
+from mitosheet.types import StepsManagerType
 
 
 CHECKOUT_STEP_BY_IDX_UPDATE_EVENT = 'checkout_step_by_idx_update'
@@ -23,7 +17,7 @@ CHECKOUT_STEP_BY_IDX_UPDATE_PARAMS = [
 ]
 
 def execute_checkout_step_by_idx_update(
-        steps_manager: StepsManager,
+        steps_manager: StepsManagerType,
         step_idx: int
     ) -> None:
     """
