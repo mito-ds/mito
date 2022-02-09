@@ -49,7 +49,7 @@ def add_formatting_to_excel_sheet(
                 if is_int_dtype(str(df[column_header].dtype)):
                     format = workbook.add_format({'num_format': '#,##0'})
                 else:
-                    format = workbook.add_format({'num_format': '#,##0.0'})
+                    format = workbook.add_format({'num_format': '#,##0.0#####################'})
             elif format_data['type'] == FORMAT_PLAIN_TEXT:
                 format = workbook.add_format({'num_format': 'General'})
             elif format_data['type'] == FORMAT_PERCENTAGE:
