@@ -4,6 +4,15 @@ description: Want to see what is new in the Mitosheet? Check it out below.
 
 # Release Notes
 
+## 2022-2-9 <a href="#2022-2-9" id="2022-2-9"></a>
+
+Bug Fixes:
+
+* Add a basic error boundary to stop rare, sheet crashing bugs from breaking your tab.
+* Remove API loading column dtypes. Instead access dtypes directly, resulting in less laggy taskpanes.
+* Better types across the codebase, fix up of all type errors, for better continued type support.
+* Internal refactor of taskpane logic, to cleanup code.
+
 ## 2022-1-30 <a href="#0.1.360-and-0.3.147-2021-1-11" id="0.1.360-and-0.3.147-2021-1-11"></a>
 
 New Features
