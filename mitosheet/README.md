@@ -1,6 +1,6 @@
 # The Mito Spreadsheet
 
-This folder contains a variety of packages and utilities for the `mitosheet` Python package. The primary folders of interesting:
+This folder contains a variety of packages and utilities for the `mitosheet` Python package. The primary folders of interest:
 - `mitosheet` contains the Python code for the `mitosheet` Python package. 
 - `src` contains the TypeScript, React code for the `mitosheet` JupyterLab extension front-end.
 - `css` contains styling for the frontend.
@@ -42,6 +42,8 @@ pip install -e ".[test, deploy]"
 jupyter labextension develop . --overwrite
 jupyter lab
 ```
+If the `pip install -e ".test, deploy]"` fails and the folder `pip-wheel-metadata` exists in your Mito folder, delete it. 
+
 
 In a seperate terminal, to recompile the front-end, run the following commands (`npm install` only needs to be run the first time).
 ```
@@ -51,9 +53,7 @@ jlpm run watch
 
 NOTE: On Windows, this seperate terminal _must_ be a Adminstrator terminal. To launch an admin terminal, search for Command Prompt, and then right click on the app and click Run as adminstrator. Then navigate to the virtual enviornment, start it, and then run `jlpm run watch`. 
 
-Furthermore, if the final `jlpm run watch` command fails, you need may need to run `export NODE_OPTIONS=--openssl-legacy-provider`. 
-
-If the folder `pip-wheel-metadata` exists in your Mito folder, delete it. 
+Furthermore, if the final `jlpm run watch` command fails, you may need to run `export NODE_OPTIONS=--openssl-legacy-provider`. 
 
 ### One Liner Command for Mac
 ```bash
@@ -91,8 +91,9 @@ jupyter labextension install .
 yarn cache clean
 jupyter lab --watch
 ```
-If the `jupyter labextension install .` command fails, then you need may need to run `export NODE_OPTIONS=--openssl-legacy-provider`. 
+If the `pip install -e ".test, deploy]"` fails and the folder `pip-wheel-metadata` exists in your Mito folder, delete it. 
 
+If the `jupyter labextension install .` command fails, then you may need to run `export NODE_OPTIONS=--openssl-legacy-provider`. 
 
 In a seperate terminal, to recompile the front-end, run the command:
 ```
