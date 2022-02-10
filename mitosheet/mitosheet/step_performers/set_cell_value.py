@@ -6,21 +6,22 @@
 
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
-from mitosheet.types import ColumnID
-import numpy as np
 
-from mitosheet.errors import make_cast_value_to_type_error, make_no_column_error
-from mitosheet.sheet_functions.types import SERIES_CONVERSION_FUNCTIONS
-from mitosheet.sheet_functions.types.utils import (BOOLEAN_SERIES,
-                                                   NUMBER_SERIES,
-                                                   STRING_SERIES,
-                                                   is_int_dtype,
-                                                   is_none_type)
+import numpy as np
+from mitosheet.errors import (make_cast_value_to_type_error,
+                              make_no_column_error)
+from mitosheet.sheet_functions.types import get_function_to_convert_to_series
+from mitosheet.sheet_functions.types.utils import (is_bool_dtype, is_int_dtype,
+                                                   is_none_type,
+                                                   is_number_dtype,
+                                                   is_string_dtype)
 from mitosheet.state import State
 from mitosheet.step_performers.column_steps.set_column_formula import (
     refresh_dependant_columns, transpile_dependant_columns)
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import \
+    column_header_to_transpiled_code
+from mitosheet.types import ColumnID
 
 
 class SetCellValueStepPerformer(StepPerformer):
@@ -85,8 +86,8 @@ class SetCellValueStepPerformer(StepPerformer):
         column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
 
         # Update the value of the cell, we handle it differently depending on the type of the column
-        column_mito_type = post_state.column_type[sheet_index][column_id]
-        type_corrected_new_value = cast_value_to_type(new_value, column_mito_type)
+        column_dtype = str(post_state.dfs[sheet_index][column_header].dtype)
+        type_corrected_new_value = cast_value_to_type(new_value, column_dtype)
 
         # If the series is an int, but the new value is a float, convert the series to floats before adding the new value
         column_dtype = str(post_state.dfs[sheet_index][column_header].dtype)
@@ -100,7 +101,7 @@ class SetCellValueStepPerformer(StepPerformer):
         refresh_dependant_columns(post_state, post_state.dfs[sheet_index], sheet_index)
 
         return post_state, {
-            'column_mito_type': column_mito_type # for logging
+            'type_corrected_new_value': type_corrected_new_value
         }
 
     @classmethod
@@ -122,8 +123,7 @@ class SetCellValueStepPerformer(StepPerformer):
             return code
 
         # Cast the new_value to the correct type
-        column_mito_type = post_state.column_type[sheet_index][column_id]
-        type_corrected_new_value = cast_value_to_type(new_value, column_mito_type)
+        type_corrected_new_value = execution_data['type_corrected_new_value']
 
         column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
         transpiled_column_header = column_header_to_transpiled_code(column_header)
@@ -135,7 +135,7 @@ class SetCellValueStepPerformer(StepPerformer):
 
         # Actually set the new value
         # We don't need to wrap the value in " if its None, a Boolean Series, or a Number Series.
-        if type_corrected_new_value is None or column_mito_type == BOOLEAN_SERIES or column_mito_type == NUMBER_SERIES:
+        if type_corrected_new_value is None or is_bool_dtype(column_dtype) or is_number_dtype(column_dtype):
             code.append(f'{post_state.df_names[sheet_index]}.at[{row_index}, {transpiled_column_header}] = {type_corrected_new_value}')
         else:
             code.append(f'{post_state.df_names[sheet_index]}.at[{row_index}, {transpiled_column_header}] = \"{type_corrected_new_value}\"')
@@ -177,7 +177,7 @@ class SetCellValueStepPerformer(StepPerformer):
         return {sheet_index}
 
 
-def cast_value_to_type(value: Union[str, None], mito_series_type: str) -> Optional[Any]:
+def cast_value_to_type(value: Union[str, None], column_dtype: str) -> Optional[Any]:
     """
     Helper function for converting a value into the correct type for the 
     series that it is going to be added to. 
@@ -187,19 +187,19 @@ def cast_value_to_type(value: Union[str, None], mito_series_type: str) -> Option
         return None
 
     try:
-        conversion_function = SERIES_CONVERSION_FUNCTIONS[mito_series_type]
+        conversion_function = get_function_to_convert_to_series(column_dtype)
         casted_value_series = conversion_function(value, on_uncastable_arg_element=np.NaN)
 
         type_corrected_new_value = casted_value_series.iat[0]
 
         # If the value is a string and it has a " in it, replace it with a ' so the transpiled code does not error
-        if mito_series_type == STRING_SERIES and '"' in type_corrected_new_value:
+        if is_string_dtype(column_dtype) and '"' in type_corrected_new_value:
             type_corrected_new_value = type_corrected_new_value.replace('"', "'")
 
         # If the typed value is not a float, then we do not make it one
-        if mito_series_type == NUMBER_SERIES and '.' not in value:
+        if is_number_dtype(column_dtype) and '.' not in value:
             return round(type_corrected_new_value)
 
         return type_corrected_new_value
     except:
-        raise make_cast_value_to_type_error(value, mito_series_type.replace('_', ' '), error_modal=False)
+        raise make_cast_value_to_type_error(value, column_dtype, error_modal=False)

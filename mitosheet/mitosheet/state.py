@@ -5,11 +5,9 @@
 # Distributed under the terms of the Modified BSD License.
 
 from copy import deepcopy
-from collections import OrderedDict
 from typing import Any, Collection, List, Dict, Set
 import pandas as pd
 
-from mitosheet.sheet_functions.types.utils import get_mito_type
 from mitosheet.column_headers import ColumnIDMap
 
 # Constants for where the dataframe in the state came from
@@ -46,7 +44,6 @@ class State():
             df_sources: List[str]=None,
             column_ids: ColumnIDMap=None,
             column_metatype: List[Dict[str, str]]=None,
-            column_type: List[Dict[str, str]]=None,
             column_spreadsheet_code: List[Dict[str, str]]=None,
             column_python_code: List[Dict[str, str]]=None,
             column_evaluation_graph: List[Dict[str, Set[str]]]=None,
@@ -79,15 +76,6 @@ class State():
         self.column_metatype = column_metatype if column_metatype is not None else [
             {column_id: 'value' for column_id in self.column_ids.get_column_ids(sheet_index)} 
             for sheet_index in range(len(dfs))
-        ]
-
-        # The column_type is the type of the series in this column 
-        self.column_type = column_type if column_type is not None else [
-            {
-                column_id: get_mito_type(df[column_header]) 
-                for column_id, column_header, in self.column_ids.get_column_ids_map(sheet_index).items()
-            }
-            for sheet_index, df in enumerate(dfs)
         ]
 
         # We make column_spreadsheet_code an ordered dictonary to preserve the order the formulas
@@ -126,7 +114,6 @@ class State():
             df_sources=deepcopy(self.df_sources),
             column_ids=deepcopy(self.column_ids),
             column_metatype=deepcopy(self.column_metatype),
-            column_type=deepcopy(self.column_type),
             column_spreadsheet_code=deepcopy(self.column_spreadsheet_code),
             column_python_code=deepcopy(self.column_python_code),
             column_evaluation_graph=deepcopy(self.column_evaluation_graph),
@@ -146,7 +133,6 @@ class State():
             df_sources=deepcopy(self.df_sources),
             column_ids=deepcopy(self.column_ids),
             column_metatype=deepcopy(self.column_metatype),
-            column_type=deepcopy(self.column_type),
             column_spreadsheet_code=deepcopy(self.column_spreadsheet_code),
             column_python_code=deepcopy(self.column_python_code),
             column_evaluation_graph=deepcopy(self.column_evaluation_graph),
@@ -188,7 +174,6 @@ class State():
 
             # Update all the variables that depend on column_headers
             self.column_metatype.append({column_id: 'value' for column_id in column_ids})
-            self.column_type.append({column_id: get_mito_type(new_df[column_header]) for column_id, column_header in column_ids.items()})
             self.column_spreadsheet_code.append({column_id: '' for column_id in column_ids})
             self.column_python_code.append({column_id: '' for column_id in column_ids})
             self.column_evaluation_graph.append({column_id: set() for column_id in column_ids})
@@ -214,7 +199,6 @@ class State():
 
             # Update all the variables that depend on column_headers
             self.column_metatype[sheet_index] = {column_id: 'value' for column_id in column_ids}
-            self.column_type[sheet_index] = {column_id: get_mito_type(new_df[column_header]) for column_id, column_header in column_ids.items()}
             self.column_spreadsheet_code[sheet_index] = {column_id: '' for column_id in column_ids}
             self.column_python_code[sheet_index] = {column_id: '' for column_id in column_ids}
             self.column_evaluation_graph[sheet_index] = {column_id: set() for column_id in column_ids}

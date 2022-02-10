@@ -2,7 +2,7 @@ import json
 from typing import Any, Dict
 
 import pandas as pd
-from mitosheet.sheet_functions.types.utils import NUMBER_SERIES, get_mito_type
+from mitosheet.sheet_functions.types.utils import NUMBER_SERIES, is_number_dtype
 from mitosheet.steps_manager import StepsManager
 
 
@@ -17,6 +17,7 @@ def get_column_describe(event: Dict[str, Any], steps_manager: StepsManager) -> s
     column_header = steps_manager.curr_step.get_column_header_by_id(sheet_index, column_id)
     
     series: pd.Series = steps_manager.dfs[sheet_index][column_header]
+    column_dtype = str(series.dtype)
     describe = series.describe()
 
     try:
@@ -28,7 +29,7 @@ def get_column_describe(event: Dict[str, Any], steps_manager: StepsManager) -> s
             # to the front-end.
 
             # If the series is a number, round the statistics so they look good.
-            if get_mito_type(series) == NUMBER_SERIES:
+            if is_number_dtype(column_dtype):
                 row = round(row, 2)
 
             describe_obj[index] = str(row)
@@ -37,7 +38,7 @@ def get_column_describe(event: Dict[str, Any], steps_manager: StepsManager) -> s
         describe_obj['count: NaN'] = str(series.isna().sum())
 
         # NOTE: be careful adding things here, as we dont want to destroy performance 
-        if get_mito_type(series) == NUMBER_SERIES:
+        if is_number_dtype(column_dtype):
             describe_obj['median'] = str(round(series.median(), 2))
             describe_obj['sum'] = str(round(series.sum(), 2))
 

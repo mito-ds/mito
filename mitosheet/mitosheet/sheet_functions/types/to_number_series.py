@@ -8,10 +8,12 @@
 For going to a number series.
 """
 from typing import Any, Tuple, Union
-import pandas as pd
-import numpy as np
 
-from mitosheet.sheet_functions.types.utils import BOOLEAN_SERIES, DATETIME_SERIES, NUMBER_SERIES, STRING_SERIES, get_billion_identifier_in_string, get_million_identifier_in_string, get_mito_type
+import numpy as np
+import pandas as pd
+from mitosheet.sheet_functions.types.utils import (
+    get_billion_identifier_in_string, get_million_identifier_in_string,
+    is_bool_dtype, is_datetime_dtype, is_number_dtype, is_string_dtype)
 
 
 def convert_string_to_number(
@@ -116,20 +118,19 @@ def to_number_series(
         unknown_object: Any,
         on_uncastable_arg_element: Any=('default', np.NaN), # Union[Literal['error'], Tuple[Literal['default'], any]]
     ) -> pd.Series:
-    from_type = get_mito_type(unknown_object)
 
     # If it is not a series, we put it in a series, and get the type again
-    if not from_type.endswith('series'):
+    if not isinstance(unknown_object, pd.Series):
         unknown_object = pd.Series([unknown_object])
-        from_type = get_mito_type(unknown_object)
 
-    if from_type == BOOLEAN_SERIES:
+    column_dtype = str(unknown_object.dtype)
+    if is_bool_dtype(column_dtype):
         return to_number_series_from_boolean_series(unknown_object)
-    elif from_type == DATETIME_SERIES:
+    elif is_datetime_dtype(column_dtype):
         return None
-    elif from_type == NUMBER_SERIES:
+    elif is_number_dtype(column_dtype):
         return unknown_object
-    elif from_type == STRING_SERIES:
+    elif is_string_dtype(column_dtype):
         return to_number_series_from_string_series(unknown_object, on_uncastable_arg_element=on_uncastable_arg_element)
     else:
         return None

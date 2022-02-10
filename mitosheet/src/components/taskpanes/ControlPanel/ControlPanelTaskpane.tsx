@@ -52,7 +52,7 @@ type ControlPanelTaskpaneProps = {
 export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Element => {
     
     // Get the values for the last cell that was selected
-    const {columnHeader, columnID, columnFormula, columnMitoType, columnFilters, columnDtype} = getCellDataFromCellIndexes(props.sheetData, props.selection.endingRowIndex, props.selection.endingColumnIndex);
+    const {columnHeader, columnID, columnFormula, columnFilters, columnDtype} = getCellDataFromCellIndexes(props.sheetData, props.selection.endingRowIndex, props.selection.endingColumnIndex);
 
     const [filters, setFilters] = useState(columnFilters !== undefined ? columnFilters.filters : []);
     const [operator, setOperator] = useState(columnFilters !== undefined ? columnFilters.operator : 'And');
@@ -60,7 +60,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
     
     // If this is not a valid column, don't render anything, and close the takspane! 
     // We have to do this after the useState calls, to make sure this is valid react
-    if (columnHeader === undefined || columnID === undefined || columnFormula === undefined || columnMitoType === undefined || columnDtype == undefined) {
+    if (columnHeader === undefined || columnID === undefined || columnFormula === undefined || columnDtype == undefined) {
         props.setUIState((prevUIState) => {
             return {
                 ...prevUIState,
@@ -167,7 +167,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                                 columnID={columnID}
                                 mitoAPI={props.mitoAPI}
                                 gridState={props.gridState}
-                                columnMitoType={columnMitoType}
+                                columnDtype={columnDtype}
                                 sheetData={props.sheetData}
                             />
                             <SortCard
@@ -181,7 +181,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                                 filters={filters}
                                 setFilters={setFilters}
                                 setOperator={setOperator}
-                                columnMitoType={columnMitoType}
+                                columnDtype={columnDtype}
                                 operator={operator}
                                 mitoAPI={props.mitoAPI}
                             />
@@ -195,7 +195,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                                 filters={filters}
                                 setFilters={setFilters}
                                 mitoAPI={props.mitoAPI}
-                                columnMitoType={columnMitoType}
+                                columnDtype={columnDtype}
                             />
                         </React.Fragment>
                     }

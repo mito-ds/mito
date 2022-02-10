@@ -16,9 +16,9 @@ from mitosheet.errors import (MitoError, make_function_error,
                               make_invalid_arguments_error)
 from mitosheet.sheet_functions.sheet_function_utils import \
     is_series_of_constant
-from mitosheet.sheet_functions.types import SERIES_CONVERSION_FUNCTIONS
-from mitosheet.sheet_functions.types.utils import (get_mito_type,
-                                                   get_nan_indexes_metadata,
+from mitosheet.sheet_functions.types import get_function_to_convert_to_series
+from mitosheet.sheet_functions.types.utils import (get_nan_indexes_metadata,
+                                                   get_series_filter_type,
                                                    put_nan_indexes_back)
 
 
@@ -69,12 +69,11 @@ def convert_arg_to_series_type(
             elif arg_target_series_type == 'series':
                 # If we just want any series, that's easy, we turn it into a series, if it is not 
                 # already one
-                mito_type = get_mito_type(args[arg_index])
-                if not mito_type.endswith('series'):
+                if not isinstance(args[arg_index], pd.Series):
                     args[arg_index] = pd.Series([args[arg_index]])
             else:
                 # Otherwise, we actually convert
-                conversion_function = SERIES_CONVERSION_FUNCTIONS[arg_target_series_type]
+                conversion_function = get_function_to_convert_to_series(arg_target_series_type)
                 try:
                     new_arg = conversion_function(args[arg_index], on_uncastable_arg_element=on_uncastable_arg_element)
                 except:
@@ -104,7 +103,7 @@ def convert_args_to_series_type(
     def wrap(sheet_function):
         @wraps(sheet_function)
         def wrapped_sheet_function(*args):   
-            conversion_function = SERIES_CONVERSION_FUNCTIONS[arg_target_series_type]
+            conversion_function = get_function_to_convert_to_series(arg_target_series_type)
             # We partially apply the on_uncastable_arg_element, so that we can map the conversion function
             # over the arguments
             conversion_function = partial(conversion_function, on_uncastable_arg_element=on_uncastable_arg_element)
@@ -205,13 +204,14 @@ def cast_output(
         @wraps(sheet_function)
         def wrapped_sheet_function(*args):
             if output_target_series_type == 'first_input_type':
-                input_mito_type = get_mito_type(args[0])
                 # Turn it into a series, if it is not
-                if not input_mito_type.endswith('series'):
-                    input_mito_type = get_mito_type(pd.Series([args[0]]))
-                conversion_function = SERIES_CONVERSION_FUNCTIONS[input_mito_type]
+                if not isinstance(args[0], pd.Series):
+                    series = pd.Series([args[0]])
+                else:
+                    series = args[0]
+                conversion_function = get_function_to_convert_to_series(str(series.dtype))
             else:
-                conversion_function = SERIES_CONVERSION_FUNCTIONS[output_target_series_type]
+                conversion_function = get_function_to_convert_to_series(output_target_series_type)
                         
             result = sheet_function(*args)
             try:

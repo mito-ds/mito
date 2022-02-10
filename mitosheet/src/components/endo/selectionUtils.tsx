@@ -1,4 +1,5 @@
-import { BorderStyle, ColumnHeader, ColumnMitoType, MitoSelection, SheetData } from '../../types';
+import { BorderStyle, ColumnHeader, MitoSelection, SheetData } from '../../types';
+import { isNumberDtype } from '../../utils/dtypes';
 import { MAX_ROWS } from './EndoGrid';
 
 
@@ -671,15 +672,17 @@ export const removeColumnFromSelections = (selections: MitoSelection[], columnIn
 }
 
 
-// Returns a list of column IDs of all of the selected columns that have ColumnMitoType.NUMBER_SERIES
+// Returns a list of column IDs of all of the selected columns that have number dtypes
 export const getSelectedNumberSeriesColumnIDs = (selections: MitoSelection[], sheetData: SheetData | undefined ): string[] => {
     if (sheetData === undefined) {
         return []
     }
 
     const columnIndexesSelected = getColumnIndexesInSelections(selections);
-    const columnIDsSelected = columnIndexesSelected.map(colIdx => sheetData.data[colIdx]?.columnID)
+    const columnIDsAndDtypesSelected = columnIndexesSelected.map(colIdx => [sheetData.data[colIdx]?.columnID, sheetData.data[colIdx]?.columnDtype])
 
     // Filter out any columns that are not number series
-    return columnIDsSelected.filter(columnID => sheetData.columnMitoTypeMap[columnID] === ColumnMitoType.NUMBER_SERIES)
+    return columnIDsAndDtypesSelected
+        .filter(([, columnDtype]) => {return isNumberDtype(columnDtype)})
+        .map(([columnID, ]) => {return columnID})
 }

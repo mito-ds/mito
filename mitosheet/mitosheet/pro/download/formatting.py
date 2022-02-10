@@ -1,5 +1,5 @@
 import pandas as pd
-from mitosheet.sheet_functions.types.utils import NUMBER_SERIES, is_int_dtype
+from mitosheet.sheet_functions.types.utils import is_int_dtype, is_number_dtype
 from mitosheet.state import (FORMAT_ACCOUNTING, FORMAT_DEFAULT, FORMAT_K_M_B,
                              FORMAT_PERCENTAGE, FORMAT_PLAIN_TEXT,
                              FORMAT_ROUND_DECIMALS, FORMAT_SCIENTIFIC_NOTATION)
@@ -40,11 +40,11 @@ def add_formatting_to_excel_sheet(
     ## This formatting code is wrapped in a if False until we deploy our first pro features
     for column_index, column_header in enumerate(df.keys()):
         column_id = steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index, column_header)
-        column_mito_type = steps_manager.curr_step.column_type[sheet_index][column_id]
+        column_dtype = str(df[column_header].dtype)
         format_data = format_data_map[column_id]
         excel_column = get_excel_range_from_column_index(column_index)
 
-        if (column_mito_type == NUMBER_SERIES):
+        if (is_number_dtype(column_dtype)):
             if format_data['type'] == FORMAT_DEFAULT:
                 if is_int_dtype(str(df[column_header].dtype)):
                     format = workbook.add_format({'num_format': '#,##0'})

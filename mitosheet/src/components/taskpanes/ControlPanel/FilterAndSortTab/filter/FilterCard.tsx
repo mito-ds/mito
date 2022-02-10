@@ -10,7 +10,7 @@ import Select from '../../../../elements/Select';
 import Row from '../../../../spacing/Row';
 import Col from '../../../../spacing/Col';
 import '../../../../../../css/taskpanes/ControlPanel/FilterCard.css';
-import { ColumnMitoType, FilterType, Operator, FilterGroupType } from '../../../../../types';
+import { FilterType, Operator, FilterGroupType } from '../../../../../types';
 import DropdownItem from '../../../../elements/DropdownItem';
 import { getEmptyFilterData } from './utils';
 
@@ -22,7 +22,7 @@ interface FilterCardProps {
     setOperator: React.Dispatch<React.SetStateAction<Operator>>;
     selectedSheetIndex: number;
     columnID: string;
-    columnMitoType: ColumnMitoType;
+    columnDtype: string;
     mitoAPI: MitoAPI;
 }
 
@@ -39,7 +39,7 @@ function FilterCard (props: FilterCardProps): JSX.Element {
     const addFilter = (): void => {
         props.setFilters((prevFilters) => {
             const newFilters = [...prevFilters];
-            newFilters.push(getEmptyFilterData(props.columnMitoType));
+            newFilters.push(getEmptyFilterData(props.columnDtype));
             return newFilters;
         })
     }
@@ -54,7 +54,7 @@ function FilterCard (props: FilterCardProps): JSX.Element {
             newFilters.push(
                 {
                     filters: [
-                        getEmptyFilterData(props.columnMitoType)
+                        getEmptyFilterData(props.columnDtype)
                     ],
                     operator: 'And'
                 }
@@ -73,7 +73,7 @@ function FilterCard (props: FilterCardProps): JSX.Element {
             if (isFilterGroup(filterGroup)) {
                 // If we do have a filter group at that groupIndex, then we add a new filter to it
                 filterGroup.filters.push(
-                    getEmptyFilterData(props.columnMitoType)
+                    getEmptyFilterData(props.columnDtype)
                 );
                 return newFilters;
             } else {

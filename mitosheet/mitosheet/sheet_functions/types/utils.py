@@ -25,14 +25,18 @@ MITO_PRIMITIVE_TYPE_MAPPING = {
 
 BOOLEAN_SERIES = 'boolean_series'
 DATETIME_SERIES = 'datetime_series'
+INT_SERIES = 'int_series'
+FLOAT_SERIES = 'float_series'
 TIMEDELTA_SERIES = 'timedelta_series'
-NUMBER_SERIES = 'number_series'
 STRING_SERIES = 'string_series'
+# TODO: remove this
+NUMBER_SERIES = 'number_series'
 
 # A series of helper functions that help you figure
 # out which dtype we're dealing with. NOTE: since some
 # of these types can be different varieties (e.g. int can be int64, uint64)
 # we try to check for them with simple expressions
+# NOTE: these should be identical to the TS utilities in dtypes.tsx
 
 def is_bool_dtype(dtype: str) -> bool:
     return 'bool' == dtype
@@ -53,6 +57,9 @@ def is_datetime_dtype(dtype: str) -> bool:
 
 def is_timedelta_dtype(dtype: str) -> bool:
     return 'timedelta' in dtype
+
+def is_number_dtype(dtype: str) -> bool:
+    return is_int_dtype(dtype) or is_float_dtype(dtype)
 
 def is_none_type(value: Union[str, None]) -> bool:
     """
@@ -75,7 +82,7 @@ def get_float_dt_td_columns(df: pd.DataFrame) -> Tuple[List[Any], List[Any], Lis
 
     return float_columns, date_columns, timedelta_columns
 
-def get_mito_type(obj: Any) -> str:
+def get_series_filter_type(obj: Any) -> str:
 
     if isinstance(obj, pd.Series):
         dtype = str(obj.dtype)

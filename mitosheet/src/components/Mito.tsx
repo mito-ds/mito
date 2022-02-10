@@ -277,7 +277,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const dfNames = sheetDataArray.map(sheetData => sheetData.dfName);
     const dfSources = sheetDataArray.map(sheetData => sheetData.dfSource);
     const columnIDsMapArray = sheetDataArray.map(sheetData => sheetData.columnIDsMap);
-    const columnMitoTypeMapArray = sheetDataArray.map(sheetData => sheetData.columnMitoTypeMap);
 
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
 
@@ -409,7 +408,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         dfNames={dfNames}
                         columnIDsMapArray={columnIDsMapArray}
                         sheetDataArray={sheetDataArray}
-                        columnMitoTypes={columnMitoTypeMapArray[uiState.selectedSheetIndex]}
+                        columnDtypesMap={sheetDataArray[uiState.selectedSheetIndex].columnDtypeMap}
                         mitoAPI={props.mitoAPI}
                         setUIState={setUIState} 
                         model_id={props.model_id}

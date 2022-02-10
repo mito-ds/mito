@@ -83,7 +83,6 @@ def dfs_to_array_for_json(
         df_sources: List[str],
         column_spreadsheet_code_array: List[Dict[ColumnID, str]],
         column_filters_array: List[Dict[ColumnID, Any]],
-        column_mito_types_array: List[Dict[ColumnID, str]],
         column_ids: ColumnIDMap,
         column_format_types: List[Dict[ColumnID, Dict[str, str]]]
     ) -> List:
@@ -98,7 +97,6 @@ def dfs_to_array_for_json(
                     df_sources[sheet_index],
                     column_spreadsheet_code_array[sheet_index],
                     column_filters_array[sheet_index],
-                    column_mito_types_array[sheet_index],
                     column_ids.column_header_to_column_id[sheet_index],
                     column_format_types[sheet_index],
                     # We only send the first 1500 rows, and this must 
@@ -117,7 +115,6 @@ def df_to_json_dumpsable(
         df_source: str,
         column_spreadsheet_code: Dict[ColumnID, str],
         column_filters: Dict[ColumnID, Any],
-        column_mito_types: Dict[ColumnID, str],
         column_headers_to_column_ids: Dict[ColumnHeader, ColumnID],
         column_format_types: Dict[ColumnID, Dict[ColumnID, str]],
         max_length: Optional[int]=MAX_ROWS, # How many items you want to display
@@ -141,7 +138,7 @@ def df_to_json_dumpsable(
         columnIDsMap: ColumnIDsMap;
         columnSpreadsheetCodeMap: Record<string, string>;
         columnFiltersMap: ColumnFilterMap;
-        columnMitoTypeMap: ColumnMitoTypeMap;
+        columnnDtypeMap: Record<ColumnID, string>;
         index: (string | number)[];
         columnFormatTypeObjMap: ColumnFormatTypeObjMap;
     }
@@ -184,6 +181,7 @@ def df_to_json_dumpsable(
                 d[idx] = 'NaN'
 
     final_data = []
+    column_dtype_map = {}
     for column_index, column_header in enumerate(json_obj['columns']):
         # Because turning the headers to json takes multi-index columns and converts
         # them into lists, we need to turn them back to tuples so we can index into the
@@ -191,12 +189,15 @@ def df_to_json_dumpsable(
         if isinstance(column_header, list):
             column_header = tuple(column_header)
 
+        column_id = column_headers_to_column_ids[column_header]
+
         column_final_data = {
-            'columnID': column_headers_to_column_ids[column_header],
+            'columnID': column_id,
             'columnHeader': column_header,
             'columnDtype': str(original_df[column_header].dtype),
             'columnData': []
         }
+        column_dtype_map[column_id] = str(original_df[column_header].dtype)
         for row in json_obj['data']:
             column_final_data['columnData'].append(row[column_index])
         
@@ -216,7 +217,7 @@ def df_to_json_dumpsable(
         },
         'columnSpreadsheetCodeMap': column_spreadsheet_code,
         'columnFiltersMap': column_filters,
-        'columnMitoTypeMap': column_mito_types,
+        'columnDtypeMap': column_dtype_map,
         'index': json_obj['index'],
         'columnFormatTypeObjMap': column_format_types
     }

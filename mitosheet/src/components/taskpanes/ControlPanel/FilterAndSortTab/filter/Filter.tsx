@@ -1,12 +1,12 @@
 // Copyright (c) Mito
 
 import React, { CSSProperties } from 'react';
-import { COLUMN_TYPE_TO_SELECT_OPTIONS, CONDITIONS_WITH_NO_INPUT } from './filterConditions';
+import { FILTER_TYPE_TO_SELECT_OPTIONS, CONDITIONS_WITH_NO_INPUT } from './filterConditions';
 import Row from '../../../../spacing/Row';
 import Col from '../../../../spacing/Col';
 import Select from '../../../../elements/Select';
 import XIcon from '../../../../icons/XIcon';
-import { ColumnMitoType, FilterType, Operator } from '../../../../../types';
+import { FilterType, Operator, SeriesFilterType } from '../../../../../types';
 import DropdownItem from '../../../../elements/DropdownItem';
 
 export function Filter(
@@ -60,7 +60,7 @@ export function Filter(
                     width='block'
                     dropdownWidth='medium'
                 >
-                    {Object.entries(COLUMN_TYPE_TO_SELECT_OPTIONS[props.filter.type]).map(([filterCondition, displayFilterCondition]) => {
+                    {Object.entries(FILTER_TYPE_TO_SELECT_OPTIONS[props.filter.type]).map(([filterCondition, displayFilterCondition]) => {
                         return (
                             <DropdownItem
                                 key={filterCondition}
@@ -75,7 +75,7 @@ export function Filter(
                 <input 
                     className='input element-width-block'
                     style={inputStyle}
-                    type={props.filter.type === ColumnMitoType.DATETIME_SERIES ? 'date' : 'text'}
+                    type={props.filter.type === SeriesFilterType.DATETIME_SERIES ? 'date' : 'text'}
                     value={props.filter.value} 
                     onChange={e => {
                         props.setFilter({

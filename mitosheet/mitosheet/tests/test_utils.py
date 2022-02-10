@@ -15,7 +15,7 @@ from typing import Any, Dict, List, Union
 import pandas as pd
 from mitosheet.mito_widget import MitoWidget, sheet
 from mitosheet.transpiler.transpile import transpile
-from mitosheet.types import ColumnHeader, ColumnID, MultiLevelColumnHeader, PrimativeColumnHeader
+from mitosheet.types import ColumnHeader, MultiLevelColumnHeader
 from mitosheet.utils import dfs_to_array_for_json, get_new_id
 
 
@@ -81,7 +81,7 @@ def check_dataframes_equal(test_wrapper):
     )
 
     import mitosheet
-    
+    print(code, mitosheet.__dict__)
     exec(code, 
         {
             'check_final_dataframe': check_final_dataframe,
@@ -103,7 +103,6 @@ def check_dataframes_equal(test_wrapper):
         test_wrapper.mito_widget.steps_manager.curr_step.df_sources,
         test_wrapper.mito_widget.steps_manager.curr_step.column_spreadsheet_code,
         test_wrapper.mito_widget.steps_manager.curr_step.column_filters,
-        test_wrapper.mito_widget.steps_manager.curr_step.column_type,
         test_wrapper.mito_widget.steps_manager.curr_step.column_ids,
         test_wrapper.mito_widget.steps_manager.curr_step.column_format_types
     ))
@@ -329,7 +328,6 @@ class MitoWidgetTestWrapper:
             sheet_index: int, 
             column_header: ColumnHeader,
             operator: str,
-            type_: str,
             condition: str, 
             value: Any
         ) -> bool:
@@ -351,7 +349,6 @@ class MitoWidgetTestWrapper:
                     'column_id': column_id,
                     'operator': operator,
                     'filters': [{
-                        'type': type_,
                         'condition': condition,
                         'value': value
                     }]

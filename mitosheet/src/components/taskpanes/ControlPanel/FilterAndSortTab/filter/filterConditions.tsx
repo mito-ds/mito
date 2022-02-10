@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import { BooleanFilterCondition, ColumnMitoType, DatetimeFilterCondition, NumberFilterCondition, StringFilterCondition } from "../../../../../types"
+import { BooleanFilterCondition, SeriesFilterType, DatetimeFilterCondition, NumberFilterCondition, StringFilterCondition } from "../../../../../types"
 
 
 const BOOLEAN_SELECT_OPTIONS: Record<string, string> = {
@@ -41,13 +41,13 @@ const DATETIME_SELECT_OPTIONS: Record<string, string> = {
     [DatetimeFilterCondition.NOT_EMPTY]: 'is not empty'
 } 
 
-export const COLUMN_TYPE_TO_SELECT_OPTIONS: Record<ColumnMitoType, Record<string, string>> = {
-    [ColumnMitoType.BOOLEAN_SERIES]: BOOLEAN_SELECT_OPTIONS,
-    [ColumnMitoType.STRING_SERIES]: STRING_SELECT_OPTIONS,
-    [ColumnMitoType.NUMBER_SERIES]: NUMBER_SELECT_OPTIONS,
-    [ColumnMitoType.DATETIME_SERIES]: DATETIME_SELECT_OPTIONS,
+export const FILTER_TYPE_TO_SELECT_OPTIONS: Record<SeriesFilterType, Record<string, string>> = {
+    [SeriesFilterType.BOOLEAN_SERIES]: BOOLEAN_SELECT_OPTIONS,
+    [SeriesFilterType.STRING_SERIES]: STRING_SELECT_OPTIONS,
+    [SeriesFilterType.NUMBER_SERIES]: NUMBER_SELECT_OPTIONS,
+    [SeriesFilterType.DATETIME_SERIES]: DATETIME_SELECT_OPTIONS,
     // We don't have time delta filters yet, so we just default to string options
-    [ColumnMitoType.TIMEDELTA_SERIES]: STRING_SELECT_OPTIONS,
+    [SeriesFilterType.TIMEDELTA_SERIES]: STRING_SELECT_OPTIONS,
 
 }
 

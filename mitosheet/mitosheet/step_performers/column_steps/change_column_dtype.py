@@ -9,13 +9,11 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import pandas as pd
 
 from mitosheet.errors import get_recent_traceback, make_invalid_column_type_change_error
-from mitosheet.mito_analytics import log
 from mitosheet.sheet_functions.types.to_boolean_series import to_boolean_series
 from mitosheet.sheet_functions.types.to_number_series import to_number_series
 from mitosheet.sheet_functions.types.to_timedelta_series import \
     to_timedelta_series
 from mitosheet.sheet_functions.types.utils import (get_datetime_format,
-                                                   get_mito_type,
                                                    is_bool_dtype,
                                                    is_datetime_dtype,
                                                    is_float_dtype,
@@ -203,7 +201,6 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
 
             # We update the column, as well as the type of the column
             post_state.dfs[sheet_index][column_header] = new_column
-            post_state.column_type[sheet_index][column_id] = get_mito_type(new_column)
 
             # If we're changing between number columns, we keep the formatting on the column. Otherwise, we remove it
             if not ((is_int_dtype(old_dtype) or is_float_dtype(old_dtype)) and (is_int_dtype(new_dtype) or is_float_dtype(new_dtype))):

@@ -7,18 +7,18 @@
 """
 Contains tests for save utils.
 """
-import os
-import pytest
-import pandas as pd
 import json
+import os
 import random
 
-from mitosheet.tests.test_utils import create_mito_wrapper, create_mito_wrapper_dfs, make_multi_index_header_df
-from mitosheet.step_performers.filter import FC_NUMBER_EXACTLY
-from mitosheet.sheet_functions.types.utils import NUMBER_SERIES
-from mitosheet.saved_analyses.save_utils import read_and_upgrade_analysis
-from mitosheet.utils import get_new_id
+import pandas as pd
+import pytest
 from mitosheet.saved_analyses import SAVED_ANALYSIS_FOLDER, write_analysis
+from mitosheet.saved_analyses.save_utils import read_and_upgrade_analysis
+from mitosheet.step_performers.filter import FC_NUMBER_EXACTLY
+from mitosheet.tests.test_utils import (create_mito_wrapper,
+                                        create_mito_wrapper_dfs,
+                                        make_multi_index_header_df)
 
 # We assume only column A exists
 PERSIST_ANALYSIS_TESTS = [
@@ -329,8 +329,8 @@ def test_replay_analysis_can_overwrite_entire_analysis():
 
 def test_save_analysis_saves_skipped_steps():
     mito = create_mito_wrapper([1, 2, 3])
-    mito.filter(0, 'A', 'And', NUMBER_SERIES, FC_NUMBER_EXACTLY, 2)
-    mito.filter(0, 'A', 'And', NUMBER_SERIES, FC_NUMBER_EXACTLY, 3)
+    mito.filter(0, 'A', 'And', FC_NUMBER_EXACTLY, 2)
+    mito.filter(0, 'A', 'And', FC_NUMBER_EXACTLY, 3)
 
     assert len(mito.steps) == 3
 

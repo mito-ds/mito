@@ -10,7 +10,7 @@ from copy import deepcopy
 from mitosheet.step_performers.step_performer import StepPerformer
 from typing import Any, Dict, List, Optional, Set, Tuple
 from mitosheet.state import State
-from mitosheet.sheet_functions.types.utils import get_mito_type
+from mitosheet.sheet_functions.types.utils import get_series_filter_type
 from mitosheet.topological_sort import creates_circularity, subgraph_from_starting_column_id, topological_sort_columns
 from mitosheet.sheet_functions import FUNCTIONS
 from mitosheet.parser import parse_formula
@@ -140,18 +140,6 @@ class SetColumnFormulaStepPerformer(StepPerformer):
             raise e
         except:
             raise make_execution_error(error_modal=False)
-
-
-        # Finially, update the type of the filters of this column, for all the filters
-        # TODO: fix bug where we have to update downstream types, but note that
-        # it would just be really nice if we didn't have to store the type here, and could
-        # just get it dynamically...
-        new_type = get_mito_type(post_state.dfs[sheet_index][column_header])
-        post_state.column_type[sheet_index][column_id] = new_type
-        post_state.column_filters[sheet_index][column_id]['filters'] = [
-            {'type': new_type, 'condition': filter_['condition'], 'value': filter_['value']} 
-            for filter_ in prev_state.column_filters[sheet_index][column_id]['filters']
-        ]
 
         return post_state, None
 

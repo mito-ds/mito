@@ -1,39 +1,45 @@
 // Copyright (c) Mito
 
-import { BooleanFilterCondition, ColumnMitoType, DatetimeFilterCondition, FilterType, NumberFilterCondition, StringFilterCondition, FilterGroupType } from '../../../../../types';
+import { BooleanFilterCondition, SeriesFilterType, DatetimeFilterCondition, FilterType, NumberFilterCondition, StringFilterCondition, FilterGroupType } from '../../../../../types';
+import { isBoolDtype, isDatetimeDtype, isNumberDtype, isStringDtype } from '../../../../../utils/dtypes';
 import { CONDITIONS_WITH_NO_INPUT } from './filterConditions';
 import { isFilterGroup } from './filterTypes';
 
 /*
     Returns the correct empty filter data object for the given columnMitoType
 */
-export function getEmptyFilterData(columnMitoType: ColumnMitoType): FilterType {
-    switch (columnMitoType) {
-        case ColumnMitoType.BOOLEAN_SERIES: return {
-            type: ColumnMitoType.BOOLEAN_SERIES,
+export function getEmptyFilterData(columnDtype: string): FilterType {
+
+    if (isBoolDtype(columnDtype)) {
+        return {
+            type: SeriesFilterType.BOOLEAN_SERIES,
             condition: BooleanFilterCondition.IS_TRUE,
             value: ''
         }
-        case ColumnMitoType.STRING_SERIES: return {
-            type: ColumnMitoType.STRING_SERIES,
+    } else if (isStringDtype(columnDtype)) {
+        return {
+            type: SeriesFilterType.STRING_SERIES,
             condition: StringFilterCondition.CONTAINS,
             value: ''
         }
-        case ColumnMitoType.NUMBER_SERIES: return {
-            type: ColumnMitoType.NUMBER_SERIES,
+    } else if (isNumberDtype(columnDtype)) {
+        return {
+            type: SeriesFilterType.NUMBER_SERIES,
             condition: NumberFilterCondition.GREATER,
             value: ''
         }
-        case ColumnMitoType.DATETIME_SERIES: return {
-            type: ColumnMitoType.DATETIME_SERIES,
+    } else if (isDatetimeDtype(columnDtype)) {
+        return {
+            type: SeriesFilterType.DATETIME_SERIES,
             condition: DatetimeFilterCondition.DATETIME_EXTACTLY,
             value: ''
         }
+    } else {
         // We include a default return, to stop filters on columns
         // like timedeltas from crashing the sheet if you add
         // a filter to it (although it's non functional :( )
-        default: return {
-            type: ColumnMitoType.STRING_SERIES,
+        return {
+            type: SeriesFilterType.STRING_SERIES,
             condition: StringFilterCondition.CONTAINS,
             value: ''
         }
@@ -43,16 +49,18 @@ export function getEmptyFilterData(columnMitoType: ColumnMitoType): FilterType {
 /*
     Returns the a filter data object that excluded the value for the given columnMitoType
 */
-export function getExclusiveFilterData(columnMitoType: ColumnMitoType, value: string | number | boolean): FilterType {
+export function getExclusiveFilterData(columnDtype: string, value: string | number | boolean): FilterType {
     const isNaN = isValueNone(value)
-    switch (columnMitoType) {
-        case ColumnMitoType.BOOLEAN_SERIES: return {
-            type: ColumnMitoType.BOOLEAN_SERIES,
+
+    if (isBoolDtype(columnDtype)) {
+        return {
+            type: SeriesFilterType.BOOLEAN_SERIES,
             condition: isNaN ? BooleanFilterCondition.NOT_EMPTY : value ? BooleanFilterCondition.IS_FALSE : BooleanFilterCondition.IS_TRUE,
             value: '' // Boolean filters don't utilize a value
         }
-        case ColumnMitoType.STRING_SERIES: return {
-            type: ColumnMitoType.STRING_SERIES,
+    } else if (isStringDtype(columnDtype)) {
+        return {
+            type: SeriesFilterType.STRING_SERIES,
             condition: isNaN ? StringFilterCondition.NOT_EMPTY : StringFilterCondition.STRING_NOT_EXACTLY,
             // The StringFilterType requires that the value be a string. However, we don't actually cast it to a string
             // because we'd prefer an error to be thrown to let the user that the filter failed than for the incorrect filter to be generated.
@@ -60,24 +68,27 @@ export function getExclusiveFilterData(columnMitoType: ColumnMitoType, value: st
             // However, if we actually cast to a string, then the filter generated will be != '1', which will have no effect.
             value: value as string 
         }
-        case ColumnMitoType.NUMBER_SERIES: return {
-            type: ColumnMitoType.NUMBER_SERIES,
+    } else if (isNumberDtype(columnDtype)) {
+        return {
+            type: SeriesFilterType.NUMBER_SERIES,
             condition: isNaN ? NumberFilterCondition.NOT_EMPTY : NumberFilterCondition.NUMBER_NOT_EXACTLY,
             value: value as number | string // The NumberFilterType accepts either numbers or strings as the value
         }
-        case ColumnMitoType.DATETIME_SERIES: return {
-            type: ColumnMitoType.DATETIME_SERIES,
+    } else if (isDatetimeDtype(columnDtype)) {
+        return {
+            type: SeriesFilterType.DATETIME_SERIES,
             condition: isNaN ? DatetimeFilterCondition.NOT_EMPTY : DatetimeFilterCondition.DATETIME_NOT_EXTACTLY, 
             // The DatetimeFilterType accepts either numbers or strings as the value, but notably,
             // If the value is set through the Values Tab, then it will be in the format yyyy/mm/dd hh:mm:ss.
             // This input field only supports the format yyyy/mm/dd, so we discard the time component if it exists
             value: (value as string).split(' ')[0] 
         }
+    } else {
         // We include a default return, to stop filters on columns
         // like timedeltas from crashing the sheet if you add
         // a filter to it (although it's non functional :( )
-        default: return {
-            type: ColumnMitoType.STRING_SERIES,
+        return {
+            type: SeriesFilterType.STRING_SERIES,
             condition: StringFilterCondition.CONTAINS,
             value: ''
         }
@@ -94,11 +105,11 @@ export const isValidFilter = (filter: FilterType): boolean => {
         return true;
     }
 
-    if (filter.type === ColumnMitoType.NUMBER_SERIES) {
+    if (filter.type === SeriesFilterType.NUMBER_SERIES) {
         return typeof filter.value !== 'string' && !isNaN(filter.value);
     }
 
-    if (filter.type === ColumnMitoType.STRING_SERIES || filter.type === ColumnMitoType.DATETIME_SERIES) {
+    if (filter.type === SeriesFilterType.STRING_SERIES || filter.type === SeriesFilterType.DATETIME_SERIES) {
         return filter.value !== '';
     }
 
@@ -110,7 +121,7 @@ export const isValidFilter = (filter: FilterType): boolean => {
     numbers before sending them to the backend
 */
 export const parseFilter = (filter: FilterType): FilterType => {
-    if (filter.type === ColumnMitoType.NUMBER_SERIES && typeof filter.value === 'string') {
+    if (filter.type === SeriesFilterType.NUMBER_SERIES && typeof filter.value === 'string') {
         return {
             type: filter.type,
             condition: filter.condition,
@@ -123,13 +134,13 @@ export const parseFilter = (filter: FilterType): FilterType => {
 /*
     Returns all of the values that are filtered out through a does not contain filter 
 */
-export const getAllDoesNotContainsFilterValues = (filters: (FilterType | FilterGroupType)[], columnMitoType: ColumnMitoType): (string | number | boolean)[] => {
+export const getAllDoesNotContainsFilterValues = (filters: (FilterType | FilterGroupType)[], columnDtype: string): (string | number | boolean)[] => {
 
     const filteredOutValues: (string | number | boolean)[] = []
     filters.forEach(filterOrGroup => {
         if (isFilterGroup(filterOrGroup)) {
             return 
-        } else if (columnMitoType === ColumnMitoType.BOOLEAN_SERIES) {
+        } else if (isBoolDtype(columnDtype)) {
             // Handle booleans separately since they don't have a NOT_EXACTLY condition
             if (filterOrGroup.condition === BooleanFilterCondition.IS_FALSE) {
                 filteredOutValues.push(true)
@@ -139,7 +150,7 @@ export const getAllDoesNotContainsFilterValues = (filters: (FilterType | FilterG
         } else {
             // If the condition is a NOT_EXACTLY filter condition then add the value to the list of filtered out values
             // Note: we don't have filter conditions for timedelta series
-            if (filterOrGroup.condition === getNotExactlyFilterCondition(columnMitoType)) {
+            if (filterOrGroup.condition === getNotExactlyFilterCondition(columnDtype)) {
                 filteredOutValues.push(filterOrGroup.value)
             
             // If the condition is the NOT_EMPTY filter condition (note: all NOT_EMPTY conditions are the same regaurdless of columnMitoType)
@@ -153,16 +164,16 @@ export const getAllDoesNotContainsFilterValues = (filters: (FilterType | FilterG
 }
 
 /*
-    Given a ColumnMitoType, returns the appropriate NOT_EXACTLY filter condition. 
+    Given a columnDtype, returns the appropriate NOT_EXACTLY filter condition. 
     Returns '' if none exists.
 */
-const getNotExactlyFilterCondition = (columnMitoType: ColumnMitoType): string => {
+const getNotExactlyFilterCondition = (columnDtype: string): string => {
 
-    if (columnMitoType === ColumnMitoType.NUMBER_SERIES) {
+    if (isNumberDtype(columnDtype)) {
         return NumberFilterCondition.NUMBER_NOT_EXACTLY
-    } else if (columnMitoType === ColumnMitoType.STRING_SERIES) {
+    } else if (isStringDtype(columnDtype)) {
         return StringFilterCondition.STRING_NOT_EXACTLY 
-    } else if (columnMitoType === ColumnMitoType.DATETIME_SERIES) {
+    } else if (isDatetimeDtype(columnDtype)) {
         return DatetimeFilterCondition.DATETIME_NOT_EXTACTLY
     } else {
         return ''

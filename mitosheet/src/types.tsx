@@ -64,10 +64,10 @@ export enum DFSource {
 }
 
 /**
- * The Mito Type of the column, which groups together
+ * The Filter Type of the column, which groups together
  * logically related types (e.g. all numbers).
  */
-export const enum ColumnMitoType {
+export const enum SeriesFilterType {
     BOOLEAN_SERIES = 'boolean_series',
     NUMBER_SERIES = 'number_series',
     STRING_SERIES = 'string_series',
@@ -120,19 +120,19 @@ export enum DatetimeFilterCondition {
 }
 
 export interface BooleanFilterType {
-    type: ColumnMitoType.BOOLEAN_SERIES,
+    type: SeriesFilterType.BOOLEAN_SERIES,
     condition: BooleanFilterCondition;
     value: string;
 }
 
 export interface StringFilterType {
-    type: ColumnMitoType.STRING_SERIES,
+    type: SeriesFilterType.STRING_SERIES,
     condition: StringFilterCondition;
     value: string;
 }
 
 export interface NumberFilterType {
-    type: ColumnMitoType.NUMBER_SERIES,
+    type: SeriesFilterType.NUMBER_SERIES,
     condition: NumberFilterCondition;
     /* 
         We allow number filters to contain a number or a string, as the frontend
@@ -146,7 +146,7 @@ export interface NumberFilterType {
 
 
 export interface DatetimeFilterType {
-    type: ColumnMitoType.DATETIME_SERIES,
+    type: SeriesFilterType.DATETIME_SERIES,
     condition: DatetimeFilterCondition;
     value: string;
 }
@@ -170,10 +170,6 @@ export interface ColumnFilters {
 
 export interface ColumnFilterMap {
     [column: string]: ColumnFilters;
-}
-
-export interface ColumnMitoTypeMap {
-    [Key: string]: ColumnMitoType;
 }
 
 export interface ColumnFormatTypeObjMap {
@@ -221,7 +217,7 @@ export type ColumnIDsMap = Record<string, ColumnHeader>;
  * @param columnIDsMap - for this dataframe, a map from column id -> column headers
  * @param columnSpreadsheetCodeMap - for this dataframe, a map from column id -> spreadsheet formula
  * @param columnFiltersMap - for this dataframe, a map from column id -> filter objects
- * @param columnMitoTypeMap - for this dataframe, a map from column id -> column mito type
+ * @param columnDtypeMap - for this dataframe, a map from column id -> column dtype
  * @param index - the indexes in this dataframe
  * @param columnFormatTypeObjMap - for this dataframe, a map from columnd id -> the format type object applied to that column.
  */
@@ -239,7 +235,7 @@ export type SheetData = {
     columnIDsMap: ColumnIDsMap;
     columnSpreadsheetCodeMap: Record<string, string>;
     columnFiltersMap: ColumnFilterMap;
-    columnMitoTypeMap: ColumnMitoTypeMap
+    columnDtypeMap: Record<string, string>;
     index: (string | number)[];
     columnFormatTypeObjMap: ColumnFormatTypeObjMap
 };

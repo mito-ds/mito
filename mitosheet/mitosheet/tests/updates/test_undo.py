@@ -28,8 +28,8 @@ def test_undo_deletes_df_name():
 
 def test_undo_to_skipped_step_refreshes_step():
     mito = create_mito_wrapper([1, 2, 3])
-    mito.filter(0, 'A', 'And', NUMBER_SERIES, FC_NUMBER_EXACTLY, 2)
-    mito.filter(0, 'A', 'And', NUMBER_SERIES, FC_NUMBER_EXACTLY, 3)
+    mito.filter(0, 'A', 'And', FC_NUMBER_EXACTLY, 2)
+    mito.filter(0, 'A', 'And', FC_NUMBER_EXACTLY, 3)
     mito.undo()
 
     assert len(mito.steps) == 2

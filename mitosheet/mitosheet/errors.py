@@ -132,7 +132,7 @@ def make_invalid_formula_error(formula: str, to_fix: str=None, error_modal: bool
     )
 
 
-def make_cast_value_to_type_error(value: str, target_type: str, error_modal: bool=True) -> MitoError:
+def make_cast_value_to_type_error(value: str, column_dtype: str, error_modal: bool=True) -> MitoError:
     """
     Helper function for creating a cast_value_to_type_error.
 
@@ -142,8 +142,8 @@ def make_cast_value_to_type_error(value: str, target_type: str, error_modal: boo
     """
     return MitoError(
         'cast_value_to_type_error',
-        'Invalid Value for ' + target_type + 'Column',
-        'The value ' + value + ' could not be cast to the type ' + target_type + '. Please enter a different value.' , 
+        'Invalid Value for ' + column_dtype + 'Series',
+        'The value ' + value + ' could not be cast to the type ' + column_dtype + '. Please enter a different value.' , 
         error_modal=error_modal
     )
 

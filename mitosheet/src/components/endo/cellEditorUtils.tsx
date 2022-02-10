@@ -175,8 +175,8 @@ export const getSuggestedColumnHeaders = (formula: string, columnID: string, she
         
         // Actually build the suggestions , with subtext that displays the column type
         const suggestedColumnHeaders: [string, string][] = foundColumns.map(([columnID, columnHeader]) => {
-            const columnMitoType = sheetData.columnMitoTypeMap[columnID];
-            const subtextType = columnMitoType === undefined ? 'series' : columnMitoType.replace('_', ' '); 
+            const columnDtype = sheetData.columnDtypeMap[columnID];
+            const subtextType = columnDtype === undefined ? 'series' : columnDtype + ' series'; 
             return [columnHeader, `A ${subtextType} in your dataset`];
         });
         if (suggestedColumnHeaders.length > 0) {

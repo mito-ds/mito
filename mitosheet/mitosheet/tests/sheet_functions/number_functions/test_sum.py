@@ -8,8 +8,6 @@
 Contains tests for the SUM function.
 """
 
-from mitosheet.step_performers.filter import FC_NUMBER_GREATER
-from mitosheet.sheet_functions.types import NUMBER_SERIES
 import pytest
 import pandas as pd
 import numpy as np
