@@ -219,6 +219,7 @@ function FilterCard (props: FilterCardProps): JSX.Element {
                                         deleteFilterFromGroup(index, filterIndex);
                                     }}
                                     addFilter={() => addFilterToGroup(index)}
+                                    columnDtype={props.columnDtype}
                                 />
                             </Col>
                         </Row>
@@ -236,6 +237,7 @@ function FilterCard (props: FilterCardProps): JSX.Element {
                             }}
                             setOperator={props.setOperator}
                             deleteFilter={() => {deleteFilter(index)}}
+                            columnDtype={props.columnDtype}
                         />
                     );
                 }

@@ -1,9 +1,10 @@
 // Copyright (c) Mito
 
-import { BooleanFilterCondition, SeriesFilterType, DatetimeFilterCondition, FilterType, NumberFilterCondition, StringFilterCondition, FilterGroupType } from '../../../../../types';
+import { FilterType, FilterGroupType } from '../../../../../types';
 import { isBoolDtype, isDatetimeDtype, isNumberDtype, isStringDtype } from '../../../../../utils/dtypes';
 import { CONDITIONS_WITH_NO_INPUT } from './filterConditions';
 import { isFilterGroup } from './filterTypes';
+
 
 /*
     Returns the correct empty filter data object for the given columnMitoType
@@ -12,26 +13,22 @@ export function getEmptyFilterData(columnDtype: string): FilterType {
 
     if (isBoolDtype(columnDtype)) {
         return {
-            type: SeriesFilterType.BOOLEAN_SERIES,
-            condition: BooleanFilterCondition.IS_TRUE,
+            condition: 'boolean_is_true',
             value: ''
         }
     } else if (isStringDtype(columnDtype)) {
         return {
-            type: SeriesFilterType.STRING_SERIES,
-            condition: StringFilterCondition.CONTAINS,
+            condition: 'contains',
             value: ''
         }
     } else if (isNumberDtype(columnDtype)) {
         return {
-            type: SeriesFilterType.NUMBER_SERIES,
-            condition: NumberFilterCondition.GREATER,
+            condition: 'greater',
             value: ''
         }
     } else if (isDatetimeDtype(columnDtype)) {
         return {
-            type: SeriesFilterType.DATETIME_SERIES,
-            condition: DatetimeFilterCondition.DATETIME_EXTACTLY,
+            condition: 'datetime_exactly',
             value: ''
         }
     } else {
@@ -39,8 +36,7 @@ export function getEmptyFilterData(columnDtype: string): FilterType {
         // like timedeltas from crashing the sheet if you add
         // a filter to it (although it's non functional :( )
         return {
-            type: SeriesFilterType.STRING_SERIES,
-            condition: StringFilterCondition.CONTAINS,
+            condition: 'contains',
             value: ''
         }
     }
@@ -54,14 +50,12 @@ export function getExclusiveFilterData(columnDtype: string, value: string | numb
 
     if (isBoolDtype(columnDtype)) {
         return {
-            type: SeriesFilterType.BOOLEAN_SERIES,
-            condition: isNaN ? BooleanFilterCondition.NOT_EMPTY : value ? BooleanFilterCondition.IS_FALSE : BooleanFilterCondition.IS_TRUE,
+            condition: isNaN ? 'not_empty' : value ? 'boolean_is_false' : 'boolean_is_true',
             value: '' // Boolean filters don't utilize a value
         }
     } else if (isStringDtype(columnDtype)) {
         return {
-            type: SeriesFilterType.STRING_SERIES,
-            condition: isNaN ? StringFilterCondition.NOT_EMPTY : StringFilterCondition.STRING_NOT_EXACTLY,
+            condition: isNaN ? 'not_empty' : 'string_not_exactly',
             // The StringFilterType requires that the value be a string. However, we don't actually cast it to a string
             // because we'd prefer an error to be thrown to let the user that the filter failed than for the incorrect filter to be generated.
             // In particular: if the series is [1, 2, 'aaron'], and the user filters out 1, then the backend will throw an error because 1 is not a string.
@@ -70,14 +64,12 @@ export function getExclusiveFilterData(columnDtype: string, value: string | numb
         }
     } else if (isNumberDtype(columnDtype)) {
         return {
-            type: SeriesFilterType.NUMBER_SERIES,
-            condition: isNaN ? NumberFilterCondition.NOT_EMPTY : NumberFilterCondition.NUMBER_NOT_EXACTLY,
+            condition: isNaN ? 'not_empty' : 'number_not_exactly',
             value: value as number | string // The NumberFilterType accepts either numbers or strings as the value
         }
     } else if (isDatetimeDtype(columnDtype)) {
         return {
-            type: SeriesFilterType.DATETIME_SERIES,
-            condition: isNaN ? DatetimeFilterCondition.NOT_EMPTY : DatetimeFilterCondition.DATETIME_NOT_EXTACTLY, 
+            condition: isNaN ? 'not_empty' : 'datetime_not_exactly', 
             // The DatetimeFilterType accepts either numbers or strings as the value, but notably,
             // If the value is set through the Values Tab, then it will be in the format yyyy/mm/dd hh:mm:ss.
             // This input field only supports the format yyyy/mm/dd, so we discard the time component if it exists
@@ -88,8 +80,7 @@ export function getExclusiveFilterData(columnDtype: string, value: string | numb
         // like timedeltas from crashing the sheet if you add
         // a filter to it (although it's non functional :( )
         return {
-            type: SeriesFilterType.STRING_SERIES,
-            condition: StringFilterCondition.CONTAINS,
+            condition: 'contains',
             value: ''
         }
     }
@@ -100,16 +91,17 @@ export function getExclusiveFilterData(columnDtype: string, value: string | numb
     1. It should have an input, and it does not
     2. It is a number filter with a string input, or with a non-valid number input        
 */
-export const isValidFilter = (filter: FilterType): boolean => {
+export const isValidFilter = (filter: FilterType, columnDtype: string): boolean => {
     if (CONDITIONS_WITH_NO_INPUT.includes(filter.condition)) {
         return true;
     }
 
-    if (filter.type === SeriesFilterType.NUMBER_SERIES) {
+    // Number series
+    if (isNumberDtype(columnDtype)) {
         return typeof filter.value !== 'string' && !isNaN(filter.value);
     }
-
-    if (filter.type === SeriesFilterType.STRING_SERIES || filter.type === SeriesFilterType.DATETIME_SERIES) {
+    // String or datetime
+    if (isStringDtype(columnDtype) || isDatetimeDtype(columnDtype)) {
         return filter.value !== '';
     }
 
@@ -120,10 +112,9 @@ export const isValidFilter = (filter: FilterType): boolean => {
     The frontend stores number filters as strings, and so we parse them to
     numbers before sending them to the backend
 */
-export const parseFilter = (filter: FilterType): FilterType => {
-    if (filter.type === SeriesFilterType.NUMBER_SERIES && typeof filter.value === 'string') {
+export const parseFilter = (filter: FilterType, columnDtype: string): FilterType => {
+    if (isNumberDtype(columnDtype) && typeof filter.value === 'string') {
         return {
-            type: filter.type,
             condition: filter.condition,
             value: parseFloat(filter.value)
         }
@@ -142,9 +133,9 @@ export const getAllDoesNotContainsFilterValues = (filters: (FilterType | FilterG
             return 
         } else if (isBoolDtype(columnDtype)) {
             // Handle booleans separately since they don't have a NOT_EXACTLY condition
-            if (filterOrGroup.condition === BooleanFilterCondition.IS_FALSE) {
+            if (filterOrGroup.condition === 'boolean_is_false') {
                 filteredOutValues.push(true)
-            } else if (filterOrGroup.condition === BooleanFilterCondition.IS_TRUE) {
+            } else if (filterOrGroup.condition === 'boolean_is_true') {
                 filteredOutValues.push(false)
             }
         } else {
@@ -155,7 +146,7 @@ export const getAllDoesNotContainsFilterValues = (filters: (FilterType | FilterG
             
             // If the condition is the NOT_EMPTY filter condition (note: all NOT_EMPTY conditions are the same regaurdless of columnMitoType)
             // then add 'NaN' to the list of filtered out values
-            } else if (filterOrGroup.condition === StringFilterCondition.NOT_EMPTY) {
+            } else if (filterOrGroup.condition === 'not_empty') {
                 filteredOutValues.push('NaN')
             }
         }
@@ -170,11 +161,11 @@ export const getAllDoesNotContainsFilterValues = (filters: (FilterType | FilterG
 const getNotExactlyFilterCondition = (columnDtype: string): string => {
 
     if (isNumberDtype(columnDtype)) {
-        return NumberFilterCondition.NUMBER_NOT_EXACTLY
+        return 'number_not_exactly'
     } else if (isStringDtype(columnDtype)) {
-        return StringFilterCondition.STRING_NOT_EXACTLY 
+        return 'string_not_exactly' 
     } else if (isDatetimeDtype(columnDtype)) {
-        return DatetimeFilterCondition.DATETIME_NOT_EXTACTLY
+        return 'datetime_not_exactly'
     } else {
         return ''
     }
@@ -190,7 +181,7 @@ export const areFiltersEqual = (filterOne: FilterType, filterTwo: FilterType): b
     const valueOne = isValueNone(filterOne.value) || filterOne.value
     const valueTwo = isValueNone(filterOne.value) || filterTwo.value
 
-    return valueOne == valueTwo && filterOne.condition === filterTwo.condition && filterOne.type === filterTwo.type
+    return valueOne == valueTwo && filterOne.condition === filterTwo.condition
 }
 
 /*

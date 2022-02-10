@@ -16,6 +16,7 @@ export default function FilterGroup(
         setOperator: (operator: Operator) => void;
         deleteFilter: (filterIndex: number) => void;
         addFilter: () => void;
+        columnDtype: string;
     }): JSX.Element {
     
     return (
@@ -34,6 +35,7 @@ export default function FilterGroup(
                         setOperator={props.setOperator}
                         deleteFilter={() => {props.deleteFilter(index)}}
                         inGroup
+                        columnDtype={props.columnDtype}
                     />
                 )
             })}

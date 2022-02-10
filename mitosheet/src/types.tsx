@@ -64,98 +64,45 @@ export enum DFSource {
 }
 
 /**
- * The Filter Type of the column, which groups together
- * logically related types (e.g. all numbers).
- */
-export const enum SeriesFilterType {
-    BOOLEAN_SERIES = 'boolean_series',
-    NUMBER_SERIES = 'number_series',
-    STRING_SERIES = 'string_series',
-    DATETIME_SERIES = 'datetime_series',
-    TIMEDELTA_SERIES = 'timedelta_series',
-}
-
-/**
  * The two different ways to combine filters together
  */
 export type Operator = 'And' | 'Or';
 
+export type BooleanFilterCondition = 'boolean_is_true'
+    | 'boolean_is_false'
+    | 'empty'
+    | 'not_empty'
 
-export enum BooleanFilterCondition {
-    IS_TRUE = 'boolean_is_true',
-    IS_FALSE = 'boolean_is_false',
-    EMPTY = 'empty',
-    NOT_EMPTY = 'not_empty',
+export type StringFilterCondition = 'contains'
+    | 'string_does_not_contain'
+    | 'string_exactly'
+    | 'string_not_exactly'
+    | 'empty'
+    | 'not_empty'
+
+export type NumberFilterCondition = 'number_exactly'
+    | 'number_not_exactly'
+    | 'greater'
+    | 'greater_than_or_equal'
+    | 'less'
+    | 'less_than_or_equal'
+    | 'empty'
+    | 'not_empty'
+
+export type DatetimeFilterCondition = 'datetime_exactly'
+    | 'datetime_not_exactly'
+    | 'datetime_greater'
+    | 'datetime_greater_than_or_equal'
+    | 'datetime_less'
+    | 'datetime_less_than_or_equal'
+    | 'empty'
+    | 'not_empty'
+
+
+export interface FilterType {
+    condition: BooleanFilterCondition | StringFilterCondition | NumberFilterCondition | DatetimeFilterCondition;
+    value: string | number;
 }
-
-export enum StringFilterCondition {
-    CONTAINS = 'contains',
-    DOES_NOT_CONTAIN = 'string_does_not_contain',
-    STRING_EXACTLY = 'string_exactly',
-    STRING_NOT_EXACTLY = 'string_not_exactly',
-    EMPTY = 'empty',
-    NOT_EMPTY = 'not_empty',
-}
-
-export enum NumberFilterCondition {
-    NUMBER_EXACTLY = 'number_exactly',
-    NUMBER_NOT_EXACTLY = 'number_not_exactly',
-    GREATER = 'greater',
-    GREATER_THAN_OR_EQUAL = 'greater_than_or_equal',
-    LESS = 'less',
-    LESS_THAN_OR_EQUAL = 'less_than_or_equal',
-    EMPTY = 'empty',
-    NOT_EMPTY = 'not_empty',
-}
-
-export enum DatetimeFilterCondition {
-    DATETIME_EXTACTLY = 'datetime_exactly',
-    DATETIME_NOT_EXTACTLY = 'datetime_not_exactly',
-    DATETIME_GREATER_THAN = 'datetime_greater',
-    DATETIME_GREATER_THAN_OR_EQUAL = 'datetime_greater_than_or_equal',
-    DATETIME_LESS = 'datetime_less',
-    DATETIME_LESS_THAN_OR_EQUAL = 'datetime_less_than_or_equal',
-    EMPTY = 'empty',
-    NOT_EMPTY = 'not_empty',
-}
-
-export interface BooleanFilterType {
-    type: SeriesFilterType.BOOLEAN_SERIES,
-    condition: BooleanFilterCondition;
-    value: string;
-}
-
-export interface StringFilterType {
-    type: SeriesFilterType.STRING_SERIES,
-    condition: StringFilterCondition;
-    value: string;
-}
-
-export interface NumberFilterType {
-    type: SeriesFilterType.NUMBER_SERIES,
-    condition: NumberFilterCondition;
-    /* 
-        We allow number filters to contain a number or a string, as the frontend
-        always stores them as a string (when the user edits them), and thus
-        allows us to support negative numnbers, decimals, etc - e.g. numbers that 
-        don't parse well while they are being typed
-    */
-    value: number | string;
-}
-
-
-
-export interface DatetimeFilterType {
-    type: SeriesFilterType.DATETIME_SERIES,
-    condition: DatetimeFilterCondition;
-    value: string;
-}
-
-export type FilterType = 
-    | BooleanFilterType
-    | StringFilterType
-    | NumberFilterType
-    | DatetimeFilterType
 
 
 export interface FilterGroupType {

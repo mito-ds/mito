@@ -1,13 +1,15 @@
 // Copyright (c) Mito
 
 import React, { CSSProperties } from 'react';
-import { FILTER_TYPE_TO_SELECT_OPTIONS, CONDITIONS_WITH_NO_INPUT } from './filterConditions';
+import { BOOLEAN_SELECT_OPTIONS, CONDITIONS_WITH_NO_INPUT, DATETIME_SELECT_OPTIONS, NUMBER_SELECT_OPTIONS, STRING_SELECT_OPTIONS } from './filterConditions';
 import Row from '../../../../spacing/Row';
 import Col from '../../../../spacing/Col';
 import Select from '../../../../elements/Select';
 import XIcon from '../../../../icons/XIcon';
-import { FilterType, Operator, SeriesFilterType } from '../../../../../types';
+import { FilterType, Operator } from '../../../../../types';
 import DropdownItem from '../../../../elements/DropdownItem';
+import { isBoolDtype, isDatetimeDtype, isNumberDtype } from '../../../../../utils/dtypes';
+
 
 export function Filter(
     props: {
@@ -19,10 +21,71 @@ export function Filter(
         setOperator: (operator: Operator) => void;
         deleteFilter: () => void;
         inGroup?: boolean;
+        columnDtype: string;
     }): JSX.Element {
 
     // We hide the input if it is not necessary
     const inputStyle: CSSProperties = CONDITIONS_WITH_NO_INPUT.includes(props.filter.condition) ? {'visibility': 'hidden'} : {'visibility': 'visible'};
+    
+    const getFilterOptions = (): JSX.Element => {
+        if (isNumberDtype(props.columnDtype)) {
+            return (
+                <>
+                    {Object.entries(NUMBER_SELECT_OPTIONS).map(([filterCondition, displayFilterCondition]) => {
+                        return (
+                            <DropdownItem
+                                key={filterCondition}
+                                id={filterCondition}
+                                title={displayFilterCondition}
+                            />
+                        )
+                    })}
+                </>
+            )
+        } else if (isBoolDtype(props.columnDtype)) {
+            return (
+                <>
+                    {Object.entries(BOOLEAN_SELECT_OPTIONS).map(([filterCondition, displayFilterCondition]) => {
+                        return (
+                            <DropdownItem
+                                key={filterCondition}
+                                id={filterCondition}
+                                title={displayFilterCondition}
+                            />
+                        )
+                    })}
+                </>
+            )
+        } else if (isDatetimeDtype(props.columnDtype)) {
+            return (
+                <>
+                    {Object.entries(DATETIME_SELECT_OPTIONS).map(([filterCondition, displayFilterCondition]) => {
+                        return (
+                            <DropdownItem
+                                key={filterCondition}
+                                id={filterCondition}
+                                title={displayFilterCondition}
+                            />
+                        )
+                    })}
+                </>
+            )
+        }
+
+        return (
+            <>
+                {Object.entries(STRING_SELECT_OPTIONS).map(([filterCondition, displayFilterCondition]) => {
+                    return (
+                        <DropdownItem
+                            key={filterCondition}
+                            id={filterCondition}
+                            title={displayFilterCondition}
+                        />
+                    )
+                })}
+            </>
+        )
+    }
 
     return (
         <Row justify='space-between' align='center'>
@@ -52,7 +115,6 @@ export function Filter(
                     value={props.filter.condition}
                     onChange={(newFilterCondition: string) => {
                         props.setFilter({
-                            type: props.filter.type as any,
                             condition: newFilterCondition as any,
                             value: props.filter.value
                         })
@@ -60,26 +122,17 @@ export function Filter(
                     width='block'
                     dropdownWidth='medium'
                 >
-                    {Object.entries(FILTER_TYPE_TO_SELECT_OPTIONS[props.filter.type]).map(([filterCondition, displayFilterCondition]) => {
-                        return (
-                            <DropdownItem
-                                key={filterCondition}
-                                id={filterCondition}
-                                title={displayFilterCondition}
-                            />
-                        )
-                    })}
+                    {getFilterOptions()}
                 </Select>
             </Col>
             <Col span={9}>
                 <input 
                     className='input element-width-block'
                     style={inputStyle}
-                    type={props.filter.type === SeriesFilterType.DATETIME_SERIES ? 'date' : 'text'}
+                    type={isDatetimeDtype(props.columnDtype) ? 'date' : 'text'}
                     value={props.filter.value} 
                     onChange={e => {
                         props.setFilter({
-                            type: props.filter.type as any,
                             condition: props.filter.condition as any,
                             value: e.target.value
                         })

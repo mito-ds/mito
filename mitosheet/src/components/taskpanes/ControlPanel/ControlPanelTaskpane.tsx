@@ -96,12 +96,12 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
             if (isFilterGroup(filterOrGroup)) {
                 return {
                     filters: filterOrGroup.filters.map((filter) => {
-                        return parseFilter(filter);
+                        return parseFilter(filter, columnDtype);
                     }),
                     operator: filterOrGroup.operator
                 }
             } else {
-                return parseFilter(filterOrGroup)
+                return parseFilter(filterOrGroup, columnDtype)
             }
         })
 
@@ -110,7 +110,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
             if (isFilterGroup(filterOrGroup)) {
                 return {
                     filters: filterOrGroup.filters.filter((filter) => {
-                        return isValidFilter(filter)
+                        return isValidFilter(filter, columnDtype)
                     }),
                     operator: filterOrGroup.operator
                 }
@@ -123,7 +123,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                 return filterOrGroup.filters.length > 0;
             }
             // And then we filter the non group filters to be non-empty
-            return isValidFilter(filterOrGroup)
+            return isValidFilter(filterOrGroup, columnDtype)
         });
         
         const _stepID = await props.mitoAPI.sendFilterMessage(
