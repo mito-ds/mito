@@ -15,7 +15,7 @@ def upgrade_<old_step_type>_<old_step_version>_to_<new_step_type>_<new_step_vers
 """
 
 from copy import copy
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
 from mitosheet._version import __version__, package_name
 from mitosheet.saved_analyses.schema_utils import (
@@ -190,7 +190,7 @@ def upgrade_step_list_to_current(
     return upgraded_step_list
 
 
-def upgrade_steps_for_old_format(saved_analysis):
+def upgrade_steps_for_old_format(saved_analysis: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
     """
     A helper function that operates on the old analysis format of:
     {
@@ -230,7 +230,7 @@ def upgrade_steps_for_old_format(saved_analysis):
         'steps': new_steps_json
     }
 
-def upgrade_steps_for_new_format(saved_analysis):
+def upgrade_steps_for_new_format(saved_analysis: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
     """
     A helper function that operates on the new analysis format of:
 
@@ -273,7 +273,7 @@ def upgrade_steps_for_new_format(saved_analysis):
         'steps_data': new_steps_data
     }
 
-def upgrade_saved_analysis_to_current_version(saved_analysis):
+def upgrade_saved_analysis_to_current_version(saved_analysis: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
     """
     Upgrades a saved analysis to the current version.
     

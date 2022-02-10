@@ -8,7 +8,7 @@
         classNames('abc', {'123': true}) = 'abc 123'
         classNames('abc', {'123': false}) = 'abc'
 */
-export const classNames = (...args: (string | undefined | Record<string, boolean>)[]): string => {
+export const classNames = (...args: (string | undefined | Record<string, boolean | undefined>)[]): string => {
     let finalString = '';
 
     for (let i = 0; i < args.length; i++) {

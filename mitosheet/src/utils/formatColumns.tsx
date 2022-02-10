@@ -7,7 +7,8 @@ import DropdownCheckmark from '../components/icons/DropdownCheckmark'
 
 export const FORMAT_DISABLED_MESSAGE = 'You must have at least one Number column selected to adjust the formatting.'
 
-const formatCellDataAsStringWithCommas = (cellData: string | number | boolean, decimalPlaces: 0 | 1): string => {
+
+const formatCellDataAsStringWithCommas = (cellData: string | number | boolean, decimalPlaces?: number): string => {
     return Number(cellData).toLocaleString("en-US", {minimumFractionDigits: decimalPlaces, maximumFractionDigits: decimalPlaces})
 }
 
@@ -57,8 +58,13 @@ export const formatCellData = (cellData: boolean | string | number, columnMitoTy
                         // If the column is an int, default to 0 decimal places
                         return formatCellDataAsStringWithCommas(cellData, 0)
                     } else {
-                        // If the column is a float, default to 2 decimal places
-                        return formatCellDataAsStringWithCommas(cellData, 1)
+                        // We show the full number of decimals if it is a float
+                        const cellDataToParse = '' + cellData;
+                        let numDecimals = 0;
+                        if (cellDataToParse.includes('.')) {
+                            numDecimals = cellDataToParse.toString().split(".")[1].length || 0;
+                        }
+                        return formatCellDataAsStringWithCommas(cellData, numDecimals)
                     }
                 case FormatType.PLAIN_TEXT:
                     return '' + cellData

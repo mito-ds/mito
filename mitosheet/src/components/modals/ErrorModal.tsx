@@ -1,11 +1,12 @@
 // Copyright (c) Mito
 
-import React, {Fragment} from 'react';
+import React, {Fragment, useState} from 'react';
 import DefaultModal from '../DefaultModal'; 
 import { ModalEnum } from './modals';
 import TextButton from '../elements/TextButton';
 import MitoAPI from '../../api';
 import { MitoError, UIState } from '../../types';
+import { DISCORD_INVITE_LINK } from '../../data/documentationLinks';
 
 /*
     A modal that displays error messages and gives
@@ -17,6 +18,7 @@ const ErrorModal = (
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
         mitoAPI: MitoAPI
     }): JSX.Element => {
+    const [viewTraceback, setViewTraceback] = useState(false);
 
     if (props.error === undefined) {
         return (<></>)
@@ -26,11 +28,24 @@ const ErrorModal = (
         <DefaultModal
             header={props.error.header}
             modalType={ModalEnum.Error}
+            wide
             viewComponent={
                 <Fragment>
-                    <div>
-                        {props.error.to_fix} 
-                    </div>
+                    {props.error.to_fix &&
+                        <div className='text-align-left text-body-1' onClick={() => setViewTraceback((viewTraceback) => !viewTraceback)}>
+                            {props.error.to_fix} {' '}
+                            {props.error.traceback && 
+                                <span className='text-body-1-link'>
+                                    Click to view full traceback.
+                                </span>
+                            }
+                        </div>
+                    }
+                    {props.error.traceback && viewTraceback &&
+                        <div className='flex flex-column text-align-left text-overflow-hidden text-overflow-scroll mt-5px' style={{height: '200px', border: '1px solid var(--mito-purple)', borderRadius: '2px', padding: '5px'}}>
+                            <pre>{props.error.traceback}</pre>
+                        </div>
+                    }
                 </Fragment>
             }
             buttons={
@@ -50,7 +65,7 @@ const ErrorModal = (
                     <TextButton
                         variant='dark'
                         width='medium'
-                        href='https://discord.gg/XdJSZyejJU'
+                        href={DISCORD_INVITE_LINK}
                         target='_blank'
                         onClick={() => {
                             props.setUIState((prevUIState) => {

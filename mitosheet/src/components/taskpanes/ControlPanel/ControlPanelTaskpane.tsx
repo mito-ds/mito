@@ -52,7 +52,7 @@ type ControlPanelTaskpaneProps = {
 export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Element => {
     
     // Get the values for the last cell that was selected
-    const {columnHeader, columnID, columnFormula, columnMitoType, columnFilters} = getCellDataFromCellIndexes(props.sheetData, props.selection.endingRowIndex, props.selection.endingColumnIndex);
+    const {columnHeader, columnID, columnFormula, columnMitoType, columnFilters, columnDtype} = getCellDataFromCellIndexes(props.sheetData, props.selection.endingRowIndex, props.selection.endingColumnIndex);
 
     const [filters, setFilters] = useState(columnFilters !== undefined ? columnFilters.filters : []);
     const [operator, setOperator] = useState(columnFilters !== undefined ? columnFilters.operator : 'And');
@@ -60,7 +60,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
     
     // If this is not a valid column, don't render anything, and close the takspane! 
     // We have to do this after the useState calls, to make sure this is valid react
-    if (columnHeader === undefined || columnID === undefined || columnFormula === undefined || columnMitoType === undefined) {
+    if (columnHeader === undefined || columnID === undefined || columnFormula === undefined || columnMitoType === undefined || columnDtype == undefined) {
         props.setUIState((prevUIState) => {
             return {
                 ...prevUIState,
@@ -157,6 +157,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                             <DtypeCard
                                 selectedSheetIndex={props.selectedSheetIndex}
                                 columnID={columnID}
+                                columnDtype={columnDtype}
                                 columnFormula={columnFormula} 
                                 mitoAPI={props.mitoAPI}
                                 lastStepIndex={props.lastStepIndex}

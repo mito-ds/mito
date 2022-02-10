@@ -5,7 +5,7 @@ from typing import List
 from mitoinstaller.installer_steps.installer_step import InstallerStep
 
 
-def run_installer_steps(installer_steps: List[InstallerStep]):
+def run_installer_steps(installer_steps: List[InstallerStep]) -> bool:
     """
     A helper function that runs the installer steps, returning
     True if they all terminate without error, and False if any

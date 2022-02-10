@@ -6,13 +6,13 @@ import sys
 
 from mitoinstaller.commands import (check_running_jlab_3_processes,
                                     check_running_jlab_processes)
+from mitoinstaller.create_startup_file import create_startup_file
 from mitoinstaller.installer_steps.installer_step import InstallerStep
 from mitoinstaller.log_utils import log_error
 from mitoinstaller.starter_notebook import (MITO_STARTER_NOTEBOOK_PATH,
                                             try_create_starter_notebook)
 from mitoinstaller.user_install import is_running_test
-from mitoinstaller.create_startup_file import create_startup_file
-from termcolor import colored
+from termcolor import colored # type: ignore
 
 
 def replace_process_with_jupyter_lab():

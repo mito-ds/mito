@@ -3,10 +3,11 @@ Stores utilities for changing the schemas for a saved analysis file,
 which requires a seperate upgrade process that upgrading specific
 steps within the file. 
 """
+from typing import Any, Dict, Optional
 from mitosheet._version import __version__
 
 
-def upgrade_saved_analysis_format_to_steps_data(saved_analysis):
+def upgrade_saved_analysis_format_to_steps_data(saved_analysis: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
     """
     Upgrades a saved analysis to the current format without upgrading
     the specific individual steps! The current format of the saved analysis 

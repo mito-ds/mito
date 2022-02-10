@@ -19,5 +19,5 @@ class InstallerStep:
         self.execution_function = execution_function
         self.optional = optional
     
-    def execute(self):
+    def execute(self) -> None:
         self.execution_function()

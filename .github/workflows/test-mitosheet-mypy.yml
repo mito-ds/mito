@@ -36,3 +36,4 @@ jobs:
       run: |
         cd mitosheet
         mypy mitosheet/ --ignore-missing-imports --disallow-untyped-calls --disallow-incomplete-defs
+        mypy installer/mitoinstaller --ignore-missing-imports --disallow-untyped-calls --disallow-incomplete-defs

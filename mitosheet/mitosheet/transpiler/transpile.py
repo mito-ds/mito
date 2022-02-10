@@ -9,11 +9,18 @@ Exports the transpile function, which takes the backend widget
 container and generates transpiled Python code.
 """
 
+from typing import TYPE_CHECKING, Any, Dict
+
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
+
+if TYPE_CHECKING:
+    from mitosheet.steps_manager import StepsManager
+else:
+    StepsManager = Any
 
 IN_PREVIOUS_STEP_COMMENT = '# You\'re viewing a previous step. Click fast forward in the Mitosheet above to see the full analysis.'
 
-def transpile(steps_manager, add_comments=True):
+def transpile(steps_manager: StepsManager, add_comments: bool=True) -> Dict[str, Any]:
     """
     Transpiles the code from the current steps in the steps_manager, 
     displaying up to the checked out step.
@@ -54,9 +61,9 @@ def transpile(steps_manager, add_comments=True):
                 )
             )
         
-        transpiled_code = step.step_performer.transpile(
-            step.prev_state,
-            step.post_state,
+        transpiled_code = step.step_performer.transpile( # type: ignore
+            step.prev_state, # type: ignore
+            step.post_state, # type: ignore
             step.execution_data,
             **step.params
         )

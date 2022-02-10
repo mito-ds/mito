@@ -28,8 +28,11 @@ export const getSuggestedKeysColumnID = (columnIDsMapArray: ColumnIDsMap[], shee
 
     columnIDsWithSharedColumnHeaders = columnIDsWithSharedColumnHeaders.filter(cid => cid !== undefined);
     
-    const columnIDOne = columnIDsWithSharedColumnHeaders[0] ? columnIDsWithSharedColumnHeaders[0][0] : sheetOneEntries[0][0];
-    const columnIDTwo = columnIDsWithSharedColumnHeaders[0] ? columnIDsWithSharedColumnHeaders[0][1] : sheetTwoEntries[0][0];
+    // Make sure everything is defined; handles if there are no columns in a sheet
+    const columnIDOne = columnIDsWithSharedColumnHeaders[0] ? columnIDsWithSharedColumnHeaders[0][0] : 
+        (sheetOneEntries[0] ? sheetOneEntries[0][0] : '');
+    const columnIDTwo = columnIDsWithSharedColumnHeaders[0] ? columnIDsWithSharedColumnHeaders[0][1] :
+        (sheetTwoEntries[0] ? sheetTwoEntries[0][0] : '');
     
     return {
         mergeKeyColumnIDOne: columnIDOne,

@@ -5,15 +5,22 @@
 # Distributed under the terms of the Modified BSD License.
 
 from datetime import datetime
+from typing import TYPE_CHECKING, Any, Dict
 
 from mitosheet.mito_analytics import identify
 from mitosheet.user import get_user_field, set_user_field
 from mitosheet.user.schemas import UJ_FEEDBACKS_V2
 
+if TYPE_CHECKING:
+    from mitosheet.steps_manager import StepsManager
+else:
+    StepsManager = Any
+    
+
 UPDATE_FEEDBACK_V2_OBJECT_EVENT = 'update_feedback_v2_obj_update'
 UPDATE_FEEDBACK_V2_OBJECT_EVENT_PARAMS = ['feedback_id', 'num_usages', 'questions_and_answers']
 
-def execute_add_feedback_update(steps_manager, feedback_id, num_usages, questions_and_answers):
+def execute_add_feedback_update(steps_manager: StepsManager, feedback_id: str, num_usages: int, questions_and_answers: Dict[str, Any]) -> None:
     """
     The function responsible for adding the feedback to the feedback_v2 object
     in the user.json. 
