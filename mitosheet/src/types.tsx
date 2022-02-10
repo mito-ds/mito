@@ -499,6 +499,8 @@ export interface AnalysisData {
  * 
  * @param userEmail - the email of the user. May be an empty string if they have not signed up yet
  * @param receivedTours - a list of the tours they have received
+ * @param isPro - if the user is a pro user
+ * @param telemetryEnabled - if the user has telemetry enabled
  * @param isLocalDeployment - if the user is deployed locally or not
  * @param shouldUpgradeMitosheet - if the user should upgrade their mitosheet
  * @param numUsages - the number of times the user has used the tool (maxes out at 50 currently)
@@ -509,6 +511,7 @@ export interface UserProfile {
     receivedTours: string[];
     
     isPro: boolean;
+    telemetryEnabled: boolean;
     isLocalDeployment: boolean;
     shouldUpgradeMitosheet: boolean;
     numUsages: number;

@@ -90,6 +90,7 @@ class MitoWidget(DOMWidget):
             'userEmail': get_user_field(UJ_USER_EMAIL),
             'receivedTours': get_user_field(UJ_RECEIVED_TOURS),
             'isPro': is_pro(),
+            'telemetryEnabled': telemetry_turned_on(),
             # Static over a single analysis
             'isLocalDeployment': self.is_local_deployment,
             'shouldUpgradeMitosheet': self.should_upgrade_mitosheet,

@@ -84,7 +84,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     // Set reasonable default values for the UI state
     const [uiState, setUIState] = useState<UIState>({
         loading: 0,
-        currOpenModal: props.userProfile.userEmail == '' && !props.userProfile.isPro
+        currOpenModal: props.userProfile.userEmail == '' && props.userProfile.telemetryEnabled // no signup if no logs
             ? {type: ModalEnum.SignUp} 
             : (props.userProfile.shouldUpgradeMitosheet 
                 ? {type: ModalEnum.Upgrade} 
