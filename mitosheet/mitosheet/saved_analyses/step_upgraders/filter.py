@@ -178,15 +178,11 @@ def upgrade_filter_column_3_to_4(step: Dict[str, Any], later_steps: List[Dict[st
         }
     }
     """
-    type_mapping = {
-        'string': 'string_series',
-        'number': 'number_series',
-        'datetime': 'datetime_series',
-    }
 
+    params = step['params']
     new_filters = []
 
-    for filter_or_group in step['filters']:
+    for filter_or_group in params['filters']:
         # We check if this is a filter or a group, and case appropriately!
         if 'filters' in filter_or_group:
             # Filter group case
@@ -204,11 +200,10 @@ def upgrade_filter_column_3_to_4(step: Dict[str, Any], later_steps: List[Dict[st
             del filter_['type']
             new_filters.append(filter_)
 
+    params['filters'] = new_filters
+
     return [{
         "step_version": 4, 
         "step_type": "filter_column", 
-        "sheet_index": step['sheet_index'], 
-        "column_header": step['column_header'], 
-        "filters": new_filters, 
-        "operator": step['operator']
+        "params": params
     }] + later_steps
