@@ -71,6 +71,7 @@ def get_enum_from_ts_file(path, enum_name):
     return enum_items
 
 def test_column_types_match():
+    # TODO: fix this test
     series_filter_type = get_enum_from_ts_file('./src/types.tsx', 'SeriesFilterType')
     assert len(series_filter_type) == 5
     assert series_filter_type['BOOLEAN_SERIES'] == BOOLEAN_SERIES

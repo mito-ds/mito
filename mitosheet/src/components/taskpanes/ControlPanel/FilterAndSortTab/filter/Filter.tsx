@@ -26,66 +26,52 @@ export function Filter(
 
     // We hide the input if it is not necessary
     const inputStyle: CSSProperties = CONDITIONS_WITH_NO_INPUT.includes(props.filter.condition) ? {'visibility': 'hidden'} : {'visibility': 'visible'};
-    
-    const getFilterOptions = (): JSX.Element => {
+    console.log(props.columnDtype)
+    const getFilterOptions = (): JSX.Element[] => {
         if (isNumberDtype(props.columnDtype)) {
-            return (
-                <>
-                    {Object.entries(NUMBER_SELECT_OPTIONS).map(([filterCondition, displayFilterCondition]) => {
-                        return (
-                            <DropdownItem
-                                key={filterCondition}
-                                id={filterCondition}
-                                title={displayFilterCondition}
-                            />
-                        )
-                    })}
-                </>
-            )
+            return Object.entries(NUMBER_SELECT_OPTIONS).map(([filterCondition, displayFilterCondition]) => {
+                return (
+                    <DropdownItem
+                        key={filterCondition}
+                        id={filterCondition}
+                        title={displayFilterCondition}
+                    />
+                )
+            });
         } else if (isBoolDtype(props.columnDtype)) {
-            return (
-                <>
-                    {Object.entries(BOOLEAN_SELECT_OPTIONS).map(([filterCondition, displayFilterCondition]) => {
-                        return (
-                            <DropdownItem
-                                key={filterCondition}
-                                id={filterCondition}
-                                title={displayFilterCondition}
-                            />
-                        )
-                    })}
-                </>
-            )
+            return Object.entries(BOOLEAN_SELECT_OPTIONS).map(([filterCondition, displayFilterCondition]) => {
+                return (
+                    <DropdownItem
+                        key={filterCondition}
+                        id={filterCondition}
+                        title={displayFilterCondition}
+                    />
+                )
+            })
         } else if (isDatetimeDtype(props.columnDtype)) {
-            return (
-                <>
-                    {Object.entries(DATETIME_SELECT_OPTIONS).map(([filterCondition, displayFilterCondition]) => {
-                        return (
-                            <DropdownItem
-                                key={filterCondition}
-                                id={filterCondition}
-                                title={displayFilterCondition}
-                            />
-                        )
-                    })}
-                </>
-            )
+            return Object.entries(DATETIME_SELECT_OPTIONS).map(([filterCondition, displayFilterCondition]) => {
+                return (
+                    <DropdownItem
+                        key={filterCondition}
+                        id={filterCondition}
+                        title={displayFilterCondition}
+                    />
+                )
+            })
         }
 
-        return (
-            <>
-                {Object.entries(STRING_SELECT_OPTIONS).map(([filterCondition, displayFilterCondition]) => {
-                    return (
-                        <DropdownItem
-                            key={filterCondition}
-                            id={filterCondition}
-                            title={displayFilterCondition}
-                        />
-                    )
-                })}
-            </>
-        )
+        return Object.entries(STRING_SELECT_OPTIONS).map(([filterCondition, displayFilterCondition]) => {
+            return (
+                <DropdownItem
+                    key={filterCondition}
+                    id={filterCondition}
+                    title={displayFilterCondition}
+                />
+            )
+        })
     }
+
+    const filterConditionOptions = getFilterOptions();
 
     return (
         <Row justify='space-between' align='center'>
@@ -122,7 +108,7 @@ export function Filter(
                     width='block'
                     dropdownWidth='medium'
                 >
-                    {getFilterOptions()}
+                    {filterConditionOptions}
                 </Select>
             </Col>
             <Col span={9}>
