@@ -125,6 +125,8 @@ def upgrade_filter_column_2_to_3(step: Dict[str, Any], later_steps: List[Dict[st
             "operator": "And"}
         }
     }
+    # NOTE: The above filter group look copied and pasted wrong, but not gonna edit
+    # it given that these upgraders should be immutable.
     """
     params = step['params']
     params = replace_headers_with_id(params, 'column_header', 'column_id')
@@ -133,4 +135,80 @@ def upgrade_filter_column_2_to_3(step: Dict[str, Any], later_steps: List[Dict[st
         "step_version": 3, 
         "step_type": "filter_column", 
         "params": params
+    }] + later_steps
+
+
+def upgrade_filter_column_3_to_4(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Removes all notion of a type from a filter, as it is totally not necessary
+    as we removed the notion of a Mito Type
+
+    OLD: {
+        "step_version": 3, 
+        "step_type": "filter_column", 
+        "params": {
+            "sheet_index": 0, 
+            "column_id": _id_, 
+            "filters": [
+                {"type": "number", "condition": "greater", "value": 1}, 
+                {"filters": [
+                    {"type": "number", "condition": "greater", "value": 2}, 
+                    {"type": "number", "condition": "greater", "value": 3}], 
+                    "operator": "And"}
+                ], 
+            "operator": "And"}
+        }
+    }
+    NEW: {
+        "step_version": 4, 
+        "step_type": "filter_column", 
+        "params": {
+            "sheet_index": 0, 
+            "column_id": _id_, 
+            "filters": [
+                {"condition": "greater", "value": 1}, 
+                {
+                    "filters": [
+                        {"condition": "greater", "value": 2}, 
+                        {"condition": "greater", "value": 3}], 
+                    ], 
+                    "operator": "And"
+                }
+            "operator": "And"}
+        }
+    }
+    """
+    type_mapping = {
+        'string': 'string_series',
+        'number': 'number_series',
+        'datetime': 'datetime_series',
+    }
+
+    new_filters = []
+
+    for filter_or_group in step['filters']:
+        # We check if this is a filter or a group, and case appropriately!
+        if 'filters' in filter_or_group:
+            # Filter group case
+            group = filter_or_group
+            new_filters_in_group = []
+            for filter_ in group['filters']:
+                del filter_['type']
+                new_filters_in_group.append(filter_)
+            group['filters'] = new_filters_in_group
+
+            new_filters.append(filter_or_group)
+        else:
+            # Just a regular filter, so rename for clarity
+            filter_ = filter_or_group
+            del filter_['type']
+            new_filters.append(filter_)
+
+    return [{
+        "step_version": 4, 
+        "step_type": "filter_column", 
+        "sheet_index": step['sheet_index'], 
+        "column_header": step['column_header'], 
+        "filters": new_filters, 
+        "operator": step['operator']
     }] + later_steps
