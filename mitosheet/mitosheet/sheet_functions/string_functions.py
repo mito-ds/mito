@@ -366,7 +366,6 @@ def RIGHT(series: pd.Series, num_chars: pd.Series=None) -> pd.Series:
 
     # If there aren't enough char splits, we fill it to the end
     num_chars = try_extend_series_to_index(num_chars, series.index)
-    print(series, num_chars)
     # And then slice the string on the left
     return pd.Series(
         [string[-int(num_char):] if num_char > 0 else '' for string, num_char in zip(series, num_chars)],

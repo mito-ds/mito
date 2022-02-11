@@ -5,11 +5,6 @@
 # Distributed under the terms of the Modified BSD License.
 
 from mitosheet.data_in_mito import DataTypeInMito
-from mitosheet.sheet_functions.types.utils import (BOOLEAN_SERIES,
-                                                   DATETIME_SERIES,
-                                                   NUMBER_SERIES,
-                                                   STRING_SERIES,
-                                                   TIMEDELTA_SERIES)
 from mitosheet.state import (DATAFRAME_SOURCE_DUPLICATED,
                              DATAFRAME_SOURCE_IMPORTED,
                              DATAFRAME_SOURCE_MERGED, DATAFRAME_SOURCE_PASSED,

@@ -5,9 +5,9 @@
 # Distributed under the terms of the Modified BSD License.
 
 """
-For going to a number series.
+For going to a float series.
 """
-from typing import Any, Tuple, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -16,7 +16,7 @@ from mitosheet.sheet_functions.types.utils import (
     is_bool_dtype, is_datetime_dtype, is_number_dtype, is_string_dtype)
 
 
-def convert_string_to_number(
+def convert_string_to_float(
         s, 
         on_uncastable_arg_element, #Union[Literal['error'], Tuple[Literal['default'], any]]
     ):
@@ -92,7 +92,7 @@ def convert_string_to_number(
                 # Return the given default value in this case
                 return on_uncastable_arg_element[1]
 
-def to_number_series_from_string_series(
+def to_float_series_from_string_series(
         string_series: pd.Series, 
         on_uncastable_arg_element: Any #: Union[Literal['error'], Tuple[Literal['default'], any]]
     ) -> pd.Series:
@@ -102,9 +102,9 @@ def to_number_series_from_string_series(
 
     Takes a default value, so the tranformation can occur elementwise
     """
-    return string_series.apply(convert_string_to_number, on_uncastable_arg_element=on_uncastable_arg_element).astype('float64')
+    return string_series.apply(convert_string_to_float, on_uncastable_arg_element=on_uncastable_arg_element).astype('float64')
 
-def to_number_series_from_boolean_series(boolean_series: pd.Series) -> pd.Series:
+def to_float_series_from_boolean_series(boolean_series: pd.Series) -> pd.Series:
     """
     As all boolean series are very easily convertable to a number_series, 
     and cannot fail on any element, so we can do this in one easy move.
@@ -114,7 +114,7 @@ def to_number_series_from_boolean_series(boolean_series: pd.Series) -> pd.Series
     return boolean_series.astype('float64')
 
 
-def to_number_series(
+def to_float_series(
         unknown_object: Any,
         on_uncastable_arg_element: Any=('default', np.NaN), # Union[Literal['error'], Tuple[Literal['default'], any]]
     ) -> pd.Series:
@@ -125,12 +125,12 @@ def to_number_series(
 
     column_dtype = str(unknown_object.dtype)
     if is_bool_dtype(column_dtype):
-        return to_number_series_from_boolean_series(unknown_object)
+        return to_float_series_from_boolean_series(unknown_object)
     elif is_datetime_dtype(column_dtype):
         return None
     elif is_number_dtype(column_dtype):
         return unknown_object
     elif is_string_dtype(column_dtype):
-        return to_number_series_from_string_series(unknown_object, on_uncastable_arg_element=on_uncastable_arg_element)
+        return to_float_series_from_string_series(unknown_object, on_uncastable_arg_element=on_uncastable_arg_element)
     else:
         return None

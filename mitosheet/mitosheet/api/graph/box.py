@@ -16,7 +16,7 @@ def get_box_plot(axis: str, df: pd.DataFrame, column_headers: List[ColumnHeader]
     """
     fig = go.Figure()
 
-    # Make sure all of the series are NUMBER_SERIES
+    # Make sure all of the series are number series
     if not is_all_number_series(df, column_headers):
         # If not all of the series are numbers, then 
         # return a blank graph

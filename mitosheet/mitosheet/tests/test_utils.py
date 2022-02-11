@@ -81,7 +81,6 @@ def check_dataframes_equal(test_wrapper):
     )
 
     import mitosheet
-    print(code, mitosheet.__dict__)
     exec(code, 
         {
             'check_final_dataframe': check_final_dataframe,

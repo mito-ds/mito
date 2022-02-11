@@ -7,13 +7,10 @@
 """
 Contains tests for the cast_output decorator.
 """
-from typing import cast
-import pandas as pd 
+
+import pandas as pd
 import pytest
-
-from mitosheet.sheet_functions.types.utils import BOOLEAN_SERIES, DATETIME_SERIES, NUMBER_SERIES, STRING_SERIES
 from mitosheet.sheet_functions.types.decorators import cast_output
-
 
 CAST_TESTS = [
     (

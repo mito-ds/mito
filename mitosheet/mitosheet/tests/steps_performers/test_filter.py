@@ -8,14 +8,21 @@
 Contains tests for filter edit events.
 """
 
-import pytest
-import pandas as pd
-import numpy as np
 from itertools import combinations
 
-from mitosheet.step_performers.filter import FC_BOOLEAN_IS_FALSE, FC_BOOLEAN_IS_TRUE, FC_DATETIME_EXACTLY, FC_DATETIME_NOT_EXACTLY, FC_DATETIME_GREATER, FC_DATETIME_GREATER_THAN_OR_EQUAL, FC_DATETIME_LESS, FC_DATETIME_LESS_THAN_OR_EQUAL, FC_EMPTY, FC_NOT_EMPTY, FC_NUMBER_EXACTLY, FC_NUMBER_GREATER, FC_NUMBER_GREATER_THAN_OR_EQUAL, FC_NUMBER_LESS, FC_NUMBER_LESS_THAN_OR_EQUAL, FC_NUMBER_NOT_EXACTLY, FC_STRING_CONTAINS, FC_STRING_DOES_NOT_CONTAIN, FC_STRING_EXACTLY, FC_STRING_NOT_EXACTLY
-from mitosheet.sheet_functions.types.utils import BOOLEAN_SERIES, DATETIME_SERIES, NUMBER_SERIES, STRING_SERIES
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs, create_mito_wrapper
+import numpy as np
+import pandas as pd
+import pytest
+from mitosheet.step_performers.filter import (
+    FC_BOOLEAN_IS_FALSE, FC_BOOLEAN_IS_TRUE, FC_DATETIME_EXACTLY,
+    FC_DATETIME_GREATER, FC_DATETIME_GREATER_THAN_OR_EQUAL, FC_DATETIME_LESS,
+    FC_DATETIME_LESS_THAN_OR_EQUAL, FC_DATETIME_NOT_EXACTLY, FC_EMPTY,
+    FC_NOT_EMPTY, FC_NUMBER_EXACTLY, FC_NUMBER_GREATER,
+    FC_NUMBER_GREATER_THAN_OR_EQUAL, FC_NUMBER_LESS,
+    FC_NUMBER_LESS_THAN_OR_EQUAL, FC_NUMBER_NOT_EXACTLY, FC_STRING_CONTAINS,
+    FC_STRING_DOES_NOT_CONTAIN, FC_STRING_EXACTLY, FC_STRING_NOT_EXACTLY)
+from mitosheet.tests.test_utils import (create_mito_wrapper,
+                                        create_mito_wrapper_dfs)
 
 FILTER_TESTS = [
     (
@@ -253,6 +260,7 @@ def test_filter(df, condition, value, filtered_df):
 
 # For speed, we only take 25 random filter tests.
 import random
+
 DOUBLE_FILTER_TESTS = list(combinations(FILTER_TESTS, 2))
 DOUBLE_FILTER_TESTS_SELECTED = random.sample(DOUBLE_FILTER_TESTS, 25)
 @pytest.mark.parametrize("test1, test2", DOUBLE_FILTER_TESTS_SELECTED)
@@ -578,7 +586,6 @@ def test_boolean_and_empty_collapses_to_one_check():
 FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
     (
         pd.DataFrame({'A': [1, 2, 3, 4, 5, 6, 7, 8, 9]}),
-        NUMBER_SERIES,
         FC_NUMBER_GREATER,
         'And',
         1,
@@ -587,7 +594,6 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
     ),
     (
         pd.DataFrame({'A': [1, 2, 3, 4, 5, 6, 7, 8, 9]}),
-        NUMBER_SERIES,
         FC_NUMBER_GREATER,
         'Or',
         1,
@@ -596,7 +602,6 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
     ),
     (
         pd.DataFrame({'A': [1, 2, 3, 4, 5, 6, 7, 8, 9]}),
-        NUMBER_SERIES,
         FC_NUMBER_GREATER_THAN_OR_EQUAL,
         'And',
         1,
@@ -605,7 +610,6 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
     ),
     (
         pd.DataFrame({'A': [1, 2, 3, 4, 5, 6, 7, 8, 9]}),
-        NUMBER_SERIES,
         FC_NUMBER_GREATER_THAN_OR_EQUAL,
         'Or',
         1,
@@ -614,7 +618,6 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
     ),
     (
         pd.DataFrame({'A': [1, 2, 3, 4, 5, 6, 7, 8, 9]}),
-        NUMBER_SERIES,
         FC_NUMBER_EXACTLY,
         'And',
         1,
@@ -623,7 +626,6 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
     ),
     (
         pd.DataFrame({'A': [1, 2, 3, 4, 5, 6, 7, 8, 9]}),
-        NUMBER_SERIES,
         FC_NUMBER_EXACTLY,
         'Or',
         1,
@@ -632,7 +634,6 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
     ),
     (
         pd.DataFrame({'A': [1, 2, 3, 4, 5, 6, 7, 8, 9]}),
-        NUMBER_SERIES,
         FC_NUMBER_LESS,
         'And',
         1,
@@ -641,7 +642,6 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
     ),
     (
         pd.DataFrame({'A': [1, 2, 3, 4, 5, 6, 7, 8, 9]}),
-        NUMBER_SERIES,
         FC_NUMBER_LESS,
         'Or',
         1,
@@ -650,7 +650,6 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
     ),
      (
         pd.DataFrame({'A': [1, 2, 3, 4, 5, 6, 7, 8, 9]}),
-        NUMBER_SERIES,
         FC_NUMBER_LESS_THAN_OR_EQUAL,
         'And',
         1,
@@ -659,7 +658,6 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
     ),
     (
         pd.DataFrame({'A': [1, 2, 3, 4, 5, 6, 7, 8, 9]}),
-        NUMBER_SERIES,
         FC_NUMBER_LESS_THAN_OR_EQUAL,
         'Or',
         1,
@@ -668,7 +666,6 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
     ),
     (
         pd.DataFrame({'A': pd.to_datetime(['11-12-2021', '11-12-2021', '11-12-2021', '11-12-2021', '11-13-2021', '11-14-2021', '11-12-2021', '11-12-2021', '11-12-2021'])}),
-        DATETIME_SERIES,
         FC_DATETIME_GREATER,
         'And',
         '11-13-2021',
@@ -677,7 +674,6 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
     ),
     (
         pd.DataFrame({'A': pd.to_datetime(['11-12-2021', '11-12-2021', '11-12-2021', '11-12-2021', '11-13-2021', '11-14-2021', '11-12-2021', '11-12-2021', '11-12-2021'])}),
-        DATETIME_SERIES,
         FC_DATETIME_GREATER,
         'Or',
         '11-13-2021',
@@ -686,7 +682,6 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
     ),
     (
         pd.DataFrame({'A': pd.to_datetime(['11-12-2021', '11-12-2021', '11-12-2021', '11-12-2021', '11-13-2021', '11-14-2021', '11-12-2021', '11-12-2021', '11-12-2021'])}),
-        DATETIME_SERIES,
         FC_DATETIME_GREATER_THAN_OR_EQUAL,
         'And',
         '11-13-2021',
@@ -695,7 +690,6 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
     ),
     (
         pd.DataFrame({'A': pd.to_datetime(['11-12-2021', '11-12-2021', '11-12-2021', '11-12-2021', '11-13-2021', '11-14-2021', '11-12-2021', '11-12-2021', '11-12-2021'])}),
-        DATETIME_SERIES,
         FC_DATETIME_GREATER_THAN_OR_EQUAL,
         'Or',
         '11-13-2021',
@@ -704,7 +698,6 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
     ),
     (
         pd.DataFrame({'A': pd.to_datetime(['11-12-2021', '11-12-2021', '11-12-2021', '11-12-2021', '11-13-2021', '11-14-2021', '11-12-2021', '11-12-2021', '11-12-2021'])}),
-        DATETIME_SERIES,
         FC_DATETIME_EXACTLY,
         'And',
         '11-13-2021',
@@ -713,7 +706,6 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
     ),
     (
         pd.DataFrame({'A': pd.to_datetime(['11-12-2021', '11-12-2021', '11-12-2021', '11-12-2021', '11-13-2021', '11-14-2021', '11-12-2021', '11-12-2021', '11-12-2021'])}),
-        DATETIME_SERIES,
         FC_DATETIME_EXACTLY,
         'Or',
         '11-13-2021',
@@ -722,7 +714,6 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
     ),
     (
         pd.DataFrame({'A': pd.to_datetime(['11-12-2021', '11-12-2021', '11-12-2021', '11-12-2021', '11-13-2021', '11-14-2021', '11-12-2021', '11-12-2021', '11-12-2021'])}),
-        DATETIME_SERIES,
         FC_DATETIME_LESS,
         'And',
         '11-13-2021',
@@ -731,7 +722,6 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
     ),
     (
         pd.DataFrame({'A': pd.to_datetime(['11-12-2021', '11-12-2021', '11-12-2021', '11-12-2021', '11-13-2021', '11-14-2021', '11-12-2021', '11-12-2021', '11-12-2021'])}),
-        DATETIME_SERIES,
         FC_DATETIME_LESS,
         'Or',
         '11-13-2021',
@@ -740,7 +730,6 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
     ),
     (
         pd.DataFrame({'A': pd.to_datetime(['11-12-2021', '11-12-2021', '11-12-2021', '11-12-2021', '11-13-2021', '11-14-2021', '11-12-2021', '11-12-2021', '11-12-2021'])}),
-        DATETIME_SERIES,
         FC_DATETIME_LESS_THAN_OR_EQUAL,
         'And',
         '11-13-2021',
@@ -749,7 +738,6 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
     ),
     (
         pd.DataFrame({'A': pd.to_datetime(['11-12-2021', '11-12-2021', '11-12-2021', '11-12-2021', '11-13-2021', '11-14-2021', '11-12-2021', '11-12-2021', '11-12-2021'])}),
-        DATETIME_SERIES,
         FC_DATETIME_LESS_THAN_OR_EQUAL,
         'Or',
         '11-13-2021',
@@ -759,9 +747,9 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
 ]
 
 
-@pytest.mark.parametrize("df,series_type,condition,operator,value_one,value_two,transpiled_code", FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION)
-def test_filter_multiple_values_per_clause(df, series_type, condition, operator, value_one, value_two, transpiled_code):
+@pytest.mark.parametrize("df,condition,operator,value_one,value_two,transpiled_code", FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION)
+def test_filter_multiple_values_per_clause(df, condition, operator, value_one, value_two, transpiled_code):
     mito = create_mito_wrapper_dfs(df)
-    mito.filters(0, 'A', operator, [{'type': series_type, 'condition': condition, 'value': value_one}, {'type': series_type, 'condition': condition, 'value': value_two}])
+    mito.filters(0, 'A', operator, [{'condition': condition, 'value': value_one}, {'condition': condition, 'value': value_two}])
 
     assert mito.transpiled_code == [transpiled_code]

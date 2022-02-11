@@ -8,29 +8,11 @@
 Utilities to help with type functions
 """
 
-from typing import Any, List, Optional, Set, Tuple, Union
+from typing import Any, List, Optional, Tuple, Union
 import pandas as pd
 import numpy as np
 
 from mitosheet.sheet_functions.sheet_function_utils import is_series_of_constant
-
-# Because type(1) = int, thus 1 is a 'number' in the Mito type system
-MITO_PRIMITIVE_TYPE_MAPPING = {
-    'boolean': [bool],
-    'timestamp': [pd.Timestamp],
-    'timedelta': [pd.Timedelta],
-    'number': [int, float],
-    'string': [str],
-}
-
-BOOLEAN_SERIES = 'boolean_series'
-DATETIME_SERIES = 'datetime_series'
-INT_SERIES = 'int_series'
-FLOAT_SERIES = 'float_series'
-TIMEDELTA_SERIES = 'timedelta_series'
-STRING_SERIES = 'string_series'
-# TODO: remove this
-NUMBER_SERIES = 'number_series'
 
 # A series of helper functions that help you figure
 # out which dtype we're dealing with. NOTE: since some
@@ -81,37 +63,6 @@ def get_float_dt_td_columns(df: pd.DataFrame) -> Tuple[List[Any], List[Any], Lis
             timedelta_columns.append(column_header)
 
     return float_columns, date_columns, timedelta_columns
-
-def get_series_filter_type(obj: Any) -> str:
-
-    if isinstance(obj, pd.Series):
-        dtype = str(obj.dtype)
-        if is_bool_dtype(dtype):
-            return BOOLEAN_SERIES
-        elif is_int_dtype(dtype) or is_float_dtype(dtype):
-            return NUMBER_SERIES
-        elif is_string_dtype(dtype):
-            return STRING_SERIES
-        elif is_datetime_dtype(dtype):
-            return DATETIME_SERIES
-        elif is_timedelta_dtype(dtype):
-            return TIMEDELTA_SERIES
-        else:
-            # We default to string, when not sure what else
-            return STRING_SERIES
-
-    elif isinstance(obj, pd.Timestamp):
-        return 'timestamp'
-    elif isinstance(obj, pd.Timedelta):
-        return 'timedelta'
-    else:
-        obj_type = type(obj)
-
-        for key, value in MITO_PRIMITIVE_TYPE_MAPPING.items():
-            if obj_type in value:
-                return key
-
-    return STRING_SERIES
 
 
 def get_nan_indexes_metadata(*argv: pd.Series) -> Tuple[pd.Index, pd.Index]: 

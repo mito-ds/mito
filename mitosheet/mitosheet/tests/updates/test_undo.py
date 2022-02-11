@@ -10,7 +10,6 @@ Contains tests for undo edit events.
 import pandas as pd
 
 from mitosheet.step_performers.filter import FC_NUMBER_EXACTLY
-from mitosheet.sheet_functions.types.utils import NUMBER_SERIES
 from mitosheet.tests.test_utils import create_mito_wrapper, create_mito_wrapper_dfs
 
 

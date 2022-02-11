@@ -15,7 +15,8 @@ from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code, list_to_string_without_internal_quotes
 from mitosheet.types import ColumnHeader, ColumnID
 
-# SOME CONSTANTS USED IN THE FILTER STEP ITSELF
+# The constants used in the filter step itself as filter conditions
+# NOTE: these must be unique (e.g. no repeating names for different types)
 FC_EMPTY = 'empty'
 FC_NOT_EMPTY = 'not_empty'
 

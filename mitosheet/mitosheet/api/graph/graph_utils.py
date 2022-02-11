@@ -68,7 +68,7 @@ SHOW_FIG_CODE = 'fig.show(renderer="iframe")'
 def is_all_number_series(df: pd.DataFrame, column_headers: List[ColumnHeader]) -> bool:
     """
     Returns True if the Mito type of each series with the header column_header
-    in column_headers is a NUMBER_SERIES. Returns False otherwise. 
+    in column_headers is a number series. Returns False otherwise. 
     """
     for column_header in column_headers:
         column_dtype = str(df[column_header].dtype)

@@ -4,27 +4,24 @@
 # Copyright (c) Mito.
 # Distributed under the terms of the Modified BSD License.
 
-import pandas as pd
-
 from copy import deepcopy
-from mitosheet.step_performers.step_performer import StepPerformer
 from typing import Any, Dict, List, Optional, Set, Tuple
-from mitosheet.state import State
-from mitosheet.sheet_functions.types.utils import get_series_filter_type
-from mitosheet.topological_sort import creates_circularity, subgraph_from_starting_column_id, topological_sort_columns
-from mitosheet.sheet_functions import FUNCTIONS
-from mitosheet.parser import parse_formula
 
-from mitosheet.errors import (
-    MitoError,
-    make_circular_reference_error,
-    make_execution_error, 
-    make_no_column_error, 
-    make_operator_type_error, 
-    make_unsupported_function_error, 
-    make_wrong_column_metatype_error
-)
+import pandas as pd
+from mitosheet.errors import (MitoError, make_circular_reference_error,
+                              make_execution_error, make_no_column_error,
+                              make_operator_type_error,
+                              make_unsupported_function_error,
+                              make_wrong_column_metatype_error)
+from mitosheet.parser import parse_formula
+from mitosheet.sheet_functions import FUNCTIONS
+from mitosheet.state import State
+from mitosheet.step_performers.step_performer import StepPerformer
+from mitosheet.topological_sort import (creates_circularity,
+                                        subgraph_from_starting_column_id,
+                                        topological_sort_columns)
 from mitosheet.types import ColumnHeader, ColumnID
+
 
 class SetColumnFormulaStepPerformer(StepPerformer):
     """

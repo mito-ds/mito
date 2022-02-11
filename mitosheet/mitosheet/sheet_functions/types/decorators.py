@@ -18,7 +18,6 @@ from mitosheet.sheet_functions.sheet_function_utils import \
     is_series_of_constant
 from mitosheet.sheet_functions.types import get_function_to_convert_to_series
 from mitosheet.sheet_functions.types.utils import (get_nan_indexes_metadata,
-                                                   get_series_filter_type,
                                                    put_nan_indexes_back)
 
 

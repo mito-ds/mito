@@ -7,12 +7,10 @@
 """
 Contains tests for the convert_args_to_series_type decorator.
 """
-from mitosheet.sheet_functions.types.utils import BOOLEAN_SERIES, DATETIME_SERIES, NUMBER_SERIES, STRING_SERIES
-import pandas as pd 
+import pandas as pd
 import pytest
-
-from mitosheet.sheet_functions.types.decorators import convert_args_to_series_type
-
+from mitosheet.sheet_functions.types.decorators import \
+    convert_args_to_series_type
 
 CONVERT_ARGS_TESTS = [
     (

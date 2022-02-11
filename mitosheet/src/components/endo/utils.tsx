@@ -67,6 +67,7 @@ export const getTypeIcon = (columnDtype: string, purpleOrDark?: 'purple' | 'dark
     if (isStringDtype(columnDtype)) {
         return <StringTypeIcon purpleOrDark={purpleOrDark}/>
     } else if (isNumberDtype(columnDtype)) {
+        // TODO: split out floats and ints into different icons
         return <NumberTypeIcon purpleOrDark={purpleOrDark}/>
     } else if (isDatetimeDtype(columnDtype)) {
         return <DatetimeTypeIcon purpleOrDark={purpleOrDark}/>

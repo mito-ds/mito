@@ -9,8 +9,9 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import pandas as pd
 
 from mitosheet.errors import get_recent_traceback, make_invalid_column_type_change_error
+from mitosheet.sheet_functions.types import to_int_series
 from mitosheet.sheet_functions.types.to_boolean_series import to_boolean_series
-from mitosheet.sheet_functions.types.to_number_series import to_number_series
+from mitosheet.sheet_functions.types.to_float_series import to_float_series
 from mitosheet.sheet_functions.types.to_timedelta_series import \
     to_timedelta_series
 from mitosheet.sheet_functions.types.utils import (get_datetime_format,
@@ -139,9 +140,9 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
                 if is_bool_dtype(new_dtype):
                     new_column = to_boolean_series(new_column)
                 elif is_int_dtype(new_dtype):
-                    new_column = to_number_series(column).astype('int')
+                    new_column = to_int_series(column)
                 elif is_float_dtype(new_dtype):
-                    new_column = to_number_series(column)
+                    new_column = to_float_series(column)
                 elif is_string_dtype(new_dtype):
                     pass
                 elif is_datetime_dtype(new_dtype):
@@ -287,9 +288,9 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
             if is_bool_dtype(new_dtype):
                 conversion_code = f'to_boolean_series({df_name}[{transpiled_column_header}])'
             elif is_int_dtype(new_dtype):
-                conversion_code = f'to_number_series({df_name}[{transpiled_column_header}]).astype(\'int\')'
+                conversion_code = f'to_int_series({df_name}[{transpiled_column_header}])'
             elif is_float_dtype(new_dtype):
-                conversion_code = f'to_number_series({df_name}[{transpiled_column_header}])'
+                conversion_code = f'to_float_series({df_name}[{transpiled_column_header}])'
             elif is_string_dtype(new_dtype):
                 pass
             elif is_datetime_dtype(new_dtype):

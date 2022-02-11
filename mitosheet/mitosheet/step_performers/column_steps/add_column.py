@@ -8,7 +8,6 @@ from copy import deepcopy
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from mitosheet.errors import make_column_exists_error, make_no_sheet_error
-from mitosheet.sheet_functions.types.utils import NUMBER_SERIES
 from mitosheet.state import FORMAT_DEFAULT, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code

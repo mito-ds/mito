@@ -2,7 +2,7 @@ import json
 from typing import Any, Dict
 
 import pandas as pd
-from mitosheet.sheet_functions.types.utils import NUMBER_SERIES, is_number_dtype
+from mitosheet.sheet_functions.types.utils import is_number_dtype
 from mitosheet.steps_manager import StepsManager
 
 
