@@ -123,7 +123,7 @@ class SetCellValueStepPerformer(StepPerformer):
             return code
 
         # Cast the new_value to the correct type
-        type_corrected_new_value = execution_data['type_corrected_new_value']
+        type_corrected_new_value = execution_data['type_corrected_new_value'] if execution_data else None
 
         column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
         transpiled_column_header = column_header_to_transpiled_code(column_header)

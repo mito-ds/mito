@@ -70,16 +70,6 @@ def get_enum_from_ts_file(path, enum_name):
 
     return enum_items
 
-def test_column_types_match():
-    # TODO: fix this test
-    series_filter_type = get_enum_from_ts_file('./src/types.tsx', 'SeriesFilterType')
-    assert len(series_filter_type) == 5
-    assert series_filter_type['BOOLEAN_SERIES'] == BOOLEAN_SERIES
-    assert series_filter_type['STRING_SERIES'] == STRING_SERIES
-    assert series_filter_type['NUMBER_SERIES'] == NUMBER_SERIES
-    assert series_filter_type['DATETIME_SERIES'] == DATETIME_SERIES
-    assert series_filter_type['TIMEDELTA_SERIES'] == TIMEDELTA_SERIES
-
 
 def test_date_type_in_mito_match():
     data_type_in_mito = get_enum_from_ts_file('./src/types.tsx', 'DataTypeInMito')
