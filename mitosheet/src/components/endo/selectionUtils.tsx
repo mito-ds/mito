@@ -685,6 +685,7 @@ export const getSelectedNumberSeriesColumnIDs = (selections: MitoSelection[], sh
 
     // Filter out any columns that are not number series
     return columnIDsAndDtypesSelected
-        .filter(([, columnDtype]) => {return isNumberDtype(columnDtype)})
+        .filter(([, columnDtype]) => {return columnDtype !== undefined && isNumberDtype(columnDtype)})
+        .filter(([columnID, ]) => {return columnID !== undefined})
         .map(([columnID, ]) => {return columnID})
 }
