@@ -21,6 +21,10 @@ from mitosheet.types import ColumnID
 
 
 def create_column_evaluation_graph(post_state: State, sheet_index: int) -> Dict[ColumnID, Set[ColumnID]]:
+    """
+    Returns a dict from column id -> the other column ids that have formulas
+    that depend on that column id.
+    """
     column_spreadsheet_code = post_state.column_spreadsheet_code[sheet_index]
     column_headers = post_state.dfs[sheet_index].keys()
     all_column_ids = post_state.column_ids.get_column_ids(sheet_index)
@@ -113,6 +117,10 @@ def subgraph_from_starting_column_id(column_evaluation_graph: Dict[ColumnID, Set
 
     return column_evaluation_subgraph
 
+def topological_sort_dependent_columns(state: State, sheet_index: int, column_id: ColumnID) -> List[ColumnID]:
+    column_evaluation_graph = create_column_evaluation_graph(state, sheet_index)
+    subgraph = subgraph_from_starting_column_id(column_evaluation_graph, column_id)
+    return topological_sort_columns(subgraph)
 
 def creates_circularity(
         column_evaluation_graph: Dict[ColumnID, Set[ColumnID]],

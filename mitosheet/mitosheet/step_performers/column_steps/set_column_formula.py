@@ -16,9 +16,7 @@ from mitosheet.parser import parse_formula
 from mitosheet.sheet_functions import FUNCTIONS
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.execution_graph_utils import (create_column_evaluation_graph, creates_circularity,
-                                        subgraph_from_starting_column_id,
-                                        topological_sort_columns)
+from mitosheet.evaluation_graph_utils import (create_column_evaluation_graph, creates_circularity, topological_sort_dependent_columns)
 from mitosheet.types import ColumnHeader, ColumnID
 
 
@@ -86,7 +84,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         column_headers = prev_state.dfs[sheet_index].keys()
 
         # Then we try and parse the formula
-        new_python_code, new_functions, new_dependencies_column_headers = parse_formula(
+        _, new_functions, new_dependencies_column_headers = parse_formula(
             new_formula, 
             column_header,
             column_headers
@@ -274,9 +272,7 @@ def refresh_dependant_columns(post_state: State, df: pd.DataFrame, sheet_index: 
     """
     Helper function for refreshing the columns that are dependant on the column we are changing. 
     """
-    column_evaluation_graph = create_column_evaluation_graph(post_state, sheet_index)
-    subgraph = subgraph_from_starting_column_id(column_evaluation_graph, column_id)
-    topological_sort = topological_sort_columns(subgraph)
+    topological_sort = topological_sort_dependent_columns(post_state, sheet_index, column_id)
     column_headers = post_state.dfs[sheet_index].keys()
 
     for column_id in topological_sort:
@@ -330,9 +326,7 @@ def transpile_dependant_columns(
 
     # We only look at the sheet that was changed, and sort the columns, taking only
     # those downstream from the changed columns
-    column_evaluation_graph = create_column_evaluation_graph(post_state, sheet_index)
-    subgraph = subgraph_from_starting_column_id(column_evaluation_graph, column_id)
-    topological_sort = topological_sort_columns(subgraph)
+    topological_sort = topological_sort_dependent_columns(post_state, sheet_index, column_id)
     column_headers = post_state.dfs[sheet_index].keys()
 
     # We compile all of their formulas
@@ -342,18 +336,12 @@ def transpile_dependant_columns(
             continue
 
         column_header = post_state.column_ids.get_column_header_by_id(sheet_index, other_column_id)
-        column_formula_changes, _, _ = parse_formula(
+        python_code, _, _ = parse_formula(
             post_state.column_spreadsheet_code[sheet_index][other_column_id], 
             column_header,
-            column_headers
+            column_headers,
+            df_name=post_state.df_names[sheet_index]
         )
-
-        if column_formula_changes != '':
-            # We replace the data frame in the code with it's parameter name!
-            # NOTE: we check for df[ to increase the odds that we don't replace
-            # something other than the dataframe name itself (e.g. replacing a column
-            # name with the letters "df" inside of them
-            column_formula_changes = column_formula_changes.strip().replace('df[', f'{post_state.df_names[sheet_index]}[')
-            code.append(column_formula_changes)
+        code.append(python_code)
 
     return code

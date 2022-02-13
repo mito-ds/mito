@@ -9,7 +9,7 @@ from copy import deepcopy
 
 import pandas as pd
 from mitosheet.errors import MitoError
-from mitosheet.execution_graph_utils import create_column_evaluation_graph, topological_sort_columns, creates_circularity
+from mitosheet.evaluation_graph_utils import create_column_evaluation_graph, topological_sort_columns, creates_circularity
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 
 def test_create_column_evaluation_graph():

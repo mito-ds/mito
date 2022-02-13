@@ -285,7 +285,8 @@ def get_column_header_match_tuples(
 def replace_column_headers(
         formula: str,
         column_headers: List[ColumnHeader],
-        string_matches: List
+        string_matches: List,
+        df_name: str
     ) -> Tuple[str, Set[ColumnHeader]]:
     """
     Returns a modified formula, where the column headers in the string
@@ -307,9 +308,9 @@ def replace_column_headers(
         end = match.end()
 
         if isinstance(column_header, str):
-            replace_string = f'df[\'{column_header}\']'
+            replace_string = f'{df_name}[\'{column_header}\']'
         else:
-            replace_string = f'df[{column_header}]'
+            replace_string = f'{df_name}[{column_header}]'
 
         formula = formula[:start] + replace_string + formula[end:]
 
@@ -356,7 +357,8 @@ def parse_formula(
         formula: Optional[str], 
         column_header: ColumnHeader, 
         column_headers: List[ColumnHeader],
-        throw_errors: bool=True
+        throw_errors: bool=True,
+        df_name: str='df'
     ) -> Tuple[str, Set[str], Set[ColumnHeader]]:
     """
     Returns a representation of the formula that is easy to handle, specifically
@@ -381,7 +383,8 @@ def parse_formula(
     code_with_column_headers, column_header_dependencies = replace_column_headers(
         formula, 
         column_headers,
-        string_matches
+        string_matches,
+        df_name
     )
 
     code_with_functions, functions = replace_functions(
@@ -389,4 +392,4 @@ def parse_formula(
     )
 
     transpiled_column_header = column_header_to_transpiled_code(column_header)
-    return f'df[{transpiled_column_header}] = {code_with_functions}', functions, column_header_dependencies
+    return f'{df_name}[{transpiled_column_header}] = {code_with_functions}', functions, column_header_dependencies

@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 from mitosheet.errors import make_invalid_column_delete_error
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.execution_graph_utils import create_column_evaluation_graph, topological_sort_columns
+from mitosheet.evaluation_graph_utils import create_column_evaluation_graph, topological_sort_columns
 from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code
 from mitosheet.types import ColumnID
 

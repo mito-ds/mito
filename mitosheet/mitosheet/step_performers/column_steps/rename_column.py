@@ -8,8 +8,8 @@ from copy import deepcopy
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 from mitosheet.errors import make_column_exists_error
-from mitosheet.execution_graph_utils import create_column_evaluation_graph
-from mitosheet.parser import parse_formula, safe_replace
+from mitosheet.evaluation_graph_utils import create_column_evaluation_graph
+from mitosheet.parser import safe_replace
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
@@ -98,21 +98,12 @@ class RenameColumnStepPerformer(StepPerformer):
         df_name = post_state.df_names[sheet_index]
         old_column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
 
-        if level is not None:
-            transpiled_old_value = column_header_to_transpiled_code(execution_data['old_level_value'] if execution_data else '')
-            transpiled_new_value = column_header_to_transpiled_code(new_column_header)
-            rename_dict = "{" + f'{transpiled_old_value}: {transpiled_new_value}' + "}"
-        else:
-            transpiled_old_column_header = column_header_to_transpiled_code(old_column_header)
-            transpiled_new_column_header = column_header_to_transpiled_code(new_column_header)
-            rename_dict = "{" + f'{transpiled_old_column_header}: {transpiled_new_column_header}' + "}"
+        transpiled_old_column_header = column_header_to_transpiled_code(old_column_header)
+        transpiled_new_column_header = column_header_to_transpiled_code(new_column_header)
+        rename_dict = "{" + f'{transpiled_old_column_header}: {transpiled_new_column_header}' + "}"
 
-        partial_rename_string = f'{df_name}.rename(columns={rename_dict}, inplace=True'
-        if level is not None:
-            partial_rename_string += f', level={level}'
-        partial_rename_string += ')'
-        
-        return [partial_rename_string]
+        rename_string = f'{df_name}.rename(columns={rename_dict}, inplace=True)'
+        return [rename_string]
 
     @classmethod
     def describe( # type: ignore
@@ -124,13 +115,10 @@ class RenameColumnStepPerformer(StepPerformer):
         df_names=None,
         **params
     ) -> str:
-        if level is None:
-            if df_names is not None:
-                df_name = df_names[sheet_index]
-                return f'Renamed {column_id} to {new_column_header} in {df_name}'
-            return f'Renamed {column_id} to {new_column_header}'
-        else:
-            return f'Renamed header at level {level} to {new_column_header}'
+        if df_names is not None:
+            df_name = df_names[sheet_index]
+            return f'Renamed {column_id} to {new_column_header} in {df_name}'
+        return f'Renamed {column_id} to {new_column_header}'
     
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore
@@ -157,7 +145,7 @@ def rename_column_headers_in_state(
     """
     old_column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
 
-    # Save original column headers, so we can use them below
+    # Save original column headers and eval graph, so we can use them below
     original_column_headers = list(post_state.dfs[sheet_index].keys())
     column_evaluation_graph = create_column_evaluation_graph(post_state, sheet_index)
 
@@ -167,16 +155,14 @@ def rename_column_headers_in_state(
     # We also have to go over _all_ the formulas in the sheet that reference this column, and update
     # their references to the new column. 
     for other_column_id in column_evaluation_graph[column_id]:
-        print("UPDATEING", other_column_id)
         old_formula = post_state.column_spreadsheet_code[sheet_index][other_column_id]
-        new_formula = safe_replace(
+        # Update the formula
+        post_state.column_spreadsheet_code[sheet_index][other_column_id] = safe_replace(
             old_formula,
             old_column_header,
             new_column_header,
             original_column_headers
         )
-
-        post_state.column_spreadsheet_code[sheet_index][other_column_id] = new_formula
 
     # Update the column header
     post_state.column_ids.set_column_header(sheet_index, column_id, new_column_header)
