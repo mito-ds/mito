@@ -43,7 +43,6 @@ class State():
             df_names: List[str]=None,
             df_sources: List[str]=None,
             column_ids: ColumnIDMap=None,
-            column_metatype: List[Dict[str, str]]=None,
             column_spreadsheet_code: List[Dict[str, str]]=None,
             column_python_code: List[Dict[str, str]]=None,
             column_evaluation_graph: List[Dict[str, Set[str]]]=None,
@@ -71,12 +70,6 @@ class State():
         # NOTE: every state variable below that is defined per column is access by _ids_ not
         # by column headers. The column headers _only_ index into the dataframe itself
         self.column_ids = column_ids if column_ids else ColumnIDMap(dfs)
-
-        # The column_metatype is if it stores formulas or values
-        self.column_metatype = column_metatype if column_metatype is not None else [
-            {column_id: 'value' for column_id in self.column_ids.get_column_ids(sheet_index)} 
-            for sheet_index in range(len(dfs))
-        ]
 
         # We make column_spreadsheet_code an ordered dictonary to preserve the order the formulas
         # are inserted, which in turn makes sure when we save + rerun an analysis, it's recreated
@@ -113,7 +106,6 @@ class State():
             df_names=deepcopy(self.df_names),
             df_sources=deepcopy(self.df_sources),
             column_ids=deepcopy(self.column_ids),
-            column_metatype=deepcopy(self.column_metatype),
             column_spreadsheet_code=deepcopy(self.column_spreadsheet_code),
             column_python_code=deepcopy(self.column_python_code),
             column_evaluation_graph=deepcopy(self.column_evaluation_graph),
@@ -132,7 +124,6 @@ class State():
             df_names=deepcopy(self.df_names),
             df_sources=deepcopy(self.df_sources),
             column_ids=deepcopy(self.column_ids),
-            column_metatype=deepcopy(self.column_metatype),
             column_spreadsheet_code=deepcopy(self.column_spreadsheet_code),
             column_python_code=deepcopy(self.column_python_code),
             column_evaluation_graph=deepcopy(self.column_evaluation_graph),
@@ -173,7 +164,6 @@ class State():
             column_ids = self.column_ids.add_df(new_df, use_deprecated_id_algorithm=use_deprecated_id_algorithm)
 
             # Update all the variables that depend on column_headers
-            self.column_metatype.append({column_id: 'value' for column_id in column_ids})
             self.column_spreadsheet_code.append({column_id: '' for column_id in column_ids})
             self.column_python_code.append({column_id: '' for column_id in column_ids})
             self.column_evaluation_graph.append({column_id: set() for column_id in column_ids})
@@ -198,7 +188,6 @@ class State():
             column_ids = self.column_ids.add_df(new_df, sheet_index=sheet_index, use_deprecated_id_algorithm=use_deprecated_id_algorithm)
 
             # Update all the variables that depend on column_headers
-            self.column_metatype[sheet_index] = {column_id: 'value' for column_id in column_ids}
             self.column_spreadsheet_code[sheet_index] = {column_id: '' for column_id in column_ids}
             self.column_python_code[sheet_index] = {column_id: '' for column_id in column_ids}
             self.column_evaluation_graph[sheet_index] = {column_id: set() for column_id in column_ids}

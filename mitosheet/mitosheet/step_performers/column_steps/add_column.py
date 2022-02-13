@@ -65,7 +65,6 @@ class AddColumnStepPerformer(StepPerformer):
 
         # Update the state variables
         column_id = post_state.column_ids.add_column_header(sheet_index, column_header)
-        post_state.column_metatype[sheet_index][column_id] = 'formula'
         post_state.column_spreadsheet_code[sheet_index][column_id] = '=0'
         post_state.column_python_code[sheet_index][column_id] = f'df[\'{column_header}\'] = 0'
         post_state.column_evaluation_graph[sheet_index][column_id] = set()

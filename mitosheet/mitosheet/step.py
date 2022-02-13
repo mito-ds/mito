@@ -74,10 +74,6 @@ class Step:
         return self.post_state.column_ids
     
     @property
-    def column_metatype(self):
-        return self.post_state.column_metatype
-    
-    @property
     def column_spreadsheet_code(self):
         return self.post_state.column_spreadsheet_code
 

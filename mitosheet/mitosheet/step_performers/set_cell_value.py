@@ -74,7 +74,7 @@ class SetCellValueStepPerformer(StepPerformer):
         new_value: Union[str, None],
         **params
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
-        if column_id not in prev_state.column_metatype[sheet_index]:
+        if column_id not in prev_state.column_spreadsheet_code[sheet_index]:
             raise make_no_column_error({column_id}, error_modal=False)
 
         # If nothings changed, there's no work to do

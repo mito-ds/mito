@@ -43,7 +43,6 @@ def test_recover_analysis(b_value, b_formula):
 
     curr_step = new_mito.curr_step
 
-    assert curr_step.column_metatype[0]['B'] == 'formula'
     assert curr_step.column_spreadsheet_code[0]['B'] == b_formula
     assert new_mito.dfs[0]['B'].tolist() == [b_value]
     assert json.dumps(new_mito.curr_step.column_spreadsheet_code) == json.dumps(curr_step.column_spreadsheet_code)
@@ -75,11 +74,9 @@ def test_persist_analysis_multi_sheet(b_value, b_formula):
 
     curr_step = new_mito.curr_step
 
-    assert curr_step.column_metatype[0]['B'] == 'formula'
     assert curr_step.column_spreadsheet_code[0]['B'] == b_formula
     assert new_mito.dfs[0]['B'].tolist() == [b_value]
 
-    assert curr_step.column_metatype[1]['B'] == 'formula'
     assert curr_step.column_spreadsheet_code[1]['B'] == b_formula
     assert new_mito.dfs[1]['B'].tolist() == [b_value]
     

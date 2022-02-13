@@ -161,20 +161,6 @@ def make_circular_reference_error(error_modal: bool=True) -> MitoError:
         error_modal=error_modal
     )
 
-def make_wrong_column_metatype_error(column_header: ColumnHeader, error_modal: bool=True) -> MitoError:
-    """
-    Helper function for creating a wrong_column_metatype_error.
-
-    Occurs when:
-    -  a user edits a column to a formula when it is not a formula type column.
-    """
-    return MitoError(
-        'wrong_column_metatype_error',
-        'Wrong Column Type',
-        f'Sorry, the column {column_header} is a data column. We don\'t currently support changing it to a formula.',
-        error_modal=error_modal
-    )
-
 def make_invalid_column_headers_error(column_headers: List[ColumnHeader]) -> MitoError:
     """
     Helper function for creating a invalid_column_headers_error.

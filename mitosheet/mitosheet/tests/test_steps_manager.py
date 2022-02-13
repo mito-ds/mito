@@ -21,7 +21,6 @@ def test_create_steps_manager():
     steps_manager = StepsManager([df1, df2])
     assert steps_manager.curr_step_idx == 0
     assert steps_manager.curr_step.step_type == 'initialize'
-    assert steps_manager.curr_step.column_metatype == [{'A': 'value'}, {'A': 'value'}]
     assert steps_manager.curr_step.column_spreadsheet_code == [{'A': ''}, {'A': ''}]
     assert steps_manager.curr_step.column_python_code == [{'A': ''}, {'A': ''}]
     assert steps_manager.curr_step.column_evaluation_graph == [{'A': set()}, {'A': set()}]
@@ -61,24 +60,6 @@ def test_steps_manager_cell_edit_errors(formula,error_type):
             }
         })
     assert e_info.value.type_ == error_type
-
-def test_wrong_column_metatype():
-    mito = create_mito_wrapper([123])
-    mito.add_column(0, 'B')
-    with pytest.raises(MitoError) as e_info:
-        mito.mito_widget.steps_manager.handle_edit_event({
-            'event': 'edit_event',
-            'id': get_new_id(),
-            'type': 'set_column_formula_edit',
-            'step_id': get_new_id(),
-            'params': {
-                'sheet_index': 0,
-                'column_id': get_column_header_id('A'),
-                'old_formula': '=0',
-                'new_formula': '=1'
-            }
-        })
-    assert e_info.value.type_ == 'wrong_column_metatype_error'
 
 
 def test_overwrites_step_valid():

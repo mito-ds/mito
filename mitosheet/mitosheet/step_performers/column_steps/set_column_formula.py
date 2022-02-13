@@ -11,8 +11,7 @@ import pandas as pd
 from mitosheet.errors import (MitoError, make_circular_reference_error,
                               make_execution_error, make_no_column_error,
                               make_operator_type_error,
-                              make_unsupported_function_error,
-                              make_wrong_column_metatype_error)
+                              make_unsupported_function_error)
 from mitosheet.parser import parse_formula
 from mitosheet.sheet_functions import FUNCTIONS
 from mitosheet.state import State
@@ -80,10 +79,6 @@ class SetColumnFormulaStepPerformer(StepPerformer):
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
 
-        # First, we check the column_metatype, and make sure it's a formula
-        if prev_state.column_metatype[sheet_index][column_id] != 'formula':
-            raise make_wrong_column_metatype_error(column_header, error_modal=False)
-
         # If nothings changed, there's no work to do
         if (old_formula == new_formula):
             return prev_state, None
@@ -99,7 +94,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         new_dependencies = set(prev_state.column_ids.get_column_ids(sheet_index, new_dependencies_column_headers))
 
         # We check that the formula doesn't reference any columns that don't exist
-        missing_columns = new_dependencies.difference(prev_state.column_metatype[sheet_index].keys())
+        missing_columns = new_dependencies.difference(prev_state.column_spreadsheet_code[sheet_index].keys())
         if any(missing_columns):
             raise make_no_column_error(missing_columns, error_modal=False)
 

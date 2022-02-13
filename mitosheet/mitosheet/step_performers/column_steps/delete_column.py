@@ -147,7 +147,6 @@ def _delete_column_id(
     df.drop(column_header, axis=1, inplace=True)
 
     # And then update all the state variables removing this column from the state
-    del state.column_metatype[sheet_index][column_id]
     del state.column_spreadsheet_code[sheet_index][column_id]
     del state.column_python_code[sheet_index][column_id]
     del state.column_evaluation_graph[sheet_index][column_id]
