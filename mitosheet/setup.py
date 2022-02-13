@@ -45,7 +45,7 @@ name = package_json['name']
 ensure_python('>=3.4')
 
 
-if name == 'mitosheet':
+if name == 'mitosheet2':
     # Get our version, which we just read 
     version = package_json['version']
 
@@ -146,7 +146,7 @@ if name == 'mitosheet':
             """,
         long_description_content_type='text/markdown'
     )
-elif name == 'mitosheet3':
+elif name == 'mitosheet' or name == 'mitosheet3':
     # Representative files that should exist after a successful build
     jstargets = [
         str(lab_path / "package.json"),
@@ -156,7 +156,7 @@ elif name == 'mitosheet3':
         'mitosheet': ["*"],
     }
 
-    labext_name = "mitosheet3"
+    labext_name = name
 
     data_files_spec = [
         ("share/jupyter/labextensions/%s" % labext_name, str(lab_path), "**"),

@@ -12,12 +12,12 @@ Want help? [Join our discord for immediate support.](https://discord.com/invite/
 
 #### The sheet does not render when I call mitosheet.sheet().
 
-If the sheet does not render when you call mitosheet.sheet(), this is usually fixable through the following steps:
+This is the most common error, and it is likely because you have failed to refresh your JupyterLab. This is usually fixable through the following steps:
 
 1. Shut down the currently running JupyterLab instance. Close all browser tabs with JupyterLab open.
 2. Relaunch JupyterLab. Retry calling `mitosheet.sheet()`
 
-If this does not work, try rerunning the installer and repeating the above steps.
+If this does not work, try rerunning the installer and repeating the above steps. 
 
 #### The installer hit a PermissionError during install.
 

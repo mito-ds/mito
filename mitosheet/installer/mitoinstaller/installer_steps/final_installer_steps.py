@@ -17,25 +17,21 @@ from termcolor import colored # type: ignore
 
 def replace_process_with_jupyter_lab():
     """
-    Switch the currently running process with a running
-    Jupyter Lab instance.
+    Switch the currently running process with a running JupyterLab instance.
 
-    If there is a current JupyterLab process running, or
-    if we are running tests, then we do not try and launch
-    JLab. Instead, we raise an exception, so that this is
-    then logged (only in case of other JLab).
+    If we are running tests, then we do not launch JLab. 
+    # TODO: we don't want to launch this if we're inside a Docker script?
     """
     if is_running_test():
         return
-    
-    if check_running_jlab_processes():
-        raise Exception('Cannot replace process with JupyterLab, currently running existing JLab instances')
 
     os.execl(sys.executable, 'python', '-m', 'jupyter', 'lab', MITO_STARTER_NOTEBOOK_PATH)
 
 
 def get_success_message():
     """
+    Note that not many users get to the success message!
+
     We show a different message depending on if this is an install or an upgrade,
     and we further tell the user different things if they have a currently running
     JLab instance (as they need to restart this)

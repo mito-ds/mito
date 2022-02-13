@@ -30,6 +30,8 @@ Then, run the installer. This command may take a few moments to run:
 python -m mitoinstaller install
 ```
 
+If you have a currently running JupyterLab process, then restart your kernel, and refresh your page to complete installation.
+
 {% hint style="warning" %}
 If you run into errors during installation, check our [common installation errors](common-install-errors.md) to resolve them.
 {% endhint %}

@@ -50,6 +50,10 @@ def venv(tmpdir):
     except:
         pass
     try:
+        uninstall_pip_packages('mitosheet2')
+    except:
+        pass
+    try:
         uninstall_pip_packages('mitosheet')
     except:
         pass
