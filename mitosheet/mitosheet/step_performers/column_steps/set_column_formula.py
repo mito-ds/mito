@@ -16,7 +16,7 @@ from mitosheet.parser import parse_formula
 from mitosheet.sheet_functions import FUNCTIONS
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.topological_sort import (creates_circularity,
+from mitosheet.execution_graph_utils import (create_column_evaluation_graph, creates_circularity,
                                         subgraph_from_starting_column_id,
                                         topological_sort_columns)
 from mitosheet.types import ColumnHeader, ColumnID
@@ -108,10 +108,13 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         _, _, old_dependencies_column_headers = parse_formula(old_formula, column_header, column_headers)
         old_dependencies = set(prev_state.column_ids.get_column_ids(sheet_index, old_dependencies_column_headers))
 
+        column_evaluation_graph = create_column_evaluation_graph(prev_state, sheet_index)
+        print(column_evaluation_graph)
+
         # Before changing any variables, we make sure this edit didn't
         # introduct any circularity
         circularity = creates_circularity(
-            prev_state.column_evaluation_graph[sheet_index], 
+            column_evaluation_graph, 
             column_id,
             old_dependencies,
             new_dependencies
@@ -124,7 +127,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
 
         # Update the column formula, and then execute the new formula graph
         try:
-            _update_column_formula_in_step(post_state, sheet_index, column_id, old_formula, new_formula)
+            post_state.column_spreadsheet_code[sheet_index][column_id] = new_formula
             refresh_dependant_columns(post_state, post_state.dfs[sheet_index], sheet_index, column_id)
         except MitoError as e:
             # Catch the error and make sure that we don't set the error modal
@@ -177,49 +180,6 @@ class SetColumnFormulaStepPerformer(StepPerformer):
     ) -> Set[int]:
         return {sheet_index}
 
-
-def _update_column_formula_in_step(
-        post_state: State,
-        sheet_index: int,
-        column_id: ColumnID,
-        old_formula: str,
-        new_formula: str,
-        update_from_rename: bool=False
-    ) -> None:
-    """
-    A  helper function for updating the formula of a column. It assumes
-    that the passed information is all _correct_ and will not:
-    1. Introduce a circular reference error.
-    2. Add an invalid formula.
-
-    It DOES NOT "reexecute" the dataframes, just updates the state variables.
-    """
-    column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-    column_headers = post_state.dfs[sheet_index].keys()
-
-    _, _, new_dependencies = parse_formula(
-        new_formula, 
-        column_header,
-        column_headers
-    )
-
-    _, _, old_dependencies = parse_formula(
-        old_formula, 
-        column_header,
-        column_headers
-    )
-
-    post_state.column_spreadsheet_code[sheet_index][column_id] = new_formula
-
-    # Update the column dependency graph, if this is not just an update
-    # from a rename (where the dependency graph does not change)
-    if not update_from_rename:
-        for old_dependency_column_header in old_dependencies:
-            old_dependency_column_id = post_state.column_ids.get_column_id_by_header(sheet_index, old_dependency_column_header)
-            post_state.column_evaluation_graph[sheet_index][old_dependency_column_id].remove(column_id)
-        for new_dependency_column_header in new_dependencies:
-            new_dependency_column_id = post_state.column_ids.get_column_id_by_header(sheet_index, new_dependency_column_header)
-            post_state.column_evaluation_graph[sheet_index][new_dependency_column_id].add(column_id)
 
 
 def _get_fixed_invalid_formula(
@@ -314,8 +274,8 @@ def refresh_dependant_columns(post_state: State, df: pd.DataFrame, sheet_index: 
     """
     Helper function for refreshing the columns that are dependant on the column we are changing. 
     """
-
-    subgraph = subgraph_from_starting_column_id(post_state.column_evaluation_graph[sheet_index], column_id)
+    column_evaluation_graph = create_column_evaluation_graph(post_state, sheet_index)
+    subgraph = subgraph_from_starting_column_id(column_evaluation_graph, column_id)
     topological_sort = topological_sort_columns(subgraph)
     column_headers = post_state.dfs[sheet_index].keys()
 
@@ -370,7 +330,8 @@ def transpile_dependant_columns(
 
     # We only look at the sheet that was changed, and sort the columns, taking only
     # those downstream from the changed columns
-    subgraph = subgraph_from_starting_column_id(post_state.column_evaluation_graph[sheet_index], column_id)
+    column_evaluation_graph = create_column_evaluation_graph(post_state, sheet_index)
+    subgraph = subgraph_from_starting_column_id(column_evaluation_graph, column_id)
     topological_sort = topological_sort_columns(subgraph)
     column_headers = post_state.dfs[sheet_index].keys()
 

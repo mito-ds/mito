@@ -7,8 +7,22 @@
 import pytest
 from copy import deepcopy
 
-from ..errors import MitoError
-from ..topological_sort import topological_sort_columns, creates_circularity
+import pandas as pd
+from mitosheet.errors import MitoError
+from mitosheet.execution_graph_utils import create_column_evaluation_graph, topological_sort_columns, creates_circularity
+from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+
+def test_create_column_evaluation_graph():
+    df = pd.DataFrame({'A': [123]})
+    mito = create_mito_wrapper_dfs(df)
+    mito.set_formula('=A', 0, 'B', add_column=True)
+    mito.set_formula('=B', 0, 'C', add_column=True)
+
+    assert create_column_evaluation_graph(
+        mito.curr_step.post_state,
+        0
+    ) == {'A': {'B'}, 'B': {'C'}, 'C': set()}
+
 
 # Test circularity detection works
 
