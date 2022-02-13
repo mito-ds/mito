@@ -679,7 +679,9 @@ export const getSelectedNumberSeriesColumnIDs = (selections: MitoSelection[], sh
     }
 
     const columnIndexesSelected = getColumnIndexesInSelections(selections);
-    const columnIDsAndDtypesSelected = columnIndexesSelected.map(colIdx => [sheetData.data[colIdx]?.columnID, sheetData.data[colIdx]?.columnDtype])
+    const columnIDsAndDtypesSelected = columnIndexesSelected
+        .filter(colIdx => sheetData.data.length > colIdx)
+        .map(colIdx => [sheetData.data[colIdx]?.columnID, sheetData.data[colIdx]?.columnDtype])
 
     // Filter out any columns that are not number series
     return columnIDsAndDtypesSelected
