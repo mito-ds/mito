@@ -23,6 +23,18 @@ def test_create_column_evaluation_graph():
         0
     ) == {'A': {'B'}, 'B': {'C'}, 'C': set()}
 
+def test_create_column_evaluation_graph():
+    df = pd.DataFrame({'A': [123]})
+    mito = create_mito_wrapper_dfs(df)
+    mito.set_formula('=A', 0, 'AAAA', add_column=True)
+    mito.set_formula('=AAAA', 0, 'C', add_column=True)
+    mito.set_formula('=AAAA + C', 0, 'D', add_column=True)
+
+    assert create_column_evaluation_graph(
+        mito.curr_step.post_state,
+        0
+    ) == {'A': {'AAAA'}, 'AAAA': {'C', 'D'}, 'C': {'D'}, 'D': set()}
+
 
 # Test circularity detection works
 

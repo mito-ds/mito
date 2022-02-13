@@ -107,7 +107,6 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         old_dependencies = set(prev_state.column_ids.get_column_ids(sheet_index, old_dependencies_column_headers))
 
         column_evaluation_graph = create_column_evaluation_graph(prev_state, sheet_index)
-        print(column_evaluation_graph)
 
         # Before changing any variables, we make sure this edit didn't
         # introduct any circularity

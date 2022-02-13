@@ -118,6 +118,10 @@ def subgraph_from_starting_column_id(column_evaluation_graph: Dict[ColumnID, Set
     return column_evaluation_subgraph
 
 def topological_sort_dependent_columns(state: State, sheet_index: int, column_id: ColumnID) -> List[ColumnID]:
+    """
+    Returns a topological sort of all columns that are downstream of
+    the passed column_id
+    """
     column_evaluation_graph = create_column_evaluation_graph(state, sheet_index)
     subgraph = subgraph_from_starting_column_id(column_evaluation_graph, column_id)
     return topological_sort_columns(subgraph)
