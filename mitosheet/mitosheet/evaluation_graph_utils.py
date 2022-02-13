@@ -29,7 +29,7 @@ def create_column_evaluation_graph(post_state: State, sheet_index: int) -> Dict[
     column_headers = post_state.dfs[sheet_index].keys()
     all_column_ids = post_state.column_ids.get_column_ids(sheet_index)
 
-    column_evaluation_graph = {column_id: set() for column_id in all_column_ids}
+    column_evaluation_graph: Dict[ColumnID, Set[ColumnID]] = {column_id: set() for column_id in all_column_ids}
 
     for column_id, spreadsheet_code in column_spreadsheet_code.items():
         column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
