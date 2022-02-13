@@ -53,7 +53,6 @@ class DataframeDeleteStepPerformer(StepPerformer):
         # Execute the delete
         post_state.column_ids.remove_df(sheet_index)
         post_state.column_spreadsheet_code.pop(sheet_index)
-        post_state.column_python_code.pop(sheet_index)
         post_state.column_evaluation_graph.pop(sheet_index)
         post_state.column_filters.pop(sheet_index)
         post_state.column_format_types.pop(sheet_index)

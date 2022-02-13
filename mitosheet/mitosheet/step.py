@@ -80,10 +80,6 @@ class Step:
     @property
     def column_evaluation_graph(self):
         return self.post_state.column_evaluation_graph
-
-    @property
-    def column_python_code(self):
-        return self.post_state.column_python_code
     
     @property
     def column_filters(self):

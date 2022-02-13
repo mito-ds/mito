@@ -189,15 +189,9 @@ def rename_column_headers_in_state(
         # We only need to update the one header that was renamed
         old_new_column_headers_to_update.add((column_id, old_column_header, new_column_header))
 
+    # TODO: Update comment below
     # Fix the column Python code, for this column
     for (column_id, old_column_header, new_column_header) in old_new_column_headers_to_update:
-        transpiled_old_column_header = column_header_to_transpiled_code(old_column_header)
-        transpiled_new_column_header = column_header_to_transpiled_code(new_column_header)
-        post_state.column_python_code[sheet_index][column_id] = post_state.column_python_code[sheet_index][column_id].replace(
-            f'df[{transpiled_old_column_header}]',
-            f'df[{transpiled_new_column_header}]'
-        )
-
         # We also have to go over _all_ the formulas in the sheet that reference this column, and update
         # their references to the new column. 
         for other_column_id in post_state.column_evaluation_graph[sheet_index][column_id]:

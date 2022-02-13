@@ -44,7 +44,6 @@ class State():
             df_sources: List[str]=None,
             column_ids: ColumnIDMap=None,
             column_spreadsheet_code: List[Dict[str, str]]=None,
-            column_python_code: List[Dict[str, str]]=None,
             column_evaluation_graph: List[Dict[str, Set[str]]]=None,
             column_filters: List[Dict[str, Any]]=None,
             column_format_types: List[Dict[str, Dict[str, Any]]]=None
@@ -71,14 +70,7 @@ class State():
         # by column headers. The column headers _only_ index into the dataframe itself
         self.column_ids = column_ids if column_ids else ColumnIDMap(dfs)
 
-        # We make column_spreadsheet_code an ordered dictonary to preserve the order the formulas
-        # are inserted, which in turn makes sure when we save + rerun an analysis, it's recreated
-        # in the correct order (and thus the column order is preserved).
         self.column_spreadsheet_code = column_spreadsheet_code if column_spreadsheet_code is not None else [
-            {column_id: '' for column_id in self.column_ids.get_column_ids(sheet_index)} 
-            for sheet_index in range(len(dfs))
-        ]
-        self.column_python_code = column_python_code if column_python_code is not None else [
             {column_id: '' for column_id in self.column_ids.get_column_ids(sheet_index)} 
             for sheet_index in range(len(dfs))
         ]
@@ -107,7 +99,6 @@ class State():
             df_sources=deepcopy(self.df_sources),
             column_ids=deepcopy(self.column_ids),
             column_spreadsheet_code=deepcopy(self.column_spreadsheet_code),
-            column_python_code=deepcopy(self.column_python_code),
             column_evaluation_graph=deepcopy(self.column_evaluation_graph),
             column_filters=deepcopy(self.column_filters),
             column_format_types=deepcopy(self.column_format_types)
@@ -125,7 +116,6 @@ class State():
             df_sources=deepcopy(self.df_sources),
             column_ids=deepcopy(self.column_ids),
             column_spreadsheet_code=deepcopy(self.column_spreadsheet_code),
-            column_python_code=deepcopy(self.column_python_code),
             column_evaluation_graph=deepcopy(self.column_evaluation_graph),
             column_filters=deepcopy(self.column_filters),
             column_format_types=deepcopy(self.column_format_types)
@@ -165,7 +155,6 @@ class State():
 
             # Update all the variables that depend on column_headers
             self.column_spreadsheet_code.append({column_id: '' for column_id in column_ids})
-            self.column_python_code.append({column_id: '' for column_id in column_ids})
             self.column_evaluation_graph.append({column_id: set() for column_id in column_ids})
             self.column_filters.append({column_id: {'operator':'And', 'filters': []} for column_id in column_ids})
             self.column_format_types.append({column_id: {'type': FORMAT_DEFAULT} for column_id in column_ids} if format_types is None else format_types)
@@ -189,7 +178,6 @@ class State():
 
             # Update all the variables that depend on column_headers
             self.column_spreadsheet_code[sheet_index] = {column_id: '' for column_id in column_ids}
-            self.column_python_code[sheet_index] = {column_id: '' for column_id in column_ids}
             self.column_evaluation_graph[sheet_index] = {column_id: set() for column_id in column_ids}
             self.column_filters[sheet_index] = {column_id: {'operator':'And', 'filters': []} for column_id in column_ids}
             self.column_format_types[sheet_index] = {column_id: {'type': FORMAT_DEFAULT} for column_id in column_ids} if format_types is None else format_types

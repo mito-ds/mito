@@ -125,7 +125,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         # Update the column formula, and then execute the new formula graph
         try:
             _update_column_formula_in_step(post_state, sheet_index, column_id, old_formula, new_formula)
-            refresh_dependant_columns(post_state, post_state.dfs[sheet_index], sheet_index)
+            refresh_dependant_columns(post_state, post_state.dfs[sheet_index], sheet_index, column_id)
         except MitoError as e:
             # Catch the error and make sure that we don't set the error modal
             e.error_modal = False
@@ -197,7 +197,7 @@ def _update_column_formula_in_step(
     column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
     column_headers = post_state.dfs[sheet_index].keys()
 
-    new_python_code, _, new_dependencies = parse_formula(
+    _, _, new_dependencies = parse_formula(
         new_formula, 
         column_header,
         column_headers
@@ -210,7 +210,6 @@ def _update_column_formula_in_step(
     )
 
     post_state.column_spreadsheet_code[sheet_index][column_id] = new_formula
-    post_state.column_python_code[sheet_index][column_id] = new_python_code
 
     # Update the column dependency graph, if this is not just an update
     # from a rename (where the dependency graph does not change)
@@ -311,19 +310,32 @@ def get_details_from_operator_type_error(error: TypeError) -> Optional[Tuple[str
     return None
 
 
-def refresh_dependant_columns(post_state: State, df: pd.DataFrame, sheet_index: int) -> None:
+def refresh_dependant_columns(post_state: State, df: pd.DataFrame, sheet_index: int, column_id: ColumnID) -> None:
     """
     Helper function for refreshing the columns that are dependant on the column we are changing. 
     """
 
-    topological_sort = topological_sort_columns(post_state.column_evaluation_graph[sheet_index])
+    subgraph = subgraph_from_starting_column_id(post_state.column_evaluation_graph[sheet_index], column_id)
+    topological_sort = topological_sort_columns(subgraph)
+    column_headers = post_state.dfs[sheet_index].keys()
 
     for column_id in topological_sort:
+        if post_state.column_spreadsheet_code[sheet_index][column_id] == '':
+            continue
+
+        column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
+        python_code, _, _ = parse_formula(
+            post_state.column_spreadsheet_code[sheet_index][column_id], 
+            column_header,
+            column_headers
+        )
+        print(post_state.column_spreadsheet_code[sheet_index][column_id])
+
         # Exec the code, where the df is the original dataframe
         # See explination here: https://www.tutorialspoint.com/exec-in-python
         try:
             exec(
-                post_state.column_python_code[sheet_index][column_id],
+                python_code,
                 {'df': df}, 
                 FUNCTIONS
             )
@@ -360,10 +372,21 @@ def transpile_dependant_columns(
     # those downstream from the changed columns
     subgraph = subgraph_from_starting_column_id(post_state.column_evaluation_graph[sheet_index], column_id)
     topological_sort = topological_sort_columns(subgraph)
+    column_headers = post_state.dfs[sheet_index].keys()
 
     # We compile all of their formulas
     for other_column_id in topological_sort:
-        column_formula_changes = post_state.column_python_code[sheet_index][other_column_id]
+
+        if post_state.column_spreadsheet_code[sheet_index][other_column_id] == '':
+            continue
+
+        column_header = post_state.column_ids.get_column_header_by_id(sheet_index, other_column_id)
+        column_formula_changes, _, _ = parse_formula(
+            post_state.column_spreadsheet_code[sheet_index][other_column_id], 
+            column_header,
+            column_headers
+        )
+
         if column_formula_changes != '':
             # We replace the data frame in the code with it's parameter name!
             # NOTE: we check for df[ to increase the odds that we don't replace

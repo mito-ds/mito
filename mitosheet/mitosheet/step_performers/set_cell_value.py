@@ -98,7 +98,7 @@ class SetCellValueStepPerformer(StepPerformer):
         post_state.dfs[sheet_index].at[row_index, column_header] = type_corrected_new_value
 
         # Update the column formula, and then execute the new formula graph
-        refresh_dependant_columns(post_state, post_state.dfs[sheet_index], sheet_index)
+        refresh_dependant_columns(post_state, post_state.dfs[sheet_index], sheet_index, column_id)
 
         return post_state, {
             'type_corrected_new_value': type_corrected_new_value

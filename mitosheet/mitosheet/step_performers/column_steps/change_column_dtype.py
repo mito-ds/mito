@@ -207,7 +207,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
             if not ((is_int_dtype(old_dtype) or is_float_dtype(old_dtype)) and (is_int_dtype(new_dtype) or is_float_dtype(new_dtype))):
                 post_state.column_format_types[sheet_index][column_id] = {'type': FORMAT_DEFAULT}
                 
-            refresh_dependant_columns(post_state, post_state.dfs[sheet_index], sheet_index)
+            refresh_dependant_columns(post_state, post_state.dfs[sheet_index], sheet_index, column_id)
 
             return post_state, None
         except:
