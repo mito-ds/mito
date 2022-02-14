@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 from typing import Any, Dict, List
 from mitosheet.saved_analyses.step_upgraders.utils_column_header_to_column_id import \
     replace_headers_with_id
@@ -156,7 +155,7 @@ def upgrade_filter_column_3_to_4(step: Dict[str, Any], later_steps: List[Dict[st
                     {"type": "number", "condition": "greater", "value": 3}], 
                     "operator": "And"}
                 ], 
-            "operator": "And"}
+            "operator": "And"
         }
     }
     NEW: {

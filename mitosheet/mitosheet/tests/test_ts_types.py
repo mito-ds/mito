@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 from mitosheet.data_in_mito import DataTypeInMito
 from mitosheet.state import (DATAFRAME_SOURCE_DUPLICATED,
                              DATAFRAME_SOURCE_IMPORTED,
