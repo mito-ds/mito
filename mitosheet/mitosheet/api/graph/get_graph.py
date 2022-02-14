@@ -6,7 +6,7 @@ from mitosheet.types import ColumnHeader
 import plotly.express as px
 import plotly.graph_objects as go
 from mitosheet.api.graph.bar import get_bar_chart, get_bar_code
-from mitosheet.api.graph.box import get_box_code, get_box_plot
+from mitosheet.api.graph.graph import get_box_code, get_box_plot
 from mitosheet.api.graph.graph_utils import (
     BAR, BOX, HISTOGRAM, MAX_UNIQUE_NON_NUMBER_VALUES,
     MAX_UNIQUE_NON_NUMBER_VALUES_COMMENT, SCATTER, SUMMARY_STAT, X, Y,
