@@ -1,67 +1,16 @@
 import json
 import pandas as pd
 from typing import Any, Dict, List
+from mitosheet.api.graph.column_summary_graph import get_column_summary_graph
 from mitosheet.types import ColumnHeader
 import plotly.express as px
 import plotly.graph_objects as go
-from mitosheet.api.graph.graph import get_plotly_express_graph, get_plotly_express_graph_code
-from mitosheet.api.graph.graph_utils import (
-    MAX_UNIQUE_NON_NUMBER_VALUES, MAX_UNIQUE_NON_NUMBER_VALUES_COMMENT, SUMMARY_STAT, X,
-    filter_df_to_top_unique_values_in_series, get_html_and_script_from_figure)
+from mitosheet.api.graph.plotly_express_graphs import get_plotly_express_graph, get_plotly_express_graph_code
+from mitosheet.api.graph.graph_utils import (SUMMARY_STAT, get_html_and_script_from_figure)
 from mitosheet.errors import get_recent_traceback
-from mitosheet.mito_analytics import log, log_recent_error
-from mitosheet.sheet_functions.types.utils import NUMBER_SERIES, get_mito_type
+from mitosheet.mito_analytics import log_recent_error
 from mitosheet.steps_manager import StepsManager
 
-
-def get_column_summary_graph(axis: str, df: pd.DataFrame, axis_data_array: List[ColumnHeader]) -> go.Figure:
-    """
-    One Axis Graphs heuristics:
-    1. Number Column - we do no filtering. These graphs are pretty efficient up to 1M rows
-    2. Non-number column. We filter to the top 10k values, as the graphs get pretty laggy 
-       beyond that
-    """
-    column_header = axis_data_array[0]
-    series: pd.Series = df[column_header]
-    mito_type = get_mito_type(series)
-
-    graph_title = f'{column_header} Frequencies'
-
-    filtered = False
-    if mito_type != NUMBER_SERIES:
-        if series.nunique() > MAX_UNIQUE_NON_NUMBER_VALUES:
-            title = f'{graph_title} {MAX_UNIQUE_NON_NUMBER_VALUES_COMMENT}'
-            df = filter_df_to_top_unique_values_in_series(
-                df, 
-                series, 
-                MAX_UNIQUE_NON_NUMBER_VALUES
-            )
-            # Set series as the newly filtered series
-            series = df[column_header]
-
-            filtered = True
-
-        # Fill NaN values with 'NaN' so they are displayed in the graph.
-        series = series.fillna('NaN')
-            
-    labels = {axis: ''}
-
-    kwargs = {
-        axis: series,
-        'labels': labels,
-        'title': graph_title,
-    }
-
-    fig = px.histogram(
-        **kwargs        
-    )
-
-    log(f'generate_column_summary_stat_graph', {
-        f'param_is_number_series_{axis}': mito_type == NUMBER_SERIES,
-        'param_filtered': filtered
-    })
-
-    return fig
 
 def get_graph(event: Dict[str, Any], steps_manager: StepsManager) -> str:
     """
@@ -75,11 +24,6 @@ def get_graph(event: Dict[str, Any], steps_manager: StepsManager) -> str:
     - y_axis_column_header_array (optional)
     - height (optional) - int representing the div width
     - width (optional) - int representing the div width
-
-    If only an x axis is given, and if the series is a numeric series,
-    will return a histogram. Otherwise, as long as there are less than 
-    20 distinct items in the series, will return a bar chart of the 
-    value count. Otherwise, will return nothing.
     """
     keys = event.keys()
 
@@ -122,9 +66,8 @@ def get_graph(event: Dict[str, Any], steps_manager: StepsManager) -> str:
             # We handle summary stats separately from the histogram, for now, because 
             # we only let the user use a histogram with all numeric data, whereas the column
             # summary stats may not be all numeric data. 
-            fig = get_column_summary_graph(X, df, x_axis_column_headers)
+            fig = get_column_summary_graph(df, x_axis_column_headers)
             generation_code = ''
-
         else:
             fig = get_plotly_express_graph(graph_type, df, x_axis_column_headers, y_axis_column_headers)
             generation_code = get_plotly_express_graph_code(graph_type, df, df_name, x_axis_column_headers, y_axis_column_headers)

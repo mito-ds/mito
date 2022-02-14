@@ -1,9 +1,8 @@
 from typing import Any, List
 import pandas as pd
 from mitosheet.types import ColumnHeader
-import plotly.graph_objects as go
 import plotly.express as px
-from mitosheet.mito_analytics import log
+import plotly.graph_objects as go
 from mitosheet.api.graph.graph_utils import BAR, BOX, HISTOGRAM, SCATTER, filter_df_to_safe_size, get_barmode, get_graph_title
 
 def graph_filtering(graph_type: str, df, column_headers):
@@ -15,16 +14,19 @@ def graph_filtering(graph_type: str, df, column_headers):
 
 def graph_filtering_code(graph_type: str, df_name, df, column_headers) -> str:
     """
-    Returns the code for filtering the dataframe so we don't crash the browswer
+    Returns the code for filtering the dataframe so we don't crash the browser
     """
+    # Check if we filter the graph
     _, filtered = filter_df_to_safe_size(graph_type, df, column_headers)
     
+    # If we don't filter the graph, then return an empty string
     if not filtered: 
         return ''
     
-    filtered_code = """
+    # If we do filter the graph, then return the code needed to filter the graph
+    filtered_code = """from mitosheet import filter_df_to_safe_size
+
 # Filter the dataframe so that it does not crash the browser
-from mitosheet import filter_df_to_safe_size
 {df_name}_filtered, _ = filter_df_to_safe_size('{graph_type}', {df_name}, {column_headers})
 """.format(
     graph_type=graph_type,
@@ -34,19 +36,19 @@ from mitosheet import filter_df_to_safe_size
     return filtered_code
 
 
-#TODO figure out how to express a plotly express graph return tyep
 def graph_creation(
     graph_type: str, 
     df: pd.DataFrame, 
     x_axis_column_headers: List[ColumnHeader],
     y_axis_column_headers: List[ColumnHeader]
-): 
+) -> go.Figure: 
     """
     Creates and returns the Plotly express graph figure
     """
     num_x_axis_column_headers = len(x_axis_column_headers)
     num_y_axis_column_headers = len(y_axis_column_headers)
     
+    # Create the parameters that we use to construct the graph
     x_arg = None
     if num_x_axis_column_headers == 1:
         # Note: In the new interface, x will always have a length of 0 or 1
@@ -82,12 +84,13 @@ def graph_creation_code(
     num_x_axis_column_headers = len(x_axis_column_headers)
     num_y_axis_column_headers = len(y_axis_column_headers)
 
+    # Create the chords that we use to construct the graph
     x_chord = ''
     if num_x_axis_column_headers == 1:
         # Note: In the new interface, x will always have a length of 0 or 1
         x_chord = f'x="{x_axis_column_headers[0]}"'
     if num_x_axis_column_headers > 1:
-        x_arg = f'x={x_axis_column_headers}'
+        x_chord = f'x={x_axis_column_headers}'
 
     y_chord = ''
     if num_y_axis_column_headers == 1:
@@ -95,6 +98,7 @@ def graph_creation_code(
     if num_y_axis_column_headers > 1:
         y_chord = f'y={y_axis_column_headers}'
 
+    # Create the string of all the parameters used to create the graph
     all_chords = [df_name, x_chord, y_chord]
     params = (', ').join(list(filter(lambda chord: chord != '', all_chords)))
 
@@ -107,16 +111,17 @@ def graph_creation_code(
     if graph_type == SCATTER:
         return f"fig = px.scatter({params})"
 
-    
 
 def graph_styling(fig, graph_type: str, column_headers: List[ColumnHeader], filtered: bool):
     """
     Styles the Plotly express graph figure
     """
 
+    # Create the parameters that we use to style the graph
     graph_title = get_graph_title(column_headers, [], filtered, graph_type)
     barmode = get_barmode(graph_type)
 
+    # Actually update the style of the graph
     fig.update_layout(
         title = graph_title,
         barmode=barmode
@@ -131,23 +136,23 @@ def graph_styling_code(graph_type: str, column_headers: List[ColumnHeader], filt
     graph_title = get_graph_title(column_headers, [], filtered, graph_type)
     barmode = get_barmode(graph_type)
 
+    # Create the chords that we use to style the graph
     graph_title_chord = f'title="{graph_title}"' 
     barmode_chord = '' if barmode is None else f'barmode="{barmode}"'
 
-
+    # Create the string of all the parameters passed to the update_layout function
     all_chords = [graph_title_chord, barmode_chord]
     params = (', ').join(list(filter(lambda chord: chord != '', all_chords)))
 
     return f"fig.update_layout({params})"
 
 
-#TODO figure out how to express a plotly express graph return type
 def get_plotly_express_graph(
     graph_type: str, 
     df: pd.DataFrame, 
     x_axis_column_headers: List[ColumnHeader],
     y_axis_column_headers: List[ColumnHeader]
-): 
+) -> go.Figure: 
     """
     Generates and returns a Plotly express graph in 3 steps
     1) filtering -- make sure that dataframe is a safe size to graph
@@ -193,10 +198,16 @@ def get_plotly_express_graph_code(
     df_name = f"{df_name}_filtered" if filtered else df_name
 
     # Step 2: Graph Creation
+    code.append('# Construct the graph and style it. Further customize your graph by editing this code.')
+    code.append('# See Plotly Documentation for help: https://plotly.com/python/plotly-express/')
     code.append(graph_creation_code(graph_type, df_name, x_axis_column_headers, y_axis_column_headers))
 
     # Step 3: Graph Styling
     code.append(graph_styling_code(graph_type, all_column_headers, filtered))
 
-    code.append('fig.show()')
+    # We previously used fig.show(renderer="iframe"), which per testing works in both JLab 2
+    # and JLab 3, and renders in line, however we might not need it anymore with plotly.express. 
+    # We might be able to just to fig.show(). TODO: test on Jlab2, it works on Jlab3
+    code.append('fig.show(renderer="iframe")')
+    
     return "\n".join(code)

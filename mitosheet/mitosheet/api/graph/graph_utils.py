@@ -52,30 +52,6 @@ GRAPH_TITLE_LABELS = {
     HISTOGRAM: 'histogram'
 }
 
-# Some nice constants
-X = 'x'
-Y = 'y'
-
-CREATE_FIG_CODE = """# Import plotly and create a figure
-import plotly.graph_objects as go
-fig = go.Figure()
-"""
-
-# We just use fig.show(renderer="iframe"), which per testing works in both JLab 2
-# and JLab 3, and renders in line.
-SHOW_FIG_CODE = 'fig.show(renderer="iframe")'
-
-def is_all_number_series(df: pd.DataFrame, column_headers: List[ColumnHeader]) -> bool:
-    """
-    Returns True if the Mito type of each series with the header column_header
-    in column_headers is a NUMBER_SERIES. Returns False otherwise. 
-    """
-    for column_header in column_headers:
-        mito_type = get_mito_type(df[column_header])
-        if mito_type != NUMBER_SERIES:
-            return False
-    return True
-
 def get_graph_title(x_axis_column_headers: List[ColumnHeader], y_axis_column_headers: List[ColumnHeader], filtered: bool, graph_type: str, special_title: str=None) -> str:
     """
     Helper function for determing the title of the graph for the scatter plot and bar chart
@@ -101,37 +77,6 @@ def get_graph_title(x_axis_column_headers: List[ColumnHeader], y_axis_column_hea
     
     # Return a string with all of the graph_title_components separated by a space  
     return (' ').join(graph_title_components)
-
-
-def get_graph_labels(x_axis_column_headers: List[ColumnHeader], y_axis_column_headers: List[ColumnHeader]) -> Tuple[str, str]:
-    """
-    Helper function for determining the x and y axis titles, 
-    for the scatter plot and bar chart. 
-    """
-    if x_axis_column_headers == [] and y_axis_column_headers == []:
-        # If no data is provided, don't label the axises
-        x_axis_title = ''
-        y_axis_title = ''
-
-    elif x_axis_column_headers == [] and y_axis_column_headers != []:
-        # Following from the graph generation, if the user only selects a y axis, 
-        # then the y axis is the index column and the columns selected are put on the x axis
-        x_axis_title = str(y_axis_column_headers[0]) if len(y_axis_column_headers) == 1 else ''
-        y_axis_title = 'index'
-
-    elif x_axis_column_headers != [] and y_axis_column_headers == []:
-        # Following from the graph generation, if the user only selects a x axis, 
-        # then the y axis is the index column
-        x_axis_title = 'index'
-        y_axis_title = str(x_axis_column_headers[0]) if len(x_axis_column_headers) == 1 else ''
-
-    else: 
-        # Only label the axis if there is one column header on the axis. Otherwise, plotly 
-        # legend will label the columns
-        x_axis_title = str(x_axis_column_headers[0]) if len(x_axis_column_headers) == 1 else ''
-        y_axis_title = str(y_axis_column_headers[0]) if len(y_axis_column_headers) == 1 else ''
-
-    return x_axis_title, y_axis_title
 
 def get_barmode(graph_type: str) -> Union[str, None]: 
     """
