@@ -11,8 +11,6 @@ from mitoinstaller.installer_steps import (FINAL_INSTALLER_STEPS,
                                            run_installer_steps)
 from mitoinstaller.installer_steps.initial_installer_steps import \
     INITIAL_INSTALLER_STEPS_PRO
-from mitoinstaller.installer_steps.test_pypi_mitosheet_installer_steps import \
-    TEST_PYPI_MITOSHEET_INSTALLER_STEPS
 from mitoinstaller.log_utils import log, log_error
 
 
