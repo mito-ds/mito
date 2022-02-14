@@ -11,9 +11,9 @@ import numpy as np
 
 from mitosheet.errors import make_cast_value_to_type_error, make_no_column_error
 from mitosheet.sheet_functions.types import SERIES_CONVERSION_FUNCTIONS
-from mitosheet.sheet_functions.types.utils import (BOOLEAN_SERIES,
+from mitosheet.sheet_functions.types.utils import (BOOLEAN_SERIES, DATETIME_SERIES,
                                                    NUMBER_SERIES,
-                                                   STRING_SERIES,
+                                                   STRING_SERIES, TIMEDELTA_SERIES,
                                                    is_int_dtype,
                                                    is_none_type)
 from mitosheet.state import State
@@ -137,6 +137,10 @@ class SetCellValueStepPerformer(StepPerformer):
         # We don't need to wrap the value in " if its None, a Boolean Series, or a Number Series.
         if type_corrected_new_value is None or column_mito_type == BOOLEAN_SERIES or column_mito_type == NUMBER_SERIES:
             code.append(f'{post_state.df_names[sheet_index]}.at[{row_index}, {transpiled_column_header}] = {type_corrected_new_value}')
+        elif column_mito_type == DATETIME_SERIES:
+            code.append(f'{post_state.df_names[sheet_index]}.at[{row_index}, {transpiled_column_header}] = pd.to_datetime(\"{type_corrected_new_value}\")')
+        elif column_mito_type == TIMEDELTA_SERIES:
+            code.append(f'{post_state.df_names[sheet_index]}.at[{row_index}, {transpiled_column_header}] = pd.to_timedelta(\"{type_corrected_new_value}\")')
         else:
             code.append(f'{post_state.df_names[sheet_index]}.at[{row_index}, {transpiled_column_header}] = \"{type_corrected_new_value}\"')
 
