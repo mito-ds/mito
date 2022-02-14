@@ -1,17 +1,13 @@
 import json
-from typing import Any, Dict, List
-
 import pandas as pd
+from typing import Any, Dict, List
 from mitosheet.types import ColumnHeader
 import plotly.express as px
 import plotly.graph_objects as go
-from mitosheet.api.graph.bar import get_bar_chart, get_bar_code
 from mitosheet.api.graph.graph import get_plotly_express_graph, get_plotly_express_graph_code
 from mitosheet.api.graph.graph_utils import (
-    BAR, BOX, HISTOGRAM, MAX_UNIQUE_NON_NUMBER_VALUES,
-    MAX_UNIQUE_NON_NUMBER_VALUES_COMMENT, SCATTER, SUMMARY_STAT, X, Y,
+    MAX_UNIQUE_NON_NUMBER_VALUES, MAX_UNIQUE_NON_NUMBER_VALUES_COMMENT, SUMMARY_STAT, X,
     filter_df_to_top_unique_values_in_series, get_html_and_script_from_figure)
-from mitosheet.api.graph.scatter import get_scatter_code, get_scatter_plot
 from mitosheet.errors import get_recent_traceback
 from mitosheet.mito_analytics import log, log_recent_error
 from mitosheet.sheet_functions.types.utils import NUMBER_SERIES, get_mito_type
