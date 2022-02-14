@@ -5,7 +5,7 @@ with the command line directly
 
 import os
 import sys
-from subprocess import CompletedProcess
+from subprocess import CompletedProcess, check_output
 from typing import List, Tuple, Union
 
 from termcolor import colored # type: ignore
@@ -208,6 +208,10 @@ def get_jupyterlab_metadata() -> Tuple[Union[str, None], Union[List[str], None]]
     
     return __version__, extension_names
 
+def get_installed_pip_packages() -> List[str]:
+    reqs = check_output([sys.executable, '-m', 'pip', 'freeze'])
+    installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
+    return installed_packages
 
 def exit_after_error(install_or_upgrade: str, error: str=None) -> None:
     full_error = '\n\nSorry, looks like we hit a problem during {install_or_upgrade}. '.format(install_or_upgrade=install_or_upgrade) + \
