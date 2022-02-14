@@ -61,7 +61,7 @@ class ExcelImportStepPerformer(StepPerformer):
         if not has_headers:
             read_excel_params['header'] = None
 
-        df_dictonary = pd.read_excel(file_name, **read_excel_params) 
+        df_dictonary = pd.read_excel(file_name, **read_excel_params, engine='openpyxl') 
 
         for sheet_name, df in df_dictonary.items():
             post_state.add_df_to_state(
@@ -95,7 +95,7 @@ class ExcelImportStepPerformer(StepPerformer):
         if not has_headers:
             read_excel_params['header'] = None
 
-        read_excel_line = f'sheet_df_dictonary = pd.read_excel(\'{file_name}\''
+        read_excel_line = f'sheet_df_dictonary = pd.read_excel(\'{file_name}\', engine=\'openpyxl\''
         for key, value in read_excel_params.items():
             read_excel_line += f', {key}={value}'
         read_excel_line += ')'
