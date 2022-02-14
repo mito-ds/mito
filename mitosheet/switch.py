@@ -390,11 +390,12 @@ def switch(new_package):
 
     # Then, update the package.json
     if new_package == 'mitosheet2':
-        open('package.json', 'w').write(MITOSHEET_TWO_PACKAGE_JSON)
+      print(MITOSHEET_TWO_PACKAGE_JSON)
+      open('package.json', 'w').write(MITOSHEET_TWO_PACKAGE_JSON)
     elif new_package == 'mitosheet':    
-        open('package.json', 'w').write(MITOSHEET_PACKAGE_JSON)
+      open('package.json', 'w').write(MITOSHEET_PACKAGE_JSON)
     elif new_package == 'mitosheet3':    
-        open('package.json', 'w').write(MITOSHEET_THREE_PACKAGE_JSON)
+      open('package.json', 'w').write(MITOSHEET_THREE_PACKAGE_JSON)
 
     
 if __name__ == '__main__':
