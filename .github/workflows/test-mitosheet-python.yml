@@ -16,6 +16,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8]
+        pandas-version: ['0.24.2', '1.1.5']
 
     steps:
     - name: Cancel Previous Runs
@@ -31,6 +32,7 @@ jobs:
       run: |
         cd mitosheet
         python -m pip install --upgrade pip
+        pip install "pandas==${{ matrix.pandas-version }}"
         pip install -e ".[test, deploy]"
     - name: Lint with flake8
       run: |
