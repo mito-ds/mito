@@ -59,7 +59,8 @@ OPERATOR_TYPE_ERRORS = [
     #('=A ^ C', 1),
 ]
 @pytest.mark.parametrize("formula, error", OPERATOR_TYPE_ERRORS)
-def test_valid_divison(formula, error):
+@pytest.mark.skipif(pd.__version__.startswith('0.'), reason='Pandas version gives different errors. Skipping.')
+def test_type_errors(formula, error):
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1], 'B': [True], 'C': ['Hi'], 'D': [pd.to_datetime('12-12-2020')]}))
     mito.add_column(0, 'E')
     if error is not None:

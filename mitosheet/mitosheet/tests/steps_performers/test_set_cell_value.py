@@ -213,8 +213,9 @@ def test_set_cell_value_convert_datetime():
             '12-4-2020'
         ]))}))
     mito.set_cell_value(0, 'A', 0, "12-1-2030")
+
     assert mito.transpiled_code == [
-        'df1.at[0, \'A\'] = "2030-12-01 00:00:00"'
+        'df1.at[0, \'A\'] = pd.to_datetime("2030-12-01 00:00:00")'
     ]
 
 def test_set_cell_value_convert_datetime_to_none():
