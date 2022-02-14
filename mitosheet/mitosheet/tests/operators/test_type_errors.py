@@ -14,6 +14,7 @@ from mitosheet.column_headers import get_column_header_id
 from mitosheet.utils import get_new_id
 from mitosheet.errors import MitoError
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.decorators import pandas_post_1_only
 
 OPERATOR_TYPE_ERRORS = [
     ('=10 + "test"', ('+', 'number', 'string')),
@@ -59,7 +60,7 @@ OPERATOR_TYPE_ERRORS = [
     #('=A ^ C', 1),
 ]
 @pytest.mark.parametrize("formula, error", OPERATOR_TYPE_ERRORS)
-@pytest.mark.skipif(pd.__version__.startswith('0.'), reason='Pandas version gives different errors. Skipping.')
+@pandas_post_1_only
 def test_type_errors(formula, error):
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1], 'B': [True], 'C': ['Hi'], 'D': [pd.to_datetime('12-12-2020')]}))
     mito.add_column(0, 'E')
