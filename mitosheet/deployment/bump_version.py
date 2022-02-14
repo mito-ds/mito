@@ -84,11 +84,11 @@ def bump_version(package, deploy_location: str, new_version: Tuple[int, int, int
     with open('package.json', 'r+') as f:
         package_obj = json.loads(f.read())
         # Sanity check that we are bumping the version of the package
-        assert package_obj['name'] == package
-        package_obj['version'] = '.'.join(map(str, new_version))
 
-        # Rewind to start of file, to write
-        f.seek(0)
+    assert package_obj['name'] == package
+    package_obj['version'] = '.'.join(map(str, new_version))
+
+    with open('package.json', 'w') as f:
         f.write(json.dumps(package_obj, indent=2))
 
     print(f'Bump {package} version to {new_version}')

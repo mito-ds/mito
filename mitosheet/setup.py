@@ -34,7 +34,6 @@ from setuptools import setup
 
 HERE = Path(__file__).parent.resolve()
 
-print(open('package.json').read())
 package_json = json.loads(open('package.json').read())
 lab_path = Path(pjoin(HERE, 'mitosheet', 'labextension'))
 
