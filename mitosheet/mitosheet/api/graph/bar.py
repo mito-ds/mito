@@ -81,15 +81,6 @@ def get_bar_chart(df: pd.DataFrame, x_axis_column_headers: List[ColumnHeader], y
         barmode='group',
     )
 
-    log(f'generate_graph', {
-        'params_graph_type': BAR,
-        'params_x_axis_column_headers': x_axis_column_headers,
-        'params_x_axis_column_types': [get_mito_type(df[column_header]) for column_header in x_axis_column_headers] if x_axis_column_headers is not None else [],
-        'params_y_axis_column_headers': y_axis_column_headers,
-        'params_y_axis_column_types': [get_mito_type(df[column_header]) for column_header in y_axis_column_headers] if y_axis_column_headers is not None else [],
-        'params_filtered': filtered,
-    })
-
     return fig
 
 def get_bar_code(
