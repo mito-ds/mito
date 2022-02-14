@@ -20,7 +20,7 @@ def test_installs_mitosheet_jlab_3(venv: VirtualEnvironment):
     
     mitosheet_version = venv.get_package_version('mitosheet')
 
-    assert mitosheet_version is None 
+    assert mitosheet_version is not None 
     assert 'mitosheet' in venv.get_jupyterlab_extension_names()
 
 
