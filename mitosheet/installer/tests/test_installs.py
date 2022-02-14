@@ -12,18 +12,16 @@ def test_install_mitosheet_no_dependencies(venv: VirtualEnvironment):
     assert jlab_version.startswith('3')
 
 
-def test_installs_mitosheet3_jlab_3(venv: VirtualEnvironment):
+def test_installs_mitosheet_jlab_3(venv: VirtualEnvironment):
     venv.run_python_module_command(['pip', 'install', '-r', 'requirements.txt'])
     venv.run_python_module_command(['pip', 'install', 'jupyterlab==3.0'])
     
     venv.run_python_module_command(['mitoinstaller', 'install', '--test-pypi'])
     
-    mitosheet3_version = venv.get_package_version('mitosheet3')
     mitosheet_version = venv.get_package_version('mitosheet')
 
-    assert mitosheet3_version is not None 
     assert mitosheet_version is None 
-    assert 'mitosheet3' in venv.get_jupyterlab_extension_names()
+    assert 'mitosheet' in venv.get_jupyterlab_extension_names()
 
 
 def test_installs_mitosheet_jlab_2_no_extensions(venv: VirtualEnvironment):
