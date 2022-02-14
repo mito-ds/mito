@@ -4,7 +4,7 @@ import os
 
 def test_install_mitosheet_no_dependencies(venv: VirtualEnvironment):
     venv.run_python_module_command(['pip', 'install', '-r', 'requirements.txt'])
-    venv.run_python_module_command(['mitoinstaller', 'install'])
+    venv.run_python_module_command(['mitoinstaller', 'install', '--test-pypi'])
     mitosheet_version = venv.get_package_version('mitosheet')
     jlab_version = venv.get_package_version('jupyterlab')
 
@@ -16,7 +16,7 @@ def test_installs_mitosheet3_jlab_3(venv: VirtualEnvironment):
     venv.run_python_module_command(['pip', 'install', '-r', 'requirements.txt'])
     venv.run_python_module_command(['pip', 'install', 'jupyterlab==3.0'])
     
-    venv.run_python_module_command(['mitoinstaller', 'install'])
+    venv.run_python_module_command(['mitoinstaller', 'install', '--test-pypi'])
     
     mitosheet3_version = venv.get_package_version('mitosheet3')
     mitosheet_version = venv.get_package_version('mitosheet')
@@ -30,7 +30,7 @@ def test_installs_mitosheet_jlab_2_no_extensions(venv: VirtualEnvironment):
     venv.run_python_module_command(['pip', 'install', '-r', 'requirements.txt'])
     venv.run_python_module_command(['pip', 'install', 'jupyterlab==2.2.5'])
     
-    venv.run_python_module_command(['mitoinstaller', 'install'])
+    venv.run_python_module_command(['mitoinstaller', 'install', '--test-pypi'])
     mitosheet_version = venv.get_package_version('mitosheet')
     jlab_version = venv.get_package_version('jupyterlab')
 
@@ -42,7 +42,7 @@ def test_create_startup_file(venv: VirtualEnvironment):
     venv.run_python_module_command(['pip', 'install', '-r', 'requirements.txt'])
     venv.run_python_module_command(['pip', 'install', 'jupyterlab==3.0'])
     
-    venv.run_python_module_command(['mitoinstaller', 'install'])
+    venv.run_python_module_command(['mitoinstaller', 'install', '--test-pypi'])
 
     IMPORT_MITOSHEET_FILE_PATH = os.path.join(os.path.expanduser("~"), '.ipython', 'profile_default', 'startup', 'import_mitosheet.py')
     
