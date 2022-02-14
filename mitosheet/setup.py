@@ -104,7 +104,7 @@ if name == 'mitosheet2':
             # We require jupyterlab 2.0
             'jupyterlab>=2.0,<3.0,!=2.3.0,!=2.3.1', # there are css incompatabilities on version 2.3.1 and 2.3.0
             'ipywidgets>=7.0.0',
-            'pandas>=1.1.0',
+            'pandas>=0.24.2',
             # We don't need to lock an analytics-python version, as this library
             # is stabilized and mature
             'analytics-python',
@@ -206,7 +206,7 @@ elif name == 'mitosheet' or name == 'mitosheet3':
             # In JLab 3, we move to needing to install the jupyterlab-widgets package, which
             # is equivlaent to the @jupyter-widgets/jupyterlab-manager extension for jlab 2
             'jupyterlab-widgets==1.0.0',
-            'pandas>=1.1.0',
+            'pandas>=0.24.2',
             'analytics-python',
             # Graphing libraries
             'plotly==5.3.0',
