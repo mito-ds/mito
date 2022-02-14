@@ -1,3 +1,4 @@
+import sys
 from mitoinstaller.commands import (get_jupyterlab_metadata,
                                     install_pip_packages,
                                     uninstall_pip_packages)
@@ -45,7 +46,7 @@ def install_step_mitosheet_check_dependencies():
 
 
 def install_step_mitosheet_install_mitosheet():
-    install_pip_packages('mitosheet')
+    install_pip_packages('mitosheet', test_pypi='--test-pypi' in sys.argv)
 
 
 MITOSHEET_INSTALLER_STEPS = [

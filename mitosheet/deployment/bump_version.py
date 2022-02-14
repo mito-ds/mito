@@ -34,11 +34,15 @@ def get_pypi_version(package_name: str, on_dev: bool=None) -> Union[None, str]:
     else:
         url = f'https://pypi.org/project/{package_name}/'
 
-    contents = urllib.request.urlopen(url).read().decode().split('\n')
-    tag = f'<a class="card release__card" href="/project/{package_name}/'
-    contents_with_package_link = [c for c in contents if tag in c]
-    last_version = contents_with_package_link[0].strip().split(tag)[1][:-3]
-    return last_version
+    try:
+        contents = urllib.request.urlopen(url).read().decode().split('\n')
+        tag = f'<a class="card release__card" href="/project/{package_name}/'
+        contents_with_package_link = [c for c in contents if tag in c]
+        last_version = contents_with_package_link[0].strip().split(tag)[1][:-3]
+        return last_version
+    except urllib.error.HTTPError:
+        # If we don't have a last version deployed, default to 0.1.0
+        return '0.1.0'
 
 def version_string_to_tuple(version_string: str) -> Tuple[int, int, int]:
     return tuple(map(int, version_string.split('.')))

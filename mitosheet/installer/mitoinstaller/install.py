@@ -51,20 +51,3 @@ def do_install_or_upgrade(install_or_upgrade: str, is_pro: bool) -> None:
         # TODO: we could make a clickable link to debugging instructions, or an email to send to Jake?
         # I think we should prompt users to do this, defaulting to Yes!
         exit_after_error(install_or_upgrade)
-
-    
-
-def do_install_mitosheet_from_test_pypi(is_pro: bool) -> None:
-    print("Starting install from TestPyPi. This should be in a clean venv, and so must not have any installed dependencies")
-
-    # Change the installation depending if the user is a pro user or not
-    if not is_pro:
-        run_installer_steps(INITIAL_INSTALLER_STEPS)
-    else:
-        run_installer_steps(INITIAL_INSTALLER_STEPS_PRO)
-
-    installed_test_pypi_mitosheet = run_installer_steps(TEST_PYPI_MITOSHEET_INSTALLER_STEPS) 
-    if installed_test_pypi_mitosheet:
-        print("mitosheet installed from TestPyPi. Launch JLab to test")
-    else:
-        print("Error installing mitosheet from TestPyPi")
