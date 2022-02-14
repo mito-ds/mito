@@ -122,30 +122,17 @@ def get_graph(event: Dict[str, Any], steps_manager: StepsManager) -> str:
         df_name: str = steps_manager.curr_step.df_names[sheet_index]
 
         # Handle the graphs in alphabetical order
-        if graph_type == BAR:
-            fig = get_plotly_express_graph(BAR, df, x_axis_column_headers, y_axis_column_headers)
-            generation_code = get_plotly_express_graph_code(BAR, df, df_name, x_axis_column_headers, y_axis_column_headers)
-        elif graph_type == BOX:
-            # Box plots are only defined on one axis. The UI should enforce that 
-            # it is never the case that a box plot is selected with series for both 
-            # the x and y axis. 
-            fig = get_plotly_express_graph(BOX, df, x_axis_column_headers, y_axis_column_headers)
-            generation_code = get_plotly_express_graph_code(BOX, df, df_name, x_axis_column_headers, y_axis_column_headers)
-        elif graph_type == HISTOGRAM:
-            # Histograms are only defined on one axis. The UI should enforce that 
-            # it is never the case that a histogram is selected with series for both 
-            # the x and y axis.
-            fig = get_plotly_express_graph(HISTOGRAM, df, x_axis_column_headers, y_axis_column_headers)
-            generation_code = get_plotly_express_graph_code(HISTOGRAM, df, df_name, x_axis_column_headers, y_axis_column_headers)
-        elif graph_type == SCATTER:
-            fig = get_scatter_plot(df, x_axis_column_headers, y_axis_column_headers)
-            generation_code = get_scatter_code(df, x_axis_column_headers, y_axis_column_headers, df_name)
-        elif graph_type == SUMMARY_STAT:
+        if graph_type == SUMMARY_STAT:
             # We handle summary stats separately from the histogram, for now, because 
             # we only let the user use a histogram with all numeric data, whereas the column
             # summary stats may not be all numeric data. 
             fig = get_column_summary_graph(X, df, x_axis_column_headers)
             generation_code = ''
+
+        else:
+            fig = get_plotly_express_graph(graph_type, df, x_axis_column_headers, y_axis_column_headers)
+            generation_code = get_plotly_express_graph_code(graph_type, df, df_name, x_axis_column_headers, y_axis_column_headers)
+
             
         # 1) Get rid of some of the default white space
         # 2) Add a range slider

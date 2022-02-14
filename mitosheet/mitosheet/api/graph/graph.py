@@ -4,7 +4,7 @@ from mitosheet.types import ColumnHeader
 import plotly.graph_objects as go
 import plotly.express as px
 from mitosheet.mito_analytics import log
-from mitosheet.api.graph.graph_utils import BAR, BOX, CREATE_FIG_CODE, HISTOGRAM, SHOW_FIG_CODE, X, filter_df_to_safe_size, get_barmode, get_graph_title
+from mitosheet.api.graph.graph_utils import BAR, BOX, HISTOGRAM, SCATTER, filter_df_to_safe_size, get_barmode, get_graph_title
 
 def graph_filtering(graph_type: str, df, column_headers):
     """
@@ -62,14 +62,14 @@ def graph_creation(
     
     if graph_type == BOX:
         return px.box(df, x=x_arg, y=y_arg)
-        
     if graph_type == HISTOGRAM:
         return px.histogram(df, x=x_arg, y=y_arg)
-
     if graph_type == BAR:
         return px.bar(df, x=x_arg, y=y_arg)
-    
+    if graph_type == SCATTER:
+        return px.scatter(df, x=x_arg, y=y_arg)
 
+    
 def graph_creation_code(
     graph_type: str, 
     df_name: str, 
@@ -104,6 +104,9 @@ def graph_creation_code(
         return f"fig = px.histogram({params})"
     if graph_type == BAR:
         return f"fig = px.bar({params})"
+    if graph_type == SCATTER:
+        return f"fig = px.scatter({params})"
+
     
 
 def graph_styling(fig, graph_type: str, column_headers: List[ColumnHeader], filtered: bool):
@@ -128,7 +131,14 @@ def graph_styling_code(graph_type: str, column_headers: List[ColumnHeader], filt
     graph_title = get_graph_title(column_headers, [], filtered, graph_type)
     barmode = get_barmode(graph_type)
 
-    return f"fig.update_layout(title='{graph_title}', barmode='{barmode}')"
+    graph_title_chord = f'title="{graph_title}"' 
+    barmode_chord = '' if barmode is None else f'barmode="{barmode}"'
+
+
+    all_chords = [graph_title_chord, barmode_chord]
+    params = (', ').join(list(filter(lambda chord: chord != '', all_chords)))
+
+    return f"fig.update_layout({params})"
 
 
 #TODO figure out how to express a plotly express graph return type
