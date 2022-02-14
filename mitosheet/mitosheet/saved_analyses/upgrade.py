@@ -128,8 +128,10 @@ def should_add_initial_bulk_old_rename_step(version: str) -> bool:
     elif package_name == 'mitosheet3':
         if is_prev_version(version, '0.3.130'):
             return True
-    else: 
-        raise Exception('Invalid package name', package_name)
+    elif package_name == 'mitosheet2':
+        # Because mitosheet2 was introduced so much later than this upgrade,
+        # we always return false here
+        return False
 
     return False
 
