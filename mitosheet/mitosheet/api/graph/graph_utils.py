@@ -142,6 +142,8 @@ def get_barmode(graph_type: str) -> Union[str, None]:
         return 'stack'
     elif graph_type == HISTOGRAM:
         return 'group'
+    elif graph_type == BAR:
+        return 'group'
     else:
         return None
 

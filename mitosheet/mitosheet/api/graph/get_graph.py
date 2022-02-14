@@ -123,8 +123,8 @@ def get_graph(event: Dict[str, Any], steps_manager: StepsManager) -> str:
 
         # Handle the graphs in alphabetical order
         if graph_type == BAR:
-            fig = get_bar_chart(df, x_axis_column_headers, y_axis_column_headers)
-            generation_code = get_bar_code(df, x_axis_column_headers, y_axis_column_headers, df_name)
+            fig = get_plotly_express_graph(BAR, df, x_axis_column_headers, y_axis_column_headers)
+            generation_code = get_plotly_express_graph_code(BAR, df, df_name, x_axis_column_headers, y_axis_column_headers)
         elif graph_type == BOX:
             # Box plots are only defined on one axis. The UI should enforce that 
             # it is never the case that a box plot is selected with series for both 

@@ -4,7 +4,7 @@ from mitosheet.types import ColumnHeader
 import plotly.graph_objects as go
 import plotly.express as px
 from mitosheet.mito_analytics import log
-from mitosheet.api.graph.graph_utils import BOX, CREATE_FIG_CODE, HISTOGRAM, SHOW_FIG_CODE, X, filter_df_to_safe_size, get_barmode, get_graph_title
+from mitosheet.api.graph.graph_utils import BAR, BOX, CREATE_FIG_CODE, HISTOGRAM, SHOW_FIG_CODE, X, filter_df_to_safe_size, get_barmode, get_graph_title
 
 def graph_filtering(graph_type: str, df, column_headers):
     """
@@ -25,8 +25,9 @@ def graph_filtering_code(graph_type: str, df_name, df, column_headers) -> str:
     filtered_code = """
 # Filter the dataframe so that it does not crash the browser
 from mitosheet import filter_df_to_safe_size
-, _ = filter_df_to_safe_size('{graph_type}', {df_name}, {column_headers})
+{df_name}_filtered, _ = filter_df_to_safe_size('{graph_type}', {df_name}, {column_headers})
 """.format(
+    graph_type=graph_type,
     df_name=df_name, 
     column_headers=column_headers
 )
@@ -45,15 +46,29 @@ def graph_creation(
     """
     num_x_axis_column_headers = len(x_axis_column_headers)
     num_y_axis_column_headers = len(y_axis_column_headers)
-    x_arg = None if num_x_axis_column_headers == 0 else x_axis_column_headers
-    y_arg = None if num_y_axis_column_headers == 0 else y_axis_column_headers
+    
+    x_arg = None
+    if num_x_axis_column_headers == 1:
+        # Note: In the new interface, x will always have a length of 0 or 1
+        x_arg = x_axis_column_headers[0]
+    if num_x_axis_column_headers > 1:
+        x_arg = x_axis_column_headers
 
+    y_arg = None
+    if num_y_axis_column_headers == 1:
+        y_arg = y_axis_column_headers[0]
+    if num_y_axis_column_headers > 1:
+        y_arg = y_axis_column_headers
+    
     if graph_type == BOX:
         return px.box(df, x=x_arg, y=y_arg)
         
     if graph_type == HISTOGRAM:
         return px.histogram(df, x=x_arg, y=y_arg)
-        
+
+    if graph_type == BAR:
+        return px.bar(df, x=x_arg, y=y_arg)
+    
 
 def graph_creation_code(
     graph_type: str, 
@@ -66,8 +81,19 @@ def graph_creation_code(
     """
     num_x_axis_column_headers = len(x_axis_column_headers)
     num_y_axis_column_headers = len(y_axis_column_headers)
-    x_chord = '' if num_x_axis_column_headers == 0 else f'x={x_axis_column_headers}'
-    y_chord = '' if num_y_axis_column_headers == 0 else f'y={y_axis_column_headers}'
+
+    x_chord = ''
+    if num_x_axis_column_headers == 1:
+        # Note: In the new interface, x will always have a length of 0 or 1
+        x_chord = f'x="{x_axis_column_headers[0]}"'
+    if num_x_axis_column_headers > 1:
+        x_arg = f'x={x_axis_column_headers}'
+
+    y_chord = ''
+    if num_y_axis_column_headers == 1:
+        y_chord = f'y="{y_axis_column_headers[0]}"'
+    if num_y_axis_column_headers > 1:
+        y_chord = f'y={y_axis_column_headers}'
 
     all_chords = [df_name, x_chord, y_chord]
     params = (', ').join(list(filter(lambda chord: chord != '', all_chords)))
@@ -76,6 +102,8 @@ def graph_creation_code(
         return f"fig = px.box({params})"
     if graph_type == HISTOGRAM:
         return f"fig = px.histogram({params})"
+    if graph_type == BAR:
+        return f"fig = px.bar({params})"
     
 
 def graph_styling(fig, graph_type: str, column_headers: List[ColumnHeader], filtered: bool):
@@ -148,9 +176,11 @@ def get_plotly_express_graph_code(
 
     # Step 1: Filtering
     all_column_headers = x_axis_column_headers + y_axis_column_headers
-    _, filtered = filter_df_to_safe_size(BOX, df, all_column_headers)
+
+    # TODO: Make a function that just checks if we're going to filter instead of actually doing the filter!
+    _, filtered = filter_df_to_safe_size(graph_type, df, all_column_headers)
     code.append(graph_filtering_code(graph_type, df_name, df, all_column_headers))
-    df_name = "{df_name}_filtered" if filtered else df_name
+    df_name = f"{df_name}_filtered" if filtered else df_name
 
     # Step 2: Graph Creation
     code.append(graph_creation_code(graph_type, df_name, x_axis_column_headers, y_axis_column_headers))
