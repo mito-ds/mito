@@ -392,6 +392,7 @@ def switch(new_package):
     if new_package == 'mitosheet2':
       print(MITOSHEET_TWO_PACKAGE_JSON)
       open('package.json', 'w').write(MITOSHEET_TWO_PACKAGE_JSON)
+      print(open('package.json', 'r').read())
     elif new_package == 'mitosheet':    
       open('package.json', 'w').write(MITOSHEET_PACKAGE_JSON)
     elif new_package == 'mitosheet3':    
