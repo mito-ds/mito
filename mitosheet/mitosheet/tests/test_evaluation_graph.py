@@ -22,7 +22,7 @@ def test_create_column_evaluation_graph():
         0
     ) == {'A': {'B'}, 'B': {'C'}, 'C': set()}
 
-def test_create_column_evaluation_graph():
+def test_create_column_evaluation_graph_complex():
     df = pd.DataFrame({'A': [123]})
     mito = create_mito_wrapper_dfs(df)
     mito.set_formula('=A', 0, 'AAAA', add_column=True)
