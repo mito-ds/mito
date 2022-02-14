@@ -1,5 +1,5 @@
 import sys
-from mitoinstaller.commands import (get_installed_pip_packages, get_jupyterlab_metadata,
+from mitoinstaller.commands import (get_jupyterlab_metadata,
                                     install_pip_packages,
                                     uninstall_pip_packages)
 from mitoinstaller.installer_steps.installer_step import InstallerStep
@@ -44,7 +44,7 @@ def install_step_mitosheet_check_dependencies():
     else:
         raise Exception('Installed extensions {extension_names}'.format(extension_names=extension_names))
 
-def check_update_to_packages():
+def remove_mitosheet_3_if_present():
     """
     Because of our changes to the package hierarchy, if the user
     currently has mitosheet3 installed, we need to uninstall it,
@@ -55,9 +55,7 @@ def check_update_to_packages():
     two different extensions getting registered with the same
     name.
     """
-    installed_packages = get_installed_pip_packages()
-    if 'mitosheet3' in installed_packages:
-        uninstall_pip_packages('mitosheet3')
+    uninstall_pip_packages('mitosheet3')
     
 
 def install_step_mitosheet_install_mitosheet():
@@ -70,8 +68,8 @@ MITOSHEET_INSTALLER_STEPS = [
         install_step_mitosheet_check_dependencies
     ),
     InstallerStep(
-        'Check update to packages',
-        check_update_to_packages
+        'Remove mitosheet3 if present',
+        remove_mitosheet_3_if_present
     ),
     InstallerStep(
         'Installing mitosheet',
