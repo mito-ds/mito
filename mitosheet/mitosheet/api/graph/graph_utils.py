@@ -1,5 +1,5 @@
 import io
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -133,6 +133,17 @@ def get_graph_labels(x_axis_column_headers: List[ColumnHeader], y_axis_column_he
 
     return x_axis_title, y_axis_title
 
+def get_barmode(graph_type: str) -> Union[str, None]: 
+    """
+    Helper function for determing the barmode to apply to the graph creation function, depending 
+    on the type of graph being created
+    """
+    if graph_type == BOX:
+        return 'stack'
+    elif graph_type == HISTOGRAM:
+        return 'group'
+    else:
+        return None
 
 def filter_df_to_top_unique_values_in_series(
         df: pd.DataFrame,
@@ -182,6 +193,9 @@ def filter_df_to_safe_size(
             return df.head(BOX_PLOT_3_SERIES_MAX_NUMBER_OF_ROWS), original_df_len > BOX_PLOT_3_SERIES_MAX_NUMBER_OF_ROWS
         else:
             return df.head(BOX_PLOT_4_SERIES_MAX_NUMBER_OF_ROWS), original_df_len > BOX_PLOT_4_SERIES_MAX_NUMBER_OF_ROWS
+    if graph_type == HISTOGRAM:
+        # Histograms don't need to be filtered
+        return df, False
     elif graph_type == SCATTER:
         for column_header in column_headers:
             if get_mito_type(df[column_header]) != NUMBER_SERIES:

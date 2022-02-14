@@ -6,7 +6,7 @@ from mitosheet.types import ColumnHeader
 import plotly.express as px
 import plotly.graph_objects as go
 from mitosheet.api.graph.bar import get_bar_chart, get_bar_code
-from mitosheet.api.graph.graph import get_box_code, get_box_plot
+from mitosheet.api.graph.graph import get_plotly_express_graph, get_plotly_express_graph_code
 from mitosheet.api.graph.graph_utils import (
     BAR, BOX, HISTOGRAM, MAX_UNIQUE_NON_NUMBER_VALUES,
     MAX_UNIQUE_NON_NUMBER_VALUES_COMMENT, SCATTER, SUMMARY_STAT, X, Y,
@@ -131,21 +131,21 @@ def get_graph(event: Dict[str, Any], steps_manager: StepsManager) -> str:
             # it is never the case that a box plot is selected with series for both 
             # the x and y axis. However, if it does happen, we default to taking the x axis. 
             if x_axis:
-                fig = get_box_plot(X, df, x_axis_column_headers)
-                generation_code = get_box_code(X, df, x_axis_column_headers, df_name)
+                fig = get_plotly_express_graph(BOX, X, df, x_axis_column_headers)
+                generation_code = get_plotly_express_graph_code(BOX, X, df, x_axis_column_headers, df_name)
             else:
-                fig = get_box_plot(Y, df, y_axis_column_headers)
-                generation_code = get_box_code(Y, df, y_axis_column_headers, df_name)
+                fig = get_plotly_express_graph(BOX, Y, df, y_axis_column_headers)
+                generation_code = get_plotly_express_graph_code(BOX, Y, df, y_axis_column_headers, df_name)
         elif graph_type == HISTOGRAM:
             # Histograms are only defined on one axis. The UI should enforce that 
             # it is never the case that a histogram is selected with series for both 
             # the x and y axis. However, if it does happen, we default to taking the x axis. 
             if x_axis:
-                fig = get_histogram(X, df, x_axis_column_headers)
-                generation_code = get_histogram_code(X, df, x_axis_column_headers, df_name)
+                fig = get_plotly_express_graph(HISTOGRAM, X, df, x_axis_column_headers)
+                generation_code = get_plotly_express_graph_code(HISTOGRAM, X, df, x_axis_column_headers, df_name)
             else:
-                fig = get_histogram(Y, df, y_axis_column_headers)
-                generation_code = get_histogram_code(Y, df, y_axis_column_headers, df_name)
+                fig = get_plotly_express_graph(HISTOGRAM, Y, df, y_axis_column_headers)
+                generation_code = get_plotly_express_graph_code(HISTOGRAM, Y, df, y_axis_column_headers, df_name)
         elif graph_type == SCATTER:
             fig = get_scatter_plot(df, x_axis_column_headers, y_axis_column_headers)
             generation_code = get_scatter_code(df, x_axis_column_headers, y_axis_column_headers, df_name)
