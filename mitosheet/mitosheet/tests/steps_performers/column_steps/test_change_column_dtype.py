@@ -174,7 +174,7 @@ DATETIME_TESTS = [
     ('timedelta', DATETIME_ARRAY, None), 
 ]
 @pytest.mark.parametrize("new_dtype, result, code", DATETIME_TESTS)
-def test_datetime_to_other_types_except_string(new_dtype, result, code):
+def test_datetime_to_other_types(new_dtype, result, code):
     mito = create_mito_wrapper(DATETIME_ARRAY)
     mito.change_column_dtype(0, 'A', new_dtype)
     assert mito.get_column(0, 'A', as_list=True) == result
@@ -202,7 +202,7 @@ def test_timedelta_to_other_types(new_dtype, result, code):
         assert len(mito.transpiled_code) > 0
     else:
         assert len(mito.transpiled_code) == 0
-
+    
 TIMEDELTA_TESTS_STRING = [
     ('str', ['0 days 00:01:40.000000000', '0 days 00:03:20.000000000', '0 days 00:05:00.000000000'], 'df1[\'A\'] = df1[\'A\'].astype(\'str\')'), 
     ('object', ['0 days 00:01:40.000000000', '0 days 00:03:20.000000000', '0 days 00:05:00.000000000'], 'df1[\'A\'] = df1[\'A\'].astype(\'str\')'), 

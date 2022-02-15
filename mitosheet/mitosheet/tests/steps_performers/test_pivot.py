@@ -12,21 +12,7 @@ import pandas as pd
 
 from mitosheet.step_performers.filter import FC_STRING_CONTAINS, STRING_SERIES
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
-from mitosheet.step_performers.pivot import NEWLINE_TAB, FLATTEN_CODE
 from mitosheet.tests.decorators import pandas_post_1_only, pandas_pre_1_only
-
-def get_expected_pivot_table_code(old_df_name, new_df_name, pivot_rows, pivot_columns, values, pivot_table_args):
-    """
-    NOTE: This function is written seperately
-    """
-
-    return [
-        f'unused_columns = {old_df_name}.columns.difference(set({pivot_rows}).union(set({pivot_columns})).union(set({set(values.keys())})))',
-        f'tmp_df = {old_df_name}.drop(unused_columns, axis=1)',
-        f'pivot_table = tmp_df.pivot_table({NEWLINE_TAB}{pivot_table_args}\n)',
-        FLATTEN_CODE,
-        f'{new_df_name} = pivot_table.reset_index()'
-    ]
 
 def test_simple_pivot():
     df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})

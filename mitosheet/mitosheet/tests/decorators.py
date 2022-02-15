@@ -1,5 +1,6 @@
 """
-Useful decorators for tests.
+Useful decorators for tests. Specifically, we often only want
+to run specific tests on specific versions of pandas or Python
 """
 
 import pytest
