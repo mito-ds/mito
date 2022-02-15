@@ -12,7 +12,7 @@ import pytest
 import pandas as pd
 
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
-from mitosheet.tests.decorators import pandas_post_1_2_only
+from mitosheet.tests.decorators import python_post_3_6_only
 
 SET_CELL_VALUE_TESTS = [
     (
@@ -148,7 +148,7 @@ SET_CELL_VALUE_TESTS = [
     ),
 ]
 
-@pytest.mark.skipif(sys.version_info.minor <= 6, reason="requires 3.7 or greater")
+@python_post_3_6_only
 @pytest.mark.parametrize("df,new_value,result", SET_CELL_VALUE_TESTS)
 def test_set_cell_value_direct(df, new_value, result):
     mito = create_mito_wrapper_dfs(df)
@@ -207,7 +207,7 @@ def test_set_cell_value_convert_string_to_empty():
         'df1.at[0, \'A\'] = None'
     ]
 
-@pytest.mark.skipif(sys.version_info.minor <= 6, reason="requires 3.7 or greater")
+@python_post_3_6_only
 def test_set_cell_value_convert_datetime():
     mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': pd.to_datetime(pd.Series(data=[
             '12-1-2025', 

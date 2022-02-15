@@ -16,7 +16,7 @@ from typing import Optional
 
 import pandas as pd
 import pytest
-from mitosheet.tests.decorators import pandas_post_1_only, pandas_pre_1_only
+from mitosheet.tests.decorators import pandas_post_1_only, python_post_3_6_only
 from mitosheet.tests.test_utils import (create_mito_wrapper,
                                         create_mito_wrapper_dfs)
 
@@ -166,6 +166,9 @@ DATETIME_TESTS = [
     ('int64', [100, 200, 300], 'df1[\'A\'] = df1[\'A\'].astype(\'int\') / 10**9'), 
     ('float', [100.0, 200.0, 300.0], 'df1[\'A\'] = df1[\'A\'].astype(\'int\').astype(\'float\') / 10**9'), 
     ('float64', [100.0, 200.0, 300.0], 'df1[\'A\'] = df1[\'A\'].astype(\'int\').astype(\'float\') / 10**9'),  
+    ('str', ['1970-01-01 00:01:40', '1970-01-01 00:03:20', '1970-01-01 00:05:00'], 'df1[\'A\'] = df1[\'A\'].dt.strftime(\'%Y-%m-%d %X\')'), 
+    ('object', ['1970-01-01 00:01:40', '1970-01-01 00:03:20', '1970-01-01 00:05:00'], 'df1[\'A\'] = df1[\'A\'].dt.strftime(\'%Y-%m-%d %X\')'), 
+    ('string', ['1970-01-01 00:01:40', '1970-01-01 00:03:20', '1970-01-01 00:05:00'], 'df1[\'A\'] = df1[\'A\'].dt.strftime(\'%Y-%m-%d %X\')'),
     ('datetime', DATETIME_ARRAY, 'df1[\'A\'] = df1[\'A\']'), 
     ('datetime64[ns]', DATETIME_ARRAY, 'df1[\'A\'] = df1[\'A\']'), 
     ('timedelta', DATETIME_ARRAY, None), 
@@ -180,22 +183,6 @@ def test_datetime_to_other_types_except_string(new_dtype, result, code):
     else:
         assert len(mito.transpiled_code) == 0
 
-DATETIME_TESTS = [
-    ('str', ['1970-01-01 00:01:40', '1970-01-01 00:03:20', '1970-01-01 00:05:00'], 'df1[\'A\'] = df1[\'A\'].dt.strftime(\'%Y-%m-%d %X\')'), 
-    ('object', ['1970-01-01 00:01:40', '1970-01-01 00:03:20', '1970-01-01 00:05:00'], 'df1[\'A\'] = df1[\'A\'].dt.strftime(\'%Y-%m-%d %X\')'), 
-    ('string', ['1970-01-01 00:01:40', '1970-01-01 00:03:20', '1970-01-01 00:05:00'], 'df1[\'A\'] = df1[\'A\'].dt.strftime(\'%Y-%m-%d %X\')'),
-]
-@pytest.mark.parametrize("new_dtype, result, code", DATETIME_TESTS)
-def test_datetime_to_string_post_1(new_dtype, result, code):
-    mito = create_mito_wrapper(DATETIME_ARRAY)
-    mito.change_column_dtype(0, 'A', new_dtype)
-    assert mito.get_column(0, 'A', as_list=True) == result
-    if code is not None:            
-        assert len(mito.transpiled_code) > 0
-    else:
-        assert len(mito.transpiled_code) == 0
-
-
 TIMEDELTA_TESTS = [
     ('bool', [True, True, True], 'df1[\'A\'] = ~df1[\'A\'].isnull()'), 
     ('int', [100, 200, 300], 'df1[\'A\'] = df1[\'A\'].dt.total_seconds().astype(\'int\')'), 
@@ -209,6 +196,23 @@ TIMEDELTA_TESTS = [
     ('datetime64[ns]', TIMEDELTA_ARRAY, None), 
     ('timedelta', TIMEDELTA_ARRAY, 'df1[\'A\'] = df1[\'A\']'), 
 ]
+@pytest.mark.parametrize("new_dtype, result, code", TIMEDELTA_TESTS)
+def test_timedelta_to_other_types(new_dtype, result, code):
+    mito = create_mito_wrapper(TIMEDELTA_ARRAY)
+    mito.change_column_dtype(0, 'A', new_dtype)
+    assert mito.get_column(0, 'A', as_list=True) == result
+    if code is not None:            
+        assert len(mito.transpiled_code) > 0
+    else:
+        assert len(mito.transpiled_code) == 0
+
+TIMEDELTA_TESTS_STRING = [
+    ('str', ['0 days 00:01:40.000000000', '0 days 00:03:20.000000000', '0 days 00:05:00.000000000'], 'df1[\'A\'] = df1[\'A\'].astype(\'str\')'), 
+    ('object', ['0 days 00:01:40.000000000', '0 days 00:03:20.000000000', '0 days 00:05:00.000000000'], 'df1[\'A\'] = df1[\'A\'].astype(\'str\')'), 
+    ('string', ['0 days 00:01:40.000000000', '0 days 00:03:20.000000000', '0 days 00:05:00.000000000'], 'df1[\'A\'] = df1[\'A\'].astype(\'str\')'), 
+]
+@pandas_post_1_only
+@python_post_3_6_only
 @pytest.mark.parametrize("new_dtype, result, code", TIMEDELTA_TESTS)
 def test_timedelta_to_other_types(new_dtype, result, code):
     mito = create_mito_wrapper(TIMEDELTA_ARRAY)
