@@ -17,46 +17,42 @@ def get_graph(event: Dict[str, Any], steps_manager: StepsManager) -> str:
     Creates a graph of the passed parameters, and sends it back as a PNG
     string to the frontend for display.
 
-    Params:
-    - graph_type
-    - sheet_index
-    - x_axis_column_header_array (optional)
-    - y_axis_column_header_array (optional)
-    - height (optional) - int representing the div width
-    - width (optional) - int representing the div width
+    {
+        graph_creation: {
+            graph_type: GraphType,
+            sheet_index: int
+            x_axis_column_ids: ColumnID[],
+            y_axis_column_ids: ColumnID[],
+            color: (optional) {type: 'variable', columnID: columnID} | {type: 'constant', color_mapping: Record<ColumnID, string>}
+
+            Note: Color is not in the styles object because it can either be a variable or a discrete color. 
+            Color as a variable does not belong in the style object. However, I want to keep the variable 
+            and constant color together so we can ensure through the type system that only one can be set at a time. 
+        }
+        graph_rendering: {
+            height: int representing the div width
+            width: int representing the div width
+        }
+    }
     """
-    keys = event.keys()
-
     # Get graph type 
-    graph_type = event['graph_type'] if 'graph_type' in keys else None
-    sheet_index = event["sheet_index"] if "sheet_index" in keys else None
-
+    graph_type = event['graph_creation']['graph_type']
+    sheet_index = event['graph_creation']['sheet_index']
+    
     # Get the x axis params, if they were provided
-    x_axis_column_ids = event['x_axis_column_ids'] if event['x_axis_column_ids'] is not None else []
+    x_axis_column_ids = event['graph_creation']['x_axis_column_ids'] if event['graph_creation']['x_axis_column_ids'] is not None else []
     x_axis_column_headers = steps_manager.curr_step.get_column_headers_by_ids(sheet_index, x_axis_column_ids)
-    x_axis = len(x_axis_column_headers) > 0
 
     # Get the y axis params, if they were provided
-    y_axis_column_ids = event['y_axis_column_ids'] if event['y_axis_column_ids'] is not None else []
+    y_axis_column_ids = event['graph_creation']['y_axis_column_ids'] if event['graph_creation']['y_axis_column_ids'] is not None else []
     y_axis_column_headers = steps_manager.curr_step.get_column_headers_by_ids(sheet_index, y_axis_column_ids)
-    y_axis = len(y_axis_column_headers) > 0
-    
+
     # Find the height and the width, defaulting to fill whatever container its in
-    height = event["height"] if 'height' in keys else '100%'
-    width = event["width"] if 'width' in keys else '100%'
+    graph_rendering_keys = event['graph_rendering'].keys()
+    height = event["graph_rendering"]["height"] if 'height' in graph_rendering_keys else '100%'
+    width = event["graph_rendering"]["width"] if 'width' in graph_rendering_keys else '100%'
 
     try:
-        # First, handle edge cases
-        if not x_axis and not y_axis:
-            # If no axes provided, return
-            return ''
-        if sheet_index is None or graph_type is None:
-            # If no sheet_index or graph type is provided, return
-            return ''
-        if x_axis and len(x_axis_column_headers) > 1 and y_axis and len(y_axis_column_headers) > 1:
-            # If both axises have more than 1 series, return
-            return ''
-
         # Create a copy of the dataframe, just for safety.
         df: pd.DataFrame = steps_manager.dfs[sheet_index].copy()
         df_name: str = steps_manager.curr_step.df_names[sheet_index]

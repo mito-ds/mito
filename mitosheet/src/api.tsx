@@ -350,12 +350,17 @@ export default class MitoAPI {
         const graphString = await this.send<string>({
             'event': 'api_call',
             'type': 'get_graph',
-            'graph_type': graphType,
-            'sheet_index': sheet_index,
-            'x_axis_column_ids': xAxisColumnIDs,
-            'y_axis_column_ids': yAxisColumnIDs,
-            'height': height,
-            'width': width
+            'graph_creation' : {
+                'graph_type': graphType,
+                'sheet_index': sheet_index,
+                'x_axis_column_ids': xAxisColumnIDs,
+                'y_axis_column_ids': yAxisColumnIDs,
+            },
+            'graph_rendering': {
+                'height': height,
+                'width': width
+            }
+            
         }, {maxRetries: 250})
     
         if (graphString == undefined) {
