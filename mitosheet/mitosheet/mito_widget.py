@@ -161,7 +161,7 @@ class MitoWidget(DOMWidget):
 
     def receive_message(self, widget: Any, content: Dict[str, Any], buffers: Any=None) -> bool:
         """
-        Handles all incoming messages from the JS widget. There are two main
+        Handles all incoming messages from the JS widget. There are three main
         types of events:
 
         1. edit_event: any event that updates the state of the sheet and the
@@ -171,7 +171,10 @@ class MitoWidget(DOMWidget):
         other types of new data coming from the frontend (e.g. the df names 
         or some existing steps).
 
-        3. A log_event is just an event that should get logged on the backend.
+        3. api_call: an event that is used to retrieve information from the backend without
+        updating the backend state.
+
+        4. A log_event is just an event that should get logged on the backend.
         """
         event = content
 
