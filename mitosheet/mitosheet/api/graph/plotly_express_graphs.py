@@ -1,5 +1,6 @@
 from typing import Any, List
 import pandas as pd
+from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_to_transpiled_code
 from mitosheet.types import ColumnHeader
 import plotly.express as px
 import plotly.graph_objects as go
@@ -45,21 +46,19 @@ def graph_creation(
     """
     Creates and returns the Plotly express graph figure
     """
-    num_x_axis_column_headers = len(x_axis_column_headers)
-    num_y_axis_column_headers = len(y_axis_column_headers)
     
     # Create the parameters that we use to construct the graph
     x_arg = None
-    if num_x_axis_column_headers == 1:
+    if len(x_axis_column_headers) == 1:
         # Note: In the new interface, x will always have a length of 0 or 1
         x_arg = x_axis_column_headers[0]
-    if num_x_axis_column_headers > 1:
+    if len(x_axis_column_headers) > 1:
         x_arg = x_axis_column_headers
 
     y_arg = None
-    if num_y_axis_column_headers == 1:
+    if len(y_axis_column_headers) == 1:
         y_arg = y_axis_column_headers[0]
-    if num_y_axis_column_headers > 1:
+    if len(y_axis_column_headers) > 1:
         y_arg = y_axis_column_headers
     
     if graph_type == BOX:
@@ -81,35 +80,30 @@ def graph_creation_code(
     """
     Returns the code for creating the Plotly express graph
     """
-    num_x_axis_column_headers = len(x_axis_column_headers)
-    num_y_axis_column_headers = len(y_axis_column_headers)
 
-    # Create the chords that we use to construct the graph
-    x_chord = ''
-    if num_x_axis_column_headers == 1:
-        # Note: In the new interface, x will always have a length of 0 or 1
-        x_chord = f'x="{x_axis_column_headers[0]}"'
-    if num_x_axis_column_headers > 1:
-        x_chord = f'x={x_axis_column_headers}'
+    # Create the params used to construct the graph
+    all_params = dict()
 
-    y_chord = ''
-    if num_y_axis_column_headers == 1:
-        y_chord = f'y="{y_axis_column_headers[0]}"'
-    if num_y_axis_column_headers > 1:
-        y_chord = f'y={y_axis_column_headers}'
+    if len(x_axis_column_headers) == 1:
+        all_params['x'] = column_header_to_transpiled_code(x_axis_column_headers[0])
+    elif len(x_axis_column_headers) >= 1:
+        all_params['x'] = column_header_list_to_transpiled_code(x_axis_column_headers)
 
-    # Create the string of all the parameters used to create the graph
-    all_chords = [df_name, x_chord, y_chord]
-    params = (', ').join(list(filter(lambda chord: chord != '', all_chords)))
+    if len(y_axis_column_headers) == 1:
+        all_params['y'] = column_header_to_transpiled_code(y_axis_column_headers[0])
+    elif len(y_axis_column_headers) >= 1:
+        all_params['y'] = column_header_list_to_transpiled_code(y_axis_column_headers)
+
+    params = ', '.join(f'{key}={value}' for key, value in all_params.items())
 
     if graph_type == BOX:
-        return f"fig = px.box({params})"
+        return f"fig = px.box({df_name}, {params})"
     if graph_type == HISTOGRAM:
-        return f"fig = px.histogram({params})"
+        return f"fig = px.histogram({df_name}, {params})"
     if graph_type == BAR:
-        return f"fig = px.bar({params})"
+        return f"fig = px.bar({df_name}, {params})"
     if graph_type == SCATTER:
-        return f"fig = px.scatter({params})"
+        return f"fig = px.scatter({df_name}, {params})"
 
 
 def graph_styling(fig, graph_type: str, column_headers: List[ColumnHeader], filtered: bool):
@@ -133,16 +127,17 @@ def graph_styling_code(graph_type: str, column_headers: List[ColumnHeader], filt
     """
     Returns the code for styling the Plotly express graph
     """
-    graph_title = get_graph_title(column_headers, [], filtered, graph_type)
+
+    # Create the params used to style the graph
+    all_params = dict()
+
+    all_params['title'] = get_graph_title(column_headers, [], filtered, graph_type)
+
     barmode = get_barmode(graph_type)
+    if barmode is not None:
+        all_params['barmode'] = barmode
 
-    # Create the chords that we use to style the graph
-    graph_title_chord = f'title="{graph_title}"' 
-    barmode_chord = '' if barmode is None else f'barmode="{barmode}"'
-
-    # Create the string of all the parameters passed to the update_layout function
-    all_chords = [graph_title_chord, barmode_chord]
-    params = (', ').join(list(filter(lambda chord: chord != '', all_chords)))
+    params = ', '.join(f'{key}="{value}"' for key, value in all_params.items())
 
     return f"fig.update_layout({params})"
 
