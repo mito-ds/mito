@@ -15,36 +15,29 @@ from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs, make_multi_index_header_df
 from mitosheet.step_performers.pivot import NEWLINE_TAB, FLATTEN_CODE
 
-def get_expected_pivot_table_code(old_df_name, new_df_name, pivot_rows, pivot_columns, values, pivot_table_args, flatten_column_headers=False):
+def get_expected_pivot_table_code(old_df_name, new_df_name, pivot_rows, pivot_columns, values, pivot_table_args):
     """
     NOTE: This function is written seperately
     """
 
-    if flatten_column_headers:
-        return [
-            f'unused_columns = {old_df_name}.columns.difference(set({pivot_rows}).union(set({pivot_columns})).union(set({set(values.keys())})))',
-            f'tmp_df = {old_df_name}.drop(unused_columns, axis=1)',
-            f'pivot_table = tmp_df.pivot_table({NEWLINE_TAB}{pivot_table_args}\n)',
-            FLATTEN_CODE,
-            f'{new_df_name} = pivot_table.reset_index()'
-        ]
-    else:
-        return [
-            f'unused_columns = {old_df_name}.columns.difference(set({pivot_rows}).union(set({pivot_columns})).union(set({set(values.keys())})))',
-            f'tmp_df = {old_df_name}.drop(unused_columns, axis=1)',
-            f'pivot_table = tmp_df.pivot_table({NEWLINE_TAB}{pivot_table_args}\n)',
-            f'{new_df_name} = pivot_table.reset_index()'
-        ]
+    return [
+        f'unused_columns = {old_df_name}.columns.difference(set({pivot_rows}).union(set({pivot_columns})).union(set({set(values.keys())})))',
+        f'tmp_df = {old_df_name}.drop(unused_columns, axis=1)',
+        f'pivot_table = tmp_df.pivot_table({NEWLINE_TAB}{pivot_table_args}\n)',
+        FLATTEN_CODE,
+        f'{new_df_name} = pivot_table.reset_index()'
+    ]
 
 
 def test_simple_pivot():
     df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
     mito = create_mito_wrapper_dfs(df1)
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']})
-    mito.set_formula('=LEN(Name)', 1, ('B', ''), add_column=True)
+    mito.set_formula('=LEN(Name)', 1, 'B', add_column=True)
 
+    print(mito.dfs[1])
     assert mito.dfs[1].equals(
-        make_multi_index_header_df({0: ['Nate'], 1: [9], 2: [4]}, ['Name', ('Height', 'sum'), 'B'])
+        pd.DataFrame(data={'Name': ['Nate'], 'Height sum': [9], 'B': [4]})
     )
 
 def test_simple_pivot_does_not_let_spaces_stay_in_columns():
@@ -62,10 +55,7 @@ def test_pivot_nan_works_with_agg_functions():
     mito.pivot_sheet(0, ['type'], [], {'B': ['sum', 'mean', 'min', 'max']})
 
     assert mito.dfs[1].equals(
-        make_multi_index_header_df(
-            {'type': ['dog', 'person'], 'B max': [5.0, 10.0], 'B mean': [5.0, 10.0], 'B min': [5.0, 10.0], 'B sum': [5.0, 10.0]},
-            ['type', ('B', 'max'), ('B', 'mean'), ('B', 'min'), ('B', 'sum')]
-        )
+        pd.DataFrame(data={'type': ['dog', 'person'], 'B max': [5.0, 10.0], 'B mean': [5.0, 10.0], 'B min': [5.0, 10.0], 'B sum': [5.0, 10.0]})
     )
 
 
@@ -77,15 +67,12 @@ def test_pivot_transpiles_pivot_by_mulitple_columns():
     )   
 
     assert mito.dfs[1].equals(
-        make_multi_index_header_df(
-            {
-                'level_0': ['Height'],
-                'level_1': ['sum'],
-                'Nate Jack': [5],
-                'Nate Rush': [4]
-            },
-            ['level_0', 'level_1', ('Nate', 'Jack'), ('Nate', 'Rush')]
-        )
+        pd.DataFrame(data={
+            'level_0': ['Height'],
+            'level_1': ['sum'],
+            'Nate Jack': [5],
+            'Nate Rush': [4]
+        })
     )
 def test_pivot_transpiles_pivot_mulitple_columns_and_rows():
     df1 = pd.DataFrame(data={'First_Name': ['Nate', 'Nate'], 'Last_Name': ['Rush', 'Jack'], 'Height': [4, 5]})
@@ -95,14 +82,11 @@ def test_pivot_transpiles_pivot_mulitple_columns_and_rows():
     )   
 
     assert mito.dfs[1].equals(
-        make_multi_index_header_df(
-            {
-                'Height': [4, 5],
-                'Height sum Nate Jack': [np.NaN, 5],
-                'Height sum Nate Rush': [4, np.NaN]
-            },
-            ['Height', ('Height', 'sum', 'Nate', 'Jack'), ('Height', 'sum', 'Nate', 'Rush')]
-        )
+        pd.DataFrame(data={
+            'Height': [4, 5],
+            'Height sum Nate Jack': [np.NaN, 5],
+            'Height sum Nate Rush': [4, np.NaN]
+        })
     )
 
 
@@ -114,15 +98,12 @@ def test_pivot_transpiles_pivot_mulitple_columns_non_strings():
     )   
 
     assert mito.dfs[1].equals(
-        make_multi_index_header_df(
-            {
-                'level_0': ['Height'],
-                'level_1': ['sum'],
-                'Nate 0': [4],
-                'Nate 1': [5]
-            },
-            ['level_0', 'level_1', ('Nate', 0), ('Nate', 1)]
-        )
+        pd.DataFrame(data={
+            'level_0': ['Height'],
+            'level_1': ['sum'],
+            'Nate 0': [4],
+            'Nate 1': [5]
+        })
     )
 
 def test_pivot_transpiles_with_no_keys_or_values():
@@ -168,10 +149,7 @@ def test_pivot_count_unique():
         0, ['First_Name'], ['Last_Name'], {'Height': ['count unique']}
     )   
     assert mito.dfs[1].equals(
-        make_multi_index_header_df(
-            {'First_Name': ['Nate'], 'Height nunique 0': [1], 'Height nunique 1': [1]},
-            ['First_Name', ('Height', 'nunique', 0), ('Height', 'nunique', 1)]
-        )
+        pd.DataFrame(data={'First_Name': ['Nate'], 'Height nunique 0': [1], 'Height nunique 1': [1]})
     )
 
 def test_pivot_rows_and_values_overlap():
@@ -181,10 +159,7 @@ def test_pivot_rows_and_values_overlap():
 
     assert len(mito.steps) == 2
     assert mito.dfs[1].equals(
-        make_multi_index_header_df(
-            {'Name': ['Aaron', 'Jake', 'Nate'], 'Name count': [1, 2, 2]},
-            ['Name', ('Name', 'count')]
-        )
+        pd.DataFrame(data={'Name': ['Aaron', 'Jake', 'Nate'], 'Name count': [1, 2, 2]})
     )
 
 
@@ -195,15 +170,12 @@ def test_pivot_rows_and_values_and_columns_overlap():
 
     assert len(mito.steps) == 2
     assert mito.dfs[1].equals(
-        make_multi_index_header_df(
-            {
-                'Name': ['Aaron', 'Jake', 'Nate'], 
-                'Name count Aaron': [1.0, None, None],
-                'Name count Jake': [None, 2.0, None],
-                'Name count Nate': [None, None, 2.0],
-            },
-            ['Name', ('Name', 'count', 'Aaron'), ('Name', 'count', 'Jake'), ('Name', 'count', 'Nate')]
-        )
+        pd.DataFrame(data={
+            'Name': ['Aaron', 'Jake', 'Nate'], 
+            'Name count Aaron': [1.0, None, None],
+            'Name count Jake': [None, 2.0, None],
+            'Name count Nate': [None, None, 2.0],
+        })
     )
 
 
@@ -214,10 +186,7 @@ def test_pivot_by_mulitple_functions():
 
     assert len(mito.steps) == 2
     assert mito.dfs[1].equals(
-        make_multi_index_header_df(
-            {'Name': ['Nate'], 'Height max': [5], 'Height min': [4]},
-            ['Name', ('Height', 'max'), ('Height', 'min')]
-        )
+        pd.DataFrame(data={'Name': ['Nate'], 'Height max': [5], 'Height min': [4]})
     )
 
 
@@ -228,17 +197,14 @@ def test_pivot_with_optional_parameter_sheet_index():
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['max']}, destination_sheet_index=1)
 
     assert mito.dfs[1].equals(
-        make_multi_index_header_df(
-            {'Name': ['Nate'], 'Height max': [5]},
-            ['Name', ('Height', 'max')]
-        )
+        pd.DataFrame(data={'Name': ['Nate'], 'Height max': [5]})
     )
 
 
 def test_all_other_steps_after_pivot():
     df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
     mito = create_mito_wrapper_dfs(df1)
-    mito.pivot_sheet(0, ['Name'], [], {'Height': ['min']}, flatten_column_headers=True)
+    mito.pivot_sheet(0, ['Name'], [], {'Height': ['min']})
 
     # Run all the other steps
     mito.set_cell_value(1, 'Name', 0, 'Dork')
@@ -265,14 +231,4 @@ def test_all_other_steps_after_pivot():
     assert mito.dfs[1].empty
     assert mito.dfs[3].equals(
         pd.DataFrame({'Name': ['Aaron']})
-    )
-
-
-def test_pivot_flatten_column_headers():
-    df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
-    mito.pivot_sheet(0, ['Name'], [], {'Height': ['min']}, True)
-
-    assert mito.dfs[1].equals(
-        pd.DataFrame({'Name': 'Nate', 'Height min': [4]})
     )

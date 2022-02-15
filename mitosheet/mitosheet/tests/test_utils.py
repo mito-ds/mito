@@ -70,13 +70,8 @@ def check_dataframes_equal(test_wrapper):
     # Then, construct code that is just the code we expect, except at the end
     # it compares the dataframe to the final dataframe we expect
     def check_final_dataframe(df_name, df):
-
-        #
-
-        print(final_dfs[df_name].dtypes, "\n\n", df.dtypes)
-        print(final_dfs[df_name], "\n\n", df)
         assert final_dfs[df_name].equals(df)
-    print(test_wrapper.transpiled_code)
+
     code = "\n".join(
         test_wrapper.transpiled_code +
         [
@@ -292,7 +287,7 @@ class MitoWidgetTestWrapper:
             pivot_rows: List[ColumnHeader],
             pivot_columns: List[ColumnHeader],
             values: Dict[ColumnHeader, List[str]],
-            flatten_column_headers: bool=False,
+            flatten_column_headers: bool=True,
             destination_sheet_index: int=None,
             step_id: str=None
         ) -> bool:
