@@ -9,6 +9,7 @@ import pytest
 
 from mitosheet.mito_widget import MitoWidget, sheet
 from mitosheet.transpiler.transpile import transpile
+from mitosheet.tests.decorators import pandas_post_1_only
 
 
 def test_example_creation_blank():
@@ -87,27 +88,46 @@ def test_can_call_sheet_with_df_and_filename():
         'df_1 = pd.read_csv(r\'../1.csv\')',
     ]
 
-def test_can_use_non_standard_delimeter_when_passing_string():
+def test_can_use_utf_16_when_passing_string():
     df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
 
-    encodings = ['UTF-16', 'UTF-32']
-    for encoding in encodings:
-        df.to_csv('test_file_path.csv', index=False, encoding=encoding)
+    encoding = 'UTF-16'
+    df.to_csv('test_file_path.csv', index=False, encoding=encoding)
 
-        # Create with no dataframes
-        mito = sheet('test_file_path.csv')
-        # And then import just a test file
+    # Create with no dataframes
+    mito = sheet('test_file_path.csv')
+    # And then import just a test file
 
-        print(mito.steps_manager.dfs[0], "\n\n", df)
-        assert mito.steps_manager.dfs[0].equals(df)
+    assert mito.steps_manager.dfs[0].equals(df)
 
-        code_container = transpile(mito.steps_manager)
+    code_container = transpile(mito.steps_manager)
 
-        assert code_container['code'] == [
-            '# Read in filepaths as dataframes',
-            f'test_file_path = pd.read_csv(r\'test_file_path.csv\', encoding=\'{encoding}\')',
-        ]
-        os.remove('test_file_path.csv')
+    assert code_container['code'] == [
+        '# Read in filepaths as dataframes',
+        f'test_file_path = pd.read_csv(r\'test_file_path.csv\', encoding=\'{encoding}\')',
+    ]
+    os.remove('test_file_path.csv')
+
+@pandas_post_1_only
+def test_can_use_utf_32_when_passing_string():
+    df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+
+    encoding = 'UTF-32'
+    df.to_csv('test_file_path.csv', index=False, encoding=encoding)
+
+    # Create with no dataframes
+    mito = sheet('test_file_path.csv')
+    # And then import just a test file
+
+    assert mito.steps_manager.dfs[0].equals(df)
+
+    code_container = transpile(mito.steps_manager)
+
+    assert code_container['code'] == [
+        '# Read in filepaths as dataframes',
+        f'test_file_path = pd.read_csv(r\'test_file_path.csv\', encoding=\'{encoding}\')',
+    ]
+    os.remove('test_file_path.csv')
 
 
 def test_call_makes_copies():

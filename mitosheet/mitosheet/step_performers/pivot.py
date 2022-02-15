@@ -299,6 +299,7 @@ def _execute_pivot(
     pivot_table = df.pivot_table(**args) # type: pd.DataFrame
 
     if flatten_column_headers:
+        print(pivot_table)
         pivot_table.columns = [flatten_column_header(col) for col in pivot_table.columns.values]
 
     # Reset the indexes of the pivot table
