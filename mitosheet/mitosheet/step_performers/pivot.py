@@ -36,7 +36,7 @@ PIVOT_AGGREGATION_TYPES = [
 TAB = '    '
 NEWLINE_TAB = f'\n{TAB}'
 
-FLATTEN_CODE = f'pivot_table.columns = [flatten_column_header(col) for col in pivot_table.columns.values]'
+FLATTEN_CODE = f'pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1, inplace=True)'
 
 class PivotStepPerformer(StepPerformer):
     """
@@ -300,7 +300,8 @@ def _execute_pivot(
 
     if flatten_column_headers:
         print(pivot_table)
-        pivot_table.columns = [flatten_column_header(col) for col in pivot_table.columns.values]
+        print(pivot_table.keys())
+        pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1, inplace=True)
 
     # Reset the indexes of the pivot table
     pivot_table = pivot_table.reset_index()
