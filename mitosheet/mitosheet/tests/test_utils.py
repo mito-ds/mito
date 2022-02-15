@@ -71,6 +71,7 @@ def check_dataframes_equal(test_wrapper):
     # it compares the dataframe to the final dataframe we expect
     def check_final_dataframe(df_name, df):
         print(final_dfs[df_name], "\n\n", df)
+        print(final_dfs[df_name].dtypes, "\n\n", df.dtypes)
         assert final_dfs[df_name].equals(df)
 
     code = "\n".join(
