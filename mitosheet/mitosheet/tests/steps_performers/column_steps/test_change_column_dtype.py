@@ -214,7 +214,7 @@ TIMEDELTA_TESTS_STRING = [
 @pandas_post_1_only
 @python_post_3_6_only
 @pytest.mark.parametrize("new_dtype, result, code", TIMEDELTA_TESTS)
-def test_timedelta_to_other_types(new_dtype, result, code):
+def test_timedelta_to_other_types_post_1_post_3_6(new_dtype, result, code):
     mito = create_mito_wrapper(TIMEDELTA_ARRAY)
     mito.change_column_dtype(0, 'A', new_dtype)
     assert mito.get_column(0, 'A', as_list=True) == result

@@ -58,7 +58,7 @@ def test_pivot_nan_works_with_agg_functions():
 
 
 @pandas_pre_1_only
-def test_pivot_transpiles_pivot_by_mulitple_columns():
+def test_pivot_transpiles_pivot_by_mulitple_columns_pre_1():
     df1 = pd.DataFrame(data={'First_Name': ['Nate', 'Nate'], 'Last_Name': ['Rush', 'Jack'], 'Height': [4, 5]})
     mito = create_mito_wrapper_dfs(df1)
     mito.pivot_sheet(
@@ -76,7 +76,7 @@ def test_pivot_transpiles_pivot_by_mulitple_columns():
     )
 
 @pandas_post_1_only
-def test_pivot_transpiles_pivot_by_mulitple_columns():
+def test_pivot_transpiles_pivot_by_mulitple_columns_post_1():
     df1 = pd.DataFrame(data={'First_Name': ['Nate', 'Nate'], 'Last_Name': ['Rush', 'Jack'], 'Height': [4, 5]})
     mito = create_mito_wrapper_dfs(df1)
     mito.pivot_sheet(
@@ -109,7 +109,7 @@ def test_pivot_transpiles_pivot_mulitple_columns_and_rows():
     )
 
 @pandas_pre_1_only
-def test_pivot_transpiles_pivot_mulitple_columns_non_strings():
+def test_pivot_transpiles_pivot_mulitple_columns_non_strings_pre_1():
     df1 = pd.DataFrame(data={'First_Name': ['Nate', 'Nate'], 'Last_Name': [0, 1], 'Height': [4, 5]})
     mito = create_mito_wrapper_dfs(df1)
     mito.pivot_sheet(
@@ -128,7 +128,7 @@ def test_pivot_transpiles_pivot_mulitple_columns_non_strings():
     )
 
 @pandas_post_1_only
-def test_pivot_transpiles_pivot_mulitple_columns_non_strings():
+def test_pivot_transpiles_pivot_mulitple_columns_non_strings_post_1():
     df1 = pd.DataFrame(data={'First_Name': ['Nate', 'Nate'], 'Last_Name': [0, 1], 'Height': [4, 5]})
     mito = create_mito_wrapper_dfs(df1)
     mito.pivot_sheet(
