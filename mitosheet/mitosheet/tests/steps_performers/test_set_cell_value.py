@@ -138,16 +138,10 @@ SET_CELL_VALUE_TESTS = [
     ),
     (
         pd.DataFrame(data={'A': [pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003')]}),
-        '12345678',
-        pd.DataFrame(data={'A': [pd.to_timedelta('0 days 00:00:00.012345678'), pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003')]}),
-    ),
-    (
-        pd.DataFrame(data={'A': [pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003')]}),
         'nat',
         pd.DataFrame(data={'A': [None, pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003')]}),
     ),
 ]
-
 @python_post_3_6_only
 @pytest.mark.parametrize("df,new_value,result", SET_CELL_VALUE_TESTS)
 def test_set_cell_value_direct(df, new_value, result):
