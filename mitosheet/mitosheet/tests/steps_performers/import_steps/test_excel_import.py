@@ -4,9 +4,11 @@ import pytest
 import pandas as pd
 
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.decorators import pandas_post_1_only
 
 TEST_FILE = 'file.xlsx'
 
+@pandas_post_1_only
 @pytest.mark.skipif(sys.version_info.minor <= 6, reason="requires 3.7 or greater")
 def test_can_import_a_single_excel():
     df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
@@ -26,6 +28,7 @@ def test_can_import_a_single_excel():
     # Remove the test file
     os.remove(TEST_FILE)
 
+@pandas_post_1_only
 @pytest.mark.skipif(sys.version_info.minor <= 6, reason="requires 3.7 or greater")
 def test_can_import_with_no_headers_and_skiprows():
     df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
@@ -47,6 +50,7 @@ def test_can_import_with_no_headers_and_skiprows():
     # Remove the test file
     os.remove(TEST_FILE)
 
+@pandas_post_1_only
 @pytest.mark.skipif(sys.version_info.minor <= 6, reason="requires 3.7 or greater")
 def test_can_import_multiple_sheets():
     df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
