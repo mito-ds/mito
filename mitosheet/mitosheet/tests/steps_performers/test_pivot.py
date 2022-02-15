@@ -12,8 +12,8 @@ import pandas as pd
 
 from mitosheet.step_performers.filter import FC_STRING_CONTAINS, STRING_SERIES
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs, make_multi_index_header_df
 from mitosheet.step_performers.pivot import NEWLINE_TAB, FLATTEN_CODE
+from mitosheet.tests.decorators import pandas_post_1_only, pandas_pre_1_only
 
 def get_expected_pivot_table_code(old_df_name, new_df_name, pivot_rows, pivot_columns, values, pivot_table_args):
     """
@@ -28,14 +28,12 @@ def get_expected_pivot_table_code(old_df_name, new_df_name, pivot_rows, pivot_co
         f'{new_df_name} = pivot_table.reset_index()'
     ]
 
-
 def test_simple_pivot():
     df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
     mito = create_mito_wrapper_dfs(df1)
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']})
     mito.set_formula('=LEN(Name)', 1, 'B', add_column=True)
 
-    print(mito.dfs[1])
     assert mito.dfs[1].equals(
         pd.DataFrame(data={'Name': ['Nate'], 'Height sum': [9], 'B': [4]})
     )
@@ -59,6 +57,25 @@ def test_pivot_nan_works_with_agg_functions():
     )
 
 
+@pandas_pre_1_only
+def test_pivot_transpiles_pivot_by_mulitple_columns():
+    df1 = pd.DataFrame(data={'First_Name': ['Nate', 'Nate'], 'Last_Name': ['Rush', 'Jack'], 'Height': [4, 5]})
+    mito = create_mito_wrapper_dfs(df1)
+    mito.pivot_sheet(
+        0, [], ['First_Name', 'Last_Name'], {'Height': ['sum']}
+    )
+    
+    assert mito.dfs[1].equals(
+        pd.DataFrame(data={
+            'level_0': ['Height', 'Height'],
+            'level_1': ['sum', 'sum'],
+            'First_Name': ['Nate', 'Nate'],
+            'Last_Name': ['Jack', 'Rush'],
+            0: [5, 4]
+        })
+    )
+
+@pandas_post_1_only
 def test_pivot_transpiles_pivot_by_mulitple_columns():
     df1 = pd.DataFrame(data={'First_Name': ['Nate', 'Nate'], 'Last_Name': ['Rush', 'Jack'], 'Height': [4, 5]})
     mito = create_mito_wrapper_dfs(df1)
@@ -75,6 +92,7 @@ def test_pivot_transpiles_pivot_by_mulitple_columns():
             'Nate Rush': [4]
         })
     )
+
 def test_pivot_transpiles_pivot_mulitple_columns_and_rows():
     df1 = pd.DataFrame(data={'First_Name': ['Nate', 'Nate'], 'Last_Name': ['Rush', 'Jack'], 'Height': [4, 5]})
     mito = create_mito_wrapper_dfs(df1)
@@ -90,7 +108,26 @@ def test_pivot_transpiles_pivot_mulitple_columns_and_rows():
         })
     )
 
+@pandas_pre_1_only
+def test_pivot_transpiles_pivot_mulitple_columns_non_strings():
+    df1 = pd.DataFrame(data={'First_Name': ['Nate', 'Nate'], 'Last_Name': [0, 1], 'Height': [4, 5]})
+    mito = create_mito_wrapper_dfs(df1)
+    mito.pivot_sheet(
+        0, [], ['First_Name', 'Last_Name'], {'Height': ['sum']}
+    )   
 
+    print(mito.dfs[1])
+    assert mito.dfs[1].equals(
+        pd.DataFrame(data={
+            'level_0': ['Height', 'Height'],
+            'level_1': ['sum', 'sum'],
+            'First_Name': ['Nate', 'Nate'],
+            'Last_Name': [0, 1],
+            0: [5, 4]
+        })
+    )
+
+@pandas_post_1_only
 def test_pivot_transpiles_pivot_mulitple_columns_non_strings():
     df1 = pd.DataFrame(data={'First_Name': ['Nate', 'Nate'], 'Last_Name': [0, 1], 'Height': [4, 5]})
     mito = create_mito_wrapper_dfs(df1)
