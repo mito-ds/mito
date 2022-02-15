@@ -301,6 +301,8 @@ def _execute_pivot(
     if flatten_column_headers:
         print(pivot_table)
         print(pivot_table.keys())
+        print(isinstance(pivot_table, pd.DataFrame))
+        print(type(pivot_table))
         pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1, inplace=True)
 
     # Reset the indexes of the pivot table
