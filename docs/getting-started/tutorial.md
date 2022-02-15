@@ -138,3 +138,7 @@ You're ready to start writing Python code 10x faster! Now its time to [try it on
 {% content-ref url="../how-to/importing-data-to-mito.md" %}
 [importing-data-to-mito.md](../how-to/importing-data-to-mito.md)
 {% endcontent-ref %}
+
+{% hint style="info" %}
+Our docs (and code) are open source! If you want to suggest changes to the documentation, add some sections, or check out or code, [follow us on Github](https://github.com/mito-ds/monorepo) 
+{% endhint %}
