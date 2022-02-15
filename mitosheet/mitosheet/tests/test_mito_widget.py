@@ -98,6 +98,7 @@ def test_can_use_non_standard_delimeter_when_passing_string():
         mito = sheet('test_file_path.csv')
         # And then import just a test file
 
+        print(mito.steps_manager.dfs[0], "\n\n", df)
         assert mito.steps_manager.dfs[0].equals(df)
 
         code_container = transpile(mito.steps_manager)
