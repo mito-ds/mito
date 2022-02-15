@@ -12,6 +12,7 @@ import pytest
 import pandas as pd
 
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.decorators import pandas_post_1_2_only
 
 SET_CELL_VALUE_TESTS = [
     (
@@ -154,6 +155,7 @@ def test_set_cell_value_direct(df, new_value, result):
     mito.set_cell_value(0, 'A', 0, new_value)
 
     assert mito.dfs[0].equals(result)
+
 
 def test_set_cell_value_change_int_to_int():
     mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1, 2, 3]}))

@@ -185,8 +185,8 @@ DATETIME_TESTS = [
     ('object', ['1970-01-01 00:01:40', '1970-01-01 00:03:20', '1970-01-01 00:05:00'], 'df1[\'A\'] = df1[\'A\'].dt.strftime(\'%Y-%m-%d %X\')'), 
     ('string', ['1970-01-01 00:01:40', '1970-01-01 00:03:20', '1970-01-01 00:05:00'], 'df1[\'A\'] = df1[\'A\'].dt.strftime(\'%Y-%m-%d %X\')'),
 ]
-@pytest.mark.parametrize("new_dtype, result, code", DATETIME_TESTS)
 @pandas_post_1_2_only
+@pytest.mark.parametrize("new_dtype, result, code", DATETIME_TESTS)
 def test_datetime_to_string_post_1(new_dtype, result, code):
     mito = create_mito_wrapper(DATETIME_ARRAY)
     mito.change_column_dtype(0, 'A', new_dtype)
@@ -201,8 +201,8 @@ DATETIME_TESTS = [
     ('object', ['1970-01-01 00:01:40.000000000', '1970-01-01 00:03:20.000000000', '1970-01-01 00:05:00.000000000'], 'df1[\'A\'] = df1[\'A\'].dt.strftime(\'%Y-%m-%d %X\')'), 
     ('string', ['1970-01-01 00:01:40.000000000', '1970-01-01 00:03:20.000000000', '1970-01-01 00:05:00.000000000'], 'df1[\'A\'] = df1[\'A\'].dt.strftime(\'%Y-%m-%d %X\')'), 
 ]
-@pytest.mark.parametrize("new_dtype, result, code", DATETIME_TESTS)
 @pandas_pre_1_2_only
+@pytest.mark.parametrize("new_dtype, result, code", DATETIME_TESTS)
 def test_datetime_to_string_pre_1(new_dtype, result, code):
     # NOTE: These tests are different than the above post 1.0 string tests because of the fact
     # that early pandas always included nanoseconds in this case

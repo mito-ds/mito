@@ -59,8 +59,8 @@ OPERATOR_TYPE_ERRORS = [
     #('=A / D', 1),
     #('=A ^ C', 1),
 ]
-@pytest.mark.parametrize("formula, error", OPERATOR_TYPE_ERRORS)
 @pandas_post_1_only
+@pytest.mark.parametrize("formula, error", OPERATOR_TYPE_ERRORS)
 def test_type_errors(formula, error):
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1], 'B': [True], 'C': ['Hi'], 'D': [pd.to_datetime('12-12-2020')]}))
     mito.add_column(0, 'E')
