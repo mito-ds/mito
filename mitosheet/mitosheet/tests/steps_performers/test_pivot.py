@@ -123,7 +123,7 @@ def test_pivot_transpiles_pivot_mulitple_columns_non_strings_pre_1():
             'level_1': ['sum', 'sum'],
             'First_Name': ['Nate', 'Nate'],
             'Last_Name': [0, 1],
-            0: [5, 4]
+            0: [4, 5]
         })
     )
 
