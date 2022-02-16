@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from mitosheet.errors import make_column_exists_error, make_no_sheet_error
-from mitosheet.sheet_functions.types.utils import NUMBER_SERIES
 from mitosheet.state import FORMAT_DEFAULT, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
@@ -66,11 +64,7 @@ class AddColumnStepPerformer(StepPerformer):
 
         # Update the state variables
         column_id = post_state.column_ids.add_column_header(sheet_index, column_header)
-        post_state.column_metatype[sheet_index][column_id] = 'formula'
-        post_state.column_type[sheet_index][column_id] = NUMBER_SERIES
         post_state.column_spreadsheet_code[sheet_index][column_id] = '=0'
-        post_state.column_python_code[sheet_index][column_id] = f'df[\'{column_header}\'] = 0'
-        post_state.column_evaluation_graph[sheet_index][column_id] = set()
         post_state.column_filters[sheet_index][column_id] = {'operator': 'And', 'filters': []}
         post_state.column_format_types[sheet_index][column_id] = {'type': FORMAT_DEFAULT}
             

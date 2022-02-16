@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 Contains tests for changing the type of a column.
 
@@ -100,10 +99,10 @@ def test_float_to_other_types(new_dtype, result, code):
 
 STRING_TESTS = [
     ('bool', [False, False, False], 'df1[\'A\'] = to_boolean_series(df1[\'A\'])'), 
-    ('int', [1, 2, -3], 'df1[\'A\'] = to_number_series(df1[\'A\']).astype(\'int\')'), 
-    ('int64', [1, 2, -3], 'df1[\'A\'] = to_number_series(df1[\'A\']).astype(\'int\')'), 
-    ('float', [1.0, 2.1, -3.2], 'df1[\'A\'] = to_number_series(df1[\'A\'])'), 
-    ('float64', [1.0, 2.1, -3.2], 'df1[\'A\'] = to_number_series(df1[\'A\'])'),  
+    ('int', [1, 2, -3], 'df1[\'A\'] = to_int_series(df1[\'A\'])'), 
+    ('int64', [1, 2, -3], 'df1[\'A\'] = to_int_series(df1[\'A\'])'), 
+    ('float', [1.0, 2.1, -3.2], 'df1[\'A\'] = to_float_series(df1[\'A\'])'), 
+    ('float64', [1.0, 2.1, -3.2], 'df1[\'A\'] = to_float_series(df1[\'A\'])'),  
     ('str', ["$1", "2.1", "(3.2)"], 'df1[\'A\'] = df1[\'A\']'), 
     ('object', ["$1", "2.1", "(3.2)"], 'df1[\'A\'] = df1[\'A\']'), 
     ('string', ["$1", "2.1", "(3.2)"], 'df1[\'A\'] = df1[\'A\']'),

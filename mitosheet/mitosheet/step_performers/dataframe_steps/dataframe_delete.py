@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 from copy import copy
 from typing import Any, Dict, List, Optional, Set, Tuple
 
@@ -52,11 +51,7 @@ class DataframeDeleteStepPerformer(StepPerformer):
 
         # Execute the delete
         post_state.column_ids.remove_df(sheet_index)
-        post_state.column_metatype.pop(sheet_index)
-        post_state.column_type.pop(sheet_index)
         post_state.column_spreadsheet_code.pop(sheet_index)
-        post_state.column_python_code.pop(sheet_index)
-        post_state.column_evaluation_graph.pop(sheet_index)
         post_state.column_filters.pop(sheet_index)
         post_state.column_format_types.pop(sheet_index)
         post_state.dfs.pop(sheet_index)

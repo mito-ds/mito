@@ -90,7 +90,6 @@ def get_unique_value_counts(event: Dict[str, Any], steps_manager: StepsManager) 
             'imported',
             {},
             {},
-            {},
             {'values': 'values', 'percents': 'percents', 'counts': 'counts'},
             {},
             max_length=None

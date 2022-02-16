@@ -1,78 +1,75 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 Contains tests for the convert_arg_to_series_type decorator.
 """
-import pandas as pd 
+import pandas as pd
 import pytest
-
-from mitosheet.sheet_functions.types.utils import BOOLEAN_SERIES, DATETIME_SERIES, NUMBER_SERIES, STRING_SERIES
-from mitosheet.sheet_functions.types.decorators import convert_arg_to_series_type
-
+from mitosheet.sheet_functions.types.decorators import \
+    convert_arg_to_series_type
 
 CONVERT_ARGS_TESTS = [
     (
         pd.Series([True, True, True]),
-        BOOLEAN_SERIES,
+        'bool',
         pd.Series([True, True, True]),
     ), 
     (
         pd.Series([True, True, True]),
-        STRING_SERIES,
+        'string',
         pd.Series(['True', 'True', 'True']),
     ),
     (
         pd.Series([pd.to_datetime('12-12-2020')] * 3),
-        DATETIME_SERIES,
+        'datetime',
         pd.Series([pd.to_datetime('12-12-2020')] * 3),
     ),
     (
         pd.Series([('13-12-2020')] * 3),
-        DATETIME_SERIES,
+        'datetime',
         pd.Series([pd.to_datetime('12-13-2020')] * 3),
     ),
     (
         pd.Series([('12-13-2020')] * 3),
-        DATETIME_SERIES,
+        'datetime',
         pd.Series([pd.to_datetime('12-13-2020')] * 3),
     ),
     (
         pd.Series([('13/12/2020')] * 3),
-        DATETIME_SERIES,
+        'datetime',
         pd.Series([pd.to_datetime('12-13-2020')] * 3),
     ),
     (
         pd.Series([('12/13/2020')] * 3),
-        DATETIME_SERIES,
+        'datetime',
         pd.Series([pd.to_datetime('12-13-2020')] * 3),
     ),
     (
         pd.Series([pd.to_datetime('12-12-2020')] * 3),
-        STRING_SERIES,
+        'string',
         pd.Series(['2020-12-12 00:00:00'] * 3),
     ),
     (
         pd.Series([0.0, 1.0, 2.0]),
-        NUMBER_SERIES,
+        'float',
         pd.Series([0.0, 1.0, 2.0]),
     ),
     (
         pd.Series([0.0, 1.0, 2.0]),
-        STRING_SERIES,
+        'string',
         pd.Series(['0.0', '1.0', '2.0']),
     ),
     (
         pd.Series(['0.0', '1.0', '2.0']),
-        STRING_SERIES,
+        'string',
         pd.Series(['0.0', '1.0', '2.0']),
     ),
     (
         pd.Series(['0.0', '1.0', '2.0']),
-        NUMBER_SERIES,
+        'float',
         pd.Series([0.0, 1.0, 2.0]),
     ),
     
@@ -95,7 +92,7 @@ def test_filter_nan(arg, cast_output_type, result):
 def test_optional():
     @convert_arg_to_series_type(
         0,
-        STRING_SERIES,
+        'string',
         on_uncastable_arg='error',
         on_uncastable_arg_element='error',
         optional=True

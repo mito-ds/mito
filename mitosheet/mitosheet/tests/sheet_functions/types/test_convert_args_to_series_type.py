@@ -1,38 +1,35 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 Contains tests for the convert_args_to_series_type decorator.
 """
-from mitosheet.sheet_functions.types.utils import BOOLEAN_SERIES, DATETIME_SERIES, NUMBER_SERIES, STRING_SERIES
-import pandas as pd 
+import pandas as pd
 import pytest
-
-from mitosheet.sheet_functions.types.decorators import convert_args_to_series_type
-
+from mitosheet.sheet_functions.types.decorators import \
+    convert_args_to_series_type
 
 CONVERT_ARGS_TESTS = [
     (
         [pd.Series([True, True, True]), pd.Series([pd.to_datetime('12-12-2020')] * 3), pd.Series([0, 1, 2]), pd.Series(['True', 'True', 'True'])],
-        BOOLEAN_SERIES,
+        'bool',
         [pd.Series([True, True, True]), pd.Series([True, True, True]), pd.Series([False, True, True]), pd.Series([True, True, True])]
     ),
     (
         [pd.Series([True, True, True]), pd.Series([pd.to_datetime('12-12-2020')] * 3), pd.Series([0, 1, 2]), pd.Series(['12-12-2020', '12-12-2020', '12-12-2020'])],
-        DATETIME_SERIES,
+        'datetime',
         [pd.Series([pd.to_datetime('12-12-2020')] * 3), pd.Series([pd.to_datetime('12-12-2020')] * 3)]
     ),
     (
         [pd.Series([True, True, True]), pd.Series([pd.to_datetime('12-12-2020')] * 3), pd.Series([0, 1, 2]), pd.Series(['12.12', '13.13', '14.14'])],
-        NUMBER_SERIES,
+        'float',
         [pd.Series([1.0, 1.0, 1.0]), pd.Series([0, 1, 2]), pd.Series([12.12, 13.13, 14.14])]
     ),
     (
         [pd.Series([True, True, True]), pd.Series([pd.to_datetime('12-12-2020')] * 3), pd.Series([0, 1, 2]), pd.Series(['12-12-2020', '12-12-2020', '12-12-2020'])],
-        STRING_SERIES,
+        'string',
         [pd.Series(['True', 'True', 'True']), pd.Series(['2020-12-12 00:00:00'] * 3), pd.Series(['0', '1', '2']), pd.Series(['12-12-2020'] * 3)]
     ),
 ]

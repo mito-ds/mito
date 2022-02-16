@@ -8,12 +8,7 @@ from typing import TYPE_CHECKING, Any, Dict, Collection, List, Optional, Tuple
 import pandas as pd
 from mitosheet.preprocessing.preprocess_step_performer import \
     PreprocessStepPerformer
-
-# To avoid circular imports
-if TYPE_CHECKING:
-    from mitosheet.steps_manager import StepsManager
-else: 
-    StepsManager = Any
+from mitosheet.types import StepsManagerType
 
 
 class CopyPreprocessStepPerformer(PreprocessStepPerformer):
@@ -45,5 +40,5 @@ class CopyPreprocessStepPerformer(PreprocessStepPerformer):
         return new_args, None
 
     @classmethod
-    def transpile(cls, steps_manager: StepsManager, execution_data: Optional[Dict[str, Any]]) -> List[str]:
+    def transpile(cls, steps_manager: StepsManagerType, execution_data: Optional[Dict[str, Any]]) -> List[str]:
         return []

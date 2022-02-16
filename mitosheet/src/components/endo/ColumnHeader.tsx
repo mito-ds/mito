@@ -53,9 +53,9 @@ const ColumnHeader = (props: {
 
     const selected = getIsCellSelected(props.gridState.selections, -1, props.columnIndex);
     const width = props.gridState.widthDataArray[props.gridState.sheetIndex].widthArray[props.columnIndex];
-    const {columnID, columnFilters, columnMitoType, columnHeader} = getCellDataFromCellIndexes(props.sheetData, -1, props.columnIndex);
+    const {columnID, columnFilters, columnHeader, columnDtype} = getCellDataFromCellIndexes(props.sheetData, -1, props.columnIndex);
 
-    if (columnID === undefined || columnFilters === undefined || columnMitoType === undefined || columnHeader === undefined) {
+    if (columnID === undefined || columnFilters === undefined || columnDtype == undefined || columnHeader === undefined) {
         return <></>
     }
 
@@ -284,10 +284,10 @@ const ColumnHeader = (props: {
                                 </span>
                                 <div className='icon-color-changer-container'>
                                     <div className='icon-hide-on-hover'>
-                                        {getTypeIcon(columnMitoType, 'dark')}
+                                        {getTypeIcon(columnDtype, 'dark')}
                                     </div>
                                     <div className='icon-show-on-hover'>
-                                        {getTypeIcon(columnMitoType, 'purple')}
+                                        {getTypeIcon(columnDtype, 'purple')}
                                     </div>
                                 </div>
                                 

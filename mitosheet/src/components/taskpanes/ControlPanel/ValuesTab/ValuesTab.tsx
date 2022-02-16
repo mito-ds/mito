@@ -4,7 +4,7 @@ import React, { Fragment, useRef, useState } from 'react';
 import MitoAPI from '../../../../api';
 import MultiToggleBox from '../../../elements/MultiToggleBox';
 import Select from '../../../elements/Select';
-import { ColumnMitoType, FilterType, FilterGroupType } from '../../../../types';
+import { FilterType, FilterGroupType } from '../../../../types';
 import Col from '../../../spacing/Col';
 import Row from '../../../spacing/Row';
 import { areFiltersEqual, getAllDoesNotContainsFilterValues, getExclusiveFilterData } from '../FilterAndSortTab/filter/utils';
@@ -66,7 +66,7 @@ export function ValuesTab(
         mitoAPI: MitoAPI;
         filters: (FilterType | FilterGroupType)[];
         setFilters: React.Dispatch<React.SetStateAction<(FilterType | FilterGroupType)[]>>;
-        columnMitoType: ColumnMitoType
+        columnDtype: string
     }): JSX.Element {
 
     const [loading, setLoading] = useState(true);
@@ -122,7 +122,7 @@ export function ValuesTab(
                 Add back all of the values that were filtered out of the column, so the user can toggle
                 them back on. Note that this lets users toggle them back on even if they were removed in a previous step! 
             */ 
-            const allDoesNotContainsFilters: (string | number | boolean)[] = getAllDoesNotContainsFilterValues(props.filters, props.columnMitoType)
+            const allDoesNotContainsFilters: (string | number | boolean)[] = getAllDoesNotContainsFilterValues(props.filters, props.columnDtype)
             allDoesNotContainsFilters.forEach(key => {
                 _uniqueValueObjs.push({
                     value: key,
@@ -167,7 +167,7 @@ export function ValuesTab(
             let newFilters = [...prevFilters];
 
             values.forEach(value => {
-                const exclusiveFilter = getExclusiveFilterData(props.columnMitoType, value)
+                const exclusiveFilter = getExclusiveFilterData(props.columnDtype, value)
                 const originalFilterLength = newFilters.length
 
                 // Remove the filter if it exists

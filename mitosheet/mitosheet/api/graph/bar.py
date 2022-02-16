@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import List
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -9,7 +9,6 @@ from mitosheet.api.graph.graph_utils import (BAR, CREATE_FIG_CODE,
                                              get_graph_labels, get_graph_title)
 from mitosheet.api.graph.histogram import get_histogram, get_histogram_code
 from mitosheet.mito_analytics import log
-from mitosheet.sheet_functions.types.utils import get_mito_type
 from mitosheet.transpiler.transpile_utils import \
     column_header_to_transpiled_code
 from mitosheet.types import ColumnHeader
@@ -83,10 +82,6 @@ def get_bar_chart(df: pd.DataFrame, x_axis_column_headers: List[ColumnHeader], y
 
     log(f'generate_graph', {
         'params_graph_type': BAR,
-        'params_x_axis_column_headers': x_axis_column_headers,
-        'params_x_axis_column_types': [get_mito_type(df[column_header]) for column_header in x_axis_column_headers] if x_axis_column_headers is not None else [],
-        'params_y_axis_column_headers': y_axis_column_headers,
-        'params_y_axis_column_types': [get_mito_type(df[column_header]) for column_header in y_axis_column_headers] if y_axis_column_headers is not None else [],
         'params_filtered': filtered,
     })
 

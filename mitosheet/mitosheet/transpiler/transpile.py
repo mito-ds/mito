@@ -1,26 +1,22 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 Exports the transpile function, which takes the backend widget
 container and generates transpiled Python code.
 """
 
-from typing import TYPE_CHECKING, Any, Dict
+from typing import Any, Dict
 
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
+from mitosheet.types import StepsManagerType
 
-if TYPE_CHECKING:
-    from mitosheet.steps_manager import StepsManager
-else:
-    StepsManager = Any
 
 IN_PREVIOUS_STEP_COMMENT = '# You\'re viewing a previous step. Click fast forward in the Mitosheet above to see the full analysis.'
 
-def transpile(steps_manager: StepsManager, add_comments: bool=True) -> Dict[str, Any]:
+def transpile(steps_manager: StepsManagerType, add_comments: bool=True) -> Dict[str, Any]:
     """
     Transpiles the code from the current steps in the steps_manager, 
     displaying up to the checked out step.

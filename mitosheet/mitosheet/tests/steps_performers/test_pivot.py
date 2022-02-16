@@ -1,16 +1,15 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 Contains tests for edit events.
 """
 import numpy as np
 import pandas as pd
 
-from mitosheet.step_performers.filter import FC_STRING_CONTAINS, STRING_SERIES
+from mitosheet.step_performers.filter import FC_STRING_CONTAINS
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs, make_multi_index_header_df
 from mitosheet.step_performers.pivot import NEWLINE_TAB, FLATTEN_CODE
@@ -259,8 +258,8 @@ def test_all_other_steps_after_pivot():
     mito.set_cell_value(3, 'Name', 0, 'Aaron')
 
     # Filter down in the pivot dataframe, and the merged dataframe
-    mito.filter(1, 'Height min', 'And', STRING_SERIES, FC_STRING_CONTAINS, "5")
-    mito.filter(3, 'Name', 'And', STRING_SERIES, FC_STRING_CONTAINS, "Aaron")
+    mito.filter(1, 'Height min', 'And', FC_STRING_CONTAINS, "5")
+    mito.filter(3, 'Name', 'And', FC_STRING_CONTAINS, "Aaron")
 
     assert mito.dfs[1].empty
     assert mito.dfs[3].equals(

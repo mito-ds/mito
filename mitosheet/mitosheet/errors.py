@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 Exports an error box that can be used to pass the errors we need. 
 
@@ -132,7 +131,7 @@ def make_invalid_formula_error(formula: str, to_fix: str=None, error_modal: bool
     )
 
 
-def make_cast_value_to_type_error(value: str, target_type: str, error_modal: bool=True) -> MitoError:
+def make_cast_value_to_type_error(value: str, column_dtype: str, error_modal: bool=True) -> MitoError:
     """
     Helper function for creating a cast_value_to_type_error.
 
@@ -142,8 +141,8 @@ def make_cast_value_to_type_error(value: str, target_type: str, error_modal: boo
     """
     return MitoError(
         'cast_value_to_type_error',
-        'Invalid Value for ' + target_type + 'Column',
-        'The value ' + value + ' could not be cast to the type ' + target_type + '. Please enter a different value.' , 
+        'Invalid Value for ' + column_dtype + 'Series',
+        'The value ' + value + ' could not be cast to the type ' + column_dtype + '. Please enter a different value.' , 
         error_modal=error_modal
     )
 
@@ -158,20 +157,6 @@ def make_circular_reference_error(error_modal: bool=True) -> MitoError:
         'circular_reference_error',
         'Circular Reference',
         f'Sorry, circular references are not supported currently.',
-        error_modal=error_modal
-    )
-
-def make_wrong_column_metatype_error(column_header: ColumnHeader, error_modal: bool=True) -> MitoError:
-    """
-    Helper function for creating a wrong_column_metatype_error.
-
-    Occurs when:
-    -  a user edits a column to a formula when it is not a formula type column.
-    """
-    return MitoError(
-        'wrong_column_metatype_error',
-        'Wrong Column Type',
-        f'Sorry, the column {column_header} is a data column. We don\'t currently support changing it to a formula.',
         error_modal=error_modal
     )
 

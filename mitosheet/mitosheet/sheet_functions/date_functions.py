@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 Contains all functions that can be used in a sheet that operate on
 datetime objects.
@@ -16,7 +15,6 @@ NOTE: This file is alphabetical order!
 """
 import pandas as pd
 
-from mitosheet.sheet_functions.types.utils import DATETIME_SERIES
 from mitosheet.sheet_functions.types.decorators import convert_arg_to_series_type, filter_nans, handle_sheet_function_errors
 
 # Inspired by: https://stackoverflow.com/questions/69345845/why-does-dateoffset-rollback-not-work-the-way-i-expect-it-to-with-days-hours
@@ -33,7 +31,7 @@ def to_start(t: pd.Timestamp, freq: pd.DateOffset) -> pd.Timestamp:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    DATETIME_SERIES,
+    'datetime',
     'error',
     'error'
 )
@@ -61,7 +59,7 @@ def DATEVALUE(datetime_series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    DATETIME_SERIES,
+    'datetime',
     'error',
     'error'
 )
@@ -89,7 +87,7 @@ def DAY(datetime_series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    DATETIME_SERIES,
+    'datetime',
     'error',
     'error'
 )
@@ -117,7 +115,7 @@ def ENDOFBUSINESSMONTH(datetime_series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    DATETIME_SERIES,
+    'datetime',
     'error',
     'error'
 )
@@ -145,7 +143,7 @@ def ENDOFMONTH(datetime_series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    DATETIME_SERIES,
+    'datetime',
     'error',
     'error'
 )
@@ -173,7 +171,7 @@ def HOUR(datetime_series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    DATETIME_SERIES,
+    'datetime',
     'error',
     'error'
 )
@@ -201,7 +199,7 @@ def MINUTE(datetime_series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    DATETIME_SERIES,
+    'datetime',
     'error',
     'error'
 )
@@ -229,7 +227,7 @@ def MONTH(datetime_series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    DATETIME_SERIES,
+    'datetime',
     'error',
     'error'
 )
@@ -257,7 +255,7 @@ def QUARTER(datetime_series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    DATETIME_SERIES,
+    'datetime',
     'error',
     'error'
 )
@@ -285,7 +283,7 @@ def STARTOFBUSINESSMONTH(datetime_series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    DATETIME_SERIES,
+    'datetime',
     'error',
     'error'
 )
@@ -314,7 +312,7 @@ def STARTOFMONTH(datetime_series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    DATETIME_SERIES,
+    'datetime',
     'error',
     'error'
 )
@@ -342,7 +340,7 @@ def STRIPTIMETOMINUTES(datetime_series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    DATETIME_SERIES,
+    'datetime',
     'error',
     'error'
 )
@@ -371,7 +369,7 @@ def STRIPTIMETOHOURS(datetime_series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    DATETIME_SERIES,
+    'datetime',
     'error',
     'error'
 )
@@ -399,7 +397,7 @@ def STRIPTIMETODAYS(datetime_series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    DATETIME_SERIES,
+    'datetime',
     'error',
     'error'
 )
@@ -428,7 +426,7 @@ def STRIPTIMETOMONTHS(datetime_series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    DATETIME_SERIES,
+    'datetime',
     'error',
     'error'
 )
@@ -456,7 +454,7 @@ def STRIPTIMETOYEARS(datetime_series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    DATETIME_SERIES,
+    'datetime',
     'error',
     'error'
 )
@@ -484,7 +482,7 @@ def SECOND(datetime_series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    DATETIME_SERIES,
+    'datetime',
     'error',
     'error'
 )
@@ -512,7 +510,7 @@ def WEEK(datetime_series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    DATETIME_SERIES,
+    'datetime',
     'error',
     'error'
 )
@@ -540,7 +538,7 @@ def WEEKDAY(datetime_series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    DATETIME_SERIES,
+    'datetime',
     'error',
     'error'
 )

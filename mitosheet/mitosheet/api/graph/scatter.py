@@ -3,8 +3,7 @@ import pandas as pd
 from mitosheet.types import ColumnHeader
 import plotly.graph_objects as go
 from mitosheet.mito_analytics import log
-from mitosheet.sheet_functions.types.utils import get_mito_type
-from mitosheet.api.graph.graph_utils import BAR, CREATE_FIG_CODE, SCATTER, SHOW_FIG_CODE, X, Y, filter_df_to_safe_size, get_graph_labels, get_graph_title
+from mitosheet.api.graph.graph_utils import CREATE_FIG_CODE, SCATTER, SHOW_FIG_CODE, X, Y, filter_df_to_safe_size, get_graph_labels, get_graph_title
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
 
 
@@ -87,10 +86,6 @@ def get_scatter_plot(df: pd.DataFrame, x_axis_column_headers: List[ColumnHeader]
 
     log(f'generate_graph', {
         'params_graph_type': SCATTER,
-        'params_x_axis_column_headers': x_axis_column_headers,
-        'params_x_axis_column_types': [get_mito_type(df[column_header]) for column_header in x_axis_column_headers] if x_axis_column_headers is not None else [],
-        'params_y_axis_column_headers': y_axis_column_headers,
-        'params_y_axis_column_types': [get_mito_type(df[column_header]) for column_header in y_axis_column_headers] if y_axis_column_headers is not None else [],
         'params_filtered': filtered,
     })
 

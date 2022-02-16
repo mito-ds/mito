@@ -5,51 +5,28 @@
 
 from copy import deepcopy
 import functools
-from numbers import Number
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 import pandas as pd
 from datetime import date
 
-from mitosheet.sheet_functions.types.utils import get_mito_type
+from mitosheet.sheet_functions.types.utils import is_datetime_dtype
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.state import State
-from mitosheet.sheet_functions.types import (
-    BOOLEAN_SERIES,
-    DATETIME_SERIES,
-    NUMBER_SERIES,
-    STRING_SERIES
-)
-from mitosheet.errors import (
-    make_invalid_filter_error
-)
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code, list_to_string_without_internal_quotes
 from mitosheet.types import ColumnHeader, ColumnID
 
-# SOME CONSTANTS USED IN THE FILTER STEP ITSELF
+# The constants used in the filter step itself as filter conditions
+# NOTE: these must be unique (e.g. no repeating names for different types)
 FC_EMPTY = 'empty'
 FC_NOT_EMPTY = 'not_empty'
-SHARED_FILTER_CONDITIONS = [
-    FC_EMPTY,
-    FC_NOT_EMPTY
-]
 
 FC_BOOLEAN_IS_TRUE = 'boolean_is_true'
 FC_BOOLEAN_IS_FALSE = 'boolean_is_false'
-BOOLEAN_FILTER_CONDITIONS = [
-    FC_BOOLEAN_IS_TRUE,
-    FC_BOOLEAN_IS_FALSE
-]
 
 FC_STRING_CONTAINS = 'contains'
 FC_STRING_DOES_NOT_CONTAIN = 'string_does_not_contain'
 FC_STRING_EXACTLY = 'string_exactly'
 FC_STRING_NOT_EXACTLY = 'string_not_exactly'
-STRING_FILTER_CONDITIONS = [
-    FC_STRING_CONTAINS,
-    FC_STRING_DOES_NOT_CONTAIN,
-    FC_STRING_EXACTLY,
-    FC_STRING_NOT_EXACTLY
-]
 
 FC_NUMBER_EXACTLY = 'number_exactly'
 FC_NUMBER_NOT_EXACTLY = 'number_not_exactly'
@@ -57,14 +34,6 @@ FC_NUMBER_GREATER = 'greater'
 FC_NUMBER_GREATER_THAN_OR_EQUAL = 'greater_than_or_equal'
 FC_NUMBER_LESS = 'less'
 FC_NUMBER_LESS_THAN_OR_EQUAL = 'less_than_or_equal'
-NUMBER_FILTER_CONDITIONS = [
-    FC_NUMBER_EXACTLY,
-    FC_NUMBER_NOT_EXACTLY,
-    FC_NUMBER_GREATER,
-    FC_NUMBER_GREATER_THAN_OR_EQUAL,
-    FC_NUMBER_LESS,
-    FC_NUMBER_LESS_THAN_OR_EQUAL
-]
 
 FC_DATETIME_EXACTLY = 'datetime_exactly'
 FC_DATETIME_NOT_EXACTLY = 'datetime_not_exactly'
@@ -72,14 +41,6 @@ FC_DATETIME_GREATER = 'datetime_greater'
 FC_DATETIME_GREATER_THAN_OR_EQUAL = 'datetime_greater_than_or_equal'
 FC_DATETIME_LESS = 'datetime_less'
 FC_DATETIME_LESS_THAN_OR_EQUAL = 'datetime_less_than_or_equal'
-DATETIME_FILTER_CONDITIONS = [
-    FC_DATETIME_EXACTLY,
-    FC_DATETIME_NOT_EXACTLY,
-    FC_DATETIME_GREATER,
-    FC_DATETIME_GREATER_THAN_OR_EQUAL,
-    FC_DATETIME_LESS,
-    FC_DATETIME_LESS_THAN_OR_EQUAL,
-]
 
 # Dict used when a filter condition is only used by one filter
 FILTER_FORMAT_STRING_DICT = {
@@ -213,7 +174,7 @@ class FilterStepPerformer(StepPerformer):
 
     @classmethod
     def step_version(cls) -> int:
-        return 3
+        return 4
 
     @classmethod
     def step_type(cls) -> str:
@@ -292,7 +253,7 @@ class FilterStepPerformer(StepPerformer):
     ) -> List[str]:
         df_name = post_state.df_names[sheet_index]
         column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-        column_mito_type = post_state.column_type[sheet_index][column_id]
+        column_dtype = str(post_state.dfs[sheet_index][column_header].dtype)
 
         filters_only = [filter_or_group for filter_or_group in filters if 'filters' not in filter_or_group]
         filter_groups = [filter_or_group for filter_or_group in filters if 'filters' in filter_or_group]
@@ -302,7 +263,7 @@ class FilterStepPerformer(StepPerformer):
         # We loop over the filter conditions so we avoid looping over the filters and having to ensure 
         # we don't see a filter condition twice
         for filter_condition in FILTER_FORMAT_STRING_DICT.keys():            
-            filter_string = create_filter_string_for_condition(filter_condition, filters_only, df_name, column_header, operator, column_mito_type)
+            filter_string = create_filter_string_for_condition(filter_condition, filters_only, df_name, column_header, operator, column_dtype)
             if filter_string != '':
                 filter_strings.append(filter_string)
 
@@ -311,7 +272,7 @@ class FilterStepPerformer(StepPerformer):
             # If it is a group, we build the code for each filter condition, and then combine them at the end
             group_filter_strings = []
             for filter_condition in FILTER_FORMAT_STRING_DICT.keys():            
-                filter_string = create_filter_string_for_condition(filter_condition, filter_group['filters'], df_name, column_header, filter_group['operator'], column_mito_type)
+                filter_string = create_filter_string_for_condition(filter_condition, filter_group['filters'], df_name, column_header, filter_group['operator'], column_dtype)
                 if filter_string != '':
                     group_filter_strings.append(filter_string)
                 
@@ -367,90 +328,69 @@ def get_applied_filter(df: pd.DataFrame, column_header: ColumnHeader, filter_: D
     Given a filter triple, returns the filter indexes for that
     actual dataframe
     """
-    type_ = filter_['type']
     condition = filter_['condition']
     value = filter_['value']
 
-    # First, we case on the shared conditions, to get them out of the way
-    if condition in SHARED_FILTER_CONDITIONS:
-        if condition == FC_EMPTY:
-            return df[column_header].isna()
-        elif condition == FC_NOT_EMPTY:
-            return df[column_header].notnull()
+    # First, check shared filter conditions
+    if condition == FC_EMPTY:
+        return df[column_header].isna()
+    elif condition == FC_NOT_EMPTY:
+        return df[column_header].notnull()
     
-    if type_ == BOOLEAN_SERIES:
-        if condition not in BOOLEAN_FILTER_CONDITIONS:
-            raise Exception(f'Invalid condition passed to boolean filter {condition}')
+    # Then bool
+    if condition == FC_BOOLEAN_IS_TRUE:
+        return df[column_header] == True
+    elif condition == FC_BOOLEAN_IS_FALSE:
+        return df[column_header] == False
 
-        if condition == FC_BOOLEAN_IS_TRUE:
-            return df[column_header] == True
-        elif condition == FC_BOOLEAN_IS_FALSE:
-            return df[column_header] == False
-    elif type_ == STRING_SERIES:
-        if condition not in STRING_FILTER_CONDITIONS:
-            raise Exception(f'Invalid condition passed to string filter {condition}')
+    # Then string
+    if condition == FC_STRING_CONTAINS:
+        return df[column_header].str.contains(value, na=False)
+    if condition == FC_STRING_DOES_NOT_CONTAIN:
+        return ~df[column_header].str.contains(value, na=False)
+    elif condition == FC_STRING_EXACTLY:
+        return df[column_header] == value
+    elif condition == FC_STRING_NOT_EXACTLY:
+        return df[column_header] != value
 
-        # Check that the value is valid
-        if not isinstance(value, str):
-            raise make_invalid_filter_error(value, STRING_SERIES)
+    # Then number
+    if condition == FC_NUMBER_EXACTLY:
+        return df[column_header] == value
+    elif condition == FC_NUMBER_NOT_EXACTLY:
+        return df[column_header] != value
+    elif condition == FC_NUMBER_GREATER:
+        return df[column_header] > value
+    elif condition == FC_NUMBER_GREATER_THAN_OR_EQUAL:
+        return df[column_header] >= value
+    elif condition == FC_NUMBER_LESS:
+        return df[column_header] < value
+    elif condition == FC_NUMBER_LESS_THAN_OR_EQUAL:
+        return df[column_header] <= value
 
-        if condition == FC_STRING_CONTAINS:
-            return df[column_header].str.contains(value, na=False)
-        if condition == FC_STRING_DOES_NOT_CONTAIN:
-            return ~df[column_header].str.contains(value, na=False)
-        elif condition == FC_STRING_EXACTLY:
-            return df[column_header] == value
-        elif condition == FC_STRING_NOT_EXACTLY:
-            return df[column_header] != value
 
-    elif type_ == NUMBER_SERIES:
-        if condition not in NUMBER_FILTER_CONDITIONS:
-            raise Exception(f'Invalid condition passed to number filter {condition}')
-        
-        # Check that the value is valid
-        if not isinstance(value, Number):
-            raise make_invalid_filter_error(value, NUMBER_SERIES)
+    # Check that we were given something that can be understood as a date
+    try:
+        timestamp = pd.to_datetime(value)
+    except:
+        # If we hit an error, because we restrict the input datetime, 
+        # this is probably occuring because the user has only partially input the date, 
+        # and so in this case, we just default it to the minimum possible timestamp for now!
+        timestamp = date.min
 
-        if condition == FC_NUMBER_EXACTLY:
-            return df[column_header] == value
-        elif condition == FC_NUMBER_NOT_EXACTLY:
-            return df[column_header] != value
-        elif condition == FC_NUMBER_GREATER:
-            return df[column_header] > value
-        elif condition == FC_NUMBER_GREATER_THAN_OR_EQUAL:
-            return df[column_header] >= value
-        elif condition == FC_NUMBER_LESS:
-            return df[column_header] < value
-        elif condition == FC_NUMBER_LESS_THAN_OR_EQUAL:
-            return df[column_header] <= value
-
-    elif type_ == DATETIME_SERIES:
-        if condition not in DATETIME_FILTER_CONDITIONS:
-            raise Exception(f'Invalid condition passed to datetime filter {condition}')
-
-        # Check that we were given something that can be understood as a date
-        try:
-            timestamp = pd.to_datetime(value)
-        except:
-            # If we hit an error, because we restrict the input datetime, 
-            # this is probably occuring because the user has only partially input the date, 
-            # and so in this case, we just default it to the minimum possible timestamp for now!
-            timestamp = date.min
-
-        if condition == FC_DATETIME_EXACTLY:
-            return df[column_header] == timestamp
-        elif condition == FC_DATETIME_NOT_EXACTLY:
-            return df[column_header] != timestamp
-        elif condition == FC_DATETIME_GREATER:
-            return df[column_header] > timestamp
-        elif condition == FC_DATETIME_GREATER_THAN_OR_EQUAL:
-            return df[column_header] >= timestamp
-        elif condition == FC_DATETIME_LESS:
-            return df[column_header] < timestamp
-        elif condition == FC_DATETIME_LESS_THAN_OR_EQUAL:
-            return df[column_header] <= timestamp
-    else:
-        raise Exception(f'Invalid type passed in filter {type_}')
+    if condition == FC_DATETIME_EXACTLY:
+        return df[column_header] == timestamp
+    elif condition == FC_DATETIME_NOT_EXACTLY:
+        return df[column_header] != timestamp
+    elif condition == FC_DATETIME_GREATER:
+        return df[column_header] > timestamp
+    elif condition == FC_DATETIME_GREATER_THAN_OR_EQUAL:
+        return df[column_header] >= timestamp
+    elif condition == FC_DATETIME_LESS:
+        return df[column_header] < timestamp
+    elif condition == FC_DATETIME_LESS_THAN_OR_EQUAL:
+        return df[column_header] <= timestamp
+    
+    raise Exception(f'Invalid type passed in filter {filter_}')
 
 def combine_filters(operator: str, filters: pd.Series) -> pd.Series:
 
@@ -521,14 +461,14 @@ def get_single_filter_string(df_name: str, column_header: ColumnHeader, filter_:
         value=value
     )
 
-def get_multiple_filter_string(df_name: str, column_header: ColumnHeader, original_operator: str, condition: str, column_mito_type: str, filters: List[Dict[str, Any]]) -> str:
+def get_multiple_filter_string(df_name: str, column_header: ColumnHeader, original_operator: str, condition: str, column_dtype: str, filters: List[Dict[str, Any]]) -> str:
     """
     Transpiles a list of filters with the same filter condition to a filter string. 
     """
 
     # Handle dates specially by wrapping the number in a string and adding the pd.to_datetime call
     values: Union[str, List[str]]
-    if column_mito_type == DATETIME_SERIES:
+    if is_datetime_dtype(column_dtype):
         values = [f'\'{filter["value"]}\'' for filter in filters]
         values = 'pd.to_datetime(' + list_to_string_without_internal_quotes(values) + ')'
     else:
@@ -574,7 +514,7 @@ def combine_filter_strings(operator: str, filter_strings: List[str], split_lines
 
         return filter_string
 
-def create_filter_string_for_condition(condition: str, mito_filters: List[Dict[str, Any]], df_name: str, column_header: ColumnHeader, operator: str, column_mito_type: str) -> str:
+def create_filter_string_for_condition(condition: str, mito_filters: List[Dict[str, Any]], df_name: str, column_header: ColumnHeader, operator: str, column_dtype: str) -> str:
     """
     Returns a list of all the filter clauses for a specific filter condition in the list of passed filters
     Note: We use the nomenclature "mito_filters" here so the compiler doesn't get confused when we use the filter function 
@@ -588,6 +528,6 @@ def create_filter_string_for_condition(condition: str, mito_filters: List[Dict[s
         return get_single_filter_string(df_name, column_header, filters_with_condition[0])
     elif len(filters_with_condition) > 1:
         # Use the multiple filter condition
-        return get_multiple_filter_string(df_name, column_header, operator, condition, column_mito_type, filters_with_condition)
+        return get_multiple_filter_string(df_name, column_header, operator, condition, column_dtype, filters_with_condition)
     
     return ''

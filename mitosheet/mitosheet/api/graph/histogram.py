@@ -14,7 +14,7 @@ def get_histogram(axis: str, df: pd.DataFrame, column_headers: List[ColumnHeader
     """
     Returns a histogram using the following heuristic:
 
-    If any of the series are not NUMBER_SERIES, return a blank graph.
+    If any of the series are not number series, return a blank graph.
 
     Numeric histograms don't require any filtering.  
     """

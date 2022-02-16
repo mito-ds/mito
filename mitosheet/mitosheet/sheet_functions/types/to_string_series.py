@@ -1,18 +1,16 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 For going to a string series.
 """
 
-from typing import Tuple, Union
 import pandas as pd
 import numpy as np
 
-from mitosheet.sheet_functions.types.utils import BOOLEAN_SERIES, DATETIME_SERIES, NUMBER_SERIES, STRING_SERIES, TIMEDELTA_SERIES, get_mito_type
+from mitosheet.sheet_functions.types.utils import is_bool_dtype, is_datetime_dtype, is_number_dtype, is_string_dtype, is_timedelta_dtype
 
 
 def to_string_series(
@@ -23,21 +21,21 @@ def to_string_series(
     Converts the given object to a string series. Note that on_uncastable_arg_element
     is irrelevant here, as anything can be turned into a string!
     """
-    from_type = get_mito_type(unknown_object)
 
     # If it is not a series, we put it in a series, and set it to a string
-    if not from_type.endswith('series'):
+    if not isinstance(unknown_object, pd.Series):
         return pd.Series([str(unknown_object)], dtype='str')
 
-    if from_type == BOOLEAN_SERIES:
+    column_dtype = str(unknown_object.dtype)
+    if is_bool_dtype(column_dtype):
         return unknown_object.astype('str')
-    elif from_type == DATETIME_SERIES:
+    elif is_datetime_dtype(column_dtype):
         return unknown_object.dt.strftime('%Y-%m-%d %X')
-    elif from_type == TIMEDELTA_SERIES:
+    elif is_timedelta_dtype(column_dtype):
         return unknown_object.astype('str')
-    elif from_type == NUMBER_SERIES:
+    elif is_number_dtype(column_dtype):
         return unknown_object.astype('str')
-    elif from_type == STRING_SERIES:
+    elif is_string_dtype(column_dtype):
         # We need to cast here, because object series are treated
         # as string series, and may contain other types
         return unknown_object.astype('str')
