@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 import pandas as pd
 from mitosheet.api.graph.graph_parameter import GraphParameter
 from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_to_transpiled_code
@@ -11,14 +11,14 @@ from mitosheet.api.graph.graph_utils import BAR, BOX, HISTOGRAM, SCATTER, filter
 # Jupyter turns \t into a grey arrow, but converts four spaces into a tab.
 TAB = '    '
 
-def graph_filtering(graph_type: str, df, column_headers):
+def graph_filtering(graph_type: str, df: pd.DataFrame, column_headers: List[ColumnHeader]) -> pd.DataFrame:
     """
-    Filteres the dataframe about to be graphed so that we don't crash the browser
+    Filters the dataframe about to be graphed so that we don't crash the browser
     """
     return filter_df_to_safe_size(graph_type, df, column_headers)
 
 
-def graph_filtering_code(graph_type: str, df_name, df, column_headers) -> str:
+def graph_filtering_code(graph_type: str, df_name: str, df: pd.DataFrame, column_headers: List[ColumnHeader]) -> str:
     """
     Returns the code for filtering the dataframe so we don't crash the browser
     """
@@ -53,14 +53,14 @@ def graph_creation(
     """
     
     # Create the parameters that we use to construct the graph
-    x_arg = None
+    x_arg: Union[List[ColumnHeader], ColumnHeader, None] = None
     if len(x_axis_column_headers) == 1:
         # Note: In the new interface, x will always have a length of 0 or 1
         x_arg = x_axis_column_headers[0]
     if len(x_axis_column_headers) > 1:
         x_arg = x_axis_column_headers
 
-    y_arg = None
+    y_arg: Union[List[ColumnHeader], ColumnHeader, None] = None
     if len(y_axis_column_headers) == 1:
         y_arg = y_axis_column_headers[0]
     if len(y_axis_column_headers) > 1:
@@ -109,9 +109,10 @@ def graph_creation_code(
         return f"fig = px.bar({df_name}, {params})"
     if graph_type == SCATTER:
         return f"fig = px.scatter({df_name}, {params})"
+    return ''
 
 
-def graph_styling(fig, graph_type: str, column_headers: List[ColumnHeader], filtered: bool):
+def graph_styling(fig: go.Figure, graph_type: str, column_headers: List[ColumnHeader], filtered: bool) -> go.Figure:
     """
     Styles the Plotly express graph figure
     """
