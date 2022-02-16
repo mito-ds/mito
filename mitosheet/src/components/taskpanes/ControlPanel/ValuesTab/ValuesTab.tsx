@@ -4,7 +4,7 @@ import React, { Fragment, useRef, useState } from 'react';
 import MitoAPI from '../../../../api';
 import MultiToggleBox from '../../../elements/MultiToggleBox';
 import Select from '../../../elements/Select';
-import { FilterType, FilterGroupType } from '../../../../types';
+import { FilterType, FilterGroupType, ColumnID } from '../../../../types';
 import Col from '../../../spacing/Col';
 import Row from '../../../spacing/Row';
 import { areFiltersEqual, getAllDoesNotContainsFilterValues, getExclusiveFilterData } from '../FilterAndSortTab/filter/utils';
@@ -62,7 +62,7 @@ const sortUniqueValueCounts = (uniqueValueCounts: UniqueValueCount[], uniqueValu
 export function ValuesTab(
     props: {
         selectedSheetIndex: number, 
-        columnID: string,
+        columnID: ColumnID,
         mitoAPI: MitoAPI;
         filters: (FilterType | FilterGroupType)[];
         setFilters: React.Dispatch<React.SetStateAction<(FilterType | FilterGroupType)[]>>;

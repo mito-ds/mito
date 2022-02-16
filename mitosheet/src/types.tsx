@@ -147,10 +147,12 @@ export type PrimitiveColumnHeader = string | number | boolean;
 export type MultiIndexColumnHeader = PrimitiveColumnHeader[]; // TODO: is this a bug? Can we have a multi-index with a multi-index inside it
 export type ColumnHeader = PrimitiveColumnHeader | MultiIndexColumnHeader;
 
+
+export type ColumnID = string;
 /**
  * A map from column IDs -> Column Headers
  */
-export type ColumnIDsMap = Record<string, ColumnHeader>;
+export type ColumnIDsMap = Record<ColumnID, ColumnHeader>;
 
 
 /**
@@ -174,15 +176,15 @@ export type SheetData = {
     numRows: number,
     numColumns: number,
     data: {
-        columnID: string;
+        columnID: ColumnID;
         columnHeader: ColumnHeader;
         columnDtype: string;
         columnData: (string | number | boolean)[];
     }[];
     columnIDsMap: ColumnIDsMap;
-    columnSpreadsheetCodeMap: Record<string, string>;
+    columnSpreadsheetCodeMap: Record<ColumnID, string>;
     columnFiltersMap: ColumnFilterMap;
-    columnDtypeMap: Record<string, string>;
+    columnDtypeMap: Record<ColumnID, string>;
     index: (string | number)[];
     columnFormatTypeObjMap: ColumnFormatTypeObjMap
 };
@@ -352,7 +354,7 @@ export interface GridState {
     viewport: Dimension;
     scrollPosition: ScrollPosition;
     selections: MitoSelection[];
-    columnIDsArray: string[][];
+    columnIDsArray: ColumnID[][];
     widthDataArray: WidthData[];
     searchString: string;
 }

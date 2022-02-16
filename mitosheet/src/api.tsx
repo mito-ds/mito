@@ -6,7 +6,7 @@ import { GraphObject, GraphType } from "./components/taskpanes/Graph/GraphSideba
 import { FileElement } from "./components/taskpanes/Import/ImportTaskpane";
 import { MergeType } from "./components/taskpanes/Merge/MergeTaskpane";
 import { AggregationType, PivotParams } from "./components/taskpanes/PivotTable/PivotTaskpane";
-import { ExcelFileMetadata, FeedbackID, FilterGroupType, FilterType, FormatTypeObj, MitoError, SearchMatches, SheetData } from "./types";
+import { ColumnID, ExcelFileMetadata, FeedbackID, FilterGroupType, FilterType, FormatTypeObj, MitoError, SearchMatches, SheetData } from "./types";
 
 
 /*
@@ -341,8 +341,8 @@ export default class MitoAPI {
     async getGraph(
         graphType: GraphType,
         sheet_index: number,
-        xAxisColumnIDs: string[] | undefined,
-        yAxisColumnIDs: string[] | undefined,
+        xAxisColumnIDs: ColumnID[] | undefined,
+        yAxisColumnIDs: ColumnID[] | undefined,
         height?: string,
         width?: string,
     ): Promise<GraphObject | undefined> {
@@ -373,7 +373,7 @@ export default class MitoAPI {
         Returns a list of the key, values that is returned by .describing 
         this column
     */
-    async getColumnDescribe(sheetIndex: number, columnID: string): Promise<Record<string, string>> {
+    async getColumnDescribe(sheetIndex: number, columnID: ColumnID): Promise<Record<string, string>> {
 
         const describeString = await this.send<string>({
             'event': 'api_call',
@@ -441,7 +441,7 @@ export default class MitoAPI {
     */
     async getUniqueValueCounts(
         sheetIndex: number,
-        columnID: string,
+        columnID: ColumnID,
         searchString: string,
         sort: UniqueValueSortType, 
     ): Promise<{uniqueValueCounts: UniqueValueCount[], isAllData: boolean} | undefined> {
@@ -530,7 +530,7 @@ export default class MitoAPI {
     */
     async sendDeleteColumn(
         sheetIndex: number,
-        columnIDs: string[],
+        columnIDs: ColumnID[],
     ): Promise<void> {
         const stepID = getRandomId();
 
@@ -552,11 +552,11 @@ export default class MitoAPI {
     async sendMergeMessage(
         mergeType: MergeType,
         sheetOneIndex: number,
-        mergeKeyColumnIDOne: string,
-        selectedColumnIDsOne: string[],
+        mergeKeyColumnIDOne: ColumnID,
+        selectedColumnIDsOne: ColumnID[],
         sheetTwoIndex: number,
-        mergeKeyColumnIDTwo: string,
-        selectedColumnIDsTwo: string[],
+        mergeKeyColumnIDTwo: ColumnID,
+        selectedColumnIDsTwo: ColumnID[],
         /* 
             If you want to overwrite, you have to pass the ID of the the step that
             you want to overwrite. Not passing this argument, or passing an empty string,
@@ -594,9 +594,9 @@ export default class MitoAPI {
     */
     async sendPivotMessage(
         sheetIndex: number,
-        pivotRowColumnIDs: string[],
-        pivotColsIDs: string[],
-        valuesIDs: Record<string, AggregationType[]>,
+        pivotRowColumnIDs: ColumnID[],
+        pivotColsIDs: ColumnID[],
+        valuesIDs: Record<ColumnID, AggregationType[]>,
         flattenColumnHeaders: boolean,
         destinationSheetIndex: number | undefined,
         stepID?: string
@@ -632,7 +632,7 @@ export default class MitoAPI {
     */
     async sendReorderColumnMessage(
         sheetIndex: number,
-        columnID: string,
+        columnID: ColumnID,
         newIndex: number
     ): Promise<void> {
         const stepID = getRandomId();
@@ -682,7 +682,7 @@ export default class MitoAPI {
     */
     async sendFilterMessage(
         sheetIndex: number,
-        columnID: string,
+        columnID: ColumnID,
         filters: (FilterType | FilterGroupType)[],
         operator: 'And' | 'Or',
         filterLocation: string,  
@@ -714,7 +714,7 @@ export default class MitoAPI {
     */
     async sendSortMessage(
         sheetIndex: number,
-        columnID: string,
+        columnID: ColumnID,
         sortDirection: SortDirection,
         stepID?: string    
     ): Promise<string> {
@@ -741,7 +741,7 @@ export default class MitoAPI {
     */
     async dropDuplicates(
         sheetIndex: number,
-        columnIDs: string[],
+        columnIDs: ColumnID[],
         keep: 'last' | 'first' | false,
         stepID?: string    
     ): Promise<string> {
@@ -768,7 +768,7 @@ export default class MitoAPI {
     */
     async sendRenameColumn(
         sheetIndex: number,
-        columnID: string,
+        columnID: ColumnID,
         newColumnHeader: string,
         level?: number,
         stepID?: string
@@ -907,7 +907,7 @@ export default class MitoAPI {
     */
     async sendSetColumnFormulaEditMessage(
         sheetIndex: number,
-        columnID: string,
+        columnID: ColumnID,
         newFormula: string,
     ): Promise<MitoError | undefined> {
         const stepID = getRandomId();
@@ -929,7 +929,7 @@ export default class MitoAPI {
     */
     async sendSetCellValueMessage(
         sheetIndex: number,
-        column_id: string,
+        columnID: ColumnID,
         dataframeRowIndex: number | string,
         newValue: string,
     ): Promise<MitoError | undefined> {
@@ -941,7 +941,7 @@ export default class MitoAPI {
             'step_id': stepID,
             'params': {
                 'sheet_index': sheetIndex,
-                'column_id': column_id,
+                'column_id': columnID,
                 'row_index': dataframeRowIndex,
                 'new_value': newValue
             }
@@ -953,7 +953,7 @@ export default class MitoAPI {
     */
     async changeColumnDtype(
         sheetIndex: number,
-        columnID: string,
+        columnID: ColumnID,
         newDtype: string,
         stepID?: string
     ): Promise<string> {
@@ -980,7 +980,7 @@ export default class MitoAPI {
     */
     async changeColumnFormat(
         sheetIndex: number,
-        columnIDs: string[],
+        columnIDs: ColumnID[],
         newFormatType: FormatTypeObj,
         stepID?: string
     ): Promise<string> {

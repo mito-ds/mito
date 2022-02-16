@@ -7,6 +7,7 @@ import Col from '../../../spacing/Col';
 import Row from '../../../spacing/Row';
 
 import '../../../../../css/taskpanes/ControlPanel/SortCard.css';
+import { ColumnID } from '../../../../types';
 
 export enum SortDirection {
     ASCENDING = 'ascending',
@@ -16,7 +17,7 @@ export enum SortDirection {
 
 type SortCardProps = {
     selectedSheetIndex: number;
-    columnID: string;
+    columnID: ColumnID;
     mitoAPI: MitoAPI;
 }
 

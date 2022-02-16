@@ -6,7 +6,7 @@ import Select from '../../elements/Select';
 import XIcon from '../../icons/XIcon';
 import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
-import { ColumnIDsMap } from '../../../types';
+import { ColumnID, ColumnIDsMap } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 
@@ -15,7 +15,7 @@ import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 */
 const PivotTableValueAggregationCard = (props: {
     columnIDsMap: ColumnIDsMap,
-    columnID: string,
+    columnID: ColumnID,
     aggregationType: AggregationType
     removePivotValueAggregation: () => void;
     editPivotValueAggregation: (newAggregationType: AggregationType, newColumnID: string) => void;
@@ -54,7 +54,7 @@ const PivotTableValueAggregationCard = (props: {
             <Col offset={1} flex='1'>
                 <Select 
                     value={props.columnID}
-                    onChange={(columnID: string ) => {
+                    onChange={(columnID: ColumnID) => {
                         props.editPivotValueAggregation(
                             props.aggregationType, 
                             columnID

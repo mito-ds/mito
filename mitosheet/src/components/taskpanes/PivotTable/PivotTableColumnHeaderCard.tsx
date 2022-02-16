@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { ColumnIDsMap } from '../../../types';
+import { ColumnID, ColumnIDsMap } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import DropdownItem from '../../elements/DropdownItem';
 import Select from '../../elements/Select';
@@ -14,10 +14,10 @@ import Row from '../../spacing/Row';
 */
 const PivotTableColumnHeaderCard = (props: {
     columnIDsMap: ColumnIDsMap;
-    columnID: string,
+    columnID: ColumnID,
     keyIndex: number;
     removeKey: (keyIndex: number) => void;
-    editKey: (keyIndex: number, newColumnID: string) => void;
+    editKey: (keyIndex: number, newColumnID: ColumnID) => void;
 }): JSX.Element => {
 
     return (

@@ -1,5 +1,5 @@
 import React from "react";
-import { ColumnFilters, ColumnHeader, GridState, SheetData } from "../../types";
+import { ColumnFilters, ColumnHeader, ColumnID, GridState, SheetData } from "../../types";
 import { isBoolDtype, isDatetimeDtype, isFloatDtype, isIntDtype, isStringDtype, isTimedeltaDtype } from "../../utils/dtypes";
 import BooleanTypeIcon from "../icons/columntypes/BooleanTypeIcon";
 import DatetimeTypeIcon from "../icons/columntypes/DatetimeTypeIcon";
@@ -89,7 +89,7 @@ export const getTypeIcon = (columnDtype: string, purpleOrDark?: 'purple' | 'dark
  * indexes, in a type safe way.
  */
 export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, rowIndex: number, columnIndex: number): {
-    columnID: string | undefined,
+    columnID: ColumnID | undefined,
     columnHeader: ColumnHeader | undefined,
     columnDtype: string | undefined,
     columnFormula: string | undefined,
@@ -118,7 +118,7 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
     Helper function for creating the ColumnIDsMapping: sheetIndex -> columnIndex -> columnID
     from the Sheet Data Array
 */
-export const getColumnIDsArrayFromSheetDataArray = (sheetDataArray: SheetData[]): string[][] => {
+export const getColumnIDsArrayFromSheetDataArray = (sheetDataArray: SheetData[]): ColumnID[][] => {
     return sheetDataArray.map(sheetData => sheetData.data.map(c => c.columnID)) || []
 }
 
@@ -141,7 +141,7 @@ export const doesAnySheetExist = (sheetDataArray: SheetData[]): boolean => {
 /*
     Determines if a columnID exists in a specific sheet. Returns True
 */
-export const doesColumnExist = (columnID: string | undefined, sheetIndex: number, sheetDataArray: SheetData[]): boolean => {
+export const doesColumnExist = (columnID: ColumnID | undefined, sheetIndex: number, sheetDataArray: SheetData[]): boolean => {
     return columnID !== undefined && sheetDataArray[sheetIndex]?.columnDtypeMap[columnID] !== undefined
 }
 

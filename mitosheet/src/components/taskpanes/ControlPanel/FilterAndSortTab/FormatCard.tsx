@@ -2,7 +2,7 @@
 
 import React from 'react';
 import MitoAPI from '../../../../api';
-import { GridState, SheetData } from '../../../../types';
+import { ColumnID, GridState, SheetData } from '../../../../types';
 import { isNumberDtype } from '../../../../utils/dtypes';
 import { getColumnFormatDropdownItemsUsingColumnID, getFormatTitle } from '../../../../utils/formatColumns';
 import Select from '../../../elements/Select';
@@ -17,7 +17,7 @@ const FORMAT_DESCRIPTION = 'Format the selected column as a percent, choose the 
     the format of a column
 */
 function FormatCard(props: {
-    columnID: string
+    columnID: ColumnID
     gridState: GridState,
     mitoAPI: MitoAPI,
     columnDtype: string

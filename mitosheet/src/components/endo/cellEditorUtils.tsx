@@ -1,7 +1,7 @@
 // Utilities for the cell editor
 
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../../data/function_documentation";
-import { ColumnHeader, SheetData } from "../../types";
+import { ColumnHeader, ColumnID, SheetData } from "../../types";
 import { getDisplayColumnHeader, isPrimitiveColumnHeader, rowIndexToColumnHeaderLevel } from "../../utils/columnHeaders";
 import { getCellDataFromCellIndexes } from "./utils";
 
@@ -150,7 +150,7 @@ export const formulaEndsInColumnHeader = (formula: string, sheetData: SheetData)
  * @returns - a tuple: the length of the matched end of the formula (the replacement length), and a list of [column header, subtext] suggestions. 
  * The subtext contains the type of the column
  */
-export const getSuggestedColumnHeaders = (formula: string, columnID: string, sheetData: SheetData): [number, [string, string][]] => {
+export const getSuggestedColumnHeaders = (formula: string, columnID: ColumnID, sheetData: SheetData): [number, [string, string][]] => {
     
     const columnHeadersAndIDs: [string, string][] = sheetData.data.map(c => [c.columnID, getDisplayColumnHeader(c.columnHeader)]);
     const columnHeadersAndIDsWithoutCurrentColumn = columnHeadersAndIDs.filter(([cid,])  => {return cid != columnID});

@@ -6,7 +6,7 @@ import React from 'react';
 import '../../../../css/taskpanes/Merge/MergeSheetAndKeySelection.css'
 import { MergeSheet } from './MergeTaskpane';
 import Select from '../../elements/Select';
-import { ColumnIDsMap } from '../../../types';
+import { ColumnID, ColumnIDsMap } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 
@@ -18,11 +18,11 @@ const MergeSheetAndKeySelection = (props: {
     dfNames: string[],
     columnIDsMap: ColumnIDsMap,
     sheetIndex: number,
-    mergeKeyColumnID: string,
+    mergeKeyColumnID: ColumnID,
     otherSheetIndex: number,
     sheetNum: MergeSheet;
     setNewSheetIndex: (newSheetIndex: number) => void,
-    setNewMergeKeyColumnID: (newMergeKeyColumnID: string) => void,
+    setNewMergeKeyColumnID: (newMergeKeyColumnID: ColumnID) => void,
 }): JSX.Element => {
 
     const sheetNumStr = props.sheetNum == MergeSheet.First ? 'First' : 'Second'
@@ -58,7 +58,7 @@ const MergeSheetAndKeySelection = (props: {
                 </p>
                 <Select
                     value={props.mergeKeyColumnID}
-                    onChange={(columnID: string) => {props.setNewMergeKeyColumnID(columnID)}}
+                    onChange={(columnID: ColumnID) => {props.setNewMergeKeyColumnID(columnID)}}
                     width='medium'
                     searchable
                 >

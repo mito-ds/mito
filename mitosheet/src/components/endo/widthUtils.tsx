@@ -1,5 +1,5 @@
 import { DEFAULT_WIDTH } from "./EndoGrid";
-import { SheetData, WidthData } from "../../types";
+import { ColumnID, SheetData, WidthData } from "../../types";
 
 
 /* 
@@ -10,7 +10,7 @@ import { SheetData, WidthData } from "../../types";
     from columnID -> width, to set the columns to some
     specific width.
 */
-export const getWidthData = (sheetData: SheetData | undefined, defaultWidthData: undefined | Record<string, number>=undefined): WidthData => {
+export const getWidthData = (sheetData: SheetData | undefined, defaultWidthData: undefined | Record<ColumnID, number>=undefined): WidthData => {
 
     if (sheetData === undefined) {
         return {
@@ -76,7 +76,7 @@ export const changeColumnWidthDataArray = (sheetIndex: number, widthDataArray: W
     return widthDataArray
 }
 
-export const reconciliateWidthDataArray = (prevWidthDataArray: WidthData[], columnIDsArray: string[][], sheetDataArray: SheetData[]): WidthData[] => {
+export const reconciliateWidthDataArray = (prevWidthDataArray: WidthData[], columnIDsArray: ColumnID[][], sheetDataArray: SheetData[]): WidthData[] => {
     // We make sure that the widthDataArray is defined so that we can index into 
     // it without crashing the sheet. It simplifies the code elsewhere.
     if (sheetDataArray.length === 0) {
@@ -103,9 +103,9 @@ export const reconciliateWidthDataArray = (prevWidthDataArray: WidthData[], colu
     TODO: this might be a performance hit in the future (but maybe not), so we might
     want to make this more efficient.
 */
-export const reconciliateWidthData = (prevWidthData: WidthData | undefined, oldColumnIDsArray: string[], sheetData: SheetData | undefined): WidthData => {
+export const reconciliateWidthData = (prevWidthData: WidthData | undefined, oldColumnIDsArray: ColumnID[], sheetData: SheetData | undefined): WidthData => {
     // Calculate the old widths of the columns 
-    const oldWidths: Record<string, number> = {};
+    const oldWidths: Record<ColumnID, number> = {};
 
     // The oldColumnIDsArray can be undefined if the sheet was just added and it is
     // the first time we're updating the gridState. 

@@ -7,7 +7,7 @@ import MitoAPI from '../../../api';
 
 // Import 
 import TextButton from '../../elements/TextButton';
-import { SheetData, UIState, UserProfile } from '../../../types';
+import { ColumnID, SheetData, UIState, UserProfile } from '../../../types';
 import Row from '../../spacing/Row';
 import Select from '../../elements/Select';
 import DropdownItem from '../../elements/DropdownItem';
@@ -51,8 +51,8 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
         columns, no matter the column's position in the sheet. Making it easier to find 
         the column in the list.
     */    
-    const [newlyFormattedColumns, setNewlyFormattedColumns] = useState<Record<number, string[]>>(() => {
-        const newlyFormattedColumnsInitial: Record<number, string[]> = {}
+    const [newlyFormattedColumns, setNewlyFormattedColumns] = useState<Record<number, ColumnID[]>>(() => {
+        const newlyFormattedColumnsInitial: Record<number, ColumnID[]> = {}
         props.sheetDataArray.forEach((_, idx) => {
             newlyFormattedColumnsInitial[idx] = []
         })
