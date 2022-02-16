@@ -117,14 +117,14 @@ def get_barmode(graph_type: str) -> Optional[str]:
         return None
 
 
-def create_parameter_chord(graph_parameter: Tuple[str, str, bool]) -> str:
+def create_parameter(param_key: str, param_value: str, format_as_string: bool) -> str:
     """
-    Returns the Graph Parameter as the parameter chord used in the transpiled code.
+    Returns the params ready to be used in the transpiled code.
     """
-    if graph_parameter[2]:
-        return f"{graph_parameter[0]}='{graph_parameter[1]}'"
+    if format_as_string:
+        return f"{param_key}='{param_value}'"
     else:
-        return f"{graph_parameter[0]}={graph_parameter[1]}"
+        return f"{param_key}={param_value}"
 
 
 def filter_df_to_top_unique_values_in_series(

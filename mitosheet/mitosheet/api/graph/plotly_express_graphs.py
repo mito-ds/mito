@@ -12,7 +12,7 @@ from mitosheet.api.graph.graph_utils import (
     BOX,
     HISTOGRAM,
     SCATTER,
-    create_parameter_chord,
+    create_parameter,
     filter_df_to_safe_size,
     get_barmode,
     get_graph_title,
@@ -123,7 +123,7 @@ def graph_creation_code(
             ("y", column_header_list_to_transpiled_code(y_axis_column_headers), False)
         )
 
-    params = f", ".join(create_parameter_chord(gp) for gp in all_params)
+    params = f", ".join(create_parameter(param[0], param[1], param[2]) for param in all_params)
 
     if graph_type == BOX:
         return f"fig = px.box({df_name}, {params})"
@@ -182,7 +182,7 @@ def graph_styling_code(
     all_params.append(("xaxis", RANGE_SLIDER, False))
 
     params = f"\n{TAB}"
-    params += f",\n{TAB}".join(create_parameter_chord(gp) for gp in all_params)
+    params += f",\n{TAB}".join(create_parameter(param[0], param[1], param[2]) for param in all_params)
     params += "\n"
 
     return f"fig.update_layout({params})"
