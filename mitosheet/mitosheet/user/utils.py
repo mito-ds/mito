@@ -80,7 +80,7 @@ def should_upgrade_mitosheet() -> bool:
     mitosheet_last_upgraded_date = datetime.strptime(last_upgraded_date_stored, '%Y-%m-%d')
     return (datetime.now() - mitosheet_last_upgraded_date).days > 21
 
-def is_excel_import_enabled():
+def is_excel_import_enabled() -> bool:
     """
     Returns true if Python > 3.6 is installed, and Pandas > 0.25.0 is installed,
     as this is when openpyxl works.
