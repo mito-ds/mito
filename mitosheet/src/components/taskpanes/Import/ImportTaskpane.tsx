@@ -70,14 +70,7 @@ const getImportButtonStatus = (selectedElement: FileElement | undefined, excelIm
     1. Combining the path into one path string
     2. Passing this combined path into a simple import
 */
-export async function doImport(mitoAPI: MitoAPI, currPathParts: string[], element: FileElement | undefined, excelImportEnabled: boolean): Promise<void> {
-    const importButtonStatus = getImportButtonStatus(element, excelImportEnabled);
-    // Quit early if the selected thing is not importable, or if there
-    // is nothing even selected
-    if (importButtonStatus.disabled || element === undefined) {
-        return;
-    }
-
+export async function doImport(mitoAPI: MitoAPI, currPathParts: string[], element: FileElement): Promise<void> {
     // Construct the final path that must be imported
     const finalPath = [...currPathParts];
     finalPath.push(element.name);
@@ -112,13 +105,20 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
     }
 
     async function importElement(element: FileElement | undefined): Promise<void> {
+        const importButtonStatus = getImportButtonStatus(element, props.userProfile.excelImportEnabled);
+        // Quit early if the selected thing is not importable, or if there
+        // is nothing even selected
+        if (importButtonStatus.disabled || element === undefined) {
+            return;
+        }
+
         if (!element?.isDirectory && element?.name.toLowerCase().endsWith('.xlsx')) {
             setFileForImportWizard(element.name);
             return;
         }
 
         // Do the actual import
-        await doImport(props.mitoAPI, props.currPathParts, element, props.userProfile.excelImportEnabled);
+        await doImport(props.mitoAPI, props.currPathParts, element);
         // And then clear the selected element
         setSelectedElement(undefined);
     }
