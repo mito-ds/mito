@@ -54,5 +54,5 @@ Importing XLSX files is only supported on Python version greater than 3.6
 {% endhint %}
 
 {% hint style="info" %}
-Want help? [Book a call](https://discord.com/invite/XdJSZyejJU) with our support team.&#x20;
+Want help? [Get in contact](https://discord.com/invite/XdJSZyejJU) with our support team.&#x20;
 {% endhint %}

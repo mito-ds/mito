@@ -57,5 +57,5 @@ If you have any other issues installing Mito, or you're looking to install Mito 
 1. [Guide to downloading Python](https://wiki.python.org/moin/BeginnersGuide/Download).
 
 {% hint style="info" %}
-Want help? [Book a call](https://discord.com/invite/XdJSZyejJU) with our support team.
+Want help? [Get in contact](https://discord.com/invite/XdJSZyejJU) with our support team.
 {% endhint %}
