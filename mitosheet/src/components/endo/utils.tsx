@@ -1,7 +1,7 @@
 import React from "react";
 import { ColumnFilters, ColumnHeader, ColumnID, GridState, SheetData } from "../../types";
 import { classNames } from "../../utils/classNames";
-import { isBoolDtype, isDatetimeDtype, isFloatDtype, isIntDtype, isStringDtype, isTimedeltaDtype } from "../../utils/dtypes";
+import { isBoolDtype, isDatetimeDtype, isFloatDtype, isIntDtype, isTimedeltaDtype } from "../../utils/dtypes";
 import { getWidthData } from "./widthUtils";
 
 
@@ -58,66 +58,29 @@ export const getDefaultGridState = (sheetDataArray: SheetData[], selectedSheetIn
 }
 
 
-// Returns an icon for that type of column
-export const getTypeIcon = (columnDtype: string, purpleOrDark?: 'purple' | 'dark'): JSX.Element => {
-    if (isStringDtype(columnDtype)) {
-        return <p className={classNames(
-            'text-subtext-1',
-            { 'text-color-mito-purple-important': purpleOrDark === 'purple' },
-            { 'text-color-gray-important': purpleOrDark === 'dark' })}
-        >
-            str
-        </p>
-    } else if (isFloatDtype(columnDtype)) {
-        return <p className={classNames(
-            'text-subtext-1',
-            { 'text-color-mito-purple-important': purpleOrDark === 'purple' },
-            { 'text-color-gray-important': purpleOrDark === 'dark' })}
-        >
-            float
-        </p>
+// Returns an JSX Element with the type identifier for that type of column
+export const getTypeIdentifier = (columnDtype: string, purpleOrDark?: 'purple' | 'dark'): JSX.Element => {
+    // Default to identifying the column as a string if we can't figure out what it is
+    let typeText = 'str'
+    if (isFloatDtype(columnDtype)) {
+        typeText = 'float'
     } else if (isIntDtype(columnDtype)) {
-        return <p className={classNames(
-            'text-subtext-1',
-            { 'text-color-mito-purple-important': purpleOrDark === 'purple' },
-            { 'text-color-gray-important': purpleOrDark === 'dark' })}
-        >
-            int
-        </p>
+        typeText = 'int'
     } else if (isDatetimeDtype(columnDtype)) {
-        return <p className={classNames(
-            'text-subtext-1',
-            { 'text-color-mito-purple-important': purpleOrDark === 'purple' },
-            { 'text-color-gray-important': purpleOrDark === 'dark' })}
-        >
-            date
-        </p>
+        typeText = 'date'
     } else if (isTimedeltaDtype(columnDtype)) {
-        return <p className={classNames(
-            'text-subtext-1',
-            { 'text-color-mito-purple-important': purpleOrDark === 'purple' },
-            { 'text-color-gray-important': purpleOrDark === 'dark' })}
-        >
-            time
-        </p>
+        typeText = 'time'
     } else if (isBoolDtype(columnDtype)) {
-        return <p className={classNames(
-            'text-subtext-1',
-            { 'text-color-mito-purple-important': purpleOrDark === 'purple' },
-            { 'text-color-gray-important': purpleOrDark === 'dark' })}
-        >
-            bool
-        </p>
-    } else {
-        // If we can't identify the column, mark it as an str
-        return <p className={classNames(
-            'text-subtext-1',
-            { 'text-color-mito-purple-important': purpleOrDark === 'purple' },
-            { 'text-color-gray-important': purpleOrDark === 'dark' })}
-        >
-            str
-        </p>
+        typeText = 'bool'
     }
+
+    return <p className={classNames(
+        'text-subtext-1',
+        { 'text-color-mito-purple-important': purpleOrDark === 'purple' },
+        { 'text-color-gray-important': purpleOrDark === 'dark' })}
+    >
+        {typeText}
+    </p>
 }
 
 
