@@ -78,17 +78,7 @@ def get_graph(event: Dict[str, Any], steps_manager: StepsManager) -> str:
                 r=0,
                 t=30, 
                 b=30,
-            ),
-            xaxis=dict(
-                rangeslider=dict(
-                    visible=True
-                ),
-            ),
-        )
-
-        # Make the rangeslider take up 5% of the height of the plot space
-        fig.update_xaxes(
-            rangeslider_thickness = 0.05
+            )
         )
 
         return_object = get_html_and_script_from_figure(

@@ -1,10 +1,15 @@
-from typing import Any, List
+from typing import Any, Dict, List
 import pandas as pd
+from mitosheet.api.graph.graph_parameter import GraphParameter
 from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_to_transpiled_code
 from mitosheet.types import ColumnHeader
 import plotly.express as px
 import plotly.graph_objects as go
 from mitosheet.api.graph.graph_utils import BAR, BOX, HISTOGRAM, SCATTER, filter_df_to_safe_size, get_barmode, get_graph_title
+
+# TAB is used in place of \t in generated code because 
+# Jupyter turns \t into a grey arrow, but converts four spaces into a tab.
+TAB = '    '
 
 def graph_filtering(graph_type: str, df, column_headers):
     """
@@ -82,19 +87,19 @@ def graph_creation_code(
     """
 
     # Create the params used to construct the graph
-    all_params = dict()
+    all_params: List[GraphParameter] = []
 
     if len(x_axis_column_headers) == 1:
-        all_params['x'] = column_header_to_transpiled_code(x_axis_column_headers[0])
+        all_params.append(GraphParameter('x', column_header_to_transpiled_code(x_axis_column_headers[0]), False))
     elif len(x_axis_column_headers) >= 1:
-        all_params['x'] = column_header_list_to_transpiled_code(x_axis_column_headers)
+        all_params.append(GraphParameter('x', column_header_list_to_transpiled_code(x_axis_column_headers), False))
 
     if len(y_axis_column_headers) == 1:
-        all_params['y'] = column_header_to_transpiled_code(y_axis_column_headers[0])
+        all_params.append(GraphParameter('y', column_header_to_transpiled_code(y_axis_column_headers[0]), False))
     elif len(y_axis_column_headers) >= 1:
-        all_params['y'] = column_header_list_to_transpiled_code(y_axis_column_headers)
+        all_params.append(GraphParameter('y', column_header_list_to_transpiled_code(y_axis_column_headers), False))
 
-    params = ', '.join(f'{key}={value}' for key, value in all_params.items())
+    params = f', '.join(gp.create_parameter_chord() for gp in all_params)
 
     if graph_type == BOX:
         return f"fig = px.box({df_name}, {params})"
@@ -118,7 +123,13 @@ def graph_styling(fig, graph_type: str, column_headers: List[ColumnHeader], filt
     # Actually update the style of the graph
     fig.update_layout(
         title = graph_title,
-        barmode=barmode
+        barmode=barmode,
+        xaxis=dict(
+            rangeslider=dict(
+                visible=True,
+                thickness=.05
+            )
+        )
     )
     return fig 
 
@@ -129,18 +140,28 @@ def graph_styling_code(graph_type: str, column_headers: List[ColumnHeader], filt
     """
 
     # Create the params used to style the graph
-    all_params = dict()
-
-    all_params['title'] = get_graph_title(column_headers, [], filtered, graph_type)
+    all_params: List[GraphParameter] = []
+    
+    graph_title = get_graph_title(column_headers, [], filtered, graph_type)
+    all_params.append(GraphParameter('title', graph_title, True))
 
     barmode = get_barmode(graph_type)
     if barmode is not None:
-        all_params['barmode'] = barmode
+        all_params.append(GraphParameter('barmode', barmode, True))
 
-    params = ', '.join(f'{key}="{value}"' for key, value in all_params.items())
+    RANGE_SLIDER = """dict(
+        rangeslider=dict(
+            visible=True,
+            thickness=.05
+        )
+    )"""
+    all_params.append(GraphParameter('xaxis', RANGE_SLIDER, False))
+
+    params = f'\n{TAB}'
+    params += f',\n{TAB}'.join(gp.create_parameter_chord() for gp in all_params)
+    params += '\n'
 
     return f"fig.update_layout({params})"
-
 
 def get_plotly_express_graph(
     graph_type: str, 
@@ -200,11 +221,9 @@ def get_plotly_express_graph_code(
     # Step 3: Graph Styling
     code.append(graph_styling_code(graph_type, all_column_headers, filtered))
 
-    # We previously used fig.show(renderer="iframe"), which per testing works in both JLab 2
-    # and JLab 3, and renders in line, however we might not need it anymore with plotly.express. 
-    # We might be able to just to fig.show(). TODO: test on Jlab2, it works on Jlab3
+    # We use fig.show(renderer="iframe") which works in both JLab 2 & 3
+    # and renders in line, 
     code.append('fig.show(renderer="iframe")')
     
     return "\n".join(code)
 
-    
