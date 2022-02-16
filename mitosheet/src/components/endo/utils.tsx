@@ -1,16 +1,11 @@
 import React from "react";
 import { ColumnFilters, ColumnHeader, ColumnID, GridState, SheetData } from "../../types";
+import { classNames } from "../../utils/classNames";
 import { isBoolDtype, isDatetimeDtype, isFloatDtype, isIntDtype, isStringDtype, isTimedeltaDtype } from "../../utils/dtypes";
-import BooleanTypeIcon from "../icons/columntypes/BooleanTypeIcon";
-import DatetimeTypeIcon from "../icons/columntypes/DatetimeTypeIcon";
-import FloatTypeIcon from "../icons/columntypes/FloatTypeIcon";
-import IntTypeIcon from "../icons/columntypes/IntTypeIcon";
-import StringTypeIcon from "../icons/columntypes/StringTypeIcon";
-import TimedeltaTypeIcon from "../icons/columntypes/TimedeltaTypeIcon";
 import { getWidthData } from "./widthUtils";
 
 
-export const isNumberInRangeInclusive = (num: number, start: number, end: number): boolean =>  {
+export const isNumberInRangeInclusive = (num: number, start: number, end: number): boolean => {
     return start <= num && num <= end;
 }
 
@@ -66,20 +61,62 @@ export const getDefaultGridState = (sheetDataArray: SheetData[], selectedSheetIn
 // Returns an icon for that type of column
 export const getTypeIcon = (columnDtype: string, purpleOrDark?: 'purple' | 'dark'): JSX.Element => {
     if (isStringDtype(columnDtype)) {
-        return <StringTypeIcon purpleOrDark={purpleOrDark}/>
+        return <p className={classNames(
+            'text-subtext-1',
+            { 'text-color-mito-purple-important': purpleOrDark === 'purple' },
+            { 'text-color-gray-important': purpleOrDark === 'dark' })}
+        >
+            str
+        </p>
     } else if (isFloatDtype(columnDtype)) {
-        return <FloatTypeIcon purpleOrDark={purpleOrDark}/>
+        return <p className={classNames(
+            'text-subtext-1',
+            { 'text-color-mito-purple-important': purpleOrDark === 'purple' },
+            { 'text-color-gray-important': purpleOrDark === 'dark' })}
+        >
+            float
+        </p>
     } else if (isIntDtype(columnDtype)) {
-        return <IntTypeIcon purpleOrDark={purpleOrDark}/>
+        return <p className={classNames(
+            'text-subtext-1',
+            { 'text-color-mito-purple-important': purpleOrDark === 'purple' },
+            { 'text-color-gray-important': purpleOrDark === 'dark' })}
+        >
+            int
+        </p>
     } else if (isDatetimeDtype(columnDtype)) {
-        return <DatetimeTypeIcon purpleOrDark={purpleOrDark}/>
+        return <p className={classNames(
+            'text-subtext-1',
+            { 'text-color-mito-purple-important': purpleOrDark === 'purple' },
+            { 'text-color-gray-important': purpleOrDark === 'dark' })}
+        >
+            date
+        </p>
     } else if (isTimedeltaDtype(columnDtype)) {
-        return <TimedeltaTypeIcon purpleOrDark={purpleOrDark}/>
+        return <p className={classNames(
+            'text-subtext-1',
+            { 'text-color-mito-purple-important': purpleOrDark === 'purple' },
+            { 'text-color-gray-important': purpleOrDark === 'dark' })}
+        >
+            time
+        </p>
     } else if (isBoolDtype(columnDtype)) {
-        return <BooleanTypeIcon purpleOrDark={purpleOrDark}/>
+        return <p className={classNames(
+            'text-subtext-1',
+            { 'text-color-mito-purple-important': purpleOrDark === 'purple' },
+            { 'text-color-gray-important': purpleOrDark === 'dark' })}
+        >
+            bool
+        </p>
     } else {
-        // If we can't identify the column, mark it as an object
-        return <StringTypeIcon purpleOrDark={purpleOrDark}/>
+        // If we can't identify the column, mark it as an str
+        return <p className={classNames(
+            'text-subtext-1',
+            { 'text-color-mito-purple-important': purpleOrDark === 'purple' },
+            { 'text-color-gray-important': purpleOrDark === 'dark' })}
+        >
+            str
+        </p>
     }
 }
 
@@ -135,7 +172,7 @@ export const cellInSearch = (cellValue: string | number | boolean, searchString:
     Determines if any sheet exists. Returns True if a sheet exists.
 */
 export const doesAnySheetExist = (sheetDataArray: SheetData[]): boolean => {
-    return sheetDataArray.length !== 0 
+    return sheetDataArray.length !== 0
 }
 
 /*

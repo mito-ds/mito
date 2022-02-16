@@ -91,6 +91,9 @@
 .text-color-mito-purple-important {
     color: var(--mito-purple) !important;
 }
+.text-color-gray-important {
+    color: var(--mito-gray) !important;
+}
 
 /*
     Set the text to an error color. In the future, we
