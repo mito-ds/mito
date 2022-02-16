@@ -13,7 +13,7 @@ import Row from '../../spacing/Row';
 import TextButton from '../../elements/TextButton';
 import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
 import { intersection } from '../../../utils/arrays';
-import { ColumnIDsMap, SheetData, UIState } from '../../../types';
+import { ColumnID, ColumnIDsMap, SheetData, UIState } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 
 // import css
@@ -39,8 +39,8 @@ export interface GraphObject {
 
 export interface GraphParams {
     graphType: GraphType,
-    xAxisColumnIDs: string[],
-    yAxisColumnIDs: string[]
+    xAxisColumnIDs: ColumnID[],
+    yAxisColumnIDs: ColumnID[]
 }
 
 // Millisecond delay between loading graphs, so that
@@ -232,7 +232,7 @@ const GraphSidebar = (props: {
         changeLoadingGraph(getGraphAsync);
     }
 
-    const removeNonNumberColumnIDs = (columnIDs: string[]) => {
+    const removeNonNumberColumnIDs = (columnIDs: ColumnID[]) => {
         const filteredColumnIDs = columnIDs.filter(columnID => {
             return isNumberDtype(props.columnDtypesMap[columnID])
         })
@@ -285,9 +285,9 @@ const GraphSidebar = (props: {
 
         To remove a column, leave the columnHeader empty.
     */ 
-    const updateAxisData = (graphAxis: GraphAxisType, index: number, columnID?: string) => {
+    const updateAxisData = (graphAxis: GraphAxisType, index: number, columnID?: ColumnID) => {
         // Get the current axis data
-        let axisColumnIDs: string[] = []
+        let axisColumnIDs: ColumnID[] = []
         if (graphAxis === GraphAxisType.X_AXIS) {
             axisColumnIDs = graphParams.xAxisColumnIDs
         } else {

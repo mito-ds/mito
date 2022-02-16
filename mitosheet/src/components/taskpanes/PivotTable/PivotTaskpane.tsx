@@ -11,7 +11,7 @@ import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
 import { allDfNamesToSelectableDfNameToSheetIndex, valuesArrayToRecord, valuesRecordToArray } from './pivotUtils';
 import { getDeduplicatedArray } from '../../../utils/arrays';
-import { ColumnIDsMap, SheetData, UIState } from '../../../types';
+import { ColumnID, ColumnIDsMap, SheetData, UIState } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
@@ -144,7 +144,7 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
         })
     }
 
-    const addPivotValueAggregation = (columnID: string): void => {
+    const addPivotValueAggregation = (columnID: ColumnID): void => {
         const newPivotValuesIDs = [...pivotState.pivotValuesColumnIDsArray];
         newPivotValuesIDs.push([columnID, AggregationType.COUNT]);
         setPivotState({
@@ -169,7 +169,7 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
         })
     }
 
-    const editPivotValueAggregation = (valueIndex: number, newAggregationType: AggregationType, newColumnID: string): void => {
+    const editPivotValueAggregation = (valueIndex: number, newAggregationType: AggregationType, newColumnID: ColumnID): void => {
         const newPivotValuesIDs = [...pivotState.pivotValuesColumnIDsArray];
         newPivotValuesIDs[valueIndex] = [newColumnID, newAggregationType];
 
@@ -182,8 +182,8 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
         })
     }
 
-    const addKey = (rowOrColumn: 'row' | 'column', columnID: string): void => {
-        let newColumnIDs: string[] = [];
+    const addKey = (rowOrColumn: 'row' | 'column', columnID: ColumnID): void => {
+        let newColumnIDs: ColumnID[] = [];
         if (rowOrColumn === 'row') {
             newColumnIDs = [...pivotState.pivotRowColumnIDs]
         } else {
@@ -212,7 +212,7 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
     }
 
     const removeKey = (rowOrColumn: 'row' | 'column', keyIndex: number): void => {
-        let newColumnIDs: string[] = [];
+        let newColumnIDs: ColumnID[] = [];
         if (rowOrColumn === 'row') {
             newColumnIDs = [...pivotState.pivotRowColumnIDs]
         } else {
@@ -240,8 +240,8 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
         }
     }
 
-    const editKey = (rowOrColumn: 'row' | 'column', keyIndex: number, newColumnID: string): void => {
-        let newColumnIDs: string[] = [];
+    const editKey = (rowOrColumn: 'row' | 'column', keyIndex: number, newColumnID: ColumnID): void => {
+        let newColumnIDs: ColumnID[] = [];
         if (rowOrColumn === 'row') {
             newColumnIDs = [...pivotState.pivotRowColumnIDs]
         } else {

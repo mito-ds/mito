@@ -10,7 +10,7 @@ import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
 
 import '../../../../css/taskpanes/Graph/AxisSection.css'
-import { ColumnIDsMap } from '../../../types';
+import { ColumnID, ColumnIDsMap } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import { isNumberDtype } from '../../../utils/dtypes';
@@ -31,10 +31,10 @@ const AxisSection = (props: {
 
     graphType: GraphType;
     graphAxis: GraphAxisType;
-    selectedColumnIDs: string[];
-    otherAxisSelectedColumnIDs: string[];
+    selectedColumnIDs: ColumnID[];
+    otherAxisSelectedColumnIDs: ColumnID[];
     
-    updateAxisData: (graphAxis: GraphAxisType, index: number, columnID?: string) => void;
+    updateAxisData: (graphAxis: GraphAxisType, index: number, columnID?: ColumnID) => void;
     mitoAPI: MitoAPI;
 }): JSX.Element => {
 
@@ -78,7 +78,7 @@ const AxisSection = (props: {
     }
 
     // Filter the column headers that the user can select to only the columns that are the correct type for the graph
-    let selectableColumnIDs: string[] = []
+    let selectableColumnIDs: ColumnID[] = []
     if (props.graphType === GraphType.BOX || props.graphType === GraphType.HISTOGRAM) {
         selectableColumnIDs = Object.keys(props.columnIDsMap).filter(columnID => {
             return isNumberDtype(props.columnDtypesMap[columnID])

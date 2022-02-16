@@ -3,7 +3,7 @@ import { FilterIcon } from '../icons/FilterIcons';
 import '../../../css/endo/ColumnHeaders.css';
 import { DEFAULT_BORDER_STYLE, getBorderStyle, getIsCellSelected } from './selectionUtils';
 import { EditorState, GridState, SheetData, UIState } from '../../types';
-import { getCellDataFromCellIndexes, getTypeIcon } from './utils';
+import { getCellDataFromCellIndexes, getTypeIdentifier } from './utils';
 import MitoAPI from '../../api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import { classNames } from '../../utils/classNames';
@@ -25,8 +25,8 @@ import { DEFAULT_HEIGHT } from './EndoGrid';
     the final and highest level. 
 
     Consider the following dataframe df:
-     	    A
-		    count
+              A
+            count
     0 	1 	1000000
 
     This has df.columns = [('A', ''), ('A', 'count')]. In pandas lingo, 
@@ -53,7 +53,7 @@ const ColumnHeader = (props: {
 
     const selected = getIsCellSelected(props.gridState.selections, -1, props.columnIndex);
     const width = props.gridState.widthDataArray[props.gridState.sheetIndex].widthArray[props.columnIndex];
-    const {columnID, columnFilters, columnHeader, columnDtype} = getCellDataFromCellIndexes(props.sheetData, -1, props.columnIndex);
+    const { columnID, columnFilters, columnHeader, columnDtype } = getCellDataFromCellIndexes(props.sheetData, -1, props.columnIndex);
 
     if (columnID === undefined || columnFilters === undefined || columnDtype == undefined || columnHeader === undefined) {
         return <></>
@@ -72,11 +72,11 @@ const ColumnHeader = (props: {
 
     // Get the pieces of the column header. If the column header is not a MultiIndex header, then
     // lowerLevelColumnHeaders will be an empty array
-    const {lowerLevelColumnHeaders, finalColumnHeader} = getColumnHeaderParts(columnHeader);
+    const { lowerLevelColumnHeaders, finalColumnHeader } = getColumnHeaderParts(columnHeader);
     const borderStyle = getBorderStyle(props.gridState.selections, -1, props.columnIndex, props.sheetData.numRows);
 
     const ColumnHeaderResizer = (
-        <div 
+        <div
             className='column-header-resizer'
             onDragStart={(e) => {
                 e.stopPropagation();
@@ -93,11 +93,11 @@ const ColumnHeader = (props: {
     )
 
     return (
-        <div 
+        <div
             className={classNames(
-                'column-header-container', 
-                'column-header-text', 
-                {'column-header-container-selected': selected}
+                'column-header-container',
+                'column-header-text',
+                { 'column-header-container-selected': selected }
             )}
             key={props.columnIndex}
             mito-col-index={props.columnIndex + ''}
@@ -123,9 +123,9 @@ const ColumnHeader = (props: {
                 const editingLowerLevelColumnHeader = props.editorState !== undefined && props.editorState.rowIndex === rowIndex && props.editorState.columnIndex === props.columnIndex;
 
                 return (
-                    <div 
+                    <div
                         className='column-header-lower-level-container'
-                        key={levelIndex} 
+                        key={levelIndex}
                         mito-row-index={rowIndex + ''}
                         mito-col-index={props.columnIndex}
                         // We get the border style for the header, but make sure we don't add the 
@@ -138,7 +138,7 @@ const ColumnHeader = (props: {
                             borderBottom: levelIndex < lowerLevelColumnHeaders.length - 1 ? DEFAULT_BORDER_STYLE : undefined,
                         }}
                     >
-                        {!editingLowerLevelColumnHeader && 
+                        {!editingLowerLevelColumnHeader &&
                             <p
                                 className='column-header-lower-level-text text-overflow-hide'
                                 style={{
@@ -156,7 +156,7 @@ const ColumnHeader = (props: {
                                 {getDisplayColumnHeader(lowerLevelColumnHeader)}
                             </p>
                         }
-                        {editingLowerLevelColumnHeader && 
+                        {editingLowerLevelColumnHeader &&
                             <form
                                 style={{
                                     width: `${width - 25}px`,
@@ -181,7 +181,7 @@ const ColumnHeader = (props: {
                                             if (prevUIState.currOpenTaskpane.type !== TaskpaneType.CONTROL_PANEL) {
                                                 return {
                                                     ...prevUIState,
-                                                    currOpenTaskpane: {type: TaskpaneType.NONE}
+                                                    currOpenTaskpane: { type: TaskpaneType.NONE }
                                                 }
                                             }
                                             return prevUIState;
@@ -194,7 +194,7 @@ const ColumnHeader = (props: {
                                     value={props.editorState?.formula || ''}
                                     onChange={(e) => {
                                         const newHeader = e.target.value;
-        
+
                                         props.setEditorState((prevEditorState => {
                                             if (prevEditorState === undefined) return undefined;
                                             return {
@@ -207,7 +207,7 @@ const ColumnHeader = (props: {
                                         if (e.key === 'Escape') {
                                             closeColumnHeaderEditor()
                                         }
-                                    }} 
+                                    }}
                                     autoFocus
                                     width='block'
                                 />
@@ -217,7 +217,7 @@ const ColumnHeader = (props: {
                     </div>
                 )
             })}
-            <div 
+            <div
                 className={classNames('column-header-final-container', {
                     'grabbable': props.columnHeaderOperation === 'reorder', // Only display as grabbable when we're not resizing a column
                 })}
@@ -227,7 +227,7 @@ const ColumnHeader = (props: {
                     props.setUIState(prevUIState => {
                         return {
                             ...prevUIState,
-                            currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL}
+                            currOpenTaskpane: { type: TaskpaneType.CONTROL_PANEL }
                         }
                     })
                 }}
@@ -260,37 +260,37 @@ const ColumnHeader = (props: {
                             }}
                             key={props.columnIndex}
                             tabIndex={-1}
-                        >   
+                        >
                             {/* Only display the final column header in this final section */}
                             {finalColumnHeader + ''}
                         </div>
-                        
+
                         <div className='column-header-final-right-side' >
                             <div className='column-header-final-icons' title='Open the column control panel' >
                                 <span title='Edit filters'>
-                                    {!hasFilters && 
+                                    {!hasFilters &&
                                         <div className='icon-color-changer-container'>
                                             <div className='icon-hide-on-hover'>
-                                                <FilterIcon purpleOrDark='dark'/>
+                                                <FilterIcon purpleOrDark='dark' />
                                             </div>
                                             <div className='icon-show-on-hover'>
-                                                <FilterIcon purpleOrDark='purple'/>
+                                                <FilterIcon purpleOrDark='purple' />
                                             </div>
                                         </div>
                                     }
-                                    {hasFilters && 
-                                        <FilterIcon nonEmpty/>
+                                    {hasFilters &&
+                                        <FilterIcon nonEmpty />
                                     }
                                 </span>
                                 <div className='icon-color-changer-container'>
                                     <div className='icon-hide-on-hover'>
-                                        {getTypeIcon(columnDtype, 'dark')}
+                                        {getTypeIdentifier(columnDtype, 'dark')}
                                     </div>
                                     <div className='icon-show-on-hover'>
-                                        {getTypeIcon(columnDtype, 'purple')}
+                                        {getTypeIdentifier(columnDtype, 'purple')}
                                     </div>
                                 </div>
-                                
+
                             </div>
                             {ColumnHeaderResizer}
                         </div>
@@ -321,13 +321,13 @@ const ColumnHeader = (props: {
                                     if (prevUIState.currOpenTaskpane.type !== TaskpaneType.CONTROL_PANEL) {
                                         return {
                                             ...prevUIState,
-                                            currOpenTaskpane: {type: TaskpaneType.NONE}
+                                            currOpenTaskpane: { type: TaskpaneType.NONE }
                                         }
                                     }
                                     return prevUIState;
                                 })
-                            } 
-                            closeColumnHeaderEditor()                            
+                            }
+                            closeColumnHeaderEditor()
                         }}
                     >
                         <Input
@@ -347,7 +347,7 @@ const ColumnHeader = (props: {
                                 if (e.key === 'Escape') {
                                     closeColumnHeaderEditor()
                                 }
-                            }} 
+                            }}
                             autoFocus
                             width='block'
                         />

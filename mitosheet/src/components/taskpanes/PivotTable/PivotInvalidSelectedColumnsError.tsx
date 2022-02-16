@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import MitoAPI from '../../../api';
-import { ColumnIDsMap } from '../../../types';
+import { ColumnID, ColumnIDsMap } from '../../../types';
 
 /* 
     A component that takes the selected columns in a section, as well
@@ -20,7 +20,7 @@ const PivotInvalidSelectedColumnsError = (props: {
     columnIDsMap: ColumnIDsMap;
 
     pivotSection: 'row' | 'column' | 'values';
-    selectedColumnIDs: string[];
+    selectedColumnIDs: ColumnID[];
 
     mitoAPI: MitoAPI;
 }): JSX.Element => {

@@ -2,7 +2,7 @@ import React from "react"
 import MitoAPI from "../api"
 import DropdownItem from "../components/elements/DropdownItem"
 import { getSelectedNumberSeriesColumnIDs } from "../components/endo/selectionUtils"
-import { FormatType, FormatTypeObj, GridState, MitoSelection, SheetData } from "../types"
+import { ColumnID, FormatType, FormatTypeObj, GridState, MitoSelection, SheetData } from "../types"
 import DropdownCheckmark from '../components/icons/DropdownCheckmark'
 import { isNumberDtype } from "./dtypes"
 
@@ -170,7 +170,7 @@ export const getColumnFormatDropdownItemsUsingSelections = (gridState: GridState
 */
 export const getColumnFormatDropdownItemsUsingColumnID = (
     sheetIndex: number, 
-    columnID: string, 
+    columnID: ColumnID, 
     mitoAPI: MitoAPI, 
     columnDtype: string, 
     sheetData: SheetData | undefined,

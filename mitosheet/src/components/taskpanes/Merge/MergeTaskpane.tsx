@@ -2,7 +2,7 @@
 
 import React from 'react';
 import MitoAPI from '../../../api';
-import { ColumnIDsMap, SheetData, UIState } from '../../../types';
+import { ColumnID, ColumnIDsMap, SheetData, UIState } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import DropdownItem from '../../elements/DropdownItem';
 import MultiToggleBox from '../../elements/MultiToggleBox';
@@ -56,10 +56,10 @@ type MergeTaskpaneState = {
     mergeType: MergeType,
     sheetOneIndex: number,
     sheetTwoIndex: number,
-    mergeKeyColumnIDOne: string,
-    mergeKeyColumnIDTwo: string,
-    selectedColumnIDsOne: string[],
-    selectedColumnIDsTwo: string[],
+    mergeKeyColumnIDOne: ColumnID,
+    mergeKeyColumnIDTwo: ColumnID,
+    selectedColumnIDsOne: ColumnID[],
+    selectedColumnIDsTwo: ColumnID[],
     originalDfNames: string[],
     stepID: string, 
     errorMessage: string | undefined
@@ -184,7 +184,7 @@ class MergeTaskpane extends React.Component<MergeTaskpaneProps, MergeTaskpaneSta
     /*
         Sets a new merge key for one of the merge sheets
     */
-    setNewMergeKeyColumnID(sheetNumber: MergeSheet, newMergeKeyColumnID: string): void {
+    setNewMergeKeyColumnID(sheetNumber: MergeSheet, newMergeKeyColumnID: ColumnID): void {
         const mergeKeyIDName = sheetNumber === MergeSheet.First ? 'mergeKeyColumnIDOne' : 'mergeKeyColumnIDTwo';
 
         this.setState(prevState => {
@@ -201,7 +201,7 @@ class MergeTaskpane extends React.Component<MergeTaskpaneProps, MergeTaskpaneSta
         Toggles if we should keep a specific column from one of the sheets in the new
         merged sheet.
     */
-    toggleKeepColumnIDs(sheetNumber: MergeSheet, columnIDs: string[], newToggle: boolean): void {
+    toggleKeepColumnIDs(sheetNumber: MergeSheet, columnIDs: ColumnID[], newToggle: boolean): void {
         const selectedColumnIDsName = sheetNumber == MergeSheet.First ? 'selectedColumnIDsOne' : 'selectedColumnIDsTwo'
         const mergeKeyIDName = sheetNumber == MergeSheet.First ? 'mergeKeyColumnIDOne' : 'mergeKeyColumnIDTwo'
 
@@ -300,8 +300,8 @@ class MergeTaskpane extends React.Component<MergeTaskpaneProps, MergeTaskpaneSta
             taking.
         */
 
-        const sheetOneOriginalColumnIDsAndDtypes: [string, string][] = this.props.sheetDataArray[this.state.sheetOneIndex] ? this.props.sheetDataArray[this.state.sheetOneIndex].data.map(c => [c.columnID, c.columnDtype]) : [];
-        const sheetTwoOriginalColumnIDsAndDtypes: [string, string][] = this.props.sheetDataArray[this.state.sheetTwoIndex] ? this.props.sheetDataArray[this.state.sheetTwoIndex].data.map(c => [c.columnID, c.columnDtype]) : [];
+        const sheetOneOriginalColumnIDsAndDtypes: [ColumnID, string][] = this.props.sheetDataArray[this.state.sheetOneIndex] ? this.props.sheetDataArray[this.state.sheetOneIndex].data.map(c => [c.columnID, c.columnDtype]) : [];
+        const sheetTwoOriginalColumnIDsAndDtypes: [ColumnID, string][] = this.props.sheetDataArray[this.state.sheetTwoIndex] ? this.props.sheetDataArray[this.state.sheetTwoIndex].data.map(c => [c.columnID, c.columnDtype]) : [];
 
         const sheetOneColumnIDsAndDtypesListWithoutMergeKey = sheetOneOriginalColumnIDsAndDtypes.filter(([columnID, ]) => columnID !== this.state.mergeKeyColumnIDOne)
         const sheetTwoColumnIDsAndDtypesListWithoutMergeKey = sheetTwoOriginalColumnIDsAndDtypes.filter(([columnID, ]) => columnID !== this.state.mergeKeyColumnIDTwo)

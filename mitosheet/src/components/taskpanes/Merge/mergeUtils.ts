@@ -1,12 +1,12 @@
 // Copyright (c) Mito
 
-import { ColumnIDsMap } from '../../../types';
+import { ColumnID, ColumnIDsMap } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 
 
 type SuggestedKeys = {
-    mergeKeyColumnIDOne: string,
-    mergeKeyColumnIDTwo: string
+    mergeKeyColumnIDOne: ColumnID,
+    mergeKeyColumnIDTwo: ColumnID
 }
 
 /*

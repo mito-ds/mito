@@ -1,15 +1,11 @@
 import React from "react";
-import BooleanTypeIcon from "../icons/columntypes/BooleanTypeIcon";
-import NumberTypeIcon from "../icons/columntypes/NumberTypeIcon";
-import StringTypeIcon from "../icons/columntypes/StringTypeIcon";
-import TimedeltaTypeIcon from "../icons/columntypes/TimedeltaTypeIcon";
-import DatetimeTypeIcon from "../icons/columntypes/DatetimeTypeIcon";
-import { ColumnFilters, ColumnHeader, GridState, SheetData } from "../../types";
+import { ColumnFilters, ColumnHeader, ColumnID, GridState, SheetData } from "../../types";
+import { classNames } from "../../utils/classNames";
+import { isBoolDtype, isDatetimeDtype, isFloatDtype, isIntDtype, isTimedeltaDtype } from "../../utils/dtypes";
 import { getWidthData } from "./widthUtils";
-import { isBoolDtype, isDatetimeDtype, isNumberDtype, isStringDtype, isTimedeltaDtype } from "../../utils/dtypes";
 
 
-export const isNumberInRangeInclusive = (num: number, start: number, end: number): boolean =>  {
+export const isNumberInRangeInclusive = (num: number, start: number, end: number): boolean => {
     return start <= num && num <= end;
 }
 
@@ -62,23 +58,29 @@ export const getDefaultGridState = (sheetDataArray: SheetData[], selectedSheetIn
 }
 
 
-// Returns an icon for that type of column
-export const getTypeIcon = (columnDtype: string, purpleOrDark?: 'purple' | 'dark'): JSX.Element => {
-    if (isStringDtype(columnDtype)) {
-        return <StringTypeIcon purpleOrDark={purpleOrDark}/>
-    } else if (isNumberDtype(columnDtype)) {
-        // TODO: split out floats and ints into different icons
-        return <NumberTypeIcon purpleOrDark={purpleOrDark}/>
+// Returns an JSX Element with the type identifier for that type of column
+export const getTypeIdentifier = (columnDtype: string, purpleOrDark?: 'purple' | 'dark'): JSX.Element => {
+    // Default to identifying the column as a string if we can't figure out what it is
+    let typeText = 'str'
+    if (isFloatDtype(columnDtype)) {
+        typeText = 'float'
+    } else if (isIntDtype(columnDtype)) {
+        typeText = 'int'
     } else if (isDatetimeDtype(columnDtype)) {
-        return <DatetimeTypeIcon purpleOrDark={purpleOrDark}/>
+        typeText = 'date'
     } else if (isTimedeltaDtype(columnDtype)) {
-        return <TimedeltaTypeIcon purpleOrDark={purpleOrDark}/>
+        typeText = 'time'
     } else if (isBoolDtype(columnDtype)) {
-        return <BooleanTypeIcon purpleOrDark={purpleOrDark}/>
-    } else {
-        // If we can't identify the column, mark it as an object
-        return <StringTypeIcon purpleOrDark={purpleOrDark}/>
+        typeText = 'bool'
     }
+
+    return <p className={classNames(
+        'text-subtext-1',
+        { 'text-color-mito-purple-important': purpleOrDark === 'purple' },
+        { 'text-color-gray-important': purpleOrDark === 'dark' })}
+    >
+        {typeText}
+    </p>
 }
 
 
@@ -87,7 +89,7 @@ export const getTypeIcon = (columnDtype: string, purpleOrDark?: 'purple' | 'dark
  * indexes, in a type safe way.
  */
 export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, rowIndex: number, columnIndex: number): {
-    columnID: string | undefined,
+    columnID: ColumnID | undefined,
     columnHeader: ColumnHeader | undefined,
     columnDtype: string | undefined,
     columnFormula: string | undefined,
@@ -116,7 +118,7 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
     Helper function for creating the ColumnIDsMapping: sheetIndex -> columnIndex -> columnID
     from the Sheet Data Array
 */
-export const getColumnIDsArrayFromSheetDataArray = (sheetDataArray: SheetData[]): string[][] => {
+export const getColumnIDsArrayFromSheetDataArray = (sheetDataArray: SheetData[]): ColumnID[][] => {
     return sheetDataArray.map(sheetData => sheetData.data.map(c => c.columnID)) || []
 }
 
@@ -133,13 +135,13 @@ export const cellInSearch = (cellValue: string | number | boolean, searchString:
     Determines if any sheet exists. Returns True if a sheet exists.
 */
 export const doesAnySheetExist = (sheetDataArray: SheetData[]): boolean => {
-    return sheetDataArray.length !== 0 
+    return sheetDataArray.length !== 0
 }
 
 /*
     Determines if a columnID exists in a specific sheet. Returns True
 */
-export const doesColumnExist = (columnID: string | undefined, sheetIndex: number, sheetDataArray: SheetData[]): boolean => {
+export const doesColumnExist = (columnID: ColumnID | undefined, sheetIndex: number, sheetDataArray: SheetData[]): boolean => {
     return columnID !== undefined && sheetDataArray[sheetIndex]?.columnDtypeMap[columnID] !== undefined
 }
 
