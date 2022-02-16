@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 from typing import Any, Dict, List
 from mitosheet.saved_analyses.step_upgraders.utils_rename_column_headers import \
     BULK_OLD_RENAME_STEP

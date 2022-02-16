@@ -1,4 +1,5 @@
 from typing import Any, Dict, List, Optional, Set, Type
+from mitosheet.evaluation_graph_utils import create_column_evaluation_graph
 
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.column_steps.set_column_formula import SetColumnFormulaStepPerformer
@@ -74,24 +75,15 @@ class Step:
         return self.post_state.column_ids
     
     @property
-    def column_metatype(self):
-        return self.post_state.column_metatype
-
-    @property
-    def column_type(self):
-        return self.post_state.column_type
-    
-    @property
     def column_spreadsheet_code(self):
         return self.post_state.column_spreadsheet_code
 
     @property
     def column_evaluation_graph(self):
-        return self.post_state.column_evaluation_graph
-
-    @property
-    def column_python_code(self):
-        return self.post_state.column_python_code
+        return [
+            create_column_evaluation_graph(self.post_state, sheet_index)
+            for sheet_index in range(len(self.dfs))
+        ]
     
     @property
     def column_filters(self):

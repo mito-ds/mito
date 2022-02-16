@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 Contains all functions that are useful for control flow. For now, this
 is just IF statements.
@@ -14,18 +13,19 @@ in more detail in docs/README.md.
 
 NOTE: This file is alphabetical order!
 """
-from typing import Tuple
-import pandas as pd
 import functools
 
-from mitosheet.sheet_functions.types.utils import BOOLEAN_SERIES
-from mitosheet.sheet_functions.types.decorators import convert_arg_to_series_type, convert_args_to_series_type, filter_nans, fill_nans, handle_sheet_function_errors
-from mitosheet.sheet_functions.sheet_function_utils import try_extend_series_to_index, fill_series_with_one_index
+import pandas as pd
+from mitosheet.sheet_functions.sheet_function_utils import (
+    fill_series_with_one_index, try_extend_series_to_index)
+from mitosheet.sheet_functions.types.decorators import (
+    convert_arg_to_series_type, convert_args_to_series_type, fill_nans,
+    filter_nans, handle_sheet_function_errors)
 
 
 @handle_sheet_function_errors
 @filter_nans
-@convert_args_to_series_type(BOOLEAN_SERIES, 'skip', ('default', True))
+@convert_args_to_series_type('bool', 'skip', ('default', True))
 def AND(*argv: pd.Series) -> pd.Series:
     """
     {
@@ -58,7 +58,7 @@ def AND(*argv: pd.Series) -> pd.Series:
 @fill_nans(0, False)
 @convert_arg_to_series_type(
     0,
-    BOOLEAN_SERIES, 
+    'bool', 
     'error', 
     ('default', True)
 )
@@ -86,7 +86,7 @@ def BOOL(series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    BOOLEAN_SERIES,
+    'bool',
     'error',
     'error'
 )
@@ -139,7 +139,7 @@ def IF(condition: pd.Series, true_series: pd.Series, false_series: pd.Series) ->
 
 @handle_sheet_function_errors
 @filter_nans
-@convert_args_to_series_type(BOOLEAN_SERIES, 'skip', ('default', True))
+@convert_args_to_series_type('bool', 'skip', ('default', True))
 def OR(*argv: pd.Series) -> pd.Series:
     """
     {

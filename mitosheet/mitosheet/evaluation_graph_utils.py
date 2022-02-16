@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 Contains function for running a topological sort on a graph with
 the representation {node: set(adj nodes)}. Note that all
@@ -11,10 +10,43 @@ nodes must be in the graph, even if they have no adj nodes, and
 should just have an empty set in this case.
 """
 from copy import deepcopy
-from typing import Dict, Collection, List, Set
+from typing import Collection, Dict, List, Set
+
 
 from mitosheet.errors import MitoError, make_circular_reference_error
+from mitosheet.parser import parse_formula
+from mitosheet.state import State
 from mitosheet.types import ColumnID
+
+
+def create_column_evaluation_graph(post_state: State, sheet_index: int) -> Dict[ColumnID, Set[ColumnID]]:
+    """
+    Returns a dict from column id -> the other column ids that have formulas
+    that depend on that column id.
+    """
+    column_spreadsheet_code = post_state.column_spreadsheet_code[sheet_index]
+    column_headers = post_state.dfs[sheet_index].keys()
+    all_column_ids = post_state.column_ids.get_column_ids(sheet_index)
+
+    column_evaluation_graph: Dict[ColumnID, Set[ColumnID]] = {column_id: set() for column_id in all_column_ids}
+
+    for column_id, spreadsheet_code in column_spreadsheet_code.items():
+        column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
+        _, _, dependencies = parse_formula(
+            spreadsheet_code, 
+            column_header,
+            column_headers
+        )
+
+        dependencies_column_ids = post_state.column_ids.get_column_ids(sheet_index, dependencies)
+
+        for dependency_column_ids in dependencies_column_ids:
+            if dependency_column_ids not in column_evaluation_graph:
+                column_evaluation_graph[dependency_column_ids] = set()
+            column_evaluation_graph[dependency_column_ids].add(column_id)
+
+    return column_evaluation_graph
+
 
 
 def visit(column_evaluation_graph: Dict[ColumnID, Set[ColumnID]], node: ColumnID, visited: Dict[ColumnID, bool], finished_order: List[ColumnID], visited_loop: Set[ColumnID]) -> None:
@@ -84,6 +116,14 @@ def subgraph_from_starting_column_id(column_evaluation_graph: Dict[ColumnID, Set
 
     return column_evaluation_subgraph
 
+def topological_sort_dependent_columns(state: State, sheet_index: int, column_id: ColumnID) -> List[ColumnID]:
+    """
+    Returns a topological sort of all columns that are downstream of
+    the passed column_id
+    """
+    column_evaluation_graph = create_column_evaluation_graph(state, sheet_index)
+    subgraph = subgraph_from_starting_column_id(column_evaluation_graph, column_id)
+    return topological_sort_columns(subgraph)
 
 def creates_circularity(
         column_evaluation_graph: Dict[ColumnID, Set[ColumnID]],

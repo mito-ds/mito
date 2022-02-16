@@ -15,7 +15,7 @@ from mitosheet.api.graph.histogram import get_histogram, get_histogram_code
 from mitosheet.api.graph.scatter import get_scatter_code, get_scatter_plot
 from mitosheet.errors import get_recent_traceback
 from mitosheet.mito_analytics import log, log_recent_error
-from mitosheet.sheet_functions.types.utils import NUMBER_SERIES, get_mito_type
+from mitosheet.sheet_functions.types.utils import is_number_dtype
 from mitosheet.steps_manager import StepsManager
 
 
@@ -28,14 +28,14 @@ def get_column_summary_graph(axis: str, df: pd.DataFrame, axis_data_array: List[
     """
     column_header = axis_data_array[0]
     series: pd.Series = df[column_header]
-    mito_type = get_mito_type(series)
+    column_dtype = str(series[column_header].dtype)
 
     graph_title = f'{column_header} Frequencies'
 
     filtered = False
-    if mito_type != NUMBER_SERIES:
+    if is_number_dtype(column_dtype):
         if series.nunique() > MAX_UNIQUE_NON_NUMBER_VALUES:
-            title = f'{graph_title} {MAX_UNIQUE_NON_NUMBER_VALUES_COMMENT}'
+            graph_title = f'{graph_title} {MAX_UNIQUE_NON_NUMBER_VALUES_COMMENT}'
             df = filter_df_to_top_unique_values_in_series(
                 df, 
                 series, 
@@ -62,7 +62,7 @@ def get_column_summary_graph(axis: str, df: pd.DataFrame, axis_data_array: List[
     )
 
     log(f'generate_column_summary_stat_graph', {
-        f'param_is_number_series_{axis}': mito_type == NUMBER_SERIES,
+        f'param_is_number_series_{axis}': is_number_dtype(column_dtype),
         'param_filtered': filtered
     })
 

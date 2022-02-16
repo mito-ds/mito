@@ -1,9 +1,9 @@
 import io
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
 import plotly.graph_objects as go
-from mitosheet.sheet_functions.types.utils import NUMBER_SERIES, get_mito_type
+from mitosheet.sheet_functions.types.utils import is_number_dtype
 from mitosheet.types import ColumnHeader
 
 # We have a variety of heuristics to make sure that we never send too much data
@@ -68,11 +68,11 @@ SHOW_FIG_CODE = 'fig.show(renderer="iframe")'
 def is_all_number_series(df: pd.DataFrame, column_headers: List[ColumnHeader]) -> bool:
     """
     Returns True if the Mito type of each series with the header column_header
-    in column_headers is a NUMBER_SERIES. Returns False otherwise. 
+    in column_headers is a number series. Returns False otherwise. 
     """
     for column_header in column_headers:
-        mito_type = get_mito_type(df[column_header])
-        if mito_type != NUMBER_SERIES:
+        column_dtype = str(df[column_header].dtype)
+        if is_number_dtype(column_dtype):
             return False
     return True
 
@@ -184,7 +184,7 @@ def filter_df_to_safe_size(
             return df.head(BOX_PLOT_4_SERIES_MAX_NUMBER_OF_ROWS), original_df_len > BOX_PLOT_4_SERIES_MAX_NUMBER_OF_ROWS
     elif graph_type == SCATTER:
         for column_header in column_headers:
-            if get_mito_type(df[column_header]) != NUMBER_SERIES:
+            if not is_number_dtype(str(df[column_header].dtype)):
                 # For each non-number series, filter it to only contain the most common values
                 df = filter_df_to_top_unique_values_in_series(
                     df, 

@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 This file contains helpful functions and classes for testing operations.
 """
@@ -14,8 +13,9 @@ from typing import Any, Dict, List, Union
 
 import pandas as pd
 from mitosheet.mito_widget import MitoWidget, sheet
+from mitosheet.parser import parse_formula
 from mitosheet.transpiler.transpile import transpile
-from mitosheet.types import ColumnHeader, ColumnID, MultiLevelColumnHeader, PrimativeColumnHeader
+from mitosheet.types import ColumnHeader, MultiLevelColumnHeader
 from mitosheet.utils import dfs_to_array_for_json, get_new_id
 
 
@@ -81,7 +81,6 @@ def check_dataframes_equal(test_wrapper):
     )
 
     import mitosheet
-    
     exec(code, 
         {
             'check_final_dataframe': check_final_dataframe,
@@ -103,7 +102,6 @@ def check_dataframes_equal(test_wrapper):
         test_wrapper.mito_widget.steps_manager.curr_step.df_sources,
         test_wrapper.mito_widget.steps_manager.curr_step.column_spreadsheet_code,
         test_wrapper.mito_widget.steps_manager.curr_step.column_filters,
-        test_wrapper.mito_widget.steps_manager.curr_step.column_type,
         test_wrapper.mito_widget.steps_manager.curr_step.column_ids,
         test_wrapper.mito_widget.steps_manager.curr_step.column_format_types
     ))
@@ -329,7 +327,6 @@ class MitoWidgetTestWrapper:
             sheet_index: int, 
             column_header: ColumnHeader,
             operator: str,
-            type_: str,
             condition: str, 
             value: Any
         ) -> bool:
@@ -351,7 +348,6 @@ class MitoWidgetTestWrapper:
                     'column_id': column_id,
                     'operator': operator,
                     'filters': [{
-                        'type': type_,
                         'condition': condition,
                         'value': value
                     }]
@@ -750,9 +746,19 @@ class MitoWidgetTestWrapper:
         column_id = self.mito_widget.steps_manager.curr_step.get_column_id_by_header(
             sheet_index, column_header
         )
-        if column_id not in self.mito_widget.steps_manager.curr_step.column_python_code[sheet_index]:
+        if column_id not in self.mito_widget.steps_manager.curr_step.column_spreadsheet_code[sheet_index]:
             return ''
-        return self.mito_widget.steps_manager.curr_step.column_python_code[sheet_index][column_id]
+
+        column_headers = self.curr_step.post_state.dfs[sheet_index].keys()
+
+        # We compile all of their formulas
+        python_code, _, _ = parse_formula(
+            self.curr_step.post_state.column_spreadsheet_code[sheet_index][column_id], 
+            column_header,
+            column_headers
+        )
+
+        return python_code
 
     def get_value(self, sheet_index: int, column_header: ColumnHeader, row: int) -> Any:
         """

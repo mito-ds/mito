@@ -4,8 +4,9 @@ import NumberTypeIcon from "../icons/columntypes/NumberTypeIcon";
 import StringTypeIcon from "../icons/columntypes/StringTypeIcon";
 import TimedeltaTypeIcon from "../icons/columntypes/TimedeltaTypeIcon";
 import DatetimeTypeIcon from "../icons/columntypes/DatetimeTypeIcon";
-import { ColumnFilters, ColumnHeader, ColumnMitoType, GridState, SheetData } from "../../types";
+import { ColumnFilters, ColumnHeader, GridState, SheetData } from "../../types";
 import { getWidthData } from "./widthUtils";
+import { isBoolDtype, isDatetimeDtype, isNumberDtype, isStringDtype, isTimedeltaDtype } from "../../utils/dtypes";
 
 
 export const isNumberInRangeInclusive = (num: number, start: number, end: number): boolean =>  {
@@ -62,16 +63,17 @@ export const getDefaultGridState = (sheetDataArray: SheetData[], selectedSheetIn
 
 
 // Returns an icon for that type of column
-export const getTypeIcon = (mitoType: ColumnMitoType, purpleOrDark?: 'purple' | 'dark'): JSX.Element => {
-    if (mitoType === ColumnMitoType.STRING_SERIES) {
+export const getTypeIcon = (columnDtype: string, purpleOrDark?: 'purple' | 'dark'): JSX.Element => {
+    if (isStringDtype(columnDtype)) {
         return <StringTypeIcon purpleOrDark={purpleOrDark}/>
-    } else if (mitoType === ColumnMitoType.NUMBER_SERIES ) {
+    } else if (isNumberDtype(columnDtype)) {
+        // TODO: split out floats and ints into different icons
         return <NumberTypeIcon purpleOrDark={purpleOrDark}/>
-    } else if (mitoType === ColumnMitoType.DATETIME_SERIES) {
+    } else if (isDatetimeDtype(columnDtype)) {
         return <DatetimeTypeIcon purpleOrDark={purpleOrDark}/>
-    } else if (mitoType === ColumnMitoType.TIMEDELTA_SERIES ) {
+    } else if (isTimedeltaDtype(columnDtype)) {
         return <TimedeltaTypeIcon purpleOrDark={purpleOrDark}/>
-    } else if (mitoType === ColumnMitoType.BOOLEAN_SERIES ) {
+    } else if (isBoolDtype(columnDtype)) {
         return <BooleanTypeIcon purpleOrDark={purpleOrDark}/>
     } else {
         // If we can't identify the column, mark it as an object
@@ -89,14 +91,12 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
     columnHeader: ColumnHeader | undefined,
     columnDtype: string | undefined,
     columnFormula: string | undefined,
-    columnMitoType: ColumnMitoType | undefined,
     cellValue: string | number | boolean | undefined,
     columnFilters: ColumnFilters | undefined,
 } => {
     const columnID: string | undefined = sheetData?.data[columnIndex]?.columnID;
     const columnHeader = sheetData?.data[columnIndex]?.columnHeader;
     const columnFormula = columnID !== undefined ? sheetData?.columnSpreadsheetCodeMap[columnID] : undefined;
-    const columnMitoType = columnID !== undefined ? sheetData?.columnMitoTypeMap[columnID] : undefined;
     const columnDtype = columnID !== undefined ? sheetData?.data[columnIndex].columnDtype : undefined;
     const columnFilters = columnID !== undefined ? sheetData?.columnFiltersMap[columnID] : undefined;
     const cellValue = columnID !== undefined ? sheetData?.data[columnIndex].columnData[rowIndex] : undefined;
@@ -105,7 +105,6 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
         columnID: columnID,
         columnHeader: columnHeader,
         columnFormula: columnFormula,
-        columnMitoType: columnMitoType,
         columnDtype: columnDtype,
         columnFilters: columnFilters,
         cellValue: cellValue,
@@ -141,7 +140,7 @@ export const doesAnySheetExist = (sheetDataArray: SheetData[]): boolean => {
     Determines if a columnID exists in a specific sheet. Returns True
 */
 export const doesColumnExist = (columnID: string | undefined, sheetIndex: number, sheetDataArray: SheetData[]): boolean => {
-    return columnID !== undefined && sheetDataArray[sheetIndex]?.columnMitoTypeMap[columnID] !== undefined
+    return columnID !== undefined && sheetDataArray[sheetIndex]?.columnDtypeMap[columnID] !== undefined
 }
 
 /* 

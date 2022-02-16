@@ -1,17 +1,21 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 For going to a datetime series.
 """
 
-from typing import Tuple, Union
-import pandas as pd
+
 import numpy as np
-from mitosheet.sheet_functions.types.utils import BOOLEAN_SERIES, DATETIME_SERIES, NUMBER_SERIES, STRING_SERIES, get_mito_type, get_datetime_format
+import pandas as pd
+from mitosheet.sheet_functions.types.utils import (get_datetime_format,
+                                                   is_bool_dtype,
+                                                   is_datetime_dtype,
+                                                   is_number_dtype,
+                                                   is_string_dtype)
+
 
 def to_datetime_series(
         unknown_object,
@@ -20,20 +24,19 @@ def to_datetime_series(
     """
     Converts the given object to a datetime series.
     """
-    from_type = get_mito_type(unknown_object)
 
     # If it is not a series, we put it in a series, and get the type again
-    if not from_type.endswith('series'):
+    if not isinstance(unknown_object, pd.Series):
         unknown_object = pd.Series([unknown_object])
-        from_type = get_mito_type(unknown_object)
 
-    if from_type == BOOLEAN_SERIES:
+    column_dtype = str(unknown_object.dtype)
+    if is_bool_dtype(column_dtype):
         return None
-    elif from_type == DATETIME_SERIES:
+    elif is_datetime_dtype(column_dtype):
         return unknown_object
-    if from_type == NUMBER_SERIES:
+    if is_number_dtype(column_dtype):
         return None
-    elif from_type == STRING_SERIES:
+    elif is_string_dtype(column_dtype):
         # TODO: improve this to work element wise!
         datetime_format = get_datetime_format(unknown_object)
         if datetime_format is not None:

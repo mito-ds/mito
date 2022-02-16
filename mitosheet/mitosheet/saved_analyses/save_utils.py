@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 Contains helpful utility functions for saving and reading
 in analyses.
@@ -12,16 +11,10 @@ in analyses.
 from mitosheet.step import Step
 import os
 import json
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from mitosheet._version import __version__
 from mitosheet.mito_analytics import log
-
-# To avoid circular imports
-if TYPE_CHECKING:
-    from mitosheet.steps_manager import StepsManager
-else: 
-    StepsManager = Any
-
+from mitosheet.types import StepsManagerType
 
 
 # Where all global .mito files are stored
@@ -181,7 +174,7 @@ def make_steps_json_obj(
 
     return steps_json_obj
 
-def write_analysis(steps_manager: StepsManager, analysis_name: str=None) -> None:
+def write_analysis(steps_manager: StepsManagerType, analysis_name: str=None) -> None:
     """
     Writes the analysis saved in steps_manager to
     ~/.mito/{analysis_name}. If analysis_name is none, gets the temporary

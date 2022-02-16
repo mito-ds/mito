@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 import json
 import os
 from pathlib import Path
@@ -167,7 +166,7 @@ UPGRADE_TESTS = [
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "simple_import", 'params': {"file_names": ["NamesNew.csv"], "use_deprecated_id_algorithm": True}}, {'params': {}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 3, "step_type": "delete_column", 'params': {"sheet_index": 0, "column_ids": ['New_Column_Header']}}]
         },
     ), 
-    # Filtering a number column should be upgraded to filter column v3, including a nested group
+    # Filtering a number column should be upgraded to filter column v4, including a nested group
     (
         {
             "version": "0.1.140", 
@@ -175,7 +174,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
-            "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 3, "step_type": "filter_column", 'params': { "sheet_index": 0, "column_id": get_column_header_id("A"), "filters": [{"type": "number_series", "condition": "greater", "value": 1}, {"filters": [{"type": "number_series", "condition": "greater", "value": 2}, {"type": "number_series", "condition": "greater", "value": 3}], "operator": "And"}], "operator": "And"}}]
+            "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 4, "step_type": "filter_column", 'params': { "sheet_index": 0, "column_id": get_column_header_id("A"), "filters": [{"condition": "greater", "value": 1}, {"filters": [{"condition": "greater", "value": 2}, {"condition": "greater", "value": 3}], "operator": "And"}], "operator": "And"}}]
         }
     ), 
     # Filtering a number column should be upgraded to filter column v3, including the or operator
@@ -186,7 +185,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
-            "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 3, "step_type": "filter_column", 'params': {"sheet_index": 1, "column_id": get_column_header_id("event"), "filters": [{"type": "string_series", "condition": "contains", "value": "sheet_view_creation"}], "operator": "Or"}}]
+            "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 4, "step_type": "filter_column", 'params': {"sheet_index": 1, "column_id": get_column_header_id("event"), "filters": [{"condition": "contains", "value": "sheet_view_creation"}], "operator": "Or"}}]
         },
     ), 
     # Filtering a datetime column should be upgraded to filter column v3, including a nested group
@@ -197,7 +196,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
-            "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 3, "step_type": "filter_column", 'params': {"sheet_index": 1, "column_id": get_column_header_id("event"), "filters": [{"type": "datetime_series", "condition": "datetime_less", "value": "2010-12-12"}], "operator": "And"}}]
+            "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 4, "step_type": "filter_column", 'params': {"sheet_index": 1, "column_id": get_column_header_id("event"), "filters": [{"condition": "datetime_less", "value": "2010-12-12"}], "operator": "And"}}]
         },
     ), 
     # Rename followed by set formula, pivot, and merge, and rename handles IDs properly
@@ -307,7 +306,7 @@ def test_doesnt_upgrade_updated_format():
 
     new = {
         "version": __version__, 
-        "steps_data": [{"step_version": 3, "step_type": "filter_column", 'params': {"sheet_index": 1, "column_id": get_column_header_id("event"), "filters": [{"type": "datetime_series", "condition": "datetime_less", "value": "2010-12-12"}], "operator": "And"}}]
+        "steps_data": [{"step_version": 4, "step_type": "filter_column", 'params': {"sheet_index": 1, "column_id": get_column_header_id("event"), "filters": [{"condition": "datetime_less", "value": "2010-12-12"}], "operator": "And"}}]
     }
     
     assert read_and_upgrade_analysis(TEST_ANALYSIS_NAME) == new

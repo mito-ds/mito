@@ -1,15 +1,12 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 Contains tests for the SUM function.
 """
 
-from mitosheet.step_performers.filter import FC_NUMBER_GREATER
-from mitosheet.sheet_functions.types import NUMBER_SERIES
 import pytest
 import pandas as pd
 import numpy as np

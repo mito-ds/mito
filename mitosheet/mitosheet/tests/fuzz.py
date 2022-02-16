@@ -1,17 +1,15 @@
+import sys
 from typing import Any, Dict
+
 import atheris
 import pandas as pd
-import sys
-
 
 with atheris.instrument_imports():
-    from mitosheet.tests.test_utils import MitoWidgetTestWrapper
-    from mitosheet.step_performers.filter import FC_NUMBER_EXACTLY
     import mitosheet
-    from mitosheet.tests.test_utils import create_mito_wrapper_dfs
-    from mitosheet.sheet_functions.types import (
-        NUMBER_SERIES,
-    )
+    from mitosheet.step_performers.filter import FC_NUMBER_EXACTLY
+    from mitosheet.tests.test_utils import (MitoWidgetTestWrapper,
+                                            create_mito_wrapper_dfs)
+
 
 
 def get_random_event(fdp: atheris.FuzzedDataProvider) -> Dict[str, Any]:
@@ -94,7 +92,6 @@ def send_random_event(mito: MitoWidgetTestWrapper, fdp: atheris.FuzzedDataProvid
             random_sheet_index,
             random_column_header,
             'And',
-            NUMBER_SERIES,
             FC_NUMBER_EXACTLY,
             1
         )

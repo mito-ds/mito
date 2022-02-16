@@ -64,10 +64,7 @@ def test_move_to_old_id_algorithm_updates_state_variables_properly():
     
     assert mito.curr_step.column_evaluation_graph == [{'A_A': set(['C_C']), 'B_B': set(), 'C_C': set()}]
     assert list(mito.curr_step.column_filters[0].keys()) == ['A_A', 'B_B', 'C_C']
-    assert list(mito.curr_step.column_metatype[0].keys()) == ['A_A', 'B_B', 'C_C']
-    assert list(mito.curr_step.column_python_code[0].keys()) == ['A_A', 'B_B', 'C_C']
     assert list(mito.curr_step.column_spreadsheet_code[0].keys()) == ['A_A', 'B_B', 'C_C']
-    assert list(mito.curr_step.column_type[0].keys()) == ['A_A', 'B_B', 'C_C']
 
     # Then, try making some change
     mito.set_formula('=A_A + C_C', 0, 'D_D', add_column=True)

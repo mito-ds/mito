@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 Contains tests for edit events.
 """
 import random
-from typing import List
 
 from mitosheet.step_performers import (
     STEP_PERFORMERS,
@@ -87,7 +85,7 @@ def test_params_static():
 
     check_step(
         FilterStepPerformer,
-        3,
+        4,
         'filter_column'
     )
     
