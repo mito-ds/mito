@@ -77,7 +77,7 @@ def convert_arg_to_series_type(
                 except:
                     if on_uncastable_arg_element == 'error':
                         raise make_invalid_arguments_error(sheet_function.__name__)
-                if on_uncastable_arg == 'error' and None is new_arg:
+                if on_uncastable_arg == 'error' and new_arg is None:
                     raise make_invalid_arguments_error(sheet_function.__name__)
                 args[arg_index] = new_arg
             return sheet_function(*args)  
