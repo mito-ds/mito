@@ -1,7 +1,6 @@
 // Copyright (c) Mito
 import React from 'react';
 import MitoAPI from '../../../api';
-import { DOCUMENTATION_LINK_IMPORT } from '../../../data/documentationLinks';
 import { getLastModifiedString } from '../../../utils/time';
 import CSVFileIcon from '../../icons/CSVFileIcon';
 import DirectoryIcon from '../../icons/DirectoryIcon';
@@ -18,6 +17,7 @@ interface FileBrowserElementProps {
     selectedElement: FileElement | undefined;
     setSelectedElement: (newSelectedElement: FileElement | undefined) => void;
     importElement: (element: FileElement | undefined) => Promise<void>;
+    excelImportEnabled: boolean;
 }
 
 /* 
@@ -42,7 +42,7 @@ export const getFileEnding = (elementName: string): string | undefined => {
     Helpful in displaying in-place errors that tells users they cannot
     import xlsx files.
 */
-export const getInvalidFileError = (selectedElement: FileElement): string | undefined => {
+export const getInvalidFileError = (selectedElement: FileElement, excelImportEnabled: boolean): string | undefined => {
     // We do not display an error on directories, as you cannot
     // import them but we don't want to overload you
     if (selectedElement.isDirectory) {
@@ -54,8 +54,12 @@ export const getInvalidFileError = (selectedElement: FileElement): string | unde
         'tsv',
         'txt',
         'tab',
-        'xlsx',
     ]
+
+    // If excel import is enabled, then add it as a valid ending
+    if (excelImportEnabled) {
+        VALID_FILE_ENDINGS.push('xlsx');
+    }
 
     // Check if the file ending is a type that we support out of the box
     for (const ending of VALID_FILE_ENDINGS) {
@@ -68,6 +72,8 @@ export const getInvalidFileError = (selectedElement: FileElement): string | unde
     const fileEnding = getFileEnding(selectedElement.name);
     if (fileEnding === undefined) {
         return 'Sorry, we don\'t support that file type.'
+    } else if (fileEnding == 'xlsx') {
+        return 'Upgrade to pandas>=0.25.0 and Python>3.6 to import Excel files.'
     } else {
         return `Sorry, we don't support ${fileEnding} files.`
     }
@@ -85,7 +91,7 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
         && props.element.isDirectory === props.selectedElement.isDirectory
         && props.element.name === props.selectedElement.name;
 
-    const invalidFileError = getInvalidFileError(props.element);
+    const invalidFileError = getInvalidFileError(props.element, props.excelImportEnabled);
 
     return (
         <div 
@@ -145,7 +151,6 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
             {isSelected && invalidFileError !== undefined &&
                 <div className='pl-5px pr-5px'>
                     <span> {invalidFileError} </span>
-                    <span> See instructions <u><a href={DOCUMENTATION_LINK_IMPORT} target="_blank" rel="noreferrer">here</a></u>. </span>
                 </div>
             }
         </div>

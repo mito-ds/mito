@@ -200,10 +200,7 @@ def test_pivot_by_replays():
     assert steps_manager.steps[1].step_type == 'pivot'
     assert len(steps_manager.curr_step.dfs) == 2
     assert steps_manager.curr_step.dfs[1].equals(
-        make_multi_index_header_df(
-            {0: ['Nate'], 1: [9]},
-            ['Name', ('Height', 'sum')]
-        )
+        pd.DataFrame({'Name': ['Nate'], 'Height sum': [9]})
     )
 
 
@@ -360,7 +357,7 @@ def test_save_replays_overwrite_by_ids_propererly():
     new_mito.replay_analysis(random_name)
 
     assert new_mito.dfs[1].equals(
-        make_multi_index_header_df({0: [1, 2, 3], 1: [1, 1, 1]}, ['A', ('A', 'count')])
+        pd.DataFrame({'A': [1, 2, 3], 'A count': [1, 1, 1]})
     )
 
 def test_replay_analysis_does_not_replay_set_cell_value_steps_when_clearing_analysis():

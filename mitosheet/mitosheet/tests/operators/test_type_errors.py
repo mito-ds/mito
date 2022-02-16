@@ -13,6 +13,7 @@ from mitosheet.column_headers import get_column_header_id
 from mitosheet.utils import get_new_id
 from mitosheet.errors import MitoError
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.decorators import pandas_post_1_only
 
 OPERATOR_TYPE_ERRORS = [
     ('=10 + "test"', ('+', 'number', 'string')),
@@ -57,8 +58,9 @@ OPERATOR_TYPE_ERRORS = [
     #('=A / D', 1),
     #('=A ^ C', 1),
 ]
+@pandas_post_1_only
 @pytest.mark.parametrize("formula, error", OPERATOR_TYPE_ERRORS)
-def test_valid_divison(formula, error):
+def test_type_errors(formula, error):
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1], 'B': [True], 'C': ['Hi'], 'D': [pd.to_datetime('12-12-2020')]}))
     mito.add_column(0, 'E')
     if error is not None:

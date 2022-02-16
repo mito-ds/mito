@@ -187,21 +187,20 @@ def test_imports_with_different_delimeters():
         os.remove(TEST_FILE_PATHS[0])
 
 
-def test_imports_with_different_encodings():
+def test_imports_with_utf_16():
     df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
 
-    encodings = ['UTF-16', 'UTF-32']
-    for encoding in encodings:
-        df.to_csv(TEST_FILE_PATHS[0], index=False, encoding=encoding)
+    encoding = 'UTF-16'
+    df.to_csv(TEST_FILE_PATHS[0], index=False, encoding=encoding)
 
-        # Create with no dataframes
-        mito = create_mito_wrapper_dfs()
-        # And then import just a test file
-        mito.simple_import([TEST_FILE_PATHS[0]])
+    # Create with no dataframes
+    mito = create_mito_wrapper_dfs()
+    # And then import just a test file
+    mito.simple_import([TEST_FILE_PATHS[0]])
 
-        assert mito.dfs[0].equals(df)
+    assert mito.dfs[0].equals(df)
 
-        os.remove(TEST_FILE_PATHS[0])
+    os.remove(TEST_FILE_PATHS[0])
 
 
 def test_imports_with_different_encodings_that_python_handles():

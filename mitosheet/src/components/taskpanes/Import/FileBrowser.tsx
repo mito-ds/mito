@@ -11,9 +11,11 @@ import { fuzzyMatch } from '../../../utils/strings';
 import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
 import SortArrowIcon from '../../icons/SortArrowIcon';
+import { UserProfile } from '../../../types';
 
 interface FileBrowserProps {
     mitoAPI: MitoAPI;
+    userProfile: UserProfile;
     selectedElement: FileElement | undefined;
     setSelectedElement: (newSelectedElement: FileElement | undefined) => void;
     importElement: (element: FileElement | undefined) => Promise<void>;
@@ -121,6 +123,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                             importElement={props.importElement}
                             pathParts={props.pathParts}
                             setCurrPathParts={props.setCurrPathParts}
+                            excelImportEnabled={props.userProfile.excelImportEnabled}
                     
                         />
                     )

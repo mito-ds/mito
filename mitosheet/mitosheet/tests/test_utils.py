@@ -285,7 +285,7 @@ class MitoWidgetTestWrapper:
             pivot_rows: List[ColumnHeader],
             pivot_columns: List[ColumnHeader],
             values: Dict[ColumnHeader, List[str]],
-            flatten_column_headers: bool=False,
+            flatten_column_headers: bool=True,
             destination_sheet_index: int=None,
             step_id: str=None
         ) -> bool:

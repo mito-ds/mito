@@ -11,6 +11,7 @@ import pytest
 import pandas as pd
 
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.decorators import python_post_3_6_only
 
 SET_CELL_VALUE_TESTS = [
     (
@@ -136,23 +137,18 @@ SET_CELL_VALUE_TESTS = [
     ),
     (
         pd.DataFrame(data={'A': [pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003')]}),
-        '12345678',
-        pd.DataFrame(data={'A': [pd.to_timedelta('0 days 00:00:00.012345678'), pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003')]}),
-    ),
-    (
-        pd.DataFrame(data={'A': [pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003')]}),
         'nat',
         pd.DataFrame(data={'A': [None, pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003')]}),
     ),
 ]
-
-@pytest.mark.skipif(sys.version_info.minor <= 6, reason="requires 3.7 or greater")
+@python_post_3_6_only
 @pytest.mark.parametrize("df,new_value,result", SET_CELL_VALUE_TESTS)
 def test_set_cell_value_direct(df, new_value, result):
     mito = create_mito_wrapper_dfs(df)
     mito.set_cell_value(0, 'A', 0, new_value)
 
     assert mito.dfs[0].equals(result)
+
 
 def test_set_cell_value_change_int_to_int():
     mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1, 2, 3]}))
@@ -205,7 +201,7 @@ def test_set_cell_value_convert_string_to_empty():
         'df1.at[0, \'A\'] = None'
     ]
 
-@pytest.mark.skipif(sys.version_info.minor <= 6, reason="requires 3.7 or greater")
+@python_post_3_6_only
 def test_set_cell_value_convert_datetime():
     mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': pd.to_datetime(pd.Series(data=[
             '12-1-2025', 
@@ -213,8 +209,9 @@ def test_set_cell_value_convert_datetime():
             '12-4-2020'
         ]))}))
     mito.set_cell_value(0, 'A', 0, "12-1-2030")
+
     assert mito.transpiled_code == [
-        'df1.at[0, \'A\'] = "2030-12-01 00:00:00"'
+        'df1.at[0, \'A\'] = pd.to_datetime("2030-12-01 00:00:00")'
     ]
 
 def test_set_cell_value_convert_datetime_to_none():
