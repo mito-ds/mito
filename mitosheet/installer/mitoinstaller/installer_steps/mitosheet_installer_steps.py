@@ -44,6 +44,19 @@ def install_step_mitosheet_check_dependencies():
     else:
         raise Exception('Installed extensions {extension_names}'.format(extension_names=extension_names))
 
+def remove_mitosheet_3_if_present():
+    """
+    Because of our changes to the package hierarchy, if the user
+    currently has mitosheet3 installed, we need to uninstall it,
+    as the user is moving to mitosheet instead. 
+
+    Otherwise, if the user has mitosheet and mitosheet3 installed,
+    they will get an error launching jlab because it will lead to 
+    two different extensions getting registered with the same
+    name.
+    """
+    uninstall_pip_packages('mitosheet3')
+    
 
 def install_step_mitosheet_install_mitosheet():
     install_pip_packages('mitosheet', test_pypi='--test-pypi' in sys.argv)
@@ -53,6 +66,10 @@ MITOSHEET_INSTALLER_STEPS = [
     InstallerStep(
         'Checking dependencies',
         install_step_mitosheet_check_dependencies
+    ),
+    InstallerStep(
+        'Remove mitosheet3 if present',
+        remove_mitosheet_3_if_present
     ),
     InstallerStep(
         'Installing mitosheet',

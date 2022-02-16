@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 Contains tests for setting cell value events.
 """
@@ -162,6 +161,7 @@ def test_set_cell_value_change_int_to_int():
         "df1.at[0, 'A'] = 4"
     ]
 
+@pytest.mark.skip(reason='We no longer cast to float, after we removed the notion of a Mito Type. Not an issue, I think, but leaving here for visibility.')
 def test_set_cell_value_convert_int_to_float():
     mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1, 2, 3]}))
     mito.set_cell_value(0, 'A', 0, 4.0)

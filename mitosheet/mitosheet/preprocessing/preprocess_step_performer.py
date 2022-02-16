@@ -1,12 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Dict, Collection, List, Optional, Tuple
+from typing import Any, Dict, Collection, List, Optional, Tuple
 
-
-# To avoid circular imports
-if TYPE_CHECKING:
-    from mitosheet.steps_manager import StepsManager
-else: 
-    StepsManager = Any
+from mitosheet.types import StepsManagerType
 
 
 class PreprocessStepPerformer(ABC, object):
@@ -45,7 +40,7 @@ class PreprocessStepPerformer(ABC, object):
 
     @classmethod
     @abstractmethod
-    def transpile(cls, steps_manager: StepsManager, execution_data: Optional[Dict[str, Any]]) -> List[str]:
+    def transpile(cls, steps_manager: StepsManagerType, execution_data: Optional[Dict[str, Any]]) -> List[str]:
         """
         Returns a list of the Python code lines that corresponds to this 
         preprocess step being executed

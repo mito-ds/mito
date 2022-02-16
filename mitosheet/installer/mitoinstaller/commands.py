@@ -208,7 +208,6 @@ def get_jupyterlab_metadata() -> Tuple[Union[str, None], Union[List[str], None]]
     
     return __version__, extension_names
 
-
 def exit_after_error(install_or_upgrade: str, error: str=None) -> None:
     full_error = '\n\nSorry, looks like we hit a problem during {install_or_upgrade}. '.format(install_or_upgrade=install_or_upgrade) + \
         '\nWe\'re happy to help you fix it ASAP. Just hop on our discord, and and post in the install-help channel. We\'ll get you sorted in a few minutes:\n\n\t https://discord.gg/AAeYm6YV7B\n'

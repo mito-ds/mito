@@ -1,30 +1,23 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
+from copy import deepcopy
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
-
-from copy import deepcopy
-from mitosheet.step_performers.step_performer import StepPerformer
-from typing import Any, Dict, List, Optional, Set, Tuple
-from mitosheet.state import State
-from mitosheet.sheet_functions.types.utils import get_mito_type
-from mitosheet.topological_sort import creates_circularity, subgraph_from_starting_column_id, topological_sort_columns
-from mitosheet.sheet_functions import FUNCTIONS
+from mitosheet.errors import (MitoError, make_circular_reference_error,
+                              make_execution_error, make_no_column_error,
+                              make_operator_type_error,
+                              make_unsupported_function_error)
 from mitosheet.parser import parse_formula
-
-from mitosheet.errors import (
-    MitoError,
-    make_circular_reference_error,
-    make_execution_error, 
-    make_no_column_error, 
-    make_operator_type_error, 
-    make_unsupported_function_error, 
-    make_wrong_column_metatype_error
-)
+from mitosheet.sheet_functions import FUNCTIONS
+from mitosheet.state import State
+from mitosheet.step_performers.step_performer import StepPerformer
+from mitosheet.evaluation_graph_utils import (create_column_evaluation_graph, creates_circularity, topological_sort_dependent_columns)
 from mitosheet.types import ColumnHeader, ColumnID
+
 
 class SetColumnFormulaStepPerformer(StepPerformer):
     """
@@ -83,10 +76,6 @@ class SetColumnFormulaStepPerformer(StepPerformer):
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
 
-        # First, we check the column_metatype, and make sure it's a formula
-        if prev_state.column_metatype[sheet_index][column_id] != 'formula':
-            raise make_wrong_column_metatype_error(column_header, error_modal=False)
-
         # If nothings changed, there's no work to do
         if (old_formula == new_formula):
             return prev_state, None
@@ -94,7 +83,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         column_headers = prev_state.dfs[sheet_index].keys()
 
         # Then we try and parse the formula
-        new_python_code, new_functions, new_dependencies_column_headers = parse_formula(
+        _, new_functions, new_dependencies_column_headers = parse_formula(
             new_formula, 
             column_header,
             column_headers
@@ -102,7 +91,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         new_dependencies = set(prev_state.column_ids.get_column_ids(sheet_index, new_dependencies_column_headers))
 
         # We check that the formula doesn't reference any columns that don't exist
-        missing_columns = new_dependencies.difference(prev_state.column_metatype[sheet_index].keys())
+        missing_columns = new_dependencies.difference(prev_state.column_spreadsheet_code[sheet_index].keys())
         if any(missing_columns):
             raise make_no_column_error(missing_columns, error_modal=False)
 
@@ -116,10 +105,12 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         _, _, old_dependencies_column_headers = parse_formula(old_formula, column_header, column_headers)
         old_dependencies = set(prev_state.column_ids.get_column_ids(sheet_index, old_dependencies_column_headers))
 
+        column_evaluation_graph = create_column_evaluation_graph(prev_state, sheet_index)
+
         # Before changing any variables, we make sure this edit didn't
         # introduct any circularity
         circularity = creates_circularity(
-            prev_state.column_evaluation_graph[sheet_index], 
+            column_evaluation_graph, 
             column_id,
             old_dependencies,
             new_dependencies
@@ -132,26 +123,14 @@ class SetColumnFormulaStepPerformer(StepPerformer):
 
         # Update the column formula, and then execute the new formula graph
         try:
-            _update_column_formula_in_step(post_state, sheet_index, column_id, old_formula, new_formula)
-            refresh_dependant_columns(post_state, post_state.dfs[sheet_index], sheet_index)
+            post_state.column_spreadsheet_code[sheet_index][column_id] = new_formula
+            refresh_dependant_columns(post_state, post_state.dfs[sheet_index], sheet_index, column_id)
         except MitoError as e:
             # Catch the error and make sure that we don't set the error modal
             e.error_modal = False
             raise e
         except:
             raise make_execution_error(error_modal=False)
-
-
-        # Finially, update the type of the filters of this column, for all the filters
-        # TODO: fix bug where we have to update downstream types, but note that
-        # it would just be really nice if we didn't have to store the type here, and could
-        # just get it dynamically...
-        new_type = get_mito_type(post_state.dfs[sheet_index][column_header])
-        post_state.column_type[sheet_index][column_id] = new_type
-        post_state.column_filters[sheet_index][column_id]['filters'] = [
-            {'type': new_type, 'condition': filter_['condition'], 'value': filter_['value']} 
-            for filter_ in prev_state.column_filters[sheet_index][column_id]['filters']
-        ]
 
         return post_state, None
 
@@ -197,50 +176,6 @@ class SetColumnFormulaStepPerformer(StepPerformer):
     ) -> Set[int]:
         return {sheet_index}
 
-
-def _update_column_formula_in_step(
-        post_state: State,
-        sheet_index: int,
-        column_id: ColumnID,
-        old_formula: str,
-        new_formula: str,
-        update_from_rename: bool=False
-    ) -> None:
-    """
-    A  helper function for updating the formula of a column. It assumes
-    that the passed information is all _correct_ and will not:
-    1. Introduce a circular reference error.
-    2. Add an invalid formula.
-
-    It DOES NOT "reexecute" the dataframes, just updates the state variables.
-    """
-    column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-    column_headers = post_state.dfs[sheet_index].keys()
-
-    new_python_code, _, new_dependencies = parse_formula(
-        new_formula, 
-        column_header,
-        column_headers
-    )
-
-    _, _, old_dependencies = parse_formula(
-        old_formula, 
-        column_header,
-        column_headers
-    )
-
-    post_state.column_spreadsheet_code[sheet_index][column_id] = new_formula
-    post_state.column_python_code[sheet_index][column_id] = new_python_code
-
-    # Update the column dependency graph, if this is not just an update
-    # from a rename (where the dependency graph does not change)
-    if not update_from_rename:
-        for old_dependency_column_header in old_dependencies:
-            old_dependency_column_id = post_state.column_ids.get_column_id_by_header(sheet_index, old_dependency_column_header)
-            post_state.column_evaluation_graph[sheet_index][old_dependency_column_id].remove(column_id)
-        for new_dependency_column_header in new_dependencies:
-            new_dependency_column_id = post_state.column_ids.get_column_id_by_header(sheet_index, new_dependency_column_header)
-            post_state.column_evaluation_graph[sheet_index][new_dependency_column_id].add(column_id)
 
 
 def _get_fixed_invalid_formula(
@@ -331,19 +266,30 @@ def get_details_from_operator_type_error(error: TypeError) -> Optional[Tuple[str
     return None
 
 
-def refresh_dependant_columns(post_state: State, df: pd.DataFrame, sheet_index: int) -> None:
+def refresh_dependant_columns(post_state: State, df: pd.DataFrame, sheet_index: int, column_id: ColumnID) -> None:
     """
     Helper function for refreshing the columns that are dependant on the column we are changing. 
     """
-
-    topological_sort = topological_sort_columns(post_state.column_evaluation_graph[sheet_index])
+    topological_sort = topological_sort_dependent_columns(post_state, sheet_index, column_id)
+    column_headers = post_state.dfs[sheet_index].keys()
 
     for column_id in topological_sort:
+        if post_state.column_spreadsheet_code[sheet_index][column_id] == '':
+            continue
+
+        column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
+        python_code, _, _ = parse_formula(
+            post_state.column_spreadsheet_code[sheet_index][column_id], 
+            column_header,
+            column_headers
+        )
+        print(post_state.column_spreadsheet_code[sheet_index][column_id])
+
         # Exec the code, where the df is the original dataframe
         # See explination here: https://www.tutorialspoint.com/exec-in-python
         try:
             exec(
-                post_state.column_python_code[sheet_index][column_id],
+                python_code,
                 {'df': df}, 
                 FUNCTIONS
             )
@@ -378,18 +324,22 @@ def transpile_dependant_columns(
 
     # We only look at the sheet that was changed, and sort the columns, taking only
     # those downstream from the changed columns
-    subgraph = subgraph_from_starting_column_id(post_state.column_evaluation_graph[sheet_index], column_id)
-    topological_sort = topological_sort_columns(subgraph)
+    topological_sort = topological_sort_dependent_columns(post_state, sheet_index, column_id)
+    column_headers = post_state.dfs[sheet_index].keys()
 
     # We compile all of their formulas
     for other_column_id in topological_sort:
-        column_formula_changes = post_state.column_python_code[sheet_index][other_column_id]
-        if column_formula_changes != '':
-            # We replace the data frame in the code with it's parameter name!
-            # NOTE: we check for df[ to increase the odds that we don't replace
-            # something other than the dataframe name itself (e.g. replacing a column
-            # name with the letters "df" inside of them
-            column_formula_changes = column_formula_changes.strip().replace('df[', f'{post_state.df_names[sheet_index]}[')
-            code.append(column_formula_changes)
+
+        if post_state.column_spreadsheet_code[sheet_index][other_column_id] == '':
+            continue
+
+        column_header = post_state.column_ids.get_column_header_by_id(sheet_index, other_column_id)
+        python_code, _, _ = parse_formula(
+            post_state.column_spreadsheet_code[sheet_index][other_column_id], 
+            column_header,
+            column_headers,
+            df_name=post_state.df_names[sheet_index]
+        )
+        code.append(python_code)
 
     return code

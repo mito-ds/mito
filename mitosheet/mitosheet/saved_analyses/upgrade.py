@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 Contains functions for upgrading analyses!
 
@@ -27,7 +26,7 @@ from mitosheet.saved_analyses.step_upgraders.change_column_dtype import \
 from mitosheet.saved_analyses.step_upgraders.delete_column import (
     upgrade_delete_column_1_to_2, upgrade_delete_column_2_to_3)
 from mitosheet.saved_analyses.step_upgraders.filter import (
-    update_filter_column_1_to_filter_column_2, upgrade_filter_column_2_to_3)
+    update_filter_column_1_to_filter_column_2, upgrade_filter_column_2_to_3, upgrade_filter_column_3_to_4)
 from mitosheet.saved_analyses.step_upgraders.merge import (
     upgrade_merge_1_to_merge_2, upgrade_merge_2_to_3)
 from mitosheet.saved_analyses.step_upgraders.pivot import (
@@ -90,7 +89,8 @@ STEP_UPGRADES_FUNCTION_MAPPING_NEW_FORMAT = {
         2: upgrade_delete_column_2_to_3
     },
     'filter_column': {
-        2: upgrade_filter_column_2_to_3
+        2: upgrade_filter_column_2_to_3,
+        3: upgrade_filter_column_3_to_4
     },
     'pivot': {
         3: upgrade_pivot_3_to_4,
@@ -128,8 +128,10 @@ def should_add_initial_bulk_old_rename_step(version: str) -> bool:
     elif package_name == 'mitosheet3':
         if is_prev_version(version, '0.3.130'):
             return True
-    else: 
-        raise Exception('Invalid package name', package_name)
+    elif package_name == 'mitosheet2':
+        # Because mitosheet2 was introduced so much later than this upgrade,
+        # we always return false here
+        return False
 
     return False
 

@@ -1,59 +1,55 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 Contains tests for the cast_output decorator.
 """
-from typing import cast
-import pandas as pd 
+
+import pandas as pd
 import pytest
-
-from mitosheet.sheet_functions.types.utils import BOOLEAN_SERIES, DATETIME_SERIES, NUMBER_SERIES, STRING_SERIES
 from mitosheet.sheet_functions.types.decorators import cast_output
-
 
 CAST_TESTS = [
     (
         [pd.Series([0, 1, 2])],
-        BOOLEAN_SERIES,
+        'bool',
         [pd.Series([False, True, True])]
     ),
     (
         [pd.Series([True, True, False])],
-        BOOLEAN_SERIES,
+        'bool',
         [pd.Series([True, True, False])]
     ),
     (
         [pd.Series(['12-12-2020'] * 3)],
-        DATETIME_SERIES,
+        'datetime',
         [pd.Series([pd.to_datetime('12-12-2020')] * 3)]
     ),
     (
         [pd.Series([pd.to_datetime('12-12-2020')] * 3)],
-        DATETIME_SERIES,
+        'datetime',
         [pd.Series([pd.to_datetime('12-12-2020')] * 3)]
     ),
     (
         [pd.Series([1, 2, 3])],
-        NUMBER_SERIES,
+        'float',
         [pd.Series([1, 2, 3])]
     ),
     (
         [pd.Series(['1', '2', '3'])],
-        NUMBER_SERIES,
+        'float',
         [pd.Series([1.0, 2.0, 3.0])]
     ),
     (
         [pd.Series([True, True, False])],
-        STRING_SERIES,
+        'string',
         [pd.Series(['True', 'True', 'False'])]
     ),
     (
         [pd.Series(['True', 'True', 'False'])],
-        STRING_SERIES,
+        'string',
         [pd.Series(['True', 'True', 'False'])]
     ),
     (

@@ -1,38 +1,23 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 Utilities to help with type functions
 """
 
-from typing import Any, List, Optional, Set, Tuple, Union
+from typing import Any, List, Optional, Tuple, Union
 import pandas as pd
 import numpy as np
 
 from mitosheet.sheet_functions.sheet_function_utils import is_series_of_constant
 
-# Because type(1) = int, thus 1 is a 'number' in the Mito type system
-MITO_PRIMITIVE_TYPE_MAPPING = {
-    'boolean': [bool],
-    'timestamp': [pd.Timestamp],
-    'timedelta': [pd.Timedelta],
-    'number': [int, float],
-    'string': [str],
-}
-
-BOOLEAN_SERIES = 'boolean_series'
-DATETIME_SERIES = 'datetime_series'
-TIMEDELTA_SERIES = 'timedelta_series'
-NUMBER_SERIES = 'number_series'
-STRING_SERIES = 'string_series'
-
 # A series of helper functions that help you figure
 # out which dtype we're dealing with. NOTE: since some
 # of these types can be different varieties (e.g. int can be int64, uint64)
 # we try to check for them with simple expressions
+# NOTE: these should be identical to the TS utilities in dtypes.tsx
 
 def is_bool_dtype(dtype: str) -> bool:
     return 'bool' == dtype
@@ -54,6 +39,9 @@ def is_datetime_dtype(dtype: str) -> bool:
 def is_timedelta_dtype(dtype: str) -> bool:
     return 'timedelta' in dtype
 
+def is_number_dtype(dtype: str) -> bool:
+    return is_int_dtype(dtype) or is_float_dtype(dtype)
+
 def is_none_type(value: Union[str, None]) -> bool:
     """
     Helper function for determining if a value should be treated as None
@@ -74,37 +62,6 @@ def get_float_dt_td_columns(df: pd.DataFrame) -> Tuple[List[Any], List[Any], Lis
             timedelta_columns.append(column_header)
 
     return float_columns, date_columns, timedelta_columns
-
-def get_mito_type(obj: Any) -> str:
-
-    if isinstance(obj, pd.Series):
-        dtype = str(obj.dtype)
-        if is_bool_dtype(dtype):
-            return BOOLEAN_SERIES
-        elif is_int_dtype(dtype) or is_float_dtype(dtype):
-            return NUMBER_SERIES
-        elif is_string_dtype(dtype):
-            return STRING_SERIES
-        elif is_datetime_dtype(dtype):
-            return DATETIME_SERIES
-        elif is_timedelta_dtype(dtype):
-            return TIMEDELTA_SERIES
-        else:
-            # We default to string, when not sure what else
-            return STRING_SERIES
-
-    elif isinstance(obj, pd.Timestamp):
-        return 'timestamp'
-    elif isinstance(obj, pd.Timedelta):
-        return 'timedelta'
-    else:
-        obj_type = type(obj)
-
-        for key, value in MITO_PRIMITIVE_TYPE_MAPPING.items():
-            if obj_type in value:
-                return key
-
-    return STRING_SERIES
 
 
 def get_nan_indexes_metadata(*argv: pd.Series) -> Tuple[pd.Index, pd.Index]: 

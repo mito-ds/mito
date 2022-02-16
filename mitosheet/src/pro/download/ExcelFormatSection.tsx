@@ -1,6 +1,6 @@
 import React from "react";
 import MitoAPI from "../../api";
-import { ColumnMitoType, ExcelExportState, FormatType, SheetData } from "../../components/../types";
+import { ExcelExportState, FormatType, SheetData } from "../../components/../types";
 import { removeIfPresent } from "../../components/../utils/arrays";
 import { getDisplayColumnHeader } from "../../components/../utils/columnHeaders";
 import { changeFormatOfColumnID, getColumnFormatDropdownItemsUsingColumnID, getFormatTitle } from "../../components/../utils/formatColumns";
@@ -10,6 +10,7 @@ import Select from "../../components/elements/Select";
 import XIcon from "../../components/icons/XIcon";
 import Col from "../../components/spacing/Col";
 import Row from "../../components/spacing/Row";
+import { isNumberDtype } from "../../utils/dtypes";
 
 const ExcelFormatSection = (props: {
     dfNames: string[]
@@ -22,8 +23,8 @@ const ExcelFormatSection = (props: {
 
     // Returns the approporiate disabled message, not letting the user format a non-number column or a column that already has formatting
     const getFormatAddDisabledMessage = (columnID: string, exportedSheetIndex: number): string => {
-        const columnMitoType = props.sheetDataArray[exportedSheetIndex].columnMitoTypeMap[columnID]
-        return columnMitoType !== ColumnMitoType.NUMBER_SERIES ? 'Formatting is only available for number columns.' :
+        const columnDtype = props.sheetDataArray[exportedSheetIndex].columnDtypeMap[columnID]
+        return !isNumberDtype(columnDtype) ? 'Formatting is only available for number columns.' :
             props.sheetDataArray[exportedSheetIndex].columnFormatTypeObjMap[columnID].type != FormatType.DEFAULT ? 'This column already has a format applied to it. Find it in the list below.' : ''
     }
 
@@ -98,7 +99,7 @@ const ExcelFormatSection = (props: {
                         */}
                         {columnFormatTypeObjMap.map(([columnID, columnFormatTypeObj]) => {
                             const columnHeader = getDisplayColumnHeader(columnIDsMap[columnID])
-                            const columnMitoType = props.sheetDataArray[exportedSheetIndex].columnMitoTypeMap[columnID]
+                            const columnDtype = props.sheetDataArray[exportedSheetIndex].columnDtypeMap[columnID]
                             
                             return(
                                 <Row 
@@ -142,8 +143,8 @@ const ExcelFormatSection = (props: {
                                     <Select
                                         value={getFormatTitle(columnFormatTypeObj)}
                                         width='medium'
-                                    >
-                                        {getColumnFormatDropdownItemsUsingColumnID(exportedSheetIndex, columnID, props.mitoAPI, columnMitoType, props.sheetDataArray[exportedSheetIndex], false)}
+                                    >   
+                                        {getColumnFormatDropdownItemsUsingColumnID(exportedSheetIndex, columnID, props.mitoAPI, columnDtype, props.sheetDataArray[exportedSheetIndex], false)}
                                     </Select>
                                     <Col offsetRight={1}>
                                         <div className='default-taskpane-header-exit-button-div' onClick={() => {

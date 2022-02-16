@@ -1,20 +1,21 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
+"""
+For going to a float series.
+"""
+from typing import Any
 
-"""
-For going to a number series.
-"""
-from typing import Any, Tuple, Union
-import pandas as pd
 import numpy as np
+import pandas as pd
+from mitosheet.sheet_functions.types.utils import (
+    get_billion_identifier_in_string, get_million_identifier_in_string,
+    is_bool_dtype, is_datetime_dtype, is_number_dtype, is_string_dtype)
 
-from mitosheet.sheet_functions.types.utils import BOOLEAN_SERIES, DATETIME_SERIES, NUMBER_SERIES, STRING_SERIES, get_billion_identifier_in_string, get_million_identifier_in_string, get_mito_type
 
-
-def convert_string_to_number(
+def convert_string_to_float(
         s, 
         on_uncastable_arg_element, #Union[Literal['error'], Tuple[Literal['default'], any]]
     ):
@@ -90,7 +91,7 @@ def convert_string_to_number(
                 # Return the given default value in this case
                 return on_uncastable_arg_element[1]
 
-def to_number_series_from_string_series(
+def to_float_series_from_string_series(
         string_series: pd.Series, 
         on_uncastable_arg_element: Any #: Union[Literal['error'], Tuple[Literal['default'], any]]
     ) -> pd.Series:
@@ -100,9 +101,9 @@ def to_number_series_from_string_series(
 
     Takes a default value, so the tranformation can occur elementwise
     """
-    return string_series.apply(convert_string_to_number, on_uncastable_arg_element=on_uncastable_arg_element).astype('float64')
+    return string_series.apply(convert_string_to_float, on_uncastable_arg_element=on_uncastable_arg_element).astype('float64')
 
-def to_number_series_from_boolean_series(boolean_series: pd.Series) -> pd.Series:
+def to_float_series_from_boolean_series(boolean_series: pd.Series) -> pd.Series:
     """
     As all boolean series are very easily convertable to a number_series, 
     and cannot fail on any element, so we can do this in one easy move.
@@ -112,24 +113,23 @@ def to_number_series_from_boolean_series(boolean_series: pd.Series) -> pd.Series
     return boolean_series.astype('float64')
 
 
-def to_number_series(
+def to_float_series(
         unknown_object: Any,
         on_uncastable_arg_element: Any=('default', np.NaN), # Union[Literal['error'], Tuple[Literal['default'], any]]
     ) -> pd.Series:
-    from_type = get_mito_type(unknown_object)
 
     # If it is not a series, we put it in a series, and get the type again
-    if not from_type.endswith('series'):
+    if not isinstance(unknown_object, pd.Series):
         unknown_object = pd.Series([unknown_object])
-        from_type = get_mito_type(unknown_object)
 
-    if from_type == BOOLEAN_SERIES:
-        return to_number_series_from_boolean_series(unknown_object)
-    elif from_type == DATETIME_SERIES:
+    column_dtype = str(unknown_object.dtype)
+    if is_bool_dtype(column_dtype):
+        return to_float_series_from_boolean_series(unknown_object)
+    elif is_datetime_dtype(column_dtype):
         return None
-    elif from_type == NUMBER_SERIES:
+    elif is_number_dtype(column_dtype):
         return unknown_object
-    elif from_type == STRING_SERIES:
-        return to_number_series_from_string_series(unknown_object, on_uncastable_arg_element=on_uncastable_arg_element)
+    elif is_string_dtype(column_dtype):
+        return to_float_series_from_string_series(unknown_object, on_uncastable_arg_element=on_uncastable_arg_element)
     else:
         return None

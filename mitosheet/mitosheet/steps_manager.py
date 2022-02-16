@@ -259,7 +259,6 @@ class StepsManager():
             self.curr_step.df_sources,
             self.curr_step.column_spreadsheet_code,
             self.curr_step.column_filters,
-            self.curr_step.column_type,
             self.curr_step.column_ids,
             self.curr_step.column_format_types
         )

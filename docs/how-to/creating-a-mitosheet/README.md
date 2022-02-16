@@ -28,5 +28,5 @@ If a Mitosheet does not appear, make sure that you followed the [Installation In
 Now that you've created your first Mitosheet, you're ready to[ import data into Mito.](../importing-data-to-mito.md)
 
 {% hint style="info" %}
-Want help? [Book a call](https://hubs.ly/H0FzGrF0) with our support team.&#x20;
+Our docs (and code) are open source! If you want to suggest changes to the documentation, add some sections, or check out or code, [follow us on Github](https://github.com/mito-ds/monorepo) 
 {% endhint %}

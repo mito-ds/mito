@@ -1,21 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 from copy import copy
 from typing import Any, Dict, List, Optional, Set, Tuple
 import pandas as pd
 
 from mitosheet.errors import get_recent_traceback, make_invalid_column_type_change_error
-from mitosheet.mito_analytics import log
+from mitosheet.sheet_functions.types import to_int_series
 from mitosheet.sheet_functions.types.to_boolean_series import to_boolean_series
-from mitosheet.sheet_functions.types.to_number_series import to_number_series
+from mitosheet.sheet_functions.types.to_float_series import to_float_series
 from mitosheet.sheet_functions.types.to_timedelta_series import \
     to_timedelta_series
 from mitosheet.sheet_functions.types.utils import (get_datetime_format,
-                                                   get_mito_type,
                                                    is_bool_dtype,
                                                    is_datetime_dtype,
                                                    is_float_dtype,
@@ -141,9 +139,9 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
                 if is_bool_dtype(new_dtype):
                     new_column = to_boolean_series(new_column)
                 elif is_int_dtype(new_dtype):
-                    new_column = to_number_series(column).astype('int')
+                    new_column = to_int_series(column)
                 elif is_float_dtype(new_dtype):
-                    new_column = to_number_series(column)
+                    new_column = to_float_series(column)
                 elif is_string_dtype(new_dtype):
                     pass
                 elif is_datetime_dtype(new_dtype):
@@ -203,13 +201,12 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
 
             # We update the column, as well as the type of the column
             post_state.dfs[sheet_index][column_header] = new_column
-            post_state.column_type[sheet_index][column_id] = get_mito_type(new_column)
 
             # If we're changing between number columns, we keep the formatting on the column. Otherwise, we remove it
             if not ((is_int_dtype(old_dtype) or is_float_dtype(old_dtype)) and (is_int_dtype(new_dtype) or is_float_dtype(new_dtype))):
                 post_state.column_format_types[sheet_index][column_id] = {'type': FORMAT_DEFAULT}
                 
-            refresh_dependant_columns(post_state, post_state.dfs[sheet_index], sheet_index)
+            refresh_dependant_columns(post_state, post_state.dfs[sheet_index], sheet_index, column_id)
 
             return post_state, None
         except:
@@ -290,9 +287,9 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
             if is_bool_dtype(new_dtype):
                 conversion_code = f'to_boolean_series({df_name}[{transpiled_column_header}])'
             elif is_int_dtype(new_dtype):
-                conversion_code = f'to_number_series({df_name}[{transpiled_column_header}]).astype(\'int\')'
+                conversion_code = f'to_int_series({df_name}[{transpiled_column_header}])'
             elif is_float_dtype(new_dtype):
-                conversion_code = f'to_number_series({df_name}[{transpiled_column_header}])'
+                conversion_code = f'to_float_series({df_name}[{transpiled_column_header}])'
             elif is_string_dtype(new_dtype):
                 pass
             elif is_datetime_dtype(new_dtype):

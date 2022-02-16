@@ -1,9 +1,9 @@
 import io
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
 import plotly.graph_objects as go
-from mitosheet.sheet_functions.types.utils import NUMBER_SERIES, get_mito_type
+from mitosheet.sheet_functions.types.utils import is_number_dtype
 from mitosheet.types import ColumnHeader
 
 # We have a variety of heuristics to make sure that we never send too much data
@@ -192,7 +192,7 @@ def filter_df_to_safe_size(
         return df, False
     elif graph_type == SCATTER:
         for column_header in column_headers:
-            if get_mito_type(df[column_header]) != NUMBER_SERIES:
+            if not is_number_dtype(str(df[column_header].dtype)):
                 # For each non-number series, filter it to only contain the most common values
                 df = filter_df_to_top_unique_values_in_series(
                     df,

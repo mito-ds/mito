@@ -1,10 +1,7 @@
 import json
 import pandas as pd
-from typing import Any, Dict, List
+from typing import Any, Dict
 from mitosheet.api.graph.column_summary_graph import get_column_summary_graph
-from mitosheet.types import ColumnHeader
-import plotly.express as px
-import plotly.graph_objects as go
 from mitosheet.api.graph.plotly_express_graphs import (
     get_plotly_express_graph,
     get_plotly_express_graph_code,
@@ -13,8 +10,6 @@ from mitosheet.api.graph.graph_utils import (
     SUMMARY_STAT,
     get_html_and_script_from_figure,
 )
-from mitosheet.errors import get_recent_traceback
-from mitosheet.mito_analytics import log_recent_error
 from mitosheet.steps_manager import StepsManager
 
 

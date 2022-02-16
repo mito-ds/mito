@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 Contains all functions that can be used in a sheet that operate on strings.
 
@@ -13,20 +12,20 @@ in more detail in docs/README.md.
 NOTE: This file is alphabetical order!
 """
 import functools
-from typing import Tuple
-import pandas as pd
-import numpy as np
 
-from mitosheet.sheet_functions.types.utils import NUMBER_SERIES, STRING_SERIES
-from mitosheet.sheet_functions.types.decorators import convert_arg_to_series_type, convert_args_to_series_type, filter_nans, cast_output, handle_sheet_function_errors
-from mitosheet.sheet_functions.sheet_function_utils import fill_series_with_one_index, try_extend_series_to_index
+import pandas as pd
+from mitosheet.sheet_functions.sheet_function_utils import (
+    fill_series_with_one_index, try_extend_series_to_index)
+from mitosheet.sheet_functions.types.decorators import (
+    cast_output, convert_arg_to_series_type, convert_args_to_series_type,
+    filter_nans, handle_sheet_function_errors)
 
 
 @handle_sheet_function_errors
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    STRING_SERIES,
+    'string',
     'error',
     'error'
 )
@@ -54,7 +53,7 @@ def CLEAN(series: pd.Series) -> pd.Series:
 
 @handle_sheet_function_errors
 @filter_nans
-@convert_args_to_series_type(STRING_SERIES, 'skip', ('default', ''))
+@convert_args_to_series_type('string', 'skip', ('default', ''))
 def CONCAT(*argv: pd.Series) -> pd.Series:
     """
     {
@@ -87,13 +86,13 @@ def CONCAT(*argv: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    STRING_SERIES,
+    'string',
     'error',
     'error'
 )
 @convert_arg_to_series_type(
     1,
-    STRING_SERIES,
+    'string',
     'error',
     'error'
 )
@@ -134,13 +133,13 @@ def FIND(series: pd.Series, substrings: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    STRING_SERIES,
+    'string',
     'error',
     'error'
 )
 @convert_arg_to_series_type(
     1,
-    NUMBER_SERIES,
+    'string',
     'error',
     ('default', 1),
     optional=True
@@ -182,7 +181,7 @@ def LEFT(series: pd.Series, num_chars: pd.Series=None) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    STRING_SERIES,
+    'string',
     'error',
     'error'
 )
@@ -211,7 +210,7 @@ def LEN(series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    STRING_SERIES,
+    'string',
     'error',
     'error'
 )
@@ -241,19 +240,19 @@ def LOWER(series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    STRING_SERIES,
+    'string',
     'error',
     'error'
 )
 @convert_arg_to_series_type(
     1,
-    NUMBER_SERIES,
+    'int',
     'error',
     ('default', 1)
 )
 @convert_arg_to_series_type(
     2,
-    NUMBER_SERIES,
+    'int',
     'error',
     ('default', 1)
 )
@@ -300,7 +299,7 @@ def MID(series: pd.Series, start_loc: pd.Series, num_chars: pd.Series) -> pd.Ser
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    STRING_SERIES,
+    'string',
     'error',
     'error'
 )
@@ -329,13 +328,13 @@ def PROPER(series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    STRING_SERIES,
+    'string',
     'error',
     'error'
 )
 @convert_arg_to_series_type(
     1,
-    NUMBER_SERIES,
+    'int',
     'error',
     ('default', 1),
     optional=True
@@ -378,25 +377,25 @@ def RIGHT(series: pd.Series, num_chars: pd.Series=None) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    STRING_SERIES,
+    'string',
     'error',
     'error'
 )
 @convert_arg_to_series_type(
     1,
-    STRING_SERIES,
+    'string',
     'error',
     'error'
 )
 @convert_arg_to_series_type(
     2,
-    STRING_SERIES,
+    'string',
     'error',
     'error'
 )
 @convert_arg_to_series_type(
     3,
-    NUMBER_SERIES,
+    'int',
     'error',
     ('default', -1),
     optional=True
@@ -444,7 +443,7 @@ def SUBSTITUTE(series: pd.Series, old_text: pd.Series, new_text: pd.Series, coun
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    STRING_SERIES,
+    'string',
     'error',
     'error'
 )
@@ -474,7 +473,7 @@ def TEXT(series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    STRING_SERIES,
+    'string',
     'error',
     'error'
 )
@@ -504,7 +503,7 @@ def TRIM(series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    STRING_SERIES,
+    'string',
     'error',
     'error'
 )
