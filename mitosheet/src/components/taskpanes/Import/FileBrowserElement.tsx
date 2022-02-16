@@ -1,7 +1,6 @@
 // Copyright (c) Mito
 import React from 'react';
 import MitoAPI from '../../../api';
-import { DOCUMENTATION_LINK_IMPORT } from '../../../data/documentationLinks';
 import { getLastModifiedString } from '../../../utils/time';
 import CSVFileIcon from '../../icons/CSVFileIcon';
 import DirectoryIcon from '../../icons/DirectoryIcon';
