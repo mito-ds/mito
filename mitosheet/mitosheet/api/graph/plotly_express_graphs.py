@@ -73,12 +73,12 @@ def graph_creation(
     # so we need to do some casing.
     if len(x_axis_column_headers) == 1:
         # Note: In the new interface, x will always have a length of 0 or 1
-        all_params["x"] = x_axis_column_headers
+        all_params["x"] = x_axis_column_headers[0]
     if len(x_axis_column_headers) > 1:
         all_params["x"] = x_axis_column_headers
 
     if len(y_axis_column_headers) == 1:
-        all_params["y"] = y_axis_column_headers
+        all_params["y"] = y_axis_column_headers[0]
     if len(y_axis_column_headers) > 1:
         all_params["y"] = y_axis_column_headers
 

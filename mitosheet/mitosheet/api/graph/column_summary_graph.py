@@ -1,5 +1,6 @@
 import pandas as pd
 from typing import List
+from mitosheet.sheet_functions.types.utils import is_number_dtype
 from mitosheet.types import ColumnHeader
 import plotly.express as px
 import plotly.graph_objects as go
@@ -8,7 +9,6 @@ from mitosheet.api.graph.graph_utils import (
     MAX_UNIQUE_NON_NUMBER_VALUES_COMMENT,
     filter_df_to_top_unique_values_in_series,
 )
-from mitosheet.sheet_functions.types.utils import NUMBER_SERIES, get_mito_type
 from mitosheet.mito_analytics import log
 
 
@@ -23,12 +23,12 @@ def get_column_summary_graph(
     """
     column_header = axis_data_array[0]
     series: pd.Series = df[column_header]
-    mito_type = get_mito_type(series)
+    column_dtype = str(series.dtype)
 
     graph_title = f"{column_header} Frequencies"
 
     filtered = False
-    if mito_type != NUMBER_SERIES:
+    if not is_number_dtype(column_dtype):
         if series.nunique() > MAX_UNIQUE_NON_NUMBER_VALUES:
             df = filter_df_to_top_unique_values_in_series(
                 df, series, MAX_UNIQUE_NON_NUMBER_VALUES
