@@ -30,5 +30,8 @@ pandas_pre_1_2_only = pytest.mark.skipif(
     reason='This test only runs on later versions of Pandas. API inconsistencies make it fail on earlier versions'
 )
 
-python_post_3_6_only = pytest.mark.skipif(sys.version_info.minor <= 6, reason="requires 3.7 or greater")
+python_post_3_6_only = pytest.mark.skipif(
+    sys.version_info.minor <= 6, 
+    reason="requires 3.7 or greater"
+)
 

@@ -9,7 +9,7 @@ import { PathContents } from '../../../api';
 import FileBrowser from './FileBrowser';
 import { getFileEnding, getInvalidFileError } from './FileBrowserElement';
 import TextButton from '../../elements/TextButton';
-import { UIState } from '../../../types';
+import { UIState, UserProfile } from '../../../types';
 import XLSXImport from './XLSXImport';
 
 // CSS
@@ -19,6 +19,7 @@ import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 
 interface ImportTaskpaneProps {
     mitoAPI: MitoAPI;
+    userProfile: UserProfile;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     currPathParts: string[];
     setCurrPathParts: (newCurrPathParts: string[]) => void;
@@ -38,7 +39,7 @@ export interface FileElement {
     and also the message to display on the button based on which
     element is selected.
 */
-const getImportButtonStatus = (selectedElement: FileElement | undefined): {disabled: boolean, buttonText: string} => {
+const getImportButtonStatus = (selectedElement: FileElement | undefined, excelImportEnabled: boolean): {disabled: boolean, buttonText: string} => {
     if (selectedElement === undefined) {
         return {
             disabled: true,
@@ -51,7 +52,7 @@ const getImportButtonStatus = (selectedElement: FileElement | undefined): {disab
             buttonText: 'That\'s a Directory. Select a File'
         };
     }
-    const invalidFileError = getInvalidFileError(selectedElement);
+    const invalidFileError = getInvalidFileError(selectedElement, excelImportEnabled);
     if (invalidFileError !== undefined) {
         return {
             disabled: true,
@@ -69,8 +70,8 @@ const getImportButtonStatus = (selectedElement: FileElement | undefined): {disab
     1. Combining the path into one path string
     2. Passing this combined path into a simple import
 */
-export async function doImport(mitoAPI: MitoAPI, currPathParts: string[], element: FileElement | undefined): Promise<void> {
-    const importButtonStatus = getImportButtonStatus(element);
+export async function doImport(mitoAPI: MitoAPI, currPathParts: string[], element: FileElement | undefined, excelImportEnabled: boolean): Promise<void> {
+    const importButtonStatus = getImportButtonStatus(element, excelImportEnabled);
     // Quit early if the selected thing is not importable, or if there
     // is nothing even selected
     if (importButtonStatus.disabled || element === undefined) {
@@ -117,7 +118,7 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
         }
 
         // Do the actual import
-        await doImport(props.mitoAPI, props.currPathParts, element);
+        await doImport(props.mitoAPI, props.currPathParts, element, props.userProfile.excelImportEnabled);
         // And then clear the selected element
         setSelectedElement(undefined);
     }
@@ -161,7 +162,7 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
     }, [selectedElement])
 
 
-    const importButtonStatus = getImportButtonStatus(selectedElement);
+    const importButtonStatus = getImportButtonStatus(selectedElement, props.userProfile.excelImportEnabled);
 
     return (
         <DefaultTaskpane>
@@ -184,6 +185,7 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                                 selectedElement={selectedElement}
                                 setSelectedElement={setSelectedElement}
                                 importElement={importElement}
+                                userProfile={props.userProfile}
                             />
                             <div className='import-taskpane-import-button-container' >
                                 <TextButton

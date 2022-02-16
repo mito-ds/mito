@@ -500,6 +500,7 @@ export interface AnalysisData {
  * @param userEmail - the email of the user. May be an empty string if they have not signed up yet
  * @param receivedTours - a list of the tours they have received
  * @param isPro - if the user is a pro user
+ * @param excelImportEnabled - if the user has the necessary packages optional dependencies, and Python and Pandas version to import Excel files.
  * @param telemetryEnabled - if the user has telemetry enabled
  * @param isLocalDeployment - if the user is deployed locally or not
  * @param shouldUpgradeMitosheet - if the user should upgrade their mitosheet
@@ -511,6 +512,7 @@ export interface UserProfile {
     receivedTours: string[];
     
     isPro: boolean;
+    excelImportEnabled: boolean;
     telemetryEnabled: boolean;
     isLocalDeployment: boolean;
     shouldUpgradeMitosheet: boolean;

@@ -17,7 +17,7 @@ from mitosheet.mito_analytics import log, log_event_processed, log_recent_error,
 from mitosheet.step_performers import STEP_TYPE_TO_USAGE_TRIGGERED_FEEDBACK_ID
 from mitosheet.user.schemas import UJ_MITOSHEET_LAST_FIFTY_USAGES, UJ_RECEIVED_TOURS, UJ_USER_EMAIL
 from mitosheet.user.db import get_user_field
-from mitosheet.user.utils import is_pro
+from mitosheet.user.utils import is_excel_import_enabled, is_pro
 from mitosheet.api import API
 from mitosheet._frontend import module_name, module_version
 from mitosheet.errors import MitoError, get_recent_traceback
@@ -92,6 +92,7 @@ class MitoWidget(DOMWidget):
             'isPro': is_pro(),
             'telemetryEnabled': telemetry_turned_on(),
             # Static over a single analysis
+            'excelImportEnabled': is_excel_import_enabled(),
             'isLocalDeployment': self.is_local_deployment,
             'shouldUpgradeMitosheet': self.should_upgrade_mitosheet,
             'numUsages': self.num_usages,
