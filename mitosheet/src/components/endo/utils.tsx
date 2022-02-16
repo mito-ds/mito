@@ -1,12 +1,13 @@
 import React from "react";
+import { ColumnFilters, ColumnHeader, GridState, SheetData } from "../../types";
+import { isBoolDtype, isDatetimeDtype, isFloatDtype, isIntDtype, isStringDtype, isTimedeltaDtype } from "../../utils/dtypes";
 import BooleanTypeIcon from "../icons/columntypes/BooleanTypeIcon";
-import NumberTypeIcon from "../icons/columntypes/NumberTypeIcon";
+import DatetimeTypeIcon from "../icons/columntypes/DatetimeTypeIcon";
+import FloatTypeIcon from "../icons/columntypes/FloatTypeIcon";
+import IntTypeIcon from "../icons/columntypes/IntTypeIcon";
 import StringTypeIcon from "../icons/columntypes/StringTypeIcon";
 import TimedeltaTypeIcon from "../icons/columntypes/TimedeltaTypeIcon";
-import DatetimeTypeIcon from "../icons/columntypes/DatetimeTypeIcon";
-import { ColumnFilters, ColumnHeader, GridState, SheetData } from "../../types";
 import { getWidthData } from "./widthUtils";
-import { isBoolDtype, isDatetimeDtype, isNumberDtype, isStringDtype, isTimedeltaDtype } from "../../utils/dtypes";
 
 
 export const isNumberInRangeInclusive = (num: number, start: number, end: number): boolean =>  {
@@ -66,9 +67,10 @@ export const getDefaultGridState = (sheetDataArray: SheetData[], selectedSheetIn
 export const getTypeIcon = (columnDtype: string, purpleOrDark?: 'purple' | 'dark'): JSX.Element => {
     if (isStringDtype(columnDtype)) {
         return <StringTypeIcon purpleOrDark={purpleOrDark}/>
-    } else if (isNumberDtype(columnDtype)) {
-        // TODO: split out floats and ints into different icons
-        return <NumberTypeIcon purpleOrDark={purpleOrDark}/>
+    } else if (isFloatDtype(columnDtype)) {
+        return <FloatTypeIcon purpleOrDark={purpleOrDark}/>
+    } else if (isIntDtype(columnDtype)) {
+        return <IntTypeIcon purpleOrDark={purpleOrDark}/>
     } else if (isDatetimeDtype(columnDtype)) {
         return <DatetimeTypeIcon purpleOrDark={purpleOrDark}/>
     } else if (isTimedeltaDtype(columnDtype)) {
