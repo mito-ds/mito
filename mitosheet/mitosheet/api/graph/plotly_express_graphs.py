@@ -67,7 +67,7 @@ def graph_creation(
     """
 
     # Create the parameters that we use to construct the graph
-    all_params: Dict[str, List[ColumnHeader]] = dict()
+    all_params: Dict[str, Union[ColumnHeader, List[ColumnHeader]]] = dict()
 
     # Plotly express requires that both the x and y parameter cannot both be lists,
     # so we need to do some casing.
