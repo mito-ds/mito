@@ -8,6 +8,7 @@
   * [Common Install Errors](getting-started/installing-mito/common-install-errors.md)
   * [Installing Mito Inside a Virtual Environment](getting-started/installing-mito/installing-mito-inside-a-virtual-environment.md)
   * [Installing Mito in a Docker Container](getting-started/installing-mito/installing-mito-in-a-docker-container.md)
+* [Overview of the Mitosheet](getting-started/overview-of-the-mitosheet.md)
 * [Tutorial](getting-started/tutorial.md)
 
 ## Feature Reference <a href="#how-to" id="how-to"></a>
