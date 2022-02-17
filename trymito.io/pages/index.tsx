@@ -10,7 +10,6 @@ import pageStyles from '../styles/Page.module.css'
 import titleStyles from '../styles/Title.module.css'
 import CTAButtons from '../components/CTAButtons/CTAButtons';
 import GithubButton from '../components/GithubButton/GithubButton';
-import Link from 'next/link';
 
 const Home: NextPage = () => {
 
