@@ -66,23 +66,6 @@ const CellEditor = (props: {
 
     const {columnID, columnHeader} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
 
-    if (columnID === undefined || columnHeader === undefined) {
-        return <></>;
-    }
-
-    const isFormulaColumn = props.sheetData.columnSpreadsheetCodeMap[columnID].length > 0;
-
-    const fullFormula = getFullFormula(props.editorState.formula, columnHeader, props.editorState.pendingSelectedColumns);
-    const endsInColumnHeader = formulaEndsInColumnHeader(fullFormula, props.sheetData);
-
-    const documentationFunction = getDocumentationFunction(fullFormula);
-
-    // NOTE: we get our suggestions off the non-full formula, as we don't want to make suggestions
-    // for column headers that are pending currently
-    const [suggestedColumnHeadersReplacementLength, suggestedColumnHeaders] = getSuggestedColumnHeaders(props.editorState.formula, columnID, props.sheetData);
-    const [suggestedFunctionsReplacementLength, suggestedFunctions] = getSuggestedFunctions(props.editorState.formula, suggestedColumnHeadersReplacementLength);
-    const hasSuggestions = suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0;
-
     // Ensures that the cell editor is in the right location, when initially placed.
     // We don't move it, as it doesn't really make things better, as GSheets does not
     // and it really don't effect the experience of using the cell editor at all!
@@ -161,6 +144,53 @@ const CellEditor = (props: {
         fscreen.addEventListener('fullscreenchange', updateCellEditorPosition);
         return () => fscreen.removeEventListener('fullscreenchange', updateCellEditorPosition);
     }, [])
+
+
+    /* 
+        This effect makes sure that when the pending selected columns change,
+        the cell stays focused (as the user might have clicked on different cell),
+        and that the selection range inside the cell editor is at the end of 
+        the columns they have pending...
+
+        We wrap in a setTimeout with no delay, which makes sure the range is set
+        properly after the value in the input updates. 
+
+        See here: https://stackoverflow.com/questions/9596419/what-are-some-reasons-for-jquery-focus-not-working/26754609
+    */
+    useEffect(() => {
+        setTimeout(() => {
+            // Focus the input
+            cellEditorInputRef.current?.focus();
+
+            // If there is a pendingSelectedColumns, then we set the selection to be 
+            // at the _end_ of them!
+            if (props.editorState.pendingSelectedColumns !== undefined) {
+                const index = props.editorState.pendingSelectedColumns.selectionStart + props.editorState.pendingSelectedColumns.columnHeaders.map(ch => getDisplayColumnHeader(ch)).join(', ').length;
+                cellEditorInputRef.current?.setSelectionRange(
+                    index, index
+                )
+            }
+            
+        })
+    }, [props.editorState.pendingSelectedColumns]);
+
+
+    if (columnID === undefined || columnHeader === undefined) {
+        return <></>;
+    }
+
+    const isFormulaColumn = props.sheetData.columnSpreadsheetCodeMap[columnID].length > 0;
+
+    const fullFormula = getFullFormula(props.editorState.formula, columnHeader, props.editorState.pendingSelectedColumns);
+    const endsInColumnHeader = formulaEndsInColumnHeader(fullFormula, props.sheetData);
+
+    const documentationFunction = getDocumentationFunction(fullFormula);
+
+    // NOTE: we get our suggestions off the non-full formula, as we don't want to make suggestions
+    // for column headers that are pending currently
+    const [suggestedColumnHeadersReplacementLength, suggestedColumnHeaders] = getSuggestedColumnHeaders(props.editorState.formula, columnID, props.sheetData);
+    const [suggestedFunctionsReplacementLength, suggestedFunctions] = getSuggestedFunctions(props.editorState.formula, suggestedColumnHeadersReplacementLength);
+    const hasSuggestions = suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0;
 
 
     // A helper function to close the cell editor, selecting the cell that was
@@ -403,34 +433,6 @@ const CellEditor = (props: {
             })
         }
     }
-
-    /* 
-        This effect makes sure that when the pending selected columns change,
-        the cell stays focused (as the user might have clicked on different cell),
-        and that the selection range inside the cell editor is at the end of 
-        the columns they have pending...
-
-        We wrap in a setTimeout with no delay, which makes sure the range is set
-        properly after the value in the input updates. 
-
-        See here: https://stackoverflow.com/questions/9596419/what-are-some-reasons-for-jquery-focus-not-working/26754609
-    */
-    useEffect(() => {
-        setTimeout(() => {
-            // Focus the input
-            cellEditorInputRef.current?.focus();
-
-            // If there is a pendingSelectedColumns, then we set the selection to be 
-            // at the _end_ of them!
-            if (props.editorState.pendingSelectedColumns !== undefined) {
-                const index = props.editorState.pendingSelectedColumns.selectionStart + props.editorState.pendingSelectedColumns.columnHeaders.map(ch => getDisplayColumnHeader(ch)).join(', ').length;
-                cellEditorInputRef.current?.setSelectionRange(
-                    index, index
-                )
-            }
-            
-        })
-    }, [props.editorState.pendingSelectedColumns]);
 
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
