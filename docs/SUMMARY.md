@@ -36,6 +36,7 @@
 ## How To
 
 * [Delete Columns with Missing Values](how-to-1/delete-columns-with-missing-values.md)
+* [Use the Mito Generated Code outside of JupyterLab](how-to-1/use-the-mito-generated-code-outside-of-jupyterlab.md)
 
 ## Misc
 
