@@ -228,12 +228,16 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
     // So that we don't leave a bunch of divs lying around
     useEffect(() => {
         return () => {
-            if (isNotFullscreen) {
-                document.body.removeChild(dropdownContainerElement.current)
-            } else {
-                if (mitoContainerRef.current) {
-                    mitoContainerRef.current.removeChild(dropdownContainerElement.current)
+            try {
+                if (isNotFullscreen) {
+                    document.body.removeChild(dropdownContainerElement.current)
+                } else {
+                    if (mitoContainerRef.current) {
+                        mitoContainerRef.current.removeChild(dropdownContainerElement.current)
+                    }
                 }
+            } catch {
+                // If we fail cleaning up a dropdown, we don't want to crash the sheet
             }
         }
     }, [])

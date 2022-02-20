@@ -53,6 +53,12 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
         columnIDs: props.sheetDataArray[props.selectedSheetIndex]?.data?.map(c => c.columnID) || [],
         keep: 'first',
     })
+
+    // Send a drop duplicates message if we change the params
+    useDebouncedEffect(() => {
+        void sendDropDuplicates(dropDuplicateParams);
+    }, [dropDuplicateParams], SEND_MESSAGE_DELAY);
+
     
     if (props.sheetDataArray.length === 0) {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
@@ -74,11 +80,6 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
         setStepID(newStepID);
         setLoading(false);
     }
-
-    // Send a drop duplicates message if we change the params
-    useDebouncedEffect(() => {
-        void sendDropDuplicates(dropDuplicateParams);
-    }, [dropDuplicateParams], SEND_MESSAGE_DELAY);
 
     return (
         <DefaultTaskpane>

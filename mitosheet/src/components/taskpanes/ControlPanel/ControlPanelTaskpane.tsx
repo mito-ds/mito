@@ -57,6 +57,18 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
     const [filters, setFilters] = useState(columnFilters !== undefined ? columnFilters.filters : []);
     const [operator, setOperator] = useState(columnFilters !== undefined ? columnFilters.operator : 'And');
     const [stepID, setStepID] = useState('');
+
+
+    // When the filters or operator changes, send a new message, as long as this is not
+    // the first time that this rendered. We use a ref to avoid sending a message the first 
+    // time it renders
+    const firstRender = useRef(true);
+    useDebouncedEffect(() => {
+        if (!firstRender.current) {
+            void _sendFilterUpdateMessage();
+        }
+        firstRender.current = false;
+    }, [filters, operator], FILTER_MESSAGE_DELAY)
     
     // If this is not a valid column, don't render anything, and close the takspane! 
     // We have to do this after the useState calls, to make sure this is valid react
@@ -69,17 +81,6 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
         })
         return <></>
     }
-
-    // When the filters or operator changes, send a new message, as long as this is not
-    // the first time that this rendered. We use a ref to avoid sending a message the first 
-    // time it renders
-    const firstRender = useRef(true);
-    useDebouncedEffect(() => {
-        if (!firstRender.current) {
-            void _sendFilterUpdateMessage();
-        }
-        firstRender.current = false;
-    }, [filters, operator], FILTER_MESSAGE_DELAY)
 
     /* 
         NOTE: only call this through the sendFilterUpdateMessage function, to make sure
