@@ -486,7 +486,7 @@ const GraphSidebar = (props: {
                     <Row justify='space-between' align='center'>
                         <Col>
                             <p className='text-header-3'>
-                                Data Source
+                                Filter to safe size
                             </p>
                         </Col>
                         <Col>
