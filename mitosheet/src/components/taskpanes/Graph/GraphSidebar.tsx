@@ -21,6 +21,7 @@ import '../../../../css/taskpanes/Graph/GraphSidebar.css'
 import '../../../../css/taskpanes/Graph/LoadingSpinner.css'
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import { isNumberDtype } from '../../../utils/dtypes';
+import Toggle from '../../elements/Toggle';
 
 export enum GraphType {
     SCATTER = 'scatter',
@@ -63,7 +64,7 @@ const DEFAULT_GRAPH_PARAMS = {
     params.
 */
 const getGraphParams = (
-    lastGraphParams: Record<number, GraphParams | undefined>, 
+    lastGraphParams: Record<number, GraphParams | undefined>,
     sheetIndex: number,
     sheetDataArray: SheetData[]
 ): GraphParams => {
@@ -160,7 +161,7 @@ const GraphSidebar = (props: {
         It calls the loadNewGraph function which is on a delay, as to 
         not overload the backend with new graph creation requests.
     */
-    useEffect(() => {   
+    useEffect(() => {
         // If the graph has never been configured, then don't display the loading indicator
         // or try to create the graph
         if (graphHasNeverBeenConfigured) {
@@ -168,7 +169,7 @@ const GraphSidebar = (props: {
             return
         }
         // Start the loading icon as soon as the user makes a change to the graph
-        setLoading(true)             
+        setLoading(true)
         void loadNewGraph()
 
         // We also log when the columns are selected, when they change
@@ -194,7 +195,7 @@ const GraphSidebar = (props: {
         } catch (e) {
             console.error("Failed to execute graph function", e)
         }
-        
+
     }, [graphObj])
 
     /* 
@@ -209,7 +210,7 @@ const GraphSidebar = (props: {
             const loadedGraphHTMLAndScript = await props.mitoAPI.getGraph(
                 graphParams.graphType,
                 selectedSheetIndex,
-                graphParams.xAxisColumnIDs, 
+                graphParams.xAxisColumnIDs,
                 graphParams.yAxisColumnIDs,
                 `${boundingRect?.height - 10}px`, `${boundingRect?.width - 20}px` // Subtract pixels from the height & width to account for padding
             );
@@ -242,12 +243,12 @@ const GraphSidebar = (props: {
     const _setGraphType = (graphType: GraphType) => {
         let xAxisColumnIDsCopy = [...graphParams.xAxisColumnIDs]
         let yAxisColumnIDsCopy = [...graphParams.yAxisColumnIDs]
-        
+
         /* 
             If the user switches to a Box plot or Histogram, then we make sure that
             1. all of the selected columns are numbers. 
             2. there are not columns in both the x and y axis. 
-        */ 
+        */
         if (graphType === GraphType.BOX || graphType === GraphType.HISTOGRAM) {
             xAxisColumnIDsCopy = removeNonNumberColumnIDs(xAxisColumnIDsCopy)
             yAxisColumnIDsCopy = removeNonNumberColumnIDs(yAxisColumnIDsCopy)
@@ -256,7 +257,7 @@ const GraphSidebar = (props: {
             if (graphParams.xAxisColumnIDs.length > 0 && graphParams.yAxisColumnIDs.length > 0) {
                 yAxisColumnIDsCopy = []
             }
-        } 
+        }
 
         // Log that we reset the selected columns
         if (xAxisColumnIDsCopy.length !== graphParams.xAxisColumnIDs.length || yAxisColumnIDsCopy.length !== graphParams.yAxisColumnIDs.length) {
@@ -269,7 +270,7 @@ const GraphSidebar = (props: {
             'x_axis_column_ids': xAxisColumnIDsCopy,
             'y_axis_column_ids': yAxisColumnIDsCopy,
         });
-        
+
         // Update the graph type
         setGraphParams({
             ...graphParams,
@@ -284,7 +285,7 @@ const GraphSidebar = (props: {
         Set the columnHeader at the index of the graphAxis selected columns array.
 
         To remove a column, leave the columnHeader empty.
-    */ 
+    */
     const updateAxisData = (graphAxis: GraphAxisType, index: number, columnID?: ColumnID) => {
         // Get the current axis data
         let axisColumnIDs: ColumnID[] = []
@@ -293,7 +294,7 @@ const GraphSidebar = (props: {
         } else {
             axisColumnIDs = graphParams.yAxisColumnIDs
         }
-        
+
         // Make a copy of the column headers before editing them
         const axisColumnIDsCopy = [...axisColumnIDs]
 
@@ -315,7 +316,7 @@ const GraphSidebar = (props: {
                 yAxisColumnIDs: axisColumnIDsCopy
             })
         }
-    } 
+    }
 
     const copyGraphCode = () => {
         _copyGraphCode()
@@ -334,11 +335,11 @@ const GraphSidebar = (props: {
         props.setUIState(prevUIState => {
             return {
                 ...prevUIState,
-                currOpenTaskpane: {type: TaskpaneType.NONE}
+                currOpenTaskpane: { type: TaskpaneType.NONE }
             }
         })
 
-        return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
+        return <DefaultEmptyTaskpane setUIState={props.setUIState} />
     } else {
         return (
             <div className='graph-sidebar-div'>
@@ -346,8 +347,8 @@ const GraphSidebar = (props: {
                     {graphObj === undefined && graphParams.xAxisColumnIDs.length === 0 && graphParams.yAxisColumnIDs.length === 0 &&
                         <p className='graph-sidebar-welcome-text' >To generate a graph, select a axis.</p>
                     }
-                    {graphObj !== undefined && 
-                        <div dangerouslySetInnerHTML={{__html: graphObj?.html}}/>
+                    {graphObj !== undefined &&
+                        <div dangerouslySetInnerHTML={{ __html: graphObj?.html }} />
                     }
                 </div>
                 <div className='graph-sidebar-toolbar-div'>
@@ -363,7 +364,7 @@ const GraphSidebar = (props: {
                                     props.setUIState((prevUIState) => {
                                         return {
                                             ...prevUIState,
-                                            currOpenTaskpane: {type: TaskpaneType.NONE}
+                                            currOpenTaskpane: { type: TaskpaneType.NONE }
                                         }
                                     })
                                     void props.mitoAPI.sendLogMessage('closed_graph')
@@ -378,8 +379,8 @@ const GraphSidebar = (props: {
                                     Data Source
                                 </p>
                             </Col>
-                            <Col>  
-                                <Select 
+                            <Col>
+                                <Select
                                     value={props.dfNames[selectedSheetIndex]}
                                     onChange={(newDfName: string) => {
                                         const newIndex = props.dfNames.indexOf(newDfName);
@@ -404,8 +405,8 @@ const GraphSidebar = (props: {
                                     Chart Type
                                 </p>
                             </Col>
-                            <Col>  
-                                <Select 
+                            <Col>
+                                <Select
                                     value={graphParams.graphType}
                                     onChange={(graphType: string) => {
                                         _setGraphType(graphType as GraphType)
@@ -430,7 +431,7 @@ const GraphSidebar = (props: {
                                 </Select>
                             </Col>
                         </Row>
-                        
+
                         <AxisSection
                             /* 
                                 We use a key here to force the Axis Section to update when the user changes the xAxisColumnHeaders.
@@ -460,12 +461,12 @@ const GraphSidebar = (props: {
                             key={['yAxis'].concat(graphParams.yAxisColumnIDs).join('')}
                             columnIDsMap={props.columnIDsMapArray[selectedSheetIndex]}
                             columnDtypesMap={props.columnDtypesMap}
-                            
+
                             graphType={graphParams.graphType}
                             graphAxis={GraphAxisType.Y_AXIS}
                             selectedColumnIDs={graphParams.yAxisColumnIDs}
                             otherAxisSelectedColumnIDs={graphParams.xAxisColumnIDs}
-                            
+
                             updateAxisData={updateAxisData}
                             mitoAPI={props.mitoAPI}
                         />
@@ -476,15 +477,28 @@ const GraphSidebar = (props: {
                             onClick={copyGraphCode}
                             disabled={loading || graphObj === undefined}
                         >
-                            {!graphCodeCopied 
-                                ? "Copy Graph Code" 
+                            {!graphCodeCopied
+                                ? "Copy Graph Code"
                                 : "Copied!"
-                            }                        
+                            }
                         </TextButton>
                     </div>
+                    <Row justify='space-between' align='center'>
+                        <Col>
+                            <p className='text-header-3'>
+                                Data Source
+                            </p>
+                        </Col>
+                        <Col>
+                            <Toggle
+                                value={true}
+                            />
+                        </Col>
+                    </Row>
+
                 </div>
-                                
-                {loading && 
+
+                {loading &&
                     <div className='popup-div'>
                         <LoadingSpinner />
                         <p className='popup-text-div'>
@@ -495,7 +509,7 @@ const GraphSidebar = (props: {
             </div>
         )
     }
-    
+
 };
 
 export default GraphSidebar;
