@@ -19,6 +19,9 @@ def get_graph(event: Dict[str, Any], steps_manager: StepsManager) -> str:
     string to the frontend for display.
 
     {
+        preprocessing: {
+            safety_filter: boolean
+        },
         graph_creation: {
             graph_type: GraphType,
             sheet_index: int
@@ -29,7 +32,7 @@ def get_graph(event: Dict[str, Any], steps_manager: StepsManager) -> str:
             Note: Color is not in the styles object because it can either be a variable or a discrete color.
             Color as a variable does not belong in the style object. However, I want to keep the variable
             and constant color together so we can ensure through the type system that only one can be set at a time.
-        }
+        },
         graph_rendering: {
             height: int representing the div width
             width: int representing the div width
@@ -37,8 +40,10 @@ def get_graph(event: Dict[str, Any], steps_manager: StepsManager) -> str:
     }
     """
     # Get graph type
+    print(event)
     graph_type = event["graph_creation"]["graph_type"]
     sheet_index = event["graph_creation"]["sheet_index"]
+    safety_filter = event["preprocessing"]["safety_filter"]
 
     # Get the x axis params, if they were provided
     x_axis_column_ids = (
@@ -87,10 +92,15 @@ def get_graph(event: Dict[str, Any], steps_manager: StepsManager) -> str:
         generation_code = ""
     else:
         fig = get_plotly_express_graph(
-            graph_type, df, x_axis_column_headers, y_axis_column_headers
+            graph_type, df, safety_filter, x_axis_column_headers, y_axis_column_headers
         )
         generation_code = get_plotly_express_graph_code(
-            graph_type, df, df_name, x_axis_column_headers, y_axis_column_headers
+            graph_type,
+            df,
+            df_name,
+            safety_filter,
+            x_axis_column_headers,
+            y_axis_column_headers,
         )
 
     # Get rid of some of the default white space

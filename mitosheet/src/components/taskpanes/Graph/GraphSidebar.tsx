@@ -212,6 +212,7 @@ const GraphSidebar = (props: {
             const loadedGraphHTMLAndScript = await props.mitoAPI.getGraph(
                 graphParams.graphType,
                 selectedSheetIndex,
+                graphParams.safetyFilter,
                 graphParams.xAxisColumnIDs,
                 graphParams.yAxisColumnIDs,
                 `${boundingRect?.height - 10}px`, `${boundingRect?.width - 20}px` // Subtract pixels from the height & width to account for padding
