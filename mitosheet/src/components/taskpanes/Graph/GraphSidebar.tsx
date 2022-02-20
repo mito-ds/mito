@@ -41,18 +41,19 @@ export interface GraphObject {
 export interface GraphParams {
     graphType: GraphType,
     xAxisColumnIDs: ColumnID[],
-    yAxisColumnIDs: ColumnID[]
+    yAxisColumnIDs: ColumnID[],
+    safetyFilter: boolean
 }
 
 // Millisecond delay between loading graphs, so that
 // we don't load to many graphs when the user is clicking around
 const LOAD_GRAPH_TIMEOUT = 1000;
 
-
 const DEFAULT_GRAPH_PARAMS = {
     graphType: GraphType.BAR,
     xAxisColumnIDs: [],
-    yAxisColumnIDs: []
+    yAxisColumnIDs: [],
+    safetyFilter: true
 }
 
 /*
@@ -66,7 +67,7 @@ const DEFAULT_GRAPH_PARAMS = {
 const getGraphParams = (
     lastGraphParams: Record<number, GraphParams | undefined>,
     sheetIndex: number,
-    sheetDataArray: SheetData[]
+    sheetDataArray: SheetData[],
 ): GraphParams => {
     const lastParams = lastGraphParams[sheetIndex];
     if (lastParams !== undefined) {
@@ -83,7 +84,8 @@ const getGraphParams = (
         return {
             graphType: lastParams.graphType,
             xAxisColumnIDs: xAxisColumnIDs,
-            yAxisColumnIDs: yAxisColumnIDs
+            yAxisColumnIDs: yAxisColumnIDs,
+            safetyFilter: lastParams.safetyFilter
         }
     }
     return DEFAULT_GRAPH_PARAMS;
@@ -231,6 +233,18 @@ const GraphSidebar = (props: {
     */
     const loadNewGraph = async () => {
         changeLoadingGraph(getGraphAsync);
+    }
+
+    // Toggles the safety filter component of the graph params
+    const toggleSafetyFilter = (): void => {
+        const newSafetyFilter = !graphParams.safetyFilter
+
+        console.log(newSafetyFilter)
+
+        setGraphParams({
+            ...graphParams,
+            safetyFilter: newSafetyFilter
+        })
     }
 
     const removeNonNumberColumnIDs = (columnIDs: ColumnID[]) => {
@@ -470,7 +484,21 @@ const GraphSidebar = (props: {
                             updateAxisData={updateAxisData}
                             mitoAPI={props.mitoAPI}
                         />
+                        <Row justify='space-between' align='center'>
+                            <Col>
+                                <p className='text-header-3'>
+                                    Filter to safe size
+                                </p>
+                            </Col>
+                            <Col>
+                                <Toggle
+                                    value={graphParams.safetyFilter}
+                                    onChange={toggleSafetyFilter}
+                                />
+                            </Col>
+                        </Row>
                     </div>
+
                     <div className='graph-sidebar-toolbar-code-export-button'>
                         <TextButton
                             variant='dark'
@@ -483,19 +511,6 @@ const GraphSidebar = (props: {
                             }
                         </TextButton>
                     </div>
-                    <Row justify='space-between' align='center'>
-                        <Col>
-                            <p className='text-header-3'>
-                                Filter to safe size
-                            </p>
-                        </Col>
-                        <Col>
-                            <Toggle
-                                value={true}
-                            />
-                        </Col>
-                    </Row>
-
                 </div>
 
                 {loading &&

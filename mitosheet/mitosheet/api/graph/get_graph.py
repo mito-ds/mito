@@ -75,6 +75,9 @@ def get_graph(event: Dict[str, Any], steps_manager: StepsManager) -> str:
     df: pd.DataFrame = steps_manager.dfs[sheet_index].copy()
     df_name: str = steps_manager.curr_step.df_names[sheet_index]
 
+    if len(x_axis_column_ids) == 0 and len(y_axis_column_ids) == 0:
+        return ""
+
     # Handle the graphs in alphabetical order
     if graph_type == SUMMARY_STAT:
         # We handle summary stats separately from the histogram, for now, because
