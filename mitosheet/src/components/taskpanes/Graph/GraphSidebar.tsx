@@ -22,6 +22,7 @@ import '../../../../css/taskpanes/Graph/LoadingSpinner.css'
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import { isNumberDtype } from '../../../utils/dtypes';
 import Toggle from '../../elements/Toggle';
+import SafeToGraphIcon from '../../icons/SafeToGraphIcon';
 
 export enum GraphType {
     SCATTER = 'scatter',
@@ -485,19 +486,31 @@ const GraphSidebar = (props: {
                             updateAxisData={updateAxisData}
                             mitoAPI={props.mitoAPI}
                         />
-                        <Row justify='space-between' align='center'>
-                            <Col>
-                                <p className='text-header-3'>
-                                    Filter to safe size
-                                </p>
-                            </Col>
-                            <Col>
-                                <Toggle
-                                    value={graphParams.safetyFilter}
-                                    onChange={toggleSafetyFilter}
-                                />
-                            </Col>
-                        </Row>
+                        {props.sheetDataArray[selectedSheetIndex].numRows > 1000 &&
+                            <Row justify='space-between' align='center'>
+                                <Col>
+                                    <p className='text-header-3' title='Turning on Filter to Safe Size only graphs the first 1000 rows of your dataframe, ensuring that your browser won’t crash. Turning it off, graphs the entire dataframe and might crash your browser.'>
+                                        Filter to safe size
+                                    </p>
+                                </Col>
+                                <Col>
+                                    <Toggle
+                                        value={graphParams.safetyFilter}
+                                        onChange={toggleSafetyFilter}
+                                    />
+                                </Col>
+                            </Row>
+                        }
+                        {props.sheetDataArray[selectedSheetIndex].numRows <= 1000 &&
+                            <Row justify='space-between' align='center' title='Because you’re graphing less than 1000 rows of data, you’re browser tab will likely not crash.'>
+                                <Col>
+                                    <p className='text-header-3'>
+                                        Your data is safe to graph
+                                    </p>
+                                </Col>
+                                <SafeToGraphIcon />
+                            </Row>
+                        }
                     </div>
 
                     <div className='graph-sidebar-toolbar-code-export-button'>
