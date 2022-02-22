@@ -21,6 +21,7 @@ import '../../../../css/taskpanes/Graph/GraphSidebar.css'
 import '../../../../css/taskpanes/Graph/LoadingSpinner.css'
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import { isNumberDtype } from '../../../utils/dtypes';
+import Toggle from '../../elements/Toggle';
 
 export enum GraphType {
     SCATTER = 'scatter',
@@ -40,18 +41,37 @@ export interface GraphObject {
 export interface GraphParams {
     graphType: GraphType,
     xAxisColumnIDs: ColumnID[],
-    yAxisColumnIDs: ColumnID[]
+    yAxisColumnIDs: ColumnID[],
+    safetyFilter: boolean
 }
 
 // Millisecond delay between loading graphs, so that
 // we don't load to many graphs when the user is clicking around
 const LOAD_GRAPH_TIMEOUT = 1000;
 
+// Graphing a dataframe with more than this number of rows will
+// give the user the option to apply the safety filter
+// Note: This must be kept in sync with the graphing heuristic in the mitosheet/graph folder
+const GRAPH_SAFETY_FILTER_CUTOFF = 1000;
 
-const DEFAULT_GRAPH_PARAMS = {
-    graphType: GraphType.BAR,
-    xAxisColumnIDs: [],
-    yAxisColumnIDs: []
+// Tooltips used to explain the Safety filter toggle
+const SAFETY_FILTER_DISABLED_MESSAGE = `Because you’re graphing less than ${GRAPH_SAFETY_FILTER_CUTOFF} rows of data, you can safely graph your data without applying a filter first.`
+const SAFETY_FILTER_ENABLED_MESSAGE = `Turning on Filter to Safe Size only graphs the first ${GRAPH_SAFETY_FILTER_CUTOFF} rows of your dataframe, ensuring that your browser tab won’t crash. Turning off Filter to Safe Size graphs the entire dataframe and may slow or crash your browser tab.`
+
+// Helper function for creating default graph params 
+const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: number): GraphParams => {
+    const safetyFilter = getDefaultSafetyFilter(sheetDataArray, sheetIndex)
+    return {
+        graphType: GraphType.BAR,
+        xAxisColumnIDs: [],
+        yAxisColumnIDs: [],
+        safetyFilter: safetyFilter
+    }
+}
+
+// Helper function for getting the default safety filter status
+const getDefaultSafetyFilter = (sheetDataArray: SheetData[], sheetIndex: number): boolean => {
+    return sheetDataArray[sheetIndex] === undefined || sheetDataArray[sheetIndex].numRows > GRAPH_SAFETY_FILTER_CUTOFF
 }
 
 /*
@@ -63,9 +83,9 @@ const DEFAULT_GRAPH_PARAMS = {
     params.
 */
 const getGraphParams = (
-    lastGraphParams: Record<number, GraphParams | undefined>, 
+    lastGraphParams: Record<number, GraphParams | undefined>,
     sheetIndex: number,
-    sheetDataArray: SheetData[]
+    sheetDataArray: SheetData[],
 ): GraphParams => {
     const lastParams = lastGraphParams[sheetIndex];
     if (lastParams !== undefined) {
@@ -82,10 +102,11 @@ const getGraphParams = (
         return {
             graphType: lastParams.graphType,
             xAxisColumnIDs: xAxisColumnIDs,
-            yAxisColumnIDs: yAxisColumnIDs
+            yAxisColumnIDs: yAxisColumnIDs,
+            safetyFilter: lastParams.safetyFilter
         }
     }
-    return DEFAULT_GRAPH_PARAMS;
+    return getDefaultGraphParams(sheetDataArray, sheetIndex);
 }
 
 
@@ -146,7 +167,7 @@ const GraphSidebar = (props: {
 
     // If the graph has non-default params, then it has been configured
     const [graphHasNeverBeenConfigured, setGraphHasNeverBeenConfigured] = useState<boolean>(
-        graphParams === DEFAULT_GRAPH_PARAMS
+        graphParams === getDefaultGraphParams(props.sheetDataArray, selectedSheetIndex)
     )
 
     // We log when the graph has been opened
@@ -156,11 +177,11 @@ const GraphSidebar = (props: {
 
     /* 
         Gets fired whenever the user makes a change to their graph. 
-
+    
         It calls the loadNewGraph function which is on a delay, as to 
         not overload the backend with new graph creation requests.
     */
-    useEffect(() => {   
+    useEffect(() => {
         // If the graph has never been configured, then don't display the loading indicator
         // or try to create the graph
         if (graphHasNeverBeenConfigured) {
@@ -168,7 +189,7 @@ const GraphSidebar = (props: {
             return
         }
         // Start the loading icon as soon as the user makes a change to the graph
-        setLoading(true)             
+        setLoading(true)
         void loadNewGraph()
 
         // We also log when the columns are selected, when they change
@@ -194,7 +215,7 @@ const GraphSidebar = (props: {
         } catch (e) {
             console.error("Failed to execute graph function", e)
         }
-        
+
     }, [graphObj])
 
     /* 
@@ -209,7 +230,8 @@ const GraphSidebar = (props: {
             const loadedGraphHTMLAndScript = await props.mitoAPI.getGraph(
                 graphParams.graphType,
                 selectedSheetIndex,
-                graphParams.xAxisColumnIDs, 
+                graphParams.safetyFilter,
+                graphParams.xAxisColumnIDs,
                 graphParams.yAxisColumnIDs,
                 `${boundingRect?.height - 10}px`, `${boundingRect?.width - 20}px` // Subtract pixels from the height & width to account for padding
             );
@@ -224,12 +246,22 @@ const GraphSidebar = (props: {
     /* 
         Whenever the graph is changed we set a timeout to start loading a new 
         graph. This runs after LOAD_GRAPH_TIMEOUT.
-
+    
         This makes sure we don't send unnecessary messages to the backend if the user
         is switching axes/graph types quickly.
     */
     const loadNewGraph = async () => {
         changeLoadingGraph(getGraphAsync);
+    }
+
+    // Toggles the safety filter component of the graph params
+    const toggleSafetyFilter = (): void => {
+        const newSafetyFilter = !graphParams.safetyFilter
+
+        setGraphParams({
+            ...graphParams,
+            safetyFilter: newSafetyFilter
+        })
     }
 
     const removeNonNumberColumnIDs = (columnIDs: ColumnID[]) => {
@@ -242,12 +274,12 @@ const GraphSidebar = (props: {
     const _setGraphType = (graphType: GraphType) => {
         let xAxisColumnIDsCopy = [...graphParams.xAxisColumnIDs]
         let yAxisColumnIDsCopy = [...graphParams.yAxisColumnIDs]
-        
+
         /* 
             If the user switches to a Box plot or Histogram, then we make sure that
             1. all of the selected columns are numbers. 
             2. there are not columns in both the x and y axis. 
-        */ 
+        */
         if (graphType === GraphType.BOX || graphType === GraphType.HISTOGRAM) {
             xAxisColumnIDsCopy = removeNonNumberColumnIDs(xAxisColumnIDsCopy)
             yAxisColumnIDsCopy = removeNonNumberColumnIDs(yAxisColumnIDsCopy)
@@ -256,7 +288,7 @@ const GraphSidebar = (props: {
             if (graphParams.xAxisColumnIDs.length > 0 && graphParams.yAxisColumnIDs.length > 0) {
                 yAxisColumnIDsCopy = []
             }
-        } 
+        }
 
         // Log that we reset the selected columns
         if (xAxisColumnIDsCopy.length !== graphParams.xAxisColumnIDs.length || yAxisColumnIDsCopy.length !== graphParams.yAxisColumnIDs.length) {
@@ -269,7 +301,7 @@ const GraphSidebar = (props: {
             'x_axis_column_ids': xAxisColumnIDsCopy,
             'y_axis_column_ids': yAxisColumnIDsCopy,
         });
-        
+
         // Update the graph type
         setGraphParams({
             ...graphParams,
@@ -282,9 +314,9 @@ const GraphSidebar = (props: {
     /* 
         Function responsible for updating the selected column headers for each axis. 
         Set the columnHeader at the index of the graphAxis selected columns array.
-
+    
         To remove a column, leave the columnHeader empty.
-    */ 
+    */
     const updateAxisData = (graphAxis: GraphAxisType, index: number, columnID?: ColumnID) => {
         // Get the current axis data
         let axisColumnIDs: ColumnID[] = []
@@ -293,7 +325,7 @@ const GraphSidebar = (props: {
         } else {
             axisColumnIDs = graphParams.yAxisColumnIDs
         }
-        
+
         // Make a copy of the column headers before editing them
         const axisColumnIDsCopy = [...axisColumnIDs]
 
@@ -315,7 +347,7 @@ const GraphSidebar = (props: {
                 yAxisColumnIDs: axisColumnIDsCopy
             })
         }
-    } 
+    }
 
     const copyGraphCode = () => {
         _copyGraphCode()
@@ -334,11 +366,11 @@ const GraphSidebar = (props: {
         props.setUIState(prevUIState => {
             return {
                 ...prevUIState,
-                currOpenTaskpane: {type: TaskpaneType.NONE}
+                currOpenTaskpane: { type: TaskpaneType.NONE }
             }
         })
 
-        return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
+        return <DefaultEmptyTaskpane setUIState={props.setUIState} />
     } else {
         return (
             <div className='graph-sidebar-div'>
@@ -346,8 +378,8 @@ const GraphSidebar = (props: {
                     {graphObj === undefined && graphParams.xAxisColumnIDs.length === 0 && graphParams.yAxisColumnIDs.length === 0 &&
                         <p className='graph-sidebar-welcome-text' >To generate a graph, select a axis.</p>
                     }
-                    {graphObj !== undefined && 
-                        <div dangerouslySetInnerHTML={{__html: graphObj?.html}}/>
+                    {graphObj !== undefined &&
+                        <div dangerouslySetInnerHTML={{ __html: graphObj?.html }} />
                     }
                 </div>
                 <div className='graph-sidebar-toolbar-div'>
@@ -363,7 +395,7 @@ const GraphSidebar = (props: {
                                     props.setUIState((prevUIState) => {
                                         return {
                                             ...prevUIState,
-                                            currOpenTaskpane: {type: TaskpaneType.NONE}
+                                            currOpenTaskpane: { type: TaskpaneType.NONE }
                                         }
                                     })
                                     void props.mitoAPI.sendLogMessage('closed_graph')
@@ -378,8 +410,8 @@ const GraphSidebar = (props: {
                                     Data Source
                                 </p>
                             </Col>
-                            <Col>  
-                                <Select 
+                            <Col>
+                                <Select
                                     value={props.dfNames[selectedSheetIndex]}
                                     onChange={(newDfName: string) => {
                                         const newIndex = props.dfNames.indexOf(newDfName);
@@ -404,8 +436,8 @@ const GraphSidebar = (props: {
                                     Chart Type
                                 </p>
                             </Col>
-                            <Col>  
-                                <Select 
+                            <Col>
+                                <Select
                                     value={graphParams.graphType}
                                     onChange={(graphType: string) => {
                                         _setGraphType(graphType as GraphType)
@@ -430,7 +462,7 @@ const GraphSidebar = (props: {
                                 </Select>
                             </Col>
                         </Row>
-                        
+
                         <AxisSection
                             /* 
                                 We use a key here to force the Axis Section to update when the user changes the xAxisColumnHeaders.
@@ -438,7 +470,7 @@ const GraphSidebar = (props: {
                                 Particularly, when the user changes the xAxisColumnHeaders from [A, B, A] to [B, A] by 
                                 deleting the first A, React does not recognize that the change has occurred and so the Axis Section does 
                                 not update even though the graph updates.
-
+    
                                 We append the indicator xAxis to the front of the list to ensure that both AxisSections have unique keys. 
                                 When the Axis Sections don't have unique keys, its possible for the sections to become duplicated as per 
                                 the React warnings.
@@ -460,31 +492,47 @@ const GraphSidebar = (props: {
                             key={['yAxis'].concat(graphParams.yAxisColumnIDs).join('')}
                             columnIDsMap={props.columnIDsMapArray[selectedSheetIndex]}
                             columnDtypesMap={props.columnDtypesMap}
-                            
+
                             graphType={graphParams.graphType}
                             graphAxis={GraphAxisType.Y_AXIS}
                             selectedColumnIDs={graphParams.yAxisColumnIDs}
                             otherAxisSelectedColumnIDs={graphParams.xAxisColumnIDs}
-                            
+
                             updateAxisData={updateAxisData}
                             mitoAPI={props.mitoAPI}
                         />
+                        <Row justify='space-between' align='center' title={getDefaultSafetyFilter(props.sheetDataArray, selectedSheetIndex) ? SAFETY_FILTER_ENABLED_MESSAGE : SAFETY_FILTER_DISABLED_MESSAGE}>
+                            <Col>
+                                <p className='text-header-3' >
+                                    Filter to safe size
+                                </p>
+                            </Col>
+                            <Col>
+                                <Toggle
+                                    value={graphParams.safetyFilter}
+                                    onChange={toggleSafetyFilter}
+                                    disabled={!getDefaultSafetyFilter(props.sheetDataArray, selectedSheetIndex)}
+                                />
+                            </Col>
+                        </Row>
+
                     </div>
+
                     <div className='graph-sidebar-toolbar-code-export-button'>
                         <TextButton
                             variant='dark'
                             onClick={copyGraphCode}
                             disabled={loading || graphObj === undefined}
                         >
-                            {!graphCodeCopied 
-                                ? "Copy Graph Code" 
+                            {!graphCodeCopied
+                                ? "Copy Graph Code"
                                 : "Copied!"
-                            }                        
+                            }
                         </TextButton>
                     </div>
                 </div>
-                                
-                {loading && 
+
+                {loading &&
                     <div className='popup-div'>
                         <LoadingSpinner />
                         <p className='popup-text-div'>
@@ -495,7 +543,7 @@ const GraphSidebar = (props: {
             </div>
         )
     }
-    
+
 };
 
 export default GraphSidebar;

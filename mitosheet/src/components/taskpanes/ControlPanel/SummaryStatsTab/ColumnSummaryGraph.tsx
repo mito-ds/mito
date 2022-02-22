@@ -21,6 +21,7 @@ function ColumnSummaryGraph(props: ColumnSummaryGraphProps): JSX.Element {
         const _graphHTMLAndScript = await props.mitoAPI.getGraph(
             GraphType.SUMMARY_STAT,
             props.selectedSheetIndex,
+            false, // We use a different filtering mechanism for column summary graphs, so we just default to false here
             [props.columnID],
             [],
             // 350px looks good on full screen and not-full screen mode 
@@ -48,14 +49,14 @@ function ColumnSummaryGraph(props: ColumnSummaryGraphProps): JSX.Element {
         } catch (e) {
             console.error("Failed to execute graph function", e)
         }
-        
+
     }, [graphObj])
 
     return (
         <React.Fragment>
 
             {graphObj !== undefined &&
-                <div dangerouslySetInnerHTML={{__html: graphObj.html}}/>
+                <div dangerouslySetInnerHTML={{ __html: graphObj.html }} />
             }
             {graphObj === undefined &&
                 <div>
