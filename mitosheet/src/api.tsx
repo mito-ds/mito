@@ -341,19 +341,18 @@ export default class MitoAPI {
     async getGraph(
         graphType: GraphType,
         sheet_index: number,
-        safety_filter: boolean,
+        safety_filter_turned_on_by_user: boolean,
         xAxisColumnIDs: ColumnID[] | undefined,
         yAxisColumnIDs: ColumnID[] | undefined,
         height?: string,
         width?: string,
     ): Promise<GraphObject | undefined> {
-        console.log(safety_filter)
 
         const graphString = await this.send<string>({
             'event': 'api_call',
             'type': 'get_graph',
             'preprocessing': {
-                'safety_filter': safety_filter
+                'safety_filter_turned_on_by_user': safety_filter_turned_on_by_user
             },
             'graph_creation': {
                 'graph_type': graphType,

@@ -79,7 +79,7 @@ def get_graph_title(
     )
 
     # Return a string with all of the graph_title_components separated by a space
-    return (" ").join(graph_title_components)
+    return " ".join(graph_title_components)
 
 
 def get_html_and_script_from_figure(
