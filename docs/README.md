@@ -26,4 +26,6 @@ This documentation is under construction.&#x20;
 2. To learn how to use specific features in the tool in the tool, check out the [Feature Reference](broken-reference). They provide videos and text to help you explore all Mito has to offer.
 3. To figure out how to accomplish a specific task, check out our [How To](broken-reference) guides. They will walk you through accomplishing specific tasks in Mito as efficiently as possible.
 
-This documentation is under construction, so please contact us if you have any questions, comments, or concerns.
+{% hint style="info" %}
+Our docs (and code) are open source! If you want to suggest changes to the documentation, add some sections, or check out or code, [follow us on Github](https://github.com/mito-ds/monorepo) 
+{% endhint %}

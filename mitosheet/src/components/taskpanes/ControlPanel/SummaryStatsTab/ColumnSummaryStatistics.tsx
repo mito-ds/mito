@@ -3,11 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import MitoAPI from '../../../../api';
 import "../../../../../css/taskpanes/ControlPanel/ColumnSummaryStatistics.css"
+import { ColumnID } from '../../../../types';
 
 
 type ColumnDescribeChartProps = {
     selectedSheetIndex: number;
-    columnID: string;
+    columnID: ColumnID;
     mitoAPI: MitoAPI;
 }
 

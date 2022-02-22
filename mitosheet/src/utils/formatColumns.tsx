@@ -2,8 +2,9 @@ import React from "react"
 import MitoAPI from "../api"
 import DropdownItem from "../components/elements/DropdownItem"
 import { getSelectedNumberSeriesColumnIDs } from "../components/endo/selectionUtils"
-import { ColumnMitoType, FormatType, FormatTypeObj, GridState, MitoSelection, SheetData } from "../types"
+import { ColumnID, FormatType, FormatTypeObj, GridState, MitoSelection, SheetData } from "../types"
 import DropdownCheckmark from '../components/icons/DropdownCheckmark'
+import { isNumberDtype } from "./dtypes"
 
 export const FORMAT_DISABLED_MESSAGE = 'You must have at least one Number column selected to adjust the formatting.'
 
@@ -18,9 +19,9 @@ const formatCellDataAsStringWithCommas = (cellData: string | number | boolean, d
 
     Note: The cellData type of a float is a string.
 */
-export const displayCellAsNumber = (cellData: boolean | string | number, columnMitoType: ColumnMitoType): boolean => {
+export const displayCellAsNumber = (cellData: boolean | string | number, columnDtype: string): boolean => {
     // If the column is not a number series, then don't format the cell as a number
-    if (columnMitoType !== ColumnMitoType.NUMBER_SERIES) {
+    if (!isNumberDtype(columnDtype)) {
         return false
     }
 
@@ -48,10 +49,10 @@ export const isStringNumeric = (str: string): boolean => {
     Returns cellData formatted as a number with decimals if the cell only contains valid number symbols
     and the columnMitoType is a number_series. Otherwise, returns the unaltered cellData
 */
-export const formatCellData = (cellData: boolean | string | number, columnMitoType: ColumnMitoType, columnDtype: string | undefined, columnFormatType: FormatTypeObj): string => {
+export const formatCellData = (cellData: boolean | string | number, columnDtype: string, columnFormatType: FormatTypeObj): string => {
     // Wrap in a try, catch because there are lots of type cases and we'd rather be safe than sorry.
     try {
-        if (displayCellAsNumber(cellData, columnMitoType)) {
+        if (displayCellAsNumber(cellData, columnDtype)) {
             switch(columnFormatType.type) {
                 case FormatType.DEFAULT:
                     if (columnDtype?.includes('int')) {
@@ -169,9 +170,9 @@ export const getColumnFormatDropdownItemsUsingSelections = (gridState: GridState
 */
 export const getColumnFormatDropdownItemsUsingColumnID = (
     sheetIndex: number, 
-    columnID: string, 
+    columnID: ColumnID, 
     mitoAPI: MitoAPI, 
-    columnMitoType: ColumnMitoType, 
+    columnDtype: string, 
     sheetData: SheetData | undefined,
     skipDefaultFormatItem?: boolean  // If false, the DropdownItems returned won't include the Default Format Dropdown Item
 ): JSX.Element[] => {
@@ -185,7 +186,7 @@ export const getColumnFormatDropdownItemsUsingColumnID = (
         )
     }
 
-    const disabled = columnMitoType !== ColumnMitoType.NUMBER_SERIES;
+    const disabled = !isNumberDtype(columnDtype);
     const appliedFormatting = sheetData ? sheetData.columnFormatTypeObjMap[columnID] : undefined
 
     return _getColumnFormatDropdownItems(onClick, disabled, appliedFormatting, skipDefaultFormatItem) 

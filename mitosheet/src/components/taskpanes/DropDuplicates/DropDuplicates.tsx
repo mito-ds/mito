@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import MitoAPI from '../../../api';
-import { ColumnHeader, SheetData, UIState } from '../../../types';
+import { ColumnHeader, ColumnID, SheetData, UIState } from '../../../types';
 import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
 import Select from '../../elements/Select';
@@ -35,7 +35,7 @@ interface DropDuplicatesProps {
 
 interface DropDuplicatesParams {
     sheetIndex: number,
-    columnIDs: string[],
+    columnIDs: ColumnID[],
     keep: 'first' | 'last' | false
 }
 
@@ -53,12 +53,18 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
         columnIDs: props.sheetDataArray[props.selectedSheetIndex]?.data?.map(c => c.columnID) || [],
         keep: 'first',
     })
+
+    // Send a drop duplicates message if we change the params
+    useDebouncedEffect(() => {
+        void sendDropDuplicates(dropDuplicateParams);
+    }, [dropDuplicateParams], SEND_MESSAGE_DELAY);
+
     
     if (props.sheetDataArray.length === 0) {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
     }
 
-    const columnIDsAndHeaders: [string, ColumnHeader][] = props.sheetDataArray[dropDuplicateParams.sheetIndex].data.map(c => [c.columnID, c.columnHeader]);
+    const columnIDsAndHeaders: [ColumnID, ColumnHeader][] = props.sheetDataArray[dropDuplicateParams.sheetIndex].data.map(c => [c.columnID, c.columnHeader]);
 
 
     const sendDropDuplicates = async (params: DropDuplicatesParams) => {
@@ -74,11 +80,6 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
         setStepID(newStepID);
         setLoading(false);
     }
-
-    // Send a drop duplicates message if we change the params
-    useDebouncedEffect(() => {
-        void sendDropDuplicates(dropDuplicateParams);
-    }, [dropDuplicateParams], SEND_MESSAGE_DELAY);
 
     return (
         <DefaultTaskpane>

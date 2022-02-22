@@ -2,16 +2,12 @@
 Contains tests for applying a function after filtering the same column.
 """
 
-from numpy import exp
 import pytest
-import pandas as pd
-import numpy as np
-
-from mitosheet.sheet_functions.types import NUMBER_SERIES
-from mitosheet.sheet_functions.types.utils import BOOLEAN_SERIES, STRING_SERIES
-from mitosheet.step_performers.filter import FC_BOOLEAN_IS_FALSE, FC_EMPTY, FC_NOT_EMPTY, FC_NUMBER_GREATER_THAN_OR_EQUAL, FC_STRING_CONTAINS
+from mitosheet.step_performers.filter import (FC_BOOLEAN_IS_FALSE, FC_EMPTY,
+                                              FC_NUMBER_GREATER_THAN_OR_EQUAL,
+                                              FC_STRING_CONTAINS)
 from mitosheet.tests.test_utils import create_mito_wrapper
-
+from numpy import exp
 
 NUMBER_FUNCTION_AFTER_FILTER_TESTS = [
     ('=ABS(A)', [2, 3]),
@@ -34,7 +30,7 @@ NUMBER_FUNCTION_AFTER_FILTER_TESTS = [
 @pytest.mark.parametrize("formula, result", NUMBER_FUNCTION_AFTER_FILTER_TESTS)
 def test_number_functions_after_filter(formula, result):
     mito = create_mito_wrapper([1, 2, 3])
-    mito.filter(0, 'A', 'And', NUMBER_SERIES, FC_NUMBER_GREATER_THAN_OR_EQUAL, 2)
+    mito.filter(0, 'A', 'And', FC_NUMBER_GREATER_THAN_OR_EQUAL, 2)
     mito.set_formula(formula, 0, 'B', add_column=True)
 
     assert mito.get_column(0, 'B', as_list=True) == result
@@ -59,7 +55,7 @@ STRING_FUNCTION_AFTER_FILTER_TESTS = [
 @pytest.mark.parametrize("formula, result", STRING_FUNCTION_AFTER_FILTER_TESTS)
 def test_string_functions_after_filter(formula, result):
     mito = create_mito_wrapper(['abc', 'bcd', 'cde'])
-    mito.filter(0, 'A', 'And', STRING_SERIES, FC_STRING_CONTAINS, 'd')
+    mito.filter(0, 'A', 'And', FC_STRING_CONTAINS, 'd')
     mito.set_formula(formula, 0, 'B', add_column=True)
 
     assert mito.get_column(0, 'B', as_list=True) == result
@@ -75,21 +71,21 @@ CONTROL_FUNCTION_AFTER_FILTER_TESTS = [
 @pytest.mark.parametrize("formula, result", CONTROL_FUNCTION_AFTER_FILTER_TESTS)
 def test_control_functions_after_filter(formula, result):
     mito = create_mito_wrapper([True, False, False])
-    mito.filter(0, 'A', 'And', BOOLEAN_SERIES, FC_BOOLEAN_IS_FALSE, False)
+    mito.filter(0, 'A', 'And', FC_BOOLEAN_IS_FALSE, False)
     mito.set_formula(formula, 0, 'B', add_column=True)
 
     assert mito.get_column(0, 'B', as_list=True) == result
 
 def test_fillnan_after_filter():
     mito = create_mito_wrapper(['abc', None, 'cde'])
-    mito.filter(0, 'A', 'And', STRING_SERIES, FC_EMPTY, None)
+    mito.filter(0, 'A', 'And', FC_EMPTY, None)
     mito.set_formula('=FILLNAN(A, 1)', 0, 'B', add_column=True)
 
     assert mito.get_column(0, 'B', as_list=True) == [1]
 
 def test_type_after_filter():
     mito = create_mito_wrapper(['abc', None, 'cde'])
-    mito.filter(0, 'A', 'And', STRING_SERIES, FC_EMPTY, None)
+    mito.filter(0, 'A', 'And', FC_EMPTY, None)
     mito.set_formula('=TYPE(A)', 0, 'B', add_column=True)
 
     assert mito.get_column(0, 'B', as_list=True) == ['object']

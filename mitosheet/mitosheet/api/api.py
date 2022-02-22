@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 Contains handlers for the Mito API
 """
@@ -32,23 +31,29 @@ MAX_QUEUED_API_CALLS = 3
 # so the API calls are handled in the main thread, to make printing easy
 THREADED = True
 
-class API():
+
+class API:
     """
     The API provides a wrapper around a thread that responds to API calls.
 
     Some notes:
     -   We allow at most MAX_QUEUED_API_CALLS API calls to be in the queue, which practically
         Stops a backlog of calls from building up.
-    -   All API calls should only be reads. This stops us from having to worry 
+    -   All API calls should only be reads. This stops us from having to worry
         about most concurrency issues
     -   Note that printing inside of a thread does not work properly! Use sys.stdout.flush() after the print statement.
         See here: https://stackoverflow.com/questions/18234469/python-multithreaded-print-statements-delayed-until-all-threads-complete-executi
     """
+
     def __init__(self, steps_manager: StepsManager, send: Callable):
         self.api_queue: Queue = Queue(MAX_QUEUED_API_CALLS)
         # Note that we make the thread a daemon thread, which practically means that when
         # The process that starts this thread terminate, our API will terminate as well.
-        self.thread = Thread(target=handle_api_event_thread, args=(self.api_queue, steps_manager, send), daemon=True)
+        self.thread = Thread(
+            target=handle_api_event_thread,
+            args=(self.api_queue, steps_manager, send),
+            daemon=True,
+        )
         self.thread.start()
 
         # Save some variables for ease
@@ -57,17 +62,17 @@ class API():
 
     def process_new_api_call(self, event: Dict[str, Any]) -> None:
         """
-        We privilege new API calls over old calls, and evict the old ones 
+        We privilege new API calls over old calls, and evict the old ones
         if the API queue is full.
 
-        Because we are using a queue, only events that have not been started 
+        Because we are using a queue, only events that have not been started
         being processed will get removed.
 
         If the key 'priority' is in the event, then we handle it in the main
         thread, as we don't want to drop the event. For example, lazy loading
         data has priority!
-        """        
-        if THREADED and 'priority' not in event:
+        """
+        if THREADED and "priority" not in event:
             if self.api_queue.full():
                 self.api_queue.get()
             self.api_queue.put(event)
@@ -75,22 +80,23 @@ class API():
             handle_api_event(self.send, event, self.steps_manager)
 
 
-
-def handle_api_event_thread(queue: Queue, steps_manager: StepsManager, send: Callable) -> NoReturn:
+def handle_api_event_thread(
+    queue: Queue, steps_manager: StepsManager, send: Callable
+) -> NoReturn:
     """
-    This is the worker thread function, that actually is 
+    This is the worker thread function, that actually is
     responsible for handling at the API call events.
 
-    It lives forever, and just handles events as it 
+    It lives forever, and just handles events as it
     receives them from the queue
     """
     while True:
         # Note that this blocks when there is nothing in the queue,
-        # and waits till there is something there - so no infinite 
+        # and waits till there is something there - so no infinite
         # loop as it is waiting!
         event = queue.get()
-        # We place the API handling inside of a try catch, 
-        # because otherwise if an error is thrown, then the entire thread crashes, 
+        # We place the API handling inside of a try catch,
+        # because otherwise if an error is thrown, then the entire thread crashes,
         # and then the API never works again
         try:
             handle_api_event(send, event, steps_manager)
@@ -98,40 +104,39 @@ def handle_api_event_thread(queue: Queue, steps_manager: StepsManager, send: Cal
             # Log in error if it occurs
             log_event_processed(event, steps_manager, failed=True)
 
-def handle_api_event(send: Callable, event: Dict[str, Any], steps_manager: StepsManager) -> None:
+
+def handle_api_event(
+    send: Callable, event: Dict[str, Any], steps_manager: StepsManager
+) -> None:
     """
     Handler for all API calls. Note that any response to the
     API must return the same ID that the incoming message contains,
     so that the frontend knows how to match the responses.
-    """    
+    """
     result: Union[str, List[str]]
-    if event['type'] == 'datafiles':
+    if event["type"] == "datafiles":
         result = get_datafiles(event)
-    elif event['type'] == 'get_path_contents':
+    elif event["type"] == "get_path_contents":
         result = get_path_contents(event)
-    elif event['type'] == 'get_path_join':
+    elif event["type"] == "get_path_join":
         result = get_path_join(event)
-    elif event['type'] == 'get_dataframe_as_csv':
+    elif event["type"] == "get_dataframe_as_csv":
         result = get_dataframe_as_csv(event, steps_manager)
-    elif event['type'] == 'get_graph':
+    elif event["type"] == "get_graph":
         result = get_graph(event, steps_manager)
-    elif event['type'] == 'get_column_describe':
+    elif event["type"] == "get_column_describe":
         result = get_column_describe(event, steps_manager)
-    elif event['type'] == 'get_pivot_params':
+    elif event["type"] == "get_pivot_params":
         result = get_pivot_params(event, steps_manager)
-    elif event['type'] == 'get_excel_file_metadata':
+    elif event["type"] == "get_excel_file_metadata":
         result = get_excel_file_metadata(event, steps_manager)
-    elif event['type'] == 'get_unique_value_counts':
+    elif event["type"] == "get_unique_value_counts":
         result = get_unique_value_counts(event, steps_manager)
-    elif event['type'] == 'get_search_matches':
+    elif event["type"] == "get_search_matches":
         result = get_search_matches(event, steps_manager)
-    elif event['type'] == 'get_dataframe_as_excel':
+    elif event["type"] == "get_dataframe_as_excel":
         result = get_dataframe_as_excel(event, steps_manager)
     else:
-        raise Exception(f'Event: {event} is not a valid API call')
-    
-    send({
-        'event': 'api_response',
-        'id': event['id'],
-        'data': result
-    })
+        raise Exception(f"Event: {event} is not a valid API call")
+
+    send({"event": "api_response", "id": event["id"], "data": result})

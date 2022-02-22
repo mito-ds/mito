@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 Contains tests for changing the type of a column.
 
@@ -13,9 +12,12 @@ accepts inputs flexibly, even if it does not send them from frontend.
 Kinda inspired by this: https://en.wikipedia.org/wiki/Robustness_principle
 """
 from typing import Optional
-from mitosheet.tests.test_utils import create_mito_wrapper, create_mito_wrapper_dfs
+
 import pandas as pd
 import pytest
+from mitosheet.tests.decorators import pandas_post_1_only, python_post_3_6_only
+from mitosheet.tests.test_utils import (create_mito_wrapper,
+                                        create_mito_wrapper_dfs)
 
 BOOL_ARRAY = [True, False, True]
 INT_ARRAY = [1, 2, 3]
@@ -100,10 +102,10 @@ def test_float_to_other_types(new_dtype, result, code):
 
 STRING_TESTS = [
     ('bool', [False, False, False], 'df1[\'A\'] = to_boolean_series(df1[\'A\'])'), 
-    ('int', [1, 2, -3], 'df1[\'A\'] = to_number_series(df1[\'A\']).astype(\'int\')'), 
-    ('int64', [1, 2, -3], 'df1[\'A\'] = to_number_series(df1[\'A\']).astype(\'int\')'), 
-    ('float', [1.0, 2.1, -3.2], 'df1[\'A\'] = to_number_series(df1[\'A\'])'), 
-    ('float64', [1.0, 2.1, -3.2], 'df1[\'A\'] = to_number_series(df1[\'A\'])'),  
+    ('int', [1, 2, -3], 'df1[\'A\'] = to_int_series(df1[\'A\'])'), 
+    ('int64', [1, 2, -3], 'df1[\'A\'] = to_int_series(df1[\'A\'])'), 
+    ('float', [1.0, 2.1, -3.2], 'df1[\'A\'] = to_float_series(df1[\'A\'])'), 
+    ('float64', [1.0, 2.1, -3.2], 'df1[\'A\'] = to_float_series(df1[\'A\'])'),  
     ('str', ["$1", "2.1", "(3.2)"], 'df1[\'A\'] = df1[\'A\']'), 
     ('object', ["$1", "2.1", "(3.2)"], 'df1[\'A\'] = df1[\'A\']'), 
     ('string', ["$1", "2.1", "(3.2)"], 'df1[\'A\'] = df1[\'A\']'),
@@ -165,7 +167,7 @@ DATETIME_TESTS = [
     ('float64', [100.0, 200.0, 300.0], 'df1[\'A\'] = df1[\'A\'].astype(\'int\').astype(\'float\') / 10**9'),  
     ('str', ['1970-01-01 00:01:40', '1970-01-01 00:03:20', '1970-01-01 00:05:00'], 'df1[\'A\'] = df1[\'A\'].dt.strftime(\'%Y-%m-%d %X\')'), 
     ('object', ['1970-01-01 00:01:40', '1970-01-01 00:03:20', '1970-01-01 00:05:00'], 'df1[\'A\'] = df1[\'A\'].dt.strftime(\'%Y-%m-%d %X\')'), 
-    ('string', ['1970-01-01 00:01:40', '1970-01-01 00:03:20', '1970-01-01 00:05:00'], 'df1[\'A\'] = df1[\'A\'].dt.strftime(\'%Y-%m-%d %X\')'), 
+    ('string', ['1970-01-01 00:01:40', '1970-01-01 00:03:20', '1970-01-01 00:05:00'], 'df1[\'A\'] = df1[\'A\'].dt.strftime(\'%Y-%m-%d %X\')'),
     ('datetime', DATETIME_ARRAY, 'df1[\'A\'] = df1[\'A\']'), 
     ('datetime64[ns]', DATETIME_ARRAY, 'df1[\'A\'] = df1[\'A\']'), 
     ('timedelta', DATETIME_ARRAY, None), 
@@ -180,22 +182,35 @@ def test_datetime_to_other_types(new_dtype, result, code):
     else:
         assert len(mito.transpiled_code) == 0
 
-
 TIMEDELTA_TESTS = [
     ('bool', [True, True, True], 'df1[\'A\'] = ~df1[\'A\'].isnull()'), 
     ('int', [100, 200, 300], 'df1[\'A\'] = df1[\'A\'].dt.total_seconds().astype(\'int\')'), 
     ('int64', [100, 200, 300], 'df1[\'A\'] = df1[\'A\'].dt.total_seconds().astype(\'int\')'), 
     ('float', [100.0, 200.0, 300.0], 'df1[\'A\'] = df1[\'A\'].dt.total_seconds()'), 
     ('float64', [100.0, 200.0, 300.0], 'df1[\'A\'] = df1[\'A\'].dt.total_seconds()'),  
-    ('str', ['0 days 00:01:40', '0 days 00:03:20', '0 days 00:05:00'], 'df1[\'A\'] = df1[\'A\'].astype(\'str\')'), 
-    ('object', ['0 days 00:01:40', '0 days 00:03:20', '0 days 00:05:00'], 'df1[\'A\'] = df1[\'A\'].astype(\'str\')'), 
-    ('string', ['0 days 00:01:40', '0 days 00:03:20', '0 days 00:05:00'], 'df1[\'A\'] = df1[\'A\'].astype(\'str\')'), 
     ('datetime', TIMEDELTA_ARRAY, None), 
     ('datetime64[ns]', TIMEDELTA_ARRAY, None), 
     ('timedelta', TIMEDELTA_ARRAY, 'df1[\'A\'] = df1[\'A\']'), 
 ]
 @pytest.mark.parametrize("new_dtype, result, code", TIMEDELTA_TESTS)
 def test_timedelta_to_other_types(new_dtype, result, code):
+    mito = create_mito_wrapper(TIMEDELTA_ARRAY)
+    mito.change_column_dtype(0, 'A', new_dtype)
+    assert mito.get_column(0, 'A', as_list=True) == result
+    if code is not None:            
+        assert len(mito.transpiled_code) > 0
+    else:
+        assert len(mito.transpiled_code) == 0
+    
+TIMEDELTA_TESTS_STRING = [
+    ('str', ['0 days 00:01:40.000000000', '0 days 00:03:20.000000000', '0 days 00:05:00.000000000'], 'df1[\'A\'] = df1[\'A\'].astype(\'str\')'), 
+    ('object', ['0 days 00:01:40.000000000', '0 days 00:03:20.000000000', '0 days 00:05:00.000000000'], 'df1[\'A\'] = df1[\'A\'].astype(\'str\')'), 
+    ('string', ['0 days 00:01:40.000000000', '0 days 00:03:20.000000000', '0 days 00:05:00.000000000'], 'df1[\'A\'] = df1[\'A\'].astype(\'str\')'), 
+]
+@pandas_post_1_only
+@python_post_3_6_only
+@pytest.mark.parametrize("new_dtype, result, code", TIMEDELTA_TESTS)
+def test_timedelta_to_other_types_post_1_post_3_6(new_dtype, result, code):
     mito = create_mito_wrapper(TIMEDELTA_ARRAY)
     mito.change_column_dtype(0, 'A', new_dtype)
     assert mito.get_column(0, 'A', as_list=True) == result

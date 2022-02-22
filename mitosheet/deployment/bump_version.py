@@ -34,11 +34,15 @@ def get_pypi_version(package_name: str, on_dev: bool=None) -> Union[None, str]:
     else:
         url = f'https://pypi.org/project/{package_name}/'
 
-    contents = urllib.request.urlopen(url).read().decode().split('\n')
-    tag = f'<a class="card release__card" href="/project/{package_name}/'
-    contents_with_package_link = [c for c in contents if tag in c]
-    last_version = contents_with_package_link[0].strip().split(tag)[1][:-3]
-    return last_version
+    try:
+        contents = urllib.request.urlopen(url).read().decode().split('\n')
+        tag = f'<a class="card release__card" href="/project/{package_name}/'
+        contents_with_package_link = [c for c in contents if tag in c]
+        last_version = contents_with_package_link[0].strip().split(tag)[1][:-3]
+        return last_version
+    except urllib.error.HTTPError:
+        # If we don't have a last version deployed, default to 0.1.0
+        return '0.1.0'
 
 def version_string_to_tuple(version_string: str) -> Tuple[int, int, int]:
     return tuple(map(int, version_string.split('.')))
@@ -59,7 +63,7 @@ def bump_version_mitoinstaller(on_dev: bool):
 def bump_version(package, deploy_location: str, new_version: Tuple[int, int, int]=None):
     """
     Bumps the version of the Mito project to the next minor logical version. Must pass
-    the package as `mitosheet` or `mitosheet3`, so we know which version to bump.
+    the package as `mitosheet`, `mitosheet2`, or `mitosheet3`, so we know which version to bump.
 
     Alternatively, can bump the version of `mitoinstaller` by passing `mitoinstaller`, 
     which does not pass through the package.json.
@@ -80,11 +84,11 @@ def bump_version(package, deploy_location: str, new_version: Tuple[int, int, int
     with open('package.json', 'r+') as f:
         package_obj = json.loads(f.read())
         # Sanity check that we are bumping the version of the package
-        assert package_obj['name'] == package
-        package_obj['version'] = '.'.join(map(str, new_version))
 
-        # Rewind to start of file, to write
-        f.seek(0)
+    assert package_obj['name'] == package
+    package_obj['version'] = '.'.join(map(str, new_version))
+
+    with open('package.json', 'w') as f:
         f.write(json.dumps(package_obj, indent=2))
 
     print(f'Bump {package} version to {new_version}')

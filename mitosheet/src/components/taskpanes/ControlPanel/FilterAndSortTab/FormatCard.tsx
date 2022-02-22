@@ -2,7 +2,8 @@
 
 import React from 'react';
 import MitoAPI from '../../../../api';
-import { ColumnMitoType, GridState, SheetData } from '../../../../types';
+import { ColumnID, GridState, SheetData } from '../../../../types';
+import { isNumberDtype } from '../../../../utils/dtypes';
 import { getColumnFormatDropdownItemsUsingColumnID, getFormatTitle } from '../../../../utils/formatColumns';
 import Select from '../../../elements/Select';
 import Col from '../../../spacing/Col';
@@ -16,10 +17,10 @@ const FORMAT_DESCRIPTION = 'Format the selected column as a percent, choose the 
     the format of a column
 */
 function FormatCard(props: {
-    columnID: string
+    columnID: ColumnID
     gridState: GridState,
     mitoAPI: MitoAPI,
-    columnMitoType: ColumnMitoType
+    columnDtype: string
     sheetData: SheetData | undefined 
 }): JSX.Element {
     const formatTypeTitle = getFormatTitle(props.sheetData?.columnFormatTypeObjMap[props.columnID])
@@ -34,21 +35,21 @@ function FormatCard(props: {
                     </p>
                 </Col>
                 <Col offset={2} flex='1'>
-                    {props.columnMitoType === ColumnMitoType.NUMBER_SERIES &&
+                    {isNumberDtype(props.columnDtype) &&
                         <Select
                             value={formatTypeTitle}
                         >
-                            {getColumnFormatDropdownItemsUsingColumnID(props.gridState.sheetIndex, props.columnID, props.mitoAPI, props.columnMitoType, props.sheetData)}
+                            {getColumnFormatDropdownItemsUsingColumnID(props.gridState.sheetIndex, props.columnID, props.mitoAPI, props.columnDtype, props.sheetData)}
                         </Select>
                     }
-                    {props.columnMitoType !== ColumnMitoType.NUMBER_SERIES &&
+                    {!isNumberDtype(props.columnDtype) &&
                         <p className='text-header-3 text-align-right'>
                             {formatTypeTitle}
                         </p>
                     }
                 </Col>
             </Row>
-            {props.columnMitoType !== ColumnMitoType.NUMBER_SERIES &&
+            {!isNumberDtype(props.columnDtype) &&
                 <Row>
                     <Col>
                         <p className='text-subtext-1'>

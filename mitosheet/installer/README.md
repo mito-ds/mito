@@ -1,6 +1,6 @@
 # Mito Installer README
 
-The Mito installer is a separate Python package responsible for installing the `mitosheet3` and `mitosheet` PyPI packages. It first attempts `mitosheet3`, and then falls back to `mitosheet`. 
+The Mito installer is a separate Python package responsible for installing the `mitosheet` package from PyPi. 
 
 ```
 python3 -m venv venv;

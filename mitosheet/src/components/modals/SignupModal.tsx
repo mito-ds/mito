@@ -74,7 +74,6 @@ const StepOne = (
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {props.setFirstResponse(e.target.value)}}
                     placeholder={FirstPlaceholder}
                     required
-                    autoFocus
                 />
                 <div className='mt-10px'>
                     <TextButton

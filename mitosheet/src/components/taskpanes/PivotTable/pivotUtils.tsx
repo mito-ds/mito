@@ -54,12 +54,3 @@ export const allDfNamesToSelectableDfNameToSheetIndex = (dfNames: string[], dest
 
     return selectableDfNamesToSheetIndex;
 }
-
-/* 
-    A helper function for making getting a list of 
-    column headers from a list of column ids
-*/
-export const getColumnHeaders = (columnIDsMap: Record<string, string>, columnIDsList: string[]): string[] => {
-    return columnIDsList.map(columnID => columnIDsMap[columnID]);
-}
-

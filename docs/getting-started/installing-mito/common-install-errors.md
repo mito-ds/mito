@@ -12,12 +12,12 @@ Want help? [Join our discord for immediate support.](https://discord.com/invite/
 
 #### The sheet does not render when I call mitosheet.sheet().
 
-If the sheet does not render when you call mitosheet.sheet(), this is usually fixable through the following steps:
+This is the most common error, and it is likely because you have failed to refresh your JupyterLab. This is usually fixable through the following steps:
 
 1. Shut down the currently running JupyterLab instance. Close all browser tabs with JupyterLab open.
 2. Relaunch JupyterLab. Retry calling `mitosheet.sheet()`
 
-If this does not work, try rerunning the installer and repeating the above steps.
+If this does not work, try rerunning the installer and repeating the above steps. 
 
 #### The installer hit a PermissionError during install.
 
@@ -48,7 +48,7 @@ You're probably receiving this error because you need to install the SSL certifi
 * If you downloaded Python from the official website, then run `/Applications/Python\ 3.9/Install\ Certificates.command` in a terminal (change `3.9` to whatever version you installed).&#x20;
 * If you installed Python using MacPorts, run `sudo port install curl-ca-bundle` in a terminal.
 
-If you have any other issues installing Mito, or you're looking to install Mito on JupyterHub or Kuberenetes, [get in touch](https://meetings.hubspot.com/nate301/mito-early-access-demo). We'd love to help.
+If you have any other issues installing Mito, or you're looking to install Mito on JupyterHub or Kuberenetes, [get in touch](https://discord.com/invite/XdJSZyejJU). We'd love to help.
 
 
 
@@ -57,5 +57,5 @@ If you have any other issues installing Mito, or you're looking to install Mito 
 1. [Guide to downloading Python](https://wiki.python.org/moin/BeginnersGuide/Download).
 
 {% hint style="info" %}
-Want help? [Book a call](https://hubs.ly/H0FzGrF0) with our support team.
+Want help? [Get in contact](https://discord.com/invite/XdJSZyejJU) with our support team.
 {% endhint %}

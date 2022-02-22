@@ -13,13 +13,14 @@ import Row from '../../spacing/Row';
 import TextButton from '../../elements/TextButton';
 import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
 import { intersection } from '../../../utils/arrays';
-import { ColumnIDsMap, ColumnMitoTypeMap, SheetData, UIState } from '../../../types';
+import { ColumnID, ColumnIDsMap, SheetData, UIState } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 
 // import css
 import '../../../../css/taskpanes/Graph/GraphSidebar.css'
 import '../../../../css/taskpanes/Graph/LoadingSpinner.css'
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
+import { isNumberDtype } from '../../../utils/dtypes';
 
 export enum GraphType {
     SCATTER = 'scatter',
@@ -38,8 +39,8 @@ export interface GraphObject {
 
 export interface GraphParams {
     graphType: GraphType,
-    xAxisColumnIDs: string[],
-    yAxisColumnIDs: string[]
+    xAxisColumnIDs: ColumnID[],
+    yAxisColumnIDs: ColumnID[]
 }
 
 // Millisecond delay between loading graphs, so that
@@ -97,7 +98,7 @@ const GraphSidebar = (props: {
     columnIDsMapArray: ColumnIDsMap[],
     dfNames: string[];
     graphSidebarSheet: number;
-    columnMitoTypes: ColumnMitoTypeMap;
+    columnDtypesMap: Record<string, string>;
     mitoAPI: MitoAPI;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     model_id: string;
@@ -231,9 +232,9 @@ const GraphSidebar = (props: {
         changeLoadingGraph(getGraphAsync);
     }
 
-    const removeNonNumberColumnIDs = (columnIDs: string[]) => {
+    const removeNonNumberColumnIDs = (columnIDs: ColumnID[]) => {
         const filteredColumnIDs = columnIDs.filter(columnID => {
-            return props.columnMitoTypes[columnID] === 'number_series'
+            return isNumberDtype(props.columnDtypesMap[columnID])
         })
         return filteredColumnIDs
     }
@@ -284,9 +285,9 @@ const GraphSidebar = (props: {
 
         To remove a column, leave the columnHeader empty.
     */ 
-    const updateAxisData = (graphAxis: GraphAxisType, index: number, columnID?: string) => {
+    const updateAxisData = (graphAxis: GraphAxisType, index: number, columnID?: ColumnID) => {
         // Get the current axis data
-        let axisColumnIDs: string[] = []
+        let axisColumnIDs: ColumnID[] = []
         if (graphAxis === GraphAxisType.X_AXIS) {
             axisColumnIDs = graphParams.xAxisColumnIDs
         } else {
@@ -444,7 +445,7 @@ const GraphSidebar = (props: {
                             */
                             key={['xAxis'].concat(graphParams.xAxisColumnIDs).join('')}
                             columnIDsMap={props.columnIDsMapArray[selectedSheetIndex]}
-                            columnMitoTypes={props.columnMitoTypes}
+                            columnDtypesMap={props.columnDtypesMap}
 
                             graphType={graphParams.graphType}
                             graphAxis={GraphAxisType.X_AXIS}
@@ -458,7 +459,7 @@ const GraphSidebar = (props: {
                             // See note about keys for Axis Sections above.
                             key={['yAxis'].concat(graphParams.yAxisColumnIDs).join('')}
                             columnIDsMap={props.columnIDsMapArray[selectedSheetIndex]}
-                            columnMitoTypes={props.columnMitoTypes}
+                            columnDtypesMap={props.columnDtypesMap}
                             
                             graphType={graphParams.graphType}
                             graphAxis={GraphAxisType.Y_AXIS}

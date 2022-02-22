@@ -17,7 +17,7 @@ def get_excel_file_metadata(event: Dict[str, Any], steps_manager: StepsManager) 
     """
     file_name = event['file_name']
 
-    file = pd.ExcelFile(file_name)
+    file = pd.ExcelFile(file_name, engine='openpyxl')
     sheet_names = file.sheet_names
     return json.dumps({
         'sheet_names': sheet_names,

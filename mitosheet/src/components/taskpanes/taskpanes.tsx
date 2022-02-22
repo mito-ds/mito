@@ -66,7 +66,8 @@ export const EDITING_TASKPANES: TaskpaneType[] = [
     TaskpaneType.MERGE, 
     TaskpaneType.IMPORT,
     TaskpaneType.DROP_DUPLICATES,
-    TaskpaneType.DOWNLOAD
+    TaskpaneType.DOWNLOAD,
+    TaskpaneType.GRAPH
 ]
 
 export const WIDE_TASKPANES: TaskpaneType[] = [

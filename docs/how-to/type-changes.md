@@ -14,7 +14,7 @@ Mito's point and click type changes make it easy to identify the data type of ea
 
 #### Identifying Data Types&#x20;
 
-For each column in your dataframe, the datatype is displayed in the column header. The icon will help you distinguish between int/floats, strings, booleans, and dates/time deltas.&#x20;
+For each column in your dataframe, the datatype is displayed in the column header. The icon will help you distinguish between int, floats, strings, booleans, and dates/time deltas.&#x20;
 
 #### Changing Data Types
 

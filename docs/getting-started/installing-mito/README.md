@@ -30,6 +30,8 @@ Then, run the installer. This command may take a few moments to run:
 python -m mitoinstaller install
 ```
 
+If you have a currently running JupyterLab process, then restart your kernel, and refresh your page to complete installation.
+
 {% hint style="warning" %}
 If you run into errors during installation, check our [common installation errors](common-install-errors.md) to resolve them.
 {% endhint %}
@@ -39,3 +41,7 @@ If installation completes, proceed to [creating your first Mitosheet.](../../how
 {% content-ref url="../../how-to/creating-a-mitosheet/" %}
 [creating-a-mitosheet](../../how-to/creating-a-mitosheet/)
 {% endcontent-ref %}
+
+{% hint style="info" %}
+Our docs (and code) are open source! If you want to suggest changes to the documentation, add some sections, or check out or code, [follow us on Github](https://github.com/mito-ds/monorepo) 
+{% endhint %}

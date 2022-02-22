@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 import os
 import sys
 import pandas as pd
 import pytest
 
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.decorators import pandas_post_1_only, python_post_3_6_only
 
 
 def test_clear_undoes_mulitple_steps_on_passed_dataframes():
@@ -98,8 +98,8 @@ def test_clear_keeps_simple_imports_then_resets():
     # Remove the test file
     os.remove('test.csv')
 
-
-@pytest.mark.skipif(sys.version_info.minor <= 6, reason="requires 3.7 or greater")
+@pandas_post_1_only
+@python_post_3_6_only
 def test_clear_resets_excel_imports():
     df0 = pd.DataFrame(data={'A': [1, 2, 3]})
     mito = create_mito_wrapper_dfs(df0)

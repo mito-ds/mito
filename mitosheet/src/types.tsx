@@ -64,98 +64,45 @@ export enum DFSource {
 }
 
 /**
- * The Mito Type of the column, which groups together
- * logically related types (e.g. all numbers).
- */
-export const enum ColumnMitoType {
-    BOOLEAN_SERIES = 'boolean_series',
-    NUMBER_SERIES = 'number_series',
-    STRING_SERIES = 'string_series',
-    DATETIME_SERIES = 'datetime_series',
-    TIMEDELTA_SERIES = 'timedelta_series',
-}
-
-/**
  * The two different ways to combine filters together
  */
 export type Operator = 'And' | 'Or';
 
+export type BooleanFilterCondition = 'boolean_is_true'
+| 'boolean_is_false'
+| 'empty'
+| 'not_empty'
 
-export enum BooleanFilterCondition {
-    IS_TRUE = 'boolean_is_true',
-    IS_FALSE = 'boolean_is_false',
-    EMPTY = 'empty',
-    NOT_EMPTY = 'not_empty',
+export type StringFilterCondition = 'contains'
+| 'string_does_not_contain'
+| 'string_exactly'
+| 'string_not_exactly'
+| 'empty'
+| 'not_empty'
+
+export type NumberFilterCondition = 'number_exactly'
+| 'number_not_exactly'
+| 'greater'
+| 'greater_than_or_equal'
+| 'less'
+| 'less_than_or_equal'
+| 'empty'
+| 'not_empty'
+
+export type DatetimeFilterCondition = 'datetime_exactly'
+| 'datetime_not_exactly'
+| 'datetime_greater'
+| 'datetime_greater_than_or_equal'
+| 'datetime_less'
+| 'datetime_less_than_or_equal'
+| 'empty'
+| 'not_empty'
+
+
+export interface FilterType {
+    condition: BooleanFilterCondition | StringFilterCondition | NumberFilterCondition | DatetimeFilterCondition;
+    value: string | number;
 }
-
-export enum StringFilterCondition {
-    CONTAINS = 'contains',
-    DOES_NOT_CONTAIN = 'string_does_not_contain',
-    STRING_EXACTLY = 'string_exactly',
-    STRING_NOT_EXACTLY = 'string_not_exactly',
-    EMPTY = 'empty',
-    NOT_EMPTY = 'not_empty',
-}
-
-export enum NumberFilterCondition {
-    NUMBER_EXACTLY = 'number_exactly',
-    NUMBER_NOT_EXACTLY = 'number_not_exactly',
-    GREATER = 'greater',
-    GREATER_THAN_OR_EQUAL = 'greater_than_or_equal',
-    LESS = 'less',
-    LESS_THAN_OR_EQUAL = 'less_than_or_equal',
-    EMPTY = 'empty',
-    NOT_EMPTY = 'not_empty',
-}
-
-export enum DatetimeFilterCondition {
-    DATETIME_EXTACTLY = 'datetime_exactly',
-    DATETIME_NOT_EXTACTLY = 'datetime_not_exactly',
-    DATETIME_GREATER_THAN = 'datetime_greater',
-    DATETIME_GREATER_THAN_OR_EQUAL = 'datetime_greater_than_or_equal',
-    DATETIME_LESS = 'datetime_less',
-    DATETIME_LESS_THAN_OR_EQUAL = 'datetime_less_than_or_equal',
-    EMPTY = 'empty',
-    NOT_EMPTY = 'not_empty',
-}
-
-export interface BooleanFilterType {
-    type: ColumnMitoType.BOOLEAN_SERIES,
-    condition: BooleanFilterCondition;
-    value: string;
-}
-
-export interface StringFilterType {
-    type: ColumnMitoType.STRING_SERIES,
-    condition: StringFilterCondition;
-    value: string;
-}
-
-export interface NumberFilterType {
-    type: ColumnMitoType.NUMBER_SERIES,
-    condition: NumberFilterCondition;
-    /* 
-        We allow number filters to contain a number or a string, as the frontend
-        always stores them as a string (when the user edits them), and thus
-        allows us to support negative numnbers, decimals, etc - e.g. numbers that 
-        don't parse well while they are being typed
-    */
-    value: number | string;
-}
-
-
-
-export interface DatetimeFilterType {
-    type: ColumnMitoType.DATETIME_SERIES,
-    condition: DatetimeFilterCondition;
-    value: string;
-}
-
-export type FilterType = 
-    | BooleanFilterType
-    | StringFilterType
-    | NumberFilterType
-    | DatetimeFilterType
 
 
 export interface FilterGroupType {
@@ -170,10 +117,6 @@ export interface ColumnFilters {
 
 export interface ColumnFilterMap {
     [column: string]: ColumnFilters;
-}
-
-export interface ColumnMitoTypeMap {
-    [Key: string]: ColumnMitoType;
 }
 
 export interface ColumnFormatTypeObjMap {
@@ -204,10 +147,12 @@ export type PrimitiveColumnHeader = string | number | boolean;
 export type MultiIndexColumnHeader = PrimitiveColumnHeader[]; // TODO: is this a bug? Can we have a multi-index with a multi-index inside it
 export type ColumnHeader = PrimitiveColumnHeader | MultiIndexColumnHeader;
 
+
+export type ColumnID = string;
 /**
  * A map from column IDs -> Column Headers
  */
-export type ColumnIDsMap = Record<string, ColumnHeader>;
+export type ColumnIDsMap = Record<ColumnID, ColumnHeader>;
 
 
 /**
@@ -221,7 +166,7 @@ export type ColumnIDsMap = Record<string, ColumnHeader>;
  * @param columnIDsMap - for this dataframe, a map from column id -> column headers
  * @param columnSpreadsheetCodeMap - for this dataframe, a map from column id -> spreadsheet formula
  * @param columnFiltersMap - for this dataframe, a map from column id -> filter objects
- * @param columnMitoTypeMap - for this dataframe, a map from column id -> column mito type
+ * @param columnDtypeMap - for this dataframe, a map from column id -> column dtype
  * @param index - the indexes in this dataframe
  * @param columnFormatTypeObjMap - for this dataframe, a map from columnd id -> the format type object applied to that column.
  */
@@ -231,15 +176,15 @@ export type SheetData = {
     numRows: number,
     numColumns: number,
     data: {
-        columnID: string;
+        columnID: ColumnID;
         columnHeader: ColumnHeader;
         columnDtype: string;
         columnData: (string | number | boolean)[];
     }[];
     columnIDsMap: ColumnIDsMap;
-    columnSpreadsheetCodeMap: Record<string, string>;
+    columnSpreadsheetCodeMap: Record<ColumnID, string>;
     columnFiltersMap: ColumnFilterMap;
-    columnMitoTypeMap: ColumnMitoTypeMap
+    columnDtypeMap: Record<ColumnID, string>;
     index: (string | number)[];
     columnFormatTypeObjMap: ColumnFormatTypeObjMap
 };
@@ -409,7 +354,7 @@ export interface GridState {
     viewport: Dimension;
     scrollPosition: ScrollPosition;
     selections: MitoSelection[];
-    columnIDsArray: string[][];
+    columnIDsArray: ColumnID[][];
     widthDataArray: WidthData[];
     searchString: string;
 }
@@ -500,6 +445,7 @@ export interface AnalysisData {
  * @param userEmail - the email of the user. May be an empty string if they have not signed up yet
  * @param receivedTours - a list of the tours they have received
  * @param isPro - if the user is a pro user
+ * @param excelImportEnabled - if the user has the necessary packages optional dependencies, and Python and Pandas version to import Excel files.
  * @param telemetryEnabled - if the user has telemetry enabled
  * @param isLocalDeployment - if the user is deployed locally or not
  * @param shouldUpgradeMitosheet - if the user should upgrade their mitosheet
@@ -511,6 +457,7 @@ export interface UserProfile {
     receivedTours: string[];
     
     isPro: boolean;
+    excelImportEnabled: boolean;
     telemetryEnabled: boolean;
     isLocalDeployment: boolean;
     shouldUpgradeMitosheet: boolean;

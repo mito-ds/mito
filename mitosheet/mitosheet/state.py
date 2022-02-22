@@ -1,16 +1,14 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 from copy import deepcopy
-from collections import OrderedDict
 from typing import Any, Collection, List, Dict, Set
 import pandas as pd
 
-from mitosheet.sheet_functions.types.utils import get_mito_type
 from mitosheet.column_headers import ColumnIDMap
+from mitosheet.types import ColumnID
 
 # Constants for where the dataframe in the state came from
 DATAFRAME_SOURCE_PASSED = 'passed' # passed in mitosheet.sheet
@@ -45,13 +43,9 @@ class State():
             df_names: List[str]=None,
             df_sources: List[str]=None,
             column_ids: ColumnIDMap=None,
-            column_metatype: List[Dict[str, str]]=None,
-            column_type: List[Dict[str, str]]=None,
-            column_spreadsheet_code: List[Dict[str, str]]=None,
-            column_python_code: List[Dict[str, str]]=None,
-            column_evaluation_graph: List[Dict[str, Set[str]]]=None,
-            column_filters: List[Dict[str, Any]]=None,
-            column_format_types: List[Dict[str, Dict[str, Any]]]=None
+            column_spreadsheet_code: List[Dict[ColumnID, str]]=None,
+            column_filters: List[Dict[ColumnID, Any]]=None,
+            column_format_types: List[Dict[ColumnID, Dict[str, Any]]]=None
         ):
 
         # The dataframes that are in the state
@@ -75,36 +69,11 @@ class State():
         # by column headers. The column headers _only_ index into the dataframe itself
         self.column_ids = column_ids if column_ids else ColumnIDMap(dfs)
 
-        # The column_metatype is if it stores formulas or values
-        self.column_metatype = column_metatype if column_metatype is not None else [
-            {column_id: 'value' for column_id in self.column_ids.get_column_ids(sheet_index)} 
-            for sheet_index in range(len(dfs))
-        ]
-
-        # The column_type is the type of the series in this column 
-        self.column_type = column_type if column_type is not None else [
-            {
-                column_id: get_mito_type(df[column_header]) 
-                for column_id, column_header, in self.column_ids.get_column_ids_map(sheet_index).items()
-            }
-            for sheet_index, df in enumerate(dfs)
-        ]
-
-        # We make column_spreadsheet_code an ordered dictonary to preserve the order the formulas
-        # are inserted, which in turn makes sure when we save + rerun an analysis, it's recreated
-        # in the correct order (and thus the column order is preserved).
         self.column_spreadsheet_code = column_spreadsheet_code if column_spreadsheet_code is not None else [
             {column_id: '' for column_id in self.column_ids.get_column_ids(sheet_index)} 
             for sheet_index in range(len(dfs))
         ]
-        self.column_python_code = column_python_code if column_python_code is not None else [
-            {column_id: '' for column_id in self.column_ids.get_column_ids(sheet_index)} 
-            for sheet_index in range(len(dfs))
-        ]
-        self.column_evaluation_graph = column_evaluation_graph if column_evaluation_graph is not None else [
-            {column_id: set() for column_id in self.column_ids.get_column_ids(sheet_index)} 
-            for sheet_index in range(len(dfs))
-        ]
+
         self.column_filters = column_filters if column_filters is not None else [
             {column_id: {'operator': 'And', 'filters': []} for column_id in self.column_ids.get_column_ids(sheet_index)} 
             for sheet_index in range(len(dfs))
@@ -125,11 +94,7 @@ class State():
             df_names=deepcopy(self.df_names),
             df_sources=deepcopy(self.df_sources),
             column_ids=deepcopy(self.column_ids),
-            column_metatype=deepcopy(self.column_metatype),
-            column_type=deepcopy(self.column_type),
             column_spreadsheet_code=deepcopy(self.column_spreadsheet_code),
-            column_python_code=deepcopy(self.column_python_code),
-            column_evaluation_graph=deepcopy(self.column_evaluation_graph),
             column_filters=deepcopy(self.column_filters),
             column_format_types=deepcopy(self.column_format_types)
         )
@@ -145,11 +110,7 @@ class State():
             df_names=deepcopy(self.df_names),
             df_sources=deepcopy(self.df_sources),
             column_ids=deepcopy(self.column_ids),
-            column_metatype=deepcopy(self.column_metatype),
-            column_type=deepcopy(self.column_type),
             column_spreadsheet_code=deepcopy(self.column_spreadsheet_code),
-            column_python_code=deepcopy(self.column_python_code),
-            column_evaluation_graph=deepcopy(self.column_evaluation_graph),
             column_filters=deepcopy(self.column_filters),
             column_format_types=deepcopy(self.column_format_types)
         )
@@ -187,11 +148,7 @@ class State():
             column_ids = self.column_ids.add_df(new_df, use_deprecated_id_algorithm=use_deprecated_id_algorithm)
 
             # Update all the variables that depend on column_headers
-            self.column_metatype.append({column_id: 'value' for column_id in column_ids})
-            self.column_type.append({column_id: get_mito_type(new_df[column_header]) for column_id, column_header in column_ids.items()})
             self.column_spreadsheet_code.append({column_id: '' for column_id in column_ids})
-            self.column_python_code.append({column_id: '' for column_id in column_ids})
-            self.column_evaluation_graph.append({column_id: set() for column_id in column_ids})
             self.column_filters.append({column_id: {'operator':'And', 'filters': []} for column_id in column_ids})
             self.column_format_types.append({column_id: {'type': FORMAT_DEFAULT} for column_id in column_ids} if format_types is None else format_types)
 
@@ -213,11 +170,7 @@ class State():
             column_ids = self.column_ids.add_df(new_df, sheet_index=sheet_index, use_deprecated_id_algorithm=use_deprecated_id_algorithm)
 
             # Update all the variables that depend on column_headers
-            self.column_metatype[sheet_index] = {column_id: 'value' for column_id in column_ids}
-            self.column_type[sheet_index] = {column_id: get_mito_type(new_df[column_header]) for column_id, column_header in column_ids.items()}
             self.column_spreadsheet_code[sheet_index] = {column_id: '' for column_id in column_ids}
-            self.column_python_code[sheet_index] = {column_id: '' for column_id in column_ids}
-            self.column_evaluation_graph[sheet_index] = {column_id: set() for column_id in column_ids}
             self.column_filters[sheet_index] = {column_id: {'operator':'And', 'filters': []} for column_id in column_ids}
             self.column_format_types[sheet_index] = {column_id: {'type': FORMAT_DEFAULT} for column_id in column_ids} if format_types is None else format_types
 
@@ -254,17 +207,6 @@ class State():
                     for column_map in value
                 ]
                 self.__setattr__(key, new_value)
-        
-        # Then, update the column_evaluation_graph to use the old format as well
-        new_column_evaluation_graph = [
-            {
-                column_id: {make_valid_header(cid) for cid in dependency_list}
-                for column_id, dependency_list in column_evaluation_graph_map.items()
-            }
-            for column_evaluation_graph_map in self.column_evaluation_graph
-        ]
-        
-        self.column_evaluation_graph = new_column_evaluation_graph
         
         # Then, update the column ids mapping object itself
         self.column_ids.move_to_deprecated_id_format()

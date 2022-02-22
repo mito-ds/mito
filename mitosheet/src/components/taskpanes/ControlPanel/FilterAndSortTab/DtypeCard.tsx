@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import MitoAPI from '../../../../api';
-import { StepType } from '../../../../types';
+import { ColumnID, StepType } from '../../../../types';
 import DropdownItem from '../../../elements/DropdownItem';
 import Select from '../../../elements/Select';
 import Col from '../../../spacing/Col';
@@ -12,7 +12,7 @@ const DTYPE_DESCRIPTION = 'Changes the dtype of the selected column in the under
 
 type DtypeCardProps = {
     selectedSheetIndex: number;
-    columnID: string;
+    columnID: ColumnID;
     columnFormula: string;
     columnDtype: string;
     mitoAPI: MitoAPI;

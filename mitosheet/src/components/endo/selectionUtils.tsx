@@ -1,4 +1,5 @@
-import { BorderStyle, ColumnHeader, ColumnMitoType, MitoSelection, SheetData } from '../../types';
+import { BorderStyle, ColumnHeader, ColumnID, MitoSelection, SheetData } from '../../types';
+import { isNumberDtype } from '../../utils/dtypes';
 import { MAX_ROWS } from './EndoGrid';
 
 
@@ -505,7 +506,7 @@ const getDeletedIndexes = (oldArray: string[], newArray: string[]): number[] => 
     Handles when sheet data changes, potentially reordering, adding, or removing
     columns, specifically updating the selections to be what one would expect.
 */
-export const reconciliateSelections = (oldSheetIndex: number, newSheetIndex: number, selections: MitoSelection[], oldColumnIDsArray: string[], sheetData: SheetData | undefined): MitoSelection[] => {
+export const reconciliateSelections = (oldSheetIndex: number, newSheetIndex: number, selections: MitoSelection[], oldColumnIDsArray: ColumnID[], sheetData: SheetData | undefined): MitoSelection[] => {
     return selections.map(selection => reconciliateSingleSelection(oldSheetIndex, newSheetIndex, selection, oldColumnIDsArray, sheetData))
 }
 
@@ -513,7 +514,7 @@ export const reconciliateSelections = (oldSheetIndex: number, newSheetIndex: num
     Handles when sheet data changes, potentially reordering, adding, or removing
     columns, specifically updating the __an individual selection__ to be what one would expect.
 */
-export const reconciliateSingleSelection = (oldSheetIndex: number, newSheetIndex: number, selection: MitoSelection, oldColumnIDsArray: string[], sheetData: SheetData | undefined): MitoSelection => {
+export const reconciliateSingleSelection = (oldSheetIndex: number, newSheetIndex: number, selection: MitoSelection, oldColumnIDsArray: ColumnID[], sheetData: SheetData | undefined): MitoSelection => {
     
     // If the sheet switches, then reset selection
     if (oldColumnIDsArray === undefined || oldSheetIndex !== newSheetIndex || sheetData === undefined) {
@@ -671,15 +672,20 @@ export const removeColumnFromSelections = (selections: MitoSelection[], columnIn
 }
 
 
-// Returns a list of column IDs of all of the selected columns that have ColumnMitoType.NUMBER_SERIES
-export const getSelectedNumberSeriesColumnIDs = (selections: MitoSelection[], sheetData: SheetData | undefined ): string[] => {
+// Returns a list of column IDs of all of the selected columns that have number dtypes
+export const getSelectedNumberSeriesColumnIDs = (selections: MitoSelection[], sheetData: SheetData | undefined ): ColumnID[] => {
     if (sheetData === undefined) {
         return []
     }
 
     const columnIndexesSelected = getColumnIndexesInSelections(selections);
-    const columnIDsSelected = columnIndexesSelected.map(colIdx => sheetData.data[colIdx]?.columnID)
+    const columnIDsAndDtypesSelected = columnIndexesSelected
+        .filter(colIdx => sheetData.data.length > colIdx)
+        .map(colIdx => [sheetData.data[colIdx]?.columnID, sheetData.data[colIdx]?.columnDtype])
 
     // Filter out any columns that are not number series
-    return columnIDsSelected.filter(columnID => sheetData.columnMitoTypeMap[columnID] === ColumnMitoType.NUMBER_SERIES)
+    return columnIDsAndDtypesSelected
+        .filter(([, columnDtype]) => {return columnDtype !== undefined && isNumberDtype(columnDtype)})
+        .filter(([columnID, ]) => {return columnID !== undefined})
+        .map(([columnID, ]) => {return columnID})
 }

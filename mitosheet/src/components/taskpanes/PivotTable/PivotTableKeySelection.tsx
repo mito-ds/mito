@@ -7,7 +7,7 @@ import MitoAPI from '../../../api';
 import DropdownButton from '../../elements/DropdownButton';
 import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
-import { ColumnIDsMap } from '../../../types';
+import { ColumnID, ColumnIDsMap } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 
@@ -19,10 +19,10 @@ const PivotTableKeySelection = (props: {
     sectionTitle: string;
     rowOrColumn: 'row' | 'column';
     columnIDsMap: ColumnIDsMap;
-    selectedColumnIDs: string[];
-    addKey: (columnID: string) => void;
+    selectedColumnIDs: ColumnID[];
+    addKey: (columnID: ColumnID) => void;
     removeKey: (keyIndex: number) => void;
-    editKey: (keyIndex: number, newColumnID: string) => void;
+    editKey: (keyIndex: number, newColumnID: ColumnID) => void;
     mitoAPI: MitoAPI;
 }): JSX.Element => {
 

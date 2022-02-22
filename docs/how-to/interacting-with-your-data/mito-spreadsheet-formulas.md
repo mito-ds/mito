@@ -11,936 +11,748 @@ Missing a formula? [Let us know](mailto:aarondr77@gmail.com?subject=Missing%20Fu
 {% endhint %}
 
 
-
-## ABS
-
+#  ABS
 Returns the absolute value of the passed number or series.
 
-### Examples
+## Examples
+-  ABS(-1.3)
+-  ABS(A)
 
-* ABS(-1.3)
-* ABS(A)
-
-### Syntax
-
+## Syntax
 ABS(value)
 
-#### Syntax Elements
+### Syntax Elements
+- **value**: The value or series to take the absolute value of.
 
-* **value**: The value or series to take the absolute value of.
-
-## AND
-
+#  AND
 Returns True if all of the provided arguments are True, and False if any of the provided arguments are False.
 
-### Examples
+## Examples
+-  AND(True, False)
+-  AND(Nums > 100, Nums < 200)
+-  AND(Pay > 10, Pay < 20, Status == 'active')
 
-* AND(True, False)
-* AND(Nums > 100, Nums < 200)
-* AND(Pay > 10, Pay < 20, Status == 'active')
+## Syntax
+AND(boolean_condition1, [boolean_condition2, ...])
 
-### Syntax
+### Syntax Elements
+- **boolean_condition1**: An expression or series that returns True or False values. See IF documentation for a list of conditons.
+- **boolean_condition2 ... [OPTIONAL]**: An expression or series that returns True or False values. See IF documentation for a list of conditons.
 
-AND(boolean\_condition1, \[boolean\_condition2, ...])
-
-#### Syntax Elements
-
-* **boolean\_condition1**: An expression or series that returns True or False values. See IF documentation for a list of conditons.
-* **boolean\_condition2 ... \[OPTIONAL]**: An expression or series that returns True or False values. See IF documentation for a list of conditons.
-
-## AVG
-
+#  AVG
 Returns the numerical mean value of the passed numbers and series.
 
-### Examples
+## Examples
+-  AVG(1, 2)
+-  AVG(A, B)
+-  AVG(A, 2)
 
-* AVG(1, 2)
-* AVG(A, B)
-* AVG(A, 2)
+## Syntax
+AVG(value1, [value2, ...])
 
-### Syntax
+### Syntax Elements
+- **value1**: The first number or series to consider when calculating the average.
+- **value2, ... [OPTIONAL]**: Additional numbers or series to consider when calculating the average.
 
-AVG(value1, \[value2, ...])
-
-#### Syntax Elements
-
-* **value1**: The first number or series to consider when calculating the average.
-* **value2, ... \[OPTIONAL]**: Additional numbers or series to consider when calculating the average.
-
-## BOOL
-
+#  BOOL
 Converts the passed arguments to boolean values, either True or False. For numberic values, 0 converts to False while all other values convert to True.
 
-### Examples
+## Examples
+-  BOOL(Amount_Payed)
+-  AND(BOOL(Amount_Payed), Is_Paying)
 
-* BOOL(Amount\_Payed)
-* AND(BOOL(Amount\_Payed), Is\_Paying)
-
-### Syntax
-
+## Syntax
 BOOL(series)
 
-#### Syntax Elements
+### Syntax Elements
+- **series**: An series to convert to boolean values, either True or False.
 
-* **series**: An series to convert to boolean values, either True or False.
-
-## CLEAN
-
+#  CLEAN
 Returns the text with the non-printable ASCII characters removed.
 
-### Examples
+## Examples
+-  CLEAN(A)
 
-* CLEAN('ABC ')
-
-### Syntax
-
+## Syntax
 CLEAN(string)
 
-#### Syntax Elements
+### Syntax Elements
+- **string**: The string or series whose non-printable characters are to be removed.
 
-* **string**: The string or series whose non-printable characters are to be removed.
-
-## CONCAT
-
+#  CONCAT
 Returns the passed strings and series appended together.
 
-### Examples
+## Examples
+-  CONCAT('Bite', 'the bullet')
+-  CONCAT(A, B)
 
-* CONCAT('Bite', 'the bullet')
-* CONCAT(A, B)
+## Syntax
+CONCAT(string1, [string2, ...])
 
-### Syntax
+### Syntax Elements
+- **string1**: The first string or series.
+- **string2, ... [OPTIONAL]**: Additional strings or series to append in sequence.
 
-CONCAT(string1, \[string2, ...])
-
-#### Syntax Elements
-
-* **string1**: The first string or series.
-* **string2, ... \[OPTIONAL]**: Additional strings or series to append in sequence.
-
-## CORR
-
+#  CORR
 Computes the correlation between two series, excluding missing values.
 
-### Examples
+## Examples
+-  =CORR(A, B)
+-  =CORR(B, A)
 
-* \=CORR(A, B)
-* \=CORR(B, A)
+## Syntax
+CORR(series_one, series_two)
 
-### Syntax
+### Syntax Elements
+- **series_one**: The number series to convert to calculate the correlation.
+- **series_two**: The number series to convert to calculate the correlation.
 
-CORR(series\_one, series\_two)
-
-#### Syntax Elements
-
-* **series\_one**: The number series to convert to calculate the correlation.
-* **series\_two**: The number series to convert to calculate the correlation.
-
-## DATEVALUE
-
+#  DATEVALUE
 Converts a given string to a date series.
 
-### Examples
+## Examples
+-  DATEVALUE(date_column)
+-  DATEVALUE('2012-12-22')
 
-* DATEVALUE(date\_column)
-* DATEVALUE('2012-12-22')
+## Syntax
+DATEVALUE(date_string)
 
-### Syntax
+### Syntax Elements
+- **date_string**: The date string to turn into a date object.
 
-DATEVALUE(date\_string)
-
-#### Syntax Elements
-
-* **date\_string**: The date string to turn into a date object.
-
-## DAY
-
+#  DAY
 Returns the day of the month that a specific date falls on, as a number.
 
-### Examples
+## Examples
+-  DAY(date_column)
+-  DAY('2012-12-22')
 
-* DAY(date\_column)
-* DAY('2012-12-22')
-
-### Syntax
-
+## Syntax
 DAY(date)
 
-#### Syntax Elements
+### Syntax Elements
+- **date**: The date or date series to get the day of.
 
-* **date**: The date or date series to get the day of.
-
-## ENDOFBUSINESSMONTH
-
+#  ENDOFBUSINESSMONTH
 Given a date, returns the end of the buisness month. E.g. the last weekday.
 
-### Examples
+## Examples
+-  ENDOFBUSINESSMONTH(date_column)
+-  ENDOFBUSINESSMONTH('2012-12-22')
 
-* ENDOFBUSINESSMONTH(date\_column)
-* ENDOFBUSINESSMONTH('2012-12-22')
-
-### Syntax
-
+## Syntax
 ENDOFBUSINESSMONTH(date)
 
-#### Syntax Elements
+### Syntax Elements
+- **date**: The date or date series to get the end of the business month of.
 
-* **date**: The date or date series to get the end of the business month of.
-
-## ENDOFMONTH
-
+#  ENDOFMONTH
 Given a date, returns the end of the month, as a date. E.g. input of 12-22-1997 will return 12-31-1997.
 
-### Examples
+## Examples
+-  ENDOFMONTH(date_column)
+-  ENDOFMONTH('2012-12-22')
 
-* ENDOFMONTH(date\_column)
-* ENDOFMONTH('2012-12-22')
-
-### Syntax
-
+## Syntax
 ENDOFMONTH(date)
 
-#### Syntax Elements
+### Syntax Elements
+- **date**: The date or date series to get the last day of the month of.
 
-* **date**: The date or date series to get the last day of the month of.
-
-## EXP
-
+#  EXP
 Returns e, the base of the natural logarithm, raised to the power of passed series.
 
-### Examples
+## Examples
+-  =EXP(data)
+-  =EXP(A)
 
-* \=EXP(data)
-* \=EXP(A)
-
-### Syntax
-
+## Syntax
 EXP(series)
 
-#### Syntax Elements
+### Syntax Elements
+- **series**: The series to raise e to.
 
-* **series**: The series to raise e to.
-
-## FILLNAN
-
+#  FILLNAN
 Replaces the NaN values in the series with the replacement value.
 
-### Examples
+## Examples
+-  FILLNAN(A, 10)
+-  FILLNAN(A, 'replacement')
 
-* FILLNAN(A, 10)
-* FILLNAN(A, 'replacement')
-
-### Syntax
-
+## Syntax
 FILLNAN(series, replacement)
 
-#### Syntax Elements
+### Syntax Elements
+- **series**: The series to replace the NaN values in.
+- **replacement**: A string, number, or date to replace the NaNs with.
 
-* **series**: The series to replace the NaN values in.
-* **replacement**: A string, number, or date to replace the NaNs with.
-
-## FIND
-
+#  FIND
 Returns the position at which a string is first found within text, case-sensitive. Returns 0 if not found.
 
-### Examples
+## Examples
+-  FIND(A, 'Jack')
+-  FIND('Ben has a friend Jack', 'Jack')
 
-* FIND(A, 'Jack')
-* FIND('Ben has a friend Jack', 'Jack')
+## Syntax
+FIND(text_to_search, search_for)
 
-### Syntax
+### Syntax Elements
+- **text_to_search**: The text or series to search for the first occurrence of search_for.
+- **search_for**: The string to look for within text_to_search.
 
-FIND(text\_to\_search, search\_for)
+#  FLOAT
+Converts a string series to a float series. Any values that fail to convert will return NaN.
 
-#### Syntax Elements
+## Examples
+-  =FLOAT(Prices_string)
+-  =FLOAT('123.123')
 
-* **text\_to\_search**: The text or series to search for the first occurrence of search\_for.
-* **search\_for**: The string to look for within text\_to\_search.
+## Syntax
+FLOAT(string_series)
 
-## HOUR
+### Syntax Elements
+- **string_series**: The series or string to convert to a float.
 
+#  HOUR
 Returns the hour component of a specific date, as a number.
 
-### Examples
+## Examples
+-  HOUR(date_column)
+-  HOUR('2012-12-22 09:45:00')
 
-* HOUR(date\_column)
-* HOUR('2012-12-22 09:45:00')
-
-### Syntax
-
+## Syntax
 HOUR(date)
 
-#### Syntax Elements
+### Syntax Elements
+- **date**: The date or date series to get the hour of.
 
-* **date**: The date or date series to get the hour of.
-
-## IF
-
+#  IF
 Returns one value if the condition is True. Returns the other value if the conditon is False.
 
-### Examples
+## Examples
+-  IF(Status == 'success', 1, 0)
+-  IF(Nums > 100, 100, Nums)
+-  IF(AND(Grade >= .6, Status == 'active'), 'pass', 'fail')
 
-* IF(Status == 'success', 1, 0)
-* IF(Nums > 100, 100, Nums)
-* IF(AND(Grade >= .6, Status == 'active'), 'pass', 'fail')
+## Syntax
+IF(boolean_condition, value_if_true, value_if_false)
 
-### Syntax
+### Syntax Elements
+- **boolean_condition**: An expression or series that returns True or False values. Valid conditions for comparison include ==, !=, >, <, >=, <=.
+- **value_if_true**: The value the function returns if condition is True.
+- **value_if_false**: The value the function returns if condition is False.
 
-IF(boolean\_condition, value\_if\_true, value\_if\_false)
+#  INT
+Converts a string series to a int series. Any values that fail to convert will return 0.
 
-#### Syntax Elements
+## Examples
+-  =INT(Prices_string)
+-  =INT('123')
 
-* **boolean\_condition**: An expression or series that returns True or False values. Valid conditions for comparison include ==, !=, >, <, >=, <=.
-* **value\_if\_true**: The value the function returns if condition is True.
-* **value\_if\_false**: The value the function returns if condition is False.
+## Syntax
+INT(string_series)
 
-## KURT
+### Syntax Elements
+- **string_series**: The series or string to convert to a int.
 
+#  KURT
 Computes the unbiased kurtosis, a measure of tailedness, of a series, excluding missing values.
 
-### Examples
+## Examples
+-  =KURT(A)
+-  =KURT(A * B)
 
-* \=KURT(A)
-* \=KURT(A \* B)
-
-### Syntax
-
+## Syntax
 KURT(series)
 
-#### Syntax Elements
+### Syntax Elements
+- **series**: The series to calculate the unbiased kurtosis of.
 
-* **series**: The series to calculate the unbiased kurtosis of.
-
-## LEFT
-
+#  LEFT
 Returns a substring from the beginning of a specified string.
 
-### Examples
+## Examples
+-  LEFT(A, 2)
+-  LEFT('The first character!')
 
-* LEFT(A, 2)
-* LEFT('The first character!')
+## Syntax
+LEFT(string, [number_of_characters])
 
-### Syntax
+### Syntax Elements
+- **string**: The string or series from which the left portion will be returned.
+- **number_of_characters [OPTIONAL, 1 by default]**: The number of characters to return from the start of string.
 
-LEFT(string, \[number\_of\_characters])
-
-#### Syntax Elements
-
-* **string**: The string or series from which the left portion will be returned.
-* **number\_of\_characters \[OPTIONAL, 1 by default]**: The number of characters to return from the start of string.
-
-## LEN
-
+#  LEN
 Returns the length of a string.
 
-### Examples
+## Examples
+-  LEN(A)
+-  LEN('This is 21 characters')
 
-* LEN(A)
-* LEN('This is 21 characters')
-
-### Syntax
-
+## Syntax
 LEN(string)
 
-#### Syntax Elements
+### Syntax Elements
+- **string**: The string or series whose length will be returned.
 
-* **string**: The string or series whose length will be returned.
-
-## LOWER
-
+#  LOWER
 Converts a given string to lowercase.
 
-### Examples
+## Examples
+-  =LOWER('ABC')
+-  =LOWER(A)
+-  =LOWER('Nate Rush')
 
-* \=LOWER('ABC')
-* \=LOWER(A)
-* \=LOWER('Nate Rush')
-
-### Syntax
-
+## Syntax
 LOWER(string)
 
-#### Syntax Elements
+### Syntax Elements
+- **string**: The string or series to convert to lowercase.
 
-* **string**: The string or series to convert to lowercase.
-
-## MAX
-
+#  MAX
 Returns the maximum value among the passed arguments.
 
-### Examples
+## Examples
+-  MAX(10, 11)
+-  MAX(Old_Data, New_Data)
 
-* MAX(10, 11)
-* MAX(Old\_Data, New\_Data)
+## Syntax
+MAX(value1, [value2, ...])
 
-### Syntax
+### Syntax Elements
+- **value1**: The first number or column to consider for the maximum value.
+- **value2, ... [OPTIONAL]**: Additional numbers or columns to compute the maximum value from.
 
-MAX(value1, \[value2, ...])
-
-#### Syntax Elements
-
-* **value1**: The first number or column to consider for the maximum value.
-* **value2, ... \[OPTIONAL]**: Additional numbers or columns to compute the maximum value from.
-
-## MID
-
+#  MID
 Returns a segment of a string.
 
-### Examples
+## Examples
+-  MID(A, 2, 2)
+-  MID('Some middle characters!', 3, 4)
 
-* MID(A, 2, 2)
-* MID('Some middle characters!', 3, 4)
+## Syntax
+MID(string, starting_at, extract_length)
 
-### Syntax
+### Syntax Elements
+- **string**: The string or series to extract the segment from.
+- **starting_at**: The index from the left of string from which to begin extracting.
+- **extract_length**: The length of the segment to extract.
 
-MID(string, starting\_at, extract\_length)
-
-#### Syntax Elements
-
-* **string**: The string or series to extract the segment from.
-* **starting\_at**: The index from the left of string from which to begin extracting.
-* **extract\_length**: The length of the segment to extract.
-
-## MIN
-
+#  MIN
 Returns the minimum value among the passed arguments.
 
-### Examples
+## Examples
+-  MIN(10, 11)
+-  MIN(Old_Data, New_Data)
 
-* MIN(10, 11)
-* MIN(Old\_Data, New\_Data)
+## Syntax
+MIN(value1, [value2, ...])
 
-### Syntax
+### Syntax Elements
+- **value1**: The first number or column to consider for the minumum value.
+- **value2, ... [OPTIONAL]**: Additional numbers or columns to compute the minumum value from.
 
-MIN(value1, \[value2, ...])
-
-#### Syntax Elements
-
-* **value1**: The first number or column to consider for the minumum value.
-* **value2, ... \[OPTIONAL]**: Additional numbers or columns to compute the minumum value from.
-
-## MINUTE
-
+#  MINUTE
 Returns the minute component of a specific date, as a number.
 
-### Examples
+## Examples
+-  MINUTE(date_column)
+-  MINUTE('2012-12-22 09:45:00')
 
-* MINUTE(date\_column)
-* MINUTE('2012-12-22 09:45:00')
-
-### Syntax
-
+## Syntax
 MINUTE(date)
 
-#### Syntax Elements
+### Syntax Elements
+- **date**: The date or date series to get the minute of.
 
-* **date**: The date or date series to get the minute of.
-
-## MONTH
-
+#  MONTH
 Returns the month that a specific date falls in, as a number.
 
-### Examples
+## Examples
+-  MONTH(date_column)
+-  MONTH('2012-12-22')
 
-* MONTH(date\_column)
-* MONTH('2012-12-22')
-
-### Syntax
-
+## Syntax
 MONTH(date)
 
-#### Syntax Elements
+### Syntax Elements
+- **date**: The date or date series to get the month of.
 
-* **date**: The date or date series to get the month of.
-
-## MULTIPLY
-
+#  MULTIPLY
 Returns the product of two numbers.
 
-### Examples
+## Examples
+-  MULTIPLY(2,3)
+-  MULTIPLY(A,3)
 
-* MULTIPLY(2,3)
-* MULTIPLY(A,3)
+## Syntax
+MULTIPLY(factor1, [factor2, ...])
 
-### Syntax
+### Syntax Elements
+- **factor1**: The first number to multiply.
+- **factor2, ... [OPTIONAL]**: Additional numbers or series to multiply.
 
-MULTIPLY(factor1, \[factor2, ...])
-
-#### Syntax Elements
-
-* **factor1**: The first number to multiply.
-* **factor2, ... \[OPTIONAL]**: Additional numbers or series to multiply.
-
-## OR
-
+#  OR
 Returns True if any of the provided arguments are True, and False if all of the provided arguments are False.
 
-### Examples
+## Examples
+-  OR(True, False)
+-  OR(Status == 'success', Status == 'pass', Status == 'passed')
 
-* OR(True, False)
-* OR(Status == 'success', Status == 'pass', Status == 'passed')
+## Syntax
+OR(boolean_condition1, [boolean_condition2, ...])
 
-### Syntax
+### Syntax Elements
+- **boolean_condition1**: An expression or series that returns True or False values. See IF documentation for a list of conditons.
+- **boolean_condition2 ... [OPTIONAL]**: An expression or series that returns True or False values. See IF documentation for a list of conditons.
 
-OR(boolean\_condition1, \[boolean\_condition2, ...])
-
-#### Syntax Elements
-
-* **boolean\_condition1**: An expression or series that returns True or False values. See IF documentation for a list of conditons.
-* **boolean\_condition2 ... \[OPTIONAL]**: An expression or series that returns True or False values. See IF documentation for a list of conditons.
-
-## POWER
-
+#  POWER
 The POWER function can be used to raise a number to a given power.
 
-### Examples
+## Examples
+-  POWER(4, 1/2)
+-  POWER(Dose, 2)
 
-* POWER(4, 1/2)
-* POWER(Dose, 2)
-
-### Syntax
-
+## Syntax
 POWER(value, exponent)
 
-#### Syntax Elements
+### Syntax Elements
+- **value**: Number to raise to a power.
+- **exponent**: The number to raise value to.
 
-* **value**: Number to raise to a power.
-* **exponent**: The number to raise value to.
-
-## PROPER
-
+#  PROPER
 Capitalizes the first letter of each word in a specified string.
 
-### Examples
+## Examples
+-  =PROPER('nate nush')
+-  =PROPER(A)
 
-* \=PROPER('nate nush')
-* \=PROPER(A)
-
-### Syntax
-
+## Syntax
 PROPER(string)
 
-#### Syntax Elements
+### Syntax Elements
+- **string**: The value or series to convert to convert to proper case.
 
-* **string**: The value or series to convert to convert to proper case.
-
-## QUARTER
-
+#  QUARTER
 Returns the quarter (1-4) that a specific date falls in, as a number.
 
-### Examples
+## Examples
+-  QUARTER(date_column)
+-  QUARTER('2012-12-22')
 
-* QUARTER(date\_column)
-* QUARTER('2012-12-22')
-
-### Syntax
-
+## Syntax
 QUARTER(date)
 
-#### Syntax Elements
+### Syntax Elements
+- **date**: The date or date series to get the quarter of.
 
-* **date**: The date or date series to get the quarter of.
-
-## RIGHT
-
+#  RIGHT
 Returns a substring from the beginning of a specified string.
 
-### Examples
+## Examples
+-  RIGHT(A, 2)
+-  RIGHT('The last character!')
 
-* RIGHT(A, 2)
-* RIGHT('The last character!')
+## Syntax
+RIGHT(string, [number_of_characters])
 
-### Syntax
+### Syntax Elements
+- **string**: The string or series from which the right portion will be returned.
+- **number_of_characters [OPTIONAL, 1 by default]**: The number of characters to return from the end of string.
 
-RIGHT(string, \[number\_of\_characters])
-
-#### Syntax Elements
-
-* **string**: The string or series from which the right portion will be returned.
-* **number\_of\_characters \[OPTIONAL, 1 by default]**: The number of characters to return from the end of string.
-
-## ROUND
-
+#  ROUND
 Rounds a number to a given number of decimals.
 
-### Examples
+## Examples
+-  ROUND(1.3)
+-  ROUND(A, 2)
 
-* ROUND(1.3)
-* ROUND(A, 2)
+## Syntax
+ROUND(value, [decimals])
 
-### Syntax
+### Syntax Elements
+- **value**: The value or series to round.
+- **decimals**:  The number of decimals to round to. Default is 0.
 
-ROUND(value, \[decimals])
-
-#### Syntax Elements
-
-* **value**: The value or series to round.
-* **decimals**: The number of decimals to round to. Default is 0.
-
-## SECOND
-
+#  SECOND
 Returns the seconds component of a specific date, as a number.
 
-### Examples
+## Examples
+-  SECOND(date_column)
+-  SECOND('2012-12-22 09:23:05')
 
-* SECOND(date\_column)
-* SECOND('2012-12-22 09:23:05')
-
-### Syntax
-
+## Syntax
 SECOND(date)
 
-#### Syntax Elements
+### Syntax Elements
+- **date**: The date or date series to get the seconds of.
 
-* **date**: The date or date series to get the seconds of.
-
-## SKEW
-
+#  SKEW
 Computes the skew of a series, excluding missing values.
 
-### Examples
+## Examples
+-  =SKEW(A)
+-  =SKEW(A * B)
 
-* \=SKEW(A)
-* \=SKEW(A \* B)
-
-### Syntax
-
+## Syntax
 SKEW(series)
 
-#### Syntax Elements
+### Syntax Elements
+- **series**: The series to calculate the skew of.
 
-* **series**: The series to calculate the skew of.
-
-## STARTOFBUSINESSMONTH
-
+#  STARTOFBUSINESSMONTH
 Given a date, returns the most recent start of the business month, as a state. E.g. the first weekday.
 
-### Examples
+## Examples
+-  STARTOFBUSINESSMONTH(date_column)
+-  STARTOFBUSINESSMONTH('2012-12-22 09:23:05')
 
-* STARTOFBUSINESSMONTH(date\_column)
-* STARTOFBUSINESSMONTH('2012-12-22 09:23:05')
-
-### Syntax
-
+## Syntax
 STARTOFBUSINESSMONTH(date)
 
-#### Syntax Elements
+### Syntax Elements
+- **date**: The date or date series to get the most recent beginning of month business day of.
 
-* **date**: The date or date series to get the most recent beginning of month business day of.
-
-## STARTOFMONTH
-
+#  STARTOFMONTH
 Given a date, returns the start of the month, as a date. E.g. input of 12-22-1997 will return 12-1-1997.
 
-### Examples
+## Examples
+-  STARTOFMONTH(date_column)
+-  STARTOFMONTH('2012-12-22 09:23:05')
 
-* STARTOFMONTH(date\_column)
-* STARTOFMONTH('2012-12-22 09:23:05')
-
-### Syntax
-
+## Syntax
 STARTOFMONTH(date)
 
-#### Syntax Elements
+### Syntax Elements
+- **date**: The date or date series to get the first day of the month of.
 
-* **date**: The date or date series to get the first day of the month of.
-
-## STDEV
-
+#  STDEV
 Computes the standard deviation of a series, excluding missing values.
 
-### Examples
+## Examples
+-  =STDEV(A)
+-  =STDEV(A * B)
 
-* \=STDEV(A)
-* \=STDEV(A \* B)
-
-### Syntax
-
+## Syntax
 STDEV(series)
 
-#### Syntax Elements
+### Syntax Elements
+- **series**: The series to calculate the standard deviation of.
 
-* **series**: The series to calculate the standard deviation of.
-
-## STRIPTIMETODAYS
-
+#  STRIPTIMETODAYS
 Returns the date with a seconds, minutes, and hours component of 00:00:00.
 
-### Examples
+## Examples
+-  STRIPTIMETODAYS(date_column)
+-  STRIPTIMETODAYS('2012-12-22 09:23:05')
 
-* STRIPTIMETODAYS(date\_column)
-* STRIPTIMETODAYS('2012-12-22 09:23:05')
-
-### Syntax
-
+## Syntax
 STRIPTIMETODAYS(date)
 
-#### Syntax Elements
+### Syntax Elements
+- **date**: The date or date series to reset the seconds, minutes, and hours component of.
 
-* **date**: The date or date series to reset the seconds, minutes, and hours component of.
-
-## STRIPTIMETOHOURS
-
+#  STRIPTIMETOHOURS
 Returns the date with a seconds and minutes component of 00:00.
 
-### Examples
+## Examples
+-  STRIPTIMETOHOURS(date_column)
+-  STRIPTIMETOHOURS('2012-12-22 09:23:05')
 
-* STRIPTIMETOHOURS(date\_column)
-* STRIPTIMETOHOURS('2012-12-22 09:23:05')
-
-### Syntax
-
+## Syntax
 STRIPTIMETOHOURS(date)
 
-#### Syntax Elements
+### Syntax Elements
+- **date**: The date or date series to reset the seconds and minutes component of.
 
-* **date**: The date or date series to reset the seconds and minutes component of.
-
-## STRIPTIMETOMINUTES
-
+#  STRIPTIMETOMINUTES
 Returns the date with a seconds component of 00.
 
-### Examples
+## Examples
+-  STRIPTIMETOMINUTES(date_column)
+-  STRIPTIMETOMINUTES('2012-12-22 09:23:05')
 
-* STRIPTIMETOMINUTES(date\_column)
-* STRIPTIMETOMINUTES('2012-12-22 09:23:05')
-
-### Syntax
-
+## Syntax
 STRIPTIMETOMINUTES(date)
 
-#### Syntax Elements
+### Syntax Elements
+- **date**: The date or date series to reset the seconds component of.
 
-* **date**: The date or date series to reset the seconds component of.
-
-## STRIPTIMETOMONTHS
-
+#  STRIPTIMETOMONTHS
 Returns the date adjusted to the start of the month.
 
-### Examples
+## Examples
+-  STRIPTIMETOMONTHS(date_column)
+-  STRIPTIMETOMONTHS('2012-12-22 09:23:05')
 
-* STRIPTIMETOMONTHS(date\_column)
-* STRIPTIMETOMONTHS('2012-12-22 09:23:05')
-
-### Syntax
-
+## Syntax
 STRIPTIMETOMONTHS(date)
 
-#### Syntax Elements
+### Syntax Elements
+- **date**: The date or date series to reset the seconds, minutes, hours, and days of.
 
-* **date**: The date or date series to reset the seconds, minutes, hours, and days of.
-
-## STRIPTIMETOYEARS
-
+#  STRIPTIMETOYEARS
 Returns the date adjusted to the start of the year.
 
-### Examples
+## Examples
+-  STRIPTIMETOYEARS(date_column)
+-  STRIPTIMETOYEARS('2012-12-22 09:23:05')
 
-* STRIPTIMETOYEARS(date\_column)
-* STRIPTIMETOYEARS('2012-12-22 09:23:05')
-
-### Syntax
-
+## Syntax
 STRIPTIMETOYEARS(date)
 
-#### Syntax Elements
+### Syntax Elements
+- **date**: The date or date series to reset the seconds, minutes, hours, days, and month components of.
 
-* **date**: The date or date series to reset the seconds, minutes, hours, days, and month components of.
-
-## SUBSTITUTE
-
+#  SUBSTITUTE
 Replaces existing text with new text in a string.
 
-### Examples
+## Examples
+-  SUBSTITUTE('Better great than never', 'great', 'late')
+-  SUBSTITUTE(A, 'dog', 'cat')
 
-* SUBSTITUTE('Better great than never', 'great', 'late')
-* SUBSTITUTE(A, 'dog', 'cat')
+## Syntax
+SUBSTITUTE(text_to_search, search_for, replace_with, [count])
 
-### Syntax
+### Syntax Elements
+- **text_to_search**: The text within which to search and replace.
+- **search_for**:  The string to search for within text_to_search.
+- **replace_with**: The string that will replace search_for.
+- **count**: The number of times to perform the substitute. Default is all.
 
-SUBSTITUTE(text\_to\_search, search\_for, replace\_with, \[count])
-
-#### Syntax Elements
-
-* **text\_to\_search**: The text within which to search and replace.
-* **search\_for**: The string to search for within text\_to\_search.
-* **replace\_with**: The string that will replace search\_for.
-* **count**: The number of times to perform the substitute. Default is all.
-
-## SUM
-
+#  SUM
 Returns the sum of the given numbers and series.
 
-### Examples
+## Examples
+-  SUM(10, 11)
+-  SUM(A, B, D, F)
+-  SUM(A, B, D, F)
 
-* SUM(10, 11)
-* SUM(A, B, D, F)
-* SUM(A, B, D, F)
+## Syntax
+SUM(value1, [value2, ...])
 
-### Syntax
+### Syntax Elements
+- **value1**: The first number or column to add together.
+- **value2, ... [OPTIONAL]**: Additional numbers or columns to sum.
 
-SUM(value1, \[value2, ...])
-
-#### Syntax Elements
-
-* **value1**: The first number or column to add together.
-* **value2, ... \[OPTIONAL]**: Additional numbers or columns to sum.
-
-## TEXT
-
+#  TEXT
 Turns the passed series into a string.
 
-### Examples
+## Examples
+-  =TEXT(Product_Number)
+-  =TEXT(Start_Date)
 
-* \=TEXT(Product\_Number)
-* \=TEXT(Start\_Date)
-
-### Syntax
-
+## Syntax
 TEXT(series)
 
-#### Syntax Elements
+### Syntax Elements
+- **series**: The series to convert to a string.
 
-* **series**: The series to convert to a string.
-
-## TRIM
-
+#  TRIM
 Returns a string with the leading and trailing whitespace removed.
 
-### Examples
+## Examples
+-  =TRIM('  ABC')
+-  =TRIM('  ABC  ')
+-  =TRIM(A)
 
-* \=TRIM(' ABC')
-* \=TRIM(' ABC ')
-* \=TRIM(A)
-
-### Syntax
-
+## Syntax
 TRIM(string)
 
-#### Syntax Elements
+### Syntax Elements
+- **string**: The value or series to remove the leading and trailing whitespace from.
 
-* **string**: The value or series to remove the leading and trailing whitespace from.
-
-## TYPE
-
+#  TYPE
 Returns the type of each element of the passed series. Return values are 'number', 'str', 'bool', 'datetime', 'object', or 'NaN'.
 
-### Examples
+## Examples
+-  TYPE(Nums_and_Strings)
+-  IF(TYPE(Account_Numbers) != 'NaN', Account_Numbers, 0)
 
-* TYPE(Nums\_and\_Strings)
-* IF(TYPE(Account\_Numbers) != 'NaN', Account\_Numbers, 0)
-
-### Syntax
-
+## Syntax
 TYPE(series)
 
-#### Syntax Elements
+### Syntax Elements
+- **series**: The series to get the type of each element of.
 
-* **series**: The series to get the type of each element of.
-
-## UPPER
-
+#  UPPER
 Converts a given string to uppercase.
 
-### Examples
+## Examples
+-  =UPPER('abc')
+-  =UPPER(A)
+-  =UPPER('Nate Rush')
 
-* \=UPPER('abc')
-* \=UPPER(A)
-* \=UPPER('Nate Rush')
-
-### Syntax
-
+## Syntax
 UPPER(string)
 
-#### Syntax Elements
+### Syntax Elements
+- **string**: The string or series to convert to uppercase.
 
-* **string**: The string or series to convert to uppercase.
-
-## VALUE
-
+#  VALUE
 Converts a string series to a number series. Any values that fail to convert will return an NaN.
 
-### Examples
+## Examples
+-  =VALUE(A)
+-  =VALUE('123')
 
-* \=VALUE(A)
-* \=VALUE('123')
-
-### Syntax
-
+## Syntax
 VALUE(string)
 
-#### Syntax Elements
+### Syntax Elements
+- **string**: The string or series to convert to a number.
 
-* **string**: The string or series to convert to a number.
-
-## VAR
-
+#  VAR
 Computes the variance of a series, excluding missing values.
 
-### Examples
+## Examples
+-  =VAR(A)
+-  =VAR(A - B)
 
-* \=VAR(A)
-* \=VAR(A - B)
-
-### Syntax
-
+## Syntax
 VAR(series)
 
-#### Syntax Elements
+### Syntax Elements
+- **series**: The series to calculate the variance of.
 
-* **series**: The series to calculate the variance of.
-
-## WEEK
-
+#  WEEK
 Returns the week (1-52) of a specific date, as a number.
 
-### Examples
+## Examples
+-  WEEK(date_column)
+-  WEEK('2012-12-22 09:23:05')
 
-* WEEK(date\_column)
-* WEEK('2012-12-22 09:23:05')
-
-### Syntax
-
+## Syntax
 WEEK(date)
 
-#### Syntax Elements
+### Syntax Elements
+- **date**: The date or date series to get the week of.
 
-* **date**: The date or date series to get the week of.
-
-## WEEKDAY
-
+#  WEEKDAY
 Returns the day of the week that a specific date falls on. 1-7 corresponds to Monday-Sunday.
 
-### Examples
+## Examples
+-  WEEKDAY(date_column)
+-  WEEKDAY('2012-12-22')
 
-* WEEKDAY(date\_column)
-* WEEKDAY('2012-12-22')
-
-### Syntax
-
+## Syntax
 WEEKDAY(date)
 
-#### Syntax Elements
+### Syntax Elements
+- **date**: The date or date series to get the weekday of.
 
-* **date**: The date or date series to get the weekday of.
-
-## YEAR
-
+#  YEAR
 Returns the day of the year that a specific date falls in, as a number.
 
-### Examples
+## Examples
+-  YEAR(date_column)
+-  YEAR('2012-12-22')
 
-* YEAR(date\_column)
-* YEAR('2012-12-22')
-
-### Syntax
-
+## Syntax
 YEAR(date)
 
-#### Syntax Elements
-
-* **date**: The date or date series to get the month of.
-
+### Syntax Elements
+- **date**: The date or date series to get the month of.
 
 
 {% hint style="info" %}

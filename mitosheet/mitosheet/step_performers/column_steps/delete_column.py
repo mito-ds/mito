@@ -1,16 +1,15 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from mitosheet.errors import make_invalid_column_delete_error
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.topological_sort import topological_sort_columns
+from mitosheet.evaluation_graph_utils import create_column_evaluation_graph, topological_sort_columns
 from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code
 from mitosheet.types import ColumnID
 
@@ -104,9 +103,11 @@ def delete_column_ids(
     column_ids: List[ColumnID],
 ) -> State:
 
+    column_evaluation_graph = create_column_evaluation_graph(state, sheet_index)
+
     # Put the columns in a topological sorting so we delete columns that reference
     # other columns in column_ids first, in order to avoid make_invalid_column_delete_error
-    topologicaly_sorted_column_ids = topological_sort_columns(state.column_evaluation_graph[sheet_index])
+    topologicaly_sorted_column_ids = topological_sort_columns(column_evaluation_graph)
     sorted_column_ids_to_delete = list(filter(lambda column_id: column_id in column_ids, topologicaly_sorted_column_ids))
     sorted_column_ids_to_delete.reverse()
 
@@ -120,7 +121,7 @@ def delete_column_ids(
     # If we weren't able to delete any of the columns, then raise an error
     if len(unable_to_delete_columns) > 0:
         column_headers = [state.column_ids.get_column_header_by_id(sheet_index, column_id) for column_id in unable_to_delete_columns]
-        dependant_columns_lists = [list(state.column_evaluation_graph[sheet_index][column_id]) for column_id in unable_to_delete_columns]
+        dependant_columns_lists = [list(column_evaluation_graph[column_id]) for column_id in unable_to_delete_columns]
         # Flatten the list 
         dependant_columns = [item for sublist in dependant_columns_lists for item in sublist]
     
@@ -135,11 +136,12 @@ def _delete_column_id(
     column_id: ColumnID
 ) -> Tuple[State, bool]:
     
+    column_evaluation_graph = create_column_evaluation_graph(state, sheet_index)
     column_header = state.column_ids.get_column_header_by_id(sheet_index, column_id)
     
     # Return False if there are any columns that currently rely on this column, 
     # so we can display an error message with all of the un-deletable columns.
-    if len(state.column_evaluation_graph[sheet_index][column_id]) > 0:
+    if len(column_evaluation_graph[column_id]) > 0:
         return state, False
         
     # Actually drop the column
@@ -147,15 +149,11 @@ def _delete_column_id(
     df.drop(column_header, axis=1, inplace=True)
 
     # And then update all the state variables removing this column from the state
-    del state.column_metatype[sheet_index][column_id]
-    del state.column_type[sheet_index][column_id]
     del state.column_spreadsheet_code[sheet_index][column_id]
-    del state.column_python_code[sheet_index][column_id]
-    del state.column_evaluation_graph[sheet_index][column_id]
     del state.column_format_types[sheet_index][column_id]
 
     # We also have to delete the places in the graph where this node is 
-    for dependents in state.column_evaluation_graph[sheet_index].values():
+    for dependents in column_evaluation_graph.values():
         if column_id in dependents:
             dependents.remove(column_id)
     # Clean up the IDs

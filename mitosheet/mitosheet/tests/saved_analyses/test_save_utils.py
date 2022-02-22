@@ -1,24 +1,23 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 Contains tests for save utils.
 """
-import os
-import pytest
-import pandas as pd
 import json
+import os
 import random
 
-from mitosheet.tests.test_utils import create_mito_wrapper, create_mito_wrapper_dfs, make_multi_index_header_df
-from mitosheet.step_performers.filter import FC_NUMBER_EXACTLY
-from mitosheet.sheet_functions.types.utils import NUMBER_SERIES
-from mitosheet.saved_analyses.save_utils import read_and_upgrade_analysis
-from mitosheet.utils import get_new_id
+import pandas as pd
+import pytest
 from mitosheet.saved_analyses import SAVED_ANALYSIS_FOLDER, write_analysis
+from mitosheet.saved_analyses.save_utils import read_and_upgrade_analysis
+from mitosheet.step_performers.filter import FC_NUMBER_EXACTLY
+from mitosheet.tests.test_utils import (create_mito_wrapper,
+                                        create_mito_wrapper_dfs,
+                                        make_multi_index_header_df)
 
 # We assume only column A exists
 PERSIST_ANALYSIS_TESTS = [
@@ -43,7 +42,6 @@ def test_recover_analysis(b_value, b_formula):
 
     curr_step = new_mito.curr_step
 
-    assert curr_step.column_metatype[0]['B'] == 'formula'
     assert curr_step.column_spreadsheet_code[0]['B'] == b_formula
     assert new_mito.dfs[0]['B'].tolist() == [b_value]
     assert json.dumps(new_mito.curr_step.column_spreadsheet_code) == json.dumps(curr_step.column_spreadsheet_code)
@@ -75,11 +73,9 @@ def test_persist_analysis_multi_sheet(b_value, b_formula):
 
     curr_step = new_mito.curr_step
 
-    assert curr_step.column_metatype[0]['B'] == 'formula'
     assert curr_step.column_spreadsheet_code[0]['B'] == b_formula
     assert new_mito.dfs[0]['B'].tolist() == [b_value]
 
-    assert curr_step.column_metatype[1]['B'] == 'formula'
     assert curr_step.column_spreadsheet_code[1]['B'] == b_formula
     assert new_mito.dfs[1]['B'].tolist() == [b_value]
     
@@ -204,10 +200,7 @@ def test_pivot_by_replays():
     assert steps_manager.steps[1].step_type == 'pivot'
     assert len(steps_manager.curr_step.dfs) == 2
     assert steps_manager.curr_step.dfs[1].equals(
-        make_multi_index_header_df(
-            {0: ['Nate'], 1: [9]},
-            ['Name', ('Height', 'sum')]
-        )
+        pd.DataFrame({'Name': ['Nate'], 'Height sum': [9]})
     )
 
 
@@ -329,8 +322,8 @@ def test_replay_analysis_can_overwrite_entire_analysis():
 
 def test_save_analysis_saves_skipped_steps():
     mito = create_mito_wrapper([1, 2, 3])
-    mito.filter(0, 'A', 'And', NUMBER_SERIES, FC_NUMBER_EXACTLY, 2)
-    mito.filter(0, 'A', 'And', NUMBER_SERIES, FC_NUMBER_EXACTLY, 3)
+    mito.filter(0, 'A', 'And', FC_NUMBER_EXACTLY, 2)
+    mito.filter(0, 'A', 'And', FC_NUMBER_EXACTLY, 3)
 
     assert len(mito.steps) == 3
 
@@ -364,7 +357,7 @@ def test_save_replays_overwrite_by_ids_propererly():
     new_mito.replay_analysis(random_name)
 
     assert new_mito.dfs[1].equals(
-        make_multi_index_header_df({0: [1, 2, 3], 1: [1, 1, 1]}, ['A', ('A', 'count')])
+        pd.DataFrame({'A': [1, 2, 3], 'A count': [1, 1, 1]})
     )
 
 def test_replay_analysis_does_not_replay_set_cell_value_steps_when_clearing_analysis():

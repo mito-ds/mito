@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 from copy import copy
 from typing import Any, Callable, Dict, Collection, List, Optional, Set, Tuple
 import pandas as pd
@@ -36,7 +35,7 @@ PIVOT_AGGREGATION_TYPES = [
 TAB = '    '
 NEWLINE_TAB = f'\n{TAB}'
 
-FLATTEN_CODE = f'pivot_table.columns = [flatten_column_header(col) for col in pivot_table.columns.values]'
+FLATTEN_CODE = f'pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1, inplace=True)'
 
 class PivotStepPerformer(StepPerformer):
     """
@@ -117,7 +116,7 @@ class PivotStepPerformer(StepPerformer):
 
         try:
             # Actually execute the pivoting
-            new_df = _execute_pivot(
+            new_df, was_series = _execute_pivot(
                 prev_state.dfs[sheet_index], 
                 pivot_rows,
                 pivot_columns,
@@ -142,7 +141,8 @@ class PivotStepPerformer(StepPerformer):
 
 
         return post_state, {
-            'destination_sheet_index': destination_sheet_index
+            'destination_sheet_index': destination_sheet_index,
+            'was_series': was_series
         }
 
     @classmethod
@@ -190,6 +190,10 @@ class PivotStepPerformer(StepPerformer):
         # Do the actual pivot
         pivot_table_args = build_args_code(pivot_rows, pivot_columns, values)
         transpiled_code.append(f'pivot_table = tmp_df.pivot_table({NEWLINE_TAB}{pivot_table_args}\n)')
+
+        if execution_data and execution_data['was_series']:
+            # TODO: do we want a comment to explain this?
+            transpiled_code.append(f'pivot_table = pd.DataFrame(pivot_table)')
 
         if flatten_column_headers:
             # Flatten column headers, which we always do because it's hard to tell when we should
@@ -263,7 +267,7 @@ def _execute_pivot(
         pivot_columns: List[ColumnHeader], 
         values: Dict[ColumnHeader, Collection[str]],
         flatten_column_headers: bool
-    ) -> pd.DataFrame:
+    ) -> Tuple[pd.DataFrame, bool]:
     """
     Helper function for executing the pivot on a specific dataframe
     and then aggregating the values with the passed values mapping
@@ -271,7 +275,7 @@ def _execute_pivot(
 
     # If there are no keys to aggregate on, we return an empty dataframe
     if (len(pivot_rows) == 0 and len(pivot_columns) == 0) or len(values) == 0:
-        return pd.DataFrame(data={})
+        return pd.DataFrame(data={}), False
 
     values_keys = list(values.keys())
 
@@ -298,13 +302,22 @@ def _execute_pivot(
     # Actually perform the pivot
     pivot_table = df.pivot_table(**args) # type: pd.DataFrame
 
+    # On earlier pandas versions (e.g. 0.24.2), the pivot table function returned
+    # a series from the above function call. Thus, we need to move it to a df for
+    # all our other code run properly on it. This code should only run in early 
+    # versions of pandas
+    was_series = False
+    if isinstance(pivot_table, pd.Series):
+        pivot_table = pd.DataFrame(pivot_table)
+        was_series = True
+
     if flatten_column_headers:
-        pivot_table.columns = [flatten_column_header(col) for col in pivot_table.columns.values]
+        pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1, inplace=True)
 
     # Reset the indexes of the pivot table
     pivot_table = pivot_table.reset_index()
 
-    return pivot_table
+    return pivot_table, was_series
 
 def values_to_functions_code(values: Dict[ColumnHeader, Collection[str]]) -> str:
     """

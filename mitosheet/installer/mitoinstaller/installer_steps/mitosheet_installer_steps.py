@@ -1,14 +1,26 @@
+import sys
 from mitoinstaller.commands import (get_jupyterlab_metadata,
-                                    install_pip_packages)
+                                    install_pip_packages,
+                                    uninstall_pip_packages)
 from mitoinstaller.installer_steps.installer_step import InstallerStep
 from mitoinstaller.log_utils import log
 
 
 def install_step_mitosheet_check_dependencies():
+    """
+    This is the most complex step in the installation process. It's
+    goal is to check if the users existing installation can safely
+    be upgraded to JLab 3.0. 
+
+    To do this, it checks a variety of conditions, mostly around what
+    version of JLab they have installed, and if this version of JLab has
+    any installed dependencies (that we cannot safely upgrade).
+    """
+
     jupyterlab_version, extension_names = get_jupyterlab_metadata()
 
-    # We log if the user is upgrading their mitosheet3 extension
-    if extension_names is not None and ('mitosheet' in extension_names or 'mitosheet3' in extension_names):
+    # We log if the user is upgrading their mitosheet extension
+    if extension_names is not None and ('mitosheet' in extension_names or 'mitosheet2' in extension_names or 'mitosheet3' in extension_names):
         log('upgrading_mitosheet_labextension',
             {
                 'jupyterlab_version': jupyterlab_version,
@@ -21,25 +33,33 @@ def install_step_mitosheet_check_dependencies():
     if jupyterlab_version is None:
         return
     
-    # If JupyterLab 2 is installed, then we are are also good to go
-    if jupyterlab_version.startswith('2'):
+    # If JupyterLab 3 is installed, then we are are also good to go
+    if jupyterlab_version.startswith('3'):
+        return
+
+    # If the user has no extension, we can upgrade
+    if len(extension_names) == 0:
         return
     
-    raise Exception('Out of date JupyterLab version {jupyterlab_version}'.format(jupyterlab_version=jupyterlab_version))
+    else:
+        raise Exception('Installed extensions {extension_names}'.format(extension_names=extension_names))
 
+def remove_mitosheet_3_if_present():
+    """
+    Because of our changes to the package hierarchy, if the user
+    currently has mitosheet3 installed, we need to uninstall it,
+    as the user is moving to mitosheet instead. 
+
+    Otherwise, if the user has mitosheet and mitosheet3 installed,
+    they will get an error launching jlab because it will lead to 
+    two different extensions getting registered with the same
+    name.
+    """
+    uninstall_pip_packages('mitosheet3')
+    
 
 def install_step_mitosheet_install_mitosheet():
-    install_pip_packages('mitosheet')
-
-
-def install_step_mitosheet_install_jupyter_widget_manager():
-    from jupyterlab import commands
-    commands.install_extension('@jupyter-widgets/jupyterlab-manager@2')
-
-
-def install_step_mitosheet_rebuild_jupyterlab():
-    from jupyterlab import commands
-    commands.build()
+    install_pip_packages('mitosheet', test_pypi='--test-pypi' in sys.argv)
 
 
 MITOSHEET_INSTALLER_STEPS = [
@@ -48,15 +68,11 @@ MITOSHEET_INSTALLER_STEPS = [
         install_step_mitosheet_check_dependencies
     ),
     InstallerStep(
+        'Remove mitosheet3 if present',
+        remove_mitosheet_3_if_present
+    ),
+    InstallerStep(
         'Installing mitosheet',
         install_step_mitosheet_install_mitosheet
-    ),
-    InstallerStep(
-        'Installing @jupyter-widgets/jupyterlab-manager@2',
-        install_step_mitosheet_install_jupyter_widget_manager
-    ),
-    InstallerStep(
-        'Rebuilding JupyterLab',
-        install_step_mitosheet_rebuild_jupyterlab
     ),
 ]

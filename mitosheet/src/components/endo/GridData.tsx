@@ -2,11 +2,12 @@ import React from 'react';
 import '../../../css/endo/GridData.css';
 import { getBorderStyle, getIsCellSelected } from './selectionUtils';
 import { calculateCurrentSheetView } from './sheetViewUtils';
-import { ColumnMitoType, EditorState, GridState, SheetData, UIState } from '../../types';
+import { EditorState, GridState, SheetData, UIState } from '../../types';
 import { classNames } from '../../utils/classNames';
 import { cellInSearch, getColumnIDsArrayFromSheetDataArray } from './utils';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import { formatCellData } from '../../utils/formatColumns';
+import { isNumberDtype } from '../../utils/dtypes';
 
 
 const GridData = (props: {
@@ -35,12 +36,11 @@ const GridData = (props: {
                         {Array(currentSheetView.numColumnsRendered).fill(0).map((_, _colIndex) => {
                             const columnIndex = currentSheetView.startingColumnIndex + _colIndex;
                             const columnID = columnIDs[columnIndex]
-                            const columnMitoType = sheetData.columnMitoTypeMap[columnID]
                             const columnDtype = props.sheetData?.data[columnIndex]?.columnDtype;
                             const columnFormatType = sheetData.columnFormatTypeObjMap[columnID]
                             const cellData = props.sheetData?.data[columnIndex]?.columnData[rowIndex];
 
-                            if (cellData === undefined) {
+                            if (cellData === undefined || columnDtype == undefined) {
                                 return null;
                             }
 
@@ -48,13 +48,13 @@ const GridData = (props: {
                                 'cell-selected': getIsCellSelected(props.gridState.selections, rowIndex, columnIndex),
                                 'cell-hidden': props.editorState !== undefined && props.editorState.rowIndex === rowIndex && props.editorState.columnIndex === columnIndex,
                                 'cell-searched': cellInSearch(cellData, props.gridState.searchString) && props.uiState.currOpenTaskpane.type === TaskpaneType.SEARCH,
-                                'right-align-number-series': columnMitoType === ColumnMitoType.NUMBER_SERIES
+                                'right-align-number-series': isNumberDtype(columnDtype)
                             });
 
                             const cellWidth = props.gridState.widthDataArray[props.gridState.sheetIndex].widthArray[columnIndex];
 
                             // Format the cell
-                            const displayCellData = formatCellData(cellData, columnMitoType, columnDtype, columnFormatType)
+                            const displayCellData = formatCellData(cellData, columnDtype, columnFormatType)
 
                             return (
                                 <div 

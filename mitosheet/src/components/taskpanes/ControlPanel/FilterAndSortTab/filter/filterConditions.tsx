@@ -1,65 +1,49 @@
 // Copyright (c) Mito
 
-import { BooleanFilterCondition, ColumnMitoType, DatetimeFilterCondition, NumberFilterCondition, StringFilterCondition } from "../../../../../types"
+import { BooleanFilterCondition, DatetimeFilterCondition, NumberFilterCondition, StringFilterCondition } from "../../../../../types"
 
 
-const BOOLEAN_SELECT_OPTIONS: Record<string, string> = {
-    [BooleanFilterCondition.IS_TRUE]: 'is true',
-    [BooleanFilterCondition.IS_FALSE]: 'is false',
-    [BooleanFilterCondition.EMPTY]: 'is empty',
-    [BooleanFilterCondition.NOT_EMPTY]: 'is not empty'
+export const BOOLEAN_SELECT_OPTIONS: Record<BooleanFilterCondition, string> = {
+    ['boolean_is_true']: 'is true',
+    ['boolean_is_false']: 'is false',
+    ['empty']: 'is empty',
+    ['not_empty']: 'is not empty'
 } 
 
-const NUMBER_SELECT_OPTIONS: Record<string, string> = {
-    [NumberFilterCondition.NUMBER_EXACTLY]: '=',
-    [NumberFilterCondition.NUMBER_NOT_EXACTLY]: '\u2260',
-    [NumberFilterCondition.GREATER]: '\u003E',
-    [NumberFilterCondition.GREATER_THAN_OR_EQUAL]: '\u2265',
-    [NumberFilterCondition.LESS]: '\u003C',
-    [NumberFilterCondition.LESS_THAN_OR_EQUAL]: '\u2264',
-    [NumberFilterCondition.EMPTY]: 'is empty',
-    [NumberFilterCondition.NOT_EMPTY]: 'is not empty'
+export const NUMBER_SELECT_OPTIONS: Record<NumberFilterCondition, string> = {
+    ['number_exactly']: '=',
+    ['number_not_exactly']: '\u2260',
+    ['greater']: '\u003E',
+    ['greater_than_or_equal']: '\u2265',
+    ['less']: '\u003C',
+    ['less_than_or_equal']: '\u2264',
+    ['empty']: 'is empty',
+    ['not_empty']: 'is not empty'
 } 
 
-const STRING_SELECT_OPTIONS: Record<string, string> = {
-    [StringFilterCondition.CONTAINS]: 'contains',
-    [StringFilterCondition.DOES_NOT_CONTAIN]: 'does not contain',
-    [StringFilterCondition.STRING_EXACTLY]: 'is exactly',
-    [StringFilterCondition.STRING_NOT_EXACTLY]: 'is not exactly',
-    [StringFilterCondition.EMPTY]: 'is empty',
-    [StringFilterCondition.NOT_EMPTY]: 'is not empty'
+export const STRING_SELECT_OPTIONS: Record<StringFilterCondition, string> = {
+    ['contains']: 'contains',
+    ['string_does_not_contain']: 'does not contain',
+    ['string_exactly']: 'is exactly',
+    ['string_not_exactly']: 'is not exactly',
+    ['empty']: 'is empty',
+    ['not_empty']: 'is not empty'
 } 
 
-const DATETIME_SELECT_OPTIONS: Record<string, string> = {
-    [DatetimeFilterCondition.DATETIME_EXTACTLY]: '=',
-    [DatetimeFilterCondition.DATETIME_NOT_EXTACTLY]: '!=',
-    [DatetimeFilterCondition.DATETIME_GREATER_THAN]: '\u003E',
-    [DatetimeFilterCondition.DATETIME_GREATER_THAN_OR_EQUAL]: '\u2265',
-    [DatetimeFilterCondition.DATETIME_LESS]: '\u003C',
-    [DatetimeFilterCondition.DATETIME_LESS_THAN_OR_EQUAL]: '\u2264',
-    [DatetimeFilterCondition.EMPTY]: 'is empty',
-    [DatetimeFilterCondition.NOT_EMPTY]: 'is not empty'
+export const DATETIME_SELECT_OPTIONS: Record<DatetimeFilterCondition, string> = {
+    ['datetime_exactly']: '=',
+    ['datetime_not_exactly']: '!=',
+    ['datetime_greater']: '\u003E',
+    ['datetime_greater_than_or_equal']: '\u2265',
+    ['datetime_less']: '\u003C',
+    ['datetime_less_than_or_equal']: '\u2264',
+    ['empty']: 'is empty',
+    ['not_empty']: 'is not empty'
 } 
-
-export const COLUMN_TYPE_TO_SELECT_OPTIONS: Record<ColumnMitoType, Record<string, string>> = {
-    [ColumnMitoType.BOOLEAN_SERIES]: BOOLEAN_SELECT_OPTIONS,
-    [ColumnMitoType.STRING_SERIES]: STRING_SELECT_OPTIONS,
-    [ColumnMitoType.NUMBER_SERIES]: NUMBER_SELECT_OPTIONS,
-    [ColumnMitoType.DATETIME_SERIES]: DATETIME_SELECT_OPTIONS,
-    // We don't have time delta filters yet, so we just default to string options
-    [ColumnMitoType.TIMEDELTA_SERIES]: STRING_SELECT_OPTIONS,
-
-}
 
 export const CONDITIONS_WITH_NO_INPUT = [
-    BooleanFilterCondition.IS_TRUE,
-    BooleanFilterCondition.IS_FALSE,
-    BooleanFilterCondition.EMPTY,
-    BooleanFilterCondition.NOT_EMPTY,
-    NumberFilterCondition.EMPTY,
-    NumberFilterCondition.NOT_EMPTY,
-    StringFilterCondition.EMPTY,
-    StringFilterCondition.NOT_EMPTY,
-    DatetimeFilterCondition.EMPTY,
-    DatetimeFilterCondition.NOT_EMPTY,
+    'boolean_is_true',
+    'boolean_is_false',
+    'empty',
+    'not_empty',
 ]

@@ -277,7 +277,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const dfNames = sheetDataArray.map(sheetData => sheetData.dfName);
     const dfSources = sheetDataArray.map(sheetData => sheetData.dfSource);
     const columnIDsMapArray = sheetDataArray.map(sheetData => sheetData.columnIDsMap);
-    const columnMitoTypeMapArray = sheetDataArray.map(sheetData => sheetData.columnMitoTypeMap);
 
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
 
@@ -365,9 +364,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
             case TaskpaneType.CONTROL_PANEL: 
                 return (
                     <ControlPanelTaskpane 
-                        // Set the columnHeader as the key so that the taskpane updates when it is switched
+                        // Set the columnHeader, sheet index as the key so that the taskpane updates when it is switched
                         // TODO: figure out why we need this, if the other variables update?
-                        key={'' + columnID} 
+                        key={'' + columnID + uiState.selectedSheetIndex} 
                         selectedSheetIndex={uiState.selectedSheetIndex}
                         sheetData={sheetDataArray[uiState.selectedSheetIndex]}
                         columnIDsMapArray={columnIDsMapArray}
@@ -409,7 +408,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         dfNames={dfNames}
                         columnIDsMapArray={columnIDsMapArray}
                         sheetDataArray={sheetDataArray}
-                        columnMitoTypes={columnMitoTypeMapArray[uiState.selectedSheetIndex]}
+                        columnDtypesMap={sheetDataArray[uiState.selectedSheetIndex].columnDtypeMap}
                         mitoAPI={props.mitoAPI}
                         setUIState={setUIState} 
                         model_id={props.model_id}
@@ -430,6 +429,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     mitoAPI={props.mitoAPI}
                     currPathParts={currPathParts}
                     setCurrPathParts={setCurrPathParts}
+                    userProfile={userProfile}
                 />
             )
             case TaskpaneType.MERGE: return (

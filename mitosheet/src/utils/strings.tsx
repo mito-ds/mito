@@ -16,7 +16,7 @@ export const fuzzyMatch = (stringOne: string, stringTwo: string): number => {
     // and the string with underscores and dashes. In the future, we can make this 
     // handle more common typos using some existing fuzzy match algorithm
 
-    if (stringOne.search(stringTwo) !== -1) {
+    if (stringOne.includes(stringTwo)) {
         return 1;
     } 
     const possibleTypos = [
@@ -29,7 +29,7 @@ export const fuzzyMatch = (stringOne: string, stringTwo: string): number => {
         stringTwo.replace('.', ' '),
     ]
     for (let i = 0; i < possibleTypos.length; i++) {
-        if (stringOne.search(possibleTypos[i]) !== -1) {
+        if (stringOne.includes(possibleTypos[i])) {
             return 1;
         }
     }

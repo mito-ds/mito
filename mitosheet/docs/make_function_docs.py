@@ -50,6 +50,10 @@ def main():
     uploading to the docs
     """
 
+    if len(sys.argv) < 2:
+        print("Usage is: python docs/make_function_docs.py [update_frontend | generate_markdown]")
+        return
+
     command = sys.argv[1]
 
     from mitosheet.sheet_functions import FUNCTIONS

@@ -45,7 +45,7 @@ name = package_json['name']
 ensure_python('>=3.4')
 
 
-if name == 'mitosheet':
+if name == 'mitosheet2':
     # Get our version, which we just read 
     version = package_json['version']
 
@@ -104,7 +104,9 @@ if name == 'mitosheet':
             # We require jupyterlab 2.0
             'jupyterlab>=2.0,<3.0,!=2.3.0,!=2.3.1', # there are css incompatabilities on version 2.3.1 and 2.3.0
             'ipywidgets>=7.0.0',
-            'pandas>=1.1.0',
+            # We allow users to have many versions of pandas installed. All functionality should
+            # work, with the exception of Excel import, which might require additonal dependencies
+            'pandas>=0.24.2',
             # We don't need to lock an analytics-python version, as this library
             # is stabilized and mature
             'analytics-python',
@@ -146,7 +148,7 @@ if name == 'mitosheet':
             """,
         long_description_content_type='text/markdown'
     )
-elif name == 'mitosheet3':
+elif name == 'mitosheet' or name == 'mitosheet3':
     # Representative files that should exist after a successful build
     jstargets = [
         str(lab_path / "package.json"),
@@ -156,7 +158,7 @@ elif name == 'mitosheet3':
         'mitosheet': ["*"],
     }
 
-    labext_name = "mitosheet3"
+    labext_name = name
 
     data_files_spec = [
         ("share/jupyter/labextensions/%s" % labext_name, str(lab_path), "**"),
@@ -205,8 +207,10 @@ elif name == 'mitosheet3':
             'ipywidgets>=7.0.0',
             # In JLab 3, we move to needing to install the jupyterlab-widgets package, which
             # is equivlaent to the @jupyter-widgets/jupyterlab-manager extension for jlab 2
-            'jupyterlab-widgets==1.0.0',
-            'pandas>=1.1.0',
+            'jupyterlab-widgets~=1.0.0',
+            # We allow users to have many versions of pandas installed. All functionality should
+            # work, with the exception of Excel import, which might require additonal dependencies
+            'pandas>=0.24.2',
             'analytics-python',
             # Graphing libraries
             'plotly==5.3.0',

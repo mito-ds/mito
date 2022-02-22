@@ -50,9 +50,9 @@ If you import an XLSX file, the import modal will then open a screen that will a
 3. Tell Mito how many rows to skip. ie: if there are comments at the top of the file!
 
 {% hint style="warning" %}
-Importing XLSX files is only supported on Python version greater than 3.6
+Importing XLSX files is only supported on Python version greater than 3.6, and Pandas version >= 1.0. Please join our discord and let us know if you have any issues with this! 
 {% endhint %}
 
 {% hint style="info" %}
-Want help? [Book a call](https://hubs.ly/H0FzGrF0) with our support team.&#x20;
+Want help? [Get in contact](https://discord.com/invite/XdJSZyejJU) with our support team.&#x20;
 {% endhint %}

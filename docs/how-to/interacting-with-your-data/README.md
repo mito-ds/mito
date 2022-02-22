@@ -21,5 +21,5 @@ To write a formula, use the **Add Column** button in the Mito toolbar, and write
 {% endhint %}
 
 {% hint style="info" %}
-Want help? [Book a call](https://hubs.ly/H0FzGrF0) with our support team.&#x20;
+Want help? [Get in contact](https://discord.com/invite/XdJSZyejJU) with our support team.&#x20;
 {% endhint %}

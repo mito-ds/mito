@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import MitoAPI from '../../../../api';
+import { ColumnID } from '../../../../types';
 import { GraphObject, GraphType } from '../../Graph/GraphSidebar';
 
 type ColumnSummaryGraphProps = {
     selectedSheetIndex: number;
-    columnID: string;
+    columnID: ColumnID;
     mitoAPI: MitoAPI;
 }
 

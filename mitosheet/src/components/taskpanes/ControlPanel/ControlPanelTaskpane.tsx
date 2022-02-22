@@ -52,23 +52,12 @@ type ControlPanelTaskpaneProps = {
 export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Element => {
     
     // Get the values for the last cell that was selected
-    const {columnHeader, columnID, columnFormula, columnMitoType, columnFilters, columnDtype} = getCellDataFromCellIndexes(props.sheetData, props.selection.endingRowIndex, props.selection.endingColumnIndex);
+    const {columnHeader, columnID, columnFormula, columnFilters, columnDtype} = getCellDataFromCellIndexes(props.sheetData, props.selection.endingRowIndex, props.selection.endingColumnIndex);
 
     const [filters, setFilters] = useState(columnFilters !== undefined ? columnFilters.filters : []);
     const [operator, setOperator] = useState(columnFilters !== undefined ? columnFilters.operator : 'And');
     const [stepID, setStepID] = useState('');
-    
-    // If this is not a valid column, don't render anything, and close the takspane! 
-    // We have to do this after the useState calls, to make sure this is valid react
-    if (columnHeader === undefined || columnID === undefined || columnFormula === undefined || columnMitoType === undefined || columnDtype == undefined) {
-        props.setUIState((prevUIState) => {
-            return {
-                ...prevUIState,
-                currOpenTaskpane: {type: TaskpaneType.NONE}
-            }
-        })
-        return <></>
-    }
+
 
     // When the filters or operator changes, send a new message, as long as this is not
     // the first time that this rendered. We use a ref to avoid sending a message the first 
@@ -80,6 +69,18 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
         }
         firstRender.current = false;
     }, [filters, operator], FILTER_MESSAGE_DELAY)
+    
+    // If this is not a valid column, don't render anything, and close the takspane! 
+    // We have to do this after the useState calls, to make sure this is valid react
+    if (columnHeader === undefined || columnID === undefined || columnFormula === undefined || columnDtype == undefined) {
+        props.setUIState((prevUIState) => {
+            return {
+                ...prevUIState,
+                currOpenTaskpane: {type: TaskpaneType.NONE}
+            }
+        })
+        return <></>
+    }
 
     /* 
         NOTE: only call this through the sendFilterUpdateMessage function, to make sure
@@ -96,12 +97,12 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
             if (isFilterGroup(filterOrGroup)) {
                 return {
                     filters: filterOrGroup.filters.map((filter) => {
-                        return parseFilter(filter);
+                        return parseFilter(filter, columnDtype);
                     }),
                     operator: filterOrGroup.operator
                 }
             } else {
-                return parseFilter(filterOrGroup)
+                return parseFilter(filterOrGroup, columnDtype)
             }
         })
 
@@ -110,7 +111,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
             if (isFilterGroup(filterOrGroup)) {
                 return {
                     filters: filterOrGroup.filters.filter((filter) => {
-                        return isValidFilter(filter)
+                        return isValidFilter(filter, columnDtype)
                     }),
                     operator: filterOrGroup.operator
                 }
@@ -123,7 +124,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                 return filterOrGroup.filters.length > 0;
             }
             // And then we filter the non group filters to be non-empty
-            return isValidFilter(filterOrGroup)
+            return isValidFilter(filterOrGroup, columnDtype)
         });
         
         const _stepID = await props.mitoAPI.sendFilterMessage(
@@ -167,7 +168,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                                 columnID={columnID}
                                 mitoAPI={props.mitoAPI}
                                 gridState={props.gridState}
-                                columnMitoType={columnMitoType}
+                                columnDtype={columnDtype}
                                 sheetData={props.sheetData}
                             />
                             <SortCard
@@ -181,7 +182,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                                 filters={filters}
                                 setFilters={setFilters}
                                 setOperator={setOperator}
-                                columnMitoType={columnMitoType}
+                                columnDtype={columnDtype}
                                 operator={operator}
                                 mitoAPI={props.mitoAPI}
                             />
@@ -195,7 +196,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                                 filters={filters}
                                 setFilters={setFilters}
                                 mitoAPI={props.mitoAPI}
-                                columnMitoType={columnMitoType}
+                                columnDtype={columnDtype}
                             />
                         </React.Fragment>
                     }

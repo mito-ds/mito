@@ -35,22 +35,21 @@ def test_headers_correct_after_bulk_rename():
     mito.bulk_old_rename()
     mito.pivot_sheet(0, ['A_A'], [], {'B_B': ['sum']})
 
-
     assert len(mito.dfs) == 2
     assert list(mito.dfs[0].keys()) == ['A_A', 'B_B']
-    assert list(mito.dfs[1].keys()) == [('A_A', ''), ('B_B', 'sum')]
+    assert list(mito.dfs[1].keys()) == ['A_A', 'B_B sum']
 
 def test_set_formula_after_bulk_rename():
     df = pd.DataFrame({'A A': [123], 'B B': [123]})
     mito = create_mito_wrapper_dfs(df)
     mito.bulk_old_rename()
     mito.pivot_sheet(0, ['A_A'], [], {'B_B': ['sum']})
-    mito.set_formula('=B_B, sum', 1, ('C', ''), add_column=True) 
+    mito.set_formula('=B_B sum', 1, 'C', add_column=True) 
 
     assert len(mito.dfs) == 2
     assert list(mito.dfs[0].keys()) == ['A_A', 'B_B']
-    assert list(mito.dfs[1].keys()) == [('A_A', ''), ('B_B', 'sum'), ('C', '')]
-    assert mito.get_value(1, ('C', ''), 1) == 123
+    assert list(mito.dfs[1].keys()) == ['A_A', 'B_B sum', 'C']
+    assert mito.get_value(1, 'C', 1) == 123
     
 
 def test_move_to_old_id_algorithm_updates_state_variables_properly():
@@ -65,10 +64,7 @@ def test_move_to_old_id_algorithm_updates_state_variables_properly():
     
     assert mito.curr_step.column_evaluation_graph == [{'A_A': set(['C_C']), 'B_B': set(), 'C_C': set()}]
     assert list(mito.curr_step.column_filters[0].keys()) == ['A_A', 'B_B', 'C_C']
-    assert list(mito.curr_step.column_metatype[0].keys()) == ['A_A', 'B_B', 'C_C']
-    assert list(mito.curr_step.column_python_code[0].keys()) == ['A_A', 'B_B', 'C_C']
     assert list(mito.curr_step.column_spreadsheet_code[0].keys()) == ['A_A', 'B_B', 'C_C']
-    assert list(mito.curr_step.column_type[0].keys()) == ['A_A', 'B_B', 'C_C']
 
     # Then, try making some change
     mito.set_formula('=A_A + C_C', 0, 'D_D', add_column=True)

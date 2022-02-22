@@ -51,15 +51,3 @@ def test_drop_duplicates_keeps_last():
     assert mito.transpiled_code == [
         'df1 = df1.drop_duplicates(subset=[0], keep=\'last\')'
     ]
-
-def test_drop_duplicates_multi_index_headers():
-    df = pd.DataFrame({0: [1, 2, 1], 'B': [2, 5, 3]})
-    mito = create_mito_wrapper_dfs(df)
-    mito.pivot_sheet(0, [0], [], {'B': ['sum']})
-    mito.drop_duplicates(1, [('B', 'sum')], 'last')
-
-    assert mito.dfs[1].equals(make_multi_index_header_df(
-        {0: [2], 2: [5]},
-        [0, ('B', 'sum')],
-        index=[1]
-    ))

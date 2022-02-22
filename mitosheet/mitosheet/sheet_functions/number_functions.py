@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 Contains all functions that can be used in a sheet that operate on
 numbers.
@@ -19,14 +18,13 @@ from typing import Tuple
 import pandas as pd
 import numpy as np
 
-from mitosheet.sheet_functions.types import NUMBER_SERIES
-from mitosheet.sheet_functions.types.decorators import filter_nans, convert_args_to_series_type, convert_arg_to_series_type, handle_sheet_function_errors
+from mitosheet.sheet_functions.types.decorators import fill_nans, filter_nans, convert_args_to_series_type, convert_arg_to_series_type, handle_sheet_function_errors
 from mitosheet.sheet_functions.sheet_function_utils import try_extend_series_to_index, fill_series_with_one_index, fill_series_with_one_index
 
 @handle_sheet_function_errors
 @convert_arg_to_series_type(
     0,
-    NUMBER_SERIES,
+    'float',
     'error',
     ('default', np.NaN)
 )
@@ -52,7 +50,7 @@ def ABS(series: pd.Series) -> pd.Series:
 
 @handle_sheet_function_errors
 @filter_nans
-@convert_args_to_series_type(NUMBER_SERIES, 'skip', ('default', np.NaN))
+@convert_args_to_series_type('float', 'skip', ('default', np.NaN))
 def AVG(*argv: pd.Series) -> pd.Series:
     """
     {
@@ -85,13 +83,13 @@ def AVG(*argv: pd.Series) -> pd.Series:
 @handle_sheet_function_errors
 @convert_arg_to_series_type(
     0,
-    NUMBER_SERIES,
+    'float',
     'error',
     ('default', np.NaN)
 )
 @convert_arg_to_series_type(
     1,
-    NUMBER_SERIES,
+    'float',
     'error',
     ('default', np.NaN)
 )
@@ -121,11 +119,65 @@ def CORR(s1: pd.Series, s2: pd.Series) -> pd.Series:
         index=s1.index
     )
 
+@handle_sheet_function_errors
+@filter_nans
+@convert_arg_to_series_type(
+    0,
+    'float',
+    'error',
+    ('default', np.NaN)
+)
+def FLOAT(series: pd.Series) -> pd.Series:
+    """
+    {
+        "function": "FLOAT",
+        "description": "Converts a string series to a float series. Any values that fail to convert will return NaN.",
+        "examples": [
+            "=FLOAT(Prices_string)",
+            "=FLOAT('123.123')"
+        ],
+        "syntax": "FLOAT(string_series)",
+        "syntax_elements": [{
+                "element": "string_series",
+                "description": "The series or string to convert to a float."
+            }
+        ]
+    }
+    """
+    return series
+
+@handle_sheet_function_errors
+@fill_nans(0, 0)
+@convert_arg_to_series_type(
+    0,
+    'int',
+    'error',
+    ('default', 0)
+)
+def INT(series: pd.Series) -> pd.Series:
+    """
+    {
+        "function": "INT",
+        "description": "Converts a string series to a int series. Any values that fail to convert will return 0.",
+        "examples": [
+            "=INT(Prices_string)",
+            "=INT('123')"
+        ],
+        "syntax": "INT(string_series)",
+        "syntax_elements": [{
+                "element": "string_series",
+                "description": "The series or string to convert to a int."
+            }
+        ]
+    }
+    """
+    return series
+
 
 @handle_sheet_function_errors
 @convert_arg_to_series_type(
     0,
-    NUMBER_SERIES,
+    'float',
     'error',
     ('default', np.NaN)
 )
@@ -157,7 +209,7 @@ def KURT(series: pd.Series) -> pd.Series:
 @handle_sheet_function_errors
 @filter_nans
 # NOTE: we set the default to -inf, so that we ignore values that fail to convert
-@convert_args_to_series_type(NUMBER_SERIES, 'skip', ('default', float("-inf")))
+@convert_args_to_series_type('float', 'skip', ('default', float("-inf")))
 def MAX(*argv: pd.Series) -> pd.Series:
     """
     {
@@ -187,7 +239,7 @@ def MAX(*argv: pd.Series) -> pd.Series:
 @handle_sheet_function_errors
 @filter_nans
 # NOTE: we set the default to inf, so that we ignore values that fail to convert
-@convert_args_to_series_type(NUMBER_SERIES, 'skip', ('default', float("inf")))
+@convert_args_to_series_type('float', 'skip', ('default', float("inf")))
 def MIN(*argv: pd.Series) -> pd.Series:
     """
     {
@@ -216,7 +268,7 @@ def MIN(*argv: pd.Series) -> pd.Series:
 
 @handle_sheet_function_errors
 @filter_nans
-@convert_args_to_series_type(NUMBER_SERIES, 'skip', ('default', 1))
+@convert_args_to_series_type('float', 'skip', ('default', 1))
 def MULTIPLY(*argv: pd.Series) -> pd.Series:
     """
     {
@@ -248,13 +300,13 @@ def MULTIPLY(*argv: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    NUMBER_SERIES,
+    'float',
     'error',
     ('default', np.NaN)
 )
 @convert_arg_to_series_type(
     1,
-    NUMBER_SERIES,
+    'float',
     'skip',
     ('default', 1)
 )
@@ -287,13 +339,13 @@ def POWER(series, power):
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    NUMBER_SERIES,
+    'float',
     'error',
     ('default', np.NaN)
 )
 @convert_arg_to_series_type(
     1,
-    NUMBER_SERIES,
+    'float',
     'error',
     ('default', 2),
     optional=True
@@ -335,7 +387,7 @@ def ROUND(series, decimals=None):
 @handle_sheet_function_errors
 @convert_arg_to_series_type(
     0,
-    NUMBER_SERIES,
+    'float',
     'error',
     ('default', np.NaN)
 )
@@ -366,7 +418,7 @@ def SKEW(series: pd.Series) -> pd.Series:
 
 @handle_sheet_function_errors
 @filter_nans
-@convert_args_to_series_type(NUMBER_SERIES, 'skip', ('default', 0))
+@convert_args_to_series_type('float', 'skip', ('default', 0))
 def SUM(*argv: pd.Series) -> pd.Series:
     """
     {
@@ -398,7 +450,7 @@ def SUM(*argv: pd.Series) -> pd.Series:
 @handle_sheet_function_errors
 @convert_arg_to_series_type(
     0,
-    NUMBER_SERIES,
+    'float',
     'error',
     ('default', np.NaN)
 )
@@ -432,7 +484,7 @@ def STDEV(series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    NUMBER_SERIES,
+    'float',
     'error',
     ('default', np.NaN)
 )
@@ -460,7 +512,7 @@ def VALUE(series: pd.Series) -> pd.Series:
 @filter_nans
 @convert_arg_to_series_type(
     0,
-    NUMBER_SERIES,
+    'float',
     'error',
     ('default', np.NaN)
 )
@@ -487,7 +539,7 @@ def EXP(series: pd.Series) -> pd.Series:
 @handle_sheet_function_errors
 @convert_arg_to_series_type(
     0,
-    NUMBER_SERIES,
+    'float',
     'error',
     ('default', np.NaN)
 )
@@ -520,6 +572,8 @@ NUMBER_FUNCTIONS = {
     'ABS': ABS,
     'AVG': AVG,
     'CORR': CORR,
+    'FLOAT': FLOAT,
+    'INT': INT,
     'EXP': EXP,
     'KURT': KURT,
     'MAX': MAX,

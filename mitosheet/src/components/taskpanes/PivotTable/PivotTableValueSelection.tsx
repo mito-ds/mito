@@ -8,7 +8,7 @@ import MitoAPI from '../../../api';
 import DropdownButton from '../../elements/DropdownButton';
 import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
-import { ColumnIDsMap } from '../../../types';
+import { ColumnID, ColumnIDsMap } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 
@@ -18,8 +18,8 @@ import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 */
 const PivotTableValueSelection = (props: {
     columnIDsMap: ColumnIDsMap,
-    pivotValuesColumnIDsArray: [string, AggregationType][];
-    addPivotValueAggregation: (columnID: string) => void;
+    pivotValuesColumnIDsArray: [ColumnID, AggregationType][];
+    addPivotValueAggregation: (columnID: ColumnID) => void;
     removePivotValueAggregation: (valueIndex: number) => void;
     editPivotValueAggregation: (valueIndex: number, newAggregationType: AggregationType, newColumnID: string) => void;
     mitoAPI: MitoAPI;
@@ -70,7 +70,7 @@ const PivotTableValueSelection = (props: {
                             removePivotValueAggregation={() => {
                                 props.removePivotValueAggregation(valueIndex);
                             }}
-                            editPivotValueAggregation={(newAggregationType: AggregationType, newColumnID: string) => {
+                            editPivotValueAggregation={(newAggregationType: AggregationType, newColumnID: ColumnID) => {
                                 props.editPivotValueAggregation(valueIndex, newAggregationType, newColumnID);
                             }}
                         />

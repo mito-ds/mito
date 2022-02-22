@@ -18,20 +18,14 @@ Our general approach to logging can be understood as:
    This appears to be good practice, as it allows us to associate what actions are taken
    with their result very effectively!
 """
-from typing import Any, Dict, List, TYPE_CHECKING
-from mitosheet.user.schemas import UJ_MITOSHEET_TELEMETRY
 import platform
-import sys
 import subprocess
+import sys
+from typing import Any, Dict, List
 
 from mitosheet.parser import parse_formula
-
-# To avoid circular imports
-if TYPE_CHECKING:
-    from mitosheet.steps_manager import StepsManager
-else: 
-    StepsManager = Any
-
+from mitosheet.types import StepsManagerType
+from mitosheet.user.schemas import UJ_MITOSHEET_TELEMETRY
 
 try:
     from jupyterlab import __version__ as jupyterlab_version
@@ -39,16 +33,17 @@ except:
     jupyterlab_version = 'No JupyterLab'
 
 import analytics
+
 # Write key taken from segement.com
 analytics.write_key = '6I7ptc5wcIGC4WZ0N1t0NXvvAbjRGUgX' 
 
-from mitosheet.user import (
-    UJ_INTENDED_BEHAVIOR, UJ_STATIC_USER_ID, UJ_USER_SALT, UJ_USER_EMAIL, 
-    UJ_FEEDBACKS, 
-)
-from mitosheet.user import get_user_field, is_local_deployment, is_running_test, is_local_deployment
 from mitosheet._version import __version__
 from mitosheet.errors import MitoError, get_recent_traceback_as_list
+from mitosheet.user import (UJ_FEEDBACKS, UJ_INTENDED_BEHAVIOR,
+                            UJ_STATIC_USER_ID, UJ_USER_EMAIL, UJ_USER_SALT,
+                            get_user_field, is_local_deployment,
+                            is_running_test)
+
 
 def telemetry_turned_on() -> bool:
     """
@@ -89,7 +84,7 @@ def anonymize_word(word: Any) -> str:
     return valid_words[index_one] + valid_words[index_two] + valid_words[index_three]
 
 
-def anonymize_formula(formula: str, sheet_index: int, steps_manager: StepsManager=None) -> str:
+def anonymize_formula(formula: str, sheet_index: int, steps_manager: StepsManagerType=None) -> str:
     """
     Helper function that anonymizes formula to 
     make sure that no private data is included in it.
@@ -154,7 +149,7 @@ def get_installed_mitosheets_pip_show():
         return []
 
 
-def log(log_event: str, params: Dict[Any, Any]=None, steps_manager: StepsManager=None) -> None:
+def log(log_event: str, params: Dict[Any, Any]=None, steps_manager: StepsManagerType=None) -> None:
     """
     Helper function that logs an event with the given parameters. However,
     this function is also responsible for making sure _zero_ private data
@@ -314,7 +309,7 @@ def log_recent_error(log_event: str=None) -> None:
     )
 
 
-def log_event_processed(event: Dict[str, Any], steps_manager: StepsManager, failed: bool=False, mito_error: MitoError=None) -> None:
+def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, failed: bool=False, mito_error: MitoError=None) -> None:
     """
     Helper function for logging when an event is processed
     by the widget state container. 
