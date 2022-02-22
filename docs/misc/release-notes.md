@@ -4,6 +4,24 @@ description: Want to see what is new in the Mitosheet? Check it out below.
 
 # Release Notes
 
+
+## 2022-2-22 <a href="#2022-2-22" id="2022-2-22"></a>
+
+Major dependency changes:
+
+* The `mitosheet` package now supports JupyterLab 3.0. We will continue to maintain the `mitosheet3` package. The `mitosheet2` package now supports JupyterLab 2.0.
+* The `mitosheet` package is now dramatically more flexible in supporting older versions of Pandas.
+
+New Features:
+
+* Add new icons for all types, so they are totally clear.
+* Add INT and FLOAT functions, for explicit casting.
+
+Bug Fixes:
+
+* Fixes various bugs causing the sheet to totally brick itself in rare cases.
+* Make autofocus on Mito inputs work again
+
 ## 2022-2-9 <a href="#2022-2-9" id="2022-2-9"></a>
 
 Bug Fixes:
