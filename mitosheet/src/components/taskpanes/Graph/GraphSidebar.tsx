@@ -55,11 +55,15 @@ const LOAD_GRAPH_TIMEOUT = 1000;
 // Note: This must be kept in sync with the graphing heuristic in the mitosheet/graph folder
 const GRAPH_SAFETY_FILTER_CUTOFF = 500;
 
-const DEFAULT_GRAPH_PARAMS = {
-    graphType: GraphType.BAR,
-    xAxisColumnIDs: [],
-    yAxisColumnIDs: [],
-    safetyFilter: true
+// Helper function for creating default graph params 
+const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: number): GraphParams => {
+    const safetyFilter = sheetDataArray[sheetIndex] === undefined || sheetDataArray[sheetIndex].numRows > GRAPH_SAFETY_FILTER_CUTOFF
+    return {
+        graphType: GraphType.BAR,
+        xAxisColumnIDs: [],
+        yAxisColumnIDs: [],
+        safetyFilter: safetyFilter
+    }
 }
 
 /*
@@ -94,7 +98,7 @@ const getGraphParams = (
             safetyFilter: lastParams.safetyFilter
         }
     }
-    return DEFAULT_GRAPH_PARAMS;
+    return getDefaultGraphParams(sheetDataArray, sheetIndex);
 }
 
 
@@ -139,8 +143,6 @@ const GraphSidebar = (props: {
         getGraphParams(props.lastGraphParams, selectedSheetIndex, props.sheetDataArray)
     );
 
-    console.log(graphParams)
-
     // When we update the graph params, we also update the lastGraphParams in the 
     // main Mito component, so that we can open the graph to the same state next time
     const setGraphParams = (newGraphParams: GraphParams): void => {
@@ -157,37 +159,13 @@ const GraphSidebar = (props: {
 
     // If the graph has non-default params, then it has been configured
     const [graphHasNeverBeenConfigured, setGraphHasNeverBeenConfigured] = useState<boolean>(
-        graphParams === DEFAULT_GRAPH_PARAMS
+        graphParams === getDefaultGraphParams(props.sheetDataArray, selectedSheetIndex)
     )
 
     // We log when the graph has been opened
     useEffect(() => {
         void props.mitoAPI.sendLogMessage('opened_graph');
     }, []);
-
-
-    // When the selected sheet index changes, reset the safety toggle 
-    // to its default position. But we don't want to reset if the user is just 
-    // opening up the graph taskpane
-    useEffect(() => {
-        if (props.sheetDataArray[selectedSheetIndex] === undefined) {
-            return
-        }
-
-        // Since the selectedSheetIndex variable is set on the first render of the graph taskpane, 
-        // we need to add this check to ensure we don't overwrite the saved parameters. 
-        // When we move to the new storage of the graph parameters, we will clean this up. 
-        if (props.graphSidebarSheet === selectedSheetIndex) {
-            return
-        }
-
-        const numRows = props.sheetDataArray[selectedSheetIndex].numRows
-        const newSafetyFilter = numRows > GRAPH_SAFETY_FILTER_CUTOFF
-        setGraphParams({
-            ...graphParams,
-            safetyFilter: newSafetyFilter
-        })
-    }, [selectedSheetIndex]);
 
     /* 
         Gets fired whenever the user makes a change to their graph. 
