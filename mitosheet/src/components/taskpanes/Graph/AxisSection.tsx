@@ -33,7 +33,7 @@ const AxisSection = (props: {
     graphAxis: GraphAxisType;
     selectedColumnIDs: ColumnID[];
     otherAxisSelectedColumnIDs: ColumnID[];
-    
+
     updateAxisData: (graphAxis: GraphAxisType, index: number, columnID?: ColumnID) => void;
     mitoAPI: MitoAPI;
 }): JSX.Element => {
@@ -41,7 +41,7 @@ const AxisSection = (props: {
     /* 
         Save the cta for each of the possible subtexts. We save a subtext for each one 
         so that changing one cta does not change all of them. 
-    */ 
+    */
     const [disableDueToSingleAxisGraphCTA, setDisableDueToSingleAxisGraphCTA] = useState<string | undefined>(undefined)
     const [disabledDueToKeySeriesRequirementCTA, setDisabledDueToKeySeriesCTARequirementCTA] = useState<string | undefined>(undefined)
     const [disabledDueToMaxSeriesReachedCTA, setDisabledDueToMaxSeriesReachedCTA] = useState<string | undefined>(undefined)
@@ -55,7 +55,7 @@ const AxisSection = (props: {
     useEffect(() => {
         if (disabledDueToKeySeriesRequirementCTA !== undefined) {
             logCtaClick('Key Series Required')
-        }   
+        }
     }, [disabledDueToKeySeriesRequirementCTA])
 
     useEffect(() => {
@@ -65,8 +65,8 @@ const AxisSection = (props: {
     }, [disabledDueToMaxSeriesReachedCTA])
 
     const logCtaClick = (ctaClicked: string) => {
-        const x_axis_column_ids  = props.graphAxis === GraphAxisType.X_AXIS ? props.selectedColumnIDs : props.otherAxisSelectedColumnIDs
-        const y_axis_column_ids  = props.graphAxis === GraphAxisType.Y_AXIS ? props.selectedColumnIDs : props.otherAxisSelectedColumnIDs
+        const x_axis_column_ids = props.graphAxis === GraphAxisType.X_AXIS ? props.selectedColumnIDs : props.otherAxisSelectedColumnIDs
+        const y_axis_column_ids = props.graphAxis === GraphAxisType.Y_AXIS ? props.selectedColumnIDs : props.otherAxisSelectedColumnIDs
 
         void props.mitoAPI.sendLogMessage('graph_cta_clicked', {
             'graph_type': props.graphType,
@@ -93,12 +93,12 @@ const AxisSection = (props: {
         return ((
             <Row key={columnID} justify='space-between' align='center'>
                 <Col flex='1'>
-                    <Select 
+                    <Select
                         value={columnID}
                         onChange={(columnID: string) => {
                             props.updateAxisData(
-                                props.graphAxis, 
-                                i, 
+                                props.graphAxis,
+                                i,
                                 columnID
                             )
                         }}
@@ -117,11 +117,11 @@ const AxisSection = (props: {
                     </Select>
                 </Col>
                 <Col offset={1} offsetRight={1}>
-                    <XIcon 
-                        onClick={() => {props.updateAxisData(props.graphAxis, i)}}
+                    <XIcon
+                        onClick={() => { props.updateAxisData(props.graphAxis, i) }}
                     />
                 </Col>
-            </Row>                
+            </Row>
         ))
     })
 
@@ -133,8 +133,8 @@ const AxisSection = (props: {
         1. If the graph type selected only supports one axis, and the other axis already has a series, 
         then don't let the user add a series to this axis
     */
-    const disableDueToSingleAxisGraphBool = 
-        (props.graphType === GraphType.BOX || props.graphType === GraphType.HISTOGRAM) && 
+    const disableDueToSingleAxisGraphBool =
+        (props.graphType === GraphType.BOX || props.graphType === GraphType.HISTOGRAM) &&
         numOtherAxisSelectedColumns > 0
 
     /* 
@@ -169,8 +169,8 @@ const AxisSection = (props: {
                                     title={getDisplayColumnHeader(columnHeader)}
                                     onClick={() => {
                                         props.updateAxisData(
-                                            props.graphAxis, 
-                                            props.selectedColumnIDs.length, 
+                                            props.graphAxis,
+                                            props.selectedColumnIDs.length,
                                             columnID
                                         )
                                     }}
@@ -181,27 +181,27 @@ const AxisSection = (props: {
                 </Col>
             </Row>
             {/* At most one of the three subtext messages are displayed */}
-            {disableDueToSingleAxisGraphBool && 
+            {disableDueToSingleAxisGraphBool &&
                 <div className='text-subtext-1 text-align-left'>
                     {props.graphType}s only support one axis.&nbsp;
-                    {disableDueToSingleAxisGraphCTA === undefined ? 
-                        <a className='axis-section-cta'  onClick={() => {
+                    {disableDueToSingleAxisGraphCTA === undefined ?
+                        <a className='axis-section-cta' onClick={() => {
                             setDisableDueToSingleAxisGraphCTA("Thanks! Coming Soon. ")
-                        }}> 
-                        Want to use both axises?
+                        }}>
+                            Want to use both axises?
                         </a> :
                         <>{disableDueToSingleAxisGraphCTA}</>
                     }
                 </div>
             }
-            {!disableDueToSingleAxisGraphBool && disabledDueToKeySeriesRequirementBool && 
+            {!disableDueToSingleAxisGraphBool && disabledDueToKeySeriesRequirementBool &&
                 <div className='text-subtext-1 text-align-left'>
                     You can only have multiple series on one axis at a time.&nbsp;
-                    {disabledDueToKeySeriesRequirementCTA === undefined ? 
-                        <a className='axis-section-cta'  onClick={() => {
+                    {disabledDueToKeySeriesRequirementCTA === undefined ?
+                        <a className='axis-section-cta' onClick={() => {
                             setDisabledDueToKeySeriesCTARequirementCTA("Thanks! Coming Soon. ")
-                        }}> 
-                        Want to stack both axises?       
+                        }}>
+                            Want to stack both axises?
                         </a> :
                         <>{disabledDueToKeySeriesRequirementCTA}</>
                     }
@@ -210,11 +210,11 @@ const AxisSection = (props: {
             {!disableDueToSingleAxisGraphBool && !disabledDueToKeySeriesRequirementBool && disabledDueToMaxSeriesReachedBool &&
                 <div className='text-subtext-1 text-align-left'>
                     You can only graph four series at once.&nbsp;
-                    {disabledDueToMaxSeriesReachedCTA === undefined ? 
-                        <a className='axis-section-cta'  onClick={() => {
+                    {disabledDueToMaxSeriesReachedCTA === undefined ?
+                        <a className='axis-section-cta' onClick={() => {
                             setDisabledDueToMaxSeriesReachedCTA("Thanks! Coming Soon. ")
-                        }}> 
-                        Want more?
+                        }}>
+                            Want more?
                         </a> :
                         <>{disabledDueToMaxSeriesReachedCTA}</>
                     }

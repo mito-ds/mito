@@ -50,6 +50,11 @@ export interface GraphParams {
 // we don't load to many graphs when the user is clicking around
 const LOAD_GRAPH_TIMEOUT = 1000;
 
+// Graphing a dataframe with more than this number of rows will
+// give the user the option to apply the safety filter
+// Note: This must be kept in sync with the graphing heuristic in the mitosheet/graph folder
+const GRAPH_SAFETY_FILTER_CUTOFF = 500;
+
 const DEFAULT_GRAPH_PARAMS = {
     graphType: GraphType.BAR,
     xAxisColumnIDs: [],
@@ -134,6 +139,8 @@ const GraphSidebar = (props: {
         getGraphParams(props.lastGraphParams, selectedSheetIndex, props.sheetDataArray)
     );
 
+    console.log(graphParams)
+
     // When we update the graph params, we also update the lastGraphParams in the 
     // main Mito component, so that we can open the graph to the same state next time
     const setGraphParams = (newGraphParams: GraphParams): void => {
@@ -158,9 +165,33 @@ const GraphSidebar = (props: {
         void props.mitoAPI.sendLogMessage('opened_graph');
     }, []);
 
+
+    // When the selected sheet index changes, reset the safety toggle 
+    // to its default position. But we don't want to reset if the user is just 
+    // opening up the graph taskpane
+    useEffect(() => {
+        if (props.sheetDataArray[selectedSheetIndex] === undefined) {
+            return
+        }
+
+        // Since the selectedSheetIndex variable is set on the first render of the graph taskpane, 
+        // we need to add this check to ensure we don't overwrite the saved parameters. 
+        // When we move to the new storage of the graph parameters, we will clean this up. 
+        if (props.graphSidebarSheet === selectedSheetIndex) {
+            return
+        }
+
+        const numRows = props.sheetDataArray[selectedSheetIndex].numRows
+        const newSafetyFilter = numRows > GRAPH_SAFETY_FILTER_CUTOFF
+        setGraphParams({
+            ...graphParams,
+            safetyFilter: newSafetyFilter
+        })
+    }, [selectedSheetIndex]);
+
     /* 
         Gets fired whenever the user makes a change to their graph. 
-
+    
         It calls the loadNewGraph function which is on a delay, as to 
         not overload the backend with new graph creation requests.
     */
@@ -229,7 +260,7 @@ const GraphSidebar = (props: {
     /* 
         Whenever the graph is changed we set a timeout to start loading a new 
         graph. This runs after LOAD_GRAPH_TIMEOUT.
-
+    
         This makes sure we don't send unnecessary messages to the backend if the user
         is switching axes/graph types quickly.
     */
@@ -240,8 +271,6 @@ const GraphSidebar = (props: {
     // Toggles the safety filter component of the graph params
     const toggleSafetyFilter = (): void => {
         const newSafetyFilter = !graphParams.safetyFilter
-
-        console.log(newSafetyFilter)
 
         setGraphParams({
             ...graphParams,
@@ -299,7 +328,7 @@ const GraphSidebar = (props: {
     /* 
         Function responsible for updating the selected column headers for each axis. 
         Set the columnHeader at the index of the graphAxis selected columns array.
-
+    
         To remove a column, leave the columnHeader empty.
     */
     const updateAxisData = (graphAxis: GraphAxisType, index: number, columnID?: ColumnID) => {
@@ -455,7 +484,7 @@ const GraphSidebar = (props: {
                                 Particularly, when the user changes the xAxisColumnHeaders from [A, B, A] to [B, A] by 
                                 deleting the first A, React does not recognize that the change has occurred and so the Axis Section does 
                                 not update even though the graph updates.
-
+    
                                 We append the indicator xAxis to the front of the list to ensure that both AxisSections have unique keys. 
                                 When the Axis Sections don't have unique keys, its possible for the sections to become duplicated as per 
                                 the React warnings.
@@ -486,10 +515,10 @@ const GraphSidebar = (props: {
                             updateAxisData={updateAxisData}
                             mitoAPI={props.mitoAPI}
                         />
-                        {props.sheetDataArray[selectedSheetIndex].numRows > 1000 &&
+                        {props.sheetDataArray[selectedSheetIndex].numRows > GRAPH_SAFETY_FILTER_CUTOFF &&
                             <Row justify='space-between' align='center'>
                                 <Col>
-                                    <p className='text-header-3' title='Turning on Filter to Safe Size only graphs the first 1000 rows of your dataframe, ensuring that your browser won’t crash. Turning it off, graphs the entire dataframe and might crash your browser.'>
+                                    <p className='text-header-3' title={`Turning on Filter to Safe Size only graphs the first ${GRAPH_SAFETY_FILTER_CUTOFF} rows of your dataframe, ensuring that your browser won’t crash. Turning it off, graphs the entire dataframe and might crash your browser.`}>
                                         Filter to safe size
                                     </p>
                                 </Col>
@@ -501,8 +530,8 @@ const GraphSidebar = (props: {
                                 </Col>
                             </Row>
                         }
-                        {props.sheetDataArray[selectedSheetIndex].numRows <= 1000 &&
-                            <Row justify='space-between' align='center' title='Because you’re graphing less than 1000 rows of data, you’re browser tab will likely not crash.'>
+                        {props.sheetDataArray[selectedSheetIndex].numRows <= GRAPH_SAFETY_FILTER_CUTOFF &&
+                            <Row justify='space-between' align='center' title={`Because you’re graphing less than ${GRAPH_SAFETY_FILTER_CUTOFF} rows of data, you’re browser tab will likely not crash.`}>
                                 <Col>
                                     <p className='text-header-3'>
                                         Your data is safe to graph
