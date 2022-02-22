@@ -145,116 +145,7 @@ MITOSHEET_PACKAGE_JSON = """{
     "outputDir": "mitosheet/labextension",
     "extension": "lib/plugin"
   },
-  "name": "mitosheet",
-  "license": "AGPL-3.0-only",
-  "author": {
-    "name": "Mito Sheet",
-    "email": "naterush1997@gmail.com"
-  },
-  "bugs": {
-    "url": "https://github.com/mito/mito/issues"
-  },
-  "repository": {
-    "url": "https://github.com/mito/mito",
-    "type": "git"
-  },
-  "version": "0.3.131",
-  "dependencies": {
-    "@jupyter-widgets/base": "^4",
-    "@jupyterlab/notebook": "^3.0.6",
-    "@types/fscreen": "^1.0.1",
-    "@types/jest": "^27.0.2",
-    "@types/react-dom": "^17.0.2",
-    "fscreen": "^1.1.0",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
-    "ts-jest": "^27.0.3"
-  },
-  "scripts": {
-    "test:jest": "jest",
-    "deploy:staging": "python3 deployment/deploy.py staging",
-    "build:prod": "jlpm run build:lib && jlpm run build:labextension",
-    "clean:labextension": "rimraf mitosheet/labextension",
-    "deploy:app": "python3 deployment/deploy.py app",
-    "build:labextension:dev": "jupyter labextension build --development True .",
-    "prepare": "jlpm run clean && jlpm run build:prod",
-    "watch:lib": "tsc -w",
-    "build:labextension": "jupyter labextension build .",
-    "deploy:all": "python3 deployment/deploy.py all",
-    "build": "jlpm run build:lib && jlpm run build:labextension:dev",
-    "build:lib": "tsc",
-    "deploy:pypi": "python3 setup.py sdist bdist_wheel upload",
-    "clean:nbextension": "rimraf mitosheet/nbextension/static/index.js",
-    "build:all": "npm run build:labextension && npm run build:nbextension",
-    "lint:check": "eslint src/ --ext .ts,.tsx",
-    "watch:nbextension": "webpack --watch",
-    "lint": "eslint src/ --ext .ts,.tsx --fix",
-    "watch": "run-p watch:src watch:labextension",
-    "watch:labextension": "jupyter labextension watch .",
-    "install:extension": "jupyter labextension develop --overwrite .",
-    "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
-    "prepack": "npm run build:lib",
-    "watch:src": "tsc -w",
-    "clean": "jlpm run clean:lib",
-    "clean:all": "jlpm run clean:lib && jlpm run clean:labextension"
-  },
-  "keywords": [
-    "jupyter",
-    "jupyterlab",
-    "jupyterlab-extension",
-    "widgets"
-  ],
-  "devDependencies": {
-    "@jupyterlab/builder": "^3.0.0",
-    "@testing-library/jest-dom": "^5.14.1",
-    "@testing-library/react": "^12.0.0",
-    "@types/expect.js": "^0.3.29",
-    "@types/mocha": "^9.0.0",
-    "@types/node": "^16.10.2",
-    "@types/react": "^17.0.26",
-    "@typescript-eslint/eslint-plugin": "^4.8.1",
-    "@typescript-eslint/parser": "^4.8.1",
-    "acorn": "^8.5.0",
-    "application": "npm:@lumino/application@^1.13.1",
-    "eslint": "^7.14.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-office-addins": "^1.0.3",
-    "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-react": "^7.21.3",
-    "expect.js": "^0.3.1",
-    "fs-extra": "^10.0.0",
-    "jest": "^27.0.6",
-    "jest-css-modules-transform": "^4.3.0",
-    "mkdirp": "^1.0.4",
-    "mocha": "^9.1.2",
-    "npm-run-all": "^4.1.5",
-    "prettier": "^2.1.1",
-    "rimraf": "^3.0.2",
-    "typescript": "^4.4.3",
-    "widgets": "npm:@lumino/widgets@^1.16.1"
-  },
-  "main": "lib/index.js",
-  "homepage": "https://github.com/mito/mito",
-  "types": "./lib/index.d.ts",
-  "description": "The Mito Spreadsheet",
-  "resolutions": {
-    "@types/react": "^17.0.2"
-  }
-}"""
-
-MITOSHEET_THREE_PACKAGE_JSON = """{
-  "files": [
-    "lib/**/*.js",
-    "fonts/**/*",
-    "dist/*.js",
-    "css/**/*.css",
-    "style/index.js"
-  ],
-  "jupyterlab": {
-    "outputDir": "mitosheet/labextension",
-    "extension": "lib/plugin"
-  },
-  "name": "mitosheet3",
+  "name": "REPLACE_WITH_PACKAGE_NAME_WITH_REPLACE",
   "license": "AGPL-3.0-only",
   "author": {
     "name": "Mito Sheet",
@@ -343,7 +234,7 @@ MITOSHEET_THREE_PACKAGE_JSON = """{
     "widgets": "npm:@lumino/widgets@^1.16.1"
   },
   "main": "lib/index.js",
-  "homepage": "https://github.com/mito-ds/monorepo",
+  "homepage": "https://trymito.io",
   "types": "./lib/index.d.ts",
   "description": "The Mito Spreadsheet",
   "resolutions": {
@@ -392,9 +283,11 @@ def switch(new_package):
     if new_package == 'mitosheet2':
       open('package.json', 'w').write(MITOSHEET_TWO_PACKAGE_JSON)
     elif new_package == 'mitosheet':    
-      open('package.json', 'w').write(MITOSHEET_PACKAGE_JSON)
+      open('package.json', 'w').write(MITOSHEET_PACKAGE_JSON.replace('REPLACE_WITH_PACKAGE_NAME_WITH_REPLACE', 'mitosheet'))
     elif new_package == 'mitosheet3':    
-      open('package.json', 'w').write(MITOSHEET_THREE_PACKAGE_JSON)
+      open('package.json', 'w').write(MITOSHEET_PACKAGE_JSON.replace('REPLACE_WITH_PACKAGE_NAME_WITH_REPLACE', 'mitosheet3'))
+    elif new_package == 'mitosheet-private':
+      open('package.json', 'w').write(MITOSHEET_PACKAGE_JSON.replace('REPLACE_WITH_PACKAGE_NAME_WITH_REPLACE', 'mitosheet-private'))
 
     
 if __name__ == '__main__':
@@ -405,7 +298,14 @@ if __name__ == '__main__':
     if new_package == curr_package:
         print(f'You may not need to switch, as {new_package} is already the current package. Refreshing anyways.')
 
+    valid_package_names = [
+      'mitosheet2',
+      'mitosheet',
+      'mitosheet3',
+      'mitosheet-private'
+    ]
+
     # Sanity check!
-    assert new_package == 'mitosheet2' or new_package == 'mitosheet' or new_package == 'mitosheet3'
+    assert new_package in valid_package_names
 
     switch(new_package)

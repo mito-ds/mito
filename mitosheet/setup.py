@@ -148,7 +148,7 @@ if name == 'mitosheet2':
             """,
         long_description_content_type='text/markdown'
     )
-elif name == 'mitosheet' or name == 'mitosheet3':
+elif name == 'mitosheet' or name == 'mitosheet3' or name == 'mitosheet-priv':
     # Representative files that should exist after a successful build
     jstargets = [
         str(lab_path / "package.json"),
