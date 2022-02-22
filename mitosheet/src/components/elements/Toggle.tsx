@@ -3,7 +3,7 @@ import React from 'react';
 
 // import css
 import '../../../css/elements/Toggle.css'
-
+import { classNames } from '../../utils/classNames';
 
 interface ToggleProps {
     /** 
@@ -15,6 +15,11 @@ interface ToggleProps {
         * @param onChange - Handles actually changing the value of the filter 
     */
     onChange: () => void;
+
+    /**
+        * @param [disabled] - Disables the toggle button
+    */
+    disabled?: boolean
 }
 
 /**
@@ -30,15 +35,23 @@ interface ToggleProps {
  */
 const Toggle = (props: ToggleProps): JSX.Element => {
 
+    const disabled = props.disabled === true
+
     return (
-        <label className="toggle-label" >
+        <label className="toggle-label">
             {/* 
                 Its important that the onClick event handler be on the input instead of the label because
                 when the label is clicked, it also triggers the input's onClick event. If the onClick was registered
                 on the label, this would cause it to be fired twice each time the user clicks.  
             */}
-            <input type="checkbox" checked={props.value} onClick={() => { props.onChange() }} />
-            <div className="toggle"></div>
+            <input type="checkbox" checked={props.value} onClick={() => {
+                if (disabled) {
+                    return
+                }
+                props.onChange()
+            }
+            } />
+            <div className={classNames("toggle", { 'toggle-disabled': disabled })}></div>
         </label>
     )
 }

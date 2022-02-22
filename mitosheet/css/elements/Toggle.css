@@ -79,4 +79,18 @@ input:checked + .toggle:after {
 .toggle:hover {
     border-color: var(--mito-light-purple);
 }
+
+.toggle-disabled {
+    background-color: var(--mito-very-light-gray) !important;
+    border-color: var(--mito-light-gray) !important;
+}
+
+.toggle-disabled:before {
+    color: var(--mito-light-gray) !important;
+}
+
+.toggle-disabled:after {
+    color: var(--mito-light-gray) !important;
+}
+
   
