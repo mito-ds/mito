@@ -8,6 +8,7 @@ from mitosheet.api.graph.column_summary_graph import (
     filter_df_to_top_unique_values_in_series,
 )
 from mitosheet.sheet_functions.types.utils import is_number_dtype
+from mitosheet.step_performers.bulk_old_rename.deprecated_utils import deprecated
 from mitosheet.types import ColumnHeader
 
 # Graph types should be kept consistent with the GraphType in GraphSidebar.tsx
@@ -56,14 +57,11 @@ def get_graph_title(
     y_axis_column_headers: List[ColumnHeader],
     filtered: bool,
     graph_type: str,
-    special_title: str = None,
 ) -> str:
     """
-    Helper function for determing the title of the graph for the scatter plot and bar chart
+    Helper function for determing the title of the graph
     """
     # Get the label to let the user know that their graph had a filter applied.
-
-    # Handle the special case for the box plot.
     graph_filter_label: Optional[str] = "(first 1000 rows)" if filtered else None
 
     # Compile all of the column headers into one comma separated string
@@ -71,9 +69,8 @@ def get_graph_title(
         str(s) for s in x_axis_column_headers + y_axis_column_headers
     )
     # Get the title of the graph based on the type of graph
-    graph_title_label = (
-        GRAPH_TITLE_LABELS[graph_type] if special_title is None else special_title
-    )
+    graph_title_label = GRAPH_TITLE_LABELS[graph_type]
+
     # Combine all of the non empty graph title components into one list
     graph_title_components = (
         [all_column_headers, graph_filter_label, graph_title_label]
@@ -83,47 +80,6 @@ def get_graph_title(
 
     # Return a string with all of the graph_title_components separated by a space
     return (" ").join(graph_title_components)
-
-
-def get_graph_labels(
-    x_axis_column_headers: List[ColumnHeader], y_axis_column_headers: List[ColumnHeader]
-) -> Tuple[str, str]:
-    """
-    Helper function for determining the x and y axis titles,
-    for the scatter plot and bar chart.
-    """
-    if x_axis_column_headers == [] and y_axis_column_headers == []:
-        # If no data is provided, don't label the axises
-        x_axis_title = ""
-        y_axis_title = ""
-
-    elif x_axis_column_headers == [] and y_axis_column_headers != []:
-        # Following from the graph generation, if the user only selects a y axis,
-        # then the y axis is the index column and the columns selected are put on the x axis
-        x_axis_title = (
-            str(y_axis_column_headers[0]) if len(y_axis_column_headers) == 1 else ""
-        )
-        y_axis_title = "index"
-
-    elif x_axis_column_headers != [] and y_axis_column_headers == []:
-        # Following from the graph generation, if the user only selects a x axis,
-        # then the y axis is the index column
-        x_axis_title = "index"
-        y_axis_title = (
-            str(x_axis_column_headers[0]) if len(x_axis_column_headers) == 1 else ""
-        )
-
-    else:
-        # Only label the axis if there is one column header on the axis. Otherwise, plotly
-        # legend will label the columns
-        x_axis_title = (
-            str(x_axis_column_headers[0]) if len(x_axis_column_headers) == 1 else ""
-        )
-        y_axis_title = (
-            str(y_axis_column_headers[0]) if len(y_axis_column_headers) == 1 else ""
-        )
-
-    return x_axis_title, y_axis_title
 
 
 def get_html_and_script_from_figure(
@@ -244,3 +200,6 @@ def filter_df_to_safe_size(
         df = df.head(BAR_CHART_MAX_NUMBER_OF_ROWS)
 
         return df, len(df) < original_df_len
+
+
+filter_df_to_safe_size_external = deprecated(filter_df_to_safe_size)

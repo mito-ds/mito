@@ -53,17 +53,22 @@ const LOAD_GRAPH_TIMEOUT = 1000;
 // Graphing a dataframe with more than this number of rows will
 // give the user the option to apply the safety filter
 // Note: This must be kept in sync with the graphing heuristic in the mitosheet/graph folder
-const GRAPH_SAFETY_FILTER_CUTOFF = 500;
+const GRAPH_SAFETY_FILTER_CUTOFF = 1000;
 
 // Helper function for creating default graph params 
 const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: number): GraphParams => {
-    const safetyFilter = sheetDataArray[sheetIndex] === undefined || sheetDataArray[sheetIndex].numRows > GRAPH_SAFETY_FILTER_CUTOFF
+    const safetyFilter = getDefaultSafetyFilter(sheetDataArray, sheetIndex)
     return {
         graphType: GraphType.BAR,
         xAxisColumnIDs: [],
         yAxisColumnIDs: [],
         safetyFilter: safetyFilter
     }
+}
+
+// Helper function for getting the default safety filter status
+const getDefaultSafetyFilter = (sheetDataArray: SheetData[], sheetIndex: number): boolean => {
+    return sheetDataArray[sheetIndex] === undefined || sheetDataArray[sheetIndex].numRows > GRAPH_SAFETY_FILTER_CUTOFF
 }
 
 /*
@@ -493,10 +498,10 @@ const GraphSidebar = (props: {
                             updateAxisData={updateAxisData}
                             mitoAPI={props.mitoAPI}
                         />
-                        {props.sheetDataArray[selectedSheetIndex].numRows > GRAPH_SAFETY_FILTER_CUTOFF &&
+                        {getDefaultSafetyFilter(props.sheetDataArray, selectedSheetIndex) &&
                             <Row justify='space-between' align='center'>
                                 <Col>
-                                    <p className='text-header-3' title={`Turning on Filter to Safe Size only graphs the first ${GRAPH_SAFETY_FILTER_CUTOFF} rows of your dataframe, ensuring that your browser won’t crash. Turning it off, graphs the entire dataframe and might crash your browser.`}>
+                                    <p className='text-header-3' title={`Turning on Filter to Safe Size only graphs the first ${GRAPH_SAFETY_FILTER_CUTOFF} rows of your dataframe, ensuring that your browser tab won’t crash. Turning it off, graphs the entire dataframe and might crash your browser tab.`}>
                                         Filter to safe size
                                     </p>
                                 </Col>
@@ -508,8 +513,8 @@ const GraphSidebar = (props: {
                                 </Col>
                             </Row>
                         }
-                        {props.sheetDataArray[selectedSheetIndex].numRows <= GRAPH_SAFETY_FILTER_CUTOFF &&
-                            <Row justify='space-between' align='center' title={`Because you’re graphing less than ${GRAPH_SAFETY_FILTER_CUTOFF} rows of data, you’re browser tab will likely not crash.`}>
+                        {!getDefaultSafetyFilter(props.sheetDataArray, selectedSheetIndex) &&
+                            <Row justify='space-between' align='center' title={`Because you’re graphing less than ${GRAPH_SAFETY_FILTER_CUTOFF} rows of data, your browser tab will likely not crash.`}>
                                 <Col>
                                     <p className='text-header-3'>
                                         Your data is safe to graph

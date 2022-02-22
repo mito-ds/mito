@@ -22,7 +22,8 @@ from mitosheet.api.graph.graph_utils import (
 TAB = "    "
 
 # The number of rows that we filter the graph to
-FILTERED_NUMBER_OF_ROWS = 1000
+# This must be kept in sync with GRAPH_SAFETY_FILTER_CUTOFF in GraphSidebar.tsx
+GRAPH_SAFETY_FILTER_CUTOFF = 1000
 
 
 def safety_filter_applied(df: pd.DataFrame, safety_filter: bool) -> bool:
@@ -31,14 +32,14 @@ def safety_filter_applied(df: pd.DataFrame, safety_filter: bool) -> bool:
     should be filtered. It is applied if the safety_filter param is true and the
     dataframe has more than FILTERED_NUMBER_OF_ROWS rows
     """
-    return safety_filter and len(df.index) > FILTERED_NUMBER_OF_ROWS
+    return safety_filter and len(df.index) > GRAPH_SAFETY_FILTER_CUTOFF
 
 
 def graph_filtering(df: pd.DataFrame) -> pd.DataFrame:
     """
     Filters the dataframe to the first FILTERED_NUMBER_OF_ROWS rows, to ensure we don't crash the browser tab
     """
-    return df.head(FILTERED_NUMBER_OF_ROWS)
+    return df.head(GRAPH_SAFETY_FILTER_CUTOFF)
 
 
 def graph_filtering_code(df_name: str, df: pd.DataFrame, safety_filter: bool) -> str:

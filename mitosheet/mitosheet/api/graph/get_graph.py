@@ -40,7 +40,6 @@ def get_graph(event: Dict[str, Any], steps_manager: StepsManager) -> str:
     }
     """
     # Get graph type
-    print(event)
     graph_type = event["graph_creation"]["graph_type"]
     sheet_index = event["graph_creation"]["sheet_index"]
     safety_filter = event["preprocessing"]["safety_filter"]
@@ -80,6 +79,7 @@ def get_graph(event: Dict[str, Any], steps_manager: StepsManager) -> str:
     df: pd.DataFrame = steps_manager.dfs[sheet_index].copy()
     df_name: str = steps_manager.curr_step.df_names[sheet_index]
 
+    # Make sure that if there is no data, we don't try to graph it, because Plotly errors.
     if len(x_axis_column_ids) == 0 and len(y_axis_column_ids) == 0:
         return ""
 
