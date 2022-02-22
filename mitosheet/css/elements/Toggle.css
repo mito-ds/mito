@@ -1,7 +1,7 @@
 .toggle-label {
     --toggle-label-width: 60px;
     --toggle-toggle-width: 24px;
-    --toggle-toggle-margin: 3px;
+    --toggle-toggle-margin: 1px;
 
     position: relative;
     display: inline-block;
@@ -29,6 +29,12 @@
     transition: .4s;
 }
   
+/* 
+    ::before creates a pseudo-element that is the first child of the selected element.
+    It is often used to add cosmetic content to an element with the content property. 
+
+    Here, we use it for the white rectangle inside of the toggle
+*/
 .toggle:before {
     position: absolute;
     content: "";
@@ -46,17 +52,22 @@ input:checked + .toggle {
 }
   
 input:checked + .toggle:before {
-    -webkit-transform: translateX(calc(var(--toggle-label-width) - var(--toggle-toggle-width) - 2 * var(--toggle-toggle-margin)));
-    -ms-transform: translateX(calc(var(--toggle-label-width) - var(--toggle-toggle-width) - 2 * var(--toggle-toggle-margin)));
-    transform: translateX(calc(var(--toggle-label-width) - var(--toggle-toggle-width) - 2 * var(--toggle-toggle-margin)));
+    -webkit-transform: translateX(calc(var(--toggle-label-width) - var(--toggle-toggle-width) - 4 * var(--toggle-toggle-margin)));
+    -ms-transform: translateX(calc(var(--toggle-label-width) - var(--toggle-toggle-width) - 4 * var(--toggle-toggle-margin)));
+    transform: translateX(calc(var(--toggle-label-width) - var(--toggle-toggle-width) - 4 * var(--toggle-toggle-margin)));
 }
-  
+ 
+/* 
+    ::after creates a pseudo-element that is the last child of the selected element.
+    It is often used to add cosmetic content to an element with the content property. 
+
+    Here, we use it for on/off text
+*/
 .toggle:after {
     content:'Off';
     color: white; 
     position: absolute; 
-    /* Note that this is a different offset from ON because of the difference in characters */
-    right: 5px;
+    right: 8px;
 }
   
 input:checked + .toggle:after {  
