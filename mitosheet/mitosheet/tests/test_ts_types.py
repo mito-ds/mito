@@ -97,7 +97,6 @@ def get_constant_from_ts_file(path, constant_name):
         )
 
     # Then, for each item in the enum, we split it into key value pairs
-    print(all_code_lines[line_index].split(" = "))
     [_, value] = all_code_lines[line_index].split(" = ")
 
     # Clean up the value a bit

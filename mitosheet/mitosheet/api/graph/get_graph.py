@@ -103,10 +103,10 @@ def get_graph(event: Dict[str, Any], steps_manager: StepsManager) -> str:
         generation_code = get_plotly_express_graph_code(
             graph_type,
             df,
-            df_name,
             safety_filter_turned_on_by_user,
             x_axis_column_headers,
             y_axis_column_headers,
+            df_name,
         )
 
     # Get rid of some of the default white space
