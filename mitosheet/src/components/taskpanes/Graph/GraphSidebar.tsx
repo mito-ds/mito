@@ -22,7 +22,6 @@ import '../../../../css/taskpanes/Graph/LoadingSpinner.css'
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import { isNumberDtype } from '../../../utils/dtypes';
 import Toggle from '../../elements/Toggle';
-import SafeToGraphIcon from '../../icons/SafeToGraphIcon';
 
 export enum GraphType {
     SCATTER = 'scatter',
@@ -54,6 +53,10 @@ const LOAD_GRAPH_TIMEOUT = 1000;
 // give the user the option to apply the safety filter
 // Note: This must be kept in sync with the graphing heuristic in the mitosheet/graph folder
 const GRAPH_SAFETY_FILTER_CUTOFF = 1000;
+
+// Tooltips used to explain the Safety filter toggle
+const SAFETY_FILTER_DISABLED_MESSAGE = `Because you’re graphing less than ${GRAPH_SAFETY_FILTER_CUTOFF} rows of data, you can safely graph your data without applying a filter first.`
+const SAFETY_FILTER_ENABLED_MESSAGE = `Turning on Filter to Safe Size only graphs the first ${GRAPH_SAFETY_FILTER_CUTOFF} rows of your dataframe, ensuring that your browser tab won’t crash. Turning it off, graphs the entire dataframe and might crash your browser tab.`
 
 // Helper function for creating default graph params 
 const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: number): GraphParams => {
@@ -498,31 +501,21 @@ const GraphSidebar = (props: {
                             updateAxisData={updateAxisData}
                             mitoAPI={props.mitoAPI}
                         />
-                        {getDefaultSafetyFilter(props.sheetDataArray, selectedSheetIndex) &&
-                            <Row justify='space-between' align='center'>
-                                <Col>
-                                    <p className='text-header-3' title={`Turning on Filter to Safe Size only graphs the first ${GRAPH_SAFETY_FILTER_CUTOFF} rows of your dataframe, ensuring that your browser tab won’t crash. Turning it off, graphs the entire dataframe and might crash your browser tab.`}>
-                                        Filter to safe size
-                                    </p>
-                                </Col>
-                                <Col>
-                                    <Toggle
-                                        value={graphParams.safetyFilter}
-                                        onChange={toggleSafetyFilter}
-                                    />
-                                </Col>
-                            </Row>
-                        }
-                        {!getDefaultSafetyFilter(props.sheetDataArray, selectedSheetIndex) &&
-                            <Row justify='space-between' align='center' title={`Because you’re graphing less than ${GRAPH_SAFETY_FILTER_CUTOFF} rows of data, your browser tab will likely not crash.`}>
-                                <Col>
-                                    <p className='text-header-3'>
-                                        Your data is safe to graph
-                                    </p>
-                                </Col>
-                                <SafeToGraphIcon />
-                            </Row>
-                        }
+                        <Row justify='space-between' align='center' title={getDefaultSafetyFilter(props.sheetDataArray, selectedSheetIndex) ? SAFETY_FILTER_ENABLED_MESSAGE : SAFETY_FILTER_DISABLED_MESSAGE}>
+                            <Col>
+                                <p className='text-header-3' >
+                                    Filter to safe size
+                                </p>
+                            </Col>
+                            <Col>
+                                <Toggle
+                                    value={graphParams.safetyFilter}
+                                    onChange={toggleSafetyFilter}
+                                    disabled={!getDefaultSafetyFilter(props.sheetDataArray, selectedSheetIndex)}
+                                />
+                            </Col>
+                        </Row>
+
                     </div>
 
                     <div className='graph-sidebar-toolbar-code-export-button'>
