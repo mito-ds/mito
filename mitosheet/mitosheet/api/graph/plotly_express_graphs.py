@@ -241,10 +241,10 @@ def get_plotly_express_graph(
 def get_plotly_express_graph_code(
     graph_type: str,
     df: pd.DataFrame,
-    df_name: str,
     safety_filter_turned_on_by_user: bool,
     x_axis_column_headers: List[ColumnHeader],
     y_axis_column_headers: List[ColumnHeader],
+    df_name: str,
 ) -> str:
     """
     Generates the code for a Plotly express graph in 3 steps

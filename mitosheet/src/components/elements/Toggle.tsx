@@ -23,8 +23,7 @@ interface ToggleProps {
 }
 
 /**
- * The Toggle component. If open, the select dropdown automatically 
- * closes when the user clicks.
+ * The Toggle component. Allows the user to toggle something between On and Off.
  * 
  * The Toggle component utilizes the html input element with a type checkbox, so that we 
  * follow the design patterns of html elements. In order to create our custom designed toggle, 
