@@ -20,7 +20,7 @@ def get_graph(event: Dict[str, Any], steps_manager: StepsManager) -> str:
 
     {
         preprocessing: {
-            safety_filter: boolean
+            safety_filter_turned_on_by_user: boolean
         },
         graph_creation: {
             graph_type: GraphType,
@@ -42,7 +42,9 @@ def get_graph(event: Dict[str, Any], steps_manager: StepsManager) -> str:
     # Get graph type
     graph_type = event["graph_creation"]["graph_type"]
     sheet_index = event["graph_creation"]["sheet_index"]
-    safety_filter = event["preprocessing"]["safety_filter"]
+    safety_filter_turned_on_by_user = event["preprocessing"][
+        "safety_filter_turned_on_by_user"
+    ]
 
     # Get the x axis params, if they were provided
     x_axis_column_ids = (
@@ -92,13 +94,17 @@ def get_graph(event: Dict[str, Any], steps_manager: StepsManager) -> str:
         generation_code = ""
     else:
         fig = get_plotly_express_graph(
-            graph_type, df, safety_filter, x_axis_column_headers, y_axis_column_headers
+            graph_type,
+            df,
+            safety_filter_turned_on_by_user,
+            x_axis_column_headers,
+            y_axis_column_headers,
         )
         generation_code = get_plotly_express_graph_code(
             graph_type,
             df,
             df_name,
-            safety_filter,
+            safety_filter_turned_on_by_user,
             x_axis_column_headers,
             y_axis_column_headers,
         )

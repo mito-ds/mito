@@ -26,34 +26,45 @@ TAB = "    "
 GRAPH_SAFETY_FILTER_CUTOFF = 1000
 
 
-def safety_filter_applied(df: pd.DataFrame, safety_filter: bool) -> bool:
+def safety_filter_applied(
+    df: pd.DataFrame, safety_filter_turned_on_by_user: bool
+) -> bool:
     """
     Helper function for determing whether the graphed dataframe
     should be filtered. It is applied if the safety_filter param is true and the
     dataframe has more than FILTERED_NUMBER_OF_ROWS rows
     """
-    return safety_filter and len(df.index) > GRAPH_SAFETY_FILTER_CUTOFF
+    return (
+        safety_filter_turned_on_by_user and len(df.index) > GRAPH_SAFETY_FILTER_CUTOFF
+    )
 
 
-def graph_filtering(df: pd.DataFrame) -> pd.DataFrame:
+def graph_filtering(
+    df: pd.DataFrame, safety_filter_turned_on_by_user: bool
+) -> pd.DataFrame:
     """
     Filters the dataframe to the first FILTERED_NUMBER_OF_ROWS rows, to ensure we don't crash the browser tab
     """
-    return df.head(GRAPH_SAFETY_FILTER_CUTOFF)
+    if safety_filter_applied(df, safety_filter_turned_on_by_user):
+        return df.head(GRAPH_SAFETY_FILTER_CUTOFF)
+    else:
+        return df
 
 
-def graph_filtering_code(df_name: str, df: pd.DataFrame, safety_filter: bool) -> str:
+def graph_filtering_code(
+    df_name: str, df: pd.DataFrame, safety_filter_turned_on_by_user: bool
+) -> str:
     """
     Returns the code for filtering the dataframe so we don't crash the browser
     """
 
-    if safety_filter_applied(df, safety_filter):
+    if safety_filter_applied(df, safety_filter_turned_on_by_user):
         # If we do filter the graph, then return the code needed to filter the graph
         return """
 # Filter the dataframe so that it does not crash the browser
-{df_name}_filtered = {df_name}.head(1000)
+{df_name}_filtered = {df_name}.head({num_rows})
 """.format(
-            df_name=df_name
+            df_name=df_name, num_rows=GRAPH_SAFETY_FILTER_CUTOFF
         )
 
     else:
@@ -200,7 +211,7 @@ def graph_styling_code(
 def get_plotly_express_graph(
     graph_type: str,
     df: pd.DataFrame,
-    safety_filter: bool,
+    safety_filter_turned_on_by_user: bool,
     x_axis_column_headers: List[ColumnHeader],
     y_axis_column_headers: List[ColumnHeader],
 ) -> go.Figure:
@@ -213,8 +224,10 @@ def get_plotly_express_graph(
     all_column_headers = x_axis_column_headers + y_axis_column_headers
 
     # Step 1: Filtering
-    is_safety_filter_applied = safety_filter_applied(df, safety_filter)
-    df = graph_filtering(df)
+    is_safety_filter_applied = safety_filter_applied(
+        df, safety_filter_turned_on_by_user
+    )
+    df = graph_filtering(df, safety_filter_turned_on_by_user)
 
     # Step 2: Graph Creation
     fig = graph_creation(graph_type, df, x_axis_column_headers, y_axis_column_headers)
@@ -229,7 +242,7 @@ def get_plotly_express_graph_code(
     graph_type: str,
     df: pd.DataFrame,
     df_name: str,
-    safety_filter: bool,
+    safety_filter_turned_on_by_user: bool,
     x_axis_column_headers: List[ColumnHeader],
     y_axis_column_headers: List[ColumnHeader],
 ) -> str:
@@ -244,9 +257,11 @@ def get_plotly_express_graph_code(
     code.append("import plotly.express as px")
 
     # Step 1: Filtering
-    is_safety_filter_applied = safety_filter_applied(df, safety_filter)
-    if safety_filter_applied:
-        code.append(graph_filtering_code(df_name, df, safety_filter))
+    is_safety_filter_applied = safety_filter_applied(
+        df, safety_filter_turned_on_by_user
+    )
+    if is_safety_filter_applied:
+        code.append(graph_filtering_code(df_name, df, safety_filter_turned_on_by_user))
         df_name = f"{df_name}_filtered"
 
     # Step 2: Graph Creation
