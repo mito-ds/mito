@@ -283,7 +283,6 @@ def refresh_dependant_columns(post_state: State, df: pd.DataFrame, sheet_index: 
             column_header,
             column_headers
         )
-        print(post_state.column_spreadsheet_code[sheet_index][column_id])
 
         # Exec the code, where the df is the original dataframe
         # See explination here: https://www.tutorialspoint.com/exec-in-python

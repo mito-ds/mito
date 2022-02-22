@@ -14,7 +14,7 @@ description: Instructions for using Mito with Docker.
 Add the following command to your docker file:
 
 ```
-RUN pip install --no-cache-dir mitosheet3
+RUN pip install --no-cache-dir mitosheet
 ```
 
 Then, after you launch this container and run a **JupyterLab** instance, you should be able to create a Mitosheet following the standard instructions.

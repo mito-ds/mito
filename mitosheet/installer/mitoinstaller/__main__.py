@@ -16,7 +16,7 @@ from mitoinstaller.install import do_install_or_upgrade
 def main() -> None:
     """
     The main function of the Mito installer, this function is responsible
-    for either installing mitosheet or upgrading mitosheet.
+    for installing and upgrading the `mitosheet` package.
 
     To install Mito (for the first time):
     python -m mitoinstaller install
