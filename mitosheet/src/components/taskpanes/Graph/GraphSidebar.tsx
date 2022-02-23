@@ -227,7 +227,7 @@ const GraphSidebar = (props: {
         const boundingRect: DOMRect | undefined = document.getElementById('graph-div')?.getBoundingClientRect();
 
         if (boundingRect !== undefined) {
-            const loadedGraphHTMLAndScript = await props.mitoAPI.getGraph(
+            const loadedGraphHTMLAndScript = await props.mitoAPI.sendGraphMessage(
                 graphParams.graphType,
                 selectedSheetIndex,
                 graphParams.safetyFilter,

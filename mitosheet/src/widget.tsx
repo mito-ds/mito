@@ -35,7 +35,7 @@ export class ExampleModel extends DOMWidgetModel {
 
     static serializers: ISerializers = {
         ...DOMWidgetModel.serializers,
-    // Add any extra serializers here
+        // Add any extra serializers here
     };
 
     static model_name = 'ExampleModel';
@@ -49,9 +49,9 @@ export class ExampleModel extends DOMWidgetModel {
 // We save a Mito component in the global scope, so we
 // can set the state from outside the react component
 declare global {
-    interface Window { 
-        setMitoStateMap:  Map<string, MitoStateUpdaters> | undefined;
-        mitoAPIMap:  Map<string, MitoAPI> | undefined;
+    interface Window {
+        setMitoStateMap: Map<string, MitoStateUpdaters> | undefined;
+        mitoAPIMap: Map<string, MitoAPI> | undefined;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         commands: any;
         user_id: string;
@@ -74,14 +74,14 @@ export class ExampleView extends DOMWidgetView {
         this.send = this.send.bind(this);
         this.updateSheetAndCode = this.updateSheetAndCode.bind(this);
         this.setErrorModal = this.setErrorModal.bind(this);
-        this.creationSeconds = new Date().getSeconds(); 
+        this.creationSeconds = new Date().getSeconds();
     }
 
     /* 
         We override the sending message utilities, just to make sure that
         this is captured properly
     */
-    send(msg: Record<string, unknown>): void{
+    send(msg: Record<string, unknown>): void {
         super.send(msg);
     }
 
@@ -102,7 +102,7 @@ export class ExampleView extends DOMWidgetView {
         const userProfile = this.getUserProfile();
 
         ReactDOM.render(
-            <Mito 
+            <Mito
                 model_id={model_id}
                 mitoAPI={mitoAPI}
                 sheetDataArray={sheetDataArray}
@@ -111,7 +111,7 @@ export class ExampleView extends DOMWidgetView {
             />,
             this.el
         )
-        
+
         this.model.on('msg:custom', this.handleMessage, this);
     }
 
@@ -192,7 +192,7 @@ export class ExampleView extends DOMWidgetView {
         const unparsed = this.model.get('sheet_data_json')
         return JSON.parse(unparsed);
     }
-    
+
     getUserProfile(): UserProfile {
         const unparsed = this.model.get('user_profile_json')
         const userProfile = JSON.parse(unparsed)
@@ -201,9 +201,10 @@ export class ExampleView extends DOMWidgetView {
         }
         return userProfile;
     }
-    
+
     getAnalysisData(): AnalysisData {
         const unparsed = this.model.get('analysis_data_json')
+        console.log(JSON.parse(unparsed))
         return JSON.parse(unparsed);
     }
 }

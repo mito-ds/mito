@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
+
 """
 Schemas for the user.json file. As we evolve the format overtime,
 we should include them here, so that we can track what upgrades

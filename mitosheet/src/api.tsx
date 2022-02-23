@@ -332,6 +332,56 @@ export default class MitoAPI {
         return excelFileString;
     }
 
+
+    async sendGraphMessage(
+        graphType: GraphType,
+        sheet_index: number,
+        safety_filter_turned_on_by_user: boolean,
+        xAxisColumnIDs: ColumnID[] | undefined,
+        yAxisColumnIDs: ColumnID[] | undefined,
+        height?: string,
+        width?: string,
+        stepID?: string,
+    ): Promise<GraphObject | undefined> {
+
+        // If this is overwriting a pivot event, then we do not need to
+        // create a new id, as we already have it!
+        if (stepID === undefined || stepID === '') {
+            stepID = getRandomId();
+        }
+
+        const graphString = await this.send<string>({
+            'event': 'edit_event',
+            'type': 'graph_edit',
+            step_id: stepID,
+            'params': {
+                'preprocessing': {
+                    'safety_filter_turned_on_by_user': safety_filter_turned_on_by_user
+                },
+                'graph_creation': {
+                    'graph_type': graphType,
+                    'sheet_index': sheet_index,
+                    'x_axis_column_ids': xAxisColumnIDs,
+                    'y_axis_column_ids': yAxisColumnIDs,
+                },
+                'graph_rendering': {
+                    'height': height,
+                    'width': width
+                }
+            }
+            
+        }, { maxRetries: 250 })
+
+        if (graphString == undefined) {
+            return undefined;
+        }
+        try {
+            return JSON.parse(graphString) as GraphObject;
+        } catch (e) {
+            return undefined;
+        }
+    }
+
     /*
         Returns a string encoding of a PNG that can be displayed that
         is a summary graph of the specific column header at a specific
@@ -424,8 +474,7 @@ export default class MitoAPI {
     }
 
     /*
-        Gets the parameters for the pivot table at desination sheet
-        index, or nothing if there are no params
+        Gets metadata about an Excel file
     */
     async getExcelFileMetadata(
         fileName: string

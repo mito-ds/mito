@@ -1,15 +1,18 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright (c) Mito.
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 
 import json
-import uuid 
+import uuid
 from copy import copy, deepcopy
 import pandas as pd
 from typing import Any, Callable, Dict, Collection, List, Set, Tuple, Union
 
-from mitosheet.step_performers.import_steps.simple_import import SimpleImportStepPerformer
+from mitosheet.step_performers.import_steps.simple_import import (
+    SimpleImportStepPerformer,
+)
 from mitosheet.step_performers.import_steps.excel_import import ExcelImportStepPerformer
 from mitosheet.state import State
 from mitosheet.step import Step
@@ -32,56 +35,58 @@ def get_step_indexes_to_skip(step_list: List[Step]) -> Set[int]:
         step_indexes_to_skip = step_indexes_to_skip.union(
             step.step_indexes_to_skip(step_list[:step_index])
         )
-    
+
     return step_indexes_to_skip
 
-def execute_step_list_from_index(step_list: List[Step], start_index: int=None) -> List[Step]:
+
+def execute_step_list_from_index(
+    step_list: List[Step], start_index: int = None
+) -> List[Step]:
     """
-    Given a list of steps, and a specific index to start from, will assume that 
-    the step_list[start_index] is valid, and execute this list of steps from 
+    Given a list of steps, and a specific index to start from, will assume that
+    the step_list[start_index] is valid, and execute this list of steps from
     there. See find_last_valid_index to see how the start_index is determined.
 
     Notably, will _not_ execute the steps that are skipped in this list, which
-    means that the returned step list will only have valid prev_state/post_states 
+    means that the returned step list will only have valid prev_state/post_states
     for the steps that are not skipped.
 
     If start_index is not given, will start from the initialize step.
     """
     if start_index is None or start_index < 0:
         start_index = 0
-    
+
     # Get the steps to skip, so that we can skip them
     step_indexes_to_skip = get_step_indexes_to_skip(step_list)
-    
+
     # Get the steps that are valid, and the last valid step, so we can execute from there
-    new_step_list = step_list[:start_index + 1] 
+    new_step_list = step_list[: start_index + 1]
     last_valid_step = step_list[start_index]
 
-    for partial_index, step in enumerate(step_list[start_index + 1:]):
+    for partial_index, step in enumerate(step_list[start_index + 1 :]):
         step_index = partial_index + start_index + 1
         # If we're skipping a step, add it to the new step list (since we don't
-        # want to lose it), but don't reexecute it 
+        # want to lose it), but don't reexecute it
         if step_index in step_indexes_to_skip:
             new_step_list.append(step)
             continue
-        
-        # Create a new step with the same params
-        new_step = Step(
-            step.step_type,
-            step.step_id,
-            step.params
-        )
 
-        # Set the previous state of the new step, and then update 
+        # Create a new step with the same params
+        new_step = Step(step.step_type, step.step_id, step.params)
+
+        # Set the previous state of the new step, and then update
         # what the last valid step is
         new_step.set_prev_state_and_execute(last_valid_step.final_defined_state)
         last_valid_step = new_step
 
         new_step_list.append(new_step)
-    
+
     return new_step_list
 
-def get_modified_sheet_indexes(steps: List[Step], starting_step_index: int, ending_step_index: int) -> Set[int]:
+
+def get_modified_sheet_indexes(
+    steps: List[Step], starting_step_index: int, ending_step_index: int
+) -> Set[int]:
     """
     Returns a best guess for which sheets have been modified starting at
     starting_step_index and ending at (and including) ending_step_index.
@@ -91,62 +96,61 @@ def get_modified_sheet_indexes(steps: List[Step], starting_step_index: int, endi
     always be returned.
     """
     # If only one step has been performed, we can calculate the modified sheet indexes,
-    # otherwise we just say all of them (undo, replay might interact weird) 
+    # otherwise we just say all of them (undo, replay might interact weird)
     if starting_step_index == ending_step_index - 1:
         step = steps[ending_step_index]
-        modified_indexes = step.step_performer.get_modified_dataframe_indexes(**step.params)
+        modified_indexes = step.step_performer.get_modified_dataframe_indexes(
+            **step.params
+        )
 
         # If the set is empty, then we modified everything
         if len(modified_indexes) == 0:
             modified_indexes = {j for j in range(len(step.dfs))}
         # If -1 is modified, then all new dataframes are modified, which
-        # if nothing new was created, means there was a live updated event, 
+        # if nothing new was created, means there was a live updated event,
         # and so we should just take the last element
         elif -1 in modified_indexes:
             prev_step = steps[ending_step_index - 1]
             modified_indexes.remove(-1)
 
             if len(prev_step.dfs) != len(step.dfs):
-                modified_indexes.update({
-                    j for j in range(
-                        len(prev_step.dfs),
-                        len(step.dfs)
-                    )
-                })
+                modified_indexes.update(
+                    {j for j in range(len(prev_step.dfs), len(step.dfs))}
+                )
             else:
-                modified_indexes.add(len(step.dfs) - 1)            
-    else: 
+                modified_indexes.add(len(step.dfs) - 1)
+    else:
         modified_indexes = {i for i in range(len(steps[ending_step_index].dfs))}
-    
+
     return modified_indexes
 
 
-class StepsManager():
+class StepsManager:
     """
-    The StepsManager holds the list of the steps, and makes sure 
-    they are updated properly when processing new edit and update 
+    The StepsManager holds the list of the steps, and makes sure
+    they are updated properly when processing new edit and update
     events.
 
     To see how this happens, consider the full loop of what happens
     when a new edit event is received.
 
     1.  The StepsManager receives this new event. It creates a new
-        step of the right type, with the params from the new event. 
+        step of the right type, with the params from the new event.
         This is done in the handle_edit_event function.
     2.  Then, the StepsManager tries to run all the steps that exist
-        including this new step _that are not currently skipped_. 
-        It does so with the execute_and_update_steps function, which heavily 
+        including this new step _that are not currently skipped_.
+        It does so with the execute_and_update_steps function, which heavily
         relies on the execute_step_list_from_index helper function above.
     3.  If the new step that is created is a step that does overwrite an
-        existing step, then the execute_and_update_steps will detect 
-        this, and when running all the steps, will skip running the skipped step. 
+        existing step, then the execute_and_update_steps will detect
+        this, and when running all the steps, will skip running the skipped step.
 
     In this way, the StepsManager keeps a list of all the steps that were ever
-    valid. Note that some part of these steps is "append-only" in spirit, in 
-    that they keep the same step type and params. 
+    valid. Note that some part of these steps is "append-only" in spirit, in
+    that they keep the same step type and params.
 
-    However, as some steps end up getting skipped, it may contain steps that 
-    are now invalid or out of date (e.g. an old filter step that got skipped). 
+    However, as some steps end up getting skipped, it may contain steps that
+    are now invalid or out of date (e.g. an old filter step that got skipped).
 
     Furthermore, the steps objects themselves change, just the step type
     and parameters stay the same and are append-only.
@@ -155,19 +159,20 @@ class StepsManager():
     def __init__(self, args: Collection[Union[pd.DataFrame, str]]):
         """
         When initalizing the StepsManager, we also do preprocessing
-        of the arguments that were passed to the mitosheet. 
+        of the arguments that were passed to the mitosheet.
 
-        All preprocessing can be found in mitosheet/preprocessing, and each of 
+        All preprocessing can be found in mitosheet/preprocessing, and each of
         the transformations are applied before the data is considered imported.
         """
-        # We just randomly generate analysis names. 
+        # We just randomly generate analysis names.
         # We append a UUID to note that this is not an analysis the user has saved.
-        self.analysis_name = 'UUID-' + str(uuid.uuid4())
+        self.analysis_name = "UUID-" + str(uuid.uuid4())
 
         # The args are a tuple of dataframes or strings, and we start by making them
         # into a list, and making copies of them for safe keeping
         self.original_args = [
-            arg.copy(deep=True) if isinstance(arg, pd.DataFrame) else deepcopy(arg) for arg in args
+            arg.copy(deep=True) if isinstance(arg, pd.DataFrame) else deepcopy(arg)
+            for arg in args
         ]
 
         # Then, we go through the process of actually preprocessing the args
@@ -175,18 +180,13 @@ class StepsManager():
         self.preprocess_execution_data = {}
         for preprocess_step_performers in PREPROCESS_STEP_PERFORMERS:
             args, execution_data = preprocess_step_performers.execute(args)
-            self.preprocess_execution_data[preprocess_step_performers.preprocess_step_type()] = execution_data
+            self.preprocess_execution_data[
+                preprocess_step_performers.preprocess_step_type()
+            ] = execution_data
 
         # Then we initialize the analysis with just a simple initialize step
         self.steps: List[Step] = [
-            Step(
-                'initialize',
-                'initialize',
-                {},
-                None,
-                State(args),
-                {}
-            )
+            Step("initialize", "initialize", {}, None, State(args), {})
         ]
 
         """
@@ -239,16 +239,14 @@ class StepsManager():
     def sheet_data_json(self) -> str:
         """
         sheet_json contains a serialized representation of the data
-        frames that is then fed into the Endo in the front-end. 
+        frames that is then fed into the Endo in the front-end.
 
         NOTE: we only display the _first_ 1,500 rows of the dataframe
-        for speed reasons. This results in way less data getting 
+        for speed reasons. This results in way less data getting
         passed around
         """
         modified_sheet_indexes = get_modified_sheet_indexes(
-            self.steps, 
-            self.last_step_index_we_wrote_sheet_json_on, 
-            self.curr_step_idx
+            self.steps, self.last_step_index_we_wrote_sheet_json_on, self.curr_step_idx
         )
 
         array = dfs_to_array_for_json(
@@ -260,7 +258,7 @@ class StepsManager():
             self.curr_step.column_spreadsheet_code,
             self.curr_step.column_filters,
             self.curr_step.column_ids,
-            self.curr_step.column_format_types
+            self.curr_step.column_format_types,
         )
 
         self.saved_sheet_data = array
@@ -269,14 +267,25 @@ class StepsManager():
         return json.dumps(array)
 
     @property
+    def graph_data_json(self) -> str:
+        """
+        graph_data_json contains all of the parameters used to construct the graph,
+        the actual graph html & javascript, and the generated code for all of the existing graphs in Mito.
+        """
+        return json.dumps(self.steps[self.curr_step_idx].post_state.graph_data_json)
+
+    @property
     def analysis_data_json(self):
-        return json.dumps({
-            'analysisName': self.analysis_name,
-            'code': transpile(self),
-            'stepSummaryList': self.step_summary_list,
-            'currStepIdx': self.curr_step_idx,
-            'dataTypeInTool': self.data_type_in_mito.value
-        })
+        return json.dumps(
+            {
+                "analysisName": self.analysis_name,
+                "code": transpile(self),
+                "stepSummaryList": self.step_summary_list,
+                "currStepIdx": self.curr_step_idx,
+                "dataTypeInTool": self.data_type_in_mito.value,
+                "graphDataJson": self.graph_data_json,
+            }
+        )
 
     @property
     def step_summary_list(self) -> List:
@@ -287,29 +296,33 @@ class StepsManager():
         step_summary_list = []
         step_indexes_to_skip = get_step_indexes_to_skip(self.steps)
         for index, step in enumerate(self.steps):
-            if step.step_type == 'initialize':
-                step_summary_list.append({
-                    'step_id': step.step_id,
-                    'step_idx': 0,
-                    'step_type': step.step_type,
-                    'step_display_name': "Created a mitosheet",
-                    'step_description': "Created a new mitosheet"
-                })
+            if step.step_type == "initialize":
+                step_summary_list.append(
+                    {
+                        "step_id": step.step_id,
+                        "step_idx": 0,
+                        "step_type": step.step_type,
+                        "step_display_name": "Created a mitosheet",
+                        "step_description": "Created a new mitosheet",
+                    }
+                )
                 continue
-                
+
             if index in step_indexes_to_skip:
                 continue
 
-            step_summary_list.append({
-                'step_id': step.step_id,
-                'step_idx': index,
-                'step_type': step.step_type,
-                'step_display_name': step.step_performer.step_display_name(),
-                'step_description': step.step_performer.describe(
-                    df_names=step.df_names,
-                    **step.params,
-                )
-            })
+            step_summary_list.append(
+                {
+                    "step_id": step.step_id,
+                    "step_idx": index,
+                    "step_type": step.step_type,
+                    "step_display_name": step.step_performer.step_display_name(),
+                    "step_description": step.step_performer.describe(
+                        df_names=step.df_names,
+                        **step.params,
+                    ),
+                }
+            )
 
         return step_summary_list
 
@@ -326,13 +339,11 @@ class StepsManager():
         if self.curr_step_idx != len(self.steps) - 1:
             return
 
-        step_performer = EVENT_TYPE_TO_STEP_PERFORMER[edit_event['type']]
+        step_performer = EVENT_TYPE_TO_STEP_PERFORMER[edit_event["type"]]
 
         # First, we make a new step
         new_step = Step(
-            step_performer.step_type(),
-            edit_event['step_id'],
-            edit_event['params']
+            step_performer.step_type(), edit_event["step_id"], edit_event["params"]
         )
 
         new_steps = self.steps + [new_step]
@@ -346,19 +357,19 @@ class StepsManager():
     def handle_update_event(self, update_event: Dict[str, Any]) -> None:
         """
         Handles any event that isn't caused by an edit, but instead
-        other types of new data coming from the frontend (e.g. the df names 
+        other types of new data coming from the frontend (e.g. the df names
         or some existing steps).
         """
         for update in UPDATES:
-            if update_event['type'] == update['event_type']:
+            if update_event["type"] == update["event_type"]:
                 # Get the params for this event
-                params = {key: value for key, value in update_event.items() if key in update['params']} # type: ignore
+                params = {key: value for key, value in update_event.items() if key in update["params"]}  # type: ignore
                 # Actually execute this event
-                update['execute'](self, **params) # type: ignore
+                update["execute"](self, **params)  # type: ignore
                 # And then return
                 return
 
-        raise Exception(f'{update_event} is not an update event!')
+        raise Exception(f"{update_event} is not an update event!")
 
     def find_last_valid_index(self, new_steps: List[Step]) -> int:
         """
@@ -369,29 +380,31 @@ class StepsManager():
 
         # Currently, we only remove steps in an undo
         if len(new_steps) < len(self.steps):
-            # If we are removing steps, then we figure out what skipped steps 
+            # If we are removing steps, then we figure out what skipped steps
             # we are losing, and run from right before where we are no longer
             # skipped steps
             no_longer_skipped_indexes: Set[int] = set()
-            for step_index, removed_step in enumerate(self.steps[len(new_steps):]):
-                previous_steps = self.steps[:len(new_steps) + step_index]
+            for step_index, removed_step in enumerate(self.steps[len(new_steps) :]):
+                previous_steps = self.steps[: len(new_steps) + step_index]
                 no_longer_skipped_indexes = no_longer_skipped_indexes.union(
                     removed_step.step_indexes_to_skip(previous_steps)
                 )
 
-            last_valid_index = min(no_longer_skipped_indexes.union({len(new_steps)})) - 1
+            last_valid_index = (
+                min(no_longer_skipped_indexes.union({len(new_steps)})) - 1
+            )
         else:
             # Otherwise, if we're adding steps, we figure out which skipped steps
             # we're adding, and run from right before the oldest new skipped step
 
             # Collect anything that is newly skipped
             newly_skipped_indexes: Set[int] = set()
-            for step_index, new_step in enumerate(new_steps[len(self.steps):]):
-                previous_steps = new_steps[:len(self.steps) + step_index]
+            for step_index, new_step in enumerate(new_steps[len(self.steps) :]):
+                previous_steps = new_steps[: len(self.steps) + step_index]
                 newly_skipped_indexes = newly_skipped_indexes.union(
                     new_step.step_indexes_to_skip(previous_steps)
                 )
-            
+
             # The last valid index is the minimum of the newly skipped things - 1
             # or the last valid step (if nothing is skipped)
             # TODO: we can improve this in the future to remember what it executed last time
@@ -405,22 +418,22 @@ class StepsManager():
         is no most recent step, does nothing.
 
         It also handles the special case where the last action was clearing
-        the analysis, in which case we have the undo actually reset the 
+        the analysis, in which case we have the undo actually reset the
         entire analysis.
         """
-        
+
         # When a user's most recent action is a clear analysis, then the undone_step_list_store
         # will end in an item that says ('clear', [...]).
-        # In this case, if they press undo right after clearing, then we assume they probably 
+        # In this case, if they press undo right after clearing, then we assume they probably
         # want to undo the clear, aka to redo all those steps
         if len(self.undone_step_list_store) > 0:
-            if self.undone_step_list_store[-1][0] == 'clear':
+            if self.undone_step_list_store[-1][0] == "clear":
                 return self.execute_redo()
 
         # Otherwise, we just undo the most recent step that the user has created
         # if they have created any steps
         if len(self.steps) == 1:
-            return 
+            return
 
         new_steps = copy(self.steps)
         undone_step = new_steps.pop()
@@ -428,9 +441,7 @@ class StepsManager():
         self.execute_and_update_steps(new_steps)
 
         # If this works, then let's add this step to the undo list!
-        self.undone_step_list_store.append(
-            ('undo', [undone_step])
-        )
+        self.undone_step_list_store.append(("undo", [undone_step]))
 
     def execute_redo(self):
         """
@@ -441,41 +452,41 @@ class StepsManager():
         just return.
         """
         if len(self.undone_step_list_store) == 0:
-            return 
-        
+            return
+
         (undo_or_clear, step_list) = self.undone_step_list_store[-1]
-        if undo_or_clear == 'undo':
+        if undo_or_clear == "undo":
             # If it's an undo, just apply onto the end
             new_steps = copy(self.steps)
             new_steps.extend(step_list)
             self.execute_and_update_steps(new_steps)
 
-        elif undo_or_clear == 'clear':
+        elif undo_or_clear == "clear":
             new_steps = step_list
             # Note: since we're breaking the invariant that the steps don't
             # move order, we have to execute from the very start
             self.execute_and_update_steps(new_steps, last_valid_index=0)
-    
-        # Remove the item we just redid from the undone_step_list_store, so 
+
+        # Remove the item we just redid from the undone_step_list_store, so
         # that we don't redo it again
         self.undone_step_list_store.pop()
-    
 
     def execute_clear(self):
         """
         A clear update, which removes all steps in the analysis
-        that are not imports.    
+        that are not imports.
         """
         if len(self.steps) == 1:
-            return 
+            return
 
         # Keep only the initalize step and any import steps
         new_steps = [
-            step for step in self.steps
+            step
+            for step in self.steps
             if (
-                step.step_type == 'initialize' or \
-                step.step_type == SimpleImportStepPerformer.step_type() or \
-                step.step_type == ExcelImportStepPerformer.step_type()
+                step.step_type == "initialize"
+                or step.step_type == SimpleImportStepPerformer.step_type()
+                or step.step_type == ExcelImportStepPerformer.step_type()
             )
         ]
 
@@ -485,24 +496,19 @@ class StepsManager():
         # the step order
         self.execute_and_update_steps(new_steps, last_valid_index=0)
 
-        self.undone_step_list_store.append(
-            ('clear', old_steps)
-        )
-
+        self.undone_step_list_store.append(("clear", old_steps))
 
     def execute_and_update_steps(
-            self, 
-            new_steps: List[Step], 
-            last_valid_index: int=None
-        ) -> None:
+        self, new_steps: List[Step], last_valid_index: int = None
+    ) -> None:
         """
         Given a list of new_steps, runs them from the last valid index,
         based on what is skipped in these new_steps.
 
         If these new steps result in valid execution, then we set them
-        to the step that the step manager stores. 
+        to the step that the step manager stores.
 
-        If last_valid_index is passed, then this will be used instead of 
+        If last_valid_index is passed, then this will be used instead of
         the last_valid_index that could be calculated by the step list.
 
         So, pass a last_valid_index if you're changing the order of the steps
@@ -511,12 +517,14 @@ class StepsManager():
         """
         if last_valid_index is None:
             last_valid_index = self.find_last_valid_index(new_steps)
-        
-        final_steps = execute_step_list_from_index(new_steps, start_index=last_valid_index)
+
+        final_steps = execute_step_list_from_index(
+            new_steps, start_index=last_valid_index
+        )
         self.steps = final_steps
         self.curr_step_idx = len(self.steps) - 1
 
-    def execute_steps_data(self, new_steps_data: List[Dict[str, Any]]=None) -> None:
+    def execute_steps_data(self, new_steps_data: List[Dict[str, Any]] = None) -> None:
         """
         Given steps data (e.g. from a saved analysis), will turn
         this data  into steps and try to run them. If any of them
@@ -526,9 +534,7 @@ class StepsManager():
         if new_steps_data:
             for step_data in new_steps_data:
                 new_step = Step(
-                    step_data['step_type'],
-                    get_new_id(),
-                    step_data['params']
+                    step_data["step_type"], get_new_id(), step_data["params"]
                 )
 
                 new_steps.append(new_step)

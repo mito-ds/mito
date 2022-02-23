@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
+
 from typing import Any, Dict, List, Optional, Set, Type
 from mitosheet.evaluation_graph_utils import create_column_evaluation_graph
 
@@ -134,6 +140,7 @@ class Step:
         if post_state_and_execution_data is not None:
             # If we don't get anything new back, then we just make this
             # step a no-op, and don't do anything
+            print(post_state_and_execution_data)
             (new_post_state, execution_data) = post_state_and_execution_data
         else:
             # Sometimes step execution returns None, which functionally means that 

@@ -1,6 +1,7 @@
 import React from "react";
 import { ModalInfo } from "./components/modals/modals";
 import { ControlPanelTab } from "./components/taskpanes/ControlPanel/ControlPanelTaskpane";
+import { GraphParams } from "./components/taskpanes/Graph/GraphSidebar";
 import { TaskpaneInfo } from "./components/taskpanes/taskpanes";
 
 
@@ -49,7 +50,7 @@ export interface StepSummary {
     // TODO: in the future, we should extend the StepData interface for
     // each of the different steps, and type these more strongly!
     // Currently, we aren't sending this data!
-    params?: Record<string, unknown>; 
+    params?: Record<string, unknown>;
 }
 
 /**
@@ -69,34 +70,34 @@ export enum DFSource {
 export type Operator = 'And' | 'Or';
 
 export type BooleanFilterCondition = 'boolean_is_true'
-| 'boolean_is_false'
-| 'empty'
-| 'not_empty'
+    | 'boolean_is_false'
+    | 'empty'
+    | 'not_empty'
 
 export type StringFilterCondition = 'contains'
-| 'string_does_not_contain'
-| 'string_exactly'
-| 'string_not_exactly'
-| 'empty'
-| 'not_empty'
+    | 'string_does_not_contain'
+    | 'string_exactly'
+    | 'string_not_exactly'
+    | 'empty'
+    | 'not_empty'
 
 export type NumberFilterCondition = 'number_exactly'
-| 'number_not_exactly'
-| 'greater'
-| 'greater_than_or_equal'
-| 'less'
-| 'less_than_or_equal'
-| 'empty'
-| 'not_empty'
+    | 'number_not_exactly'
+    | 'greater'
+    | 'greater_than_or_equal'
+    | 'less'
+    | 'less_than_or_equal'
+    | 'empty'
+    | 'not_empty'
 
 export type DatetimeFilterCondition = 'datetime_exactly'
-| 'datetime_not_exactly'
-| 'datetime_greater'
-| 'datetime_greater_than_or_equal'
-| 'datetime_less'
-| 'datetime_less_than_or_equal'
-| 'empty'
-| 'not_empty'
+    | 'datetime_not_exactly'
+    | 'datetime_greater'
+    | 'datetime_greater_than_or_equal'
+    | 'datetime_less'
+    | 'datetime_less_than_or_equal'
+    | 'empty'
+    | 'not_empty'
 
 
 export interface FilterType {
@@ -155,6 +156,9 @@ export type ColumnID = string;
 export type ColumnIDsMap = Record<ColumnID, ColumnHeader>;
 
 
+export type GraphID = string
+
+
 /**
  * Data that will be displayed in the sheet itself.
  * 
@@ -188,6 +192,25 @@ export type SheetData = {
     index: (string | number)[];
     columnFormatTypeObjMap: ColumnFormatTypeObjMap
 };
+
+
+/**
+ * Data about all of the graphs. For each graph, it contains all of the parameters used to construct the graph,
+ * the actual graph html & javascript, and the generated code.
+ * 
+ * @param graphParams - all of the parameters used to construct the graph
+ * @param generatedCode - the python code to construct the graph
+ * @param graphHTML - the number of rows in the data. Should be equal to data[0].length
+ * @param graphJavascript - the number of columns in the data. Should be equal to data.length
+ */
+export type GraphData = {
+    graphParams: GraphParams;
+    generatedCode: string
+    graphHTML: string,
+    graphJavascript: string,
+};
+
+export type GraphDataJSON = Record<GraphID, GraphData | undefined>
 
 
 /**
@@ -398,29 +421,32 @@ export enum FormatType {
 /**
  * The format applied to a specific column of data in Mito.
  */
-export type FormatTypeObj = 
+export type FormatTypeObj =
     | {
         type: FormatType.DEFAULT
     }
-    | { 
+    | {
         type: FormatType.PLAIN_TEXT // Removes commas + displays all decimal places
     }
     | {
         type: FormatType.PERCENTAGE // Shows a percentage representation
-    } 
+    }
     | {
         type: FormatType.ACCOUNTING // shows $ and uses ( ) for negative numbers
     }
     | {
         type: FormatType.ROUND_DECIMALS // Rounds the number to the number of decimals given below
         numDecimals: number
-    } 
+    }
     | {
         type: FormatType.K_M_B // Formats numbers with K for thousands, M for millions, and B for billions 
-    } 
+    }
     | {
         type: FormatType.SCIENTIFIC_NOTATION // Just does scientific notiation
-    } 
+    }
+
+
+
 
 /**
  * An object representing all the data about the analysis that is occuring currently.
@@ -437,6 +463,7 @@ export interface AnalysisData {
     stepSummaryList: StepSummary[],
     currStepIdx: number,
     dataTypeInTool: DataTypeInMito;
+    graphDataJSON: GraphDataJSON
 }
 
 /**
@@ -455,7 +482,7 @@ export interface AnalysisData {
 export interface UserProfile {
     userEmail: string;
     receivedTours: string[];
-    
+
     isPro: boolean;
     excelImportEnabled: boolean;
     telemetryEnabled: boolean;
@@ -477,8 +504,8 @@ export interface MitoStateUpdaters {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>,
 }
 
-export interface CSVExportState {exportType: 'csv'}
-export interface ExcelExportState {exportType: 'excel', sheetIndexes: number[]}
+export interface CSVExportState { exportType: 'csv' }
+export interface ExcelExportState { exportType: 'excel', sheetIndexes: number[] }
 
 /**
  * State of the UI, all in one place for ease.
@@ -488,11 +515,11 @@ export interface UIState {
     // from the backend. Increment and decrement as messages are recieved,
     // which allows us to track mulitple messages at once, something a boolean
     // here would not allow
-    loading: number; 
+    loading: number;
     currOpenModal: ModalInfo;
     currOpenTaskpane: TaskpaneInfo;
     selectedColumnControlPanelTab: ControlPanelTab;
-    exportConfiguration: CSVExportState | ExcelExportState; 
+    exportConfiguration: CSVExportState | ExcelExportState;
     selectedSheetIndex: number;
     displayFormatToolbarDropdown: boolean
 }
@@ -501,8 +528,8 @@ export interface UIState {
  * The returned matches when searching a for a value in the sheet
  */
 export interface SearchMatches {
-    columnHeaderIndexes: {rowIndex: number, columnIndex: number}[];
-    cellIndexes: {rowIndex: number, columnIndex: number}[];
+    columnHeaderIndexes: { rowIndex: number, columnIndex: number }[];
+    cellIndexes: { rowIndex: number, columnIndex: number }[];
 }
 
 /**
@@ -531,17 +558,17 @@ export const enum FeedbackID {
     SET_CELL_VALUE_USAGE_TRIGGERED = 'set_cell_value_usage_triggered',
     EXCEL_IMPORT_USAGE_TRIGGERED = 'excel_import_usage_triggered',
     DROP_DUPLICATES_USAGE_TRIGGERED = 'drop_duplicates_usage_triggered'
-} 
+}
 
 /**
  * The Feedback IDs of the usage triggered feedbacks
  */
-export type UsageTriggeredFeedbackID = 
+export type UsageTriggeredFeedbackID =
     FeedbackID.ADD_COLUMN_USAGE_TRIGGERED |
-    FeedbackID.DELETE_COLUMN_USAGE_TRIGGERED | 
+    FeedbackID.DELETE_COLUMN_USAGE_TRIGGERED |
     FeedbackID.RENAME_COLUMN_USAGE_TRIGGERED |
-    FeedbackID.REORDER_COLUMN_USAGE_TRIGGERED | 
-    FeedbackID.FILTER_COLUMN_USAGE_TRIGGERED | 
+    FeedbackID.REORDER_COLUMN_USAGE_TRIGGERED |
+    FeedbackID.FILTER_COLUMN_USAGE_TRIGGERED |
     FeedbackID.SET_COLUMN_FORMULA_USAGE_TRIGGERED |
     FeedbackID.DATAFRAME_DELETE_USAGE_TRIGGERED |
     FeedbackID.DATAFRAME_DUPLICATE_USAGE_TRIGGERED |
@@ -668,8 +695,8 @@ export interface Action {
         really well to allow the caller to be able to use this action without
         having to know anything about it
     */
-    actionFunction: () => void; 
-    
+    actionFunction: () => void;
+
     // A list of the search terms that can be used to discover this action
     searchTerms: string[]
 

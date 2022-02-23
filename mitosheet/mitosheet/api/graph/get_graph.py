@@ -2,13 +2,14 @@ import json
 import pandas as pd
 from typing import Any, Dict
 from mitosheet.api.graph.column_summary_graph import get_column_summary_graph
-from mitosheet.api.graph.plotly_express_graphs import (
-    get_plotly_express_graph,
-    get_plotly_express_graph_code,
-)
-from mitosheet.api.graph.graph_utils import (
+from mitosheet.step_performers.graph.graph_utils import (
     SUMMARY_STAT,
     get_html_and_script_from_figure,
+)
+
+from mitosheet.step_performers.graph.plotly_express_graphs import (
+    get_plotly_express_graph,
+    get_plotly_express_graph_code,
 )
 from mitosheet.steps_manager import StepsManager
 
@@ -85,7 +86,6 @@ def get_graph(event: Dict[str, Any], steps_manager: StepsManager) -> str:
     if len(x_axis_column_ids) == 0 and len(y_axis_column_ids) == 0:
         return ""
 
-    # Handle the graphs in alphabetical order
     if graph_type == SUMMARY_STAT:
         # We handle summary stats separately from the histogram, for now, because
         # we only let the user use a histogram with all numeric data, whereas the column
