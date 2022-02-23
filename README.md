@@ -58,6 +58,10 @@ python3 -m mitoinstaller install --test-pypi
 
 Then, launch JLab to test the current version of the `mitosheet` package on Test PyPi.
 
+## Mitoinstaller
+
+To see the `mitoinstaller` package, see the `mitoinstaller` folder.
+
 ## Trymito.io
 
 To see the code for our website, see the `trymito.io` folder. 
