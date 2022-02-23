@@ -34,6 +34,5 @@ jobs:
         pip install -e ".[test, deploy]"
     - name: Check types with MyPY
       run: |
-        cd mitosheet
-        mypy mitosheet/ --ignore-missing-imports --disallow-untyped-calls --disallow-incomplete-defs
-        mypy installer/mitoinstaller --ignore-missing-imports --disallow-untyped-calls --disallow-incomplete-defs
+        mypy mitosheet/mitosheet/ --ignore-missing-imports --disallow-untyped-calls --disallow-incomplete-defs
+        mypy mitoinstaller/mitoinstaller/ --ignore-missing-imports --disallow-untyped-calls --disallow-incomplete-defs
