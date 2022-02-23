@@ -185,7 +185,6 @@ jobs:
           python3 -m venv venv
           source venv/bin/activate
           python ../deployment/bump_version.py mitoinstaller ${{ steps.extract_branch.outputs.branch }}
-          cd installer
           pip install -r requirements.txt
       - name: Deploy mitoinstaller on testpypi
         if: github.ref == 'refs/heads/dev'
