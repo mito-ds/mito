@@ -43,10 +43,10 @@ jobs:
           python3 -m venv venv
           source venv/bin/activate
           python switch.py mitosheet-private
-          python deployment/bump_version.py mitosheet-private ${{ steps.extract_branch.outputs.branch }}
+          python ../deployment/bump_version.py mitosheet-private ${{ steps.extract_branch.outputs.branch }}
           python -m pip install -e ".[test, deploy]"          
       - name: Deploy mitosheet
         run: |
           cd mitosheet
           source venv/bin/activate
-          python deployment/deploy.py ${{ steps.extract_branch.outputs.branch }}
+          python ../deployment/deploy.py ${{ steps.extract_branch.outputs.branch }}

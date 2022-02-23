@@ -35,15 +35,20 @@ from mitosheet._version import __version__
 from mitosheet.column_headers import flatten_column_header
 
 # We export depricated utilities, so that users can still use them if they used to
-from mitosheet.step_performers.bulk_old_rename.deprecated_utils import make_valid_header_external as make_valid_header
+from mitosheet.step_performers.bulk_old_rename.deprecated_utils import (
+    make_valid_header_external as make_valid_header,
+)
 
 # Export all the sheet functions
 from mitosheet.sheet_functions import *
+
 # And the functions for changing types
 from mitosheet.sheet_functions.types import *
 
-# Export the graph filtering code, so that it can be used in the code that generates graphs
-from mitosheet.api.graph.graph_utils import filter_df_to_safe_size
+# Export the graph filtering code with a deprecation warning, so that it can be used in the code that generates graphs
+from mitosheet.api.graph.graph_utils import (
+    filter_df_to_safe_size_external as filter_df_to_safe_size,
+)
 
 # Make sure the user is initalized
 initialize_user()
@@ -51,7 +56,4 @@ initialize_user()
 # This function is only necessary for mitosheet3, as it is used
 # in jlab3 to find the extension. It is not used in jlab2
 def _jupyter_labextension_paths():
-    return [{
-        "src": "labextension",
-        "dest": 'mitosheet3'
-    }]
+    return [{"src": "labextension", "dest": "mitosheet3"}]

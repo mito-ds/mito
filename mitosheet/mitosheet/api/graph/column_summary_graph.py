@@ -4,12 +4,41 @@ from mitosheet.sheet_functions.types.utils import is_number_dtype
 from mitosheet.types import ColumnHeader
 import plotly.express as px
 import plotly.graph_objects as go
-from mitosheet.api.graph.graph_utils import (
-    MAX_UNIQUE_NON_NUMBER_VALUES,
-    MAX_UNIQUE_NON_NUMBER_VALUES_COMMENT,
-    filter_df_to_top_unique_values_in_series,
-)
 from mitosheet.mito_analytics import log
+
+
+# Max number of unique non-number items to display in a graph.
+# NOTE: make sure to change both in unison so they make sense
+MAX_UNIQUE_NON_NUMBER_VALUES = 10_000
+
+
+def filter_df_to_top_unique_values_in_series(
+    df: pd.DataFrame,
+    main_series: pd.Series,
+    num_unique_values: int,
+) -> pd.Series:
+    """
+    Helper function for filtering the dataframe down to the top most common
+    num_unique_values in the main_series. Will not change the series if there are less
+    values than that.
+
+    The function filters the entire dataframe to make sure that the columns stay
+    the same length (which is necessary if you want to graph them).
+
+    It returns the filtered dataframe
+    """
+    if (
+        len(main_series) < num_unique_values
+        or main_series.nunique() < num_unique_values
+    ):
+        return df
+
+    value_counts_series = main_series.value_counts()
+    most_frequent_values_list = value_counts_series.head(
+        n=num_unique_values
+    ).index.tolist()
+
+    return df[main_series.isin(most_frequent_values_list)]
 
 
 def get_column_summary_graph(
