@@ -189,14 +189,12 @@ jobs:
       - name: Deploy mitoinstaller on testpypi
         if: github.ref == 'refs/heads/dev'
         run: |
-          cd mitosheet
+          cd mitoinstaller
           source venv/bin/activate
-          cd installer 
           python setup.py sdist upload --repository testpypi
       - name: Deploy mitoinstaller on testpypi
         if: github.ref == 'refs/heads/main'
         run: |
-          cd mitosheet
+          cd mitoinstaller
           source venv/bin/activate
-          cd installer
           python setup.py sdist upload
