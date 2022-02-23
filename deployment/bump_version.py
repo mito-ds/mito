@@ -53,11 +53,11 @@ def get_next_version(package: str, on_dev: bool) -> Tuple[int, int, int]:
     return (x, y, z + 1)
 
 def bump_version_mitoinstaller(on_dev: bool):
-    with open('installer/mitoinstaller/__init__.py', 'r+') as f:
+    with open('mitoinstaller/__init__.py', 'r+') as f:
         current_version_string = get_pypi_version('mitoinstaller', on_dev)
     (x, y, z) = version_string_to_tuple(current_version_string)
     new_version = (x, y, z + 1)
-    with open('installer/mitoinstaller/__init__.py', 'w+') as f:
+    with open('mitoinstaller/__init__.py', 'w+') as f:
         f.write(f'__version__ = \'{".".join(map(str, new_version))}\'')
 
 def bump_version(package, deploy_location: str, new_version: Tuple[int, int, int]=None):
@@ -70,6 +70,9 @@ def bump_version(package, deploy_location: str, new_version: Tuple[int, int, int
 
     If a new_version is given, then will bump to that version specificially. new_version
     should be a tuple of the form (x, y, z).
+
+    Note that this should be run in the folder of the package that is getting its version
+    bumped (e.g. the folder where the setup.py is).
     """
     on_dev = deploy_location == 'dev'
 
