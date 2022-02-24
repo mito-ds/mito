@@ -51,7 +51,7 @@ def execute_replay_analysis_update(
     analysis = read_and_upgrade_analysis(analysis_name)
     # If there is no analysis with this name, give up
     if analysis is None:
-        log('replayed_nonexistant_analysis_failed')
+        log('replayed_nonexistant_analysis_failed', {'analysis_name': analysis_name})
         return
 
     # When replaying an analysis with import events, you can also send over
