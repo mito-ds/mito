@@ -29,6 +29,7 @@ export enum StepType {
     SetCellValue = 'set_cell_value',
     BulkOldRename = 'bulk_old_rename',
     ExcelImport = 'excel_import',
+    Graph = 'graph'
 }
 
 /**
