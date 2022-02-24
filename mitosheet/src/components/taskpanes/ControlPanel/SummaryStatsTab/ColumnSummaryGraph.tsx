@@ -24,7 +24,6 @@ function ColumnSummaryGraph(props: ColumnSummaryGraphProps): JSX.Element {
             '350px',
             '100%',
         );
-        console.log(_graphHTMLAndScript)
         setGraphObj(_graphHTMLAndScript);
     }
 
@@ -63,7 +62,6 @@ function ColumnSummaryGraph(props: ColumnSummaryGraphProps): JSX.Element {
         </React.Fragment>
     );
 }
-
 
 export default ColumnSummaryGraph;
 

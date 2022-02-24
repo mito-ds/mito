@@ -130,6 +130,8 @@ const GraphSidebar = (props: {
     const [graphParams, setGraphParams] = useState<GraphParams>(getGraphParams(props.graphDataJSON, props.graphSidebarSheet, props.sheetDataArray))
     const graphScript = props.graphDataJSON[props.graphSidebarSheet.toString()]?.graphScript
     const graphHTML = props.graphDataJSON[props.graphSidebarSheet.toString()]?.graphHTML
+    console.log(graphScript, graphHTML)
+
     const [_copyGraphCode, graphCodeCopied] = useCopyToClipboard(props.graphDataJSON[props.graphSidebarSheet]?.graphGeneratedCode || '');
 
     const [loading, setLoading] = useState<boolean>(false)

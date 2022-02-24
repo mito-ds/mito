@@ -57,7 +57,7 @@ declare global {
 }
 
 import MitoAPI from './api';
-import { AnalysisData, MitoError, MitoStateUpdaters, SheetData, UserProfile } from './types';
+import { AnalysisData, GraphDataJSON, MitoError, MitoStateUpdaters, SheetData, UserProfile } from './types';
 import { ModalEnum } from './components/modals/modals';
 
 export class ExampleView extends DOMWidgetView {
@@ -206,9 +206,20 @@ export class ExampleView extends DOMWidgetView {
 
         // Parse the nested graphDataJson
         const unparsedGraphDataJSON = parsed["graphDataJSON"]
-        parsed["graphDataJSON"] = JSON.parse(unparsedGraphDataJSON)
+        const graphDataJSON: GraphDataJSON = JSON.parse(unparsedGraphDataJSON) as GraphDataJSON
 
-        console.log(parsed)
+        // Convert empty string to undefined to adhere to best practices
+        Object.entries(graphDataJSON).forEach(([key, val]) => {
+            if (val["graphHTML"] == '') {
+                graphDataJSON[key]["graphHTML"] = undefined
+            }
+            if (val["graphScript"] == '') {
+                graphDataJSON[key]["graphScript"] = undefined
+            }
+        })
+        parsed["graphDataJSON"] = graphDataJSON
+        
+
         return parsed;
     }
 }

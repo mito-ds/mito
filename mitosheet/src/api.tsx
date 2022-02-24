@@ -404,8 +404,6 @@ export default class MitoAPI {
             'width': width
         }, { maxRetries: 250 })
 
-        console.log('graph string', graphString)
-
         if (graphString == undefined) {
             return undefined;
         }

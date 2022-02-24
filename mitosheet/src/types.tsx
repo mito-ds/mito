@@ -205,8 +205,8 @@ export type SheetData = {
 export type GraphData = {
     graphParams: GraphParams,
     graphGeneratedCode: string,
-    graphHTML: string,
-    graphScript: string,
+    graphHTML: string | undefined,
+    graphScript: string | undefined,
 };
 
 export type GraphParams = {
@@ -230,7 +230,7 @@ export type GraphRenderingParams = {
     height?: number
 }
 
-export type GraphDataJSON = Record<GraphID, GraphData | undefined>
+export type GraphDataJSON = Record<GraphID, GraphData>
 
 
 /**

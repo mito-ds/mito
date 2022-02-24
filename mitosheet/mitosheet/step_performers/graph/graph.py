@@ -75,7 +75,6 @@ class GraphStepPerformer(StepPerformer):
         """
         Returns the new post state with the updated graph_data_json
         """
-        print(graph_preprocessing, graph_creation, graph_rendering)
 
         # We make a new state to modify it
         post_state = deepcopy(prev_state)
