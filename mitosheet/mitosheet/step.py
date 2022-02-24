@@ -100,6 +100,14 @@ class Step:
         return self.post_state.column_format_types
 
     @property
+    def graph_data_json(self) -> str:
+        """
+        graph_data_json contains all of the parameters used to construct the graph,
+        the actual graph html & javascript, and the generated code for all of the existing graphs in Mito.
+        """
+        return self.final_defined_state.graph_data_json
+
+    @property
     def step_performer(self) -> Type[StepPerformer]:
         """
         A helper function to return the step performer class

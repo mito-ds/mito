@@ -267,19 +267,6 @@ class StepsManager:
         return json.dumps(array)
 
     @property
-    def graph_data_json(self) -> str:
-        """
-        graph_data_json contains all of the parameters used to construct the graph,
-        the actual graph html & javascript, and the generated code for all of the existing graphs in Mito.
-
-        TODO: Get rid of this, and just access it directly from analysis_data_json and make a property
-        in the step for graph_data_json that uses the final_defined_state
-
-        Also open an issue because this is confusing
-        """
-        return json.dumps(self.steps[self.curr_step_idx].post_state.graph_data_json)
-
-    @property
     def analysis_data_json(self):
         return json.dumps(
             {
@@ -288,7 +275,7 @@ class StepsManager:
                 "stepSummaryList": self.step_summary_list,
                 "currStepIdx": self.curr_step_idx,
                 "dataTypeInTool": self.data_type_in_mito.value,
-                "graphDataJSON": self.graph_data_json,
+                "graphDataJSON": self.curr_step.graph_data_json
             }
         )
 

@@ -205,8 +205,7 @@ export class ExampleView extends DOMWidgetView {
         const parsed = JSON.parse(unparsed)
 
         // Parse the nested graphDataJson
-        const unparsedGraphDataJSON = parsed["graphDataJSON"]
-        const graphDataJSON: GraphDataJSON = JSON.parse(unparsedGraphDataJSON) as GraphDataJSON
+        const graphDataJSON: GraphDataJSON = parsed["graphDataJSON"] as GraphDataJSON
 
         // Convert empty string to undefined to adhere to best practices
         Object.entries(graphDataJSON).forEach(([key, val]) => {
