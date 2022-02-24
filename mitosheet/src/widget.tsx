@@ -1,5 +1,3 @@
-// Copyright (c) Mito
-
 import {
     DOMWidgetModel,
     DOMWidgetView,
@@ -204,7 +202,13 @@ export class ExampleView extends DOMWidgetView {
 
     getAnalysisData(): AnalysisData {
         const unparsed = this.model.get('analysis_data_json')
-        console.log(JSON.parse(unparsed))
-        return JSON.parse(unparsed);
+        const parsed = JSON.parse(unparsed)
+
+        // Parse the nested graphDataJson
+        const unparsedGraphDataJSON = parsed["graphDataJSON"]
+        parsed["graphDataJSON"] = JSON.parse(unparsedGraphDataJSON)
+
+        console.log(parsed)
+        return parsed;
     }
 }

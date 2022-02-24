@@ -355,7 +355,7 @@ export default class MitoAPI {
             'type': 'graph_edit',
             step_id: stepID,
             'params': {
-                'preprocessing': {
+                'graph_preprocessing': {
                     'safety_filter_turned_on_by_user': safety_filter_turned_on_by_user
                 },
                 'graph_creation': {
@@ -401,7 +401,7 @@ export default class MitoAPI {
         const graphString = await this.send<string>({
             'event': 'api_call',
             'type': 'get_graph',
-            'preprocessing': {
+            'graph_preprocessing': {
                 'safety_filter_turned_on_by_user': safety_filter_turned_on_by_user
             },
             'graph_creation': {

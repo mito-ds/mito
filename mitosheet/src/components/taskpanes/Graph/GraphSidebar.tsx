@@ -1,5 +1,3 @@
-// Copyright (c) Mito
-
 import React, { useEffect, useState } from 'react';
 import MitoAPI from '../../../api';
 import XIcon from '../../icons/XIcon';
@@ -13,7 +11,7 @@ import Row from '../../spacing/Row';
 import TextButton from '../../elements/TextButton';
 import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
 import { intersection } from '../../../utils/arrays';
-import { ColumnID, ColumnIDsMap, SheetData, UIState } from '../../../types';
+import { ColumnID, ColumnIDsMap, GraphDataJSON, GraphParams, SheetData, UIState } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 
 // import css
@@ -38,12 +36,6 @@ export interface GraphObject {
     generation_code: string;
 }
 
-export interface GraphParams {
-    graphType: GraphType,
-    xAxisColumnIDs: ColumnID[],
-    yAxisColumnIDs: ColumnID[],
-    safetyFilter: boolean
-}
 
 // Millisecond delay between loading graphs, so that
 // we don't load to many graphs when the user is clicking around
@@ -62,10 +54,17 @@ const SAFETY_FILTER_ENABLED_MESSAGE = `Turning on Filter to Safe Size only graph
 const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: number): GraphParams => {
     const safetyFilter = getDefaultSafetyFilter(sheetDataArray, sheetIndex)
     return {
-        graphType: GraphType.BAR,
-        xAxisColumnIDs: [],
-        yAxisColumnIDs: [],
-        safetyFilter: safetyFilter
+        graphPreprocessing: {
+            safety_filter_turned_on_by_user: safetyFilter
+        },
+        graphCreation: {
+            graph_type: GraphType.BAR,
+            sheet_index: sheetIndex,
+            x_axis_column_ids: [],
+            y_axis_column_ids: [],
+        },
+        graphStyling: undefined,
+        graphRendering: {}
     }
 }
 
@@ -82,28 +81,30 @@ const getDefaultSafetyFilter = (sheetDataArray: SheetData[], sheetIndex: number)
     which stops the user from having invalid columns selected in their graph
     params.
 */
-const getGraphParams = (
-    lastGraphParams: Record<number, GraphParams | undefined>,
+const getGraphParams = (   
+    graphDataJSON: GraphDataJSON,
     sheetIndex: number,
     sheetDataArray: SheetData[],
 ): GraphParams => {
-    const lastParams = lastGraphParams[sheetIndex];
-    if (lastParams !== undefined) {
+    const graphParams = graphDataJSON[sheetIndex]?.graphParams;
+    if (graphParams !== undefined) {
         // Filter out column headers that no longer exist
         const validColumnIDs = sheetDataArray[sheetIndex] !== undefined ? sheetDataArray[sheetIndex].data.map(c => c.columnID) : [];
         const xAxisColumnIDs = intersection(
             validColumnIDs,
-            lastParams.xAxisColumnIDs
+            graphParams.graphCreation.x_axis_column_ids
         )
         const yAxisColumnIDs = intersection(
             validColumnIDs,
-            lastParams.yAxisColumnIDs
+            graphParams.graphCreation.y_axis_column_ids
         )
         return {
-            graphType: lastParams.graphType,
-            xAxisColumnIDs: xAxisColumnIDs,
-            yAxisColumnIDs: yAxisColumnIDs,
-            safetyFilter: lastParams.safetyFilter
+            ...graphParams,
+            graphCreation: {
+                ...graphParams.graphCreation,
+                x_axis_column_ids: xAxisColumnIDs,
+                y_axis_column_ids: yAxisColumnIDs
+            }
         }
     }
     return getDefaultGraphParams(sheetDataArray, sheetIndex);
@@ -122,52 +123,23 @@ const GraphSidebar = (props: {
     columnDtypesMap: Record<string, string>;
     mitoAPI: MitoAPI;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
-    model_id: string;
-    lastGraphParams: Record<number, GraphParams | undefined>;
-    setLastGraphParams: (sheetIndex: number, graphParams: GraphParams) => void;
+    graphDataJSON: GraphDataJSON
 }): JSX.Element => {
+    console.log(props.graphDataJSON[props.graphSidebarSheet.toString()])
 
-    const [selectedSheetIndex, _setSelectedSheetIndex] = useState(props.graphSidebarSheet);
+    // We keep track of the graph data separately from the backend state so that 
+    // the UI updates imidietly, even though the backend takes a while to process.
+    const [graphParams, setGraphParams] = useState<GraphParams>(getGraphParams(props.graphDataJSON, props.graphSidebarSheet, props.sheetDataArray))
+    const graphScript = props.graphDataJSON[props.graphSidebarSheet.toString()]?.graphScript
+    const graphHTML = props.graphDataJSON[props.graphSidebarSheet.toString()]?.graphHTML
+    const [_copyGraphCode, graphCodeCopied] = useCopyToClipboard(props.graphDataJSON[props.graphSidebarSheet]?.graphGeneratedCode || '');
 
-    // A wrapper around changing the selected sheet index that makes sure
-    // the correct sheet is displayed, and also loads the most recent graph
-    // from this sheet if it exists
-    const setSelectedSheetIndex = (newSelectedSheetIndex: number): void => {
-        const newParams = getGraphParams(props.lastGraphParams, newSelectedSheetIndex, props.sheetDataArray);
-        // Note we update the sheet before the graph parameters
-        _setSelectedSheetIndex(newSelectedSheetIndex);
-        _setGraphParams(newParams)
-        props.setUIState(prevUIState => {
-            return {
-                ...prevUIState,
-                selectedSheetIndex: newSelectedSheetIndex
-            }
-        });
-    }
-
-    // When opening the graphing modal, if there are params for the last graph that was made
-    // for this sheet, then take them. Otherwise, just take the default params
-    const [graphParams, _setGraphParams] = useState<GraphParams>(
-        getGraphParams(props.lastGraphParams, selectedSheetIndex, props.sheetDataArray)
-    );
-
-    // When we update the graph params, we also update the lastGraphParams in the 
-    // main Mito component, so that we can open the graph to the same state next time
-    const setGraphParams = (newGraphParams: GraphParams): void => {
-        _setGraphParams(newGraphParams);
-        props.setLastGraphParams(selectedSheetIndex, newGraphParams);
-    }
-
-    const [graphObj, setGraphObj] = useState<GraphObject | undefined>(undefined);
     const [loading, setLoading] = useState<boolean>(false)
-
-    const [_copyGraphCode, graphCodeCopied] = useCopyToClipboard(graphObj?.generation_code || '');
-
     const [changeLoadingGraph] = useDelayedAction(LOAD_GRAPH_TIMEOUT)
 
     // If the graph has non-default params, then it has been configured
     const [graphHasNeverBeenConfigured, setGraphHasNeverBeenConfigured] = useState<boolean>(
-        graphParams === getDefaultGraphParams(props.sheetDataArray, selectedSheetIndex)
+        graphParams === getDefaultGraphParams(props.sheetDataArray, props.graphSidebarSheet)
     )
 
     // We log when the graph has been opened
@@ -176,7 +148,7 @@ const GraphSidebar = (props: {
     }, []);
 
     /* 
-        Gets fired whenever the user makes a change to their graph. 
+        When the user changes the graph data configuration, we load the new graph. 
     
         It calls the loadNewGraph function which is on a delay, as to 
         not overload the backend with new graph creation requests.
@@ -191,14 +163,7 @@ const GraphSidebar = (props: {
         // Start the loading icon as soon as the user makes a change to the graph
         setLoading(true)
         void loadNewGraph()
-
-        // We also log when the columns are selected, when they change
-        void props.mitoAPI.sendLogMessage('graph_selected_column_changed', {
-            'generated_graph': graphParams.xAxisColumnIDs.length !== 0 || graphParams.yAxisColumnIDs.length !== 0, // A helpful variable for the value add event
-            'graph_type': graphParams.graphType,
-            'x_axis_column_ids': graphParams.xAxisColumnIDs,
-            'y_axis_column_ids': graphParams.yAxisColumnIDs
-        });
+        
     }, [graphParams])
 
     // When we get a new graph script, we execute it here. This is a workaround
@@ -207,16 +172,16 @@ const GraphSidebar = (props: {
     // for safety reasons).
     useEffect(() => {
         try {
-            if (graphObj === undefined) {
+            if (graphScript === undefined) {
                 return;
             }
-            const executeScript = new Function(graphObj.script);
+            const executeScript = new Function(graphScript);
             executeScript()
         } catch (e) {
             console.error("Failed to execute graph function", e)
         }
 
-    }, [graphObj])
+    }, [graphScript])
 
     /* 
         This is the actual function responsible for loading the new
@@ -227,16 +192,15 @@ const GraphSidebar = (props: {
         const boundingRect: DOMRect | undefined = document.getElementById('graph-div')?.getBoundingClientRect();
 
         if (boundingRect !== undefined) {
-            const loadedGraphHTMLAndScript = await props.mitoAPI.sendGraphMessage(
-                graphParams.graphType,
-                selectedSheetIndex,
-                graphParams.safetyFilter,
-                graphParams.xAxisColumnIDs,
-                graphParams.yAxisColumnIDs,
+            await props.mitoAPI.sendGraphMessage(
+                graphParams.graphCreation.graph_type,
+                graphParams.graphCreation.sheet_index,
+                graphParams.graphPreprocessing.safety_filter_turned_on_by_user,
+                graphParams.graphCreation.x_axis_column_ids,
+                graphParams.graphCreation.y_axis_column_ids,
                 `${boundingRect?.height - 10}px`, `${boundingRect?.width - 20}px` // Subtract pixels from the height & width to account for padding
             );
 
-            setGraphObj(loadedGraphHTMLAndScript);
         }
 
         // Turn off the loading icon once the user get their graph back
@@ -256,11 +220,13 @@ const GraphSidebar = (props: {
 
     // Toggles the safety filter component of the graph params
     const toggleSafetyFilter = (): void => {
-        const newSafetyFilter = !graphParams.safetyFilter
+        const newSafetyFilter = !graphParams.graphPreprocessing.safety_filter_turned_on_by_user
 
         setGraphParams({
             ...graphParams,
-            safetyFilter: newSafetyFilter
+            graphPreprocessing: {
+                safety_filter_turned_on_by_user: newSafetyFilter
+            }
         })
     }
 
@@ -271,9 +237,9 @@ const GraphSidebar = (props: {
         return filteredColumnIDs
     }
 
-    const _setGraphType = (graphType: GraphType) => {
-        let xAxisColumnIDsCopy = [...graphParams.xAxisColumnIDs]
-        let yAxisColumnIDsCopy = [...graphParams.yAxisColumnIDs]
+    const setGraphType = (graphType: GraphType) => {
+        let xAxisColumnIDsCopy = [...graphParams.graphCreation.x_axis_column_ids]
+        let yAxisColumnIDsCopy = [...graphParams.graphCreation.y_axis_column_ids]
 
         /* 
             If the user switches to a Box plot or Histogram, then we make sure that
@@ -285,13 +251,14 @@ const GraphSidebar = (props: {
             yAxisColumnIDsCopy = removeNonNumberColumnIDs(yAxisColumnIDsCopy)
 
             // Make sure that only one axis has selected column headers. 
-            if (graphParams.xAxisColumnIDs.length > 0 && graphParams.yAxisColumnIDs.length > 0) {
+            if (graphParams.graphCreation.x_axis_column_ids.length > 0 && graphParams.graphCreation.y_axis_column_ids.length > 0) {
                 yAxisColumnIDsCopy = []
             }
         }
 
         // Log that we reset the selected columns
-        if (xAxisColumnIDsCopy.length !== graphParams.xAxisColumnIDs.length || yAxisColumnIDsCopy.length !== graphParams.yAxisColumnIDs.length) {
+        if (xAxisColumnIDsCopy.length !== graphParams.graphCreation.x_axis_column_ids.length || 
+            yAxisColumnIDsCopy.length !== graphParams.graphCreation.y_axis_column_ids.length) {
             void props.mitoAPI.sendLogMessage('reset_graph_columns_on_graph_type_change');
         }
 
@@ -305,9 +272,12 @@ const GraphSidebar = (props: {
         // Update the graph type
         setGraphParams({
             ...graphParams,
-            graphType: graphType,
-            xAxisColumnIDs: xAxisColumnIDsCopy,
-            yAxisColumnIDs: yAxisColumnIDsCopy
+            graphCreation: {
+                graph_type: graphType,
+                sheet_index: graphParams.graphCreation.sheet_index,
+                x_axis_column_ids: xAxisColumnIDsCopy,
+                y_axis_column_ids: yAxisColumnIDsCopy
+            }
         })
     }
 
@@ -321,9 +291,9 @@ const GraphSidebar = (props: {
         // Get the current axis data
         let axisColumnIDs: ColumnID[] = []
         if (graphAxis === GraphAxisType.X_AXIS) {
-            axisColumnIDs = graphParams.xAxisColumnIDs
+            axisColumnIDs = graphParams.graphCreation.x_axis_column_ids
         } else {
-            axisColumnIDs = graphParams.yAxisColumnIDs
+            axisColumnIDs = graphParams.graphCreation.y_axis_column_ids
         }
 
         // Make a copy of the column headers before editing them
@@ -337,14 +307,24 @@ const GraphSidebar = (props: {
 
         // Update the axis data
         if (graphAxis === GraphAxisType.X_AXIS) {
-            setGraphParams({
-                ...graphParams,
-                xAxisColumnIDs: axisColumnIDsCopy
+            setGraphParams(prevGraphParams => {
+                return {
+                    ...prevGraphParams,
+                    graphCreation: {
+                        ...prevGraphParams.graphCreation, 
+                        x_axis_column_ids: axisColumnIDsCopy
+                    }
+                }
             })
         } else {
-            setGraphParams({
-                ...graphParams,
-                yAxisColumnIDs: axisColumnIDsCopy
+            setGraphParams(prevGraphParams => {
+                return {
+                    ...prevGraphParams,
+                    graphCreation: {
+                        ...prevGraphParams.graphCreation, 
+                        y_axis_column_ids: axisColumnIDsCopy
+                    }
+                }
             })
         }
     }
@@ -354,10 +334,7 @@ const GraphSidebar = (props: {
 
         // Log that the user copied the graph code
         void props.mitoAPI.sendLogMessage('copy_graph_code', {
-            'generated_graph': graphParams.xAxisColumnIDs.length !== 0 || graphParams.yAxisColumnIDs.length !== 0, // A helpful variable for the value add event
-            'graph_type': graphParams.graphType,
-            'x_axis_column_ids': graphParams.xAxisColumnIDs,
-            'y_axis_column_ids': graphParams.yAxisColumnIDs
+            'graph_type': graphParams.graphCreation.graph_type
         });
     }
 
@@ -375,11 +352,11 @@ const GraphSidebar = (props: {
         return (
             <div className='graph-sidebar-div'>
                 <div className='graph-sidebar-graph-div' id='graph-div' >
-                    {graphObj === undefined && graphParams.xAxisColumnIDs.length === 0 && graphParams.yAxisColumnIDs.length === 0 &&
+                    {graphHTML === undefined && graphParams.graphCreation.x_axis_column_ids?.length === 0 && graphParams.graphCreation.y_axis_column_ids?.length === 0 &&
                         <p className='graph-sidebar-welcome-text' >To generate a graph, select a axis.</p>
                     }
-                    {graphObj !== undefined &&
-                        <div dangerouslySetInnerHTML={{ __html: graphObj?.html }} />
+                    {graphHTML !== undefined &&
+                        <div dangerouslySetInnerHTML={{ __html: graphHTML }} />
                     }
                 </div>
                 <div className='graph-sidebar-toolbar-div'>
@@ -412,10 +389,18 @@ const GraphSidebar = (props: {
                             </Col>
                             <Col>
                                 <Select
-                                    value={props.dfNames[selectedSheetIndex]}
+                                    value={props.dfNames[graphParams.graphCreation.sheet_index]}
                                     onChange={(newDfName: string) => {
                                         const newIndex = props.dfNames.indexOf(newDfName);
-                                        setSelectedSheetIndex(newIndex);
+                                        setGraphParams(prevGraphParams => {
+                                            return {
+                                                ...prevGraphParams,
+                                                graphCreation: {
+                                                    ...prevGraphParams.graphCreation, 
+                                                    sheetIndex: newIndex
+                                                }
+                                            }
+                                        })
                                     }}
                                     width='small'
                                 >
@@ -438,9 +423,9 @@ const GraphSidebar = (props: {
                             </Col>
                             <Col>
                                 <Select
-                                    value={graphParams.graphType}
+                                    value={graphParams.graphCreation.graph_type}
                                     onChange={(graphType: string) => {
-                                        _setGraphType(graphType as GraphType)
+                                        setGraphType(graphType as GraphType)
                                     }}
                                     width='small'
                                     dropdownWidth='medium'
@@ -475,33 +460,33 @@ const GraphSidebar = (props: {
                                 When the Axis Sections don't have unique keys, its possible for the sections to become duplicated as per 
                                 the React warnings.
                             */
-                            key={['xAxis'].concat(graphParams.xAxisColumnIDs).join('')}
-                            columnIDsMap={props.columnIDsMapArray[selectedSheetIndex]}
+                            key={['xAxis'].concat(graphParams.graphCreation.x_axis_column_ids).join('')}
+                            columnIDsMap={props.columnIDsMapArray[graphParams.graphCreation.sheet_index]}
                             columnDtypesMap={props.columnDtypesMap}
 
-                            graphType={graphParams.graphType}
+                            graphType={graphParams.graphCreation.graph_type}
                             graphAxis={GraphAxisType.X_AXIS}
-                            selectedColumnIDs={graphParams.xAxisColumnIDs}
-                            otherAxisSelectedColumnIDs={graphParams.yAxisColumnIDs}
+                            selectedColumnIDs={graphParams.graphCreation.x_axis_column_ids}
+                            otherAxisSelectedColumnIDs={graphParams.graphCreation.y_axis_column_ids}
 
                             updateAxisData={updateAxisData}
                             mitoAPI={props.mitoAPI}
                         />
                         <AxisSection
                             // See note about keys for Axis Sections above.
-                            key={['yAxis'].concat(graphParams.yAxisColumnIDs).join('')}
-                            columnIDsMap={props.columnIDsMapArray[selectedSheetIndex]}
+                            key={['yAxis'].concat(graphParams.graphCreation.y_axis_column_ids).join('')}
+                            columnIDsMap={props.columnIDsMapArray[graphParams.graphCreation.sheet_index]}
                             columnDtypesMap={props.columnDtypesMap}
 
-                            graphType={graphParams.graphType}
+                            graphType={graphParams.graphCreation.graph_type}
                             graphAxis={GraphAxisType.Y_AXIS}
-                            selectedColumnIDs={graphParams.yAxisColumnIDs}
-                            otherAxisSelectedColumnIDs={graphParams.xAxisColumnIDs}
+                            selectedColumnIDs={graphParams.graphCreation.y_axis_column_ids}
+                            otherAxisSelectedColumnIDs={graphParams.graphCreation.x_axis_column_ids}
 
                             updateAxisData={updateAxisData}
                             mitoAPI={props.mitoAPI}
                         />
-                        <Row justify='space-between' align='center' title={getDefaultSafetyFilter(props.sheetDataArray, selectedSheetIndex) ? SAFETY_FILTER_ENABLED_MESSAGE : SAFETY_FILTER_DISABLED_MESSAGE}>
+                        <Row justify='space-between' align='center' title={getDefaultSafetyFilter(props.sheetDataArray, graphParams.graphCreation.sheet_index) ? SAFETY_FILTER_ENABLED_MESSAGE : SAFETY_FILTER_DISABLED_MESSAGE}>
                             <Col>
                                 <p className='text-header-3' >
                                     Filter to safe size
@@ -509,9 +494,9 @@ const GraphSidebar = (props: {
                             </Col>
                             <Col>
                                 <Toggle
-                                    value={graphParams.safetyFilter}
+                                    value={graphParams.graphPreprocessing.safety_filter_turned_on_by_user}
                                     onChange={toggleSafetyFilter}
-                                    disabled={!getDefaultSafetyFilter(props.sheetDataArray, selectedSheetIndex)}
+                                    disabled={!getDefaultSafetyFilter(props.sheetDataArray, graphParams.graphCreation.sheet_index)}
                                 />
                             </Col>
                         </Row>
@@ -522,7 +507,7 @@ const GraphSidebar = (props: {
                         <TextButton
                             variant='dark'
                             onClick={copyGraphCode}
-                            disabled={loading || graphObj === undefined}
+                            disabled={loading || graphHTML === undefined || graphScript === undefined}
                         >
                             {!graphCodeCopied
                                 ? "Copy Graph Code"

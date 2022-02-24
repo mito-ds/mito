@@ -40,7 +40,7 @@ import CatchUpPopup from './CatchUpPopup';
 import ImportTaskpane from './taskpanes/Import/ImportTaskpane';
 import Tour from './tour/Tour';
 import { TourName } from './tour/Tours';
-import GraphSidebar, { GraphParams } from './taskpanes/Graph/GraphSidebar';
+import GraphSidebar from './taskpanes/Graph/GraphSidebar';
 import DownloadTaskpane from './taskpanes/Download/DownloadTaskpane';
 import ClearAnalysisModal from './modals/ClearAnalysisModal';
 import { ModalEnum } from './modals/modals';
@@ -108,9 +108,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
     // in Mito so that we can open to the same place next time they use it
     const [currPathParts, setCurrPathParts] = useState<string[]>(['.']);
 
-    // We store the most recent graph made for each of the sheet indexes, so that
-    // when user close and open the graph modal they can refresh them
-    const [lastGraphParams, setLastGraphParams] = useState<Record<number, (GraphParams | undefined)>>({})
 
     /**
      * Save the state updaters in the window, so they are accessible
@@ -411,16 +408,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         columnDtypesMap={sheetDataArray[uiState.selectedSheetIndex].columnDtypeMap}
                         mitoAPI={props.mitoAPI}
                         setUIState={setUIState} 
-                        model_id={props.model_id}
-                        lastGraphParams={lastGraphParams}
-                        setLastGraphParams={(sheetIndex, graphParams) => {
-                            setLastGraphParams(lastGraphParams => {
-                                return {
-                                    ...lastGraphParams,
-                                    [sheetIndex]: graphParams
-                                }
-                            })
-                        }}
+                        graphDataJSON={analysisData.graphDataJSON}
                     />
                 )
             case TaskpaneType.IMPORT: return (

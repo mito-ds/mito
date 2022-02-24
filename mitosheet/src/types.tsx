@@ -1,7 +1,7 @@
 import React from "react";
 import { ModalInfo } from "./components/modals/modals";
 import { ControlPanelTab } from "./components/taskpanes/ControlPanel/ControlPanelTaskpane";
-import { GraphParams } from "./components/taskpanes/Graph/GraphSidebar";
+import { GraphType } from "./components/taskpanes/Graph/GraphSidebar";
 import { TaskpaneInfo } from "./components/taskpanes/taskpanes";
 
 
@@ -70,34 +70,34 @@ export enum DFSource {
 export type Operator = 'And' | 'Or';
 
 export type BooleanFilterCondition = 'boolean_is_true'
-    | 'boolean_is_false'
-    | 'empty'
-    | 'not_empty'
+| 'boolean_is_false'
+| 'empty'
+| 'not_empty'
 
 export type StringFilterCondition = 'contains'
-    | 'string_does_not_contain'
-    | 'string_exactly'
-    | 'string_not_exactly'
-    | 'empty'
-    | 'not_empty'
+| 'string_does_not_contain'
+| 'string_exactly'
+| 'string_not_exactly'
+| 'empty'
+| 'not_empty'
 
 export type NumberFilterCondition = 'number_exactly'
-    | 'number_not_exactly'
-    | 'greater'
-    | 'greater_than_or_equal'
-    | 'less'
-    | 'less_than_or_equal'
-    | 'empty'
-    | 'not_empty'
+| 'number_not_exactly'
+| 'greater'
+| 'greater_than_or_equal'
+| 'less'
+| 'less_than_or_equal'
+| 'empty'
+| 'not_empty'
 
 export type DatetimeFilterCondition = 'datetime_exactly'
-    | 'datetime_not_exactly'
-    | 'datetime_greater'
-    | 'datetime_greater_than_or_equal'
-    | 'datetime_less'
-    | 'datetime_less_than_or_equal'
-    | 'empty'
-    | 'not_empty'
+| 'datetime_not_exactly'
+| 'datetime_greater'
+| 'datetime_greater_than_or_equal'
+| 'datetime_less'
+| 'datetime_less_than_or_equal'
+| 'empty'
+| 'not_empty'
 
 
 export interface FilterType {
@@ -193,22 +193,42 @@ export type SheetData = {
     columnFormatTypeObjMap: ColumnFormatTypeObjMap
 };
 
-
 /**
  * Data about all of the graphs. For each graph, it contains all of the parameters used to construct the graph,
  * the actual graph html & javascript, and the generated code.
  * 
  * @param graphParams - all of the parameters used to construct the graph
- * @param generatedCode - the python code to construct the graph
+ * @param graphGeneratedCode - the python code to construct the graph
  * @param graphHTML - the number of rows in the data. Should be equal to data[0].length
- * @param graphJavascript - the number of columns in the data. Should be equal to data.length
+ * @param graphScript - the number of columns in the data. Should be equal to data.length
  */
 export type GraphData = {
-    graphParams: GraphParams;
-    generatedCode: string
+    graphParams: GraphParams,
+    graphGeneratedCode: string,
     graphHTML: string,
-    graphJavascript: string,
+    graphScript: string,
 };
+
+export type GraphParams = {
+    graphPreprocessing: GraphPreprocessingParams,
+    graphCreation: GraphCreationParams,
+    graphStyling: GraphStylingParams,
+    graphRendering: GraphRenderingParams
+};
+export type GraphPreprocessingParams = {
+    safety_filter_turned_on_by_user: boolean
+}
+export type GraphCreationParams = {
+    graph_type: GraphType,
+    sheet_index: number,
+    x_axis_column_ids: ColumnID[]
+    y_axis_column_ids: ColumnID[]
+}
+export type GraphStylingParams = undefined
+export type GraphRenderingParams = {
+    width?: number
+    height?: number
+}
 
 export type GraphDataJSON = Record<GraphID, GraphData | undefined>
 
@@ -456,6 +476,7 @@ export type FormatTypeObj =
  * @param stepSummaryList - a list of step summaries for the steps in this analysis
  * @param currStepIdx - the index of the currently checked out step, in the stepSummaryList
  * @param dataTypeInTool - the type of data in the tool in this analysis
+ * @param graphDataJSON - a mapping from graphID to all of the relevant graph information
  */
 export interface AnalysisData {
     analysisName: string,

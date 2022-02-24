@@ -6,7 +6,6 @@
 
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Set, Tuple
-
 import pandas as pd
 
 from mitosheet.state import State
@@ -14,11 +13,8 @@ from mitosheet.step_performers.graph.graph_utils import GRAPH_TITLE_LABELS, get_
 from mitosheet.step_performers.graph.plotly_express_graphs import (
     get_plotly_express_graph,
     get_plotly_express_graph_code,
-    graph_styling,
 )
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
-from mitosheet.types import ColumnID
 
 
 class GraphStepPerformer(StepPerformer):
@@ -50,7 +46,7 @@ class GraphStepPerformer(StepPerformer):
     def execute(  # type: ignore
         cls,
         prev_state: State,
-        preprocessing: Any,
+        graph_preprocessing: Any,
         graph_creation: Any,
         graph_rendering: Any,
         **params,
@@ -58,6 +54,7 @@ class GraphStepPerformer(StepPerformer):
         """
         Returns the new post state with the updated graph_data_json
         """
+        print(graph_preprocessing, graph_creation, graph_rendering)
 
         # We make a new state to modify it
         post_state = deepcopy(prev_state)
@@ -65,7 +62,7 @@ class GraphStepPerformer(StepPerformer):
         # Get graph type
         graph_type = graph_creation["graph_type"]
         sheet_index = graph_creation["sheet_index"]
-        safety_filter_turned_on_by_user = preprocessing[
+        safety_filter_turned_on_by_user = graph_preprocessing[
             "safety_filter_turned_on_by_user"
         ]
 
@@ -137,12 +134,12 @@ class GraphStepPerformer(StepPerformer):
 
         post_state.graph_data_json[str(sheet_index)] = {
             "graphParams": {
-                "preprocessing": preprocessing,
+                "graphPreprocessing": graph_preprocessing,
                 "graphCreation": graph_creation,
                 "graphStyling": {},
                 "graphRendering": graph_rendering,
             },
-            "generatedCode": graph_generation_code,
+            "graphGeneratedCode": graph_generation_code,
             "graphHTML": html_and_script["html"],
             "graphScript": html_and_script["script"],
         }
@@ -155,7 +152,7 @@ class GraphStepPerformer(StepPerformer):
         prev_state: State,
         post_state: State,
         execution_data: Optional[Dict[str, Any]],
-        preprocessing: Any,
+        graph_preprocessing: Any,
         graph_creation: Any,
         graph_rendering: Any,
         **params,
@@ -165,7 +162,7 @@ class GraphStepPerformer(StepPerformer):
     @classmethod
     def describe(  # type: ignore
         cls,
-        preprocessing: Any,
+        graph_preprocessing: Any,
         graph_creation: Any,
         graph_rendering: Any,
         df_names=None,
