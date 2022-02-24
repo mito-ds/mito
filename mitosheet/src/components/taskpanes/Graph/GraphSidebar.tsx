@@ -133,6 +133,8 @@ const GraphSidebar = (props: {
     // state variable is not updating!!
     const [graphParams, setGraphParams] = useState<GraphParams>(getGraphParams(props.graphDataJSON, props.graphSidebarSheet, props.sheetDataArray))
     const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
+    console.log(props.graphDataJSON[dataSourceSheetIndex])
+
 
     const graphScript = props.graphDataJSON[dataSourceSheetIndex]?.graphScript
     const graphHTML = props.graphDataJSON[dataSourceSheetIndex]?.graphHTML
@@ -198,7 +200,7 @@ const GraphSidebar = (props: {
         const boundingRect: DOMRect | undefined = document.getElementById('graph-div')?.getBoundingClientRect();
 
         if (boundingRect !== undefined) {
-            await props.mitoAPI.sendGraphMessage(
+            const _stepID = await props.mitoAPI.sendGraphMessage(
                 graphParams.graphCreation.graph_type,
                 graphParams.graphCreation.sheet_index,
                 graphParams.graphPreprocessing.safety_filter_turned_on_by_user,
@@ -208,7 +210,7 @@ const GraphSidebar = (props: {
                 `${boundingRect?.width - 20}px`, // Subtract pixels from the height & width to account for padding
                 stepID
             );
-            //setStepID(_stepID)
+            setStepID(_stepID)
         }
 
         // Turn off the loading icon once the user get their graph back
