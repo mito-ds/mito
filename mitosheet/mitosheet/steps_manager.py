@@ -422,8 +422,6 @@ class StepsManager:
         entire analysis.
         """
 
-        print(self.curr_step.post_state.graph_data_json['0']["graphParams"])
-
         # When a user's most recent action is a clear analysis, then the undone_step_list_store
         # will end in an item that says ('clear', [...]).
         # In this case, if they press undo right after clearing, then we assume they probably

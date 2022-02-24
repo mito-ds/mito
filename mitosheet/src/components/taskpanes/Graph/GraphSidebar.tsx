@@ -132,9 +132,11 @@ const GraphSidebar = (props: {
     // The problem with undo is that although the getGraphParams function is updating and returning the corrected params, the actual graphParams
     // state variable is not updating!!
     const [graphParams, setGraphParams] = useState<GraphParams>(getGraphParams(props.graphDataJSON, props.graphSidebarSheet, props.sheetDataArray))
-    const graphScript = props.graphDataJSON[props.graphSidebarSheet.toString()]?.graphScript
-    const graphHTML = props.graphDataJSON[props.graphSidebarSheet.toString()]?.graphHTML
-    const [_copyGraphCode, graphCodeCopied] = useCopyToClipboard(props.graphDataJSON[props.graphSidebarSheet]?.graphGeneratedCode || '');
+    const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
+
+    const graphScript = props.graphDataJSON[dataSourceSheetIndex]?.graphScript
+    const graphHTML = props.graphDataJSON[dataSourceSheetIndex]?.graphHTML
+    const [_copyGraphCode, graphCodeCopied] = useCopyToClipboard(props.graphDataJSON[dataSourceSheetIndex]?.graphGeneratedCode || '');
 
     const [loading, setLoading] = useState<boolean>(false)
     const [changeLoadingGraph] = useDelayedAction(LOAD_GRAPH_TIMEOUT)
@@ -143,7 +145,7 @@ const GraphSidebar = (props: {
 
     // If the graph has non-default params, then it has been configured
     const [graphHasNeverBeenConfigured, setGraphHasNeverBeenConfigured] = useState<boolean>(
-        graphParams === getDefaultGraphParams(props.sheetDataArray, props.graphSidebarSheet)
+        graphParams === getDefaultGraphParams(props.sheetDataArray, dataSourceSheetIndex)
     )
 
     // We log when the graph has been opened
@@ -158,7 +160,6 @@ const GraphSidebar = (props: {
         not overload the backend with new graph creation requests.
     */
     useEffect(() => {
-        console.log("graph params changed")
         // If the graph has never been configured, then don't display the loading indicator
         // or try to create the graph
         if (graphHasNeverBeenConfigured) {
@@ -168,7 +169,6 @@ const GraphSidebar = (props: {
         // Start the loading icon as soon as the user makes a change to the graph
         setLoading(true)
         void loadNewGraph()
-        console.log("graph params changed!!!!!!!")
         
     }, [graphParams])
 
@@ -198,7 +198,7 @@ const GraphSidebar = (props: {
         const boundingRect: DOMRect | undefined = document.getElementById('graph-div')?.getBoundingClientRect();
 
         if (boundingRect !== undefined) {
-            const _stepID = await props.mitoAPI.sendGraphMessage(
+            await props.mitoAPI.sendGraphMessage(
                 graphParams.graphCreation.graph_type,
                 graphParams.graphCreation.sheet_index,
                 graphParams.graphPreprocessing.safety_filter_turned_on_by_user,
@@ -208,7 +208,7 @@ const GraphSidebar = (props: {
                 `${boundingRect?.width - 20}px`, // Subtract pixels from the height & width to account for padding
                 stepID
             );
-            setStepID(_stepID)
+            //setStepID(_stepID)
         }
 
         // Turn off the loading icon once the user get their graph back
@@ -400,15 +400,10 @@ const GraphSidebar = (props: {
                                     value={props.dfNames[graphParams.graphCreation.sheet_index]}
                                     onChange={(newDfName: string) => {
                                         const newIndex = props.dfNames.indexOf(newDfName);
-                                        setGraphParams(prevGraphParams => {
-                                            return {
-                                                ...prevGraphParams,
-                                                graphCreation: {
-                                                    ...prevGraphParams.graphCreation, 
-                                                    sheetIndex: newIndex
-                                                }
-                                            }
-                                        })
+                                        // Get the new sheet's graph params 
+                                        const newSheetGraphParams = getGraphParams(props.graphDataJSON, newIndex, props.sheetDataArray)
+                                        setStepID(undefined)
+                                        setGraphParams(newSheetGraphParams)
                                     }}
                                     width='small'
                                 >

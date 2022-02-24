@@ -152,6 +152,7 @@ class GraphStepPerformer(StepPerformer):
                 df_name,
             )
 
+        print(post_state.graph_data_json)
         post_state.graph_data_json[str(sheet_index)] = {
             "graphParams": {
                 "graphPreprocessing": graph_preprocessing,
@@ -159,10 +160,11 @@ class GraphStepPerformer(StepPerformer):
                 "graphStyling": {},
                 "graphRendering": graph_rendering,
             },
-            "graphGeneratedCode": graph_generation_code,
-            "graphHTML": html_and_script["html"],
-            "graphScript": html_and_script["script"],
+            #"graphGeneratedCode": graph_generation_code,
+            #"graphHTML": html_and_script["html"],
+            #"graphScript": html_and_script["script"],
         }
+        print(post_state.graph_data_json)
 
         return post_state, None
 
