@@ -219,7 +219,6 @@ export class ExampleView extends DOMWidgetView {
         })
         parsed["graphDataJSON"] = graphDataJSON
         
-
         return parsed;
     }
 }

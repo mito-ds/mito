@@ -85,7 +85,7 @@ const getGraphParams = (
     sheetIndex: number,
     sheetDataArray: SheetData[],
 ): GraphParams => {
-    const graphParams = graphDataJSON[sheetIndex]?.graphParams;
+    const graphParams = graphDataJSON[sheetIndex.toString()]?.graphParams;
     if (graphParams !== undefined) {
         // Filter out column headers that no longer exist
         const validColumnIDs = sheetDataArray[sheetIndex] !== undefined ? sheetDataArray[sheetIndex].data.map(c => c.columnID) : [];
@@ -97,6 +97,7 @@ const getGraphParams = (
             validColumnIDs,
             graphParams.graphCreation.y_axis_column_ids
         )
+        
         return {
             ...graphParams,
             graphCreation: {
@@ -127,15 +128,18 @@ const GraphSidebar = (props: {
 
     // We keep track of the graph data separately from the backend state so that 
     // the UI updates imidietly, even though the backend takes a while to process.
+
+    // The problem with undo is that although the getGraphParams function is updating and returning the corrected params, the actual graphParams
+    // state variable is not updating!!
     const [graphParams, setGraphParams] = useState<GraphParams>(getGraphParams(props.graphDataJSON, props.graphSidebarSheet, props.sheetDataArray))
     const graphScript = props.graphDataJSON[props.graphSidebarSheet.toString()]?.graphScript
     const graphHTML = props.graphDataJSON[props.graphSidebarSheet.toString()]?.graphHTML
-    console.log(graphScript, graphHTML)
-
     const [_copyGraphCode, graphCodeCopied] = useCopyToClipboard(props.graphDataJSON[props.graphSidebarSheet]?.graphGeneratedCode || '');
 
     const [loading, setLoading] = useState<boolean>(false)
     const [changeLoadingGraph] = useDelayedAction(LOAD_GRAPH_TIMEOUT)
+    const [stepID, setStepID] = useState<string|undefined>(undefined);
+
 
     // If the graph has non-default params, then it has been configured
     const [graphHasNeverBeenConfigured, setGraphHasNeverBeenConfigured] = useState<boolean>(
@@ -154,6 +158,7 @@ const GraphSidebar = (props: {
         not overload the backend with new graph creation requests.
     */
     useEffect(() => {
+        console.log("graph params changed")
         // If the graph has never been configured, then don't display the loading indicator
         // or try to create the graph
         if (graphHasNeverBeenConfigured) {
@@ -163,6 +168,7 @@ const GraphSidebar = (props: {
         // Start the loading icon as soon as the user makes a change to the graph
         setLoading(true)
         void loadNewGraph()
+        console.log("graph params changed!!!!!!!")
         
     }, [graphParams])
 
@@ -192,15 +198,17 @@ const GraphSidebar = (props: {
         const boundingRect: DOMRect | undefined = document.getElementById('graph-div')?.getBoundingClientRect();
 
         if (boundingRect !== undefined) {
-            await props.mitoAPI.sendGraphMessage(
+            const _stepID = await props.mitoAPI.sendGraphMessage(
                 graphParams.graphCreation.graph_type,
                 graphParams.graphCreation.sheet_index,
                 graphParams.graphPreprocessing.safety_filter_turned_on_by_user,
                 graphParams.graphCreation.x_axis_column_ids,
                 graphParams.graphCreation.y_axis_column_ids,
-                `${boundingRect?.height - 10}px`, `${boundingRect?.width - 20}px` // Subtract pixels from the height & width to account for padding
+                `${boundingRect?.height - 10}px`, 
+                `${boundingRect?.width - 20}px`, // Subtract pixels from the height & width to account for padding
+                stepID
             );
-
+            setStepID(_stepID)
         }
 
         // Turn off the loading icon once the user get their graph back
@@ -450,9 +458,9 @@ const GraphSidebar = (props: {
 
                         <AxisSection
                             /* 
-                                We use a key here to force the Axis Section to update when the user changes the xAxisColumnHeaders.
-                                A key is required because react does not know that the object xAxisColumnHeaders changed in all cases. 
-                                Particularly, when the user changes the xAxisColumnHeaders from [A, B, A] to [B, A] by 
+                                We use a key here to force the Axis Section to update when the user changes the x_axis_column_ids.
+                                A key is required because react does not know that the object x_axis_column_ids changed in all cases. 
+                                Particularly, when the user changes the x_axis_column_ids from [A, B, A] to [B, A] by 
                                 deleting the first A, React does not recognize that the change has occurred and so the Axis Section does 
                                 not update even though the graph updates.
     

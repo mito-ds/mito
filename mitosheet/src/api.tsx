@@ -339,18 +339,18 @@ export default class MitoAPI {
         safety_filter_turned_on_by_user: boolean,
         xAxisColumnIDs: ColumnID[] | undefined,
         yAxisColumnIDs: ColumnID[] | undefined,
-        height?: string,
-        width?: string,
+        height: string,
+        width: string,
         stepID?: string,
-    ): Promise<GraphObject | undefined> {
+    ): Promise<string> {
 
-        // If this is overwriting a pivot event, then we do not need to
+        // If this is overwriting a graph event, then we do not need to
         // create a new id, as we already have it!
         if (stepID === undefined || stepID === '') {
             stepID = getRandomId();
         }
 
-        const graphString = await this.send<string>({
+        await this.send<string>({
             'event': 'edit_event',
             'type': 'graph_edit',
             step_id: stepID,
@@ -372,14 +372,7 @@ export default class MitoAPI {
             
         }, { maxRetries: 250 })
 
-        if (graphString == undefined) {
-            return undefined;
-        }
-        try {
-            return JSON.parse(graphString) as GraphObject;
-        } catch (e) {
-            return undefined;
-        }
+        return stepID
     }
 
     /*
