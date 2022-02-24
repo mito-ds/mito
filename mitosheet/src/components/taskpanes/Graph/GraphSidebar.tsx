@@ -129,27 +129,15 @@ const GraphSidebar = (props: {
 
     // We keep track of the graph data separately from the backend state so that 
     // the UI updates imidietly, even though the backend takes a while to process.
-
-    // The problem with undo is that although the getGraphParams function is updating and returning the corrected params, the actual graphParams
-    // state variable is not updating!!
     const [graphParams, setGraphParams] = useState<GraphParams>(() => getGraphParams(props.graphDataJSON, props.graphSidebarSheet, props.sheetDataArray))
-
-    // I don't think this is going to work... if the user creates a graph of df1 and then a graph of df2 and presses undo a few times, 
-    // we need to know to update the sheet_index, but how? 
     const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
-
     const graphScript = props.graphDataJSON[dataSourceSheetIndex]?.graphScript
     const graphHTML = props.graphDataJSON[dataSourceSheetIndex]?.graphHTML
     const [_copyGraphCode, graphCodeCopied] = useCopyToClipboard(props.graphDataJSON[dataSourceSheetIndex]?.graphGeneratedCode || '');
+    const [stepID, setStepID] = useState<string|undefined>(undefined);
 
     const [loading, setLoading] = useState<boolean>(false)
     const [changeLoadingGraph] = useDelayedAction(LOAD_GRAPH_TIMEOUT)
-    const [stepID, setStepID] = useState<string|undefined>(undefined);
-
-    // If the graph has non-default params, then it has been configured
-    const [graphHasNeverBeenConfigured, setGraphHasNeverBeenConfigured] = useState<boolean>(
-        graphParams === getDefaultGraphParams(props.sheetDataArray, dataSourceSheetIndex)
-    )
 
     // Save the last step index, so that we can check if an undo occured
     const prevLastStepIndex = usePrevious(props.lastStepIndex);
@@ -159,7 +147,7 @@ const GraphSidebar = (props: {
         // If there has been an undo, then we refresh the params to this pivot
         console.log(prevLastStepIndex, props.lastStepIndex)
         if (prevLastStepIndex && prevLastStepIndex !== props.lastStepIndex - 1) {
-            void refreshParamsAfterUndoOrRedo()
+            void refreshParamsAfterUndo()
         }
     }, [props.lastStepIndex])
 
@@ -169,26 +157,32 @@ const GraphSidebar = (props: {
         void props.mitoAPI.sendLogMessage('opened_graph');
     }, []);
 
-    
+
+    /* 
+        Taken from https://stackoverflow.com/questions/53253940/make-react-useeffect-hook-not-run-on-initial-render
+        
+        We make sure that if you are editing a graph, the first time
+        that useEffect runs, it does not send a message to update the graph.
+
+        This means that opening a graph with edits on it does not
+        automatically overwrite the edits that you made to that graph.
+        Instead, you need to begin editing the graph for it
+        then to delete these edits to the graph.
+    */
+    const ignoreNextUpdate = useRef(graphParams === getDefaultGraphParams(props.sheetDataArray, dataSourceSheetIndex));
+
     /* 
         When the user changes the graph data configuration, we load the new graph. 
     
         It calls the loadNewGraph function which is on a delay, as to 
         not overload the backend with new graph creation requests.
     */
-    const ignoreNextUpdate = useRef(graphParams !== undefined);
     useEffect(() => {
         if (ignoreNextUpdate.current) {
             ignoreNextUpdate.current = false;
             return;
         }
 
-        // If the graph has never been configured, then don't display the loading indicator
-        // or try to create the graph
-        if (graphHasNeverBeenConfigured) {
-            setGraphHasNeverBeenConfigured(false)
-            return
-        }
         // Start the loading icon as soon as the user makes a change to the graph
         setLoading(true)
         void loadNewGraph()
@@ -249,7 +243,11 @@ const GraphSidebar = (props: {
         changeLoadingGraph(getGraphAsync);
     }
 
-    const refreshParamsAfterUndoOrRedo = async (): Promise<void> => {        
+    /*
+        Updates the graph params on undo so that the graph configuration is in sync
+        with the graph shown
+    */
+    const refreshParamsAfterUndo = async (): Promise<void> => {        
 
         // We also set ignoreNextUpdate to true, so that these updates
         // don't cause a new message to get sent, as then we get trapped
