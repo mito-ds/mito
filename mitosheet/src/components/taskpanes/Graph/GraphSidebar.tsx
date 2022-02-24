@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import MitoAPI from '../../../api';
 import XIcon from '../../icons/XIcon';
 import AxisSection, { GraphAxisType } from './AxisSection';
@@ -20,6 +20,7 @@ import '../../../../css/taskpanes/Graph/LoadingSpinner.css'
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import { isNumberDtype } from '../../../utils/dtypes';
 import Toggle from '../../elements/Toggle';
+import usePrevious from '../../../hooks/usePrevious';
 
 export enum GraphType {
     SCATTER = 'scatter',
@@ -34,7 +35,6 @@ export interface GraphObject {
     script: string;
     generation_code: string;
 }
-
 
 // Millisecond delay between loading graphs, so that
 // we don't load to many graphs when the user is clicking around
@@ -120,10 +120,11 @@ const GraphSidebar = (props: {
     columnIDsMapArray: ColumnIDsMap[],
     dfNames: string[];
     graphSidebarSheet: number;
-    columnDtypesMap: Record<string, string>;
+    columnDtypesMap: Record<string, string> | undefined;
     mitoAPI: MitoAPI;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     graphDataJSON: GraphDataJSON
+    lastStepIndex: number
 }): JSX.Element => {
 
     // We keep track of the graph data separately from the backend state so that 
@@ -131,10 +132,11 @@ const GraphSidebar = (props: {
 
     // The problem with undo is that although the getGraphParams function is updating and returning the corrected params, the actual graphParams
     // state variable is not updating!!
-    const [graphParams, setGraphParams] = useState<GraphParams>(getGraphParams(props.graphDataJSON, props.graphSidebarSheet, props.sheetDataArray))
-    const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
-    console.log(props.graphDataJSON[dataSourceSheetIndex])
+    const [graphParams, setGraphParams] = useState<GraphParams>(() => getGraphParams(props.graphDataJSON, props.graphSidebarSheet, props.sheetDataArray))
 
+    // I don't think this is going to work... if the user creates a graph of df1 and then a graph of df2 and presses undo a few times, 
+    // we need to know to update the sheet_index, but how? 
+    const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
 
     const graphScript = props.graphDataJSON[dataSourceSheetIndex]?.graphScript
     const graphHTML = props.graphDataJSON[dataSourceSheetIndex]?.graphHTML
@@ -144,24 +146,43 @@ const GraphSidebar = (props: {
     const [changeLoadingGraph] = useDelayedAction(LOAD_GRAPH_TIMEOUT)
     const [stepID, setStepID] = useState<string|undefined>(undefined);
 
-
     // If the graph has non-default params, then it has been configured
     const [graphHasNeverBeenConfigured, setGraphHasNeverBeenConfigured] = useState<boolean>(
         graphParams === getDefaultGraphParams(props.sheetDataArray, dataSourceSheetIndex)
     )
+
+    // Save the last step index, so that we can check if an undo occured
+    const prevLastStepIndex = usePrevious(props.lastStepIndex);
+
+    // When the last step index changes, check if an undo occured so we can refresh the params
+    useEffect(() => {
+        // If there has been an undo, then we refresh the params to this pivot
+        console.log(prevLastStepIndex, props.lastStepIndex)
+        if (prevLastStepIndex && prevLastStepIndex !== props.lastStepIndex - 1) {
+            void refreshParamsAfterUndoOrRedo()
+        }
+    }, [props.lastStepIndex])
+
 
     // We log when the graph has been opened
     useEffect(() => {
         void props.mitoAPI.sendLogMessage('opened_graph');
     }, []);
 
+    
     /* 
         When the user changes the graph data configuration, we load the new graph. 
     
         It calls the loadNewGraph function which is on a delay, as to 
         not overload the backend with new graph creation requests.
     */
+    const ignoreNextUpdate = useRef(graphParams !== undefined);
     useEffect(() => {
+        if (ignoreNextUpdate.current) {
+            ignoreNextUpdate.current = false;
+            return;
+        }
+
         // If the graph has never been configured, then don't display the loading indicator
         // or try to create the graph
         if (graphHasNeverBeenConfigured) {
@@ -228,6 +249,16 @@ const GraphSidebar = (props: {
         changeLoadingGraph(getGraphAsync);
     }
 
+    const refreshParamsAfterUndoOrRedo = async (): Promise<void> => {        
+
+        // We also set ignoreNextUpdate to true, so that these updates
+        // don't cause a new message to get sent, as then we get trapped
+        // in an infinite loop where an undo will cause a new graph message
+        // to get sent 
+        ignoreNextUpdate.current = true;
+        setGraphParams(getGraphParams(props.graphDataJSON, dataSourceSheetIndex, props.sheetDataArray))
+    } 
+
     // Toggles the safety filter component of the graph params
     const toggleSafetyFilter = (): void => {
         const newSafetyFilter = !graphParams.graphPreprocessing.safety_filter_turned_on_by_user
@@ -242,7 +273,7 @@ const GraphSidebar = (props: {
 
     const removeNonNumberColumnIDs = (columnIDs: ColumnID[]) => {
         const filteredColumnIDs = columnIDs.filter(columnID => {
-            return isNumberDtype(props.columnDtypesMap[columnID])
+            return props.columnDtypesMap !== undefined && isNumberDtype(props.columnDtypesMap[columnID])
         })
         return filteredColumnIDs
     }

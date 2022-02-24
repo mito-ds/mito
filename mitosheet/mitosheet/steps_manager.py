@@ -271,6 +271,11 @@ class StepsManager:
         """
         graph_data_json contains all of the parameters used to construct the graph,
         the actual graph html & javascript, and the generated code for all of the existing graphs in Mito.
+
+        TODO: Get rid of this, and just access it directly from analysis_data_json and make a property
+        in the step for graph_data_json that uses the final_defined_state
+
+        Also open an issue because this is confusing
         """
         return json.dumps(self.steps[self.curr_step_idx].post_state.graph_data_json)
 
@@ -442,7 +447,6 @@ class StepsManager:
 
         # If this works, then let's add this step to the undo list!
         self.undone_step_list_store.append(("undo", [undone_step]))
-        print(self.curr_step.post_state.graph_data_json['0']["graphParams"])
 
     def execute_redo(self):
         """

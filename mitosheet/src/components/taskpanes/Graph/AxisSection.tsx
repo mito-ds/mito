@@ -27,7 +27,7 @@ export enum GraphAxisType {
 */
 const AxisSection = (props: {
     columnIDsMap: ColumnIDsMap;
-    columnDtypesMap: Record<string, string>;
+    columnDtypesMap: Record<string, string> | undefined;
 
     graphType: GraphType;
     graphAxis: GraphAxisType;
@@ -81,7 +81,7 @@ const AxisSection = (props: {
     let selectableColumnIDs: ColumnID[] = []
     if (props.graphType === GraphType.BOX || props.graphType === GraphType.HISTOGRAM) {
         selectableColumnIDs = Object.keys(props.columnIDsMap).filter(columnID => {
-            return isNumberDtype(props.columnDtypesMap[columnID])
+            return props.columnDtypesMap !== undefined && isNumberDtype(props.columnDtypesMap[columnID])
         })
     } else {
         // If the graph is not a Box plot of Histogram, then any column can be selected.

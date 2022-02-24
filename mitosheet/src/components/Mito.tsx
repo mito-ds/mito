@@ -405,10 +405,11 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         dfNames={dfNames}
                         columnIDsMapArray={columnIDsMapArray}
                         sheetDataArray={sheetDataArray}
-                        columnDtypesMap={sheetDataArray[uiState.selectedSheetIndex].columnDtypeMap}
+                        columnDtypesMap={sheetDataArray[uiState.selectedSheetIndex]?.columnDtypeMap}
                         mitoAPI={props.mitoAPI}
                         setUIState={setUIState} 
                         graphDataJSON={analysisData.graphDataJSON}
+                        lastStepIndex={lastStepSummary.step_idx}
                     />
                 )
             case TaskpaneType.IMPORT: return (

@@ -115,7 +115,7 @@ class Step:
     def final_defined_state(self) -> State:
         """
         Returns the final defined state in this step, as the prev and post
-        state are optional, but we also need a step to have a defined step
+        state are optional, but we also need a step to have a defined state
         """
         return self.post_state if self.post_state is not None else \
             (self.prev_state if self.prev_state is not None else State([]))
