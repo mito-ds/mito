@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import MitoAPI from '../../../../api';
 import { ColumnID } from '../../../../types';
-import { GraphObject, GraphType } from '../../Graph/GraphSidebar';
+import { GraphObject } from '../../Graph/GraphSidebar';
 
 type ColumnSummaryGraphProps = {
     selectedSheetIndex: number;
@@ -18,16 +18,13 @@ function ColumnSummaryGraph(props: ColumnSummaryGraphProps): JSX.Element {
     const [graphObj, setGraphObj] = useState<GraphObject | undefined>(undefined);
 
     async function loadBase64PNGImage() {
-        const _graphHTMLAndScript = await props.mitoAPI.getGraph(
-            GraphType.SUMMARY_STAT,
+        const _graphHTMLAndScript = await props.mitoAPI.getColumnSummaryGraph(
             props.selectedSheetIndex,
-            false, // We use a different filtering mechanism for column summary graphs, so we just default to false here
-            [props.columnID],
-            [],
-            // 350px looks good on full screen and not-full screen mode 
+            props.columnID,
             '350px',
             '100%',
         );
+        console.log(_graphHTMLAndScript)
         setGraphObj(_graphHTMLAndScript);
     }
 
@@ -69,3 +66,5 @@ function ColumnSummaryGraph(props: ColumnSummaryGraphProps): JSX.Element {
 
 
 export default ColumnSummaryGraph;
+
+

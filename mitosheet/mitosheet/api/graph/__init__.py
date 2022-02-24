@@ -1,1 +1,1 @@
-from mitosheet.api.graph.get_graph import get_graph
+from mitosheet.api.graph.get_column_summary_graph import get_column_summary_graph

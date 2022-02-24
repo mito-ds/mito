@@ -16,7 +16,6 @@ SCATTER = "scatter"
 BAR = "bar"
 HISTOGRAM = "histogram"
 BOX = "box"
-SUMMARY_STAT = "summary_stat"
 
 # Label for each type of graph used in the graph title
 GRAPH_TITLE_LABELS = {

@@ -5,12 +5,8 @@
 # Distributed under the terms of the GPL License.
 
 from typing import List
-
 import pandas as pd
-from mitosheet.api.graph.column_summary_graph import (
-    MAX_UNIQUE_NON_NUMBER_VALUES,
-    filter_df_to_top_unique_values_in_series,
-)
+from mitosheet.api.graph.get_column_summary_graph import MAX_UNIQUE_NON_NUMBER_VALUES, filter_df_to_top_unique_values_in_series
 from mitosheet.sheet_functions.types.utils import is_number_dtype
 from mitosheet.step_performers.bulk_old_rename.deprecated_utils import deprecated
 from mitosheet.step_performers.graph.graph_utils import BAR, BOX, SCATTER

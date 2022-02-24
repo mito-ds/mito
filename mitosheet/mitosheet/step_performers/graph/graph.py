@@ -19,7 +19,28 @@ from mitosheet.step_performers.step_performer import StepPerformer
 
 class GraphStepPerformer(StepPerformer):
     """
-    Creates a graph!
+    Creates a graph of the passed parameters and update the graph_data_json
+
+    {
+        preprocessing: {
+            safety_filter_turned_on_by_user: boolean
+        },
+        graph_creation: {
+            graph_type: GraphType,
+            sheet_index: int
+            x_axis_column_ids: ColumnID[],
+            y_axis_column_ids: ColumnID[],
+            color: (optional) {type: 'variable', columnID: columnID} | {type: 'constant', color_mapping: Record<ColumnID, string>}
+
+            Note: Color is not in the styles object because it can either be a variable or a discrete color.
+            Color as a variable does not belong in the style object. However, I want to keep the variable
+            and constant color together so we can ensure through the type system that only one can be set at a time.
+        },
+        graph_rendering: {
+            height: int representing the div width
+            width: int representing the div width
+        }
+    }
     """
 
     @classmethod

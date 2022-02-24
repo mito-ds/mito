@@ -26,7 +26,6 @@ export enum GraphType {
     BAR = 'bar',
     HISTOGRAM = 'histogram',
     BOX = 'box',
-    SUMMARY_STAT = 'summary_stat'
 }
 
 // The response from the backend should include each of these components
@@ -125,7 +124,6 @@ const GraphSidebar = (props: {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     graphDataJSON: GraphDataJSON
 }): JSX.Element => {
-    console.log(props.graphDataJSON[props.graphSidebarSheet.toString()])
 
     // We keep track of the graph data separately from the backend state so that 
     // the UI updates imidietly, even though the backend takes a while to process.

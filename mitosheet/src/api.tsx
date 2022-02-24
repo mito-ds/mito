@@ -388,34 +388,23 @@ export default class MitoAPI {
         sheet index. Optionally can pass a yAxis and yAxisSheetIndex 
         if 
     */
-    async getGraph(
-        graphType: GraphType,
-        sheet_index: number,
-        safety_filter_turned_on_by_user: boolean,
-        xAxisColumnIDs: ColumnID[] | undefined,
-        yAxisColumnIDs: ColumnID[] | undefined,
+    async getColumnSummaryGraph(
+        sheetIndex: number,
+        column_id: ColumnID,
         height?: string,
         width?: string,
     ): Promise<GraphObject | undefined> {
 
         const graphString = await this.send<string>({
             'event': 'api_call',
-            'type': 'get_graph',
-            'graph_preprocessing': {
-                'safety_filter_turned_on_by_user': safety_filter_turned_on_by_user
-            },
-            'graph_creation': {
-                'graph_type': graphType,
-                'sheet_index': sheet_index,
-                'x_axis_column_ids': xAxisColumnIDs,
-                'y_axis_column_ids': yAxisColumnIDs,
-            },
-            'graph_rendering': {
-                'height': height,
-                'width': width
-            }
-
+            'type': 'get_column_summary_graph',
+            'sheet_index': sheetIndex,
+            'column_id': column_id,
+            'height': height,
+            'width': width
         }, { maxRetries: 250 })
+
+        console.log('graph string', graphString)
 
         if (graphString == undefined) {
             return undefined;
