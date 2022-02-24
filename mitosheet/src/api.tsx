@@ -350,7 +350,6 @@ export default class MitoAPI {
             stepID = getRandomId();
         }
 
-        console.log(stepID)
         await this.send<string>({
             'event': 'edit_event',
             'type': 'graph_edit',
@@ -365,6 +364,7 @@ export default class MitoAPI {
                     'x_axis_column_ids': xAxisColumnIDs,
                     'y_axis_column_ids': yAxisColumnIDs,
                 },
+                'graph_styling': {},
                 'graph_rendering': {
                     'height': height,
                     'width': width

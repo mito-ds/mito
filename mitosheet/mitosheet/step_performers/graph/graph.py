@@ -36,6 +36,7 @@ class GraphStepPerformer(StepPerformer):
             Color as a variable does not belong in the style object. However, I want to keep the variable
             and constant color together so we can ensure through the type system that only one can be set at a time.
         },
+        graph_styling: {},
         graph_rendering: {
             height: int representing the div width
             width: int representing the div width
@@ -69,6 +70,7 @@ class GraphStepPerformer(StepPerformer):
         prev_state: State,
         graph_preprocessing: Any,
         graph_creation: Any,
+        graph_styling: Any,
         graph_rendering: Any,
         **params,
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
@@ -109,9 +111,7 @@ class GraphStepPerformer(StepPerformer):
         # Find the height and the width, defaulting to fill whatever container its in
         graph_rendering_keys = graph_rendering.keys()
 
-        height = (
-            graph_rendering["height"] if "height" in graph_rendering_keys else "100%"
-        )
+        height = graph_rendering["height"] if "height" in graph_rendering_keys else "100%"
         width = graph_rendering["width"] if "width" in graph_rendering_keys else "100%"
 
         # Create a copy of the dataframe, just for safety.
@@ -174,6 +174,7 @@ class GraphStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
         graph_preprocessing: Any,
         graph_creation: Any,
+        graph_styling: Any,
         graph_rendering: Any,
         **params,
     ) -> List[str]:
@@ -184,6 +185,7 @@ class GraphStepPerformer(StepPerformer):
         cls,
         graph_preprocessing: Any,
         graph_creation: Any,
+        graph_styling: Any,
         graph_rendering: Any,
         df_names=None,
         **params,
