@@ -21,6 +21,7 @@ Our general approach to logging can be understood as:
 import platform
 import subprocess
 import sys
+import time
 from typing import Any, Dict, List
 
 from mitosheet.parser import parse_formula
@@ -309,7 +310,7 @@ def log_recent_error(log_event: str=None) -> None:
     )
 
 
-def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, failed: bool=False, mito_error: MitoError=None) -> None:
+def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, failed: bool=False, mito_error: MitoError=None, start_time: float=None) -> None:
     """
     Helper function for logging when an event is processed
     by the widget state container. 
@@ -391,6 +392,11 @@ def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, 
             }
         else:
             error_properties = {}
+
+        # We also log some timing information - which we round to a single decimal place just
+        # so that we can bucket these items easily
+        if start_time is not None:
+            event_properties['processing_time'] = round(time.perf_counter() - start_time, 1)
 
         # We choose to log the event type, as it is the best high-level item for our logs
         # and we append a _failed if the event failed in doing this.
