@@ -1,4 +1,9 @@
+"""
+Utilities for figuring out where Mito is being run.
+"""
+
 import os
+
 from mitosheet.utils import run_command
 
 

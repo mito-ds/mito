@@ -10,9 +10,7 @@ current user.
 import getpass
 import os
 from datetime import datetime
-from subprocess import CompletedProcess
 import sys
-from typing import List, Tuple
 
 import pandas as pd
 from mitosheet._version import __version__

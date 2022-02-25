@@ -245,14 +245,12 @@ def run_command(command_array: List[str]) -> Tuple[str, str]:
     An internal command that should be used to run all commands
     that run on the command line, so that output from failing
     commands can be captured.
-
-    Can toggle if this raises an error with fail_on_nonzero_exit_code
     """
     import subprocess
     completed_process = subprocess.run(
         command_array, 
         # NOTE: we do not use the capture_output variable, as this doesn't work before
-        # python 3.7, and we want users to be able to install before that
+        # python 3.7
         stdout=subprocess.PIPE, 
         stderr=subprocess.STDOUT,
         # NOTE: we use universal_newlines to get the result back as text, 

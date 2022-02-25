@@ -168,6 +168,7 @@ def log(log_event: str, params: Dict[Any, Any]=None, steps_manager: StepsManager
     if params is None:
         params = {}
 
+    global location
     if location is None:
         location = get_location()
     
