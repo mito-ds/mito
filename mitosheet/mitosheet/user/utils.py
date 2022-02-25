@@ -10,14 +10,15 @@ current user.
 import getpass
 import os
 from datetime import datetime
+from subprocess import CompletedProcess
 import sys
+from typing import List, Tuple
 
 import pandas as pd
 from mitosheet._version import __version__
 from mitosheet.user.db import get_user_field
 from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_UPGRADED_DATE,
                                     UJ_MITOSHEET_PRO)
-
 
 def is_running_test() -> bool:
     """

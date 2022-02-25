@@ -9,7 +9,7 @@ Contains helpful utility functions
 import json
 import re
 import uuid
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set, Tuple
 from mitosheet.types import ColumnHeader, ColumnID
 
 import numpy as np
@@ -238,5 +238,32 @@ def get_random_id() -> str:
 
 def get_new_id() -> str:
     return str(uuid.uuid4())
+
+
+def run_command(command_array: List[str]) -> Tuple[str, str]:
+    """
+    An internal command that should be used to run all commands
+    that run on the command line, so that output from failing
+    commands can be captured.
+
+    Can toggle if this raises an error with fail_on_nonzero_exit_code
+    """
+    import subprocess
+    completed_process = subprocess.run(
+        command_array, 
+        # NOTE: we do not use the capture_output variable, as this doesn't work before
+        # python 3.7, and we want users to be able to install before that
+        stdout=subprocess.PIPE, 
+        stderr=subprocess.STDOUT,
+        # NOTE: we use universal_newlines to get the result back as text, 
+        # but we don't use text=True, because we want to work before 3.7 when
+        # text was introduced. See here: https://stackoverflow.com/questions/41171791/how-to-suppress-or-capture-the-output-of-subprocess-run
+        universal_newlines=True
+    )
+    # We default the stdout and stderr to empty strings if they are not strings, 
+    # to make code that handles them have an easier time (they might be None)
+    stdout = completed_process.stdout if isinstance(completed_process.stdout, str) else ''
+    stderr = completed_process.stderr if isinstance(completed_process.stderr, str) else ''
+    return stdout, stderr
 
 
