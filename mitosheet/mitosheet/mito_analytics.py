@@ -411,6 +411,22 @@ def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, 
             ),
             steps_manager=steps_manager
         )
+
+        # We also generate a double log in the case of errors, whenever anything fails. This allows
+        # us to easily track the number of users who are getting errors
+        if failed:
+            log(
+                'error', 
+                dict(
+                    log_event=log_event,
+                    **event_properties,
+                    **steps_manager_properties,
+                    **error_properties
+                ),
+                steps_manager=steps_manager
+            )
+
+
     except:
         # We don't want logging to ever brick the application, so if the logging fails
         # we just log simple information about the event. This should never occur, but it
