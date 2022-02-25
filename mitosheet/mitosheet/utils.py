@@ -74,6 +74,13 @@ def get_valid_dataframe_names(existing_df_names: List[str], original_df_names: L
     
     return final_names
 
+def is_default_df_names(df_names: List[str]) -> bool:
+    """
+    Returns true if the df names list is the default df names
+    created when the widget state container is initialized
+    """
+    return len(df_names) > 0 and df_names == [f'df{i + 1}' for i in range(len(df_names))]
+
 def dfs_to_array_for_json(
         modified_sheet_indexes: Set[int],
         previous_array: List,
