@@ -6,9 +6,7 @@ description: This documentation will teach you how to filter datasets in Mito.
 
 ## Filter By Condition
 
-{% embed url="https://youtu.be/rbEpHP5bfSg" %}
-
-
+{% embed url="https://youtu.be/gL8qZ-qslcI" %}
 
 Mito provides powerful filtering through a combination of filters and filter groups.&#x20;
 
