@@ -39,7 +39,7 @@ import analytics
 # Write key taken from segement.com
 analytics.write_key = '6I7ptc5wcIGC4WZ0N1t0NXvvAbjRGUgX' 
 
-from mitosheet._version import __version__
+from mitosheet._version import __version__, package_name
 from mitosheet.errors import MitoError, get_recent_traceback_as_list
 from mitosheet.user import (UJ_FEEDBACKS, UJ_INTENDED_BEHAVIOR,
                             UJ_STATIC_USER_ID, UJ_USER_EMAIL, UJ_USER_SALT,
@@ -52,6 +52,11 @@ def telemetry_turned_on() -> bool:
     Helper function that tells if you if logging is turned on or
     turned off on the entire Mito instance
     """
+    # If the current package is mitosheet-private, then we don't log anything,
+    # ever, under any circumstances - this is a custom distribution for a client
+    if package_name == 'mitosheet-private':
+        return False
+
     telemetry = get_user_field(UJ_MITOSHEET_TELEMETRY) 
     return telemetry if telemetry is not None else False
 
@@ -177,6 +182,7 @@ def log(log_event: str, params: Dict[Any, Any]=None, steps_manager: StepsManager
         'version_python': sys.version_info,
         'version_jupyterlab': jupyterlab_version,
         'version_mito': __version__,
+        'package_name': package_name,
         'location': location
     }
 
@@ -289,6 +295,7 @@ def identify() -> None:
             'version_python': sys.version_info,
             'version_sys': sys.version,
             'version_mito': __version__,
+            'package_name': package_name, 
             'version_jupyterlab': jupyterlab_version,
             'operating_system': operating_system,
             'email': user_email,
