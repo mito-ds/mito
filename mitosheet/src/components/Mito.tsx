@@ -160,8 +160,11 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 */
                 true
             )
-        });  
+        });
 
+        // We log that the mitosheet has rendered explicitly, so that we can
+        // tell if an installation is broken
+        props.mitoAPI.sendLogMessage('mitosheet_rendered');
 
         return () => {
             if (window.setMitoStateMap) {
