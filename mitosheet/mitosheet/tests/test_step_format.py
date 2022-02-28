@@ -29,7 +29,8 @@ from mitosheet.step_performers import (
     DataframeRenameStepPerformer,
     BulkOldRenameStepPerformer, 
     ExcelImportStepPerformer,
-    DropDuplicatesStepPerformer
+    DropDuplicatesStepPerformer,
+    GraphStepPerformer
 )
 
 def check_step(
@@ -181,7 +182,13 @@ def test_params_static():
         'drop_duplicates'
     )
 
-    assert len(STEP_PERFORMERS) == 19
+    check_step(
+        GraphStepPerformer,
+        1,
+        'graph'
+    )
+
+    assert len(STEP_PERFORMERS) == 20
 
 
 def get_fake_param(param_name):

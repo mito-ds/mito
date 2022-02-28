@@ -581,7 +581,8 @@ export const enum FeedbackID {
     CHANGE_COLUMN_FORMAT_USAGE_TRIGGERED = 'change_column_format_usage_triggered',
     SET_CELL_VALUE_USAGE_TRIGGERED = 'set_cell_value_usage_triggered',
     EXCEL_IMPORT_USAGE_TRIGGERED = 'excel_import_usage_triggered',
-    DROP_DUPLICATES_USAGE_TRIGGERED = 'drop_duplicates_usage_triggered'
+    DROP_DUPLICATES_USAGE_TRIGGERED = 'drop_duplicates_usage_triggered',
+    GRAPH_USAGE_TRIGGERED = 'graph_usage_triggered'
 }
 
 /**
@@ -605,7 +606,8 @@ export type UsageTriggeredFeedbackID =
     FeedbackID.CHANGE_COLUMN_FORMAT_USAGE_TRIGGERED |
     FeedbackID.SET_CELL_VALUE_USAGE_TRIGGERED |
     FeedbackID.EXCEL_IMPORT_USAGE_TRIGGERED |
-    FeedbackID.DROP_DUPLICATES_USAGE_TRIGGERED
+    FeedbackID.DROP_DUPLICATES_USAGE_TRIGGERED |
+    FeedbackID.GRAPH_USAGE_TRIGGERED
 
 
 /*
