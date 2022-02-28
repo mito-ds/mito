@@ -37,7 +37,8 @@ def main():
     Deploy to PyPi with `python3 deploy.py [dev | main]`.
 
     Note that it will deploy whatever package is currently the defined package
-    in the package.json, which could either be mitosheet or mitosheet3. 
+    in the package.json, which could either be any mitosheet package, or the 
+    mitoinstaller. 
 
     Note that this should be run in the folder of the package that is being
     deployed (e.g. the folder where the setup.py is).
