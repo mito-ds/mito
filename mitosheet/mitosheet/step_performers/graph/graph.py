@@ -22,7 +22,7 @@ class GraphStepPerformer(StepPerformer):
     Creates a graph of the passed parameters and update the graph_data
 
     {
-        preprocessing: {
+        graph_preprocessing: {
             safety_filter_turned_on_by_user: boolean
         },
         graph_creation: {

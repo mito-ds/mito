@@ -135,9 +135,9 @@ const GraphSidebar = (props: {
     // When updateGraph is changed from false to true, we send a new getGraphMessage with the current graphParams
     // in order to update the graphDataJSON. This only happens when the user changes the graph configuration.
     const [updateGraph, setUpdateGraph] = useState(false)
+
     const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
     const graphOutput = props.graphDataJSON[dataSourceSheetIndex]?.graphOutput
-
     const [_copyGraphCode, graphCodeCopied] = useCopyToClipboard(graphOutput?.graphGeneratedCode);
     const [stepID, setStepID] = useState<string|undefined>(undefined);
 
@@ -156,12 +156,10 @@ const GraphSidebar = (props: {
         }
     }, [props.lastStepIndex])
 
-
     // We log when the graph has been opened
     useEffect(() => {
         void props.mitoAPI.sendLogMessage('opened_graph');
     }, []);
-
 
     // Async load in the data from the mitoAPI
     useDebouncedEffect(() => {

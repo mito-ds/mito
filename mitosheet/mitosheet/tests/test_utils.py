@@ -726,6 +726,32 @@ class MitoWidgetTestWrapper:
         )
 
 
+    def generate_graph(
+        self, 
+        graph_preprocessing: Dict[str, Any],
+        graph_creation: Dict[str, Any],
+        graph_styling: Dict[str, Any],
+        graph_rendering: Dict[str, Any],
+        step_id: str=None
+    ) -> bool:
+        print(step_id)
+        return self.mito_widget.receive_message(
+            self.mito_widget,
+            {
+                'event': 'edit_event',
+                'id': get_new_id(),
+                'type': 'graph_edit',
+                'step_id': get_new_id() if step_id is None else step_id,
+                'params': {
+                    'graph_preprocessing': graph_preprocessing,
+                    'graph_creation': graph_creation,
+                    'graph_styling': graph_styling,
+                    'graph_rendering': graph_rendering
+                }
+            }
+        )
+
+
     def get_formula(self, sheet_index: int, column_header: ColumnHeader) -> str:
         """
         Gets the formula for a given column. Returns an empty
