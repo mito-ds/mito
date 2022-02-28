@@ -280,7 +280,7 @@ const GraphSidebar = (props: {
             yAxisColumnIDsCopy = removeNonNumberColumnIDs(yAxisColumnIDsCopy)
 
             // Make sure that only one axis has selected column headers. 
-            if (graphParams.graphCreation.x_axis_column_ids.length > 0 && graphParams.graphCreation.y_axis_column_ids.length > 0) {
+            if (xAxisColumnIDsCopy.length > 0 && yAxisColumnIDsCopy.length > 0) {
                 yAxisColumnIDsCopy = []
             }
         }
