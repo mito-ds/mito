@@ -13,7 +13,7 @@ from mitosheet.step_performers.graph.graph_utils import (
     get_html_and_script_from_figure,
 )
 from mitosheet.sheet_functions.types.utils import is_number_dtype
-from mitosheet.types import ColumnHeader
+from mitosheet.types import ColumnHeader, ColumnID
 from mitosheet.mito_analytics import log
 from mitosheet.steps_manager import StepsManager
 from mitosheet.step_performers.bulk_old_rename.deprecated_utils import deprecated
@@ -30,7 +30,7 @@ def get_column_summary_graph(event: Dict[str, Any], steps_manager: StepsManager)
     string to the frontend for display.
     """
     sheet_index = event['sheet_index']
-    column_id = event['column_id']
+    column_id: ColumnID = event['column_id']
     height = event['height']
     width = event['width']
 
@@ -38,7 +38,7 @@ def get_column_summary_graph(event: Dict[str, Any], steps_manager: StepsManager)
     # Create a copy of the dataframe, just for safety.
     df: pd.DataFrame = steps_manager.dfs[sheet_index].copy()
 
-    column_header = steps_manager.curr_step.post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
+    column_header = steps_manager.curr_step.final_defined_state.column_ids.get_column_header_by_id(sheet_index, column_id)
     fig = _get_column_summary_graph(df, column_header)
         
     # Get rid of some of the default white space
