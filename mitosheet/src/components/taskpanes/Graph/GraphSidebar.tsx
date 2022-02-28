@@ -121,7 +121,7 @@ const GraphSidebar = (props: {
     columnIDsMapArray: ColumnIDsMap[],
     dfNames: string[];
     graphSidebarSheet: number;
-    columnDtypesMap: Record<string, string> | undefined;
+    columnDtypesMap: Record<string, string>;
     mitoAPI: MitoAPI;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     graphDataJSON: GraphDataJSON
@@ -132,8 +132,17 @@ const GraphSidebar = (props: {
     // the UI updates imidietly, even though the backend takes a while to process.
     const [graphParams, setGraphParams] = useState(() => getGraphParams(props.graphDataJSON, props.graphSidebarSheet, props.sheetDataArray))
 
-    // When updateGraph is changed from false to true, we send a new getGraphMessage with the current graphParams
-    // in order to update the graphDataJSON. This only happens when the user changes the graph configuration.
+    /* 
+        When updateGraph is changed from false to true, we send a new getGraphMessage with the current graphParams
+        in order to update the graphDataJSON. We only set updateGraph to true when the user updates the params.
+
+        We use this method instead of using a useEffect on the graphParams because the graphParams update when we don't want
+        to sendGraphMessage, ie: during an Undo. 
+
+        We use this method of updateGraph to simulate a callback to updating the graphParams because we can't pass a callback to 
+        the setGraphParams since its created via a useState instead of this.setState on a class component. Usually, we would use a useEffect on 
+        graphParams to act as the callback, but for the reasons described above, that is not the approach we take here. 
+    */
     const [updateGraph, setUpdateGraph] = useState(false)
 
     const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
@@ -238,10 +247,13 @@ const GraphSidebar = (props: {
     const toggleSafetyFilter = (): void => {
         const newSafetyFilter = !graphParams.graphPreprocessing.safety_filter_turned_on_by_user
 
-        setGraphParams({
-            ...graphParams,
-            graphPreprocessing: {
-                safety_filter_turned_on_by_user: newSafetyFilter
+        setGraphParams(prevGraphParams => {
+            const copyPrevGraphParams = {...prevGraphParams}
+            return {
+                ...copyPrevGraphParams,
+                graphPreprocessing: {
+                    safety_filter_turned_on_by_user: newSafetyFilter
+                }
             }
         })
         setUpdateGraph(true)
@@ -287,13 +299,16 @@ const GraphSidebar = (props: {
         });
 
         // Update the graph type
-        setGraphParams({
-            ...graphParams,
-            graphCreation: {
-                ...graphParams.graphCreation,
-                graph_type: graphType,
-                x_axis_column_ids: xAxisColumnIDsCopy,
-                y_axis_column_ids: yAxisColumnIDsCopy
+        setGraphParams(prevGraphParams => {
+            const copyPrevGraphParams = {...prevGraphParams}
+            return {
+                ...copyPrevGraphParams,
+                graphCreation: {
+                    ...copyPrevGraphParams.graphCreation,
+                    graph_type: graphType,
+                    x_axis_column_ids: xAxisColumnIDsCopy,
+                    y_axis_column_ids: yAxisColumnIDsCopy
+                }
             }
         })
         setUpdateGraph(true)
@@ -325,20 +340,26 @@ const GraphSidebar = (props: {
 
         // Update the axis data
         if (graphAxis === GraphAxisType.X_AXIS) {
-            setGraphParams({
-                ...graphParams,
-                graphCreation: {
-                    ...graphParams.graphCreation, 
-                    x_axis_column_ids: axisColumnIDsCopy
+            setGraphParams(prevGraphParams => {
+                const copyPrevGraphParams = {...prevGraphParams}
+                return {
+                    ...copyPrevGraphParams,
+                    graphCreation: {
+                        ...copyPrevGraphParams.graphCreation, 
+                        x_axis_column_ids: axisColumnIDsCopy
+                    }
                 }
             })
             setUpdateGraph(true)
         } else {
-            setGraphParams({
-                ...graphParams,
-                graphCreation: {
-                    ...graphParams.graphCreation, 
-                    y_axis_column_ids: axisColumnIDsCopy
+            setGraphParams(prevGraphParams => {
+                const copyPrevGraphParams = {...prevGraphParams}
+                return {
+                    ...copyPrevGraphParams,
+                    graphCreation: {
+                        ...copyPrevGraphParams.graphCreation, 
+                        y_axis_column_ids: axisColumnIDsCopy
+                    }
                 }
             })
             setUpdateGraph(true)

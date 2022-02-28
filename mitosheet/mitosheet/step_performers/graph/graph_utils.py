@@ -4,14 +4,13 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-# Graph types should be kept consistent with the GraphType in GraphSidebar.tsx
 from typing import Dict, List, Optional
 import io
 
 from mitosheet.types import ColumnHeader
 import plotly.graph_objects as go
 
-
+# Graph types should be kept consistent with the GraphType in GraphSidebar.tsx
 SCATTER = "scatter"
 BAR = "bar"
 HISTOGRAM = "histogram"

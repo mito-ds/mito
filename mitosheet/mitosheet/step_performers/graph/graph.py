@@ -81,7 +81,7 @@ class GraphStepPerformer(StepPerformer):
         # We make a new state to modify it
         post_state = deepcopy(prev_state)
 
-        # Get graph type
+        # Extract variables from graph parameters
         graph_type = graph_creation["graph_type"]
         sheet_index = graph_creation["sheet_index"]
         safety_filter_turned_on_by_user = graph_preprocessing[
@@ -182,6 +182,10 @@ class GraphStepPerformer(StepPerformer):
         graph_rendering: Dict[str, Any],
         **params,
     ) -> List[str]:
+        # Graph steps don't add any generated code to the analysis script. 
+        # Instead, the graph code is created during execution of the function and is
+        # retuned to the frontend through the graph_data object so that the user can copy 
+        # and paste it. 
         return []
 
     @classmethod
