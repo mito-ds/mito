@@ -27,11 +27,13 @@ Our general approach to logging can be understood as:
 import platform
 import subprocess
 import sys
+import time
 from typing import Any, Dict, List
 
 from mitosheet.parser import parse_formula
 from mitosheet.types import StepsManagerType
 from mitosheet.user.schemas import UJ_MITOSHEET_TELEMETRY
+from mitosheet.user.location import get_location
 
 try:
     from jupyterlab import __version__ as jupyterlab_version
@@ -43,7 +45,7 @@ import analytics
 # Write key taken from segement.com
 analytics.write_key = '6I7ptc5wcIGC4WZ0N1t0NXvvAbjRGUgX' 
 
-from mitosheet._version import __version__
+from mitosheet._version import __version__, package_name
 from mitosheet.errors import MitoError, get_recent_traceback_as_list
 from mitosheet.user import (UJ_FEEDBACKS, UJ_INTENDED_BEHAVIOR,
                             UJ_STATIC_USER_ID, UJ_USER_EMAIL, UJ_USER_SALT,
@@ -56,6 +58,11 @@ def telemetry_turned_on() -> bool:
     Helper function that tells if you if logging is turned on or
     turned off on the entire Mito instance
     """
+    # If the current package is mitosheet-private, then we don't log anything,
+    # ever, under any circumstances - this is a custom distribution for a client
+    if package_name == 'mitosheet-private':
+        return False
+
     telemetry = get_user_field(UJ_MITOSHEET_TELEMETRY) 
     return telemetry if telemetry is not None else False
 
@@ -155,6 +162,9 @@ def get_installed_mitosheets_pip_show():
         return []
 
 
+# We only calculate the location once so that we don't cause performance issues
+location = None
+
 def log(log_event: str, params: Dict[Any, Any]=None, steps_manager: StepsManagerType=None) -> None:
     """
     Helper function that logs an event with the given parameters. However,
@@ -168,13 +178,22 @@ def log(log_event: str, params: Dict[Any, Any]=None, steps_manager: StepsManager
 
     if params is None:
         params = {}
+
+    global location
+    if location is None:
+        location = get_location()
     
     # Add the python properties to every log event we can
     python_properties = {
         'version_python': sys.version_info,
         'version_jupyterlab': jupyterlab_version,
-        'version_mito': __version__ 
+        'version_mito': __version__,
+        'package_name': package_name,
+        'location': location
     }
+
+    # Add some data about where this is being run from, so we make sure we
+    # support users systems
     
     params = dict(
         **params,
@@ -282,6 +301,7 @@ def identify() -> None:
             'version_python': sys.version_info,
             'version_sys': sys.version,
             'version_mito': __version__,
+            'package_name': package_name, 
             'version_jupyterlab': jupyterlab_version,
             'operating_system': operating_system,
             'email': user_email,
@@ -315,7 +335,7 @@ def log_recent_error(log_event: str=None) -> None:
     )
 
 
-def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, failed: bool=False, mito_error: MitoError=None) -> None:
+def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, failed: bool=False, mito_error: MitoError=None, start_time: float=None) -> None:
     """
     Helper function for logging when an event is processed
     by the widget state container. 
@@ -398,6 +418,11 @@ def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, 
         else:
             error_properties = {}
 
+        # We also log some timing information - which we round to a single decimal place just
+        # so that we can bucket these items easily
+        if start_time is not None:
+            event_properties['processing_time'] = round(time.perf_counter() - start_time, 1)
+
         # We choose to log the event type, as it is the best high-level item for our logs
         # and we append a _failed if the event failed in doing this.
         log_event = event['type'] + ('_failed' if failed else '')
@@ -411,6 +436,22 @@ def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, 
             ),
             steps_manager=steps_manager
         )
+
+        # We also generate a double log in the case of errors, whenever anything fails. This allows
+        # us to easily track the number of users who are getting errors
+        if failed:
+            log(
+                'error', 
+                dict(
+                    log_event=log_event,
+                    **event_properties,
+                    **steps_manager_properties,
+                    **error_properties
+                ),
+                steps_manager=steps_manager
+            )
+
+
     except:
         # We don't want logging to ever brick the application, so if the logging fails
         # we just log simple information about the event. This should never occur, but it

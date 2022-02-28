@@ -8,24 +8,26 @@
 Main file containing the mito widget.
 """
 import json
+import time
 from typing import Any, Dict, List, Union
-import pandas as pd
-import random
-from ipywidgets import DOMWidget
-import traitlets as t
 
-from mitosheet.mito_analytics import log, log_event_processed, log_recent_error, telemetry_turned_on
-from mitosheet.step_performers import STEP_TYPE_TO_USAGE_TRIGGERED_FEEDBACK_ID
-from mitosheet.user.schemas import UJ_MITOSHEET_LAST_FIFTY_USAGES, UJ_RECEIVED_TOURS, UJ_USER_EMAIL
-from mitosheet.user.db import get_user_field
-from mitosheet.user.utils import is_excel_import_enabled, is_pro
-from mitosheet.api import API
+import pandas as pd
+import traitlets as t
+from ipywidgets import DOMWidget
+
 from mitosheet._frontend import module_name, module_version
+from mitosheet.api import API
+from mitosheet.data_in_mito import DataTypeInMito
 from mitosheet.errors import MitoError, get_recent_traceback
+from mitosheet.mito_analytics import (log, log_event_processed,
+                                      log_recent_error, telemetry_turned_on)
 from mitosheet.saved_analyses import write_analysis
 from mitosheet.steps_manager import StepsManager
 from mitosheet.user import is_local_deployment, should_upgrade_mitosheet
-from mitosheet.data_in_mito import DataTypeInMito
+from mitosheet.user.db import get_user_field
+from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES,
+                                    UJ_RECEIVED_TOURS, UJ_USER_EMAIL)
+from mitosheet.user.utils import is_excel_import_enabled, is_pro
 
 
 class MitoWidget(DOMWidget):
@@ -178,6 +180,8 @@ class MitoWidget(DOMWidget):
 
         4. A log_event is just an event that should get logged on the backend.
         """
+
+        start_time = time.perf_counter()
         event = content
 
         try:
@@ -192,7 +196,7 @@ class MitoWidget(DOMWidget):
             # NOTE: we don't need to case on log_event above because it always gets
             # passed to this function, and thus is logged. However, we do not log
             # api calls, as they are just noise.
-            log_event_processed(event, self.steps_manager)
+            log_event_processed(event, self.steps_manager, start_time=start_time)
 
             return True
         except MitoError as e:
@@ -200,7 +204,7 @@ class MitoWidget(DOMWidget):
             print(e)
             
             # Log processing this event failed
-            log_event_processed(event, self.steps_manager, failed=True, mito_error=e)
+            log_event_processed(event, self.steps_manager, failed=True, mito_error=e, start_time=start_time)
 
             # If the error says to ignore the error modal, then we
             # send some data with the response so that the frontend
@@ -227,7 +231,7 @@ class MitoWidget(DOMWidget):
         except:
             print(get_recent_traceback())
             # We log that processing failed, but have no edit error
-            log_event_processed(event, self.steps_manager, failed=True)
+            log_event_processed(event, self.steps_manager, failed=True, start_time=start_time)
             # Report it to the user, and then return
             self.send({
                 'event': 'edit_error',

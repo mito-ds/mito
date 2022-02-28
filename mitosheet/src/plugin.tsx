@@ -62,7 +62,8 @@ function getCellAtIndex(cells: IObservableUndoableList<ICellModel> | undefined, 
 
 function codeContainer(
     analysisName: string,
-    code: string[]
+    code: string[],
+    telemetryEnabled: boolean
 ): string {
 
     if (code.length == 0) {
@@ -88,8 +89,16 @@ function codeContainer(
         }
     }
 
-    return `from mitosheet import *; register_analysis('${analysisName}')
-${finalCode}`
+    // If telemetry not enabled, we want to be clear about this by
+    // simply not calling a func w/ the analysis name
+    if (telemetryEnabled) {
+        return `from mitosheet import *; register_analysis('${analysisName}')
+    ${finalCode}`
+    } else {
+        return `from mitosheet import *; # Analysis:${analysisName}
+    ${finalCode}`
+    }
+
 }
 
 
@@ -109,6 +118,9 @@ ${finalCode}`
 
     Format 3:
     from mitosheet import *; register_analysis('${analysisName}')
+    
+    Format 4 (when telemetry is turned off):
+    from mitosheet import *; # Analysis:${analysisName}
 */
 function getAnalysisName(codeblock: string): string | undefined {
     if (codeblock.includes('SAVED-ANALYSIS-START')) {
@@ -129,6 +141,13 @@ function getAnalysisName(codeblock: string): string | undefined {
             codeblock.indexOf('register_analysis(\'') + 'register_analysis(\''.length,
             codeblock.indexOf('\n') - 2
         );
+    } else if (codeblock.includes('# Analysis:')) {
+        // Format 4:
+        return codeblock.substring(
+            codeblock.indexOf('Analysis:') + 'Analysis:'.length,
+            codeblock.indexOf('\n')
+        );
+
     } else {
         // Otherwise, there is no saved analysis in this cell
         return undefined;
@@ -172,7 +191,9 @@ function isMitoAnalysisCell(cell: ICellModel | undefined): boolean {
     // mito analysis code
     const currentCode = getCellText(cell);
     // Handle the old and new Mito boilerplate code
-    return currentCode.startsWith('# MITO CODE START') || currentCode.startsWith('from mitosheet import *; register_analysis(')
+    return currentCode.startsWith('# MITO CODE START') 
+        || currentCode.startsWith('from mitosheet import *; register_analysis(')
+        || currentCode.startsWith('from mitosheet import *; # Analysis:')
 }
 
 /* 
@@ -245,9 +266,10 @@ function activateWidgetExtension(
             // TODO: update the code type name!
             const codeObj = args.code as Code;
             const overwriteIfCodeEmpty = args.overwriteIfCodeEmpty;
+            const telemetryEnabled = args.telemetryEnabled as boolean;
 
             // This is the code that was passed to write to the cell.
-            const code = codeContainer(analysisName, codeObj.code);
+            const code = codeContainer(analysisName, codeObj.code, telemetryEnabled);
 
             // We get the current notebook (currentWidget)
             const notebook = tracker.currentWidget?.content;

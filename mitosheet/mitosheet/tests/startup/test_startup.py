@@ -3,7 +3,6 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from installer.mitoinstaller.create_startup_file import IMPORT_MITOSHEET_FILE_CONTENTS as installer_file_contents
 from mitosheet.startup.startup_utils import IMPORT_MITOSHEET_FILE_CONTENTS as mitosheet_file_contents
 import os
 import subprocess
@@ -23,4 +22,7 @@ def test_create_startup_file():
 
 
 def test_file_contents_in_sync():
+    import sys
+    sys.path.insert(0, '../mitoinstaller')
+    from mitoinstaller.create_startup_file import IMPORT_MITOSHEET_FILE_CONTENTS as installer_file_contents
     assert installer_file_contents == mitosheet_file_contents

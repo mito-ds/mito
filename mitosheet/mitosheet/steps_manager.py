@@ -9,6 +9,7 @@ import uuid
 from copy import copy, deepcopy
 import pandas as pd
 from typing import Any, Callable, Dict, Collection, List, Set, Tuple, Union
+from mitosheet.mito_analytics import log
 
 from mitosheet.step_performers.import_steps.simple_import import (
     SimpleImportStepPerformer,
@@ -19,7 +20,7 @@ from mitosheet.step import Step
 from mitosheet.step_performers import EVENT_TYPE_TO_STEP_PERFORMER
 from mitosheet.updates import UPDATES
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
-from mitosheet.utils import dfs_to_array_for_json, get_new_id
+from mitosheet.utils import dfs_to_array_for_json, get_new_id, is_default_df_names
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.data_in_mito import DataTypeInMito, get_data_type_in_mito
 
@@ -345,6 +346,15 @@ class StepsManager:
         # If we add a new step, then we clear the last_undone_list_store, as
         # you cannot redo something after you make a new edit
         self.undone_step_list_store = []
+
+        # NOTE: we also check here if we're receiving an edit event, and we have not
+        # yet read in the non-default dataframe names. We have to log this here, rather
+        # than in the .sheet call (or elsewhere) because the dataframe names are read
+        # in after the sheet is rendered. Thus, we just check after the first edit event
+        # (e.g. when there are two steps) - if we still have default dataframe names, this
+        # is an error
+        if len(self.steps) == 2 and is_default_df_names(self.curr_step.df_names): # NOTE: two means we have done at least one edit.
+            log('args_update_failed')
 
     def handle_update_event(self, update_event: Dict[str, Any]) -> None:
         """
