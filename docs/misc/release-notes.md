@@ -5,6 +5,19 @@ description: Want to see what is new in the Mitosheet? Check it out below.
 # Release Notes
 
 
+## 2022-2-28 <a href="#2022-2-28" id="2022-2-28"></a>
+
+New Features:
+
+* Add better filtering to our graphing tab - allow users to opt into seeing the whole dataset.
+* Logging improvements to know where we should invest development time going forward.
+
+Bug fixes:
+* Fix bug where any filter applied to a column with strings and numbers failed.
+* Cleanup saved analysis visibly private in the generated code when logging turned off. 
+
+
+
 ## 2022-2-22 <a href="#2022-2-22" id="2022-2-22"></a>
 
 Major dependency changes:
