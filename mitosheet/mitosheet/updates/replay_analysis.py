@@ -8,9 +8,10 @@ Replays an existing analysis onto the sheet
 """
 
 from typing import Any, Dict
+
+from mitosheet.mito_analytics import log
 from mitosheet.saved_analyses import read_and_upgrade_analysis
 from mitosheet.types import StepsManagerType
-
 
 REPLAY_ANALYSIS_UPDATE_EVENT = 'replay_analysis_update'
 REPLAY_ANALYSIS_UPDATE_PARAMS = [
@@ -50,6 +51,7 @@ def execute_replay_analysis_update(
     analysis = read_and_upgrade_analysis(analysis_name)
     # If there is no analysis with this name, give up
     if analysis is None:
+        log('replayed_nonexistant_analysis_failed')
         return
 
     # When replaying an analysis with import events, you can also send over
