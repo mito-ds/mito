@@ -62,6 +62,11 @@
     overflow-y: scroll;
 }
 
+.graph-sidebar-toolbar-content > * + * {
+    /* Apply the same spacing to every child of the graph sidebar toolbar content */
+    margin-top: 15px;
+}
+
 .graph-sidebar-toolbar-code-export-button {
     height: 7.5%;
     padding-top: 2.5%;

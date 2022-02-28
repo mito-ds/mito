@@ -18,7 +18,6 @@ from mitosheet.user.db import get_user_field
 from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_UPGRADED_DATE,
                                     UJ_MITOSHEET_PRO)
 
-
 def is_running_test() -> bool:
     """
     A helper function that quickly returns if the current code is running 

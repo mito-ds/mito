@@ -149,7 +149,8 @@ export class ExampleView extends DOMWidgetView {
                 not actually clear the cell if there is something there. This stops an anlaysis that
                 is read in from flashing
             */
-            overwriteIfCodeEmpty: this.creationSeconds !== undefined ? (this.creationSeconds < (new Date().getSeconds() - 60)) : true
+            overwriteIfCodeEmpty: this.creationSeconds !== undefined ? (this.creationSeconds < (new Date().getSeconds() - 60)) : true,
+            telemetryEnabled: userProfile.telemetryEnabled
         });
     }
 

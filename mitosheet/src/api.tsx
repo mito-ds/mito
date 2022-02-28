@@ -114,8 +114,8 @@ export default class MitoAPI {
         response is received in the right amount of time.
     */
     async send<Type>(
-        msg: Record<string, unknown>, 
-        {maxRetries = MAX_RETRIES, doNotWaitForReply = false}: {maxRetries?: number, doNotWaitForReply?: boolean}
+        msg: Record<string, unknown>,
+        { maxRetries = MAX_RETRIES, doNotWaitForReply = false }: { maxRetries?: number, doNotWaitForReply?: boolean }
     ): Promise<Type | undefined> {
         // Generate a random id, and add it to the message
         const id = getRandomId();
@@ -188,7 +188,7 @@ export default class MitoAPI {
             // displaying an error modal
             if (response['data'] === undefined) {
                 this.setErrorModal((response as unknown) as MitoError);
-            }      
+            }
         }
     }
 
@@ -202,8 +202,8 @@ export default class MitoAPI {
         Returns undefined if it does not get a response within the set timeframe
         for retries.
     */
-    getResponseData<Type>(id: string, maxRetries=MAX_RETRIES): Promise<Type | undefined> {
-    
+    getResponseData<Type>(id: string, maxRetries = MAX_RETRIES): Promise<Type | undefined> {
+
         return new Promise((resolve) => {
             let tries = 0;
             const interval = setInterval(() => {
@@ -226,7 +226,7 @@ export default class MitoAPI {
 
                     const response = this.unconsumedResponses[index];
                     this.unconsumedResponses.splice(index, 1);
-          
+
                     return resolve(response['data'] as Type); // return to end execution
                 } else {
                     console.log("Still waiting")
@@ -244,7 +244,7 @@ export default class MitoAPI {
             'event': 'api_call',
             'type': 'datafiles',
         }, {})
-    
+
         if (dataFiles == undefined) {
             return []
         }
@@ -261,7 +261,7 @@ export default class MitoAPI {
             'type': 'get_path_contents',
             'path_parts': pathParts
         }, {})
-        
+
         if (pathDataString == undefined) {
             return undefined;
         }
@@ -302,8 +302,8 @@ export default class MitoAPI {
             'event': 'api_call',
             'type': 'get_dataframe_as_csv',
             'sheet_index': sheetIndex
-        }, {maxRetries: 250})
-    
+        }, { maxRetries: 250 })
+
         if (sheetData == undefined) {
             return ''
         }
@@ -323,8 +323,8 @@ export default class MitoAPI {
             'event': 'api_call',
             'type': 'get_dataframe_as_excel',
             'sheet_indexes': sheetIndexes
-        }, {maxRetries: 1000});
-    
+        }, { maxRetries: 1000 });
+
         if (excelFileString == undefined) {
             return ''
         }
@@ -341,6 +341,7 @@ export default class MitoAPI {
     async getGraph(
         graphType: GraphType,
         sheet_index: number,
+        safety_filter_turned_on_by_user: boolean,
         xAxisColumnIDs: ColumnID[] | undefined,
         yAxisColumnIDs: ColumnID[] | undefined,
         height?: string,
@@ -350,7 +351,10 @@ export default class MitoAPI {
         const graphString = await this.send<string>({
             'event': 'api_call',
             'type': 'get_graph',
-            'graph_creation' : {
+            'preprocessing': {
+                'safety_filter_turned_on_by_user': safety_filter_turned_on_by_user
+            },
+            'graph_creation': {
                 'graph_type': graphType,
                 'sheet_index': sheet_index,
                 'x_axis_column_ids': xAxisColumnIDs,
@@ -360,9 +364,9 @@ export default class MitoAPI {
                 'height': height,
                 'width': width
             }
-            
-        }, {maxRetries: 250})
-    
+
+        }, { maxRetries: 250 })
+
         if (graphString == undefined) {
             return undefined;
         }
@@ -418,7 +422,7 @@ export default class MitoAPI {
         }
         return undefined;
     }
-    
+
     /*
         Gets the parameters for the pivot table at desination sheet
         index, or nothing if there are no params
@@ -448,8 +452,8 @@ export default class MitoAPI {
         sheetIndex: number,
         columnID: ColumnID,
         searchString: string,
-        sort: UniqueValueSortType, 
-    ): Promise<{uniqueValueCounts: UniqueValueCount[], isAllData: boolean} | undefined> {
+        sort: UniqueValueSortType,
+    ): Promise<{ uniqueValueCounts: UniqueValueCount[], isAllData: boolean } | undefined> {
 
         const uniqueValueCountsString = await this.send<string>({
             'event': 'api_call',
@@ -461,7 +465,7 @@ export default class MitoAPI {
         }, {})
 
         if (uniqueValueCountsString !== undefined && uniqueValueCountsString !== '') {
-            const uniqueValueCountsObj: {uniqueValueCountsSheetData: SheetData, isAllData: boolean} = JSON.parse(uniqueValueCountsString); 
+            const uniqueValueCountsObj: { uniqueValueCountsSheetData: SheetData, isAllData: boolean } = JSON.parse(uniqueValueCountsString);
             const uniqueValueCounts: UniqueValueCount[] = [];
             for (let i = 0; i < uniqueValueCountsObj.uniqueValueCountsSheetData.numRows; i++) {
                 uniqueValueCounts.push({
@@ -574,7 +578,7 @@ export default class MitoAPI {
         if (stepID === undefined || stepID == '') {
             stepID = getRandomId();
         }
-        
+
         const error: MitoError | undefined = await this.send({
             'event': 'edit_event',
             'type': 'merge_edit',
@@ -620,7 +624,7 @@ export default class MitoAPI {
                 sheet_index: sheetIndex,
                 pivot_rows_column_ids: pivotRowColumnIDs,
                 pivot_columns_column_ids: pivotColsIDs,
-                values_column_ids_map: valuesIDs, 
+                values_column_ids_map: valuesIDs,
                 // Pass the optional destination_sheet_index, which will be removed
                 // automatically if it is undefined
                 destination_sheet_index: destinationSheetIndex,
@@ -690,7 +694,7 @@ export default class MitoAPI {
         columnID: ColumnID,
         filters: (FilterType | FilterGroupType)[],
         operator: 'And' | 'Or',
-        filterLocation: string,  
+        filterLocation: string,
         stepID?: string,
     ): Promise<string> {
         // Create a new id, if we need it!
@@ -721,7 +725,7 @@ export default class MitoAPI {
         sheetIndex: number,
         columnID: ColumnID,
         sortDirection: SortDirection,
-        stepID?: string    
+        stepID?: string
     ): Promise<string> {
         if (stepID === undefined || stepID === '') {
             stepID = getRandomId();
@@ -748,7 +752,7 @@ export default class MitoAPI {
         sheetIndex: number,
         columnIDs: ColumnID[],
         keep: 'last' | 'first' | false,
-        stepID?: string    
+        stepID?: string
     ): Promise<string> {
         if (stepID === undefined || stepID === '') {
             stepID = getRandomId();
@@ -897,14 +901,14 @@ export default class MitoAPI {
         newFileNames?: ImportSummaries,
         clearExistingAnalysis?: boolean
     ): Promise<void> {
-        
+
         await this.send({
             'event': 'update_event',
             'type': 'replay_analysis_update',
             'analysis_name': analysisName,
             'import_summaries': newFileNames === undefined ? {} : newFileNames,
             'clear_existing_analysis': clearExistingAnalysis === undefined ? false : clearExistingAnalysis
-        }, {maxRetries: 500});
+        }, { maxRetries: 500 });
     }
 
     /*
@@ -1056,7 +1060,7 @@ export default class MitoAPI {
                 'has_headers': hasHeaders,
                 'skiprows': skiprows,
             }
-        }, {maxRetries: 1000}) // Excel imports can take a while, so set a long delay
+        }, { maxRetries: 1000 }) // Excel imports can take a while, so set a long delay
 
         return stepID;
     }
@@ -1126,7 +1130,7 @@ export default class MitoAPI {
         }, {})
     }
 
-    async sendFeedback(feedbackID: FeedbackID, numUsages: number, questionsAndAnswers: {question: string, answer: string | number}[]): Promise<void> {
+    async sendFeedback(feedbackID: FeedbackID, numUsages: number, questionsAndAnswers: { question: string, answer: string | number }[]): Promise<void> {
 
         const message: Record<string, unknown> = {
             'event': 'update_event',
@@ -1144,7 +1148,7 @@ export default class MitoAPI {
 
         await this.send(message, {})
     }
-       
+
     /*
         Sends a log event from the frontend to the backend, where it is logged
         by the backend. We log in the backend to keep a linear stream of actions 
@@ -1171,6 +1175,6 @@ export default class MitoAPI {
 
         // Only wait 0 for a response, since we don't care if we get
         // a response for a log message
-        await this.send(message, {doNotWaitForReply: true});
+        await this.send(message, { doNotWaitForReply: true });
     }
 }

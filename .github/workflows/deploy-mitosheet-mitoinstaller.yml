@@ -45,13 +45,13 @@ jobs:
           python3 -m venv venv
           source venv/bin/activate
           python switch.py mitosheet2
-          python deployment/bump_version.py mitosheet2 ${{ steps.extract_branch.outputs.branch }}
+          python ../deployment/bump_version.py mitosheet2 ${{ steps.extract_branch.outputs.branch }}
           python -m pip install -e ".[test, deploy]"
       - name: Deploy mitosheet2
         run: |
           cd mitosheet
           source venv/bin/activate
-          python deployment/deploy.py ${{ steps.extract_branch.outputs.branch }}
+          python ../deployment/deploy.py ${{ steps.extract_branch.outputs.branch }}
   deploy-mitosheet:
     name: Deploy mitosheet
     runs-on: ubuntu-latest
@@ -92,13 +92,13 @@ jobs:
           python3 -m venv venv
           source venv/bin/activate
           python switch.py mitosheet
-          python deployment/bump_version.py mitosheet ${{ steps.extract_branch.outputs.branch }}
+          python ../deployment/bump_version.py mitosheet ${{ steps.extract_branch.outputs.branch }}
           python -m pip install -e ".[test, deploy]"          
       - name: Deploy mitosheet
         run: |
           cd mitosheet
           source venv/bin/activate
-          python deployment/deploy.py ${{ steps.extract_branch.outputs.branch }}
+          python ../deployment/deploy.py ${{ steps.extract_branch.outputs.branch }}
   deploy-mitosheet3:
     name: Deploy mitosheet3
     runs-on: ubuntu-latest
@@ -139,13 +139,13 @@ jobs:
           python3 -m venv venv
           source venv/bin/activate
           python switch.py mitosheet3
-          python deployment/bump_version.py mitosheet3 ${{ steps.extract_branch.outputs.branch }}
+          python ../deployment/bump_version.py mitosheet3 ${{ steps.extract_branch.outputs.branch }}
           python -m pip install -e ".[test, deploy]"          
       - name: Deploy mitosheet3
         run: |
           cd mitosheet
           source venv/bin/activate
-          python deployment/deploy.py ${{ steps.extract_branch.outputs.branch }}
+          python ../deployment/deploy.py ${{ steps.extract_branch.outputs.branch }}
   deploy-mitoinstaller:
     name: Deploy mitoinstaller
     runs-on: ubuntu-latest
@@ -181,23 +181,20 @@ jobs:
           echo -e "password = ${{ secrets.TEST_PYPI_API_TOKEN }}" >> ~/.pypirc
       - name: Setup mitoinstaller
         run: |
-          cd mitosheet
+          cd mitoinstaller
           python3 -m venv venv
           source venv/bin/activate
-          python deployment/bump_version.py mitoinstaller ${{ steps.extract_branch.outputs.branch }}
-          cd installer
+          python ../deployment/bump_version.py mitoinstaller ${{ steps.extract_branch.outputs.branch }}
           pip install -r requirements.txt
       - name: Deploy mitoinstaller on testpypi
         if: github.ref == 'refs/heads/dev'
         run: |
-          cd mitosheet
+          cd mitoinstaller
           source venv/bin/activate
-          cd installer 
           python setup.py sdist upload --repository testpypi
       - name: Deploy mitoinstaller on testpypi
         if: github.ref == 'refs/heads/main'
         run: |
-          cd mitosheet
+          cd mitoinstaller
           source venv/bin/activate
-          cd installer
           python setup.py sdist upload

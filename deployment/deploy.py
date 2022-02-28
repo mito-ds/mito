@@ -34,10 +34,14 @@ def deploy_current_mito_version_to_pypi(on_dev: bool):
 
 def main():
     """
-    Deploy to PyPi with `python3 deployment/deploy.py [dev | main]`.
+    Deploy to PyPi with `python3 deploy.py [dev | main]`.
 
     Note that it will deploy whatever package is currently the defined package
-    in the package.json, which could either be mitosheet or mitosheet3. 
+    in the package.json, which could either be any mitosheet package, or the 
+    mitoinstaller. 
+
+    Note that this should be run in the folder of the package that is being
+    deployed (e.g. the folder where the setup.py is).
     """
 
     # We either deploy app or staging, default staging

@@ -32,6 +32,11 @@ interface RowProps {
     */
     suppressTopBottomMargin?: boolean,
 
+    /**
+     * @param [title] - Tooltip to be displayed when the user's mouse hovers over the row
+     */
+    title?: string
+
 }
 
 /**
@@ -62,22 +67,23 @@ interface RowProps {
  * 
  * See spacing/README.md for more information on the motivation as the to spacing
  * components.
- */ 
+ */
 const Row = (props: RowProps): JSX.Element => {
 
     const marginClass = props.suppressTopBottomMargin ? 'row-no-top-bottom-margin' : 'row-top-bottom-margin';
 
     return (
-        <div 
-            className={classNames('row', marginClass, props.className)} 
+        <div
+            className={classNames('row', marginClass, props.className)}
+            title={props.title}
             style={{
-                ...props.style, 
-                justifyContent: props.justify, 
+                ...props.style,
+                justifyContent: props.justify,
                 alignItems: props.align,
             }}>
             {props.children}
         </div>
     )
-} 
+}
 
 export default Row;
