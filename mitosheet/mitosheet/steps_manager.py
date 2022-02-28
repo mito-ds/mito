@@ -275,7 +275,7 @@ class StepsManager:
                 "stepSummaryList": self.step_summary_list,
                 "currStepIdx": self.curr_step_idx,
                 "dataTypeInTool": self.data_type_in_mito.value,
-                "graphDataJSON": self.curr_step.graph_data_json
+                "graphDataJSON": self.curr_step.graph_data
             }
         )
 

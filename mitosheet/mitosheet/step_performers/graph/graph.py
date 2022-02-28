@@ -19,7 +19,7 @@ from mitosheet.step_performers.step_performer import StepPerformer
 
 class GraphStepPerformer(StepPerformer):
     """
-    Creates a graph of the passed parameters and update the graph_data_json
+    Creates a graph of the passed parameters and update the graph_data
 
     {
         preprocessing: {
@@ -68,14 +68,14 @@ class GraphStepPerformer(StepPerformer):
     def execute(  # type: ignore
         cls,
         prev_state: State,
-        graph_preprocessing: Any,
-        graph_creation: Any,
-        graph_styling: Any,
-        graph_rendering: Any,
+        graph_preprocessing: Dict[str, Any],
+        graph_creation: Dict[str, Any],
+        graph_styling: Dict[str, Any],
+        graph_rendering: Dict[str, Any],
         **params,
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
         """
-        Returns the new post state with the updated graph_data_json
+        Returns the new post state with the updated graph_data
         """
 
         # We make a new state to modify it
@@ -87,6 +87,8 @@ class GraphStepPerformer(StepPerformer):
         safety_filter_turned_on_by_user = graph_preprocessing[
             "safety_filter_turned_on_by_user"
         ]
+        height = graph_rendering["height"] 
+        width = graph_rendering["width"]
 
         # Get the x axis params, if they were provided
         x_axis_column_ids = (
@@ -108,20 +110,20 @@ class GraphStepPerformer(StepPerformer):
             sheet_index, y_axis_column_ids
         )
 
-        # Find the height and the width, defaulting to fill whatever container its in
-        graph_rendering_keys = graph_rendering.keys()
-
-        height = graph_rendering["height"] if "height" in graph_rendering_keys else "100%"
-        width = graph_rendering["width"] if "width" in graph_rendering_keys else "100%"
-
         # Create a copy of the dataframe, just for safety.
         df: pd.DataFrame = prev_state.dfs[sheet_index].copy()
         df_name: str = prev_state.df_names[sheet_index]
 
         if len(x_axis_column_ids) == 0 and len(y_axis_column_ids) == 0:
-            fig = ''
-            html_and_script = {'html': '', 'script': ''}
-            graph_generation_code = ''
+            # If no data is passed to the graph, then we don't create a graph and omit the graphOutput
+            post_state.graph_data[str(sheet_index)] = {
+                "graphParams": {
+                    "graphPreprocessing": graph_preprocessing,
+                    "graphCreation": graph_creation,
+                    "graphStyling": graph_styling,
+                    "graphRendering": graph_rendering,
+                }
+            }
         else: 
             fig = get_plotly_express_graph(
                 graph_type,
@@ -152,17 +154,19 @@ class GraphStepPerformer(StepPerformer):
                 df_name,
             )
 
-        post_state.graph_data_json[str(sheet_index)] = {
-            "graphParams": {
-                "graphPreprocessing": graph_preprocessing,
-                "graphCreation": graph_creation,
-                "graphStyling": {},
-                "graphRendering": graph_rendering,
-            },
-            "graphGeneratedCode": graph_generation_code,
-            "graphHTML": html_and_script["html"],
-            "graphScript": html_and_script["script"],
-        }
+            post_state.graph_data[str(sheet_index)] = {
+                "graphParams": {
+                    "graphPreprocessing": graph_preprocessing,
+                    "graphCreation": graph_creation,
+                    "graphStyling": graph_styling,
+                    "graphRendering": graph_rendering,
+                },
+                "graphOutput": {
+                    "graphGeneratedCode": graph_generation_code,
+                    "graphHTML": html_and_script["html"],
+                    "graphScript": html_and_script["script"],
+                }
+            }
 
         return post_state, None
 
@@ -172,10 +176,10 @@ class GraphStepPerformer(StepPerformer):
         prev_state: State,
         post_state: State,
         execution_data: Optional[Dict[str, Any]],
-        graph_preprocessing: Any,
-        graph_creation: Any,
-        graph_styling: Any,
-        graph_rendering: Any,
+        graph_preprocessing: Dict[str, Any],
+        graph_creation: Dict[str, Any],
+        graph_styling: Dict[str, Any],
+        graph_rendering: Dict[str, Any],
         **params,
     ) -> List[str]:
         return []
@@ -199,5 +203,4 @@ class GraphStepPerformer(StepPerformer):
 
     @classmethod
     def get_modified_dataframe_indexes(cls, graph_creation, **params) -> Set[int]:  # type: ignore
-        sheet_index = graph_creation["sheet_index"]
-        return {sheet_index}
+        return {-1}

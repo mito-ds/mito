@@ -20,7 +20,7 @@ from mitosheet.api.get_path_join import get_path_join
 from mitosheet.api.get_pivot_params import get_pivot_params
 from mitosheet.api.get_search_matches import get_search_matches
 from mitosheet.api.get_unique_value_counts import get_unique_value_counts
-from mitosheet.api.graph.get_column_summary_graph import get_column_summary_graph
+from mitosheet.api.get_column_summary_graph import get_column_summary_graph
 from mitosheet.mito_analytics import log_event_processed
 from mitosheet.steps_manager import StepsManager
 

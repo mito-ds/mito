@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 import pandas as pd
-from mitosheet.api.graph.graph_utils import BAR
+from mitosheet.step_performers.graph.graph_utils import BAR
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 from mitosheet.utils import get_new_id
 

@@ -48,7 +48,7 @@ class State:
         column_spreadsheet_code: List[Dict[ColumnID, str]] = None,
         column_filters: List[Dict[ColumnID, Any]] = None,
         column_format_types: List[Dict[ColumnID, Dict[str, Any]]] = None,
-        graph_data_json: Dict[str, Dict[str, Any]] = None
+        graph_data: Dict[str, Dict[str, Any]] = None
     ):
 
         # The dataframes that are in the state
@@ -116,7 +116,7 @@ class State:
             ]
         )
 
-        self.graph_data_json: Dict[str, Dict[str, Any]] = graph_data_json if graph_data_json is not None else dict()
+        self.graph_data: Dict[str, Dict[str, Any]] = graph_data if graph_data is not None else dict()
 
     def __copy__(self):
         """
@@ -131,7 +131,7 @@ class State:
             column_spreadsheet_code=deepcopy(self.column_spreadsheet_code),
             column_filters=deepcopy(self.column_filters),
             column_format_types=deepcopy(self.column_format_types),
-            graph_data_json=deepcopy(self.graph_data_json)
+            graph_data=deepcopy(self.graph_data)
         )
 
     def __deepcopy__(self, memo):
@@ -147,7 +147,7 @@ class State:
             column_spreadsheet_code=deepcopy(self.column_spreadsheet_code),
             column_filters=deepcopy(self.column_filters),
             column_format_types=deepcopy(self.column_format_types),
-            graph_data_json=deepcopy(self.graph_data_json)
+            graph_data=deepcopy(self.graph_data)
         )
 
     def add_df_to_state(

@@ -46,7 +46,7 @@ from mitosheet.sheet_functions import *
 from mitosheet.sheet_functions.types import *
 
 # Export the graph filtering code with a deprecation warning, so that it can be used in the code that generates graphs
-from mitosheet.api.graph.graph_utils import (
+from mitosheet.api.get_column_summary_graph import (
     filter_df_to_safe_size_external as filter_df_to_safe_size,
 )
 

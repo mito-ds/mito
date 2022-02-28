@@ -136,9 +136,9 @@ const GraphSidebar = (props: {
     // in order to update the graphDataJSON. This only happens when the user changes the graph configuration.
     const [updateGraph, setUpdateGraph] = useState(false)
     const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
-    const graphScript = props.graphDataJSON[dataSourceSheetIndex]?.graphScript
-    const graphHTML = props.graphDataJSON[dataSourceSheetIndex]?.graphHTML
-    const [_copyGraphCode, graphCodeCopied] = useCopyToClipboard(props.graphDataJSON[dataSourceSheetIndex]?.graphGeneratedCode || '');
+    const graphOutput = props.graphDataJSON[dataSourceSheetIndex]?.graphOutput
+
+    const [_copyGraphCode, graphCodeCopied] = useCopyToClipboard(graphOutput?.graphGeneratedCode);
     const [stepID, setStepID] = useState<string|undefined>(undefined);
 
     const [loading, setLoading] = useState<boolean>(false)
@@ -173,22 +173,22 @@ const GraphSidebar = (props: {
     }, [updateGraph], LOAD_GRAPH_TIMEOUT)
 
 
-    // When we get a new graph script, we execute it here. This is a workaround
+    // When we get a new graph ouput, we execute the graph script here. This is a workaround
     // that is required because we need to make sure this code runs, which it does
     // not when it is a script tag inside innerHtml (which react does not execute
     // for safety reasons).
     useEffect(() => {
         try {
-            if (graphScript === undefined) {
+            if (graphOutput === undefined) {
                 return;
             }
-            const executeScript = new Function(graphScript);
+            const executeScript = new Function(graphOutput.graphScript);
             executeScript()
         } catch (e) {
             console.error("Failed to execute graph function", e)
         }
 
-    }, [graphScript])
+    }, [graphOutput])
 
     /* 
         This is the actual function responsible for loading the new
@@ -292,8 +292,8 @@ const GraphSidebar = (props: {
         setGraphParams({
             ...graphParams,
             graphCreation: {
+                ...graphParams.graphCreation,
                 graph_type: graphType,
-                sheet_index: graphParams.graphCreation.sheet_index,
                 x_axis_column_ids: xAxisColumnIDsCopy,
                 y_axis_column_ids: yAxisColumnIDsCopy
             }
@@ -370,11 +370,11 @@ const GraphSidebar = (props: {
         return (
             <div className='graph-sidebar-div'>
                 <div className='graph-sidebar-graph-div' id='graph-div' >
-                    {graphHTML === undefined && graphParams.graphCreation.x_axis_column_ids?.length === 0 && graphParams.graphCreation.y_axis_column_ids?.length === 0 &&
+                    {graphOutput === undefined &&
                         <p className='graph-sidebar-welcome-text' >To generate a graph, select a axis.</p>
                     }
-                    {graphHTML !== undefined &&
-                        <div dangerouslySetInnerHTML={{ __html: graphHTML }} />
+                    {graphOutput !== undefined &&
+                        <div dangerouslySetInnerHTML={{ __html: graphOutput.graphHTML }} />
                     }
                 </div>
                 <div className='graph-sidebar-toolbar-div'>
@@ -412,6 +412,10 @@ const GraphSidebar = (props: {
                                         const newIndex = props.dfNames.indexOf(newDfName);
                                         // Get the new sheet's graph params 
                                         const newSheetGraphParams = getGraphParams(props.graphDataJSON, newIndex, props.sheetDataArray)
+
+                                        // When we change sheets that we're graphing, we no longer want to overwrite the previous graph, 
+                                        // instead we want to create a new graph. Therefore, we change the stepID to create the new graph
+                                        // in a new graph step!
                                         setStepID(undefined)
                                         setGraphParams(newSheetGraphParams)
                                         setUpdateGraph(true)
@@ -521,7 +525,7 @@ const GraphSidebar = (props: {
                         <TextButton
                             variant='dark'
                             onClick={copyGraphCode}
-                            disabled={loading || graphHTML === undefined || graphScript === undefined}
+                            disabled={loading || graphOutput === undefined}
                         >
                             {!graphCodeCopied
                                 ? "Copy Graph Code"

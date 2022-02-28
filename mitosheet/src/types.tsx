@@ -156,10 +156,6 @@ export type ColumnID = string;
  */
 export type ColumnIDsMap = Record<ColumnID, ColumnHeader>;
 
-
-export type GraphID = string
-
-
 /**
  * Data that will be displayed in the sheet itself.
  * 
@@ -194,28 +190,7 @@ export type SheetData = {
     columnFormatTypeObjMap: ColumnFormatTypeObjMap
 };
 
-/**
- * Data about all of the graphs. For each graph, it contains all of the parameters used to construct the graph,
- * the actual graph html & javascript, and the generated code.
- * 
- * @param graphParams - all of the parameters used to construct the graph
- * @param graphGeneratedCode - the python code to construct the graph
- * @param graphHTML - the number of rows in the data. Should be equal to data[0].length
- * @param graphScript - the number of columns in the data. Should be equal to data.length
- */
-export type GraphData = {
-    graphParams: GraphParams,
-    graphGeneratedCode: string,
-    graphHTML: string | undefined,
-    graphScript: string | undefined,
-};
 
-export type GraphParams = {
-    graphPreprocessing: GraphPreprocessingParams,
-    graphCreation: GraphCreationParams,
-    graphStyling: GraphStylingParams,
-    graphRendering: GraphRenderingParams
-};
 export type GraphPreprocessingParams = {
     safety_filter_turned_on_by_user: boolean
 }
@@ -230,6 +205,33 @@ export type GraphRenderingParams = {
     width?: number
     height?: number
 }
+
+export type GraphParams = {
+    graphPreprocessing: GraphPreprocessingParams,
+    graphCreation: GraphCreationParams,
+    graphStyling: GraphStylingParams,
+    graphRendering: GraphRenderingParams
+};
+
+/**
+ * Data about all of the graphs. For each graph, it contains all of the parameters used to construct the graph,
+ * the actual graph html & javascript, and the generated code.
+ * 
+ * @param graphParams - all of the parameters used to construct the graph
+ * @param graphGeneratedCode - the python code to construct the graph
+ * @param graphHTML - the html to display the graph
+ * @param graphScript - the script to display the graph
+ */
+export type GraphData = {
+    graphParams: GraphParams,
+    graphOutput?: {
+        graphGeneratedCode: string,
+        graphHTML: string,
+        graphScript: string,
+    }
+};
+
+export type GraphID = string
 
 export type GraphDataJSON = Record<GraphID, GraphData>
 
