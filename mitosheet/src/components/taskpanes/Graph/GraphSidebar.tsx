@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import MitoAPI from '../../../api';
 import XIcon from '../../icons/XIcon';
 import AxisSection, { GraphAxisType } from './AxisSection';
@@ -21,6 +21,7 @@ import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import { isNumberDtype } from '../../../utils/dtypes';
 import Toggle from '../../elements/Toggle';
 import usePrevious from '../../../hooks/usePrevious';
+import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
 
 export enum GraphType {
     SCATTER = 'scatter',
@@ -129,7 +130,11 @@ const GraphSidebar = (props: {
 
     // We keep track of the graph data separately from the backend state so that 
     // the UI updates imidietly, even though the backend takes a while to process.
-    const [graphParams, setGraphParams] = useState<GraphParams>(() => getGraphParams(props.graphDataJSON, props.graphSidebarSheet, props.sheetDataArray))
+    const [graphParams, setGraphParams] = useState(() => getGraphParams(props.graphDataJSON, props.graphSidebarSheet, props.sheetDataArray))
+
+    // When updateGraph is changed from false to true, we send a new getGraphMessage with the current graphParams
+    // in order to update the graphDataJSON. This only happens when the user changes the graph configuration.
+    const [updateGraph, setUpdateGraph] = useState(false)
     const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
     const graphScript = props.graphDataJSON[dataSourceSheetIndex]?.graphScript
     const graphHTML = props.graphDataJSON[dataSourceSheetIndex]?.graphHTML
@@ -158,36 +163,15 @@ const GraphSidebar = (props: {
     }, []);
 
 
-    /* 
-        Taken from https://stackoverflow.com/questions/53253940/make-react-useeffect-hook-not-run-on-initial-render
-        
-        We make sure that if you are editing a graph, the first time
-        that useEffect runs, it does not send a message to update the graph.
+    // Async load in the data from the mitoAPI
+    useDebouncedEffect(() => {
+        if (updateGraph) {
+            setLoading(true)
+            void _loadNewGraph()
+            setUpdateGraph(false)
+        } 
+    }, [updateGraph], LOAD_GRAPH_TIMEOUT)
 
-        This means that opening a graph with edits on it does not
-        automatically overwrite the edits that you made to that graph.
-        Instead, you need to begin editing the graph for it
-        then to delete these edits to the graph.
-    */
-    const ignoreNextUpdate = useRef(graphParams === getDefaultGraphParams(props.sheetDataArray, dataSourceSheetIndex));
-
-    /* 
-        When the user changes the graph data configuration, we load the new graph. 
-    
-        It calls the loadNewGraph function which is on a delay, as to 
-        not overload the backend with new graph creation requests.
-    */
-    useEffect(() => {
-        if (ignoreNextUpdate.current) {
-            ignoreNextUpdate.current = false;
-            return;
-        }
-
-        // Start the loading icon as soon as the user makes a change to the graph
-        setLoading(true)
-        void loadNewGraph()
-        
-    }, [graphParams])
 
     // When we get a new graph script, we execute it here. This is a workaround
     // that is required because we need to make sure this code runs, which it does
@@ -239,7 +223,7 @@ const GraphSidebar = (props: {
         This makes sure we don't send unnecessary messages to the backend if the user
         is switching axes/graph types quickly.
     */
-    const loadNewGraph = async () => {
+    const _loadNewGraph = async () => {
         changeLoadingGraph(getGraphAsync);
     }
 
@@ -248,13 +232,8 @@ const GraphSidebar = (props: {
         with the graph shown
     */
     const refreshParamsAfterUndo = async (): Promise<void> => {        
-
-        // We also set ignoreNextUpdate to true, so that these updates
-        // don't cause a new message to get sent, as then we get trapped
-        // in an infinite loop where an undo will cause a new graph message
-        // to get sent 
-        ignoreNextUpdate.current = true;
-        setGraphParams(getGraphParams(props.graphDataJSON, dataSourceSheetIndex, props.sheetDataArray))
+        const newGraphParams = getGraphParams(props.graphDataJSON, dataSourceSheetIndex, props.sheetDataArray)
+        setGraphParams(newGraphParams)
     } 
 
     // Toggles the safety filter component of the graph params
@@ -267,6 +246,7 @@ const GraphSidebar = (props: {
                 safety_filter_turned_on_by_user: newSafetyFilter
             }
         })
+        setUpdateGraph(true)
     }
 
     const removeNonNumberColumnIDs = (columnIDs: ColumnID[]) => {
@@ -318,6 +298,7 @@ const GraphSidebar = (props: {
                 y_axis_column_ids: yAxisColumnIDsCopy
             }
         })
+        setUpdateGraph(true)
     }
 
     /* 
@@ -346,25 +327,23 @@ const GraphSidebar = (props: {
 
         // Update the axis data
         if (graphAxis === GraphAxisType.X_AXIS) {
-            setGraphParams(prevGraphParams => {
-                return {
-                    ...prevGraphParams,
-                    graphCreation: {
-                        ...prevGraphParams.graphCreation, 
-                        x_axis_column_ids: axisColumnIDsCopy
-                    }
+            setGraphParams({
+                ...graphParams,
+                graphCreation: {
+                    ...graphParams.graphCreation, 
+                    x_axis_column_ids: axisColumnIDsCopy
                 }
             })
+            setUpdateGraph(true)
         } else {
-            setGraphParams(prevGraphParams => {
-                return {
-                    ...prevGraphParams,
-                    graphCreation: {
-                        ...prevGraphParams.graphCreation, 
-                        y_axis_column_ids: axisColumnIDsCopy
-                    }
+            setGraphParams({
+                ...graphParams,
+                graphCreation: {
+                    ...graphParams.graphCreation, 
+                    y_axis_column_ids: axisColumnIDsCopy
                 }
             })
+            setUpdateGraph(true)
         }
     }
 
@@ -435,6 +414,7 @@ const GraphSidebar = (props: {
                                         const newSheetGraphParams = getGraphParams(props.graphDataJSON, newIndex, props.sheetDataArray)
                                         setStepID(undefined)
                                         setGraphParams(newSheetGraphParams)
+                                        setUpdateGraph(true)
                                     }}
                                     width='small'
                                 >
