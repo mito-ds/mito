@@ -1,8 +1,9 @@
 // Copyright (c) Mito
 
 import { SortDirection } from "./components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
+import { GraphObject } from "./components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
 import { UniqueValueCount, UniqueValueSortType } from "./components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
-import { GraphObject, GraphType } from "./components/taskpanes/Graph/GraphSidebar";
+import { GraphType } from "./components/taskpanes/Graph/GraphSidebar";
 import { FileElement } from "./components/taskpanes/Import/ImportTaskpane";
 import { MergeType } from "./components/taskpanes/Merge/MergeTaskpane";
 import { AggregationType, PivotParams } from "./components/taskpanes/PivotTable/PivotTaskpane";
@@ -332,39 +333,70 @@ export default class MitoAPI {
         return excelFileString;
     }
 
+
+    async sendGraphMessage(
+        graphType: GraphType,
+        sheet_index: number,
+        safety_filter_turned_on_by_user: boolean,
+        xAxisColumnIDs: ColumnID[],
+        yAxisColumnIDs: ColumnID[],
+        height: string,
+        width: string,
+        stepID?: string,
+    ): Promise<string> {
+
+        // If this is overwriting a graph event, then we do not need to
+        // create a new id, as we already have it!
+        if (stepID === undefined || stepID === '') {
+            stepID = getRandomId();
+        }
+
+        await this.send<string>({
+            'event': 'edit_event',
+            'type': 'graph_edit',
+            step_id: stepID,
+            'params': {
+                'graph_preprocessing': {
+                    'safety_filter_turned_on_by_user': safety_filter_turned_on_by_user
+                },
+                'graph_creation': {
+                    'graph_type': graphType,
+                    'sheet_index': sheet_index,
+                    'x_axis_column_ids': xAxisColumnIDs,
+                    'y_axis_column_ids': yAxisColumnIDs,
+                },
+                'graph_styling': {},
+                'graph_rendering': {
+                    'height': height,
+                    'width': width
+                }
+            }
+            
+        }, { maxRetries: 250 })
+
+        return stepID
+    }
+
     /*
         Returns a string encoding of a PNG that can be displayed that
         is a summary graph of the specific column header at a specific
         sheet index. Optionally can pass a yAxis and yAxisSheetIndex 
         if 
     */
-    async getGraph(
-        graphType: GraphType,
-        sheet_index: number,
-        safety_filter_turned_on_by_user: boolean,
-        xAxisColumnIDs: ColumnID[] | undefined,
-        yAxisColumnIDs: ColumnID[] | undefined,
+    async getColumnSummaryGraph(
+        sheetIndex: number,
+        column_id: ColumnID,
         height?: string,
         width?: string,
     ): Promise<GraphObject | undefined> {
 
         const graphString = await this.send<string>({
             'event': 'api_call',
-            'type': 'get_graph',
-            'preprocessing': {
-                'safety_filter_turned_on_by_user': safety_filter_turned_on_by_user
-            },
-            'graph_creation': {
-                'graph_type': graphType,
-                'sheet_index': sheet_index,
-                'x_axis_column_ids': xAxisColumnIDs,
-                'y_axis_column_ids': yAxisColumnIDs,
-            },
-            'graph_rendering': {
-                'height': height,
-                'width': width
-            }
-
+            'type': 'get_column_summary_graph',
+            'sheet_index': sheetIndex,
+            'column_id': column_id,
+            'height': height,
+            'width': width
         }, { maxRetries: 250 })
 
         if (graphString == undefined) {
@@ -424,8 +456,7 @@ export default class MitoAPI {
     }
 
     /*
-        Gets the parameters for the pivot table at desination sheet
-        index, or nothing if there are no params
+        Gets metadata about an Excel file
     */
     async getExcelFileMetadata(
         fileName: string

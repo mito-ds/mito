@@ -14,6 +14,7 @@ import { FilterIcon } from '../../icons/FilterIcons';
 import EditIcon from '../../icons/EditIcon';
 import MitoIcon from '../../icons/MitoIcon';
 import DropDuplicatesIcon from '../../icons/DropDuplicatesIcon';
+import GraphIcon from '../../icons/GraphIcon';
 
 
 export type StepDataElementProps = {
@@ -79,6 +80,9 @@ export function getStepIcon(stepType: StepType): JSX.Element {
         )
         case StepType.DropDuplicates: return (
             <DropDuplicatesIcon/>
+        )
+        case StepType.Graph: return (
+            <GraphIcon/>
         )
         // TODO: Add a case here
         default: return (

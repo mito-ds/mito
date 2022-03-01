@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 import pandas as pd
 
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs, make_multi_index_header_df

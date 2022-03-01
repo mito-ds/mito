@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
+
 """
 The main entry point for the mitosheet package, this command
 line interface allows you to set some toggles in the user.json

@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
+
 from typing import Any, Dict, List, Optional, Set, Type
 from mitosheet.evaluation_graph_utils import create_column_evaluation_graph
 
@@ -94,6 +100,14 @@ class Step:
         return self.post_state.column_format_types
 
     @property
+    def graph_data(self) -> Dict[str, Dict[str, Any]]:
+        """
+        graph_data contains all of the parameters used to construct the graph,
+        the actual graph html & javascript, and the generated code for all of the existing graphs in Mito.
+        """
+        return self.final_defined_state.graph_data
+
+    @property
     def step_performer(self) -> Type[StepPerformer]:
         """
         A helper function to return the step performer class
@@ -109,7 +123,7 @@ class Step:
     def final_defined_state(self) -> State:
         """
         Returns the final defined state in this step, as the prev and post
-        state are optional, but we also need a step to have a defined step
+        state are optional, but we also need a step to have a defined state
         """
         return self.post_state if self.post_state is not None else \
             (self.prev_state if self.prev_state is not None else State([]))

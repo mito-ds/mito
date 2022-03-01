@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 Useful decorators for tests. Specifically, we often only want
 to run specific tests on specific versions of pandas or Python

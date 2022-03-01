@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
+
 from typing import List, Union, Dict, Tuple
 import pandas as pd
 from mitosheet.transpiler.transpile_utils import (
@@ -7,7 +13,7 @@ from mitosheet.transpiler.transpile_utils import (
 from mitosheet.types import ColumnHeader
 import plotly.express as px
 import plotly.graph_objects as go
-from mitosheet.api.graph.graph_utils import (
+from mitosheet.step_performers.graph.graph_utils import (
     BAR,
     BOX,
     HISTOGRAM,
