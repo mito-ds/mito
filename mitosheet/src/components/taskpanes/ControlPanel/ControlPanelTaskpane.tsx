@@ -127,7 +127,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
             return isValidFilter(filterOrGroup, columnDtype)
         });
         
-        const _stepID = await props.mitoAPI.sendFilterMessage(
+        const _stepID = await props.mitoAPI.editFilter(
             props.selectedSheetIndex,
             columnID,
             filtersToApply,

@@ -42,7 +42,7 @@ const SortCard = (props: SortCardProps): JSX.Element => {
         // Sort the columns if the sortDirection is not None
         if (sortDirection != SortDirection.NONE) {
 
-            const newStepID = await props.mitoAPI.sendSortMessage(
+            const newStepID = await props.mitoAPI.editSort(
                 props.selectedSheetIndex,
                 props.columnID,
                 sortDirection,

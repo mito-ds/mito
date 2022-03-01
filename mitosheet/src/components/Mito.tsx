@@ -136,7 +136,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
         // Get the arguments passed to the mitosheet.sheet call
         window.commands?.execute('get-args').then(async (args: string[]) => {
-            await props.mitoAPI.sendArgsUpdate(args);
+            await props.mitoAPI.updateArgs(args);
         });
 
         // Get any previous analysis and send it back to the model!
@@ -145,7 +145,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
             if (!analysisName) return;
 
             // We send it to the backend
-            await props.mitoAPI.sendUseExistingAnalysisUpdateMessage(
+            await props.mitoAPI.updateReplayAnalysis(
                 analysisName,
                 undefined,
                 /* 
@@ -161,7 +161,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
         // We log that the mitosheet has rendered explicitly, so that we can
         // tell if an installation is broken
-        props.mitoAPI.sendLogMessage('mitosheet_rendered');
+        props.mitoAPI.log('mitosheet_rendered');
 
         return () => {
             if (window.setMitoStateMap) {
@@ -600,7 +600,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 {analysisData.currStepIdx !== lastStepSummary.step_idx && 
                     <CatchUpPopup
                         fastForward={() => {
-                            void props.mitoAPI.checkoutStepByIndex(lastStepSummary.step_idx);
+                            void props.mitoAPI.updateCheckoutStepByIndex(lastStepSummary.step_idx);
                         }}
                     />
                 }

@@ -157,7 +157,7 @@ const GraphSidebar = (props: {
 
     // We log when the graph has been opened
     useEffect(() => {
-        void props.mitoAPI.sendLogMessage('opened_graph');
+        void props.mitoAPI.log('opened_graph');
     }, []);
 
     // Async load in the data from the mitoAPI
@@ -198,7 +198,7 @@ const GraphSidebar = (props: {
         const boundingRect: DOMRect | undefined = document.getElementById('graph-div')?.getBoundingClientRect();
 
         if (boundingRect !== undefined) {
-            const _stepID = await props.mitoAPI.sendGraphMessage(
+            const _stepID = await props.mitoAPI.editGraph(
                 graphParams.graphCreation.graph_type,
                 graphParams.graphCreation.sheet_index,
                 graphParams.graphPreprocessing.safety_filter_turned_on_by_user,
@@ -269,11 +269,11 @@ const GraphSidebar = (props: {
         // Log that we reset the selected columns
         if (xAxisColumnIDsCopy.length !== graphParams.graphCreation.x_axis_column_ids.length || 
             yAxisColumnIDsCopy.length !== graphParams.graphCreation.y_axis_column_ids.length) {
-            void props.mitoAPI.sendLogMessage('reset_graph_columns_on_graph_type_change');
+            void props.mitoAPI.log('reset_graph_columns_on_graph_type_change');
         }
 
         // Log that the user switched graph types
-        void props.mitoAPI.sendLogMessage('switched_graph_type', {
+        void props.mitoAPI.log('switched_graph_type', {
             'graph_type': graphType,
             'x_axis_column_ids': xAxisColumnIDsCopy,
             'y_axis_column_ids': yAxisColumnIDsCopy,
@@ -352,7 +352,7 @@ const GraphSidebar = (props: {
         _copyGraphCode()
 
         // Log that the user copied the graph code
-        void props.mitoAPI.sendLogMessage('copy_graph_code', {
+        void props.mitoAPI.log('copy_graph_code', {
             'graph_type': graphParams.graphCreation.graph_type
         });
     }
@@ -394,7 +394,7 @@ const GraphSidebar = (props: {
                                             currOpenTaskpane: { type: TaskpaneType.NONE }
                                         }
                                     })
-                                    void props.mitoAPI.sendLogMessage('closed_graph')
+                                    void props.mitoAPI.log('closed_graph')
                                 }}
                             />
                         </Col>

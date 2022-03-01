@@ -253,7 +253,7 @@ class MergeTaskpane extends React.Component<MergeTaskpaneProps, MergeTaskpaneSta
             selectedColumnIDsTwo.push(this.state.mergeKeyColumnIDTwo)
         }
 
-        const stepIDOrError = await this.props.mitoAPI.sendMergeMessage(
+        const stepIDOrError = await this.props.mitoAPI.editMerge(
             this.state.mergeType,
             this.state.sheetOneIndex,
             this.state.mergeKeyColumnIDOne,

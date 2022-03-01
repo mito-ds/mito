@@ -34,7 +34,7 @@ const Toolbar = (
     fscreen.onfullscreenchange = () => {
         setFullscreen(!!fscreen.fullscreenElement)
         
-        void props.mitoAPI.sendLogMessage(
+        void props.mitoAPI.log(
             'button_toggle_fullscreen',
             {
                 // Note that this is true when _end_ in fullscreen mode, and 
@@ -47,8 +47,8 @@ const Toolbar = (
     
     const catchup = () => {
         // Fast forwards to the most recent step, allowing editing
-        void props.mitoAPI.sendLogMessage('click_catch_up')
-        void props.mitoAPI.checkoutStepByIndex(props.lastStepIndex);
+        void props.mitoAPI.log('click_catch_up')
+        void props.mitoAPI.updateCheckoutStepByIndex(props.lastStepIndex);
     }
 
     return (

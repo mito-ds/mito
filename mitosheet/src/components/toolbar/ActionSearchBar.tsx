@@ -45,7 +45,7 @@ const ActionSearchBar = (props: {
     useDebouncedEffect(() => {
         // Log that the userSearchTerm is being updated
         if (searchString !== '') {
-            void props.mitoAPI.sendLogMessage('searched_action_search_bar', {
+            void props.mitoAPI.log('searched_action_search_bar', {
                 user_serch_term: searchString
             });
         }
@@ -130,7 +130,7 @@ const ActionSearchBar = (props: {
                                 disabled={action.isDisabled() !== undefined}
                                 onClick={() => {
                                     // Log that the action was selected
-                                    void props.mitoAPI.sendLogMessage('selected_action_from_action_search_bar', {
+                                    void props.mitoAPI.log('selected_action_from_action_search_bar', {
                                         action: action.type,
                                         user_serch_term: searchString 
                                     });
