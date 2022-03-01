@@ -66,7 +66,7 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
             return;
         }
 
-        const newStepID = await props.mitoAPI.sendExcelImportMessage(
+        const newStepID = await props.mitoAPI.editExcelImport(
             joinedPath,
             sheetsToImport,
             hasHeaderRow === 'Yes',

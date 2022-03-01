@@ -18,7 +18,7 @@ const UpgradeModal = (props: {
 
     useEffect(() => {
         // We log the opening of the upgrade modal
-        void props.mitoAPI.sendLogMessage(
+        void props.mitoAPI.log(
             'opened_upgrade_modal'
         );
     }, [])
@@ -26,13 +26,13 @@ const UpgradeModal = (props: {
     const onUpgrade = (): void => {
 
         // Log if the user clicked upgrade
-        void props.mitoAPI.sendLogMessage(
+        void props.mitoAPI.log(
             'closed_upgrade'
         );
 
         // And then manually mark as upgraded (assuming they did it, so they
         // don't get an annoying popup a bunch of times).
-        void props.mitoAPI.manuallyMarkUpgraded();
+        void props.mitoAPI.updateManuallyMarkUpgraded();
 
         // Close the modal
         props.setUIState((prevUIState) => {

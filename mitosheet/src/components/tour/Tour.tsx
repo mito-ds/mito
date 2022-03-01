@@ -40,7 +40,7 @@ const Tour = (props: {
     // Log the beginning of the tour. Because the useEffect has [] as
     // its second param, it only runs once. 
     useEffect(() => {
-        void props.mitoAPI.sendLogMessage(
+        void props.mitoAPI.log(
             'begin_tour',
             {
                 'tour_names': props.tourNames,
@@ -68,7 +68,7 @@ const Tour = (props: {
     const goToStep = (newStepNumber: number) => {
         if (newStepNumber <= steps.length - 1) {
             // Log switching steps
-            void props.mitoAPI.sendLogMessage(
+            void props.mitoAPI.log(
                 'switched_tour_step',
                 {
                     'old_tour_name': steps[stepNumber].tourName,
@@ -89,7 +89,7 @@ const Tour = (props: {
 
     // Called if you close the tour before you are on the final step
     const closeTourEarly = async (): Promise<void> => {
-        void props.mitoAPI.sendLogMessage(
+        void props.mitoAPI.log(
             'closed_tour_early', 
             {
                 'tour_names': props.tourNames,
@@ -111,7 +111,7 @@ const Tour = (props: {
     const closeTour = async (): Promise<void> => {
         // Log finishing the tour, if you didn't skip to the final step
         if (!skippedTour) {
-            void props.mitoAPI.sendLogMessage(
+            void props.mitoAPI.log(
                 'finished_tour', 
                 {
                     'tour_names': props.tourNames,
@@ -126,7 +126,7 @@ const Tour = (props: {
 
         // Send the closeTour message to the backend. We still record each tour individually
         // so we can later add new tours to display to users
-        await props.mitoAPI.sendCloseTour(props.tourNames);
+        await props.mitoAPI.updateCloseTour(props.tourNames);
     }
 
     /* 

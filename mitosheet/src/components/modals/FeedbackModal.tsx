@@ -75,7 +75,7 @@ const FeedbackModal = (props: FeedbackModalProps): JSX.Element => {
 
     // Log when this opens
     useEffect(() => {
-        void props.mitoAPI.sendLogMessage('usage_triggered_feedback_opened')
+        void props.mitoAPI.log('usage_triggered_feedback_opened')
     }, []);
 
     return (
@@ -130,7 +130,7 @@ const FeedbackModal = (props: FeedbackModalProps): JSX.Element => {
                                 return;
                             }
 
-                            void props.mitoAPI.sendFeedback(props.usageTriggereeFeedbackID, props.numUsages,
+                            void props.mitoAPI.updateFeedback(props.usageTriggereeFeedbackID, props.numUsages,
                                 [
                                     {'question': questionOne, 'answer': firstResponse},
                                     {'question': questionTwo, 'answer': secondResponse}

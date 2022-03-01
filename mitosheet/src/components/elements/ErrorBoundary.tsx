@@ -22,7 +22,7 @@ class ErrorBoundary extends Component<Props, State> {
     }
 
     public componentDidCatch(error: Error): void {
-        void this.props.mitoAPI.sendLogMessage('frontend_render_failed', {
+        void this.props.mitoAPI.log('frontend_render_failed', {
             'error_name': error.name,
             'error_message': error.message,
             'error_stack': error.stack?.split('\n'),

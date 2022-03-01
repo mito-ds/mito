@@ -79,7 +79,7 @@ export async function doImport(mitoAPI: MitoAPI, currPathParts: string[], elemen
         return;
     }
     // And then actually import it
-    await mitoAPI.sendSimpleImportMessage([joinedPath])
+    await mitoAPI.editSimpleImport([joinedPath])
 }
 
 /* 
@@ -134,7 +134,7 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
         // We also unselect anything that might be selected
         setSelectedElement(undefined)
         // Log how long the path is
-        void props.mitoAPI.sendLogMessage('curr_path_changed', {'path_parts_length': props.currPathParts.length})
+        void props.mitoAPI.log('curr_path_changed', {'path_parts_length': props.currPathParts.length})
     }, [props.currPathParts])
 
     /* 
@@ -155,7 +155,7 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                 selectedElementName = 'No File Ending';
             }
         }
-        void props.mitoAPI.sendLogMessage(
+        void props.mitoAPI.log(
             'selected_element_changed',
             {'selected_element': selectedElementName}
         )
