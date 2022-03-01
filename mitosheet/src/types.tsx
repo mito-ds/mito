@@ -218,9 +218,7 @@ export type GraphParams = {
  * the actual graph html & javascript, and the generated code.
  * 
  * @param graphParams - all of the parameters used to construct the graph
- * @param graphGeneratedCode - the python code to construct the graph
- * @param graphHTML - the html to display the graph
- * @param graphScript - the script to display the graph
+ * @param [graphOutput] - the python code, the graph html, and the graph script 
  */
 export type GraphData = {
     graphParams: GraphParams,

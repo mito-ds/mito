@@ -4,7 +4,6 @@ import XIcon from '../../icons/XIcon';
 import AxisSection, { GraphAxisType } from './AxisSection';
 import LoadingSpinner from './LoadingSpinner';
 import { TaskpaneType } from '../taskpanes';
-import useDelayedAction from '../../../hooks/useDelayedAction';
 import Select from '../../elements/Select';
 import Col from '../../spacing/Col';
 import Row from '../../spacing/Row';
@@ -28,13 +27,6 @@ export enum GraphType {
     BAR = 'bar',
     HISTOGRAM = 'histogram',
     BOX = 'box',
-}
-
-// The response from the backend should include each of these components
-export interface GraphObject {
-    html: string;
-    script: string;
-    generation_code: string;
 }
 
 // Millisecond delay between loading graphs, so that
@@ -151,7 +143,6 @@ const GraphSidebar = (props: {
     const [stepID, setStepID] = useState<string|undefined>(undefined);
 
     const [loading, setLoading] = useState<boolean>(false)
-    const [changeLoadingGraph] = useDelayedAction(LOAD_GRAPH_TIMEOUT)
 
     // Save the last step index, so that we can check if an undo occured
     const prevLastStepIndex = usePrevious(props.lastStepIndex);
@@ -159,7 +150,6 @@ const GraphSidebar = (props: {
     // When the last step index changes, check if an undo occured so we can refresh the params
     useEffect(() => {
         // If there has been an undo, then we refresh the params to this pivot
-        console.log(prevLastStepIndex, props.lastStepIndex)
         if (prevLastStepIndex && prevLastStepIndex !== props.lastStepIndex - 1) {
             void refreshParamsAfterUndo()
         }
@@ -174,7 +164,7 @@ const GraphSidebar = (props: {
     useDebouncedEffect(() => {
         if (updateGraph) {
             setLoading(true)
-            void _loadNewGraph()
+            void getGraphAsync()
             setUpdateGraph(false)
         } 
     }, [updateGraph], LOAD_GRAPH_TIMEOUT)
@@ -221,17 +211,6 @@ const GraphSidebar = (props: {
 
         // Turn off the loading icon once the user get their graph back
         setLoading(false);
-    }
-
-    /* 
-        Whenever the graph is changed we set a timeout to start loading a new 
-        graph. This runs after LOAD_GRAPH_TIMEOUT.
-    
-        This makes sure we don't send unnecessary messages to the backend if the user
-        is switching axes/graph types quickly.
-    */
-    const _loadNewGraph = async () => {
-        changeLoadingGraph(getGraphAsync);
     }
 
     /*
@@ -350,7 +329,6 @@ const GraphSidebar = (props: {
                     }
                 }
             })
-            setUpdateGraph(true)
         } else {
             setGraphParams(prevGraphParams => {
                 const copyPrevGraphParams = {...prevGraphParams}
@@ -362,8 +340,10 @@ const GraphSidebar = (props: {
                     }
                 }
             })
-            setUpdateGraph(true)
         }
+
+        // Then set updateGraph to true so we send the graph message
+        setUpdateGraph(true)
     }
 
     const copyGraphCode = () => {

@@ -1,8 +1,9 @@
 // Copyright (c) Mito
 
 import { SortDirection } from "./components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
+import { GraphObject } from "./components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
 import { UniqueValueCount, UniqueValueSortType } from "./components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
-import { GraphObject, GraphType } from "./components/taskpanes/Graph/GraphSidebar";
+import { GraphType } from "./components/taskpanes/Graph/GraphSidebar";
 import { FileElement } from "./components/taskpanes/Import/ImportTaskpane";
 import { MergeType } from "./components/taskpanes/Merge/MergeTaskpane";
 import { AggregationType, PivotParams } from "./components/taskpanes/PivotTable/PivotTaskpane";

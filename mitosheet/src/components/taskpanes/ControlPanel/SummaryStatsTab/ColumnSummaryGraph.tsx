@@ -3,13 +3,20 @@
 import React, { useState, useEffect } from 'react';
 import MitoAPI from '../../../../api';
 import { ColumnID } from '../../../../types';
-import { GraphObject } from '../../Graph/GraphSidebar';
 
 type ColumnSummaryGraphProps = {
     selectedSheetIndex: number;
     columnID: ColumnID;
     mitoAPI: MitoAPI;
 }
+
+// The response from the backend should include each of these components
+export interface GraphObject {
+    html: string;
+    script: string;
+    generation_code: string;
+}
+
 
 /*
     Displays the column summary graph in the column control panel
