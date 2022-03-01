@@ -132,7 +132,16 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 setUIState: setUIState,
             });
         }
-        
+
+        if (!window.commands) {
+            // If the window commands are not defined, we throw an error
+            // message so that we know this is happening
+            void props.mitoAPI.sendLogMessage('window_commands_not_defined_failed')
+        } else if (!window.commands.hasCommand('get-args')) {
+            // Also check the case where our commands are not yet defined,
+            // as this may also be happening as a race condition
+            void props.mitoAPI.sendLogMessage('window_commands_get_args_not_defined_failed')
+        }
 
         // Get the arguments passed to the mitosheet.sheet call
         window.commands?.execute('get-args').then(async (args: string[]) => {
