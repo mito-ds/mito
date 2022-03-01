@@ -43,7 +43,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
     }, [props.dfName])
     
     const onRename = async (): Promise<void> => {
-        await props.mitoAPI.sendDataframeRenameEdit(
+        await props.mitoAPI.editDataframeRename(
             props.sheetIndex,
             newDataframeName
         );

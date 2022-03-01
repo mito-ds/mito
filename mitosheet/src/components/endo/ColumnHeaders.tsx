@@ -153,7 +153,7 @@ const ColumnHeaders = (props: {
                                 return;
                             }
 
-                            void props.mitoAPI.sendReorderColumnMessage(props.sheetIndex, columnIDToReorder, columnIndex);
+                            void props.mitoAPI.editReorderColumn(props.sheetIndex, columnIDToReorder, columnIndex);
 
                             props.setGridState(gridState => {
                                 return {

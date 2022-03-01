@@ -28,7 +28,7 @@ function ControlPanelTaskpaneTabs(
 
         // Send a log message saying that this tab has been clicked,
         // and keeping the tab at the highest level
-        void props.mitoAPI.sendLogMessage('clicked_' + tab + '_tab');
+        void props.mitoAPI.log('clicked_' + tab + '_tab');
     }
 
     return (

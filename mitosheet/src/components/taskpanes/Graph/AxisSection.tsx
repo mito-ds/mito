@@ -68,7 +68,7 @@ const AxisSection = (props: {
         const x_axis_column_ids = props.graphAxis === GraphAxisType.X_AXIS ? props.selectedColumnIDs : props.otherAxisSelectedColumnIDs
         const y_axis_column_ids = props.graphAxis === GraphAxisType.Y_AXIS ? props.selectedColumnIDs : props.otherAxisSelectedColumnIDs
 
-        void props.mitoAPI.sendLogMessage('graph_cta_clicked', {
+        void props.mitoAPI.log('graph_cta_clicked', {
             'graph_type': props.graphType,
             'axis': props.graphAxis,
             'x_axis_column_ids': x_axis_column_ids,

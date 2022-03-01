@@ -73,7 +73,7 @@ const ExcelDownloadConfigSection = (props: {
                     <p className='ma-25px text-align-center text-body-1'>
                         Want to preserving your formatting when exporting to Excel? Consider upgrading to&nbsp;
                         <a 
-                            onClick={() => void props.mitoAPI.sendLogMessage('clicked_pro_button', 
+                            onClick={() => void props.mitoAPI.log('clicked_pro_button', 
                                 {
                                     'pro_button_location': 'download_taskpane_excel_format_export',
                                 }

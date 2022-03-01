@@ -22,13 +22,13 @@ const ClearAnalysisModal = (props: ResetAnalysisProps): JSX.Element => {
 
     useEffect(() => {
         // Log that we opened this
-        void props.mitoAPI.sendLogMessage('click_open_clear_analysis')
+        void props.mitoAPI.log('click_open_clear_analysis')
     }, [])
 
     const clickClear = async () => {
 
         // Actually send the reset message
-        void props.mitoAPI.sendClearMessage();
+        void props.mitoAPI.updateClear();
 
         // Close the modal
         props.setUIState((prevUIState) => {

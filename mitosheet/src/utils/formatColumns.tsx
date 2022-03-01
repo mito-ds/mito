@@ -120,7 +120,7 @@ export const changeFormatOfSelectedColumns = async (
     
     const numberColumnIDsSelected = getSelectedNumberSeriesColumnIDs(selections, sheetData)
     
-    await mitoAPI.changeColumnFormat(
+    await mitoAPI.editChangeColumnFormat(
         sheetIndex,
         numberColumnIDsSelected,
         newFormatTypeObj
@@ -131,7 +131,7 @@ export const changeFormatOfSelectedColumns = async (
     Change the format of a single columnID
 */
 export const changeFormatOfColumnID = async (sheetIndex: number, columnID: string, newFormatTypeObj: FormatTypeObj, mitoAPI: MitoAPI): Promise<void> => {
-    await mitoAPI.changeColumnFormat(
+    await mitoAPI.editChangeColumnFormat(
         sheetIndex,
         [columnID],
         newFormatTypeObj

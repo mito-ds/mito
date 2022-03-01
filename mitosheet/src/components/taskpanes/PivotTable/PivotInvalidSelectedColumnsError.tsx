@@ -32,7 +32,7 @@ const PivotInvalidSelectedColumnsError = (props: {
     // Log if there are any invalid columns
     useEffect(() => {
         if (invalidSelectedColumnIDs.length > 0) {
-            void props.mitoAPI.sendLogMessage('pivot_invalid_selected_columns', {
+            void props.mitoAPI.log('pivot_invalid_selected_columns', {
                 'pivot_section': props.pivotSection,
                 'num_invalid': invalidSelectedColumnIDs.length
             })

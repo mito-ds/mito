@@ -23,7 +23,7 @@ export default function SheetTabActions(props: {
 
     // Log opening the sheet tab actions
     useEffect(() => {
-        void props.mitoAPI.sendLogMessage(
+        void props.mitoAPI.log(
             'clicked_sheet_tab_actions',
             {
                 sheet_index: props.sheetIndex
@@ -45,14 +45,14 @@ export default function SheetTabActions(props: {
         // Close 
         props.closeOpenEditingPopups();
 
-        await props.mitoAPI.sendDataframeDeleteMessage(props.sheetIndex)
+        await props.mitoAPI.editDataframeDelete(props.sheetIndex)
     }
 
     const onDuplicate = async (): Promise<void> => {
         // Close 
         props.closeOpenEditingPopups();
         
-        await props.mitoAPI.sendDataframeDuplicateMessage(props.sheetIndex)
+        await props.mitoAPI.editDataframeDuplicate(props.sheetIndex)
     }
 
     /* Rename helper, which requires changes to the sheet tab itself */

@@ -74,7 +74,7 @@ const ErrorModal = (
                                     currOpenModal: {type: ModalEnum.None}
                                 }
                             })
-                            void props.mitoAPI.sendLogMessage('clicked_discord_invite', {
+                            void props.mitoAPI.log('clicked_discord_invite', {
                                 'location': 'error modal'
                             });
                             return true;
