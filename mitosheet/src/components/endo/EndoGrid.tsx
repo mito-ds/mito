@@ -267,7 +267,15 @@ function EndoGrid(props: {
                 return;
             }
 
-            if (e.metaKey) {
+            
+
+            if (e.metaKey || e.ctrlKey) {
+                /* 
+                    These are the cases where we add a new selection. A user can add to their selection by:
+                    1. Being on Mac, and command+clicking
+                    2. Being on Windows, and ctrl+clicking
+                */
+
                 if (e.shiftKey) {
                     // Just add the new click locaton to a new selection at the end of the selections list
                     setGridState((gridState) => {
@@ -283,7 +291,7 @@ function EndoGrid(props: {
                             selections: selectionsCopy
                         }
                     })
-                // The next step of conditions handle when meta key is pressed and shift is not
+                // The next step of conditions handle when meta or ctrl key is pressed and shift is not
                 } else {
                     if (rowIndex === -1) {
                         // If column is in selection, then remove it
