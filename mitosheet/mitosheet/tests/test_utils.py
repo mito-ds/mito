@@ -10,12 +10,13 @@ This file contains helpful functions and classes for testing operations.
 import json
 from functools import wraps
 from typing import Any, Dict, List, Union
+from numpy import number
 
 import pandas as pd
 from mitosheet.mito_widget import MitoWidget, sheet
 from mitosheet.parser import parse_formula
 from mitosheet.transpiler.transpile import transpile
-from mitosheet.types import ColumnHeader, MultiLevelColumnHeader
+from mitosheet.types import ColumnHeader, ColumnID, MultiLevelColumnHeader
 from mitosheet.utils import dfs_to_array_for_json, get_new_id
 
 
@@ -728,10 +729,13 @@ class MitoWidgetTestWrapper:
 
     def generate_graph(
         self, 
-        graph_preprocessing: Dict[str, Any],
-        graph_creation: Dict[str, Any],
-        graph_styling: Dict[str, Any],
-        graph_rendering: Dict[str, Any],
+        graph_type: str, 
+        sheet_index: number,
+        safety_filter_turned_on_by_user: bool,
+        xAxisColumnIDs: List[ColumnID],
+        yAxisColumnIDs: List[ColumnID],
+        height: str,
+        width: str,
         step_id: str=None
     ) -> bool:
         return self.mito_widget.receive_message(
@@ -742,10 +746,20 @@ class MitoWidgetTestWrapper:
                 'type': 'graph_edit',
                 'step_id': get_new_id() if step_id is None else step_id,
                 'params': {
-                    'graph_preprocessing': graph_preprocessing,
-                    'graph_creation': graph_creation,
-                    'graph_styling': graph_styling,
-                    'graph_rendering': graph_rendering
+                    'graph_preprocessing': {
+                    'safety_filter_turned_on_by_user': safety_filter_turned_on_by_user
+                    },
+                    'graph_creation': {
+                        'graph_type': graph_type,
+                        'sheet_index': sheet_index,
+                        'x_axis_column_ids': xAxisColumnIDs,
+                        'y_axis_column_ids': yAxisColumnIDs,
+                    },
+                    'graph_styling': {},
+                    'graph_rendering': {
+                        'height': height,
+                        'width': width
+                    }
                 }
             }
         )
