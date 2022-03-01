@@ -205,7 +205,6 @@ function containsAnalysisName(cell: ICellModel | undefined, analysisName: string
     return currentCode.includes(analysisName);
 }
 
-
 /* 
     Returns True if the passed cell is empty.
     Returns False if the passed cells is either not empty or undefined 
@@ -217,8 +216,6 @@ function isEmptyCell(cell: ICellModel | undefined): boolean {
     const currentCode = getCellText(cell);
     return currentCode.trim() === '';
 }
-
-
 
 function writeToCell(cell: ICellModel | undefined, code: string): void {
     if (cell == undefined) {
@@ -287,13 +284,6 @@ function activateWidgetExtension(
             if (notebook == undefined || cells == undefined) {
                 return;
             }
-
-            /*
-            NotebookActions.insertBelow(notebook)
-            const newActiveCellIndex = notebook.activeCellIndex;
-            const newNextCell = getCellAtIndex(cells, newActiveCellIndex);
-            writeToCell(newNextCell, code); 
-            */
 
             // First, we try and find a cell with this analysis name, 
             // and overwrite it
