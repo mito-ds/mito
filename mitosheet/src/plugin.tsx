@@ -205,11 +205,20 @@ function containsAnalysisName(cell: ICellModel | undefined, analysisName: string
     return currentCode.includes(analysisName);
 }
 
-/* Returns True if the passed cell is empty */
+
+/* 
+    Returns True if the passed cell is empty.
+    Returns False if the passed cells is either not empty or undefined 
+*/
 function isEmptyCell(cell: ICellModel | undefined): boolean {
+    if (cell === undefined) {
+        return false
+    }
     const currentCode = getCellText(cell);
     return currentCode.trim() === '';
 }
+
+
 
 function writeToCell(cell: ICellModel | undefined, code: string): void {
     if (cell == undefined) {
@@ -279,6 +288,13 @@ function activateWidgetExtension(
                 return;
             }
 
+            /*
+            NotebookActions.insertBelow(notebook)
+            const newActiveCellIndex = notebook.activeCellIndex;
+            const newNextCell = getCellAtIndex(cells, newActiveCellIndex);
+            writeToCell(newNextCell, code); 
+            */
+
             // First, we try and find a cell with this analysis name, 
             // and overwrite it
             const cellsIterator = cells.iter();
@@ -301,15 +317,15 @@ function activateWidgetExtension(
                     // If the next cell contains a mito analysis, we overwrite it
                     writeToCell(nextCell, code);
                 } else {
-                    // Otherwise, we insert a cell above and write to that. 
+                    // Otherwise, we insert a cell below and write to that. 
                     NotebookActions.insertBelow(notebook);
                     const newNextCell = getCellAtIndex(cells, activeCellIndex + 1);
                     writeToCell(newNextCell, code);
                 }
             } else {
-                // We assume we're the the current cell is where the analysis should be written
+                // We assume the current cell is where the analysis should be written
                 if (isMitoAnalysisCell(activeCell?.model)) {
-                    // If this is already analysis, we overwrite it, if the arguments say to
+                    // If this is already analysis, we overwrite it, if the arguments says to
                     if (overwriteIfCodeEmpty) {
                         writeToCell(activeCell?.model, code);
                     }
