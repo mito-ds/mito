@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 from abc import ABC, abstractmethod
 from mitosheet.state import State
 from typing import Any, Dict, List, Optional, Set, Tuple

@@ -3,7 +3,6 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from mitosheet.api.graph.plotly_express_graphs import GRAPH_SAFETY_FILTER_CUTOFF
 from mitosheet.data_in_mito import DataTypeInMito
 from mitosheet.state import (
     DATAFRAME_SOURCE_DUPLICATED,
@@ -24,6 +23,7 @@ from mitosheet.step_performers import (
     STEP_PERFORMERS,
     STEP_TYPE_TO_USAGE_TRIGGERED_FEEDBACK_ID,
 )
+from mitosheet.step_performers.graph.plotly_express_graphs import GRAPH_SAFETY_FILTER_CUTOFF
 from mitosheet.step_performers.pivot import PIVOT_AGGREGATION_TYPES
 from mitosheet.step_performers.sort import ASCENDING, DESCENDING
 from mitosheet.user.schemas import USER_JSON_DEFAULT

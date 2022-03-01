@@ -29,6 +29,8 @@ from mitosheet.step_performers.dataframe_steps.dataframe_delete import Dataframe
 from mitosheet.step_performers.dataframe_steps.dataframe_duplicate import DataframeDuplicateStepPerformer
 from mitosheet.step_performers.dataframe_steps.dataframe_rename import DataframeRenameStepPerformer
 from mitosheet.step_performers.bulk_old_rename.bulk_old_rename import BulkOldRenameStepPerformer
+from mitosheet.step_performers.graph.graph import GraphStepPerformer
+
 
 # All steps must be listed in this variable. Note the Type annotation allows for
 # subtypes of the step performer to be passed
@@ -51,7 +53,8 @@ STEP_PERFORMERS: List[Type[StepPerformer]] = [
     DataframeDuplicateStepPerformer,
     DataframeRenameStepPerformer,
     BulkOldRenameStepPerformer,
-    DropDuplicatesStepPerformer
+    DropDuplicatesStepPerformer,
+    GraphStepPerformer
 ]
 
 # A helpful mapping for looking up steps based on the incoming events

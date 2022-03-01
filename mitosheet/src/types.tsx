@@ -1,6 +1,7 @@
 import React from "react";
 import { ModalInfo } from "./components/modals/modals";
 import { ControlPanelTab } from "./components/taskpanes/ControlPanel/ControlPanelTaskpane";
+import { GraphType } from "./components/taskpanes/Graph/GraphSidebar";
 import { TaskpaneInfo } from "./components/taskpanes/taskpanes";
 
 
@@ -28,6 +29,7 @@ export enum StepType {
     SetCellValue = 'set_cell_value',
     BulkOldRename = 'bulk_old_rename',
     ExcelImport = 'excel_import',
+    Graph = 'graph'
 }
 
 /**
@@ -49,7 +51,7 @@ export interface StepSummary {
     // TODO: in the future, we should extend the StepData interface for
     // each of the different steps, and type these more strongly!
     // Currently, we aren't sending this data!
-    params?: Record<string, unknown>; 
+    params?: Record<string, unknown>;
 }
 
 /**
@@ -154,7 +156,6 @@ export type ColumnID = string;
  */
 export type ColumnIDsMap = Record<ColumnID, ColumnHeader>;
 
-
 /**
  * Data that will be displayed in the sheet itself.
  * 
@@ -188,6 +189,49 @@ export type SheetData = {
     index: (string | number)[];
     columnFormatTypeObjMap: ColumnFormatTypeObjMap
 };
+
+
+export type GraphPreprocessingParams = {
+    safety_filter_turned_on_by_user: boolean
+}
+export type GraphCreationParams = {
+    graph_type: GraphType,
+    sheet_index: number,
+    x_axis_column_ids: ColumnID[]
+    y_axis_column_ids: ColumnID[]
+}
+export type GraphStylingParams = undefined
+export type GraphRenderingParams = {
+    width?: number
+    height?: number
+}
+
+export type GraphParams = {
+    graphPreprocessing: GraphPreprocessingParams,
+    graphCreation: GraphCreationParams,
+    graphStyling: GraphStylingParams,
+    graphRendering: GraphRenderingParams
+};
+
+/**
+ * Data about all of the graphs. For each graph, it contains all of the parameters used to construct the graph,
+ * the actual graph html & javascript, and the generated code.
+ * 
+ * @param graphParams - all of the parameters used to construct the graph
+ * @param [graphOutput] - the python code, the graph html, and the graph script 
+ */
+export type GraphData = {
+    graphParams: GraphParams,
+    graphOutput?: {
+        graphGeneratedCode: string,
+        graphHTML: string,
+        graphScript: string,
+    }
+};
+
+export type GraphID = string
+
+export type GraphDataJSON = Record<GraphID, GraphData>
 
 
 /**
@@ -398,29 +442,32 @@ export enum FormatType {
 /**
  * The format applied to a specific column of data in Mito.
  */
-export type FormatTypeObj = 
+export type FormatTypeObj =
     | {
         type: FormatType.DEFAULT
     }
-    | { 
+    | {
         type: FormatType.PLAIN_TEXT // Removes commas + displays all decimal places
     }
     | {
         type: FormatType.PERCENTAGE // Shows a percentage representation
-    } 
+    }
     | {
         type: FormatType.ACCOUNTING // shows $ and uses ( ) for negative numbers
     }
     | {
         type: FormatType.ROUND_DECIMALS // Rounds the number to the number of decimals given below
         numDecimals: number
-    } 
+    }
     | {
         type: FormatType.K_M_B // Formats numbers with K for thousands, M for millions, and B for billions 
-    } 
+    }
     | {
         type: FormatType.SCIENTIFIC_NOTATION // Just does scientific notiation
-    } 
+    }
+
+
+
 
 /**
  * An object representing all the data about the analysis that is occuring currently.
@@ -430,6 +477,7 @@ export type FormatTypeObj =
  * @param stepSummaryList - a list of step summaries for the steps in this analysis
  * @param currStepIdx - the index of the currently checked out step, in the stepSummaryList
  * @param dataTypeInTool - the type of data in the tool in this analysis
+ * @param graphDataJSON - a mapping from graphID to all of the relevant graph information
  */
 export interface AnalysisData {
     analysisName: string,
@@ -437,6 +485,7 @@ export interface AnalysisData {
     stepSummaryList: StepSummary[],
     currStepIdx: number,
     dataTypeInTool: DataTypeInMito;
+    graphDataJSON: GraphDataJSON
 }
 
 /**
@@ -455,7 +504,7 @@ export interface AnalysisData {
 export interface UserProfile {
     userEmail: string;
     receivedTours: string[];
-    
+
     isPro: boolean;
     excelImportEnabled: boolean;
     telemetryEnabled: boolean;
@@ -477,8 +526,8 @@ export interface MitoStateUpdaters {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>,
 }
 
-export interface CSVExportState {exportType: 'csv'}
-export interface ExcelExportState {exportType: 'excel', sheetIndexes: number[]}
+export interface CSVExportState { exportType: 'csv' }
+export interface ExcelExportState { exportType: 'excel', sheetIndexes: number[] }
 
 /**
  * State of the UI, all in one place for ease.
@@ -488,11 +537,11 @@ export interface UIState {
     // from the backend. Increment and decrement as messages are recieved,
     // which allows us to track mulitple messages at once, something a boolean
     // here would not allow
-    loading: number; 
+    loading: number;
     currOpenModal: ModalInfo;
     currOpenTaskpane: TaskpaneInfo;
     selectedColumnControlPanelTab: ControlPanelTab;
-    exportConfiguration: CSVExportState | ExcelExportState; 
+    exportConfiguration: CSVExportState | ExcelExportState;
     selectedSheetIndex: number;
     displayFormatToolbarDropdown: boolean
 }
@@ -501,8 +550,8 @@ export interface UIState {
  * The returned matches when searching a for a value in the sheet
  */
 export interface SearchMatches {
-    columnHeaderIndexes: {rowIndex: number, columnIndex: number}[];
-    cellIndexes: {rowIndex: number, columnIndex: number}[];
+    columnHeaderIndexes: { rowIndex: number, columnIndex: number }[];
+    cellIndexes: { rowIndex: number, columnIndex: number }[];
 }
 
 /**
@@ -530,18 +579,19 @@ export const enum FeedbackID {
     CHANGE_COLUMN_FORMAT_USAGE_TRIGGERED = 'change_column_format_usage_triggered',
     SET_CELL_VALUE_USAGE_TRIGGERED = 'set_cell_value_usage_triggered',
     EXCEL_IMPORT_USAGE_TRIGGERED = 'excel_import_usage_triggered',
-    DROP_DUPLICATES_USAGE_TRIGGERED = 'drop_duplicates_usage_triggered'
-} 
+    DROP_DUPLICATES_USAGE_TRIGGERED = 'drop_duplicates_usage_triggered',
+    GRAPH_USAGE_TRIGGERED = 'graph_usage_triggered'
+}
 
 /**
  * The Feedback IDs of the usage triggered feedbacks
  */
-export type UsageTriggeredFeedbackID = 
+export type UsageTriggeredFeedbackID =
     FeedbackID.ADD_COLUMN_USAGE_TRIGGERED |
-    FeedbackID.DELETE_COLUMN_USAGE_TRIGGERED | 
+    FeedbackID.DELETE_COLUMN_USAGE_TRIGGERED |
     FeedbackID.RENAME_COLUMN_USAGE_TRIGGERED |
-    FeedbackID.REORDER_COLUMN_USAGE_TRIGGERED | 
-    FeedbackID.FILTER_COLUMN_USAGE_TRIGGERED | 
+    FeedbackID.REORDER_COLUMN_USAGE_TRIGGERED |
+    FeedbackID.FILTER_COLUMN_USAGE_TRIGGERED |
     FeedbackID.SET_COLUMN_FORMULA_USAGE_TRIGGERED |
     FeedbackID.DATAFRAME_DELETE_USAGE_TRIGGERED |
     FeedbackID.DATAFRAME_DUPLICATE_USAGE_TRIGGERED |
@@ -554,7 +604,8 @@ export type UsageTriggeredFeedbackID =
     FeedbackID.CHANGE_COLUMN_FORMAT_USAGE_TRIGGERED |
     FeedbackID.SET_CELL_VALUE_USAGE_TRIGGERED |
     FeedbackID.EXCEL_IMPORT_USAGE_TRIGGERED |
-    FeedbackID.DROP_DUPLICATES_USAGE_TRIGGERED
+    FeedbackID.DROP_DUPLICATES_USAGE_TRIGGERED |
+    FeedbackID.GRAPH_USAGE_TRIGGERED
 
 
 /*
@@ -668,8 +719,8 @@ export interface Action {
         really well to allow the caller to be able to use this action without
         having to know anything about it
     */
-    actionFunction: () => void; 
-    
+    actionFunction: () => void;
+
     // A list of the search terms that can be used to discover this action
     searchTerms: string[]
 

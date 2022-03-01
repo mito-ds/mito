@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 from mitosheet.startup.startup_utils import IMPORT_MITOSHEET_FILE_CONTENTS as mitosheet_file_contents
 import os
 import subprocess

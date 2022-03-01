@@ -7,10 +7,13 @@ import { useCallback, useEffect, useState } from "react";
 
     Adapted from: https://www.benmvp.com/blog/copy-to-clipboard-react-custom-hook/
 */
-export const useCopyToClipboard = (text: string, resetTimeout = 2500): [() => void, boolean] => {
+export const useCopyToClipboard = (text: string | undefined, resetTimeout = 2500): [() => void, boolean] => {
     const [copyStatus, setCopyStatus] = useState(false);
 
     const copy = useCallback(() => {
+        if (text == undefined) {
+            return
+        }
         navigator.clipboard.writeText(text).then(
             () => {setCopyStatus(true)},
             () => {setCopyStatus(false)}
