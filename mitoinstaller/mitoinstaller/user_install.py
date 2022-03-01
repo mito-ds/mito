@@ -73,7 +73,7 @@ def get_static_user_id() -> Optional[str]:
     except: 
         return None
 
-def get_mitosheet_telemetry() -> Optional[bool]:
+def get_mitosheet_telemetry() -> bool:
     try:
         with open(USER_JSON_PATH) as f:
             return json.load(f)['mitosheet_telemetry']
