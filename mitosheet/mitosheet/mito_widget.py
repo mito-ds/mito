@@ -12,6 +12,7 @@ import time
 from typing import Any, Dict, List, Union
 
 import pandas as pd
+from mitosheet.user.location import is_in_google_colab, is_in_vs_code
 import traitlets as t
 from ipywidgets import DOMWidget
 
@@ -271,12 +272,19 @@ def sheet(
     python -m pip install mitoinstaller
     python -m mitoinstaller install
 
-    Run this command in the terminal where you installed Mito. It should take 5-10 minutes to complete.
+    Run this command in the terminal where you installed Mito. It should take 1-2 minutes to complete.
 
     Then, restart your JupyterLab instance, and refresh your browser. Mito should now render.
 
     NOTE: if you have any issues with installation, please email jake@sagacollab.com
     """
+    # We throw a custom error message if we're sure the user is in
+    # vs code or google collab (these conditions are more secure than
+    # the conditons for checking if we're in JLab or JNotebook).
+    if is_in_vs_code() or is_in_google_colab():
+        log_recent_error('mitosheet_sheet_call_location_failed')
+        raise Exception("The mitosheet currently only works in JupyterLab.\n\nTo see instructions on getting Mitosheet running in JupyterLab, find install instructions here: https://docs.trymito.io/getting-started/installing-mito")
+
     try:
         # We pass in the dataframes directly to the widget
         widget = MitoWidget(*args) 
