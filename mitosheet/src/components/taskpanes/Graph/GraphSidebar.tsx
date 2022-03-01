@@ -125,17 +125,17 @@ const GraphSidebar = (props: {
     const [graphParams, setGraphParams] = useState(() => getGraphParams(props.graphDataJSON, props.graphSidebarSheet, props.sheetDataArray))
 
     /* 
-        When updateGraph is changed from false to true, we send a new getGraphMessage with the current graphParams
-        in order to update the graphDataJSON. We only set updateGraph to true when the user updates the params.
+        When graphUpdatedNumber is, we send a new getGraphMessage with the current graphParams
+        in order to update the graphDataJSON. We only increment graphUpdatedNumber when the user updates the params.
 
         We use this method instead of using a useEffect on the graphParams because the graphParams update when we don't want
         to sendGraphMessage, ie: during an Undo. 
 
-        We use this method of updateGraph to simulate a callback to updating the graphParams because we can't pass a callback to 
-        the setGraphParams since its created via a useState instead of this.setState on a class component. Usually, we would use a useEffect on 
+        We use this method of graphUpdatedNumber to simulate a callback to updating the graphParams because we can't pass a callback to 
+        the setGraphParams (since its created via a useState instead of this.setState on a class component). Usually, we would use a useEffect on 
         graphParams to act as the callback, but for the reasons described above, that is not the approach we take here. 
     */
-    const [updateGraph, setUpdateGraph] = useState(false)
+    const [graphUpdatedNumber, setGraphUpdatedNumber] = useState(0)
 
     const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
     const graphOutput = props.graphDataJSON[dataSourceSheetIndex]?.graphOutput
@@ -162,12 +162,14 @@ const GraphSidebar = (props: {
 
     // Async load in the data from the mitoAPI
     useDebouncedEffect(() => {
-        if (updateGraph) {
+        // If we haven't updated the graph yet, then don't send a new graph message so that 
+        // we don't send a graph message on the initial opening of the graph sidebar.
+        if (graphUpdatedNumber > 0) {
             setLoading(true)
             void getGraphAsync()
-            setUpdateGraph(false)
-        } 
-    }, [updateGraph], LOAD_GRAPH_TIMEOUT)
+        }
+        
+    }, [graphUpdatedNumber], LOAD_GRAPH_TIMEOUT)
 
 
     // When we get a new graph ouput, we execute the graph script here. This is a workaround
@@ -235,7 +237,7 @@ const GraphSidebar = (props: {
                 }
             }
         })
-        setUpdateGraph(true)
+        setGraphUpdatedNumber((old) => old + 1);
     }
 
     const removeNonNumberColumnIDs = (columnIDs: ColumnID[]) => {
@@ -290,7 +292,7 @@ const GraphSidebar = (props: {
                 }
             }
         })
-        setUpdateGraph(true)
+        setGraphUpdatedNumber((old) => old + 1);
     }
 
     /* 
@@ -342,8 +344,8 @@ const GraphSidebar = (props: {
             })
         }
 
-        // Then set updateGraph to true so we send the graph message
-        setUpdateGraph(true)
+        // Then set increment graphUpdateNumber so we send the graph message
+        setGraphUpdatedNumber((old) => old + 1);
     }
 
     const copyGraphCode = () => {
@@ -417,7 +419,7 @@ const GraphSidebar = (props: {
                                         // in a new graph step!
                                         setStepID(undefined)
                                         setGraphParams(newSheetGraphParams)
-                                        setUpdateGraph(true)
+                                        setGraphUpdatedNumber((old) => old + 1);
                                     }}
                                     width='small'
                                 >

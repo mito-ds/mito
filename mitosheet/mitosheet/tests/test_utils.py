@@ -734,7 +734,6 @@ class MitoWidgetTestWrapper:
         graph_rendering: Dict[str, Any],
         step_id: str=None
     ) -> bool:
-        print(step_id)
         return self.mito_widget.receive_message(
             self.mito_widget,
             {
@@ -805,6 +804,12 @@ class MitoWidgetTestWrapper:
         if as_list:
             return self.mito_widget.steps_manager.dfs[sheet_index][column_header].tolist()
         return self.mito_widget.steps_manager.dfs[sheet_index][column_header]
+
+    def get_graph_data(self, graph_id: str) -> Dict[str, Dict[str, Any]]: 
+        """
+        Returns the graph_data object 
+        """
+        return self.mito_widget.steps_manager.curr_step.final_defined_state.graph_data[graph_id]
 
     
 

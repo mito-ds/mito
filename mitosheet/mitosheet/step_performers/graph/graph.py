@@ -54,7 +54,7 @@ class GraphStepPerformer(StepPerformer):
 
     @classmethod
     def step_display_name(cls) -> str:
-        return "Graphed a sheet"
+        return "Created a graph"
 
     @classmethod
     def step_event_type(cls) -> str:
