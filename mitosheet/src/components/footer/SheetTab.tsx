@@ -11,6 +11,8 @@ import { focusGrid } from '../endo/focusUtils';
 // import icons
 import SelectedSheetTabDropdownIcon from '../icons/SelectedSheetTabDropdownIcon';
 import UnselectedSheetTabDropdownIcon from '../icons/UnselectedSheetTabDropdownIcon';
+import { TaskpaneType } from '../taskpanes/taskpanes';
+import { ModalEnum } from '../modals/modals';
 
 type SheetTabProps = {
     tabName: string;
@@ -72,7 +74,12 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                         return {
                             ...prevUIState,
                             selectedTabType: 'graph',
-                            selectedGraphID: props.tabIDObj.graphID
+                            selectedGraphID: props.tabIDObj.graphID,
+                            currOpenModal: {type: ModalEnum.None},
+                            currOpenTaskpane: {
+                                type: TaskpaneType.GRAPH,
+                                graphSidebarSheet: parseInt(props.tabIDObj.graphID) // TODO: change the taskpane to take a graphID instead
+                            } 
                         }
                     }
                     

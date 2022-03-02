@@ -69,7 +69,8 @@ export const EDITING_TASKPANES: TaskpaneType[] = [
     TaskpaneType.DOWNLOAD,
 ]
 
-export const WIDE_TASKPANES: TaskpaneType[] = [
+export const FULLSCREEN_TASKPANES: TaskpaneType[] = [
     TaskpaneType.GRAPH
 ]
+
     
