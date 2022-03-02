@@ -11,7 +11,7 @@ import { focusGrid } from '../endo/focusUtils';
 // import icons
 import SelectedSheetTabDropdownIcon from '../icons/SelectedSheetTabDropdownIcon';
 import UnselectedSheetTabDropdownIcon from '../icons/UnselectedSheetTabDropdownIcon';
-import { TaskpaneType } from '../taskpanes/taskpanes';
+import { TaskpaneInfo, TaskpaneType } from '../taskpanes/taskpanes';
 import { ModalEnum } from '../modals/modals';
 
 type SheetTabProps = {
@@ -65,10 +65,15 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
             onClick={() => {
                 props.setUIState(prevUIState => {
                     if (props.tabIDObj.tabType === 'data') {
+                        // Because the graph tab is actually just a taskpane, if we're switching sheet tabs
+                        // from a graph tab to a sheet tab, we need to close the taskpane. Otherwise, keep the taskpabe open.
+                        const taskpaneInfo: TaskpaneInfo = prevUIState.currOpenTaskpane.type === TaskpaneType.GRAPH ? 
+                            {type: TaskpaneType.NONE} : prevUIState.currOpenTaskpane
                         return {
                             ...prevUIState,
                             selectedTabType: 'data',
-                            selectedSheetIndex: props.tabIDObj.selectedIndex
+                            selectedSheetIndex: props.tabIDObj.selectedIndex,
+                            currOpenTaskpane: taskpaneInfo
                         }
                     } else {
                         return {
@@ -78,7 +83,9 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                             currOpenModal: {type: ModalEnum.None},
                             currOpenTaskpane: {
                                 type: TaskpaneType.GRAPH,
-                                graphSidebarSheet: parseInt(props.tabIDObj.graphID) // TODO: change the taskpane to take a graphID instead
+                                // We need to cast this to an int because the graphSidebarSheet is the sheet index of the source 
+                                // data for the graph. 
+                                graphSidebarSheet: parseInt(props.tabIDObj.graphID) 
                             } 
                         }
                     }

@@ -55,7 +55,7 @@ function Footer(props: FooterProps): JSX.Element {
                         <SheetTab
                             key={idx}
                             tabName={dfName}
-                            tabIDObj={{tabType: 'data', selectedIndex: selectedSheetIndex}}
+                            tabIDObj={{tabType: 'data', selectedIndex: idx}}
                             isSelectedTab={selectedTabType === 'data' && idx === selectedSheetIndex}
                             setUIState={props.setUIState}
                             closeOpenEditingPopups={props.closeOpenEditingPopups}

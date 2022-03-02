@@ -158,16 +158,27 @@ const GraphSidebar = (props: {
     // We log when the graph has been opened
     useEffect(() => {
         void props.mitoAPI.log('opened_graph');
+
+        // When the graph taskpane is openned, select the graph tab in the footer
+        props.setUIState(prevUIState => {
+            return {
+                ...prevUIState,
+                selectedGraphID: dataSourceSheetIndex.toString(),
+                selectedTabType: 'graph'
+            }
+        })
     }, []);
 
     // Async load in the data from the mitoAPI
     useDebouncedEffect(() => {
-        // If we haven't updated the graph yet, then don't send a new graph message so that 
-        // we don't send a graph message on the initial opening of the graph sidebar.
-        if (graphUpdatedNumber > 0) {
-            setLoading(true)
-            void getGraphAsync()
-        }
+        console.log("HERE")
+        /* 
+            Send the graph message even if the user has not yet configured the graph so that: 
+            1) the graph is updated if the data changes since the graph was last updated
+            2) the new graph tab is created in the toolbar as soon as the graph taskpane opens
+        */
+        setLoading(true)
+        void getGraphAsync()
         
     }, [graphUpdatedNumber], LOAD_GRAPH_TIMEOUT)
 
