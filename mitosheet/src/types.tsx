@@ -543,7 +543,9 @@ export interface UIState {
     selectedColumnControlPanelTab: ControlPanelTab;
     exportConfiguration: CSVExportState | ExcelExportState;
     selectedSheetIndex: number;
-    displayFormatToolbarDropdown: boolean
+    selectedGraphID: GraphID | undefined;
+    selectedTabType: 'data' | 'graph';
+    displayFormatToolbarDropdown: boolean;
 }
 
 /**

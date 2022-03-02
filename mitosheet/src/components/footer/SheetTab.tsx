@@ -5,7 +5,7 @@ import SheetTabActions from './SheetTabActions';
 import MitoAPI from '../../api';
 import { classNames } from '../../utils/classNames';
 import Input from '../elements/Input';
-import { UIState } from '../../types';
+import { GraphID, UIState } from '../../types';
 import { focusGrid } from '../endo/focusUtils';
 
 // import icons
@@ -13,9 +13,9 @@ import SelectedSheetTabDropdownIcon from '../icons/SelectedSheetTabDropdownIcon'
 import UnselectedSheetTabDropdownIcon from '../icons/UnselectedSheetTabDropdownIcon';
 
 type SheetTabProps = {
-    dfName: string;
-    sheetIndex: number;
-    selectedSheetIndex: number;
+    tabName: string;
+    tabIDObj: {tabType: 'data', selectedIndex: number} | {tabType: 'graph', graphID: GraphID}
+    isSelectedTab: boolean
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     closeOpenEditingPopups: () => void;
     mitoAPI: MitoAPI;
@@ -32,22 +32,23 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
     // We only set this as open if it the currOpenSheetTabActions
     const [displayActions, setDisplayActions] = useState(false);
     const [isRename, setIsRename] = useState<boolean>(false);
-    const [newDataframeName, setNewDataframeName] = useState<string>(props.dfName);
-    const isSelectedTab = props.selectedSheetIndex === props.sheetIndex
-    const selectedClass = isSelectedTab ? 'tab-selected' : '';
+    const [newDataframeName, setNewDataframeName] = useState<string>(props.tabName);
+    const selectedClass = props.isSelectedTab ? 'tab-selected' : '';
 
     // Make sure that if we change the df name that is displayed, we default to 
     // the right new dataframe name as well
     useEffect(() => {
-        setNewDataframeName(props.dfName);
-    }, [props.dfName])
+        setNewDataframeName(props.tabName);
+    }, [props.tabName])
     
     const onRename = async (): Promise<void> => {
-        await props.mitoAPI.editDataframeRename(
-            props.sheetIndex,
-            newDataframeName
-        );
-
+        if (props.tabIDObj.tabType === 'data') {
+            await props.mitoAPI.editDataframeRename(
+                props.tabIDObj.selectedIndex,
+                newDataframeName
+            );
+        }
+        
         setDisplayActions(false);
         setIsRename(false);
 
@@ -61,10 +62,20 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
             className={classNames('tab', selectedClass)} 
             onClick={() => {
                 props.setUIState(prevUIState => {
-                    return {
-                        ...prevUIState,
-                        selectedSheetIndex: props.sheetIndex
+                    if (props.tabIDObj.tabType === 'data') {
+                        return {
+                            ...prevUIState,
+                            selectedTabType: 'data',
+                            selectedSheetIndex: props.tabIDObj.selectedIndex
+                        }
+                    } else {
+                        return {
+                            ...prevUIState,
+                            selectedTabType: 'graph',
+                            selectedGraphID: props.tabIDObj.graphID
+                        }
                     }
+                    
                 })
             }} 
             onDoubleClick={() => {setIsRename(true)}} >
@@ -83,12 +94,12 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                 }
                 {!isRename &&
                     <p className='tab-sheet-name'>
-                        {props.dfName} 
+                        {props.tabName} 
                     </p>
                 }
                 {/* Display the dropdown that allows a user to perform some action */}
                 <div className='sheet-tab-dropdown-button-div' onClick={() => {setDisplayActions(true)}}>
-                    {isSelectedTab ? <SelectedSheetTabDropdownIcon /> : <UnselectedSheetTabDropdownIcon />}
+                    {props.isSelectedTab ? <SelectedSheetTabDropdownIcon /> : <UnselectedSheetTabDropdownIcon />}
                 </div>
             </div>
             {displayActions && 
@@ -97,9 +108,8 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                     setUIState={props.setUIState}
                     closeOpenEditingPopups={props.closeOpenEditingPopups}
                     setIsRename={setIsRename}
-                    dfName={props.dfName}
-                    selectedSheetIndex={props.selectedSheetIndex}
-                    sheetIndex={props.sheetIndex} 
+                    dfName={props.tabName}
+                    tabIDObj={props.tabIDObj}
                     mitoAPI={props.mitoAPI}
                 />
             }

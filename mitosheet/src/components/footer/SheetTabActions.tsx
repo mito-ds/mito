@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import MitoAPI from '../../api';
-import { UIState } from '../../types';
+import { GraphID, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 
@@ -16,43 +16,47 @@ export default function SheetTabActions(props: {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     closeOpenEditingPopups: () => void;
     dfName: string, 
-    sheetIndex: number,
-    selectedSheetIndex: number,
     mitoAPI: MitoAPI
+    tabIDObj: {tabType: 'data', selectedIndex: number} | {tabType: 'graph', graphID: GraphID}
 }): JSX.Element {
 
     // Log opening the sheet tab actions
     useEffect(() => {
+        const selectedSheetIndexOrGraphID = props.tabIDObj.tabType === 'data' ? props.tabIDObj.selectedIndex : props.tabIDObj.graphID
         void props.mitoAPI.log(
             'clicked_sheet_tab_actions',
             {
-                sheet_index: props.sheetIndex
+                tab_type: props.tabIDObj.tabType,
+                selected_index_or_graph_id: selectedSheetIndexOrGraphID
             }
         )
     }, [])
 
     const onDelete = async (): Promise<void> => {
-        // If we are deleting the sheet index that is currently selected & it is not sheetIndex 0, update the selected sheet index
-        if (props.sheetIndex === props.selectedSheetIndex && props.selectedSheetIndex !== 0) {
-            props.setUIState(prevUIState => {
-                return {
-                    ...prevUIState,
-                    selectedSheetIndex: props.sheetIndex - 1
-                }
-            })
-        }
+        // If we are deleting a sheet tab, select the first sheet tab
+        props.setUIState(prevUIState => {
+            return {
+                ...prevUIState,
+                selectedTabType: 'data',
+                selectedSheetIndex: 0
+            }
+        })
 
         // Close 
         props.closeOpenEditingPopups();
 
-        await props.mitoAPI.editDataframeDelete(props.sheetIndex)
+        if (props.tabIDObj.tabType === 'data') {
+            await props.mitoAPI.editDataframeDelete(props.tabIDObj.selectedIndex)
+        }
     }
 
     const onDuplicate = async (): Promise<void> => {
         // Close 
         props.closeOpenEditingPopups();
         
-        await props.mitoAPI.editDataframeDuplicate(props.sheetIndex)
+        if (props.tabIDObj.tabType === 'data') {
+            await props.mitoAPI.editDataframeDuplicate(props.tabIDObj.selectedIndex)
+        }
     }
 
     /* Rename helper, which requires changes to the sheet tab itself */
