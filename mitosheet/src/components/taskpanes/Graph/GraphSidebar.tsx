@@ -401,6 +401,7 @@ const GraphSidebar = (props: {
                                     props.setUIState((prevUIState) => {
                                         return {
                                             ...prevUIState,
+                                            selectedTabType: 'data',
                                             currOpenTaskpane: { type: TaskpaneType.NONE }
                                         }
                                     })

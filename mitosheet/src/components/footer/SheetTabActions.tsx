@@ -68,12 +68,38 @@ export default function SheetTabActions(props: {
     const onRename = (): void => {
         props.setIsRename(true);
     }
+    
+    const graphData = (): void => {
+        // Do this type check so the compiler knows we can access the selectedIndex property
+        if (props.tabIDObj.tabType === 'data') {
+            const sheetIndex = props.tabIDObj.selectedIndex
+            props.setUIState(prevUIState => {
+                return {
+                    ...prevUIState,
+                    currOpenTaskpane: {
+                        type: TaskpaneType.GRAPH,
+                        graphSidebarSheet: sheetIndex
+                    },
+                    selectedGraphID: sheetIndex.toString(),
+                    selectedTabType: 'graph'
+                }
+            })
+        } 
+    }
 
     return (
         <Dropdown
             closeDropdown={() => props.setDisplayActions(false)}
             width='small'
         >
+            <DropdownItem
+                title='Graph data'
+                onClick={(e) => {
+                    e?.stopPropagation()
+                    graphData()
+                }}
+                disabled={props.tabIDObj.tabType === 'graph'}
+            />
             <DropdownItem 
                 title='Delete'
                 onClick={(e) => {
