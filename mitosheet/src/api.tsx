@@ -571,6 +571,22 @@ export default class MitoAPI {
         }, {})
     }
 
+    async editGraphRename(
+        graphID: GraphID,
+        newGraphTabName: string
+    ): Promise<void> {
+        
+        await this.send<string>({
+            'event': 'edit_event',
+            'type': 'graph_rename_edit',
+            step_id: getRandomId(),
+            'params': {
+                'graph_id': graphID,
+                'new_graph_tab_name': newGraphTabName
+            }
+        }, {})
+    }
+
     /*
         Adds a column with the passed parameters
     */

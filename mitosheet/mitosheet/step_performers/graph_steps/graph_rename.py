@@ -3,18 +3,18 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from copy import copy, deepcopy
+from copy import copy
 from typing import Any, Dict, List, Optional, Set, Tuple
-import uuid
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.types import GraphID
+from mitosheet.utils import get_valid_dataframe_name
 
 
-class GraphDuplicateStepPerformer(StepPerformer):
-    """
-    This steps duplicates a graph of a given graphID. 
+class GraphRenameStepPerformer(StepPerformer):
+    """"
+    A rename graph step changes the name of a specific graph id
     """
 
     @classmethod
@@ -23,36 +23,40 @@ class GraphDuplicateStepPerformer(StepPerformer):
 
     @classmethod
     def step_type(cls) -> str:
-        return 'graph_duplicate'
+        return 'graph_rename'
 
     @classmethod
     def step_display_name(cls) -> str:
-        return 'Duplicated a Graph'
+        return 'Renamed a Graph'
     
     @classmethod
     def step_event_type(cls) -> str:
-        return 'graph_duplicate_edit'
+        return 'graph_rename_edit'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
+        graph_id = params['graph_id']
+        old_graph_tab_name = prev_state.graph_data[graph_id]["graphTabName"]
+        params['old_graph_tab_name'] = old_graph_tab_name
         return params
 
     @classmethod
     def execute( # type: ignore
         cls,
         prev_state: State,
-        original_graph_id: GraphID,
-        new_graph_id: GraphID,
+        graph_id: GraphID,
+        old_graph_tab_name: str,
+        new_graph_tab_name: str,
         **params
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
-        post_state = deepcopy(prev_state)
+        # Bail early, if there is no change or the new name is empty
+        if old_graph_tab_name == new_graph_tab_name or new_graph_tab_name == '' :
+            return prev_state, None
 
-        # Execute the step
-        graph_copy = deepcopy(post_state.graph_data[original_graph_id])
-        graph_copy["graphTabName"] = graph_copy["graphTabName"] + '_copy'
-        
-        # Add the duplicated graph to the graph_data
-        post_state.graph_data[new_graph_id] = graph_copy
+        # Create a new step and save the parameters
+        post_state = copy(prev_state)
+
+        post_state.graph_data[graph_id]["graphTabName"] = new_graph_tab_name
         
         return post_state, None
 
@@ -62,8 +66,9 @@ class GraphDuplicateStepPerformer(StepPerformer):
         prev_state: State,
         post_state: State,
         execution_data: Optional[Dict[str, Any]],
-        original_graph_id: GraphID,
-        new_graph_id: GraphID,
+        graph_id: GraphID,
+        old_graph_tab_name: str,
+        new_graph_tab_name: str,
     ) -> List[str]:
         # Graph steps don't add any generated code to the analysis script. 
         return []
@@ -71,18 +76,20 @@ class GraphDuplicateStepPerformer(StepPerformer):
     @classmethod
     def describe( # type: ignore
         cls,
-        original_graph_id: GraphID,
-        new_graph_id: GraphID,
+        graph_id: GraphID,
+        old_graph_tab_name: str,
+        new_graph_tab_name: str,
         df_names=None,
         **params
     ) -> str:
-        return f'Duplicated a Graph'
-    
+        return f'Renamed {old_graph_tab_name} to {new_graph_tab_name}'
+
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore
         cls, 
-        original_graph_id: GraphID,
-        new_graph_id: GraphID,
+        graph_id: GraphID,
+        old_graph_tab_name: str,
+        new_graph_tab_name: str,
         **params
     ) -> Set[int]:
         return {-1}

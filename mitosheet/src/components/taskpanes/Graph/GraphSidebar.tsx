@@ -179,7 +179,6 @@ const GraphSidebar = (props: {
 
     // When the last step index changes, check if an undo occured so we can refresh the params
     useEffect(() => {
-        console.log('num graphs: ', prevNumberOfGraphs)
         // If there has been an undo, then we refresh the params to this pivot
         if (prevLastStepIndex && prevLastStepIndex !== props.lastStepIndex - 1) {
             void refreshParamsAfterUndo()
@@ -187,7 +186,6 @@ const GraphSidebar = (props: {
             const graphIDs = Object.keys(props.graphDataJSON)
             const currNumGraphs = graphIDs.length
             // If the number of graphs changed, update the selected tab
-            console.log(prevNumberOfGraphs && prevNumberOfGraphs > currNumGraphs)
             if (prevNumberOfGraphs && prevNumberOfGraphs > currNumGraphs) {
                 const newGraphID: GraphID | undefined = graphIDs[currNumGraphs - 1]
 

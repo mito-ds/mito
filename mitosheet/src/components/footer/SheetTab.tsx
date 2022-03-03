@@ -35,21 +35,26 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
     // We only set this as open if it the currOpenSheetTabActions
     const [displayActions, setDisplayActions] = useState(false);
     const [isRename, setIsRename] = useState<boolean>(false);
-    const [newDataframeName, setNewDataframeName] = useState<string>(props.tabName);
+    const [newTabName, setNewTabName] = useState<string>(props.tabName);
     const selectedClass = props.isSelectedTab ? 'tab-selected' : '';
 
     // Make sure that if we change the df name that is displayed, we default to 
     // the right new dataframe name as well
     useEffect(() => {
-        setNewDataframeName(props.tabName);
+        setNewTabName(props.tabName);
     }, [props.tabName])
     
     const onRename = async (): Promise<void> => {
         if (props.tabIDObj.tabType === 'data') {
             await props.mitoAPI.editDataframeRename(
                 props.tabIDObj.selectedIndex,
-                newDataframeName
+                newTabName
             );
+        } else {
+            await props.mitoAPI.editGraphRename(
+                props.tabIDObj.graphID,
+                newTabName
+            )
         }
         
         setDisplayActions(false);
@@ -99,8 +104,8 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                         onBlur={onRename}
                     >
                         <Input 
-                            value={newDataframeName} 
-                            onChange={(e) => {setNewDataframeName(e.target.value)}}
+                            value={newTabName} 
+                            onChange={(e) => {setNewTabName(e.target.value)}}
                             autoFocus
                         />
                     </form>
