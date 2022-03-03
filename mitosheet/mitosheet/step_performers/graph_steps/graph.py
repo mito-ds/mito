@@ -148,7 +148,7 @@ class GraphStepPerformer(StepPerformer):
                     l=0,
                     r=0,
                     t=30,
-                    b=30,
+                    b=35,
                 )
             )
 

@@ -13,6 +13,7 @@ import SelectedSheetTabDropdownIcon from '../icons/SelectedSheetTabDropdownIcon'
 import UnselectedSheetTabDropdownIcon from '../icons/UnselectedSheetTabDropdownIcon';
 import { TaskpaneInfo, TaskpaneType } from '../taskpanes/taskpanes';
 import { ModalEnum } from '../modals/modals';
+import GraphIcon from '../icons/GraphIcon';
 
 type SheetTabProps = {
     tabName: string;
@@ -36,7 +37,6 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
     const [displayActions, setDisplayActions] = useState(false);
     const [isRename, setIsRename] = useState<boolean>(false);
     const [newTabName, setNewTabName] = useState<string>(props.tabName);
-    const selectedClass = props.isSelectedTab ? 'tab-selected' : '';
 
     // Make sure that if we change the df name that is displayed, we default to 
     // the right new dataframe name as well
@@ -67,12 +67,12 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
 
     return (
         <div 
-            className={classNames('tab', selectedClass)} 
+            className={classNames('tab', {'tab-graph': props.tabIDObj.tabType === 'graph'}, {'tab-selected': props.isSelectedTab})} 
             onClick={() => {
                 props.setUIState(prevUIState => {
                     if (props.tabIDObj.tabType === 'data') {
                         // Because the graph tab is actually just a taskpane, if we're switching sheet tabs
-                        // from a graph tab to a sheet tab, we need to close the taskpane. Otherwise, keep the taskpabe open.
+                        // from a graph tab to a data tab, we need to close the taskpane. Otherwise, keep the taskpabe open.
                         const taskpaneInfo: TaskpaneInfo = prevUIState.currOpenTaskpane.type === TaskpaneType.GRAPH ? 
                             {type: TaskpaneType.NONE} : prevUIState.currOpenTaskpane
                         return {
@@ -93,11 +93,16 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                             } 
                         }
                     }
-                    
                 })
             }} 
             onDoubleClick={() => {setIsRename(true)}} >
             <div className='tab-content'>
+                {props.tabIDObj.tabType === 'graph' &&
+                    /* Put it inside a div so everything is spaced correctly */
+                    <div>
+                        <GraphIcon variant={props.isSelectedTab ? 'light' : 'dark'}/>
+                    </div>
+                }
                 {isRename && 
                     <form 
                         onSubmit={async (e) => {e.preventDefault(); await onRename()}}
@@ -111,7 +116,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                     </form>
                 }
                 {!isRename &&
-                    <p className='tab-sheet-name'>
+                    <p>
                         {props.tabName} 
                     </p>
                 }

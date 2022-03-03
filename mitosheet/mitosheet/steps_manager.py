@@ -339,8 +339,6 @@ class StepsManager:
             step_performer.step_type(), edit_event["step_id"], edit_event["params"]
         )
 
-        print(edit_event["type"])
-
         new_steps = self.steps + [new_step]
 
         self.execute_and_update_steps(new_steps)

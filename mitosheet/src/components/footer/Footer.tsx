@@ -30,8 +30,13 @@ function Footer(props: FooterProps): JSX.Element {
 
     const selectedSheetIndex = props.uiState.selectedSheetIndex
     const selectedGraphID = props.uiState.selectedGraphID
-    const sheetData: SheetData | undefined = props.sheetDataArray[selectedSheetIndex];
     const selectedTabType = props.uiState.selectedTabType
+
+    // Get the sheet index to display the rows and columns of. 
+    // If the sheet tab is a graph, then display the info from the data being graphed 
+    const sheetIndex =selectedTabType === 'graph' && selectedGraphID !== undefined ? 
+        props.graphDataJSON[selectedGraphID].graphParams.graphCreation.sheet_index : selectedSheetIndex
+    const sheetData: SheetData | undefined = props.sheetDataArray[sheetIndex]
 
     return (
         <div className='footer'>
@@ -80,7 +85,6 @@ function Footer(props: FooterProps): JSX.Element {
                 })}
             </div>
 
-            {/*TODO: Figure out what to display here when the graph tab is displayed!*/}
             {sheetData !== undefined && 
                 <div className='footer-right-side'>
                     <div className='footer-sheet-shape'>

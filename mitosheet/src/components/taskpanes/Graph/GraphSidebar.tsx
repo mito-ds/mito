@@ -271,12 +271,6 @@ const GraphSidebar = (props: {
 
     }, [graphOutput])
 
-    useEffect(() => {
-        console.log("graph data json length changed")
-
-
-    }, [props.graphDataJSON.length])
-
     /* 
         This is the actual function responsible for loading the new
         graph from the backend, making sure this graph is the correct
@@ -284,7 +278,6 @@ const GraphSidebar = (props: {
     */
     const getGraphAsync = async () => {
         const boundingRect: DOMRect | undefined = document.getElementById('graph-div')?.getBoundingClientRect();
-        console.log('graph params getting sent: ', graphParams)
 
         if (boundingRect !== undefined) {
             const _stepID = await props.mitoAPI.editGraph(
