@@ -15,6 +15,7 @@ from mitosheet.step_performers.graph_steps.plotly_express_graphs import (
     get_plotly_express_graph_code,
 )
 from mitosheet.step_performers.step_performer import StepPerformer
+from mitosheet.types import GraphID
 
 
 class GraphStepPerformer(StepPerformer):
@@ -22,6 +23,7 @@ class GraphStepPerformer(StepPerformer):
     Creates a graph of the passed parameters and update the graph_data
 
     {
+        graph_id: GraphID
         graph_preprocessing: {
             safety_filter_turned_on_by_user: boolean
         },
@@ -68,6 +70,7 @@ class GraphStepPerformer(StepPerformer):
     def execute(  # type: ignore
         cls,
         prev_state: State,
+        graph_id: GraphID,
         graph_preprocessing: Dict[str, Any],
         graph_creation: Dict[str, Any],
         graph_styling: Dict[str, Any],
@@ -114,9 +117,11 @@ class GraphStepPerformer(StepPerformer):
         df: pd.DataFrame = prev_state.dfs[sheet_index].copy()
         df_name: str = prev_state.df_names[sheet_index]
 
+        print('graph_id: ', graph_id)
+
         if len(x_axis_column_ids) == 0 and len(y_axis_column_ids) == 0:
             # If no data is passed to the graph, then we don't create a graph and omit the graphOutput
-            post_state.graph_data[str(sheet_index)] = {
+            post_state.graph_data[graph_id] = {
                 "graphParams": {
                     "graphPreprocessing": graph_preprocessing,
                     "graphCreation": graph_creation,
@@ -154,7 +159,7 @@ class GraphStepPerformer(StepPerformer):
                 df_name,
             )
 
-            post_state.graph_data[str(sheet_index)] = {
+            post_state.graph_data[graph_id] = {
                 "graphParams": {
                     "graphPreprocessing": graph_preprocessing,
                     "graphCreation": graph_creation,

@@ -30,6 +30,7 @@ type SheetTabProps = {
     clicked.
 */
 export default function SheetTab(props: SheetTabProps): JSX.Element {
+
     
     // We only set this as open if it the currOpenSheetTabActions
     const [displayActions, setDisplayActions] = useState(false);
@@ -83,9 +84,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                             currOpenModal: {type: ModalEnum.None},
                             currOpenTaskpane: {
                                 type: TaskpaneType.GRAPH,
-                                // We need to cast this to an int because the graphSidebarSheet is the sheet index of the source 
-                                // data for the graph. 
-                                graphSidebarSheet: parseInt(props.tabIDObj.graphID) 
+                                graphTaskpaneInfo: {newGraph: false, graphID: props.tabIDObj.graphID}
                             } 
                         }
                     }

@@ -23,7 +23,7 @@ const RETRY_DELAY = 250;
 const MAX_RETRIES = MAX_DELAY / RETRY_DELAY;
 
 
-const getRandomId = (): string => {
+export const getRandomId = (): string => {
     return '_' + Math.random().toString(36).substr(2, 9);
 }
 
@@ -497,6 +497,7 @@ export default class MitoAPI {
     }
 
     async editGraph(
+        graphID: GraphID,
         graphType: GraphType,
         sheet_index: number,
         safety_filter_turned_on_by_user: boolean,
@@ -518,6 +519,7 @@ export default class MitoAPI {
             'type': 'graph_edit',
             step_id: stepID,
             'params': {
+                'graph_id': graphID,
                 'graph_preprocessing': {
                     'safety_filter_turned_on_by_user': safety_filter_turned_on_by_user
                 },

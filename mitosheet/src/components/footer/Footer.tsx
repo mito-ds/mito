@@ -64,8 +64,7 @@ function Footer(props: FooterProps): JSX.Element {
                         />
                     )
                 })}
-                {Object.entries(props.graphDataJSON).map(([graphID, graphData]) => {
-                    console.log(graphData.graphParams)
+                {Object.keys(props.graphDataJSON).map((graphID) => {
                     return (
                         <SheetTab
                             key={graphID}

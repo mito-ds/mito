@@ -377,7 +377,7 @@ export const createActions = (
                     return {
                         ...prevUIState,
                         currOpenModal: {type: ModalEnum.None},
-                        currOpenTaskpane: {type: TaskpaneType.GRAPH, graphSidebarSheet: sheetIndex},
+                        currOpenTaskpane: {type: TaskpaneType.GRAPH, graphTaskpaneInfo: {newGraph: true, startingSheetIndex: prevUIState.selectedSheetIndex}},
                     }
                 })
             },

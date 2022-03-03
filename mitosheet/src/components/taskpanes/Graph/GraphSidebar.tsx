@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import MitoAPI from '../../../api';
+import React, { useEffect, useRef, useState } from 'react';
+import MitoAPI, { getRandomId } from '../../../api';
 import XIcon from '../../icons/XIcon';
 import AxisSection, { GraphAxisType } from './AxisSection';
 import LoadingSpinner from './LoadingSpinner';
@@ -10,7 +10,7 @@ import Row from '../../spacing/Row';
 import TextButton from '../../elements/TextButton';
 import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
 import { intersection } from '../../../utils/arrays';
-import { ColumnID, ColumnIDsMap, GraphDataJSON, GraphParams, SheetData, UIState } from '../../../types';
+import { ColumnID, ColumnIDsMap, GraphDataJSON, GraphID, GraphParams, SheetData, UIState } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 
 // import css
@@ -42,15 +42,16 @@ const GRAPH_SAFETY_FILTER_CUTOFF = 1000;
 const SAFETY_FILTER_DISABLED_MESSAGE = `Because you’re graphing less than ${GRAPH_SAFETY_FILTER_CUTOFF} rows of data, you can safely graph your data without applying a filter first.`
 const SAFETY_FILTER_ENABLED_MESSAGE = `Turning on Filter to Safe Size only graphs the first ${GRAPH_SAFETY_FILTER_CUTOFF} rows of your dataframe, ensuring that your browser tab won’t crash. Turning off Filter to Safe Size graphs the entire dataframe and may slow or crash your browser tab.`
 
-// Helper function for creating default graph params 
-const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: number): GraphParams => {
+// Helper function for creating default graph params. Defaults to a Bar chart, 
+// unless a graph type is provided
+const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: number, graphType?: GraphType): GraphParams => {
     const safetyFilter = getDefaultSafetyFilter(sheetDataArray, sheetIndex)
     return {
         graphPreprocessing: {
             safety_filter_turned_on_by_user: safetyFilter
         },
         graphCreation: {
-            graph_type: GraphType.BAR,
+            graph_type: graphType || GraphType.BAR,
             sheet_index: sheetIndex,
             x_axis_column_ids: [],
             y_axis_column_ids: [],
@@ -75,10 +76,24 @@ const getDefaultSafetyFilter = (sheetDataArray: SheetData[], sheetIndex: number)
 */
 const getGraphParams = (   
     graphDataJSON: GraphDataJSON,
-    sheetIndex: number,
+    graphID: GraphID,
+    startingSheetIndex: number | undefined,
     sheetDataArray: SheetData[],
 ): GraphParams => {
-    const graphParams = graphDataJSON[sheetIndex.toString()]?.graphParams;
+
+    const graphParams = graphDataJSON[graphID]?.graphParams;
+
+    // If the graphParams are defined then get the sheet index of the graph from the graph params.
+    // Otherwise use the startingSheetIndex
+    let sheetIndex = 0
+    if (graphParams !== undefined) {
+        sheetIndex = graphParams.graphCreation.sheet_index
+    } else if (startingSheetIndex !== undefined) {
+        sheetIndex = startingSheetIndex
+    }
+
+    // If the graph already exists, retrieve the graph params that still make sense. In other words, 
+    // if a column was previously included in the graph and it no longer exists, remove it from the graph. 
     if (graphParams !== undefined) {
         // Filter out column headers that no longer exist
         const validColumnIDs = sheetDataArray[sheetIndex] !== undefined ? sheetDataArray[sheetIndex].data.map(c => c.columnID) : [];
@@ -90,6 +105,7 @@ const getGraphParams = (
             validColumnIDs,
             graphParams.graphCreation.y_axis_column_ids
         )
+
         
         return {
             ...graphParams,
@@ -100,6 +116,8 @@ const getGraphParams = (
             }
         }
     }
+
+    // If the graph does not already exist, create a default graph.
     return getDefaultGraphParams(sheetDataArray, sheetIndex);
 }
 
@@ -112,7 +130,7 @@ const GraphSidebar = (props: {
     sheetDataArray: SheetData[];
     columnIDsMapArray: ColumnIDsMap[],
     dfNames: string[];
-    graphSidebarSheet: number;
+    graphTaskpaneInfo: {newGraph: true, startingSheetIndex: number} | {newGraph: false, graphID: GraphID}
     columnDtypesMap: Record<string, string>;
     mitoAPI: MitoAPI;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
@@ -120,9 +138,14 @@ const GraphSidebar = (props: {
     lastStepIndex: number
 }): JSX.Element => {
 
+    // Each graph tab has one graphID that does not switch even if the user changes
+    // source data sheets. 
+    const graphID = useRef<GraphID>(props.graphTaskpaneInfo.newGraph ? getRandomId() : props.graphTaskpaneInfo.graphID);
+
     // We keep track of the graph data separately from the backend state so that 
     // the UI updates imidietly, even though the backend takes a while to process.
-    const [graphParams, setGraphParams] = useState(() => getGraphParams(props.graphDataJSON, props.graphSidebarSheet, props.sheetDataArray))
+    const startingSheetIndex = props.graphTaskpaneInfo.newGraph ? props.graphTaskpaneInfo.startingSheetIndex : undefined
+    const [graphParams, setGraphParams] = useState(() => getGraphParams(props.graphDataJSON, graphID.current, startingSheetIndex, props.sheetDataArray))
 
     /* 
         When graphUpdatedNumber is, we send a new getGraphMessage with the current graphParams
@@ -138,8 +161,10 @@ const GraphSidebar = (props: {
     const [graphUpdatedNumber, setGraphUpdatedNumber] = useState(0)
 
     const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
-    const graphOutput = props.graphDataJSON[dataSourceSheetIndex]?.graphOutput
+    const graphOutput = props.graphDataJSON[graphID.current]?.graphOutput
     const [_copyGraphCode, graphCodeCopied] = useCopyToClipboard(graphOutput?.graphGeneratedCode);
+
+    // Every configuration that the user makes with this graph sidebar is the same step, until the graph sidebar is closed. 
     const [stepID, setStepID] = useState<string|undefined>(undefined);
 
     const [loading, setLoading] = useState<boolean>(false)
@@ -158,16 +183,18 @@ const GraphSidebar = (props: {
     // We log when the graph has been opened
     useEffect(() => {
         void props.mitoAPI.log('opened_graph');
+    }, []);
 
-        // When the graph taskpane is openned, select the graph tab in the footer
+    useEffect(() => {
+        // When the graphID is set, select the graph tab in the footer
         props.setUIState(prevUIState => {
             return {
                 ...prevUIState,
-                selectedGraphID: dataSourceSheetIndex.toString(),
+                selectedGraphID: graphID.current,
                 selectedTabType: 'graph'
             }
         })
-    }, []);
+    }, [graphID])
 
     // Async load in the data from the mitoAPI
     useDebouncedEffect(() => {
@@ -206,9 +233,11 @@ const GraphSidebar = (props: {
     */
     const getGraphAsync = async () => {
         const boundingRect: DOMRect | undefined = document.getElementById('graph-div')?.getBoundingClientRect();
+        console.log('graph params getting sent: ', graphParams)
 
         if (boundingRect !== undefined) {
             const _stepID = await props.mitoAPI.editGraph(
+                graphID.current,
                 graphParams.graphCreation.graph_type,
                 graphParams.graphCreation.sheet_index,
                 graphParams.graphPreprocessing.safety_filter_turned_on_by_user,
@@ -216,7 +245,7 @@ const GraphSidebar = (props: {
                 graphParams.graphCreation.y_axis_column_ids,
                 `${boundingRect?.height - 10}px`, 
                 `${boundingRect?.width - 20}px`, // Subtract pixels from the height & width to account for padding
-                stepID
+                stepID, 
             );
             setStepID(_stepID)
         }
@@ -230,7 +259,7 @@ const GraphSidebar = (props: {
         with the graph shown
     */
     const refreshParamsAfterUndo = async (): Promise<void> => {        
-        const newGraphParams = getGraphParams(props.graphDataJSON, dataSourceSheetIndex, props.sheetDataArray)
+        const newGraphParams = getGraphParams(props.graphDataJSON, graphID.current, dataSourceSheetIndex, props.sheetDataArray)
         setGraphParams(newGraphParams)
     } 
 
@@ -422,22 +451,10 @@ const GraphSidebar = (props: {
                                     value={props.dfNames[graphParams.graphCreation.sheet_index]}
                                     onChange={(newDfName: string) => {
                                         const newIndex = props.dfNames.indexOf(newDfName);
-                                        // Get the new sheet's graph params 
-                                        const newSheetGraphParams = getGraphParams(props.graphDataJSON, newIndex, props.sheetDataArray)
-
-                                        // When we change sheets that we're graphing, we no longer want to overwrite the previous graph, 
-                                        // instead we want to create a new graph. Therefore, we change the stepID to create the new graph
-                                        // in a new graph step!
-                                        setStepID(undefined)
+                                        
+                                        // Reset the graph params for the new sheet, but keep the graph type!
+                                        const newSheetGraphParams = getDefaultGraphParams(props.sheetDataArray, newIndex, graphParams.graphCreation.graph_type)
                                         setGraphParams(newSheetGraphParams)
-
-                                        // When the user switches data sources, select the correct graph tab in the footer.
-                                        props.setUIState(prevUIState => {
-                                            return {
-                                                ...prevUIState,
-                                                selectedGraphID: newIndex.toString()
-                                            }
-                                        })
 
                                         setGraphUpdatedNumber((old) => old + 1);
                                     }}

@@ -36,7 +36,6 @@ export default function SheetTabActions(props: {
     const onDelete = async (): Promise<void> => {
         // If we are deleting a sheet tab, select the first sheet tab
         props.setUIState(prevUIState => {
-            console.log('setting ui state')
             return {
                 ...prevUIState,
                 selectedTabType: 'data',
@@ -78,7 +77,7 @@ export default function SheetTabActions(props: {
                     ...prevUIState,
                     currOpenTaskpane: {
                         type: TaskpaneType.GRAPH,
-                        graphSidebarSheet: sheetIndex
+                        graphTaskpaneInfo: {newGraph: true, startingSheetIndex: sheetIndex}
                     },
                     selectedGraphID: sheetIndex.toString(),
                     selectedTabType: 'graph'

@@ -102,7 +102,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         exportConfiguration: {exportType: 'csv'}
     })
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined);
-    console.log('taskpane: ', uiState.currOpenTaskpane)
+    console.log(analysisData.graphDataJSON)
 
     const [highlightPivotTableButton, setHighlightPivotTableButton] = useState(false);
     const [highlightAddColButton, setHighlightAddColButton] = useState(false);
@@ -416,7 +416,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
             case TaskpaneType.GRAPH:
                 return (
                     <GraphSidebar 
-                        graphSidebarSheet={uiState.currOpenTaskpane.graphSidebarSheet}
+                        graphTaskpaneInfo={uiState.currOpenTaskpane.graphTaskpaneInfo}
                         dfNames={dfNames}
                         columnIDsMapArray={columnIDsMapArray}
                         sheetDataArray={sheetDataArray}
