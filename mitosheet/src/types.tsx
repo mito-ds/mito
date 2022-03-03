@@ -226,7 +226,8 @@ export type GraphData = {
         graphGeneratedCode: string,
         graphHTML: string,
         graphScript: string,
-    }
+    },
+    graphTabName: string
 };
 
 export type GraphID = string

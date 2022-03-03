@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import pandas as pd
 
 from mitosheet.state import State
-from mitosheet.step_performers.graph_steps.graph_utils import GRAPH_TITLE_LABELS, get_html_and_script_from_figure
+from mitosheet.step_performers.graph_steps.graph_utils import GRAPH_TITLE_LABELS, get_html_and_script_from_figure, get_new_graph_tab_name
 from mitosheet.step_performers.graph_steps.plotly_express_graphs import (
     get_plotly_express_graph,
     get_plotly_express_graph_code,
@@ -81,8 +81,6 @@ class GraphStepPerformer(StepPerformer):
         Returns the new post state with the updated graph_data
         """
 
-        print("UPDATING THE GRAPH")
-
         # We make a new state to modify it
         post_state = deepcopy(prev_state)
 
@@ -119,6 +117,11 @@ class GraphStepPerformer(StepPerformer):
         df: pd.DataFrame = prev_state.dfs[sheet_index].copy()
         df_name: str = prev_state.df_names[sheet_index]
 
+        # If the graph tab already exists, use its name. Otherwise, create a new graph tab name.
+        graph_name: str = post_state.graph_data[graph_id]["graphTabName"] \
+            if graph_id in post_state.graph_data.keys() \
+            else get_new_graph_tab_name(post_state.graph_data)
+
         if len(x_axis_column_ids) == 0 and len(y_axis_column_ids) == 0:
             # If no data is passed to the graph, then we don't create a graph and omit the graphOutput
             post_state.graph_data[graph_id] = {
@@ -127,7 +130,8 @@ class GraphStepPerformer(StepPerformer):
                     "graphCreation": graph_creation,
                     "graphStyling": graph_styling,
                     "graphRendering": graph_rendering,
-                }
+                },
+                "graphTabName": graph_name
             }
         else: 
             fig = get_plotly_express_graph(
@@ -170,7 +174,8 @@ class GraphStepPerformer(StepPerformer):
                     "graphGeneratedCode": graph_generation_code,
                     "graphHTML": html_and_script["html"],
                     "graphScript": html_and_script["script"],
-                }
+                },
+                "graphTabName": graph_name
             }
 
         return post_state, None

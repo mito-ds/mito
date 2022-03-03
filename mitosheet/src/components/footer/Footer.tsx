@@ -64,11 +64,11 @@ function Footer(props: FooterProps): JSX.Element {
                         />
                     )
                 })}
-                {Object.keys(props.graphDataJSON).map((graphID) => {
+                {Object.entries(props.graphDataJSON).map(([graphID, graphData]) => {
                     return (
                         <SheetTab
                             key={graphID}
-                            tabName={graphID}
+                            tabName={graphData.graphTabName}
                             tabIDObj={{tabType: 'graph', graphID: graphID}}
                             isSelectedTab={selectedTabType === 'graph' && graphID === selectedGraphID}
                             setUIState={props.setUIState}

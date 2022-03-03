@@ -138,15 +138,20 @@ const GraphSidebar = (props: {
     lastStepIndex: number
 }): JSX.Element => {
 
-    // Each graph tab has one graphID that does not switch even if the user changes
-    // source data sheets. 
+    // Each graph tab has one graphID that does not switch even if the user changes source data sheets. 
     const [graphID, setGraphID] = useState<GraphID>(() => props.graphTaskpaneInfo.newGraph ? getRandomId() : props.graphTaskpaneInfo.graphID);
-    console.log('graphID: ', graphID)
+    // Every configuration that the user makes with this graphID is the same step, until the graphID is changed.
+    const [stepID, setStepID] = useState<string|undefined>(undefined);
 
     // We keep track of the graph data separately from the backend state so that 
-    // the UI updates imidietly, even though the backend takes a while to process.
+    // the UI updates immediately, even though the backend takes a while to process.
     const startingSheetIndex = props.graphTaskpaneInfo.newGraph ? props.graphTaskpaneInfo.startingSheetIndex : undefined
     const [graphParams, setGraphParams] = useState(() => getGraphParams(props.graphDataJSON, graphID, startingSheetIndex, props.sheetDataArray))
+
+    const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
+    const graphOutput = props.graphDataJSON[graphID]?.graphOutput
+    const [_copyGraphCode, graphCodeCopied] = useCopyToClipboard(graphOutput?.graphGeneratedCode);
+    const [loading, setLoading] = useState<boolean>(false)
 
     /* 
         When graphUpdatedNumber is, we send a new getGraphMessage with the current graphParams
@@ -161,18 +166,13 @@ const GraphSidebar = (props: {
     */
     const [graphUpdatedNumber, setGraphUpdatedNumber] = useState(0)
 
-    const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
-    const graphOutput = props.graphDataJSON[graphID]?.graphOutput
-    const [_copyGraphCode, graphCodeCopied] = useCopyToClipboard(graphOutput?.graphGeneratedCode);
-
-    // Every configuration that the user makes with this graph sidebar is the same step, until the graph sidebar is closed. 
-    const [stepID, setStepID] = useState<string|undefined>(undefined);
-
-    const [loading, setLoading] = useState<boolean>(false)
+    // Log when the graph has been opened
+    useEffect(() => {
+        void props.mitoAPI.log('opened_graph');
+    }, []);
 
     // Save the last step index, so that we can check if an undo occured
     const prevLastStepIndex = usePrevious(props.lastStepIndex);
-
     // When the last step index changes, check if an undo occured so we can refresh the params
     useEffect(() => {
         // If there has been an undo, then we refresh the params to this pivot
@@ -195,14 +195,9 @@ const GraphSidebar = (props: {
         }
     }, [props.graphTaskpaneInfo])
 
-
-    // We log when the graph has been opened
     useEffect(() => {
-        void props.mitoAPI.log('opened_graph');
-    }, []);
-
-    useEffect(() => {
-        // When the graphID is set, select the graph tab in the footer
+        // When the graphID is set, select the graph tab in the footer. We handle this here, 
+        // so that when creating a new graph, we don't need to worry about creating a graphID.
         props.setUIState(prevUIState => {
             return {
                 ...prevUIState,
