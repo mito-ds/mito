@@ -7,7 +7,7 @@ import { GraphType } from "./components/taskpanes/Graph/GraphSidebar";
 import { FileElement } from "./components/taskpanes/Import/ImportTaskpane";
 import { MergeType } from "./components/taskpanes/Merge/MergeTaskpane";
 import { AggregationType, PivotParams } from "./components/taskpanes/PivotTable/PivotTaskpane";
-import { ColumnID, ExcelFileMetadata, FeedbackID, FilterGroupType, FilterType, FormatTypeObj, MitoError, SearchMatches, SheetData } from "./types";
+import { ColumnID, ExcelFileMetadata, FeedbackID, FilterGroupType, FilterType, FormatTypeObj, GraphID, MitoError, SearchMatches, SheetData } from "./types";
 
 
 /*
@@ -537,6 +537,20 @@ export default class MitoAPI {
         }, { maxRetries: 250 })
 
         return stepID
+    }
+
+    async editGraphDelete(
+        graphID: GraphID,
+    ): Promise<void> {
+
+        await this.send<string>({
+            'event': 'edit_event',
+            'type': 'graph_delete_edit',
+            step_id: getRandomId(),
+            'params': {
+                'graph_id': graphID
+            }
+        }, {})
     }
 
     /*

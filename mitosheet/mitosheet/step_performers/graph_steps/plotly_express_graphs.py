@@ -13,7 +13,7 @@ from mitosheet.transpiler.transpile_utils import (
 from mitosheet.types import ColumnHeader
 import plotly.express as px
 import plotly.graph_objects as go
-from mitosheet.step_performers.graph.graph_utils import (
+from mitosheet.step_performers.graph_steps.graph_utils import (
     BAR,
     BOX,
     HISTOGRAM,

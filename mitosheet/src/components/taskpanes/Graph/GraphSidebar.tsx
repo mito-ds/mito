@@ -171,7 +171,6 @@ const GraphSidebar = (props: {
 
     // Async load in the data from the mitoAPI
     useDebouncedEffect(() => {
-        console.log("HERE")
         /* 
             Send the graph message even if the user has not yet configured the graph so that: 
             1) the graph is updated if the data changes since the graph was last updated
@@ -430,6 +429,15 @@ const GraphSidebar = (props: {
                                         // in a new graph step!
                                         setStepID(undefined)
                                         setGraphParams(newSheetGraphParams)
+
+                                        // When the user switches data sources, select the correct graph tab in the footer.
+                                        props.setUIState(prevUIState => {
+                                            return {
+                                                ...prevUIState,
+                                                selectedGraphID: newIndex.toString()
+                                            }
+                                        })
+
                                         setGraphUpdatedNumber((old) => old + 1);
                                     }}
                                     width='small'

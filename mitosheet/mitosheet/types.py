@@ -14,7 +14,7 @@ continous integration
 
 from typing import TYPE_CHECKING, List, Union, Tuple, Any
 
-
+GraphID = str
 ColumnID = str
 
 # A column header is either a primative type
@@ -29,4 +29,6 @@ if TYPE_CHECKING:
     StepsManagerType = StepsManager
 else:
     StepsManagerType = Any
+
+
 

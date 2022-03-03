@@ -9,7 +9,7 @@ import pandas as pd
 from typing import Any, Dict, List
 import plotly.express as px
 import plotly.graph_objects as go
-from mitosheet.step_performers.graph.graph_utils import (
+from mitosheet.step_performers.graph_steps.graph_utils import (
     get_html_and_script_from_figure,
 )
 from mitosheet.sheet_functions.types.utils import is_number_dtype
@@ -17,7 +17,7 @@ from mitosheet.types import ColumnHeader, ColumnID
 from mitosheet.mito_analytics import log
 from mitosheet.steps_manager import StepsManager
 from mitosheet.step_performers.bulk_old_rename.deprecated_utils import deprecated
-from mitosheet.step_performers.graph.graph_utils import BAR, BOX, SCATTER
+from mitosheet.step_performers.graph_steps.graph_utils import BAR, BOX, SCATTER
 
 # Max number of unique non-number items to display in a graph.
 # NOTE: make sure to change both in unison so they make sense

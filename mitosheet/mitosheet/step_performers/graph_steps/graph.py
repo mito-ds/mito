@@ -9,8 +9,8 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import pandas as pd
 
 from mitosheet.state import State
-from mitosheet.step_performers.graph.graph_utils import GRAPH_TITLE_LABELS, get_html_and_script_from_figure
-from mitosheet.step_performers.graph.plotly_express_graphs import (
+from mitosheet.step_performers.graph_steps.graph_utils import GRAPH_TITLE_LABELS, get_html_and_script_from_figure
+from mitosheet.step_performers.graph_steps.plotly_express_graphs import (
     get_plotly_express_graph,
     get_plotly_express_graph_code,
 )

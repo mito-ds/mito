@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 import pandas as pd
-from mitosheet.step_performers.graph.graph_utils import BAR
+from mitosheet.step_performers.graph_steps.graph_utils import BAR
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 
 def test_create_graph():

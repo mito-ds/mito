@@ -5,6 +5,7 @@ import MitoAPI from '../../api';
 import { GraphID, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
+import { TaskpaneType } from '../taskpanes/taskpanes';
 
 /*
     Displays a set of actions one can perform on a sheet tab, including
@@ -35,10 +36,12 @@ export default function SheetTabActions(props: {
     const onDelete = async (): Promise<void> => {
         // If we are deleting a sheet tab, select the first sheet tab
         props.setUIState(prevUIState => {
+            console.log('setting ui state')
             return {
                 ...prevUIState,
                 selectedTabType: 'data',
-                selectedSheetIndex: 0
+                selectedSheetIndex: 0,
+                currOpenTaskpane: {type: TaskpaneType.NONE}
             }
         })
 
@@ -47,6 +50,8 @@ export default function SheetTabActions(props: {
 
         if (props.tabIDObj.tabType === 'data') {
             await props.mitoAPI.editDataframeDelete(props.tabIDObj.selectedIndex)
+        } else {
+            await props.mitoAPI.editGraphDelete(props.tabIDObj.graphID)
         }
     }
 
@@ -71,7 +76,12 @@ export default function SheetTabActions(props: {
         >
             <DropdownItem 
                 title='Delete'
-                onClick={onDelete}
+                onClick={(e) => {
+                    // Stop propogation so that the onClick of the sheet tab div
+                    // doesn't compete updating the uiState.
+                    e?.stopPropagation()
+                    void onDelete()
+                }}
             />
             <DropdownItem 
                 title='Duplicate'

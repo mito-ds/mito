@@ -102,6 +102,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         exportConfiguration: {exportType: 'csv'}
     })
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined);
+    console.log('taskpane: ', uiState.currOpenTaskpane)
 
     const [highlightPivotTableButton, setHighlightPivotTableButton] = useState(false);
     const [highlightAddColButton, setHighlightAddColButton] = useState(false);
