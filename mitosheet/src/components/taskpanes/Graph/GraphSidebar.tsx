@@ -173,11 +173,47 @@ const GraphSidebar = (props: {
 
     // Save the last step index, so that we can check if an undo occured
     const prevLastStepIndex = usePrevious(props.lastStepIndex);
+    // Save the last number of graphs so that we can check if a graph was deleted during an undo, 
+    // so we can update the selected tab
+    const prevNumberOfGraphs = usePrevious(Object.keys(props.graphDataJSON).length)
+
     // When the last step index changes, check if an undo occured so we can refresh the params
     useEffect(() => {
+        console.log('num graphs: ', prevNumberOfGraphs)
         // If there has been an undo, then we refresh the params to this pivot
         if (prevLastStepIndex && prevLastStepIndex !== props.lastStepIndex - 1) {
             void refreshParamsAfterUndo()
+
+            const graphIDs = Object.keys(props.graphDataJSON)
+            const currNumGraphs = graphIDs.length
+            // If the number of graphs changed, update the selected tab
+            console.log(prevNumberOfGraphs && prevNumberOfGraphs > currNumGraphs)
+            if (prevNumberOfGraphs && prevNumberOfGraphs > currNumGraphs) {
+                const newGraphID: GraphID | undefined = graphIDs[currNumGraphs - 1]
+
+                if (newGraphID) {
+                    // If there is a graph, then keep dispalying graphs, otherwise dispaly a data tab
+                    props.setUIState((prevUIState) => {
+                        return {
+                            ...prevUIState,
+                            selectedGraphID: newGraphID,
+                            selectedTabType: 'graph',
+                            // Refresh the currOpenTaskpane with the new graphID to trigger a refresh of the graph sidebar
+                            currOpenTaskpane: {type: TaskpaneType.GRAPH, graphTaskpaneInfo: {newGraph: false, graphID: newGraphID}}
+                        }
+                    })
+                } else {
+                    // If there are no more graphs, close the graph taskpane and display a data sheet instead
+                    props.setUIState((prevUIState) => {
+                        return {
+                            ...prevUIState,
+                            selectedGraphID: undefined,
+                            selectedTabType: 'data',
+                            currOpenTaskpane: {type: TaskpaneType.NONE}
+                        }
+                    })
+                }
+            }
         }
     }, [props.lastStepIndex])
 
@@ -236,6 +272,12 @@ const GraphSidebar = (props: {
         }
 
     }, [graphOutput])
+
+    useEffect(() => {
+        console.log("graph data json length changed")
+
+
+    }, [props.graphDataJSON.length])
 
     /* 
         This is the actual function responsible for loading the new

@@ -3,6 +3,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
+from collections import OrderedDict
 from copy import deepcopy
 from typing import Any, Collection, List, Dict, Set
 import pandas as pd
@@ -116,7 +117,7 @@ class State:
             ]
         )
 
-        self.graph_data: Dict[str, Dict[str, Any]] = graph_data if graph_data is not None else dict()
+        self.graph_data: OrderedDict[str, Dict[str, Any]] = graph_data if graph_data is not None else dict()
 
     def __copy__(self):
         """
