@@ -374,12 +374,15 @@ export const createActions = (
                 setEditorState(undefined);
 
                 setUIState(prevUIState => {
+                    const newGraphID = getRandomId() // Create a new GraphID
                     return {
                         ...prevUIState,
+                        selectedTabType: 'graph',
+                        selectedGraphID: newGraphID,
                         currOpenModal: {type: ModalEnum.None},
                         currOpenTaskpane: {
                             type: TaskpaneType.GRAPH, 
-                            graphID: getRandomId() // Create a new GraphID
+                            graphID: newGraphID
                         },
                     }
                 })

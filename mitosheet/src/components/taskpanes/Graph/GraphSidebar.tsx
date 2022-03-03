@@ -146,7 +146,7 @@ const GraphSidebar = (props: {
         To create a graph, we always pass a graphID. That means that if we're creating a new graph, the opener of the taskpane is required
         to create a new graphID. 
     */
-    const [graphID, setGraphID] = useState<GraphID>(props.graphID);
+    const graphID = props.graphID
 
     // Every configuration that the user makes with this graphID is the same step, until the graphID is changed.
     const [stepID, setStepID] = useState<string|undefined>(undefined);
@@ -224,12 +224,10 @@ const GraphSidebar = (props: {
 
     /*
         If the props.graphID changes, which happens when opening a new graph (either switching between graph tabs or duplicating a graph):
-        1. update the state's graphID, so we edit the correct graph.
-        2. reset the stepID so we don't overwrite the previous edits.
-        3. refresh the graphParams so the UI is up to date with the new graphID's configuration.
+        1. reset the stepID so we don't overwrite the previous edits.
+        2. refresh the graphParams so the UI is up to date with the new graphID's configuration.
     */
     useEffect(() => {
-        setGraphID(props.graphID)
         setStepID(undefined)
         setGraphParams(getGraphParams(props.graphDataJSON, props.graphID, props.uiState.selectedSheetIndex, props.sheetDataArray))
     }, [props.graphID])
