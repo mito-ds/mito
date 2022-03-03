@@ -415,13 +415,14 @@ export const Mito = (props: MitoProps): JSX.Element => {
             case TaskpaneType.GRAPH:
                 return (
                     <GraphSidebar 
-                        graphTaskpaneInfo={uiState.currOpenTaskpane.graphTaskpaneInfo}
+                        graphID={uiState.currOpenTaskpane.graphID}
                         dfNames={dfNames}
                         columnIDsMapArray={columnIDsMapArray}
                         sheetDataArray={sheetDataArray}
                         columnDtypesMap={sheetDataArray[uiState.selectedSheetIndex]?.columnDtypeMap}
                         mitoAPI={props.mitoAPI}
                         setUIState={setUIState} 
+                        uiState={uiState}
                         graphDataJSON={analysisData.graphDataJSON}
                         lastStepIndex={lastStepSummary.step_idx}
                     />

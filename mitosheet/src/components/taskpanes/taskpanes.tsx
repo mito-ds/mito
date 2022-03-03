@@ -41,7 +41,7 @@ export type TaskpaneInfo =
     | {type: TaskpaneType.DROP_DUPLICATES}
     | {
         type: TaskpaneType.GRAPH,
-        graphTaskpaneInfo: {newGraph: true, startingSheetIndex: number} | {newGraph: false, graphID: GraphID}
+        graphID: GraphID
     }    
     | {type: TaskpaneType.IMPORT}
     | {type: TaskpaneType.MERGE}

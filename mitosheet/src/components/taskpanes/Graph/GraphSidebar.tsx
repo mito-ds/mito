@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import MitoAPI, { getRandomId } from '../../../api';
+import MitoAPI from '../../../api';
 import XIcon from '../../icons/XIcon';
 import AxisSection, { GraphAxisType } from './AxisSection';
 import LoadingSpinner from './LoadingSpinner';
@@ -77,26 +77,21 @@ const getDefaultSafetyFilter = (sheetDataArray: SheetData[], sheetIndex: number)
 const getGraphParams = (   
     graphDataJSON: GraphDataJSON,
     graphID: GraphID,
-    startingSheetIndex: number | undefined,
+    selectedSheetIndex: number,
     sheetDataArray: SheetData[],
 ): GraphParams => {
 
     const graphParams = graphDataJSON[graphID]?.graphParams;
 
-    // If the graphParams are defined then get the sheet index of the graph from the graph params.
-    // Otherwise use the startingSheetIndex
-    let sheetIndex = 0
-    if (graphParams !== undefined) {
-        sheetIndex = graphParams.graphCreation.sheet_index
-    } else if (startingSheetIndex !== undefined) {
-        sheetIndex = startingSheetIndex
-    }
+    // If the graph exists already exists, get the data source sheet index from the graph params.
+    // Otherwise we're creating a new graph of the selectedSheetIndex
+    const graphDataSourceSeetIndex = graphParams !== undefined ? graphParams.graphCreation.sheet_index : selectedSheetIndex
 
     // If the graph already exists, retrieve the graph params that still make sense. In other words, 
     // if a column was previously included in the graph and it no longer exists, remove it from the graph. 
     if (graphParams !== undefined) {
         // Filter out column headers that no longer exist
-        const validColumnIDs = sheetDataArray[sheetIndex] !== undefined ? sheetDataArray[sheetIndex].data.map(c => c.columnID) : [];
+        const validColumnIDs = sheetDataArray[graphDataSourceSeetIndex] !== undefined ? sheetDataArray[graphDataSourceSeetIndex].data.map(c => c.columnID) : [];
         const xAxisColumnIDs = intersection(
             validColumnIDs,
             graphParams.graphCreation.x_axis_column_ids
@@ -118,7 +113,7 @@ const getGraphParams = (
     }
 
     // If the graph does not already exist, create a default graph.
-    return getDefaultGraphParams(sheetDataArray, sheetIndex);
+    return getDefaultGraphParams(sheetDataArray, graphDataSourceSeetIndex);
 }
 
 
@@ -130,23 +125,35 @@ const GraphSidebar = (props: {
     sheetDataArray: SheetData[];
     columnIDsMapArray: ColumnIDsMap[],
     dfNames: string[];
-    graphTaskpaneInfo: {newGraph: true, startingSheetIndex: number} | {newGraph: false, graphID: GraphID}
+    graphID: GraphID
     columnDtypesMap: Record<string, string>;
     mitoAPI: MitoAPI;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
+    uiState: UIState;
     graphDataJSON: GraphDataJSON
     lastStepIndex: number
 }): JSX.Element => {
 
-    // Each graph tab has one graphID that does not switch even if the user changes source data sheets. 
-    const [graphID, setGraphID] = useState<GraphID>(() => props.graphTaskpaneInfo.newGraph ? getRandomId() : props.graphTaskpaneInfo.graphID);
+    /*
+        The graphID is the keystone of the graphSidebar. Each graph tab has one graphID that does not switch even if the user changes source data sheets. 
+        
+        In order to properly open a graph in Mito, there are a few things that need to occur:
+            1. We need to update the uiState's `selectedTabType` to "graph" so that the footer selects the correct tab
+            2. We need to set the uiState's `currTaskpaneOpen` to "graph" so that we actually display the graph
+            3. We need to pass the current taskpane the graphID so that we know which graph to display.
+        Everything else is handled by the graphSidebar.  
+
+        To create a graph, we always pass a graphID. That means that if we're creating a new graph, the opener of the taskpane is required
+        to create a new graphID. 
+    */
+    const [graphID, setGraphID] = useState<GraphID>(props.graphID);
+
     // Every configuration that the user makes with this graphID is the same step, until the graphID is changed.
     const [stepID, setStepID] = useState<string|undefined>(undefined);
 
     // We keep track of the graph data separately from the backend state so that 
     // the UI updates immediately, even though the backend takes a while to process.
-    const startingSheetIndex = props.graphTaskpaneInfo.newGraph ? props.graphTaskpaneInfo.startingSheetIndex : undefined
-    const [graphParams, setGraphParams] = useState(() => getGraphParams(props.graphDataJSON, graphID, startingSheetIndex, props.sheetDataArray))
+    const [graphParams, setGraphParams] = useState(() => getGraphParams(props.graphDataJSON, graphID, props.uiState.selectedSheetIndex, props.sheetDataArray))
 
     const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
     const graphOutput = props.graphDataJSON[graphID]?.graphOutput
@@ -190,14 +197,14 @@ const GraphSidebar = (props: {
                 const newGraphID: GraphID | undefined = graphIDs[currNumGraphs - 1]
 
                 if (newGraphID) {
-                    // If there is a graph, then keep dispalying graphs, otherwise dispaly a data tab
+                    // If there is a graph, then keep dispalying graphs, otherwise display a data tab
                     props.setUIState((prevUIState) => {
                         return {
                             ...prevUIState,
                             selectedGraphID: newGraphID,
                             selectedTabType: 'graph',
                             // Refresh the currOpenTaskpane with the new graphID to trigger a refresh of the graph sidebar
-                            currOpenTaskpane: {type: TaskpaneType.GRAPH, graphTaskpaneInfo: {newGraph: false, graphID: newGraphID}}
+                            currOpenTaskpane: {type: TaskpaneType.GRAPH, graphID: newGraphID}
                         }
                     })
                 } else {
@@ -216,30 +223,16 @@ const GraphSidebar = (props: {
     }, [props.lastStepIndex])
 
     /*
-        If the graph taskpane info updates, which happens when switching between graph tabs or duplicating a graph: 
-        1. update the graphID so we edit the new graph 
+        If the props.graphID changes, which happens when opening a new graph (either switching between graph tabs or duplicating a graph):
+        1. update the state's graphID, so we edit the correct graph.
         2. reset the stepID so we don't overwrite the previous edits.
-        3. refresh the graphParams so the UI is up to date with the new graphID's configuration
+        3. refresh the graphParams so the UI is up to date with the new graphID's configuration.
     */
     useEffect(() => {
-        if (!props.graphTaskpaneInfo.newGraph) {
-            setGraphID(props.graphTaskpaneInfo.graphID) 
-            setStepID(undefined)
-            setGraphParams(getGraphParams(props.graphDataJSON, props.graphTaskpaneInfo.graphID, startingSheetIndex, props.sheetDataArray))
-        }
-    }, [props.graphTaskpaneInfo])
-
-    useEffect(() => {
-        // When the graphID is set, select the graph tab in the footer. We handle this here, 
-        // so that when creating a new graph, we don't need to worry about creating a graphID.
-        props.setUIState(prevUIState => {
-            return {
-                ...prevUIState,
-                selectedGraphID: graphID,
-                selectedTabType: 'graph'
-            }
-        })
-    }, [graphID])
+        setGraphID(props.graphID)
+        setStepID(undefined)
+        setGraphParams(getGraphParams(props.graphDataJSON, props.graphID, props.uiState.selectedSheetIndex, props.sheetDataArray))
+    }, [props.graphID])
 
     // Async load in the data from the mitoAPI
     useDebouncedEffect(() => {
@@ -448,7 +441,6 @@ const GraphSidebar = (props: {
                 currOpenTaskpane: { type: TaskpaneType.NONE }
             }
         })
-
         return <DefaultEmptyTaskpane setUIState={props.setUIState} />
     } else {
         return (

@@ -1,5 +1,5 @@
 import fscreen from "fscreen";
-import MitoAPI from "../api";
+import MitoAPI, { getRandomId } from "../api";
 import { getStartingFormula } from "../components/endo/cellEditorUtils";
 import { getColumnIndexesInSelections, getSelectedNumberSeriesColumnIDs, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
 import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes } from "../components/endo/utils";
@@ -377,7 +377,10 @@ export const createActions = (
                     return {
                         ...prevUIState,
                         currOpenModal: {type: ModalEnum.None},
-                        currOpenTaskpane: {type: TaskpaneType.GRAPH, graphTaskpaneInfo: {newGraph: true, startingSheetIndex: prevUIState.selectedSheetIndex}},
+                        currOpenTaskpane: {
+                            type: TaskpaneType.GRAPH, 
+                            graphID: getRandomId() // Create a new GraphID
+                        },
                     }
                 })
             },

@@ -71,10 +71,10 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
             onClick={() => {
                 props.setUIState(prevUIState => {
                     if (props.tabIDObj.tabType === 'data') {
-                        // Because the graph tab is actually just a taskpane, if we're switching sheet tabs
-                        // from a graph tab to a data tab, we need to close the taskpane. Otherwise, keep the taskpabe open.
+                        // If the user clicks on a data sheet tab, switch to it and make sure the graph taskpane is not open
                         const taskpaneInfo: TaskpaneInfo = prevUIState.currOpenTaskpane.type === TaskpaneType.GRAPH ? 
                             {type: TaskpaneType.NONE} : prevUIState.currOpenTaskpane
+
                         return {
                             ...prevUIState,
                             selectedTabType: 'data',
@@ -89,7 +89,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                             currOpenModal: {type: ModalEnum.None},
                             currOpenTaskpane: {
                                 type: TaskpaneType.GRAPH,
-                                graphTaskpaneInfo: {newGraph: false, graphID: props.tabIDObj.graphID}
+                                graphID: props.tabIDObj.graphID
                             } 
                         }
                     }

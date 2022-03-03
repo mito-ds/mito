@@ -70,7 +70,9 @@ export default function SheetTabActions(props: {
                     ...prevUIState,
                     currOpenTaskpane: {
                         type: TaskpaneType.GRAPH,
-                        graphTaskpaneInfo: {newGraph: false, graphID: newGraphID},
+                        graphID: newGraphID,
+                        selectedGraphID: newGraphID,
+                        selectedTabType: 'graph'
                     },
                 }
             })
@@ -86,13 +88,12 @@ export default function SheetTabActions(props: {
     const graphData = (): void => {
         // Do this type check so the compiler knows we can access the selectedIndex property
         if (props.tabIDObj.tabType === 'data') {
-            const sheetIndex = props.tabIDObj.selectedIndex
             props.setUIState(prevUIState => {
                 return {
                     ...prevUIState,
                     currOpenTaskpane: {
                         type: TaskpaneType.GRAPH,
-                        graphTaskpaneInfo: {newGraph: true, startingSheetIndex: sheetIndex}
+                        graphID: getRandomId() // Create a new graph
                     },
                     // Note: We don't set the selected graph tab because we don't know the graph ID yet. 
                     // Instead, we let the graphSidebar select the graph tab. 
