@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React, { useEffect } from 'react';
-import MitoAPI from '../../api';
+import MitoAPI, { getRandomId } from '../../api';
 import { GraphID, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
@@ -60,6 +60,21 @@ export default function SheetTabActions(props: {
         
         if (props.tabIDObj.tabType === 'data') {
             await props.mitoAPI.editDataframeDuplicate(props.tabIDObj.selectedIndex)
+        } else {
+            // Create the newGraphID so we can select the new graph tab
+            const newGraphID = getRandomId()
+            await props.mitoAPI.editGraphDuplicate(props.tabIDObj.graphID, newGraphID)
+
+            props.setUIState(prevUIState => {
+                return {
+                    ...prevUIState,
+                    currOpenTaskpane: {
+                        type: TaskpaneType.GRAPH,
+                        graphTaskpaneInfo: {newGraph: false, graphID: newGraphID},
+                    },
+                }
+            })
+
         }
     }
 
@@ -79,8 +94,8 @@ export default function SheetTabActions(props: {
                         type: TaskpaneType.GRAPH,
                         graphTaskpaneInfo: {newGraph: true, startingSheetIndex: sheetIndex}
                     },
-                    selectedGraphID: sheetIndex.toString(),
-                    selectedTabType: 'graph'
+                    // Note: We don't set the selected graph tab because we don't know the graph ID yet. 
+                    // Instead, we let the graphSidebar select the graph tab. 
                 }
             })
         } 

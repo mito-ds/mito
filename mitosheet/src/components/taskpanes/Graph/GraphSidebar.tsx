@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import MitoAPI, { getRandomId } from '../../../api';
 import XIcon from '../../icons/XIcon';
 import AxisSection, { GraphAxisType } from './AxisSection';
@@ -140,12 +140,13 @@ const GraphSidebar = (props: {
 
     // Each graph tab has one graphID that does not switch even if the user changes
     // source data sheets. 
-    const graphID = useRef<GraphID>(props.graphTaskpaneInfo.newGraph ? getRandomId() : props.graphTaskpaneInfo.graphID);
+    const [graphID, setGraphID] = useState<GraphID>(() => props.graphTaskpaneInfo.newGraph ? getRandomId() : props.graphTaskpaneInfo.graphID);
+    console.log('graphID: ', graphID)
 
     // We keep track of the graph data separately from the backend state so that 
     // the UI updates imidietly, even though the backend takes a while to process.
     const startingSheetIndex = props.graphTaskpaneInfo.newGraph ? props.graphTaskpaneInfo.startingSheetIndex : undefined
-    const [graphParams, setGraphParams] = useState(() => getGraphParams(props.graphDataJSON, graphID.current, startingSheetIndex, props.sheetDataArray))
+    const [graphParams, setGraphParams] = useState(() => getGraphParams(props.graphDataJSON, graphID, startingSheetIndex, props.sheetDataArray))
 
     /* 
         When graphUpdatedNumber is, we send a new getGraphMessage with the current graphParams
@@ -161,7 +162,7 @@ const GraphSidebar = (props: {
     const [graphUpdatedNumber, setGraphUpdatedNumber] = useState(0)
 
     const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
-    const graphOutput = props.graphDataJSON[graphID.current]?.graphOutput
+    const graphOutput = props.graphDataJSON[graphID]?.graphOutput
     const [_copyGraphCode, graphCodeCopied] = useCopyToClipboard(graphOutput?.graphGeneratedCode);
 
     // Every configuration that the user makes with this graph sidebar is the same step, until the graph sidebar is closed. 
@@ -180,6 +181,21 @@ const GraphSidebar = (props: {
         }
     }, [props.lastStepIndex])
 
+    /*
+        If the graph taskpane info updates, which happens when switching between graph tabs or duplicating a graph: 
+        1. update the graphID so we edit the new graph 
+        2. reset the stepID so we don't overwrite the previous edits.
+        3. refresh the graphParams so the UI is up to date with the new graphID's configuration
+    */
+    useEffect(() => {
+        if (!props.graphTaskpaneInfo.newGraph) {
+            setGraphID(props.graphTaskpaneInfo.graphID) 
+            setStepID(undefined)
+            setGraphParams(getGraphParams(props.graphDataJSON, props.graphTaskpaneInfo.graphID, startingSheetIndex, props.sheetDataArray))
+        }
+    }, [props.graphTaskpaneInfo])
+
+
     // We log when the graph has been opened
     useEffect(() => {
         void props.mitoAPI.log('opened_graph');
@@ -190,7 +206,7 @@ const GraphSidebar = (props: {
         props.setUIState(prevUIState => {
             return {
                 ...prevUIState,
-                selectedGraphID: graphID.current,
+                selectedGraphID: graphID,
                 selectedTabType: 'graph'
             }
         })
@@ -237,7 +253,7 @@ const GraphSidebar = (props: {
 
         if (boundingRect !== undefined) {
             const _stepID = await props.mitoAPI.editGraph(
-                graphID.current,
+                graphID,
                 graphParams.graphCreation.graph_type,
                 graphParams.graphCreation.sheet_index,
                 graphParams.graphPreprocessing.safety_filter_turned_on_by_user,
@@ -259,7 +275,7 @@ const GraphSidebar = (props: {
         with the graph shown
     */
     const refreshParamsAfterUndo = async (): Promise<void> => {        
-        const newGraphParams = getGraphParams(props.graphDataJSON, graphID.current, dataSourceSheetIndex, props.sheetDataArray)
+        const newGraphParams = getGraphParams(props.graphDataJSON, graphID, dataSourceSheetIndex, props.sheetDataArray)
         setGraphParams(newGraphParams)
     } 
 

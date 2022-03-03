@@ -81,6 +81,8 @@ class GraphStepPerformer(StepPerformer):
         Returns the new post state with the updated graph_data
         """
 
+        print("UPDATING THE GRAPH")
+
         # We make a new state to modify it
         post_state = deepcopy(prev_state)
 
@@ -116,8 +118,6 @@ class GraphStepPerformer(StepPerformer):
         # Create a copy of the dataframe, just for safety.
         df: pd.DataFrame = prev_state.dfs[sheet_index].copy()
         df_name: str = prev_state.df_names[sheet_index]
-
-        print('graph_id: ', graph_id)
 
         if len(x_axis_column_ids) == 0 and len(y_axis_column_ids) == 0:
             # If no data is passed to the graph, then we don't create a graph and omit the graphOutput

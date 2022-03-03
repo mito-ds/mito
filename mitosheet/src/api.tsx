@@ -555,6 +555,22 @@ export default class MitoAPI {
         }, {})
     }
 
+    async editGraphDuplicate(
+        originalGraphID: GraphID,
+        newGraphID: GraphID
+    ): Promise<void> {
+        
+        await this.send<string>({
+            'event': 'edit_event',
+            'type': 'graph_duplicate_edit',
+            step_id: getRandomId(),
+            'params': {
+                'original_graph_id': originalGraphID,
+                'new_graph_id': newGraphID
+            }
+        }, {})
+    }
+
     /*
         Adds a column with the passed parameters
     */
