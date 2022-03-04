@@ -20,8 +20,6 @@ There are two ways to change the data type of columns inside Mito.
 
 Firstly, for data columns (any column that was not created by a Mito spreadsheet formula), you can use the **column dtype select dropdown** in the column control panel. Just select the dtype that you want to cast the column series to.
 
-![](<../.gitbook/assets/final mito data type.png>)
-
 For formula columns, you can use the typecasting spreadsheet formulas. To do so, add the VALUE, TEXT BOOL, or DATEVALUE function to your formula to convert your column to a number, string, boolean, or datetime respectively.
 
 For example, to convert the result of an IF statement to a boolean, wrap the if statement in the BOOL function.
@@ -31,3 +29,5 @@ For example, to convert the result of an IF statement to a boolean, wrap the if 
 ```
 
 The resulting column will have `true` for each row where A is greater than 100 and `false` for each row where A is less than or equal to 100.
+
+![](<../.gitbook/assets/final dtype.png>)

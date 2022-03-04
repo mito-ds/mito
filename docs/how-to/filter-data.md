@@ -17,7 +17,7 @@ To access Mito's column filters, click on the **filter button** in the column he
 
 Mito's filters are acceptive, meaning that only cells where the filter conditions are met will remain in the dataset.&#x20;
 
-![](<../.gitbook/assets/final mito pivot 2 (1).png>)
+![](<../.gitbook/assets/final filter.png>)
 
 ## Filter By Value
 
