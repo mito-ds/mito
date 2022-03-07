@@ -26,6 +26,8 @@ export const STRING_SELECT_OPTIONS: Record<StringFilterCondition, string> = {
     ['string_does_not_contain']: 'does not contain',
     ['string_exactly']: 'is exactly',
     ['string_not_exactly']: 'is not exactly',
+    ['string_starts_with']: 'starts with',
+    ['string_ends_with']: 'ends with',
     ['empty']: 'is empty',
     ['not_empty']: 'is not empty'
 } 
