@@ -35,7 +35,9 @@ def is_running_test() -> bool:
 # otherwise does nothing with the user_json file. This makes sure
 # we keep the dependencies as simple as possible with this file. 
 # We also add the telemetry, which we turn off if the user has a 
-# pro subscription
+# pro subscription.
+# NOTE: if you delete a field from this, you need to update the 
+# user_json_is_installer_default to handle this properly
 USER_JSON_DEFAULT = {
     'static_user_id': get_random_id() if not is_running_test() else 'github_action',
     'mitosheet_telemetry': True,
