@@ -80,14 +80,18 @@ def get_mitosheet_telemetry() -> bool:
     except: 
         return True
 
-def user_json_only_has_static_user_id() -> bool:
+def user_json_is_installer_default() -> bool:
     """
-    Returns True if the user.json file only has the static_user_id in it
-    and otherwise returns False
+    Returns True if the user.json file is the installer default, 
+    and otherwise returns False. 
+
+    This allows us to not call identify if we have already done
+    so in the mitosheet package (which would overwrite things
+    we don't want to).
     """
     try:
         with open(USER_JSON_PATH) as f:
             user_json_object = json.load(f)
-            return len(user_json_object) == 1 and 'static_user_id' in user_json_object
+            return len(user_json_object) <= len(USER_JSON_DEFAULT)
     except:
         return False
