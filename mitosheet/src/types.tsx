@@ -79,6 +79,8 @@ export type StringFilterCondition = 'contains'
 | 'string_does_not_contain'
 | 'string_exactly'
 | 'string_not_exactly'
+| 'string_starts_with'
+| 'string_ends_with'
 | 'empty'
 | 'not_empty'
 
