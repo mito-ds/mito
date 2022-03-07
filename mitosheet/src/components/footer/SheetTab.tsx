@@ -1,7 +1,6 @@
 // Copyright (c) Mito
 
 import React, { useEffect, useState } from 'react';
-import SheetTabActions from './SheetTabActions';
 import MitoAPI from '../../api';
 import { classNames } from '../../utils/classNames';
 import Input from '../elements/Input';
@@ -14,10 +13,12 @@ import UnselectedSheetTabDropdownIcon from '../icons/UnselectedSheetTabDropdownI
 import { TaskpaneInfo, TaskpaneType } from '../taskpanes/taskpanes';
 import { ModalEnum } from '../modals/modals';
 import GraphIcon from '../icons/GraphIcon';
+import DataSheetTabActions from './DataSheetTabActions';
+import GraphSheetTabActions from './GraphSheetTabActions';
 
 type SheetTabProps = {
     tabName: string;
-    tabIDObj: {tabType: 'data', selectedIndex: number} | {tabType: 'graph', graphID: GraphID}
+    tabIDObj: {tabType: 'data', sheetIndex: number} | {tabType: 'graph', graphID: GraphID}
     isSelectedTab: boolean
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     closeOpenEditingPopups: () => void;
@@ -38,8 +39,8 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
     const [isRename, setIsRename] = useState<boolean>(false);
     const [newTabName, setNewTabName] = useState<string>(props.tabName);
 
-    // Make sure that if we change the df name that is displayed, we default to 
-    // the right new dataframe name as well
+    // Make sure that if we change the sheet tab name that is displayed, we default to 
+    // the correct new name as well
     useEffect(() => {
         setNewTabName(props.tabName);
     }, [props.tabName])
@@ -47,7 +48,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
     const onRename = async (): Promise<void> => {
         if (props.tabIDObj.tabType === 'data') {
             await props.mitoAPI.editDataframeRename(
-                props.tabIDObj.selectedIndex,
+                props.tabIDObj.sheetIndex,
                 newTabName
             );
         } else {
@@ -78,7 +79,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                         return {
                             ...prevUIState,
                             selectedTabType: 'data',
-                            selectedSheetIndex: props.tabIDObj.selectedIndex,
+                            selectedSheetIndex: props.tabIDObj.sheetIndex,
                             currOpenTaskpane: taskpaneInfo
                         }
                     } else {
@@ -125,14 +126,23 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                     {props.isSelectedTab ? <SelectedSheetTabDropdownIcon /> : <UnselectedSheetTabDropdownIcon />}
                 </div>
             </div>
-            {displayActions && 
-                <SheetTabActions 
+            {displayActions && props.tabIDObj.tabType === 'data' &&
+                <DataSheetTabActions 
                     setDisplayActions={setDisplayActions}
                     setUIState={props.setUIState}
                     closeOpenEditingPopups={props.closeOpenEditingPopups}
                     setIsRename={setIsRename}
-                    dfName={props.tabName}
-                    tabIDObj={props.tabIDObj}
+                    sheetIndex={props.tabIDObj.sheetIndex}
+                    mitoAPI={props.mitoAPI}
+                />
+            }
+            {displayActions && props.tabIDObj.tabType === 'graph' &&
+                <GraphSheetTabActions 
+                    setDisplayActions={setDisplayActions}
+                    setUIState={props.setUIState}
+                    closeOpenEditingPopups={props.closeOpenEditingPopups}
+                    setIsRename={setIsRename}
+                    graphID={props.tabIDObj.graphID}
                     mitoAPI={props.mitoAPI}
                 />
             }

@@ -34,7 +34,9 @@ class GraphDeleteStepPerformer(StepPerformer):
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
-        # TODO: Fill this in when we have graph names to consider
+        graph_id = params['graph_id']
+        old_graph_tab_name = prev_state.graph_data[graph_id]
+        params['old_graph_tab_name'] = old_graph_tab_name
         return params
 
     @classmethod
@@ -42,6 +44,7 @@ class GraphDeleteStepPerformer(StepPerformer):
         cls,
         prev_state: State,
         graph_id: GraphID,
+        old_graph_tab_name: str,
         **params
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
 
@@ -49,8 +52,7 @@ class GraphDeleteStepPerformer(StepPerformer):
         post_state = copy(prev_state)
 
         # Execute the graph delete
-        post_state.graph_data.pop(graph_id)
-        print(post_state.graph_data)
+        del post_state.graph_data[graph_id]
 
         return post_state, None
 
@@ -61,6 +63,7 @@ class GraphDeleteStepPerformer(StepPerformer):
         post_state: State,
         execution_data: Optional[Dict[str, Any]],
         graph_id: GraphID,
+        old_graph_tab_name: str
     ) -> List[str]:
         # Since we don't generate any code for graphs, don't return any transpiled code.
         return []
@@ -69,10 +72,11 @@ class GraphDeleteStepPerformer(StepPerformer):
     def describe( # type: ignore
         cls,
         graph_id: GraphID,
+        old_graph_tab_name: str
         df_names=None,
         **params
     ) -> str:
-        return f'Deleted a graph'
+        return f'Deleted {old_graph_tab_name}'
     
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

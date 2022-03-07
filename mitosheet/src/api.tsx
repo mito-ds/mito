@@ -556,7 +556,7 @@ export default class MitoAPI {
     }
 
     async editGraphDuplicate(
-        originalGraphID: GraphID,
+        oldGraphID: GraphID,
         newGraphID: GraphID
     ): Promise<void> {
         
@@ -565,7 +565,7 @@ export default class MitoAPI {
             'type': 'graph_duplicate_edit',
             step_id: getRandomId(),
             'params': {
-                'original_graph_id': originalGraphID,
+                'old_graph_id': oldGraphID,
                 'new_graph_id': newGraphID
             }
         }, {})

@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import MitoAPI, { getRandomId } from '../../api';
-import { GraphID, UIState } from '../../types';
+import { UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import { TaskpaneType } from '../taskpanes/taskpanes';
@@ -16,19 +16,17 @@ export default function SheetTabActions(props: {
     setIsRename: React.Dispatch<React.SetStateAction<boolean>>;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     closeOpenEditingPopups: () => void;
-    dfName: string, 
     mitoAPI: MitoAPI
-    tabIDObj: {tabType: 'data', selectedIndex: number} | {tabType: 'graph', graphID: GraphID}
+    sheetIndex: number
 }): JSX.Element {
 
     // Log opening the sheet tab actions
     useEffect(() => {
-        const selectedSheetIndexOrGraphID = props.tabIDObj.tabType === 'data' ? props.tabIDObj.selectedIndex : props.tabIDObj.graphID
         void props.mitoAPI.log(
             'clicked_sheet_tab_actions',
             {
-                tab_type: props.tabIDObj.tabType,
-                selected_index_or_graph_id: selectedSheetIndexOrGraphID
+                tab_type: 'data',
+                sheet_index: props.sheetIndex
             }
         )
     }, [])
@@ -47,37 +45,15 @@ export default function SheetTabActions(props: {
         // Close 
         props.closeOpenEditingPopups();
 
-        if (props.tabIDObj.tabType === 'data') {
-            await props.mitoAPI.editDataframeDelete(props.tabIDObj.selectedIndex)
-        } else {
-            await props.mitoAPI.editGraphDelete(props.tabIDObj.graphID)
-        }
+        await props.mitoAPI.editDataframeDelete(props.sheetIndex)
     }
 
     const onDuplicate = async (): Promise<void> => {
         // Close 
         props.closeOpenEditingPopups();
         
-        if (props.tabIDObj.tabType === 'data') {
-            await props.mitoAPI.editDataframeDuplicate(props.tabIDObj.selectedIndex)
-        } else {
-            // Create the newGraphID so we can select the new graph tab
-            const newGraphID = getRandomId()
-            await props.mitoAPI.editGraphDuplicate(props.tabIDObj.graphID, newGraphID)
-
-            props.setUIState(prevUIState => {
-                return {
-                    ...prevUIState,
-                    currOpenTaskpane: {
-                        type: TaskpaneType.GRAPH,
-                        graphID: newGraphID,
-                        selectedGraphID: newGraphID,
-                        selectedTabType: 'graph'
-                    },
-                }
-            })
-
-        }
+        await props.mitoAPI.editDataframeDuplicate(props.sheetIndex)
+        
     }
 
     /* Rename helper, which requires changes to the sheet tab itself */
@@ -86,20 +62,18 @@ export default function SheetTabActions(props: {
     }
     
     const graphData = (): void => {
-        // Do this type check so the compiler knows we can access the selectedIndex property
-        if (props.tabIDObj.tabType === 'data') {
-            props.setUIState(prevUIState => {
-                return {
-                    ...prevUIState,
-                    currOpenTaskpane: {
-                        type: TaskpaneType.GRAPH,
-                        graphID: getRandomId() // Create a new graph
-                    },
-                    // Note: We don't set the selected graph tab because we don't know the graph ID yet. 
-                    // Instead, we let the graphSidebar select the graph tab. 
-                }
-            })
-        } 
+        props.setUIState(prevUIState => {
+            const newGraphID = getRandomId() // Create a new graph
+            return {
+                ...prevUIState,
+                selectedGraphID: newGraphID,
+                selectedTabType: 'graph',
+                currOpenTaskpane: {
+                    type: TaskpaneType.GRAPH,
+                    graphID: newGraphID
+                },
+            }
+        })
     }
 
     return (
@@ -110,10 +84,11 @@ export default function SheetTabActions(props: {
             <DropdownItem
                 title='Graph data'
                 onClick={(e) => {
+                    // Stop propogation so that the onClick of the sheet tab div
+                    // doesn't compete updating the uiState.
                     e?.stopPropagation()
                     graphData()
                 }}
-                disabled={props.tabIDObj.tabType === 'graph'}
             />
             <DropdownItem 
                 title='Delete'

@@ -87,8 +87,8 @@ def get_new_graph_tab_name(graph_data: Dict[str, Dict[str, Any]]) -> str:
     graph0, graph1, etc.
     """
     all_graph_names = []
-    for value in graph_data.values():
-        all_graph_names.append(value["graphTabName"])
+    for graph_data in graph_data.values():
+        all_graph_names.append(graph_data["graphTabName"])
     
     graph_number_indicator = 0
     new_graph_name = f'graph{graph_number_indicator}'

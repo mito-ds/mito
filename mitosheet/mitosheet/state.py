@@ -117,6 +117,8 @@ class State:
             ]
         )
 
+        # We put this in an ordered dict so we can easily figure out the last graph that was edited at each step. 
+        # This is helpful for undoing, for example. 
         self.graph_data: OrderedDict[str, Dict[str, Any]] = graph_data if graph_data is not None else dict()
 
     def __copy__(self):

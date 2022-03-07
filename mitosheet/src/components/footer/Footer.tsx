@@ -34,7 +34,7 @@ function Footer(props: FooterProps): JSX.Element {
 
     // Get the sheet index to display the rows and columns of. 
     // If the sheet tab is a graph, then display the info from the data being graphed 
-    const sheetIndex =selectedTabType === 'graph' && selectedGraphID !== undefined && props.graphDataJSON[selectedGraphID] !== undefined? 
+    const sheetIndex = selectedTabType === 'graph' && selectedGraphID !== undefined && props.graphDataJSON[selectedGraphID] !== undefined ? 
         props.graphDataJSON[selectedGraphID].graphParams.graphCreation.sheet_index : selectedSheetIndex
     const sheetData: SheetData | undefined = props.sheetDataArray[sheetIndex]
 
@@ -60,7 +60,7 @@ function Footer(props: FooterProps): JSX.Element {
                         <SheetTab
                             key={idx}
                             tabName={dfName}
-                            tabIDObj={{tabType: 'data', selectedIndex: idx}}
+                            tabIDObj={{tabType: 'data', sheetIndex: idx}}
                             isSelectedTab={selectedTabType === 'data' && idx === selectedSheetIndex}
                             setUIState={props.setUIState}
                             closeOpenEditingPopups={props.closeOpenEditingPopups}

@@ -83,15 +83,15 @@ const getGraphParams = (
 
     const graphParams = graphDataJSON[graphID]?.graphParams;
 
-    // If the graph exists already exists, get the data source sheet index from the graph params.
-    // Otherwise we're creating a new graph of the selectedSheetIndex
-    const graphDataSourceSeetIndex = graphParams !== undefined ? graphParams.graphCreation.sheet_index : selectedSheetIndex
+    // If the graph already exists, get the data source sheet index from the graph params.
+    // Otherwise create a new graph of the selectedSheetIndex
+    const graphDataSourceSheetIndex = graphParams !== undefined ? graphParams.graphCreation.sheet_index : selectedSheetIndex
 
     // If the graph already exists, retrieve the graph params that still make sense. In other words, 
     // if a column was previously included in the graph and it no longer exists, remove it from the graph. 
     if (graphParams !== undefined) {
         // Filter out column headers that no longer exist
-        const validColumnIDs = sheetDataArray[graphDataSourceSeetIndex] !== undefined ? sheetDataArray[graphDataSourceSeetIndex].data.map(c => c.columnID) : [];
+        const validColumnIDs = sheetDataArray[graphDataSourceSheetIndex] !== undefined ? sheetDataArray[graphDataSourceSheetIndex].data.map(c => c.columnID) : [];
         const xAxisColumnIDs = intersection(
             validColumnIDs,
             graphParams.graphCreation.x_axis_column_ids
@@ -113,7 +113,7 @@ const getGraphParams = (
     }
 
     // If the graph does not already exist, create a default graph.
-    return getDefaultGraphParams(sheetDataArray, graphDataSourceSeetIndex);
+    return getDefaultGraphParams(sheetDataArray, graphDataSourceSheetIndex);
 }
 
 
@@ -172,11 +172,6 @@ const GraphSidebar = (props: {
         graphParams to act as the callback, but for the reasons described above, that is not the approach we take here. 
     */
     const [graphUpdatedNumber, setGraphUpdatedNumber] = useState(0)
-
-    // Log when the graph has been opened
-    useEffect(() => {
-        void props.mitoAPI.log('opened_graph');
-    }, []);
 
     // Save the last step index, so that we can check if an undo occured
     const prevLastStepIndex = usePrevious(props.lastStepIndex);

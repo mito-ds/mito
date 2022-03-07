@@ -80,7 +80,7 @@
 
     /* Place the popup div */
     top: 35%;
-    left: 39%;
+    left: 39%; /* This puts the loading indicator in the middle of the graph sidebar */
 
     text-align: center;
 }

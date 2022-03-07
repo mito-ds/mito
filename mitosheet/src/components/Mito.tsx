@@ -96,7 +96,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         currOpenTaskpane: {type: TaskpaneType.NONE},
         selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
         selectedSheetIndex: 0,
-        selectedGraphID: Object.keys(props.analysisData.graphDataJSON).length == 0 ? undefined : Object.keys(props.analysisData.graphDataJSON)[0],
+        selectedGraphID: Object.keys(props.analysisData.graphDataJSON).length === 0 ? undefined : Object.keys(props.analysisData.graphDataJSON)[0],
         selectedTabType: 'data',
         displayFormatToolbarDropdown: false,
         exportConfiguration: {exportType: 'csv'}

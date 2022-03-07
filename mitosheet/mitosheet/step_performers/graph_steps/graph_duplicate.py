@@ -41,14 +41,14 @@ class GraphDuplicateStepPerformer(StepPerformer):
     def execute( # type: ignore
         cls,
         prev_state: State,
-        original_graph_id: GraphID,
+        old_graph_id: GraphID,
         new_graph_id: GraphID,
         **params
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
         post_state = deepcopy(prev_state)
 
         # Execute the step
-        graph_copy = deepcopy(post_state.graph_data[original_graph_id])
+        graph_copy = deepcopy(post_state.graph_data[old_graph_id])
         graph_copy["graphTabName"] = graph_copy["graphTabName"] + '_copy'
         
         # Add the duplicated graph to the graph_data
@@ -62,7 +62,7 @@ class GraphDuplicateStepPerformer(StepPerformer):
         prev_state: State,
         post_state: State,
         execution_data: Optional[Dict[str, Any]],
-        original_graph_id: GraphID,
+        old_graph_id: GraphID,
         new_graph_id: GraphID,
     ) -> List[str]:
         # Graph steps don't add any generated code to the analysis script. 
@@ -71,7 +71,7 @@ class GraphDuplicateStepPerformer(StepPerformer):
     @classmethod
     def describe( # type: ignore
         cls,
-        original_graph_id: GraphID,
+        old_graph_id: GraphID,
         new_graph_id: GraphID,
         df_names=None,
         **params
@@ -81,7 +81,7 @@ class GraphDuplicateStepPerformer(StepPerformer):
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore
         cls, 
-        original_graph_id: GraphID,
+        old_graph_id: GraphID,
         new_graph_id: GraphID,
         **params
     ) -> Set[int]:

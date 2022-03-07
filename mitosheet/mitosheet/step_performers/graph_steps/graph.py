@@ -118,7 +118,7 @@ class GraphStepPerformer(StepPerformer):
         df_name: str = prev_state.df_names[sheet_index]
 
         # If the graph tab already exists, use its name. Otherwise, create a new graph tab name.
-        graph_name: str = post_state.graph_data[graph_id]["graphTabName"] \
+        graph_tab_name: str = post_state.graph_data[graph_id]["graphTabName"] \
             if graph_id in post_state.graph_data.keys() \
             else get_new_graph_tab_name(post_state.graph_data)
 
@@ -131,7 +131,7 @@ class GraphStepPerformer(StepPerformer):
                     "graphStyling": graph_styling,
                     "graphRendering": graph_rendering,
                 },
-                "graphTabName": graph_name
+                "graphTabName": graph_tab_name
             }
         else: 
             fig = get_plotly_express_graph(
@@ -148,7 +148,7 @@ class GraphStepPerformer(StepPerformer):
                     l=0,
                     r=0,
                     t=30,
-                    b=35,
+                    b=35, # This gives enough space so that the x axis label is not cutoff
                 )
             )
 
@@ -175,7 +175,7 @@ class GraphStepPerformer(StepPerformer):
                     "graphHTML": html_and_script["html"],
                     "graphScript": html_and_script["script"],
                 },
-                "graphTabName": graph_name
+                "graphTabName": graph_tab_name
             }
 
         return post_state, None
