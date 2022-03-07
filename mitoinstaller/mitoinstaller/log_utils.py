@@ -7,18 +7,18 @@ to the user.
 """
 import getpass
 import platform
+import sys
 import traceback
 from typing import Any, Dict
-import sys
 
 import analytics
-from termcolor import colored # type: ignore
 
 analytics.write_key = '6I7ptc5wcIGC4WZ0N1t0NXvvAbjRGUgX' 
 
 from mitoinstaller import __version__
-from mitoinstaller.user_install import (get_mitosheet_telemetry, get_static_user_id, is_running_test,
-                                        user_json_only_has_static_user_id)
+from mitoinstaller.user_install import (get_mitosheet_telemetry,
+                                        get_static_user_id, is_running_test,
+                                        user_json_is_installer_default)
 
 
 def is_on_kuberentes_mito() -> bool:
@@ -46,7 +46,7 @@ def identify() -> None:
     static_user_id = get_static_user_id()
     operating_system = platform.system()
 
-    if user_json_only_has_static_user_id() and not is_running_test():
+    if user_json_is_installer_default() and not is_running_test():
         analytics.identify(
             static_user_id,
             {
@@ -57,19 +57,13 @@ def identify() -> None:
             }
         )
 
-def log_error(event: str, params: Dict[str, Any]=None, print_to_user: bool=True) -> None:
+def log_error(event: str, params: Dict[str, Any]=None) -> None:
     """
-    Logs an error by optionally printing the traceback to the user, before
-    actually logging it.
+    Logs an error by adding the traceback to the error, for easier 
+    debugging.
     """
     if params is None:
         params = {}
-    
-    # First, we print the traceback, to make live debugging easier
-    if print_to_user:
-        print(colored(traceback.format_exc(), 'red'))
-        if (len(params) > 0):
-            print(colored(str(params), 'red'))
 
     recent_traceback = traceback.format_exc().strip().split('\n')
     # Then, we log it

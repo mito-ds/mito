@@ -19,15 +19,6 @@ def install_step_mitosheet_check_dependencies():
 
     jupyterlab_version, extension_names = get_jupyterlab_metadata()
 
-    # We log if the user is upgrading their mitosheet extension
-    if extension_names is not None and ('mitosheet' in extension_names or 'mitosheet2' in extension_names or 'mitosheet3' in extension_names):
-        log('upgrading_mitosheet_labextension',
-            {
-                'jupyterlab_version': jupyterlab_version,
-                'extension_names': extension_names
-            }
-        )
-
     # If no JupyterLab is installed, we can continue with install, as
     # there are no conflict dependencies
     if jupyterlab_version is None:
@@ -64,7 +55,7 @@ def install_step_mitosheet_install_mitosheet():
 
 MITOSHEET_INSTALLER_STEPS = [
     InstallerStep(
-        'Checking dependencies',
+        'Check dependencies',
         install_step_mitosheet_check_dependencies
     ),
     InstallerStep(
@@ -72,7 +63,7 @@ MITOSHEET_INSTALLER_STEPS = [
         remove_mitosheet_3_if_present
     ),
     InstallerStep(
-        'Installing mitosheet',
+        'Install mitosheet',
         install_step_mitosheet_install_mitosheet
     ),
 ]

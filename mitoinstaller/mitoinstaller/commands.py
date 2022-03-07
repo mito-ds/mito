@@ -3,16 +3,15 @@ Contains useful commands for interacting
 with the command line directly
 """
 
-import os
 import sys
+import traceback
 from subprocess import CompletedProcess
 from typing import List, Tuple, Union
 
-from termcolor import colored # type: ignore
+from termcolor import colored  # type: ignore
 
 # NOTE: Do not import subprocess here, we only want one
 # function to have it
-from mitoinstaller.user_install import is_running_test
 
 
 def get_output(completed_process: CompletedProcess) -> str:
@@ -208,8 +207,13 @@ def get_jupyterlab_metadata() -> Tuple[Union[str, None], Union[List[str], None]]
     
     return __version__, extension_names
 
-def exit_after_error(install_or_upgrade: str, error: str=None) -> None:
-    full_error = '\n\nSorry, looks like we hit a problem during {install_or_upgrade}. '.format(install_or_upgrade=install_or_upgrade) + \
+def exit_after_error() -> None:
+
+    # Print the full error so that the user can see it
+    print(traceback.format_exc())
+
+    # Then, print a final error message
+    full_error = '\n\nSorry, looks like we hit a problem.' + \
         '\nWe\'re happy to help you fix it ASAP. Just hop on our discord, and and post in the install-help channel. We\'ll get you sorted in a few minutes:\n\n\t https://discord.gg/AAeYm6YV7B\n'
 
     print(colored(full_error, 'red'))
