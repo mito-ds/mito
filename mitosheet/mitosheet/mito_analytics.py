@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
+
 """
 Mito currently collects logs on basic user interactions with the app, 
 so that we can improve the tool.

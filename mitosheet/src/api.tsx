@@ -1,8 +1,9 @@
 // Copyright (c) Mito
 
 import { SortDirection } from "./components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
+import { GraphObject } from "./components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
 import { UniqueValueCount, UniqueValueSortType } from "./components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
-import { GraphObject, GraphType } from "./components/taskpanes/Graph/GraphSidebar";
+import { GraphType } from "./components/taskpanes/Graph/GraphSidebar";
 import { FileElement } from "./components/taskpanes/Import/ImportTaskpane";
 import { MergeType } from "./components/taskpanes/Merge/MergeTaskpane";
 import { AggregationType, PivotParams } from "./components/taskpanes/PivotTable/PivotTaskpane";
@@ -332,39 +333,27 @@ export default class MitoAPI {
         return excelFileString;
     }
 
+
     /*
         Returns a string encoding of a PNG that can be displayed that
         is a summary graph of the specific column header at a specific
         sheet index. Optionally can pass a yAxis and yAxisSheetIndex 
         if 
     */
-    async getGraph(
-        graphType: GraphType,
-        sheet_index: number,
-        safety_filter_turned_on_by_user: boolean,
-        xAxisColumnIDs: ColumnID[] | undefined,
-        yAxisColumnIDs: ColumnID[] | undefined,
+    async getColumnSummaryGraph(
+        sheetIndex: number,
+        column_id: ColumnID,
         height?: string,
         width?: string,
     ): Promise<GraphObject | undefined> {
 
         const graphString = await this.send<string>({
             'event': 'api_call',
-            'type': 'get_graph',
-            'preprocessing': {
-                'safety_filter_turned_on_by_user': safety_filter_turned_on_by_user
-            },
-            'graph_creation': {
-                'graph_type': graphType,
-                'sheet_index': sheet_index,
-                'x_axis_column_ids': xAxisColumnIDs,
-                'y_axis_column_ids': yAxisColumnIDs,
-            },
-            'graph_rendering': {
-                'height': height,
-                'width': width
-            }
-
+            'type': 'get_column_summary_graph',
+            'sheet_index': sheetIndex,
+            'column_id': column_id,
+            'height': height,
+            'width': width
         }, { maxRetries: 250 })
 
         if (graphString == undefined) {
@@ -424,8 +413,7 @@ export default class MitoAPI {
     }
 
     /*
-        Gets the parameters for the pivot table at desination sheet
-        index, or nothing if there are no params
+        Gets metadata about an Excel file
     */
     async getExcelFileMetadata(
         fileName: string
@@ -508,10 +496,53 @@ export default class MitoAPI {
         return undefined;
     }
 
+    async editGraph(
+        graphType: GraphType,
+        sheet_index: number,
+        safety_filter_turned_on_by_user: boolean,
+        xAxisColumnIDs: ColumnID[],
+        yAxisColumnIDs: ColumnID[],
+        height: string,
+        width: string,
+        stepID?: string,
+    ): Promise<string> {
+
+        // If this is overwriting a graph event, then we do not need to
+        // create a new id, as we already have it!
+        if (stepID === undefined || stepID === '') {
+            stepID = getRandomId();
+        }
+
+        await this.send<string>({
+            'event': 'edit_event',
+            'type': 'graph_edit',
+            step_id: stepID,
+            'params': {
+                'graph_preprocessing': {
+                    'safety_filter_turned_on_by_user': safety_filter_turned_on_by_user
+                },
+                'graph_creation': {
+                    'graph_type': graphType,
+                    'sheet_index': sheet_index,
+                    'x_axis_column_ids': xAxisColumnIDs,
+                    'y_axis_column_ids': yAxisColumnIDs,
+                },
+                'graph_styling': {},
+                'graph_rendering': {
+                    'height': height,
+                    'width': width
+                }
+            }
+            
+        }, { maxRetries: 250 })
+
+        return stepID
+    }
+
     /*
         Adds a column with the passed parameters
     */
-    async sendColumnAddMessage(
+    async editAddColumn(
         sheetIndex: number,
         columnHeader: string,
         columnHeaderIndex: number,
@@ -537,7 +568,7 @@ export default class MitoAPI {
     /*
         Adds a delete column message with the passed parameters
     */
-    async sendDeleteColumn(
+    async editDeleteColumn(
         sheetIndex: number,
         columnIDs: ColumnID[],
     ): Promise<void> {
@@ -558,7 +589,7 @@ export default class MitoAPI {
         Does a merge with the passed parameters, returning the ID of the edit
         event that was generated (in case you want to overwrite it).
     */
-    async sendMergeMessage(
+    async editMerge(
         mergeType: MergeType,
         sheetOneIndex: number,
         mergeKeyColumnIDOne: ColumnID,
@@ -601,7 +632,7 @@ export default class MitoAPI {
         Does a pivot with the passed parameters, returning the ID of the edit
         event that was generated (in case you want to overwrite it).
     */
-    async sendPivotMessage(
+    async editPivot(
         sheetIndex: number,
         pivotRowColumnIDs: ColumnID[],
         pivotColsIDs: ColumnID[],
@@ -639,7 +670,7 @@ export default class MitoAPI {
         Reorders the columnID on sheetIndex to the newIndex, and shifts the remaining
         columns to the right.
     */
-    async sendReorderColumnMessage(
+    async editReorderColumn(
         sheetIndex: number,
         columnID: ColumnID,
         newIndex: number
@@ -661,7 +692,7 @@ export default class MitoAPI {
     /*
         Renames the dataframe at sheetIndex.
     */
-    async sendDataframeRenameEdit(
+    async editDataframeRename(
         sheetIndex: number,
         newDataframeName: string,
         stepID?: string,
@@ -689,7 +720,7 @@ export default class MitoAPI {
         Does a filter with the passed parameters, returning the ID of the edit
         event that was generated (in case you want to overwrite it).
     */
-    async sendFilterMessage(
+    async editFilter(
         sheetIndex: number,
         columnID: ColumnID,
         filters: (FilterType | FilterGroupType)[],
@@ -721,7 +752,7 @@ export default class MitoAPI {
         Does a sort with the passed parameters, returning the ID of the edit
         event that was generated (in case you want to overwrite it).
     */
-    async sendSortMessage(
+    async editSort(
         sheetIndex: number,
         columnID: ColumnID,
         sortDirection: SortDirection,
@@ -748,7 +779,7 @@ export default class MitoAPI {
     /*
         Drop duplicates in a dataframe
     */
-    async dropDuplicates(
+    async editDropDuplicates(
         sheetIndex: number,
         columnIDs: ColumnID[],
         keep: 'last' | 'first' | false,
@@ -775,7 +806,7 @@ export default class MitoAPI {
     /*
         Renames a column with the passed parameters
     */
-    async sendRenameColumn(
+    async editRenameColumn(
         sheetIndex: number,
         columnID: ColumnID,
         newColumnHeader: string,
@@ -804,7 +835,7 @@ export default class MitoAPI {
     /*
         Duplicates the dataframe at sheetIndex.
     */
-    async sendDataframeDuplicateMessage(
+    async editDataframeDuplicate(
         sheetIndex: number
     ): Promise<void> {
         const stepID = getRandomId();
@@ -822,7 +853,7 @@ export default class MitoAPI {
     /*
         Deletes the dataframe at the passed sheetIndex
     */
-    async sendDataframeDeleteMessage(
+    async editDataframeDelete(
         sheetIndex: number
     ): Promise<void> {
         const stepID = getRandomId();
@@ -837,84 +868,11 @@ export default class MitoAPI {
         }, {})
     }
 
-    /*
-        Sends an undo message, which removes the last step that was created. 
-    */
-    async sendUndoMessage(): Promise<void> {
-        await this.send({
-            'event': 'update_event',
-            'type': 'undo'
-        }, {})
-    }
-
-
-    /*
-        Sends an go pro message, which allows the user to 
-        get a Mito pro account
-    */
-    async goPro(): Promise<void> {
-        await this.send({
-            'event': 'update_event',
-            'type': 'go_pro'
-        }, {})
-    }
-
-    /*
-        Sends an redo message, which removes the last step that was created. 
-    */
-    async sendRedoMessage(): Promise<void> {
-        await this.send({
-            'event': 'update_event',
-            'type': 'redo'
-        }, {})
-    }
-
-    /*
-        Sends an clear message, which removes all steps from the analysis
-        expect the imports
-    */
-    async sendClearMessage(): Promise<void> {
-        await this.send({
-            'event': 'update_event',
-            'type': 'clear'
-        }, {})
-    }
-
-    /*
-        Sends an update message that updates
-        the names of the arguments to the mitosheet.sheet call
-    */
-    async sendArgsUpdate(args: string[]): Promise<void> {
-        await this.send({
-            'event': 'update_event',
-            'type': 'args_update',
-            'args': args
-        }, {})
-    }
-
-    /*
-        Sends a message to tell Mito to replay an existing analysis onto
-        the current analysis.
-    */
-    async sendUseExistingAnalysisUpdateMessage(
-        analysisName: string,
-        newFileNames?: ImportSummaries,
-        clearExistingAnalysis?: boolean
-    ): Promise<void> {
-
-        await this.send({
-            'event': 'update_event',
-            'type': 'replay_analysis_update',
-            'analysis_name': analysisName,
-            'import_summaries': newFileNames === undefined ? {} : newFileNames,
-            'clear_existing_analysis': clearExistingAnalysis === undefined ? false : clearExistingAnalysis
-        }, { maxRetries: 500 });
-    }
 
     /*
         Sets the formula for the given columns.
     */
-    async sendSetColumnFormulaEditMessage(
+    async editSetColumnFormula(
         sheetIndex: number,
         columnID: ColumnID,
         newFormula: string,
@@ -936,7 +894,7 @@ export default class MitoAPI {
     /*
         Sets the value of a specific cell
     */
-    async sendSetCellValueMessage(
+    async editSetCellValue(
         sheetIndex: number,
         columnID: ColumnID,
         dataframeRowIndex: number | string,
@@ -960,7 +918,7 @@ export default class MitoAPI {
     /*
         Change dtype of the column at sheetIndex to the newDtype
     */
-    async changeColumnDtype(
+    async editChangeColumnDtype(
         sheetIndex: number,
         columnID: ColumnID,
         newDtype: string,
@@ -987,7 +945,7 @@ export default class MitoAPI {
     /*
         Change the format of the columns
     */
-    async changeColumnFormat(
+    async editChangeColumnFormat(
         sheetIndex: number,
         columnIDs: ColumnID[],
         newFormatType: FormatTypeObj,
@@ -1014,7 +972,7 @@ export default class MitoAPI {
     /*
         Imports the given CSV file names.
     */
-    async sendSimpleImportMessage(
+    async editSimpleImport(
         fileNames: string[],
         stepID?: string,
     ): Promise<string> {
@@ -1038,7 +996,7 @@ export default class MitoAPI {
     /*
         Imports the given file names.
     */
-    async sendExcelImportMessage(
+    async editExcelImport(
         fileName: string,
         sheetNames: string[],
         hasHeaders: boolean,
@@ -1066,9 +1024,84 @@ export default class MitoAPI {
     }
 
     /*
+        Sends an undo message, which removes the last step that was created. 
+    */
+    async updateUndo(): Promise<void> {
+        await this.send({
+            'event': 'update_event',
+            'type': 'undo'
+        }, {})
+    }
+
+
+    /*
+        Sends an go pro message, which allows the user to 
+        get a Mito pro account
+    */
+    async updateGoPro(): Promise<void> {
+        await this.send({
+            'event': 'update_event',
+            'type': 'go_pro'
+        }, {})
+    }
+
+    /*
+        Sends an redo message, which removes the last step that was created. 
+    */
+    async updateRedo(): Promise<void> {
+        await this.send({
+            'event': 'update_event',
+            'type': 'redo'
+        }, {})
+    }
+
+    /*
+        Sends an clear message, which removes all steps from the analysis
+        expect the imports
+    */
+    async updateClear(): Promise<void> {
+        await this.send({
+            'event': 'update_event',
+            'type': 'clear'
+        }, {})
+    }
+
+    /*
+        Sends an update message that updates
+        the names of the arguments to the mitosheet.sheet call
+    */
+    async updateArgs(args: string[]): Promise<void> {
+        await this.send({
+            'event': 'update_event',
+            'type': 'args_update',
+            'args': args
+        }, {})
+    }
+
+    /*
+        Sends a message to tell Mito to replay an existing analysis onto
+        the current analysis.
+    */
+    async updateReplayAnalysis(
+        analysisName: string,
+        newFileNames?: ImportSummaries,
+        clearExistingAnalysis?: boolean
+    ): Promise<void> {
+
+        await this.send({
+            'event': 'update_event',
+            'type': 'replay_analysis_update',
+            'analysis_name': analysisName,
+            'import_summaries': newFileNames === undefined ? {} : newFileNames,
+            'clear_existing_analysis': clearExistingAnalysis === undefined ? false : clearExistingAnalysis
+        }, { maxRetries: 500 });
+    }
+
+
+    /*
         Sends the user_email to the backend so the user can sign in
     */
-    async sendSignUp(
+    async updateSignUp(
         userEmail: string
     ): Promise<void> {
         await this.send({
@@ -1089,7 +1122,7 @@ export default class MitoAPI {
         if the user does not actually go through the upgrade
         process
     */
-    async manuallyMarkUpgraded(): Promise<void> {
+    async updateManuallyMarkUpgraded(): Promise<void> {
         // Change it so that it is 10 days in the past.
         const tenDaysAgo = (new Date()).getDate() - 10;
         const tenDaysAgoDate = new Date();
@@ -1107,7 +1140,7 @@ export default class MitoAPI {
     /*
         Checks outs a specific step by index
     */
-    async checkoutStepByIndex(
+    async updateCheckoutStepByIndex(
         stepIndex: number
     ): Promise<void> {
 
@@ -1121,7 +1154,7 @@ export default class MitoAPI {
     /* 
         Tells the backend to mark the user as having gone through the tour in the user.json
     */
-    async sendCloseTour(tourNames: string[]): Promise<void> {
+    async updateCloseTour(tourNames: string[]): Promise<void> {
         await this.send({
             'event': 'update_event',
             'type': 'append_user_field_update',
@@ -1130,7 +1163,7 @@ export default class MitoAPI {
         }, {})
     }
 
-    async sendFeedback(feedbackID: FeedbackID, numUsages: number, questionsAndAnswers: { question: string, answer: string | number }[]): Promise<void> {
+    async updateFeedback(feedbackID: FeedbackID, numUsages: number, questionsAndAnswers: { question: string, answer: string | number }[]): Promise<void> {
 
         const message: Record<string, unknown> = {
             'event': 'update_event',
@@ -1154,7 +1187,7 @@ export default class MitoAPI {
         by the backend. We log in the backend to keep a linear stream of actions 
         that is making.
     */
-    async sendLogMessage(
+    async log(
         logEventType: string,
         params?: Record<string, unknown>
     ): Promise<void> {

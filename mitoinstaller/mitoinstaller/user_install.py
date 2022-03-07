@@ -35,7 +35,9 @@ def is_running_test() -> bool:
 # otherwise does nothing with the user_json file. This makes sure
 # we keep the dependencies as simple as possible with this file. 
 # We also add the telemetry, which we turn off if the user has a 
-# pro subscription
+# pro subscription.
+# NOTE: if you delete a field from this, you need to update the 
+# user_json_is_installer_default to handle this properly
 USER_JSON_DEFAULT = {
     'static_user_id': get_random_id() if not is_running_test() else 'github_action',
     'mitosheet_telemetry': True,
@@ -73,21 +75,25 @@ def get_static_user_id() -> Optional[str]:
     except: 
         return None
 
-def get_mitosheet_telemetry() -> Optional[bool]:
+def get_mitosheet_telemetry() -> bool:
     try:
         with open(USER_JSON_PATH) as f:
             return json.load(f)['mitosheet_telemetry']
     except: 
         return True
 
-def user_json_only_has_static_user_id() -> bool:
+def user_json_is_installer_default() -> bool:
     """
-    Returns True if the user.json file only has the static_user_id in it
-    and otherwise returns False
+    Returns True if the user.json file is the installer default, 
+    and otherwise returns False. 
+
+    This allows us to not call identify if we have already done
+    so in the mitosheet package (which would overwrite things
+    we don't want to).
     """
     try:
         with open(USER_JSON_PATH) as f:
             user_json_object = json.load(f)
-            return len(user_json_object) == 1 and 'static_user_id' in user_json_object
+            return len(user_json_object) <= len(USER_JSON_DEFAULT)
     except:
         return False

@@ -88,7 +88,7 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
     }, [props.uiState.exportConfiguration, props.selectedSheetIndex, props.sheetDataArray], 500)
 
     const onDownload = () => {
-        void props.mitoAPI.sendLogMessage(
+        void props.mitoAPI.log(
             'button_download_log_event',
             {
                 sheet_index: props.selectedSheetIndex,

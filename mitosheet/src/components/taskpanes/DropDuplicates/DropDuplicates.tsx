@@ -71,7 +71,7 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
 
         setLoading(true);
         
-        const newStepID = await props.mitoAPI.dropDuplicates(
+        const newStepID = await props.mitoAPI.editDropDuplicates(
             params.sheetIndex,
             params.columnIDs,
             params.keep,

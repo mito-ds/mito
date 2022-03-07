@@ -167,7 +167,7 @@ const ColumnHeader = (props: {
                                     const newColumnHeader = props.editorState?.formula || getDisplayColumnHeader(finalColumnHeader);
                                     const oldColumnHeader = getDisplayColumnHeader(lowerLevelColumnHeader);
                                     if (newColumnHeader !== oldColumnHeader) {
-                                        void props.mitoAPI.sendRenameColumn(
+                                        void props.mitoAPI.editRenameColumn(
                                             props.gridState.sheetIndex,
                                             columnID,
                                             newColumnHeader,
@@ -307,7 +307,7 @@ const ColumnHeader = (props: {
                             const oldColumnHeader = getDisplayColumnHeader(finalColumnHeader);
                             if (newColumnHeader !== oldColumnHeader) {
                                 const levelIndex = isPrimitiveColumnHeader(columnHeader) ? undefined : rowIndexToColumnHeaderLevel(columnHeader, -1);
-                                void props.mitoAPI.sendRenameColumn(
+                                void props.mitoAPI.editRenameColumn(
                                     props.gridState.sheetIndex,
                                     columnID,
                                     newColumnHeader,

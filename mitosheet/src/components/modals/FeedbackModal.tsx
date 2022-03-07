@@ -27,7 +27,8 @@ const UsageTriggeredFeedbackTitleMapping: Record<UsageTriggeredFeedbackID, strin
     [FeedbackID.CHANGE_COLUMN_FORMAT_USAGE_TRIGGERED]: 'Changing Column Format Feedback',
     [FeedbackID.SIMPLE_IMPORT_USAGE_TRIGGERED]: 'Importing CSV Feedback',
     [FeedbackID.EXCEL_IMPORT_USAGE_TRIGGERED]: 'Importing Excel File Feedback',
-    [FeedbackID.DROP_DUPLICATES_USAGE_TRIGGERED]: 'Drop Duplicated Feedback'
+    [FeedbackID.DROP_DUPLICATES_USAGE_TRIGGERED]: 'Drop Duplicated Feedback',
+    [FeedbackID.GRAPH_USAGE_TRIGGERED]: 'Graphing a sheet Feedback'
 }
 
 const UsageTriggeredFeedbackQuestionMapping: Record<UsageTriggeredFeedbackID, string> = {
@@ -48,7 +49,8 @@ const UsageTriggeredFeedbackQuestionMapping: Record<UsageTriggeredFeedbackID, st
     [FeedbackID.CHANGE_COLUMN_FORMAT_USAGE_TRIGGERED]: 'changed a column format',
     [FeedbackID.SIMPLE_IMPORT_USAGE_TRIGGERED]: 'imported a CSV',
     [FeedbackID.EXCEL_IMPORT_USAGE_TRIGGERED]: 'imported an Excel file',
-    [FeedbackID.DROP_DUPLICATES_USAGE_TRIGGERED]: 'dropped duplicates'
+    [FeedbackID.DROP_DUPLICATES_USAGE_TRIGGERED]: 'dropped duplicates',
+    [FeedbackID.GRAPH_USAGE_TRIGGERED]: 'graphed a sheet'
 }
 
 type FeedbackModalProps = {
@@ -73,7 +75,7 @@ const FeedbackModal = (props: FeedbackModalProps): JSX.Element => {
 
     // Log when this opens
     useEffect(() => {
-        void props.mitoAPI.sendLogMessage('usage_triggered_feedback_opened')
+        void props.mitoAPI.log('usage_triggered_feedback_opened')
     }, []);
 
     return (
@@ -128,7 +130,7 @@ const FeedbackModal = (props: FeedbackModalProps): JSX.Element => {
                                 return;
                             }
 
-                            void props.mitoAPI.sendFeedback(props.usageTriggereeFeedbackID, props.numUsages,
+                            void props.mitoAPI.updateFeedback(props.usageTriggereeFeedbackID, props.numUsages,
                                 [
                                     {'question': questionOne, 'answer': firstResponse},
                                     {'question': questionTwo, 'answer': secondResponse}

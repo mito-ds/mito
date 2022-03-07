@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 Contains tests for the user.json file, making sure it upgrades properly,
 and that it can handle the various undefined versions of user.json that exist.

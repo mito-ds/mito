@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
+
 """
 For each column header, Mito creates a static `column_id` that
 is used to identify that column header throughout the entire course

@@ -14,6 +14,7 @@ import { FilterIcon } from '../../icons/FilterIcons';
 import EditIcon from '../../icons/EditIcon';
 import MitoIcon from '../../icons/MitoIcon';
 import DropDuplicatesIcon from '../../icons/DropDuplicatesIcon';
+import GraphIcon from '../../icons/GraphIcon';
 
 
 export type StepDataElementProps = {
@@ -80,6 +81,9 @@ export function getStepIcon(stepType: StepType): JSX.Element {
         case StepType.DropDuplicates: return (
             <DropDuplicatesIcon/>
         )
+        case StepType.Graph: return (
+            <GraphIcon/>
+        )
         // TODO: Add a case here
         default: return (
             <EditIcon/>
@@ -98,9 +102,9 @@ function StepDataElement(props: StepDataElementProps): JSX.Element {
     const toggleStepRollBack = (): void => {
         if (props.isCurrIdx) {
             // If this step is checked out, we go back to the last index
-            void props.mitoAPI.checkoutStepByIndex(props.lastIndex);
+            void props.mitoAPI.updateCheckoutStepByIndex(props.lastIndex);
         } else {
-            void props.mitoAPI.checkoutStepByIndex(props.stepData.step_idx);
+            void props.mitoAPI.updateCheckoutStepByIndex(props.stepData.step_idx);
         }
     }
 

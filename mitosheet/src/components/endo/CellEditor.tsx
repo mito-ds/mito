@@ -463,13 +463,13 @@ const CellEditor = (props: {
         let errorMessage: MitoError | undefined = undefined;
         // Make sure to send the write type of message, depending on the editor
         if (isFormulaColumn) {
-            errorMessage = await props.mitoAPI.sendSetColumnFormulaEditMessage(
+            errorMessage = await props.mitoAPI.editSetColumnFormula(
                 props.sheetIndex,
                 columnID,
                 formula
             )
         } else {
-            errorMessage = await props.mitoAPI.sendSetCellValueMessage(
+            errorMessage = await props.mitoAPI.editSetCellValue(
                 props.sheetIndex,
                 columnID,
                 index,

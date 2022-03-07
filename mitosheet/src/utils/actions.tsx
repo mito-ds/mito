@@ -69,7 +69,7 @@ export const createActions = (
                 // The new column should be placed 1 position to the right of the last selected column
                 const newColumnHeaderIndex = gridState.selections[gridState.selections.length - 1].endingColumnIndex + 1;
 
-                void mitoAPI.sendColumnAddMessage(
+                void mitoAPI.editAddColumn(
                     sheetIndex,
                     newColumnHeader,
                     newColumnHeaderIndex
@@ -171,7 +171,7 @@ export const createActions = (
                     const columnIDsToDelete = columnIndexesSelected.map(colIdx => sheetData?.data[colIdx]?.columnID || '').filter(columnID => columnID !== '')
 
                     if (columnIDsToDelete !== undefined) {
-                        await mitoAPI.sendDeleteColumn(
+                        await mitoAPI.editDeleteColumn(
                             sheetIndex,
                             columnIDsToDelete
                         )
@@ -210,7 +210,7 @@ export const createActions = (
                 // Close 
                 closeOpenEditingPopups();
 
-                await mitoAPI.sendDataframeDeleteMessage(sheetIndex)
+                await mitoAPI.editDataframeDelete(sheetIndex)
 
             },
             isDisabled: () => {
@@ -228,7 +228,7 @@ export const createActions = (
                 setEditorState(undefined);
 
                 // We log the opening of the documentation taskpane
-                void mitoAPI.sendLogMessage('clicked_documentation');
+                void mitoAPI.log('clicked_documentation');
 
                 // Open the documentation in a new tab - to importing because they have mito
                 // installed already
@@ -269,7 +269,7 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
 
-                await mitoAPI.sendDataframeDuplicateMessage(sheetIndex)
+                await mitoAPI.editDataframeDuplicate(sheetIndex)
             },
             isDisabled: () => {
                 return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no sheets to duplicate. Import data.'
@@ -515,7 +515,7 @@ export const createActions = (
                 // We close the editing taskpane if its open
                 closeOpenEditingPopups([TaskpaneType.PIVOT]);
     
-                void mitoAPI.sendRedoMessage();
+                void mitoAPI.updateRedo();
             },
             isDisabled: () => {return undefined},
             searchTerms: ['redo', 'undo'],
@@ -579,7 +579,7 @@ export const createActions = (
                 setEditorState(undefined);
 
                 // We log the opening of the documentation taskpane
-                void mitoAPI.sendLogMessage('clicked_documentation');
+                void mitoAPI.log('clicked_documentation');
 
                 // Open the documentation in a new tab - to importing because they have mito
                 // installed already
@@ -704,7 +704,7 @@ export const createActions = (
             shortTitle: 'steps',
             longTitle: 'Step history',
             actionFunction: () => {
-                void mitoAPI.sendLogMessage('click_open_steps')
+                void mitoAPI.log('click_open_steps')
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
@@ -728,7 +728,7 @@ export const createActions = (
                 // We close the editing taskpane if its open
                 closeOpenEditingPopups([TaskpaneType.PIVOT, TaskpaneType.IMPORT]);
         
-                void mitoAPI.sendUndoMessage();
+                void mitoAPI.updateUndo();
             },
             isDisabled: () => {return undefined},
             searchTerms: ['undo', 'go back', 'redo'],

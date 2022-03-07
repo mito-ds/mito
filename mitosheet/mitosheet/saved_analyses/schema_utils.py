@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 """
 Stores utilities for changing the schemas for a saved analysis file,
 which requires a seperate upgrade process that upgrading specific
