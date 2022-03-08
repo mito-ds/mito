@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import MitoAPI from '../../api';
 import { classNames } from '../../utils/classNames';
 import Input from '../elements/Input';
-import { GraphID, UIState } from '../../types';
+import { GraphDataJSON, GraphID, UIState } from '../../types';
 import { focusGrid } from '../endo/focusUtils';
 
 // import icons
@@ -16,14 +16,42 @@ import GraphIcon from '../icons/GraphIcon';
 import DataSheetTabActions from './DataSheetTabActions';
 import GraphSheetTabActions from './GraphSheetTabActions';
 
+export const selectPreviousGraphSheetTab = (graphDataJSON: GraphDataJSON, setUIState: React.Dispatch<React.SetStateAction<UIState>>): void => {
+    const graphIDs = Object.keys(graphDataJSON)
+    const newGraphID: GraphID | undefined = graphIDs.length > 0 ? graphIDs[graphIDs.length - 1] : undefined
+
+    if (newGraphID) {
+        // If there is a graph, then keep dispalying graphs, otherwise display a data tab
+        setUIState((prevUIState) => {
+            return {
+                ...prevUIState,
+                selectedGraphID: newGraphID,
+                selectedTabType: 'graph',
+                currOpenTaskpane: {type: TaskpaneType.GRAPH, graphID: newGraphID}
+            }
+        })
+    } else {
+        // If there are no more graphs, close the graph taskpane and display a data sheet instead
+        setUIState((prevUIState) => {
+            return {
+                ...prevUIState,
+                selectedGraphID: undefined,
+                selectedTabType: 'data',
+                currOpenTaskpane: {type: TaskpaneType.NONE}
+            }
+        })
+    }
+}
+
 type SheetTabProps = {
     tabName: string;
-    tabIDObj: {tabType: 'data', sheetIndex: number} | {tabType: 'graph', graphID: GraphID}
-    isSelectedTab: boolean
+    tabIDObj: {tabType: 'data', sheetIndex: number} | {tabType: 'graph', graphID: GraphID};
+    isSelectedTab: boolean;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     closeOpenEditingPopups: () => void;
     mitoAPI: MitoAPI;
-    mitoContainerRef: React.RefObject<HTMLDivElement>
+    mitoContainerRef: React.RefObject<HTMLDivElement>;
+    graphDataJSON: GraphDataJSON;
 };
 
 /*
@@ -144,6 +172,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                     setIsRename={setIsRename}
                     graphID={props.tabIDObj.graphID}
                     mitoAPI={props.mitoAPI}
+                    graphDataJSON={props.graphDataJSON}
                 />
             }
         </div>

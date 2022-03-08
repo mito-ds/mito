@@ -72,7 +72,7 @@ class GraphDeleteStepPerformer(StepPerformer):
     def describe( # type: ignore
         cls,
         graph_id: GraphID,
-        old_graph_tab_name: str
+        old_graph_tab_name: str,
         df_names=None,
         **params
     ) -> str:

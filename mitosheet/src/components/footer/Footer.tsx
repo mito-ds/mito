@@ -66,6 +66,7 @@ function Footer(props: FooterProps): JSX.Element {
                             closeOpenEditingPopups={props.closeOpenEditingPopups}
                             mitoAPI={props.mitoAPI}
                             mitoContainerRef={props.mitoContainerRef}
+                            graphDataJSON={props.graphDataJSON}
                         />
                     )
                 })}
@@ -80,6 +81,7 @@ function Footer(props: FooterProps): JSX.Element {
                             closeOpenEditingPopups={props.closeOpenEditingPopups}
                             mitoAPI={props.mitoAPI}
                             mitoContainerRef={props.mitoContainerRef}
+                            graphDataJSON={props.graphDataJSON}
                         />
                     )
                 })}

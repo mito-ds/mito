@@ -21,6 +21,7 @@ import { isNumberDtype } from '../../../utils/dtypes';
 import Toggle from '../../elements/Toggle';
 import usePrevious from '../../../hooks/usePrevious';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
+import { selectPreviousGraphSheetTab } from '../../footer/SheetTab';
 
 export enum GraphType {
     SCATTER = 'scatter',
@@ -185,34 +186,10 @@ const GraphSidebar = (props: {
         if (prevLastStepIndex && prevLastStepIndex !== props.lastStepIndex - 1) {
             void refreshParamsAfterUndo()
 
-            const graphIDs = Object.keys(props.graphDataJSON)
-            const currNumGraphs = graphIDs.length
+            const currNumGraphs = Object.keys(props.graphDataJSON).length
             // If the number of graphs changed, update the selected tab
             if (prevNumberOfGraphs && prevNumberOfGraphs > currNumGraphs) {
-                const newGraphID: GraphID | undefined = graphIDs[currNumGraphs - 1]
-
-                if (newGraphID) {
-                    // If there is a graph, then keep dispalying graphs, otherwise display a data tab
-                    props.setUIState((prevUIState) => {
-                        return {
-                            ...prevUIState,
-                            selectedGraphID: newGraphID,
-                            selectedTabType: 'graph',
-                            // Refresh the currOpenTaskpane with the new graphID to trigger a refresh of the graph sidebar
-                            currOpenTaskpane: {type: TaskpaneType.GRAPH, graphID: newGraphID}
-                        }
-                    })
-                } else {
-                    // If there are no more graphs, close the graph taskpane and display a data sheet instead
-                    props.setUIState((prevUIState) => {
-                        return {
-                            ...prevUIState,
-                            selectedGraphID: undefined,
-                            selectedTabType: 'data',
-                            currOpenTaskpane: {type: TaskpaneType.NONE}
-                        }
-                    })
-                }
+                selectPreviousGraphSheetTab(props.graphDataJSON, props.setUIState)
             }
         }
     }, [props.lastStepIndex])

@@ -2,10 +2,11 @@
 
 import React, { useEffect } from 'react';
 import MitoAPI, { getRandomId } from '../../api';
-import { GraphID, UIState } from '../../types';
+import { GraphDataJSON, GraphID, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import { TaskpaneType } from '../taskpanes/taskpanes';
+import { selectPreviousGraphSheetTab } from './SheetTab';
 
 /*
     Displays a set of actions one can perform on a sheet tab, including
@@ -17,7 +18,8 @@ export default function GraphSheetTabActions(props: {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     closeOpenEditingPopups: () => void;
     mitoAPI: MitoAPI,
-    graphID: GraphID
+    graphID: GraphID,
+    graphDataJSON: GraphDataJSON
 }): JSX.Element {
 
     // Log opening the sheet tab actions
@@ -32,18 +34,10 @@ export default function GraphSheetTabActions(props: {
     }, [])
 
     const onDelete = async (): Promise<void> => {
-        // If we are deleting a sheet tab, select the first sheet tab
-        props.setUIState(prevUIState => {
-            return {
-                ...prevUIState,
-                selectedTabType: 'data',
-                selectedSheetIndex: 0,
-                currOpenTaskpane: {type: TaskpaneType.NONE}
-            }
-        })
-
         // Close 
         props.closeOpenEditingPopups();
+
+        selectPreviousGraphSheetTab(props.graphDataJSON, props.setUIState)
 
         await props.mitoAPI.editGraphDelete(props.graphID)
     }

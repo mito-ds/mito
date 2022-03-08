@@ -32,12 +32,12 @@ export default function SheetTabActions(props: {
     }, [])
 
     const onDelete = async (): Promise<void> => {
-        // If we are deleting a sheet tab, select the first sheet tab
+        // Select the previous sheet
         props.setUIState(prevUIState => {
             return {
                 ...prevUIState,
                 selectedTabType: 'data',
-                selectedSheetIndex: 0,
+                selectedSheetIndex: prevUIState.selectedSheetIndex > 0 ? prevUIState.selectedSheetIndex - 1 : 0,
                 currOpenTaskpane: {type: TaskpaneType.NONE}
             }
         })
