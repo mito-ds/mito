@@ -796,6 +796,22 @@ class MitoWidgetTestWrapper:
         )
 
 
+    def rename_graph(self, graph_id: GraphID, new_graph_tab_name: str) -> bool:
+        return self.mito_widget.receive_message(
+            self.mito_widget,
+            {
+                'event': 'edit_event',
+                'id': get_new_id(),
+                'type': 'graph_rename_edit',
+                'step_id': get_new_id(),
+                'params': {
+                    'graph_id': graph_id,
+                    'new_graph_tab_name': new_graph_tab_name
+                }
+            }
+        )
+
+
     def get_formula(self, sheet_index: int, column_header: ColumnHeader) -> str:
         """
         Gets the formula for a given column. Returns an empty
