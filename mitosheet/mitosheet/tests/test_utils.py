@@ -16,7 +16,7 @@ import pandas as pd
 from mitosheet.mito_widget import MitoWidget, sheet
 from mitosheet.parser import parse_formula
 from mitosheet.transpiler.transpile import transpile
-from mitosheet.types import ColumnHeader, ColumnID, MultiLevelColumnHeader
+from mitosheet.types import ColumnHeader, ColumnID, GraphID, MultiLevelColumnHeader
 from mitosheet.utils import dfs_to_array_for_json, get_new_id
 
 
@@ -729,6 +729,7 @@ class MitoWidgetTestWrapper:
 
     def generate_graph(
         self, 
+        graph_id: str,
         graph_type: str, 
         sheet_index: number,
         safety_filter_turned_on_by_user: bool,
@@ -746,6 +747,7 @@ class MitoWidgetTestWrapper:
                 'type': 'graph_edit',
                 'step_id': get_new_id() if step_id is None else step_id,
                 'params': {
+                    'graph_id': graph_id,
                     'graph_preprocessing': {
                     'safety_filter_turned_on_by_user': safety_filter_turned_on_by_user
                     },
@@ -760,6 +762,35 @@ class MitoWidgetTestWrapper:
                         'height': height,
                         'width': width
                     }
+                }
+            }
+        )
+
+    def delete_graph(self, graph_id: GraphID) -> bool:
+        return self.mito_widget.receive_message(
+            self.mito_widget,
+            {
+                'event': 'edit_event',
+                'id': get_new_id(),
+                'type': 'graph_delete_edit',
+                'step_id': get_new_id(),
+                'params': {
+                    'graph_id': graph_id,
+                }
+            }
+        )
+
+    def duplicate_graph(self, old_graph_id: GraphID, new_graph_id: GraphID) -> bool:
+        return self.mito_widget.receive_message(
+            self.mito_widget,
+            {
+                'event': 'edit_event',
+                'id': get_new_id(),
+                'type': 'graph_duplicate_edit',
+                'step_id': get_new_id(),
+                'params': {
+                    'old_graph_id': old_graph_id,
+                    'new_graph_id': new_graph_id
                 }
             }
         )
@@ -823,8 +854,10 @@ class MitoWidgetTestWrapper:
         """
         Returns the graph_data object 
         """
-        return self.mito_widget.steps_manager.curr_step.final_defined_state.graph_data[graph_id]
-
+        if graph_id in self.mito_widget.steps_manager.curr_step.final_defined_state.graph_data.keys():
+            return self.mito_widget.steps_manager.curr_step.final_defined_state.graph_data[graph_id]
+        else:
+            return {}
     
 
 def create_mito_wrapper(sheet_one_A_data: List[Any], sheet_two_A_data: List[Any]=None) -> MitoWidgetTestWrapper:
