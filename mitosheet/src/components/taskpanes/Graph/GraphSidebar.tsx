@@ -409,7 +409,7 @@ const GraphSidebar = (props: {
             <div className='graph-sidebar-div'>
                 <div className='graph-sidebar-graph-div' id='graph-div' >
                     {graphOutput === undefined &&
-                        <p className='graph-sidebar-welcome-text' >To generate a graph, select a axis.</p>
+                        <p className='graph-sidebar-welcome-text' >To generate a graph, select an axis.</p>
                     }
                     {graphOutput !== undefined &&
                         <div dangerouslySetInnerHTML={{ __html: graphOutput.graphHTML }} />

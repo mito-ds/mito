@@ -48,11 +48,13 @@ class GraphDuplicateStepPerformer(StepPerformer):
         post_state = deepcopy(prev_state)
 
         # Execute the step
-        graph_copy = deepcopy(post_state.graph_data[old_graph_id])
+        graph_copy = deepcopy(post_state.graph_data_dict[old_graph_id])
+        # We don't need to insist the the graph names are unique because they are just used in 
+        # the sheet tab display. They aren't used in generated code or to identify graphs in the steps
         graph_copy["graphTabName"] = graph_copy["graphTabName"] + '_copy'
         
         # Add the duplicated graph to the graph_data
-        post_state.graph_data[new_graph_id] = graph_copy
+        post_state.graph_data_dict[new_graph_id] = graph_copy
         
         return post_state, None
 

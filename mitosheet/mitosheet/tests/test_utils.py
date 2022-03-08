@@ -9,7 +9,7 @@ This file contains helpful functions and classes for testing operations.
 
 import json
 from functools import wraps
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Tuple, Union
 from numpy import number
 
 import pandas as pd
@@ -870,11 +870,53 @@ class MitoWidgetTestWrapper:
         """
         Returns the graph_data object 
         """
-        if graph_id in self.mito_widget.steps_manager.curr_step.final_defined_state.graph_data.keys():
-            return self.mito_widget.steps_manager.curr_step.final_defined_state.graph_data[graph_id]
+        if graph_id in self.mito_widget.steps_manager.curr_step.final_defined_state.graph_data_dict.keys():
+            return self.mito_widget.steps_manager.curr_step.final_defined_state.graph_data_dict[graph_id]
         else:
             return {}
+
+    def get_graph_type(self, graph_id: str) -> str:
+        """
+        Returns the graph type 
+        """
+        graph_data = self.get_graph_data(graph_id)
+        if bool(graph_data):
+            return graph_data["graphParams"]["graphCreation"]["graph_type"]
+        return ''
+
+    def get_graph_sheet_index(self, graph_id: str) -> number:
+        """
+        Returns the graph sheet index 
+        """
+        graph_data = self.get_graph_data(graph_id)
+        if bool(graph_data):
+            return graph_data["graphParams"]["graphCreation"]["sheet_index"]
+        return -1
+
+    def get_graph_axis_column_ids(self, graph_id: str, axis: str) -> List[str]:
+        """
+        Returns the graph axis column ids for either the x or y axis
+        """
+        graph_data = self.get_graph_data(graph_id)
+        if bool(graph_data):
+            if axis == 'x':
+                return graph_data["graphParams"]["graphCreation"]["x_axis_column_ids"]
+            if axis == 'y':
+                return graph_data["graphParams"]["graphCreation"]["y_axis_column_ids"]
+        return []
     
+    def get_is_graph_output_none(self, graph_id: str) -> bool:
+        """
+        Returns true if all of the graphOuput objects are none. Otherwise
+        returns false
+        """
+        graph_data = self.get_graph_data(graph_id)
+        if bool(graph_data):
+            return graph_data["graphOutput"]["graphScript"] is None and \
+                graph_data["graphOutput"]["graphHTML"] is None and \
+                graph_data["graphOutput"]["graphGeneratedCode"] is None
+
+        return True
 
 def create_mito_wrapper(sheet_one_A_data: List[Any], sheet_two_A_data: List[Any]=None) -> MitoWidgetTestWrapper:
     """

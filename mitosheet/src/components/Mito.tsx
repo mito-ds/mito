@@ -228,6 +228,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
             Object.keys(analysisData.graphDataJSON).indexOf(uiState.selectedGraphID) : -1
     }, [uiState.selectedGraphID])
 
+    // Update the selected sheet tab when the number of graphs change. 
     useEffect(() => {
         const graphIDs = Object.keys(analysisData.graphDataJSON)
         const previousNumGraphs = previousNumGraphsRef.current;
@@ -236,7 +237,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
         // Handle new graph created
         if (previousNumGraphs < newNumGraphs) {
             const newGraphID = graphIDs[newNumGraphs - 1]
-            console.log(newGraphID)
             setUIState(prevUIState => {
                 return {
                     ...prevUIState,
@@ -395,6 +395,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     mitoAPI={props.mitoAPI}
                     sheetIndex={uiState.currOpenModal.sheetIndex}
                     dependantGraphTabNamesAndIDs={uiState.currOpenModal.dependantGraphTabNamesAndIDs}
+                    dfName={sheetDataArray[uiState.currOpenModal.sheetIndex].dfName}
                 />
             )
         }

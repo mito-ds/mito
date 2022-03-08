@@ -21,27 +21,18 @@ def test_duplicate_graph():
     assert len(mito.steps) == 3
     assert mito.curr_step.step_type == 'graph_duplicate'
 
-    old_graph_data = mito.get_graph_data(graph_id)
+    assert mito.get_graph_type(graph_id) == 'bar'
+    assert mito.get_graph_sheet_index(graph_id) == 0
+    assert mito.get_graph_axis_column_ids(graph_id, 'x') == ['A']
+    assert mito.get_graph_axis_column_ids(graph_id, 'y') == ['B']
+    assert mito.get_is_graph_output_none(graph_id) == False
 
-    assert old_graph_data["graphParams"]["graphCreation"]["graph_type"] == 'bar'
-    assert old_graph_data["graphParams"]["graphCreation"]["sheet_index"] == 0
-    assert old_graph_data["graphParams"]["graphCreation"]["x_axis_column_ids"] == ['A']
-    assert old_graph_data["graphParams"]["graphCreation"]["y_axis_column_ids"] == ['B']
+    assert mito.get_graph_type(new_graph_id) == 'bar'
+    assert mito.get_graph_sheet_index(new_graph_id) == 0
+    assert mito.get_graph_axis_column_ids(new_graph_id, 'x') == ['A']
+    assert mito.get_graph_axis_column_ids(new_graph_id, 'y') == ['B']
+    assert mito.get_is_graph_output_none(new_graph_id) == False
 
-    assert old_graph_data["graphOutput"]["graphScript"] is not None
-    assert old_graph_data["graphOutput"]["graphHTML"] is not None
-    assert old_graph_data["graphOutput"]["graphGeneratedCode"] is not None
-
-    new_graph_data = mito.get_graph_data(new_graph_id)
-
-    assert new_graph_data["graphParams"]["graphCreation"]["graph_type"] == 'bar'
-    assert new_graph_data["graphParams"]["graphCreation"]["sheet_index"] == 0
-    assert new_graph_data["graphParams"]["graphCreation"]["x_axis_column_ids"] == ['A']
-    assert new_graph_data["graphParams"]["graphCreation"]["y_axis_column_ids"] == ['B']
-
-    assert new_graph_data["graphOutput"]["graphScript"] is not None
-    assert new_graph_data["graphOutput"]["graphHTML"] is not None
-    assert new_graph_data["graphOutput"]["graphGeneratedCode"] is not None
 
 
 def test_duplicate_graph_then_edit_each():
@@ -58,53 +49,33 @@ def test_duplicate_graph_then_edit_each():
     mito.generate_graph(graph_id, SCATTER, 0, False, ['A'], ['B'], 400, 400)
 
     # Make sure that only one graph was updated
-    old_graph_data = mito.get_graph_data(graph_id)
+    assert mito.get_graph_type(graph_id) == 'scatter'
+    assert mito.get_graph_sheet_index(graph_id) == 0
+    assert mito.get_graph_axis_column_ids(graph_id, 'x') == ['A']
+    assert mito.get_graph_axis_column_ids(graph_id, 'y') == ['B']
+    assert mito.get_is_graph_output_none(graph_id) == False
 
-    assert old_graph_data["graphParams"]["graphCreation"]["graph_type"] == 'scatter'
-    assert old_graph_data["graphParams"]["graphCreation"]["sheet_index"] == 0
-    assert old_graph_data["graphParams"]["graphCreation"]["x_axis_column_ids"] == ['A']
-    assert old_graph_data["graphParams"]["graphCreation"]["y_axis_column_ids"] == ['B']
-
-    assert old_graph_data["graphOutput"]["graphScript"] is not None
-    assert old_graph_data["graphOutput"]["graphHTML"] is not None
-    assert old_graph_data["graphOutput"]["graphGeneratedCode"] is not None
-
-    new_graph_data = mito.get_graph_data(new_graph_id)
-
-    assert new_graph_data["graphParams"]["graphCreation"]["graph_type"] == 'bar'
-    assert new_graph_data["graphParams"]["graphCreation"]["sheet_index"] == 0
-    assert new_graph_data["graphParams"]["graphCreation"]["x_axis_column_ids"] == ['A']
-    assert new_graph_data["graphParams"]["graphCreation"]["y_axis_column_ids"] == ['B']
-
-    assert new_graph_data["graphOutput"]["graphScript"] is not None
-    assert new_graph_data["graphOutput"]["graphHTML"] is not None
-    assert new_graph_data["graphOutput"]["graphGeneratedCode"] is not None
+    assert mito.get_graph_type(new_graph_id) == 'bar'
+    assert mito.get_graph_sheet_index(new_graph_id) == 0
+    assert mito.get_graph_axis_column_ids(new_graph_id, 'x') == ['A']
+    assert mito.get_graph_axis_column_ids(new_graph_id, 'y') == ['B']
+    assert mito.get_is_graph_output_none(new_graph_id) == False
 
     # Apply edit to second graph
     mito.generate_graph(new_graph_id, BAR, 0, False, ['A'], ['B', 'C'], 400, 400)
 
     # Make sure only second graph was edited 
-    old_graph_data = mito.get_graph_data(graph_id)
+    assert mito.get_graph_type(graph_id) == 'scatter'
+    assert mito.get_graph_sheet_index(graph_id) == 0
+    assert mito.get_graph_axis_column_ids(graph_id, 'x') == ['A']
+    assert mito.get_graph_axis_column_ids(graph_id, 'y') == ['B']
+    assert mito.get_is_graph_output_none(graph_id) == False
 
-    assert old_graph_data["graphParams"]["graphCreation"]["graph_type"] == 'scatter'
-    assert old_graph_data["graphParams"]["graphCreation"]["sheet_index"] == 0
-    assert old_graph_data["graphParams"]["graphCreation"]["x_axis_column_ids"] == ['A']
-    assert old_graph_data["graphParams"]["graphCreation"]["y_axis_column_ids"] == ['B']
-
-    assert old_graph_data["graphOutput"]["graphScript"] is not None
-    assert old_graph_data["graphOutput"]["graphHTML"] is not None
-    assert old_graph_data["graphOutput"]["graphGeneratedCode"] is not None
-
-    new_graph_data = mito.get_graph_data(new_graph_id)
-
-    assert new_graph_data["graphParams"]["graphCreation"]["graph_type"] == 'bar'
-    assert new_graph_data["graphParams"]["graphCreation"]["sheet_index"] == 0
-    assert new_graph_data["graphParams"]["graphCreation"]["x_axis_column_ids"] == ['A']
-    assert new_graph_data["graphParams"]["graphCreation"]["y_axis_column_ids"] == ['B', 'C']
-
-    assert new_graph_data["graphOutput"]["graphScript"] is not None
-    assert new_graph_data["graphOutput"]["graphHTML"] is not None
-    assert new_graph_data["graphOutput"]["graphGeneratedCode"] is not None
+    assert mito.get_graph_type(new_graph_id) == 'bar'
+    assert mito.get_graph_sheet_index(new_graph_id) == 0
+    assert mito.get_graph_axis_column_ids(new_graph_id, 'x') == ['A']
+    assert mito.get_graph_axis_column_ids(new_graph_id, 'y') == ['B', 'C']
+    assert mito.get_is_graph_output_none(new_graph_id) == False
 
 
 

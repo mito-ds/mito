@@ -20,7 +20,7 @@ from mitosheet.types import GraphID
 
 class GraphStepPerformer(StepPerformer):
     """
-    Creates a graph of the passed parameters and update the graph_data
+    Creates a graph of the passed parameters and update the graph_data_dict
 
     {
         graph_id: GraphID
@@ -78,7 +78,7 @@ class GraphStepPerformer(StepPerformer):
         **params,
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
         """
-        Returns the new post state with the updated graph_data
+        Returns the new post state with the updated graph_data_dict
         """
 
         # We make a new state to modify it
@@ -118,13 +118,13 @@ class GraphStepPerformer(StepPerformer):
         df_name: str = prev_state.df_names[sheet_index]
 
         # If the graph tab already exists, use its name. Otherwise, create a new graph tab name.
-        graph_tab_name: str = post_state.graph_data[graph_id]["graphTabName"] \
-            if graph_id in post_state.graph_data.keys() \
-            else get_new_graph_tab_name(post_state.graph_data)
+        graph_tab_name: str = post_state.graph_data_dict[graph_id]["graphTabName"] \
+            if graph_id in post_state.graph_data_dict.keys() \
+            else get_new_graph_tab_name(post_state.graph_data_dict)
 
         if len(x_axis_column_ids) == 0 and len(y_axis_column_ids) == 0:
             # If no data is passed to the graph, then we don't create a graph and omit the graphOutput
-            post_state.graph_data[graph_id] = {
+            post_state.graph_data_dict[graph_id] = {
                 "graphParams": {
                     "graphPreprocessing": graph_preprocessing,
                     "graphCreation": graph_creation,
@@ -163,7 +163,7 @@ class GraphStepPerformer(StepPerformer):
                 df_name,
             )
 
-            post_state.graph_data[graph_id] = {
+            post_state.graph_data_dict[graph_id] = {
                 "graphParams": {
                     "graphPreprocessing": graph_preprocessing,
                     "graphCreation": graph_creation,
@@ -194,7 +194,7 @@ class GraphStepPerformer(StepPerformer):
     ) -> List[str]:
         # Graph steps don't add any generated code to the analysis script. 
         # Instead, the graph code is created during execution of the function and is
-        # retuned to the frontend through the graph_data object so that the user can copy 
+        # retuned to the frontend through the graph_data_dict object so that the user can copy 
         # and paste it. 
         return []
 

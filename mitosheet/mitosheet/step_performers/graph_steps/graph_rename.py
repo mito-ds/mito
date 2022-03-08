@@ -36,7 +36,7 @@ class GraphRenameStepPerformer(StepPerformer):
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         graph_id = params['graph_id']
-        old_graph_tab_name = prev_state.graph_data[graph_id]["graphTabName"]
+        old_graph_tab_name = prev_state.graph_data_dict[graph_id]["graphTabName"]
         params['old_graph_tab_name'] = old_graph_tab_name
         return params
 
@@ -56,7 +56,7 @@ class GraphRenameStepPerformer(StepPerformer):
         # Create a new step and save the parameters
         post_state = copy(prev_state)
 
-        post_state.graph_data[graph_id]["graphTabName"] = new_graph_tab_name
+        post_state.graph_data_dict[graph_id]["graphTabName"] = new_graph_tab_name
         
         return post_state, None
 

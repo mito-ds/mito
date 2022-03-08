@@ -102,7 +102,6 @@
     align-items: center;
     height: 100%;
     box-sizing: border-box;
-    margin-top: 2px;
 }
 
 .tab-content > * + * {

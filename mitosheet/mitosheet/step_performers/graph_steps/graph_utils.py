@@ -81,13 +81,13 @@ def get_graph_title(
     return " ".join(graph_title_components)
 
 
-def get_new_graph_tab_name(graph_data: Dict[str, Dict[str, Any]]) -> str:
+def get_new_graph_tab_name(graph_data_dict: Dict[str, Dict[str, Any]]) -> str:
     """
     Creates the name for the new graph tab sheet using the format
     graph0, graph1, etc.
     """
     all_graph_names = []
-    for graph_data in graph_data.values():
+    for graph_data in graph_data_dict.values():
         all_graph_names.append(graph_data["graphTabName"])
     
     graph_number_indicator = 0

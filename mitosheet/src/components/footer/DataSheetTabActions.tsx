@@ -12,8 +12,7 @@ import { getDefaultGraphParams } from '../taskpanes/Graph/GraphSidebar';
     Helper function for finding all of the graph tab names
     that are created from a given sheet index
 */
-export const getGraphTabNamesAndIDsFromSheetIndex = (sheetIndex: number, graphDataJSON: GraphDataJSON): 
-({graphTabName: string, graphID: GraphID})[] => {
+export const getGraphTabNamesAndIDsFromSheetIndex = (sheetIndex: number, graphDataJSON: GraphDataJSON): ({graphTabName: string, graphID: GraphID})[] => {
     // Filter to only grapsh with the sheetIndex, and then get a list of the graph tab names
     const filteredGraphDataJSON: GraphDataJSON = Object.fromEntries(Object.entries(graphDataJSON).filter(([, graphData]) => {
         return graphData.graphParams.graphCreation.sheet_index === sheetIndex
@@ -25,8 +24,8 @@ export const getGraphTabNamesAndIDsFromSheetIndex = (sheetIndex: number, graphDa
 } 
 
 /*
-    Displays a set of actions one can perform on a sheet tab, including
-    deleting, duplicating, or renaming.
+    Displays a set of actions one can perform on a data sheet tab, including
+    deleting, duplicating, or renaming, and creating a sheet.
 */
 export default function SheetTabActions(props: {
     setDisplayActions: React.Dispatch<React.SetStateAction<boolean>>,
@@ -39,12 +38,11 @@ export default function SheetTabActions(props: {
     sheetDataArray: SheetData[]
 }): JSX.Element {
 
-    // Log opening the sheet tab actions
+    // Log opening the data sheet tab actions
     useEffect(() => {
         void props.mitoAPI.log(
-            'clicked_sheet_tab_actions',
+            'clicked_data_sheet_tab_actions',
             {
-                tab_type: 'data',
                 sheet_index: props.sheetIndex
             }
         )
@@ -126,7 +124,8 @@ export default function SheetTabActions(props: {
                 title='Graph data'
                 onClick={(e) => {
                     // Stop propogation so that the onClick of the sheet tab div
-                    // doesn't compete updating the uiState.
+                    // doesn't compete updating the uiState to this sheet instead of
+                    // the new graphID that we're creating
                     e?.stopPropagation()
                     void graphData()
                 }}
@@ -135,7 +134,7 @@ export default function SheetTabActions(props: {
                 title='Delete'
                 onClick={(e) => {
                     // Stop propogation so that the onClick of the sheet tab div
-                    // doesn't compete updating the uiState.
+                    // doesn't compete updating the uiState to the graphID that is gettind deleted
                     e?.stopPropagation()
                     void onDelete()
                 }}

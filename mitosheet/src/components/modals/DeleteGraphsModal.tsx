@@ -12,6 +12,7 @@ type DeleteGraphsModalProps = {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI;
     sheetIndex: number;
+    dfName: string;
     dependantGraphTabNamesAndIDs: {
         graphTabName: string;
         graphID: GraphID;
@@ -28,7 +29,7 @@ const DeleteGraphsModal = (props: DeleteGraphsModalProps): JSX.Element => {
 
     const clickDelete = async () => {
 
-        // Delete the graphs and 
+        // Delete the graphs 
         graphIDs.forEach(graphID => {
             void props.mitoAPI.editGraphDelete(graphID)
         })
@@ -50,15 +51,13 @@ const DeleteGraphsModal = (props: DeleteGraphsModalProps): JSX.Element => {
 
     return (
         <DefaultModal
-            header={`Delete sheet and graphs`}
+            header={`Delete Sheet and Dependant Graphs`}
             modalType={ModalEnum.ClearAnalysis}
             viewComponent= {
                 <>
                     <p className='body-text-1'>
-                        Deleting this dataframe will delete the following graphs that rely on it:
-                    </p>
-                    <p className='body-text-1'>
-                        {graphTabNames.join(', ')}
+                        Deleting {props.dfName} will delete the following graphs that rely on it:&nbsp;
+                        <span className='text-color-mito-purple-important'>{graphTabNames.join(', ')}</span>
                     </p>
                 </>
             }
@@ -80,10 +79,10 @@ const DeleteGraphsModal = (props: DeleteGraphsModalProps): JSX.Element => {
                     </TextButton>
                     <TextButton
                         variant='dark'
-                        width='small'
+                        width='large'
                         onClick={clickDelete} 
                     >
-                        Delete
+                        Delete Sheet and Graphs
                     </TextButton>
                 </>
             }

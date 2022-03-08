@@ -8,7 +8,7 @@ import DropdownItem from '../elements/DropdownItem';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 
 /*
-    Displays a set of actions one can perform on a sheet tab, including
+    Displays a set of actions one can perform on a graph sheet tab, including
     deleting, duplicating, or renaming.
 */
 export default function GraphSheetTabActions(props: {
@@ -21,12 +21,11 @@ export default function GraphSheetTabActions(props: {
     graphDataJSON: GraphDataJSON
 }): JSX.Element {
 
-    // Log opening the sheet tab actions
+    // Log opening the graph sheet tab actions
     useEffect(() => {
         void props.mitoAPI.log(
-            'clicked_sheet_tab_actions',
+            'clicked_graph_sheet_tab_actions',
             {
-                tab_type: 'graph',
                 graph_id: props.graphID
             }
         )
@@ -74,7 +73,7 @@ export default function GraphSheetTabActions(props: {
                 title='Delete'
                 onClick={(e) => {
                     // Stop propogation so that the onClick of the sheet tab div
-                    // doesn't compete updating the uiState.
+                    // doesn't compete updating the uiState to the graphID that is getting deleted
                     e?.stopPropagation()
                     void onDelete()
                 }}
