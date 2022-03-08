@@ -247,8 +247,8 @@ const GraphSidebar = (props: {
     }
 
     const setGraphType = (graphType: GraphType) => {
-        let xAxisColumnIDsCopy = [...graphParams.graphCreation.x_axis_column_ids]
-        let yAxisColumnIDsCopy = [...graphParams.graphCreation.y_axis_column_ids]
+        const xAxisColumnIDsCopy = [...graphParams.graphCreation.x_axis_column_ids]
+        const yAxisColumnIDsCopy = [...graphParams.graphCreation.y_axis_column_ids]
 
         // Update the graph type
         setGraphParams(prevGraphParams => {
