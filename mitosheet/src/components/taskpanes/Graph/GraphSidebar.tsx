@@ -17,17 +17,23 @@ import DropdownItem from '../../elements/DropdownItem';
 import '../../../../css/taskpanes/Graph/GraphSidebar.css'
 import '../../../../css/taskpanes/Graph/LoadingSpinner.css'
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
-import { isNumberDtype } from '../../../utils/dtypes';
 import Toggle from '../../elements/Toggle';
 import usePrevious from '../../../hooks/usePrevious';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
 
 export enum GraphType {
     SCATTER = 'scatter',
+    LINE = 'line',
     BAR = 'bar',
     HISTOGRAM = 'histogram',
     BOX = 'box',
+    VIOLIN = 'violin',
+    STRIP = 'strip',
+    ECDF = 'ecdf',
+    DENSITY_HEATMAP = 'density heatmap',
+    DENSITY_CONTOUR = 'density contour',
 }
+
 
 // Millisecond delay between loading graphs, so that
 // we don't load to many graphs when the user is clicking around
@@ -240,44 +246,9 @@ const GraphSidebar = (props: {
         setGraphUpdatedNumber((old) => old + 1);
     }
 
-    const removeNonNumberColumnIDs = (columnIDs: ColumnID[]) => {
-        const filteredColumnIDs = columnIDs.filter(columnID => {
-            return props.columnDtypesMap !== undefined && isNumberDtype(props.columnDtypesMap[columnID])
-        })
-        return filteredColumnIDs
-    }
-
     const setGraphType = (graphType: GraphType) => {
         let xAxisColumnIDsCopy = [...graphParams.graphCreation.x_axis_column_ids]
         let yAxisColumnIDsCopy = [...graphParams.graphCreation.y_axis_column_ids]
-
-        /* 
-            If the user switches to a Box plot or Histogram, then we make sure that
-            1. all of the selected columns are numbers. 
-            2. there are not columns in both the x and y axis. 
-        */
-        if (graphType === GraphType.BOX || graphType === GraphType.HISTOGRAM) {
-            xAxisColumnIDsCopy = removeNonNumberColumnIDs(xAxisColumnIDsCopy)
-            yAxisColumnIDsCopy = removeNonNumberColumnIDs(yAxisColumnIDsCopy)
-
-            // Make sure that only one axis has selected column headers. 
-            if (xAxisColumnIDsCopy.length > 0 && yAxisColumnIDsCopy.length > 0) {
-                yAxisColumnIDsCopy = []
-            }
-        }
-
-        // Log that we reset the selected columns
-        if (xAxisColumnIDsCopy.length !== graphParams.graphCreation.x_axis_column_ids.length || 
-            yAxisColumnIDsCopy.length !== graphParams.graphCreation.y_axis_column_ids.length) {
-            void props.mitoAPI.log('reset_graph_columns_on_graph_type_change');
-        }
-
-        // Log that the user switched graph types
-        void props.mitoAPI.log('switched_graph_type', {
-            'graph_type': graphType,
-            'x_axis_column_ids': xAxisColumnIDsCopy,
-            'y_axis_column_ids': yAxisColumnIDsCopy,
-        });
 
         // Update the graph type
         setGraphParams(prevGraphParams => {
@@ -450,18 +421,31 @@ const GraphSidebar = (props: {
                                     dropdownWidth='medium'
                                 >
                                     <DropdownItem
-                                        title={GraphType.BAR}
-                                    />
-                                    <DropdownItem
                                         title={GraphType.BOX}
-                                        subtext='Only supports number columns'
                                     />
                                     <DropdownItem
                                         title={GraphType.HISTOGRAM}
-                                        subtext='Only supports number columns'
                                     />
                                     <DropdownItem
                                         title={GraphType.SCATTER}
+                                    />
+                                    <DropdownItem
+                                        title={GraphType.LINE}
+                                    />
+                                    <DropdownItem
+                                        title={GraphType.VIOLIN}
+                                    />
+                                    <DropdownItem
+                                        title={GraphType.STRIP}
+                                    />
+                                    <DropdownItem
+                                        title={GraphType.ECDF}
+                                    />
+                                    <DropdownItem
+                                        title={GraphType.DENSITY_HEATMAP}
+                                    />
+                                    <DropdownItem
+                                        title={GraphType.DENSITY_CONTOUR}
                                     />
                                 </Select>
                             </Col>

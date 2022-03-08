@@ -4,24 +4,19 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import List, Union, Dict, Tuple
+from typing import Dict, List, Tuple, Union
+
 import pandas as pd
-from mitosheet.transpiler.transpile_utils import (
-    column_header_list_to_transpiled_code,
-    column_header_to_transpiled_code,
-)
-from mitosheet.types import ColumnHeader
 import plotly.express as px
 import plotly.graph_objects as go
-from mitosheet.step_performers.graph.graph_utils import (
-    BAR,
-    BOX,
-    HISTOGRAM,
-    SCATTER,
-    create_parameter,
-    get_barmode,
-    get_graph_title,
-)
+from mitosheet.step_performers.graph.graph_utils import (BAR, BOX, DENSITY_CONTOUR, DENSITY_HEATMAP, ECDF, HISTOGRAM,
+                                                         LINE, SCATTER, STRIP, VIOLIN,
+                                                         create_parameter,
+                                                         get_barmode,
+                                                         get_graph_title)
+from mitosheet.transpiler.transpile_utils import (
+    column_header_list_to_transpiled_code, column_header_to_transpiled_code)
+from mitosheet.types import ColumnHeader
 
 # TAB is used in place of \t in generated code because
 # Jupyter turns \t into a grey arrow, but converts four spaces into a tab.
@@ -96,22 +91,34 @@ def graph_creation(
     if len(x_axis_column_headers) == 1:
         # Note: In the new interface, x will always have a length of 0 or 1
         all_params["x"] = x_axis_column_headers[0]
-    if len(x_axis_column_headers) > 1:
+    elif len(x_axis_column_headers) > 1:
         all_params["x"] = x_axis_column_headers
 
     if len(y_axis_column_headers) == 1:
         all_params["y"] = y_axis_column_headers[0]
-    if len(y_axis_column_headers) > 1:
+    elif len(y_axis_column_headers) > 1:
         all_params["y"] = y_axis_column_headers
 
     if graph_type == BOX:
         return px.box(df, **all_params)
-    if graph_type == HISTOGRAM:
+    elif graph_type == HISTOGRAM:
         return px.histogram(df, **all_params)
-    if graph_type == BAR:
+    elif graph_type == BAR:
         return px.bar(df, **all_params)
-    if graph_type == SCATTER:
+    elif graph_type == SCATTER:
         return px.scatter(df, **all_params)
+    elif graph_type == LINE:
+        return px.line(df, **all_params)
+    elif graph_type == VIOLIN:
+        return px.violin(df, **all_params)
+    elif graph_type == STRIP:
+        return px.strip(df, **all_params)
+    elif graph_type == ECDF:
+        return px.ecdf(df, **all_params)
+    elif graph_type == DENSITY_HEATMAP:
+        return px.density_heatmap(df, **all_params)
+    elif graph_type == DENSITY_CONTOUR:
+        return px.density_contour(df, **all_params)
 
 
 def graph_creation_code(
@@ -151,12 +158,24 @@ def graph_creation_code(
 
     if graph_type == BOX:
         return f"fig = px.box({df_name}, {params})"
-    if graph_type == HISTOGRAM:
+    elif graph_type == HISTOGRAM:
         return f"fig = px.histogram({df_name}, {params})"
-    if graph_type == BAR:
+    elif graph_type == BAR:
         return f"fig = px.bar({df_name}, {params})"
-    if graph_type == SCATTER:
+    elif graph_type == SCATTER:
         return f"fig = px.scatter({df_name}, {params})"
+    elif graph_type == LINE:
+        return f"fig = px.line({df_name}, {params})"
+    elif graph_type == VIOLIN:
+        return f"fig = px.violin({df_name}, {params})"
+    elif graph_type == STRIP:
+        return f"fig = px.strip({df_name}, {params})"
+    elif graph_type == ECDF:
+        return f"fig = px.ecdf({df_name}, {params})"
+    elif graph_type == DENSITY_HEATMAP:
+        return f"fig = px.density_heatmap({df_name}, {params})"
+    elif graph_type == DENSITY_CONTOUR:
+        return f"fig = px.density_contour({df_name}, {params})"
     return ""
 
 
