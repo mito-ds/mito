@@ -21,7 +21,6 @@ import { isNumberDtype } from '../../../utils/dtypes';
 import Toggle from '../../elements/Toggle';
 import usePrevious from '../../../hooks/usePrevious';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
-import { selectPreviousGraphSheetTab } from '../../footer/SheetTab';
 
 export enum GraphType {
     SCATTER = 'scatter',
@@ -45,7 +44,7 @@ const SAFETY_FILTER_ENABLED_MESSAGE = `Turning on Filter to Safe Size only graph
 
 // Helper function for creating default graph params. Defaults to a Bar chart, 
 // unless a graph type is provided
-const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: number, graphType?: GraphType): GraphParams => {
+export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: number, graphType?: GraphType): GraphParams => {
     const safetyFilter = getDefaultSafetyFilter(sheetDataArray, sheetIndex)
     return {
         graphPreprocessing: {
@@ -176,21 +175,12 @@ const GraphSidebar = (props: {
 
     // Save the last step index, so that we can check if an undo occured
     const prevLastStepIndex = usePrevious(props.lastStepIndex);
-    // Save the last number of graphs so that we can check if a graph was deleted during an undo, 
-    // so we can update the selected tab
-    const prevNumberOfGraphs = usePrevious(Object.keys(props.graphDataJSON).length)
 
     // When the last step index changes, check if an undo occured so we can refresh the params
     useEffect(() => {
         // If there has been an undo, then we refresh the params to this pivot
         if (prevLastStepIndex && prevLastStepIndex !== props.lastStepIndex - 1) {
             void refreshParamsAfterUndo()
-
-            const currNumGraphs = Object.keys(props.graphDataJSON).length
-            // If the number of graphs changed, update the selected tab
-            if (prevNumberOfGraphs && prevNumberOfGraphs > currNumGraphs) {
-                selectPreviousGraphSheetTab(props.graphDataJSON, props.setUIState)
-            }
         }
     }, [props.lastStepIndex])
 

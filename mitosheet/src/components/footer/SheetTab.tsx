@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import MitoAPI from '../../api';
 import { classNames } from '../../utils/classNames';
 import Input from '../elements/Input';
-import { GraphDataJSON, GraphID, UIState } from '../../types';
+import { GraphDataJSON, GraphID, SheetData, UIState } from '../../types';
 import { focusGrid } from '../endo/focusUtils';
 
 // import icons
@@ -16,20 +16,47 @@ import GraphIcon from '../icons/GraphIcon';
 import DataSheetTabActions from './DataSheetTabActions';
 import GraphSheetTabActions from './GraphSheetTabActions';
 
-export const selectPreviousGraphSheetTab = (graphDataJSON: GraphDataJSON, setUIState: React.Dispatch<React.SetStateAction<UIState>>): void => {
+export const selectPreviousGraphSheetTab = (
+    graphDataJSON: GraphDataJSON, 
+    prevGraphIndex: number,
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>
+): GraphID | undefined => {
+    /*
+        Try to select the graph that is at the same index as the previous graph.
+        If no graph exists at that index, then select the graph at the previous index.
+        If there are no graphs, then select the last sheet index
+    */
     const graphIDs = Object.keys(graphDataJSON)
-    const newGraphID: GraphID | undefined = graphIDs.length > 0 ? graphIDs[graphIDs.length - 1] : undefined
 
-    if (newGraphID) {
-        // If there is a graph, then keep dispalying graphs, otherwise display a data tab
+    let newGraphID: GraphID | undefined = undefined 
+    if (graphIDs.length > prevGraphIndex) {
+        // If the the number of graphIDs is larger than the prevGraphIndex, 
+        // then a new graphID is at the prevGraphIndex
+        newGraphID = graphIDs[prevGraphIndex]
+    } else if (graphIDs.length > 0) {
+        // Otherwise if the prevGraphIndex was the highest index graphID 
+        // and there is another graph, get the previous index
+        newGraphID = graphIDs[prevGraphIndex - 1]
+    } 
+
+    console.log(graphIDs)
+    console.log('prev graph index: ', prevGraphIndex)
+    console.log('new graph id: ', newGraphID)
+
+    if (newGraphID !== undefined) {
+        // If there is a graph, then keep displaying graphs, otherwise display a data tab
+        // Safely mark as GraphID because of the check above that the compiler is unable to understand
+        const _newGraphID: GraphID = newGraphID
         setUIState((prevUIState) => {
             return {
                 ...prevUIState,
-                selectedGraphID: newGraphID,
+                selectedGraphID: _newGraphID,
                 selectedTabType: 'graph',
-                currOpenTaskpane: {type: TaskpaneType.GRAPH, graphID: newGraphID}
+                currOpenTaskpane: {type: TaskpaneType.GRAPH, graphID: _newGraphID}
             }
         })
+
+        return _newGraphID
     } else {
         // If there are no more graphs, close the graph taskpane and display a data sheet instead
         setUIState((prevUIState) => {
@@ -40,6 +67,8 @@ export const selectPreviousGraphSheetTab = (graphDataJSON: GraphDataJSON, setUIS
                 currOpenTaskpane: {type: TaskpaneType.NONE}
             }
         })
+
+        return undefined
     }
 }
 
@@ -52,6 +81,7 @@ type SheetTabProps = {
     mitoAPI: MitoAPI;
     mitoContainerRef: React.RefObject<HTMLDivElement>;
     graphDataJSON: GraphDataJSON;
+    sheetDataArray: SheetData[]
 };
 
 /*
@@ -163,6 +193,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                     sheetIndex={props.tabIDObj.sheetIndex}
                     mitoAPI={props.mitoAPI}
                     graphDataJSON={props.graphDataJSON}
+                    sheetDataArray={props.sheetDataArray}
                 />
             }
             {displayActions && props.tabIDObj.tabType === 'graph' &&

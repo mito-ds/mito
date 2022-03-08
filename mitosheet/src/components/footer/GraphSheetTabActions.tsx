@@ -6,7 +6,6 @@ import { GraphDataJSON, GraphID, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import { TaskpaneType } from '../taskpanes/taskpanes';
-import { selectPreviousGraphSheetTab } from './SheetTab';
 
 /*
     Displays a set of actions one can perform on a sheet tab, including
@@ -36,8 +35,6 @@ export default function GraphSheetTabActions(props: {
     const onDelete = async (): Promise<void> => {
         // Close 
         props.closeOpenEditingPopups();
-
-        selectPreviousGraphSheetTab(props.graphDataJSON, props.setUIState)
 
         await props.mitoAPI.editGraphDelete(props.graphID)
     }

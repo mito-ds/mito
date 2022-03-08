@@ -5,6 +5,7 @@ import { getColumnIndexesInSelections, getSelectedNumberSeriesColumnIDs, isSelec
 import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes } from "../components/endo/utils";
 import { ModalEnum } from "../components/modals/modals";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
+import { getDefaultGraphParams } from "../components/taskpanes/Graph/GraphSidebar";
 import { TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../data/function_documentation";
@@ -373,19 +374,24 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
 
-                setUIState(prevUIState => {
-                    const newGraphID = getRandomId() // Create a new GraphID
-                    return {
-                        ...prevUIState,
-                        selectedTabType: 'graph',
-                        selectedGraphID: newGraphID,
-                        currOpenModal: {type: ModalEnum.None},
-                        currOpenTaskpane: {
-                            type: TaskpaneType.GRAPH, 
-                            graphID: newGraphID
-                        },
-                    }
-                })
+                const newGraphID = getRandomId() // Create a new GraphID
+
+                const graphParams = getDefaultGraphParams(sheetDataArray, sheetIndex)
+
+                // TODO: It would be great if we could save the stepID that is returned and then pass it to the graph taskpane
+                // when it is opened. 
+                void mitoAPI.editGraph(
+                    newGraphID,
+                    graphParams.graphCreation.graph_type,
+                    graphParams.graphCreation.sheet_index,
+                    graphParams.graphPreprocessing.safety_filter_turned_on_by_user,
+                    graphParams.graphCreation.x_axis_column_ids,
+                    graphParams.graphCreation.y_axis_column_ids,
+                    `100%`, 
+                    `100%`, 
+                    undefined, 
+                );
+
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no sheets to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],

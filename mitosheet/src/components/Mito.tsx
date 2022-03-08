@@ -56,6 +56,7 @@ import SearchTaskpane from './taskpanes/Search/SearchTaskpane';
 import loadPlotly from '../utils/plotly';
 import ErrorBoundary from './elements/ErrorBoundary';
 import DeleteGraphsModal from './modals/DeleteGraphsModal';
+import { selectPreviousGraphSheetTab } from './footer/SheetTab';
 
 export type MitoProps = {
     model_id: string;
@@ -216,6 +217,53 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
         previousNumSheetsRef.current = sheetDataArray.length;
     }, [sheetDataArray])
+
+    const previousNumGraphsRef = useRef<number>(Object.keys(analysisData.graphDataJSON).length)
+    const previousGraphIndex = useRef<number>(uiState.selectedGraphID !== undefined ?
+        Object.keys(analysisData.graphDataJSON).indexOf(uiState.selectedGraphID) : -1)
+
+    // When we switch graphID's make sure that we keep the previousGraphIndex up to date
+    useEffect(() => {
+        previousGraphIndex.current = uiState.selectedGraphID !== undefined ?
+            Object.keys(analysisData.graphDataJSON).indexOf(uiState.selectedGraphID) : -1
+    }, [uiState.selectedGraphID])
+
+    useEffect(() => {
+        const graphIDs = Object.keys(analysisData.graphDataJSON)
+        const previousNumGraphs = previousNumGraphsRef.current;
+        const newNumGraphs = Object.keys(analysisData.graphDataJSON).length
+
+        // Handle new graph created
+        if (previousNumGraphs < newNumGraphs) {
+            const newGraphID = graphIDs[newNumGraphs - 1]
+            console.log(newGraphID)
+            setUIState(prevUIState => {
+                return {
+                    ...prevUIState,
+                    selectedGraphID: newGraphID,
+                    selectedTabType: 'graph',
+                    currOpenTaskpane: {
+                        type: TaskpaneType.GRAPH,
+                        graphID: newGraphID
+                    }
+                }
+            })
+
+            // Update the previous graph index for next time
+            previousGraphIndex.current = graphIDs.indexOf(newGraphID)
+
+        // Handle graph removal
+        } else if (previousNumGraphs >= newNumGraphs) {
+            // Try to go to the same sheet index, if it doesn't exist go to the graph index - 1, 
+            // if no graphs exists, go to the last sheet index
+            const newGraphID = selectPreviousGraphSheetTab(analysisData.graphDataJSON, previousGraphIndex.current, setUIState)
+
+            // Update the previous graph index for next time
+            previousGraphIndex.current = newGraphID !== undefined ? graphIDs.indexOf(newGraphID) : -1
+        }
+
+        previousNumGraphsRef.current = newNumGraphs
+    }, [Object.keys(analysisData.graphDataJSON).length])
 
     /*
         Code to be executed everytime the sheet is switched. 

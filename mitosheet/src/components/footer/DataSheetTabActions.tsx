@@ -2,11 +2,11 @@
 
 import React, { useEffect } from 'react';
 import MitoAPI, { getRandomId } from '../../api';
-import { GraphDataJSON, GraphID, UIState } from '../../types';
+import { GraphDataJSON, GraphID, SheetData, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import { ModalEnum } from '../modals/modals';
-import { TaskpaneType } from '../taskpanes/taskpanes';
+import { getDefaultGraphParams } from '../taskpanes/Graph/GraphSidebar';
 
 /*
     Helper function for finding all of the graph tab names
@@ -36,6 +36,7 @@ export default function SheetTabActions(props: {
     mitoAPI: MitoAPI
     sheetIndex: number
     graphDataJSON: GraphDataJSON
+    sheetDataArray: SheetData[]
 }): JSX.Element {
 
     // Log opening the sheet tab actions
@@ -96,19 +97,24 @@ export default function SheetTabActions(props: {
         props.setIsRename(true);
     }
     
-    const graphData = (): void => {
-        props.setUIState(prevUIState => {
-            const newGraphID = getRandomId() // Create a new graph
-            return {
-                ...prevUIState,
-                selectedGraphID: newGraphID,
-                selectedTabType: 'graph',
-                currOpenTaskpane: {
-                    type: TaskpaneType.GRAPH,
-                    graphID: newGraphID
-                },
-            }
-        })
+    const graphData = async (): Promise<void> => {
+
+        const newGraphID = getRandomId() // Create a new graph
+        const graphParams = getDefaultGraphParams(props.sheetDataArray, props.sheetIndex)
+
+        // TODO: It would be great if we could save the stepID that is returned and then pass it to the graph taskpane
+        // when it is opened. 
+        await props.mitoAPI.editGraph(
+            newGraphID,
+            graphParams.graphCreation.graph_type,
+            graphParams.graphCreation.sheet_index,
+            graphParams.graphPreprocessing.safety_filter_turned_on_by_user,
+            graphParams.graphCreation.x_axis_column_ids,
+            graphParams.graphCreation.y_axis_column_ids,
+            `100%`, 
+            `100%`, 
+            undefined, 
+        );
     }
 
     return (
@@ -122,7 +128,7 @@ export default function SheetTabActions(props: {
                     // Stop propogation so that the onClick of the sheet tab div
                     // doesn't compete updating the uiState.
                     e?.stopPropagation()
-                    graphData()
+                    void graphData()
                 }}
             />
             <DropdownItem 

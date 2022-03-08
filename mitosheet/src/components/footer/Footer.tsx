@@ -67,6 +67,7 @@ function Footer(props: FooterProps): JSX.Element {
                             mitoAPI={props.mitoAPI}
                             mitoContainerRef={props.mitoContainerRef}
                             graphDataJSON={props.graphDataJSON}
+                            sheetDataArray={props.sheetDataArray}
                         />
                     )
                 })}
@@ -82,6 +83,7 @@ function Footer(props: FooterProps): JSX.Element {
                             mitoAPI={props.mitoAPI}
                             mitoContainerRef={props.mitoContainerRef}
                             graphDataJSON={props.graphDataJSON}
+                            sheetDataArray={props.sheetDataArray}
                         />
                     )
                 })}
