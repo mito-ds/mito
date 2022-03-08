@@ -162,6 +162,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                     setIsRename={setIsRename}
                     sheetIndex={props.tabIDObj.sheetIndex}
                     mitoAPI={props.mitoAPI}
+                    graphDataJSON={props.graphDataJSON}
                 />
             }
             {displayActions && props.tabIDObj.tabType === 'graph' &&

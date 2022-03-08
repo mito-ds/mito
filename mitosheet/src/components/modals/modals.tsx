@@ -11,6 +11,7 @@ export enum ModalEnum {
     SignUp = "SignUp",
     Upgrade = 'Upgrade',
     Feedback = 'Feedback',
+    DeleteGraphs = 'DeleteGraphs'
 }
 
 /* 
@@ -46,6 +47,15 @@ interface FeedbackModalInfo {
     feedbackID: UsageTriggeredFeedbackID;
 }
 
+interface DeleteGraphsModalInfo {
+    type: ModalEnum.DeleteGraphs;
+    sheetIndex: number;
+    dependantGraphTabNamesAndIDs: {
+        graphTabName: string;
+        graphID: string;
+    }[]
+}
+
 export type ModalInfo = 
     | NoneModalInfo 
     | ErrorModalInfo
@@ -53,3 +63,4 @@ export type ModalInfo =
     | UpgradeModalInfo
     | ClearAnalysisInfo
     | FeedbackModalInfo
+    | DeleteGraphsModalInfo

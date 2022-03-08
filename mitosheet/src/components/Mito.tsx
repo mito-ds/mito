@@ -56,6 +56,7 @@ import { createActions } from '../utils/actions';
 import SearchTaskpane from './taskpanes/Search/SearchTaskpane';
 import loadPlotly from '../utils/plotly';
 import ErrorBoundary from './elements/ErrorBoundary';
+import DeleteGraphsModal from './modals/DeleteGraphsModal';
 
 export type MitoProps = {
     model_id: string;
@@ -364,6 +365,14 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     mitoAPI={props.mitoAPI}
                     numUsages={userProfile.numUsages}
+                />
+            )
+            case ModalEnum.DeleteGraphs: return (
+                <DeleteGraphsModal
+                    setUIState={setUIState}
+                    mitoAPI={props.mitoAPI}
+                    sheetIndex={uiState.currOpenModal.sheetIndex}
+                    dependantGraphTabNamesAndIDs={uiState.currOpenModal.dependantGraphTabNamesAndIDs}
                 />
             )
         }

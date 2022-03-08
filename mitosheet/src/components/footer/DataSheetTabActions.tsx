@@ -2,10 +2,27 @@
 
 import React, { useEffect } from 'react';
 import MitoAPI, { getRandomId } from '../../api';
-import { UIState } from '../../types';
+import { GraphDataJSON, GraphID, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
+import { ModalEnum } from '../modals/modals';
 import { TaskpaneType } from '../taskpanes/taskpanes';
+
+/*
+    Helper function for finding all of the graph tab names
+    that are created from a given sheet index
+*/
+export const getGraphTabNamesAndIDsFromSheetIndex = (sheetIndex: number, graphDataJSON: GraphDataJSON): 
+({graphTabName: string, graphID: GraphID})[] => {
+    // Filter to only grapsh with the sheetIndex, and then get a list of the graph tab names
+    const filteredGraphDataJSON: GraphDataJSON = Object.fromEntries(Object.entries(graphDataJSON).filter(([, graphData]) => {
+        return graphData.graphParams.graphCreation.sheet_index === sheetIndex
+    }))
+
+    return Object.entries(filteredGraphDataJSON).map(([graphID, graphData]) => {
+        return {graphTabName: graphData.graphTabName, graphID: graphID}
+    })
+} 
 
 /*
     Displays a set of actions one can perform on a sheet tab, including
@@ -18,6 +35,7 @@ export default function SheetTabActions(props: {
     closeOpenEditingPopups: () => void;
     mitoAPI: MitoAPI
     sheetIndex: number
+    graphDataJSON: GraphDataJSON
 }): JSX.Element {
 
     // Log opening the sheet tab actions
@@ -32,20 +50,37 @@ export default function SheetTabActions(props: {
     }, [])
 
     const onDelete = async (): Promise<void> => {
-        // Select the previous sheet
-        props.setUIState(prevUIState => {
-            return {
-                ...prevUIState,
-                selectedTabType: 'data',
-                selectedSheetIndex: prevUIState.selectedSheetIndex > 0 ? prevUIState.selectedSheetIndex - 1 : 0,
-                currOpenTaskpane: {type: TaskpaneType.NONE}
-            }
-        })
+        const dependantGraphTabNamesAndIDs = getGraphTabNamesAndIDsFromSheetIndex(props.sheetIndex, props.graphDataJSON)
+        
+        if (dependantGraphTabNamesAndIDs.length > 0) {
+            props.setUIState(prevUIState => {
+                return {
+                    ...prevUIState,
+                    currOpenModal: {
+                        type: ModalEnum.DeleteGraphs, 
+                        dependantGraphTabNamesAndIDs: dependantGraphTabNamesAndIDs,
+                        sheetIndex: props.sheetIndex
+                    }
+                }
+            })
+        } else {
+            // Select the previous sheet
+            props.setUIState(prevUIState => {
+                return {
+                    ...prevUIState,
+                    selectedTabType: 'data',
+                    selectedSheetIndex: prevUIState.selectedSheetIndex > 0 ? prevUIState.selectedSheetIndex - 1 : 0,
+                }
+            })
 
-        // Close 
-        props.closeOpenEditingPopups();
+            // Close 
+            props.closeOpenEditingPopups();
 
-        await props.mitoAPI.editDataframeDelete(props.sheetIndex)
+            await props.mitoAPI.editDataframeDelete(props.sheetIndex)
+        }
+
+
+        
     }
 
     const onDuplicate = async (): Promise<void> => {
@@ -110,3 +145,4 @@ export default function SheetTabActions(props: {
         </Dropdown>
     )
 }
+
