@@ -50,7 +50,6 @@ import EndoGrid from './endo/EndoGrid';
 import { SheetData } from '../types';
 import { classNames } from '../utils/classNames';
 import { focusGrid } from './endo/focusUtils';
-import FeedbackModal from './modals/FeedbackModal';
 import DropDuplicatesTaskpane from './taskpanes/DropDuplicates/DropDuplicates';
 import { createActions } from '../utils/actions';
 import SearchTaskpane from './taskpanes/Search/SearchTaskpane';
@@ -88,11 +87,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         currOpenModal: props.userProfile.userEmail == '' && props.userProfile.telemetryEnabled // no signup if no logs
             ? {type: ModalEnum.SignUp} 
             : (props.userProfile.shouldUpgradeMitosheet 
-                ? {type: ModalEnum.Upgrade} 
-                : (props.userProfile.usageTriggeredFeedbackID !== undefined
-                    ? {type: ModalEnum.Feedback, feedbackID: props.userProfile.usageTriggeredFeedbackID} 
-                    : {type: ModalEnum.None}
-                )
+                ? {type: ModalEnum.Upgrade} : {type: ModalEnum.None}
             ),
         currOpenTaskpane: {type: TaskpaneType.NONE},
         selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
@@ -258,19 +253,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     }, [uiState.selectedSheetIndex])
 
-    // When the feedbackID changes, check if we need to open the Feedback Modal
-    useEffect(() => {
-        const usageTriggeredFeedbackID = userProfile.usageTriggeredFeedbackID
-        if (usageTriggeredFeedbackID !== undefined) {
-            setUIState(prevUIState => {
-                return {
-                    ...prevUIState,
-                    currOpenModal: {type: ModalEnum.Feedback, feedbackID: usageTriggeredFeedbackID},
-                }
-            })
-        }
-    }, [userProfile.usageTriggeredFeedbackID])
-
     // Store the prev open taskpane in a ref, to avoid triggering rerenders
     const prevOpenTaskpaneRef = useRef(uiState.currOpenTaskpane.type);
     useEffect(() => {
@@ -357,14 +339,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 <UpgradeModal
                     setUIState={setUIState}
                     mitoAPI={props.mitoAPI}
-                />
-            )
-            case ModalEnum.Feedback: return (
-                <FeedbackModal
-                    usageTriggereeFeedbackID={uiState.currOpenModal.feedbackID}
-                    setUIState={setUIState}
-                    mitoAPI={props.mitoAPI}
-                    numUsages={userProfile.numUsages}
                 />
             )
             case ModalEnum.DeleteGraphs: return (
