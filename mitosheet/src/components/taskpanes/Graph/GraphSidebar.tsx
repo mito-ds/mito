@@ -161,11 +161,6 @@ const GraphSidebar = (props: {
         }
     }, [props.lastStepIndex])
 
-    // We log when the graph has been opened
-    useEffect(() => {
-        void props.mitoAPI.log('opened_graph');
-    }, []);
-
     // Async load in the data from the mitoAPI
     useDebouncedEffect(() => {
         // If we haven't updated the graph yet, then don't send a new graph message so that 
@@ -365,7 +360,6 @@ const GraphSidebar = (props: {
                                             currOpenTaskpane: { type: TaskpaneType.NONE }
                                         }
                                     })
-                                    void props.mitoAPI.log('closed_graph')
                                 }}
                             />
                         </Col>
