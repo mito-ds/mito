@@ -198,10 +198,12 @@ const GraphSidebar = (props: {
         If the props.graphID changes, which happens when opening a new graph (either switching between graph tabs or duplicating a graph):
         1. reset the stepID so we don't overwrite the previous edits.
         2. refresh the graphParams so the UI is up to date with the new graphID's configuration.
+        3. update the graphUpdateNumber so the graph refreshes
     */
     useEffect(() => {
         setStepID(undefined)
         setGraphParams(getGraphParams(props.graphDataJSON, props.graphID, props.uiState.selectedSheetIndex, props.sheetDataArray))
+        setGraphUpdatedNumber(old => old + 1)
     }, [props.graphID])
 
     // Async load in the data from the mitoAPI

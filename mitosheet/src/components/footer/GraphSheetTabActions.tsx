@@ -53,11 +53,11 @@ export default function GraphSheetTabActions(props: {
         props.setUIState(prevUIState => {
             return {
                 ...prevUIState,
+                selectedGraphID: newGraphID,
+                selectedTabType: 'graph',
                 currOpenTaskpane: {
                     type: TaskpaneType.GRAPH,
                     graphID: newGraphID,
-                    selectedGraphID: newGraphID,
-                    selectedTabType: 'graph'
                 },
             }
         })
