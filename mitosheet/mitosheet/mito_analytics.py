@@ -33,7 +33,7 @@ from typing import Any, Dict, List
 from mitosheet.parser import parse_formula
 from mitosheet.types import StepsManagerType
 from mitosheet.user.schemas import UJ_MITOSHEET_TELEMETRY
-from mitosheet.user.location import get_location
+from mitosheet.user.location import get_location, is_docker
 
 try:
     from jupyterlab import __version__ as jupyterlab_version
@@ -189,7 +189,8 @@ def log(log_event: str, params: Dict[Any, Any]=None, steps_manager: StepsManager
         'version_jupyterlab': jupyterlab_version,
         'version_mito': __version__,
         'package_name': package_name,
-        'location': location
+        'location': location,
+        'is_docker': is_docker()
     }
 
     # Add some data about where this is being run from, so we make sure we
