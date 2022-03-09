@@ -12,16 +12,28 @@ import plotly.graph_objects as go
 
 # Graph types should be kept consistent with the GraphType in GraphSidebar.tsx
 SCATTER = "scatter"
+LINE = "line"
 BAR = "bar"
 HISTOGRAM = "histogram"
 BOX = "box"
+STRIP = "strip"
+VIOLIN = "violin"
+ECDF = "ecdf"
+DENSITY_HEATMAP = "density heatmap"
+DENSITY_CONTOUR = "density contour"
 
 # Label for each type of graph used in the graph title
 GRAPH_TITLE_LABELS = {
     SCATTER: "scatter plot",
+    LINE: "line",
     BAR: "bar chart",
     BOX: "box plot",
     HISTOGRAM: "histogram",
+    STRIP: "strip",
+    VIOLIN: "violin",
+    ECDF: "ecdf",
+    DENSITY_HEATMAP: "density heatmap",
+    DENSITY_CONTOUR: "density contour",
 }
 
 
