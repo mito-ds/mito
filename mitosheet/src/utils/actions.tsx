@@ -128,6 +128,7 @@ export const createActions = (
                         ...prevUIState,
                         currOpenModal: {type: ModalEnum.ClearAnalysis},
                         currOpenTaskpane: {type: TaskpaneType.NONE},
+                        selectedTabType: 'data'
                     }
                 })
             },
@@ -297,6 +298,7 @@ export const createActions = (
                         ...prevUIState,
                         currOpenModal: {type: ModalEnum.None},
                         currOpenTaskpane: {type: TaskpaneType.DOWNLOAD},
+                        selectedTabType: 'data'
                     }
                 })
             },
@@ -428,6 +430,7 @@ export const createActions = (
                         ...prevUIState,
                         currOpenModal: {type: ModalEnum.None},
                         currOpenTaskpane: {type: TaskpaneType.IMPORT},
+                        selectedTabType: 'data'
                     }
                 })
             },

@@ -351,7 +351,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     },
                     currOpenModal: {
                         type: ModalEnum.None
-                    }
+                    },
+                    selectedTabType: 'data'
                 }
             });
         }
