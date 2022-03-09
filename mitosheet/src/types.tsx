@@ -547,6 +547,7 @@ export interface UIState {
     exportConfiguration: CSVExportState | ExcelExportState;
     selectedSheetIndex: number;
     selectedGraphID: GraphID | undefined;
+    newGraphStepID: string | undefined;
     selectedTabType: 'data' | 'graph';
     displayFormatToolbarDropdown: boolean;
 }

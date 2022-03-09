@@ -9,8 +9,7 @@ import Col from '../../spacing/Col';
 import Row from '../../spacing/Row';
 import TextButton from '../../elements/TextButton';
 import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
-import { intersection } from '../../../utils/arrays';
-import { ColumnID, ColumnIDsMap, GraphDataJSON, GraphID, GraphParams, SheetData, UIState } from '../../../types';
+import { ColumnID, ColumnIDsMap, GraphDataJSON, GraphID, SheetData, UIState } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 
 // import css
@@ -21,6 +20,7 @@ import { isNumberDtype } from '../../../utils/dtypes';
 import Toggle from '../../elements/Toggle';
 import usePrevious from '../../../hooks/usePrevious';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
+import { getDefaultGraphParams, getDefaultSafetyFilter, getGraphParams } from './GraphUtils';
 
 export enum GraphType {
     SCATTER = 'scatter',
@@ -36,86 +36,11 @@ const LOAD_GRAPH_TIMEOUT = 1000;
 // Graphing a dataframe with more than this number of rows will
 // give the user the option to apply the safety filter
 // Note: This must be kept in sync with the graphing heuristic in the mitosheet/graph folder
-const GRAPH_SAFETY_FILTER_CUTOFF = 1000;
+export const GRAPH_SAFETY_FILTER_CUTOFF = 1000;
 
 // Tooltips used to explain the Safety filter toggle
 const SAFETY_FILTER_DISABLED_MESSAGE = `Because you’re graphing less than ${GRAPH_SAFETY_FILTER_CUTOFF} rows of data, you can safely graph your data without applying a filter first.`
 const SAFETY_FILTER_ENABLED_MESSAGE = `Turning on Filter to Safe Size only graphs the first ${GRAPH_SAFETY_FILTER_CUTOFF} rows of your dataframe, ensuring that your browser tab won’t crash. Turning off Filter to Safe Size graphs the entire dataframe and may slow or crash your browser tab.`
-
-// Helper function for creating default graph params. Defaults to a Bar chart, 
-// unless a graph type is provided
-export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: number, graphType?: GraphType): GraphParams => {
-    const safetyFilter = getDefaultSafetyFilter(sheetDataArray, sheetIndex)
-    return {
-        graphPreprocessing: {
-            safety_filter_turned_on_by_user: safetyFilter
-        },
-        graphCreation: {
-            graph_type: graphType || GraphType.BAR,
-            sheet_index: sheetIndex,
-            x_axis_column_ids: [],
-            y_axis_column_ids: [],
-        },
-        graphStyling: undefined,
-        graphRendering: {}
-    }
-}
-
-// Helper function for getting the default safety filter status
-const getDefaultSafetyFilter = (sheetDataArray: SheetData[], sheetIndex: number): boolean => {
-    return sheetDataArray[sheetIndex] === undefined || sheetDataArray[sheetIndex].numRows > GRAPH_SAFETY_FILTER_CUTOFF
-}
-
-/*
-    A helper function for getting the params for the graph fpr this sheet when
-    opening the graphing taskpane, or when switching to a sheet.
-
-    Notably, will filter oout any columns that are no longer in the dataset, 
-    which stops the user from having invalid columns selected in their graph
-    params.
-*/
-const getGraphParams = (   
-    graphDataJSON: GraphDataJSON,
-    graphID: GraphID,
-    selectedSheetIndex: number,
-    sheetDataArray: SheetData[],
-): GraphParams => {
-
-    const graphParams = graphDataJSON[graphID]?.graphParams;
-
-    // If the graph already exists, get the data source sheet index from the graph params.
-    // Otherwise create a new graph of the selectedSheetIndex
-    const graphDataSourceSheetIndex = graphParams !== undefined ? graphParams.graphCreation.sheet_index : selectedSheetIndex
-
-    // If the graph already exists, retrieve the graph params that still make sense. In other words, 
-    // if a column was previously included in the graph and it no longer exists, remove it from the graph. 
-    if (graphParams !== undefined) {
-        // Filter out column headers that no longer exist
-        const validColumnIDs = sheetDataArray[graphDataSourceSheetIndex] !== undefined ? sheetDataArray[graphDataSourceSheetIndex].data.map(c => c.columnID) : [];
-        const xAxisColumnIDs = intersection(
-            validColumnIDs,
-            graphParams.graphCreation.x_axis_column_ids
-        )
-        const yAxisColumnIDs = intersection(
-            validColumnIDs,
-            graphParams.graphCreation.y_axis_column_ids
-        )
-
-        
-        return {
-            ...graphParams,
-            graphCreation: {
-                ...graphParams.graphCreation,
-                x_axis_column_ids: xAxisColumnIDs,
-                y_axis_column_ids: yAxisColumnIDs
-            }
-        }
-    }
-
-    // If the graph does not already exist, create a default graph.
-    return getDefaultGraphParams(sheetDataArray, graphDataSourceSheetIndex);
-}
-
 
 /*
     This is the main component that displays all graphing
@@ -132,6 +57,7 @@ const GraphSidebar = (props: {
     uiState: UIState;
     graphDataJSON: GraphDataJSON
     lastStepIndex: number
+    newGraphStepID?: string
 }): JSX.Element => {
 
     /*
@@ -149,7 +75,8 @@ const GraphSidebar = (props: {
     const graphID = props.graphID
 
     // Every configuration that the user makes with this graphID is the same step, until the graphID is changed.
-    const [stepID, setStepID] = useState<string|undefined>(undefined);
+    const [stepID, setStepID] = useState<string|undefined>(props.newGraphStepID);
+    console.log('step id: ', stepID)
 
     // We keep track of the graph data separately from the backend state so that 
     // the UI updates immediately, even though the backend takes a while to process.
@@ -185,15 +112,18 @@ const GraphSidebar = (props: {
     }, [props.lastStepIndex])
 
     /*
-        If the props.graphID changes, which happens when opening a new graph (either switching between graph tabs or duplicating a graph):
+        If the props.graphID changes, which happens when opening a graph (either switching between graph tabs or duplicating a graph):
         1. reset the stepID so we don't overwrite the previous edits.
         2. refresh the graphParams so the UI is up to date with the new graphID's configuration.
         3. update the graphUpdateNumber so the graph refreshes
     */
     useEffect(() => {
-        setStepID(undefined)
-        setGraphParams(getGraphParams(props.graphDataJSON, props.graphID, props.uiState.selectedSheetIndex, props.sheetDataArray))
-        setGraphUpdatedNumber(old => old + 1)
+        // Only reset when we're not creating a graph for the first time 
+        if (props.newGraphStepID === undefined) {
+            setStepID(undefined)
+            setGraphParams(getGraphParams(props.graphDataJSON, props.graphID, props.uiState.selectedSheetIndex, props.sheetDataArray))
+            setGraphUpdatedNumber(old => old + 1)
+        }
     }, [props.graphID])
 
     // Async load in the data from the mitoAPI

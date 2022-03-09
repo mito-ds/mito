@@ -94,6 +94,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
         selectedSheetIndex: 0,
         selectedGraphID: Object.keys(props.analysisData.graphDataJSON).length === 0 ? undefined : Object.keys(props.analysisData.graphDataJSON)[0],
+        newGraphStepID: undefined,
         selectedTabType: 'data',
         displayFormatToolbarDropdown: false,
         exportConfiguration: {exportType: 'csv'}
@@ -238,14 +239,18 @@ export const Mito = (props: MitoProps): JSX.Element => {
         if (previousNumGraphs < newNumGraphs) {
             const newGraphID = graphIDs[newNumGraphs - 1]
             setUIState(prevUIState => {
+                const newGraphStepID = prevUIState.newGraphStepID
+                console.log('in seting ui: ', newGraphStepID)
                 return {
                     ...prevUIState,
                     selectedGraphID: newGraphID,
                     selectedTabType: 'graph',
                     currOpenTaskpane: {
                         type: TaskpaneType.GRAPH,
-                        graphID: newGraphID
-                    }
+                        graphID: newGraphID,
+                        newGraphStepID: newGraphStepID
+                    },
+                    newGraphStepID: undefined // Reset to undefined since we no longer need the stepID
                 }
             })
 
@@ -253,7 +258,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
             previousGraphIndex.current = graphIDs.indexOf(newGraphID)
 
         // Handle graph removal
-        } else if (previousNumGraphs >= newNumGraphs) {
+        } else if (previousNumGraphs > newNumGraphs) {
             // Try to go to the same sheet index, if it doesn't exist go to the graph index - 1, 
             // if no graphs exists, go to the last sheet index
             const newGraphID = selectPreviousGraphSheetTab(analysisData.graphDataJSON, previousGraphIndex.current, setUIState)
@@ -457,6 +462,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         uiState={uiState}
                         graphDataJSON={analysisData.graphDataJSON}
                         lastStepIndex={lastStepSummary.step_idx}
+                        newGraphStepID={uiState.currOpenTaskpane.newGraphStepID}
                     />
                 )
             case TaskpaneType.IMPORT: return (

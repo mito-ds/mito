@@ -6,7 +6,7 @@ import { GraphDataJSON, GraphID, SheetData, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import { ModalEnum } from '../modals/modals';
-import { getDefaultGraphParams } from '../taskpanes/Graph/GraphSidebar';
+import { getDefaultGraphParams } from '../taskpanes/Graph/GraphUtils';
 
 /*
     Helper function for finding all of the graph tab names
@@ -100,8 +100,25 @@ export default function SheetTabActions(props: {
         const newGraphID = getRandomId() // Create a new graph
         const graphParams = getDefaultGraphParams(props.sheetDataArray, props.sheetIndex)
 
-        // TODO: It would be great if we could save the stepID that is returned and then pass it to the graph taskpane
-        // when it is opened. 
+        // In order to open the graph, we are watching for the graphDataJSON to change in length. This allows us to only display the graph taskpane
+        // when the sheet tab exists. However, we need to know the stepID of the graph creation so that the configuration of the graph so that editing
+        // the graph doesn't cause a new step to get created. We could either create a new piece of state in the that stores the stepID or we can save the 
+        // stepID in the graphDataJSON. Neither are good options. 
+
+        // NOTE: after trying to implement it as saving it in the state, I realized that this approach doesn't work due to race conditions 
+        // in the return stepID from the editGraph call and the graphDATAJSON updating. 
+        
+        const stepID = getRandomId(); 
+
+        // Update the newGraphStepID so we use the same stepID when configuring the graph. 
+        // Do this before creating the new graph so the stepID is set by the time we try to open the graphsidebar. 
+        props.setUIState(prevUIState => {
+            return {
+                ...prevUIState,
+                newGraphStepID: stepID
+            }
+        })
+
         await props.mitoAPI.editGraph(
             newGraphID,
             graphParams.graphCreation.graph_type,
@@ -111,8 +128,9 @@ export default function SheetTabActions(props: {
             graphParams.graphCreation.y_axis_column_ids,
             `100%`, 
             `100%`, 
-            undefined, 
+            stepID, 
         );
+        
     }
 
     return (

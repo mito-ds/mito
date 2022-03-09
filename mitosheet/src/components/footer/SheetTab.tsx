@@ -39,14 +39,12 @@ export const selectPreviousGraphSheetTab = (
         newGraphID = graphIDs[prevGraphIndex - 1]
     } 
 
-    console.log(graphIDs)
-    console.log('prev graph index: ', prevGraphIndex)
-    console.log('new graph id: ', newGraphID)
-
     if (newGraphID !== undefined) {
         // If there is a graph, then keep displaying graphs, otherwise display a data tab
         // Safely mark as GraphID because of the check above that the compiler is unable to understand
         const _newGraphID: GraphID = newGraphID
+
+        console.log("here")
         setUIState((prevUIState) => {
             return {
                 ...prevUIState,

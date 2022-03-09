@@ -5,7 +5,7 @@ import { getColumnIndexesInSelections, getSelectedNumberSeriesColumnIDs, isSelec
 import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes } from "../components/endo/utils";
 import { ModalEnum } from "../components/modals/modals";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
-import { getDefaultGraphParams } from "../components/taskpanes/Graph/GraphSidebar";
+import { getDefaultGraphParams } from "../components/taskpanes/Graph/GraphUtils";
 import { TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../data/function_documentation";
@@ -370,17 +370,25 @@ export const createActions = (
             type: ActionEnum.Graph,
             shortTitle: 'graph',
             longTitle: 'Graph',
-            actionFunction: () => {
+            actionFunction: async () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
 
                 const newGraphID = getRandomId() // Create a new GraphID
+                const stepID = getRandomId(); 
+
+                // Update the newGraphStepID so we use the same stepID when configuring the graph. 
+                // Do this before creating the new graph so the stepID is set by the time we try to open the graphsidebar. 
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        newGraphStepID: stepID
+                    }
+                })
 
                 const graphParams = getDefaultGraphParams(sheetDataArray, sheetIndex)
 
-                // TODO: It would be great if we could save the stepID that is returned and then pass it to the graph taskpane
-                // when it is opened. 
-                void mitoAPI.editGraph(
+                await mitoAPI.editGraph(
                     newGraphID,
                     graphParams.graphCreation.graph_type,
                     graphParams.graphCreation.sheet_index,
@@ -389,9 +397,8 @@ export const createActions = (
                     graphParams.graphCreation.y_axis_column_ids,
                     `100%`, 
                     `100%`, 
-                    undefined, 
+                    stepID, 
                 );
-
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no sheets to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
