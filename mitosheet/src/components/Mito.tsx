@@ -265,6 +265,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         previousNumGraphsRef.current = newNumGraphs
     }, [Object.keys(analysisData.graphDataJSON).length])
 
+
     /*
         Code to be executed everytime the sheet is switched. 
         1. if the sheet that is switched to is a pivot sheet, we start editing this pivot table

@@ -92,7 +92,8 @@ export const createActions = (
                     return {
                         ...prevUIState,
                         currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                        selectedColumnControlPanelTab: ControlPanelTab.FilterSort
+                        selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
+                        selectedTabType: 'data'
                     }
                 })
             },
@@ -146,7 +147,8 @@ export const createActions = (
                     return {
                         ...prevUIState,
                         currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                        selectedColumnControlPanelTab: ControlPanelTab.SummaryStats
+                        selectedColumnControlPanelTab: ControlPanelTab.SummaryStats,
+                        selectedTabType: 'data'
                     }
                 })
             },
@@ -253,6 +255,7 @@ export const createActions = (
                         ...prevUIState,
                         currOpenModal: {type: ModalEnum.None},
                         currOpenTaskpane: {type: TaskpaneType.DROP_DUPLICATES},
+                        selectedTabType: 'data'
                     }
                 })
             },
@@ -315,7 +318,8 @@ export const createActions = (
                     return {
                         ...prevUIState,
                         currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                        selectedColumnControlPanelTab: ControlPanelTab.FilterSort
+                        selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
+                        selectedTabType: 'data'
                     }
                 })
             },
@@ -445,6 +449,7 @@ export const createActions = (
                         ...prevUIState,
                         currOpenModal: {type: ModalEnum.None},
                         currOpenTaskpane: {type: TaskpaneType.MERGE},
+                        selectedTabType: 'data'
                     }
                 })
             },
@@ -476,6 +481,7 @@ export const createActions = (
                                     destinationSheetIndex: sheetIndex,
                                     existingPivotParams: existingPivotParams
                                 },
+                                selectedTabType: 'data'
                             }
                         })
 
@@ -505,6 +511,7 @@ export const createActions = (
                             destinationSheetIndex: undefined,
                             existingPivotParams: undefined
                         },
+                        selectedTabType: 'data'
                     }
                 })
             },
@@ -697,7 +704,8 @@ export const createActions = (
                     return {
                         ...prevUIState,
                         currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                        selectedColumnControlPanelTab: ControlPanelTab.FilterSort
+                        selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
+                        selectedTabType: 'data'
                     }
                 })
             },
@@ -718,6 +726,7 @@ export const createActions = (
                         ...prevUIState,
                         currOpenModal: {type: ModalEnum.None},
                         currOpenTaskpane: {type: TaskpaneType.STEPS},
+                        selectedTabType: 'data'
                     }
                 })
             },
@@ -754,7 +763,8 @@ export const createActions = (
                     return {
                         ...prevUIState,
                         currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                        selectedColumnControlPanelTab: ControlPanelTab.UniqueValues
+                        selectedColumnControlPanelTab: ControlPanelTab.UniqueValues,
+                        selectedTabType: 'data'
                     }
                 })
             },

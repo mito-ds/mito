@@ -166,7 +166,7 @@ const GraphSidebar = (props: {
                 graphParams.graphCreation.y_axis_column_ids,
                 `${boundingRect?.height - 10}px`, 
                 `${boundingRect?.width - 20}px`, // Subtract pixels from the height & width to account for padding
-                undefined
+                stepID
             );
             setStepID(_stepID)
         }
