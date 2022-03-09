@@ -59,7 +59,7 @@ class DataframeDeleteStepPerformer(StepPerformer):
         post_state.df_sources.pop(sheet_index)
 
         return post_state, {
-            'pandas_processing_time': 0
+            'pandas_processing_time': 0 # No time spent on pandas, only metadata changes
         }
 
     @classmethod
