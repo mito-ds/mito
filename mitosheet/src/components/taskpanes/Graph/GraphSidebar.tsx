@@ -22,16 +22,16 @@ import usePrevious from '../../../hooks/usePrevious';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
 
 export enum GraphType {
-    SCATTER = 'scatter',
-    LINE = 'line',
     BAR = 'bar',
+    LINE = 'line',
+    SCATTER = 'scatter',
     HISTOGRAM = 'histogram',
+    DENSITY_HEATMAP = 'density heatmap',
+    DENSITY_CONTOUR = 'density contour',
     BOX = 'box',
     VIOLIN = 'violin',
     STRIP = 'strip',
     ECDF = 'ecdf',
-    DENSITY_HEATMAP = 'density heatmap',
-    DENSITY_CONTOUR = 'density contour',
 }
 
 
@@ -415,16 +415,25 @@ const GraphSidebar = (props: {
                                     dropdownWidth='medium'
                                 >
                                     <DropdownItem
-                                        title={GraphType.BOX}
+                                        title={GraphType.BAR}
                                     />
                                     <DropdownItem
-                                        title={GraphType.HISTOGRAM}
+                                        title={GraphType.LINE}
                                     />
                                     <DropdownItem
                                         title={GraphType.SCATTER}
                                     />
                                     <DropdownItem
-                                        title={GraphType.LINE}
+                                        title={GraphType.HISTOGRAM}
+                                    />
+                                    <DropdownItem
+                                        title={GraphType.DENSITY_HEATMAP}
+                                    />
+                                    <DropdownItem
+                                        title={GraphType.DENSITY_CONTOUR}
+                                    />
+                                    <DropdownItem
+                                        title={GraphType.BOX}
                                     />
                                     <DropdownItem
                                         title={GraphType.VIOLIN}
@@ -434,12 +443,6 @@ const GraphSidebar = (props: {
                                     />
                                     <DropdownItem
                                         title={GraphType.ECDF}
-                                    />
-                                    <DropdownItem
-                                        title={GraphType.DENSITY_HEATMAP}
-                                    />
-                                    <DropdownItem
-                                        title={GraphType.DENSITY_CONTOUR}
                                     />
                                 </Select>
                             </Col>

@@ -99,26 +99,26 @@ def graph_creation(
     elif len(y_axis_column_headers) > 1:
         all_params["y"] = y_axis_column_headers
 
-    if graph_type == BOX:
-        return px.box(df, **all_params)
-    elif graph_type == HISTOGRAM:
-        return px.histogram(df, **all_params)
-    elif graph_type == BAR:
+    if graph_type == BAR:
         return px.bar(df, **all_params)
-    elif graph_type == SCATTER:
-        return px.scatter(df, **all_params)
     elif graph_type == LINE:
         return px.line(df, **all_params)
+    elif graph_type == SCATTER:
+        return px.scatter(df, **all_params)
+    elif graph_type == HISTOGRAM:
+        return px.histogram(df, **all_params)
+    elif graph_type == DENSITY_HEATMAP:
+        return px.density_heatmap(df, **all_params)
+    elif graph_type == DENSITY_CONTOUR:
+        return px.density_contour(df, **all_params)
+    elif graph_type == BOX:
+        return px.box(df, **all_params)
     elif graph_type == VIOLIN:
         return px.violin(df, **all_params)
     elif graph_type == STRIP:
         return px.strip(df, **all_params)
     elif graph_type == ECDF:
         return px.ecdf(df, **all_params)
-    elif graph_type == DENSITY_HEATMAP:
-        return px.density_heatmap(df, **all_params)
-    elif graph_type == DENSITY_CONTOUR:
-        return px.density_contour(df, **all_params)
 
 
 def graph_creation_code(
@@ -156,26 +156,26 @@ def graph_creation_code(
         create_parameter(param[0], param[1], param[2]) for param in all_params
     )
 
-    if graph_type == BOX:
-        return f"fig = px.box({df_name}, {params})"
-    elif graph_type == HISTOGRAM:
-        return f"fig = px.histogram({df_name}, {params})"
-    elif graph_type == BAR:
+    if graph_type == BAR:
         return f"fig = px.bar({df_name}, {params})"
-    elif graph_type == SCATTER:
-        return f"fig = px.scatter({df_name}, {params})"
     elif graph_type == LINE:
         return f"fig = px.line({df_name}, {params})"
+    elif graph_type == SCATTER:
+        return f"fig = px.scatter({df_name}, {params})"
+    elif graph_type == HISTOGRAM:
+        return f"fig = px.histogram({df_name}, {params})"
+    elif graph_type == DENSITY_HEATMAP:
+        return f"fig = px.density_heatmap({df_name}, {params})"
+    elif graph_type == DENSITY_CONTOUR:
+        return f"fig = px.density_contour({df_name}, {params})"
+    elif graph_type == BOX:
+        return f"fig = px.box({df_name}, {params})"
     elif graph_type == VIOLIN:
         return f"fig = px.violin({df_name}, {params})"
     elif graph_type == STRIP:
         return f"fig = px.strip({df_name}, {params})"
     elif graph_type == ECDF:
         return f"fig = px.ecdf({df_name}, {params})"
-    elif graph_type == DENSITY_HEATMAP:
-        return f"fig = px.density_heatmap({df_name}, {params})"
-    elif graph_type == DENSITY_CONTOUR:
-        return f"fig = px.density_contour({df_name}, {params})"
     return ""
 
 
