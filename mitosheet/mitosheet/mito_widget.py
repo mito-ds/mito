@@ -9,7 +9,7 @@ Main file containing the mito widget.
 """
 import json
 import time
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 from mitosheet.user.location import is_in_google_colab, is_in_vs_code
@@ -182,7 +182,7 @@ class MitoWidget(DOMWidget):
         4. A log_event is just an event that should get logged on the backend.
         """
 
-        start_time = time.perf_counter()
+        start_time: Optional[float] = time.perf_counter()
         event = content
 
         try:
@@ -192,9 +192,12 @@ class MitoWidget(DOMWidget):
                 self.handle_update_event(event)
             elif event['event'] == 'api_call':
                 self.api.process_new_api_call(event)
+                # NOTE: since API calls are in a seperate thread, their start time and end
+                # time are not valid, and so we don't even log the start time to not be confusing
+                start_time = None
             
             # NOTE: we don't need to case on log_event above because it always gets
-            # passed to this function, and thus is logged
+            # passed to this function, and thus is logged.
             log_event_processed(event, self.steps_manager, start_time=start_time)
 
             return True
