@@ -76,7 +76,6 @@ const GraphSidebar = (props: {
 
     // Every configuration that the user makes with this graphID is the same step, until the graphID is changed.
     const [stepID, setStepID] = useState<string|undefined>(props.newGraphStepID);
-    console.log('step id: ', stepID)
 
     // We keep track of the graph data separately from the backend state so that 
     // the UI updates immediately, even though the backend takes a while to process.
@@ -118,8 +117,10 @@ const GraphSidebar = (props: {
         3. update the graphUpdateNumber so the graph refreshes
     */
     useEffect(() => {
-        // Only reset when we're not creating a graph for the first time 
+        // Only reset when we're not creating a graph for the first time, since these variables were already set if we just 
+        // created the graph.
         if (props.newGraphStepID === undefined) {
+            console.log("Sending a new graph")
             setStepID(undefined)
             setGraphParams(getGraphParams(props.graphDataJSON, props.graphID, props.uiState.selectedSheetIndex, props.sheetDataArray))
             setGraphUpdatedNumber(old => old + 1)
@@ -129,12 +130,16 @@ const GraphSidebar = (props: {
     // Async load in the data from the mitoAPI
     useDebouncedEffect(() => {
         /* 
-            Send the graph message even if the user has not yet configured the graph so that: 
-            1) the graph is updated if the data changes since the graph was last updated
-            2) the new graph tab is created in the toolbar as soon as the graph taskpane opens
+            Send the graph message even as long as its not the inital creation of the graph so that
+            the graph is updated if the data changes since the graph was last updated.
+
+            We know that the graph was just created if the props.newGraphStepID is not undefined and 
+            the graphUpdatedNumber is 0.
         */
-        setLoading(true)
-        void getGraphAsync()
+        if (props.newGraphStepID === undefined || graphUpdatedNumber > 0) {
+            setLoading(true)
+            void getGraphAsync()
+        }
         
     }, [graphUpdatedNumber], LOAD_GRAPH_TIMEOUT)
 

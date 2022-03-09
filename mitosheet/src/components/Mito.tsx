@@ -28,7 +28,7 @@ import Toolbar from './toolbar/Toolbar';
 import LoadingIndicator from './LoadingIndicator';
 
 import ErrorModal from './modals/ErrorModal';
-import MitoAPI from '../api';
+import MitoAPI, { getRandomId } from '../api';
 import PivotTaskpane from './taskpanes/PivotTable/PivotTaskpane';
 import { EDITING_TASKPANES, TaskpaneType, FULLSCREEN_TASKPANES } from './taskpanes/taskpanes';
 import MergeTaskpane from './taskpanes/Merge/MergeTaskpane';
@@ -239,8 +239,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         if (previousNumGraphs < newNumGraphs) {
             const newGraphID = graphIDs[newNumGraphs - 1]
             setUIState(prevUIState => {
-                const newGraphStepID = prevUIState.newGraphStepID
-                console.log('in seting ui: ', newGraphStepID)
+                const newGraphStepID = prevUIState.newGraphStepID === undefined ? getRandomId() : prevUIState.newGraphStepID
                 return {
                     ...prevUIState,
                     selectedGraphID: newGraphID,

@@ -131,7 +131,6 @@ class MitoWidget(DOMWidget):
         })
 
 
-
     def handle_update_event(self, event: Dict[str, Any]) -> None:
         """
         This event is not the user editing the sheet, but rather information

@@ -49,7 +49,7 @@ class State:
         column_spreadsheet_code: List[Dict[ColumnID, str]] = None,
         column_filters: List[Dict[ColumnID, Any]] = None,
         column_format_types: List[Dict[ColumnID, Dict[str, Any]]] = None,
-        graph_data_dict: Dict[str, Dict[str, Any]] = None
+        graph_data_dict: "OrderedDict[str, Dict[str, Any]]" = None
     ):
 
         # The dataframes that are in the state
@@ -119,7 +119,7 @@ class State:
 
         # We put this in an ordered dict so we can easily figure out the last graph that was edited at each step. 
         # This is helpful for undoing, for example. 
-        self.graph_data_dict: OrderedDict[str, Dict[str, Any]] = graph_data_dict if graph_data_dict is not None else dict()
+        self.graph_data_dict: OrderedDict[str, Dict[str, Any]] = graph_data_dict if graph_data_dict is not None else OrderedDict()
 
     def __copy__(self):
         """

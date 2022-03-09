@@ -87,31 +87,17 @@ class GraphStepPerformer(StepPerformer):
         # Extract variables from graph parameters
         graph_type = graph_creation["graph_type"]
         sheet_index = graph_creation["sheet_index"]
-        safety_filter_turned_on_by_user = graph_preprocessing[
-            "safety_filter_turned_on_by_user"
-        ]
+        safety_filter_turned_on_by_user = graph_preprocessing["safety_filter_turned_on_by_user"]
         height = graph_rendering["height"] 
         width = graph_rendering["width"]
 
         # Get the x axis params, if they were provided
-        x_axis_column_ids = (
-            graph_creation["x_axis_column_ids"]
-            if graph_creation["x_axis_column_ids"] is not None
-            else []
-        )
-        x_axis_column_headers = prev_state.column_ids.get_column_headers_by_ids(
-            sheet_index, x_axis_column_ids
-        )
+        x_axis_column_ids = graph_creation["x_axis_column_ids"] if graph_creation["x_axis_column_ids"] is not None else []
+        x_axis_column_headers = prev_state.column_ids.get_column_headers_by_ids(sheet_index, x_axis_column_ids)
 
         # Get the y axis params, if they were provided
-        y_axis_column_ids = (
-            graph_creation["y_axis_column_ids"]
-            if graph_creation["y_axis_column_ids"] is not None
-            else []
-        )
-        y_axis_column_headers = prev_state.column_ids.get_column_headers_by_ids(
-            sheet_index, y_axis_column_ids
-        )
+        y_axis_column_ids = graph_creation["y_axis_column_ids"] if graph_creation["y_axis_column_ids"] is not None else []
+        y_axis_column_headers = prev_state.column_ids.get_column_headers_by_ids(sheet_index, y_axis_column_ids)
 
         # Create a copy of the dataframe, just for safety.
         df: pd.DataFrame = prev_state.dfs[sheet_index].copy()

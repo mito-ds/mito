@@ -745,8 +745,7 @@ export default class MitoAPI {
         newDataframeName: string,
         stepID?: string,
     ): Promise<string> {
-        // If this is overwriting a pivot event, then we do not need to
-        // create a new id, as we already have it!
+
         if (stepID === undefined || stepID === '') {
             stepID = getRandomId();
         }

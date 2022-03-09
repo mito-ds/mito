@@ -118,7 +118,6 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
             props.destinationSheetIndex,
             stepID
         )
-
         setStepID(_stepID);
     }
 
