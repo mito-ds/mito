@@ -192,11 +192,9 @@ class MitoWidget(DOMWidget):
                 self.handle_update_event(event)
             elif event['event'] == 'api_call':
                 self.api.process_new_api_call(event)
-                return True
             
             # NOTE: we don't need to case on log_event above because it always gets
-            # passed to this function, and thus is logged. However, we do not log
-            # api calls, as they are just noise.
+            # passed to this function, and thus is logged
             log_event_processed(event, self.steps_manager, start_time=start_time)
 
             return True
