@@ -4,6 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from copy import deepcopy
+from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import numpy as np
@@ -96,13 +97,16 @@ class SetCellValueStepPerformer(StepPerformer):
             post_state.dfs[sheet_index][column_header] = post_state.dfs[sheet_index][column_header].astype('float')
         
         # Actually update the cell's value
+        pandas_start_time = perf_counter()
         post_state.dfs[sheet_index].at[row_index, column_header] = type_corrected_new_value
+        pandas_processing_time = perf_counter() - pandas_start_time
 
         # Update the column formula, and then execute the new formula graph
         refresh_dependant_columns(post_state, post_state.dfs[sheet_index], sheet_index, column_id)
 
         return post_state, {
-            'type_corrected_new_value': type_corrected_new_value
+            'type_corrected_new_value': type_corrected_new_value,
+            'pandas_processing_time': pandas_processing_time
         }
 
     @classmethod

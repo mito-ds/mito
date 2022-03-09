@@ -424,10 +424,27 @@ def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, 
         # the time, so that we can make sure to aggregate in Mixpanel well (which will die if 
         # it is given to many values).
         if start_time is not None:
-            event_properties['processing_time'] = round(time.perf_counter() - start_time, 1)
-            event_properties['processing_time_seconds'] = int(round(time.perf_counter() - start_time, 0))
-            event_properties['processing_time_seconds_ten'] = int(round(time.perf_counter() - start_time, -1))
-            event_properties['processing_time_seconds_hundred'] = int(round(time.perf_counter() - start_time, -2))
+            processing_time = time.perf_counter() - start_time
+            event_properties['processing_time'] = round(processing_time, 1)
+            event_properties['processing_time_seconds'] = int(round(processing_time, 0))
+            event_properties['processing_time_seconds_ten'] = int(round(processing_time, -1))
+            event_properties['processing_time_seconds_hundred'] = int(round(processing_time, -2))
+
+            # If we just did an update, and this update has a pandas processing time, then we can calculate the
+            # time that we spent as mito overhead vs. just 
+            if steps_manager and steps_manager.curr_step.execution_data and 'pandas_processing_time' in steps_manager.curr_step.execution_data:
+                pandas_processing_time = steps_manager.curr_step.execution_data['pandas_processing_time']
+                event_properties['processing_time_pandas'] = round(pandas_processing_time, 1)
+                event_properties['processing_time_pandas_seconds'] = int(round(pandas_processing_time, 0))
+                event_properties['processing_time_pandas_seconds_ten'] = int(round(pandas_processing_time, -1))
+                event_properties['processing_time_pandas_seconds_hundred'] = int(round(pandas_processing_time, -2))
+
+                # And we explicitly calculate the overhead
+                overhead_processing_time = round(processing_time - pandas_processing_time, 1)
+                event_properties['processing_time_overhead'] = overhead_processing_time
+                event_properties['processing_time_overhead_seconds'] = int(round(overhead_processing_time, 0))
+                event_properties['processing_time_overhead_seconds_ten'] = int(round(overhead_processing_time, -1))
+                event_properties['processing_time_overhead_seconds_hundred'] = int(round(overhead_processing_time, -2))
 
         # We choose to log the event type, as it is the best high-level item for our logs
         # and we append a _failed if the event failed in doing this.

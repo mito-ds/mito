@@ -8,6 +8,7 @@ import json
 from os.path import normpath, basename
 import os
 from copy import copy
+from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 import chardet
 import pandas as pd
@@ -67,9 +68,12 @@ class SimpleImportStepPerformer(StepPerformer):
 
         just_final_file_names = [basename(normpath(file_name)) for file_name in file_names]
 
+        pandas_processing_time = 0
         for file_name, df_name in zip(file_names, get_valid_dataframe_names(post_state.df_names, just_final_file_names)):
-
+            
+            partial_pandas_start_time = perf_counter()
             df, delimeter, encoding = read_csv_get_delimeter_and_encoding(file_name)
+            pandas_processing_time += (perf_counter() - partial_pandas_start_time)
 
             # Save the delimeter and encodings for transpiling
             file_delimeters.append(delimeter)
@@ -86,7 +90,8 @@ class SimpleImportStepPerformer(StepPerformer):
         # and also save the seperator that we used for each file
         return post_state, {
             'file_delimeters': file_delimeters,
-            'file_encodings': file_encodings
+            'file_encodings': file_encodings,
+            'pandas_processing_time': pandas_processing_time
         }
 
     @classmethod

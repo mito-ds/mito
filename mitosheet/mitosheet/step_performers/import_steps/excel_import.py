@@ -4,6 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from copy import copy
+from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 import pandas as pd
 
@@ -60,7 +61,9 @@ class ExcelImportStepPerformer(StepPerformer):
         if not has_headers:
             read_excel_params['header'] = None
 
+        pandas_start_time = perf_counter()
         df_dictonary = pd.read_excel(file_name, **read_excel_params, engine='openpyxl') 
+        pandas_processing_time = perf_counter() - pandas_start_time
 
         for sheet_name, df in df_dictonary.items():
             post_state.add_df_to_state(
@@ -69,7 +72,9 @@ class ExcelImportStepPerformer(StepPerformer):
                 df_name=get_valid_dataframe_name(post_state.df_names, sheet_name),
             )
 
-        return post_state, {}
+        return post_state, {
+            'pandas_processing_time': pandas_processing_time
+        }
 
 
     @classmethod

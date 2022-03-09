@@ -4,6 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from copy import copy
+from time import perf_counter
 from typing import Any, Callable, Dict, Collection, List, Optional, Set, Tuple
 import pandas as pd
 
@@ -116,6 +117,7 @@ class PivotStepPerformer(StepPerformer):
 
         try:
             # Actually execute the pivoting
+            pandas_start_time = perf_counter()
             new_df, was_series = _execute_pivot(
                 prev_state.dfs[sheet_index], 
                 pivot_rows,
@@ -123,6 +125,7 @@ class PivotStepPerformer(StepPerformer):
                 values,
                 flatten_column_headers
             )
+            pandas_processing_time = perf_counter() - pandas_start_time
             
             destination_sheet_index = post_state.add_df_to_state(
                 new_df, 
@@ -142,7 +145,8 @@ class PivotStepPerformer(StepPerformer):
 
         return post_state, {
             'destination_sheet_index': destination_sheet_index,
-            'was_series': was_series
+            'was_series': was_series,
+            'pandas_processing_time': pandas_processing_time
         }
 
     @classmethod

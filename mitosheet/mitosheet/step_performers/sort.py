@@ -4,6 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from copy import deepcopy
+from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from mitosheet.state import State
@@ -65,7 +66,9 @@ class SortStepPerformer(StepPerformer):
         post_state = deepcopy(prev_state)
 
         try: 
+            pandas_start_time = perf_counter()
             new_df = prev_state.dfs[sheet_index].sort_values(by=column_header, ascending=(sort_direction == ASCENDING), na_position=('first' if sort_direction == ASCENDING else 'last'))
+            pandas_processing_time = perf_counter() - pandas_start_time
             post_state.dfs[sheet_index] = new_df
         except TypeError as e:
             # A NameError occurs when you try to sort a column with incomparable 
@@ -74,7 +77,9 @@ class SortStepPerformer(StepPerformer):
             # Generate an error informing the user
             raise make_invalid_sort_error(column_header)
 
-        return post_state, None
+        return post_state, {
+            'pandas_processing_time': pandas_processing_time
+        }
 
     @classmethod
     def transpile( # type: ignore

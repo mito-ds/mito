@@ -4,6 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from copy import copy
+from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from mitosheet.state import DATAFRAME_SOURCE_DUPLICATED, State
@@ -46,13 +47,17 @@ class DataframeDuplicateStepPerformer(StepPerformer):
         post_state = copy(prev_state)
 
         # Execute the step
+        pandas_start_time = perf_counter()
         df_copy = post_state.dfs[sheet_index].copy(deep=True)
+        pandas_processing_time = perf_counter() - pandas_start_time
         new_name = get_first_unused_dataframe_name(post_state.df_names, post_state.df_names[sheet_index] + '_copy')
         # Copy the formatting to the new sheet
         format_types = post_state.column_format_types[sheet_index].copy()
         post_state.add_df_to_state(df_copy, DATAFRAME_SOURCE_DUPLICATED, df_name=new_name, format_types=format_types)
 
-        return post_state, None
+        return post_state, {
+            'pandas_processing_time': pandas_processing_time
+        }
 
     @classmethod
     def transpile( # type: ignore

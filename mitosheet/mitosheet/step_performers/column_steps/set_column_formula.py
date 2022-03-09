@@ -4,6 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from copy import deepcopy
+from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
@@ -124,7 +125,9 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         # Update the column formula, and then execute the new formula graph
         try:
             post_state.column_spreadsheet_code[sheet_index][column_id] = new_formula
+            pandas_start_time = perf_counter()
             refresh_dependant_columns(post_state, post_state.dfs[sheet_index], sheet_index, column_id)
+            pandas_processing_time = perf_counter() - pandas_start_time
         except MitoError as e:
             # Catch the error and make sure that we don't set the error modal
             e.error_modal = False
@@ -132,7 +135,9 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         except:
             raise make_execution_error(error_modal=False)
 
-        return post_state, None
+        return post_state, {
+            'pandas_processing_time': pandas_processing_time
+        }
 
     @classmethod
     def transpile( # type: ignore
