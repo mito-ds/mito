@@ -57,7 +57,6 @@ const GraphSidebar = (props: {
     uiState: UIState;
     graphDataJSON: GraphDataJSON
     lastStepIndex: number
-    newGraphStepID?: string
 }): JSX.Element => {
 
     /*
@@ -75,7 +74,7 @@ const GraphSidebar = (props: {
     const graphID = props.graphID
 
     // Every configuration that the user makes with this graphID is the same step, until the graphID is changed.
-    const [stepID, setStepID] = useState<string|undefined>(props.newGraphStepID);
+    const [stepID, setStepID] = useState<string|undefined>(undefined);
 
     // We keep track of the graph data separately from the backend state so that 
     // the UI updates immediately, even though the backend takes a while to process.
@@ -87,15 +86,11 @@ const GraphSidebar = (props: {
     const [loading, setLoading] = useState<boolean>(false)
 
     /* 
-        When graphUpdatedNumber is, we send a new getGraphMessage with the current graphParams
+        When graphUpdatedNumber is updated, we send a new getGraphMessage with the current graphParams
         in order to update the graphDataJSON. We only increment graphUpdatedNumber when the user updates the params.
 
         We use this method instead of using a useEffect on the graphParams because the graphParams update when we don't want
         to sendGraphMessage, ie: during an Undo. 
-
-        We use this method of graphUpdatedNumber to simulate a callback to updating the graphParams because we can't pass a callback to 
-        the setGraphParams (since its created via a useState instead of this.setState on a class component). Usually, we would use a useEffect on 
-        graphParams to act as the callback, but for the reasons described above, that is not the approach we take here. 
     */
     const [graphUpdatedNumber, setGraphUpdatedNumber] = useState(0)
 
@@ -111,36 +106,22 @@ const GraphSidebar = (props: {
     }, [props.lastStepIndex])
 
     /*
-        If the props.graphID changes, which happens when opening a graph (either switching between graph tabs or duplicating a graph):
+        If the props.graphID changes, which happens when opening a graph:
         1. reset the stepID so we don't overwrite the previous edits.
         2. refresh the graphParams so the UI is up to date with the new graphID's configuration.
         3. update the graphUpdateNumber so the graph refreshes
     */
     useEffect(() => {
-        // Only reset when we're not creating a graph for the first time, since these variables were already set if we just 
-        // created the graph.
-        if (props.newGraphStepID === undefined) {
-            console.log("Sending a new graph")
-            setStepID(undefined)
-            setGraphParams(getGraphParams(props.graphDataJSON, props.graphID, props.uiState.selectedSheetIndex, props.sheetDataArray))
-            setGraphUpdatedNumber(old => old + 1)
-        }
+        setStepID(undefined)
+        setGraphParams(getGraphParams(props.graphDataJSON, props.graphID, props.uiState.selectedSheetIndex, props.sheetDataArray))
+        setGraphUpdatedNumber(old => old + 1)
     }, [props.graphID])
 
     // Async load in the data from the mitoAPI
     useDebouncedEffect(() => {
-        /* 
-            Send the graph message even as long as its not the inital creation of the graph so that
-            the graph is updated if the data changes since the graph was last updated.
-
-            We know that the graph was just created if the props.newGraphStepID is not undefined and 
-            the graphUpdatedNumber is 0.
-        */
-        if (props.newGraphStepID === undefined || graphUpdatedNumber > 0) {
-            setLoading(true)
-            void getGraphAsync()
-        }
-        
+        // Send the editGraph message when the graph is updated
+        setLoading(true)
+        void getGraphAsync()
     }, [graphUpdatedNumber], LOAD_GRAPH_TIMEOUT)
 
 

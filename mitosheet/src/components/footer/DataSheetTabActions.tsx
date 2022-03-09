@@ -107,17 +107,7 @@ export default function SheetTabActions(props: {
 
         // NOTE: after trying to implement it as saving it in the state, I realized that this approach doesn't work due to race conditions 
         // in the return stepID from the editGraph call and the graphDATAJSON updating. 
-        
-        const stepID = getRandomId(); 
 
-        // Update the newGraphStepID so we use the same stepID when configuring the graph. 
-        // Do this before creating the new graph so the stepID is set by the time we try to open the graphsidebar. 
-        props.setUIState(prevUIState => {
-            return {
-                ...prevUIState,
-                newGraphStepID: stepID
-            }
-        })
 
         await props.mitoAPI.editGraph(
             newGraphID,
@@ -128,7 +118,7 @@ export default function SheetTabActions(props: {
             graphParams.graphCreation.y_axis_column_ids,
             `100%`, 
             `100%`, 
-            stepID, 
+            undefined, 
         );
         
     }

@@ -375,17 +375,6 @@ export const createActions = (
                 setEditorState(undefined);
 
                 const newGraphID = getRandomId() // Create a new GraphID
-                const stepID = getRandomId(); 
-
-                // Update the newGraphStepID so we use the same stepID when configuring the graph. 
-                // Do this before creating the new graph so the stepID is set by the time we try to open the graphsidebar. 
-                setUIState(prevUIState => {
-                    return {
-                        ...prevUIState,
-                        newGraphStepID: stepID
-                    }
-                })
-
                 const graphParams = getDefaultGraphParams(sheetDataArray, sheetIndex)
 
                 await mitoAPI.editGraph(
@@ -397,7 +386,7 @@ export const createActions = (
                     graphParams.graphCreation.y_axis_column_ids,
                     `100%`, 
                     `100%`, 
-                    stepID, 
+                    undefined, 
                 );
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no sheets to graph. Import data.'},

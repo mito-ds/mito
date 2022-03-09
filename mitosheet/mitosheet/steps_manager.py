@@ -369,7 +369,6 @@ class StepsManager:
                 params = {key: value for key, value in update_event.items() if key in update["params"]}  # type: ignore
                 # Actually execute this event
                 update["execute"](self, **params)  # type: ignore
-                # print('handle_update_event', self.undone_step_list_store)
                 # And then return
                 return
 
@@ -473,11 +472,7 @@ class StepsManager:
 
         # Remove the item we just redid from the undone_step_list_store, so
         # that we don't redo it again
-        print('before')
-        print(self.undone_step_list_store)
         self.undone_step_list_store.pop()
-        print('after')
-        print(self.undone_step_list_store)
 
     def execute_clear(self):
         """
