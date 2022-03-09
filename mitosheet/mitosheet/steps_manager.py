@@ -446,7 +446,7 @@ class StepsManager:
         # If this works, then let's add this step to the undo list!
         self.undone_step_list_store.append(("undo", [undone_step]))
 
-    def execute_redo(self):
+    def execute_redo(self) -> None:
         """
         Executes a redo, which reapplies the most recently undone
         steps if they exist.

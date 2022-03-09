@@ -884,7 +884,7 @@ class MitoWidgetTestWrapper:
             return graph_data["graphParams"]["graphCreation"]["graph_type"]
         return ''
 
-    def get_graph_sheet_index(self, graph_id: str) -> number:
+    def get_graph_sheet_index(self, graph_id: str) -> int:
         """
         Returns the graph sheet index 
         """
