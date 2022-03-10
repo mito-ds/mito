@@ -117,7 +117,7 @@ def delete_column_ids(
 
     # Delete each column one by one
     unable_to_delete_columns = []
-    pandas_processing_time = 0
+    pandas_processing_time = 0.0
     for column_id in sorted_column_ids_to_delete:
         state, success, partial_pandas_processing_time = _delete_column_id(state, sheet_index, column_id)
         if not success:

@@ -68,7 +68,7 @@ class SimpleImportStepPerformer(StepPerformer):
 
         just_final_file_names = [basename(normpath(file_name)) for file_name in file_names]
 
-        pandas_processing_time = 0
+        pandas_processing_time = 0.0
         for file_name, df_name in zip(file_names, get_valid_dataframe_names(post_state.df_names, just_final_file_names)):
             
             partial_pandas_start_time = perf_counter()
