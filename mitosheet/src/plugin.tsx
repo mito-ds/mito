@@ -564,7 +564,7 @@ function activateWidgetExtension(
         label: 'Focuses on search of the currently selected mito notebook',
         execute: async (): Promise<void> => {
             // First, get the mito container that this element is a part of
-            let mitoContainer = getParentMitoContainer();
+            const mitoContainer = getParentMitoContainer();
 
             // Get the search input, and click + focus on it
             const searchInput = mitoContainer?.querySelector('#action-search-bar-id') as HTMLInputElement | null;
@@ -584,7 +584,7 @@ function activateWidgetExtension(
         label: 'Clicks the undo button once',
         execute: async (): Promise<void> => {
             // First, get the mito container that this element is a part of
-            let mitoContainer = getParentMitoContainer();
+            const mitoContainer = getParentMitoContainer();
 
             // Get the undo button, and click it
             const undoButton = mitoContainer?.querySelector('#mito-undo-button') as HTMLDivElement | null;
@@ -602,7 +602,7 @@ function activateWidgetExtension(
         label: 'Clicks the redo button once',
         execute: async (): Promise<void> => {
             // First, get the mito container that this element is a part of
-            let mitoContainer = getParentMitoContainer();
+            const mitoContainer = getParentMitoContainer();
 
             // Get the undo button, and click it
             const redoButton = mitoContainer?.querySelector('#mito-redo-button') as HTMLDivElement | null;
