@@ -42,7 +42,6 @@ export type TaskpaneInfo =
     | {
         type: TaskpaneType.GRAPH,
         graphID: GraphID,
-        newGraphStepID?: string
     }    
     | {type: TaskpaneType.IMPORT}
     | {type: TaskpaneType.MERGE}

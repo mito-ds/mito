@@ -93,7 +93,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         currOpenTaskpane: {type: TaskpaneType.NONE},
         selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
         selectedSheetIndex: 0,
-        selectedGraphID: Object.keys(props.analysisData.graphDataJSON).length === 0 ? undefined : Object.keys(props.analysisData.graphDataJSON)[0],
+        selectedGraphID: Object.keys(props.analysisData.graphDataDict).length === 0 ? undefined : Object.keys(props.analysisData.graphDataDict)[0],
         selectedTabType: 'data',
         displayFormatToolbarDropdown: false,
         exportConfiguration: {exportType: 'csv'}
@@ -218,21 +218,21 @@ export const Mito = (props: MitoProps): JSX.Element => {
         previousNumSheetsRef.current = sheetDataArray.length;
     }, [sheetDataArray])
 
-    const previousNumGraphsRef = useRef<number>(Object.keys(analysisData.graphDataJSON).length)
+    const previousNumGraphsRef = useRef<number>(Object.keys(analysisData.graphDataDict).length)
     const previousGraphIndex = useRef<number>(uiState.selectedGraphID !== undefined ?
-        Object.keys(analysisData.graphDataJSON).indexOf(uiState.selectedGraphID) : -1)
+        Object.keys(analysisData.graphDataDict).indexOf(uiState.selectedGraphID) : -1)
 
     // When we switch graphID's make sure that we keep the previousGraphIndex up to date
     useEffect(() => {
         previousGraphIndex.current = uiState.selectedGraphID !== undefined ?
-            Object.keys(analysisData.graphDataJSON).indexOf(uiState.selectedGraphID) : -1
+            Object.keys(analysisData.graphDataDict).indexOf(uiState.selectedGraphID) : -1
     }, [uiState.selectedGraphID])
 
     // Update the selected sheet tab when the number of graphs change. 
     useEffect(() => {
-        const graphIDs = Object.keys(analysisData.graphDataJSON)
+        const graphIDs = Object.keys(analysisData.graphDataDict)
         const previousNumGraphs = previousNumGraphsRef.current;
-        const newNumGraphs = Object.keys(analysisData.graphDataJSON).length
+        const newNumGraphs = Object.keys(analysisData.graphDataDict).length
 
         // Handle new graph created
         if (previousNumGraphs < newNumGraphs) {
@@ -256,14 +256,14 @@ export const Mito = (props: MitoProps): JSX.Element => {
         } else if (previousNumGraphs > newNumGraphs) {
             // Try to go to the same sheet index, if it doesn't exist go to the graph index - 1, 
             // if no graphs exists, go to the last sheet index
-            const newGraphID = selectPreviousGraphSheetTab(analysisData.graphDataJSON, previousGraphIndex.current, setUIState)
+            const newGraphID = selectPreviousGraphSheetTab(analysisData.graphDataDict, previousGraphIndex.current, setUIState)
 
             // Update the previous graph index for next time
             previousGraphIndex.current = newGraphID !== undefined ? graphIDs.indexOf(newGraphID) : -1
         }
 
         previousNumGraphsRef.current = newNumGraphs
-    }, [Object.keys(analysisData.graphDataJSON).length])
+    }, [Object.keys(analysisData.graphDataDict).length])
 
 
     /*
@@ -397,7 +397,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     mitoAPI={props.mitoAPI}
                     sheetIndex={uiState.currOpenModal.sheetIndex}
                     dependantGraphTabNamesAndIDs={uiState.currOpenModal.dependantGraphTabNamesAndIDs}
-                    dfName={sheetDataArray[uiState.currOpenModal.sheetIndex].dfName}
+                    dfName={sheetDataArray[uiState.currOpenModal.sheetIndex] ? sheetDataArray[uiState.currOpenModal.sheetIndex].dfName : 'this dataframe'}
                 />
             )
         }
@@ -457,7 +457,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         mitoAPI={props.mitoAPI}
                         setUIState={setUIState} 
                         uiState={uiState}
-                        graphDataJSON={analysisData.graphDataJSON}
+                        graphDataDict={analysisData.graphDataDict}
                         lastStepIndex={lastStepSummary.step_idx}
                     />
                 )
@@ -629,7 +629,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 {getCurrTour()}
                 <Footer
                     sheetDataArray={sheetDataArray}
-                    graphDataJSON={analysisData.graphDataJSON}
+                    graphDataDict={analysisData.graphDataDict}
                     gridState={gridState}
                     setGridState={setGridState}
                     mitoAPI={props.mitoAPI}

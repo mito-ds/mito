@@ -9,7 +9,7 @@ import Col from '../../spacing/Col';
 import Row from '../../spacing/Row';
 import TextButton from '../../elements/TextButton';
 import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
-import { ColumnID, ColumnIDsMap, GraphDataJSON, GraphID, SheetData, UIState } from '../../../types';
+import { ColumnID, ColumnIDsMap, GraphDataDict, GraphID, SheetData, UIState } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 
 // import css
@@ -19,7 +19,7 @@ import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import Toggle from '../../elements/Toggle';
 import usePrevious from '../../../hooks/usePrevious';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
-import { getDefaultGraphParams, getDefaultSafetyFilter, getGraphParams } from './GraphUtils';
+import { getDefaultGraphParams, getDefaultSafetyFilter, getGraphParams } from './graphUtils';
 
 export enum GraphType {
     BAR = 'bar',
@@ -61,7 +61,7 @@ const GraphSidebar = (props: {
     mitoAPI: MitoAPI;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     uiState: UIState;
-    graphDataJSON: GraphDataJSON
+    graphDataDict: GraphDataDict
     lastStepIndex: number
 }): JSX.Element => {
 
@@ -84,16 +84,16 @@ const GraphSidebar = (props: {
 
     // We keep track of the graph data separately from the backend state so that 
     // the UI updates immediately, even though the backend takes a while to process.
-    const [graphParams, setGraphParams] = useState(() => getGraphParams(props.graphDataJSON, graphID, props.uiState.selectedSheetIndex, props.sheetDataArray))
+    const [graphParams, setGraphParams] = useState(() => getGraphParams(props.graphDataDict, graphID, props.uiState.selectedSheetIndex, props.sheetDataArray))
 
     const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
-    const graphOutput = props.graphDataJSON[graphID]?.graphOutput
+    const graphOutput = props.graphDataDict[graphID]?.graphOutput
     const [_copyGraphCode, graphCodeCopied] = useCopyToClipboard(graphOutput?.graphGeneratedCode);
     const [loading, setLoading] = useState<boolean>(false)
 
     /* 
         When graphUpdatedNumber is updated, we send a new getGraphMessage with the current graphParams
-        in order to update the graphDataJSON. We only increment graphUpdatedNumber when the user updates the params.
+        in order to update the graphDataDict. We only increment graphUpdatedNumber when the user updates the params.
 
         We use this method instead of using a useEffect on the graphParams because the graphParams update when we don't want
         to sendGraphMessage, ie: during an Undo. 
@@ -119,7 +119,7 @@ const GraphSidebar = (props: {
     */
     useEffect(() => {
         setStepID(undefined)
-        setGraphParams(getGraphParams(props.graphDataJSON, props.graphID, props.uiState.selectedSheetIndex, props.sheetDataArray))
+        setGraphParams(getGraphParams(props.graphDataDict, props.graphID, props.uiState.selectedSheetIndex, props.sheetDataArray))
         setGraphUpdatedNumber(old => old + 1)
     }, [props.graphID])
 
@@ -180,7 +180,7 @@ const GraphSidebar = (props: {
         with the graph shown
     */
     const refreshParamsAfterUndo = async (): Promise<void> => {        
-        const newGraphParams = getGraphParams(props.graphDataJSON, graphID, dataSourceSheetIndex, props.sheetDataArray)
+        const newGraphParams = getGraphParams(props.graphDataDict, graphID, dataSourceSheetIndex, props.sheetDataArray)
         setGraphParams(newGraphParams)
     } 
 

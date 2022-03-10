@@ -1,6 +1,6 @@
 // Helper function for creating default graph params. Defaults to a Bar chart, 
 
-import { GraphDataJSON, GraphID, GraphParams, SheetData } from "../../../types"
+import { GraphDataDict, GraphID, GraphParams, SheetData } from "../../../types"
 import { intersection } from "../../../utils/arrays"
 import { GraphType, GRAPH_SAFETY_FILTER_CUTOFF } from "./GraphSidebar"
 
@@ -36,13 +36,13 @@ export const getDefaultSafetyFilter = (sheetDataArray: SheetData[], sheetIndex: 
     params.
 */
 export const getGraphParams = (   
-    graphDataJSON: GraphDataJSON,
+    graphDataDict: GraphDataDict,
     graphID: GraphID,
     selectedSheetIndex: number,
     sheetDataArray: SheetData[],
 ): GraphParams => {
 
-    const graphParams = graphDataJSON[graphID]?.graphParams;
+    const graphParams = graphDataDict[graphID]?.graphParams;
 
     // If the graph already exists, get the data source sheet index from the graph params.
     // Otherwise create a new graph of the selectedSheetIndex

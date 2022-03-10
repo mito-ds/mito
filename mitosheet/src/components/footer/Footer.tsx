@@ -8,11 +8,11 @@ import "../../../css/footer.css"
 import MitoAPI from '../../api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import PlusIcon from '../icons/PlusIcon';
-import { GraphDataJSON, GridState, SheetData, UIState } from '../../types';
+import { GraphDataDict, GridState, SheetData, UIState } from '../../types';
 
 type FooterProps = {
     sheetDataArray: SheetData[];
-    graphDataJSON: GraphDataJSON;
+    graphDataDict: GraphDataDict;
     gridState: GridState;
     setGridState: React.Dispatch<React.SetStateAction<GridState>>;
     mitoAPI: MitoAPI;
@@ -34,8 +34,8 @@ function Footer(props: FooterProps): JSX.Element {
 
     // Get the sheet index to display the rows and columns of. 
     // If the sheet tab is a graph, then display the info from the data being graphed 
-    const sheetIndex = selectedTabType === 'graph' && selectedGraphID !== undefined && props.graphDataJSON[selectedGraphID] !== undefined ? 
-        props.graphDataJSON[selectedGraphID].graphParams.graphCreation.sheet_index : selectedSheetIndex
+    const sheetIndex = selectedTabType === 'graph' && selectedGraphID !== undefined && props.graphDataDict[selectedGraphID] !== undefined ? 
+        props.graphDataDict[selectedGraphID].graphParams.graphCreation.sheet_index : selectedSheetIndex
     const sheetData: SheetData | undefined = props.sheetDataArray[sheetIndex]
 
     return (
@@ -66,12 +66,12 @@ function Footer(props: FooterProps): JSX.Element {
                             closeOpenEditingPopups={props.closeOpenEditingPopups}
                             mitoAPI={props.mitoAPI}
                             mitoContainerRef={props.mitoContainerRef}
-                            graphDataJSON={props.graphDataJSON}
+                            graphDataDict={props.graphDataDict}
                             sheetDataArray={props.sheetDataArray}
                         />
                     )
                 })}
-                {Object.entries(props.graphDataJSON).map(([graphID, graphData]) => {
+                {Object.entries(props.graphDataDict).map(([graphID, graphData]) => {
                     return (
                         <SheetTab
                             key={graphID}
@@ -82,7 +82,7 @@ function Footer(props: FooterProps): JSX.Element {
                             closeOpenEditingPopups={props.closeOpenEditingPopups}
                             mitoAPI={props.mitoAPI}
                             mitoContainerRef={props.mitoContainerRef}
-                            graphDataJSON={props.graphDataJSON}
+                            graphDataDict={props.graphDataDict}
                             sheetDataArray={props.sheetDataArray}
                         />
                     )

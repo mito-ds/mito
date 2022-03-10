@@ -46,7 +46,7 @@ export enum StepType {
  * @param params - parameters that were send to the backend for this step
  */
 export interface StepSummary {
-    step_id: string;
+    'step_id': string;
     step_idx: number;
     step_type: StepType;
     step_display_name: string;
@@ -237,7 +237,7 @@ export type GraphData = {
 
 export type GraphID = string
 
-export type GraphDataJSON = Record<GraphID, GraphData>
+export type GraphDataDict = Record<GraphID, GraphData>
 
 
 /**
@@ -483,7 +483,7 @@ export type FormatTypeObj =
  * @param stepSummaryList - a list of step summaries for the steps in this analysis
  * @param currStepIdx - the index of the currently checked out step, in the stepSummaryList
  * @param dataTypeInTool - the type of data in the tool in this analysis
- * @param graphDataJSON - a mapping from graphID to all of the relevant graph information
+ * @param graphDataDict - a mapping from graphID to all of the relevant graph information
  */
 export interface AnalysisData {
     analysisName: string,
@@ -491,7 +491,7 @@ export interface AnalysisData {
     stepSummaryList: StepSummary[],
     currStepIdx: number,
     dataTypeInTool: DataTypeInMito;
-    graphDataJSON: GraphDataJSON
+    graphDataDict: GraphDataDict
 }
 
 /**

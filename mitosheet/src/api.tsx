@@ -517,7 +517,7 @@ export default class MitoAPI {
         await this.send<string>({
             'event': 'edit_event',
             'type': 'graph_edit',
-            step_id: stepID,
+            'step_id': stepID,
             'params': {
                 'graph_id': graphID,
                 'graph_preprocessing': {
@@ -548,7 +548,7 @@ export default class MitoAPI {
         await this.send<string>({
             'event': 'edit_event',
             'type': 'graph_delete_edit',
-            step_id: getRandomId(),
+            'step_id': getRandomId(),
             'params': {
                 'graph_id': graphID
             }
@@ -563,7 +563,7 @@ export default class MitoAPI {
         await this.send<string>({
             'event': 'edit_event',
             'type': 'graph_duplicate_edit',
-            step_id: getRandomId(),
+            'step_id': getRandomId(),
             'params': {
                 'old_graph_id': oldGraphID,
                 'new_graph_id': newGraphID
@@ -579,7 +579,7 @@ export default class MitoAPI {
         await this.send<string>({
             'event': 'edit_event',
             'type': 'graph_rename_edit',
-            step_id: getRandomId(),
+            'step_id': getRandomId(),
             'params': {
                 'graph_id': graphID,
                 'new_graph_tab_name': newGraphTabName
@@ -698,7 +698,7 @@ export default class MitoAPI {
         await this.send({
             event: 'edit_event',
             type: 'pivot_edit',
-            step_id: stepID,
+            'step_id': stepID,
             'params': {
                 sheet_index: sheetIndex,
                 pivot_rows_column_ids: pivotRowColumnIDs,
@@ -783,7 +783,7 @@ export default class MitoAPI {
         await this.send({
             event: 'edit_event',
             type: 'filter_column_edit',
-            step_id: stepID,
+            'step_id': stepID,
             'params': {
                 sheet_index: sheetIndex,
                 column_id: columnID,
@@ -812,7 +812,7 @@ export default class MitoAPI {
         await this.send({
             event: 'edit_event',
             type: 'sort_edit',
-            step_id: stepID,
+            'step_id': stepID,
             'params': {
                 sheet_index: sheetIndex,
                 column_id: columnID,
@@ -839,7 +839,7 @@ export default class MitoAPI {
         await this.send({
             event: 'edit_event',
             type: 'drop_duplicates_edit',
-            step_id: stepID,
+            'step_id': stepID,
             'params': {
                 sheet_index: sheetIndex,
                 column_ids: columnIDs,
@@ -867,7 +867,7 @@ export default class MitoAPI {
         await this.send({
             event: 'edit_event',
             type: 'rename_column_edit',
-            step_id: stepID,
+            'step_id': stepID,
             'params': {
                 sheet_index: sheetIndex,
                 column_id: columnID,

@@ -2,10 +2,9 @@
 
 import React, { useEffect } from 'react';
 import MitoAPI, { getRandomId } from '../../api';
-import { GraphDataJSON, GraphID, UIState } from '../../types';
+import { GraphDataDict, GraphID, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
-import { TaskpaneType } from '../taskpanes/taskpanes';
 
 /*
     Displays a set of actions one can perform on a graph sheet tab, including
@@ -18,7 +17,7 @@ export default function GraphSheetTabActions(props: {
     closeOpenEditingPopups: () => void;
     mitoAPI: MitoAPI,
     graphID: GraphID,
-    graphDataJSON: GraphDataJSON
+    graphDataDict: GraphDataDict
 }): JSX.Element {
 
     // Log opening the graph sheet tab actions
@@ -42,21 +41,9 @@ export default function GraphSheetTabActions(props: {
         // Close 
         props.closeOpenEditingPopups();
         
-        // Create the newGraphID so we can select the new graph tab
+        // Duplicate the graph
         const newGraphID = getRandomId()
         await props.mitoAPI.editGraphDuplicate(props.graphID, newGraphID)
-
-        props.setUIState(prevUIState => {
-            return {
-                ...prevUIState,
-                selectedGraphID: newGraphID,
-                selectedTabType: 'graph',
-                currOpenTaskpane: {
-                    type: TaskpaneType.GRAPH,
-                    graphID: newGraphID,
-                },
-            }
-        })
     }
 
     /* Rename helper, which requires changes to the sheet tab itself */

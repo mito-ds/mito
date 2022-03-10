@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import MitoAPI from '../../api';
 import { classNames } from '../../utils/classNames';
 import Input from '../elements/Input';
-import { GraphDataJSON, GraphID, SheetData, UIState } from '../../types';
+import { GraphDataDict, GraphID, SheetData, UIState } from '../../types';
 import { focusGrid } from '../endo/focusUtils';
 
 // import icons
@@ -17,7 +17,7 @@ import DataSheetTabActions from './DataSheetTabActions';
 import GraphSheetTabActions from './GraphSheetTabActions';
 
 export const selectPreviousGraphSheetTab = (
-    graphDataJSON: GraphDataJSON, 
+    graphDataDict: GraphDataDict, 
     prevGraphIndex: number,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>
 ): GraphID | undefined => {
@@ -26,7 +26,7 @@ export const selectPreviousGraphSheetTab = (
         If no graph exists at that index, then select the graph at the previous index.
         If there are no graphs, then select the last sheet index
     */
-    const graphIDs = Object.keys(graphDataJSON)
+    const graphIDs = Object.keys(graphDataDict)
 
     let newGraphID: GraphID | undefined = undefined 
     if (graphIDs.length > prevGraphIndex) {
@@ -78,7 +78,7 @@ type SheetTabProps = {
     closeOpenEditingPopups: () => void;
     mitoAPI: MitoAPI;
     mitoContainerRef: React.RefObject<HTMLDivElement>;
-    graphDataJSON: GraphDataJSON;
+    graphDataDict: GraphDataDict;
     sheetDataArray: SheetData[]
 };
 
@@ -190,7 +190,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                     setIsRename={setIsRename}
                     sheetIndex={props.tabIDObj.sheetIndex}
                     mitoAPI={props.mitoAPI}
-                    graphDataJSON={props.graphDataJSON}
+                    graphDataDict={props.graphDataDict}
                     sheetDataArray={props.sheetDataArray}
                 />
             }
@@ -202,7 +202,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                     setIsRename={setIsRename}
                     graphID={props.tabIDObj.graphID}
                     mitoAPI={props.mitoAPI}
-                    graphDataJSON={props.graphDataJSON}
+                    graphDataDict={props.graphDataDict}
                 />
             }
         </div>

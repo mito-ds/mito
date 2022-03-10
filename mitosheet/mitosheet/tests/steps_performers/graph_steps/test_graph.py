@@ -6,14 +6,21 @@
 
 import pandas as pd
 import pytest
-from mitosheet.step_performers.graph_steps.graph_utils import BAR, BOX, HISTOGRAM, SCATTER
+from mitosheet.step_performers.graph_steps.graph_utils import (BAR, BOX,
+                                                               DENSITY_CONTOUR,
+                                                               DENSITY_HEATMAP,
+                                                               ECDF, HISTOGRAM,
+                                                               LINE, SCATTER,
+                                                               STRIP, VIOLIN)
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 
 GRAPH_CREATION_TESTS = [
-    (BAR),
-    (BOX),
-    (HISTOGRAM),
-    (SCATTER)
+    BAR, BOX,
+    DENSITY_CONTOUR,
+    DENSITY_HEATMAP,
+    ECDF, HISTOGRAM,
+    LINE, SCATTER,
+    STRIP, VIOLIN
 ]
 
 @pytest.mark.parametrize("graph_type", GRAPH_CREATION_TESTS)
