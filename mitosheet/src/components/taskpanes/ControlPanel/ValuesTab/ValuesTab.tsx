@@ -229,12 +229,12 @@ export function ValuesTab(
                     isFiltered={!isAllData}
                 >
                     {sortedUniqueValueCounts.map((uniqueValueCount, index) => {
-                        const value = formatCellData(uniqueValueCount.value, props.columnDtype, props.columnFormatType);
+                        const valueToDisplay = formatCellData(uniqueValueCount.value, props.columnDtype, props.columnFormatType);
 
                         return((
                             <MultiToggleItem
                                 key={index}
-                                title={value}
+                                title={valueToDisplay}
                                 rightText={uniqueValueCount.countOccurence + ' (' + uniqueValueCount.percentOccurence.toFixed(2).toString() + '%' + ')'}
                                 toggled={uniqueValueCount.isNotFiltered}
                                 index={index}
