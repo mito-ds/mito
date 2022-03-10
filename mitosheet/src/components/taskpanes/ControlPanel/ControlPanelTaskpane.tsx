@@ -197,6 +197,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                                 setFilters={setFilters}
                                 mitoAPI={props.mitoAPI}
                                 columnDtype={columnDtype}
+                                columnFormatType={columnFormatType}
                             />
                         </React.Fragment>
                     }

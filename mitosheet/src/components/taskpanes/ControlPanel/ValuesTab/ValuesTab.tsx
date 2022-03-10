@@ -4,7 +4,7 @@ import React, { Fragment, useRef, useState } from 'react';
 import MitoAPI from '../../../../api';
 import MultiToggleBox from '../../../elements/MultiToggleBox';
 import Select from '../../../elements/Select';
-import { FilterType, FilterGroupType, ColumnID } from '../../../../types';
+import { FilterType, FilterGroupType, ColumnID, FormatTypeObj } from '../../../../types';
 import Col from '../../../spacing/Col';
 import Row from '../../../spacing/Row';
 import { areFiltersEqual, getAllDoesNotContainsFilterValues, getExclusiveFilterData } from '../FilterAndSortTab/filter/utils';
@@ -12,6 +12,7 @@ import MultiToggleItem from '../../../elements/MultiToggleItem';
 import DropdownItem from '../../../elements/DropdownItem';
 import { useDebouncedEffect } from '../../../../hooks/useDebouncedEffect';
 import { isFilterGroup } from '../FilterAndSortTab/filter/filterTypes';
+import { formatCellData } from '../../../../utils/formatColumns';
 
 /*
     The UniqueValueCount datatype contains all of the necessary data
@@ -66,7 +67,8 @@ export function ValuesTab(
         mitoAPI: MitoAPI;
         filters: (FilterType | FilterGroupType)[];
         setFilters: React.Dispatch<React.SetStateAction<(FilterType | FilterGroupType)[]>>;
-        columnDtype: string
+        columnDtype: string,
+        columnFormatType: FormatTypeObj
     }): JSX.Element {
 
     const [loading, setLoading] = useState(true);
@@ -227,10 +229,12 @@ export function ValuesTab(
                     isFiltered={!isAllData}
                 >
                     {sortedUniqueValueCounts.map((uniqueValueCount, index) => {
+                        const value = formatCellData(uniqueValueCount.value, props.columnDtype, props.columnFormatType);
+
                         return((
                             <MultiToggleItem
                                 key={index}
-                                title={uniqueValueCount.value.toString()}
+                                title={value}
                                 rightText={uniqueValueCount.countOccurence + ' (' + uniqueValueCount.percentOccurence.toFixed(2).toString() + '%' + ')'}
                                 toggled={uniqueValueCount.isNotFiltered}
                                 index={index}
