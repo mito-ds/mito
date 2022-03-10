@@ -85,7 +85,7 @@ def get_location() -> str:
 
 
 # https://stackoverflow.com/questions/43878953/how-does-one-detect-if-one-is-running-within-a-docker-container-within-python
-def _is_docker():
+def _is_docker() -> bool:
     path = '/proc/self/cgroup'
     return (
         os.path.exists('/.dockerenv') or
@@ -93,5 +93,5 @@ def _is_docker():
     )
 # We cache this so we don't have to take a performance impact
 IS_DOCKER = _is_docker()
-def is_docker():
+def is_docker() -> bool:
     return IS_DOCKER
