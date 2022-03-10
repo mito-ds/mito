@@ -5,7 +5,7 @@ import { getColumnIndexesInSelections, getSelectedNumberSeriesColumnIDs, isSelec
 import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes } from "../components/endo/utils";
 import { ModalEnum } from "../components/modals/modals";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
-import { getDefaultGraphParams } from "../components/taskpanes/Graph/GraphUtils";
+import { getDefaultGraphParams } from "../components/taskpanes/Graph/graphUtils";
 import { TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../data/function_documentation";
