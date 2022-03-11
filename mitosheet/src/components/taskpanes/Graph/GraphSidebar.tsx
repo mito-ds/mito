@@ -1,25 +1,25 @@
 import React, { useEffect, useState } from 'react';
+// import css
+import '../../../../css/taskpanes/Graph/GraphSidebar.css';
+import '../../../../css/taskpanes/Graph/LoadingSpinner.css';
 import MitoAPI from '../../../api';
-import XIcon from '../../icons/XIcon';
-import AxisSection, { GraphAxisType } from './AxisSection';
-import LoadingSpinner from './LoadingSpinner';
-import { TaskpaneType } from '../taskpanes';
+import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
+import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
+import { useEffectOnUpdate } from '../../../hooks/useEffectOnUpdate';
+import { AnalysisData, ColumnID, ColumnIDsMap, GraphDataDict, GraphID, SheetData, UIState } from '../../../types';
+import DropdownItem from '../../elements/DropdownItem';
 import Select from '../../elements/Select';
+import TextButton from '../../elements/TextButton';
+import Toggle from '../../elements/Toggle';
+import XIcon from '../../icons/XIcon';
 import Col from '../../spacing/Col';
 import Row from '../../spacing/Row';
-import TextButton from '../../elements/TextButton';
-import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
-import { ColumnID, ColumnIDsMap, GraphDataDict, GraphID, SheetData, UIState } from '../../../types';
-import DropdownItem from '../../elements/DropdownItem';
-
-// import css
-import '../../../../css/taskpanes/Graph/GraphSidebar.css'
-import '../../../../css/taskpanes/Graph/LoadingSpinner.css'
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
-import Toggle from '../../elements/Toggle';
-import usePrevious from '../../../hooks/usePrevious';
-import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
+import { TaskpaneType } from '../taskpanes';
+import AxisSection, { GraphAxisType } from './AxisSection';
 import { getDefaultGraphParams, getDefaultSafetyFilter, getGraphParams } from './graphUtils';
+import LoadingSpinner from './LoadingSpinner';
+
 
 export enum GraphType {
     BAR = 'bar',
@@ -62,7 +62,7 @@ const GraphSidebar = (props: {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     uiState: UIState;
     graphDataDict: GraphDataDict
-    lastStepIndex: number
+    analysisData: AnalysisData
 }): JSX.Element => {
 
     /*
@@ -100,16 +100,11 @@ const GraphSidebar = (props: {
     */
     const [graphUpdatedNumber, setGraphUpdatedNumber] = useState(0)
 
-    // Save the last step index, so that we can check if an undo occured
-    const prevLastStepIndex = usePrevious(props.lastStepIndex);
 
-    // When the last step index changes, check if an undo occured so we can refresh the params
-    useEffect(() => {
-        // If there has been an undo, then we refresh the params to this pivot
-        if (prevLastStepIndex && prevLastStepIndex !== props.lastStepIndex - 1) {
-            void refreshParamsAfterUndo()
-        }
-    }, [props.lastStepIndex])
+    // If there has been an undo or redo, then we refresh the params to this graph
+    useEffectOnUpdate(() => {
+        void refreshParams()
+    }, props.analysisData)
 
     /*
         If the props.graphID changes, which happens when opening a graph:
@@ -176,10 +171,10 @@ const GraphSidebar = (props: {
     }
 
     /*
-        Updates the graph params on undo so that the graph configuration is in sync
-        with the graph shown
+        Updates the graph params so that the graph configuration is in sync
+        with the graph shown, which is useful in the case of an undo or redo
     */
-    const refreshParamsAfterUndo = async (): Promise<void> => {        
+    const refreshParams = async (): Promise<void> => {        
         const newGraphParams = getGraphParams(props.graphDataDict, graphID, dataSourceSheetIndex, props.sheetDataArray)
         setGraphParams(newGraphParams)
     } 
