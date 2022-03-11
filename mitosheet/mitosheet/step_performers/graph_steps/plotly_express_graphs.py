@@ -9,13 +9,22 @@ from typing import Dict, List, Tuple, Union
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from mitosheet.step_performers.graph.graph_utils import (BAR, BOX, DENSITY_CONTOUR, DENSITY_HEATMAP, ECDF, HISTOGRAM,
-                                                         LINE, SCATTER, STRIP, VIOLIN,
-                                                         create_parameter,
-                                                         get_barmode,
-                                                         get_graph_title)
-from mitosheet.transpiler.transpile_utils import (
-    column_header_list_to_transpiled_code, column_header_to_transpiled_code)
+from mitosheet.step_performers.graph_steps.graph_utils import (
+    BAR,
+    BOX,
+    DENSITY_CONTOUR,
+    DENSITY_HEATMAP,
+    ECDF,
+    HISTOGRAM,
+    LINE,
+    SCATTER,
+    STRIP,
+    VIOLIN,
+    create_parameter,
+    get_barmode,
+    get_graph_title,
+)
+from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_to_transpiled_code
 from mitosheet.types import ColumnHeader
 
 # TAB is used in place of \t in generated code because

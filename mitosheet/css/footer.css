@@ -49,7 +49,6 @@
 
 .footer-sheet-shape {
     display: flex;
-    flex-direction: row;
     justify-content: center;
     align-items: center;
     height: 100%;
@@ -84,6 +83,10 @@
     text-decoration: none;
 }
 
+.tab-graph {
+    background-color: var(--mito-lightest-purple)
+}
+
 .tab-selected {
     background-color: var(--mito-purple);
     /* The selected sheet tab does not need a border */
@@ -94,13 +97,16 @@
 
 .tab-content {
     display: flex;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
     height: 100%;
+    box-sizing: border-box;
 }
 
-.tab-sheet-name {
-    margin-right: 5px;
+.tab-content > * + * {
+    /* Evenly space all of the tab-contents children */
+    margin-left: 5px;
 }
 
 .search-container {
