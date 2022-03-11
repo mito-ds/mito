@@ -8,6 +8,7 @@ Replays an existing analysis onto the sheet
 """
 
 from typing import Any, Dict
+from mitosheet.errors import make_no_analysis_error
 
 from mitosheet.mito_analytics import log
 from mitosheet.saved_analyses import read_and_upgrade_analysis
@@ -37,6 +38,13 @@ def execute_replay_analysis_update(
     state container (except the initalize step) before applying the saved analysis.
     """
 
+    # If we're getting an event telling us to update, we read in the steps from the file
+    analysis = read_and_upgrade_analysis(analysis_name)
+    # If there is no analysis with this name, give up
+    if analysis is None:
+        log('replayed_nonexistant_analysis_failed')
+        raise make_no_analysis_error(analysis_name)
+
     # We only keep the intialize step only, if we want to clear,
     # and also update the analysis name to the replayed analysis
     # NOTE: we update the analysis name so that when the code
@@ -46,13 +54,6 @@ def execute_replay_analysis_update(
     if clear_existing_analysis:
         steps_manager.steps = steps_manager.steps[:1]
         steps_manager.analysis_name = analysis_name
-
-    # If we're getting an event telling us to update, we read in the steps from the file
-    analysis = read_and_upgrade_analysis(analysis_name)
-    # If there is no analysis with this name, give up
-    if analysis is None:
-        log('replayed_nonexistant_analysis_failed')
-        return
 
     # When replaying an analysis with import events, you can also send over
     # new params to the import events to replace them. We replace them in the steps here
