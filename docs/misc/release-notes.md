@@ -4,6 +4,19 @@ description: Want to see what is new in the Mitosheet? Check it out below.
 
 # Release Notes
 
+## 2022-3-10 <a href="#2022-2-28" id="2022-2-28"></a>
+
+New Features:
+
+* New graph types: Line, Violin, Strip, Density Heatmap, Density Contour, ECDF
+* Move graphs to a step performer in order to make them work with Undo, Redo, and Clear.&#x20;
+* New Filter conditions: `Starts With` and `Ends With.`
+
+Bug fixes:
+
+* Fix bug where Mito didn't generate code if there was not a code cell below the Mito spreadsheet.&#x20;
+* Improved error messages when a user attempts to install Mito in VSCode or Google Collab
+* Better logging for when race conditions prevent Mito from reading in the name of the passed dataframe arugments correctly.&#x20;
 
 ## 2022-2-28 <a href="#2022-2-28" id="2022-2-28"></a>
 
@@ -13,10 +26,9 @@ New Features:
 * Logging improvements to know where we should invest development time going forward.
 
 Bug fixes:
+
 * Fix bug where any filter applied to a column with strings and numbers failed.
-* Cleanup saved analysis visibly private in the generated code when logging turned off. 
-
-
+* Cleanup saved analysis visibly private in the generated code when logging turned off.
 
 ## 2022-2-22 <a href="#2022-2-22" id="2022-2-22"></a>
 
@@ -48,7 +60,7 @@ Bug Fixes:
 
 New Features
 
-* Export Excel files with the formatting you applied in Mito. This marks the first real Pro-only feature. To see more information about our plans, see our plans page [here](https://www.trymito.io/plans).&#x20;
+* Export Excel files with the formatting you applied in Mito. This marks the first real Pro-only feature. To see more information about our plans, see our plans page [here](https://www.trymito.io/plans).
 
 ## 2022-1-26 <a href="#0.1.360-and-0.3.147-2021-1-11" id="0.1.360-and-0.3.147-2021-1-11"></a>
 
@@ -60,7 +72,7 @@ New Features
 
 Bug Fixes
 
-* File import improvements. Mito now handles a wider range of file encodings.   &#x20;
+* File import improvements. Mito now handles a wider range of file encodings.
 
 ## 2021-1-13 <a href="#0.1.360-and-0.3.147-2021-1-11" id="0.1.360-and-0.3.147-2021-1-11"></a>
 
@@ -88,7 +100,7 @@ New Features
 Bug Fixes:
 
 * Remove OFFSET function, which didn't work well with non-standard indexes.
-* Removes the Save and Replay Analysis buttons, which are deprecated due to lack of usage + better ways of accomplishing the same functionality.&#x20;
+* Removes the Save and Replay Analysis buttons, which are deprecated due to lack of usage + better ways of accomplishing the same functionality.
 * Fix minor bugs in transpiled code found by fuzz testing.
 * Reset search bar in input
 
@@ -96,16 +108,14 @@ Bug Fixes:
 
 New Features
 
-* **Drop Duplicates.** We've added a drop duplicates button in the toolbar that lets you configure which columns to use as the key for deduplication.&#x20;
+* **Drop Duplicates.** We've added a drop duplicates button in the toolbar that lets you configure which columns to use as the key for deduplication.
 * **Excel File Export.** You can now export your dataframes as .csv or .xlsx files.
 * Start the process of deprecating the in-app save and replay analysis buttons.
-* We've dramatically reduced the amount of code that we generate for filter steps.&#x20;
+* We've dramatically reduced the amount of code that we generate for filter steps.
 
 Bug Fixes
 
-* **Generated Code Robustness.** We've done a bit of work behind the scenes to reduce the occurrences of the generated code getting overwritten or deduplicated.&#x20;
-
-
+* **Generated Code Robustness.** We've done a bit of work behind the scenes to reduce the occurrences of the generated code getting overwritten or deduplicated.
 
 ## 0.1.363 & 0.3.150 - 2021-15-11 <a href="#0.1.360-and-0.3.147-2021-1-11" id="0.1.360-and-0.3.147-2021-1-11"></a>
 
@@ -118,8 +128,6 @@ Bug Fixes
 
 * Fix minor bug in display entire dataframe button
 * Fix bug when deleting columns and changing dtypes
-
-
 
 ## 0.1.360 & 0.3.147 - 2021-1-11
 
@@ -138,10 +146,10 @@ Bug Fixes
 
 ### New Features
 
-* Save the widths of the columns as you switch between the sheets.&#x20;
+* Save the widths of the columns as you switch between the sheets.
 * In-place column editing: you can now edit column headers in place without having to enter the column control panel, making it much easier to rename columns.
 * Added search to the merge modal, making it easier to manage merge with mulitple columns
-* Adds in-place the documentation when writing formulas. The editor now gives information about the formula you're writing as you're writing it.&#x20;
+* Adds in-place the documentation when writing formulas. The editor now gives information about the formula you're writing as you're writing it.
 
 ## 0.1.356 & 0.3.143 - 2021-12-10
 
@@ -169,7 +177,7 @@ Bug Fixes
 
 ### New Features
 
-* Added a **Open in Mito** button to make it easier to get existing dataframes into Mito inside your Jupyter Lab notebook.&#x20;
+* Added a **Open in Mito** button to make it easier to get existing dataframes into Mito inside your Jupyter Lab notebook.
   * You can turn this button off by running the command `python -m mitosheet turnoffdataframebutton`
 
 ### Bug Fixes
@@ -195,13 +203,13 @@ Bug Fixes
 
 ### New Features
 
-* **Export Graph Code.** You can now quickly create graphs in Mito and copy + paste the generated code. This gives you the flexibility to fully customize your graphs using Plotly.&#x20;
-* Mito now saves the last graph that you generated for each sheet, making it easy to look at the graph, edit your data, and then reexamine the graph without having to create it from scratch.&#x20;
+* **Export Graph Code.** You can now quickly create graphs in Mito and copy + paste the generated code. This gives you the flexibility to fully customize your graphs using Plotly.
+* Mito now saves the last graph that you generated for each sheet, making it easy to look at the graph, edit your data, and then reexamine the graph without having to create it from scratch.
 * We now support more date formats!
 
 #### Bug Fixes
 
-* The Summary Statistics Graphs now display NaN values, making it easier to identify lossy data.&#x20;
+* The Summary Statistics Graphs now display NaN values, making it easier to identify lossy data.
 
 ## 0.1.322 & 0.3.112 - 2021-30-07
 
@@ -210,12 +218,12 @@ Bug Fixes
 * **New Types of Merges.** Added different types of merges to the merge modal. Users can do a `left`, `right`, `inner`, `outter`, and `lookup` style joins!
 * Added a redo button and a reset analysis button to make it easier to do exploratory data anlaysis with the tool.
 * Various improvements to the pivot taskpane to make it more dynamic.
-* Create new sheet button added to the footer of Mito.&#x20;
+* Create new sheet button added to the footer of Mito.
 
 #### Bug Fixes
 
-* Moves the save analysis and download dataframe modals to taskpanes.&#x20;
-* Continues to update the remaining old-Mito-styled components to the new style.&#x20;
+* Moves the save analysis and download dataframe modals to taskpanes.
+* Continues to update the remaining old-Mito-styled components to the new style.
 
 ## 0.1.322 & 0.3.112 - 2021-30-07
 
@@ -227,23 +235,21 @@ Bug Fixes
 
 * **Pivot table editing**. Switching to a pivot table that has already been created will allow you to edit the existing configuration of that pivot table. This makes data slicing dramatically more dynamic - and makes your analyses go that much faster!
 
-
-
 ## 0.1.301 & 0.3.91 - 2021-04-07
 
 ### New Features
 
-* Security improvements that give users more control over logging.&#x20;
-* In-app feedback improvements. Ask users a larger variety of questions over multiple usages.&#x20;
-* Text Button implementation to standardize all buttons across Mito.&#x20;
+* Security improvements that give users more control over logging.
+* In-app feedback improvements. Ask users a larger variety of questions over multiple usages.
+* Text Button implementation to standardize all buttons across Mito.
 
 ## 0.1.297 & 0.3.87 - 2021-28-06
 
 ### New Features
 
-* Automatic parenthesis closing for formula. Mito has your back! If you forget to add closing parenthesises to your formula, Mito will add them for you.&#x20;
-* Automatically open the import sidebar when Mito has no data.&#x20;
-* Let users double click on a file inside the import file browser to import a file.&#x20;
+* Automatic parenthesis closing for formula. Mito has your back! If you forget to add closing parenthesises to your formula, Mito will add them for you.
+* Automatically open the import sidebar when Mito has no data.
+* Let users double click on a file inside the import file browser to import a file.
 
 ### Bug Fixes
 
@@ -255,18 +261,18 @@ Bug Fixes
 
 * **Import File Browser.** The Mito import sidebar is now easier to use than ever. You can navigate through your file system to import files.
 * The `EXP` sheet function is now available. It calculates raising `e` to the power of the passed series.
-* Mito can now be imported using any name. Mito no longer requires the import statement to read `import mitosheet`. For example, you can now use `import mitosheet as ms`.&#x20;
+* Mito can now be imported using any name. Mito no longer requires the import statement to read `import mitosheet`. For example, you can now use `import mitosheet as ms`.
 
 ### Bug Fixes
 
 * The in-app feedback prompt displays less frequently.
-* The FILLNAN function performs faster.&#x20;
+* The FILLNAN function performs faster.
 
 ## 0.1.274 & 0.3.64 - 2021-13-06
 
 ### New Features
 
-* **Auto-documenting code.** The Mito generated code is dramatically cleaner and more informative. Each section of generated code is commented to make it easier for you to understand and communicate exactly how your code edits your data. &#x20;
+* **Auto-documenting code.** The Mito generated code is dramatically cleaner and more informative. Each section of generated code is commented to make it easier for you to understand and communicate exactly how your code edits your data.
 * **Graphing v2.1.** Better automatic zoom on graphs, as well as more natural defaults for bar chart graphs.
 * Improve in-app feedback mechanisms to be less annoying and more helpful.
 * Improve upgrade prompt to include instructions on how to upgrade.
@@ -281,7 +287,7 @@ Bug Fixes
 
 * **In-place type editing v2.** Better handling of date formats, better display of icons, and better display of floating point values.
 * **Graphing v2.0.** Allows you to toggle graph types and add mulitple columns to each graph for more advanced analysis.
-* **Boolean filtering.** Now, you can filter columns with boolean values in them to True or False :)&#x20;
+* **Boolean filtering.** Now, you can filter columns with boolean values in them to True or False :)
 
 ### Bug Fixes
 
@@ -293,13 +299,13 @@ Bug Fixes
 
 ### New Features
 
-* **In place type editing.** Using the control panel, users can change the type of their data columns.&#x20;
+* **In place type editing.** Using the control panel, users can change the type of their data columns.
 * The type of each series is displayed in the column header.
 * Adds "is not exactly" filter condition for string columns.
 
 ### Bug Fixes
 
-* Fixes bug with displaying the datetimes in the sheet.&#x20;
+* Fixes bug with displaying the datetimes in the sheet.
 
 ## 0.1.234 & 0.3.34 - 2021-20-05
 
@@ -317,7 +323,7 @@ Bug Fixes
 
 ### New Features
 
-* **Mito now supports graphing relationships between columns.** Through the Graphing Sidebar, users can create scatter plots to visualize the relationship between two columns in their dataest.&#x20;
+* **Mito now supports graphing relationships between columns.** Through the Graphing Sidebar, users can create scatter plots to visualize the relationship between two columns in their dataest.
 
 ## 0.1.226 - 0.3.16 - 2021-14-05
 
@@ -356,14 +362,14 @@ Bug Fixes
 
 ### New Features
 
-* Import data by passing a file path to mitosheet.sheet() or through the import taskpane.&#x20;
-* Instructions on how to import data when Mito contains no data.&#x20;
+* Import data by passing a file path to mitosheet.sheet() or through the import taskpane.
+* Instructions on how to import data when Mito contains no data.
 * Make the cell editor larger.
-* Privacy improvements.&#x20;
+* Privacy improvements.
 
 ### Bug Fixes
 
-* Stop merge from operating with less than two sheets.&#x20;
+* Stop merge from operating with less than two sheets.
 
 ## 0.1.176 - 2021-31-03
 
@@ -380,17 +386,17 @@ Bug Fixes
 ### New Features
 
 * The column suggestions displayed while writing a formula is now case insensitive, making it easier to find your columns when you have lots!
-* The formula bar lets the user copy and paste the formula, which is particularly helpful for copying and pasting values into your Python scripts.&#x20;
+* The formula bar lets the user copy and paste the formula, which is particularly helpful for copying and pasting values into your Python scripts.
 
 ### Bug Fixes
 
-* The formula bar better supports large inputs. It no longer wraps the text, and instead lets you scroll to see your formulas.&#x20;
+* The formula bar better supports large inputs. It no longer wraps the text, and instead lets you scroll to see your formulas.
 
 ## 0.1.169 - 2021-30-03
 
 ### New Features
 
-* Added sheet functions KURT, STDEV, VAR and SKEW. Use them to calculate common statistical properties in your mitosheet formulas.&#x20;
+* Added sheet functions KURT, STDEV, VAR and SKEW. Use them to calculate common statistical properties in your mitosheet formulas.
 
 ### Bug Fixes
 
@@ -416,7 +422,7 @@ Bug Fixes
 
 ## 0.1.156-157 - 2021-18-03
 
-**Note, do not install this release as it contains bugs in formula editing.**&#x20;
+**Note, do not install this release as it contains bugs in formula editing.**
 
 ### New Features
 
@@ -527,13 +533,11 @@ Bug Fixes
 
 #### Graphing V1
 
-Visualize your data by using graphs in Mito!&#x20;
+Visualize your data by using graphs in Mito!
 
-* To visualize a distribution of your data, click the **Filter** icon in the column header, and then in the column control panel that opens, navigate to the **Summary Stats** tab. **A graph that displays a distribution of your data will be displayed.**&#x20;
+* To visualize a distribution of your data, click the **Filter** icon in the column header, and then in the column control panel that opens, navigate to the **Summary Stats** tab. **A graph that displays a distribution of your data will be displayed.**
 * Scrolling down in this tab will show you summary statistics for your column, allowing you to understand the distribution further.
 * As this is an early feature, graphing currently is limited in size and scope. If you're trying to visualize bigger datasets or use create graphs for presentation - shoot us a message! We'd be happy to help you get going.
-
-
 
 ## 0.1.121 - 2021-2-01
 
@@ -548,4 +552,3 @@ Visualize your data by using graphs in Mito!&#x20;
 * Fixed a minor bug in column renaming that make it impossible to use your mouse to select the column header.
 
 ##
-
