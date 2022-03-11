@@ -20,7 +20,7 @@
 }
 
 .file-browser-path-part:hover {
-    background: #F0E9FF;
+    background: var(--mito-lightest-purple)
 }
 
 .file-browser-element-list {
@@ -36,5 +36,5 @@
 }
 
 .file-browser-element:hover {
-    background: #F0E9FF;
+    background: var(--mito-lightest-purple)
 }

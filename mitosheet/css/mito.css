@@ -66,13 +66,13 @@
     width: calc(100% - var(--taskpane-width));
 }
 
-.mito-formula-bar-and-mitosheet-div-wide-taskpane-open {
-    width: 30%;
+.mito-formula-bar-and-mitosheet-div-fullscreen-taskpane-open {
+    width: 0%;
 }
 
-.mito-default-wide-taskpane-open {
+.mito-default-fullscreen-taskpane-open {
     visibility: visible;
-    width: 70%;
+    width: 100%;
 }
 
 .mito-default-narrow-taskpane-open {

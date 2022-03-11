@@ -3,6 +3,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
+from collections import OrderedDict
 from copy import deepcopy
 from typing import Any, Collection, List, Dict, Set
 import pandas as pd
@@ -48,7 +49,7 @@ class State:
         column_spreadsheet_code: List[Dict[ColumnID, str]] = None,
         column_filters: List[Dict[ColumnID, Any]] = None,
         column_format_types: List[Dict[ColumnID, Dict[str, Any]]] = None,
-        graph_data: Dict[str, Dict[str, Any]] = None
+        graph_data_dict: "OrderedDict[str, Dict[str, Any]]" = None
     ):
 
         # The dataframes that are in the state
@@ -116,7 +117,9 @@ class State:
             ]
         )
 
-        self.graph_data: Dict[str, Dict[str, Any]] = graph_data if graph_data is not None else dict()
+        # We put this in an ordered dict so we can easily figure out the last graph that was edited at each step. 
+        # This is helpful for undoing, for example. 
+        self.graph_data_dict: OrderedDict[str, Dict[str, Any]] = graph_data_dict if graph_data_dict is not None else OrderedDict()
 
     def __copy__(self):
         """
@@ -131,7 +134,7 @@ class State:
             column_spreadsheet_code=deepcopy(self.column_spreadsheet_code),
             column_filters=deepcopy(self.column_filters),
             column_format_types=deepcopy(self.column_format_types),
-            graph_data=deepcopy(self.graph_data)
+            graph_data_dict=deepcopy(self.graph_data_dict)
         )
 
     def __deepcopy__(self, memo):
@@ -147,7 +150,7 @@ class State:
             column_spreadsheet_code=deepcopy(self.column_spreadsheet_code),
             column_filters=deepcopy(self.column_filters),
             column_format_types=deepcopy(self.column_format_types),
-            graph_data=deepcopy(self.graph_data)
+            graph_data_dict=deepcopy(self.graph_data_dict)
         )
 
     def add_df_to_state(
