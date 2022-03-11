@@ -3,14 +3,29 @@
 import React, { useState, useEffect } from 'react';
 import MitoAPI from '../../../../api';
 import "../../../../../css/taskpanes/ControlPanel/ColumnSummaryStatistics.css"
-import { ColumnID } from '../../../../types';
+import { ColumnID, FormatTypeObj } from '../../../../types';
+import { formatCellData } from '../../../../utils/formatColumns';
 
 
 type ColumnDescribeChartProps = {
     selectedSheetIndex: number;
     columnID: ColumnID;
     mitoAPI: MitoAPI;
+    columnFormatType: FormatTypeObj;
+    columnDtype: string;
 }
+
+const KEY_TO_FORMAT_WITH_COLUMN_FORMAT = [
+    'mean',
+    'std',
+    'min',
+    '25%',
+    '50%',
+    '75%',
+    'max',
+    'median',
+    'sum'
+]
 
 /*
     Displays the column summary statistics gotten from 
@@ -44,14 +59,24 @@ function ColumnSummaryStatistics(props: ColumnDescribeChartProps): JSX.Element {
                 {!loading &&
                     <table className='column-describe-table-container'>
                         {Object.keys(describe).map(key => {
+                            const value = describe[key];
+                            let valueToDisplay = value;
+                            
+                            // Add the format, if there is one for this column
+                            if (KEY_TO_FORMAT_WITH_COLUMN_FORMAT.includes(key)) {
+                                valueToDisplay = formatCellData(value, props.columnDtype, props.columnFormatType)
+                            } 
+
+                            // We clip data at 15 letters for now. We also format
+                            valueToDisplay = valueToDisplay.substring(0, 15) + (valueToDisplay.length > 15 ? '...' : '')
+
                             return (
                                 <tr className='column-describe-table-row' key={key}>
                                     <th>
                                         {key}
                                     </th>
                                     <th>
-                                        {/* We clip data at 15 letters for now */}
-                                        {describe[key].substring(0, 15) + (describe[key].length > 15 ? '...' : '')}
+                                        {valueToDisplay}
                                     </th>
                                 </tr>
                             )
