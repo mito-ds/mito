@@ -1,7 +1,10 @@
 import json
-import pytest
+
+from mitoinstaller.user_install import (USER_JSON_PATH, get_static_user_id,
+                                        user_json_is_installer_default)
+
 from tests.conftest import VirtualEnvironment
-from mitoinstaller.user_install import USER_JSON_PATH, get_static_user_id
+
 
 def test_upgrade_with_mitosheet3_moves_to_mitosheet(venv: VirtualEnvironment):
     # Setup what most of our old users used to have
@@ -38,14 +41,18 @@ def test_user_json_only_has_static_user_id():
         f.write(json.dumps({
             'static_user_id': 'github_action'
         }))
-    from mitoinstaller.user_install import user_json_only_has_static_user_id
     
-    assert user_json_only_has_static_user_id()
+    assert user_json_is_installer_default()
 
     with open(USER_JSON_PATH, 'w+') as f:
         f.write(json.dumps({
             'static_user_id': 'github_action',
-            'other': 'nah'
+            'other': 'nah',
+            'other1': 'nah',
+            'other2': 'nah',
+            'other3': 'nah',
+            'other4': 'nah',
+            'other5': 'nah',
         }))
 
-    assert not user_json_only_has_static_user_id()
+    assert not user_json_is_installer_default()

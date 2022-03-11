@@ -37,7 +37,7 @@ const StepOne = (
 
     const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        await props.mitoAPI.sendSignUp(props.email);
+        await props.mitoAPI.updateSignUp(props.email);
         props.next();
     }
 
@@ -125,8 +125,8 @@ const StepTwo = (
         setIsPro(true);
 
         // We log this before going pro so that this is the last thing to appear in the logs
-        void props.mitoAPI.sendLogMessage('signup_completed_pro')
-        void props.mitoAPI.goPro();
+        void props.mitoAPI.log('signup_completed_pro')
+        void props.mitoAPI.updateGoPro();
 
         // Then, we go to the final page
         props.next();
@@ -166,7 +166,7 @@ const StepTwo = (
                                 target='_blank'
                                 onClick={() => {
                                     setEnteringProAccessCode(true);
-                                    void props.mitoAPI.sendLogMessage('signup_clicked_pro');
+                                    void props.mitoAPI.log('signup_clicked_pro');
                                 }}
                             >
                                 See Plans
@@ -273,7 +273,7 @@ const StepThree = (
     const onSubmit = async () => {
 
         // Log the answers to the questions each as their own piece of feedback
-        await props.mitoAPI.sendFeedback(FeedbackID.COMPANY, props.numUsages, [{'question': FirstQuestion, 'answer': props.firstResponse}]);
+        await props.mitoAPI.updateFeedback(FeedbackID.COMPANY, props.numUsages, [{'question': FirstQuestion, 'answer': props.firstResponse}]);
 
         // Advance to the next step
         props.next();
@@ -341,11 +341,11 @@ const SignupModal = (
                     currOpenModal: {type: ModalEnum.None}
                 }
             })
-            void props.mitoAPI.sendLogMessage('finished_signup');
+            void props.mitoAPI.log('finished_signup');
         } else {
             const newStep = Math.min(step + 1, 3);
             setStep(newStep)
-            void props.mitoAPI.sendLogMessage('switched_signup_step', 
+            void props.mitoAPI.log('switched_signup_step', 
                 {
                     'old_signup_step': step,
                     'new_signup_step': newStep
@@ -357,7 +357,7 @@ const SignupModal = (
         const newStep = Math.max(step - 1, 0);
         setStep(newStep)
 
-        void props.mitoAPI.sendLogMessage('switched_signup_step', 
+        void props.mitoAPI.log('switched_signup_step', 
             {
                 'old_signup_step': step,
                 'new_signup_step': newStep

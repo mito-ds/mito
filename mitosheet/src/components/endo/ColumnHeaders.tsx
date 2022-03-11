@@ -9,6 +9,7 @@ import MitoAPI from '../../api';
 import { classNames } from '../../utils/classNames';
 import ColumnHeader from './ColumnHeader';
 import { changeColumnWidthDataArray } from './widthUtils';
+import { TaskpaneType } from '../taskpanes/taskpanes';
 
 
 /* 
@@ -153,7 +154,16 @@ const ColumnHeaders = (props: {
                                 return;
                             }
 
-                            void props.mitoAPI.sendReorderColumnMessage(props.sheetIndex, columnIDToReorder, columnIndex);
+                            void props.mitoAPI.editReorderColumn(props.sheetIndex, columnIDToReorder, columnIndex);
+                            
+                            // We close any open taskpanes if we reorder something, so we don't get bugs where
+                            // pivot is open and then the user tries to overwrite the wrong step
+                            props.setUIState(prevUIState => {
+                                return {
+                                    ...prevUIState,
+                                    currOpenTaskpane: {type: TaskpaneType.NONE}
+                                }
+                            })
 
                             props.setGridState(gridState => {
                                 return {

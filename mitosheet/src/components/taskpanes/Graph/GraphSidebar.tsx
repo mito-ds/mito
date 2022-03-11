@@ -9,25 +9,31 @@ import Col from '../../spacing/Col';
 import Row from '../../spacing/Row';
 import TextButton from '../../elements/TextButton';
 import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
-import { intersection } from '../../../utils/arrays';
-import { ColumnID, ColumnIDsMap, GraphDataJSON, GraphParams, SheetData, UIState } from '../../../types';
+import { ColumnID, ColumnIDsMap, GraphDataDict, GraphID, SheetData, UIState } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 
 // import css
 import '../../../../css/taskpanes/Graph/GraphSidebar.css'
 import '../../../../css/taskpanes/Graph/LoadingSpinner.css'
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
-import { isNumberDtype } from '../../../utils/dtypes';
 import Toggle from '../../elements/Toggle';
 import usePrevious from '../../../hooks/usePrevious';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
+import { getDefaultGraphParams, getDefaultSafetyFilter, getGraphParams } from './graphUtils';
 
 export enum GraphType {
-    SCATTER = 'scatter',
     BAR = 'bar',
+    LINE = 'line',
+    SCATTER = 'scatter',
     HISTOGRAM = 'histogram',
+    DENSITY_HEATMAP = 'density heatmap',
+    DENSITY_CONTOUR = 'density contour',
     BOX = 'box',
+    VIOLIN = 'violin',
+    STRIP = 'strip',
+    ECDF = 'ecdf',
 }
+
 
 // Millisecond delay between loading graphs, so that
 // we don't load to many graphs when the user is clicking around
@@ -36,73 +42,11 @@ const LOAD_GRAPH_TIMEOUT = 1000;
 // Graphing a dataframe with more than this number of rows will
 // give the user the option to apply the safety filter
 // Note: This must be kept in sync with the graphing heuristic in the mitosheet/graph folder
-const GRAPH_SAFETY_FILTER_CUTOFF = 1000;
+export const GRAPH_SAFETY_FILTER_CUTOFF = 1000;
 
 // Tooltips used to explain the Safety filter toggle
 const SAFETY_FILTER_DISABLED_MESSAGE = `Because you’re graphing less than ${GRAPH_SAFETY_FILTER_CUTOFF} rows of data, you can safely graph your data without applying a filter first.`
 const SAFETY_FILTER_ENABLED_MESSAGE = `Turning on Filter to Safe Size only graphs the first ${GRAPH_SAFETY_FILTER_CUTOFF} rows of your dataframe, ensuring that your browser tab won’t crash. Turning off Filter to Safe Size graphs the entire dataframe and may slow or crash your browser tab.`
-
-// Helper function for creating default graph params 
-const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: number): GraphParams => {
-    const safetyFilter = getDefaultSafetyFilter(sheetDataArray, sheetIndex)
-    return {
-        graphPreprocessing: {
-            safety_filter_turned_on_by_user: safetyFilter
-        },
-        graphCreation: {
-            graph_type: GraphType.BAR,
-            sheet_index: sheetIndex,
-            x_axis_column_ids: [],
-            y_axis_column_ids: [],
-        },
-        graphStyling: undefined,
-        graphRendering: {}
-    }
-}
-
-// Helper function for getting the default safety filter status
-const getDefaultSafetyFilter = (sheetDataArray: SheetData[], sheetIndex: number): boolean => {
-    return sheetDataArray[sheetIndex] === undefined || sheetDataArray[sheetIndex].numRows > GRAPH_SAFETY_FILTER_CUTOFF
-}
-
-/*
-    A helper function for getting the params for the graph fpr this sheet when
-    opening the graphing taskpane, or when switching to a sheet.
-
-    Notably, will filter oout any columns that are no longer in the dataset, 
-    which stops the user from having invalid columns selected in their graph
-    params.
-*/
-const getGraphParams = (   
-    graphDataJSON: GraphDataJSON,
-    sheetIndex: number,
-    sheetDataArray: SheetData[],
-): GraphParams => {
-    const graphParams = graphDataJSON[sheetIndex.toString()]?.graphParams;
-    if (graphParams !== undefined) {
-        // Filter out column headers that no longer exist
-        const validColumnIDs = sheetDataArray[sheetIndex] !== undefined ? sheetDataArray[sheetIndex].data.map(c => c.columnID) : [];
-        const xAxisColumnIDs = intersection(
-            validColumnIDs,
-            graphParams.graphCreation.x_axis_column_ids
-        )
-        const yAxisColumnIDs = intersection(
-            validColumnIDs,
-            graphParams.graphCreation.y_axis_column_ids
-        )
-        
-        return {
-            ...graphParams,
-            graphCreation: {
-                ...graphParams.graphCreation,
-                x_axis_column_ids: xAxisColumnIDs,
-                y_axis_column_ids: yAxisColumnIDs
-            }
-        }
-    }
-    return getDefaultGraphParams(sheetDataArray, sheetIndex);
-}
-
 
 /*
     This is the main component that displays all graphing
@@ -112,37 +56,49 @@ const GraphSidebar = (props: {
     sheetDataArray: SheetData[];
     columnIDsMapArray: ColumnIDsMap[],
     dfNames: string[];
-    graphSidebarSheet: number;
+    graphID: GraphID
     columnDtypesMap: Record<string, string>;
     mitoAPI: MitoAPI;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
-    graphDataJSON: GraphDataJSON
+    uiState: UIState;
+    graphDataDict: GraphDataDict
     lastStepIndex: number
 }): JSX.Element => {
 
+    /*
+        The graphID is the keystone of the graphSidebar. Each graph tab has one graphID that does not switch even if the user changes source data sheets. 
+        
+        In order to properly open a graph in Mito, there are a few things that need to occur:
+            1. We need to update the uiState's `selectedTabType` to "graph" so that the footer selects the correct tab
+            2. We need to set the uiState's `currTaskpaneOpen` to "graph" so that we actually display the graph
+            3. We need to pass the current taskpane the graphID so that we know which graph to display.
+        Everything else is handled by the graphSidebar.  
+
+        To create a graph, we always pass a graphID. That means that if we're creating a new graph, the opener of the taskpane is required
+        to create a new graphID. 
+    */
+    const graphID = props.graphID
+
+    // Every configuration that the user makes with this graphID is the same step, until the graphID is changed.
+    const [stepID, setStepID] = useState<string|undefined>(undefined);
+
     // We keep track of the graph data separately from the backend state so that 
-    // the UI updates imidietly, even though the backend takes a while to process.
-    const [graphParams, setGraphParams] = useState(() => getGraphParams(props.graphDataJSON, props.graphSidebarSheet, props.sheetDataArray))
+    // the UI updates immediately, even though the backend takes a while to process.
+    const [graphParams, setGraphParams] = useState(() => getGraphParams(props.graphDataDict, graphID, props.uiState.selectedSheetIndex, props.sheetDataArray))
+
+    const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
+    const graphOutput = props.graphDataDict[graphID]?.graphOutput
+    const [_copyGraphCode, graphCodeCopied] = useCopyToClipboard(graphOutput?.graphGeneratedCode);
+    const [loading, setLoading] = useState<boolean>(false)
 
     /* 
-        When graphUpdatedNumber is, we send a new getGraphMessage with the current graphParams
-        in order to update the graphDataJSON. We only increment graphUpdatedNumber when the user updates the params.
+        When graphUpdatedNumber is updated, we send a new getGraphMessage with the current graphParams
+        in order to update the graphDataDict. We only increment graphUpdatedNumber when the user updates the params.
 
         We use this method instead of using a useEffect on the graphParams because the graphParams update when we don't want
         to sendGraphMessage, ie: during an Undo. 
-
-        We use this method of graphUpdatedNumber to simulate a callback to updating the graphParams because we can't pass a callback to 
-        the setGraphParams (since its created via a useState instead of this.setState on a class component). Usually, we would use a useEffect on 
-        graphParams to act as the callback, but for the reasons described above, that is not the approach we take here. 
     */
     const [graphUpdatedNumber, setGraphUpdatedNumber] = useState(0)
-
-    const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
-    const graphOutput = props.graphDataJSON[dataSourceSheetIndex]?.graphOutput
-    const [_copyGraphCode, graphCodeCopied] = useCopyToClipboard(graphOutput?.graphGeneratedCode);
-    const [stepID, setStepID] = useState<string|undefined>(undefined);
-
-    const [loading, setLoading] = useState<boolean>(false)
 
     // Save the last step index, so that we can check if an undo occured
     const prevLastStepIndex = usePrevious(props.lastStepIndex);
@@ -155,20 +111,23 @@ const GraphSidebar = (props: {
         }
     }, [props.lastStepIndex])
 
-    // We log when the graph has been opened
+    /*
+        If the props.graphID changes, which happens when opening a graph:
+        1. reset the stepID so we don't overwrite the previous edits.
+        2. refresh the graphParams so the UI is up to date with the new graphID's configuration.
+        3. update the graphUpdateNumber so the graph refreshes
+    */
     useEffect(() => {
-        void props.mitoAPI.sendLogMessage('opened_graph');
-    }, []);
+        setStepID(undefined)
+        setGraphParams(getGraphParams(props.graphDataDict, props.graphID, props.uiState.selectedSheetIndex, props.sheetDataArray))
+        setGraphUpdatedNumber(old => old + 1)
+    }, [props.graphID])
 
     // Async load in the data from the mitoAPI
     useDebouncedEffect(() => {
-        // If we haven't updated the graph yet, then don't send a new graph message so that 
-        // we don't send a graph message on the initial opening of the graph sidebar.
-        if (graphUpdatedNumber > 0) {
-            setLoading(true)
-            void getGraphAsync()
-        }
-        
+        // Send the editGraph message when the graph is updated
+        setLoading(true)
+        void getGraphAsync()
     }, [graphUpdatedNumber], LOAD_GRAPH_TIMEOUT)
 
 
@@ -198,7 +157,8 @@ const GraphSidebar = (props: {
         const boundingRect: DOMRect | undefined = document.getElementById('graph-div')?.getBoundingClientRect();
 
         if (boundingRect !== undefined) {
-            const _stepID = await props.mitoAPI.sendGraphMessage(
+            const _stepID = await props.mitoAPI.editGraph(
+                graphID,
                 graphParams.graphCreation.graph_type,
                 graphParams.graphCreation.sheet_index,
                 graphParams.graphPreprocessing.safety_filter_turned_on_by_user,
@@ -220,7 +180,7 @@ const GraphSidebar = (props: {
         with the graph shown
     */
     const refreshParamsAfterUndo = async (): Promise<void> => {        
-        const newGraphParams = getGraphParams(props.graphDataJSON, dataSourceSheetIndex, props.sheetDataArray)
+        const newGraphParams = getGraphParams(props.graphDataDict, graphID, dataSourceSheetIndex, props.sheetDataArray)
         setGraphParams(newGraphParams)
     } 
 
@@ -240,44 +200,9 @@ const GraphSidebar = (props: {
         setGraphUpdatedNumber((old) => old + 1);
     }
 
-    const removeNonNumberColumnIDs = (columnIDs: ColumnID[]) => {
-        const filteredColumnIDs = columnIDs.filter(columnID => {
-            return props.columnDtypesMap !== undefined && isNumberDtype(props.columnDtypesMap[columnID])
-        })
-        return filteredColumnIDs
-    }
-
     const setGraphType = (graphType: GraphType) => {
-        let xAxisColumnIDsCopy = [...graphParams.graphCreation.x_axis_column_ids]
-        let yAxisColumnIDsCopy = [...graphParams.graphCreation.y_axis_column_ids]
-
-        /* 
-            If the user switches to a Box plot or Histogram, then we make sure that
-            1. all of the selected columns are numbers. 
-            2. there are not columns in both the x and y axis. 
-        */
-        if (graphType === GraphType.BOX || graphType === GraphType.HISTOGRAM) {
-            xAxisColumnIDsCopy = removeNonNumberColumnIDs(xAxisColumnIDsCopy)
-            yAxisColumnIDsCopy = removeNonNumberColumnIDs(yAxisColumnIDsCopy)
-
-            // Make sure that only one axis has selected column headers. 
-            if (xAxisColumnIDsCopy.length > 0 && yAxisColumnIDsCopy.length > 0) {
-                yAxisColumnIDsCopy = []
-            }
-        }
-
-        // Log that we reset the selected columns
-        if (xAxisColumnIDsCopy.length !== graphParams.graphCreation.x_axis_column_ids.length || 
-            yAxisColumnIDsCopy.length !== graphParams.graphCreation.y_axis_column_ids.length) {
-            void props.mitoAPI.sendLogMessage('reset_graph_columns_on_graph_type_change');
-        }
-
-        // Log that the user switched graph types
-        void props.mitoAPI.sendLogMessage('switched_graph_type', {
-            'graph_type': graphType,
-            'x_axis_column_ids': xAxisColumnIDsCopy,
-            'y_axis_column_ids': yAxisColumnIDsCopy,
-        });
+        const xAxisColumnIDsCopy = [...graphParams.graphCreation.x_axis_column_ids]
+        const yAxisColumnIDsCopy = [...graphParams.graphCreation.y_axis_column_ids]
 
         // Update the graph type
         setGraphParams(prevGraphParams => {
@@ -352,7 +277,7 @@ const GraphSidebar = (props: {
         _copyGraphCode()
 
         // Log that the user copied the graph code
-        void props.mitoAPI.sendLogMessage('copy_graph_code', {
+        void props.mitoAPI.log('copy_graph_code', {
             'graph_type': graphParams.graphCreation.graph_type
         });
     }
@@ -365,14 +290,13 @@ const GraphSidebar = (props: {
                 currOpenTaskpane: { type: TaskpaneType.NONE }
             }
         })
-
         return <DefaultEmptyTaskpane setUIState={props.setUIState} />
     } else {
         return (
             <div className='graph-sidebar-div'>
                 <div className='graph-sidebar-graph-div' id='graph-div' >
                     {graphOutput === undefined &&
-                        <p className='graph-sidebar-welcome-text' >To generate a graph, select a axis.</p>
+                        <p className='graph-sidebar-welcome-text' >To generate a graph, select an axis.</p>
                     }
                     {graphOutput !== undefined &&
                         <div dangerouslySetInnerHTML={{ __html: graphOutput.graphHTML }} />
@@ -391,10 +315,10 @@ const GraphSidebar = (props: {
                                     props.setUIState((prevUIState) => {
                                         return {
                                             ...prevUIState,
+                                            selectedTabType: 'data',
                                             currOpenTaskpane: { type: TaskpaneType.NONE }
                                         }
                                     })
-                                    void props.mitoAPI.sendLogMessage('closed_graph')
                                 }}
                             />
                         </Col>
@@ -411,14 +335,11 @@ const GraphSidebar = (props: {
                                     value={props.dfNames[graphParams.graphCreation.sheet_index]}
                                     onChange={(newDfName: string) => {
                                         const newIndex = props.dfNames.indexOf(newDfName);
-                                        // Get the new sheet's graph params 
-                                        const newSheetGraphParams = getGraphParams(props.graphDataJSON, newIndex, props.sheetDataArray)
-
-                                        // When we change sheets that we're graphing, we no longer want to overwrite the previous graph, 
-                                        // instead we want to create a new graph. Therefore, we change the stepID to create the new graph
-                                        // in a new graph step!
-                                        setStepID(undefined)
+                                        
+                                        // Reset the graph params for the new sheet, but keep the graph type!
+                                        const newSheetGraphParams = getDefaultGraphParams(props.sheetDataArray, newIndex, graphParams.graphCreation.graph_type)
                                         setGraphParams(newSheetGraphParams)
+
                                         setGraphUpdatedNumber((old) => old + 1);
                                     }}
                                     width='small'
@@ -453,15 +374,31 @@ const GraphSidebar = (props: {
                                         title={GraphType.BAR}
                                     />
                                     <DropdownItem
-                                        title={GraphType.BOX}
-                                        subtext='Only supports number columns'
-                                    />
-                                    <DropdownItem
-                                        title={GraphType.HISTOGRAM}
-                                        subtext='Only supports number columns'
+                                        title={GraphType.LINE}
                                     />
                                     <DropdownItem
                                         title={GraphType.SCATTER}
+                                    />
+                                    <DropdownItem
+                                        title={GraphType.HISTOGRAM}
+                                    />
+                                    <DropdownItem
+                                        title={GraphType.DENSITY_HEATMAP}
+                                    />
+                                    <DropdownItem
+                                        title={GraphType.DENSITY_CONTOUR}
+                                    />
+                                    <DropdownItem
+                                        title={GraphType.BOX}
+                                    />
+                                    <DropdownItem
+                                        title={GraphType.VIOLIN}
+                                    />
+                                    <DropdownItem
+                                        title={GraphType.STRIP}
+                                    />
+                                    <DropdownItem
+                                        title={GraphType.ECDF}
                                     />
                                 </Select>
                             </Col>

@@ -92,7 +92,7 @@ const Search = (props: {
             }
 
             // Log that we searched
-            void props.mitoAPI.sendLogMessage('search');
+            void props.mitoAPI.log('search');
         } 
 
         setLoading(false);
@@ -169,7 +169,7 @@ const Search = (props: {
             }
         });
 
-        void props.mitoAPI.sendLogMessage('search_move_to_match', {
+        void props.mitoAPI.log('search_move_to_match', {
             increment: increment,
             is_column_header: match.rowIndex === -1
         });

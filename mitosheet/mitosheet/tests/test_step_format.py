@@ -32,6 +32,9 @@ from mitosheet.step_performers import (
     DropDuplicatesStepPerformer,
     GraphStepPerformer
 )
+from mitosheet.step_performers.graph_steps.graph_delete import GraphDeleteStepPerformer
+from mitosheet.step_performers.graph_steps.graph_duplicate import GraphDuplicateStepPerformer
+from mitosheet.step_performers.graph_steps.graph_rename import GraphRenameStepPerformer
 
 def check_step(
         step_performer: StepPerformer, 
@@ -188,7 +191,25 @@ def test_params_static():
         'graph'
     )
 
-    assert len(STEP_PERFORMERS) == 20
+    check_step(
+        GraphDeleteStepPerformer,
+        1,
+        'graph_delete'
+    )
+
+    check_step(
+        GraphDuplicateStepPerformer,
+        1,
+        'graph_duplicate'
+    )
+
+    check_step(
+        GraphRenameStepPerformer,
+        1,
+        'graph_rename'
+    )
+
+    assert len(STEP_PERFORMERS) == 23
 
 
 def get_fake_param(param_name):

@@ -102,9 +102,9 @@ function StepDataElement(props: StepDataElementProps): JSX.Element {
     const toggleStepRollBack = (): void => {
         if (props.isCurrIdx) {
             // If this step is checked out, we go back to the last index
-            void props.mitoAPI.checkoutStepByIndex(props.lastIndex);
+            void props.mitoAPI.updateCheckoutStepByIndex(props.lastIndex);
         } else {
-            void props.mitoAPI.checkoutStepByIndex(props.stepData.step_idx);
+            void props.mitoAPI.updateCheckoutStepByIndex(props.stepData.step_idx);
         }
     }
 

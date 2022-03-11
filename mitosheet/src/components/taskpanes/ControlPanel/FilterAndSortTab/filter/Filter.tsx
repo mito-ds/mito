@@ -26,7 +26,6 @@ export function Filter(
 
     // We hide the input if it is not necessary
     const inputStyle: CSSProperties = CONDITIONS_WITH_NO_INPUT.includes(props.filter.condition) ? {'visibility': 'hidden'} : {'visibility': 'visible'};
-    console.log(props.columnDtype)
     const getFilterOptions = (): JSX.Element[] => {
         if (isNumberDtype(props.columnDtype)) {
             return Object.entries(NUMBER_SELECT_OPTIONS).map(([filterCondition, displayFilterCondition]) => {

@@ -10,7 +10,7 @@ Long term, we aim to meet:
 from colorama import init
 from termcolor import colored  # type: ignore
 
-from mitoinstaller.install import do_install_or_upgrade
+from mitoinstaller.install import do_install
 
 
 def main() -> None:
@@ -18,7 +18,7 @@ def main() -> None:
     The main function of the Mito installer, this function is responsible
     for installing and upgrading the `mitosheet` package.
 
-    To install Mito (for the first time):
+    To install Mito:
     python -m mitoinstaller install
 
     To upgrade Mito:
@@ -35,15 +35,10 @@ def main() -> None:
     else:
         command = ''
 
-    # Check if it's a pro install
-    is_pro = '--pro' in sys.argv
-
-    if command == 'install':
-        do_install_or_upgrade('install', is_pro)
+    if command == 'install' or command == 'upgrade':
+        do_install()
     elif command == 'uninstall':
         print('To uninstall, run,', colored('`pip uninstall mitosheet`', 'green'))
-    elif command == 'upgrade':
-        do_install_or_upgrade('upgrade', is_pro)
     else:
         # NOTE: we don't add upgrade_to_jupyterlab_3 to the help.
         # We only send this command to the users who need to know this (namely, those that need to upgrade)

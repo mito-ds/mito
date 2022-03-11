@@ -519,7 +519,7 @@ function EndoGrid(props: {
                     const columnIDsToDelete = columnIndexesSelected.map(colIdx => sheetData?.data[colIdx]?.columnID)
 
                     if (columnIDsToDelete !== undefined) {
-                        void mitoAPI.sendDeleteColumn(
+                        void mitoAPI.editDeleteColumn(
                             sheetIndex,
                             columnIDsToDelete
                         )

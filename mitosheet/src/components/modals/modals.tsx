@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import { MitoError, UsageTriggeredFeedbackID } from "../../types";
+import { MitoError } from "../../types";
 
 
 export enum ModalEnum {
@@ -11,6 +11,7 @@ export enum ModalEnum {
     SignUp = "SignUp",
     Upgrade = 'Upgrade',
     Feedback = 'Feedback',
+    DeleteGraphs = 'DeleteGraphs'
 }
 
 /* 
@@ -41,9 +42,13 @@ interface ClearAnalysisInfo {
     type: ModalEnum.ClearAnalysis;
 }
 
-interface FeedbackModalInfo {
-    type: ModalEnum.Feedback;
-    feedbackID: UsageTriggeredFeedbackID;
+interface DeleteGraphsModalInfo {
+    type: ModalEnum.DeleteGraphs;
+    sheetIndex: number;
+    dependantGraphTabNamesAndIDs: {
+        graphTabName: string;
+        graphID: string;
+    }[]
 }
 
 export type ModalInfo = 
@@ -52,4 +57,4 @@ export type ModalInfo =
     | SignUpModalInfo
     | UpgradeModalInfo
     | ClearAnalysisInfo
-    | FeedbackModalInfo
+    | DeleteGraphsModalInfo

@@ -106,7 +106,7 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
         to the backend, making so to respect the stepId
     */
     const sendPivotTableUpdateMessage = async(): Promise<void> => {
-        const _stepID = await props.mitoAPI.sendPivotMessage(
+        const _stepID = await props.mitoAPI.editPivot(
             pivotState.selectedSheetIndex,
             // Deduplicate the rows and columns before sending them to the backend
             // as otherwise this generates errors if you have duplicated key
@@ -118,7 +118,6 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
             props.destinationSheetIndex,
             stepID
         )
-
         setStepID(_stepID);
     }
 

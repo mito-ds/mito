@@ -276,7 +276,7 @@ class StepsManager:
                 "stepSummaryList": self.step_summary_list,
                 "currStepIdx": self.curr_step_idx,
                 "dataTypeInTool": self.data_type_in_mito.value,
-                "graphDataJSON": self.curr_step.graph_data
+                "graphDataDict": self.curr_step.graph_data_dict
             }
         )
 
@@ -352,9 +352,10 @@ class StepsManager:
         # than in the .sheet call (or elsewhere) because the dataframe names are read
         # in after the sheet is rendered. Thus, we just check after the first edit event
         # (e.g. when there are two steps) - if we still have default dataframe names, this
-        # is an error
+        # is an error. Note we make this a distinct log from when the args update itself
+        # fails so that we can check if we really do get to this state
         if len(self.steps) == 2 and is_default_df_names(self.curr_step.df_names): # NOTE: two means we have done at least one edit.
-            log('args_update_failed')
+            log('args_update_remains_failed')
 
     def handle_update_event(self, update_event: Dict[str, Any]) -> None:
         """
@@ -445,7 +446,7 @@ class StepsManager:
         # If this works, then let's add this step to the undo list!
         self.undone_step_list_store.append(("undo", [undone_step]))
 
-    def execute_redo(self):
+    def execute_redo(self) -> None:
         """
         Executes a redo, which reapplies the most recently undone
         steps if they exist.

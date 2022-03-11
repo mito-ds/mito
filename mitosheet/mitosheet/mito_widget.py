@@ -9,9 +9,10 @@ Main file containing the mito widget.
 """
 import json
 import time
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
+from mitosheet.user.location import is_in_google_colab, is_in_vs_code
 import traitlets as t
 from ipywidgets import DOMWidget
 
@@ -68,7 +69,6 @@ class MitoWidget(DOMWidget):
         # have to recompute them on each update
         last_50_usages = get_user_field(UJ_MITOSHEET_LAST_FIFTY_USAGES)
         self.num_usages = len(last_50_usages if last_50_usages is not None else [])
-        self.usage_triggered_feedback_id = ''
         self.is_local_deployment = is_local_deployment()
         self.should_upgrade_mitosheet = should_upgrade_mitosheet()
         self.received_tours = get_user_field(UJ_RECEIVED_TOURS)
@@ -99,7 +99,6 @@ class MitoWidget(DOMWidget):
             'isLocalDeployment': self.is_local_deployment,
             'shouldUpgradeMitosheet': self.should_upgrade_mitosheet,
             'numUsages': self.num_usages,
-            'usageTriggeredFeedbackID': self.usage_triggered_feedback_id
         })
 
 
@@ -117,9 +116,6 @@ class MitoWidget(DOMWidget):
         # First, we send this new edit to the evaluator
         self.steps_manager.handle_edit_event(event)
 
-        # Update the usage_triggered_feedback_id variable
-        self.set_usage_triggered_feedback_id()
-
         # We update the state variables 
         self.update_shared_state_variables()
 
@@ -133,7 +129,6 @@ class MitoWidget(DOMWidget):
             'event': 'response',
             'id': event['id']
         })
-
 
 
     def handle_update_event(self, event: Dict[str, Any]) -> None:
@@ -181,7 +176,7 @@ class MitoWidget(DOMWidget):
         4. A log_event is just an event that should get logged on the backend.
         """
 
-        start_time = time.perf_counter()
+        start_time: Optional[float] = time.perf_counter()
         event = content
 
         try:
@@ -191,11 +186,12 @@ class MitoWidget(DOMWidget):
                 self.handle_update_event(event)
             elif event['event'] == 'api_call':
                 self.api.process_new_api_call(event)
-                return True
+                # NOTE: since API calls are in a seperate thread, their start time and end
+                # time are not valid, and so we don't even log the start time to not be confusing
+                start_time = None
             
             # NOTE: we don't need to case on log_event above because it always gets
-            # passed to this function, and thus is logged. However, we do not log
-            # api calls, as they are just noise.
+            # passed to this function, and thus is logged.
             log_event_processed(event, self.steps_manager, start_time=start_time)
 
             return True
@@ -244,16 +240,6 @@ class MitoWidget(DOMWidget):
 
         return False
 
-    def set_usage_triggered_feedback_id(self) -> None:
-        """
-        Determines if the user should be prompted for feedback. If it determines that we should ask the user for feedback, 
-        then it sets the feedback_id shared variable.
-
-        Current Feedback Strategy:
-        - Never ask for feedback
-        """
-        self.usage_triggered_feedback_id = ''
-
 def sheet(
         *args: Any,
         view_df: bool=False # We use this param to log if the mitosheet.sheet call is created from the df output button
@@ -271,12 +257,19 @@ def sheet(
     python -m pip install mitoinstaller
     python -m mitoinstaller install
 
-    Run this command in the terminal where you installed Mito. It should take 5-10 minutes to complete.
+    Run this command in the terminal where you installed Mito. It should take 1-2 minutes to complete.
 
     Then, restart your JupyterLab instance, and refresh your browser. Mito should now render.
 
     NOTE: if you have any issues with installation, please email jake@sagacollab.com
     """
+    # We throw a custom error message if we're sure the user is in
+    # vs code or google collab (these conditions are more secure than
+    # the conditons for checking if we're in JLab or JNotebook).
+    if is_in_vs_code() or is_in_google_colab():
+        log_recent_error('mitosheet_sheet_call_location_failed')
+        raise Exception("The mitosheet currently only works in JupyterLab.\n\nTo see instructions on getting Mitosheet running in JupyterLab, find install instructions here: https://docs.trymito.io/getting-started/installing-mito")
+
     try:
         # We pass in the dataframes directly to the widget
         widget = MitoWidget(*args) 

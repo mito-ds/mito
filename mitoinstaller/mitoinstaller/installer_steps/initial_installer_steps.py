@@ -1,3 +1,4 @@
+import sys
 from mitoinstaller import __version__
 from mitoinstaller.commands import upgrade_mito_installer
 from mitoinstaller.installer_steps.installer_step import InstallerStep
@@ -11,18 +12,14 @@ def initial_install_step_create_user():
 
     # If the user has no static install ID, create one
     if static_user_id is None:
-        try_create_user_json_file(is_pro=False)
-    
-    identify()
-    log('install_started', {
-        'mitoinstaller_version': __version__
-    })
+        try_create_user_json_file(is_pro=('--pro' in sys.argv))
 
-
-def initial_install_step_create_pro_user():
-    # Try and create the user.json file, or at least
-    # update mitosheet_telemetry if it is not already true
-    try_create_user_json_file(is_pro=True)
+    # Only try and log if we're not pro
+    if not ('--pro' in sys.argv):
+        identify()
+        log('install_started', {
+            'mitoinstaller_version': __version__
+        })
 
 
 INITIAL_INSTALLER_STEPS = [
@@ -31,18 +28,8 @@ INITIAL_INSTALLER_STEPS = [
         initial_install_step_create_user
     ),
     InstallerStep(
-        'Upgrading mitoinstaller',
-        upgrade_mito_installer
-    ),
-]
-
-INITIAL_INSTALLER_STEPS_PRO = [
-    InstallerStep(
-        'Create pro mito user',
-        initial_install_step_create_pro_user
-    ),
-    InstallerStep(
-        'Upgrading mitoinstaller',
-        upgrade_mito_installer
+        'Upgrade mitoinstaller',
+        upgrade_mito_installer,
+        optional=True
     ),
 ]
