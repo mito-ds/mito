@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Any, Dict, List, Optional, Set, Type
+from typing import Any, Dict, List, Optional, OrderedDict, Set, Type
 from mitosheet.evaluation_graph_utils import create_column_evaluation_graph
 
 from mitosheet.step_performers.step_performer import StepPerformer
@@ -126,7 +126,7 @@ class Step:
         state are optional, but we also need a step to have a defined state
         """
         return self.post_state if self.post_state is not None else \
-            (self.prev_state if self.prev_state is not None else State([]))
+            (self.prev_state if self.prev_state is not None else State(OrderedDict()))
 
     def set_prev_state_and_execute(self, new_prev_state: State) -> None:
         """

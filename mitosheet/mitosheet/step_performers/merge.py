@@ -195,7 +195,7 @@ class MergeStepPerformer(StepPerformer):
         return {-1}
 
 def _execute_merge(
-        dfs: List[pd.DataFrame], 
+        dfs: Dict[int, pd.DataFrame], 
         df_names: List[str],
         how: str,
         sheet_index_one: int,

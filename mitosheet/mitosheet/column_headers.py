@@ -119,11 +119,11 @@ class ColumnIDMap():
     two of them.
     """
 
-    def __init__(self, dfs: Collection[pd.DataFrame]):
+    def __init__(self, dfs: Dict[int, pd.DataFrame]):
         self.column_id_to_column_header: List[Dict[ColumnID, ColumnHeader]] = [dict() for _ in range(len(dfs))]
         self.column_header_to_column_id: List[Dict[ColumnHeader, ColumnID]] = [dict() for _ in range(len(dfs))]
 
-        for sheet_index, df in enumerate(dfs):
+        for sheet_index, df in dfs.items():
             for column_header in df.keys():
                 column_id = get_column_header_id(column_header)
                 self.column_id_to_column_header[sheet_index][column_id] = column_header

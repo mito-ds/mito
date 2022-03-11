@@ -9,7 +9,7 @@ Contains helpful utility functions
 import json
 import re
 import uuid
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, OrderedDict, Set, Tuple
 from mitosheet.types import ColumnHeader, ColumnID
 
 import numpy as np
@@ -81,38 +81,37 @@ def is_default_df_names(df_names: List[str]) -> bool:
     """
     return len(df_names) > 0 and df_names == [f'df{i + 1}' for i in range(len(df_names))]
 
-def dfs_to_array_for_json(
+def dfs_to_dict_for_json(
         modified_sheet_indexes: Set[int],
-        previous_array: List,
-        dfs: List[pd.DataFrame],
+        previous_dict: Dict[int, Any],
+        dfs: Dict[int, pd.DataFrame],
         df_names: List[str],
         df_sources: List[str],
         column_spreadsheet_code_array: List[Dict[ColumnID, str]],
         column_filters_array: List[Dict[ColumnID, Any]],
         column_ids: ColumnIDMap,
         column_format_types: List[Dict[ColumnID, Dict[str, str]]]
-    ) -> List:
+    ) -> Dict:
 
-    new_array = []
-    for sheet_index, df in enumerate(dfs):
-        if sheet_index in modified_sheet_indexes:
-            new_array.append(
-                df_to_json_dumpsable(
-                    df, 
-                    df_names[sheet_index],
-                    df_sources[sheet_index],
-                    column_spreadsheet_code_array[sheet_index],
-                    column_filters_array[sheet_index],
-                    column_ids.column_header_to_column_id[sheet_index],
-                    column_format_types[sheet_index],
-                    # We only send the first 1500 rows, and this must 
-                    max_length=MAX_ROWS,
-                ) 
-            )
+    final_dict = OrderedDict()
+    for sheet_index, df in dfs.items():
+        if sheet_index in modified_sheet_indexes or sheet_index not in previous_dict:
+            final_dict[sheet_index] = df_to_json_dumpsable(
+                df, 
+                df_names[sheet_index],
+                df_sources[sheet_index],
+                column_spreadsheet_code_array[sheet_index],
+                column_filters_array[sheet_index],
+                column_ids.column_header_to_column_id[sheet_index],
+                column_format_types[sheet_index],
+                # We only send the first 1500 rows, and this must 
+                max_length=MAX_ROWS,
+            ) 
         else:
-            new_array.append(previous_array[sheet_index])
+            print(previous_dict)
+            final_dict[sheet_index] = previous_dict[sheet_index]
 
-    return new_array
+    return final_dict
 
 
 def df_to_json_dumpsable(

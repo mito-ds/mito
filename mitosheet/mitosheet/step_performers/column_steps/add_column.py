@@ -69,6 +69,7 @@ class AddColumnStepPerformer(StepPerformer):
         post_state.column_format_types[sheet_index][column_id] = {'type': FORMAT_DEFAULT}
             
         # Update the dataframe
+        print("DF", post_state.dfs[sheet_index], post_state.dfs)
         post_state.dfs[sheet_index].insert(column_header_index, column_header, 0)
         
         return post_state, {

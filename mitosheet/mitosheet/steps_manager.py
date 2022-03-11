@@ -4,11 +4,12 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
+import enum
 import json
 import uuid
 from copy import copy, deepcopy
 import pandas as pd
-from typing import Any, Callable, Dict, Collection, List, Set, Tuple, Union
+from typing import Any, Callable, Dict, Collection, List, OrderedDict, Set, Tuple, Union
 from mitosheet.mito_analytics import log
 
 from mitosheet.step_performers.import_steps.simple_import import (
@@ -20,7 +21,7 @@ from mitosheet.step import Step
 from mitosheet.step_performers import EVENT_TYPE_TO_STEP_PERFORMER
 from mitosheet.updates import UPDATES
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
-from mitosheet.utils import dfs_to_array_for_json, get_new_id, is_default_df_names
+from mitosheet.utils import dfs_to_dict_for_json, get_new_id, is_default_df_names
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.data_in_mito import DataTypeInMito, get_data_type_in_mito
 
@@ -185,9 +186,13 @@ class StepsManager:
                 preprocess_step_performers.preprocess_step_type()
             ] = execution_data
 
+        initial_args: Dict[int, pd.DataFrame] = OrderedDict()
+        for sheet_index, df in enumerate(args):
+            initial_args[sheet_index] = df
+
         # Then we initialize the analysis with just a simple initialize step
         self.steps: List[Step] = [
-            Step("initialize", "initialize", {}, None, State(args), {})
+            Step("initialize", "initialize", {}, None, State(initial_args), {})
         ]
 
         """
@@ -217,7 +222,7 @@ class StepsManager:
         # We also cache some of the sheet data in a form suitable to turn
         # into json, so that we can package it and send it to the front-end
         # faster and with less work
-        self.saved_sheet_data: List[Dict] = []
+        self.saved_sheet_data: Dict[int, Dict] = OrderedDict()
         self.last_step_index_we_wrote_sheet_json_on = 0
 
     @property
@@ -229,7 +234,7 @@ class StepsManager:
         return self.steps[self.curr_step_idx]
 
     @property
-    def dfs(self) -> List[pd.DataFrame]:
+    def dfs(self) -> Dict[int, pd.DataFrame]:
         return self.steps[self.curr_step_idx].dfs
 
     @property
@@ -250,7 +255,7 @@ class StepsManager:
             self.steps, self.last_step_index_we_wrote_sheet_json_on, self.curr_step_idx
         )
 
-        array = dfs_to_array_for_json(
+        saved_dict = dfs_to_dict_for_json(
             modified_sheet_indexes,
             self.saved_sheet_data,
             self.curr_step.dfs,
@@ -262,10 +267,10 @@ class StepsManager:
             self.curr_step.column_format_types,
         )
 
-        self.saved_sheet_data = array
+        self.saved_sheet_data = saved_dict
         self.last_step_index_we_wrote_sheet_json_on = self.curr_step_idx
 
-        return json.dumps(array)
+        return json.dumps(saved_dict)
 
     @property
     def analysis_data_json(self):

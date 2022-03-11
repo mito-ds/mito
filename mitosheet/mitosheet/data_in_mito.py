@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 from enum import Enum
-from typing import List
+from typing import Dict, List
 import pandas as pd
 
 """
@@ -35,7 +35,7 @@ PROVIDED_TICKET_OFFICE_COLUMNS = ['Zip', 'City', 'State', 'Ticket_Office']
 PROVIDED_TICKET_ZIPCODE_COLUMNS = ['Zip', 'Median_Income', 'Median_Income', 'Mean_Income', 'Pop']
 
 
-def get_data_type_in_mito(dfs: List[pd.DataFrame]) -> DataTypeInMito:
+def get_data_type_in_mito(dfs: Dict[int, pd.DataFrame]) -> DataTypeInMito:
     """
     Returns the DataTypeInMito based on the dataframes passed
     to the function.
@@ -43,7 +43,7 @@ def get_data_type_in_mito(dfs: List[pd.DataFrame]) -> DataTypeInMito:
     if len(dfs) == 0:
         return DataTypeInMito.NONE
 
-    for df in dfs:
+    for df in dfs.values():
         
         # If the user passed a dataframe with headers the same as the tutorial data
         if (

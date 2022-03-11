@@ -9,7 +9,7 @@ This file contains helpful functions and classes for testing operations.
 
 import json
 from functools import wraps
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, OrderedDict, Tuple, Union
 from numpy import number
 
 import pandas as pd
@@ -17,7 +17,7 @@ from mitosheet.mito_widget import MitoWidget, sheet
 from mitosheet.parser import parse_formula
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.types import ColumnHeader, ColumnID, GraphID, MultiLevelColumnHeader
-from mitosheet.utils import dfs_to_array_for_json, get_new_id
+from mitosheet.utils import dfs_to_dict_for_json, get_new_id
 
 
 def decorate_all_functions(function_decorator):
@@ -63,7 +63,7 @@ def check_dataframes_equal(test_wrapper):
     final_dfs = {
         df_name: df.copy(deep=True) for df, df_name in 
         zip(
-            test_wrapper.mito_widget.steps_manager.curr_step.dfs,
+            test_wrapper.mito_widget.steps_manager.curr_step.dfs.values(),
             test_wrapper.mito_widget.steps_manager.curr_step.df_names
         )
     }
@@ -95,9 +95,9 @@ def check_dataframes_equal(test_wrapper):
 
     # We then check that the sheet data json that is saved by the widget, which 
     # notably uses caching, does not get incorrectly cached and is written correctly
-    assert test_wrapper.mito_widget.sheet_data_json == json.dumps(dfs_to_array_for_json(
+    assert test_wrapper.mito_widget.sheet_data_json == json.dumps(dfs_to_dict_for_json(
         set(i for i in range(len(test_wrapper.mito_widget.steps_manager.curr_step.dfs))),
-        [],
+        OrderedDict(),
         test_wrapper.mito_widget.steps_manager.curr_step.dfs,
         test_wrapper.mito_widget.steps_manager.curr_step.df_names,
         test_wrapper.mito_widget.steps_manager.curr_step.df_sources,

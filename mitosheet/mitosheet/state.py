@@ -4,8 +4,8 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from collections import OrderedDict
-from copy import deepcopy
-from typing import Any, Collection, List, Dict, Set
+from copy import deepcopy, copy
+from typing import Any, List, Dict
 import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap
@@ -42,7 +42,7 @@ class State:
 
     def __init__(
         self,
-        dfs: Collection[pd.DataFrame],
+        dfs: Dict[int, pd.DataFrame],
         df_names: List[str] = None,
         df_sources: List[str] = None,
         column_ids: ColumnIDMap = None,
@@ -52,8 +52,10 @@ class State:
         graph_data_dict: "OrderedDict[str, Dict[str, Any]]" = None
     ):
 
-        # The dataframes that are in the state
-        self.dfs = list(dfs)
+        # The dataframes that are in the state. We keep them in an ordered dict
+        self.dfs: Dict[int, pd.DataFrame] = OrderedDict()
+        for sheet_index, df in dfs.items():
+            self.dfs[sheet_index] = df
 
         # The df_names are composed of two parts:
         # 1. The names of the variables passed into the mitosheet.sheet call (which don't change over time).
@@ -126,8 +128,14 @@ class State:
         If you copy a state using the copy() function, this Python
         function is called, and returns a shallow copy of the state
         """
+
+        new_dfs: Dict[int, pd.DataFrame] = OrderedDict()
+        for sheet_index, df in self.dfs.items():
+            new_dfs[sheet_index] = df.copy(deep=False)
+
+
         return State(
-            [df.copy(deep=False) for df in self.dfs],
+            dfs=new_dfs,
             df_names=deepcopy(self.df_names),
             df_sources=deepcopy(self.df_sources),
             column_ids=deepcopy(self.column_ids),
@@ -142,8 +150,12 @@ class State:
         If you copy a state using the deepcopy() function, this Python
         function is called, and returns a deep copy of the state
         """
+        new_dfs: Dict[int, pd.DataFrame] = OrderedDict()
+        for sheet_index, df in self.dfs.items():
+            new_dfs[sheet_index] = df.copy(deep=True)
+
         return State(
-            [df.copy(deep=True) for df in self.dfs],
+            dfs=new_dfs,
             df_names=deepcopy(self.df_names),
             df_sources=deepcopy(self.df_sources),
             column_ids=deepcopy(self.column_ids),
@@ -172,7 +184,7 @@ class State:
         """
         if sheet_index is None:
             # Update dfs by appending new df
-            self.dfs.append(new_df)
+            self.dfs[len(self.dfs)] = new_df
             # Also update the dataframe name
             if df_name is None:
                 self.df_names.append(f"df{len(self.df_names) + 1}")
@@ -245,6 +257,7 @@ class State:
         """
         Returns true iff a sheet_index exists within this state
         """
+        print(self.dfs)
         return not (sheet_index < 0 or sheet_index >= len(self.dfs))
 
     def move_to_deprecated_id_algorithm(self) -> None:

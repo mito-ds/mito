@@ -68,7 +68,7 @@ class BulkOldRenameStepPerformer(StepPerformer):
         post_state = deepcopy(prev_state)
 
         column_header_renames_list = []
-        for sheet_index, df in enumerate(prev_state.dfs):
+        for sheet_index, df in prev_state.dfs.items():
             column_headers = df.keys()
             column_header_renames = get_header_renames(column_headers)
             column_header_renames_list.append(column_header_renames)

@@ -14,7 +14,7 @@ from mitosheet.transpiler.transpile_utils import \
 from mitosheet.types import ColumnHeader, ColumnID
 
 
-def get_valid_index(dfs: List[pd.DataFrame], sheet_index: int, new_column_index: int) -> int:
+def get_valid_index(dfs: Dict[int, pd.DataFrame], sheet_index: int, new_column_index: int) -> int:
     # make sure new_column_index is valid
     if new_column_index < 0:
         new_column_index = 0
