@@ -31,6 +31,8 @@ FC_STRING_CONTAINS = "contains"
 FC_STRING_DOES_NOT_CONTAIN = "string_does_not_contain"
 FC_STRING_EXACTLY = "string_exactly"
 FC_STRING_NOT_EXACTLY = "string_not_exactly"
+FC_STRING_STARTS_WITH = "string_starts_with"
+FC_STRING_ENDS_WITH = "string_ends_with"
 
 FC_NUMBER_EXACTLY = "number_exactly"
 FC_NUMBER_NOT_EXACTLY = "number_not_exactly"
@@ -66,6 +68,8 @@ FILTER_FORMAT_STRING_DICT = {
     FC_STRING_DOES_NOT_CONTAIN: "~{df_name}[{transpiled_column_header}].str.contains('{value}', na=False)",
     FC_STRING_EXACTLY: "{df_name}[{transpiled_column_header}] == '{value}'",
     FC_STRING_NOT_EXACTLY: "{df_name}[{transpiled_column_header}] != '{value}'",
+    FC_STRING_STARTS_WITH: "{df_name}[{transpiled_column_header}].str.startswith('{value}', na=False)",
+    FC_STRING_ENDS_WITH: "{df_name}[{transpiled_column_header}].str.endswith('{value}', na=False)",
     # DATES
     FC_DATETIME_EXACTLY: "{df_name}[{transpiled_column_header}] == pd.to_datetime('{value}')",
     FC_DATETIME_NOT_EXACTLY: "{df_name}[{transpiled_column_header}] != pd.to_datetime('{value}')",
@@ -133,6 +137,14 @@ FILTER_FORMAT_STRING_MULTIPLE_VALUES_DICT = {
     FC_STRING_NOT_EXACTLY: {
         "Or": "{df_name}[{transpiled_column_header}].apply(lambda val: any(val != s for s in {values}))",
         "And": "{df_name}[{transpiled_column_header}].apply(lambda val: all(val != s for s in {values}))",
+    },
+    FC_STRING_STARTS_WITH: {
+        "Or": "{df_name}[{transpiled_column_header}].apply(lambda val: any(str(val).startswith(s) for s in {values}))",
+        "And": "{df_name}[{transpiled_column_header}].apply(lambda val: all(str(val).startswith(s) for s in {values}))",
+    },
+    FC_STRING_ENDS_WITH: {
+        "Or": "{df_name}[{transpiled_column_header}].apply(lambda val: any(str(val).endswith(s) for s in {values}))",
+        "And": "{df_name}[{transpiled_column_header}].apply(lambda val: all(str(val).endswith(s) for s in {values}))",
     },
     FC_DATETIME_EXACTLY: {
         "Or": "{df_name}[{transpiled_column_header}].isin({values})",
@@ -366,8 +378,12 @@ def get_applied_filter(
     # Then string
     if condition == FC_STRING_CONTAINS:
         return df[column_header].str.contains(value, na=False)
-    if condition == FC_STRING_DOES_NOT_CONTAIN:
+    elif condition == FC_STRING_DOES_NOT_CONTAIN:
         return ~df[column_header].str.contains(value, na=False)
+    elif condition == FC_STRING_STARTS_WITH:
+        return df[column_header].str.startswith(value, na=False)
+    elif condition == FC_STRING_ENDS_WITH:
+        return df[column_header].str.endswith(value, na=False)
     elif condition == FC_STRING_EXACTLY:
         return df[column_header] == value
     elif condition == FC_STRING_NOT_EXACTLY:

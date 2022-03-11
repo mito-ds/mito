@@ -33,6 +33,8 @@ from mitosheet.step_performers.filter import (
     FC_STRING_DOES_NOT_CONTAIN,
     FC_STRING_EXACTLY,
     FC_STRING_NOT_EXACTLY,
+    FC_STRING_STARTS_WITH,
+    FC_STRING_ENDS_WITH,
 )
 from mitosheet.tests.test_utils import create_mito_wrapper, create_mito_wrapper_dfs
 
@@ -180,6 +182,18 @@ FILTER_TESTS = [
         FC_STRING_DOES_NOT_CONTAIN,
         "1",
         pd.DataFrame(data={"A": ["3", "4", "5", "6"]}, index=list(range(2, 6))),
+    ),
+    (
+        pd.DataFrame(data={"A": ["1", "12", "31"]}),
+        FC_STRING_STARTS_WITH,
+        "1",
+        pd.DataFrame(data={"A": ["1", "12"]}),
+    ),
+    (
+        pd.DataFrame(data={"A": ["12", "122222", "31"]}),
+        FC_STRING_ENDS_WITH,
+        "2",
+        pd.DataFrame(data={"A": ["12", "122222"]}),
     ),
     (
         pd.DataFrame(data={"A": ["1", "12", "3", "4", "5", "6"]}),
@@ -873,6 +887,38 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
         1,
         2,
         "df1 = df1[df1['A'].apply(lambda val: any(val <= n for n in [1, 2]))]",
+    ),
+    (
+        pd.DataFrame({"A": ["123", "1334", "4567"]}),
+        FC_STRING_STARTS_WITH,
+        "And",
+        "1",
+        "12",
+        "df1 = df1[df1['A'].apply(lambda val: all(str(val).startswith(s) for s in ['1', '12']))]",
+    ),
+    (
+        pd.DataFrame({"A": ["123", "1334", "4567"]}),
+        FC_STRING_STARTS_WITH,
+        "Or",
+        "1",
+        "4",
+        "df1 = df1[df1['A'].apply(lambda val: any(str(val).startswith(s) for s in ['1', '4']))]",
+    ),
+    (
+        pd.DataFrame({"A": ["123", "1334", "4567"]}),
+        FC_STRING_ENDS_WITH,
+        "And",
+        "1",
+        "12",
+        "df1 = df1[df1['A'].apply(lambda val: all(str(val).endswith(s) for s in ['1', '12']))]",
+    ),
+    (
+        pd.DataFrame({"A": ["123", "1334", "4567"]}),
+        FC_STRING_ENDS_WITH,
+        "Or",
+        "1",
+        "4",
+        "df1 = df1[df1['A'].apply(lambda val: any(str(val).endswith(s) for s in ['1', '4']))]",
     ),
     (
         pd.DataFrame(
