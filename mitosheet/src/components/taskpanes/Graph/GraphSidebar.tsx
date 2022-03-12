@@ -5,7 +5,7 @@ import '../../../../css/taskpanes/Graph/LoadingSpinner.css';
 import MitoAPI from '../../../api';
 import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
-import { useEffectOnUpdate } from '../../../hooks/useEffectOnUpdate';
+import { useEffectOnUpdateEvent } from '../../../hooks/useEffectOnUpdateEvent';
 import { AnalysisData, ColumnID, ColumnIDsMap, GraphDataDict, GraphID, SheetData, UIState } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import Select from '../../elements/Select';
@@ -102,7 +102,7 @@ const GraphSidebar = (props: {
 
 
     // If there has been an undo or redo, then we refresh the params to this graph
-    useEffectOnUpdate(() => {
+    useEffectOnUpdateEvent(() => {
         void refreshParams()
     }, props.analysisData)
 

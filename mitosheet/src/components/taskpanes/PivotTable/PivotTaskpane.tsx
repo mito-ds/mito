@@ -15,7 +15,7 @@ import DropdownItem from '../../elements/DropdownItem';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
-import { useEffectOnUpdate } from '../../../hooks/useEffectOnUpdate';
+import { useEffectOnUpdateEvent } from '../../../hooks/useEffectOnUpdateEvent';
 
 
 // NOTE: these aggregation functions need to be supported
@@ -316,7 +316,7 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
         }
     } 
 
-    useEffectOnUpdate(() => {
+    useEffectOnUpdateEvent(() => {
         void refreshParamsAfterUndoOrRedo();
     }, props.analysisData)
 
