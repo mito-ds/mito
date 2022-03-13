@@ -31,7 +31,7 @@ export function firstNonNullOrUndefined<T>(...args: (T | null | undefined)[]): T
 /**
  * Get the grid state of a sheet that was just rendered/switched to.
  */
-export const getDefaultGridState = (sheetDataArray: SheetData[], selectedSheetIndex: number): GridState => {
+export const getDefaultGridState = (sheetDataMap: Record<string, SheetData>, selectedSheetIndex: number): GridState => {
 
     return {
         sheetIndex: selectedSheetIndex,
@@ -49,10 +49,10 @@ export const getDefaultGridState = (sheetDataArray: SheetData[], selectedSheetIn
             startingRowIndex: -1,
             endingRowIndex: -1
         }],
-        // When sheetDataArray is empty, we create a default widthDataArray so that we avoid 
+        // When sheetDataMap is empty, we create a default widthDataArray so that we avoid 
         // indexing into undefined variables across the codebase.
-        widthDataArray: (sheetDataArray.length === 0) ? [getWidthData(undefined)] : sheetDataArray.map(sheetData => getWidthData(sheetData)),
-        columnIDsArray: getColumnIDsArrayFromSheetDataArray(sheetDataArray),
+        widthDataArray: (Object.keys(sheetDataMap).length === 0) ? [getWidthData(undefined)] : Object.values(sheetDataMap).map(sheetData => getWidthData(sheetData)),
+        columnIDsArray: getColumnIDsArrayFromSheetDataArray(sheetDataMap),
         searchString: ''
     }
 }
@@ -118,8 +118,8 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
     Helper function for creating the ColumnIDsMapping: sheetIndex -> columnIndex -> columnID
     from the Sheet Data Array
 */
-export const getColumnIDsArrayFromSheetDataArray = (sheetDataArray: SheetData[]): ColumnID[][] => {
-    return sheetDataArray.map(sheetData => sheetData.data.map(c => c.columnID)) || []
+export const getColumnIDsArrayFromSheetDataArray = (sheetDataMap: Record<string, SheetData>): ColumnID[][] => {
+    return Object.values(sheetDataMap).map(sheetData => sheetData.data.map(c => c.columnID)) || []
 }
 
 
@@ -134,22 +134,22 @@ export const cellInSearch = (cellValue: string | number | boolean, searchString:
 /*
     Determines if any sheet exists. Returns True if a sheet exists.
 */
-export const doesAnySheetExist = (sheetDataArray: SheetData[]): boolean => {
-    return sheetDataArray.length !== 0
+export const doesAnySheetExist = (sheetDataMap: Record<string, SheetData>): boolean => {
+    return Object.keys(sheetDataMap).length !== 0
 }
 
 /*
     Determines if a columnID exists in a specific sheet. Returns True
 */
-export const doesColumnExist = (columnID: ColumnID | undefined, sheetIndex: number, sheetDataArray: SheetData[]): boolean => {
-    return columnID !== undefined && sheetDataArray[sheetIndex]?.columnDtypeMap[columnID] !== undefined
+export const doesColumnExist = (columnID: ColumnID | undefined, sheetIndex: number, sheetDataMap: Record<string, SheetData>): boolean => {
+    return columnID !== undefined && sheetDataMap[sheetIndex]?.columnDtypeMap[columnID] !== undefined
 }
 
 /* 
     Determines if the sheet contains data
 */
-export const doesSheetContainData = (sheetIndex: number, sheetDataArray: SheetData[]): boolean => {
-    const sheetData = sheetDataArray[sheetIndex]
+export const doesSheetContainData = (sheetIndex: number, sheetDataMap: Record<string, SheetData>): boolean => {
+    const sheetData = sheetDataMap[sheetIndex]
     return sheetData !== undefined && sheetData.numRows > 0 && sheetData.numColumns > 0
 }
 

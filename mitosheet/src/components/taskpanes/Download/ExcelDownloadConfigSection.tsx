@@ -11,7 +11,7 @@ const ExcelDownloadConfigSection = (props: {
     dfNames: string[]
     mitoAPI: MitoAPI
     userProfile: UserProfile;
-    sheetDataArray: SheetData[]
+    sheetDataMap: Record<string, SheetData>
     exportState: ExcelExportState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>
     newlyFormattedColumns: Record<number, string[]>
@@ -62,7 +62,7 @@ const ExcelDownloadConfigSection = (props: {
                 <ExcelFormatSection
                     dfNames={props.dfNames}
                     mitoAPI={props.mitoAPI}
-                    sheetDataArray={props.sheetDataArray}
+                    sheetDataMap={props.sheetDataMap}
                     exportState={props.exportState}
                     newlyFormattedColumns={props.newlyFormattedColumns}
                     setNewlyFormattedColumns={props.setNewlyFormattedColumns}

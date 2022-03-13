@@ -67,7 +67,7 @@ export type MitoProps = {
         that this does not actually have any of the column or index data. That is all
         handled by lazy loading in EndoGrid.tsx 
     */
-    sheetDataArray: SheetData[];
+    sheetDataMap: Record<string, SheetData>;
     analysisData: AnalysisData;
     userProfile: UserProfile;
 };
@@ -77,11 +77,11 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     const mitoContainerRef = useRef<HTMLDivElement>(null);
 
-    const [sheetDataArray, setSheetDataArray] = useState<SheetData[]>(props.sheetDataArray);
+    const [sheetDataMap, setSheetDataMap] = useState<Record<string, SheetData>>(props.sheetDataMap);
     const [analysisData, setAnalysisData] = useState<AnalysisData>(props.analysisData);
     const [userProfile, setUserProfile] = useState<UserProfile>(props.userProfile);
 
-    const [gridState, setGridState] = useState<GridState>(() => getDefaultGridState(sheetDataArray, 0))
+    const [gridState, setGridState] = useState<GridState>(() => getDefaultGridState(sheetDataMap, 0))
     // Set reasonable default values for the UI state
     const [uiState, setUIState] = useState<UIState>({
         loading: 0,
@@ -125,7 +125,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
         if (window.setMitoStateMap) {
             window.setMitoStateMap.set(props.model_id, {
-                setSheetDataArray: setSheetDataArray,
+                setSheetDataMap: setSheetDataMap,
                 setAnalysisData: setAnalysisData,
                 setUserProfile: setUserProfile,
                 setUIState: setUIState,
@@ -193,7 +193,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         We use a ref to store the previous number to avoid
         triggering unnecessary rerenders.
     */
-    const previousNumSheetsRef = useRef<number>(sheetDataArray.length);
+    const previousNumSheetsRef = useRef<number>(Object.keys(sheetDataMap).length);
     useEffect(() => {
         const previousNumSheets = previousNumSheetsRef.current;
 
@@ -203,10 +203,10 @@ export const Mito = (props: MitoProps): JSX.Element => {
             const prevSelectedSheetIndex = prevUIState.selectedSheetIndex;
             let newSheetIndex = prevSelectedSheetIndex;
 
-            if (previousNumSheets < sheetDataArray.length) {
-                newSheetIndex = sheetDataArray.length - 1 >= 0 ? sheetDataArray.length - 1 : 0;
-            } else if (prevSelectedSheetIndex >= sheetDataArray.length) {
-                newSheetIndex = sheetDataArray.length - 1 >= 0 ? sheetDataArray.length - 1 : 0;
+            if (previousNumSheets < Object.keys(sheetDataMap).length) {
+                newSheetIndex = Object.keys(sheetDataMap).length - 1 >= 0 ? Object.keys(sheetDataMap).length - 1 : 0;
+            } else if (prevSelectedSheetIndex >= Object.keys(sheetDataMap).length) {
+                newSheetIndex = Object.keys(sheetDataMap).length - 1 >= 0 ? Object.keys(sheetDataMap).length - 1 : 0;
             }
             
             return {
@@ -215,8 +215,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
             };
         })
 
-        previousNumSheetsRef.current = sheetDataArray.length;
-    }, [sheetDataArray])
+        previousNumSheetsRef.current = Object.keys(sheetDataMap).length;
+    }, [sheetDataMap])
 
     const previousNumGraphsRef = useRef<number>(Object.keys(analysisData.graphDataDict).length)
     const previousGraphIndex = useRef<number>(uiState.selectedGraphID !== undefined ?
@@ -317,15 +317,15 @@ export const Mito = (props: MitoProps): JSX.Element => {
     }, [uiState])
 
 
-    const dfNames = sheetDataArray.map(sheetData => sheetData.dfName);
-    const dfSources = sheetDataArray.map(sheetData => sheetData.dfSource);
-    const columnIDsMapArray = sheetDataArray.map(sheetData => sheetData.columnIDsMap);
+    const dfNames = Object.values(sheetDataMap).map(sheetData => sheetData.dfName);
+    const dfSources = Object.values(sheetDataMap).map(sheetData => sheetData.dfSource);
+    const columnIDsMapArray = Object.values(sheetDataMap).map(sheetData => sheetData.columnIDsMap);
 
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
 
     // Get the column id of the currently selected column
     const {columnID} = getCellDataFromCellIndexes(
-        sheetDataArray[uiState.selectedSheetIndex], 
+        sheetDataMap[uiState.selectedSheetIndex], 
         gridState.selections[gridState.selections.length - 1].endingRowIndex, 
         gridState.selections[gridState.selections.length - 1].endingColumnIndex
     );
@@ -397,7 +397,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     mitoAPI={props.mitoAPI}
                     sheetIndex={uiState.currOpenModal.sheetIndex}
                     dependantGraphTabNamesAndIDs={uiState.currOpenModal.dependantGraphTabNamesAndIDs}
-                    dfName={sheetDataArray[uiState.currOpenModal.sheetIndex] ? sheetDataArray[uiState.currOpenModal.sheetIndex].dfName : 'this dataframe'}
+                    dfName={sheetDataMap[uiState.currOpenModal.sheetIndex] ? sheetDataMap[uiState.currOpenModal.sheetIndex].dfName : 'this dataframe'}
                 />
             )
         }
@@ -413,7 +413,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         // TODO: figure out why we need this, if the other variables update?
                         key={'' + columnID + uiState.selectedSheetIndex} 
                         selectedSheetIndex={uiState.selectedSheetIndex}
-                        sheetData={sheetDataArray[uiState.selectedSheetIndex]}
+                        sheetData={sheetDataMap[uiState.selectedSheetIndex]}
                         columnIDsMapArray={columnIDsMapArray}
                         selection={gridState.selections[gridState.selections.length - 1]} 
                         gridState={gridState}
@@ -434,7 +434,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     uiState={uiState}
                     setUIState={setUIState}
                     mitoAPI={props.mitoAPI}
-                    sheetDataArray={sheetDataArray}
+                    sheetDataMap={sheetDataMap}
                 />
             )
             case TaskpaneType.DROP_DUPLICATES: return (
@@ -443,7 +443,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     selectedSheetIndex={uiState.selectedSheetIndex}
                     setUIState={setUIState}
                     mitoAPI={props.mitoAPI}
-                    sheetDataArray={sheetDataArray}
+                    sheetDataMap={sheetDataMap}
                 />
             )
             case TaskpaneType.GRAPH:
@@ -452,8 +452,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         graphID={uiState.currOpenTaskpane.graphID}
                         dfNames={dfNames}
                         columnIDsMapArray={columnIDsMapArray}
-                        sheetDataArray={sheetDataArray}
-                        columnDtypesMap={sheetDataArray[uiState.selectedSheetIndex]?.columnDtypeMap}
+                        sheetDataMap={sheetDataMap}
+                        columnDtypesMap={sheetDataMap[uiState.selectedSheetIndex]?.columnDtypeMap}
                         mitoAPI={props.mitoAPI}
                         setUIState={setUIState} 
                         uiState={uiState}
@@ -475,7 +475,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     dfNames={dfNames}
                     columnIDsMapArray={columnIDsMapArray}
                     selectedSheetIndex={uiState.selectedSheetIndex}
-                    sheetDataArray={sheetDataArray}
+                    sheetDataMap={sheetDataMap}
                     setUIState={setUIState}
                     mitoAPI={props.mitoAPI}
                 />
@@ -486,7 +486,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
             case TaskpaneType.PIVOT: return (
                 <PivotTaskpane
                     dfNames={dfNames}
-                    sheetDataArray={sheetDataArray}
+                    sheetDataMap={sheetDataMap}
                     columnIDsMapArray={columnIDsMapArray}
                     mitoAPI={props.mitoAPI}
                     selectedSheetIndex={uiState.selectedSheetIndex}
@@ -499,7 +499,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
             case TaskpaneType.SEARCH: return (
                 <SearchTaskpane
                     mitoAPI={props.mitoAPI}
-                    sheetData={sheetDataArray[gridState.sheetIndex]}
+                    sheetData={sheetDataMap[gridState.sheetIndex]}
                     gridState={gridState}
                     setGridState={setGridState}
                     mitoContainerRef={mitoContainerRef}
@@ -523,7 +523,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         across the codebase without replicating functionality. 
     */
     const actions = createActions(
-        sheetDataArray, 
+        sheetDataMap, 
         gridState, 
         dfSources, 
         closeOpenEditingPopups, 
@@ -557,7 +557,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
             <>
                 {toursToDisplay.length !== 0 && uiState.currOpenModal.type !== ModalEnum.SignUp &&
                     <Tour 
-                        sheetData={sheetDataArray[uiState.selectedSheetIndex]}
+                        sheetData={sheetDataMap[uiState.selectedSheetIndex]}
                         setHighlightPivotTableButton={setHighlightPivotTableButton}
                         setHighlightAddColButton={setHighlightAddColButton}
                         tourNames={toursToDisplay}
@@ -603,12 +603,12 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setGridState={setGridState}
                     uiState={uiState}
                     setUIState={setUIState}
-                    sheetData={sheetDataArray[uiState.selectedSheetIndex]}
+                    sheetData={sheetDataMap[uiState.selectedSheetIndex]}
                 />
                 <div className="mito-main-sheet-div"> 
                     <div className={formulaBarAndSheetClassNames}>
                         <EndoGrid
-                            sheetDataArray={sheetDataArray}
+                            sheetDataMap={sheetDataMap}
                             mitoAPI={props.mitoAPI}
                             uiState={uiState}
                             setUIState={setUIState}
@@ -628,7 +628,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 {/* Display the tour if there is one */}
                 {getCurrTour()}
                 <Footer
-                    sheetDataArray={sheetDataArray}
+                    sheetDataMap={sheetDataMap}
                     graphDataDict={analysisData.graphDataDict}
                     gridState={gridState}
                     setGridState={setGridState}

@@ -15,7 +15,7 @@ import { isNumberDtype } from "../../utils/dtypes";
 const ExcelFormatSection = (props: {
     dfNames: string[]
     mitoAPI: MitoAPI
-    sheetDataArray: SheetData[]
+    sheetDataMap: Record<string, SheetData>
     exportState: ExcelExportState;
     newlyFormattedColumns: Record<number, string[]>
     setNewlyFormattedColumns: React.Dispatch<React.SetStateAction<Record<number, string[]>>>
@@ -23,18 +23,18 @@ const ExcelFormatSection = (props: {
 
     // Returns the approporiate disabled message, not letting the user format a non-number column or a column that already has formatting
     const getFormatAddDisabledMessage = (columnID: string, exportedSheetIndex: number): string => {
-        const columnDtype = props.sheetDataArray[exportedSheetIndex].columnDtypeMap[columnID]
+        const columnDtype = props.sheetDataMap[exportedSheetIndex].columnDtypeMap[columnID]
         return !isNumberDtype(columnDtype) ? 'Formatting is only available for number columns.' :
-            props.sheetDataArray[exportedSheetIndex].columnFormatTypeObjMap[columnID].type != FormatType.DEFAULT ? 'This column already has a format applied to it. Find it in the list below.' : ''
+            props.sheetDataMap[exportedSheetIndex].columnFormatTypeObjMap[columnID].type != FormatType.DEFAULT ? 'This column already has a format applied to it. Find it in the list below.' : ''
     }
 
     return (
         <>
             {props.exportState.sheetIndexes.map(exportedSheetIndex => {
-                const columnIDsMap = props.sheetDataArray[exportedSheetIndex].columnIDsMap
+                const columnIDsMap = props.sheetDataMap[exportedSheetIndex].columnIDsMap
 
                 const newlyFormattedColumns = Object.keys(props.newlyFormattedColumns).length >= exportedSheetIndex ? props.newlyFormattedColumns[exportedSheetIndex] : []
-                const columnFormatTypeObjMap = Object.entries(props.sheetDataArray[exportedSheetIndex].columnFormatTypeObjMap).filter(([,formatTypeObj]) => {
+                const columnFormatTypeObjMap = Object.entries(props.sheetDataMap[exportedSheetIndex].columnFormatTypeObjMap).filter(([,formatTypeObj]) => {
                     // Filter out any column with default formatting, which is most!
                     return formatTypeObj.type !== FormatType.DEFAULT
                 }).sort(([columnIDOne,], [columnIDTwo,]) => {
@@ -65,7 +65,7 @@ const ExcelFormatSection = (props: {
                                 width={'small'}
                                 searchable={true}
                             >
-                                {Object.keys(props.sheetDataArray[exportedSheetIndex].columnIDsMap).map(columnID => {
+                                {Object.keys(props.sheetDataMap[exportedSheetIndex].columnIDsMap).map(columnID => {
                                     const columnHeader = getDisplayColumnHeader(columnIDsMap[columnID])
                                     const disabledText = getFormatAddDisabledMessage(columnID, exportedSheetIndex)
 
@@ -99,7 +99,7 @@ const ExcelFormatSection = (props: {
                         */}
                         {columnFormatTypeObjMap.map(([columnID, columnFormatTypeObj]) => {
                             const columnHeader = getDisplayColumnHeader(columnIDsMap[columnID])
-                            const columnDtype = props.sheetDataArray[exportedSheetIndex].columnDtypeMap[columnID]
+                            const columnDtype = props.sheetDataMap[exportedSheetIndex].columnDtypeMap[columnID]
                             
                             return(
                                 <Row 
@@ -123,7 +123,7 @@ const ExcelFormatSection = (props: {
                                             void changeFormatOfColumnID(exportedSheetIndex, newColumnID, columnFormatTypeObj, props.mitoAPI)
                                         }}
                                     >
-                                        {Object.keys(props.sheetDataArray[exportedSheetIndex].columnIDsMap).map(columnID => {
+                                        {Object.keys(props.sheetDataMap[exportedSheetIndex].columnIDsMap).map(columnID => {
                                             const columnHeader = getDisplayColumnHeader(columnIDsMap[columnID])
                                             const disabledText = getFormatAddDisabledMessage(columnID, exportedSheetIndex)
 
@@ -144,7 +144,7 @@ const ExcelFormatSection = (props: {
                                         value={getFormatTitle(columnFormatTypeObj)}
                                         width='medium'
                                     >   
-                                        {getColumnFormatDropdownItemsUsingColumnID(exportedSheetIndex, columnID, props.mitoAPI, columnDtype, props.sheetDataArray[exportedSheetIndex], false)}
+                                        {getColumnFormatDropdownItemsUsingColumnID(exportedSheetIndex, columnID, props.mitoAPI, columnDtype, props.sheetDataMap[exportedSheetIndex], false)}
                                     </Select>
                                     <Col offsetRight={1}>
                                         <div className='default-taskpane-header-exit-button-div' onClick={() => {

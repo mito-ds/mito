@@ -95,7 +95,7 @@ export class ExampleView extends DOMWidgetView {
         window.mitoAPIMap.set(model_id, mitoAPI);
 
         // Get the initial sheet data, analysis data, and user profile
-        const sheetDataArray = this.getSheetDataArray();
+        const sheetDataMap = this.getSheetDataArray();
         const analysisData = this.getAnalysisData();
         const userProfile = this.getUserProfile();
 
@@ -103,7 +103,7 @@ export class ExampleView extends DOMWidgetView {
             <Mito
                 model_id={model_id}
                 mitoAPI={mitoAPI}
-                sheetDataArray={sheetDataArray}
+                sheetDataMap={sheetDataMap}
                 analysisData={analysisData}
                 userProfile={userProfile}
             />,
@@ -129,11 +129,11 @@ export class ExampleView extends DOMWidgetView {
             return;
         }
 
-        const sheetDataArray = this.getSheetDataArray();
+        const sheetDataMap = this.getSheetDataArray();
         const analysisData = this.getAnalysisData();
         const userProfile = this.getUserProfile();
         // TODO: set analysis data, update user profile
-        stateUpdaters.setSheetDataArray(sheetDataArray);
+        stateUpdaters.setSheetDataMap(sheetDataMap);
         stateUpdaters.setAnalysisData(analysisData);
         stateUpdaters.setUserProfile(userProfile);
 
@@ -187,7 +187,7 @@ export class ExampleView extends DOMWidgetView {
         mitoAPI?.receiveResponse(message);
     }
 
-    getSheetDataArray(): SheetData[] {
+    getSheetDataArray(): Record<string, SheetData> {
         const unparsed = this.model.get('sheet_data_json')
         return JSON.parse(unparsed);
     }

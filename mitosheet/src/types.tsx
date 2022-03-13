@@ -525,7 +525,7 @@ export interface UserProfile {
  * from outside the component (e.g. after receiving a message).
  */
 export interface MitoStateUpdaters {
-    setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>,
+    setSheetDataMap: React.Dispatch<React.SetStateAction<Record<string, SheetData>>>,
     setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>,
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile>>,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>,

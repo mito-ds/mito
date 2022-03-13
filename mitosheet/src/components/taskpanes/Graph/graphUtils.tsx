@@ -5,8 +5,8 @@ import { intersection } from "../../../utils/arrays"
 import { GraphType, GRAPH_SAFETY_FILTER_CUTOFF } from "./GraphSidebar"
 
 // unless a graph type is provided
-export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: number, graphType?: GraphType): GraphParams => {
-    const safetyFilter = getDefaultSafetyFilter(sheetDataArray, sheetIndex)
+export const getDefaultGraphParams = (sheetDataMap: Record<string, SheetData>, sheetIndex: number, graphType?: GraphType): GraphParams => {
+    const safetyFilter = getDefaultSafetyFilter(sheetDataMap, sheetIndex)
     return {
         graphPreprocessing: {
             safety_filter_turned_on_by_user: safetyFilter
@@ -23,8 +23,8 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
 }
 
 // Helper function for getting the default safety filter status
-export const getDefaultSafetyFilter = (sheetDataArray: SheetData[], sheetIndex: number): boolean => {
-    return sheetDataArray[sheetIndex] === undefined || sheetDataArray[sheetIndex].numRows > GRAPH_SAFETY_FILTER_CUTOFF
+export const getDefaultSafetyFilter = (sheetDataMap: Record<string, SheetData>, sheetIndex: number): boolean => {
+    return sheetDataMap[sheetIndex] === undefined || sheetDataMap[sheetIndex].numRows > GRAPH_SAFETY_FILTER_CUTOFF
 }
 
 /*
@@ -39,7 +39,7 @@ export const getGraphParams = (
     graphDataDict: GraphDataDict,
     graphID: GraphID,
     selectedSheetIndex: number,
-    sheetDataArray: SheetData[],
+    sheetDataMap: Record<string, SheetData>,
 ): GraphParams => {
 
     const graphParams = graphDataDict[graphID]?.graphParams;
@@ -52,7 +52,7 @@ export const getGraphParams = (
     // if a column was previously included in the graph and it no longer exists, remove it from the graph. 
     if (graphParams !== undefined) {
         // Filter out column headers that no longer exist
-        const validColumnIDs = sheetDataArray[graphDataSourceSheetIndex] !== undefined ? sheetDataArray[graphDataSourceSheetIndex].data.map(c => c.columnID) : [];
+        const validColumnIDs = sheetDataMap[graphDataSourceSheetIndex] !== undefined ? sheetDataMap[graphDataSourceSheetIndex].data.map(c => c.columnID) : [];
         const xAxisColumnIDs = intersection(
             validColumnIDs,
             graphParams.graphCreation.x_axis_column_ids
@@ -74,5 +74,5 @@ export const getGraphParams = (
     }
 
     // If the graph does not already exist, create a default graph.
-    return getDefaultGraphParams(sheetDataArray, graphDataSourceSheetIndex);
+    return getDefaultGraphParams(sheetDataMap, graphDataSourceSheetIndex);
 }

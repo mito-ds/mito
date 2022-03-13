@@ -2,9 +2,9 @@ import React from 'react';
 import '../../../css/endo/GridData.css';
 import { getBorderStyle, getIsCellSelected } from './selectionUtils';
 import { calculateCurrentSheetView } from './sheetViewUtils';
-import { EditorState, GridState, SheetData, UIState } from '../../types';
+import { ColumnID, EditorState, GridState, SheetData, UIState } from '../../types';
 import { classNames } from '../../utils/classNames';
-import { cellInSearch, getColumnIDsArrayFromSheetDataArray } from './utils';
+import { cellInSearch } from './utils';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import { formatCellData } from '../../utils/formatColumns';
 import { isNumberDtype } from '../../utils/dtypes';
@@ -24,7 +24,7 @@ const GridData = (props: {
         <>  
             {sheetData && sheetData.numRows > 0 && Array(currentSheetView.numRowsRendered).fill(0).map((_, _rowIndex) => {
                 const rowIndex = currentSheetView.startingRowIndex + _rowIndex;
-                const columnIDs = getColumnIDsArrayFromSheetDataArray([sheetData])[0]
+                const columnIDs: ColumnID[] = props.sheetData ? Object.keys(props.sheetData.columnIDsMap) : [];
 
                 const rowClassNames = classNames('row', {
                     'row-even': rowIndex % 2 === 0,

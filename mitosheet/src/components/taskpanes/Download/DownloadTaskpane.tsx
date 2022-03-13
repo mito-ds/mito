@@ -27,7 +27,7 @@ interface DownloadTaskpaneProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI,
     selectedSheetIndex: number,
-    sheetDataArray: SheetData[],
+    sheetDataMap: Record<string, SheetData>,
     dfNames: string[];
     userProfile: UserProfile;
 }
@@ -53,7 +53,7 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
     */    
     const [newlyFormattedColumns, setNewlyFormattedColumns] = useState<Record<number, ColumnID[]>>(() => {
         const newlyFormattedColumnsInitial: Record<number, ColumnID[]> = {}
-        props.sheetDataArray.forEach((_, idx) => {
+        Object.keys(props.sheetDataMap).forEach((_, idx) => {
             newlyFormattedColumnsInitial[idx] = []
         })
         return newlyFormattedColumnsInitial;
@@ -63,8 +63,8 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
     const [exportString, setExportString] = useState<string>('');
     
 
-    const emptySheet = props.sheetDataArray.length === 0;
-    const numRows = props.sheetDataArray[props.selectedSheetIndex]?.numRows;
+    const emptySheet = Object.keys(props.sheetDataMap).length === 0;
+    const numRows = props.sheetDataMap[props.selectedSheetIndex]?.numRows;
     
     const loadExport = async () => {
         // Don't try and load data if the sheet is empty
@@ -85,7 +85,7 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
     useDebouncedEffect(() => {
         setExportString('');
         void loadExport();
-    }, [props.uiState.exportConfiguration, props.selectedSheetIndex, props.sheetDataArray], 500)
+    }, [props.uiState.exportConfiguration, props.selectedSheetIndex, props.sheetDataMap], 500)
 
     const onDownload = () => {
         void props.mitoAPI.log(
@@ -174,7 +174,7 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                                 dfNames={props.dfNames}
                                 mitoAPI={props.mitoAPI}
                                 userProfile={props.userProfile}
-                                sheetDataArray={props.sheetDataArray}
+                                sheetDataMap={props.sheetDataMap}
                                 exportState={props.uiState.exportConfiguration}
                                 setUIState={props.setUIState}
                                 newlyFormattedColumns={newlyFormattedColumns}

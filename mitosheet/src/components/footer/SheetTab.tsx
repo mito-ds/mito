@@ -79,7 +79,7 @@ type SheetTabProps = {
     mitoAPI: MitoAPI;
     mitoContainerRef: React.RefObject<HTMLDivElement>;
     graphDataDict: GraphDataDict;
-    sheetDataArray: SheetData[]
+    sheetDataMap: Record<string, SheetData>
 };
 
 /*
@@ -191,7 +191,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                     sheetIndex={props.tabIDObj.sheetIndex}
                     mitoAPI={props.mitoAPI}
                     graphDataDict={props.graphDataDict}
-                    sheetDataArray={props.sheetDataArray}
+                    sheetDataMap={props.sheetDataMap}
                 />
             }
             {displayActions && props.tabIDObj.tabType === 'graph' &&

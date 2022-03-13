@@ -37,7 +37,7 @@ export const KEYS_TO_IGNORE_IF_PRESSED_ALONE = [
 ]
 
 function EndoGrid(props: {
-    sheetDataArray: SheetData[],
+    sheetDataMap: Record<string, SheetData>,
     sheetIndex: number,
     mitoAPI: MitoAPI,
     uiState: UIState;
@@ -87,14 +87,14 @@ function EndoGrid(props: {
     
     // Destructure the props, so we access them more directly in the component below
     const {
-        sheetDataArray, sheetIndex,
+        sheetDataMap, sheetIndex,
         gridState, setGridState, 
         editorState, setEditorState, 
         uiState, setUIState,
         mitoAPI
     } = props;
 
-    const sheetData = sheetDataArray[sheetIndex];
+    const sheetData = sheetDataMap[sheetIndex];
 
     const totalSize: Dimension = {
         width: gridState.widthDataArray[gridState.sheetIndex]?.totalWidth || 0,
@@ -122,8 +122,8 @@ function EndoGrid(props: {
             return {
                 ...gridState,
                 selections: reconciliateSelections(gridState.sheetIndex, sheetIndex, gridState.selections, gridState.columnIDsArray[gridState.sheetIndex], sheetData),
-                widthDataArray: reconciliateWidthDataArray(gridState.widthDataArray, gridState.columnIDsArray, sheetDataArray),
-                columnIDsArray: getColumnIDsArrayFromSheetDataArray(sheetDataArray),
+                widthDataArray: reconciliateWidthDataArray(gridState.widthDataArray, gridState.columnIDsArray, sheetDataMap),
+                columnIDsArray: getColumnIDsArrayFromSheetDataArray(sheetDataMap),
                 sheetIndex: sheetIndex
             }
         })

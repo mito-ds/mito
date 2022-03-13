@@ -41,7 +41,7 @@ export interface PivotParams {
 
 export type PivotTaskpaneProps = {
     dfNames: string[],
-    sheetDataArray: SheetData[],
+    sheetDataMap: Record<string, SheetData>,
     columnIDsMapArray: ColumnIDsMap[],
     selectedSheetIndex: number,
 
@@ -91,7 +91,7 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
     const [pivotState, setPivotState] = useState({
         selectedSheetIndex: props.existingPivotParams === undefined 
             ? props.selectedSheetIndex 
-            : Math.min(props.existingPivotParams.sheet_index, props.sheetDataArray.length - 1),
+            : Math.min(props.existingPivotParams.sheet_index, Object.keys(props.sheetDataMap).length - 1),
         pivotRowColumnIDs: props.existingPivotParams === undefined ? [] : props.existingPivotParams.pivot_rows_column_ids,
         pivotColumnsColumnIDs: props.existingPivotParams === undefined ? [] : props.existingPivotParams.pivot_columns_column_ids,
         pivotValuesColumnIDsArray: props.existingPivotParams === undefined ? [] : valuesRecordToArray(props.existingPivotParams.values_column_ids_map),
@@ -289,7 +289,7 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
 
         // We do not send a pivot message if there is no actual
         // data in the sheet to pivot
-        if (props.sheetDataArray.length > 0) {
+        if (Object.keys(props.sheetDataMap).length > 0) {
             void sendPivotTableUpdateMessage()
         }
     }, [pivotState])
@@ -300,7 +300,7 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
         // we are just editing the last sheet 
         const currentDestinationSheetIndex = props.destinationSheetIndex !== undefined 
             ? props.destinationSheetIndex
-            : props.sheetDataArray.length - 1 
+            : Object.keys(props.sheetDataMap).length - 1 
         const params = await props.mitoAPI.getPivotParams(currentDestinationSheetIndex)
 
         // If we get the params, set them to the params of this pivot table. 
@@ -331,7 +331,7 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
         If there is no possible Pivot taskpane that can be displayed (e.g. the sheetJSON is empty),
         give an error message indicating so.
     */
-    if (props.sheetDataArray.length === 0) {
+    if (Object.keys(props.sheetDataMap).length === 0) {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
     }
 

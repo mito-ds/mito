@@ -35,7 +35,7 @@ export default function SheetTabActions(props: {
     mitoAPI: MitoAPI
     sheetIndex: number
     graphDataDict: GraphDataDict
-    sheetDataArray: SheetData[]
+    sheetDataMap: Record<string, SheetData>
 }): JSX.Element {
 
     // Log opening the data sheet tab actions
@@ -98,7 +98,7 @@ export default function SheetTabActions(props: {
     const graphData = async (): Promise<void> => {
 
         const newGraphID = getRandomId() // Create a new graph
-        const graphParams = getDefaultGraphParams(props.sheetDataArray, props.sheetIndex)
+        const graphParams = getDefaultGraphParams(props.sheetDataMap, props.sheetIndex)
 
         // In order to open the graph, we are watching for the graphDataDict to change in length. This allows us to only display the graph taskpane
         // when the sheet tab exists. However, we need to know the stepID of the graph creation so that the configuration of the graph so that editing

@@ -29,7 +29,7 @@ interface DropDuplicatesProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI,
     selectedSheetIndex: number,
-    sheetDataArray: SheetData[],
+    sheetDataMap: Record<string, SheetData>,
     dfNames: string[];
 }
 
@@ -46,11 +46,11 @@ interface DropDuplicatesParams {
 const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
 
     const [stepID, setStepID] = useState<string | undefined>(undefined);
-    const [originalNumRows, setOriginalNumRows] = useState(props.sheetDataArray[props.selectedSheetIndex]?.numRows || 0);
+    const [originalNumRows, setOriginalNumRows] = useState(props.sheetDataMap[props.selectedSheetIndex]?.numRows || 0);
     const [loading, setLoading] = useState(false);
     const [dropDuplicateParams, setDropDuplicateParams] = useState<DropDuplicatesParams>({
         sheetIndex: props.selectedSheetIndex,
-        columnIDs: props.sheetDataArray[props.selectedSheetIndex]?.data?.map(c => c.columnID) || [],
+        columnIDs: props.sheetDataMap[props.selectedSheetIndex]?.data?.map(c => c.columnID) || [],
         keep: 'first',
     })
 
@@ -60,11 +60,11 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
     }, [dropDuplicateParams], SEND_MESSAGE_DELAY);
 
     
-    if (props.sheetDataArray.length === 0) {
+    if (Object.keys(props.sheetDataMap).length === 0) {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
     }
 
-    const columnIDsAndHeaders: [ColumnID, ColumnHeader][] = props.sheetDataArray[dropDuplicateParams.sheetIndex].data.map(c => [c.columnID, c.columnHeader]);
+    const columnIDsAndHeaders: [ColumnID, ColumnHeader][] = props.sheetDataMap[dropDuplicateParams.sheetIndex].data.map(c => [c.columnID, c.columnHeader]);
 
 
     const sendDropDuplicates = async (params: DropDuplicatesParams) => {
@@ -97,7 +97,7 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
                     <Col>
                         <Select
                             width='medium'
-                            value={props.sheetDataArray[dropDuplicateParams.sheetIndex].dfName}
+                            value={props.sheetDataMap[dropDuplicateParams.sheetIndex].dfName}
                             onChange={(newDfName: string) => {
                                 const newSheetIndex = props.dfNames.indexOf(newDfName);
 
@@ -105,11 +105,11 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
                                     return {
                                         ...dropDuplicateParams,
                                         sheetIndex: newSheetIndex,
-                                        columnIDs: props.sheetDataArray[newSheetIndex].data.map(c => c.columnID),
+                                        columnIDs: props.sheetDataMap[newSheetIndex].data.map(c => c.columnID),
                                     }
                                 })
 
-                                setOriginalNumRows(props.sheetDataArray[newSheetIndex].numRows);
+                                setOriginalNumRows(props.sheetDataMap[newSheetIndex].numRows);
 
                                 props.setUIState(prevUIState => {
                                     return {
@@ -235,7 +235,7 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
                 {stepID !== undefined && !loading &&
                     <Row className='mt-5'>
                         <p className='text-subtext-1'>
-                            Removed {originalNumRows - props.sheetDataArray[dropDuplicateParams.sheetIndex].numRows} rows
+                            Removed {originalNumRows - props.sheetDataMap[dropDuplicateParams.sheetIndex].numRows} rows
                         </p>
                     </Row>
                 }

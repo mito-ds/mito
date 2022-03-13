@@ -11,7 +11,7 @@ import PlusIcon from '../icons/PlusIcon';
 import { GraphDataDict, GridState, SheetData, UIState } from '../../types';
 
 type FooterProps = {
-    sheetDataArray: SheetData[];
+    sheetDataMap: Record<string, SheetData>;
     graphDataDict: GraphDataDict;
     gridState: GridState;
     setGridState: React.Dispatch<React.SetStateAction<GridState>>;
@@ -36,7 +36,7 @@ function Footer(props: FooterProps): JSX.Element {
     // If the sheet tab is a graph, then display the info from the data being graphed 
     const sheetIndex = selectedTabType === 'graph' && selectedGraphID !== undefined && props.graphDataDict[selectedGraphID] !== undefined ? 
         props.graphDataDict[selectedGraphID].graphParams.graphCreation.sheet_index : selectedSheetIndex
-    const sheetData: SheetData | undefined = props.sheetDataArray[sheetIndex]
+    const sheetData: SheetData | undefined = props.sheetDataMap[sheetIndex]
 
     return (
         <div className='footer'>
@@ -55,7 +55,7 @@ function Footer(props: FooterProps): JSX.Element {
             </div>
             <div className="footer-tab-bar">
                 {/* First add the data tabs, and then add the graph tabs */}
-                {props.sheetDataArray.map(df => df.dfName).map((dfName, idx) => {
+                {Object.values(props.sheetDataMap).map(df => df.dfName).map((dfName, idx) => {
                     return (
                         <SheetTab
                             key={idx}
@@ -67,7 +67,7 @@ function Footer(props: FooterProps): JSX.Element {
                             mitoAPI={props.mitoAPI}
                             mitoContainerRef={props.mitoContainerRef}
                             graphDataDict={props.graphDataDict}
-                            sheetDataArray={props.sheetDataArray}
+                            sheetDataMap={props.sheetDataMap}
                         />
                     )
                 })}
@@ -83,7 +83,7 @@ function Footer(props: FooterProps): JSX.Element {
                             mitoAPI={props.mitoAPI}
                             mitoContainerRef={props.mitoContainerRef}
                             graphDataDict={props.graphDataDict}
-                            sheetDataArray={props.sheetDataArray}
+                            sheetDataMap={props.sheetDataMap}
                         />
                     )
                 })}

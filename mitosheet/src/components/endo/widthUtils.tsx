@@ -76,17 +76,17 @@ export const changeColumnWidthDataArray = (sheetIndex: number, widthDataArray: W
     return widthDataArray
 }
 
-export const reconciliateWidthDataArray = (prevWidthDataArray: WidthData[], columnIDsArray: ColumnID[][], sheetDataArray: SheetData[]): WidthData[] => {
+export const reconciliateWidthDataArray = (prevWidthDataArray: WidthData[], columnIDsArray: ColumnID[][], sheetDataMap: Record<string, SheetData>): WidthData[] => {
     // We make sure that the widthDataArray is defined so that we can index into 
     // it without crashing the sheet. It simplifies the code elsewhere.
-    if (sheetDataArray.length === 0) {
+    if (Object.keys(sheetDataMap).length === 0) {
         return [getWidthData(undefined)]
     }
 
     const newColumnWidthsArray: WidthData[] = []
-    for (let i = 0; i < sheetDataArray.length; i++) {
+    for (let i = 0; i < Object.keys(sheetDataMap).length; i++) {
         const columnIDs = columnIDsArray[i];
-        const newColumnsWidthsResult = reconciliateWidthData(prevWidthDataArray[i], columnIDs, sheetDataArray[i])
+        const newColumnsWidthsResult = reconciliateWidthData(prevWidthDataArray[i], columnIDs, sheetDataMap[i])
         newColumnWidthsArray.push(newColumnsWidthsResult)
     }
 

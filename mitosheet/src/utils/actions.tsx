@@ -17,7 +17,7 @@ import { fuzzyMatch } from "./strings";
 
 
 export const createActions = (
-    sheetDataArray: SheetData[], 
+    sheetDataMap: Record<string, SheetData>, 
     gridState: GridState,
     dfSources: DFSource[],
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void,
@@ -29,7 +29,7 @@ export const createActions = (
 ): Record<ActionEnum, Action> => {
     // Define variables that we use in many actions
     const sheetIndex = gridState.sheetIndex;
-    const sheetData = sheetDataArray[sheetIndex];
+    const sheetData = sheetDataMap[sheetIndex];
     const startingRowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex;
     const startingColumnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
     const {columnID, columnFormula} = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
@@ -76,7 +76,7 @@ export const createActions = (
                     newColumnHeaderIndex
                 );
             },
-            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'Create a sheet by importing data before adding a column.'},
+            isDisabled: () => {return doesAnySheetExist(sheetDataMap) ? undefined : 'Create a sheet by importing data before adding a column.'},
             searchTerms: ['add column', 'add col', 'new column', 'new col', 'insert column', 'insert col'],
             tooltip: "Add a new formula column to the right of your selection."
         },
@@ -98,7 +98,7 @@ export const createActions = (
                 })
             },
             isDisabled: () => {
-                if (!doesAnySheetExist(sheetDataArray)) {
+                if (!doesAnySheetExist(sheetDataMap)) {
                     return 'There are no columns to change the dtype of. Import data before changing the dtype.';
                 } 
 
@@ -154,7 +154,7 @@ export const createActions = (
                 })
             },
             isDisabled: () => {
-                return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? undefined : 'There are no columns to summarize in the selected sheet. Add data to the sheet.'
+                return doesColumnExist(startingColumnID, sheetIndex, sheetDataMap) ? undefined : 'There are no columns to summarize in the selected sheet. Add data to the sheet.'
             },
             searchTerms: ['column summary', 'describe', 'stats'],
             tooltip: "Learn about the distribution of the data in the selected column."
@@ -183,7 +183,7 @@ export const createActions = (
                 } 
             },
             isDisabled: () => {
-                if (doesColumnExist(startingColumnID, sheetIndex, sheetDataArray)) {
+                if (doesColumnExist(startingColumnID, sheetIndex, sheetDataMap)) {
                     if (isSelectionsOnlyColumnHeaders(gridState.selections)) {
                         return undefined
                     } else {
@@ -218,7 +218,7 @@ export const createActions = (
 
             },
             isDisabled: () => {
-                return doesAnySheetExist(sheetDataArray) ? undefined : "There are no sheets to delete."
+                return doesAnySheetExist(sheetDataMap) ? undefined : "There are no sheets to delete."
             },
             searchTerms: ['delete', 'delete dataframe', 'delete sheet', 'del', 'del dataframe', 'del sheet', 'remove', 'remove dataframe', 'remove sheet'],
             tooltip: "Delete the selected sheet."
@@ -261,7 +261,7 @@ export const createActions = (
                 })
             },
             isDisabled: () => {
-                return doesAnySheetExist(sheetDataArray) ? undefined : "There are no sheets to operate on. Import data."
+                return doesAnySheetExist(sheetDataMap) ? undefined : "There are no sheets to operate on. Import data."
             },
             searchTerms: ['dedup', 'deduplicate', 'same', 'remove', 'drop duplicates', 'duplicates'],
             tooltip: "Remove duplicated rows from your dataframe."
@@ -277,7 +277,7 @@ export const createActions = (
                 await mitoAPI.editDataframeDuplicate(sheetIndex)
             },
             isDisabled: () => {
-                return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no sheets to duplicate. Import data.'
+                return doesAnySheetExist(sheetDataMap) ? undefined : 'There are no sheets to duplicate. Import data.'
             },
             searchTerms: ['duplicate', 'copy'],
             tooltip: "Make a copy of the selected sheet."
@@ -303,7 +303,7 @@ export const createActions = (
                 })
             },
             isDisabled: () => {
-                return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no sheets to export.'
+                return doesAnySheetExist(sheetDataMap) ? undefined : 'There are no sheets to export.'
             },
             searchTerms: ['export', 'download', 'excel', 'csv'],
             tooltip: "Download the current Mito sheet as a .csv or .xlsx file."
@@ -326,7 +326,7 @@ export const createActions = (
                 })
             },
             isDisabled: () => {
-                return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? undefined : 'There are no columns to filter in the selected sheet. Add data to the sheet.'
+                return doesColumnExist(startingColumnID, sheetIndex, sheetDataMap) ? undefined : 'There are no columns to filter in the selected sheet. Add data to the sheet.'
             },
             searchTerms: ['filter', 'remove', 'delete'],
             tooltip: "Filter this sheet based on the data in a column."
@@ -381,7 +381,7 @@ export const createActions = (
                 setEditorState(undefined);
 
                 const newGraphID = getRandomId() // Create a new GraphID
-                const graphParams = getDefaultGraphParams(sheetDataArray, sheetIndex)
+                const graphParams = getDefaultGraphParams(sheetDataMap, sheetIndex)
 
                 await mitoAPI.editGraph(
                     newGraphID,
@@ -395,7 +395,7 @@ export const createActions = (
                     undefined, 
                 );
             },
-            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no sheets to graph. Import data.'},
+            isDisabled: () => {return doesAnySheetExist(sheetDataMap) ? undefined : 'There are no sheets to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
             tooltip: "Create an interactive graph. Pick from bar charts, histograms, scatter plots, etc."
         },
@@ -456,7 +456,7 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no sheets to merge together. Import data.'},
+            isDisabled: () => {return doesAnySheetExist(sheetDataMap) ? undefined : 'There are no sheets to merge together. Import data.'},
             searchTerms: ['merge', 'join', 'vlookup', 'lookup', 'anti', 'diff', 'difference', 'unique'],
             tooltip: "Merge two sheets together using a lookup, left, right, inner, or outer join. Or find the differences between two sheets."
         },
@@ -518,7 +518,7 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no sheets to pivot. Import data.'},
+            isDisabled: () => {return doesAnySheetExist(sheetDataMap) ? undefined : 'There are no sheets to pivot. Import data.'},
             searchTerms: ['pivot', 'group', 'group by', 'summarize', 'aggregate'],
             tooltip: "Create a Pivot Table to summarise data by breaking the data into groups and calculating statistics about each group."
         },
@@ -559,7 +559,7 @@ export const createActions = (
 
             },
             isDisabled: () => {
-                return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? undefined : 'There are no columns in the sheet to rename. Add data to the sheet.'
+                return doesColumnExist(startingColumnID, sheetIndex, sheetDataMap) ? undefined : 'There are no columns in the sheet to rename. Add data to the sheet.'
             },
             searchTerms: ['rename', 'name', 'header'],
             tooltip: "Rename the selected column."
@@ -583,7 +583,7 @@ export const createActions = (
             isDisabled: () => {
                 // We check if any sheet exists, instead of the specific sheet because this event is often accessed
                 // very closely in time with switching the sheet indexes via double clicking. 
-                return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no sheets to rename. Import data.'
+                return doesAnySheetExist(sheetDataMap) ? undefined : 'There are no sheets to rename. Import data.'
             },
             searchTerms: ['rename', 'name'],
             tooltip: "Rename the selected sheet."
@@ -649,7 +649,7 @@ export const createActions = (
                 })
             },
             isDisabled: () => {
-                if (!doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) || !doesSheetContainData(sheetIndex, sheetDataArray)) {
+                if (!doesColumnExist(startingColumnID, sheetIndex, sheetDataMap) || !doesSheetContainData(sheetIndex, sheetDataMap)) {
                     return 'There are no cells in the sheet to set the value of. Add data to the sheet.'
                 } 
 
@@ -681,7 +681,7 @@ export const createActions = (
                 })
             },
             isDisabled: () => {
-                if (!doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) || !doesSheetContainData(sheetIndex, sheetDataArray)) {
+                if (!doesColumnExist(startingColumnID, sheetIndex, sheetDataMap) || !doesSheetContainData(sheetIndex, sheetDataMap)) {
                     // If there is no data in the sheet, then there is no cell editor to open!
                     return 'There are no cells in the sheet to set the formula of. Add data to the sheet.'
                 } 
@@ -713,7 +713,7 @@ export const createActions = (
                 })
             },
             isDisabled: () => {
-                return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? undefined : 'There are no columns to sort in the selected sheet. Add data to the sheet.'
+                return doesColumnExist(startingColumnID, sheetIndex, sheetDataMap) ? undefined : 'There are no columns to sort in the selected sheet. Add data to the sheet.'
             },
             searchTerms: ['sort', 'ascending', 'descending', 'arrange'],
             tooltip: "Sort a column in ascending or descending order."
@@ -772,7 +772,7 @@ export const createActions = (
                 })
             },
             isDisabled: () => {
-                return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? undefined : 'There are no columns in the selected sheet. Add data to the sheet.'
+                return doesColumnExist(startingColumnID, sheetIndex, sheetDataMap) ? undefined : 'There are no columns in the selected sheet. Add data to the sheet.'
             },
             searchTerms: ['unique values', 'values', 'toggle', 'filter'],
             tooltip: "See a list of unique values in the column, and toggle to filter them."
@@ -789,313 +789,313 @@ export const createActions = (
             ActionEnum.ABS,
             getFuncDocObjFromFuncName('abs'), 
             ['abs', 'absolute value'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.AND]: getSpreadsheetFormulaAction(
             ActionEnum.AND,
             getFuncDocObjFromFuncName('and'), 
             ['and', '&', 'if', 'conditional'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.AVG]: getSpreadsheetFormulaAction(
             ActionEnum.AVG,
             getFuncDocObjFromFuncName('avg'), 
             ['avg', 'average', 'mean'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.BOOL]: getSpreadsheetFormulaAction(
             ActionEnum.BOOL,
             getFuncDocObjFromFuncName('bool'), 
             ['bool', 'boolean', 'true', 'false', 'dtype', 'convert'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.CLEAN]: getSpreadsheetFormulaAction(
             ActionEnum.CLEAN,
             getFuncDocObjFromFuncName('clean'), 
             ['clean', 'trim', 'remove'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.CONCAT]: getSpreadsheetFormulaAction(
             ActionEnum.CONCAT,
             getFuncDocObjFromFuncName('concat'), 
             ['concat', 'concatenate', 'combine'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.CORR]: getSpreadsheetFormulaAction(
             ActionEnum.CORR,
             getFuncDocObjFromFuncName('corr'), 
             ['corr', 'correlation', 'r^2'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.DATEVALUE]: getSpreadsheetFormulaAction(
             ActionEnum.DATEVALUE,
             getFuncDocObjFromFuncName('datevalue'), 
             ['datevalue', 'date value', 'date', 'string to date', 'datetime', 'dtype', 'convert'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.DAY]: getSpreadsheetFormulaAction(
             ActionEnum.DAY,
             getFuncDocObjFromFuncName('day'), 
             ['day', 'date'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.ENDOFBUSINESSMONTH]: getSpreadsheetFormulaAction(
             ActionEnum.ENDOFBUSINESSMONTH,
             getFuncDocObjFromFuncName('endofbusinessmonth'), 
             ['business', 'month', 'EOM', 'EOBM', 'date', 'workday', 'end'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.ENDOFMONTH]: getSpreadsheetFormulaAction(
             ActionEnum.ENDOFMONTH,
             getFuncDocObjFromFuncName('endofmonth'), 
             ['month', 'EOM', 'EOM', 'date', 'eomonth', 'end'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.EXP]: getSpreadsheetFormulaAction(
             ActionEnum.EXP,
             getFuncDocObjFromFuncName('exp'), 
             ['exp', 'exponent', 'log', 'natural log'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.FILLNAN]: getSpreadsheetFormulaAction(
             ActionEnum.FILLNAN,
             getFuncDocObjFromFuncName('fillnan'), 
             ['fillnan', 'nan', 'fill nan', 'missing values', 'null', 'null value', 'fill null'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.FIND]: getSpreadsheetFormulaAction(
             ActionEnum.FIND,
             getFuncDocObjFromFuncName('find'), 
             ['find', 'search'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.HOUR]: getSpreadsheetFormulaAction(
             ActionEnum.HOUR,
             getFuncDocObjFromFuncName('hour'), 
             ['hour', 'hr', 'extract'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.IF]: getSpreadsheetFormulaAction(
             ActionEnum.IF,
             getFuncDocObjFromFuncName('if'), 
             ['if', 'conditional', 'and', 'or'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.KURT]: getSpreadsheetFormulaAction(
             ActionEnum.KURT,
             getFuncDocObjFromFuncName('kurt'), 
             ['kurt', 'kurtosis'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.LEFT]: getSpreadsheetFormulaAction(
             ActionEnum.LEFT,
             getFuncDocObjFromFuncName('left'), 
             ['left', 'parse'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.LEN]: getSpreadsheetFormulaAction(
             ActionEnum.LEN,
             getFuncDocObjFromFuncName('len'), 
             ['len', 'length', 'size'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.LOWER]: getSpreadsheetFormulaAction(
             ActionEnum.LOWER,
             getFuncDocObjFromFuncName('lower'), 
             ['lower', 'conditional'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.MAX]: getSpreadsheetFormulaAction(
             ActionEnum.MAX,
             getFuncDocObjFromFuncName('max'), 
             ['max', 'largest', 'biggest'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.MID]: getSpreadsheetFormulaAction(
             ActionEnum.MID,
             getFuncDocObjFromFuncName('mid'), 
             ['mid', 'middle', 'parse'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.MIN]: getSpreadsheetFormulaAction(
             ActionEnum.MIN,
             getFuncDocObjFromFuncName('min'), 
             ['min', 'minimum', 'smallest'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.MINUTE]: getSpreadsheetFormulaAction(
             ActionEnum.MINUTE,
             getFuncDocObjFromFuncName('minute'), 
             ['minute', 'min', 'extract'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.MONTH]: getSpreadsheetFormulaAction(
             ActionEnum.MONTH,
             getFuncDocObjFromFuncName('month'), 
             ['month', 'date'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.MULTIPLY]: getSpreadsheetFormulaAction(
             ActionEnum.MULTIPLY,
             getFuncDocObjFromFuncName('multiply'), 
             ['multiply'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.OR]: getSpreadsheetFormulaAction(
             ActionEnum.OR,
             getFuncDocObjFromFuncName('or'), 
             ['or', 'if', 'conditional'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.POWER]: getSpreadsheetFormulaAction(
             ActionEnum.POWER,
             getFuncDocObjFromFuncName('power'), 
             ['power', 'exponent'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.PROPER]: getSpreadsheetFormulaAction(
             ActionEnum.PROPER,
             getFuncDocObjFromFuncName('proper'), 
             ['proper', 'name'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.QUARTER]: getSpreadsheetFormulaAction(
             ActionEnum.QUARTER,
             getFuncDocObjFromFuncName('quarter'), 
             ['quarter',],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.RIGHT]: getSpreadsheetFormulaAction(
             ActionEnum.RIGHT,
             getFuncDocObjFromFuncName('right'), 
             ['right', 'parse'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.ROUND]: getSpreadsheetFormulaAction(
             ActionEnum.ROUND,
             getFuncDocObjFromFuncName('round'), 
             ['round', 'decimal'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.SECOND]: getSpreadsheetFormulaAction(
             ActionEnum.SECOND,
             getFuncDocObjFromFuncName('second'), 
             ['second', 'sec', 'extract'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.SKEW]: getSpreadsheetFormulaAction(
             ActionEnum.SKEW,
             getFuncDocObjFromFuncName('skew'), 
             ['skew'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.STARTOFBUSINESSMONTH]: getSpreadsheetFormulaAction(
             ActionEnum.STARTOFBUSINESSMONTH,
             getFuncDocObjFromFuncName('startofbusinessmonth'), 
             ['business', 'month', 'SOM', 'SOBM', 'date', 'start'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.STARTOFMONTH]: getSpreadsheetFormulaAction(
             ActionEnum.STARTOFMONTH,
             getFuncDocObjFromFuncName('startofmonth'), 
             ['month', 'SOM', 'date', 'start'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.STRIPTIMETOMINUTES]: getSpreadsheetFormulaAction(
             ActionEnum.STRIPTIMETOMINUTES,
             getFuncDocObjFromFuncName('striptimetominutes'), 
             ['time', 'date', 'minutes', 'strip'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.STRIPTIMETOHOURS]: getSpreadsheetFormulaAction(
             ActionEnum.STRIPTIMETOHOURS,
             getFuncDocObjFromFuncName('striptimetohours'), 
             ['time', 'date', 'hours', 'minutes', 'strip'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.STRIPTIMETODAYS]: getSpreadsheetFormulaAction(
             ActionEnum.STRIPTIMETODAYS,
             getFuncDocObjFromFuncName('striptimetodays'), 
             ['time', 'date', 'remove', 'days', 'hours', 'minutes', 'strip'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.STRIPTIMETOMONTHS]: getSpreadsheetFormulaAction(
             ActionEnum.STRIPTIMETOMONTHS,
             getFuncDocObjFromFuncName('striptimetomonths'), 
             ['time', 'date', 'remove', 'months', 'days', 'hours', 'minutes', 'strip'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.STRIPTIMETOYEARS]: getSpreadsheetFormulaAction(
             ActionEnum.STRIPTIMETOYEARS,
             getFuncDocObjFromFuncName('striptimetoyears'), 
             ['time', 'date', 'remove', 'years', 'months', 'days', 'hours', 'minutes', 'strip'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.SUBSTITUTE]: getSpreadsheetFormulaAction(
             ActionEnum.SUBSTITUTE,
             getFuncDocObjFromFuncName('substitute'), 
             ['substitute', 'replace', 'find and replace'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.SUM]: getSpreadsheetFormulaAction(
             ActionEnum.SUM,
             getFuncDocObjFromFuncName('sum'), 
             ['sum', 'add'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.TEXT]: getSpreadsheetFormulaAction(
             ActionEnum.TEXT,
             getFuncDocObjFromFuncName('text'), 
             ['text', 'string', 'dtype', 'convert'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.TRIM]: getSpreadsheetFormulaAction(
             ActionEnum.TRIM,
             getFuncDocObjFromFuncName('trim'), 
             ['trim', 'clean', 'whitespace'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.TYPE]: getSpreadsheetFormulaAction(
             ActionEnum.TYPE,
             getFuncDocObjFromFuncName('type'), 
             ['type', 'dtype', 'convert'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.UPPER]: getSpreadsheetFormulaAction(
             ActionEnum.UPPER,
             getFuncDocObjFromFuncName('upper'), 
             ['upper', 'capitalize'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.VALUE]: getSpreadsheetFormulaAction(
             ActionEnum.VALUE,
             getFuncDocObjFromFuncName('value'), 
             ['value', 'number', 'dtype', 'convert', 'parse string'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.VAR]: getSpreadsheetFormulaAction(
             ActionEnum.VAR,
             getFuncDocObjFromFuncName('var'), 
             ['var', 'variance'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.WEEK]: getSpreadsheetFormulaAction(
             ActionEnum.WEEK,
             getFuncDocObjFromFuncName('week'), 
             ['week', '1', '52', 'extract'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.WEEEKDAY]: getSpreadsheetFormulaAction(
             ActionEnum.WEEEKDAY,
             getFuncDocObjFromFuncName('weekday'), 
             ['weekday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
         [ActionEnum.YEAR]: getSpreadsheetFormulaAction(
             ActionEnum.YEAR,
             getFuncDocObjFromFuncName('year'), 
             ['year', 'date'],
-            gridState, sheetDataArray, sheetIndex, setEditorState
+            gridState, sheetDataMap, sheetIndex, setEditorState
         ),
     }
 
@@ -1121,7 +1121,7 @@ export const getSpreadsheetFormulaAction = (
     spreadsheetAction: FunctionDocumentationObject | undefined , 
     searchTerms: string[],
     gridState: GridState, 
-    sheetDataArray: SheetData[], 
+    sheetDataMap: Record<string, SheetData>, 
     sheetIndex: number,
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>
 ): Action => {
@@ -1148,14 +1148,14 @@ export const getSpreadsheetFormulaAction = (
         isDisabled: () => {
             const startingRowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex
             const startingColumnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex
-            const startingColumnID = getCellDataFromCellIndexes(sheetDataArray[sheetIndex], startingRowIndex, startingColumnIndex).columnID
+            const startingColumnID = getCellDataFromCellIndexes(sheetDataMap[sheetIndex], startingRowIndex, startingColumnIndex).columnID
 
-            if (!doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) || !doesSheetContainData(sheetIndex, sheetDataArray)) {
+            if (!doesColumnExist(startingColumnID, sheetIndex, sheetDataMap) || !doesSheetContainData(sheetIndex, sheetDataMap)) {
                 // If there is no data in the sheet, then there is no cell editor to open!
                 return 'There are no cells in the sheet to set the formula of. Add data to the sheet.'
             } 
 
-            const columnFormula = getCellDataFromCellIndexes(sheetDataArray[sheetIndex], 0, startingColumnIndex).columnFormula
+            const columnFormula = getCellDataFromCellIndexes(sheetDataMap[sheetIndex], 0, startingColumnIndex).columnFormula
 
             if (columnFormula === undefined || columnFormula.length == 0) {
                 return "You can't set the formula of a data column. Create a new column and set its formula instead."

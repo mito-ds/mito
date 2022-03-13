@@ -53,7 +53,7 @@ const SAFETY_FILTER_ENABLED_MESSAGE = `Turning on Filter to Safe Size only graph
     functionality, allowing the user to build and view graphs.
 */
 const GraphSidebar = (props: {
-    sheetDataArray: SheetData[];
+    sheetDataMap: Record<string, SheetData>;
     columnIDsMapArray: ColumnIDsMap[],
     dfNames: string[];
     graphID: GraphID
@@ -84,7 +84,7 @@ const GraphSidebar = (props: {
 
     // We keep track of the graph data separately from the backend state so that 
     // the UI updates immediately, even though the backend takes a while to process.
-    const [graphParams, setGraphParams] = useState(() => getGraphParams(props.graphDataDict, graphID, props.uiState.selectedSheetIndex, props.sheetDataArray))
+    const [graphParams, setGraphParams] = useState(() => getGraphParams(props.graphDataDict, graphID, props.uiState.selectedSheetIndex, props.sheetDataMap))
 
     const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
     const graphOutput = props.graphDataDict[graphID]?.graphOutput
@@ -119,7 +119,7 @@ const GraphSidebar = (props: {
     */
     useEffect(() => {
         setStepID(undefined)
-        setGraphParams(getGraphParams(props.graphDataDict, props.graphID, props.uiState.selectedSheetIndex, props.sheetDataArray))
+        setGraphParams(getGraphParams(props.graphDataDict, props.graphID, props.uiState.selectedSheetIndex, props.sheetDataMap))
         setGraphUpdatedNumber(old => old + 1)
     }, [props.graphID])
 
@@ -180,7 +180,7 @@ const GraphSidebar = (props: {
         with the graph shown
     */
     const refreshParamsAfterUndo = async (): Promise<void> => {        
-        const newGraphParams = getGraphParams(props.graphDataDict, graphID, dataSourceSheetIndex, props.sheetDataArray)
+        const newGraphParams = getGraphParams(props.graphDataDict, graphID, dataSourceSheetIndex, props.sheetDataMap)
         setGraphParams(newGraphParams)
     } 
 
@@ -282,7 +282,7 @@ const GraphSidebar = (props: {
         });
     }
 
-    if (props.sheetDataArray.length === 0) {
+    if (Object.keys(props.sheetDataMap).length === 0) {
         // Since the UI for the graphing takes up the whole screen, we don't even let the user keep it open
         props.setUIState(prevUIState => {
             return {
@@ -337,7 +337,7 @@ const GraphSidebar = (props: {
                                         const newIndex = props.dfNames.indexOf(newDfName);
                                         
                                         // Reset the graph params for the new sheet, but keep the graph type!
-                                        const newSheetGraphParams = getDefaultGraphParams(props.sheetDataArray, newIndex, graphParams.graphCreation.graph_type)
+                                        const newSheetGraphParams = getDefaultGraphParams(props.sheetDataMap, newIndex, graphParams.graphCreation.graph_type)
                                         setGraphParams(newSheetGraphParams)
 
                                         setGraphUpdatedNumber((old) => old + 1);
@@ -442,7 +442,7 @@ const GraphSidebar = (props: {
                             updateAxisData={updateAxisData}
                             mitoAPI={props.mitoAPI}
                         />
-                        <Row justify='space-between' align='center' title={getDefaultSafetyFilter(props.sheetDataArray, graphParams.graphCreation.sheet_index) ? SAFETY_FILTER_ENABLED_MESSAGE : SAFETY_FILTER_DISABLED_MESSAGE}>
+                        <Row justify='space-between' align='center' title={getDefaultSafetyFilter(props.sheetDataMap, graphParams.graphCreation.sheet_index) ? SAFETY_FILTER_ENABLED_MESSAGE : SAFETY_FILTER_DISABLED_MESSAGE}>
                             <Col>
                                 <p className='text-header-3' >
                                     Filter to safe size
@@ -452,7 +452,7 @@ const GraphSidebar = (props: {
                                 <Toggle
                                     value={graphParams.graphPreprocessing.safety_filter_turned_on_by_user}
                                     onChange={toggleSafetyFilter}
-                                    disabled={!getDefaultSafetyFilter(props.sheetDataArray, graphParams.graphCreation.sheet_index)}
+                                    disabled={!getDefaultSafetyFilter(props.sheetDataMap, graphParams.graphCreation.sheet_index)}
                                 />
                             </Col>
                         </Row>

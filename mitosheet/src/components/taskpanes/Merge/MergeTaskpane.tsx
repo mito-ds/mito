@@ -47,7 +47,7 @@ export type MergeTaskpaneProps = {
     dfNames: string[],
     columnIDsMapArray: ColumnIDsMap[],
     selectedSheetIndex: number,
-    sheetDataArray: SheetData[],
+    sheetDataMap: Record<string, SheetData>,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI
 };
@@ -75,11 +75,11 @@ class MergeTaskpane extends React.Component<MergeTaskpaneProps, MergeTaskpaneSta
         // The second sheet is either: the sheet to the right, if it exists,
         // or the one to the left, it exists. If neither exist, then it is just
         // the same as sheet one index, as there is only one sheet
-        const sheetTwoIndex = sheetOneIndex + 1 <= props.sheetDataArray.length - 1
+        const sheetTwoIndex = sheetOneIndex + 1 <= Object.keys(props.sheetDataMap).length - 1
             ? sheetOneIndex + 1
             : (sheetOneIndex - 1 >= 0 ? sheetOneIndex - 1 : sheetOneIndex)
 
-        if (props.sheetDataArray.length < 2) {
+        if (Object.keys(props.sheetDataMap).length < 2) {
             // If there is no data, we just set default values
             this.state = {
                 mergeType: MergeType.LOOKUP,
@@ -127,7 +127,7 @@ class MergeTaskpane extends React.Component<MergeTaskpaneProps, MergeTaskpaneSta
     */
     componentDidMount(): void {
         // Send the first merge message there are at least 2 sheets in Mito.
-        if (this.props.sheetDataArray.length >= 2) {
+        if (Object.keys(this.props.sheetDataMap).length >= 2) {
             void this.sendMergeMessage();
         }
     }
@@ -154,7 +154,7 @@ class MergeTaskpane extends React.Component<MergeTaskpaneProps, MergeTaskpaneSta
         const selectedColumnsName = sheetNumber == MergeSheet.First ? 'selectedColumnIDsOne' : 'selectedColumnIDsTwo';
         const toggleAllName = sheetNumber == MergeSheet.First ? 'sheetOneToggleAll' : 'sheetTwoToggleAll';
 
-        const newSelectedColumnIDs = this.props.sheetDataArray[newSheetIndex].data.map(c => c.columnID);
+        const newSelectedColumnIDs = this.props.sheetDataMap[newSheetIndex].data.map(c => c.columnID);
 
         this.setState(prevState => {
             // Return if we're not changing anything!
@@ -283,7 +283,7 @@ class MergeTaskpane extends React.Component<MergeTaskpaneProps, MergeTaskpaneSta
             If there are less than 2 sheets in Mito to merge together, 
             then display this error message.
         */
-        if (this.props.sheetDataArray.length < 2) {
+        if (Object.keys(this.props.sheetDataMap).length < 2) {
             return <DefaultEmptyTaskpane setUIState={this.props.setUIState} message='You need two dataframes before you can merge them.'/>
         }
 
@@ -300,8 +300,8 @@ class MergeTaskpane extends React.Component<MergeTaskpaneProps, MergeTaskpaneSta
             taking.
         */
 
-        const sheetOneOriginalColumnIDsAndDtypes: [ColumnID, string][] = this.props.sheetDataArray[this.state.sheetOneIndex] ? this.props.sheetDataArray[this.state.sheetOneIndex].data.map(c => [c.columnID, c.columnDtype]) : [];
-        const sheetTwoOriginalColumnIDsAndDtypes: [ColumnID, string][] = this.props.sheetDataArray[this.state.sheetTwoIndex] ? this.props.sheetDataArray[this.state.sheetTwoIndex].data.map(c => [c.columnID, c.columnDtype]) : [];
+        const sheetOneOriginalColumnIDsAndDtypes: [ColumnID, string][] = this.props.sheetDataMap[this.state.sheetOneIndex] ? this.props.sheetDataMap[this.state.sheetOneIndex].data.map(c => [c.columnID, c.columnDtype]) : [];
+        const sheetTwoOriginalColumnIDsAndDtypes: [ColumnID, string][] = this.props.sheetDataMap[this.state.sheetTwoIndex] ? this.props.sheetDataMap[this.state.sheetTwoIndex].data.map(c => [c.columnID, c.columnDtype]) : [];
 
         const sheetOneColumnIDsAndDtypesListWithoutMergeKey = sheetOneOriginalColumnIDsAndDtypes.filter(([columnID, ]) => columnID !== this.state.mergeKeyColumnIDOne)
         const sheetTwoColumnIDsAndDtypesListWithoutMergeKey = sheetTwoOriginalColumnIDsAndDtypes.filter(([columnID, ]) => columnID !== this.state.mergeKeyColumnIDTwo)
