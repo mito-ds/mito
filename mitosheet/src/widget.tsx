@@ -57,7 +57,7 @@ declare global {
 }
 
 import MitoAPI from './api';
-import { AnalysisData, MitoError, MitoStateUpdaters, SheetData, UserProfile } from './types';
+import { AnalysisData, DataframeID, MitoError, MitoStateUpdaters, SheetData, UserProfile } from './types';
 import { ModalEnum } from './components/modals/modals';
 
 export class ExampleView extends DOMWidgetView {
@@ -187,7 +187,7 @@ export class ExampleView extends DOMWidgetView {
         mitoAPI?.receiveResponse(message);
     }
 
-    getSheetDataArray(): Record<string, SheetData> {
+    getSheetDataArray(): Record<DataframeID, SheetData> {
         const unparsed = this.model.get('sheet_data_json')
         return JSON.parse(unparsed);
     }

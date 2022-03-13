@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import MitoAPI from '../../../api';
-import { ColumnHeader, ColumnID, SheetData, UIState } from '../../../types';
+import { ColumnHeader, ColumnID, DataframeID, SheetData, UIState } from '../../../types';
 import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
 import Select from '../../elements/Select';
@@ -29,7 +29,7 @@ interface DropDuplicatesProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI,
     selectedSheetIndex: number,
-    sheetDataMap: Record<string, SheetData>,
+    sheetDataMap: Record<DataframeID, SheetData>,
     dfNames: string[];
 }
 

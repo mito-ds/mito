@@ -44,7 +44,7 @@ import GraphSidebar from './taskpanes/Graph/GraphSidebar';
 import DownloadTaskpane from './taskpanes/Download/DownloadTaskpane';
 import ClearAnalysisModal from './modals/ClearAnalysisModal';
 import { ModalEnum } from './modals/modals';
-import { AnalysisData, EditorState, DataTypeInMito, DFSource, GridState, UIState, UserProfile } from '../types';
+import { AnalysisData, EditorState, DataTypeInMito, DFSource, GridState, UIState, UserProfile, DataframeID } from '../types';
 import { getDefaultGridState, getCellDataFromCellIndexes } from './endo/utils';
 import EndoGrid from './endo/EndoGrid';
 import { SheetData } from '../types';
@@ -67,7 +67,7 @@ export type MitoProps = {
         that this does not actually have any of the column or index data. That is all
         handled by lazy loading in EndoGrid.tsx 
     */
-    sheetDataMap: Record<string, SheetData>;
+    sheetDataMap: Record<DataframeID, SheetData>;
     analysisData: AnalysisData;
     userProfile: UserProfile;
 };
@@ -77,7 +77,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     const mitoContainerRef = useRef<HTMLDivElement>(null);
 
-    const [sheetDataMap, setSheetDataMap] = useState<Record<string, SheetData>>(props.sheetDataMap);
+    const [sheetDataMap, setSheetDataMap] = useState<Record<DataframeID, SheetData>>(props.sheetDataMap);
     const [analysisData, setAnalysisData] = useState<AnalysisData>(props.analysisData);
     const [userProfile, setUserProfile] = useState<UserProfile>(props.userProfile);
 

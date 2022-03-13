@@ -7,7 +7,7 @@ import MitoAPI from '../../../api';
 
 // Import 
 import TextButton from '../../elements/TextButton';
-import { ColumnID, SheetData, UIState, UserProfile } from '../../../types';
+import { ColumnID, DataframeID, SheetData, UIState, UserProfile } from '../../../types';
 import Row from '../../spacing/Row';
 import Select from '../../elements/Select';
 import DropdownItem from '../../elements/DropdownItem';
@@ -27,7 +27,7 @@ interface DownloadTaskpaneProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI,
     selectedSheetIndex: number,
-    sheetDataMap: Record<string, SheetData>,
+    sheetDataMap: Record<DataframeID, SheetData>,
     dfNames: string[];
     userProfile: UserProfile;
 }

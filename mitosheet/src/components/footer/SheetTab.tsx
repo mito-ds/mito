@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import MitoAPI from '../../api';
 import { classNames } from '../../utils/classNames';
 import Input from '../elements/Input';
-import { GraphDataDict, GraphID, SheetData, UIState } from '../../types';
+import { DataframeID, GraphDataDict, GraphID, SheetData, UIState } from '../../types';
 import { focusGrid } from '../endo/focusUtils';
 
 // import icons
@@ -79,7 +79,7 @@ type SheetTabProps = {
     mitoAPI: MitoAPI;
     mitoContainerRef: React.RefObject<HTMLDivElement>;
     graphDataDict: GraphDataDict;
-    sheetDataMap: Record<string, SheetData>
+    sheetDataMap: Record<DataframeID, SheetData>
 };
 
 /*

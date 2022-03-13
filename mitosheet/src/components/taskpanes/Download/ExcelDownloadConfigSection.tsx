@@ -1,7 +1,7 @@
 import React from "react";
 import MitoAPI from "../../../api";
 import ExcelFormatSection from "../../../pro/download/ExcelFormatSection";
-import { ExcelExportState, SheetData, UIState, UserProfile } from "../../../types";
+import { DataframeID, ExcelExportState, SheetData, UIState, UserProfile } from "../../../types";
 import { toggleInArray } from "../../../utils/arrays";
 import MultiToggleBox from "../../elements/MultiToggleBox";
 import MultiToggleItem from "../../elements/MultiToggleItem";
@@ -11,7 +11,7 @@ const ExcelDownloadConfigSection = (props: {
     dfNames: string[]
     mitoAPI: MitoAPI
     userProfile: UserProfile;
-    sheetDataMap: Record<string, SheetData>
+    sheetDataMap: Record<DataframeID, SheetData>
     exportState: ExcelExportState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>
     newlyFormattedColumns: Record<number, string[]>

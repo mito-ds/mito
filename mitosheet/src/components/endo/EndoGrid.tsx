@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import '../../../css/endo/EndoGrid.css';
 import '../../../css/sitewide/colors.css';
 import MitoAPI from "../../api";
-import { EditorState, Dimension, GridState, RendererTranslate, SheetData, SheetView, UIState } from "../../types";
+import { EditorState, Dimension, GridState, RendererTranslate, SheetData, SheetView, UIState, DataframeID } from "../../types";
 import FormulaBar from "./FormulaBar";
 import { TaskpaneType } from "../taskpanes/taskpanes";
 import CellEditor from "./CellEditor";
@@ -37,7 +37,7 @@ export const KEYS_TO_IGNORE_IF_PRESSED_ALONE = [
 ]
 
 function EndoGrid(props: {
-    sheetDataMap: Record<string, SheetData>,
+    sheetDataMap: Record<DataframeID, SheetData>,
     sheetIndex: number,
     mitoAPI: MitoAPI,
     uiState: UIState;

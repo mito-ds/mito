@@ -9,7 +9,7 @@ import { getDefaultGraphParams } from "../components/taskpanes/Graph/graphUtils"
 import { TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../data/function_documentation";
-import { Action, ActionEnum, DFSource, EditorState, GridState, SheetData, UIState } from "../types"
+import { Action, ActionEnum, DataframeID, DFSource, EditorState, GridState, SheetData, UIState } from "../types"
 import { getDeduplicatedArray } from "./arrays";
 import { getColumnHeaderParts, getDisplayColumnHeader } from "./columnHeaders";
 import { FORMAT_DISABLED_MESSAGE } from "./formatColumns";
@@ -17,7 +17,7 @@ import { fuzzyMatch } from "./strings";
 
 
 export const createActions = (
-    sheetDataMap: Record<string, SheetData>, 
+    sheetDataMap: Record<DataframeID, SheetData>, 
     gridState: GridState,
     dfSources: DFSource[],
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void,
@@ -1121,7 +1121,7 @@ export const getSpreadsheetFormulaAction = (
     spreadsheetAction: FunctionDocumentationObject | undefined , 
     searchTerms: string[],
     gridState: GridState, 
-    sheetDataMap: Record<string, SheetData>, 
+    sheetDataMap: Record<DataframeID, SheetData>, 
     sheetIndex: number,
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>
 ): Action => {

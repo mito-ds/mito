@@ -156,6 +156,8 @@ export type ColumnHeader = PrimitiveColumnHeader | MultiIndexColumnHeader;
 
 
 export type ColumnID = string;
+export type DataframeID = string;
+
 /**
  * A map from column IDs -> Column Headers
  */
@@ -520,12 +522,14 @@ export interface UserProfile {
 }
 
 
+
+
 /**
  * The different functions necessary to update the state of the Mito component
  * from outside the component (e.g. after receiving a message).
  */
 export interface MitoStateUpdaters {
-    setSheetDataMap: React.Dispatch<React.SetStateAction<Record<string, SheetData>>>,
+    setSheetDataMap: React.Dispatch<React.SetStateAction<Record<DataframeID, SheetData>>>,
     setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>,
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile>>,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>,

@@ -9,7 +9,7 @@ import Col from '../../spacing/Col';
 import Row from '../../spacing/Row';
 import TextButton from '../../elements/TextButton';
 import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
-import { ColumnID, ColumnIDsMap, GraphDataDict, GraphID, SheetData, UIState } from '../../../types';
+import { ColumnID, ColumnIDsMap, DataframeID, GraphDataDict, GraphID, SheetData, UIState } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 
 // import css
@@ -53,7 +53,7 @@ const SAFETY_FILTER_ENABLED_MESSAGE = `Turning on Filter to Safe Size only graph
     functionality, allowing the user to build and view graphs.
 */
 const GraphSidebar = (props: {
-    sheetDataMap: Record<string, SheetData>;
+    sheetDataMap: Record<DataframeID, SheetData>;
     columnIDsMapArray: ColumnIDsMap[],
     dfNames: string[];
     graphID: GraphID

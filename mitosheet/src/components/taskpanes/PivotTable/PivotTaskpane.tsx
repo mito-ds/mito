@@ -11,7 +11,7 @@ import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
 import { allDfNamesToSelectableDfNameToSheetIndex, valuesArrayToRecord, valuesRecordToArray } from './pivotUtils';
 import { getDeduplicatedArray } from '../../../utils/arrays';
-import { ColumnID, ColumnIDsMap, SheetData, UIState } from '../../../types';
+import { ColumnID, ColumnIDsMap, DataframeID, SheetData, UIState } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
@@ -41,7 +41,7 @@ export interface PivotParams {
 
 export type PivotTaskpaneProps = {
     dfNames: string[],
-    sheetDataMap: Record<string, SheetData>,
+    sheetDataMap: Record<DataframeID, SheetData>,
     columnIDsMapArray: ColumnIDsMap[],
     selectedSheetIndex: number,
 

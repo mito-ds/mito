@@ -8,10 +8,10 @@ import "../../../css/footer.css"
 import MitoAPI from '../../api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import PlusIcon from '../icons/PlusIcon';
-import { GraphDataDict, GridState, SheetData, UIState } from '../../types';
+import { DataframeID, GraphDataDict, GridState, SheetData, UIState } from '../../types';
 
 type FooterProps = {
-    sheetDataMap: Record<string, SheetData>;
+    sheetDataMap: Record<DataframeID, SheetData>;
     graphDataDict: GraphDataDict;
     gridState: GridState;
     setGridState: React.Dispatch<React.SetStateAction<GridState>>;

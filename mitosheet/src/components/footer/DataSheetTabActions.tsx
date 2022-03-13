@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import MitoAPI, { getRandomId } from '../../api';
-import { GraphDataDict, GraphID, SheetData, UIState } from '../../types';
+import { DataframeID, GraphDataDict, GraphID, SheetData, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import { ModalEnum } from '../modals/modals';
@@ -35,7 +35,7 @@ export default function SheetTabActions(props: {
     mitoAPI: MitoAPI
     sheetIndex: number
     graphDataDict: GraphDataDict
-    sheetDataMap: Record<string, SheetData>
+    sheetDataMap: Record<DataframeID, SheetData>
 }): JSX.Element {
 
     // Log opening the data sheet tab actions

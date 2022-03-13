@@ -1,5 +1,5 @@
 import { DEFAULT_WIDTH } from "./EndoGrid";
-import { ColumnID, SheetData, WidthData } from "../../types";
+import { ColumnID, DataframeID, SheetData, WidthData } from "../../types";
 
 
 /* 
@@ -76,7 +76,7 @@ export const changeColumnWidthDataArray = (sheetIndex: number, widthDataArray: W
     return widthDataArray
 }
 
-export const reconciliateWidthDataArray = (prevWidthDataArray: WidthData[], columnIDsArray: ColumnID[][], sheetDataMap: Record<string, SheetData>): WidthData[] => {
+export const reconciliateWidthDataArray = (prevWidthDataArray: WidthData[], columnIDsArray: ColumnID[][], sheetDataMap: Record<DataframeID, SheetData>): WidthData[] => {
     // We make sure that the widthDataArray is defined so that we can index into 
     // it without crashing the sheet. It simplifies the code elsewhere.
     if (Object.keys(sheetDataMap).length === 0) {

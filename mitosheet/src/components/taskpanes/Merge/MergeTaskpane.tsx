@@ -2,7 +2,7 @@
 
 import React from 'react';
 import MitoAPI from '../../../api';
-import { ColumnID, ColumnIDsMap, SheetData, UIState } from '../../../types';
+import { ColumnID, ColumnIDsMap, DataframeID, SheetData, UIState } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import DropdownItem from '../../elements/DropdownItem';
 import MultiToggleBox from '../../elements/MultiToggleBox';
@@ -47,7 +47,7 @@ export type MergeTaskpaneProps = {
     dfNames: string[],
     columnIDsMapArray: ColumnIDsMap[],
     selectedSheetIndex: number,
-    sheetDataMap: Record<string, SheetData>,
+    sheetDataMap: Record<DataframeID, SheetData>,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI
 };

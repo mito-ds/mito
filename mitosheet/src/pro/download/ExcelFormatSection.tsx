@@ -1,6 +1,6 @@
 import React from "react";
 import MitoAPI from "../../api";
-import { ExcelExportState, FormatType, SheetData } from "../../components/../types";
+import { DataframeID, ExcelExportState, FormatType, SheetData } from "../../components/../types";
 import { removeIfPresent } from "../../components/../utils/arrays";
 import { getDisplayColumnHeader } from "../../components/../utils/columnHeaders";
 import { changeFormatOfColumnID, getColumnFormatDropdownItemsUsingColumnID, getFormatTitle } from "../../components/../utils/formatColumns";
@@ -15,7 +15,7 @@ import { isNumberDtype } from "../../utils/dtypes";
 const ExcelFormatSection = (props: {
     dfNames: string[]
     mitoAPI: MitoAPI
-    sheetDataMap: Record<string, SheetData>
+    sheetDataMap: Record<DataframeID, SheetData>
     exportState: ExcelExportState;
     newlyFormattedColumns: Record<number, string[]>
     setNewlyFormattedColumns: React.Dispatch<React.SetStateAction<Record<number, string[]>>>
