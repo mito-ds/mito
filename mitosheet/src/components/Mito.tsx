@@ -591,9 +591,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
         'mito-default-narrow-taskpane-open': narrowTaskpaneOpen,
     })
 
-
-    console.log("MITO", uiState.selectedTabType, taskpaneOpen, graphTaskpaneOpen, narrowTaskpaneOpen)
-
     return (
         <div className="mito-container" data-jp-suppress-context-menu ref={mitoContainerRef}>
             <ErrorBoundary mitoAPI={props.mitoAPI}>
