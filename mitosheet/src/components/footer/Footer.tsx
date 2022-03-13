@@ -32,6 +32,8 @@ function Footer(props: FooterProps): JSX.Element {
     const selectedGraphID = props.uiState.selectedGraphID
     const selectedTabType = props.uiState.selectedTabType
 
+    console.log("FOOTER", selectedTabType)
+
     // Get the sheet index to display the rows and columns of. 
     // If the sheet tab is a graph, then display the info from the data being graphed 
     const sheetIndex = selectedTabType === 'graph' && selectedGraphID !== undefined && props.graphDataDict[selectedGraphID] !== undefined ? 
