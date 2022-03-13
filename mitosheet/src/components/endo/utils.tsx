@@ -1,5 +1,5 @@
 import React from "react";
-import { ColumnFilters, ColumnHeader, ColumnID, DataframeID, GridState, SheetData } from "../../types";
+import { ColumnFilters, ColumnHeader, ColumnID, DataframeID, FormatTypeObj, GridState, SheetData } from "../../types";
 import { classNames } from "../../utils/classNames";
 import { isBoolDtype, isDatetimeDtype, isFloatDtype, isIntDtype, isTimedeltaDtype } from "../../utils/dtypes";
 import { getWidthData } from "./widthUtils";
@@ -95,6 +95,7 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
     columnFormula: string | undefined,
     cellValue: string | number | boolean | undefined,
     columnFilters: ColumnFilters | undefined,
+    columnFormatType: FormatTypeObj | undefined
 } => {
     const columnID: string | undefined = sheetData?.data[columnIndex]?.columnID;
     const columnHeader = sheetData?.data[columnIndex]?.columnHeader;
@@ -102,6 +103,7 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
     const columnDtype = columnID !== undefined ? sheetData?.data[columnIndex].columnDtype : undefined;
     const columnFilters = columnID !== undefined ? sheetData?.columnFiltersMap[columnID] : undefined;
     const cellValue = columnID !== undefined ? sheetData?.data[columnIndex].columnData[rowIndex] : undefined;
+    const columnFormatType = columnID !== undefined ? sheetData?.columnFormatTypeObjMap[columnID] : undefined;
 
     return {
         columnID: columnID,
@@ -110,8 +112,8 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
         columnDtype: columnDtype,
         columnFilters: columnFilters,
         cellValue: cellValue,
+        columnFormatType: columnFormatType
     }
-
 }
 
 /*
