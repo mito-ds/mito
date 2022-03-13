@@ -95,7 +95,9 @@ def dfs_to_dict_for_json(
 
     final_dict = OrderedDict()
     for sheet_index, df in dfs.items():
+        print("WRITING", sheet_index)
         if sheet_index in modified_sheet_indexes or sheet_index not in previous_dict:
+            print("NOT FROM CACHE", sheet_index)
             final_dict[sheet_index] = df_to_json_dumpsable(
                 df, 
                 df_names[sheet_index],
@@ -108,7 +110,7 @@ def dfs_to_dict_for_json(
                 max_length=MAX_ROWS,
             ) 
         else:
-            print(previous_dict)
+            print("FROM CACHE", sheet_index)
             final_dict[sheet_index] = previous_dict[sheet_index]
 
     return final_dict

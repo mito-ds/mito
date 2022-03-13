@@ -49,12 +49,28 @@ class DataframeDeleteStepPerformer(StepPerformer):
         # Create a new step and save the parameters
         post_state = copy(prev_state)
 
+        print("BEFORE DELETE", post_state.dfs.keys())
+
         # Execute the delete
+        del post_state.dfs[sheet_index]
+
+        # TODO: this is a hack for now to get the dictonary to match
+        # up with the old sheet indexes we used to use; we adjust down by one
+        # NOTE: This will cause bugs when we move to IDs, as we obviously don't
+        # want to change IDs (and note that this is changing the order of the
+        # OrderedDict anyways.
+        for i in range(sheet_index, len(post_state.dfs)):
+            print("Moving", i, i+1)
+            post_state.dfs[i] = post_state.dfs[i + 1]
+            del post_state.dfs[i + 1]
+
+        print("AFTER DELETE", post_state.dfs.keys())
+
+
         post_state.column_ids.remove_df(sheet_index)
         post_state.column_spreadsheet_code.pop(sheet_index)
         post_state.column_filters.pop(sheet_index)
         post_state.column_format_types.pop(sheet_index)
-        post_state.dfs.pop(sheet_index)
         post_state.df_names.pop(sheet_index)
         post_state.df_sources.pop(sheet_index)
 
