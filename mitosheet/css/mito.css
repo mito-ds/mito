@@ -64,12 +64,11 @@
 
 .mito-formula-bar-and-mitosheet-div-narrow-taskpane-open {
     width: calc(100% - var(--taskpane-width));
-    visibility: visible;
 }
 
 .mito-formula-bar-and-mitosheet-div-fullscreen-taskpane-open {
     width: 0%;
-    visibility: none;
+    height: 0%;
 }
 
 .mito-default-fullscreen-taskpane-open {
