@@ -69,9 +69,4 @@ export const EDITING_TASKPANES: TaskpaneType[] = [
     TaskpaneType.DROP_DUPLICATES,
     TaskpaneType.DOWNLOAD,
 ]
-
-export const FULLSCREEN_TASKPANES: TaskpaneType[] = [
-    TaskpaneType.GRAPH
-]
-
     

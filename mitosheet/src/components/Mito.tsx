@@ -30,7 +30,7 @@ import LoadingIndicator from './LoadingIndicator';
 import ErrorModal from './modals/ErrorModal';
 import MitoAPI from '../api';
 import PivotTaskpane from './taskpanes/PivotTable/PivotTaskpane';
-import { EDITING_TASKPANES, TaskpaneType, FULLSCREEN_TASKPANES } from './taskpanes/taskpanes';
+import { EDITING_TASKPANES, TaskpaneType } from './taskpanes/taskpanes';
 import MergeTaskpane from './taskpanes/Merge/MergeTaskpane';
 import ControlPanelTaskpane, { ControlPanelTab } from './taskpanes/ControlPanel/ControlPanelTaskpane';
 import SignUpModal from './modals/SignupModal';
@@ -200,6 +200,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         // Make sure that the selectedSheetIndex is always >= 0 so we can index into the 
         // widthDataArray without erroring
         setUIState(prevUIState => {
+
             const prevSelectedSheetIndex = prevUIState.selectedSheetIndex;
             let newSheetIndex = prevSelectedSheetIndex;
 
@@ -211,7 +212,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
             
             return {
                 ...prevUIState,
-                selectedSheetIndex: newSheetIndex
+                selectedSheetIndex: newSheetIndex,
             };
         })
 
@@ -284,6 +285,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             destinationSheetIndex: uiState.selectedSheetIndex,
                             existingPivotParams: existingPivotParams
                         },
+                        selectedTabType: 'data'
                     }
                 })
             }
@@ -569,8 +571,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
     }
 
     const taskpaneOpen = uiState.currOpenTaskpane.type !== TaskpaneType.NONE;
-    const fullscreenTaskpaneOpen = FULLSCREEN_TASKPANES.includes(uiState.currOpenTaskpane.type);
-    const narrowTaskpaneOpen = taskpaneOpen && !fullscreenTaskpaneOpen;
+    const graphTaskpaneOpen = uiState.currOpenTaskpane.type === TaskpaneType.GRAPH && uiState.selectedTabType === 'graph';
+    const narrowTaskpaneOpen = taskpaneOpen && !graphTaskpaneOpen;
 
     /* 
         We detect whether the taskpane is open in wide mode, narrow mode, or not open at all. We then
@@ -578,13 +580,13 @@ export const Mito = (props: MitoProps): JSX.Element => {
         The class sets the width of the sheet. 
     */
     const formulaBarAndSheetClassNames = classNames('mito-formula-bar-and-mitosheet-div', {
-        'mito-formula-bar-and-mitosheet-div-fullscreen-taskpane-open': fullscreenTaskpaneOpen,
+        'mito-formula-bar-and-mitosheet-div-fullscreen-taskpane-open': graphTaskpaneOpen,
         'mito-formula-bar-and-mitosheet-div-narrow-taskpane-open': narrowTaskpaneOpen
     })
 
     const taskpaneClassNames = classNames({
         'mito-default-taskpane': !taskpaneOpen,
-        'mito-default-fullscreen-taskpane-open': fullscreenTaskpaneOpen,
+        'mito-default-fullscreen-taskpane-open': graphTaskpaneOpen,
         'mito-default-narrow-taskpane-open': narrowTaskpaneOpen,
     })
 
