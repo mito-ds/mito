@@ -573,6 +573,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         )
     }
 
+    // Check which taskpanes are open
     const taskpaneOpen = uiState.currOpenTaskpane.type !== TaskpaneType.NONE;
     const graphTaskpaneOpen = uiState.currOpenTaskpane.type === TaskpaneType.GRAPH && uiState.selectedTabType === 'graph';
     const narrowTaskpaneOpen = taskpaneOpen && !graphTaskpaneOpen;
