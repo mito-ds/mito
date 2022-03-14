@@ -120,7 +120,7 @@ class GraphStepPerformer(StepPerformer):
                 },
                 "graphTabName": graph_tab_name
             }
-            pandas_processing_time = 0 # no processing time
+            pandas_processing_time = 0.0 # no processing time
         else: 
             pandas_start_time = perf_counter()
             fig = get_plotly_express_graph(
