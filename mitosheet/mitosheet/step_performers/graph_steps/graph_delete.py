@@ -54,7 +54,9 @@ class GraphDeleteStepPerformer(StepPerformer):
         # Execute the graph delete
         del post_state.graph_data_dict[graph_id]
 
-        return post_state, None
+        return post_state, {
+            'pandas_processing_time': 0 # No time spent on pandas, only metadata changes
+        }
 
     @classmethod
     def transpile( # type: ignore
