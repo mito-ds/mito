@@ -18,7 +18,7 @@ Mito's merge functionality can be used to combine datasets together horizontally
 * **Outer Merge**: Includes all rows from both sheets, regardless of if there is a match in the other sheet.
 * **Lookup Merge**: Left join, but only includes the first match from the second sheet if there are multiple. Just like a Vlookup in Excel.
 
-![](<../.gitbook/assets/final mito merge.png>)
+![](<../.gitbook/assets/final merge.png>)
 
 To merge datasets together, click on the **merge icon** in the Mito toolbar and then configure the merge task pane by:
 
