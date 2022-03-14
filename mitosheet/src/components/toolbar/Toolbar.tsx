@@ -55,12 +55,14 @@ const Toolbar = (
         <div className='toolbar-container'>
             <div className='toolbar-left-half'>
                 <ToolbarButton
+                    id='mito-undo-button' // NOTE: this is used to click the undo button in plugin.tsx
                     toolbarButtonType={ToolbarButtonType.UNDO}
                     buttonTitle={props.actions[ActionEnum.Undo].shortTitle.toUpperCase()}
                     buttonSubtext={props.actions[ActionEnum.Undo].tooltip}
                     onClick={props.actions[ActionEnum.Undo].actionFunction}
                 />
                 <ToolbarButton
+                    id='mito-redo-button' // NOTE: this is used to click the redo button in plugin.tsx
                     toolbarButtonType={ToolbarButtonType.REDO}
                     buttonTitle={props.actions[ActionEnum.Redo].shortTitle.toUpperCase()}
                     buttonSubtext={props.actions[ActionEnum.Redo].tooltip}
