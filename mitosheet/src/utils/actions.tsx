@@ -1,10 +1,11 @@
 import fscreen from "fscreen";
-import MitoAPI from "../api";
+import MitoAPI, { getRandomId } from "../api";
 import { getStartingFormula } from "../components/endo/cellEditorUtils";
 import { getColumnIndexesInSelections, getSelectedNumberSeriesColumnIDs, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
 import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes } from "../components/endo/utils";
 import { ModalEnum } from "../components/modals/modals";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
+import { getDefaultGraphParams } from "../components/taskpanes/Graph/graphUtils";
 import { TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../data/function_documentation";
@@ -91,7 +92,8 @@ export const createActions = (
                     return {
                         ...prevUIState,
                         currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                        selectedColumnControlPanelTab: ControlPanelTab.FilterSort
+                        selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
+                        selectedTabType: 'data'
                     }
                 })
             },
@@ -126,6 +128,7 @@ export const createActions = (
                         ...prevUIState,
                         currOpenModal: {type: ModalEnum.ClearAnalysis},
                         currOpenTaskpane: {type: TaskpaneType.NONE},
+                        selectedTabType: 'data'
                     }
                 })
             },
@@ -145,7 +148,8 @@ export const createActions = (
                     return {
                         ...prevUIState,
                         currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                        selectedColumnControlPanelTab: ControlPanelTab.SummaryStats
+                        selectedColumnControlPanelTab: ControlPanelTab.SummaryStats,
+                        selectedTabType: 'data'
                     }
                 })
             },
@@ -252,6 +256,7 @@ export const createActions = (
                         ...prevUIState,
                         currOpenModal: {type: ModalEnum.None},
                         currOpenTaskpane: {type: TaskpaneType.DROP_DUPLICATES},
+                        selectedTabType: 'data'
                     }
                 })
             },
@@ -293,6 +298,7 @@ export const createActions = (
                         ...prevUIState,
                         currOpenModal: {type: ModalEnum.None},
                         currOpenTaskpane: {type: TaskpaneType.DOWNLOAD},
+                        selectedTabType: 'data'
                     }
                 })
             },
@@ -314,7 +320,8 @@ export const createActions = (
                     return {
                         ...prevUIState,
                         currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                        selectedColumnControlPanelTab: ControlPanelTab.FilterSort
+                        selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
+                        selectedTabType: 'data'
                     }
                 })
             },
@@ -369,17 +376,24 @@ export const createActions = (
             type: ActionEnum.Graph,
             shortTitle: 'graph',
             longTitle: 'Graph',
-            actionFunction: () => {
+            actionFunction: async () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
 
-                setUIState(prevUIState => {
-                    return {
-                        ...prevUIState,
-                        currOpenModal: {type: ModalEnum.None},
-                        currOpenTaskpane: {type: TaskpaneType.GRAPH, graphSidebarSheet: sheetIndex},
-                    }
-                })
+                const newGraphID = getRandomId() // Create a new GraphID
+                const graphParams = getDefaultGraphParams(sheetDataArray, sheetIndex)
+
+                await mitoAPI.editGraph(
+                    newGraphID,
+                    graphParams.graphCreation.graph_type,
+                    graphParams.graphCreation.sheet_index,
+                    graphParams.graphPreprocessing.safety_filter_turned_on_by_user,
+                    graphParams.graphCreation.x_axis_column_ids,
+                    graphParams.graphCreation.y_axis_column_ids,
+                    `100%`, 
+                    `100%`, 
+                    undefined, 
+                );
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no sheets to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
@@ -416,6 +430,7 @@ export const createActions = (
                         ...prevUIState,
                         currOpenModal: {type: ModalEnum.None},
                         currOpenTaskpane: {type: TaskpaneType.IMPORT},
+                        selectedTabType: 'data'
                     }
                 })
             },
@@ -437,6 +452,7 @@ export const createActions = (
                         ...prevUIState,
                         currOpenModal: {type: ModalEnum.None},
                         currOpenTaskpane: {type: TaskpaneType.MERGE},
+                        selectedTabType: 'data'
                     }
                 })
             },
@@ -468,6 +484,7 @@ export const createActions = (
                                     destinationSheetIndex: sheetIndex,
                                     existingPivotParams: existingPivotParams
                                 },
+                                selectedTabType: 'data'
                             }
                         })
 
@@ -497,6 +514,7 @@ export const createActions = (
                             destinationSheetIndex: undefined,
                             existingPivotParams: undefined
                         },
+                        selectedTabType: 'data'
                     }
                 })
             },
@@ -689,7 +707,8 @@ export const createActions = (
                     return {
                         ...prevUIState,
                         currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                        selectedColumnControlPanelTab: ControlPanelTab.FilterSort
+                        selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
+                        selectedTabType: 'data'
                     }
                 })
             },
@@ -710,6 +729,7 @@ export const createActions = (
                         ...prevUIState,
                         currOpenModal: {type: ModalEnum.None},
                         currOpenTaskpane: {type: TaskpaneType.STEPS},
+                        selectedTabType: 'data'
                     }
                 })
             },
@@ -746,7 +766,8 @@ export const createActions = (
                     return {
                         ...prevUIState,
                         currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                        selectedColumnControlPanelTab: ControlPanelTab.UniqueValues
+                        selectedColumnControlPanelTab: ControlPanelTab.UniqueValues,
+                        selectedTabType: 'data'
                     }
                 })
             },

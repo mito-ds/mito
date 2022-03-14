@@ -4,24 +4,37 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 import io
+
 
 from mitosheet.types import ColumnHeader
 import plotly.graph_objects as go
 
 # Graph types should be kept consistent with the GraphType in GraphSidebar.tsx
 SCATTER = "scatter"
+LINE = "line"
 BAR = "bar"
 HISTOGRAM = "histogram"
 BOX = "box"
+STRIP = "strip"
+VIOLIN = "violin"
+ECDF = "ecdf"
+DENSITY_HEATMAP = "density heatmap"
+DENSITY_CONTOUR = "density contour"
 
 # Label for each type of graph used in the graph title
 GRAPH_TITLE_LABELS = {
     SCATTER: "scatter plot",
+    LINE: "line",
     BAR: "bar chart",
     BOX: "box plot",
     HISTOGRAM: "histogram",
+    STRIP: "strip",
+    VIOLIN: "violin",
+    ECDF: "ecdf",
+    DENSITY_HEATMAP: "density heatmap",
+    DENSITY_CONTOUR: "density contour",
 }
 
 
@@ -78,6 +91,25 @@ def get_graph_title(
 
     # Return a string with all of the graph_title_components separated by a space
     return " ".join(graph_title_components)
+
+
+def get_new_graph_tab_name(graph_data_dict: Dict[str, Dict[str, Any]]) -> str:
+    """
+    Creates the name for the new graph tab sheet using the format
+    graph0, graph1, etc.
+    """
+    all_graph_names = []
+    for graph_data in graph_data_dict.values():
+        all_graph_names.append(graph_data["graphTabName"])
+    
+    graph_number_indicator = 0
+    new_graph_name = f'graph{graph_number_indicator}'
+
+    while new_graph_name in all_graph_names:
+        graph_number_indicator += 1
+        new_graph_name = f'graph{graph_number_indicator}'
+        
+    return new_graph_name
 
 
 def get_html_and_script_from_figure(

@@ -250,6 +250,10 @@ def log(log_event: str, params: Dict[Any, Any]=None, steps_manager: StepsManager
                     private_params[key] = len(value)
                 else:
                     private_params[key] = value
+            elif 'graph_creation' in key:
+                # Don't log the column ids in the graph, just log the number of series graphed
+                private_params[key]['graph_creation']['x_axis_column_ids'] = len(private_params[key]['graph_creation']['x_axis_column_ids'])
+                private_params[key]['graph_creation']['y_axis_column_ids'] = len(private_params[key]['graph_creation']['y_axis_column_ids'])
             elif 'sheet_index' in key:
                 private_params[key] = value
                 # Make sure the steps manager exists, and the source is in bounds

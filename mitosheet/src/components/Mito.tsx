@@ -30,7 +30,7 @@ import LoadingIndicator from './LoadingIndicator';
 import ErrorModal from './modals/ErrorModal';
 import MitoAPI from '../api';
 import PivotTaskpane from './taskpanes/PivotTable/PivotTaskpane';
-import { EDITING_TASKPANES, TaskpaneType, WIDE_TASKPANES } from './taskpanes/taskpanes';
+import { EDITING_TASKPANES, TaskpaneType } from './taskpanes/taskpanes';
 import MergeTaskpane from './taskpanes/Merge/MergeTaskpane';
 import ControlPanelTaskpane, { ControlPanelTab } from './taskpanes/ControlPanel/ControlPanelTaskpane';
 import SignUpModal from './modals/SignupModal';
@@ -50,12 +50,13 @@ import EndoGrid from './endo/EndoGrid';
 import { SheetData } from '../types';
 import { classNames } from '../utils/classNames';
 import { focusGrid } from './endo/focusUtils';
-import FeedbackModal from './modals/FeedbackModal';
 import DropDuplicatesTaskpane from './taskpanes/DropDuplicates/DropDuplicates';
 import { createActions } from '../utils/actions';
 import SearchTaskpane from './taskpanes/Search/SearchTaskpane';
 import loadPlotly from '../utils/plotly';
 import ErrorBoundary from './elements/ErrorBoundary';
+import DeleteGraphsModal from './modals/DeleteGraphsModal';
+import { selectPreviousGraphSheetTab } from './footer/SheetTab';
 
 export type MitoProps = {
     model_id: string;
@@ -80,6 +81,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const [analysisData, setAnalysisData] = useState<AnalysisData>(props.analysisData);
     const [userProfile, setUserProfile] = useState<UserProfile>(props.userProfile);
 
+    // TODO: can we delete the above 3 props keys, so we cannot use them (as type checked by compiler)?
+    // These props are always out of date, and we should only use the state variables.
+
     const [gridState, setGridState] = useState<GridState>(() => getDefaultGridState(sheetDataArray, 0))
     // Set reasonable default values for the UI state
     const [uiState, setUIState] = useState<UIState>({
@@ -87,15 +91,13 @@ export const Mito = (props: MitoProps): JSX.Element => {
         currOpenModal: props.userProfile.userEmail == '' && props.userProfile.telemetryEnabled // no signup if no logs
             ? {type: ModalEnum.SignUp} 
             : (props.userProfile.shouldUpgradeMitosheet 
-                ? {type: ModalEnum.Upgrade} 
-                : (props.userProfile.usageTriggeredFeedbackID !== undefined
-                    ? {type: ModalEnum.Feedback, feedbackID: props.userProfile.usageTriggeredFeedbackID} 
-                    : {type: ModalEnum.None}
-                )
+                ? {type: ModalEnum.Upgrade} : {type: ModalEnum.None}
             ),
         currOpenTaskpane: {type: TaskpaneType.NONE},
         selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
         selectedSheetIndex: 0,
+        selectedGraphID: Object.keys(props.analysisData.graphDataDict).length === 0 ? undefined : Object.keys(props.analysisData.graphDataDict)[0],
+        selectedTabType: 'data',
         displayFormatToolbarDropdown: false,
         exportConfiguration: {exportType: 'csv'}
     })
@@ -201,6 +203,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         // Make sure that the selectedSheetIndex is always >= 0 so we can index into the 
         // widthDataArray without erroring
         setUIState(prevUIState => {
+
             const prevSelectedSheetIndex = prevUIState.selectedSheetIndex;
             let newSheetIndex = prevSelectedSheetIndex;
 
@@ -212,12 +215,60 @@ export const Mito = (props: MitoProps): JSX.Element => {
             
             return {
                 ...prevUIState,
-                selectedSheetIndex: newSheetIndex
+                selectedSheetIndex: newSheetIndex,
             };
         })
 
         previousNumSheetsRef.current = sheetDataArray.length;
     }, [sheetDataArray])
+
+    const previousNumGraphsRef = useRef<number>(Object.keys(analysisData.graphDataDict).length)
+    const previousGraphIndex = useRef<number>(uiState.selectedGraphID !== undefined ?
+        Object.keys(analysisData.graphDataDict).indexOf(uiState.selectedGraphID) : -1)
+
+    // When we switch graphID's make sure that we keep the previousGraphIndex up to date
+    useEffect(() => {
+        previousGraphIndex.current = uiState.selectedGraphID !== undefined ?
+            Object.keys(analysisData.graphDataDict).indexOf(uiState.selectedGraphID) : -1
+    }, [uiState.selectedGraphID])
+
+    // Update the selected sheet tab when the number of graphs change. 
+    useEffect(() => {
+        const graphIDs = Object.keys(analysisData.graphDataDict)
+        const previousNumGraphs = previousNumGraphsRef.current;
+        const newNumGraphs = Object.keys(analysisData.graphDataDict).length
+
+        // Handle new graph created
+        if (previousNumGraphs < newNumGraphs) {
+            const newGraphID = graphIDs[newNumGraphs - 1]
+            setUIState(prevUIState => {
+                return {
+                    ...prevUIState,
+                    selectedGraphID: newGraphID,
+                    selectedTabType: 'graph',
+                    currOpenTaskpane: {
+                        type: TaskpaneType.GRAPH,
+                        graphID: newGraphID,
+                    },
+                }
+            })
+
+            // Update the previous graph index for next time
+            previousGraphIndex.current = graphIDs.indexOf(newGraphID)
+
+        // Handle graph removal
+        } else if (previousNumGraphs > newNumGraphs) {
+            // Try to go to the same sheet index, if it doesn't exist go to the graph index - 1, 
+            // if no graphs exists, go to the last sheet index
+            const newGraphID = selectPreviousGraphSheetTab(analysisData.graphDataDict, previousGraphIndex.current, setUIState)
+
+            // Update the previous graph index for next time
+            previousGraphIndex.current = newGraphID !== undefined ? graphIDs.indexOf(newGraphID) : -1
+        }
+
+        previousNumGraphsRef.current = newNumGraphs
+    }, [Object.keys(analysisData.graphDataDict).length])
+
 
     /*
         Code to be executed everytime the sheet is switched. 
@@ -237,6 +288,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             destinationSheetIndex: uiState.selectedSheetIndex,
                             existingPivotParams: existingPivotParams
                         },
+                        selectedTabType: 'data'
                     }
                 })
             }
@@ -254,19 +306,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
         }
 
     }, [uiState.selectedSheetIndex])
-
-    // When the feedbackID changes, check if we need to open the Feedback Modal
-    useEffect(() => {
-        const usageTriggeredFeedbackID = userProfile.usageTriggeredFeedbackID
-        if (usageTriggeredFeedbackID !== undefined) {
-            setUIState(prevUIState => {
-                return {
-                    ...prevUIState,
-                    currOpenModal: {type: ModalEnum.Feedback, feedbackID: usageTriggeredFeedbackID},
-                }
-            })
-        }
-    }, [userProfile.usageTriggeredFeedbackID])
 
     // Store the prev open taskpane in a ref, to avoid triggering rerenders
     const prevOpenTaskpaneRef = useRef(uiState.currOpenTaskpane.type);
@@ -317,7 +356,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     },
                     currOpenModal: {
                         type: ModalEnum.None
-                    }
+                    },
+                    selectedTabType: 'data'
                 }
             });
         }
@@ -356,12 +396,13 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     mitoAPI={props.mitoAPI}
                 />
             )
-            case ModalEnum.Feedback: return (
-                <FeedbackModal
-                    usageTriggereeFeedbackID={uiState.currOpenModal.feedbackID}
+            case ModalEnum.DeleteGraphs: return (
+                <DeleteGraphsModal
                     setUIState={setUIState}
                     mitoAPI={props.mitoAPI}
-                    numUsages={userProfile.numUsages}
+                    sheetIndex={uiState.currOpenModal.sheetIndex}
+                    dependantGraphTabNamesAndIDs={uiState.currOpenModal.dependantGraphTabNamesAndIDs}
+                    dfName={sheetDataArray[uiState.currOpenModal.sheetIndex] ? sheetDataArray[uiState.currOpenModal.sheetIndex].dfName : 'this dataframe'}
                 />
             )
         }
@@ -413,15 +454,16 @@ export const Mito = (props: MitoProps): JSX.Element => {
             case TaskpaneType.GRAPH:
                 return (
                     <GraphSidebar 
-                        graphSidebarSheet={uiState.currOpenTaskpane.graphSidebarSheet}
+                        graphID={uiState.currOpenTaskpane.graphID}
                         dfNames={dfNames}
                         columnIDsMapArray={columnIDsMapArray}
                         sheetDataArray={sheetDataArray}
                         columnDtypesMap={sheetDataArray[uiState.selectedSheetIndex]?.columnDtypeMap}
                         mitoAPI={props.mitoAPI}
                         setUIState={setUIState} 
-                        graphDataJSON={analysisData.graphDataJSON}
-                        lastStepIndex={lastStepSummary.step_idx}
+                        uiState={uiState}
+                        graphDataDict={analysisData.graphDataDict}
+                        analysisData={analysisData}
                     />
                 )
             case TaskpaneType.IMPORT: return (
@@ -453,7 +495,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     columnIDsMapArray={columnIDsMapArray}
                     mitoAPI={props.mitoAPI}
                     selectedSheetIndex={uiState.selectedSheetIndex}
-                    lastStepIndex={lastStepSummary.step_idx}
+                    analysisData={analysisData}
                     setUIState={setUIState}
                     destinationSheetIndex={uiState.currOpenTaskpane.destinationSheetIndex}
                     existingPivotParams={uiState.currOpenTaskpane.existingPivotParams}
@@ -531,9 +573,10 @@ export const Mito = (props: MitoProps): JSX.Element => {
         )
     }
 
+    // Check which taskpanes are open
     const taskpaneOpen = uiState.currOpenTaskpane.type !== TaskpaneType.NONE;
-    const wideTaskpaneOpen = WIDE_TASKPANES.includes(uiState.currOpenTaskpane.type);
-    const narrowTaskpaneOpen = taskpaneOpen && !wideTaskpaneOpen;
+    const graphTaskpaneOpen = uiState.currOpenTaskpane.type === TaskpaneType.GRAPH && uiState.selectedTabType === 'graph';
+    const narrowTaskpaneOpen = taskpaneOpen && !graphTaskpaneOpen;
 
     /* 
         We detect whether the taskpane is open in wide mode, narrow mode, or not open at all. We then
@@ -541,13 +584,13 @@ export const Mito = (props: MitoProps): JSX.Element => {
         The class sets the width of the sheet. 
     */
     const formulaBarAndSheetClassNames = classNames('mito-formula-bar-and-mitosheet-div', {
-        'mito-formula-bar-and-mitosheet-div-wide-taskpane-open': wideTaskpaneOpen,
+        'mito-formula-bar-and-mitosheet-div-fullscreen-taskpane-open': graphTaskpaneOpen,
         'mito-formula-bar-and-mitosheet-div-narrow-taskpane-open': narrowTaskpaneOpen
     })
 
     const taskpaneClassNames = classNames({
         'mito-default-taskpane': !taskpaneOpen,
-        'mito-default-wide-taskpane-open': wideTaskpaneOpen,
+        'mito-default-fullscreen-taskpane-open': graphTaskpaneOpen,
         'mito-default-narrow-taskpane-open': narrowTaskpaneOpen,
     })
 
@@ -592,6 +635,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 {getCurrTour()}
                 <Footer
                     sheetDataArray={sheetDataArray}
+                    graphDataDict={analysisData.graphDataDict}
                     gridState={gridState}
                     setGridState={setGridState}
                     mitoAPI={props.mitoAPI}

@@ -23,7 +23,7 @@ from mitosheet.step_performers import (
     STEP_PERFORMERS,
     STEP_TYPE_TO_USAGE_TRIGGERED_FEEDBACK_ID,
 )
-from mitosheet.step_performers.graph.plotly_express_graphs import GRAPH_SAFETY_FILTER_CUTOFF
+from mitosheet.step_performers.graph_steps.plotly_express_graphs import GRAPH_SAFETY_FILTER_CUTOFF
 from mitosheet.step_performers.pivot import PIVOT_AGGREGATION_TYPES
 from mitosheet.step_performers.sort import ASCENDING, DESCENDING
 from mitosheet.user.schemas import USER_JSON_DEFAULT
@@ -165,20 +165,6 @@ def test_df_sources_matche():
 def test_user_json_fields_match():
     user_json_fields = get_enum_from_ts_file("./src/api.tsx", "UserJsonFields")
     assert set(user_json_fields.values()) == set(USER_JSON_DEFAULT.keys())
-
-
-def test_usage_triggered_feedback_fields_match():
-    feedback_ids = get_enum_from_ts_file("./src/types.tsx", "FeedbackID")
-    feedback_ids_values = feedback_ids.values()
-    # Not all of feedback_ids are used in the backend. The only feedback_ids that are used in the backend, and therefore
-    # are held in the STEP_TYPE_TO_USAGE_TRIGGERED_FEEDBACK_ID are the usage_triggered ones. So we only check that
-    # all of the usage_triggered feedback_ids are in the backend and the frontend
-    usage_triggered_feedback_ids_values = list(
-        filter(lambda val: (val.endswith("usage_triggered")), feedback_ids_values)
-    )
-    assert set(usage_triggered_feedback_ids_values) == set(
-        STEP_TYPE_TO_USAGE_TRIGGERED_FEEDBACK_ID.values()
-    )
 
 
 def test_format_types_fields_match():

@@ -29,7 +29,10 @@ export enum StepType {
     SetCellValue = 'set_cell_value',
     BulkOldRename = 'bulk_old_rename',
     ExcelImport = 'excel_import',
-    Graph = 'graph'
+    Graph = 'graph',
+    GraphDuplicate = 'graph_duplicate',
+    GraphDelete = 'graph_delete',
+    GraphRename = 'graph_rename'
 }
 
 /**
@@ -43,7 +46,7 @@ export enum StepType {
  * @param params - parameters that were send to the backend for this step
  */
 export interface StepSummary {
-    step_id: string;
+    'step_id': string;
     step_idx: number;
     step_type: StepType;
     step_display_name: string;
@@ -228,12 +231,13 @@ export type GraphData = {
         graphGeneratedCode: string,
         graphHTML: string,
         graphScript: string,
-    }
+    },
+    graphTabName: string
 };
 
 export type GraphID = string
 
-export type GraphDataJSON = Record<GraphID, GraphData>
+export type GraphDataDict = Record<GraphID, GraphData>
 
 
 /**
@@ -479,7 +483,8 @@ export type FormatTypeObj =
  * @param stepSummaryList - a list of step summaries for the steps in this analysis
  * @param currStepIdx - the index of the currently checked out step, in the stepSummaryList
  * @param dataTypeInTool - the type of data in the tool in this analysis
- * @param graphDataJSON - a mapping from graphID to all of the relevant graph information
+ * @param graphDataDict - a mapping from graphID to all of the relevant graph information
+ * @param updateEventCount - the number of update events that have been successfully processed by the frontend
  */
 export interface AnalysisData {
     analysisName: string,
@@ -487,7 +492,8 @@ export interface AnalysisData {
     stepSummaryList: StepSummary[],
     currStepIdx: number,
     dataTypeInTool: DataTypeInMito;
-    graphDataJSON: GraphDataJSON
+    graphDataDict: GraphDataDict;
+    updateEventCount: number;
 }
 
 /**
@@ -513,7 +519,6 @@ export interface UserProfile {
     isLocalDeployment: boolean;
     shouldUpgradeMitosheet: boolean;
     numUsages: number;
-    usageTriggeredFeedbackID: UsageTriggeredFeedbackID | undefined
 }
 
 
@@ -545,7 +550,9 @@ export interface UIState {
     selectedColumnControlPanelTab: ControlPanelTab;
     exportConfiguration: CSVExportState | ExcelExportState;
     selectedSheetIndex: number;
-    displayFormatToolbarDropdown: boolean
+    selectedGraphID: GraphID | undefined;
+    selectedTabType: 'data' | 'graph';
+    displayFormatToolbarDropdown: boolean;
 }
 
 /**
@@ -564,51 +571,7 @@ export const enum FeedbackID {
     COMPANY = 'company/organization',
     SOURCE = 'source',
     MITO_GOAL = 'mito_goal',
-    ADD_COLUMN_USAGE_TRIGGERED = 'add_column_usage_triggered',
-    DELETE_COLUMN_USAGE_TRIGGERED = 'delete_column_usage_triggered',
-    RENAME_COLUMN_USAGE_TRIGGERED = 'rename_column_usage_triggered',
-    REORDER_COLUMN_USAGE_TRIGGERED = 'reorder_column_usage_triggered',
-    FILTER_COLUMN_USAGE_TRIGGERED = 'filter_column_usage_triggered',
-    SET_COLUMN_FORMULA_USAGE_TRIGGERED = 'set_column_formula_usage_triggered',
-    DATAFRAME_DELETE_USAGE_TRIGGERED = 'dataframe_delete_usage_triggered',
-    DATAFRAME_DUPLICATE_USAGE_TRIGGERED = 'dataframe_duplicate_usage_triggered',
-    DATAFRAME_RENAME_USAGE_TRIGGERED = 'dataframe_rename_usage_triggered',
-    SIMPLE_IMPORT_USAGE_TRIGGERED = 'simple_import_usage_triggered',
-    SORT_USAGE_TRIGGERED = 'sort_usage_triggered',
-    PIVOT_USAGE_TRIGGERED = 'pivot_usage_triggered',
-    MERGE_USAGE_TRIGGERED = 'merge_usage_triggered',
-    CHANGE_COLUMN_DTYPE_USAGE_TRIGGERED = 'change_column_dtype_usage_triggered',
-    CHANGE_COLUMN_FORMAT_USAGE_TRIGGERED = 'change_column_format_usage_triggered',
-    SET_CELL_VALUE_USAGE_TRIGGERED = 'set_cell_value_usage_triggered',
-    EXCEL_IMPORT_USAGE_TRIGGERED = 'excel_import_usage_triggered',
-    DROP_DUPLICATES_USAGE_TRIGGERED = 'drop_duplicates_usage_triggered',
-    GRAPH_USAGE_TRIGGERED = 'graph_usage_triggered'
 }
-
-/**
- * The Feedback IDs of the usage triggered feedbacks
- */
-export type UsageTriggeredFeedbackID =
-    FeedbackID.ADD_COLUMN_USAGE_TRIGGERED |
-    FeedbackID.DELETE_COLUMN_USAGE_TRIGGERED |
-    FeedbackID.RENAME_COLUMN_USAGE_TRIGGERED |
-    FeedbackID.REORDER_COLUMN_USAGE_TRIGGERED |
-    FeedbackID.FILTER_COLUMN_USAGE_TRIGGERED |
-    FeedbackID.SET_COLUMN_FORMULA_USAGE_TRIGGERED |
-    FeedbackID.DATAFRAME_DELETE_USAGE_TRIGGERED |
-    FeedbackID.DATAFRAME_DUPLICATE_USAGE_TRIGGERED |
-    FeedbackID.DATAFRAME_RENAME_USAGE_TRIGGERED |
-    FeedbackID.SIMPLE_IMPORT_USAGE_TRIGGERED |
-    FeedbackID.SORT_USAGE_TRIGGERED |
-    FeedbackID.PIVOT_USAGE_TRIGGERED |
-    FeedbackID.MERGE_USAGE_TRIGGERED |
-    FeedbackID.CHANGE_COLUMN_DTYPE_USAGE_TRIGGERED |
-    FeedbackID.CHANGE_COLUMN_FORMAT_USAGE_TRIGGERED |
-    FeedbackID.SET_CELL_VALUE_USAGE_TRIGGERED |
-    FeedbackID.EXCEL_IMPORT_USAGE_TRIGGERED |
-    FeedbackID.DROP_DUPLICATES_USAGE_TRIGGERED |
-    FeedbackID.GRAPH_USAGE_TRIGGERED
-
 
 /*
     ActionEnum is used to identify a specific action.
