@@ -5,8 +5,6 @@ import { ColumnID, ColumnIDsMap, GraphParams, SheetData, UIState } from '../../.
 import MitoAPI from '../../../api';
 import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
-import XIcon from '../../icons/XIcon';
-import { TaskpaneType } from '../taskpanes';
 import Select from '../../elements/Select';
 import DropdownItem from '../../elements/DropdownItem';
 import { GraphType } from './GraphSidebar';
@@ -25,8 +23,8 @@ const SAFETY_FILTER_ENABLED_MESSAGE = `Turning on Filter to Safe Size only graph
 
 
 /* 
-    The tabs at the bottom of the column control panel that allows users to switch
-    from sort/filter to seeing summary statistics about the column
+    The graph setup tab where the user creates the structure of the graph by 
+    selecting data
 */
 function GraphSetupTab(
     props: {
@@ -133,26 +131,6 @@ function GraphSetupTab(
 
     return (  
         <Fragment>
-            <Row justify='space-between' align='center'>
-                <Col>
-                    <p className='text-header-2'>
-                        Generate Graph
-                    </p>
-                </Col>
-                <Col>
-                    <XIcon
-                        onClick={() => {
-                            props.setUIState((prevUIState) => {
-                                return {
-                                    ...prevUIState,
-                                    selectedTabType: 'data',
-                                    currOpenTaskpane: { type: TaskpaneType.NONE }
-                                }
-                            })
-                        }}
-                    />
-                </Col>
-            </Row>
             <div className='graph-sidebar-toolbar-content'>
                 <Row justify='space-between' align='center'>
                     <Col>

@@ -57,12 +57,17 @@
 .graph-sidebar-toolbar-tab-container {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
 
-    height: 100%;
+    /* 
+        Make sure that content doesn't get cutoff by the graph tabs.
+        Must be the same height as the height of the tabs defined .control-panel-taskpane-tab
+    */
+    height: calc(100% - 30px);
     width: 100%;
     
-    padding: 5px;
+    padding-top: 5px;
+    padding-right: 5px;
+    padding-left: 5px;
     box-sizing: border-box;
 }
 
@@ -74,12 +79,6 @@
 .graph-sidebar-toolbar-content > * + * {
     /* Apply the same spacing to every child of the graph sidebar toolbar content */
     margin-top: 15px;
-}
-
-.graph-sidebar-toolbar-code-export-button {
-    height: 7.5%;
-    padding-top: 2.5%;
-    border-top: 1px solid var(--mito-border);
 }
                         
 .popup-div { 
