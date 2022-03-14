@@ -6,6 +6,7 @@
 
 from copy import deepcopy
 import functools
+from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 import pandas as pd
 from datetime import date
@@ -237,15 +238,18 @@ class FilterStepPerformer(StepPerformer):
         post_state = deepcopy(prev_state)
 
         # Execute the filter
-        post_state.dfs[sheet_index] = _execute_filter(
+        final_df, pandas_processing_time = _execute_filter(
             prev_state.dfs[sheet_index], column_header, operator, filters
         )
+        post_state.dfs[sheet_index] = final_df
 
         # Keep track of which columns are filtered
         post_state.column_filters[sheet_index][column_id]["operator"] = operator
         post_state.column_filters[sheet_index][column_id]["filters"] = filters
 
-        return post_state, None
+        return post_state, {
+            'pandas_processing_time': pandas_processing_time
+        }
 
     @classmethod
     def transpile(  # type: ignore
@@ -447,13 +451,14 @@ def _execute_filter(
     column_header: ColumnHeader,
     operator: str,
     filters: List[Dict[str, Any]],
-) -> pd.DataFrame:
+) -> Tuple[pd.DataFrame, float]:
     """
     Executes a filter on the given column, filtering by removing any rows who
     don't meet the condition.
     """
 
     applied_filters = []
+    pandas_start_time = perf_counter()
 
     for filter_or_group in filters:
 
@@ -475,10 +480,15 @@ def _execute_filter(
                 get_applied_filter(df, column_header, filter_or_group)
             )
 
+    
     if len(applied_filters) > 0:
-        return df[combine_filters(operator, applied_filters)]
+        filtered_df = df[combine_filters(operator, applied_filters)]
     else:
-        return df
+        filtered_df = df
+
+    pandas_processing_time = perf_counter() - pandas_start_time
+
+    return filtered_df, pandas_processing_time
 
 
 def get_single_filter_string(

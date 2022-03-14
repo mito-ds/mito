@@ -4,6 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from copy import copy
+from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 import pandas as pd
 
@@ -80,6 +81,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
         
         # How we handle the type conversion depends on what type it is
         try:
+            pandas_start_time = perf_counter()
             if is_bool_dtype(old_dtype):
                 if is_bool_dtype(new_dtype):
                     pass
@@ -201,6 +203,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
 
             # We update the column, as well as the type of the column
             post_state.dfs[sheet_index][column_header] = new_column
+            pandas_processing_time = perf_counter() - pandas_start_time
 
             # If we're changing between number columns, we keep the formatting on the column. Otherwise, we remove it
             if not ((is_int_dtype(old_dtype) or is_float_dtype(old_dtype)) and (is_int_dtype(new_dtype) or is_float_dtype(new_dtype))):
@@ -208,7 +211,9 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
                 
             refresh_dependant_columns(post_state, post_state.dfs[sheet_index], sheet_index, column_id)
 
-            return post_state, None
+            return post_state, {
+                'pandas_processing_time': pandas_processing_time
+            }
         except:
             print(get_recent_traceback())
             raise make_invalid_column_type_change_error(

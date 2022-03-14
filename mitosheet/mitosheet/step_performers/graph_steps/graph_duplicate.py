@@ -3,16 +3,18 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from copy import copy
+from copy import copy, deepcopy
 from typing import Any, Dict, List, Optional, Set, Tuple
+import uuid
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
+from mitosheet.types import GraphID
 
 
-class DataframeDeleteStepPerformer(StepPerformer):
+class GraphDuplicateStepPerformer(StepPerformer):
     """
-    Deletes a dataframe from everywhere in the step.
+    This steps duplicates a graph of a given graphID. 
     """
 
     @classmethod
@@ -21,43 +23,39 @@ class DataframeDeleteStepPerformer(StepPerformer):
 
     @classmethod
     def step_type(cls) -> str:
-        return 'dataframe_delete'
+        return 'graph_duplicate'
 
     @classmethod
     def step_display_name(cls) -> str:
-        return 'Deleted a Dataframe'
+        return 'Duplicated a Graph'
     
     @classmethod
     def step_event_type(cls) -> str:
-        return 'dataframe_delete_edit'
+        return 'graph_duplicate_edit'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
-        sheet_index = params['sheet_index']
-        old_dataframe_name = prev_state.df_names[sheet_index]
-        params['old_dataframe_name'] = old_dataframe_name
         return params
 
     @classmethod
     def execute( # type: ignore
         cls,
         prev_state: State,
-        sheet_index: int,
-        old_dataframe_name: str,
+        old_graph_id: GraphID,
+        new_graph_id: GraphID,
         **params
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
-        # Create a new step and save the parameters
-        post_state = copy(prev_state)
+        post_state = deepcopy(prev_state)
 
-        # Execute the delete
-        post_state.column_ids.remove_df(sheet_index)
-        post_state.column_spreadsheet_code.pop(sheet_index)
-        post_state.column_filters.pop(sheet_index)
-        post_state.column_format_types.pop(sheet_index)
-        post_state.dfs.pop(sheet_index)
-        post_state.df_names.pop(sheet_index)
-        post_state.df_sources.pop(sheet_index)
-
+        # Execute the step
+        graph_copy = deepcopy(post_state.graph_data_dict[old_graph_id])
+        # We don't need to insist the the graph names are unique because they are just used in 
+        # the sheet tab display. They aren't used in generated code or to identify graphs in the steps
+        graph_copy["graphTabName"] = graph_copy["graphTabName"] + '_copy'
+        
+        # Add the duplicated graph to the graph_data
+        post_state.graph_data_dict[new_graph_id] = graph_copy
+        
         return post_state, {
             'pandas_processing_time': 0 # No time spent on pandas, only metadata changes
         }
@@ -68,26 +66,27 @@ class DataframeDeleteStepPerformer(StepPerformer):
         prev_state: State,
         post_state: State,
         execution_data: Optional[Dict[str, Any]],
-        sheet_index: int,
-        old_dataframe_name: str
+        old_graph_id: GraphID,
+        new_graph_id: GraphID,
     ) -> List[str]:
-        return [f'del {old_dataframe_name}']
+        # Graph steps don't add any generated code to the analysis script. 
+        return []
 
     @classmethod
     def describe( # type: ignore
         cls,
-        sheet_index: int,
-        old_dataframe_name: str,
+        old_graph_id: GraphID,
+        new_graph_id: GraphID,
         df_names=None,
         **params
     ) -> str:
-        return f'Deleted dataframe {old_dataframe_name}'
+        return f'Duplicated a Graph'
     
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore
         cls, 
-        sheet_index: int,
-        old_dataframe_name: str,
+        old_graph_id: GraphID,
+        new_graph_id: GraphID,
         **params
     ) -> Set[int]:
-        return set() # Redo all of them, as order shifts
+        return {-1}

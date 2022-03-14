@@ -1,5 +1,6 @@
 // Copyright (c) Mito
 
+import { GraphID } from "../../types"
 import { PivotParams } from "./PivotTable/PivotTaskpane"
 
 /* 
@@ -40,7 +41,7 @@ export type TaskpaneInfo =
     | {type: TaskpaneType.DROP_DUPLICATES}
     | {
         type: TaskpaneType.GRAPH,
-        graphSidebarSheet: number
+        graphID: GraphID,
     }    
     | {type: TaskpaneType.IMPORT}
     | {type: TaskpaneType.MERGE}
@@ -67,9 +68,5 @@ export const EDITING_TASKPANES: TaskpaneType[] = [
     TaskpaneType.IMPORT,
     TaskpaneType.DROP_DUPLICATES,
     TaskpaneType.DOWNLOAD,
-]
-
-export const WIDE_TASKPANES: TaskpaneType[] = [
-    TaskpaneType.GRAPH
 ]
     

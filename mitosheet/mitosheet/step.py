@@ -100,12 +100,12 @@ class Step:
         return self.post_state.column_format_types
 
     @property
-    def graph_data(self) -> Dict[str, Dict[str, Any]]:
+    def graph_data_dict(self) -> Dict[str, Dict[str, Any]]:
         """
-        graph_data contains all of the parameters used to construct the graph,
+        graph_data_dict contains all of the parameters used to construct the graph,
         the actual graph html & javascript, and the generated code for all of the existing graphs in Mito.
         """
-        return self.final_defined_state.graph_data
+        return self.final_defined_state.graph_data_dict
 
     @property
     def step_performer(self) -> Type[StepPerformer]:

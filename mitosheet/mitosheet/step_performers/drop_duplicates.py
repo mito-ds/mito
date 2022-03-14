@@ -4,6 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from copy import deepcopy
+from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Union
 
 from mitosheet.state import State
@@ -67,12 +68,18 @@ class DropDuplicatesStepPerformer(StepPerformer):
         # We make a new state to modify it
         post_state = deepcopy(prev_state)
 
-        post_state.dfs[sheet_index] = post_state.dfs[sheet_index].drop_duplicates(
+        pandas_start_time = perf_counter()
+        final_df = post_state.dfs[sheet_index].drop_duplicates(
             subset=column_headers,
             keep=keep
         )
+        pandas_processing_time = perf_counter() - pandas_start_time
 
-        return post_state, None
+        post_state.dfs[sheet_index] = final_df
+
+        return post_state, {
+            'pandas_processing_time': pandas_processing_time
+        }
 
     @classmethod
     def transpile( # type: ignore

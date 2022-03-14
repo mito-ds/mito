@@ -33,7 +33,7 @@ from typing import Any, Dict, List
 from mitosheet.parser import parse_formula
 from mitosheet.types import StepsManagerType
 from mitosheet.user.schemas import UJ_MITOSHEET_TELEMETRY
-from mitosheet.user.location import get_location
+from mitosheet.user.location import get_location, is_docker
 
 try:
     from jupyterlab import __version__ as jupyterlab_version
@@ -189,7 +189,8 @@ def log(log_event: str, params: Dict[Any, Any]=None, steps_manager: StepsManager
         'version_jupyterlab': jupyterlab_version,
         'version_mito': __version__,
         'package_name': package_name,
-        'location': location
+        'location': location,
+        'is_docker': is_docker()
     }
 
     # Add some data about where this is being run from, so we make sure we
@@ -249,9 +250,14 @@ def log(log_event: str, params: Dict[Any, Any]=None, steps_manager: StepsManager
                     private_params[key] = len(value)
                 else:
                     private_params[key] = value
+            elif 'graph_creation' in key:
+                # Don't log the column ids in the graph, just log the number of series graphed
+                private_params[key]['graph_creation']['x_axis_column_ids'] = len(private_params[key]['graph_creation']['x_axis_column_ids'])
+                private_params[key]['graph_creation']['y_axis_column_ids'] = len(private_params[key]['graph_creation']['y_axis_column_ids'])
             elif 'sheet_index' in key:
                 private_params[key] = value
-                if steps_manager:
+                # Make sure the steps manager exists, and the source is in bounds
+                if steps_manager and len(steps_manager.curr_step.df_sources) > value:
                     private_params[key + '_df_source'] = steps_manager.curr_step.df_sources[value]
             else:
                 private_params[key] = value
@@ -419,13 +425,35 @@ def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, 
             error_properties = {}
 
         # We also log some timing information - which we round to a single decimal place just
-        # so that we can bucket these items easily
+        # so that we can bucket these items easily. Note we include a variety of roundings of 
+        # the time, so that we can make sure to aggregate in Mixpanel well (which will die if 
+        # it is given to many values).
         if start_time is not None:
-            event_properties['processing_time'] = round(time.perf_counter() - start_time, 1)
+            processing_time = time.perf_counter() - start_time
+            event_properties['processing_time'] = round(processing_time, 1)
+            event_properties['processing_time_seconds'] = int(round(processing_time, 0))
+            event_properties['processing_time_seconds_ten'] = int(round(processing_time, -1))
+            event_properties['processing_time_seconds_hundred'] = int(round(processing_time, -2))
+
+            # If we just did an update, and this update has a pandas processing time, then we can calculate the
+            # time that we spent as mito overhead vs. just 
+            if steps_manager and steps_manager.curr_step.execution_data and 'pandas_processing_time' in steps_manager.curr_step.execution_data:
+                pandas_processing_time = steps_manager.curr_step.execution_data['pandas_processing_time']
+                event_properties['processing_time_pandas'] = round(pandas_processing_time, 1)
+                event_properties['processing_time_pandas_seconds'] = int(round(pandas_processing_time, 0))
+                event_properties['processing_time_pandas_seconds_ten'] = int(round(pandas_processing_time, -1))
+                event_properties['processing_time_pandas_seconds_hundred'] = int(round(pandas_processing_time, -2))
+
+                # And we explicitly calculate the overhead
+                overhead_processing_time = round(processing_time - pandas_processing_time, 1)
+                event_properties['processing_time_overhead'] = overhead_processing_time
+                event_properties['processing_time_overhead_seconds'] = int(round(overhead_processing_time, 0))
+                event_properties['processing_time_overhead_seconds_ten'] = int(round(overhead_processing_time, -1))
+                event_properties['processing_time_overhead_seconds_hundred'] = int(round(overhead_processing_time, -2))
 
         # We choose to log the event type, as it is the best high-level item for our logs
         # and we append a _failed if the event failed in doing this.
-        log_event = event['type'] + ('_failed' if failed else '')
+        log_event: str = event['type'] + ('_failed' if failed else '')
 
         log(
             log_event, 
@@ -437,9 +465,9 @@ def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, 
             steps_manager=steps_manager
         )
 
-        # We also generate a double log in the case of errors, whenever anything fails. This allows
-        # us to easily track the number of users who are getting errors
         if failed:
+            # We also generate a double log in the case of errors, whenever anything fails. This allows
+            # us to easily track the number of users who are getting errors
             log(
                 'error', 
                 dict(
@@ -450,8 +478,45 @@ def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, 
                 ),
                 steps_manager=steps_manager
             )
-
-
+        else:
+            # We also generate a single aggregate log for each of the different
+            # types of events the user sends to the backend. As with the above, 
+            # this allows us to easily aggregate across different types of events
+            # and track general trends (at the cost of making the logs look a bit
+            # messier to human eyes)
+            if event['event'] == 'edit_event':
+                log(
+                    'edit_event', 
+                    dict(
+                        log_event=log_event,
+                        **event_properties,
+                        **steps_manager_properties,
+                        **error_properties
+                    ),
+                    steps_manager=steps_manager
+                )
+            elif event['event'] == 'update_event':
+                log(
+                    'update_event', 
+                    dict(
+                        log_event=log_event,
+                        **event_properties,
+                        **steps_manager_properties,
+                        **error_properties
+                    ),
+                    steps_manager=steps_manager
+                )
+            elif event['event'] == 'api_call':
+                log(
+                    'api_call', 
+                    dict(
+                        log_event=log_event,
+                        **event_properties,
+                        **steps_manager_properties,
+                        **error_properties
+                    ),
+                    steps_manager=steps_manager
+                )
     except:
         # We don't want logging to ever brick the application, so if the logging fails
         # we just log simple information about the event. This should never occur, but it
