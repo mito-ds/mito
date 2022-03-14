@@ -4,7 +4,19 @@ description: Want to see what is new in the Mitosheet? Check it out below.
 
 # Release Notes
 
-## 2022-3-10 <a href="#2022-2-28" id="2022-2-28"></a>
+## 2022-3-14 <a href="#2022-3-14" id="2022-3-14"></a>
+
+New Features:
+
+* Graphing tabs! Graphs in Mito are now permanent and act like tabs. This allows you to have multiple graphs going at once, and makes it dramatically easier to explore and present your data.
+* Format data in the Unique Values and Summary Statistics tab of the column control panel with whatever formatting is applied to the column.
+
+Bug fixes:
+* Both undo and redo work with pivot and graphing. No longer will redoing edits lead to parameters getting out of date with the sheet.
+* Don't overwrite written code if the user is replaying an analysis that they do not have on their local machine.
+
+
+## 2022-3-10 <a href="#2022-3-10" id="2022-3-10"></a>
 
 New Features:
 
