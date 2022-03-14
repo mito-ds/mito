@@ -713,3 +713,9 @@ export interface ExcelFileMetadata {
     sheet_names: string[]
     size: number
 }
+
+export enum GraphSidebarTab {
+    Setup = 'setup',
+    Style = 'style',
+    Export = 'export'
+}

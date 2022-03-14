@@ -2,7 +2,8 @@
 
 import { GraphDataDict, GraphID, GraphParams, SheetData } from "../../../types"
 import { intersection } from "../../../utils/arrays"
-import { GraphType, GRAPH_SAFETY_FILTER_CUTOFF } from "./GraphSidebar"
+import { GRAPH_SAFETY_FILTER_CUTOFF } from "./GraphSetupTab"
+import { GraphType } from "./GraphSidebar"
 
 // unless a graph type is provided
 export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: number, graphType?: GraphType): GraphParams => {
