@@ -484,6 +484,7 @@ export type FormatTypeObj =
  * @param currStepIdx - the index of the currently checked out step, in the stepSummaryList
  * @param dataTypeInTool - the type of data in the tool in this analysis
  * @param graphDataDict - a mapping from graphID to all of the relevant graph information
+ * @param updateEventCount - the number of update events that have been successfully processed by the frontend
  */
 export interface AnalysisData {
     analysisName: string,
@@ -491,7 +492,8 @@ export interface AnalysisData {
     stepSummaryList: StepSummary[],
     currStepIdx: number,
     dataTypeInTool: DataTypeInMito;
-    graphDataDict: GraphDataDict
+    graphDataDict: GraphDataDict;
+    updateEventCount: number;
 }
 
 /**
