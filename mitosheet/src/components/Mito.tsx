@@ -213,7 +213,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
             return {
                 ...prevUIState,
                 selectedSheetIndex: newSheetIndex,
-                selectedTabType: 'data'
             };
         })
 
