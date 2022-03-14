@@ -332,34 +332,6 @@ function activateWidgetExtension(
         }
     });
 
-
-    app.commands.addCommand('repeat-analysis', {
-        label: 'Replicates the current analysis on a given new file, in a new cell.',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        execute: (args: any) => {
-
-            const fileName = args.fileName as string;
-
-            // We get the current notebook (currentWidget)
-            const notebook = tracker.currentWidget?.content;
-            const context = tracker.currentWidget?.context;
-            if (!notebook || !context) return;
-
-            // We run the current cell and insert a cell below
-            // TODO: see if handling this promise is good enough!
-            void NotebookActions.runAndInsert(notebook, context.sessionContext);
-
-            // And then we write to this inserted cell (which is now the active cell)
-            const activeCell = notebook.activeCell;
-            if (activeCell) {
-                const value = activeCell.model.modelDB.get('value') as IObservableString;
-                const df_name = fileName.replace(' ', '_').split('.')[0]; // We replace common file names with a dataframe name
-                const code = `# Repeated analysis on ${fileName}\n\n${df_name} = pd.read_csv('${fileName}')\n\nmito_analysis(${df_name})\n\nmitosheet.sheet(${df_name})`
-                value.text = code;
-            }
-        }
-    });
-
     app.commands.addCommand('get-args', {
         label: 'Reads the arguments passed to the mitosheet.sheet call',
         execute: (): string[] => {

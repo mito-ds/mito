@@ -377,6 +377,25 @@ def make_is_directory_error(file_name: str) -> MitoError:
     )
 
 
+def make_no_analysis_error(analysis_id: str, error_modal: bool=True) -> MitoError:
+    """
+    Helper function for creating a no_analysis_error.
+
+    Occurs when a user tries to replay an analysis that they don't have access to in 
+    their .mito folder
+    """
+    to_fix = f'When you call mitosheet.sheet() and there is a code cell below that contains an analysis ID, \
+    Mito tries to replay that analysis. However, you do not have access to the analysis {analysis_id} so Mito is unable to replay it. \
+    Add a new code cell below the mitosheet.sheet() call to start a new analysis.' 
+    
+    return MitoError(
+        'no_analysis_error', 
+        "You don't have access to the analysis",
+        to_fix,
+        error_modal=error_modal
+    )
+
+
 ARG_FULL_NAME = {
     'int': 'number',
     'float': 'number',
