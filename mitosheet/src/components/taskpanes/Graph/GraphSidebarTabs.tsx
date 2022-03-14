@@ -25,7 +25,7 @@ function GraphSidebarTabs(
     }
 
     return (
-        <div className='control-panel-taskpane-tab-container'>
+        <div className='graph-sidebar-tab-container'>
             <div 
                 className={classNames('control-panel-taskpane-tab', props.selectedTab === GraphSidebarTab.Setup ? 'selected' : 'unselected')} 
                 onClick={() => changeTab(GraphSidebarTab.Setup)}

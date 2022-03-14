@@ -43,15 +43,25 @@
     align-self: center
 }
 
-.graph-sidebar-toolbar-div {
+.graph-sidebar-toolbar-container {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 
     border-left: 1px solid var(--mito-border);
-
     width: 220px;
     height: 100%;
+    box-sizing: border-box;
+}
+
+.graph-sidebar-toolbar-tab-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    height: 100%;
+    width: 100%;
+    
     padding: 5px;
     box-sizing: border-box;
 }
@@ -86,4 +96,20 @@
 
 .popup-text-div {
   color: #8d8d8d;
+}
+
+.graph-sidebar-tab-container {
+    /* 
+        We put the tabs at the bottom of the graph sidebar container,
+        which they are the child of. This way, they are always visible
+    */
+    position: absolute;
+    bottom: 0px;
+
+    display: flex;
+    justify-content: space-around;
+
+    box-sizing: border-box;
+
+    width: inherit;
 }

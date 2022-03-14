@@ -187,8 +187,8 @@ const GraphSidebar = (props: {
                         <div dangerouslySetInnerHTML={{ __html: graphOutput.graphHTML }} />
                     }
                 </div>
-                <div className='graph-sidebar-toolbar-div'>
-                    <div>
+                <div className='graph-sidebar-toolbar-container'>
+                    <div className='graph-sidebar-toolbar-tab-container'>
                         {selectedGraphSidebarTab === GraphSidebarTab.Setup && 
                             <GraphSetupTab 
                                 graphParams={graphParams}
@@ -213,14 +213,15 @@ const GraphSidebar = (props: {
                                 graphOutputDefined={graphOutput !== undefined}
                             />
                         }
-                        
                     </div>
                     <GraphSidebarTabs
                         selectedTab={selectedGraphSidebarTab}
                         setSelectedGraphSidebarTab={setSelectedGraphSidebarTab}
                         mitoAPI={props.mitoAPI}
                     />
+
                 </div>
+                
                 {loading &&
                     <div className='popup-div'>
                         <LoadingSpinner />
