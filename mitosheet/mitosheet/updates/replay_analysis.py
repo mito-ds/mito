@@ -40,7 +40,10 @@ def execute_replay_analysis_update(
 
     # If we're getting an event telling us to update, we read in the steps from the file
     analysis = read_and_upgrade_analysis(analysis_name)
-    # If there is no analysis with this name, give up
+
+    # If there is no analysis with this name, generate an error. This must occur before  
+    # steps_manager.steps = steps_manager.steps[:1] so that we don't clear all of the user's generated code. 
+    # This is particularly important for users who received the notebook from a colleague.
     if analysis is None:
         log('replayed_nonexistant_analysis_failed')
         raise make_no_analysis_error(analysis_name)
