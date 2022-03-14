@@ -3,7 +3,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from copy import copy, deepcopy
+from copy import copy
 from typing import Any, Dict, List, Optional, Set, Tuple
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
