@@ -13,6 +13,7 @@ MitoError box to avoid creating too many new classes!
 See more about why we use errors here: 
 https://stackoverflow.com/questions/16138232/is-it-a-good-practice-to-use-try-except-else-in-python
 """
+import re
 import traceback
 from typing import Any, Collection, Set, List
 
@@ -431,7 +432,13 @@ def make_operator_type_error(operator: str, arg_one_type: str, arg_two_type: str
     )
 
 def get_recent_traceback() -> str:
-    return traceback.format_exc()
+    """
+    Helper function that returns the most recent traceback, with the file paths
+    stripped to remove all but the mitosheet file names for ease in debugging.
+    
+    Inspired by https://stackoverflow.com/questions/25272368/hide-file-from-traceback
+    """
+    return re.sub(r'File ".*[\\/]([^\\/]+.py)"', r'File "\1"', traceback.format_exc())
 
 def get_recent_traceback_as_list() -> List[str]:
     """
@@ -444,4 +451,4 @@ def get_recent_traceback_as_list() -> List[str]:
     and thus we avoid things getting chopped this way.
     """
     # NOTE: We ignore empty lines, as they add no information
-    return [line for line in traceback.format_exc().split('\n') if line != '']
+    return [line for line in get_recent_traceback().split('\n') if line != '']
