@@ -17,6 +17,7 @@ import { calculateCurrentSheetView, calculateNewScrollPosition, calculateTransla
 import { firstNonNullOrUndefined, getColumnIDsArrayFromSheetDataArray } from "./utils";
 import { ensureCellVisible } from "./visibilityUtils";
 import { reconciliateWidthDataArray } from "./widthUtils";
+import { dataframeIDToSheetIndex } from "../../utils/dataframeID";
 
 // NOTE: these should match the css
 export const DEFAULT_WIDTH = 123;
@@ -38,7 +39,6 @@ export const KEYS_TO_IGNORE_IF_PRESSED_ALONE = [
 
 function EndoGrid(props: {
     sheetDataMap: Record<DataframeID, SheetData>,
-    sheetIndex: number,
     mitoAPI: MitoAPI,
     uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
@@ -87,14 +87,15 @@ function EndoGrid(props: {
     
     // Destructure the props, so we access them more directly in the component below
     const {
-        sheetDataMap, sheetIndex,
+        sheetDataMap,
         gridState, setGridState, 
         editorState, setEditorState, 
         uiState, setUIState,
         mitoAPI
     } = props;
 
-    const sheetData = sheetDataMap[sheetIndex];
+
+    const sheetData = sheetDataMap[uiState.selectedDataframeID];
 
     const totalSize: Dimension = {
         width: gridState.widthDataArray[gridState.sheetIndex]?.totalWidth || 0,
@@ -121,13 +122,13 @@ function EndoGrid(props: {
         setGridState(gridState => {
             return {
                 ...gridState,
-                selections: reconciliateSelections(gridState.sheetIndex, sheetIndex, gridState.selections, gridState.columnIDsArray[gridState.sheetIndex], sheetData),
+                selections: reconciliateSelections(gridState.sheetIndex, dataframeIDToSheetIndex(uiState.selectedDataframeID), gridState.selections, gridState.columnIDsArray[gridState.sheetIndex], sheetData),
                 widthDataArray: reconciliateWidthDataArray(gridState.widthDataArray, gridState.columnIDsArray, sheetDataMap),
                 columnIDsArray: getColumnIDsArrayFromSheetDataArray(sheetDataMap),
-                sheetIndex: sheetIndex
+                sheetIndex: dataframeIDToSheetIndex(uiState.selectedDataframeID)
             }
         })
-    }, [sheetData, setGridState, sheetIndex])
+    }, [sheetData, setGridState, uiState.selectedDataframeID])
 
 
     /* 
@@ -520,7 +521,7 @@ function EndoGrid(props: {
 
                     if (columnIDsToDelete !== undefined) {
                         void mitoAPI.editDeleteColumn(
-                            sheetIndex,
+                            dataframeIDToSheetIndex(uiState.selectedDataframeID),
                             columnIDsToDelete
                         )
                     }
@@ -584,7 +585,7 @@ function EndoGrid(props: {
         const containerDiv = containerRef.current; 
         containerDiv?.addEventListener('keydown', onKeyDown);
         return () => containerDiv?.removeEventListener('keydown', onKeyDown)
-    }, [editorState, setEditorState, sheetData, currentSheetView, mitoAPI, gridState.selections, sheetIndex, setGridState])
+    }, [editorState, setEditorState, sheetData, currentSheetView, mitoAPI, gridState.selections, uiState.selectedDataframeID, setGridState])
 
 
     return (
@@ -608,7 +609,7 @@ function EndoGrid(props: {
                         <ColumnHeaders
                             sheetData={sheetData}
                             setUIState={setUIState}
-                            sheetIndex={sheetIndex}
+                            sheetIndex={dataframeIDToSheetIndex(uiState.selectedDataframeID)}
                             containerRef={containerRef}
                             editorState={editorState}
                             setEditorState={setEditorState}
@@ -667,7 +668,7 @@ function EndoGrid(props: {
                 {sheetData !== undefined && editorState !== undefined && editorState.rowIndex > -1 &&
                     <CellEditor
                         sheetData={sheetData}
-                        sheetIndex={sheetIndex}
+                        sheetIndex={dataframeIDToSheetIndex(uiState.selectedDataframeID)}
                         gridState={gridState}
                         editorState={editorState}
                         setGridState={setGridState}

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import MitoAPI from '../../../api';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
 import { GridState, SearchMatches, SheetData, UIState } from '../../../types';
+import { dataframeIDToSheetIndex } from '../../../utils/dataframeID';
 import Input from '../../elements/Input';
 import { focusGrid } from '../../endo/focusUtils';
 import { calculateCurrentSheetView } from '../../endo/sheetViewUtils';
@@ -99,8 +100,8 @@ const Search = (props: {
     }
 
     useDebouncedEffect(() => {
-        void loadSearchMatches(props.gridState.searchString, props.uiState.selectedSheetIndex);
-    }, [props.gridState.searchString, props.uiState.selectedSheetIndex, props.sheetData], 250)
+        void loadSearchMatches(props.gridState.searchString, dataframeIDToSheetIndex(props.uiState.selectedDataframeID));
+    }, [props.gridState.searchString, props.uiState.selectedDataframeID, props.sheetData], 250)
 
     // Mark this as loading when it's loading
     const isFirstTime = useRef(true);

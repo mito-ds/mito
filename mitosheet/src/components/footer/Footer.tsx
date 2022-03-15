@@ -9,6 +9,7 @@ import MitoAPI from '../../api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import PlusIcon from '../icons/PlusIcon';
 import { DataframeID, GraphDataDict, GridState, SheetData, UIState } from '../../types';
+import { dataframeIDToSheetIndex } from '../../utils/dataframeID';
 
 type FooterProps = {
     sheetDataMap: Record<DataframeID, SheetData>;
@@ -28,15 +29,15 @@ type FooterProps = {
 */
 function Footer(props: FooterProps): JSX.Element {
 
-    const selectedSheetIndex = props.uiState.selectedSheetIndex
+    const selectedDataframeID = props.uiState.selectedDataframeID
     const selectedGraphID = props.uiState.selectedGraphID
     const selectedTabType = props.uiState.selectedTabType
 
     // Get the sheet index to display the rows and columns of. 
     // If the sheet tab is a graph, then display the info from the data being graphed 
-    const sheetIndex = selectedTabType === 'graph' && selectedGraphID !== undefined && props.graphDataDict[selectedGraphID] !== undefined ? 
-        props.graphDataDict[selectedGraphID].graphParams.graphCreation.sheet_index : selectedSheetIndex
-    const sheetData: SheetData | undefined = props.sheetDataMap[sheetIndex]
+    const dataframeID = selectedTabType === 'graph' && selectedGraphID !== undefined && props.graphDataDict[selectedGraphID] !== undefined ? 
+        props.graphDataDict[selectedGraphID].graphParams.graphCreation.sheet_index : selectedDataframeID
+    const sheetData: SheetData | undefined = props.sheetDataMap[dataframeID]
 
     return (
         <div className='footer'>
@@ -61,7 +62,7 @@ function Footer(props: FooterProps): JSX.Element {
                             key={idx}
                             tabName={dfName}
                             tabIDObj={{tabType: 'data', sheetIndex: idx}}
-                            isSelectedTab={selectedTabType === 'data' && idx === selectedSheetIndex}
+                            isSelectedTab={selectedTabType === 'data' && idx === dataframeIDToSheetIndex(selectedDataframeID)}
                             setUIState={props.setUIState}
                             closeOpenEditingPopups={props.closeOpenEditingPopups}
                             mitoAPI={props.mitoAPI}

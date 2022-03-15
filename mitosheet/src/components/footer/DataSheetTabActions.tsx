@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react';
 import MitoAPI, { getRandomId } from '../../api';
 import { DataframeID, GraphDataDict, GraphID, SheetData, UIState } from '../../types';
+import { dataframeIDToSheetIndex, sheetIndexToDataframeID } from '../../utils/dataframeID';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import { ModalEnum } from '../modals/modals';
@@ -68,7 +69,7 @@ export default function SheetTabActions(props: {
                 return {
                     ...prevUIState,
                     selectedTabType: 'data',
-                    selectedSheetIndex: prevUIState.selectedSheetIndex > 0 ? prevUIState.selectedSheetIndex - 1 : 0,
+                    selectedDataframeID: dataframeIDToSheetIndex(prevUIState.selectedDataframeID) > 0 ? sheetIndexToDataframeID(dataframeIDToSheetIndex(prevUIState.selectedDataframeID) - 1) : '0',
                 }
             })
 

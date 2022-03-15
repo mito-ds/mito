@@ -551,7 +551,7 @@ export interface UIState {
     currOpenTaskpane: TaskpaneInfo;
     selectedColumnControlPanelTab: ControlPanelTab;
     exportConfiguration: CSVExportState | ExcelExportState;
-    selectedSheetIndex: number;
+    selectedDataframeID: DataframeID;
     selectedGraphID: GraphID | undefined;
     selectedTabType: 'data' | 'graph';
     displayFormatToolbarDropdown: boolean;

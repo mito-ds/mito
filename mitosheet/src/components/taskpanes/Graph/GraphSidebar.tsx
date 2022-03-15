@@ -20,6 +20,7 @@ import Toggle from '../../elements/Toggle';
 import usePrevious from '../../../hooks/usePrevious';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
 import { getDefaultGraphParams, getDefaultSafetyFilter, getGraphParams } from './graphUtils';
+import { dataframeIDToSheetIndex } from '../../../utils/dataframeID';
 
 export enum GraphType {
     BAR = 'bar',
@@ -84,7 +85,7 @@ const GraphSidebar = (props: {
 
     // We keep track of the graph data separately from the backend state so that 
     // the UI updates immediately, even though the backend takes a while to process.
-    const [graphParams, setGraphParams] = useState(() => getGraphParams(props.graphDataDict, graphID, props.uiState.selectedSheetIndex, props.sheetDataMap))
+    const [graphParams, setGraphParams] = useState(() => getGraphParams(props.graphDataDict, graphID, dataframeIDToSheetIndex(props.uiState.selectedDataframeID), props.sheetDataMap))
 
     const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
     const graphOutput = props.graphDataDict[graphID]?.graphOutput
@@ -119,7 +120,7 @@ const GraphSidebar = (props: {
     */
     useEffect(() => {
         setStepID(undefined)
-        setGraphParams(getGraphParams(props.graphDataDict, props.graphID, props.uiState.selectedSheetIndex, props.sheetDataMap))
+        setGraphParams(getGraphParams(props.graphDataDict, props.graphID, dataframeIDToSheetIndex(props.uiState.selectedDataframeID), props.sheetDataMap))
         setGraphUpdatedNumber(old => old + 1)
     }, [props.graphID])
 

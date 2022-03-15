@@ -16,6 +16,7 @@ import DropdownItem from '../../elements/DropdownItem';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
+import { dataframeIDToSheetIndex } from '../../../utils/dataframeID';
 
 
 // NOTE: these aggregation functions need to be supported
@@ -43,7 +44,6 @@ export type PivotTaskpaneProps = {
     dfNames: string[],
     sheetDataMap: Record<DataframeID, SheetData>,
     columnIDsMapArray: ColumnIDsMap[],
-    selectedSheetIndex: number,
 
     /* 
         These props are only defined if we are editing a pivot table
@@ -52,6 +52,7 @@ export type PivotTaskpaneProps = {
     existingPivotParams?: PivotParams;
     destinationSheetIndex?: number;
 
+    uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     // Useful so the pivot table can watch for an undo
     lastStepIndex: number,
@@ -90,7 +91,7 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
     */
     const [pivotState, setPivotState] = useState({
         selectedSheetIndex: props.existingPivotParams === undefined 
-            ? props.selectedSheetIndex 
+            ? dataframeIDToSheetIndex(props.uiState.selectedDataframeID) 
             : Math.min(props.existingPivotParams.sheet_index, Object.keys(props.sheetDataMap).length - 1),
         pivotRowColumnIDs: props.existingPivotParams === undefined ? [] : props.existingPivotParams.pivot_rows_column_ids,
         pivotColumnsColumnIDs: props.existingPivotParams === undefined ? [] : props.existingPivotParams.pivot_columns_column_ids,
