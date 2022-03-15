@@ -32,11 +32,7 @@ class GraphStepPerformer(StepPerformer):
             sheet_index: int
             x_axis_column_ids: ColumnID[],
             y_axis_column_ids: ColumnID[],
-            color: (optional) {type: 'variable', columnID: columnID} | {type: 'constant', color_mapping: Record<ColumnID, string>}
-
-            Note: Color is not in the styles object because it can either be a variable or a discrete color.
-            Color as a variable does not belong in the style object. However, I want to keep the variable
-            and constant color together so we can ensure through the type system that only one can be set at a time.
+            color: columnID: columnID
         },
         graph_styling: {},
         graph_rendering: {
@@ -99,6 +95,9 @@ class GraphStepPerformer(StepPerformer):
         y_axis_column_ids = graph_creation["y_axis_column_ids"] if graph_creation["y_axis_column_ids"] is not None else []
         y_axis_column_headers = prev_state.column_ids.get_column_headers_by_ids(sheet_index, y_axis_column_ids)
 
+        # Validate optional parameters 
+        color_column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, graph_creation["color"]) if 'color' in graph_creation.keys() else None
+
         # Create a copy of the dataframe, just for safety.
         df: pd.DataFrame = prev_state.dfs[sheet_index].copy()
         df_name: str = prev_state.df_names[sheet_index]
@@ -126,6 +125,7 @@ class GraphStepPerformer(StepPerformer):
                 safety_filter_turned_on_by_user,
                 x_axis_column_headers,
                 y_axis_column_headers,
+                color_column_header
             )
 
             # Get rid of some of the default white space
@@ -146,6 +146,7 @@ class GraphStepPerformer(StepPerformer):
                 safety_filter_turned_on_by_user,
                 x_axis_column_headers,
                 y_axis_column_headers,
+                color_column_header,
                 df_name,
             )
 

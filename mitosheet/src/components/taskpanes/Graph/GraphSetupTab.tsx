@@ -11,6 +11,9 @@ import { GraphType } from './GraphSidebar';
 import AxisSection, { GraphAxisType } from './AxisSection';
 import Toggle from '../../elements/Toggle';
 import { getDefaultGraphParams, getDefaultSafetyFilter } from './graphUtils';
+import DropdownButton from '../../elements/DropdownButton';
+import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
+import ColumnCard from './ColumnCard';
 
 // Graphing a dataframe with more than this number of rows will
 // give the user the option to apply the safety filter
@@ -39,6 +42,8 @@ function GraphSetupTab(
         setGraphParams: React.Dispatch<React.SetStateAction<GraphParams>>;
         setGraphUpdatedNumber: React.Dispatch<React.SetStateAction<number>>;
     }): JSX.Element {
+
+    const graphSheetIndex = props.graphParams.graphCreation.sheet_index
 
     // Toggles the safety filter component of the graph params
     const toggleSafetyFilter = (): void => {
@@ -129,6 +134,19 @@ function GraphSetupTab(
         props.setGraphUpdatedNumber((old) => old + 1);
     }
 
+    const setColor = (newColorColumnID: ColumnID | undefined) => {
+        props.setGraphParams(prevGraphParams => {
+            return {
+                ...prevGraphParams,
+                graphCreation: {
+                    ...prevGraphParams.graphCreation, 
+                    color: newColorColumnID
+                }
+            }
+        })
+        props.setGraphUpdatedNumber((old) => old + 1);
+    }
+
     return (  
         <Fragment>
             <div className='graph-sidebar-toolbar-content'>
@@ -140,7 +158,7 @@ function GraphSetupTab(
                     </Col>
                     <Col>
                         <Select
-                            value={props.dfNames[props.graphParams.graphCreation.sheet_index]}
+                            value={props.dfNames[graphSheetIndex]}
                             onChange={(newDfName: string) => {
                                 const newIndex = props.dfNames.indexOf(newDfName);
                                 
@@ -225,7 +243,7 @@ function GraphSetupTab(
                         the React warnings.
                     */
                     key={['xAxis'].concat(props.graphParams.graphCreation.x_axis_column_ids).join('')}
-                    columnIDsMap={props.columnIDsMapArray[props.graphParams.graphCreation.sheet_index]}
+                    columnIDsMap={props.columnIDsMapArray[graphSheetIndex]}
                     columnDtypesMap={props.columnDtypesMap}
 
                     graphType={props.graphParams.graphCreation.graph_type}
@@ -239,7 +257,7 @@ function GraphSetupTab(
                 <AxisSection
                     // See note about keys for Axis Sections above.
                     key={['yAxis'].concat(props.graphParams.graphCreation.y_axis_column_ids).join('')}
-                    columnIDsMap={props.columnIDsMapArray[props.graphParams.graphCreation.sheet_index]}
+                    columnIDsMap={props.columnIDsMapArray[graphSheetIndex]}
                     columnDtypesMap={props.columnDtypesMap}
 
                     graphType={props.graphParams.graphCreation.graph_type}
@@ -250,7 +268,48 @@ function GraphSetupTab(
                     updateAxisData={updateAxisData}
                     mitoAPI={props.mitoAPI}
                 />
-                <Row justify='space-between' align='center' title={getDefaultSafetyFilter(props.sheetDataArray, props.graphParams.graphCreation.sheet_index) ? SAFETY_FILTER_ENABLED_MESSAGE : SAFETY_FILTER_DISABLED_MESSAGE}>
+                <>
+                    <Row justify='space-between' align='center'>
+                        <Col>
+                            <div className='text-header-3'>
+                                Color
+                            </div>
+                        </Col>
+                        <Col>
+                            <DropdownButton
+                                text='+ Add'
+                                width='small'
+                                disabled={props.graphParams.graphCreation.color !== undefined}
+                                searchable
+                            >
+                                {Object.keys(props.columnIDsMapArray[graphSheetIndex]).map(columnID => {
+                                    const columnHeader = props.columnIDsMapArray[graphSheetIndex][columnID];
+                                    return (
+                                        <DropdownItem
+                                            key={columnID}
+                                            title={getDisplayColumnHeader(columnHeader)}
+                                            onClick={() => setColor(columnID)}
+                                        />
+                                    )
+                                })}
+                            </DropdownButton>
+                        </Col>
+                    </Row>
+                    {props.graphParams.graphCreation.color !== undefined && 
+                        <Row suppressTopBottomMargin>
+                            <ColumnCard 
+                                key={'color_' + props.graphParams.graphCreation.color}
+                                columnID={props.graphParams.graphCreation.color}
+                                columnIDsMap={props.columnIDsMapArray[graphSheetIndex]}
+                                onChange={(columnID: string) => setColor(columnID)}
+                                onXIconClick={() => setColor(undefined)}
+                                selectableColumnIDs={Object.keys(props.sheetDataArray[graphSheetIndex].columnIDsMap)}
+                            />
+                        </Row>
+                    }
+                </>
+                
+                <Row justify='space-between' align='center' title={getDefaultSafetyFilter(props.sheetDataArray, graphSheetIndex) ? SAFETY_FILTER_ENABLED_MESSAGE : SAFETY_FILTER_DISABLED_MESSAGE}>
                     <Col>
                         <p className='text-header-3' >
                             Filter to safe size
@@ -260,7 +319,7 @@ function GraphSetupTab(
                         <Toggle
                             value={props.graphParams.graphPreprocessing.safety_filter_turned_on_by_user}
                             onChange={toggleSafetyFilter}
-                            disabled={!getDefaultSafetyFilter(props.sheetDataArray, props.graphParams.graphCreation.sheet_index)}
+                            disabled={!getDefaultSafetyFilter(props.sheetDataArray, graphSheetIndex)}
                         />
                     </Col>
                 </Row>

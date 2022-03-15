@@ -2,9 +2,7 @@
 
 import React from 'react';
 import MitoAPI from '../../../api';
-import XIcon from '../../icons/XIcon';
 import { GraphType } from './GraphSidebar';
-import Select from '../../elements/Select';
 import DropdownButton from '../../elements/DropdownButton';
 import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
@@ -13,6 +11,7 @@ import '../../../../css/taskpanes/Graph/AxisSection.css'
 import { ColumnID, ColumnIDsMap } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
+import ColumnCard from './ColumnCard';
 
 
 export enum GraphAxisType {
@@ -43,37 +42,20 @@ const AxisSection = (props: {
     // Create Large Selects and delete buttons for each of the columns that have already been selected
     const selectedColumnHeaderSelects = props.selectedColumnIDs.map((columnID, i) => {
         return ((
-            <Row key={columnID} justify='space-between' align='center'>
-                <Col flex='1'>
-                    <Select
-                        value={columnID}
-                        onChange={(columnID: string) => {
-                            props.updateAxisData(
-                                props.graphAxis,
-                                i,
-                                columnID
-                            )
-                        }}
-                        searchable
-                    >
-                        {selectableColumnIDs.map(columnID => {
-                            const columnHeader = props.columnIDsMap[columnID];
-                            return (
-                                <DropdownItem
-                                    key={columnID}
-                                    id={columnID}
-                                    title={getDisplayColumnHeader(columnHeader)}
-                                />
-                            )
-                        })}
-                    </Select>
-                </Col>
-                <Col offset={1} offsetRight={1}>
-                    <XIcon
-                        onClick={() => { props.updateAxisData(props.graphAxis, i) }}
-                    />
-                </Col>
-            </Row>
+            <ColumnCard 
+                key={columnID}
+                columnID={columnID}
+                columnIDsMap={props.columnIDsMap}
+                onChange={(columnID: string) => {
+                    props.updateAxisData(
+                        props.graphAxis,
+                        i,
+                        columnID
+                    )
+                }}
+                onXIconClick={() => props.updateAxisData(props.graphAxis, i)}
+                selectableColumnIDs={selectableColumnIDs}
+            />
         ))
     })
 
@@ -85,7 +67,7 @@ const AxisSection = (props: {
     const disabledDueToMaxSeriesReachedBool = numSelectedColumns + numOtherAxisSelectedColumns >= 10
 
     return (
-        <div className='axis-section-container'>
+        <div>
             <Row justify='space-between' align='center'>
                 <Col>
                     <div className='text-header-3'>

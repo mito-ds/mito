@@ -113,6 +113,7 @@ const GraphSidebar = (props: {
     // Async load in the data from the mitoAPI
     useDebouncedEffect(() => {
         // Send the editGraph message when the graph is updated
+        console.log(graphParams)
         setLoading(true)
         void getGraphAsync()
     }, [graphUpdatedNumber], LOAD_GRAPH_TIMEOUT)
@@ -143,11 +144,13 @@ const GraphSidebar = (props: {
     const getGraphAsync = async () => {
         const boundingRect: DOMRect | undefined = document.getElementById('graph-div')?.getBoundingClientRect();
 
+        console.log(graphParams.graphCreation.color,)
         if (boundingRect !== undefined) {
             const _stepID = await props.mitoAPI.editGraph(
                 graphID,
                 graphParams.graphCreation.graph_type,
                 graphParams.graphCreation.sheet_index,
+                graphParams.graphCreation.color,
                 graphParams.graphPreprocessing.safety_filter_turned_on_by_user,
                 graphParams.graphCreation.x_axis_column_ids,
                 graphParams.graphCreation.y_axis_column_ids,

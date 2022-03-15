@@ -82,7 +82,8 @@ class DeleteColumnStepPerformer(StepPerformer):
         df_names=None,
         **params
     ) -> str:
-        formated_column_ids = (', '.join(column_ids))
+        # Remove None from the list, and turn the column_ids into a string
+        formated_column_ids = (', '.join(list(filter(None, column_ids))))
         if df_names is not None:
             df_name = df_names[sheet_index]
             return f'Deleted column{"s" if len(column_ids) > 1 else ""} {formated_column_ids} from {df_name}'

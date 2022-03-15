@@ -500,6 +500,7 @@ export default class MitoAPI {
         graphID: GraphID,
         graphType: GraphType,
         sheet_index: number,
+        color: ColumnID | undefined,
         safety_filter_turned_on_by_user: boolean,
         xAxisColumnIDs: ColumnID[],
         yAxisColumnIDs: ColumnID[],
@@ -528,6 +529,7 @@ export default class MitoAPI {
                     'sheet_index': sheet_index,
                     'x_axis_column_ids': xAxisColumnIDs,
                     'y_axis_column_ids': yAxisColumnIDs,
+                    'color': color
                 },
                 'graph_styling': {},
                 'graph_rendering': {

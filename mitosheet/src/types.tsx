@@ -204,6 +204,7 @@ export type GraphCreationParams = {
     sheet_index: number,
     x_axis_column_ids: ColumnID[]
     y_axis_column_ids: ColumnID[]
+    color: ColumnID | undefined
 }
 export type GraphStylingParams = undefined
 export type GraphRenderingParams = {

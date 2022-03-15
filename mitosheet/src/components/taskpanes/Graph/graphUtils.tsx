@@ -17,6 +17,7 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
             sheet_index: sheetIndex,
             x_axis_column_ids: [],
             y_axis_column_ids: [],
+            color: undefined
         },
         graphStyling: undefined,
         graphRendering: {}
