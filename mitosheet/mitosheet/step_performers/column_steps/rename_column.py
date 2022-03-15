@@ -5,6 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 from copy import deepcopy
+from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 from mitosheet.errors import make_column_exists_error
@@ -67,7 +68,7 @@ class RenameColumnStepPerformer(StepPerformer):
         # Create a new post state for this step
         post_state = deepcopy(prev_state)
 
-        old_level_value = rename_column_headers_in_state(
+        old_level_value, pandas_processing_time = rename_column_headers_in_state(
             post_state,
             sheet_index,
             column_id,
@@ -76,7 +77,8 @@ class RenameColumnStepPerformer(StepPerformer):
         )
 
         return post_state, {
-            'old_level_value': old_level_value
+            'old_level_value': old_level_value,
+            'pandas_processing_time': pandas_processing_time
         }
 
     @classmethod
@@ -138,7 +140,7 @@ def rename_column_headers_in_state(
         column_id: ColumnID,
         new_column_header: ColumnHeader,
         level: Union[None, int]
-    ) -> Optional[ColumnHeader]:
+    ) -> Tuple[Optional[ColumnHeader], float]:
     """
     A helper function for updating a column header in the state, which is useful
     for both this rename step and for the bulk rename step.
@@ -165,6 +167,8 @@ def rename_column_headers_in_state(
         )
 
     # Update the column header
+    pandas_start_time = perf_counter()
     post_state.column_ids.set_column_header(sheet_index, column_id, new_column_header)
+    pandas_processing_time = perf_counter() - pandas_start_time
     
-    return old_column_header
+    return old_column_header, pandas_start_time

@@ -908,16 +908,9 @@ class MitoWidgetTestWrapper:
     
     def get_is_graph_output_none(self, graph_id: str) -> bool:
         """
-        Returns true if all of the graphOuput objects are none. Otherwise
-        returns false
+        Returns true if all of the graphOuput is does not exist.
         """
-        graph_data = self.get_graph_data(graph_id)
-        if bool(graph_data):
-            return graph_data["graphOutput"]["graphScript"] is None and \
-                graph_data["graphOutput"]["graphHTML"] is None and \
-                graph_data["graphOutput"]["graphGeneratedCode"] is None
-
-        return True
+        return "graphOutput" not in self.get_graph_data(graph_id)
 
 def create_mito_wrapper(sheet_one_A_data: List[Any], sheet_two_A_data: List[Any]=None) -> MitoWidgetTestWrapper:
     """

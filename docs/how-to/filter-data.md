@@ -6,9 +6,7 @@ description: This documentation will teach you how to filter datasets in Mito.
 
 ## Filter By Condition
 
-{% embed url="https://youtu.be/rbEpHP5bfSg" %}
-
-
+{% embed url="https://youtu.be/gL8qZ-qslcI" %}
 
 Mito provides powerful filtering through a combination of filters and filter groups.&#x20;
 
@@ -19,7 +17,7 @@ To access Mito's column filters, click on the **filter button** in the column he
 
 Mito's filters are acceptive, meaning that only cells where the filter conditions are met will remain in the dataset.&#x20;
 
-![](<../.gitbook/assets/final mito pivot 2 (1).png>)
+![](<../.gitbook/assets/final filter.png>)
 
 ## Filter By Value
 

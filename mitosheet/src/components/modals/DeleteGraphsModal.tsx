@@ -7,6 +7,7 @@ import MitoAPI from '../../api';
 import TextButton from '../elements/TextButton';
 import { GraphID, UIState } from '../../types';
 import { dataframeIDToSheetIndex, sheetIndexToDataframeID } from '../../utils/dataframeID';
+import { TaskpaneType } from '../taskpanes/taskpanes';
 
 
 type DeleteGraphsModalProps = {
@@ -44,7 +45,8 @@ const DeleteGraphsModal = (props: DeleteGraphsModalProps): JSX.Element => {
                 ...prevUIState,
                 selectedTabType: 'data',
                 selectedDataframeID: dataframeIDToSheetIndex(prevUIState.selectedDataframeID) > 0 ? sheetIndexToDataframeID((dataframeIDToSheetIndex(prevUIState.selectedDataframeID) - 1)) : '0',
-                currOpenModal: {type: ModalEnum.None}
+                currOpenModal: {type: ModalEnum.None},
+                currOpenTaskpane: {type: TaskpaneType.NONE}
             }
         })
     }

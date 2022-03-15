@@ -4,6 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from copy import deepcopy
+from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
@@ -69,13 +70,19 @@ class ReorderColumnStepPerformer(StepPerformer):
         post_state = deepcopy(prev_state)
 
         # Actually execute the column reordering
-        post_state.dfs[sheet_index] = _execute_reorder_column(
+        pandas_start_time = perf_counter()
+        final_df = _execute_reorder_column(
             prev_state.dfs[sheet_index],
             column_header,
             new_column_index
         )
+        pandas_processing_time = perf_counter() - pandas_start_time
 
-        return post_state, None
+        post_state.dfs[sheet_index] = final_df
+
+        return post_state, {
+            'pandas_processing_time': pandas_processing_time
+        }
 
     @classmethod
     def transpile( # type: ignore

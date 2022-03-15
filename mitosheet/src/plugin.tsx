@@ -101,6 +101,19 @@ function codeContainer(
 
 }
 
+function getParentMitoContainer(): Element | null {
+    // First, get the mito container that this element is a part of
+    let currentElement = document.activeElement;
+    while (currentElement !== null) {
+        if (currentElement.classList.contains('mito-container')) {
+            break;
+        }
+        currentElement = currentElement.parentElement;
+    }
+
+    return currentElement;
+}
+
 
 /*
     Given the code container format, returns the name of the analysis. Handles 
@@ -332,34 +345,6 @@ function activateWidgetExtension(
         }
     });
 
-
-    app.commands.addCommand('repeat-analysis', {
-        label: 'Replicates the current analysis on a given new file, in a new cell.',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        execute: (args: any) => {
-
-            const fileName = args.fileName as string;
-
-            // We get the current notebook (currentWidget)
-            const notebook = tracker.currentWidget?.content;
-            const context = tracker.currentWidget?.context;
-            if (!notebook || !context) return;
-
-            // We run the current cell and insert a cell below
-            // TODO: see if handling this promise is good enough!
-            void NotebookActions.runAndInsert(notebook, context.sessionContext);
-
-            // And then we write to this inserted cell (which is now the active cell)
-            const activeCell = notebook.activeCell;
-            if (activeCell) {
-                const value = activeCell.model.modelDB.get('value') as IObservableString;
-                const df_name = fileName.replace(' ', '_').split('.')[0]; // We replace common file names with a dataframe name
-                const code = `# Repeated analysis on ${fileName}\n\n${df_name} = pd.read_csv('${fileName}')\n\nmito_analysis(${df_name})\n\nmitosheet.sheet(${df_name})`
-                value.text = code;
-            }
-        }
-    });
-
     app.commands.addCommand('get-args', {
         label: 'Reads the arguments passed to the mitosheet.sheet call',
         execute: (): string[] => {
@@ -551,30 +536,52 @@ function activateWidgetExtension(
         label: 'Focuses on search of the currently selected mito notebook',
         execute: async (): Promise<void> => {
             // First, get the mito container that this element is a part of
-            let currentElement = document.activeElement;
-            while (currentElement !== null) {
-                if (currentElement.classList.contains('mito-container')) {
-                    break;
-                }
-                currentElement = currentElement.parentElement;
-            }
-
-            // If we cannot find the container this was in, we return.
-            // This should never happen
-            if (currentElement === null) {
-                return;
-            }
+            const mitoContainer = getParentMitoContainer();
 
             // Get the search input, and click + focus on it
-            const searchInput = currentElement.querySelector('#action-search-bar-id') as HTMLInputElement | null;
-            if (searchInput === null) {
-                return;
-            }
+            const searchInput = mitoContainer?.querySelector('#action-search-bar-id') as HTMLInputElement | null;
 
             // Focusing on the searchInput so that we begin typing there
-            searchInput.focus();
+            searchInput?.focus();
         }
     });
+
+    app.commands.addKeyBinding({
+        command: 'mito-undo',
+        args: {},
+        keys: ['Accel Z'],
+        selector: '.mito-container'
+    });
+    app.commands.addCommand('mito-undo', {
+        label: 'Clicks the undo button once',
+        execute: async (): Promise<void> => {
+            // First, get the mito container that this element is a part of
+            const mitoContainer = getParentMitoContainer();
+
+            // Get the undo button, and click it
+            const undoButton = mitoContainer?.querySelector('#mito-undo-button') as HTMLDivElement | null;
+            undoButton?.click()
+        }
+    });
+
+    app.commands.addKeyBinding({
+        command: 'mito-redo',
+        args: {},
+        keys: ['Accel Y'],
+        selector: '.mito-container'
+    });
+    app.commands.addCommand('mito-redo', {
+        label: 'Clicks the redo button once',
+        execute: async (): Promise<void> => {
+            // First, get the mito container that this element is a part of
+            const mitoContainer = getParentMitoContainer();
+
+            // Get the undo button, and click it
+            const redoButton = mitoContainer?.querySelector('#mito-redo-button') as HTMLDivElement | null;
+            redoButton?.click()
+        }
+    });
+
 
     /* 
         Since Shift + Enter reruns the cell, we don't want this to happen

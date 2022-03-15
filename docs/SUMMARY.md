@@ -37,6 +37,8 @@
 
 * [Delete Columns with Missing Values](how-to-1/delete-columns-with-missing-values.md)
 * [Use the Mito Generated Code outside of JupyterLab](how-to-1/use-the-mito-generated-code-outside-of-jupyterlab.md)
+* [Exploratory Data Analysis](how-to-1/exploratory-data-analysis.md)
+* [Create a Bar Chart](how-to-1/create-a-bar-chart.md)
 
 ## Misc
 

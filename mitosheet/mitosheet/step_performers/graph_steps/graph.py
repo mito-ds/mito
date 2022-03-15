@@ -5,6 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 from copy import deepcopy
+from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 import pandas as pd
 
@@ -119,7 +120,9 @@ class GraphStepPerformer(StepPerformer):
                 },
                 "graphTabName": graph_tab_name
             }
+            pandas_processing_time = 0.0 # no processing time
         else: 
+            pandas_start_time = perf_counter()
             fig = get_plotly_express_graph(
                 graph_type,
                 df,
@@ -127,6 +130,7 @@ class GraphStepPerformer(StepPerformer):
                 x_axis_column_headers,
                 y_axis_column_headers,
             )
+            pandas_processing_time = perf_counter() - pandas_start_time
 
             # Get rid of some of the default white space
             fig.update_layout(
@@ -164,7 +168,9 @@ class GraphStepPerformer(StepPerformer):
                 "graphTabName": graph_tab_name
             }
 
-        return post_state, None
+        return post_state, {
+            'pandas_processing_time': pandas_processing_time # No time spent on pandas, only metadata changes
+        }
 
     @classmethod
     def transpile(  # type: ignore

@@ -130,7 +130,7 @@ export default function SheetTabActions(props: {
             width='small'
         >
             <DropdownItem
-                title='Graph data'
+                title='Create graph'
                 onClick={(e) => {
                     // Stop propogation so that the onClick of the sheet tab div
                     // doesn't compete updating the uiState to this sheet instead of

@@ -226,6 +226,10 @@ class StepsManager:
         self.saved_sheet_data: Dict[int, Dict] = OrderedDict()
         self.last_step_index_we_wrote_sheet_json_on = 0
 
+        # We store the number of update events that have been processed successfully,
+        # which allows us to have some awareness about undos and redos in the front-end
+        self.update_event_count = 0
+
     @property
     def curr_step(self) -> Step:
         """
@@ -282,7 +286,8 @@ class StepsManager:
                 "stepSummaryList": self.step_summary_list,
                 "currStepIdx": self.curr_step_idx,
                 "dataTypeInTool": self.data_type_in_mito.value,
-                "graphDataDict": self.curr_step.graph_data_dict
+                "graphDataDict": self.curr_step.graph_data_dict,
+                'updateEventCount': self.update_event_count,
             }
         )
 
@@ -375,8 +380,11 @@ class StepsManager:
                 params = {key: value for key, value in update_event.items() if key in update["params"]}  # type: ignore
                 # Actually execute this event
                 update["execute"](self, **params)  # type: ignore
+                # Update the number of update events we record occuring
+                self.update_event_count += 1
                 # And then return
                 return
+
 
         raise Exception(f"{update_event} is not an update event!")
 

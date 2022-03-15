@@ -30,7 +30,7 @@ import LoadingIndicator from './LoadingIndicator';
 import ErrorModal from './modals/ErrorModal';
 import MitoAPI from '../api';
 import PivotTaskpane from './taskpanes/PivotTable/PivotTaskpane';
-import { EDITING_TASKPANES, TaskpaneType, FULLSCREEN_TASKPANES } from './taskpanes/taskpanes';
+import { EDITING_TASKPANES, TaskpaneType } from './taskpanes/taskpanes';
 import MergeTaskpane from './taskpanes/Merge/MergeTaskpane';
 import ControlPanelTaskpane, { ControlPanelTab } from './taskpanes/ControlPanel/ControlPanelTaskpane';
 import SignUpModal from './modals/SignupModal';
@@ -82,7 +82,11 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const [analysisData, setAnalysisData] = useState<AnalysisData>(props.analysisData);
     const [userProfile, setUserProfile] = useState<UserProfile>(props.userProfile);
 
+    // TODO: can we delete the above 3 props keys, so we cannot use them (as type checked by compiler)?
+    // These props are always out of date, and we should only use the state variables.
+    
     const [gridState, setGridState] = useState<GridState>(() => getDefaultGridState(sheetDataMap, 0))
+    
     // Set reasonable default values for the UI state
     const [uiState, setUIState] = useState<UIState>({
         loading: 0,
@@ -285,6 +289,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             destinationSheetIndex: dataframeIDToSheetIndex(uiState.selectedDataframeID),
                             existingPivotParams: existingPivotParams
                         },
+                        selectedTabType: 'data'
                     }
                 })
             }
@@ -459,7 +464,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         setUIState={setUIState} 
                         uiState={uiState}
                         graphDataDict={analysisData.graphDataDict}
-                        lastStepIndex={lastStepSummary.step_idx}
+                        analysisData={analysisData}
                     />
                 )
             case TaskpaneType.IMPORT: return (
@@ -490,8 +495,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     sheetDataMap={sheetDataMap}
                     columnIDsMapArray={columnIDsMapArray}
                     mitoAPI={props.mitoAPI}
-                    lastStepIndex={lastStepSummary.step_idx}
                     uiState={uiState}
+                    analysisData={analysisData}
                     setUIState={setUIState}
                     destinationSheetIndex={uiState.currOpenTaskpane.destinationSheetIndex}
                     existingPivotParams={uiState.currOpenTaskpane.existingPivotParams}
@@ -569,9 +574,10 @@ export const Mito = (props: MitoProps): JSX.Element => {
         )
     }
 
+    // Check which taskpanes are open
     const taskpaneOpen = uiState.currOpenTaskpane.type !== TaskpaneType.NONE;
-    const fullscreenTaskpaneOpen = FULLSCREEN_TASKPANES.includes(uiState.currOpenTaskpane.type);
-    const narrowTaskpaneOpen = taskpaneOpen && !fullscreenTaskpaneOpen;
+    const graphTaskpaneOpen = uiState.currOpenTaskpane.type === TaskpaneType.GRAPH && uiState.selectedTabType === 'graph';
+    const narrowTaskpaneOpen = taskpaneOpen && !graphTaskpaneOpen;
 
     /* 
         We detect whether the taskpane is open in wide mode, narrow mode, or not open at all. We then
@@ -579,13 +585,13 @@ export const Mito = (props: MitoProps): JSX.Element => {
         The class sets the width of the sheet. 
     */
     const formulaBarAndSheetClassNames = classNames('mito-formula-bar-and-mitosheet-div', {
-        'mito-formula-bar-and-mitosheet-div-fullscreen-taskpane-open': fullscreenTaskpaneOpen,
+        'mito-formula-bar-and-mitosheet-div-fullscreen-taskpane-open': graphTaskpaneOpen,
         'mito-formula-bar-and-mitosheet-div-narrow-taskpane-open': narrowTaskpaneOpen
     })
 
     const taskpaneClassNames = classNames({
         'mito-default-taskpane': !taskpaneOpen,
-        'mito-default-fullscreen-taskpane-open': fullscreenTaskpaneOpen,
+        'mito-default-fullscreen-taskpane-open': graphTaskpaneOpen,
         'mito-default-narrow-taskpane-open': narrowTaskpaneOpen,
     })
 

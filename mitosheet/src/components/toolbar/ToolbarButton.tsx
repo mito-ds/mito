@@ -11,6 +11,10 @@ import { getToolbarItemIcon, ToolbarButtonType } from './utils';
 const ToolbarButton = (
     props: {
         /** 
+        * @param id - An option id to put on the element, so we can grab it elsewhere 
+        */
+        id?: string;
+        /** 
         * @param toolbarButtonType - The toolbaryItemType is used to determine the correct icon to display. 
         */
         toolbarButtonType: ToolbarButtonType;
@@ -51,10 +55,13 @@ const ToolbarButton = (
     const icons = getToolbarItemIcon(props.toolbarButtonType);
 
     return (
-        <div className='toolbar-button-container'>
+        <div 
+            className='toolbar-button-container' 
+            id={props.id}
+            onClick={props.onClick}
+        >
             <button 
                 className={classNames('toolbar-button', 'vertical-align-content', highlightToobarItemClass)} 
-                onClick={props.onClick}
                 type="button"
             >
                 {/* 

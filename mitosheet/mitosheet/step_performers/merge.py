@@ -5,6 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 from copy import copy
+from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
@@ -68,6 +69,7 @@ class MergeStepPerformer(StepPerformer):
         # We create a shallow copy to make the new post state
         post_state = copy(prev_state)
 
+        pandas_start_time = perf_counter()
         new_df = _execute_merge(
             prev_state.dfs,
             prev_state.df_names,
@@ -78,12 +80,15 @@ class MergeStepPerformer(StepPerformer):
             sheet_index_two,
             merge_key_two,
             selected_columns_two
-        )    
+        )
+        pandas_processing_time = perf_counter() - pandas_start_time
 
         # Add this dataframe to the new post state
         post_state.add_df_to_state(new_df, DATAFRAME_SOURCE_MERGED)
 
-        return post_state, None
+        return post_state, {
+            'pandas_processing_time': pandas_processing_time
+        }
 
     @classmethod
     def transpile( # type: ignore

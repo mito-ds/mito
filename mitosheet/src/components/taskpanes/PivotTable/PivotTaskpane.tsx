@@ -5,18 +5,18 @@ import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import PivotTableKeySelection from './PivotTableKeySelection';
 import PivotTableValueSelection from './PivotTableValueSelection';
 import MitoAPI from '../../../api';
-import usePrevious from '../../../hooks/usePrevious';
 import Select from '../../elements/Select';
 import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
 import { allDfNamesToSelectableDfNameToSheetIndex, valuesArrayToRecord, valuesRecordToArray } from './pivotUtils';
 import { getDeduplicatedArray } from '../../../utils/arrays';
-import { ColumnID, ColumnIDsMap, DataframeID, SheetData, UIState } from '../../../types';
+import { AnalysisData, ColumnID, ColumnIDsMap, DataframeID, SheetData, UIState } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import { dataframeIDToSheetIndex } from '../../../utils/dataframeID';
+import { useEffectOnUpdateEvent } from '../../../hooks/useEffectOnUpdateEvent';
 
 
 // NOTE: these aggregation functions need to be supported
@@ -54,9 +54,8 @@ export type PivotTaskpaneProps = {
 
     uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
-    // Useful so the pivot table can watch for an undo
-    lastStepIndex: number,
-    mitoAPI: MitoAPI,
+    mitoAPI: MitoAPI;
+    analysisData: AnalysisData,
 };
 
 
@@ -98,9 +97,6 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
         pivotValuesColumnIDsArray: props.existingPivotParams === undefined ? [] : valuesRecordToArray(props.existingPivotParams.values_column_ids_map),
         flattenColumnHeaders: props.existingPivotParams === undefined ? false : props.existingPivotParams.flatten_column_headers
     })
-    
-    // Save the last step index, so that we can check if an undo occured
-    const prevLastStepIndex = usePrevious(props.lastStepIndex);
 
     /*
         Completes the pivot operation by sending information for the pivoting
@@ -321,12 +317,9 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
         }
     } 
 
-    useEffect(() => {
-        // If there has been an undo or redo, then we refresh the params to this pivot
-        if (prevLastStepIndex && prevLastStepIndex !== props.lastStepIndex - 1) {
-            void refreshParamsAfterUndoOrRedo()
-        }
-    }, [props.lastStepIndex])
+    useEffectOnUpdateEvent(() => {
+        void refreshParamsAfterUndoOrRedo();
+    }, props.analysisData)
 
     /*
         If there is no possible Pivot taskpane that can be displayed (e.g. the sheetJSON is empty),
