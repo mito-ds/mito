@@ -4,12 +4,13 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
+from collections import OrderedDict
 import enum
 import json
 import uuid
 from copy import copy, deepcopy
 import pandas as pd
-from typing import Any, Callable, Dict, Collection, List, OrderedDict, Set, Tuple, Union
+from typing import Any, Callable, Dict, Collection, List, Set, Tuple, Union
 from mitosheet.mito_analytics import log
 
 from mitosheet.step_performers.import_steps.simple_import import (

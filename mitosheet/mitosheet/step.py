@@ -4,7 +4,8 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Any, Dict, List, Optional, OrderedDict, Set, Type
+from collections import OrderedDict
+from typing import Any, Dict, List, Optional, Set, Type
 from mitosheet.evaluation_graph_utils import create_column_evaluation_graph
 
 from mitosheet.step_performers.step_performer import StepPerformer
