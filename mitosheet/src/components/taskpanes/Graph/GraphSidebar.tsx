@@ -81,7 +81,7 @@ const GraphSidebar = (props: {
     const graphOutput = props.graphDataDict[graphID]?.graphOutput
     const [_copyGraphCode, graphCodeCopied] = useCopyToClipboard(graphOutput?.graphGeneratedCode);
     const [loading, setLoading] = useState<boolean>(false)
-    const [selectedGraphSidebarTab, setSelectedGraphSidebarTab] = useState<GraphSidebarTab>(GraphSidebarTab.Style)
+    const [selectedGraphSidebarTab, setSelectedGraphSidebarTab] = useState<GraphSidebarTab>(GraphSidebarTab.Setup)
 
     /* 
         When graphUpdatedNumber is updated, we send a new getGraphMessage with the current graphParams
@@ -113,7 +113,6 @@ const GraphSidebar = (props: {
     // Async load in the data from the mitoAPI
     useDebouncedEffect(() => {
         // Send the editGraph message when the graph is updated
-        console.log(graphParams)
         setLoading(true)
         void getGraphAsync()
     }, [graphUpdatedNumber], LOAD_GRAPH_TIMEOUT)
@@ -144,7 +143,6 @@ const GraphSidebar = (props: {
     const getGraphAsync = async () => {
         const boundingRect: DOMRect | undefined = document.getElementById('graph-div')?.getBoundingClientRect();
 
-        console.log(graphParams.graphCreation.color,)
         if (boundingRect !== undefined) {
             const _stepID = await props.mitoAPI.editGraph(
                 graphID,

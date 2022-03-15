@@ -268,8 +268,13 @@ function GraphSetupTab(
                     updateAxisData={updateAxisData}
                     mitoAPI={props.mitoAPI}
                 />
-                <>
-                    <Row justify='space-between' align='center'>
+                <div>
+                    <Row 
+                        justify='space-between' 
+                        align='center' 
+                        title='Use an additional column from your data to further break down the data using the color property of the graph.'
+                        suppressTopBottomMargin
+                    >
                         <Col>
                             <div className='text-header-3'>
                                 Color
@@ -307,7 +312,7 @@ function GraphSetupTab(
                             />
                         </Row>
                     }
-                </>
+                </div>
                 
                 <Row justify='space-between' align='center' title={getDefaultSafetyFilter(props.sheetDataArray, graphSheetIndex) ? SAFETY_FILTER_ENABLED_MESSAGE : SAFETY_FILTER_DISABLED_MESSAGE}>
                     <Col>

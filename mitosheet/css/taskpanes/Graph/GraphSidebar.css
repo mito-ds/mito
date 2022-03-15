@@ -49,7 +49,7 @@
     justify-content: space-between;
 
     border-left: 1px solid var(--mito-border);
-    width: 220px;
+    width: 250px;
     height: 100%;
     box-sizing: border-box;
 }
@@ -66,7 +66,7 @@
     width: 100%;
     
     padding-top: 5px;
-    padding-right: 5px;
+    padding-right: 10px; /* Extra padding on the right to make space for the scrollbar */
     padding-left: 5px;
     box-sizing: border-box;
 }

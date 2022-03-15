@@ -1,4 +1,4 @@
-// Copyright (c) Mito
+// Copyright (c) Saga Inc.
 
 import React, { useEffect } from 'react';
 import MitoAPI, { getRandomId } from '../../api';
