@@ -46,7 +46,7 @@ def execute_replay_analysis_update(
     # This is particularly important for users who received the notebook from a colleague.
     if analysis is None:
         log('replayed_nonexistant_analysis_failed')
-        return
+        raise make_no_analysis_error(analysis_name)
 
 
     # We only keep the intialize step only, if we want to clear,

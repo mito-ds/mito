@@ -7,7 +7,6 @@
 from typing import Dict, List, Optional, Any
 import io
 
-
 from mitosheet.types import ColumnHeader
 import plotly.graph_objects as go
 
