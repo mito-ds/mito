@@ -257,7 +257,6 @@ class State:
         """
         Returns true iff a sheet_index exists within this state
         """
-        print(self.dfs)
         return not (sheet_index < 0 or sheet_index >= len(self.dfs))
 
     def move_to_deprecated_id_algorithm(self) -> None:

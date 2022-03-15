@@ -109,7 +109,6 @@ def dfs_to_dict_for_json(
                 max_length=MAX_ROWS,
             ) 
         else:
-            print("FROM CACHE", sheet_index)
             final_dict[sheet_index] = previous_dict[sheet_index]
 
     return final_dict

@@ -424,7 +424,6 @@ def test_transpile_filter():
     mito = create_mito_wrapper_dfs(df1)
     mito.filter(0, "name", "And", FC_STRING_CONTAINS, "Nate")
 
-    print(mito.transpiled_code)
     assert mito.transpiled_code == [
         "df1 = df1[df1['name'].str.contains('Nate', na=False)]",
     ]
