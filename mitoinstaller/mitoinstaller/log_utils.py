@@ -7,6 +7,7 @@ to the user.
 """
 import getpass
 import platform
+import re
 import sys
 import traceback
 from typing import Any, Dict
@@ -57,6 +58,15 @@ def identify() -> None:
             }
         )
 
+def get_recent_traceback() -> str:
+    """
+    Helper function that returns the most recent traceback, with the file paths
+    stripped to remove all but the mitosheet file names for ease in debugging.
+    
+    Inspired by https://stackoverflow.com/questions/25272368/hide-file-from-traceback
+    """
+    return re.sub(r'File ".*[\\/]([^\\/]+.py)"', r'File "\1"', traceback.format_exc())
+
 def log_error(event: str, params: Dict[str, Any]=None) -> None:
     """
     Logs an error by adding the traceback to the error, for easier 
@@ -65,7 +75,7 @@ def log_error(event: str, params: Dict[str, Any]=None) -> None:
     if params is None:
         params = {}
 
-    recent_traceback = traceback.format_exc().strip().split('\n')
+    recent_traceback = get_recent_traceback().strip().split('\n')
     # Then, we log it
     log(
         event,
