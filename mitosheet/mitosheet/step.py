@@ -4,8 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from collections import OrderedDict
-from typing import Any, Dict, List, Optional, Set, Type
+from typing import Any, Dict, List, Optional, OrderedDict, Set, Type
 from mitosheet.evaluation_graph_utils import create_column_evaluation_graph
 
 from mitosheet.step_performers.step_performer import StepPerformer
@@ -87,10 +86,14 @@ class Step:
 
     @property
     def column_evaluation_graph(self):
-        return [
-            create_column_evaluation_graph(self.post_state, sheet_index)
+        return OrderedDict(
+            (
+                sheet_index, 
+                create_column_evaluation_graph(self.post_state, sheet_index)
+            )
             for sheet_index in range(len(self.dfs))
-        ]
+
+        )
     
     @property
     def column_filters(self):

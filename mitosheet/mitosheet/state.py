@@ -9,7 +9,7 @@ from typing import Any, List, Dict
 import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap
-from mitosheet.types import ColumnID
+from mitosheet.types import ColumnFiltersDict, ColumnFormatTypesDict, ColumnID, ColumnSpreadsheetCodeDict, DataframeDict, DataframeNamesDict, DataframeSourcesDict, GraphDataDict
 
 # Constants for where the dataframe in the state came from
 DATAFRAME_SOURCE_PASSED = "passed"  # passed in mitosheet.sheet
@@ -42,18 +42,18 @@ class State:
 
     def __init__(
         self,
-        dfs: Dict[int, pd.DataFrame],
-        df_names: List[str] = None,
-        df_sources: List[str] = None,
+        dfs: DataframeDict,
+        df_names: DataframeNamesDict = None,
+        df_sources: DataframeSourcesDict = None,
         column_ids: ColumnIDMap = None,
-        column_spreadsheet_code: List[Dict[ColumnID, str]] = None,
-        column_filters: List[Dict[ColumnID, Any]] = None,
-        column_format_types: List[Dict[ColumnID, Dict[str, Any]]] = None,
-        graph_data_dict: "OrderedDict[str, Dict[str, Any]]" = None
+        column_spreadsheet_code: ColumnSpreadsheetCodeDict = None,
+        column_filters: ColumnFiltersDict = None,
+        column_format_types: ColumnFormatTypesDict = None,
+        graph_data_dict: GraphDataDict = None
     ):
 
         # The dataframes that are in the state. We keep them in an ordered dict
-        self.dfs: Dict[int, pd.DataFrame] = OrderedDict()
+        self.dfs: DataframeDict = OrderedDict()
         for sheet_index, df in dfs.items():
             self.dfs[sheet_index] = df
 
@@ -64,7 +64,7 @@ class State:
         self.df_names = (
             df_names
             if df_names is not None
-            else [f"df{i + 1}" for i in range(len(dfs))]
+            else OrderedDict((i, f"df{i + 1}") for i in range(len(dfs)))
         )
 
         # The df sources are where the actual dataframes come from, e.g.
@@ -74,7 +74,7 @@ class State:
         self.df_sources = (
             df_sources
             if df_sources is not None
-            else [DATAFRAME_SOURCE_PASSED for _ in dfs]
+            else OrderedDict((i, DATAFRAME_SOURCE_PASSED) for i in range(len(dfs)))
         )
 
         # We then make a column id map if we do not already have one, so that we can identify each
@@ -86,37 +86,46 @@ class State:
         self.column_spreadsheet_code = (
             column_spreadsheet_code
             if column_spreadsheet_code is not None
-            else [
-                {
-                    column_id: ""
-                    for column_id in self.column_ids.get_column_ids(sheet_index)
-                }
+            else OrderedDict(
+                (
+                    sheet_index, 
+                    {
+                        column_id: ""
+                        for column_id in self.column_ids.get_column_ids(sheet_index)
+                    }
+                )
                 for sheet_index in range(len(dfs))
-            ]
+            )
         )
 
         self.column_filters = (
             column_filters
             if column_filters is not None
-            else [
-                {
-                    column_id: {"operator": "And", "filters": []}
-                    for column_id in self.column_ids.get_column_ids(sheet_index)
-                }
+            else OrderedDict(
+                (
+                    sheet_index, 
+                    {
+                        column_id: {"operator": "And", "filters": []}
+                        for column_id in self.column_ids.get_column_ids(sheet_index)
+                    }
+                )
                 for sheet_index in range(len(dfs))
-            ]
+            )
         )
 
-        self.column_format_types: List[Dict[str, Dict[str, Any]]] = (
+        self.column_format_types: ColumnFormatTypesDict = (
             column_format_types
             if column_format_types is not None
-            else [
-                {
-                    column_id: {"type": "default"}
-                    for column_id in self.column_ids.get_column_ids(sheet_index)
-                }
+            else OrderedDict(
+                (
+                    sheet_index,
+                    {
+                        column_id: {"type": "default"}
+                        for column_id in self.column_ids.get_column_ids(sheet_index)
+                    }
+                )
                 for sheet_index in range(len(dfs))
-            ]
+            )
         )
 
         # We put this in an ordered dict so we can easily figure out the last graph that was edited at each step. 
@@ -132,7 +141,6 @@ class State:
         new_dfs: Dict[int, pd.DataFrame] = OrderedDict()
         for sheet_index, df in self.dfs.items():
             new_dfs[sheet_index] = df.copy(deep=False)
-
 
         return State(
             dfs=new_dfs,
@@ -183,16 +191,18 @@ class State:
         not defined, then will append the df to the end of the state
         """
         if sheet_index is None:
+            new_dataframe_id = len(self.dfs)
+
             # Update dfs by appending new df
-            self.dfs[len(self.dfs)] = new_df
+            self.dfs[new_dataframe_id] = new_df
             # Also update the dataframe name
             if df_name is None:
-                self.df_names.append(f"df{len(self.df_names) + 1}")
-            else:
-                self.df_names.append(df_name)
+                df_name = f"df{len(self.df_names) + 1}"
+
+            self.df_names[new_dataframe_id] = df_name
 
             # Save the source of this dataframe
-            self.df_sources.append(df_source)
+            self.df_sources[new_dataframe_id] = df_source
 
             # Add this to the column_ids map
             column_ids = self.column_ids.add_df(
@@ -200,58 +210,59 @@ class State:
             )
 
             # Update all the variables that depend on column_headers
-            self.column_spreadsheet_code.append(
-                {column_id: "" for column_id in column_ids}
-            )
-            self.column_filters.append(
-                {
-                    column_id: {"operator": "And", "filters": []}
-                    for column_id in column_ids
-                }
-            )
-            self.column_format_types.append(
+            self.column_spreadsheet_code[new_dataframe_id] = {
+                column_id: "" for column_id in column_ids
+            }
+
+            self.column_filters[new_dataframe_id] = {
+                column_id: {"operator": "And", "filters": []}
+                for column_id in column_ids
+            }
+
+            self.column_format_types[new_dataframe_id] = (
                 {column_id: {"type": FORMAT_DEFAULT} for column_id in column_ids}
                 if format_types is None
                 else format_types
             )
 
-            # Return the index of this sheet
-            return len(self.dfs) - 1
-        else:
+            # Return the index of this sheet (currently the dataframe id)
+            return new_dataframe_id 
+        else:   
+            new_dataframe_id = sheet_index
 
             # Update dfs by switching which df is at this index specifically
-            self.dfs[sheet_index] = new_df
+            self.dfs[new_dataframe_id] = new_df
             # Also update the dataframe name, if it is passed. Otherwise, we don't change it
             if df_name is not None:
-                self.df_names[sheet_index] = df_name
+                self.df_names[new_dataframe_id] = df_name
 
             # Save the source of this dataframe, if it is passed. Otherwise, don't change it
             if df_source is not None:
-                self.df_sources[sheet_index] = df_source
+                self.df_sources[new_dataframe_id] = df_source
 
             # Add this to the column_ids map
             column_ids = self.column_ids.add_df(
                 new_df,
-                sheet_index=sheet_index,
+                sheet_index=new_dataframe_id,
                 use_deprecated_id_algorithm=use_deprecated_id_algorithm,
             )
 
             # Update all the variables that depend on column_headers
-            self.column_spreadsheet_code[sheet_index] = {
+            self.column_spreadsheet_code[new_dataframe_id] = {
                 column_id: "" for column_id in column_ids
             }
-            self.column_filters[sheet_index] = {
+            self.column_filters[new_dataframe_id] = {
                 column_id: {"operator": "And", "filters": []}
                 for column_id in column_ids
             }
-            self.column_format_types[sheet_index] = (
+            self.column_format_types[new_dataframe_id] = (
                 {column_id: {"type": FORMAT_DEFAULT} for column_id in column_ids}
                 if format_types is None
                 else format_types
             )
 
-            # Return the index of this sheet
-            return sheet_index
+            # Return the index of this sheet (currently the dataframe id)
+            return new_dataframe_id
 
     def does_sheet_index_exist_within_state(self, sheet_index: int) -> bool:
         """
@@ -278,10 +289,13 @@ class State:
         for key, value in self.__dict__.items():
             # And for anything defined on columns, update it to the new id schema
             if key.startswith("column") and key != "column_ids":
-                new_value = [
-                    {make_valid_header(k): v for k, v in column_map.items()}
-                    for column_map in value
-                ]
+                new_value = OrderedDict(
+                    (
+                        dataframe_id,
+                        {make_valid_header(k): v for k, v in column_map.items()}
+                    )
+                    for dataframe_id, column_map in value.items()
+                )
                 self.__setattr__(key, new_value)
 
         # Then, update the column ids mapping object itself

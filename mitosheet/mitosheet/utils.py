@@ -7,11 +7,12 @@
 Contains helpful utility functions
 """
 from collections import OrderedDict
+from copy import deepcopy, copy
 import json
 import re
 import uuid
 from typing import Any, Dict, List, Optional, Set, Tuple
-from mitosheet.types import ColumnHeader, ColumnID
+from mitosheet.types import ColumnFiltersDict, ColumnFormatTypesDict, ColumnHeader, ColumnID, ColumnSpreadsheetCodeDict, DataframeDict, DataframeNamesDict
 
 import numpy as np
 import pandas as pd
@@ -24,25 +25,25 @@ from mitosheet.sheet_functions.types.utils import get_float_dt_td_columns
 MAX_ROWS = 1_500
 
 
-def get_first_unused_dataframe_name(existing_df_names: List[str], new_dataframe_name: str) -> str:
+def get_first_unused_dataframe_name(existing_df_names_list: List[str], new_dataframe_name: str) -> str:
     """
     Appends _1, _2, .. to df name until it finds an unused 
     dataframe name. If no append is necessary, will just
     return the initial passed value.
     """
-    if new_dataframe_name not in existing_df_names:
+    if new_dataframe_name not in existing_df_names_list:
         return new_dataframe_name
 
-    for i in range(len(existing_df_names) + 1):
+    for i in range(len(existing_df_names_list) + 1):
         new_name = f'{new_dataframe_name}_{i + 1}'
-        if new_name not in existing_df_names:
+        if new_name not in existing_df_names_list:
             return new_name
 
     # NOTE: We should never reach this, as the above loop will
     # find a dataframe name that is taken
     return new_dataframe_name
 
-def get_valid_dataframe_name(existing_df_names: List[str], original_dataframe_name: str) -> str:
+def get_valid_dataframe_name(existing_df_names_list: List[str], original_dataframe_name: str) -> str:
     """
     Given a string, turns it into a valid dataframe name.
     """
@@ -55,48 +56,49 @@ def get_valid_dataframe_name(existing_df_names: List[str], original_dataframe_na
     if len(dataframe_name) == 0 or dataframe_name[0].isdecimal():
         return 'df_' + dataframe_name
 
-    return get_first_unused_dataframe_name(existing_df_names, dataframe_name)
+    return get_first_unused_dataframe_name(existing_df_names_list, dataframe_name)
 
 
-def get_valid_dataframe_names(existing_df_names: List[str], original_df_names: List[str]) -> List[str]:
+def get_valid_dataframe_names(existing_df_names: DataframeNamesDict, original_df_names: List[str]) -> List[str]:
     """
     Helper function for taking a list of potential and turning them into valid
     names for dataframes, that do not overlap with the existing dataframe names.
     """
 
     final_names: List[str] = []
+    existing_df_names_list = list(existing_df_names.values())
 
     for original_df_name in original_df_names:
         new_names_final = get_valid_dataframe_name(
-            existing_df_names + final_names,
+            existing_df_names_list + final_names,
             original_df_name
         )
         final_names.append(new_names_final)
     
     return final_names
 
-def is_default_df_names(df_names: List[str]) -> bool:
+def is_default_df_names(df_names: DataframeNamesDict) -> bool:
     """
     Returns true if the df names list is the default df names
     created when the widget state container is initialized
     """
-    return len(df_names) > 0 and df_names == [f'df{i + 1}' for i in range(len(df_names))]
+    return len(df_names) > 0 and df_names.values() == [f'df{i + 1}' for i in range(len(df_names))]
 
 def dfs_to_dict_for_json(
         modified_sheet_indexes: Set[int],
-        previous_dict: Dict[int, Any],
-        dfs: Dict[int, pd.DataFrame],
-        df_names: List[str],
+        saved_sheet_data_dict: Dict[int, Any],
+        dfs: DataframeDict,
+        df_names: DataframeNamesDict,
         df_sources: List[str],
-        column_spreadsheet_code_array: List[Dict[ColumnID, str]],
-        column_filters_array: List[Dict[ColumnID, Any]],
+        column_spreadsheet_code_array: ColumnSpreadsheetCodeDict,
+        column_filters_array: ColumnFiltersDict,
         column_ids: ColumnIDMap,
-        column_format_types: List[Dict[ColumnID, Dict[str, str]]]
+        column_format_types: ColumnFormatTypesDict
     ) -> Dict:
 
     final_dict = OrderedDict()
     for sheet_index, df in dfs.items():
-        if sheet_index in modified_sheet_indexes or sheet_index not in previous_dict:
+        if sheet_index in modified_sheet_indexes or sheet_index not in saved_sheet_data_dict:
             final_dict[sheet_index] = df_to_json_dumpsable(
                 df, 
                 df_names[sheet_index],
@@ -109,7 +111,7 @@ def dfs_to_dict_for_json(
                 max_length=MAX_ROWS,
             ) 
         else:
-            final_dict[sheet_index] = previous_dict[sheet_index]
+            final_dict[sheet_index] = saved_sheet_data_dict[sheet_index]
 
     return final_dict
 

@@ -20,6 +20,7 @@ from mitosheet.step_performers.import_steps.excel_import import ExcelImportStepP
 from mitosheet.state import State
 from mitosheet.step import Step
 from mitosheet.step_performers import EVENT_TYPE_TO_STEP_PERFORMER
+from mitosheet.types import DataframeDict
 from mitosheet.updates import UPDATES
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
 from mitosheet.utils import dfs_to_dict_for_json, get_new_id, is_default_df_names
@@ -187,13 +188,15 @@ class StepsManager:
                 preprocess_step_performers.preprocess_step_type()
             ] = execution_data
 
-        initial_args: Dict[int, pd.DataFrame] = OrderedDict()
+        # We turn the initial args into an ordered dict, rather than just
+        # some iteratable, as we use arguments as an ordered dict from now on
+        initial_args: DataframeDict = OrderedDict()
         for sheet_index, df in enumerate(args):
             initial_args[sheet_index] = df
 
         # Then we initialize the analysis with just a simple initialize step
         self.steps: List[Step] = [
-            Step("initialize", "initialize", {}, None, State(initial_args), {})
+            Step("initialize", "initialize", OrderedDict(), None, State(initial_args), OrderedDict())
         ]
 
         """
@@ -223,7 +226,7 @@ class StepsManager:
         # We also cache some of the sheet data in a form suitable to turn
         # into json, so that we can package it and send it to the front-end
         # faster and with less work
-        self.saved_sheet_data: Dict[int, Dict] = OrderedDict()
+        self.saved_sheet_data_dict: Dict[int, Dict] = OrderedDict()
         self.last_step_index_we_wrote_sheet_json_on = 0
 
         # We store the number of update events that have been processed successfully,
@@ -262,7 +265,7 @@ class StepsManager:
 
         saved_dict = dfs_to_dict_for_json(
             modified_sheet_indexes,
-            self.saved_sheet_data,
+            self.saved_sheet_data_dict,
             self.curr_step.dfs,
             self.curr_step.df_names,
             self.curr_step.df_sources,
@@ -272,7 +275,7 @@ class StepsManager:
             self.curr_step.column_format_types,
         )
 
-        self.saved_sheet_data = saved_dict
+        self.saved_sheet_data_dict = saved_dict
         self.last_step_index_we_wrote_sheet_json_on = self.curr_step_idx
 
         return json.dumps(saved_dict)

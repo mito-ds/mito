@@ -100,7 +100,7 @@ class BulkOldRenameStepPerformer(StepPerformer):
         **params
     ) -> List[str]:
         code = []
-        for sheet_index, df_name in enumerate(post_state.df_names):
+        for sheet_index, df_name in post_state.df_names.items():
             renames = execution_data['column_header_renames_list'][sheet_index] if execution_data else {}
             if len(renames) == 0:
                 continue

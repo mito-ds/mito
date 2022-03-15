@@ -96,8 +96,9 @@ def test_remove_format_types_on_sheet_delete():
 
     mito.delete_dataframe(1)
 
-    with pytest.raises(IndexError):   
+    with pytest.raises(KeyError):   
         assert mito.column_format_types[1]['A']['type'] == None
+    with pytest.raises(KeyError):   
         assert mito.column_format_types[1]['A count']['type'] == None
 
 

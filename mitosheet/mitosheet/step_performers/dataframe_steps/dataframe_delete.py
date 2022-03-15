@@ -3,7 +3,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from copy import copy
+from copy import copy, deepcopy
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from mitosheet.state import State
@@ -47,10 +47,15 @@ class DataframeDeleteStepPerformer(StepPerformer):
         **params
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
         # Create a new step and save the parameters
-        post_state = copy(prev_state)
+        post_state = deepcopy(prev_state)
 
         # Execute the delete
         del post_state.dfs[sheet_index]
+        del post_state.df_names[sheet_index]
+        del post_state.df_sources[sheet_index]
+        del post_state.column_spreadsheet_code[sheet_index]
+        del post_state.column_filters[sheet_index]
+        del post_state.column_format_types[sheet_index]
 
         # TODO: this is a hack for now to get the dictonary to match
         # up with the old sheet indexes we used to use; we adjust down by one
@@ -61,12 +66,22 @@ class DataframeDeleteStepPerformer(StepPerformer):
             post_state.dfs[i] = post_state.dfs[i + 1]
             del post_state.dfs[i + 1]
 
+            post_state.df_names[i] = post_state.df_names[i + 1]
+            del post_state.df_names[i + 1]
+
+            post_state.df_sources[i] = post_state.df_sources[i + 1]
+            del post_state.df_sources[i + 1]
+
+            post_state.column_spreadsheet_code[i] = post_state.column_spreadsheet_code[i + 1]
+            del post_state.column_spreadsheet_code[i + 1]
+
+            post_state.column_filters[i] = post_state.column_filters[i + 1]
+            del post_state.column_filters[i + 1]
+
+            post_state.column_format_types[i] = post_state.column_format_types[i + 1]
+            del post_state.column_format_types[i + 1]
+
         post_state.column_ids.remove_df(sheet_index)
-        post_state.column_spreadsheet_code.pop(sheet_index)
-        post_state.column_filters.pop(sheet_index)
-        post_state.column_format_types.pop(sheet_index)
-        post_state.df_names.pop(sheet_index)
-        post_state.df_sources.pop(sheet_index)
 
         return post_state, {
             'pandas_processing_time': 0 # No time spent on pandas, only metadata changes

@@ -65,6 +65,7 @@ class SimpleImportStepPerformer(StepPerformer):
 
         file_delimeters = []
         file_encodings = []
+        df_names = []
 
         just_final_file_names = [basename(normpath(file_name)) for file_name in file_names]
 
@@ -78,6 +79,7 @@ class SimpleImportStepPerformer(StepPerformer):
             # Save the delimeter and encodings for transpiling
             file_delimeters.append(delimeter)
             file_encodings.append(encoding)
+            df_names.append(df_name)
             
             post_state.add_df_to_state(
                 df, 
@@ -91,6 +93,7 @@ class SimpleImportStepPerformer(StepPerformer):
         return post_state, {
             'file_delimeters': file_delimeters,
             'file_encodings': file_encodings,
+            'df_names': df_names,
             'pandas_processing_time': pandas_processing_time
         }
 
@@ -106,8 +109,8 @@ class SimpleImportStepPerformer(StepPerformer):
         code = ['import pandas as pd']
 
         index = 0
-        for file_name, df_name in zip(file_names, post_state.df_names[len(post_state.df_names) - len(file_names):]):
-
+        for file_name, df_name in zip(file_names, execution_data['df_names'] if execution_data is not None else None):
+            
             delimeter = execution_data['file_delimeters'][index] if execution_data is not None else None
             encoding = execution_data['file_encodings'][index] if execution_data is not None else None
 

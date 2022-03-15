@@ -69,7 +69,7 @@ class ExcelImportStepPerformer(StepPerformer):
             post_state.add_df_to_state(
                 df, 
                 DATAFRAME_SOURCE_IMPORTED, 
-                df_name=get_valid_dataframe_name(post_state.df_names, sheet_name),
+                df_name=get_valid_dataframe_name(list(post_state.df_names.values()), sheet_name),
             )
 
         return post_state, {

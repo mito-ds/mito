@@ -3,6 +3,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
+from typing import OrderedDict
 import pandas as pd
 import pytest
 
@@ -20,8 +21,8 @@ def test_create_steps_manager():
     steps_manager = StepsManager([df1, df2])
     assert steps_manager.curr_step_idx == 0
     assert steps_manager.curr_step.step_type == 'initialize'
-    assert steps_manager.curr_step.column_spreadsheet_code == [{'A': ''}, {'A': ''}]
-    assert steps_manager.curr_step.column_evaluation_graph == [{'A': set()}, {'A': set()}]
+    assert steps_manager.curr_step.column_spreadsheet_code == OrderedDict([(0, {'A': ''}), (1, {'A': ''})])
+    assert steps_manager.curr_step.column_evaluation_graph == OrderedDict([(0, {'A': set()}), (1, {'A': set()})])
     assert steps_manager.curr_step.dfs[0].equals(df1)
     assert steps_manager.curr_step.dfs[1].equals(df2)
 

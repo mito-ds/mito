@@ -56,7 +56,7 @@ class DataframeRenameStepPerformer(StepPerformer):
         # Create a new step and save the parameters
         post_state = copy(prev_state)
 
-        post_state.df_names[sheet_index] = get_valid_dataframe_name(post_state.df_names, new_dataframe_name)
+        post_state.df_names[sheet_index] = get_valid_dataframe_name(list(post_state.df_names.values()), new_dataframe_name)
 
         return post_state, {
             'pandas_processing_time': 0 # No time spent on pandas, only metadata changes

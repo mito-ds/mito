@@ -17,7 +17,7 @@ def test_state_can_add_df_to_end():
         if isinstance(value, list):
             assert len(value) == 2
     
-    assert state.df_sources == [DATAFRAME_SOURCE_PASSED, DATAFRAME_SOURCE_IMPORTED]
+    assert list(state.df_sources.values()) == [DATAFRAME_SOURCE_PASSED, DATAFRAME_SOURCE_IMPORTED]
 
 def test_state_can_add_df_to_middle():
     df = pd.DataFrame({'A': [123]})
@@ -27,5 +27,5 @@ def test_state_can_add_df_to_middle():
         if isinstance(value, list):
             assert len(value) == 1
     
-    assert state.df_sources == [DATAFRAME_SOURCE_IMPORTED]
+    assert list(state.df_sources.values()) == [DATAFRAME_SOURCE_IMPORTED]
 

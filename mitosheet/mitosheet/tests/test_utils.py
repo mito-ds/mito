@@ -43,7 +43,7 @@ def check_transpiled_code_after_call(func):
     return wrapper
 
 
-def check_dataframes_equal(test_wrapper):
+def check_dataframes_equal(test_wrapper: "MitoWidgetTestWrapper") -> None:
     """
     Tests that the dataframes in the widget state container equal
     to those that are the result of the executed code. 
@@ -58,14 +58,14 @@ def check_dataframes_equal(test_wrapper):
         df_name: df.copy(deep=True) for df, df_name in 
         zip(
             test_wrapper.mito_widget.steps_manager.original_args,
-            test_wrapper.mito_widget.steps_manager.steps[0].df_names
+            test_wrapper.mito_widget.steps_manager.steps[0].df_names.values()
         )
     }
     final_dfs = {
         df_name: df.copy(deep=True) for df, df_name in 
         zip(
             test_wrapper.mito_widget.steps_manager.curr_step.dfs.values(),
-            test_wrapper.mito_widget.steps_manager.curr_step.df_names
+            test_wrapper.mito_widget.steps_manager.curr_step.df_names.values()
         )
     }
 
@@ -78,7 +78,7 @@ def check_dataframes_equal(test_wrapper):
         test_wrapper.transpiled_code +
         [
             f'check_final_dataframe(\'{df_name}\', {df_name})'
-            for df_name in test_wrapper.mito_widget.steps_manager.curr_step.df_names
+            for df_name in test_wrapper.mito_widget.steps_manager.curr_step.df_names.values()
         ]
     )
 

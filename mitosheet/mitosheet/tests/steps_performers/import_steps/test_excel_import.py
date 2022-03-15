@@ -26,7 +26,7 @@ def test_can_import_a_single_excel():
     assert mito.curr_step.step_type == 'excel_import'
     assert len(mito.dfs) == 1
     assert mito.dfs[0].equals(df)
-    assert mito.df_names == ['Sheet1']
+    assert list(mito.df_names.values()) == ['Sheet1']
 
     # Remove the test file
     os.remove(TEST_FILE)
@@ -48,7 +48,7 @@ def test_can_import_with_no_headers_and_skiprows():
     assert mito.dfs[0].equals(pd.DataFrame({
         0: [2, 3], 1: [3, 4]
     }))
-    assert mito.df_names == ['Sheet1']
+    assert list(mito.df_names.values()) == ['Sheet1']
 
     # Remove the test file
     os.remove(TEST_FILE)
@@ -71,6 +71,6 @@ def test_can_import_multiple_sheets():
     assert len(mito.dfs) == 2
     assert mito.dfs[0].equals(df)
     assert mito.dfs[1].equals(df)
-    assert mito.df_names == ['Sheet1', 'Sheet2']
+    assert list(mito.df_names.values()) == ['Sheet1', 'Sheet2']
     # Remove the test file
     os.remove(TEST_FILE)

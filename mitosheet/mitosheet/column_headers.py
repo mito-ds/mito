@@ -18,12 +18,12 @@ of the column header. For string column headers, they are just
 themselves.
 """
 import random
-from typing import Any, Collection, Dict, List
+from typing import Any, Collection, Dict, List, OrderedDict
 
 import pandas as pd
 
 from mitosheet.errors import make_no_column_error
-from mitosheet.types import ColumnHeader, ColumnID, MultiLevelColumnHeader
+from mitosheet.types import ColumnHeader, ColumnID, DataframeDict, DataframeID, MultiLevelColumnHeader
 
 
 def flatten_column_header(column_header: ColumnHeader) -> ColumnHeader:
@@ -119,9 +119,9 @@ class ColumnIDMap():
     two of them.
     """
 
-    def __init__(self, dfs: Dict[int, pd.DataFrame]):
-        self.column_id_to_column_header: List[Dict[ColumnID, ColumnHeader]] = [dict() for _ in range(len(dfs))]
-        self.column_header_to_column_id: List[Dict[ColumnHeader, ColumnID]] = [dict() for _ in range(len(dfs))]
+    def __init__(self, dfs: DataframeDict):
+        self.column_id_to_column_header: "OrderedDict[DataframeID, Dict[ColumnID, ColumnHeader]]" = OrderedDict((sheet_index, dict()) for sheet_index in range(len(dfs)))
+        self.column_header_to_column_id: "OrderedDict[DataframeID, Dict[ColumnHeader, ColumnID]]" = OrderedDict((sheet_index, dict()) for sheet_index in range(len(dfs)))
 
         for sheet_index, df in dfs.items():
             for column_header in df.keys():
@@ -162,9 +162,9 @@ class ColumnIDMap():
         state.
         """
         if sheet_index is None:
-            self.column_id_to_column_header.append(dict())
-            self.column_header_to_column_id.append(dict())
-            sheet_index = len(self.column_header_to_column_id) - 1
+            sheet_index = len(self.column_header_to_column_id)
+            self.column_id_to_column_header[sheet_index] = dict()
+            self.column_header_to_column_id[sheet_index] = dict()
         else:
             self.column_id_to_column_header[sheet_index] = dict()
             self.column_header_to_column_id[sheet_index] = dict()
@@ -181,8 +181,18 @@ class ColumnIDMap():
         Deletes the tracking of this dataframe from the column
         id map.
         """
-        self.column_id_to_column_header.pop(sheet_index)
-        self.column_header_to_column_id.pop(sheet_index)
+        del self.column_id_to_column_header[sheet_index]
+        del self.column_header_to_column_id[sheet_index]
+
+        # TODO: for the same reason that we have to shift these in dataframe_delete,
+        # we need to shift them here. As with that code, this disappears once we
+        # fully get rid sheet indexes
+        for i in range(sheet_index, len(self.column_id_to_column_header)):
+            self.column_id_to_column_header[i] = self.column_id_to_column_header[i + 1]
+            del self.column_id_to_column_header[i + 1]
+
+            self.column_header_to_column_id[i] = self.column_header_to_column_id[i + 1]
+            del self.column_header_to_column_id[i + 1]
     
     def add_column_header(self, sheet_index: int, column_header: ColumnHeader) -> str:
         """

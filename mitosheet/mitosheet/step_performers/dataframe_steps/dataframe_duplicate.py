@@ -50,7 +50,7 @@ class DataframeDuplicateStepPerformer(StepPerformer):
         pandas_start_time = perf_counter()
         df_copy = post_state.dfs[sheet_index].copy(deep=True)
         pandas_processing_time = perf_counter() - pandas_start_time
-        new_name = get_first_unused_dataframe_name(post_state.df_names, post_state.df_names[sheet_index] + '_copy')
+        new_name = get_first_unused_dataframe_name(list(post_state.df_names.values()), post_state.df_names[sheet_index] + '_copy')
         # Copy the formatting to the new sheet
         format_types = post_state.column_format_types[sheet_index].copy()
         post_state.add_df_to_state(df_copy, DATAFRAME_SOURCE_DUPLICATED, df_name=new_name, format_types=format_types)

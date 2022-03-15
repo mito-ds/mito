@@ -21,7 +21,7 @@ def test_undo_deletes_df_name():
     mito.merge_sheets('lookup', 0, 'A', ['A'], 1, 'A', ['A'])
     mito.undo()
 
-    assert mito.df_names == ['df1', 'df2']
+    assert list(mito.df_names.values()) == ['df1', 'df2']
 
 
 def test_undo_to_skipped_step_refreshes_step():

@@ -20,7 +20,7 @@ def test_can_rename_single_dataframe():
 
     mito.rename_dataframe(0, 'df100')
 
-    assert mito.df_names == ['df100']
+    assert list(mito.df_names.values()) == ['df100']
 
 
 def test_can_rename_multiple_dataframes():
@@ -31,7 +31,7 @@ def test_can_rename_multiple_dataframes():
     mito.rename_dataframe(0, 'df100')
     mito.rename_dataframe(1, 'df101')
 
-    assert mito.df_names == ['df100', 'df101']
+    assert list(mito.df_names.values()) == ['df100', 'df101']
 
 
 def test_can_rename_overlapping_name():
@@ -41,7 +41,7 @@ def test_can_rename_overlapping_name():
 
     mito.rename_dataframe(1, 'df1')
 
-    assert mito.df_names == ['df1', 'df1_1']
+    assert list(mito.df_names.values()) == ['df1', 'df1_1']
 
 
 def test_can_rename_no_change():

@@ -3,7 +3,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from typing import TYPE_CHECKING, Any, Dict, Collection, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, Collection, List, Optional, OrderedDict, Tuple, Union
 
 import pandas as pd
 from mitosheet.errors import get_recent_traceback_as_list
@@ -85,7 +85,7 @@ class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
         # with the same name as the the result of the return of this function,
         # but we ignore this for now. E.g. mitosheet.sheet('df1.csv', 'df1_csv') 
         # will cause only variable to exist.
-        df_names = get_valid_dataframe_names([], str_args)
+        df_names = get_valid_dataframe_names(OrderedDict(), str_args)
 
         delimeters = execution_data['delimeters'] if execution_data is not None else [None for _ in range(len(df_names))]
         encodings = execution_data['encodings'] if execution_data is not None else [None for _ in range(len(df_names))]

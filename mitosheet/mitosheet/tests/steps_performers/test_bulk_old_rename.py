@@ -4,6 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 import os
+from typing import OrderedDict
 import pandas as pd
 import pytest
 
@@ -67,7 +68,7 @@ def test_move_to_old_id_algorithm_updates_state_variables_properly():
     assert columns_ids.get_column_header_by_id(0, 'A_A') == 'A_A'
     assert columns_ids.get_column_header_by_id(0, 'B_B') == 'B_B'
     
-    assert mito.curr_step.column_evaluation_graph == [{'A_A': set(['C_C']), 'B_B': set(), 'C_C': set()}]
+    assert mito.curr_step.column_evaluation_graph == OrderedDict((i, v) for i, v in enumerate([{'A_A': set(['C_C']), 'B_B': set(), 'C_C': set()}]))
     assert list(mito.curr_step.column_filters[0].keys()) == ['A_A', 'B_B', 'C_C']
     assert list(mito.curr_step.column_spreadsheet_code[0].keys()) == ['A_A', 'B_B', 'C_C']
 

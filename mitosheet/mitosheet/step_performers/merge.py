@@ -4,6 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
+from collections import OrderedDict
 from copy import copy
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
@@ -15,7 +16,7 @@ from mitosheet.state import DATAFRAME_SOURCE_MERGED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.transpiler.transpile_utils import (
     column_header_list_to_transpiled_code, column_header_to_transpiled_code)
-from mitosheet.types import ColumnHeader, ColumnID
+from mitosheet.types import ColumnHeader, ColumnID, DataframeNamesDict
 
 LOOKUP = 'lookup'
 UNIQUE_IN_LEFT = 'unique in left'
@@ -201,7 +202,7 @@ class MergeStepPerformer(StepPerformer):
 
 def _execute_merge(
         dfs: Dict[int, pd.DataFrame], 
-        df_names: List[str],
+        df_names: DataframeNamesDict,
         how: str,
         sheet_index_one: int,
         merge_key_one: ColumnHeader, 
