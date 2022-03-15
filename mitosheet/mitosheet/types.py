@@ -18,7 +18,7 @@ import pandas as pd
 
 
 GraphID = str
-DataframeID = int
+SheetIndex = int
 ColumnID = str
 
 # Make it so we can import
@@ -36,7 +36,7 @@ if TYPE_CHECKING:
 
     # Types for storing dataframe metadata. Since we want to support
     # Python 3.6 and great, we have to conditionally import these so that don't break anything
-    DataframeDict = OrderedDict[DataframeID, pd.DataFrame]
+    DataframeDict = OrderedDict[SheetIndex, pd.DataFrame]
     DataframeNamesDict = OrderedDict[int, str]
     DataframeSourcesDict = OrderedDict[int, str]
     ColumnSpreadsheetCodeDict = OrderedDict[int, Dict[ColumnID, str]]

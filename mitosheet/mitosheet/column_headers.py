@@ -23,7 +23,7 @@ from typing import Any, Collection, Dict, List, OrderedDict
 import pandas as pd
 
 from mitosheet.errors import make_no_column_error
-from mitosheet.types import ColumnHeader, ColumnID, DataframeDict, DataframeID, MultiLevelColumnHeader
+from mitosheet.types import ColumnHeader, ColumnID, DataframeDict, SheetIndex, MultiLevelColumnHeader
 
 
 def flatten_column_header(column_header: ColumnHeader) -> ColumnHeader:
@@ -120,8 +120,8 @@ class ColumnIDMap():
     """
 
     def __init__(self, dfs: DataframeDict):
-        self.column_id_to_column_header: "OrderedDict[DataframeID, Dict[ColumnID, ColumnHeader]]" = OrderedDict((sheet_index, dict()) for sheet_index in range(len(dfs)))
-        self.column_header_to_column_id: "OrderedDict[DataframeID, Dict[ColumnHeader, ColumnID]]" = OrderedDict((sheet_index, dict()) for sheet_index in range(len(dfs)))
+        self.column_id_to_column_header: "OrderedDict[SheetIndex, Dict[ColumnID, ColumnHeader]]" = OrderedDict((sheet_index, dict()) for sheet_index in range(len(dfs)))
+        self.column_header_to_column_id: "OrderedDict[SheetIndex, Dict[ColumnHeader, ColumnID]]" = OrderedDict((sheet_index, dict()) for sheet_index in range(len(dfs)))
 
         for sheet_index, df in dfs.items():
             for column_header in df.keys():
