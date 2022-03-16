@@ -232,18 +232,6 @@ function GraphSetupTab(
                 </Row>
 
                 <AxisSection
-                    /* 
-                        We use a key here to force the Axis Section to update when the user changes the x_axis_column_ids.
-                        A key is required because react does not know that the object x_axis_column_ids changed in all cases. 
-                        Particularly, when the user changes the x_axis_column_ids from [A, B, A] to [B, A] by 
-                        deleting the first A, React does not recognize that the change has occurred and so the Axis Section does 
-                        not update even though the graph updates.
-
-                        We append the indicator xAxis to the front of the list to ensure that both AxisSections have unique keys. 
-                        When the Axis Sections don't have unique keys, its possible for the sections to become duplicated as per 
-                        the React warnings.
-                    */
-                    key={['xAxis'].concat(props.graphParams.graphCreation.x_axis_column_ids).join('')}
                     columnIDsMap={props.columnIDsMapArray[graphSheetIndex]}
                     columnDtypesMap={props.columnDtypesMap}
 
@@ -256,8 +244,6 @@ function GraphSetupTab(
                     mitoAPI={props.mitoAPI}
                 />
                 <AxisSection
-                    // See note about keys for Axis Sections above.
-                    key={['yAxis'].concat(props.graphParams.graphCreation.y_axis_column_ids).join('')}
                     columnIDsMap={props.columnIDsMapArray[graphSheetIndex]}
                     columnDtypesMap={props.columnDtypesMap}
 

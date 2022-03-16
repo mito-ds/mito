@@ -94,7 +94,7 @@ const GraphSidebar = (props: {
 
     useEffect(() => {
         fscreen.addEventListener('fullscreenchange', () => {setGraphUpdatedNumber(old => old + 1)});
-        return () => fscreen.removeEventListener('fullscreenchange', () => setGraphUpdatedNumber(old => old + 1))
+        return () => fscreen.removeEventListener('fullscreenchange', () => {return})
     }, [])
     
 

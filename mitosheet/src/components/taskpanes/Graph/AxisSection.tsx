@@ -43,7 +43,7 @@ const AxisSection = (props: {
     const selectedColumnHeaderSelects = props.selectedColumnIDs.map((columnID, i) => {
         return ((
             <SelectAndXIconCard 
-                key={columnID}
+                key={i}
                 columnID={columnID}
                 columnIDsMap={props.columnIDsMap}
                 onChange={(columnID: string) => {
