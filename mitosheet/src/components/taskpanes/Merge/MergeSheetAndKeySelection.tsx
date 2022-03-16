@@ -6,7 +6,7 @@ import React from 'react';
 import '../../../../css/taskpanes/Merge/MergeSheetAndKeySelection.css'
 import { MergeSheet } from './MergeTaskpane';
 import Select from '../../elements/Select';
-import { ColumnID, ColumnIDsMap } from '../../../types';
+import { ColumnID, DataframeID, SheetData } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 
@@ -15,13 +15,13 @@ import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
   possible sheets, as well as a column header from that sheet.
 */
 const MergeSheetAndKeySelection = (props: {
-    dfNames: string[],
-    columnIDsMap: ColumnIDsMap,
-    sheetIndex: number,
+    sheetDataMap: Record<DataframeID, SheetData>,
+    originalDataframeIDs: DataframeID[],
+    dataframeID: DataframeID,
+    otherDataframeID: DataframeID,
     mergeKeyColumnID: ColumnID,
-    otherSheetIndex: number,
     sheetNum: MergeSheet;
-    setNewSheetIndex: (newSheetIndex: number) => void,
+    setNewDataframeID: (newDataframeID: DataframeID) => void,
     setNewMergeKeyColumnID: (newMergeKeyColumnID: ColumnID) => void,
 }): JSX.Element => {
 
@@ -34,22 +34,29 @@ const MergeSheetAndKeySelection = (props: {
                     {sheetNumStr} Sheet
                 </p>
                 <Select
-                    value={props.dfNames[props.sheetIndex]}
-                    onChange={(dfName: string) => {
+                    value={props.sheetDataMap[props.dataframeID]?.dfName}
+                    onChange={(dataframeID: DataframeID) => {
                         // Safe cast as df names are all strings
-                        const newSheetIndex = props.dfNames.indexOf(dfName)
-                        props.setNewSheetIndex(newSheetIndex);
+                        props.setNewDataframeID(dataframeID);
                     }}
                     width='medium'
                 >
-                    {props.dfNames.map(dfName => {
+                    {Object.entries(props.sheetDataMap).filter(([dataframeID, sheetData]) => {
+                        // Filter out any newly created dataframes, so users cannot
+                        // select output of the merge as an input
+                        if (!props.originalDataframeIDs.includes(dataframeID)) {
+                            return false;
+                        }
+                        return true;
+                    }).map(([dataframeID, sheetData]) => {
                         return (
                             <DropdownItem
-                                key={dfName}
-                                title={dfName}
+                                key={dataframeID}
+                                title={sheetData.dfName}
+                                id={dataframeID}
                             />
                         )
-                    })}
+                    }).filter(element => element !== null)}
                 </Select>
             </div>
             <div>
@@ -62,7 +69,7 @@ const MergeSheetAndKeySelection = (props: {
                     width='medium'
                     searchable
                 >
-                    {Object.entries(props.columnIDsMap).map(([columnID, columnHeader]) => {
+                    {Object.entries(props.sheetDataMap[props.dataframeID]?.columnIDsMap || {}).map(([columnID, columnHeader]) => {
                         return (
                             <DropdownItem
                                 key={columnID}

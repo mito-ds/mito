@@ -658,10 +658,10 @@ export default class MitoAPI {
     */
     async editMerge(
         mergeType: MergeType,
-        sheetOneIndex: number,
+        dataframeIDOne: DataframeID,
         mergeKeyColumnIDOne: ColumnID,
         selectedColumnIDsOne: ColumnID[],
-        sheetTwoIndex: number,
+        dataframeIDTwo: DataframeID,
         mergeKeyColumnIDTwo: ColumnID,
         selectedColumnIDsTwo: ColumnID[],
         /* 
@@ -671,8 +671,10 @@ export default class MitoAPI {
         */
         stepID?: string
     ): Promise<string | MitoError> {
-        // If this is overwriting a merge event, then we do not need to
-        // create a new id, as we already have it!
+
+        const sheetOneIndex = dataframeIDToSheetIndex(dataframeIDOne);
+        const sheetTwoIndex = dataframeIDToSheetIndex(dataframeIDTwo);
+
         if (stepID === undefined || stepID == '') {
             stepID = getRandomId();
         }
