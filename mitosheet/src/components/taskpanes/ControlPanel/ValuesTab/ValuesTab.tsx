@@ -234,6 +234,7 @@ export function ValuesTab(
                         return((
                             <MultiToggleItem
                                 key={index}
+                                index={index}
                                 title={valueToDisplay}
                                 rightText={uniqueValueCount.countOccurence + ' (' + uniqueValueCount.percentOccurence.toFixed(2).toString() + '%' + ')'}
                                 toggled={uniqueValueCount.isNotFiltered}

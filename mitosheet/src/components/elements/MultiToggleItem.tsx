@@ -24,6 +24,12 @@ const MultiToggleItem = (props: {
     */
     onToggle: () => void;
     /** 
+        * @param index - The index of the item in the state that stores the toggles.
+        * This is used by the MultiToggleBox, and should not be deleted even though
+        * it is not used in this file
+    */
+    index: number,
+    /** 
         * @param [rightText] - Text to display on the right side of the element - useful for metadata
     */
     rightText?: string,

@@ -418,6 +418,7 @@ class MergeTaskpane extends React.Component<MergeTaskpaneProps, MergeTaskpaneSta
                                 return (
                                     <MultiToggleItem
                                         key={index}
+                                        index={index}
                                         title={getDisplayColumnHeader(columnHeader)}
                                         rightText={getDtypeValue(columnDtype)}
                                         toggled={sheetOneToggles[index]}
@@ -467,6 +468,7 @@ class MergeTaskpane extends React.Component<MergeTaskpaneProps, MergeTaskpaneSta
                                             title={getDisplayColumnHeader(columnHeader)}
                                             rightText={getDtypeValue(columnDtype)}
                                             toggled={sheetTwoToggles[index]}
+                                            index={index}
                                             onToggle={() => {
                                                 this.toggleKeepColumnIDs(MergeSheet.Second, [columnID], !sheetTwoToggles[index])
                                             }}

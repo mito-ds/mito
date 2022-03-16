@@ -112,6 +112,7 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
                         return (
                             <MultiToggleItem
                                 key={idx}
+                                index={idx}
                                 title={sheetName}
                                 toggled={sheetToggles[idx]}
                                 onToggle={() => {

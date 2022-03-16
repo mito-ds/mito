@@ -65,7 +65,7 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
     }
 
-    const columnIDsAndHeaders: [ColumnID, ColumnHeader][] = props.sheetDataMap[dropDuplicateParams.sheetIndex].data.map(c => [c.columnID, c.columnHeader]);
+    const columnIDsAndHeaders: [ColumnID, ColumnHeader][] = props.sheetDataMap[sheetIndexToDataframeID(dropDuplicateParams.sheetIndex)].data.map(c => [c.columnID, c.columnHeader]);
 
 
     const sendDropDuplicates = async (params: DropDuplicatesParams) => {
@@ -203,6 +203,7 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
                         return (
                             <MultiToggleItem
                                 key={index}
+                                index={index}
                                 title={getDisplayColumnHeader(columnHeader)}
                                 toggled={dropDuplicateParams.columnIDs.includes(columnID)}
                                 onToggle={() => {
