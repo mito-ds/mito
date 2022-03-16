@@ -326,7 +326,7 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
     const columnIDsMap = props.columnIDsMapArray[pivotState.selectedSheetIndex];
 
     // Change the title if the usre is editing a pivot table
-    let title = `Create Pivot Table ${props.dfNames[props.dfNames.length - 1]}`;
+    const title = `Create Pivot Table ${props.dfNames[props.dfNames.length - 1]}`;
     if (props.destinationDataframeID) {
         `Edit Pivot Table ${props.dfNames[dataframeIDToSheetIndex(props.destinationDataframeID)]}` 
     }

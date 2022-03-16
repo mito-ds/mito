@@ -55,7 +55,7 @@ function Footer(props: FooterProps): JSX.Element {
             </div>
             <div className="footer-tab-bar">
                 {/* First add the data tabs, and then add the graph tabs */}
-                {Object.entries(props.sheetDataMap).map(([dataframeID, df]) => [dataframeID, df.dfName]).map(([dataframeID, dfName], idx) => {
+                {Object.entries(props.sheetDataMap).map(([dataframeID, df]) => [dataframeID, df.dfName]).map(([dataframeID, dfName]) => {
                     return (
                         <SheetTab
                             key={dataframeID}

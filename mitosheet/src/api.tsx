@@ -518,6 +518,8 @@ export default class MitoAPI {
         stepID?: string,
     ): Promise<string> {
 
+        console.log(sheet_index, typeof sheet_index)
+
         // If this is overwriting a graph event, then we do not need to
         // create a new id, as we already have it!
         if (stepID === undefined || stepID === '') {

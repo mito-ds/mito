@@ -385,6 +385,8 @@ export const createActions = (
                 const newGraphID = getRandomId() // Create a new GraphID
                 const graphParams = getDefaultGraphParams(sheetDataMap, dataframeID)
 
+                console.log(graphParams)
+
                 await mitoAPI.editGraph(
                     newGraphID,
                     graphParams.graphCreation.graph_type,

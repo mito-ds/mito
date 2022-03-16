@@ -101,6 +101,7 @@ export default function SheetTabActions(props: {
         const newGraphID = getRandomId() // Create a new graph
         const graphParams = getDefaultGraphParams(props.sheetDataMap, props.dataframeID)
 
+        console.log(graphParams)
         // In order to open the graph, we are watching for the graphDataDict to change in length. This allows us to only display the graph taskpane
         // when the sheet tab exists. However, we need to know the stepID of the graph creation so that the configuration of the graph so that editing
         // the graph doesn't cause a new step to get created. We could either create a new piece of state in the that stores the stepID or we can save the 

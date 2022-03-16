@@ -26,7 +26,7 @@ const ExcelDownloadConfigSection = (props: {
                 width='block'
                 height='small'
             >
-                {Object.entries(props.sheetDataMap).map(([dataframeID, sheetData], index) => {
+                {Object.entries(props.sheetDataMap).map(([dataframeID, sheetData]) => {
                     return (
                         <MultiToggleItem
                             key={dataframeID}

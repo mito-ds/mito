@@ -8,6 +8,8 @@ import { GraphType, GRAPH_SAFETY_FILTER_CUTOFF } from "./GraphSidebar"
 // unless a graph type is provided
 export const getDefaultGraphParams = (sheetDataMap: Record<DataframeID, SheetData>, dataframeID: DataframeID, graphType?: GraphType): GraphParams => {
     const safetyFilter = getDefaultSafetyFilter(sheetDataMap, dataframeID)
+
+    console.log("HERE", dataframeIDToSheetIndex(dataframeID), dataframeID);
     return {
         graphPreprocessing: {
             safety_filter_turned_on_by_user: safetyFilter
