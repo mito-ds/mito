@@ -398,7 +398,7 @@ export interface WidthData {
  * @param viewport - The size of the viewport
  * @param scrollPosition - Scroll position in the grid
  * @param selections - Selected ranges
- * @param columnIDsMaps - A mapping from sheetIndex -> columnIndex -> columnID
+ * @param columnIDsMaps - A mapping from dataframeID -> columnIndex -> columnID
  * @param widthDataMap - A list of width data for each sheet
  */
 export interface GridState {

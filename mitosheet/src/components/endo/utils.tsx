@@ -147,15 +147,15 @@ export const doesAnySheetExist = (sheetDataMap: Record<DataframeID, SheetData>):
 /*
     Determines if a columnID exists in a specific sheet. Returns True
 */
-export const doesColumnExist = (columnID: ColumnID | undefined, sheetIndex: number, sheetDataMap: Record<DataframeID, SheetData>): boolean => {
-    return columnID !== undefined && sheetDataMap[sheetIndex]?.columnDtypeMap[columnID] !== undefined
+export const doesColumnExist = (columnID: ColumnID | undefined, dataframeID: DataframeID, sheetDataMap: Record<DataframeID, SheetData>): boolean => {
+    return columnID !== undefined && sheetDataMap[dataframeID]?.columnDtypeMap[columnID] !== undefined
 }
 
 /* 
     Determines if the sheet contains data
 */
-export const doesSheetContainData = (sheetIndex: number, sheetDataMap: Record<DataframeID, SheetData>): boolean => {
-    const sheetData = sheetDataMap[sheetIndex]
+export const doesSheetContainData = (dataframeID: DataframeID, sheetDataMap: Record<DataframeID, SheetData>): boolean => {
+    const sheetData = sheetDataMap[dataframeID]
     return sheetData !== undefined && sheetData.numRows > 0 && sheetData.numColumns > 0
 }
 

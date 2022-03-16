@@ -603,11 +603,13 @@ export default class MitoAPI {
         Adds a column with the passed parameters
     */
     async editAddColumn(
-        sheetIndex: number,
+        dataframeID: DataframeID,
         columnHeader: string,
         columnHeaderIndex: number,
         stepID?: string
     ): Promise<string> {
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID);
+
         if (stepID === undefined || stepID == '') {
             stepID = getRandomId();
         }
@@ -851,11 +853,13 @@ export default class MitoAPI {
         Drop duplicates in a dataframe
     */
     async editDropDuplicates(
-        sheetIndex: number,
+        dataframeID: DataframeID,
         columnIDs: ColumnID[],
         keep: 'last' | 'first' | false,
         stepID?: string
     ): Promise<string> {
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID);
+
         if (stepID === undefined || stepID === '') {
             stepID = getRandomId();
         }

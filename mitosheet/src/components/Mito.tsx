@@ -57,7 +57,6 @@ import loadPlotly from '../utils/plotly';
 import ErrorBoundary from './elements/ErrorBoundary';
 import DeleteGraphsModal from './modals/DeleteGraphsModal';
 import { selectPreviousGraphSheetTab } from './footer/SheetTab';
-import { dataframeIDToSheetIndex, sheetIndexToDataframeID } from '../utils/dataframeID';
 
 export type MitoProps = {
     model_id: string;
@@ -206,18 +205,24 @@ export const Mito = (props: MitoProps): JSX.Element => {
         // Make sure that the selectedSheetIndex is always >= 0 so we can index into the 
         // widthDataArray without erroring
         setUIState(prevUIState => {
-            const prevSelectedSheetIndex = dataframeIDToSheetIndex(prevUIState.selectedDataframeID);
-            let newSheetIndex = prevSelectedSheetIndex;
+            // Save the right most dataframe ID, as we use it mulitple times below
+            // and if there is none, default to 0
+            const rightmostDataframeID = Object.keys(sheetDataMap)[Object.keys(sheetDataMap).length - 1] || "0";
+
+            const prevSelectedDataframeID = prevUIState.selectedDataframeID;
+            let newSelectedDataframeID = prevSelectedDataframeID;
 
             if (previousNumSheets < Object.keys(sheetDataMap).length) {
-                newSheetIndex = Object.keys(sheetDataMap).length - 1 >= 0 ? Object.keys(sheetDataMap).length - 1 : 0;
-            } else if (prevSelectedSheetIndex >= Object.keys(sheetDataMap).length) {
-                newSheetIndex = Object.keys(sheetDataMap).length - 1 >= 0 ? Object.keys(sheetDataMap).length - 1 : 0;
+                // If we have new sheets, then select the rightmost
+                newSelectedDataframeID = rightmostDataframeID;
+            } else if (!Object.keys(sheetDataMap).includes(newSelectedDataframeID)) {
+                // If we have delete the sheet we have selected, then select a different one
+                newSelectedDataframeID = rightmostDataframeID;
             }
             
             return {
                 ...prevUIState,
-                selectedDataframeID: sheetIndexToDataframeID(newSheetIndex)
+                selectedDataframeID: newSelectedDataframeID
             };
         })
 
