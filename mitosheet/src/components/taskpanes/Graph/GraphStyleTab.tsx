@@ -3,6 +3,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { GraphParams, GraphStylingParams } from '../../../types';
 import Input from '../../elements/Input';
+import Toggle from '../../elements/Toggle';
 import Col from '../../spacing/Col';
 import Row from '../../spacing/Row';
 
@@ -17,6 +18,8 @@ function GraphStyleTab(props: {
 }): JSX.Element {
 
     const [graphStylingParams, setGraphStylingParams] = useState<GraphStylingParams>(props.graphParams.graphStyling)
+    console.log(graphStylingParams)
+
 
     useEffect(() => {
         props.setGraphParams(prevGraphParams => {
@@ -27,47 +30,132 @@ function GraphStyleTab(props: {
         })
         props.setGraphUpdatedNumber(old => old + 1)
     }, [graphStylingParams])
-    /*
-    props.setGraphParams(prevGraphParams => {
-        const newTitle = e.target.value ? "" : undefined
-        return {
-            ...prevGraphParams, 
-            graphStyling: {
-                ...prevGraphParams.graphStyling,
-                title: newTitle
-            }
-        }
-    })
-    props.setGraphUpdatedNumber((old) => old + 1);
-    */
+
 
     return ( 
         <Fragment>        
             <div className='text-header-2'>
                 Title
             </div>
-            <Row>
+            <Row justify='space-between' align='center'>
                 <Col>
                     <p>
                         Title
                     </p>
                 </Col>
                 <Input 
-                    value={graphStylingParams.title || ''}
+                    value={graphStylingParams.title.title || ''}
                     placeholder="Default Graph Title"
                     onChange={(e) => {
                         setGraphStylingParams(prevGraphStylingParams => {
                             return {
                                 ...prevGraphStylingParams, 
-                                title: e.target.value !== '' ? e.target.value : undefined
+                                title: {
+                                    ...prevGraphStylingParams.title,
+                                    title: e.target.value !== '' ? e.target.value : undefined
+                                } 
                             }
                         })
                     }}
                 />
             </Row>
+            <Row justify='space-between' align='center'>
+                <Col>
+                    <p>
+                        Display title
+                    </p>
+                </Col>
+                <Toggle 
+                    value={graphStylingParams.title.visible} 
+                    onChange={() => {
+                        setGraphStylingParams(prevGraphStylingParams => {
+                            return {
+                                ...prevGraphStylingParams,
+                                title: {
+                                    ...prevGraphStylingParams.title,
+                                    visible: !prevGraphStylingParams.title.visible
+                                }
+                            }
+                        })
+                    }}     
+                />
+            </Row>
+            <div className='text-header-2'>
+                X Axis
+            </div>
+            <Row justify='space-between' align='center'>
+                <Col>
+                    <p>
+                        X axis title
+                    </p>
+                </Col>
+                <Input 
+                    value={graphStylingParams.xaxis.title || ''}
+                    placeholder="Default x axis"
+                    onChange={(e) => {
+                        setGraphStylingParams(prevGraphStylingParams => {
+                            return {
+                                ...prevGraphStylingParams, 
+                                xaxis: {
+                                    ...prevGraphStylingParams.xaxis, 
+                                    title: e.target.value !== '' ? e.target.value : undefined
+                                }
+                            }
+                        })
+                    }}
+                />
+            </Row>
+            <Row justify='space-between' align='center'>
+                <Col>
+                    <p>
+                        Display x axis title
+                    </p>
+                </Col>
+                <Toggle 
+                    value={graphStylingParams.xaxis.visible} 
+                    onChange={() => {
+                        setGraphStylingParams(prevGraphStylingParams => {
+                            return {
+                                ...prevGraphStylingParams,
+                                xaxis: {
+                                    ...prevGraphStylingParams.xaxis,
+                                    visible: !prevGraphStylingParams.xaxis.visible
+                                }
+                            }
+                        })
+                    }}     
+                />
+            </Row>
+            <Row justify='space-between' align='center'>
+                <Col>
+                    <p>
+                        Display range slider
+                    </p>
+                </Col>
+                <Toggle 
+                    value={graphStylingParams.xaxis.rangeslider.visible} 
+                    onChange={() => {
+                        setGraphStylingParams(prevGraphStylingParams => {
+                            return {
+                                ...prevGraphStylingParams,
+                                xaxis: {
+                                    ...prevGraphStylingParams.xaxis,
+                                    rangeslider: {
+                                        visible: !prevGraphStylingParams.xaxis.rangeslider.visible
+                                    } 
+                                }
+                            }
+                        })
+                    }}     
+                />
+            </Row>
+
         </Fragment> 
         
     )
 } 
 
 export default GraphStyleTab;
+
+
+

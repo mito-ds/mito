@@ -20,7 +20,17 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
             color: undefined
         },
         graphStyling: {
-            title: undefined
+            title: {
+                title: undefined,
+                visible: true
+            },
+            xaxis: {
+                title: undefined,
+                visible: true,
+                rangeslider: {
+                    visible: true,
+                }
+            }
         },
         graphRendering: {}
     }

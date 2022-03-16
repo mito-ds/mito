@@ -35,6 +35,13 @@ TAB = "    "
 # This must be kept in sync with GRAPH_SAFETY_FILTER_CUTOFF in GraphSidebar.tsx
 GRAPH_SAFETY_FILTER_CUTOFF = 1000
 
+RANGE_SLIDER = """dict(
+        rangeslider=dict(
+            visible=True,
+            thickness=.05
+        )
+    )"""
+
 
 def safety_filter_applied(
     df: pd.DataFrame, safety_filter_turned_on_by_user: bool
@@ -195,14 +202,33 @@ def graph_styling(
     """
 
     # Create the parameters that we use to style the graph
-    graph_title = graph_styling_params['title'] if 'title' in graph_styling_params.keys() else get_graph_title(column_headers, [], filtered, graph_type)
+    if graph_styling_params['title']['visible']:
+        graph_title = graph_styling_params['title']['title'] if 'title' in graph_styling_params['title'].keys() else get_graph_title(column_headers, [], filtered, graph_type)
+    else:
+        graph_title = None
+
+    # If the x axis title is visible, then either dispaly the user's custom title or Ploty's default title.
+    # Otherwise, get rid of the title
+    if graph_styling_params['xaxis']['visible']:
+        use_custom_xaxis_title = 'title' in graph_styling_params['xaxis'].keys()
+        # Only apply the xaxis_title if it is set because if we set it to None, then we don't get ploty's default values
+        if use_custom_xaxis_title:
+            fig.update_layout(
+                xaxis_title = graph_styling_params['xaxis']['title']
+            )
+    else: 
+        fig.update_layout(
+            xaxis_title = None
+        )
+
+    rangeslider = dict(visible=True, thickness=0.05) if graph_styling_params['xaxis']['rangeslider']['visible'] else dict(visible=False)
     barmode = get_barmode(graph_type)
 
     # Actually update the style of the graph
     fig.update_layout(
         title=graph_title,
         barmode=barmode,
-        xaxis=dict(rangeslider=dict(visible=True, thickness=0.05)),
+        xaxis=dict(rangeslider=rangeslider)
     )
     return fig
 
@@ -220,20 +246,26 @@ def graph_styling_code(
     # Create the params used to style the graph
     all_params: List[Tuple[str, str, bool]] = []
 
-    graph_title =  graph_styling_params['title'] if 'title' in graph_styling_params.keys() else get_graph_title(column_headers, [], filtered, graph_type)
-    all_params.append(("title", graph_title, True))
+    if graph_styling_params['title']['visible']:
+        graph_title =  graph_styling_params['title']['title'] if 'title' in graph_styling_params['title'].keys() else get_graph_title(column_headers, [], filtered, graph_type)
+        all_params.append(("title", graph_title, True))
+
+    # If the x axis title is visible, then either dispaly the user's custom title or Ploty's default title.
+    # Otherwise, get rid of the title
+    if graph_styling_params['xaxis']['visible']:
+        use_custom_xaxis_title = 'title' in graph_styling_params['xaxis'].keys()
+        # Only apply the xaxis_title if it is set because if we set it to None, then we don't get ploty's default values
+        if use_custom_xaxis_title:
+            all_params.append(("xaxis_title", graph_styling_params['xaxis']['title'], True))
+    else:
+        all_params.append(("xaxis_title", None, False))
 
     barmode = get_barmode(graph_type)
     if barmode is not None:
         all_params.append(("barmode", barmode, True))
 
-    RANGE_SLIDER = """dict(
-        rangeslider=dict(
-            visible=True,
-            thickness=.05
-        )
-    )"""
-    all_params.append(("xaxis", RANGE_SLIDER, False))
+    if graph_styling_params['xaxis']['rangeslider']['visible']:
+        all_params.append(("xaxis", RANGE_SLIDER, False))
 
     params = f"\n{TAB}"
     params += f",\n{TAB}".join(

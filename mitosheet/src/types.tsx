@@ -207,7 +207,17 @@ export type GraphCreationParams = {
     color: ColumnID | undefined
 }
 export type GraphStylingParams = {
-    title: string | undefined
+    title: {
+        title: string | undefined,
+        visible: boolean
+    }
+    xaxis: {
+        title: string | undefined;
+        visible: boolean;
+        rangeslider: {
+            visible: boolean,
+        }
+    }
 }
 export type GraphRenderingParams = {
     width?: number
