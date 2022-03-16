@@ -12,7 +12,8 @@ explicit and clear, and make sure to test the types in our
 continous integration
 """
 
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Union, OrderedDict
+from collections import OrderedDict
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Union
 
 import pandas as pd
 

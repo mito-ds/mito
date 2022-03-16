@@ -41,7 +41,7 @@ const MergeSheetAndKeySelection = (props: {
                     }}
                     width='medium'
                 >
-                    {Object.entries(props.sheetDataMap).filter(([dataframeID, sheetData]) => {
+                    {Object.entries(props.sheetDataMap).filter(([dataframeID,]) => {
                         // Filter out any newly created dataframes, so users cannot
                         // select output of the merge as an input
                         if (!props.originalDataframeIDs.includes(dataframeID)) {
