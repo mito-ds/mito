@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 import plotly.express as px
@@ -188,14 +188,14 @@ def graph_creation_code(
 
 
 def graph_styling(
-    fig: go.Figure, graph_type: str, column_headers: List[ColumnHeader], filtered: bool
+    fig: go.Figure, graph_type: str, column_headers: List[ColumnHeader], filtered: bool, graph_styling_params: Dict[str, Any]
 ) -> go.Figure:
     """
     Styles the Plotly express graph figure
     """
 
     # Create the parameters that we use to style the graph
-    graph_title = get_graph_title(column_headers, [], filtered, graph_type)
+    graph_title = graph_styling_params['title'] if 'title' in graph_styling_params.keys() else get_graph_title(column_headers, [], filtered, graph_type)
     barmode = get_barmode(graph_type)
 
     # Actually update the style of the graph
@@ -208,7 +208,10 @@ def graph_styling(
 
 
 def graph_styling_code(
-    graph_type: str, column_headers: List[ColumnHeader], filtered: bool
+    graph_type: 
+    str, column_headers: List[ColumnHeader], 
+    filtered: bool,
+    graph_styling_params: Dict[str, Any]
 ) -> str:
     """
     Returns the code for styling the Plotly express graph
@@ -217,7 +220,7 @@ def graph_styling_code(
     # Create the params used to style the graph
     all_params: List[Tuple[str, str, bool]] = []
 
-    graph_title = get_graph_title(column_headers, [], filtered, graph_type)
+    graph_title =  graph_styling_params['title'] if 'title' in graph_styling_params.keys() else get_graph_title(column_headers, [], filtered, graph_type)
     all_params.append(("title", graph_title, True))
 
     barmode = get_barmode(graph_type)
@@ -247,7 +250,8 @@ def get_plotly_express_graph(
     safety_filter_turned_on_by_user: bool,
     x_axis_column_headers: List[ColumnHeader],
     y_axis_column_headers: List[ColumnHeader],
-    color_column_header: Optional[ColumnHeader]
+    color_column_header: Optional[ColumnHeader],
+    graph_styling_params: Dict[str, Any],
 ) -> go.Figure:
     """
     Generates and returns a Plotly express graph in 3 steps
@@ -267,7 +271,7 @@ def get_plotly_express_graph(
     fig = graph_creation(graph_type, df, x_axis_column_headers, y_axis_column_headers, color_column_header)
 
     # Step 3: Graph Styling
-    fig = graph_styling(fig, graph_type, all_column_headers, is_safety_filter_applied)
+    fig = graph_styling(fig, graph_type, all_column_headers, is_safety_filter_applied, graph_styling_params)
 
     return fig
 
@@ -279,6 +283,7 @@ def get_plotly_express_graph_code(
     x_axis_column_headers: List[ColumnHeader],
     y_axis_column_headers: List[ColumnHeader],
     color_column_header: Optional[ColumnHeader],
+    graph_styling_params: Dict[str, Any],
     df_name: str,
 ) -> str:
     """
@@ -315,7 +320,7 @@ def get_plotly_express_graph_code(
     # Step 3: Graph Styling
     all_column_headers = x_axis_column_headers + y_axis_column_headers
     code.append(
-        graph_styling_code(graph_type, all_column_headers, is_safety_filter_applied)
+        graph_styling_code(graph_type, all_column_headers, is_safety_filter_applied, graph_styling_params)
     )
 
     # We use fig.show(renderer="iframe") which works in both JLab 2 & 3

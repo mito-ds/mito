@@ -206,7 +206,9 @@ export type GraphCreationParams = {
     y_axis_column_ids: ColumnID[]
     color: ColumnID | undefined
 }
-export type GraphStylingParams = undefined
+export type GraphStylingParams = {
+    title: string | undefined
+}
 export type GraphRenderingParams = {
     width?: number
     height?: number

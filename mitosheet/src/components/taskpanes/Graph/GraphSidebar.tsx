@@ -164,6 +164,7 @@ const GraphSidebar = (props: {
                 graphParams.graphCreation.y_axis_column_ids,
                 `${boundingRect?.height - 10}px`, // Subtract pixels from the height & width to account for padding
                 `${boundingRect?.width - 20 - 250}px`, 
+                graphParams.graphStyling,
                 stepID
             );
             setStepID(_stepID)
@@ -242,7 +243,11 @@ const GraphSidebar = (props: {
                                 />
                             }
                             {selectedGraphSidebarTab === GraphSidebarTab.Style &&
-                                <GraphStyleTab />
+                                <GraphStyleTab 
+                                    graphParams={graphParams}
+                                    setGraphParams={setGraphParams}
+                                    setGraphUpdatedNumber={setGraphUpdatedNumber}
+                                />
                             }
                             {selectedGraphSidebarTab === GraphSidebarTab.Export && 
                                 <GraphExportTab 

@@ -119,6 +119,7 @@ export default function SheetTabActions(props: {
             graphParams.graphCreation.y_axis_column_ids,
             `100%`, 
             `100%`, 
+            graphParams.graphStyling,
             undefined, 
         );
         

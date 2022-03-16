@@ -80,6 +80,8 @@ class GraphStepPerformer(StepPerformer):
         # We make a new state to modify it
         post_state = deepcopy(prev_state)
 
+        print(graph_styling)
+
         # Extract variables from graph parameters
         graph_type = graph_creation["graph_type"]
         sheet_index = graph_creation["sheet_index"]
@@ -125,7 +127,8 @@ class GraphStepPerformer(StepPerformer):
                 safety_filter_turned_on_by_user,
                 x_axis_column_headers,
                 y_axis_column_headers,
-                color_column_header
+                color_column_header,
+                graph_styling
             )
 
             # Get rid of some of the default white space
@@ -147,6 +150,7 @@ class GraphStepPerformer(StepPerformer):
                 x_axis_column_headers,
                 y_axis_column_headers,
                 color_column_header,
+                graph_styling,
                 df_name,
             )
 
