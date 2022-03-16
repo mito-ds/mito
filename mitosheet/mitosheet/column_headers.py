@@ -17,8 +17,9 @@ Notably, the ID of the column header is just a string representation
 of the column header. For string column headers, they are just
 themselves.
 """
+from collections import OrderedDict
 import random
-from typing import Any, Collection, Dict, List, OrderedDict
+from typing import Collection, Dict, List
 
 import pandas as pd
 
