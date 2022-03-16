@@ -13,7 +13,7 @@ import Toggle from '../../elements/Toggle';
 import { getDefaultGraphParams, getDefaultSafetyFilter } from './graphUtils';
 import DropdownButton from '../../elements/DropdownButton';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
-import ColumnCard from './ColumnCard';
+import ColumnCard from '../../elements/SelectAndXIconCard';
 
 // Graphing a dataframe with more than this number of rows will
 // give the user the option to apply the safety filter
@@ -50,9 +50,9 @@ function GraphSetupTab(
         const newSafetyFilter = !props.graphParams.graphPreprocessing.safety_filter_turned_on_by_user
 
         props.setGraphParams(prevGraphParams => {
-            const copyPrevGraphParams = {...prevGraphParams}
+            const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
             return {
-                ...copyPrevGraphParams,
+                ...graphParamsCopy,
                 graphPreprocessing: {
                     safety_filter_turned_on_by_user: newSafetyFilter
                 }
@@ -88,22 +88,22 @@ function GraphSetupTab(
         // Update the axis data
         if (graphAxis === GraphAxisType.X_AXIS) {
             props.setGraphParams(prevGraphParams => {
-                const copyPrevGraphParams = {...prevGraphParams}
+                const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
                 return {
-                    ...copyPrevGraphParams,
+                    ...graphParamsCopy,
                     graphCreation: {
-                        ...copyPrevGraphParams.graphCreation, 
+                        ...graphParamsCopy.graphCreation, 
                         x_axis_column_ids: axisColumnIDsCopy
                     }
                 }
             })
         } else {
             props.setGraphParams(prevGraphParams => {
-                const copyPrevGraphParams = {...prevGraphParams}
+                const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
                 return {
-                    ...copyPrevGraphParams,
+                    ...graphParamsCopy,
                     graphCreation: {
-                        ...copyPrevGraphParams.graphCreation, 
+                        ...graphParamsCopy.graphCreation, 
                         y_axis_column_ids: axisColumnIDsCopy
                     }
                 }
@@ -120,11 +120,11 @@ function GraphSetupTab(
 
         // Update the graph type
         props.setGraphParams(prevGraphParams => {
-            const copyPrevGraphParams = {...prevGraphParams}
+            const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
             return {
-                ...copyPrevGraphParams,
+                ...graphParamsCopy,
                 graphCreation: {
-                    ...copyPrevGraphParams.graphCreation,
+                    ...graphParamsCopy.graphCreation,
                     graph_type: graphType,
                     x_axis_column_ids: xAxisColumnIDsCopy,
                     y_axis_column_ids: yAxisColumnIDsCopy
@@ -136,10 +136,11 @@ function GraphSetupTab(
 
     const setColor = (newColorColumnID: ColumnID | undefined) => {
         props.setGraphParams(prevGraphParams => {
+            const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
             return {
-                ...prevGraphParams,
+                ...graphParamsCopy,
                 graphCreation: {
-                    ...prevGraphParams.graphCreation, 
+                    ...graphParamsCopy.graphCreation, 
                     color: newColorColumnID
                 }
             }
@@ -307,7 +308,7 @@ function GraphSetupTab(
                                 columnID={props.graphParams.graphCreation.color}
                                 columnIDsMap={props.columnIDsMapArray[graphSheetIndex]}
                                 onChange={(columnID: string) => setColor(columnID)}
-                                onXIconClick={() => setColor(undefined)}
+                                onDelete={() => setColor(undefined)}
                                 selectableColumnIDs={Object.keys(props.sheetDataArray[graphSheetIndex].columnIDsMap)}
                             />
                         </Row>

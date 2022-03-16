@@ -228,15 +228,17 @@ export type GraphParams = {
  */
 export type GraphData = {
     graphParams: GraphParams,
-    graphOutput?: {
-        graphGeneratedCode: string,
-        graphHTML: string,
-        graphScript: string,
-    },
+    graphOutput: GraphOutput, 
     graphTabName: string
 };
 
-export type GraphID = string
+export type GraphOutput = {
+    graphGeneratedCode: string,
+    graphHTML: string,
+    graphScript: string,
+} | undefined;
+
+export type GraphID = string;
 
 export type GraphDataDict = Record<GraphID, GraphData>
 

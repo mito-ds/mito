@@ -1,21 +1,23 @@
 // Copyright (c) Saga Inc.
 
 import React from 'react';
-import XIcon from '../../icons/XIcon';
-import Select from '../../elements/Select';
-import Row from '../../spacing/Row';
-import Col from '../../spacing/Col';
+import XIcon from '../icons/XIcon';
+import Select from './Select';
+import Row from '../spacing/Row';
+import Col from '../spacing/Col';
+import { ColumnID, ColumnIDsMap } from '../../types';
+import DropdownItem from './DropdownItem';
+import { getDisplayColumnHeader } from '../../utils/columnHeaders';
 
-import '../../../../css/taskpanes/Graph/AxisSection.css'
-import { ColumnID, ColumnIDsMap } from '../../../types';
-import DropdownItem from '../../elements/DropdownItem';
-import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 
-const ColumnCard = (props: {
+/*
+    This component is a row with a select followed by an X Icon.
+*/
+const SelectAndXIconCard = (props: {
     columnID: ColumnID
     columnIDsMap: ColumnIDsMap;
     onChange: (columnID: string) => void;
-    onXIconClick: () => void;
+    onDelete: () => void;
     selectableColumnIDs: ColumnID[]
 }): JSX.Element => {
 
@@ -41,11 +43,11 @@ const ColumnCard = (props: {
             </Col>
             <Col offset={1} offsetRight={1}>
                 <XIcon
-                    onClick={() => {props.onXIconClick()}}
+                    onClick={() => {props.onDelete()}}
                 />
             </Col>
         </Row>
     )
 };
 
-export default ColumnCard;
+export default SelectAndXIconCard;

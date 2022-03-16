@@ -44,31 +44,31 @@ export const getGraphParams = (
     sheetDataArray: SheetData[],
 ): GraphParams => {
 
-    const graphParams = graphDataDict[graphID]?.graphParams;
+    const graphParamsCopy = JSON.parse(JSON.stringify(graphDataDict[graphID]?.graphParams)); 
 
     // If the graph already exists, get the data source sheet index from the graph params.
     // Otherwise create a new graph of the selectedSheetIndex
-    const graphDataSourceSheetIndex = graphParams !== undefined ? graphParams.graphCreation.sheet_index : selectedSheetIndex
+    const graphDataSourceSheetIndex = graphParamsCopy !== undefined ? graphParamsCopy.graphCreation.sheet_index : selectedSheetIndex
 
     // If the graph already exists, retrieve the graph params that still make sense. In other words, 
     // if a column was previously included in the graph and it no longer exists, remove it from the graph. 
-    if (graphParams !== undefined) {
+    if (graphParamsCopy !== undefined) {
         // Filter out column headers that no longer exist
         const validColumnIDs = sheetDataArray[graphDataSourceSheetIndex] !== undefined ? sheetDataArray[graphDataSourceSheetIndex].data.map(c => c.columnID) : [];
         const xAxisColumnIDs = intersection(
             validColumnIDs,
-            graphParams.graphCreation.x_axis_column_ids
+            graphParamsCopy.graphCreation.x_axis_column_ids
         )
         const yAxisColumnIDs = intersection(
             validColumnIDs,
-            graphParams.graphCreation.y_axis_column_ids
+            graphParamsCopy.graphCreation.y_axis_column_ids
         )
 
         
         return {
-            ...graphParams,
+            ...graphParamsCopy,
             graphCreation: {
-                ...graphParams.graphCreation,
+                ...graphParamsCopy.graphCreation,
                 x_axis_column_ids: xAxisColumnIDs,
                 y_axis_column_ids: yAxisColumnIDs
             }
