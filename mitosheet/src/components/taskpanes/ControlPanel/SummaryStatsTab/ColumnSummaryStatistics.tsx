@@ -3,12 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import MitoAPI from '../../../../api';
 import "../../../../../css/taskpanes/ControlPanel/ColumnSummaryStatistics.css"
-import { ColumnID, FormatTypeObj } from '../../../../types';
+import { ColumnID, DataframeID, FormatTypeObj } from '../../../../types';
 import { formatCellData } from '../../../../utils/formatColumns';
 
 
 type ColumnDescribeChartProps = {
-    selectedSheetIndex: number;
+    selectedDataframeID: DataframeID;
     columnID: ColumnID;
     mitoAPI: MitoAPI;
     columnFormatType: FormatTypeObj;
@@ -39,7 +39,7 @@ function ColumnSummaryStatistics(props: ColumnDescribeChartProps): JSX.Element {
 
     async function loadDescribe() {
         const loadedDescribe = await props.mitoAPI.getColumnDescribe(
-            props.selectedSheetIndex, 
+            props.selectedDataframeID, 
             props.columnID
         );
         setDescribe(loadedDescribe);

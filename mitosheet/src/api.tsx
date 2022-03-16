@@ -7,7 +7,8 @@ import { GraphType } from "./components/taskpanes/Graph/GraphSidebar";
 import { FileElement } from "./components/taskpanes/Import/ImportTaskpane";
 import { MergeType } from "./components/taskpanes/Merge/MergeTaskpane";
 import { AggregationType, PivotParams } from "./components/taskpanes/PivotTable/PivotTaskpane";
-import { ColumnID, ExcelFileMetadata, FeedbackID, FilterGroupType, FilterType, FormatTypeObj, GraphID, MitoError, SearchMatches, SheetData } from "./types";
+import { ColumnID, DataframeID, ExcelFileMetadata, FeedbackID, FilterGroupType, FilterType, FormatTypeObj, GraphID, MitoError, SearchMatches, SheetData } from "./types";
+import { dataframeIDToSheetIndex } from "./utils/dataframeID";
 
 
 /*
@@ -295,7 +296,8 @@ export default class MitoAPI {
     /*
         Returns a string encoding of the CSV file to download
     */
-    async getDataframeAsCSV(sheetIndex: number): Promise<string> {
+    async getDataframeAsCSV(dataframeID: DataframeID): Promise<string> {
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID); // Temporary
 
         // Note: We increase MAX_RETRIES to 250 although 100 worked locally for a dataset with 10M
         // rows and 4 columns, because the server is slower. 
@@ -319,7 +321,9 @@ export default class MitoAPI {
         must be decoded from base64, and then turned into bytes
         before it can be downloaded
     */
-    async getDataframesAsExcel(sheetIndexes: number[]): Promise<string> {
+    async getDataframesAsExcel(dataframeIDs: DataframeID[]): Promise<string> {
+        const sheetIndexes = dataframeIDs.map(dataframeIDToSheetIndex);
+
         const excelFileString = await this.send<string>({
             'event': 'api_call',
             'type': 'get_dataframe_as_excel',
@@ -341,11 +345,13 @@ export default class MitoAPI {
         if 
     */
     async getColumnSummaryGraph(
-        sheetIndex: number,
+        dataframeID: DataframeID,
         column_id: ColumnID,
         height?: string,
         width?: string,
     ): Promise<GraphObject | undefined> {
+
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID);
 
         const graphString = await this.send<string>({
             'event': 'api_call',
@@ -371,7 +377,8 @@ export default class MitoAPI {
         Returns a list of the key, values that is returned by .describing 
         this column
     */
-    async getColumnDescribe(sheetIndex: number, columnID: ColumnID): Promise<Record<string, string>> {
+    async getColumnDescribe(dataframeID: DataframeID, columnID: ColumnID): Promise<Record<string, string>> {
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID)
 
         const describeString = await this.send<string>({
             'event': 'api_call',
@@ -397,8 +404,9 @@ export default class MitoAPI {
         index, or nothing if there are no params
     */
     async getPivotParams(
-        destinationSheetIndex: number
+        destinationDataframeID: DataframeID
     ): Promise<PivotParams | undefined> {
+        const destinationSheetIndex = dataframeIDToSheetIndex(destinationDataframeID);
 
         const pivotParams = await this.send<string>({
             'event': 'api_call',
@@ -437,11 +445,12 @@ export default class MitoAPI {
         in the df at sheet_index.
     */
     async getUniqueValueCounts(
-        sheetIndex: number,
+        dataframeID: DataframeID,
         columnID: ColumnID,
         searchString: string,
         sort: UniqueValueSortType,
     ): Promise<{ uniqueValueCounts: UniqueValueCount[], isAllData: boolean } | undefined> {
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID);
 
         const uniqueValueCountsString = await this.send<string>({
             'event': 'api_call',
@@ -477,10 +486,11 @@ export default class MitoAPI {
         and 2k rows starting at the startingRowIndex
     */
     async getSearchMatches(
-        sheetIndex: number,
+        dataframeID: DataframeID,
         searchString: string,
         startingRowIndex: number
     ): Promise<SearchMatches | undefined> {
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID); // Temporary
 
         const searchMatchesString = await this.send<string>({
             'event': 'api_call',
@@ -617,9 +627,11 @@ export default class MitoAPI {
         Adds a delete column message with the passed parameters
     */
     async editDeleteColumn(
-        sheetIndex: number,
+        dataframeID: DataframeID,
         columnIDs: ColumnID[],
     ): Promise<void> {
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID); // Temporary
+
         const stepID = getRandomId();
 
         // Filter out any undefined values, which would occur if the index column is selected
@@ -722,10 +734,12 @@ export default class MitoAPI {
         columns to the right.
     */
     async editReorderColumn(
-        sheetIndex: number,
+        dataframeID: DataframeID,
         columnID: ColumnID,
         newIndex: number
     ): Promise<void> {
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID); // Temporary
+
         const stepID = getRandomId();
 
         await this.send({
@@ -744,10 +758,11 @@ export default class MitoAPI {
         Renames the dataframe at sheetIndex.
     */
     async editDataframeRename(
-        sheetIndex: number,
+        dataframeID: DataframeID,
         newDataframeName: string,
         stepID?: string,
     ): Promise<string> {
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID);
 
         if (stepID === undefined || stepID === '') {
             stepID = getRandomId();
@@ -771,13 +786,15 @@ export default class MitoAPI {
         event that was generated (in case you want to overwrite it).
     */
     async editFilter(
-        sheetIndex: number,
+        dataframeID: DataframeID,
         columnID: ColumnID,
         filters: (FilterType | FilterGroupType)[],
         operator: 'And' | 'Or',
         filterLocation: string,
         stepID?: string,
     ): Promise<string> {
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID); // Temporary
+
         // Create a new id, if we need it!
         if (stepID === undefined || stepID === '') {
             stepID = getRandomId();
@@ -803,11 +820,13 @@ export default class MitoAPI {
         event that was generated (in case you want to overwrite it).
     */
     async editSort(
-        sheetIndex: number,
+        dataframeID: DataframeID,
         columnID: ColumnID,
         sortDirection: SortDirection,
         stepID?: string
     ): Promise<string> {
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID);
+
         if (stepID === undefined || stepID === '') {
             stepID = getRandomId();
         }
@@ -857,12 +876,14 @@ export default class MitoAPI {
         Renames a column with the passed parameters
     */
     async editRenameColumn(
-        sheetIndex: number,
+        dataframeID: DataframeID,
         columnID: ColumnID,
         newColumnHeader: string,
         level?: number,
         stepID?: string
     ): Promise<string> {
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID);
+
         if (stepID === undefined || stepID === '') {
             stepID = getRandomId();
         }
@@ -886,8 +907,10 @@ export default class MitoAPI {
         Duplicates the dataframe at sheetIndex.
     */
     async editDataframeDuplicate(
-        sheetIndex: number
+        dataframeID: DataframeID
     ): Promise<void> {
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID);
+
         const stepID = getRandomId();
 
         await this.send({
@@ -901,11 +924,13 @@ export default class MitoAPI {
     }
 
     /*
-        Deletes the dataframe at the passed sheetIndex
+        Deletes the dataframe at the passed dataframeID
     */
     async editDataframeDelete(
-        sheetIndex: number
+        dataframeID: DataframeID
     ): Promise<void> {
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID);
+
         const stepID = getRandomId();
 
         await this.send({
@@ -923,10 +948,12 @@ export default class MitoAPI {
         Sets the formula for the given columns.
     */
     async editSetColumnFormula(
-        sheetIndex: number,
+        dataframeID: DataframeID,
         columnID: ColumnID,
         newFormula: string,
     ): Promise<MitoError | undefined> {
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID); // Temporary
+
         const stepID = getRandomId();
 
         return await this.send({
@@ -945,11 +972,13 @@ export default class MitoAPI {
         Sets the value of a specific cell
     */
     async editSetCellValue(
-        sheetIndex: number,
+        dataframeID: DataframeID,
         columnID: ColumnID,
         dataframeRowIndex: number | string,
         newValue: string,
     ): Promise<MitoError | undefined> {
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID); // Temporary
+
         const stepID = getRandomId();
 
         return await this.send({
@@ -969,11 +998,13 @@ export default class MitoAPI {
         Change dtype of the column at sheetIndex to the newDtype
     */
     async editChangeColumnDtype(
-        sheetIndex: number,
+        dataframeID: DataframeID,
         columnID: ColumnID,
         newDtype: string,
         stepID?: string
     ): Promise<string> {
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID);
+
         if (stepID === undefined || stepID == '') {
             stepID = getRandomId();
         }
@@ -996,11 +1027,13 @@ export default class MitoAPI {
         Change the format of the columns
     */
     async editChangeColumnFormat(
-        sheetIndex: number,
+        dataframeID: DataframeID,
         columnIDs: ColumnID[],
         newFormatType: FormatTypeObj,
         stepID?: string
     ): Promise<string> {
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID); // Temporary
+
         if (stepID === undefined || stepID == '') {
             stepID = getRandomId();
         }

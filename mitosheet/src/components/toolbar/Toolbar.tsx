@@ -156,7 +156,7 @@ const Toolbar = (
                             })
                         }
                     >
-                        {getColumnFormatDropdownItemsUsingSelections(props.gridState, props.sheetData, props.mitoAPI)}
+                        {getColumnFormatDropdownItemsUsingSelections(props.uiState, props.gridState, props.sheetData, props.mitoAPI)}
                     </Dropdown>
                 </ToolbarButton>
 

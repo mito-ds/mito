@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import MitoAPI, { getRandomId } from '../../api';
 import { DataframeID, GraphDataDict, GraphID, SheetData, UIState } from '../../types';
-import { dataframeIDToSheetIndex, sheetIndexToDataframeID } from '../../utils/dataframeID';
+import { dataframeIDToSheetIndex, getPreviousDataframeID } from '../../utils/dataframeID';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import { ModalEnum } from '../modals/modals';
@@ -13,10 +13,10 @@ import { getDefaultGraphParams } from '../taskpanes/Graph/graphUtils';
     Helper function for finding all of the graph tab names
     that are created from a given sheet index
 */
-export const getGraphTabNamesAndIDsFromSheetIndex = (sheetIndex: number, graphDataDict: GraphDataDict): ({graphTabName: string, graphID: GraphID})[] => {
+export const getGraphTabNamesAndIDsFromSheetIndex = (dataframeID: DataframeID, graphDataDict: GraphDataDict): ({graphTabName: string, graphID: GraphID})[] => {
     // Filter to only grapsh with the sheetIndex, and then get a list of the graph tab names
     const filteredGraphDataJSON: GraphDataDict = Object.fromEntries(Object.entries(graphDataDict).filter(([, graphData]) => {
-        return graphData.graphParams.graphCreation.sheet_index === sheetIndex
+        return graphData.graphParams.graphCreation.sheet_index === dataframeIDToSheetIndex(dataframeID)
     }))
 
     return Object.entries(filteredGraphDataJSON).map(([graphID, graphData]) => {
@@ -34,7 +34,7 @@ export default function SheetTabActions(props: {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     closeOpenEditingPopups: () => void;
     mitoAPI: MitoAPI
-    sheetIndex: number
+    dataframeID: DataframeID
     graphDataDict: GraphDataDict
     sheetDataMap: Record<DataframeID, SheetData>
 }): JSX.Element {
@@ -44,13 +44,13 @@ export default function SheetTabActions(props: {
         void props.mitoAPI.log(
             'clicked_data_sheet_tab_actions',
             {
-                sheet_index: props.sheetIndex
+                dataframe_id: props.dataframeID
             }
         )
     }, [])
 
     const onDelete = async (): Promise<void> => {
-        const dependantGraphTabNamesAndIDs = getGraphTabNamesAndIDsFromSheetIndex(props.sheetIndex, props.graphDataDict)
+        const dependantGraphTabNamesAndIDs = getGraphTabNamesAndIDsFromSheetIndex(props.dataframeID, props.graphDataDict)
         
         if (dependantGraphTabNamesAndIDs.length > 0) {
             props.setUIState(prevUIState => {
@@ -59,7 +59,7 @@ export default function SheetTabActions(props: {
                     currOpenModal: {
                         type: ModalEnum.DeleteGraphs, 
                         dependantGraphTabNamesAndIDs: dependantGraphTabNamesAndIDs,
-                        sheetIndex: props.sheetIndex
+                        dataframeID: props.dataframeID
                     }
                 }
             })
@@ -69,14 +69,14 @@ export default function SheetTabActions(props: {
                 return {
                     ...prevUIState,
                     selectedTabType: 'data',
-                    selectedDataframeID: dataframeIDToSheetIndex(prevUIState.selectedDataframeID) > 0 ? sheetIndexToDataframeID(dataframeIDToSheetIndex(prevUIState.selectedDataframeID) - 1) : '0',
+                    selectedDataframeID: getPreviousDataframeID(prevUIState.selectedDataframeID),
                 }
             })
 
             // Close 
             props.closeOpenEditingPopups();
 
-            await props.mitoAPI.editDataframeDelete(props.sheetIndex)
+            await props.mitoAPI.editDataframeDelete(props.dataframeID)
         }
 
 
@@ -87,7 +87,7 @@ export default function SheetTabActions(props: {
         // Close 
         props.closeOpenEditingPopups();
         
-        await props.mitoAPI.editDataframeDuplicate(props.sheetIndex)
+        await props.mitoAPI.editDataframeDuplicate(props.dataframeID)
         
     }
 
@@ -99,7 +99,7 @@ export default function SheetTabActions(props: {
     const graphData = async (): Promise<void> => {
 
         const newGraphID = getRandomId() // Create a new graph
-        const graphParams = getDefaultGraphParams(props.sheetDataMap, props.sheetIndex)
+        const graphParams = getDefaultGraphParams(props.sheetDataMap, props.dataframeID)
 
         // In order to open the graph, we are watching for the graphDataDict to change in length. This allows us to only display the graph taskpane
         // when the sheet tab exists. However, we need to know the stepID of the graph creation so that the configuration of the graph so that editing

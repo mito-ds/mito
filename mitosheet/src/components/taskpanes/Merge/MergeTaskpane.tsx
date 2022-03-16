@@ -4,6 +4,7 @@ import React from 'react';
 import MitoAPI from '../../../api';
 import { ColumnID, ColumnIDsMap, DataframeID, SheetData, UIState } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
+import { dataframeIDToSheetIndex } from '../../../utils/dataframeID';
 import DropdownItem from '../../elements/DropdownItem';
 import MultiToggleBox from '../../elements/MultiToggleBox';
 import MultiToggleItem from '../../elements/MultiToggleItem';
@@ -46,7 +47,7 @@ export enum MergeType {
 export type MergeTaskpaneProps = {
     dfNames: string[],
     columnIDsMapArray: ColumnIDsMap[],
-    selectedSheetIndex: number,
+    selectedDataframeID: DataframeID,
     sheetDataMap: Record<DataframeID, SheetData>,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI
@@ -71,7 +72,7 @@ class MergeTaskpane extends React.Component<MergeTaskpaneProps, MergeTaskpaneSta
         super(props);
 
         // We default the merge modal to select the selected sheet index as the first sheet
-        const sheetOneIndex = props.selectedSheetIndex;
+        const sheetOneIndex = dataframeIDToSheetIndex(props.selectedDataframeID);
         // The second sheet is either: the sheet to the right, if it exists,
         // or the one to the left, it exists. If neither exist, then it is just
         // the same as sheet one index, as there is only one sheet
@@ -420,7 +421,6 @@ class MergeTaskpane extends React.Component<MergeTaskpaneProps, MergeTaskpaneSta
                                         title={getDisplayColumnHeader(columnHeader)}
                                         rightText={getDtypeValue(columnDtype)}
                                         toggled={sheetOneToggles[index]}
-                                        index={index}
                                         onToggle={() => {
                                             this.toggleKeepColumnIDs(MergeSheet.First, [columnID], !sheetOneToggles[index])
                                         }}
@@ -467,7 +467,6 @@ class MergeTaskpane extends React.Component<MergeTaskpaneProps, MergeTaskpaneSta
                                             title={getDisplayColumnHeader(columnHeader)}
                                             rightText={getDtypeValue(columnDtype)}
                                             toggled={sheetTwoToggles[index]}
-                                            index={index}
                                             onToggle={() => {
                                                 this.toggleKeepColumnIDs(MergeSheet.Second, [columnID], !sheetTwoToggles[index])
                                             }}

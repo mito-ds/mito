@@ -7,7 +7,7 @@ import Col from '../../../spacing/Col';
 import Row from '../../../spacing/Row';
 
 import '../../../../../css/taskpanes/ControlPanel/SortCard.css';
-import { ColumnID } from '../../../../types';
+import { ColumnID, DataframeID } from '../../../../types';
 
 export enum SortDirection {
     ASCENDING = 'ascending',
@@ -16,7 +16,7 @@ export enum SortDirection {
 }
 
 type SortCardProps = {
-    selectedSheetIndex: number;
+    selectedDataframeID: DataframeID;
     columnID: ColumnID;
     mitoAPI: MitoAPI;
 }
@@ -43,7 +43,7 @@ const SortCard = (props: SortCardProps): JSX.Element => {
         if (sortDirection != SortDirection.NONE) {
 
             const newStepID = await props.mitoAPI.editSort(
-                props.selectedSheetIndex,
+                props.selectedDataframeID,
                 props.columnID,
                 sortDirection,
                 stepID,

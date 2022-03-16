@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import { MitoError } from "../../types";
+import { DataframeID, MitoError } from "../../types";
 
 
 export enum ModalEnum {
@@ -44,7 +44,7 @@ interface ClearAnalysisInfo {
 
 interface DeleteGraphsModalInfo {
     type: ModalEnum.DeleteGraphs;
-    sheetIndex: number;
+    dataframeID: DataframeID;
     dependantGraphTabNamesAndIDs: {
         graphTabName: string;
         graphID: string;

@@ -17,6 +17,7 @@ import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
+import { dataframeIDToSheetIndex, sheetIndexToDataframeID } from '../../../utils/dataframeID';
 
 
 // Millisecond delay between changing params, so that
@@ -28,7 +29,7 @@ const SEND_MESSAGE_DELAY = 250;
 interface DropDuplicatesProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI,
-    selectedSheetIndex: number,
+    selectedDataframeID: DataframeID,
     sheetDataMap: Record<DataframeID, SheetData>,
     dfNames: string[];
 }
@@ -46,11 +47,11 @@ interface DropDuplicatesParams {
 const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
 
     const [stepID, setStepID] = useState<string | undefined>(undefined);
-    const [originalNumRows, setOriginalNumRows] = useState(props.sheetDataMap[props.selectedSheetIndex]?.numRows || 0);
+    const [originalNumRows, setOriginalNumRows] = useState(props.sheetDataMap[props.selectedDataframeID]?.numRows || 0);
     const [loading, setLoading] = useState(false);
     const [dropDuplicateParams, setDropDuplicateParams] = useState<DropDuplicatesParams>({
-        sheetIndex: props.selectedSheetIndex,
-        columnIDs: props.sheetDataMap[props.selectedSheetIndex]?.data?.map(c => c.columnID) || [],
+        sheetIndex: dataframeIDToSheetIndex(props.selectedDataframeID),
+        columnIDs: props.sheetDataMap[props.selectedDataframeID]?.data?.map(c => c.columnID) || [],
         keep: 'first',
     })
 
@@ -114,7 +115,7 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
                                 props.setUIState(prevUIState => {
                                     return {
                                         ...prevUIState,
-                                        selectedSheetIndex: newSheetIndex
+                                        selectedDataframeID: sheetIndexToDataframeID(newSheetIndex)
                                     }
                                 });
                             }}
@@ -204,7 +205,6 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
                                 key={index}
                                 title={getDisplayColumnHeader(columnHeader)}
                                 toggled={dropDuplicateParams.columnIDs.includes(columnID)}
-                                index={index}
                                 onToggle={() => {
                                     setDropDuplicateParams(oldDropDuplicateParams => {
                                         const newSelectedColumnIDs = [...oldDropDuplicateParams.columnIDs];

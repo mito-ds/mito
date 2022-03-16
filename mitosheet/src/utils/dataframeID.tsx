@@ -4,6 +4,9 @@
 
 import { DataframeID } from "../types";
 
+export const getPreviousDataframeID = (dataframeID: DataframeID): DataframeID => {
+    return dataframeIDToSheetIndex(dataframeID) > 0 ? sheetIndexToDataframeID(dataframeIDToSheetIndex(dataframeID) - 1) : '0';
+}
 
 export const dataframeIDToSheetIndex = (dataframeID: DataframeID): number => {
     return parseInt(dataframeID);

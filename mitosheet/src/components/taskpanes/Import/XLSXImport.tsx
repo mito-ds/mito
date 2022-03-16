@@ -123,7 +123,6 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
                                     // Reset to a new step if we're importing new sheets
                                     setStepID(undefined);
                                 }}
-                                index={idx}
                             />
                         )
                     })}

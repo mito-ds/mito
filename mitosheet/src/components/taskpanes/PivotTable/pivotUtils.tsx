@@ -1,3 +1,4 @@
+import { DataframeID, SheetData } from "../../../types";
 import { AggregationType } from "./PivotTaskpane";
 
 
@@ -43,14 +44,15 @@ export const valuesArrayToRecord = (valuesArray: [string, AggregationType][]): R
     Useful for making sure the user cannot select the pivot table they are currently
     editing as the source sheet, as this obviously causes errors.
 */
-export const allDfNamesToSelectableDfNameToSheetIndex = (dfNames: string[], destinationSheetIndex?: number): Record<string, number> => {
-    const selectableDfNamesToSheetIndex: Record<string, number> = {};
+export const getSelectableDFNamesToDataframeID = (sheetDataMap: Record<DataframeID, SheetData>, destinationDataframeID?: DataframeID): Record<string, DataframeID> => {
+    const selectableDFNamesToDataframeID: Record<string, DataframeID> = {};
 
-    for (let i = 0; i < dfNames.length; i++) {
-        if (i !== destinationSheetIndex) {
-            selectableDfNamesToSheetIndex[dfNames[i]] = i;
-        }
-    }
+    Object.entries(sheetDataMap).forEach(([dataframeID, sheetData]) => {
+        if (dataframeID === destinationDataframeID) {
+            return;
+        } 
+        selectableDFNamesToDataframeID[sheetData.dfName] = dataframeID;
+    })
 
-    return selectableDfNamesToSheetIndex;
+    return selectableDFNamesToDataframeID;
 }

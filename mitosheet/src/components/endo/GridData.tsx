@@ -51,7 +51,7 @@ const GridData = (props: {
                                 'right-align-number-series': isNumberDtype(columnDtype)
                             });
 
-                            const cellWidth = props.gridState.widthDataArray[props.gridState.sheetIndex].widthArray[columnIndex];
+                            const cellWidth = props.gridState.widthDataMap[props.gridState.dataframeID].widthArray[columnIndex];
 
                             // Format the cell
                             const displayCellData = formatCellData(cellData, columnDtype, columnFormatType)

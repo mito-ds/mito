@@ -2,7 +2,7 @@ import React from "react";
 import { ColumnFilters, ColumnHeader, ColumnID, DataframeID, FormatTypeObj, GridState, SheetData } from "../../types";
 import { classNames } from "../../utils/classNames";
 import { isBoolDtype, isDatetimeDtype, isFloatDtype, isIntDtype, isTimedeltaDtype } from "../../utils/dtypes";
-import { getWidthData } from "./widthUtils";
+import { getWidthDataMap } from "./widthUtils";
 
 
 export const isNumberInRangeInclusive = (num: number, start: number, end: number): boolean => {
@@ -31,10 +31,10 @@ export function firstNonNullOrUndefined<T>(...args: (T | null | undefined)[]): T
 /**
  * Get the grid state of a sheet that was just rendered/switched to.
  */
-export const getDefaultGridState = (sheetDataMap: Record<DataframeID, SheetData>, selectedSheetIndex: number): GridState => {
+export const getDefaultGridState = (sheetDataMap: Record<DataframeID, SheetData>, selectedDataframeID: DataframeID): GridState => {
 
     return {
-        sheetIndex: selectedSheetIndex,
+        dataframeID: selectedDataframeID,
         viewport: {
             width: 0,
             height: 0,
@@ -49,10 +49,8 @@ export const getDefaultGridState = (sheetDataMap: Record<DataframeID, SheetData>
             startingRowIndex: -1,
             endingRowIndex: -1
         }],
-        // When sheetDataMap is empty, we create a default widthDataArray so that we avoid 
-        // indexing into undefined variables across the codebase.
-        widthDataArray: (Object.keys(sheetDataMap).length === 0) ? [getWidthData(undefined)] : Object.values(sheetDataMap).map(sheetData => getWidthData(sheetData)),
-        columnIDsArray: getColumnIDsArrayFromSheetDataArray(sheetDataMap),
+        widthDataMap: getWidthDataMap(selectedDataframeID, sheetDataMap),
+        columnIDsMaps: getColumnIDsMapFromSheetDataArray(sheetDataMap),
         searchString: ''
     }
 }
@@ -117,11 +115,17 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
 }
 
 /*
-    Helper function for creating the ColumnIDsMapping: sheetIndex -> columnIndex -> columnID
+    Helper function for creating the ColumnIDsMapping: dataframeID -> columnIndex -> columnID
     from the Sheet Data Array
 */
-export const getColumnIDsArrayFromSheetDataArray = (sheetDataMap: Record<DataframeID, SheetData>): ColumnID[][] => {
-    return Object.values(sheetDataMap).map(sheetData => sheetData.data.map(c => c.columnID)) || []
+export const getColumnIDsMapFromSheetDataArray = (sheetDataMap: Record<DataframeID, SheetData>): Record<DataframeID, ColumnID[]> => {
+    const columnIDsMap: Record<DataframeID, ColumnID[]> = {};
+
+    Object.entries(sheetDataMap).forEach(([dataframeID, sheetData]) => {
+        columnIDsMap[dataframeID] = sheetData.data.map(c => c.columnID);
+    });
+
+    return columnIDsMap;
 }
 
 

@@ -1,4 +1,4 @@
-import { BorderStyle, ColumnHeader, ColumnID, MitoSelection, SheetData } from '../../types';
+import { BorderStyle, ColumnHeader, ColumnID, DataframeID, MitoSelection, SheetData } from '../../types';
 import { isNumberDtype } from '../../utils/dtypes';
 import { MAX_ROWS } from './EndoGrid';
 
@@ -506,18 +506,18 @@ const getDeletedIndexes = (oldArray: string[], newArray: string[]): number[] => 
     Handles when sheet data changes, potentially reordering, adding, or removing
     columns, specifically updating the selections to be what one would expect.
 */
-export const reconciliateSelections = (oldSheetIndex: number, newSheetIndex: number, selections: MitoSelection[], oldColumnIDsArray: ColumnID[], sheetData: SheetData | undefined): MitoSelection[] => {
-    return selections.map(selection => reconciliateSingleSelection(oldSheetIndex, newSheetIndex, selection, oldColumnIDsArray, sheetData))
+export const reconciliateSelections = (oldDataframeID: DataframeID, newDataframeID: DataframeID, selections: MitoSelection[], oldColumnIDsArray: ColumnID[], sheetData: SheetData | undefined): MitoSelection[] => {
+    return selections.map(selection => reconciliateSingleSelection(oldDataframeID, newDataframeID, selection, oldColumnIDsArray, sheetData))
 }
 
 /* 
     Handles when sheet data changes, potentially reordering, adding, or removing
     columns, specifically updating the __an individual selection__ to be what one would expect.
 */
-export const reconciliateSingleSelection = (oldSheetIndex: number, newSheetIndex: number, selection: MitoSelection, oldColumnIDsArray: ColumnID[], sheetData: SheetData | undefined): MitoSelection => {
+export const reconciliateSingleSelection = (oldDataframeID: DataframeID, newDataframeID: DataframeID, selection: MitoSelection, oldColumnIDsArray: ColumnID[], sheetData: SheetData | undefined): MitoSelection => {
     
-    // If the sheet switches, then reset selection
-    if (oldColumnIDsArray === undefined || oldSheetIndex !== newSheetIndex || sheetData === undefined) {
+    // If the selected dataframe switches, then reset selection
+    if (oldColumnIDsArray === undefined || oldDataframeID !== newDataframeID || sheetData === undefined) {
         return {
             startingRowIndex: -1,
             endingRowIndex: -1,

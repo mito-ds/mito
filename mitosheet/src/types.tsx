@@ -394,20 +394,20 @@ export interface WidthData {
  * Only put state in here that causes a rerender of the entire grid when any element changes
  * and is consistently passed as props to the grid and headers.
  * 
- * @param sheetIndex - The sheet that this grid state represents
+ * @param dataframeID - The dataframe that this grid state represents
  * @param viewport - The size of the viewport
  * @param scrollPosition - Scroll position in the grid
  * @param selections - Selected ranges
- * @param columnIDsArray - A mapping from sheetIndex -> columnIndex -> columnID
- * @param widthDataArray - A list of width data for each sheet
+ * @param columnIDsMaps - A mapping from sheetIndex -> columnIndex -> columnID
+ * @param widthDataMap - A list of width data for each sheet
  */
 export interface GridState {
-    sheetIndex: number;
+    dataframeID: DataframeID;
     viewport: Dimension;
     scrollPosition: ScrollPosition;
     selections: MitoSelection[];
-    columnIDsArray: ColumnID[][];
-    widthDataArray: WidthData[];
+    columnIDsMaps: Record<DataframeID, ColumnID[]>;
+    widthDataMap: Record<DataframeID, WidthData>;
     searchString: string;
 }
 
@@ -538,7 +538,7 @@ export interface MitoStateUpdaters {
 }
 
 export interface CSVExportState { exportType: 'csv' }
-export interface ExcelExportState { exportType: 'excel', sheetIndexes: number[] }
+export interface ExcelExportState { exportType: 'excel', dataframeIDs: DataframeID[] }
 
 /**
  * State of the UI, all in one place for ease.

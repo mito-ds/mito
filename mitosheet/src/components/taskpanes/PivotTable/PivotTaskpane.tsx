@@ -8,7 +8,7 @@ import MitoAPI from '../../../api';
 import Select from '../../elements/Select';
 import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
-import { allDfNamesToSelectableDfNameToSheetIndex, valuesArrayToRecord, valuesRecordToArray } from './pivotUtils';
+import { getSelectableDFNamesToDataframeID, valuesArrayToRecord, valuesRecordToArray } from './pivotUtils';
 import { getDeduplicatedArray } from '../../../utils/arrays';
 import { AnalysisData, ColumnID, ColumnIDsMap, DataframeID, SheetData, UIState } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
@@ -50,7 +50,7 @@ export type PivotTaskpaneProps = {
         that already exists, and these are what we then default it to
     */
     existingPivotParams?: PivotParams;
-    destinationSheetIndex?: number;
+    destinationDataframeID?: DataframeID;
 
     uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
@@ -65,8 +65,8 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
 
     // We save the dataframe names upon creation of the pivot table
     // so that the user cannot switch to the pivot table they are editing
-    const [selectableDfNameToSheetIndex] = useState<Record<string, number>>(
-        allDfNamesToSelectableDfNameToSheetIndex(props.dfNames, props.destinationSheetIndex)
+    const [selectableDfNameToDataframeID] = useState<Record<string, DataframeID>>(
+        getSelectableDFNamesToDataframeID(props.sheetDataMap, props.destinationDataframeID)
     );
     
     /* 
@@ -112,27 +112,22 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
             // Convert pivotValues back to the state that the backend expects
             valuesArrayToRecord(pivotState.pivotValuesColumnIDsArray),
             true, // TODO: change to pivotState.flattenColumnHeaders,
-            props.destinationSheetIndex,
+            props.destinationDataframeID ? dataframeIDToSheetIndex(props.destinationDataframeID) : undefined,
             stepID
         )
         setStepID(_stepID);
     }
 
-    /* 
-        A callback used by the select data source Select Element so that it can 
-        set the state of the Pivot Table Taskpane
-    */ 
-    const setSelectedSheet = (newSheetName: string): void => {
-        const newSelectedSheetIndex = selectableDfNameToSheetIndex[newSheetName]
+    const setSelectedDataframeID = (dataframeID: DataframeID): void => {
 
         // If you didn't select a new sheet, then don't do clear your selections
-        if (newSelectedSheetIndex == pivotState.selectedSheetIndex) {
+        if (dataframeIDToSheetIndex(dataframeID) == pivotState.selectedSheetIndex) {
             return;
         }
         
         // Set the selected index, and clear the pivot table
         setPivotState({
-            selectedSheetIndex: newSelectedSheetIndex,
+            selectedSheetIndex: dataframeIDToSheetIndex(dataframeID),
             pivotRowColumnIDs: [],
             pivotColumnsColumnIDs: [],
             pivotValuesColumnIDsArray: [],
@@ -293,12 +288,11 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
 
 
     const refreshParamsAfterUndoOrRedo = async (): Promise<void> => {
-        // If there is a desintation index, then we are editing other that, otherwise
-        // we are just editing the last sheet 
-        const currentDestinationSheetIndex = props.destinationSheetIndex !== undefined 
-            ? props.destinationSheetIndex
-            : Object.keys(props.sheetDataMap).length - 1 
-        const params = await props.mitoAPI.getPivotParams(currentDestinationSheetIndex)
+        // If there is a desintation dataframe, then we are editing other that, otherwise
+        // we are just editing the last dataframe
+        const currentDestinationDataframeID = props.destinationDataframeID ||
+            Object.keys(props.sheetDataMap)[Object.keys(props.sheetDataMap).length - 1]
+        const params = await props.mitoAPI.getPivotParams(currentDestinationDataframeID);
 
         // If we get the params, set them to the params of this pivot table. 
         if (params !== undefined) {
@@ -330,14 +324,17 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
     }
 
     const columnIDsMap = props.columnIDsMapArray[pivotState.selectedSheetIndex];
+
+    // Change the title if the usre is editing a pivot table
+    let title = `Create Pivot Table ${props.dfNames[props.dfNames.length - 1]}`;
+    if (props.destinationDataframeID) {
+        `Edit Pivot Table ${props.dfNames[dataframeIDToSheetIndex(props.destinationDataframeID)]}` 
+    }
     
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader
-                header={props.destinationSheetIndex ? 
-                    `Edit Pivot Table ${props.dfNames[props.destinationSheetIndex]}` 
-                    : `Create Pivot Table ${props.dfNames[props.dfNames.length - 1]}`
-                }
+                header={title}
                 setUIState={props.setUIState}
             />
             <DefaultTaskpaneBody>
@@ -351,14 +348,14 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
                         <Select
                             width='medium'
                             value={props.dfNames[pivotState.selectedSheetIndex]}
-                            // Safe to cast as dfNames are strings
-                            onChange={(newSheet: string) => setSelectedSheet(newSheet)}
+                            onChange={(dataframeID: DataframeID) => setSelectedDataframeID(dataframeID)}
                         >
-                            {Object.keys(selectableDfNameToSheetIndex).map(dfName => {
+                            {Object.entries(selectableDfNameToDataframeID).map(([dfName, dataframeID]) => {
                                 return (
                                     <DropdownItem
                                         key={dfName}
                                         title={dfName}
+                                        id={dataframeID}
                                     />
                                 )
                             })}

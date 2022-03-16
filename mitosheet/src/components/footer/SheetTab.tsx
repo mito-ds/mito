@@ -72,7 +72,7 @@ export const selectPreviousGraphSheetTab = (
 
 type SheetTabProps = {
     tabName: string;
-    tabIDObj: {tabType: 'data', sheetIndex: number} | {tabType: 'graph', graphID: GraphID};
+    tabIDObj: {tabType: 'data', dataframeID: DataframeID} | {tabType: 'graph', graphID: GraphID};
     isSelectedTab: boolean;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     closeOpenEditingPopups: () => void;
@@ -104,7 +104,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
     const onRename = async (): Promise<void> => {
         if (props.tabIDObj.tabType === 'data') {
             await props.mitoAPI.editDataframeRename(
-                props.tabIDObj.sheetIndex,
+                props.tabIDObj.dataframeID,
                 newTabName
             );
         } else {
@@ -135,7 +135,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                         return {
                             ...prevUIState,
                             selectedTabType: 'data',
-                            selectedSheetIndex: props.tabIDObj.sheetIndex,
+                            selectedDataframeID: props.tabIDObj.dataframeID,
                             currOpenTaskpane: taskpaneInfo
                         }
                     } else {
@@ -188,7 +188,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                     setUIState={props.setUIState}
                     closeOpenEditingPopups={props.closeOpenEditingPopups}
                     setIsRename={setIsRename}
-                    sheetIndex={props.tabIDObj.sheetIndex}
+                    dataframeID={props.tabIDObj.dataframeID}
                     mitoAPI={props.mitoAPI}
                     graphDataDict={props.graphDataDict}
                     sheetDataMap={props.sheetDataMap}

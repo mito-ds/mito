@@ -2,22 +2,21 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import '../../../css/endo/EndoGrid.css';
 import '../../../css/sitewide/colors.css';
 import MitoAPI from "../../api";
-import { EditorState, Dimension, GridState, RendererTranslate, SheetData, SheetView, UIState, DataframeID } from "../../types";
-import FormulaBar from "./FormulaBar";
+import { DataframeID, Dimension, EditorState, GridState, RendererTranslate, SheetData, SheetView, UIState } from "../../types";
 import { TaskpaneType } from "../taskpanes/taskpanes";
 import CellEditor from "./CellEditor";
 import { getCellEditorInputCurrentSelection, getStartingFormula } from "./cellEditorUtils";
 import ColumnHeaders from "./ColumnHeaders";
 import EmptyGridMessages from "./EmptyGridMessages";
 import { focusGrid } from "./focusUtils";
+import FormulaBar from "./FormulaBar";
 import GridData from "./GridData";
 import IndexHeaders from "./IndexHeaders";
 import { equalSelections, getColumnIndexesInSelections, getIndexesFromMouseEvent, getIsCellSelected, getIsHeader, getNewSelectionAfterKeyPress, getNewSelectionAfterMouseUp, isNavigationKeyPressed, isSelectionsOnlyColumnHeaders, reconciliateSelections, removeColumnFromSelections } from "./selectionUtils";
-import { calculateCurrentSheetView, calculateNewScrollPosition, calculateTranslate} from "./sheetViewUtils";
-import { firstNonNullOrUndefined, getColumnIDsArrayFromSheetDataArray } from "./utils";
+import { calculateCurrentSheetView, calculateNewScrollPosition, calculateTranslate } from "./sheetViewUtils";
+import { firstNonNullOrUndefined, getColumnIDsMapFromSheetDataArray } from "./utils";
 import { ensureCellVisible } from "./visibilityUtils";
-import { reconciliateWidthDataArray } from "./widthUtils";
-import { dataframeIDToSheetIndex } from "../../utils/dataframeID";
+import { reconciliateWidthDataMap } from "./widthUtils";
 
 // NOTE: these should match the css
 export const DEFAULT_WIDTH = 123;
@@ -98,7 +97,7 @@ function EndoGrid(props: {
     const sheetData = sheetDataMap[uiState.selectedDataframeID];
 
     const totalSize: Dimension = {
-        width: gridState.widthDataArray[gridState.sheetIndex]?.totalWidth || 0,
+        width: gridState.widthDataMap[gridState.dataframeID]?.totalWidth || 0,
         height: DEFAULT_HEIGHT * Math.min(sheetData?.numRows || 0, MAX_ROWS)
     }
     
@@ -122,10 +121,10 @@ function EndoGrid(props: {
         setGridState(gridState => {
             return {
                 ...gridState,
-                selections: reconciliateSelections(gridState.sheetIndex, dataframeIDToSheetIndex(uiState.selectedDataframeID), gridState.selections, gridState.columnIDsArray[gridState.sheetIndex], sheetData),
-                widthDataArray: reconciliateWidthDataArray(gridState.widthDataArray, gridState.columnIDsArray, sheetDataMap),
-                columnIDsArray: getColumnIDsArrayFromSheetDataArray(sheetDataMap),
-                sheetIndex: dataframeIDToSheetIndex(uiState.selectedDataframeID)
+                selections: reconciliateSelections(gridState.dataframeID, uiState.selectedDataframeID, gridState.selections, gridState.columnIDsMaps[gridState.dataframeID], sheetData),
+                widthDataMap: reconciliateWidthDataMap(gridState.dataframeID, gridState.widthDataMap, gridState.columnIDsMaps, sheetDataMap),
+                columnIDsMaps: getColumnIDsMapFromSheetDataArray(sheetDataMap),
+                dataframeID: uiState.selectedDataframeID
             }
         })
     }, [sheetData, setGridState, uiState.selectedDataframeID])
@@ -521,7 +520,7 @@ function EndoGrid(props: {
 
                     if (columnIDsToDelete !== undefined) {
                         void mitoAPI.editDeleteColumn(
-                            dataframeIDToSheetIndex(uiState.selectedDataframeID),
+                            uiState.selectedDataframeID,
                             columnIDsToDelete
                         )
                     }
@@ -609,7 +608,7 @@ function EndoGrid(props: {
                         <ColumnHeaders
                             sheetData={sheetData}
                             setUIState={setUIState}
-                            sheetIndex={dataframeIDToSheetIndex(uiState.selectedDataframeID)}
+                            selectedDataframeID={uiState.selectedDataframeID}
                             containerRef={containerRef}
                             editorState={editorState}
                             setEditorState={setEditorState}
@@ -668,7 +667,7 @@ function EndoGrid(props: {
                 {sheetData !== undefined && editorState !== undefined && editorState.rowIndex > -1 &&
                     <CellEditor
                         sheetData={sheetData}
-                        sheetIndex={dataframeIDToSheetIndex(uiState.selectedDataframeID)}
+                        selectedDataframeID={uiState.selectedDataframeID}
                         gridState={gridState}
                         editorState={editorState}
                         setGridState={setGridState}

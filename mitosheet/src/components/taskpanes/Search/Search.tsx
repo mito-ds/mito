@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import MitoAPI from '../../../api';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
-import { GridState, SearchMatches, SheetData, UIState } from '../../../types';
-import { dataframeIDToSheetIndex } from '../../../utils/dataframeID';
+import { DataframeID, GridState, SearchMatches, SheetData, UIState } from '../../../types';
 import Input from '../../elements/Input';
 import { focusGrid } from '../../endo/focusUtils';
 import { calculateCurrentSheetView } from '../../endo/sheetViewUtils';
@@ -53,10 +52,10 @@ const Search = (props: {
         when we start searching. Then, before each paginated api call, we
         check this ref, and stop the loop if it is not what we expect.
     */
-    const searchParamsRef = useRef([0, '']);
-    const loadSearchMatches = async (searchString: string, sheetIndex: number): Promise<void> => {
+    const searchParamsRef = useRef(['0', '']);
+    const loadSearchMatches = async (searchString: string, dataframeID: DataframeID): Promise<void> => {
         // Save this new search
-        searchParamsRef.current = [sheetIndex, searchString];
+        searchParamsRef.current = [dataframeID, searchString];
         setSearchMatches(EMPTY_SEARCH_MATCHES)
         setMatchIndex(-1);
         
@@ -65,7 +64,7 @@ const Search = (props: {
             // This is where we go and actually get the data
             for (let startingRowIndex = 0; startingRowIndex < (props.sheetData?.numRows || 0) + 2000; startingRowIndex += 2000) {
                 // Otherwise, keep loading matches
-                const matches = await props.mitoAPI.getSearchMatches(sheetIndex, searchString, startingRowIndex);
+                const matches = await props.mitoAPI.getSearchMatches(dataframeID, searchString, startingRowIndex);
 
                 /* 
                     If another, newer search is going on, break out of this loop, and stop loading things.
@@ -73,7 +72,7 @@ const Search = (props: {
                     When this component unmounts, the state variables that it relies on are set -- I can't update them.
                     See an explanation here: https://stackoverflow.com/questions/70283865/stop-my-react-for-loop-from-executing-when-component-umounts
                 */
-                if (searchParamsRef.current[0] !== sheetIndex || searchParamsRef.current[1] !== searchString) {
+                if (searchParamsRef.current[0] !== dataframeID || searchParamsRef.current[1] !== searchString) {
                     return;
                 }
 
@@ -100,7 +99,7 @@ const Search = (props: {
     }
 
     useDebouncedEffect(() => {
-        void loadSearchMatches(props.gridState.searchString, dataframeIDToSheetIndex(props.uiState.selectedDataframeID));
+        void loadSearchMatches(props.gridState.searchString, props.uiState.selectedDataframeID);
     }, [props.gridState.searchString, props.uiState.selectedDataframeID, props.sheetData], 250)
 
     // Mark this as loading when it's loading

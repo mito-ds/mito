@@ -1,15 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import '../../../css/endo/ColumnHeaders.css';
+import MitoAPI from '../../api';
+import { DataframeID, EditorState, GridState, SheetData, UIState } from '../../types';
+import { classNames } from '../../utils/classNames';
+import { TaskpaneType } from '../taskpanes/taskpanes';
+import ColumnHeader from './ColumnHeader';
 import { getChildrenWithQuery } from './domUtils';
 import { MIN_WIDTH } from './EndoGrid';
 import { getIndexesFromXAndY } from './selectionUtils';
 import { calculateCurrentSheetView, calculateTranslate } from './sheetViewUtils';
-import { EditorState, GridState, SheetData, UIState } from '../../types';
-import MitoAPI from '../../api';
-import { classNames } from '../../utils/classNames';
-import ColumnHeader from './ColumnHeader';
-import { changeColumnWidthDataArray } from './widthUtils';
-import { TaskpaneType } from '../taskpanes/taskpanes';
+import { changeColumnWidthDataMap } from './widthUtils';
 
 
 /* 
@@ -17,7 +17,7 @@ import { TaskpaneType } from '../taskpanes/taskpanes';
     for resizing and for reordering them.
 */
 const ColumnHeaders = (props: {
-    sheetIndex: number,
+    selectedDataframeID: DataframeID,
     sheetData: SheetData,
     gridState: GridState,
     editorState: EditorState | undefined;
@@ -139,7 +139,7 @@ const ColumnHeaders = (props: {
                             props.setGridState((gridState) => {
                                 return {
                                     ...gridState,
-                                    widthDataArray: changeColumnWidthDataArray(props.sheetIndex, props.gridState.widthDataArray, dragColumnIndex, newWidth)
+                                    widthDataMap: changeColumnWidthDataMap(props.selectedDataframeID, props.gridState.widthDataMap, dragColumnIndex, newWidth)
                                 }
                             })
                         } else if (operation === 'reorder') {
@@ -154,7 +154,7 @@ const ColumnHeaders = (props: {
                                 return;
                             }
 
-                            void props.mitoAPI.editReorderColumn(props.sheetIndex, columnIDToReorder, columnIndex);
+                            void props.mitoAPI.editReorderColumn(props.selectedDataframeID, columnIDToReorder, columnIndex);
                             
                             // We close any open taskpanes if we reorder something, so we don't get bugs where
                             // pivot is open and then the user tries to overwrite the wrong step

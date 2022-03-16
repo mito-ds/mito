@@ -26,7 +26,7 @@ interface DownloadTaskpaneProps {
     uiState: UIState
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI,
-    selectedSheetIndex: number,
+    selectedDataframeID: DataframeID,
     sheetDataMap: Record<DataframeID, SheetData>,
     dfNames: string[];
     userProfile: UserProfile;
@@ -64,7 +64,7 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
     
 
     const emptySheet = Object.keys(props.sheetDataMap).length === 0;
-    const numRows = props.sheetDataMap[props.selectedSheetIndex]?.numRows;
+    const numRows = props.sheetDataMap[props.selectedDataframeID]?.numRows;
     
     const loadExport = async () => {
         // Don't try and load data if the sheet is empty
@@ -73,10 +73,10 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
         }
 
         if (props.uiState.exportConfiguration.exportType === 'csv') {
-            const csvString = await props.mitoAPI.getDataframeAsCSV(props.selectedSheetIndex);
+            const csvString = await props.mitoAPI.getDataframeAsCSV(props.selectedDataframeID);
             setExportString(csvString);
         } else if (props.uiState.exportConfiguration.exportType === 'excel') {
-            const excelString = await props.mitoAPI.getDataframesAsExcel(props.uiState.exportConfiguration.sheetIndexes);
+            const excelString = await props.mitoAPI.getDataframesAsExcel(props.uiState.exportConfiguration.dataframeIDs);
             setExportString(excelString);
         }
     }
@@ -85,13 +85,13 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
     useDebouncedEffect(() => {
         setExportString('');
         void loadExport();
-    }, [props.uiState.exportConfiguration, props.selectedSheetIndex, props.sheetDataMap], 500)
+    }, [props.uiState.exportConfiguration, props.selectedDataframeID, props.sheetDataMap], 500)
 
     const onDownload = () => {
         void props.mitoAPI.log(
             'button_download_log_event',
             {
-                sheet_index: props.selectedSheetIndex,
+                dataframe_id: props.selectedDataframeID,
                 export_type: props.uiState.exportConfiguration.exportType
             }
         )
@@ -149,7 +149,7 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                                         } else {
                                             return {
                                                 ...prevUIState,
-                                                exportConfiguration: {exportType: 'excel', sheetIndexes: [props.selectedSheetIndex]}
+                                                exportConfiguration: {exportType: 'excel', dataframeIDs: [props.selectedDataframeID]}
                                             }
                                         }
                                     })
@@ -171,7 +171,6 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                         </Row>
                         {props.uiState.exportConfiguration.exportType === 'excel' && 
                             <ExcelDownloadConfigSection 
-                                dfNames={props.dfNames}
                                 mitoAPI={props.mitoAPI}
                                 userProfile={props.userProfile}
                                 sheetDataMap={props.sheetDataMap}
@@ -183,9 +182,9 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                         }
                         {props.uiState.exportConfiguration.exportType === 'csv' && 
                             <CSVDownloadConfigSection 
-                                dfNames={props.dfNames}
+                                sheetDataMap={props.sheetDataMap}
                                 mitoAPI={props.mitoAPI}
-                                selectedSheetIndex={props.selectedSheetIndex}
+                                selectedDataframeID={props.selectedDataframeID}
                                 setUIState={props.setUIState}
                             /> 
                         }

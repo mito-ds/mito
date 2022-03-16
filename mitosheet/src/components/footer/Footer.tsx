@@ -9,7 +9,6 @@ import MitoAPI from '../../api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import PlusIcon from '../icons/PlusIcon';
 import { DataframeID, GraphDataDict, GridState, SheetData, UIState } from '../../types';
-import { dataframeIDToSheetIndex } from '../../utils/dataframeID';
 
 type FooterProps = {
     sheetDataMap: Record<DataframeID, SheetData>;
@@ -56,13 +55,13 @@ function Footer(props: FooterProps): JSX.Element {
             </div>
             <div className="footer-tab-bar">
                 {/* First add the data tabs, and then add the graph tabs */}
-                {Object.values(props.sheetDataMap).map(df => df.dfName).map((dfName, idx) => {
+                {Object.entries(props.sheetDataMap).map(([dataframeID, df]) => [dataframeID, df.dfName]).map(([dataframeID, dfName], idx) => {
                     return (
                         <SheetTab
-                            key={idx}
+                            key={dataframeID}
                             tabName={dfName}
-                            tabIDObj={{tabType: 'data', sheetIndex: idx}}
-                            isSelectedTab={selectedTabType === 'data' && idx === dataframeIDToSheetIndex(selectedDataframeID)}
+                            tabIDObj={{tabType: 'data', dataframeID: dataframeID}}
+                            isSelectedTab={selectedTabType === 'data' && dataframeID === selectedDataframeID}
                             setUIState={props.setUIState}
                             closeOpenEditingPopups={props.closeOpenEditingPopups}
                             mitoAPI={props.mitoAPI}

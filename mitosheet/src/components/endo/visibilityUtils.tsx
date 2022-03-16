@@ -44,10 +44,10 @@ const scrollColumnIntoView = (containerDiv: HTMLDivElement | null, scrollAndRend
     if (!columnVisible) {
         const newCellIsLeft = columnIndex <= currentSheetView.startingColumnIndex;
         if (newCellIsLeft) {
-            scrollLeft = gridState.widthDataArray[gridState.sheetIndex]?.widthSumArray[columnIndex - 1] || 0;
+            scrollLeft = gridState.widthDataMap[gridState.dataframeID]?.widthSumArray[columnIndex - 1] || 0;
         } else {
             // Put it at the start, move it to the end, then move it back one
-            scrollLeft = gridState.widthDataArray[gridState.sheetIndex]?.widthSumArray[columnIndex] - (scrollAndRenderedContainerDiv.clientWidth) || 0;
+            scrollLeft = gridState.widthDataMap[gridState.dataframeID]?.widthSumArray[columnIndex] - (scrollAndRenderedContainerDiv.clientWidth) || 0;
         }
     }
 

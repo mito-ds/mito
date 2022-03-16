@@ -4,7 +4,7 @@ import React, { Fragment, useRef, useState } from 'react';
 import MitoAPI from '../../../../api';
 import MultiToggleBox from '../../../elements/MultiToggleBox';
 import Select from '../../../elements/Select';
-import { FilterType, FilterGroupType, ColumnID, FormatTypeObj } from '../../../../types';
+import { FilterType, FilterGroupType, ColumnID, FormatTypeObj, DataframeID } from '../../../../types';
 import Col from '../../../spacing/Col';
 import Row from '../../../spacing/Row';
 import { areFiltersEqual, getAllDoesNotContainsFilterValues, getExclusiveFilterData } from '../FilterAndSortTab/filter/utils';
@@ -62,7 +62,7 @@ const sortUniqueValueCounts = (uniqueValueCounts: UniqueValueCount[], uniqueValu
 
 export function ValuesTab(
     props: {
-        selectedSheetIndex: number, 
+        selectedDataframeID: DataframeID, 
         columnID: ColumnID,
         mitoAPI: MitoAPI;
         filters: (FilterType | FilterGroupType)[];
@@ -112,7 +112,7 @@ export function ValuesTab(
         setLoading(true);
 
         const _uniqueValueObj = await props.mitoAPI.getUniqueValueCounts(
-            props.selectedSheetIndex,
+            props.selectedDataframeID,
             props.columnID,
             searchString,
             sort
@@ -237,7 +237,6 @@ export function ValuesTab(
                                 title={valueToDisplay}
                                 rightText={uniqueValueCount.countOccurence + ' (' + uniqueValueCount.percentOccurence.toFixed(2).toString() + '%' + ')'}
                                 toggled={uniqueValueCount.isNotFiltered}
-                                index={index}
                                 onToggle={() => {
 
                                     // Manually change the toggle status so it updates instantaneously

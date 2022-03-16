@@ -1,15 +1,15 @@
 import React from "react";
 import MitoAPI from "../../../api";
-import { UIState } from "../../../types";
+import { DataframeID, SheetData, UIState } from "../../../types";
 import DropdownItem from "../../elements/DropdownItem";
 import Select from "../../elements/Select";
 import Row from "../../spacing/Row";
 
 
 const CSVDownloadConfigSection = (props: {
-    dfNames: string[]
+    sheetDataMap: Record<DataframeID, SheetData>;
     mitoAPI: MitoAPI
-    selectedSheetIndex: number
+    selectedDataframeID: DataframeID
     setUIState: React.Dispatch<React.SetStateAction<UIState>>
 }): JSX.Element => {
 
@@ -21,25 +21,26 @@ const CSVDownloadConfigSection = (props: {
                 </p>
                 <Select 
                     width='medium'
-                    value={props.dfNames[props.selectedSheetIndex]}
-                    onChange={(dfName) => {
+                    value={props.selectedDataframeID}
+                    onChange={(dataframeID) => {
+                        // TODO: test this
                         // Note: If there are duplicated sheet names, then this only lets you select the first one
                         // We need to add SheetID
-                        const dfNameIndex = props.dfNames.indexOf(dfName)
                         props.setUIState(prevUIState => {
                             return {
                                 ...prevUIState,
-                                selectedSheetIndex: dfNameIndex,
+                                selectedDataframeID: dataframeID,
                                 exportConfiguration: {exportType: 'csv'}
                             }
                         })
                     }}
                 >
-                    {...props.dfNames.map((dfName, idx) => {
+                    {Object.entries(props.sheetDataMap).map(([dataframeID, sheetData]) => {
                         return (
                             <DropdownItem 
-                                key={idx}
-                                title={dfName}
+                                key={dataframeID}
+                                title={sheetData.dfName}
+                                id={dataframeID}
                             />
                         )
                     })}

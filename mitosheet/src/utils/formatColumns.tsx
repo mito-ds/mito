@@ -2,7 +2,7 @@ import React from "react"
 import MitoAPI from "../api"
 import DropdownItem from "../components/elements/DropdownItem"
 import { getSelectedNumberSeriesColumnIDs } from "../components/endo/selectionUtils"
-import { ColumnID, FormatType, FormatTypeObj, GridState, MitoSelection, SheetData } from "../types"
+import { ColumnID, DataframeID, FormatType, FormatTypeObj, GridState, MitoSelection, SheetData, UIState } from "../types"
 import DropdownCheckmark from '../components/icons/DropdownCheckmark'
 import { isNumberDtype } from "./dtypes"
 
@@ -111,7 +111,7 @@ export const formatCellData = (cellData: boolean | string | number, columnDtype:
     will be updated in the state.
 */
 export const changeFormatOfSelectedColumns = async (
-    sheetIndex: number,
+    dataframeID: DataframeID,
     selections: MitoSelection[], 
     newFormatTypeObj: FormatTypeObj, 
     sheetData: SheetData | undefined,
@@ -121,7 +121,7 @@ export const changeFormatOfSelectedColumns = async (
     const numberColumnIDsSelected = getSelectedNumberSeriesColumnIDs(selections, sheetData)
     
     await mitoAPI.editChangeColumnFormat(
-        sheetIndex,
+        dataframeID,
         numberColumnIDsSelected,
         newFormatTypeObj
     )
@@ -130,9 +130,9 @@ export const changeFormatOfSelectedColumns = async (
 /* 
     Change the format of a single columnID
 */
-export const changeFormatOfColumnID = async (sheetIndex: number, columnID: string, newFormatTypeObj: FormatTypeObj, mitoAPI: MitoAPI): Promise<void> => {
+export const changeFormatOfColumnID = async (dataframeID: DataframeID, columnID: string, newFormatTypeObj: FormatTypeObj, mitoAPI: MitoAPI): Promise<void> => {
     await mitoAPI.editChangeColumnFormat(
-        sheetIndex,
+        dataframeID,
         [columnID],
         newFormatTypeObj
     )
@@ -143,11 +143,11 @@ export const changeFormatOfColumnID = async (sheetIndex: number, columnID: strin
     Returns all of the format type DropdownItems where the method for checking which columns to apply the formating to 
     is based on the current selection. This is used to bulk format columns. 
 */
-export const getColumnFormatDropdownItemsUsingSelections = (gridState: GridState, sheetData: SheetData | undefined, mitoAPI: MitoAPI): JSX.Element[] => {
+export const getColumnFormatDropdownItemsUsingSelections = (uiState: UIState, gridState: GridState, sheetData: SheetData | undefined, mitoAPI: MitoAPI): JSX.Element[] => {
 
     const onClick = (formatTypeObject: FormatTypeObj): void => {
         void changeFormatOfSelectedColumns(
-            gridState.sheetIndex,
+            uiState.selectedDataframeID,
             gridState.selections,
             formatTypeObject,
             sheetData,
@@ -169,7 +169,7 @@ export const getColumnFormatDropdownItemsUsingSelections = (gridState: GridState
     This is used by the column control panel.
 */
 export const getColumnFormatDropdownItemsUsingColumnID = (
-    sheetIndex: number, 
+    dataframeID: DataframeID, 
     columnID: ColumnID, 
     mitoAPI: MitoAPI, 
     columnDtype: string, 
@@ -179,7 +179,7 @@ export const getColumnFormatDropdownItemsUsingColumnID = (
     
     const onClick = (formatTypeObject: FormatTypeObj): void => {
         void changeFormatOfColumnID(
-            sheetIndex, 
+            dataframeID, 
             columnID, 
             formatTypeObject, 
             mitoAPI

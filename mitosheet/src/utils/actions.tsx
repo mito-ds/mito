@@ -12,24 +12,26 @@ import { FunctionDocumentationObject, functionDocumentationObjects } from "../da
 import { Action, ActionEnum, DataframeID, DFSource, EditorState, GridState, SheetData, UIState } from "../types"
 import { getDeduplicatedArray } from "./arrays";
 import { getColumnHeaderParts, getDisplayColumnHeader } from "./columnHeaders";
+import { dataframeIDToSheetIndex, sheetIndexToDataframeID } from "./dataframeID";
 import { FORMAT_DISABLED_MESSAGE } from "./formatColumns";
 import { fuzzyMatch } from "./strings";
 
 
 export const createActions = (
     sheetDataMap: Record<DataframeID, SheetData>, 
+    uiState: UIState,
     gridState: GridState,
-    dfSources: DFSource[],
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void,
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>,
-    setGridState: React.Dispatch<React.SetStateAction<GridState>>,
     mitoAPI: MitoAPI,
     mitoContainerRef: React.RefObject<HTMLDivElement>
 ): Record<ActionEnum, Action> => {
     // Define variables that we use in many actions
-    const sheetIndex = gridState.sheetIndex;
-    const sheetData = sheetDataMap[sheetIndex];
+    const dataframeID = uiState.selectedDataframeID;
+    const sheetIndex = dataframeIDToSheetIndex(dataframeID);
+    const sheetData: SheetData | undefined = sheetDataMap[dataframeID];
+    const dfSource = sheetData?.dfSource || 'imported';
     const startingRowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex;
     const startingColumnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
     const {columnID, columnFormula} = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
@@ -176,7 +178,7 @@ export const createActions = (
 
                     if (columnIDsToDelete !== undefined) {
                         await mitoAPI.editDeleteColumn(
-                            sheetIndex,
+                            dataframeID,
                             columnIDsToDelete
                         )
                     }
@@ -206,7 +208,7 @@ export const createActions = (
                     setUIState(prevUIState => {
                         return {
                             ...prevUIState,
-                            selectedSheetIndex: sheetIndex - 1
+                            selectedDataframeID: sheetIndexToDataframeID(sheetIndex - 1)
                         }
                     })
                 }
@@ -214,7 +216,7 @@ export const createActions = (
                 // Close 
                 closeOpenEditingPopups();
 
-                await mitoAPI.editDataframeDelete(sheetIndex)
+                await mitoAPI.editDataframeDelete(dataframeID)
 
             },
             isDisabled: () => {
@@ -274,7 +276,7 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
 
-                await mitoAPI.editDataframeDuplicate(sheetIndex)
+                await mitoAPI.editDataframeDuplicate(dataframeID)
             },
             isDisabled: () => {
                 return doesAnySheetExist(sheetDataMap) ? undefined : 'There are no sheets to duplicate. Import data.'
@@ -381,7 +383,7 @@ export const createActions = (
                 setEditorState(undefined);
 
                 const newGraphID = getRandomId() // Create a new GraphID
-                const graphParams = getDefaultGraphParams(sheetDataMap, sheetIndex)
+                const graphParams = getDefaultGraphParams(sheetDataMap, dataframeID)
 
                 await mitoAPI.editGraph(
                     newGraphID,
@@ -472,8 +474,8 @@ export const createActions = (
                 // and if so then we open the existing pivot table here, rather than
                 // create a new pivot table. That is: if a user is on a pivot table, then
                 // we let them edit that pivot table
-                if (dfSources[sheetIndex] === DFSource.Pivoted) {
-                    const existingPivotParams = await mitoAPI.getPivotParams(sheetIndex);
+                if (dfSource === DFSource.Pivoted) {
+                    const existingPivotParams = await mitoAPI.getPivotParams(dataframeID);
                     if (existingPivotParams !== undefined) {
                         setUIState(prevUIState => {
                             return {
@@ -481,7 +483,7 @@ export const createActions = (
                                 currOpenModal: {type: ModalEnum.None},
                                 currOpenTaskpane: {
                                     type: TaskpaneType.PIVOT,
-                                    destinationSheetIndex: sheetIndex,
+                                    destinationDataframeID: dataframeID,
                                     existingPivotParams: existingPivotParams
                                 },
                                 selectedTabType: 'data'

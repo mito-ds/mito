@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import MitoAPI from '../../../../api';
-import { ColumnID } from '../../../../types';
+import { ColumnID, DataframeID } from '../../../../types';
 
 type ColumnSummaryGraphProps = {
-    selectedSheetIndex: number;
+    selectedDataframeID: DataframeID;
     columnID: ColumnID;
     mitoAPI: MitoAPI;
 }
@@ -26,7 +26,7 @@ function ColumnSummaryGraph(props: ColumnSummaryGraphProps): JSX.Element {
 
     async function loadBase64PNGImage() {
         const _graphHTMLAndScript = await props.mitoAPI.getColumnSummaryGraph(
-            props.selectedSheetIndex,
+            props.selectedDataframeID,
             props.columnID,
             '350px',
             '100%',

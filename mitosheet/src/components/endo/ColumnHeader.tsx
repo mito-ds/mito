@@ -52,7 +52,7 @@ const ColumnHeader = (props: {
 }): JSX.Element => {
 
     const selected = getIsCellSelected(props.gridState.selections, -1, props.columnIndex);
-    const width = props.gridState.widthDataArray[props.gridState.sheetIndex].widthArray[props.columnIndex];
+    const width = props.gridState.widthDataMap[props.gridState.dataframeID].widthArray[props.columnIndex];
     const { columnID, columnFilters, columnHeader, columnDtype } = getCellDataFromCellIndexes(props.sheetData, -1, props.columnIndex);
 
     if (columnID === undefined || columnFilters === undefined || columnDtype == undefined || columnHeader === undefined) {
@@ -168,7 +168,7 @@ const ColumnHeader = (props: {
                                     const oldColumnHeader = getDisplayColumnHeader(lowerLevelColumnHeader);
                                     if (newColumnHeader !== oldColumnHeader) {
                                         void props.mitoAPI.editRenameColumn(
-                                            props.gridState.sheetIndex,
+                                            props.gridState.dataframeID,
                                             columnID,
                                             newColumnHeader,
                                             levelIndex
@@ -308,7 +308,7 @@ const ColumnHeader = (props: {
                             if (newColumnHeader !== oldColumnHeader) {
                                 const levelIndex = isPrimitiveColumnHeader(columnHeader) ? undefined : rowIndexToColumnHeaderLevel(columnHeader, -1);
                                 void props.mitoAPI.editRenameColumn(
-                                    props.gridState.sheetIndex,
+                                    props.gridState.dataframeID,
                                     columnID,
                                     newColumnHeader,
                                     levelIndex

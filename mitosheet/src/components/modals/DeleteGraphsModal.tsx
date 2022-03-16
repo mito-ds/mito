@@ -5,15 +5,15 @@ import { ModalEnum } from './modals';
 import DefaultModal from '../DefaultModal';
 import MitoAPI from '../../api';
 import TextButton from '../elements/TextButton';
-import { GraphID, UIState } from '../../types';
-import { dataframeIDToSheetIndex, sheetIndexToDataframeID } from '../../utils/dataframeID';
+import { DataframeID, GraphID, UIState } from '../../types';
 import { TaskpaneType } from '../taskpanes/taskpanes';
+import { getPreviousDataframeID } from '../../utils/dataframeID';
 
 
 type DeleteGraphsModalProps = {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI;
-    sheetIndex: number;
+    dataframeID: DataframeID;
     dfName: string;
     dependantGraphTabNamesAndIDs: {
         graphTabName: string;
@@ -37,14 +37,14 @@ const DeleteGraphsModal = (props: DeleteGraphsModalProps): JSX.Element => {
         })
         
         // Then delete the dataframe
-        await props.mitoAPI.editDataframeDelete(props.sheetIndex)
+        await props.mitoAPI.editDataframeDelete(props.dataframeID)
 
         // Select the previous sheet and close the modal
         props.setUIState(prevUIState => {
             return {
                 ...prevUIState,
                 selectedTabType: 'data',
-                selectedDataframeID: dataframeIDToSheetIndex(prevUIState.selectedDataframeID) > 0 ? sheetIndexToDataframeID((dataframeIDToSheetIndex(prevUIState.selectedDataframeID) - 1)) : '0',
+                selectedDataframeID: getPreviousDataframeID(props.dataframeID),
                 currOpenModal: {type: ModalEnum.None},
                 currOpenTaskpane: {type: TaskpaneType.NONE}
             }

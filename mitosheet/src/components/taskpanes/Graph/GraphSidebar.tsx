@@ -7,7 +7,7 @@ import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
 import { useEffectOnUpdateEvent } from '../../../hooks/useEffectOnUpdateEvent';
 import { AnalysisData, ColumnID, ColumnIDsMap, DataframeID, GraphDataDict, GraphID, SheetData, UIState } from '../../../types';
-import { dataframeIDToSheetIndex } from '../../../utils/dataframeID';
+import { sheetIndexToDataframeID } from '../../../utils/dataframeID';
 import DropdownItem from '../../elements/DropdownItem';
 import Select from '../../elements/Select';
 import TextButton from '../../elements/TextButton';
@@ -85,9 +85,9 @@ const GraphSidebar = (props: {
 
     // We keep track of the graph data separately from the backend state so that 
     // the UI updates immediately, even though the backend takes a while to process.
-    const [graphParams, setGraphParams] = useState(() => getGraphParams(props.graphDataDict, graphID, dataframeIDToSheetIndex(props.uiState.selectedDataframeID), props.sheetDataMap))
+    const [graphParams, setGraphParams] = useState(() => getGraphParams(props.graphDataDict, graphID, props.uiState.selectedDataframeID, props.sheetDataMap))
 
-    const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
+    const dataSourceDataframeID = sheetIndexToDataframeID(graphParams.graphCreation.sheet_index);
     const graphOutput = props.graphDataDict[graphID]?.graphOutput
     const [_copyGraphCode, graphCodeCopied] = useCopyToClipboard(graphOutput?.graphGeneratedCode);
     const [loading, setLoading] = useState<boolean>(false)
@@ -115,7 +115,7 @@ const GraphSidebar = (props: {
     */
     useEffect(() => {
         setStepID(undefined)
-        setGraphParams(getGraphParams(props.graphDataDict, props.graphID, dataframeIDToSheetIndex(props.uiState.selectedDataframeID), props.sheetDataMap))
+        setGraphParams(getGraphParams(props.graphDataDict, props.graphID, props.uiState.selectedDataframeID, props.sheetDataMap))
         setGraphUpdatedNumber(old => old + 1)
     }, [props.graphID])
 
@@ -176,7 +176,7 @@ const GraphSidebar = (props: {
         with the graph shown, which is useful in the case of an undo or redo
     */
     const refreshParams = async (): Promise<void> => {        
-        const newGraphParams = getGraphParams(props.graphDataDict, graphID, dataSourceSheetIndex, props.sheetDataMap)
+        const newGraphParams = getGraphParams(props.graphDataDict, graphID, dataSourceDataframeID, props.sheetDataMap)
         setGraphParams(newGraphParams)
     } 
 
@@ -333,7 +333,7 @@ const GraphSidebar = (props: {
                                         const newIndex = props.dfNames.indexOf(newDfName);
                                         
                                         // Reset the graph params for the new sheet, but keep the graph type!
-                                        const newSheetGraphParams = getDefaultGraphParams(props.sheetDataMap, newIndex, graphParams.graphCreation.graph_type)
+                                        const newSheetGraphParams = getDefaultGraphParams(props.sheetDataMap, sheetIndexToDataframeID(newIndex), graphParams.graphCreation.graph_type)
                                         setGraphParams(newSheetGraphParams)
 
                                         setGraphUpdatedNumber((old) => old + 1);
@@ -438,7 +438,7 @@ const GraphSidebar = (props: {
                             updateAxisData={updateAxisData}
                             mitoAPI={props.mitoAPI}
                         />
-                        <Row justify='space-between' align='center' title={getDefaultSafetyFilter(props.sheetDataMap, graphParams.graphCreation.sheet_index) ? SAFETY_FILTER_ENABLED_MESSAGE : SAFETY_FILTER_DISABLED_MESSAGE}>
+                        <Row justify='space-between' align='center' title={getDefaultSafetyFilter(props.sheetDataMap, sheetIndexToDataframeID(graphParams.graphCreation.sheet_index)) ? SAFETY_FILTER_ENABLED_MESSAGE : SAFETY_FILTER_DISABLED_MESSAGE}>
                             <Col>
                                 <p className='text-header-3' >
                                     Filter to safe size
@@ -448,7 +448,7 @@ const GraphSidebar = (props: {
                                 <Toggle
                                     value={graphParams.graphPreprocessing.safety_filter_turned_on_by_user}
                                     onChange={toggleSafetyFilter}
-                                    disabled={!getDefaultSafetyFilter(props.sheetDataMap, graphParams.graphCreation.sheet_index)}
+                                    disabled={!getDefaultSafetyFilter(props.sheetDataMap, sheetIndexToDataframeID(graphParams.graphCreation.sheet_index))}
                                 />
                             </Col>
                         </Row>

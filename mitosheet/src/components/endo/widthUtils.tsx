@@ -1,5 +1,24 @@
 import { DEFAULT_WIDTH } from "./EndoGrid";
 import { ColumnID, DataframeID, SheetData, WidthData } from "../../types";
+import { sheetIndexToDataframeID } from "../../utils/dataframeID";
+
+
+export const getWidthDataMap = (selectedDataframeID: DataframeID, sheetDataMap: Record<DataframeID, SheetData>): Record<ColumnID, WidthData> => {
+    const widthDataMap: Record<DataframeID, WidthData> = {};
+    
+    if (Object.keys(sheetDataMap).length === 0) {
+        // When sheetDataMap is empty, we create a default widthDataMap so that we avoid 
+        // indexing into undefined variables across the codebase.
+        // TODO: can we remove this!
+        widthDataMap[selectedDataframeID] = getWidthData(undefined);
+    } else {
+        Object.entries(sheetDataMap).forEach(([dataframeID, sheetData]) => {
+            widthDataMap[dataframeID] = getWidthData(sheetData);
+        })
+    }
+
+    return widthDataMap;
+}  
 
 
 /* 
@@ -48,13 +67,13 @@ export const getWidthData = (sheetData: SheetData | undefined, defaultWidthData:
     A helper function for changing with width of a specific
     column at a specific index.
 */
-export const changeColumnWidthDataArray = (sheetIndex: number, widthDataArray: WidthData[], columnIndex: number, newWidth: number): WidthData[] => {
+export const changeColumnWidthDataMap = (dataframeID: DataframeID, widthDataMap: Record<DataframeID, WidthData>, columnIndex: number, newWidth: number): Record<DataframeID, WidthData> => {
     // Update the width array
-    const newWidthArray = [...widthDataArray[sheetIndex].widthArray];
+    const newWidthArray = [...widthDataMap[dataframeID].widthArray];
     newWidthArray[columnIndex] = newWidth;
 
-    const newWidthSumArray = [...widthDataArray[sheetIndex].widthSumArray];
-    for (let i = columnIndex; i < widthDataArray[sheetIndex].widthSumArray.length; i++) {
+    const newWidthSumArray = [...widthDataMap[dataframeID].widthSumArray];
+    for (let i = columnIndex; i < widthDataMap[dataframeID].widthSumArray.length; i++) {
         let previousSumSaved: number | undefined = newWidthSumArray[i - 1];
         if (previousSumSaved === undefined) {
             previousSumSaved = 0;
@@ -67,30 +86,33 @@ export const changeColumnWidthDataArray = (sheetIndex: number, widthDataArray: W
     // And finially the total width
     const newTotalWidth = newWidthArray.reduce((partialSum, width) => partialSum + width, 0); 
 
-    widthDataArray[sheetIndex] = {
+    widthDataMap[dataframeID] = {
         widthArray: newWidthArray,
         widthSumArray: newWidthSumArray,
         totalWidth: newTotalWidth
     }
 
-    return widthDataArray
+    return widthDataMap;
 }
 
-export const reconciliateWidthDataArray = (prevWidthDataArray: WidthData[], columnIDsArray: ColumnID[][], sheetDataMap: Record<DataframeID, SheetData>): WidthData[] => {
+export const reconciliateWidthDataMap = (dataframeID: DataframeID, prevWidthDataArray: Record<DataframeID, WidthData>, columnIDsArray: Record<DataframeID, ColumnID[]>, sheetDataMap: Record<DataframeID, SheetData>): Record<DataframeID, WidthData> => {
     // We make sure that the widthDataArray is defined so that we can index into 
     // it without crashing the sheet. It simplifies the code elsewhere.
     if (Object.keys(sheetDataMap).length === 0) {
-        return [getWidthData(undefined)]
+        return {dataframeID: getWidthData(undefined)}
     }
 
-    const newColumnWidthsArray: WidthData[] = []
+    const newColumnWidthsMap: Record<DataframeID, WidthData> = {}
+    // TODO: when we move from fake dataframe IDs -> real dataframe ids, (e.g. they
+    // are no longer just sheet indexes), we have to update this reconciliate function
+    // NOTE: it will become much simpler - it's just matched based on ID.
     for (let i = 0; i < Object.keys(sheetDataMap).length; i++) {
         const columnIDs = columnIDsArray[i];
         const newColumnsWidthsResult = reconciliateWidthData(prevWidthDataArray[i], columnIDs, sheetDataMap[i])
-        newColumnWidthsArray.push(newColumnsWidthsResult)
+        newColumnWidthsMap[sheetIndexToDataframeID(i)] = newColumnsWidthsResult;
     }
 
-    return newColumnWidthsArray
+    return newColumnWidthsMap;
 }
 
 /* 

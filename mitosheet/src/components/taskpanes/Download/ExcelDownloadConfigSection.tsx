@@ -8,14 +8,13 @@ import MultiToggleItem from "../../elements/MultiToggleItem";
 import Row from "../../spacing/Row";
 
 const ExcelDownloadConfigSection = (props: {
-    dfNames: string[]
     mitoAPI: MitoAPI
     userProfile: UserProfile;
     sheetDataMap: Record<DataframeID, SheetData>
     exportState: ExcelExportState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>
-    newlyFormattedColumns: Record<number, string[]>
-    setNewlyFormattedColumns: React.Dispatch<React.SetStateAction<Record<number, string[]>>>
+    newlyFormattedColumns: Record<DataframeID, string[]>
+    setNewlyFormattedColumns: React.Dispatch<React.SetStateAction<Record<DataframeID, string[]>>>
 }): JSX.Element => {
 
     return (
@@ -27,22 +26,20 @@ const ExcelDownloadConfigSection = (props: {
                 width='block'
                 height='small'
             >
-                {props.dfNames.map((dfName, index) => {
+                {Object.entries(props.sheetDataMap).map(([dataframeID, sheetData], index) => {
                     return (
                         <MultiToggleItem
-                            key={index}
-                            title={dfName}
-                            toggled={props.exportState.sheetIndexes.includes(index)}
-                            index={index}
+                            key={dataframeID}
+                            title={sheetData.dfName}
+                            toggled={props.exportState.dataframeIDs.includes(dataframeID)}
                             onToggle={() => { 
                                 props.setUIState(prevUIState => {
-                                    const newSheetIndexes = [...props.exportState.sheetIndexes]
-                                    toggleInArray(newSheetIndexes, index); // Toggle the index
-                                    newSheetIndexes.sort() // Make sure these are in the right order;
+                                    const newDataframeIDs = [...props.exportState.dataframeIDs]
+                                    toggleInArray(newDataframeIDs, dataframeID); // Toggle the index
 
                                     return {
                                         ...prevUIState,
-                                        exportConfiguration: {exportType: 'excel', sheetIndexes: newSheetIndexes}
+                                        exportConfiguration: {exportType: 'excel', dataframeIDs: newDataframeIDs}
                                     }
                                 })
                             }}
@@ -60,7 +57,6 @@ const ExcelDownloadConfigSection = (props: {
             */}
             {props.userProfile.isPro && 
                 <ExcelFormatSection
-                    dfNames={props.dfNames}
                     mitoAPI={props.mitoAPI}
                     sheetDataMap={props.sheetDataMap}
                     exportState={props.exportState}

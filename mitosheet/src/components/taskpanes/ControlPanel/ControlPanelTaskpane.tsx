@@ -3,7 +3,7 @@
 import React, { useRef, useState } from 'react';
 import "../../../../css/taskpanes/ControlPanel/ControlPanelTaskpane.css";
 import MitoAPI from '../../../api';
-import { ColumnIDsMap, FilterGroupType, FilterType, MitoSelection, SheetData, StepType, UIState, EditorState, GridState } from '../../../types';
+import { ColumnIDsMap, FilterGroupType, FilterType, MitoSelection, SheetData, StepType, UIState, EditorState, GridState, DataframeID } from '../../../types';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
 import { getCellDataFromCellIndexes } from '../../endo/utils';
 import { TaskpaneType } from '../taskpanes';
@@ -34,12 +34,13 @@ export enum ControlPanelTab {
 
 
 type ControlPanelTaskpaneProps = {
-    selectedSheetIndex: number,
+    selectedDataframeID: DataframeID,
     selection: MitoSelection,
     sheetData: SheetData | undefined,
     columnIDsMapArray: ColumnIDsMap[],
     mitoContainerRef: React.RefObject<HTMLDivElement>,
     gridState: GridState,
+    uiState: UIState,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
     mitoAPI: MitoAPI,
@@ -128,7 +129,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
         });
         
         const _stepID = await props.mitoAPI.editFilter(
-            props.selectedSheetIndex,
+            props.selectedDataframeID,
             columnID,
             filtersToApply,
             operator,
@@ -156,7 +157,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                     {props.tab === ControlPanelTab.FilterSort &&
                         <React.Fragment>
                             <DtypeCard
-                                selectedSheetIndex={props.selectedSheetIndex}
+                                selectedDataframeID={props.selectedDataframeID}
                                 columnID={columnID}
                                 columnDtype={columnDtype}
                                 columnFormula={columnFormula} 
@@ -167,17 +168,17 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                             <FormatCard 
                                 columnID={columnID}
                                 mitoAPI={props.mitoAPI}
-                                gridState={props.gridState}
+                                uiState={props.uiState}
                                 columnDtype={columnDtype}
                                 sheetData={props.sheetData}
                             />
                             <SortCard
-                                selectedSheetIndex={props.selectedSheetIndex}
+                                selectedDataframeID={props.selectedDataframeID}
                                 columnID={columnID} 
                                 mitoAPI={props.mitoAPI}
                             />
                             <FilterCard
-                                selectedSheetIndex={props.selectedSheetIndex}
+                                selectedDataframeID={props.selectedDataframeID}
                                 columnID={columnID}
                                 filters={filters}
                                 setFilters={setFilters}
@@ -191,7 +192,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                     {props.tab === ControlPanelTab.UniqueValues && 
                         <React.Fragment>
                             <ValuesTab
-                                selectedSheetIndex={props.selectedSheetIndex}
+                                selectedDataframeID={props.selectedDataframeID}
                                 columnID={columnID}
                                 filters={filters}
                                 setFilters={setFilters}
@@ -204,12 +205,12 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                     {props.tab === ControlPanelTab.SummaryStats &&
                         <React.Fragment>
                             <ColumnSummaryGraph
-                                selectedSheetIndex={props.selectedSheetIndex}
+                                selectedDataframeID={props.selectedDataframeID}
                                 columnID={columnID}
                                 mitoAPI={props.mitoAPI}
                             />
                             <ColumnSummaryStatistics
-                                selectedSheetIndex={props.selectedSheetIndex}
+                                selectedDataframeID={props.selectedDataframeID}
                                 columnID={columnID}
                                 mitoAPI={props.mitoAPI}
                                 columnDtype={columnDtype}

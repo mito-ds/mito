@@ -1,19 +1,20 @@
 // Helper function for creating default graph params. Defaults to a Bar chart, 
 
-import { GraphDataDict, GraphID, GraphParams, SheetData } from "../../../types"
+import { DataframeID, GraphDataDict, GraphID, GraphParams, SheetData } from "../../../types"
 import { intersection } from "../../../utils/arrays"
+import { dataframeIDToSheetIndex, sheetIndexToDataframeID } from "../../../utils/dataframeID"
 import { GraphType, GRAPH_SAFETY_FILTER_CUTOFF } from "./GraphSidebar"
 
 // unless a graph type is provided
-export const getDefaultGraphParams = (sheetDataMap: Record<string, SheetData>, sheetIndex: number, graphType?: GraphType): GraphParams => {
-    const safetyFilter = getDefaultSafetyFilter(sheetDataMap, sheetIndex)
+export const getDefaultGraphParams = (sheetDataMap: Record<DataframeID, SheetData>, dataframeID: DataframeID, graphType?: GraphType): GraphParams => {
+    const safetyFilter = getDefaultSafetyFilter(sheetDataMap, dataframeID)
     return {
         graphPreprocessing: {
             safety_filter_turned_on_by_user: safetyFilter
         },
         graphCreation: {
             graph_type: graphType || GraphType.BAR,
-            sheet_index: sheetIndex,
+            sheet_index: dataframeIDToSheetIndex(dataframeID),
             x_axis_column_ids: [],
             y_axis_column_ids: [],
         },
@@ -23,8 +24,8 @@ export const getDefaultGraphParams = (sheetDataMap: Record<string, SheetData>, s
 }
 
 // Helper function for getting the default safety filter status
-export const getDefaultSafetyFilter = (sheetDataMap: Record<string, SheetData>, sheetIndex: number): boolean => {
-    return sheetDataMap[sheetIndex] === undefined || sheetDataMap[sheetIndex].numRows > GRAPH_SAFETY_FILTER_CUTOFF
+export const getDefaultSafetyFilter = (sheetDataMap: Record<DataframeID, SheetData>, dataframeID: DataframeID): boolean => {
+    return sheetDataMap[dataframeID] === undefined || sheetDataMap[dataframeID].numRows > GRAPH_SAFETY_FILTER_CUTOFF
 }
 
 /*
@@ -38,21 +39,21 @@ export const getDefaultSafetyFilter = (sheetDataMap: Record<string, SheetData>, 
 export const getGraphParams = (   
     graphDataDict: GraphDataDict,
     graphID: GraphID,
-    selectedSheetIndex: number,
-    sheetDataMap: Record<string, SheetData>,
+    selectedDataframeID: DataframeID,
+    sheetDataMap: Record<DataframeID, SheetData>,
 ): GraphParams => {
 
     const graphParams = graphDataDict[graphID]?.graphParams;
 
     // If the graph already exists, get the data source sheet index from the graph params.
     // Otherwise create a new graph of the selectedSheetIndex
-    const graphDataSourceSheetIndex = graphParams !== undefined ? graphParams.graphCreation.sheet_index : selectedSheetIndex
+    const graphDataSourceDataframeID = graphParams !== undefined ? sheetIndexToDataframeID(graphParams.graphCreation.sheet_index) : selectedDataframeID
 
     // If the graph already exists, retrieve the graph params that still make sense. In other words, 
     // if a column was previously included in the graph and it no longer exists, remove it from the graph. 
     if (graphParams !== undefined) {
         // Filter out column headers that no longer exist
-        const validColumnIDs = sheetDataMap[graphDataSourceSheetIndex] !== undefined ? sheetDataMap[graphDataSourceSheetIndex].data.map(c => c.columnID) : [];
+        const validColumnIDs = sheetDataMap[graphDataSourceDataframeID] !== undefined ? sheetDataMap[graphDataSourceDataframeID].data.map(c => c.columnID) : [];
         const xAxisColumnIDs = intersection(
             validColumnIDs,
             graphParams.graphCreation.x_axis_column_ids
@@ -62,7 +63,6 @@ export const getGraphParams = (
             graphParams.graphCreation.y_axis_column_ids
         )
 
-        
         return {
             ...graphParams,
             graphCreation: {
@@ -74,5 +74,5 @@ export const getGraphParams = (
     }
 
     // If the graph does not already exist, create a default graph.
-    return getDefaultGraphParams(sheetDataMap, graphDataSourceSheetIndex);
+    return getDefaultGraphParams(sheetDataMap, graphDataSourceDataframeID);
 }

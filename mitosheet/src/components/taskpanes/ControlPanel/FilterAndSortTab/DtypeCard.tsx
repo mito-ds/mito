@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import MitoAPI from '../../../../api';
-import { ColumnID, StepType } from '../../../../types';
+import { ColumnID, DataframeID, StepType } from '../../../../types';
 import DropdownItem from '../../../elements/DropdownItem';
 import Select from '../../../elements/Select';
 import Col from '../../../spacing/Col';
@@ -11,7 +11,7 @@ import Row from '../../../spacing/Row';
 const DTYPE_DESCRIPTION = 'Changes the dtype of the selected column in the underlying dataframe.'
 
 type DtypeCardProps = {
-    selectedSheetIndex: number;
+    selectedDataframeID: DataframeID;
     columnID: ColumnID;
     columnFormula: string;
     columnDtype: string;
@@ -71,7 +71,7 @@ function DtypeCard(props: DtypeCardProps): JSX.Element {
 
     async function changeColumnDtype(newDtype: string) {
         const newStepID = await props.mitoAPI.editChangeColumnDtype(
-            props.selectedSheetIndex,
+            props.selectedDataframeID,
             props.columnID,
             newDtype,
             stepID

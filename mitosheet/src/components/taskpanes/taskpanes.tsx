@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import { GraphID } from "../../types"
+import { DataframeID, GraphID } from "../../types"
 import { PivotParams } from "./PivotTable/PivotTaskpane"
 
 /* 
@@ -50,7 +50,7 @@ export type TaskpaneInfo =
         type: TaskpaneType.PIVOT,
         // Optional params only defined if this is a pivot
         // editing a specific existing pivot table
-        destinationSheetIndex?: number;
+        destinationDataframeID?: DataframeID;
         existingPivotParams?: PivotParams, 
     } 
     | {type: TaskpaneType.SEARCH}

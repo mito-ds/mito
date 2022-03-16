@@ -1,18 +1,18 @@
+import fscreen from 'fscreen';
 import React, { useEffect, useRef, useState } from 'react';
 import '../../../css/endo/CellEditor.css';
 import MitoAPI from '../../api';
-import { formulaEndsInColumnHeader, getFullFormula, getSuggestedColumnHeaders, getDocumentationFunction, getSuggestedFunctions } from './cellEditorUtils';
+import { DataframeID, EditorState, GridState, MitoError, SheetData } from '../../types';
+import { classNames } from '../../utils/classNames';
+import { getDisplayColumnHeader, isPrimitiveColumnHeader } from '../../utils/columnHeaders';
+import LoadingDots from '../elements/LoadingDots';
+import { formulaEndsInColumnHeader, getDocumentationFunction, getFullFormula, getSuggestedColumnHeaders, getSuggestedFunctions } from './cellEditorUtils';
 import { KEYS_TO_IGNORE_IF_PRESSED_ALONE } from './EndoGrid';
 import { focusGrid } from './focusUtils';
 import { getColumnHeadersInSelection, getNewSelectionAfterKeyPress, isNavigationKeyPressed } from './selectionUtils';
 import { calculateCurrentSheetView, getCellInColumn, getCellInRow } from './sheetViewUtils';
-import { EditorState, GridState, MitoError, SheetData } from '../../types';
 import { firstNonNullOrUndefined, getCellDataFromCellIndexes } from './utils';
-import { classNames } from '../../utils/classNames';
-import fscreen from 'fscreen';
 import { ensureCellVisible } from './visibilityUtils';
-import LoadingDots from '../elements/LoadingDots';
-import { getDisplayColumnHeader, isPrimitiveColumnHeader } from '../../utils/columnHeaders';
 
 // NOTE: we just set the width to 250 pixels
 const CELL_EDITOR_WIDTH = 250;
@@ -41,7 +41,7 @@ const MAX_SUGGESTIONS = 4;
 */
 const CellEditor = (props: {
     sheetData: SheetData,
-    sheetIndex: number,
+    selectedDataframeID: DataframeID,
     gridState: GridState,
     editorState: EditorState,
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>,
@@ -464,13 +464,13 @@ const CellEditor = (props: {
         // Make sure to send the write type of message, depending on the editor
         if (isFormulaColumn) {
             errorMessage = await props.mitoAPI.editSetColumnFormula(
-                props.sheetIndex,
+                props.selectedDataframeID,
                 columnID,
                 formula
             )
         } else {
             errorMessage = await props.mitoAPI.editSetCellValue(
-                props.sheetIndex,
+                props.selectedDataframeID,
                 columnID,
                 index,
                 formula
