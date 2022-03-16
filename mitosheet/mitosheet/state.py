@@ -137,13 +137,8 @@ class State:
         If you copy a state using the copy() function, this Python
         function is called, and returns a shallow copy of the state
         """
-
-        new_dfs: Dict[int, pd.DataFrame] = OrderedDict()
-        for sheet_index, df in self.dfs.items():
-            new_dfs[sheet_index] = df.copy(deep=False)
-
         return State(
-            dfs=new_dfs,
+            dfs=OrderedDict((sheet_index, df.copy(deep=False)) for sheet_index, df in self.dfs.items()),
             df_names=deepcopy(self.df_names),
             df_sources=deepcopy(self.df_sources),
             column_ids=deepcopy(self.column_ids),
@@ -158,12 +153,8 @@ class State:
         If you copy a state using the deepcopy() function, this Python
         function is called, and returns a deep copy of the state
         """
-        new_dfs: Dict[int, pd.DataFrame] = OrderedDict()
-        for sheet_index, df in self.dfs.items():
-            new_dfs[sheet_index] = df.copy(deep=True)
-
         return State(
-            dfs=new_dfs,
+            dfs=OrderedDict((sheet_index, df.copy(deep=True)) for sheet_index, df in self.dfs.items()),
             df_names=deepcopy(self.df_names),
             df_sources=deepcopy(self.df_sources),
             column_ids=deepcopy(self.column_ids),

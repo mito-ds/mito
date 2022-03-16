@@ -59,9 +59,7 @@ class DataframeDeleteStepPerformer(StepPerformer):
 
         # TODO: this is a hack for now to get the dictonary to match
         # up with the old sheet indexes we used to use; we adjust down by one
-        # NOTE: This will cause bugs when we move to IDs, as we obviously don't
-        # want to change IDs (and note that this is changing the order of the
-        # OrderedDict anyways.
+        # Delete this once we properly support DataframeIDs
         for i in range(sheet_index, len(post_state.dfs)):
             post_state.dfs[i] = post_state.dfs[i + 1]
             del post_state.dfs[i + 1]
