@@ -131,14 +131,10 @@ function EndoGrid(props: {
 
 
     /* 
-        An effect that handles a resizing of the viewport. Notably, the resize
-        event is only triggered on the window event, so we cannot just add
-        a resize event lister to the grid element and expect it to work. 
-        See here: https://developer.mozilla.org/en-US/docs/Web/API/Window/resize_event
+        An effect that handles a resizing of the viewport. 
 
-        Thus, we use a resize observer. 
-        See here: https://developer.mozilla.org/en-US/docs/Web/API/Resize_Observer_API
-    */
+        TODO: move this to the shared hook useEffectOnResizeElement
+    */        
     useEffect(() => {
         const resizeViewport = () => {
             setGridState((gridState) => {
