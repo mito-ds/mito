@@ -610,7 +610,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     sheetData={sheetDataArray[uiState.selectedSheetIndex]}
                 />
-                <div className="mito-main-sheet-div"> 
+                <div className="mito-main-sheet-div" id="mito-main-sheet-div"> 
                     <div className={formulaBarAndSheetClassNames}>
                         <EndoGrid
                             sheetDataArray={sheetDataArray}

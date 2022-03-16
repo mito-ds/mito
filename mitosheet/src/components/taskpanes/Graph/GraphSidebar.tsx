@@ -6,7 +6,6 @@ import { useEffectOnUpdateEvent } from '../../../hooks/useEffectOnUpdateEvent';
 import { AnalysisData, ColumnIDsMap, GraphDataDict, GraphID, GraphSidebarTab, SheetData, UIState } from '../../../types';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import { TaskpaneType } from '../taskpanes';
-import GraphSetupTab from './GraphSetupTab';
 import GraphSidebarTabs from './GraphSidebarTabs';
 import LoadingSpinner from './LoadingSpinner';
 import { getGraphParams } from './graphUtils';
@@ -14,11 +13,13 @@ import { getGraphParams } from './graphUtils';
 // import css
 import '../../../../css/taskpanes/Graph/GraphSidebar.css';
 import '../../../../css/taskpanes/Graph/LoadingSpinner.css';
-import GraphExportTab from './GraphExportTab';
 import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
 import XIcon from '../../icons/XIcon';
 import GraphStyleTab from './GraphStyleTab';
+import GraphSetupTab from './GraphSetupTab';
+import GraphExportTab from './GraphExportTab';
+import fscreen from 'fscreen';
 
 
 export enum GraphType {
@@ -83,6 +84,7 @@ const GraphSidebar = (props: {
     const [loading, setLoading] = useState<boolean>(false)
     const [selectedGraphSidebarTab, setSelectedGraphSidebarTab] = useState<GraphSidebarTab>(GraphSidebarTab.Setup)
 
+
     /* 
         When graphUpdatedNumber is updated, we send a new getGraphMessage with the current graphParams
         in order to update the graphDataDict. We only increment graphUpdatedNumber when the user updates the params.
@@ -92,6 +94,11 @@ const GraphSidebar = (props: {
     */
     const [graphUpdatedNumber, setGraphUpdatedNumber] = useState(0)
 
+    useEffect(() => {
+        fscreen.addEventListener('fullscreenchange', () => {setGraphUpdatedNumber(old => old + 1)});
+        return () => fscreen.removeEventListener('fullscreenchange', () => setGraphUpdatedNumber(old => old + 1))
+    }, [])
+    
 
     // If there has been an undo or redo, then we refresh the params to this graph
     useEffectOnUpdateEvent(() => {
@@ -141,7 +148,10 @@ const GraphSidebar = (props: {
         size.
     */
     const getGraphAsync = async () => {
-        const boundingRect: DOMRect | undefined = document.getElementById('graph-div')?.getBoundingClientRect();
+        // The reason that we use the mito-main-sheet-div instead of the graph-div is because the size of the graph div
+        // changes depending on the size of the graph. Specifically, when exiting fullscreen mode, the graph-div is wider
+        // than we actually have space for. 
+        const boundingRect: DOMRect | undefined = document.getElementById('mito-main-sheet-div')?.getBoundingClientRect();
 
         if (boundingRect !== undefined) {
             const _stepID = await props.mitoAPI.editGraph(
@@ -152,8 +162,8 @@ const GraphSidebar = (props: {
                 graphParams.graphPreprocessing.safety_filter_turned_on_by_user,
                 graphParams.graphCreation.x_axis_column_ids,
                 graphParams.graphCreation.y_axis_column_ids,
-                `${boundingRect?.height - 10}px`, 
-                `${boundingRect?.width - 20}px`, // Subtract pixels from the height & width to account for padding
+                `${boundingRect?.height - 10}px`, // Subtract pixels from the height & width to account for padding
+                `${boundingRect?.width - 20 - 250}px`, 
                 stepID
             );
             setStepID(_stepID)

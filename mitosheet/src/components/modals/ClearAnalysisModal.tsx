@@ -47,7 +47,7 @@ const ClearAnalysisModal = (props: ResetAnalysisProps): JSX.Element => {
             viewComponent= {
                 <>
                     <p className='body-text-1'>
-                        This will undo all transformations you have made to imported dataframes.
+                        This will undo all transformations and you&apos;ve made to imported dataframes and delete all of the graphs you&apos;ve created.
                     </p>
                 </>
             }
