@@ -1,62 +1,61 @@
 // Copyright (c) Mito
 
 import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
-
-/* 
+import '../../css/sitewide/all-modals.css';
+import '../../css/sitewide/animations.css';
+import '../../css/sitewide/borders.css';
+/*
     Import CSS that we use globally, list these in alphabetical order
     to make it easier to confirm we have imported all sitewide css.
 
-    Except we put the colors.css first because it creates variables used elsewhere. 
+    Except we put the colors.css first because it creates variables used elsewhere.
 */
 import '../../css/sitewide/colors.css';
-import '../../css/sitewide/all-modals.css';
-import '../../css/sitewide/animations.css';
-import '../../css/sitewide/borders.css'
 import '../../css/sitewide/element-sizes.css';
 import '../../css/sitewide/flexbox.css';
 import '../../css/sitewide/fonts.css';
 import '../../css/sitewide/height.css';
+import '../../css/sitewide/icons.css';
 import '../../css/sitewide/margins.css';
 import '../../css/sitewide/paddings.css';
 import '../../css/sitewide/text.css';
 import '../../css/sitewide/widths.css';
-import '../../css/sitewide/icons.css';
-
+import MitoAPI from '../api';
+import { AnalysisData, DataframeID, DataTypeInMito, DFSource, EditorState, GridState, SheetData, UIState, UserProfile } from '../types';
+import { createActions } from '../utils/actions';
+import { classNames } from '../utils/classNames';
+import loadPlotly from '../utils/plotly';
+import CatchUpPopup from './CatchUpPopup';
+import ErrorBoundary from './elements/ErrorBoundary';
+import EndoGrid from './endo/EndoGrid';
+import { focusGrid } from './endo/focusUtils';
+import { getCellDataFromCellIndexes, getDefaultGridState } from './endo/utils';
 // Import sheet and code components
 import Footer from './footer/Footer';
-import Toolbar from './toolbar/Toolbar';
+import { selectPreviousGraphSheetTab } from './footer/SheetTab';
 import LoadingIndicator from './LoadingIndicator';
-
+import ClearAnalysisModal from './modals/ClearAnalysisModal';
+import DeleteGraphsModal from './modals/DeleteGraphsModal';
 import ErrorModal from './modals/ErrorModal';
-import MitoAPI from '../api';
-import PivotTaskpane from './taskpanes/PivotTable/PivotTaskpane';
-import { EDITING_TASKPANES, TaskpaneType } from './taskpanes/taskpanes';
-import MergeTaskpane from './taskpanes/Merge/MergeTaskpane';
-import ControlPanelTaskpane, { ControlPanelTab } from './taskpanes/ControlPanel/ControlPanelTaskpane';
+import { ModalEnum } from './modals/modals';
 import SignUpModal from './modals/SignupModal';
 import UpgradeModal from './modals/UpgradeModal';
-import StepsTaskpane from './taskpanes/Steps/StepsTaskpane';
-import CatchUpPopup from './CatchUpPopup';
+import ControlPanelTaskpane, { ControlPanelTab } from './taskpanes/ControlPanel/ControlPanelTaskpane';
+import DownloadTaskpane from './taskpanes/Download/DownloadTaskpane';
+import DropDuplicatesTaskpane from './taskpanes/DropDuplicates/DropDuplicates';
+import GraphSidebar from './taskpanes/Graph/GraphSidebar';
 import ImportTaskpane from './taskpanes/Import/ImportTaskpane';
+import MergeTaskpane from './taskpanes/Merge/MergeTaskpane';
+import PivotTaskpane from './taskpanes/PivotTable/PivotTaskpane';
+import SearchTaskpane from './taskpanes/Search/SearchTaskpane';
+import StepsTaskpane from './taskpanes/Steps/StepsTaskpane';
+import { EDITING_TASKPANES, TaskpaneType } from './taskpanes/taskpanes';
+import Toolbar from './toolbar/Toolbar';
 import Tour from './tour/Tour';
 import { TourName } from './tour/Tours';
-import GraphSidebar from './taskpanes/Graph/GraphSidebar';
-import DownloadTaskpane from './taskpanes/Download/DownloadTaskpane';
-import ClearAnalysisModal from './modals/ClearAnalysisModal';
-import { ModalEnum } from './modals/modals';
-import { AnalysisData, EditorState, DataTypeInMito, DFSource, GridState, UIState, UserProfile, DataframeID } from '../types';
-import { getDefaultGridState, getCellDataFromCellIndexes } from './endo/utils';
-import EndoGrid from './endo/EndoGrid';
-import { SheetData } from '../types';
-import { classNames } from '../utils/classNames';
-import { focusGrid } from './endo/focusUtils';
-import DropDuplicatesTaskpane from './taskpanes/DropDuplicates/DropDuplicates';
-import { createActions } from '../utils/actions';
-import SearchTaskpane from './taskpanes/Search/SearchTaskpane';
-import loadPlotly from '../utils/plotly';
-import ErrorBoundary from './elements/ErrorBoundary';
-import DeleteGraphsModal from './modals/DeleteGraphsModal';
-import { selectPreviousGraphSheetTab } from './footer/SheetTab';
+
+
+
 
 export type MitoProps = {
     model_id: string;
@@ -425,7 +424,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         key={'' + columnID + uiState.selectedDataframeID} 
                         selectedDataframeID={uiState.selectedDataframeID}
                         sheetData={sheetDataMap[uiState.selectedDataframeID]}
-                        columnIDsMapArray={columnIDsMapArray}
                         selection={gridState.selections[gridState.selections.length - 1]} 
                         gridState={gridState}
                         mitoContainerRef={mitoContainerRef}
@@ -463,7 +461,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     <GraphSidebar 
                         graphID={uiState.currOpenTaskpane.graphID}
                         dfNames={dfNames}
-                        columnIDsMapArray={columnIDsMapArray}
                         sheetDataMap={sheetDataMap}
                         columnDtypesMap={sheetDataMap[uiState.selectedDataframeID]?.columnDtypeMap}
                         mitoAPI={props.mitoAPI}

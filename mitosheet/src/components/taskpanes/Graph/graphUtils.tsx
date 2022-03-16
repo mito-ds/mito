@@ -2,7 +2,7 @@
 
 import { DataframeID, GraphDataDict, GraphID, GraphParams, SheetData } from "../../../types"
 import { intersection } from "../../../utils/arrays"
-import { dataframeIDToSheetIndex, sheetIndexToDataframeID } from "../../../utils/dataframeID"
+import { sheetIndexToDataframeID } from "../../../utils/dataframeID"
 import { GraphType, GRAPH_SAFETY_FILTER_CUTOFF } from "./GraphSidebar"
 
 // unless a graph type is provided
@@ -15,7 +15,7 @@ export const getDefaultGraphParams = (sheetDataMap: Record<DataframeID, SheetDat
         },
         graphCreation: {
             graph_type: graphType || GraphType.BAR,
-            sheet_index: dataframeIDToSheetIndex(dataframeID),
+            dataframe_id: dataframeID,
             x_axis_column_ids: [],
             y_axis_column_ids: [],
         },
@@ -67,7 +67,8 @@ export const getGraphParams = (
         return {
             ...graphParams,
             graphCreation: {
-                ...graphParams.graphCreation,
+                graph_type: graphParams.graphCreation.graph_type,
+                dataframe_id: sheetIndexToDataframeID(graphParams.graphCreation.sheet_index),
                 x_axis_column_ids: xAxisColumnIDs,
                 y_axis_column_ids: yAxisColumnIDs
             }

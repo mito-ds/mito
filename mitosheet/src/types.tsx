@@ -203,7 +203,7 @@ export type GraphPreprocessingParams = {
 }
 export type GraphCreationParams = {
     graph_type: GraphType,
-    sheet_index: number,
+    dataframe_id: DataframeID,
     x_axis_column_ids: ColumnID[]
     y_axis_column_ids: ColumnID[]
 }
@@ -212,10 +212,32 @@ export type GraphRenderingParams = {
     width?: number
     height?: number
 }
-
 export type GraphParams = {
     graphPreprocessing: GraphPreprocessingParams,
     graphCreation: GraphCreationParams,
+    graphStyling: GraphStylingParams,
+    graphRendering: GraphRenderingParams
+};
+
+/* 
+    While we are in the process of transitioning to using
+    dataframe ids instead of sheet indexes, the backend 
+    has a different conception of what the backend params 
+    are compared to the frontend - in that it stores
+    sheet index. 
+
+    We type this as well, so that we are forced to remember
+    to cast before we use it in the frontend.
+*/
+export type BackendGraphCreationParams = {
+    graph_type: GraphType,
+    sheet_index: number,
+    x_axis_column_ids: ColumnID[]
+    y_axis_column_ids: ColumnID[]
+}
+export type BackendGraphParams = {
+    graphPreprocessing: GraphPreprocessingParams,
+    graphCreation: BackendGraphCreationParams,
     graphStyling: GraphStylingParams,
     graphRendering: GraphRenderingParams
 };
@@ -228,7 +250,7 @@ export type GraphParams = {
  * @param [graphOutput] - the python code, the graph html, and the graph script 
  */
 export type GraphData = {
-    graphParams: GraphParams,
+    graphParams: BackendGraphParams,
     graphOutput?: {
         graphGeneratedCode: string,
         graphHTML: string,

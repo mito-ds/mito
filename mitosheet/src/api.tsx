@@ -509,7 +509,7 @@ export default class MitoAPI {
     async editGraph(
         graphID: GraphID,
         graphType: GraphType,
-        sheet_index: number,
+        dataframeID: DataframeID,
         safety_filter_turned_on_by_user: boolean,
         xAxisColumnIDs: ColumnID[],
         yAxisColumnIDs: ColumnID[],
@@ -518,7 +518,7 @@ export default class MitoAPI {
         stepID?: string,
     ): Promise<string> {
 
-        console.log(sheet_index, typeof sheet_index)
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID);
 
         // If this is overwriting a graph event, then we do not need to
         // create a new id, as we already have it!
@@ -537,7 +537,7 @@ export default class MitoAPI {
                 },
                 'graph_creation': {
                     'graph_type': graphType,
-                    'sheet_index': sheet_index,
+                    'sheet_index': sheetIndex,
                     'x_axis_column_ids': xAxisColumnIDs,
                     'y_axis_column_ids': yAxisColumnIDs,
                 },

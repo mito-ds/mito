@@ -10,7 +10,7 @@ import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
 
 import '../../../../css/taskpanes/Graph/AxisSection.css'
-import { ColumnID, ColumnIDsMap } from '../../../types';
+import { ColumnID, SheetData } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 
@@ -25,7 +25,7 @@ export enum GraphAxisType {
     column headers for each axis of the graph. 
 */
 const AxisSection = (props: {
-    columnIDsMap: ColumnIDsMap;
+    sheetData: SheetData | undefined;
     columnDtypesMap: Record<string, string>;
 
     graphType: GraphType;
@@ -37,8 +37,10 @@ const AxisSection = (props: {
     mitoAPI: MitoAPI;
 }): JSX.Element => {
 
+    const columnIDsMap = props.sheetData?.columnIDsMap || {};
+
     // Filter the column headers that the user can select to only the columns that are the correct type for the graph
-    const selectableColumnIDs: ColumnID[] = Object.keys(props.columnIDsMap);
+    const selectableColumnIDs: ColumnID[] = Object.keys(columnIDsMap);
 
     // Create Large Selects and delete buttons for each of the columns that have already been selected
     const selectedColumnHeaderSelects = props.selectedColumnIDs.map((columnID, i) => {
@@ -57,7 +59,7 @@ const AxisSection = (props: {
                         searchable
                     >
                         {selectableColumnIDs.map(columnID => {
-                            const columnHeader = props.columnIDsMap[columnID];
+                            const columnHeader = columnIDsMap[columnID];
                             return (
                                 <DropdownItem
                                     key={columnID}
@@ -100,7 +102,7 @@ const AxisSection = (props: {
                         searchable
                     >
                         {selectableColumnIDs.map(columnID => {
-                            const columnHeader = props.columnIDsMap[columnID];
+                            const columnHeader = columnIDsMap[columnID];
                             return (
                                 <DropdownItem
                                     key={columnID}
