@@ -39,6 +39,10 @@ try:
     from jupyterlab import __version__ as jupyterlab_version
 except:
     jupyterlab_version = 'No JupyterLab'
+try:
+    from notebook import __version__ as notebook_version
+except:
+    notebook_version = 'No notebook'
 
 import analytics
 
@@ -187,6 +191,7 @@ def log(log_event: str, params: Dict[Any, Any]=None, steps_manager: StepsManager
     python_properties = {
         'version_python': sys.version_info,
         'version_jupyterlab': jupyterlab_version,
+        'version_notebook': notebook_version,
         'version_mito': __version__,
         'package_name': package_name,
         'location': location,
@@ -309,6 +314,7 @@ def identify() -> None:
             'version_mito': __version__,
             'package_name': package_name, 
             'version_jupyterlab': jupyterlab_version,
+            'version_notebook': notebook_version,
             'operating_system': operating_system,
             'email': user_email,
             'local': local,
