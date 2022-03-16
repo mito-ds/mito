@@ -95,7 +95,7 @@ export class ExampleView extends DOMWidgetView {
         window.mitoAPIMap.set(model_id, mitoAPI);
 
         // Get the initial sheet data, analysis data, and user profile
-        const sheetDataMap = this.getSheetDataArray();
+        const sheetDataMap = this.getSheetDataMap();
         const analysisData = this.getAnalysisData();
         const userProfile = this.getUserProfile();
 
@@ -129,7 +129,7 @@ export class ExampleView extends DOMWidgetView {
             return;
         }
 
-        const sheetDataMap = this.getSheetDataArray();
+        const sheetDataMap = this.getSheetDataMap();
         const analysisData = this.getAnalysisData();
         const userProfile = this.getUserProfile();
         // TODO: set analysis data, update user profile
@@ -187,7 +187,7 @@ export class ExampleView extends DOMWidgetView {
         mitoAPI?.receiveResponse(message);
     }
 
-    getSheetDataArray(): Record<DataframeID, SheetData> {
+    getSheetDataMap(): Record<DataframeID, SheetData> {
         const unparsed = this.model.get('sheet_data_json')
         return JSON.parse(unparsed);
     }

@@ -1,7 +1,5 @@
 import { DEFAULT_WIDTH } from "./EndoGrid";
 import { ColumnID, DataframeID, SheetData, WidthData } from "../../types";
-import { sheetIndexToDataframeID } from "../../utils/dataframeID";
-
 
 export const getWidthDataMap = (selectedDataframeID: DataframeID, sheetDataMap: Record<DataframeID, SheetData>): Record<ColumnID, WidthData> => {
     const widthDataMap: Record<DataframeID, WidthData> = {};
@@ -95,22 +93,25 @@ export const changeColumnWidthDataMap = (dataframeID: DataframeID, widthDataMap:
     return widthDataMap;
 }
 
-export const reconciliateWidthDataMap = (dataframeID: DataframeID, prevWidthDataArray: Record<DataframeID, WidthData>, columnIDsArray: Record<DataframeID, ColumnID[]>, sheetDataMap: Record<DataframeID, SheetData>): Record<DataframeID, WidthData> => {
-    // We make sure that the widthDataArray is defined so that we can index into 
+export const reconciliateWidthDataMap = (
+    dataframeID: DataframeID, 
+    prevWidthDataMap: Record<DataframeID, WidthData>, 
+    columnIDsMap: Record<DataframeID, ColumnID[]>, 
+    sheetDataMap: Record<DataframeID, SheetData>
+): Record<DataframeID, WidthData> => {
+    // We make sure that the widthDataMap is defined so that we can index into 
     // it without crashing the sheet. It simplifies the code elsewhere.
     if (Object.keys(sheetDataMap).length === 0) {
         return {dataframeID: getWidthData(undefined)}
     }
 
     const newColumnWidthsMap: Record<DataframeID, WidthData> = {}
-    // TODO: when we move from fake dataframe IDs -> real dataframe ids, (e.g. they
-    // are no longer just sheet indexes), we have to update this reconciliate function
-    // NOTE: it will become much simpler - it's just matched based on ID.
-    for (let i = 0; i < Object.keys(sheetDataMap).length; i++) {
-        const columnIDs = columnIDsArray[i];
-        const newColumnsWidthsResult = reconciliateWidthData(prevWidthDataArray[i], columnIDs, sheetDataMap[i])
-        newColumnWidthsMap[sheetIndexToDataframeID(i)] = newColumnsWidthsResult;
-    }
+
+    Object.keys(sheetDataMap).forEach(dataframeID => {
+        const columnIDs = columnIDsMap[dataframeID];
+        const newColumnsWidthsResult = reconciliateWidthData(prevWidthDataMap[dataframeID], columnIDs, sheetDataMap[dataframeID])
+        newColumnWidthsMap[dataframeID] = newColumnsWidthsResult;
+    })
 
     return newColumnWidthsMap;
 }

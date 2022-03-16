@@ -14,7 +14,7 @@ import GridData from "./GridData";
 import IndexHeaders from "./IndexHeaders";
 import { equalSelections, getColumnIndexesInSelections, getIndexesFromMouseEvent, getIsCellSelected, getIsHeader, getNewSelectionAfterKeyPress, getNewSelectionAfterMouseUp, isNavigationKeyPressed, isSelectionsOnlyColumnHeaders, reconciliateSelections, removeColumnFromSelections } from "./selectionUtils";
 import { calculateCurrentSheetView, calculateNewScrollPosition, calculateTranslate } from "./sheetViewUtils";
-import { firstNonNullOrUndefined, getColumnIDsMapFromSheetDataArray } from "./utils";
+import { firstNonNullOrUndefined, getColumnIDsMapFromSheetDataMap } from "./utils";
 import { ensureCellVisible } from "./visibilityUtils";
 import { reconciliateWidthDataMap } from "./widthUtils";
 
@@ -123,7 +123,7 @@ function EndoGrid(props: {
                 ...gridState,
                 selections: reconciliateSelections(gridState.dataframeID, uiState.selectedDataframeID, gridState.selections, gridState.columnIDsMaps[gridState.dataframeID], sheetData),
                 widthDataMap: reconciliateWidthDataMap(gridState.dataframeID, gridState.widthDataMap, gridState.columnIDsMaps, sheetDataMap),
-                columnIDsMaps: getColumnIDsMapFromSheetDataArray(sheetDataMap),
+                columnIDsMaps: getColumnIDsMapFromSheetDataMap(sheetDataMap),
                 dataframeID: uiState.selectedDataframeID
             }
         })

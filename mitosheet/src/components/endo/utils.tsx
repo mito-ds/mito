@@ -50,7 +50,7 @@ export const getDefaultGridState = (sheetDataMap: Record<DataframeID, SheetData>
             endingRowIndex: -1
         }],
         widthDataMap: getWidthDataMap(selectedDataframeID, sheetDataMap),
-        columnIDsMaps: getColumnIDsMapFromSheetDataArray(sheetDataMap),
+        columnIDsMaps: getColumnIDsMapFromSheetDataMap(sheetDataMap),
         searchString: ''
     }
 }
@@ -116,9 +116,9 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
 
 /*
     Helper function for creating the ColumnIDsMapping: dataframeID -> columnIndex -> columnID
-    from the Sheet Data Array
+    from the Sheet Data Map
 */
-export const getColumnIDsMapFromSheetDataArray = (sheetDataMap: Record<DataframeID, SheetData>): Record<DataframeID, ColumnID[]> => {
+export const getColumnIDsMapFromSheetDataMap = (sheetDataMap: Record<DataframeID, SheetData>): Record<DataframeID, ColumnID[]> => {
     const columnIDsMap: Record<DataframeID, ColumnID[]> = {};
 
     Object.entries(sheetDataMap).forEach(([dataframeID, sheetData]) => {
