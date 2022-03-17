@@ -10,10 +10,7 @@ import DropdownItem from '../../elements/DropdownItem';
 import { GraphType } from './GraphSidebar';
 import AxisSection, { GraphAxisType } from './AxisSection';
 import Toggle from '../../elements/Toggle';
-import { getDefaultGraphParams, getDefaultSafetyFilter } from './graphUtils';
-import DropdownButton from '../../elements/DropdownButton';
-import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
-import ColumnCard from '../../elements/SelectAndXIconCard';
+import { getColorDropdownItems, getDefaultGraphParams, getDefaultSafetyFilter } from './graphUtils';
 
 // Graphing a dataframe with more than this number of rows will
 // give the user the option to apply the safety filter
@@ -24,6 +21,7 @@ export const GRAPH_SAFETY_FILTER_CUTOFF = 1000;
 const SAFETY_FILTER_DISABLED_MESSAGE = `Because you’re graphing less than ${GRAPH_SAFETY_FILTER_CUTOFF} rows of data, you can safely graph your data without applying a filter first.`
 const SAFETY_FILTER_ENABLED_MESSAGE = `Turning on Filter to Safe Size only graphs the first ${GRAPH_SAFETY_FILTER_CUTOFF} rows of your dataframe, ensuring that your browser tab won’t crash. Turning off Filter to Safe Size graphs the entire dataframe and may slow or crash your browser tab.`
 
+const GRAPHS_THAT_DONT_SUPPORT_COLOR = [GraphType.DENSITY_HEATMAP]
 
 /* 
     The graph setup tab where the user creates the structure of the graph by 
@@ -259,46 +257,27 @@ function GraphSetupTab(
                     <Row 
                         justify='space-between' 
                         align='center' 
-                        title='Use an additional column from your data to further break down the data using the color property of the graph.'
+                        title={GRAPHS_THAT_DONT_SUPPORT_COLOR.includes(props.graphParams.graphCreation.graph_type) ? 
+                            `${props.graphParams.graphCreation.graph_type} does not support further breaking down data using color.` :
+                            'Use an additional column to further breakdown the data by color.'}
                         suppressTopBottomMargin
                     >
                         <Col>
                             <div className='text-header-3'>
-                                Color
+                                Color Breakdown
                             </div>
                         </Col>
                         <Col>
-                            <DropdownButton
-                                text='+ Add'
+                            <Select 
+                                value={props.graphParams.graphCreation.color ? props.graphParams.graphCreation.color : 'None'}
+                                disabled={GRAPHS_THAT_DONT_SUPPORT_COLOR.includes(props.graphParams.graphCreation.graph_type)}
                                 width='small'
-                                disabled={props.graphParams.graphCreation.color !== undefined}
                                 searchable
                             >
-                                {Object.keys(props.columnIDsMapArray[graphSheetIndex]).map(columnID => {
-                                    const columnHeader = props.columnIDsMapArray[graphSheetIndex][columnID];
-                                    return (
-                                        <DropdownItem
-                                            key={columnID}
-                                            title={getDisplayColumnHeader(columnHeader)}
-                                            onClick={() => setColor(columnID)}
-                                        />
-                                    )
-                                })}
-                            </DropdownButton>
+                                {getColorDropdownItems(graphSheetIndex, props.columnIDsMapArray, props.columnDtypesMap, setColor)}
+                            </Select>
                         </Col>
                     </Row>
-                    {props.graphParams.graphCreation.color !== undefined && 
-                        <Row suppressTopBottomMargin>
-                            <ColumnCard 
-                                key={'color_' + props.graphParams.graphCreation.color}
-                                columnID={props.graphParams.graphCreation.color}
-                                columnIDsMap={props.columnIDsMapArray[graphSheetIndex]}
-                                onChange={(columnID: string) => setColor(columnID)}
-                                onDelete={() => setColor(undefined)}
-                                selectableColumnIDs={Object.keys(props.sheetDataArray[graphSheetIndex].columnIDsMap)}
-                            />
-                        </Row>
-                    }
                 </div>
                 
                 <Row justify='space-between' align='center' title={getDefaultSafetyFilter(props.sheetDataArray, graphSheetIndex) ? SAFETY_FILTER_ENABLED_MESSAGE : SAFETY_FILTER_DISABLED_MESSAGE}>

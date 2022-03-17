@@ -1,7 +1,11 @@
 // Helper function for creating default graph params. Defaults to a Bar chart, 
 
-import { GraphDataDict, GraphID, GraphParams, SheetData } from "../../../types"
+import React from "react"
+import { ColumnID, ColumnIDsMap, GraphDataDict, GraphID, GraphParams, SheetData } from "../../../types"
 import { intersection } from "../../../utils/arrays"
+import { getDisplayColumnHeader } from "../../../utils/columnHeaders"
+import { isDatetimeDtype } from "../../../utils/dtypes"
+import DropdownItem from "../../elements/DropdownItem"
 import { GRAPH_SAFETY_FILTER_CUTOFF } from "./GraphSetupTab"
 import { GraphType } from "./GraphSidebar"
 
@@ -77,4 +81,40 @@ export const getGraphParams = (
 
     // If the graph does not already exist, create a default graph.
     return getDefaultGraphParams(sheetDataArray, graphDataSourceSheetIndex);
+}
+
+// Returns a list of dropdown items. Selecting them sets the color attribute of the graph.
+// Option 'None' always comes first.
+export const getColorDropdownItems = (
+    graphSheetIndex: number,
+    columnIDsMapArray: ColumnIDsMap[],
+    columnDtypesMap: Record<string, string>,
+    setColor: (columnID: ColumnID | undefined) => void,
+): JSX.Element[] => {
+    const NoneOption = [(
+        <DropdownItem
+            key='None'
+            title='None'
+            onClick={() => setColor(undefined)}
+        />
+    )]
+    
+    const columnDropdownItems = Object.keys(columnIDsMapArray[graphSheetIndex]).map(columnID => {
+        const columnHeader = columnIDsMapArray[graphSheetIndex][columnID];
+        // Plotly doesn't support setting the color as a date series, so we disable date series dropdown items
+        const disabled = isDatetimeDtype(columnDtypesMap[columnID])
+        return (
+            <DropdownItem
+                key={columnID}
+                title={getDisplayColumnHeader(columnHeader)}
+                onClick={() => setColor(columnID)}
+                disabled={disabled}
+                subtext={disabled ? 'Dates cannot be used as the color breakdown property' : ''}
+                hideSubtext
+                displaySubtextOnHover
+            />
+        )
+    })
+
+    return NoneOption.concat(columnDropdownItems)
 }

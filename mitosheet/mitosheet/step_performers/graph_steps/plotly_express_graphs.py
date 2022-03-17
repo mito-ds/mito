@@ -35,6 +35,9 @@ TAB = "    "
 # This must be kept in sync with GRAPH_SAFETY_FILTER_CUTOFF in GraphSidebar.tsx
 GRAPH_SAFETY_FILTER_CUTOFF = 1000
 
+# Not all of Ploty's graphs support the color parameter. Those are listed here
+GRAPHS_THAT_DONT_SUPPORT_COLOR = [DENSITY_HEATMAP]
+
 
 def safety_filter_applied(
     df: pd.DataFrame, safety_filter_turned_on_by_user: bool
@@ -94,7 +97,7 @@ def graph_creation(
     """
 
     # Create the parameters that we use to construct the graph
-    all_params: Dict[str, Union[ColumnHeader, List[ColumnHeader]]] = dict()
+    all_params: Dict[str, Union[ColumnHeader, List[ColumnHeader], None]] = dict()
 
     # Plotly express requires that both the x and y parameter cannot both be lists,
     # so we need to do some casing.
@@ -109,7 +112,8 @@ def graph_creation(
     elif len(y_axis_column_headers) > 1:
         all_params["y"] = y_axis_column_headers
 
-    all_params['color'] = color_column_header
+    if graph_type not in GRAPHS_THAT_DONT_SUPPORT_COLOR:
+        all_params['color'] = color_column_header
 
     if graph_type == BAR:
         return px.bar(df, **all_params)
