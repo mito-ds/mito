@@ -21,10 +21,14 @@ const ExcelFormatSection = (props: {
 }): JSX.Element => {
 
     // Returns the approporiate disabled message, not letting the user format a non-number column or a column that already has formatting
-    const getFormatAddDisabledMessage = (columnID: string, dataframeID: DataframeID): string => {
-        const columnDtype = props.sheetDataMap[dataframeID].columnDtypeMap[columnID]
-        return !isNumberDtype(columnDtype) ? 'Formatting is only available for number columns.' :
-            props.sheetDataMap[dataframeID].columnFormatTypeObjMap[columnID].type != FormatType.DEFAULT ? 'This column already has a format applied to it. Find it in the list below.' : ''
+    const getFormatAddDisabledMessage = (columnID: string, dataframeID: DataframeID): string | undefined => {
+        const columnDtype = props.sheetDataMap[dataframeID].columnDtypeMap[columnID];
+        if (!isNumberDtype(columnDtype)) {
+            return 'Formatting is only available for number columns.';
+        } else if (props.sheetDataMap[dataframeID].columnFormatTypeObjMap[columnID].type != FormatType.DEFAULT) {
+            return  'This column already has a format applied to it. Find it in the list below.';
+        }
+        return undefined;
     }
 
     return (
@@ -64,8 +68,8 @@ const ExcelFormatSection = (props: {
                                 width={'small'}
                                 searchable={true}
                             >
-                                {Object.keys(props.sheetDataMap[dataframeID].columnIDsMap).map(columnID => {
-                                    const columnHeader = getDisplayColumnHeader(columnIDsMap[columnID])
+                                {Object.entries(props.sheetDataMap[dataframeID].columnIDsMap).map(([columnID, rawColumnHeader]) => {
+                                    const columnHeader = getDisplayColumnHeader(rawColumnHeader)
                                     const disabledText = getFormatAddDisabledMessage(columnID, dataframeID)
 
                                     return (
@@ -82,7 +86,7 @@ const ExcelFormatSection = (props: {
                                                 })
                                                 void changeFormatOfColumnID(dataframeID, columnID, {type: FormatType.PLAIN_TEXT}, props.mitoAPI)
                                             }}
-                                            disabled={disabledText !== ''}
+                                            disabled={disabledText !== undefined}
                                             hideSubtext={true}
                                             displaySubtextOnHover={true}
                                             subtext={disabledText}
@@ -112,10 +116,10 @@ const ExcelFormatSection = (props: {
                                         onChange={(newColumnID) => {
                                             /*
                                                 If the user uses the select to change the column header that a formatting is applied to:
-                                                2. set the previous columnID to have DEFAULT formatting
-                                                3. set the new columnID to have the formatting that was previously applied
+                                                1. set the previous columnID to have DEFAULT formatting
+                                                2. set the new columnID to have the formatting that was previously applied
                                             */
-                                            
+
                                             // Get rid of the formatting from the previous column that was selected
                                             void changeFormatOfColumnID(dataframeID, columnID, {type: FormatType.DEFAULT}, props.mitoAPI)
                                             // Add the previous column's formatting to the new column
@@ -131,7 +135,7 @@ const ExcelFormatSection = (props: {
                                                     key={dataframeID + columnHeader} // dataframeID + columnHeader is unique in Mito
                                                     id={columnID}
                                                     title={columnHeader}
-                                                    disabled={disabledText !== ''}
+                                                    disabled={disabledText !== undefined}
                                                     hideSubtext={true}
                                                     displaySubtextOnHover={true}
                                                     subtext={disabledText}
