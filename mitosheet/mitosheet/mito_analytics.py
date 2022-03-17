@@ -253,7 +253,7 @@ def log(log_event: str, params: Dict[Any, Any]=None, steps_manager: StepsManager
                 # Don't log the column ids in the graph, just log the number of series graphed
                 private_params['params_x_axis_column_ids'] = len(value['x_axis_column_ids'])
                 private_params['params_y_axis_column_ids'] = len(value['y_axis_column_ids'])
-                private_params['params_color'] = 1 if 'color' in value.keys() else 0
+                private_params['params_color'] = True if 'color' in value.keys() else False
             elif 'sheet_index' in key:
                 private_params[key] = value
                 # Make sure the steps manager exists, and the source is in bounds

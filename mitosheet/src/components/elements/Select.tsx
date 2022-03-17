@@ -39,6 +39,10 @@ interface SelectProps {
         * @param [searchable] - When True, a search input field is displayed. Defaults to False
     */
     searchable?: boolean
+    /**
+        * @param [disabled] -- When True, the select is disabled 
+     */
+    disabled?: boolean
 }
 
 /**

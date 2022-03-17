@@ -187,7 +187,7 @@ def test_format_types_fields_match():
 
 def test_graph_safety_filter_cutoff_matches():
     graph_safety_filter_cutoff = get_constant_from_ts_file(
-        "./src/components/taskpanes/Graph/GraphSidebar.tsx",
+        "./src/components/taskpanes/Graph/GraphSetupTab.tsx",
         "GRAPH_SAFETY_FILTER_CUTOFF",
     )
 
