@@ -47,7 +47,7 @@ export const getGraphParams = (
     const graphParams = graphDataDict[graphID]?.graphParams;
 
     // If the graph already exists, get the data source sheet index from the graph params.
-    // Otherwise create a new graph of the selectedSheetIndex
+    // Otherwise create a new graph of the selectedDataframeID
     const graphDataSourceDataframeID = graphParams !== undefined ? sheetIndexToDataframeID(graphParams.graphCreation.sheet_index) : selectedDataframeID
 
     // If the graph already exists, retrieve the graph params that still make sense. In other words, 

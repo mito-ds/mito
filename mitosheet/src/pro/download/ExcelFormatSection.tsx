@@ -78,7 +78,7 @@ const ExcelFormatSection = (props: {
                                                     const copySheetNewlyFormattedColumns = [...prevNewlyFormattedColumns[dataframeID]]
                                                     copySheetNewlyFormattedColumns.unshift(columnID)
                                                     prevNewlyFormattedColumns[dataframeID] = copySheetNewlyFormattedColumns
-                                                    return prevNewlyFormattedColumns
+                                                    return prevNewlyFormattedColumns;
                                                 })
                                                 void changeFormatOfColumnID(dataframeID, columnID, {type: FormatType.PLAIN_TEXT}, props.mitoAPI)
                                             }}
@@ -151,7 +151,8 @@ const ExcelFormatSection = (props: {
                                             props.setNewlyFormattedColumns(prevNewlyFormattedColumns => {
                                                 const copySheetNewlyFormattedColumns = [...prevNewlyFormattedColumns[dataframeID]]
                                                 removeIfPresent(copySheetNewlyFormattedColumns, columnID)
-                                                return {...prevNewlyFormattedColumns, exportedSheetIndex: copySheetNewlyFormattedColumns}
+                                                // TODO: test this before merging the dataframe ID stuff!
+                                                return {...prevNewlyFormattedColumns, [dataframeID]: copySheetNewlyFormattedColumns}
                                             })
                                             // Actually set the format of the column to default 
                                             void changeFormatOfColumnID(dataframeID, columnID, {type: FormatType.DEFAULT}, props.mitoAPI)

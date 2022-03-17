@@ -149,6 +149,7 @@ const GraphSidebar = (props: {
     const getGraphAsync = async () => {
         const boundingRect: DOMRect | undefined = document.getElementById('graph-div')?.getBoundingClientRect();
 
+        console.log("Creation", graphParams.graphCreation)
         if (boundingRect !== undefined) {
             const _stepID = await props.mitoAPI.editGraph(
                 graphID,

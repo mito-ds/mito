@@ -514,7 +514,7 @@ export const createActions = (
                         currOpenModal: {type: ModalEnum.None},
                         currOpenTaskpane: {
                             type: TaskpaneType.PIVOT,
-                            destinationSheetIndex: undefined,
+                            destinationDataframeID: undefined,
                             existingPivotParams: undefined
                         },
                         selectedTabType: 'data'

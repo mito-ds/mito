@@ -201,7 +201,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     useEffect(() => {
         const previousNumSheets = previousNumSheetsRef.current;
 
-        // Make sure that the selectedSheetIndex is always >= 0 so we can index into the 
+        // Make sure that the selected dataframe exists
         // widthDataArray without erroring
         setUIState(prevUIState => {
             // Save the right most dataframe ID, as we use it mulitple times below

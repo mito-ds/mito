@@ -9,8 +9,8 @@ import { PivotParams } from "./PivotTable/PivotTaskpane"
     If you want to be able to open a taskpane in Mito, then you need to add the type of this taskpane, 
     as well as any __unique__ parameters it has, to this type.
 
-    For example, if you create a new taskpane 'Dork' that takes a selectedSheetIndex as input, then you don't need to 
-    add a param to Dork here because the selectedSheetIndex is already stored in the Mito state. But if Dork takes a param
+    For example, if you create a new taskpane 'Dork' that takes a selectedDataframeID as input, then you don't need to 
+    add a param to Dork here because the selectedDataframeID is already stored in the Mito state. But if Dork takes a param
     timeOfOpen, which is not stored in the Mito state already, then you must add timeOfOpen to the params here. 
 
     It would look like this: 
