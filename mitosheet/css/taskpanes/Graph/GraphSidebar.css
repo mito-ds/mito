@@ -55,7 +55,7 @@
     box-sizing: border-box;
 }
 
-.graph-sidebar-toolbar-tab-container {
+.graph-sidebar-toolbar-content-container {
     display: flex;
     flex-direction: column;
 
@@ -70,7 +70,6 @@
     padding-right: 10px; /* Extra padding on the right to make space for the scrollbar */
     padding-left: 5px;
     box-sizing: border-box;
-
 }
 
 .graph-sidebar-toolbar-content {

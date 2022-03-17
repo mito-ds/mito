@@ -221,7 +221,8 @@ export type GraphStylingParams = {
     yaxis: {
         title: string | undefined,
         visible: boolean
-    }
+    },
+    showlegend: boolean
 }
 export type GraphRenderingParams = {
     width?: number

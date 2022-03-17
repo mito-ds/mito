@@ -200,7 +200,7 @@ const GraphSidebar = (props: {
                     }
                 </div>
                 <div className='graph-sidebar-toolbar-container'>
-                    <div className='graph-sidebar-toolbar-tab-container'>
+                    <div className='graph-sidebar-toolbar-content-container'>
                         <>
                             <Row justify='space-between' align='center'>
                                 <Col>

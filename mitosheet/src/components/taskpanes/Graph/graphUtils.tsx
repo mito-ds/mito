@@ -34,7 +34,8 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
             yaxis: {
                 title: undefined,
                 visible: true
-            }
+            },
+            showlegend: true
         },
         graphRendering: {}
     }

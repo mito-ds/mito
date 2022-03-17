@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import React, { Fragment } from 'react';
+import React from 'react';
 import { ColumnID, ColumnIDsMap, GraphParams, SheetData, UIState } from '../../../types';
 import MitoAPI from '../../../api';
 import Row from '../../spacing/Row';
@@ -149,175 +149,172 @@ function GraphSetupTab(
     }
 
     return (  
-        <Fragment>
-            <div className='graph-sidebar-toolbar-content'>
-                <Row justify='space-between' align='center'>
+        <div className='graph-sidebar-toolbar-content'>
+            <Row justify='space-between' align='center'>
+                <Col>
+                    <p className='text-header-3'>
+                        Data Source
+                    </p>
+                </Col>
+                <Col>
+                    <Select
+                        value={props.dfNames[graphSheetIndex]}
+                        onChange={(newDfName: string) => {
+                            const newIndex = props.dfNames.indexOf(newDfName);
+                            
+                            // Reset the graph params for the new sheet, but keep the graph type!
+                            const newSheetGraphParams = getDefaultGraphParams(props.sheetDataArray, newIndex, props.graphParams.graphCreation.graph_type)
+                            props.setGraphParams(newSheetGraphParams)
+
+                            props.setGraphUpdatedNumber((old) => old + 1);
+                        }}
+                        width='small'
+                    >
+                        {props.dfNames.map(dfName => {
+                            return (
+                                <DropdownItem
+                                    key={dfName}
+                                    title={dfName}
+                                />
+                            )
+                        })}
+                    </Select>
+                </Col>
+            </Row>
+            <Row justify='space-between' align='center'>
+                <Col>
+                    <p className='text-header-3'>
+                        Chart Type
+                    </p>
+                </Col>
+                <Col>
+                    <Select
+                        value={props.graphParams.graphCreation.graph_type}
+                        onChange={(graphType: string) => {
+                            setGraphType(graphType as GraphType)
+                        }}
+                        width='small'
+                        dropdownWidth='medium'
+                    >
+                        <DropdownItem
+                            title={GraphType.BAR}
+                        />
+                        <DropdownItem
+                            title={GraphType.LINE}
+                        />
+                        <DropdownItem
+                            title={GraphType.SCATTER}
+                        />
+                        <DropdownItem
+                            title={GraphType.HISTOGRAM}
+                        />
+                        <DropdownItem
+                            title={GraphType.DENSITY_HEATMAP}
+                        />
+                        <DropdownItem
+                            title={GraphType.DENSITY_CONTOUR}
+                        />
+                        <DropdownItem
+                            title={GraphType.BOX}
+                        />
+                        <DropdownItem
+                            title={GraphType.VIOLIN}
+                        />
+                        <DropdownItem
+                            title={GraphType.STRIP}
+                        />
+                        <DropdownItem
+                            title={GraphType.ECDF}
+                        />
+                    </Select>
+                </Col>
+            </Row>
+
+            <AxisSection
+                columnIDsMap={props.columnIDsMapArray[graphSheetIndex]}
+                columnDtypesMap={props.columnDtypesMap}
+
+                graphType={props.graphParams.graphCreation.graph_type}
+                graphAxis={GraphAxisType.X_AXIS}
+                selectedColumnIDs={props.graphParams.graphCreation.x_axis_column_ids}
+                otherAxisSelectedColumnIDs={props.graphParams.graphCreation.y_axis_column_ids}
+
+                updateAxisData={updateAxisData}
+                mitoAPI={props.mitoAPI}
+            />
+            <AxisSection
+                columnIDsMap={props.columnIDsMapArray[graphSheetIndex]}
+                columnDtypesMap={props.columnDtypesMap}
+
+                graphType={props.graphParams.graphCreation.graph_type}
+                graphAxis={GraphAxisType.Y_AXIS}
+                selectedColumnIDs={props.graphParams.graphCreation.y_axis_column_ids}
+                otherAxisSelectedColumnIDs={props.graphParams.graphCreation.x_axis_column_ids}
+
+                updateAxisData={updateAxisData}
+                mitoAPI={props.mitoAPI}
+            />
+            <div>
+                <Row 
+                    justify='space-between' 
+                    align='center' 
+                    title='Use an additional column from your data to further break down the data using the color property of the graph.'
+                    suppressTopBottomMargin
+                >
                     <Col>
-                        <p className='text-header-3'>
-                            Data Source
-                        </p>
+                        <div className='text-header-3'>
+                            Color
+                        </div>
                     </Col>
                     <Col>
-                        <Select
-                            value={props.dfNames[graphSheetIndex]}
-                            onChange={(newDfName: string) => {
-                                const newIndex = props.dfNames.indexOf(newDfName);
-                                
-                                // Reset the graph params for the new sheet, but keep the graph type!
-                                const newSheetGraphParams = getDefaultGraphParams(props.sheetDataArray, newIndex, props.graphParams.graphCreation.graph_type)
-                                props.setGraphParams(newSheetGraphParams)
-
-                                props.setGraphUpdatedNumber((old) => old + 1);
-                            }}
+                        <DropdownButton
+                            text='+ Add'
                             width='small'
+                            disabled={props.graphParams.graphCreation.color !== undefined}
+                            searchable
                         >
-                            {props.dfNames.map(dfName => {
+                            {Object.keys(props.columnIDsMapArray[graphSheetIndex]).map(columnID => {
+                                const columnHeader = props.columnIDsMapArray[graphSheetIndex][columnID];
                                 return (
                                     <DropdownItem
-                                        key={dfName}
-                                        title={dfName}
+                                        key={columnID}
+                                        title={getDisplayColumnHeader(columnHeader)}
+                                        onClick={() => setColor(columnID)}
                                     />
                                 )
                             })}
-                        </Select>
+                        </DropdownButton>
                     </Col>
                 </Row>
-                <Row justify='space-between' align='center'>
-                    <Col>
-                        <p className='text-header-3'>
-                            Chart Type
-                        </p>
-                    </Col>
-                    <Col>
-                        <Select
-                            value={props.graphParams.graphCreation.graph_type}
-                            onChange={(graphType: string) => {
-                                setGraphType(graphType as GraphType)
-                            }}
-                            width='small'
-                            dropdownWidth='medium'
-                        >
-                            <DropdownItem
-                                title={GraphType.BAR}
-                            />
-                            <DropdownItem
-                                title={GraphType.LINE}
-                            />
-                            <DropdownItem
-                                title={GraphType.SCATTER}
-                            />
-                            <DropdownItem
-                                title={GraphType.HISTOGRAM}
-                            />
-                            <DropdownItem
-                                title={GraphType.DENSITY_HEATMAP}
-                            />
-                            <DropdownItem
-                                title={GraphType.DENSITY_CONTOUR}
-                            />
-                            <DropdownItem
-                                title={GraphType.BOX}
-                            />
-                            <DropdownItem
-                                title={GraphType.VIOLIN}
-                            />
-                            <DropdownItem
-                                title={GraphType.STRIP}
-                            />
-                            <DropdownItem
-                                title={GraphType.ECDF}
-                            />
-                        </Select>
-                    </Col>
-                </Row>
-
-                <AxisSection
-                    columnIDsMap={props.columnIDsMapArray[graphSheetIndex]}
-                    columnDtypesMap={props.columnDtypesMap}
-
-                    graphType={props.graphParams.graphCreation.graph_type}
-                    graphAxis={GraphAxisType.X_AXIS}
-                    selectedColumnIDs={props.graphParams.graphCreation.x_axis_column_ids}
-                    otherAxisSelectedColumnIDs={props.graphParams.graphCreation.y_axis_column_ids}
-
-                    updateAxisData={updateAxisData}
-                    mitoAPI={props.mitoAPI}
-                />
-                <AxisSection
-                    columnIDsMap={props.columnIDsMapArray[graphSheetIndex]}
-                    columnDtypesMap={props.columnDtypesMap}
-
-                    graphType={props.graphParams.graphCreation.graph_type}
-                    graphAxis={GraphAxisType.Y_AXIS}
-                    selectedColumnIDs={props.graphParams.graphCreation.y_axis_column_ids}
-                    otherAxisSelectedColumnIDs={props.graphParams.graphCreation.x_axis_column_ids}
-
-                    updateAxisData={updateAxisData}
-                    mitoAPI={props.mitoAPI}
-                />
-                <div>
-                    <Row 
-                        justify='space-between' 
-                        align='center' 
-                        title='Use an additional column from your data to further break down the data using the color property of the graph.'
-                        suppressTopBottomMargin
-                    >
-                        <Col>
-                            <div className='text-header-3'>
-                                Color
-                            </div>
-                        </Col>
-                        <Col>
-                            <DropdownButton
-                                text='+ Add'
-                                width='small'
-                                disabled={props.graphParams.graphCreation.color !== undefined}
-                                searchable
-                            >
-                                {Object.keys(props.columnIDsMapArray[graphSheetIndex]).map(columnID => {
-                                    const columnHeader = props.columnIDsMapArray[graphSheetIndex][columnID];
-                                    return (
-                                        <DropdownItem
-                                            key={columnID}
-                                            title={getDisplayColumnHeader(columnHeader)}
-                                            onClick={() => setColor(columnID)}
-                                        />
-                                    )
-                                })}
-                            </DropdownButton>
-                        </Col>
-                    </Row>
-                    {props.graphParams.graphCreation.color !== undefined && 
-                        <Row suppressTopBottomMargin>
-                            <ColumnCard 
-                                key={'color_' + props.graphParams.graphCreation.color}
-                                columnID={props.graphParams.graphCreation.color}
-                                columnIDsMap={props.columnIDsMapArray[graphSheetIndex]}
-                                onChange={(columnID: string) => setColor(columnID)}
-                                onDelete={() => setColor(undefined)}
-                                selectableColumnIDs={Object.keys(props.sheetDataArray[graphSheetIndex].columnIDsMap)}
-                            />
-                        </Row>
-                    }
-                </div>
-                
-                <Row justify='space-between' align='center' title={getDefaultSafetyFilter(props.sheetDataArray, graphSheetIndex) ? SAFETY_FILTER_ENABLED_MESSAGE : SAFETY_FILTER_DISABLED_MESSAGE}>
-                    <Col>
-                        <p className='text-header-3' >
-                            Filter to safe size
-                        </p>
-                    </Col>
-                    <Col>
-                        <Toggle
-                            value={props.graphParams.graphPreprocessing.safety_filter_turned_on_by_user}
-                            onChange={toggleSafetyFilter}
-                            disabled={!getDefaultSafetyFilter(props.sheetDataArray, graphSheetIndex)}
+                {props.graphParams.graphCreation.color !== undefined && 
+                    <Row suppressTopBottomMargin>
+                        <ColumnCard 
+                            key={'color_' + props.graphParams.graphCreation.color}
+                            columnID={props.graphParams.graphCreation.color}
+                            columnIDsMap={props.columnIDsMapArray[graphSheetIndex]}
+                            onChange={(columnID: string) => setColor(columnID)}
+                            onDelete={() => setColor(undefined)}
+                            selectableColumnIDs={Object.keys(props.sheetDataArray[graphSheetIndex].columnIDsMap)}
                         />
-                    </Col>
-                </Row>
-
+                    </Row>
+                }
             </div>
-        </Fragment>
+            
+            <Row justify='space-between' align='center' title={getDefaultSafetyFilter(props.sheetDataArray, graphSheetIndex) ? SAFETY_FILTER_ENABLED_MESSAGE : SAFETY_FILTER_DISABLED_MESSAGE}>
+                <Col>
+                    <p className='text-header-3' >
+                        Filter to safe size
+                    </p>
+                </Col>
+                <Col>
+                    <Toggle
+                        value={props.graphParams.graphPreprocessing.safety_filter_turned_on_by_user}
+                        onChange={toggleSafetyFilter}
+                        disabled={!getDefaultSafetyFilter(props.sheetDataArray, graphSheetIndex)}
+                    />
+                </Col>
+            </Row>
+        </div>
     )
 } 
 

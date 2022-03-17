@@ -240,11 +240,13 @@ def graph_styling(
 
     rangeslider = dict(visible=True, thickness=0.05) if graph_styling_params['xaxis']['rangeslider']['visible'] else dict(visible=False)
     barmode = get_barmode(graph_type)
+    showlegend = graph_styling_params['showlegend']
 
     # Actually update the style of the graph
     fig.update_layout(
         title=graph_title,
         barmode=barmode,
+        showlegend=showlegend,
         xaxis=dict(rangeslider=rangeslider)
     )
     return fig
@@ -290,6 +292,8 @@ def graph_styling_code(
     barmode = get_barmode(graph_type)
     if barmode is not None:
         all_params.append(("barmode", barmode, True))
+
+    all_params.append(("showlegend", graph_styling_params['showlegend'], False))
 
     if graph_styling_params['xaxis']['rangeslider']['visible']:
         all_params.append(("xaxis", RANGE_SLIDER, False))
