@@ -10,12 +10,12 @@ import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
 import { getSelectableDFNamesToDataframeID, valuesArrayToRecord, valuesRecordToArray } from './pivotUtils';
 import { getDeduplicatedArray } from '../../../utils/arrays';
-import { AnalysisData, ColumnID, ColumnIDsMap, DataframeID, SheetData, UIState } from '../../../types';
+import { AnalysisData, ColumnID, DataframeID, SheetData, UIState } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
-import { dataframeIDToSheetIndex } from '../../../utils/dataframeID';
+import { dataframeIDToSheetIndex, sheetIndexToDataframeID } from '../../../utils/dataframeID';
 import { useEffectOnUpdateEvent } from '../../../hooks/useEffectOnUpdateEvent';
 
 
@@ -43,7 +43,6 @@ export interface PivotParams {
 export type PivotTaskpaneProps = {
     dfNames: string[],
     sheetDataMap: Record<DataframeID, SheetData>,
-    columnIDsMapArray: ColumnIDsMap[],
 
     /* 
         These props are only defined if we are editing a pivot table
@@ -323,7 +322,7 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
     }
 
-    const columnIDsMap = props.columnIDsMapArray[pivotState.selectedSheetIndex];
+    const columnIDsMap = props.sheetDataMap[sheetIndexToDataframeID(pivotState.selectedSheetIndex)].columnIDsMap;
 
     // Change the title if the usre is editing a pivot table
     const title = `Create Pivot Table ${props.dfNames[props.dfNames.length - 1]}`;

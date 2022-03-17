@@ -93,7 +93,6 @@ class Step:
                 create_column_evaluation_graph(self.post_state, sheet_index)
             )
             for sheet_index in range(len(self.dfs))
-
         )
     
     @property

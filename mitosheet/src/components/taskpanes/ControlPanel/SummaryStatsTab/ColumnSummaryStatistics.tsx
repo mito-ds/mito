@@ -8,7 +8,7 @@ import { formatCellData } from '../../../../utils/formatColumns';
 
 
 type ColumnDescribeChartProps = {
-    selectedDataframeID: DataframeID;
+    dataframeID: DataframeID;
     columnID: ColumnID;
     mitoAPI: MitoAPI;
     columnFormatType: FormatTypeObj;
@@ -39,7 +39,7 @@ function ColumnSummaryStatistics(props: ColumnDescribeChartProps): JSX.Element {
 
     async function loadDescribe() {
         const loadedDescribe = await props.mitoAPI.getColumnDescribe(
-            props.selectedDataframeID, 
+            props.dataframeID, 
             props.columnID
         );
         setDescribe(loadedDescribe);

@@ -10,7 +10,7 @@ import Select from '../../../../elements/Select';
 import Row from '../../../../spacing/Row';
 import Col from '../../../../spacing/Col';
 import '../../../../../../css/taskpanes/ControlPanel/FilterCard.css';
-import { FilterType, Operator, FilterGroupType, ColumnID, DataframeID } from '../../../../../types';
+import { FilterType, Operator, FilterGroupType } from '../../../../../types';
 import DropdownItem from '../../../../elements/DropdownItem';
 import { getEmptyFilterData } from './utils';
 
@@ -20,8 +20,6 @@ interface FilterCardProps {
     operator: Operator;
     setFilters: React.Dispatch<React.SetStateAction<(FilterType | FilterGroupType)[]>>;
     setOperator: React.Dispatch<React.SetStateAction<Operator>>;
-    selectedDataframeID: DataframeID;
-    columnID: ColumnID;
     columnDtype: string;
     mitoAPI: MitoAPI;
 }

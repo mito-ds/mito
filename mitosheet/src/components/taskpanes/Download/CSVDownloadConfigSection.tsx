@@ -23,9 +23,6 @@ const CSVDownloadConfigSection = (props: {
                     width='medium'
                     value={props.selectedDataframeID}
                     onChange={(dataframeID) => {
-                        // TODO: test this
-                        // Note: If there are duplicated sheet names, then this only lets you select the first one
-                        // We need to add SheetID
                         props.setUIState(prevUIState => {
                             return {
                                 ...prevUIState,

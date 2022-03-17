@@ -19,6 +19,8 @@ import pandas as pd
 
 
 GraphID = str
+# NOTE: for now, we store SheetIndexs on the backend. Soon, we will be moving to
+# a mapping that uses DataframeIDs, and so we will change this variable
 SheetIndex = int
 ColumnID = str
 

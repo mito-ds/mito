@@ -16,7 +16,7 @@ export enum SortDirection {
 }
 
 type SortCardProps = {
-    selectedDataframeID: DataframeID;
+    dataframeID: DataframeID;
     columnID: ColumnID;
     mitoAPI: MitoAPI;
 }
@@ -43,7 +43,7 @@ const SortCard = (props: SortCardProps): JSX.Element => {
         if (sortDirection != SortDirection.NONE) {
 
             const newStepID = await props.mitoAPI.editSort(
-                props.selectedDataframeID,
+                props.dataframeID,
                 props.columnID,
                 sortDirection,
                 stepID,

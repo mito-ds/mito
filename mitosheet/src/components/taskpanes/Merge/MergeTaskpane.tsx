@@ -93,9 +93,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
 
     // We cache the original dataframe IDs so that we don't allow users
     // to select the merge sheet as an input to merge (this makes no sense)
-    const [originalDataframeIDs] = useState(() => {
-        return Object.keys(props.sheetDataMap)
-    })
+    const [originalDataframeIDs] = useState(() => {return Object.keys(props.sheetDataMap)})
 
     const [stepID, setStepID] = useState<string | undefined>(undefined);
     const [errorMessage, setErrormessage] = useState<string | undefined>(undefined);

@@ -68,6 +68,8 @@ export const getGraphParams = (
             ...graphParams,
             graphCreation: {
                 graph_type: graphParams.graphCreation.graph_type,
+                // Since we have the front-end only work with dataframe_ids, we have to cast form
+                // the saved params sheet index to the dataframe id
                 dataframe_id: sheetIndexToDataframeID(graphParams.graphCreation.sheet_index),
                 x_axis_column_ids: xAxisColumnIDs,
                 y_axis_column_ids: yAxisColumnIDs

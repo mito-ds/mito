@@ -5,7 +5,7 @@ import MitoAPI from '../../../../api';
 import { ColumnID, DataframeID } from '../../../../types';
 
 type ColumnSummaryGraphProps = {
-    selectedDataframeID: DataframeID;
+    dataframeID: DataframeID;
     columnID: ColumnID;
     mitoAPI: MitoAPI;
 }
@@ -26,7 +26,7 @@ function ColumnSummaryGraph(props: ColumnSummaryGraphProps): JSX.Element {
 
     async function loadBase64PNGImage() {
         const _graphHTMLAndScript = await props.mitoAPI.getColumnSummaryGraph(
-            props.selectedDataframeID,
+            props.dataframeID,
             props.columnID,
             '350px',
             '100%',

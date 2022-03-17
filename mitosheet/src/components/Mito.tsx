@@ -83,7 +83,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
     // TODO: can we delete the above 3 props keys, so we cannot use them (as type checked by compiler)?
     // These props are always out of date, and we should only use the state variables.
     
-    // TODO: let's make the selectedDataframeID undefined if there are none!
     const [gridState, setGridState] = useState<GridState>(() => getDefaultGridState(sheetDataMap, Object.keys(sheetDataMap)[0] || '0'))
     
     // Set reasonable default values for the UI state
@@ -329,7 +328,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
 
     const dfNames = Object.values(sheetDataMap).map(sheetData => sheetData.dfName);
-    const columnIDsMapArray = Object.values(sheetDataMap).map(sheetData => sheetData.columnIDsMap);
 
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
 
@@ -494,7 +492,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 <PivotTaskpane
                     dfNames={dfNames}
                     sheetDataMap={sheetDataMap}
-                    columnIDsMapArray={columnIDsMapArray}
                     mitoAPI={props.mitoAPI}
                     uiState={uiState}
                     analysisData={analysisData}

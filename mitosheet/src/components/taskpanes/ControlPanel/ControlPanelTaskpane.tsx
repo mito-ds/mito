@@ -156,7 +156,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                     {props.tab === ControlPanelTab.FilterSort &&
                         <React.Fragment>
                             <DtypeCard
-                                selectedDataframeID={props.selectedDataframeID}
+                                dataframeID={props.selectedDataframeID}
                                 columnID={columnID}
                                 columnDtype={columnDtype}
                                 columnFormula={columnFormula} 
@@ -165,20 +165,18 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                                 lastStepType={props.lastStepType}
                             />
                             <FormatCard 
+                                dataframeID={props.selectedDataframeID}
                                 columnID={columnID}
                                 mitoAPI={props.mitoAPI}
-                                uiState={props.uiState}
                                 columnDtype={columnDtype}
                                 sheetData={props.sheetData}
                             />
                             <SortCard
-                                selectedDataframeID={props.selectedDataframeID}
+                                dataframeID={props.selectedDataframeID}
                                 columnID={columnID} 
                                 mitoAPI={props.mitoAPI}
                             />
                             <FilterCard
-                                selectedDataframeID={props.selectedDataframeID}
-                                columnID={columnID}
                                 filters={filters}
                                 setFilters={setFilters}
                                 setOperator={setOperator}
@@ -204,12 +202,12 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                     {props.tab === ControlPanelTab.SummaryStats &&
                         <React.Fragment>
                             <ColumnSummaryGraph
-                                selectedDataframeID={props.selectedDataframeID}
+                                dataframeID={props.selectedDataframeID}
                                 columnID={columnID}
                                 mitoAPI={props.mitoAPI}
                             />
                             <ColumnSummaryStatistics
-                                selectedDataframeID={props.selectedDataframeID}
+                                dataframeID={props.selectedDataframeID}
                                 columnID={columnID}
                                 mitoAPI={props.mitoAPI}
                                 columnDtype={columnDtype}

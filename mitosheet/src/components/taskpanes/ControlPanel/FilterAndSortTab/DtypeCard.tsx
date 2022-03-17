@@ -11,7 +11,7 @@ import Row from '../../../spacing/Row';
 const DTYPE_DESCRIPTION = 'Changes the dtype of the selected column in the underlying dataframe.'
 
 type DtypeCardProps = {
-    selectedDataframeID: DataframeID;
+    dataframeID: DataframeID;
     columnID: ColumnID;
     columnFormula: string;
     columnDtype: string;
@@ -71,7 +71,7 @@ function DtypeCard(props: DtypeCardProps): JSX.Element {
 
     async function changeColumnDtype(newDtype: string) {
         const newStepID = await props.mitoAPI.editChangeColumnDtype(
-            props.selectedDataframeID,
+            props.dataframeID,
             props.columnID,
             newDtype,
             stepID

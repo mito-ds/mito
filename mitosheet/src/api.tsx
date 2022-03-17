@@ -297,7 +297,7 @@ export default class MitoAPI {
         Returns a string encoding of the CSV file to download
     */
     async getDataframeAsCSV(dataframeID: DataframeID): Promise<string> {
-        const sheetIndex = dataframeIDToSheetIndex(dataframeID); // Temporary
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID);
 
         // Note: We increase MAX_RETRIES to 250 although 100 worked locally for a dataset with 10M
         // rows and 4 columns, because the server is slower. 
@@ -490,7 +490,7 @@ export default class MitoAPI {
         searchString: string,
         startingRowIndex: number
     ): Promise<SearchMatches | undefined> {
-        const sheetIndex = dataframeIDToSheetIndex(dataframeID); // Temporary
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID);
 
         const searchMatchesString = await this.send<string>({
             'event': 'api_call',
@@ -634,7 +634,7 @@ export default class MitoAPI {
         dataframeID: DataframeID,
         columnIDs: ColumnID[],
     ): Promise<void> {
-        const sheetIndex = dataframeIDToSheetIndex(dataframeID); // Temporary
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID);
 
         const stepID = getRandomId();
 
@@ -744,7 +744,7 @@ export default class MitoAPI {
         columnID: ColumnID,
         newIndex: number
     ): Promise<void> {
-        const sheetIndex = dataframeIDToSheetIndex(dataframeID); // Temporary
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID);
 
         const stepID = getRandomId();
 
@@ -799,7 +799,7 @@ export default class MitoAPI {
         filterLocation: string,
         stepID?: string,
     ): Promise<string> {
-        const sheetIndex = dataframeIDToSheetIndex(dataframeID); // Temporary
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID);
 
         // Create a new id, if we need it!
         if (stepID === undefined || stepID === '') {
@@ -960,7 +960,7 @@ export default class MitoAPI {
         columnID: ColumnID,
         newFormula: string,
     ): Promise<MitoError | undefined> {
-        const sheetIndex = dataframeIDToSheetIndex(dataframeID); // Temporary
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID);
 
         const stepID = getRandomId();
 
@@ -985,7 +985,7 @@ export default class MitoAPI {
         dataframeRowIndex: number | string,
         newValue: string,
     ): Promise<MitoError | undefined> {
-        const sheetIndex = dataframeIDToSheetIndex(dataframeID); // Temporary
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID);
 
         const stepID = getRandomId();
 
@@ -1040,7 +1040,7 @@ export default class MitoAPI {
         newFormatType: FormatTypeObj,
         stepID?: string
     ): Promise<string> {
-        const sheetIndex = dataframeIDToSheetIndex(dataframeID); // Temporary
+        const sheetIndex = dataframeIDToSheetIndex(dataframeID);
 
         if (stepID === undefined || stepID == '') {
             stepID = getRandomId();

@@ -38,6 +38,10 @@ class State:
     It stores the obvious things, like the dataframes and their names, but
     also other helper pieces of state like: the column formulas, the filters,
     etc.
+
+    Note that all of the metadata stored in the step that is per dataframe
+    is stored in a dictonary. This will allow us to associate meta-data with
+    a dataframe using its ID, rather than just a sheet index.
     """
 
     def __init__(
@@ -53,9 +57,7 @@ class State:
     ):
 
         # The dataframes that are in the state. We keep them in an ordered dict
-        self.dfs: DataframeDict = OrderedDict()
-        for sheet_index, df in dfs.items():
-            self.dfs[sheet_index] = df
+        self.dfs = dfs
 
         # The df_names are composed of two parts:
         # 1. The names of the variables passed into the mitosheet.sheet call (which don't change over time).

@@ -119,13 +119,9 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
     from the Sheet Data Map
 */
 export const getColumnIDsMapFromSheetDataMap = (sheetDataMap: Record<DataframeID, SheetData>): Record<DataframeID, ColumnID[]> => {
-    const columnIDsMap: Record<DataframeID, ColumnID[]> = {};
-
-    Object.entries(sheetDataMap).forEach(([dataframeID, sheetData]) => {
-        columnIDsMap[dataframeID] = sheetData.data.map(c => c.columnID);
-    });
-
-    return columnIDsMap;
+    return Object.fromEntries(Object.entries(sheetDataMap).map(([dataframeID, sheetData]) => {
+        return [dataframeID, sheetData.data.map(c => c.columnID)];
+    }));
 }
 
 
