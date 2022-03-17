@@ -1,15 +1,15 @@
 // Copyright (c) Saga Inc.
 
-import React, { useEffect, useRef, useState } from 'react';
-import { GraphParams, GraphStylingParams } from '../../../types';
+import React from 'react';
+import { GraphParams } from '../../../types';
 import Input from '../../elements/Input';
 import Toggle from '../../elements/Toggle';
 import Col from '../../spacing/Col';
 import Row from '../../spacing/Row';
 
 /* 
-    The tabs at the bottom of the column control panel that allows users to switch
-    from sort/filter to seeing summary statistics about the column
+    Contains all of the options for styling graphs,
+    like setting the title and axis labels
 */
 function GraphStyleTab(props: {
     graphParams: GraphParams
@@ -17,26 +17,7 @@ function GraphStyleTab(props: {
     setGraphUpdatedNumber: React.Dispatch<React.SetStateAction<number>>;
 }): JSX.Element {
 
-    const [graphStylingParams, setGraphStylingParams] = useState<GraphStylingParams>(props.graphParams.graphStyling)
-
-    const firstUpdate = useRef(true);
-    useEffect(() => {
-        // Don't refresh the graph when the user switches to the graph styling tab
-        if (!firstUpdate.current) {
-            props.setGraphParams(prevGraphParams => {
-                const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
-                return {
-                    ...graphParamsCopy,
-                    graphStyling: graphStylingParams
-                }
-            })
-            props.setGraphUpdatedNumber(old => old + 1)
-        } else {
-            firstUpdate.current = false
-        }
-        
-    }, [graphStylingParams])
-
+    const graphStylingParams = props.graphParams.graphStyling
 
     return ( 
         <div className='graph-sidebar-toolbar-content'>   
@@ -54,16 +35,20 @@ function GraphStyleTab(props: {
                         value={graphStylingParams.title.title || ''}
                         placeholder="Default Graph Title"
                         onChange={(e) => {
-                            setGraphStylingParams(prevGraphStylingParams => {
-                                const graphStylingParamsCopy = JSON.parse(JSON.stringify(prevGraphStylingParams)); 
+                            props.setGraphParams(prevGraphParams => {
+                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
                                 return {
-                                    ...graphStylingParamsCopy, 
-                                    title: {
-                                        ...graphStylingParamsCopy.title,
-                                        title: e.target.value !== '' ? e.target.value : undefined
+                                    ...graphParamsCopy,
+                                    graphStyling: {
+                                        ...graphParamsCopy.graphStyling,
+                                        title: {
+                                            ...graphParamsCopy.graphStyling.title,
+                                            title: e.target.value !== '' ? e.target.value : undefined
+                                        } 
                                     } 
                                 }
                             })
+                            props.setGraphUpdatedNumber(old => old + 1)
                         }}
                     />
                 </Row>
@@ -76,16 +61,20 @@ function GraphStyleTab(props: {
                     <Toggle 
                         value={graphStylingParams.title.visible} 
                         onChange={() => {
-                            setGraphStylingParams(prevGraphStylingParams => {
-                                const graphStylingParamsCopy = JSON.parse(JSON.stringify(prevGraphStylingParams)); 
+                            props.setGraphParams(prevGraphParams => {
+                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
                                 return {
-                                    ...graphStylingParamsCopy,
-                                    title: {
-                                        ...graphStylingParamsCopy.title,
-                                        visible: !graphStylingParamsCopy.title.visible
-                                    }
+                                    ...graphParamsCopy,
+                                    graphStyling: {
+                                        ...graphParamsCopy.graphStyling,
+                                        title: {
+                                            ...graphParamsCopy.graphStyling.title,
+                                            visible: !graphParamsCopy.graphStyling.title.visible
+                                        } 
+                                    } 
                                 }
                             })
+                            props.setGraphUpdatedNumber(old => old + 1)
                         }}     
                     />
                 </Row>
@@ -104,16 +93,20 @@ function GraphStyleTab(props: {
                         value={graphStylingParams.xaxis.title || ''}
                         placeholder="Default X Axis"
                         onChange={(e) => {
-                            setGraphStylingParams(prevGraphStylingParams => {
-                                const graphStylingParamsCopy = JSON.parse(JSON.stringify(prevGraphStylingParams)); 
+                            props.setGraphParams(prevGraphParams => {
+                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
                                 return {
-                                    ...graphStylingParamsCopy, 
-                                    xaxis: {
-                                        ...graphStylingParamsCopy.xaxis, 
-                                        title: e.target.value !== '' ? e.target.value : undefined
-                                    }
+                                    ...graphParamsCopy,
+                                    graphStyling: {
+                                        ...graphParamsCopy.graphStyling,
+                                        xaxis: {
+                                            ...graphParamsCopy.graphStyling.xaxis,
+                                            title: e.target.value !== '' ? e.target.value : undefined
+                                        } 
+                                    } 
                                 }
                             })
+                            props.setGraphUpdatedNumber(old => old + 1)
                         }}
                     />
                 </Row>
@@ -126,16 +119,20 @@ function GraphStyleTab(props: {
                     <Toggle 
                         value={graphStylingParams.xaxis.visible} 
                         onChange={() => {
-                            setGraphStylingParams(prevGraphStylingParams => {
-                                const graphStylingParamsCopy = JSON.parse(JSON.stringify(prevGraphStylingParams)); 
+                            props.setGraphParams(prevGraphParams => {
+                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
                                 return {
-                                    ...graphStylingParamsCopy,
-                                    xaxis: {
-                                        ...graphStylingParamsCopy.xaxis,
-                                        visible: !graphStylingParamsCopy.xaxis.visible
-                                    }
+                                    ...graphParamsCopy,
+                                    graphStyling: {
+                                        ...graphParamsCopy.graphStyling,
+                                        xaxis: {
+                                            ...graphParamsCopy.graphStyling.xaxis,
+                                            visible: graphParamsCopy.graphStyling.xaxis.visible
+                                        } 
+                                    } 
                                 }
                             })
+                            props.setGraphUpdatedNumber(old => old + 1)
                         }}     
                     />
                 </Row>
@@ -148,18 +145,22 @@ function GraphStyleTab(props: {
                     <Toggle 
                         value={graphStylingParams.xaxis.rangeslider.visible} 
                         onChange={() => {
-                            setGraphStylingParams(prevGraphStylingParams => {
-                                const graphStylingParamsCopy = JSON.parse(JSON.stringify(prevGraphStylingParams)); 
+                            props.setGraphParams(prevGraphParams => {
+                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
                                 return {
-                                    ...graphStylingParamsCopy,
-                                    xaxis: {
-                                        ...graphStylingParamsCopy.xaxis,
-                                        rangeslider: {
-                                            visible: !graphStylingParamsCopy.xaxis.rangeslider.visible
+                                    ...graphParamsCopy,
+                                    graphStyling: {
+                                        ...graphParamsCopy.graphStyling,
+                                        xaxis: {
+                                            ...graphParamsCopy.graphStyling.xaxis,
+                                            rangeslider: {
+                                                visible: !graphParamsCopy.graphStyling.xaxis.rangeslider.visible
+                                            }
                                         } 
-                                    }
+                                    } 
                                 }
                             })
+                            props.setGraphUpdatedNumber(old => old + 1)
                         }}     
                     />
                 </Row>
@@ -178,16 +179,20 @@ function GraphStyleTab(props: {
                         value={graphStylingParams.yaxis.title || ''}
                         placeholder="Default Y Axis"
                         onChange={(e) => {
-                            setGraphStylingParams(prevGraphStylingParams => {
-                                const graphStylingParamsCopy = JSON.parse(JSON.stringify(prevGraphStylingParams)); 
+                            props.setGraphParams(prevGraphParams => {
+                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
                                 return {
-                                    ...graphStylingParamsCopy, 
-                                    yaxis: {
-                                        ...graphStylingParamsCopy.yaxis, 
-                                        title: e.target.value !== '' ? e.target.value : undefined
-                                    }
+                                    ...graphParamsCopy,
+                                    graphStyling: {
+                                        ...graphParamsCopy.graphStyling,
+                                        yaxis: {
+                                            ...graphParamsCopy.graphStyling.yaxis,
+                                            title: e.target.value !== '' ? e.target.value : undefined
+                                        } 
+                                    } 
                                 }
                             })
+                            props.setGraphUpdatedNumber(old => old + 1)
                         }}
                     />
                 </Row>
@@ -200,16 +205,20 @@ function GraphStyleTab(props: {
                     <Toggle 
                         value={graphStylingParams.yaxis.visible} 
                         onChange={() => {
-                            setGraphStylingParams(prevGraphStylingParams => {
-                                const graphStylingParamsCopy = JSON.parse(JSON.stringify(prevGraphStylingParams)); 
+                            props.setGraphParams(prevGraphParams => {
+                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
                                 return {
-                                    ...graphStylingParamsCopy,
-                                    yaxis: {
-                                        ...graphStylingParamsCopy.yaxis,
-                                        visible: !graphStylingParamsCopy.yaxis.visible
-                                    }
+                                    ...graphParamsCopy,
+                                    graphStyling: {
+                                        ...graphParamsCopy.graphStyling,
+                                        yaxis: {
+                                            ...graphParamsCopy.graphStyling.yaxis,
+                                            visible: !graphParamsCopy.graphStyling.yaxis.visible
+                                        } 
+                                    } 
                                 }
                             })
+                            props.setGraphUpdatedNumber(old => old + 1)
                         }}     
                     />
                 </Row>
@@ -227,14 +236,17 @@ function GraphStyleTab(props: {
                     <Toggle 
                         value={graphStylingParams.showlegend} 
                         onChange={() => {
-                            setGraphStylingParams(prevGraphStylingParams => {
-                                const graphStylingParamsCopy = JSON.parse(JSON.stringify(prevGraphStylingParams)); 
+                            props.setGraphParams(prevGraphParams => {
+                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
                                 return {
-                                    ...graphStylingParamsCopy,
-                                    showlegend: !graphStylingParamsCopy.showlegend
-
+                                    ...graphParamsCopy,
+                                    graphStyling: {
+                                        ...graphParamsCopy.graphStyling,
+                                        showlegend: !graphParamsCopy.graphStyling.showlegend
+                                    } 
                                 }
                             })
+                            props.setGraphUpdatedNumber(old => old + 1)
                         }}     
                     />
                 </Row>
