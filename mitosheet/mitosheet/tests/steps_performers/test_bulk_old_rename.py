@@ -4,12 +4,12 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 import os
-from typing import OrderedDict
+from collections import OrderedDict
 import pandas as pd
 import pytest
 
 from mitosheet.tests.test_utils import (create_mito_wrapper_dfs)
-from mitosheet.step_performers.bulk_old_rename.deprecated_utils import get_header_renames, make_valid_header
+from mitosheet.step_performers.bulk_old_rename.deprecated_utils import make_valid_header
 from mitosheet.column_headers import flatten_column_header
 
 
