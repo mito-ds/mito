@@ -19,7 +19,6 @@ function GraphExportTab(
 
     const [_copyGraphCode, graphCodeCopied] = useCopyToClipboard(props.graphOutput?.graphGeneratedCode);
 
-
     const copyGraphCode = () => {
         _copyGraphCode()
 
@@ -33,9 +32,9 @@ function GraphExportTab(
         <TextButton
             variant='dark'
             onClick={copyGraphCode}
-            disabled={props.loading || !props.graphOutput !== undefined}
+            disabled={props.loading || props.graphOutput === undefined}
         >
-            {graphCodeCopied
+            {!graphCodeCopied
                 ? "Copy Graph Code"
                 : "Copied!"
             }

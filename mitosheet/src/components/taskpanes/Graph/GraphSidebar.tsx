@@ -82,7 +82,6 @@ const GraphSidebar = (props: {
     const [loading, setLoading] = useState<boolean>(false)
     const [selectedGraphSidebarTab, setSelectedGraphSidebarTab] = useState<GraphSidebarTab>(GraphSidebarTab.Setup)
 
-
     /* 
         When graphUpdatedNumber is updated, we send a new getGraphMessage with the current graphParams
         in order to update the graphDataDict. We only increment graphUpdatedNumber when the user updates the params.
