@@ -29,16 +29,38 @@ function GraphExportTab(
     }
 
     return (  
-        <TextButton
-            variant='dark'
-            onClick={copyGraphCode}
-            disabled={props.loading || props.graphOutput === undefined}
-        >
-            {!graphCodeCopied
-                ? "Copy Graph Code"
-                : "Copied!"
-            }
-        </TextButton>
+        <div className='graph-sidebar-toolbar-content'>
+            <div>
+                <TextButton
+                    variant='dark'
+                    onClick={copyGraphCode}
+                    disabled={props.loading || props.graphOutput === undefined}
+                >
+                    {!graphCodeCopied
+                        ? "Copy Graph Code"
+                        : "Copied!"
+                    }
+                </TextButton>
+            </div>
+            <div>
+                <TextButton
+                    variant='dark'
+                    onClick={() => {
+                        // Find the Plotly Download plot as png button, and then click it. 
+                        const node: Element | undefined | null = document.querySelector('[data-title="Download plot as a png"]')
+                        const clickEvent = new MouseEvent("click", {
+                            "view": window,
+                            "bubbles": true,
+                            "cancelable": false
+                        });
+                        node?.dispatchEvent(clickEvent)
+                    }}
+                    disabled={props.loading || props.graphOutput === undefined}
+                >
+                    Download as PNG
+                </TextButton>
+            </div>
+        </div>
     )
 } 
 
