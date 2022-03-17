@@ -3,7 +3,8 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from typing import TYPE_CHECKING, Any, Dict, Collection, List, Optional, OrderedDict, Tuple, Union
+from collections import OrderedDict
+from typing import Any, Collection, Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 from mitosheet.errors import get_recent_traceback_as_list
