@@ -210,13 +210,17 @@ export type GraphStylingParams = {
     title: {
         title: string | undefined,
         visible: boolean
-    }
+    },
     xaxis: {
         title: string | undefined;
         visible: boolean;
         rangeslider: {
             visible: boolean,
         }
+    },
+    yaxis: {
+        title: string | undefined,
+        visible: boolean
     }
 }
 export type GraphRenderingParams = {

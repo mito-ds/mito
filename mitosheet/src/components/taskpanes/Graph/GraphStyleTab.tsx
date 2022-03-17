@@ -91,7 +91,7 @@ function GraphStyleTab(props: {
                 </Col>
                 <Input 
                     value={graphStylingParams.xaxis.title || ''}
-                    placeholder="Default x axis"
+                    placeholder="Default X Axis"
                     onChange={(e) => {
                         setGraphStylingParams(prevGraphStylingParams => {
                             return {
@@ -143,6 +143,52 @@ function GraphStyleTab(props: {
                                     rangeslider: {
                                         visible: !prevGraphStylingParams.xaxis.rangeslider.visible
                                     } 
+                                }
+                            }
+                        })
+                    }}     
+                />
+            </Row>
+            <div className='text-header-2'>
+                Y Axis
+            </div>
+            <Row justify='space-between' align='center'>
+                <Col>
+                    <p>
+                        Y axis title
+                    </p>
+                </Col>
+                <Input 
+                    value={graphStylingParams.yaxis.title || ''}
+                    placeholder="Default Y Axis"
+                    onChange={(e) => {
+                        setGraphStylingParams(prevGraphStylingParams => {
+                            return {
+                                ...prevGraphStylingParams, 
+                                yaxis: {
+                                    ...prevGraphStylingParams.yaxis, 
+                                    title: e.target.value !== '' ? e.target.value : undefined
+                                }
+                            }
+                        })
+                    }}
+                />
+            </Row>
+            <Row justify='space-between' align='center'>
+                <Col>
+                    <p>
+                        Display y axis title
+                    </p>
+                </Col>
+                <Toggle 
+                    value={graphStylingParams.yaxis.visible} 
+                    onChange={() => {
+                        setGraphStylingParams(prevGraphStylingParams => {
+                            return {
+                                ...prevGraphStylingParams,
+                                yaxis: {
+                                    ...prevGraphStylingParams.yaxis,
+                                    visible: !prevGraphStylingParams.yaxis.visible
                                 }
                             }
                         })

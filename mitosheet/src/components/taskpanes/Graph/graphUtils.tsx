@@ -30,6 +30,10 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
                 rangeslider: {
                     visible: true,
                 }
+            },
+            yaxis: {
+                title: undefined,
+                visible: true
             }
         },
         graphRendering: {}
