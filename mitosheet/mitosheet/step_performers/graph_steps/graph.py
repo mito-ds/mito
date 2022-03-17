@@ -80,8 +80,6 @@ class GraphStepPerformer(StepPerformer):
         # We make a new state to modify it
         post_state = deepcopy(prev_state)
 
-        print(graph_styling)
-
         # Extract variables from graph parameters
         graph_type = graph_creation["graph_type"]
         sheet_index = graph_creation["sheet_index"]

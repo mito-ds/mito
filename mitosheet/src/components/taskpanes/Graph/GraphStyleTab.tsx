@@ -127,7 +127,7 @@ function GraphStyleTab(props: {
                                         ...graphParamsCopy.graphStyling,
                                         xaxis: {
                                             ...graphParamsCopy.graphStyling.xaxis,
-                                            visible: graphParamsCopy.graphStyling.xaxis.visible
+                                            visible: !graphParamsCopy.graphStyling.xaxis.visible
                                         } 
                                     } 
                                 }
