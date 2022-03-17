@@ -18,7 +18,7 @@ import XIcon from '../../icons/XIcon';
 import GraphStyleTab from './GraphStyleTab';
 import GraphSetupTab from './GraphSetupTab';
 import GraphExportTab from './GraphExportTab';
-import fscreen from 'fscreen';
+import { useEffectOnResizeElement } from '../../../hooks/useEffectOnElementResize';
 
 
 export enum GraphType {
@@ -92,11 +92,10 @@ const GraphSidebar = (props: {
     */
     const [graphUpdatedNumber, setGraphUpdatedNumber] = useState(0)
 
-    useEffect(() => {
-        fscreen.addEventListener('fullscreenchange', () => {setGraphUpdatedNumber(old => old + 1)});
-        return () => fscreen.removeEventListener('fullscreenchange', () => {return})
-    }, [])
-    
+    // Whenever the graph is resized, we update it (so it resizes as well)
+    useEffectOnResizeElement(() => {
+        setGraphUpdatedNumber(old => old + 1)
+    }, [], 'mito-main-sheet-div')
 
     // If there has been an undo or redo, then we refresh the params to this graph
     useEffectOnUpdateEvent(() => {
