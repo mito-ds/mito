@@ -11,7 +11,7 @@ import '../../../../css/taskpanes/Graph/AxisSection.css'
 import { ColumnID, ColumnIDsMap } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
-import ColumnCard from './ColumnCard';
+import SelectAndXIconCard from '../../elements/SelectAndXIconCard';
 
 
 export enum GraphAxisType {
@@ -42,8 +42,8 @@ const AxisSection = (props: {
     // Create Large Selects and delete buttons for each of the columns that have already been selected
     const selectedColumnHeaderSelects = props.selectedColumnIDs.map((columnID, i) => {
         return ((
-            <ColumnCard 
-                key={columnID}
+            <SelectAndXIconCard 
+                key={i}
                 columnID={columnID}
                 columnIDsMap={props.columnIDsMap}
                 onChange={(columnID: string) => {
@@ -53,7 +53,7 @@ const AxisSection = (props: {
                         columnID
                     )
                 }}
-                onXIconClick={() => props.updateAxisData(props.graphAxis, i)}
+                onDelete={() => props.updateAxisData(props.graphAxis, i)}
                 selectableColumnIDs={selectableColumnIDs}
             />
         ))

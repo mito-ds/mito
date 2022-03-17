@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import MitoAPI from '../../../api';
-import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
 import { useEffectOnUpdateEvent } from '../../../hooks/useEffectOnUpdateEvent';
 import { AnalysisData, ColumnIDsMap, GraphDataDict, GraphID, GraphSidebarTab, SheetData, UIState } from '../../../types';
@@ -19,7 +18,7 @@ import XIcon from '../../icons/XIcon';
 import GraphStyleTab from './GraphStyleTab';
 import GraphSetupTab from './GraphSetupTab';
 import GraphExportTab from './GraphExportTab';
-import fscreen from 'fscreen';
+import { useEffectOnResizeElement } from '../../../hooks/useEffectOnElementResize';
 
 
 export enum GraphType {
@@ -80,10 +79,8 @@ const GraphSidebar = (props: {
 
     const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
     const graphOutput = props.graphDataDict[graphID]?.graphOutput
-    const [_copyGraphCode, graphCodeCopied] = useCopyToClipboard(graphOutput?.graphGeneratedCode);
     const [loading, setLoading] = useState<boolean>(false)
     const [selectedGraphSidebarTab, setSelectedGraphSidebarTab] = useState<GraphSidebarTab>(GraphSidebarTab.Setup)
-
 
     /* 
         When graphUpdatedNumber is updated, we send a new getGraphMessage with the current graphParams
@@ -94,11 +91,10 @@ const GraphSidebar = (props: {
     */
     const [graphUpdatedNumber, setGraphUpdatedNumber] = useState(0)
 
-    useEffect(() => {
-        fscreen.addEventListener('fullscreenchange', () => {setGraphUpdatedNumber(old => old + 1)});
-        return () => fscreen.removeEventListener('fullscreenchange', () => setGraphUpdatedNumber(old => old + 1))
-    }, [])
-    
+    // Whenever the graph is resized, we update it (so it resizes as well)
+    useEffectOnResizeElement(() => {
+        setGraphUpdatedNumber(old => old + 1)
+    }, [], 'mito-main-sheet-div')
 
     // If there has been an undo or redo, then we refresh the params to this graph
     useEffectOnUpdateEvent(() => {
@@ -163,7 +159,7 @@ const GraphSidebar = (props: {
                 graphParams.graphCreation.x_axis_column_ids,
                 graphParams.graphCreation.y_axis_column_ids,
                 `${boundingRect?.height - 10}px`, // Subtract pixels from the height & width to account for padding
-                `${boundingRect?.width - 20 - 250}px`, 
+                `${boundingRect?.width - 20 - 250}px`, // NOTE: 250 is the width of the graph sidebar. KEEP THIS UP TO DATE WITH THE CSS
                 graphParams.graphStyling,
                 stepID
             );
@@ -252,11 +248,9 @@ const GraphSidebar = (props: {
                             {selectedGraphSidebarTab === GraphSidebarTab.Export && 
                                 <GraphExportTab 
                                     graphParams={graphParams}
-                                    graphCodeCopied={graphCodeCopied}
-                                    _copyGraphCode={_copyGraphCode}
                                     mitoAPI={props.mitoAPI}
                                     loading={loading}
-                                    graphOutputDefined={graphOutput !== undefined}
+                                    graphOutput={graphOutput}
                                 />
                             }
                         </>
