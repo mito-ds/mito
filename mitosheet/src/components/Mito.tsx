@@ -464,6 +464,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         uiState={uiState}
                         graphDataDict={analysisData.graphDataDict}
                         analysisData={analysisData}
+                        mitoContainerRef={mitoContainerRef}
                     />
                 )
             case TaskpaneType.IMPORT: return (

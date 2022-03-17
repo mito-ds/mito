@@ -34,7 +34,24 @@ class GraphStepPerformer(StepPerformer):
             y_axis_column_ids: ColumnID[],
             color: columnID: columnID
         },
-        graph_styling: {},
+        graph_styling: {
+            title: {
+                title: string | None
+                visible: boolean
+            },
+            xaxis: {
+                title: string | None,
+                visible: boolean,
+                rangeslider: {
+                    visible: boolean
+                }
+            },
+            yaxis: {
+                title: string | None,
+                visible: boolean
+            },
+            showlegend: boolean
+        },
         graph_rendering: {
             height: int representing the div width
             width: int representing the div width

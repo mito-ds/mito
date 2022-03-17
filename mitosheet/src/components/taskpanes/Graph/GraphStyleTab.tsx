@@ -37,13 +37,14 @@ function GraphStyleTab(props: {
                         onChange={(e) => {
                             props.setGraphParams(prevGraphParams => {
                                 const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                const newTitle =  e.target.value !== '' ? e.target.value : undefined
                                 return {
                                     ...graphParamsCopy,
                                     graphStyling: {
                                         ...graphParamsCopy.graphStyling,
                                         title: {
                                             ...graphParamsCopy.graphStyling.title,
-                                            title: e.target.value !== '' ? e.target.value : undefined
+                                            title: newTitle
                                         } 
                                     } 
                                 }
@@ -95,13 +96,14 @@ function GraphStyleTab(props: {
                         onChange={(e) => {
                             props.setGraphParams(prevGraphParams => {
                                 const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                const newTitle =  e.target.value !== '' ? e.target.value : undefined
                                 return {
                                     ...graphParamsCopy,
                                     graphStyling: {
                                         ...graphParamsCopy.graphStyling,
                                         xaxis: {
                                             ...graphParamsCopy.graphStyling.xaxis,
-                                            title: e.target.value !== '' ? e.target.value : undefined
+                                            title: newTitle
                                         } 
                                     } 
                                 }
@@ -181,13 +183,14 @@ function GraphStyleTab(props: {
                         onChange={(e) => {
                             props.setGraphParams(prevGraphParams => {
                                 const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                const newTitle = e.target.value !== '' ? e.target.value : undefined
                                 return {
                                     ...graphParamsCopy,
                                     graphStyling: {
                                         ...graphParamsCopy.graphStyling,
                                         yaxis: {
                                             ...graphParamsCopy.graphStyling.yaxis,
-                                            title: e.target.value !== '' ? e.target.value : undefined
+                                            title: newTitle
                                         } 
                                     } 
                                 }

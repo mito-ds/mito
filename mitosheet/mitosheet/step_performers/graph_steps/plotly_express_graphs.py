@@ -205,50 +205,49 @@ def graph_styling(
     Styles the Plotly express graph figure
     """
 
-    # Create the parameters that we use to style the graph
+    # Create the parameters that we use to construct the graph
+    all_params: Dict[str, Union[ColumnHeader, List[ColumnHeader], str, None]] = dict()
+
     if graph_styling_params['title']['visible']:
-        graph_title = graph_styling_params['title']['title'] if 'title' in graph_styling_params['title'].keys() else get_graph_title(column_headers, [], filtered, graph_type)
-    else:
-        graph_title = None
+        use_custom_title = 'title' in graph_styling_params['title']
+        if use_custom_title:
+            all_params['title'] = graph_styling_params['title']['title']
+        else:
+            all_params['title'] = get_graph_title(column_headers, [], filtered, graph_type)
 
     # If the x axis title is visible, then either dispaly the user's custom title or Ploty's default title.
     # Otherwise, get rid of the title
     if graph_styling_params['xaxis']['visible']:
-        use_custom_xaxis_title = 'title' in graph_styling_params['xaxis'].keys()
+        use_custom_xaxis_title = 'title' in graph_styling_params['xaxis']
         # Only apply the xaxis_title if it is set because if we set it to None, then we don't get ploty's default values
         if use_custom_xaxis_title:
-            fig.update_layout(
-                xaxis_title = graph_styling_params['xaxis']['title']
-            )
+            all_params['xaxis_title'] = graph_styling_params['xaxis']['title']
     else: 
-        fig.update_layout(
-            xaxis_title = None
-        )
+        # Plotly makes us explicitly handle setting the xaxis_title and yaxis_title to None
+        all_params['xaxis_title'] = None
 
     # If the y axis title is visible, then either dispaly the user's custom title or Ploty's default title.
     # Otherwise, get rid of the title
     if graph_styling_params['yaxis']['visible']:
-        use_custom_yaxis_title = 'title' in graph_styling_params['yaxis'].keys()
+        use_custom_yaxis_title = 'title' in graph_styling_params['yaxis']
         # Only apply the xaxis_title if it is set because if we set it to None, then we don't get ploty's default values
         if use_custom_yaxis_title:
-            fig.update_layout(
-                yaxis_title = graph_styling_params['yaxis']['title']
-            )
+            all_params['yaxis_title'] = graph_styling_params['yaxis']['title']
     else: 
-        fig.update_layout(
-            yaxis_title = None
-        )
+        all_params['yaxis_title'] = None
 
-    rangeslider = dict(visible=True, thickness=0.05) if graph_styling_params['xaxis']['rangeslider']['visible'] else dict(visible=False)
     barmode = get_barmode(graph_type)
-    showlegend = graph_styling_params['showlegend']
+    if barmode is not None:
+        all_params['barmode'] = get_barmode(graph_type)
+
+    all_params['showlegend'] = graph_styling_params['showlegend']
+
+    if graph_styling_params['xaxis']['rangeslider']['visible']:
+        all_params['xaxis'] = dict(rangeslider=dict(visible=True, thickness=0.05))
 
     # Actually update the style of the graph
     fig.update_layout(
-        title=graph_title,
-        barmode=barmode,
-        showlegend=showlegend,
-        xaxis=dict(rangeslider=rangeslider)
+        **all_params
     )
     return fig
 
@@ -268,13 +267,17 @@ def graph_styling_code(
 
     # Create the title param
     if graph_styling_params['title']['visible']:
-        graph_title =  graph_styling_params['title']['title'] if 'title' in graph_styling_params['title'].keys() else get_graph_title(column_headers, [], filtered, graph_type)
+        use_custom_title = 'title' in graph_styling_params['title']
+        if use_custom_title:
+            graph_title = graph_styling_params['title']['title'] 
+        else:
+            graph_title = get_graph_title(column_headers, [], filtered, graph_type)
         all_params.append(("title", graph_title, True))
 
     # Create the x axis title param
     if graph_styling_params['xaxis']['visible']:
         # If the x axis title is visible, then either dispaly the user's custom title or Ploty's default title.
-        use_custom_xaxis_title = 'title' in graph_styling_params['xaxis'].keys()
+        use_custom_xaxis_title = 'title' in graph_styling_params['xaxis']
         # Only apply the xaxis_title if it is set because if we set it to None, then we don't get ploty's default values
         if use_custom_xaxis_title:
             all_params.append(("xaxis_title", graph_styling_params['xaxis']['title'], True))
@@ -285,7 +288,7 @@ def graph_styling_code(
     # Create the y axis title param
     if graph_styling_params['yaxis']['visible']:
         # If the y axis title is visible, then either dispaly the user's custom title or Ploty's default title.
-        use_custom_xaxis_title = 'title' in graph_styling_params['yaxis'].keys()
+        use_custom_xaxis_title = 'title' in graph_styling_params['yaxis']
         # Only apply the yaxis_title if it is set because if we set it to None, then we don't get ploty's default values
         if use_custom_xaxis_title:
             all_params.append(("yaxis_title", graph_styling_params['yaxis']['title'], True))
@@ -303,7 +306,7 @@ def graph_styling_code(
 
     # Create the range slider param
     if graph_styling_params['xaxis']['rangeslider']['visible']:
-        all_params.append(("xaxis", RANGE_SLIDER, False))
+        all_params.append(("xaxis", RANGE_SLIDER_CODE, False))
 
     # Use all of the styling parameters to create the fig.update_layout function call,
     # and format nicely!

@@ -54,6 +54,7 @@ const GraphSidebar = (props: {
     uiState: UIState;
     graphDataDict: GraphDataDict
     analysisData: AnalysisData
+    mitoContainerRef: React.RefObject<HTMLDivElement>
 }): JSX.Element => {
 
     /*
@@ -251,6 +252,7 @@ const GraphSidebar = (props: {
                                     mitoAPI={props.mitoAPI}
                                     loading={loading}
                                     graphOutput={graphOutput}
+                                    mitoContainerRef={props.mitoContainerRef}
                                 />
                             }
                         </>

@@ -15,6 +15,7 @@ function GraphExportTab(
         graphParams: GraphParams
         loading: boolean
         graphOutput: GraphOutput
+        mitoContainerRef: React.RefObject<HTMLDivElement>
     }): JSX.Element {
 
     const [_copyGraphCode, graphCodeCopied] = useCopyToClipboard(props.graphOutput?.graphGeneratedCode);
@@ -47,7 +48,7 @@ function GraphExportTab(
                     variant='dark'
                     onClick={() => {
                         // Find the Plotly Download plot as png button, and then click it. 
-                        const node: Element | undefined | null = document.querySelector('[data-title="Download plot as a png"]')
+                        const node: Element | undefined | null = props.mitoContainerRef.current?.querySelector('[data-title="Download plot as a png"]')
                         const clickEvent = new MouseEvent("click", {
                             "view": window,
                             "bubbles": true,
