@@ -83,7 +83,7 @@
 */
 .select-disabled > .select-text {
     color: var(--mito-light-gray) !important;
-    border: none;
+    border-color: var(--mito-light-gray) !important;
 }
 .select-disabled > .select-dropdown-icon-container {
     background-color: var(--mito-light-gray) !important;
