@@ -48,7 +48,7 @@ export const getGraphParams = (
     sheetDataArray: SheetData[],
 ): GraphParams => {
 
-    const graphParamsCopy = JSON.parse(JSON.stringify(graphDataDict[graphID]?.graphParams)); 
+    const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(graphDataDict[graphID]?.graphParams)); 
 
     // If the graph already exists, get the data source sheet index from the graph params.
     // Otherwise create a new graph of the selectedSheetIndex
@@ -67,6 +67,7 @@ export const getGraphParams = (
             validColumnIDs,
             graphParamsCopy.graphCreation.y_axis_column_ids
         )
+        const color = graphParamsCopy.graphCreation.color !== undefined && validColumnIDs.includes(graphParamsCopy.graphCreation.color) ? graphParamsCopy.graphCreation.color : undefined
 
         
         return {
@@ -74,7 +75,8 @@ export const getGraphParams = (
             graphCreation: {
                 ...graphParamsCopy.graphCreation,
                 x_axis_column_ids: xAxisColumnIDs,
-                y_axis_column_ids: yAxisColumnIDs
+                y_axis_column_ids: yAxisColumnIDs,
+                color: color
             }
         }
     }
@@ -101,6 +103,7 @@ export const getColorDropdownItems = (
     
     const columnDropdownItems = Object.keys(columnIDsMapArray[graphSheetIndex]).map(columnID => {
         const columnHeader = columnIDsMapArray[graphSheetIndex][columnID];
+
         // Plotly doesn't support setting the color as a date series, so we disable date series dropdown items
         const disabled = isDatetimeDtype(columnDtypesMap[columnID])
         return (

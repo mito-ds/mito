@@ -48,7 +48,6 @@ const GraphSidebar = (props: {
     columnIDsMapArray: ColumnIDsMap[],
     dfNames: string[];
     graphID: GraphID
-    columnDtypesMap: Record<string, string>;
     mitoAPI: MitoAPI;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     uiState: UIState;
@@ -232,7 +231,7 @@ const GraphSidebar = (props: {
                                     mitoAPI={props.mitoAPI}
                                     sheetDataArray={props.sheetDataArray}
                                     dfNames={props.dfNames}
-                                    columnDtypesMap={props.columnDtypesMap}
+                                    columnDtypesMap={props.sheetDataArray[dataSourceSheetIndex].columnDtypeMap}
                                     columnIDsMapArray={props.columnIDsMapArray}
                                     setUIState={props.setUIState}
                                 />

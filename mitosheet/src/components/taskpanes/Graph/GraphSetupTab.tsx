@@ -153,7 +153,11 @@ function GraphSetupTab(
     return (  
         <Fragment>
             <div className='graph-sidebar-toolbar-content'>
-                <Row justify='space-between' align='center'>
+                <Row 
+                    justify='space-between' 
+                    align='center'
+                    title='Select the data sheet to graph.'
+                >
                     <Col>
                         <p className='text-header-3'>
                             Data Source
@@ -184,7 +188,11 @@ function GraphSetupTab(
                         </Select>
                     </Col>
                 </Row>
-                <Row justify='space-between' align='center'>
+                <Row 
+                    justify='space-between' 
+                    align='center'
+                    title='Select one of many Plotly graphs to create.'
+                >
                     <Col>
                         <p className='text-header-3'>
                             Chart Type
@@ -235,25 +243,19 @@ function GraphSetupTab(
 
                 <AxisSection
                     columnIDsMap={props.columnIDsMapArray[graphSheetIndex]}
-                    columnDtypesMap={props.columnDtypesMap}
-
                     graphType={props.graphParams.graphCreation.graph_type}
                     graphAxis={GraphAxisType.X_AXIS}
                     selectedColumnIDs={props.graphParams.graphCreation.x_axis_column_ids}
                     otherAxisSelectedColumnIDs={props.graphParams.graphCreation.y_axis_column_ids}
-
                     updateAxisData={updateAxisData}
                     mitoAPI={props.mitoAPI}
                 />
                 <AxisSection
                     columnIDsMap={props.columnIDsMapArray[graphSheetIndex]}
-                    columnDtypesMap={props.columnDtypesMap}
-
                     graphType={props.graphParams.graphCreation.graph_type}
                     graphAxis={GraphAxisType.Y_AXIS}
                     selectedColumnIDs={props.graphParams.graphCreation.y_axis_column_ids}
                     otherAxisSelectedColumnIDs={props.graphParams.graphCreation.x_axis_column_ids}
-
                     updateAxisData={updateAxisData}
                     mitoAPI={props.mitoAPI}
                 />

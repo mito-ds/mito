@@ -25,13 +25,10 @@ export enum GraphAxisType {
 */
 const AxisSection = (props: {
     columnIDsMap: ColumnIDsMap;
-    columnDtypesMap: Record<string, string>;
-
     graphType: GraphType;
     graphAxis: GraphAxisType;
     selectedColumnIDs: ColumnID[];
     otherAxisSelectedColumnIDs: ColumnID[];
-
     updateAxisData: (graphAxis: GraphAxisType, index: number, columnID?: ColumnID) => void;
     mitoAPI: MitoAPI;
 }): JSX.Element => {
@@ -68,7 +65,11 @@ const AxisSection = (props: {
 
     return (
         <div>
-            <Row justify='space-between' align='center'>
+            <Row 
+                justify='space-between' 
+                align='center'
+                title={`Select columns to graph on the ${props.graphAxis}.`}
+            >
                 <Col>
                     <div className='text-header-3'>
                         {props.graphAxis}
