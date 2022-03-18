@@ -11,6 +11,7 @@ import { GraphType } from './GraphSidebar';
 import AxisSection, { GraphAxisType } from './AxisSection';
 import Toggle from '../../elements/Toggle';
 import { getColorDropdownItems, getDefaultGraphParams, getDefaultSafetyFilter } from './graphUtils';
+import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 
 // Graphing a dataframe with more than this number of rows will
 // give the user the option to apply the safety filter
@@ -118,14 +119,17 @@ function GraphSetupTab(
 
         // Update the graph type
         props.setGraphParams(prevGraphParams => {
-            const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
+            const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+            // If the new graph type doesn't support the color property, then reset the color to undefined
+            const newColor = GRAPHS_THAT_DONT_SUPPORT_COLOR.includes(graphType) ? undefined : graphParamsCopy.graphCreation.color
             return {
                 ...graphParamsCopy,
                 graphCreation: {
                     ...graphParamsCopy.graphCreation,
                     graph_type: graphType,
                     x_axis_column_ids: xAxisColumnIDsCopy,
-                    y_axis_column_ids: yAxisColumnIDsCopy
+                    y_axis_column_ids: yAxisColumnIDsCopy,
+                    color: newColor
                 }
             }
         })
@@ -269,7 +273,7 @@ function GraphSetupTab(
                         </Col>
                         <Col>
                             <Select 
-                                value={props.graphParams.graphCreation.color ? props.graphParams.graphCreation.color : 'None'}
+                                value={props.graphParams.graphCreation.color ? getDisplayColumnHeader(props.columnIDsMapArray[graphSheetIndex][props.graphParams.graphCreation.color]) : 'None'}
                                 disabled={GRAPHS_THAT_DONT_SUPPORT_COLOR.includes(props.graphParams.graphCreation.graph_type)}
                                 width='small'
                                 searchable
