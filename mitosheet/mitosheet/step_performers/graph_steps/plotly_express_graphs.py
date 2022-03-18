@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 import plotly.express as px
@@ -34,6 +34,9 @@ TAB = "    "
 # The number of rows that we filter the graph to
 # This must be kept in sync with GRAPH_SAFETY_FILTER_CUTOFF in GraphSidebar.tsx
 GRAPH_SAFETY_FILTER_CUTOFF = 1000
+
+# Not all of Ploty's graphs support the color parameter. Those are listed here
+GRAPHS_THAT_DONT_SUPPORT_COLOR = [DENSITY_HEATMAP]
 
 
 def safety_filter_applied(
@@ -87,13 +90,14 @@ def graph_creation(
     df: pd.DataFrame,
     x_axis_column_headers: List[ColumnHeader],
     y_axis_column_headers: List[ColumnHeader],
+    color_column_header: Optional[ColumnHeader]
 ) -> go.Figure:
     """
     Creates and returns the Plotly express graph figure
     """
 
     # Create the parameters that we use to construct the graph
-    all_params: Dict[str, Union[ColumnHeader, List[ColumnHeader]]] = dict()
+    all_params: Dict[str, Union[ColumnHeader, List[ColumnHeader], None]] = dict()
 
     # Plotly express requires that both the x and y parameter cannot both be lists,
     # so we need to do some casing.
@@ -107,6 +111,9 @@ def graph_creation(
         all_params["y"] = y_axis_column_headers[0]
     elif len(y_axis_column_headers) > 1:
         all_params["y"] = y_axis_column_headers
+
+    if graph_type not in GRAPHS_THAT_DONT_SUPPORT_COLOR:
+        all_params['color'] = color_column_header
 
     if graph_type == BAR:
         return px.bar(df, **all_params)
@@ -135,6 +142,7 @@ def graph_creation_code(
     df_name: str,
     x_axis_column_headers: List[ColumnHeader],
     y_axis_column_headers: List[ColumnHeader],
+    color_column_header: Optional[ColumnHeader]
 ) -> str:
     """
     Returns the code for creating the Plotly express graph
@@ -144,22 +152,17 @@ def graph_creation_code(
     all_params: List[Tuple[str, str, bool]] = []
 
     if len(x_axis_column_headers) == 1:
-        all_params.append(
-            ("x", column_header_to_transpiled_code(x_axis_column_headers[0]), False)
-        )
+        all_params.append(("x", column_header_to_transpiled_code(x_axis_column_headers[0]), False))
     elif len(x_axis_column_headers) >= 1:
-        all_params.append(
-            ("x", column_header_list_to_transpiled_code(x_axis_column_headers), False)
-        )
+        all_params.append(("x", column_header_list_to_transpiled_code(x_axis_column_headers), False))
 
     if len(y_axis_column_headers) == 1:
-        all_params.append(
-            ("y", column_header_to_transpiled_code(y_axis_column_headers[0]), False)
-        )
+        all_params.append(("y", column_header_to_transpiled_code(y_axis_column_headers[0]), False))
     elif len(y_axis_column_headers) >= 1:
-        all_params.append(
-            ("y", column_header_list_to_transpiled_code(y_axis_column_headers), False)
-        )
+        all_params.append(("y", column_header_list_to_transpiled_code(y_axis_column_headers), False))
+
+    if color_column_header is not None:
+        all_params.append(('color', column_header_to_transpiled_code(color_column_header), False))
 
     params = f", ".join(
         create_parameter(param[0], param[1], param[2]) for param in all_params
@@ -248,6 +251,7 @@ def get_plotly_express_graph(
     safety_filter_turned_on_by_user: bool,
     x_axis_column_headers: List[ColumnHeader],
     y_axis_column_headers: List[ColumnHeader],
+    color_column_header: Optional[ColumnHeader]
 ) -> go.Figure:
     """
     Generates and returns a Plotly express graph in 3 steps
@@ -264,7 +268,7 @@ def get_plotly_express_graph(
     df = graph_filtering(df, safety_filter_turned_on_by_user)
 
     # Step 2: Graph Creation
-    fig = graph_creation(graph_type, df, x_axis_column_headers, y_axis_column_headers)
+    fig = graph_creation(graph_type, df, x_axis_column_headers, y_axis_column_headers, color_column_header)
 
     # Step 3: Graph Styling
     fig = graph_styling(fig, graph_type, all_column_headers, is_safety_filter_applied)
@@ -278,6 +282,7 @@ def get_plotly_express_graph_code(
     safety_filter_turned_on_by_user: bool,
     x_axis_column_headers: List[ColumnHeader],
     y_axis_column_headers: List[ColumnHeader],
+    color_column_header: Optional[ColumnHeader],
     df_name: str,
 ) -> str:
     """
@@ -307,7 +312,7 @@ def get_plotly_express_graph_code(
     )
     code.append(
         graph_creation_code(
-            graph_type, df_name, x_axis_column_headers, y_axis_column_headers
+            graph_type, df_name, x_axis_column_headers, y_axis_column_headers, color_column_header
         )
     )
 

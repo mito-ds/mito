@@ -43,17 +43,34 @@
     align-self: center
 }
 
-.graph-sidebar-toolbar-div {
+.graph-sidebar-toolbar-container {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 
     border-left: 1px solid var(--mito-border);
-
-    width: 220px;
+    width: 250px;
+    min-width: 250px;
     height: 100%;
-    padding: 5px;
     box-sizing: border-box;
+}
+
+.graph-sidebar-toolbar-tab-container {
+    display: flex;
+    flex-direction: column;
+
+    /* 
+        Make sure that content doesn't get cutoff by the graph tabs.
+        Must be the same height as the height of the tabs defined .control-panel-taskpane-tab
+    */
+    height: calc(100% - 30px);
+    width: 250px;
+    
+    padding-top: 5px;
+    padding-right: 10px; /* Extra padding on the right to make space for the scrollbar */
+    padding-left: 5px;
+    box-sizing: border-box;
+
 }
 
 .graph-sidebar-toolbar-content {
@@ -64,12 +81,6 @@
 .graph-sidebar-toolbar-content > * + * {
     /* Apply the same spacing to every child of the graph sidebar toolbar content */
     margin-top: 15px;
-}
-
-.graph-sidebar-toolbar-code-export-button {
-    height: 7.5%;
-    padding-top: 2.5%;
-    border-top: 1px solid var(--mito-border);
 }
                         
 .popup-div { 
@@ -86,4 +97,20 @@
 
 .popup-text-div {
   color: #8d8d8d;
+}
+
+.graph-sidebar-tab-container {
+    /* 
+        We put the tabs at the bottom of the graph sidebar container,
+        which they are the child of. This way, they are always visible
+    */
+    position: absolute;
+    bottom: 0px;
+
+    display: flex;
+    justify-content: space-around;
+
+    box-sizing: border-box;
+
+    width: inherit;
 }

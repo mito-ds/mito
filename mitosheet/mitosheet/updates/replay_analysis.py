@@ -48,6 +48,7 @@ def execute_replay_analysis_update(
         log('replayed_nonexistant_analysis_failed')
         raise make_no_analysis_error(analysis_name)
 
+
     # We only keep the intialize step only, if we want to clear,
     # and also update the analysis name to the replayed analysis
     # NOTE: we update the analysis name so that when the code
