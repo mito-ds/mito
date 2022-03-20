@@ -33,7 +33,7 @@ const ExcelFormatSection = (props: {
             {props.exportState.sheetIndexes.map(exportedSheetIndex => {
                 const columnIDsMap = props.sheetDataArray[exportedSheetIndex].columnIDsMap
 
-                const newlyFormattedColumns = Object.keys(props.newlyFormattedColumns).length >= exportedSheetIndex ? props.newlyFormattedColumns[exportedSheetIndex] : []
+                const newlyFormattedColumns = Object.keys(props.newlyFormattedColumns || {}).length >= exportedSheetIndex ? props.newlyFormattedColumns[exportedSheetIndex] : []
                 const columnFormatTypeObjMap = Object.entries(props.sheetDataArray[exportedSheetIndex].columnFormatTypeObjMap).filter(([,formatTypeObj]) => {
                     // Filter out any column with default formatting, which is most!
                     return formatTypeObj.type !== FormatType.DEFAULT
@@ -65,7 +65,7 @@ const ExcelFormatSection = (props: {
                                 width={'small'}
                                 searchable={true}
                             >
-                                {Object.keys(props.sheetDataArray[exportedSheetIndex].columnIDsMap).map(columnID => {
+                                {Object.keys(props.sheetDataArray[exportedSheetIndex]?.columnIDsMap || {}).map(columnID => {
                                     const columnHeader = getDisplayColumnHeader(columnIDsMap[columnID])
                                     const disabledText = getFormatAddDisabledMessage(columnID, exportedSheetIndex)
 
@@ -123,7 +123,7 @@ const ExcelFormatSection = (props: {
                                             void changeFormatOfColumnID(exportedSheetIndex, newColumnID, columnFormatTypeObj, props.mitoAPI)
                                         }}
                                     >
-                                        {Object.keys(props.sheetDataArray[exportedSheetIndex].columnIDsMap).map(columnID => {
+                                        {Object.keys(props.sheetDataArray[exportedSheetIndex]?.columnIDsMap || {}).map(columnID => {
                                             const columnHeader = getDisplayColumnHeader(columnIDsMap[columnID])
                                             const disabledText = getFormatAddDisabledMessage(columnID, exportedSheetIndex)
 
