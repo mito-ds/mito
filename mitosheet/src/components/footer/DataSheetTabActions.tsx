@@ -14,7 +14,7 @@ import { getDefaultGraphParams } from '../taskpanes/Graph/graphUtils';
 */
 export const getGraphTabNamesAndIDsFromSheetIndex = (sheetIndex: number, graphDataDict: GraphDataDict): ({graphTabName: string, graphID: GraphID})[] => {
     // Filter to only grapsh with the sheetIndex, and then get a list of the graph tab names
-    const filteredGraphDataJSON: GraphDataDict = Object.fromEntries(Object.entries(graphDataDict).filter(([, graphData]) => {
+    const filteredGraphDataJSON: GraphDataDict = Object.fromEntries(Object.entries(graphDataDict || {}).filter(([, graphData]) => {
         return graphData.graphParams.graphCreation.sheet_index === sheetIndex
     }))
 

@@ -26,7 +26,7 @@ export const selectPreviousGraphSheetTab = (
         If no graph exists at that index, then select the graph at the previous index.
         If there are no graphs, then select the last sheet index
     */
-    const graphIDs = Object.keys(graphDataDict)
+    const graphIDs = Object.keys(graphDataDict || {})
 
     let newGraphID: GraphID | undefined = undefined 
     if (graphIDs.length > prevGraphIndex) {
