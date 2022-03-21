@@ -749,7 +749,7 @@ class MitoWidgetTestWrapper:
                 'params': {
                     'graph_id': graph_id,
                     'graph_preprocessing': {
-                    'safety_filter_turned_on_by_user': safety_filter_turned_on_by_user
+                        'safety_filter_turned_on_by_user': safety_filter_turned_on_by_user
                     },
                     'graph_creation': {
                         'graph_type': graph_type,
@@ -757,7 +757,24 @@ class MitoWidgetTestWrapper:
                         'x_axis_column_ids': xAxisColumnIDs,
                         'y_axis_column_ids': yAxisColumnIDs,
                     },
-                    'graph_styling': {},
+                    'graph_styling': {
+                        'title': {
+                            'title': None,
+                            'visible': True
+                        },
+                        'xaxis': {
+                            'title': None,
+                            'visible': True,
+                            'rangeslider': {
+                                'visible': True
+                            }
+                        },
+                        'yaxis': {
+                            'title': None,
+                            'visible': True
+                        },
+                        'showlegend': True
+                    },
                     'graph_rendering': {
                         'height': height,
                         'width': width

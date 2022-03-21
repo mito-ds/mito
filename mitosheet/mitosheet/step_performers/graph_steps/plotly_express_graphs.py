@@ -206,7 +206,7 @@ def graph_styling(
     """
 
     # Create the parameters that we use to construct the graph
-    all_params: Dict[str, Union[ColumnHeader, List[ColumnHeader], str, None]] = dict()
+    all_params: Dict[str, Union[ColumnHeader, List[ColumnHeader], str, None, dict]] = dict()
 
     # Create the graph title param
     if graph_styling_params['title']['visible']:
@@ -268,7 +268,7 @@ def graph_styling_code(
     """
 
     # Create the params used to style the graph
-    all_params: List[Tuple[str, str, bool]] = []
+    all_params: List[Tuple[str, Optional[str], bool]] = []
 
     # Create the graph title param
     if graph_styling_params['title']['visible']:
