@@ -171,4 +171,4 @@ def rename_column_headers_in_state(
     post_state.column_ids.set_column_header(sheet_index, column_id, new_column_header)
     pandas_processing_time = perf_counter() - pandas_start_time
     
-    return old_column_header, pandas_start_time
+    return old_column_header, pandas_processing_time
