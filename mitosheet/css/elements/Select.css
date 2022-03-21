@@ -47,7 +47,7 @@
     When the select is either hovered or active, 
     set the backgroud color of the select icon container.
 */
-.select-container:hover > .select-dropdown-icon-container {
+.select-container:hover:not(.select-disabled) > .select-dropdown-icon-container {
     background-color: var(--mito-medium-purple);
 }
 .select-dropdown-active > .select-dropdown-icon-container {
@@ -58,7 +58,7 @@
     When the select is either hovered or active, 
     set the border color of the select select text.
 */
-.select-container:hover > .select-text {
+.select-container:hover:not(.select-disabled) > .select-text {
     border-color: var(--mito-medium-purple);
 }
 .select-dropdown-active > .select-text {
@@ -76,4 +76,15 @@
 
 .select-dropdown-justify-right {
     justify-content: right;
+}
+
+/* 
+    Classes for when the select is disabled
+*/
+.select-disabled > .select-text {
+    color: var(--mito-light-gray) !important;
+    border-color: var(--mito-light-gray) !important;
+}
+.select-disabled > .select-dropdown-icon-container {
+    background-color: var(--mito-light-gray) !important;
 }

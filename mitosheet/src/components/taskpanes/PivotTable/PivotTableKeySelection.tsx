@@ -1,7 +1,6 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import PivotTableColumnHeaderCard from './PivotTableColumnHeaderCard';
 import PivotInvalidSelectedColumnsError from './PivotInvalidSelectedColumnsError';
 import MitoAPI from '../../../api';
 import DropdownButton from '../../elements/DropdownButton';
@@ -10,6 +9,7 @@ import Col from '../../spacing/Col';
 import { ColumnID, ColumnIDsMap } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
+import SelectAndXIconCard from '../../elements/SelectAndXIconCard';
 
 /* 
   A custom component used in the pivot table which lets the
@@ -28,13 +28,13 @@ const PivotTableKeySelection = (props: {
 
     const pivotTableColumnIDsCards: JSX.Element[] = props.selectedColumnIDs.map((columnID, keyIndex) => {
         return (
-            <PivotTableColumnHeaderCard 
-                key={columnID + keyIndex}
+            <SelectAndXIconCard 
+                key={keyIndex}
                 columnIDsMap={props.columnIDsMap}
                 columnID={columnID}
-                keyIndex={keyIndex}
-                removeKey={props.removeKey}
-                editKey={props.editKey}
+                onChange={(columnID) => props.editKey(keyIndex, columnID)}
+                onDelete={() => props.removeKey(keyIndex)}
+                selectableColumnIDs={Object.keys(props.columnIDsMap)}
             />
         )
     })

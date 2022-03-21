@@ -39,6 +39,10 @@ interface SelectProps {
         * @param [searchable] - When True, a search input field is displayed. Defaults to False
     */
     searchable?: boolean
+    /**
+        * @param [disabled] -- When True, the select is disabled 
+     */
+    disabled?: boolean
 }
 
 /**
@@ -95,8 +99,12 @@ const Select = (props: SelectProps): JSX.Element => {
 
     return (
         <div 
-            className={classNames('select-container', 'text-body-2', widthClass, dropdownActiveClass)}
+            className={classNames('select-container', 'text-body-2', widthClass, dropdownActiveClass, {'select-disabled': props.disabled})}
             onClick={() => {
+                // If the select is disabled, then don't do anything
+                if (props.disabled) {
+                    return;
+                }
                 setDisplayDropdown((prevDisplayDropdown) => {
                     /* 
                         Only change the visibility of the dropdown if the button is 

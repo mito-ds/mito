@@ -204,6 +204,7 @@ export type GraphCreationParams = {
     sheet_index: number,
     x_axis_column_ids: ColumnID[]
     y_axis_column_ids: ColumnID[]
+    color: ColumnID | undefined
 }
 export type GraphStylingParams = undefined
 export type GraphRenderingParams = {
@@ -227,15 +228,17 @@ export type GraphParams = {
  */
 export type GraphData = {
     graphParams: GraphParams,
-    graphOutput?: {
-        graphGeneratedCode: string,
-        graphHTML: string,
-        graphScript: string,
-    },
+    graphOutput: GraphOutput, 
     graphTabName: string
 };
 
-export type GraphID = string
+export type GraphOutput = {
+    graphGeneratedCode: string,
+    graphHTML: string,
+    graphScript: string,
+} | undefined;
+
+export type GraphID = string;
 
 export type GraphDataDict = Record<GraphID, GraphData>
 
@@ -712,4 +715,10 @@ export interface Action {
 export interface ExcelFileMetadata {
     sheet_names: string[]
     size: number
+}
+
+export enum GraphSidebarTab {
+    Setup = 'setup',
+    Style = 'style',
+    Export = 'export'
 }

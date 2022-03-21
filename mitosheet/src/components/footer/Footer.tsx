@@ -71,7 +71,7 @@ function Footer(props: FooterProps): JSX.Element {
                         />
                     )
                 })}
-                {Object.entries(props.graphDataDict).map(([graphID, graphData]) => {
+                {Object.entries(props.graphDataDict || {}).map(([graphID, graphData]) => {
                     return (
                         <SheetTab
                             key={graphID}

@@ -1,4 +1,4 @@
-// Copyright (c) Mito
+// Copyright (c) Saga Inc.
 
 import React, { useEffect } from 'react';
 import MitoAPI, { getRandomId } from '../../api';
@@ -14,7 +14,7 @@ import { getDefaultGraphParams } from '../taskpanes/Graph/graphUtils';
 */
 export const getGraphTabNamesAndIDsFromSheetIndex = (sheetIndex: number, graphDataDict: GraphDataDict): ({graphTabName: string, graphID: GraphID})[] => {
     // Filter to only grapsh with the sheetIndex, and then get a list of the graph tab names
-    const filteredGraphDataJSON: GraphDataDict = Object.fromEntries(Object.entries(graphDataDict).filter(([, graphData]) => {
+    const filteredGraphDataJSON: GraphDataDict = Object.fromEntries(Object.entries(graphDataDict || {}).filter(([, graphData]) => {
         return graphData.graphParams.graphCreation.sheet_index === sheetIndex
     }))
 
@@ -113,6 +113,7 @@ export default function SheetTabActions(props: {
             newGraphID,
             graphParams.graphCreation.graph_type,
             graphParams.graphCreation.sheet_index,
+            graphParams.graphCreation.color,
             graphParams.graphPreprocessing.safety_filter_turned_on_by_user,
             graphParams.graphCreation.x_axis_column_ids,
             graphParams.graphCreation.y_axis_column_ids,

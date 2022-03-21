@@ -1,17 +1,17 @@
+import os
 import sys
+
 from mitoinstaller import __version__
 from mitoinstaller.commands import upgrade_mito_installer
 from mitoinstaller.installer_steps.installer_step import InstallerStep
 from mitoinstaller.log_utils import identify, log
-from mitoinstaller.user_install import (get_static_user_id,
+from mitoinstaller.user_install import (USER_JSON_PATH,
                                         try_create_user_json_file)
 
 
 def initial_install_step_create_user():
-    static_user_id = get_static_user_id()
 
-    # If the user has no static install ID, create one
-    if static_user_id is None:
+    if not os.path.exists(USER_JSON_PATH):
         try_create_user_json_file(is_pro=('--pro' in sys.argv))
 
     # Only try and log if we're not pro

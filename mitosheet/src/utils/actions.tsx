@@ -387,6 +387,7 @@ export const createActions = (
                     newGraphID,
                     graphParams.graphCreation.graph_type,
                     graphParams.graphCreation.sheet_index,
+                    graphParams.graphCreation.color,
                     graphParams.graphPreprocessing.safety_filter_turned_on_by_user,
                     graphParams.graphCreation.x_axis_column_ids,
                     graphParams.graphCreation.y_axis_column_ids,

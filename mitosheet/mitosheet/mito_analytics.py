@@ -39,6 +39,10 @@ try:
     from jupyterlab import __version__ as jupyterlab_version
 except:
     jupyterlab_version = 'No JupyterLab'
+try:
+    from notebook import __version__ as notebook_version
+except:
+    notebook_version = 'No notebook'
 
 import analytics
 
@@ -187,6 +191,7 @@ def log(log_event: str, params: Dict[Any, Any]=None, steps_manager: StepsManager
     python_properties = {
         'version_python': sys.version_info,
         'version_jupyterlab': jupyterlab_version,
+        'version_notebook': notebook_version,
         'version_mito': __version__,
         'package_name': package_name,
         'location': location,
@@ -252,8 +257,9 @@ def log(log_event: str, params: Dict[Any, Any]=None, steps_manager: StepsManager
                     private_params[key] = value
             elif 'graph_creation' in key:
                 # Don't log the column ids in the graph, just log the number of series graphed
-                private_params[key]['graph_creation']['x_axis_column_ids'] = len(private_params[key]['graph_creation']['x_axis_column_ids'])
-                private_params[key]['graph_creation']['y_axis_column_ids'] = len(private_params[key]['graph_creation']['y_axis_column_ids'])
+                private_params['params_x_axis_column_ids'] = len(value['x_axis_column_ids'])
+                private_params['params_y_axis_column_ids'] = len(value['y_axis_column_ids'])
+                private_params['params_color'] = True if 'color' in value.keys() else False
             elif 'sheet_index' in key:
                 private_params[key] = value
                 # Make sure the steps manager exists, and the source is in bounds
@@ -309,6 +315,7 @@ def identify() -> None:
             'version_mito': __version__,
             'package_name': package_name, 
             'version_jupyterlab': jupyterlab_version,
+            'version_notebook': notebook_version,
             'operating_system': operating_system,
             'email': user_email,
             'local': local,

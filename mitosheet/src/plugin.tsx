@@ -101,6 +101,19 @@ function codeContainer(
 
 }
 
+function getParentMitoContainer(): Element | null {
+    // First, get the mito container that this element is a part of
+    let currentElement = document.activeElement;
+    while (currentElement !== null) {
+        if (currentElement.classList.contains('mito-container')) {
+            break;
+        }
+        currentElement = currentElement.parentElement;
+    }
+
+    return currentElement;
+}
+
 
 /*
     Given the code container format, returns the name of the analysis. Handles 
@@ -523,30 +536,52 @@ function activateWidgetExtension(
         label: 'Focuses on search of the currently selected mito notebook',
         execute: async (): Promise<void> => {
             // First, get the mito container that this element is a part of
-            let currentElement = document.activeElement;
-            while (currentElement !== null) {
-                if (currentElement.classList.contains('mito-container')) {
-                    break;
-                }
-                currentElement = currentElement.parentElement;
-            }
-
-            // If we cannot find the container this was in, we return.
-            // This should never happen
-            if (currentElement === null) {
-                return;
-            }
+            const mitoContainer = getParentMitoContainer();
 
             // Get the search input, and click + focus on it
-            const searchInput = currentElement.querySelector('#action-search-bar-id') as HTMLInputElement | null;
-            if (searchInput === null) {
-                return;
-            }
+            const searchInput = mitoContainer?.querySelector('#action-search-bar-id') as HTMLInputElement | null;
 
             // Focusing on the searchInput so that we begin typing there
-            searchInput.focus();
+            searchInput?.focus();
         }
     });
+
+    app.commands.addKeyBinding({
+        command: 'mito-undo',
+        args: {},
+        keys: ['Accel Z'],
+        selector: '.mito-container'
+    });
+    app.commands.addCommand('mito-undo', {
+        label: 'Clicks the undo button once',
+        execute: async (): Promise<void> => {
+            // First, get the mito container that this element is a part of
+            const mitoContainer = getParentMitoContainer();
+
+            // Get the undo button, and click it
+            const undoButton = mitoContainer?.querySelector('#mito-undo-button') as HTMLDivElement | null;
+            undoButton?.click()
+        }
+    });
+
+    app.commands.addKeyBinding({
+        command: 'mito-redo',
+        args: {},
+        keys: ['Accel Y'],
+        selector: '.mito-container'
+    });
+    app.commands.addCommand('mito-redo', {
+        label: 'Clicks the redo button once',
+        execute: async (): Promise<void> => {
+            // First, get the mito container that this element is a part of
+            const mitoContainer = getParentMitoContainer();
+
+            // Get the undo button, and click it
+            const redoButton = mitoContainer?.querySelector('#mito-redo-button') as HTMLDivElement | null;
+            redoButton?.click()
+        }
+    });
+
 
     /* 
         Since Shift + Enter reruns the cell, we don't want this to happen

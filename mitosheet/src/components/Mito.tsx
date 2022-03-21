@@ -96,7 +96,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         currOpenTaskpane: {type: TaskpaneType.NONE},
         selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
         selectedSheetIndex: 0,
-        selectedGraphID: Object.keys(props.analysisData.graphDataDict).length === 0 ? undefined : Object.keys(props.analysisData.graphDataDict)[0],
+        selectedGraphID: Object.keys(props.analysisData.graphDataDict || {}).length === 0 ? undefined : Object.keys(props.analysisData.graphDataDict)[0],
         selectedTabType: 'data',
         displayFormatToolbarDropdown: false,
         exportConfiguration: {exportType: 'csv'}
@@ -222,21 +222,21 @@ export const Mito = (props: MitoProps): JSX.Element => {
         previousNumSheetsRef.current = sheetDataArray.length;
     }, [sheetDataArray])
 
-    const previousNumGraphsRef = useRef<number>(Object.keys(analysisData.graphDataDict).length)
+    const previousNumGraphsRef = useRef<number>(Object.keys(analysisData.graphDataDict || {}).length)
     const previousGraphIndex = useRef<number>(uiState.selectedGraphID !== undefined ?
-        Object.keys(analysisData.graphDataDict).indexOf(uiState.selectedGraphID) : -1)
+        Object.keys(analysisData.graphDataDict  || {}).indexOf(uiState.selectedGraphID) : -1)
 
     // When we switch graphID's make sure that we keep the previousGraphIndex up to date
     useEffect(() => {
         previousGraphIndex.current = uiState.selectedGraphID !== undefined ?
-            Object.keys(analysisData.graphDataDict).indexOf(uiState.selectedGraphID) : -1
+            Object.keys(analysisData.graphDataDict || {}).indexOf(uiState.selectedGraphID) : -1
     }, [uiState.selectedGraphID])
 
     // Update the selected sheet tab when the number of graphs change. 
     useEffect(() => {
-        const graphIDs = Object.keys(analysisData.graphDataDict)
+        const graphIDs = Object.keys(analysisData.graphDataDict || {})
         const previousNumGraphs = previousNumGraphsRef.current;
-        const newNumGraphs = Object.keys(analysisData.graphDataDict).length
+        const newNumGraphs = Object.keys(analysisData.graphDataDict || {}).length
 
         // Handle new graph created
         if (previousNumGraphs < newNumGraphs) {
@@ -267,7 +267,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         }
 
         previousNumGraphsRef.current = newNumGraphs
-    }, [Object.keys(analysisData.graphDataDict).length])
+    }, [Object.keys(analysisData.graphDataDict || {}).length])
 
 
     /*
@@ -458,7 +458,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         dfNames={dfNames}
                         columnIDsMapArray={columnIDsMapArray}
                         sheetDataArray={sheetDataArray}
-                        columnDtypesMap={sheetDataArray[uiState.selectedSheetIndex]?.columnDtypeMap}
                         mitoAPI={props.mitoAPI}
                         setUIState={setUIState} 
                         uiState={uiState}
@@ -611,7 +610,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     sheetData={sheetDataArray[uiState.selectedSheetIndex]}
                 />
-                <div className="mito-main-sheet-div"> 
+                <div className="mito-main-sheet-div" id="mito-main-sheet-div"> 
                     <div className={formulaBarAndSheetClassNames}>
                         <EndoGrid
                             sheetDataArray={sheetDataArray}
