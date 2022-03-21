@@ -208,6 +208,7 @@ def graph_styling(
     # Create the parameters that we use to construct the graph
     all_params: Dict[str, Union[ColumnHeader, List[ColumnHeader], str, None]] = dict()
 
+    # Create the graph title param
     if graph_styling_params['title']['visible']:
         use_custom_title = 'title' in graph_styling_params['title']
         if use_custom_title:
@@ -215,9 +216,9 @@ def graph_styling(
         else:
             all_params['title'] = get_graph_title(column_headers, [], filtered, graph_type)
 
-    # If the x axis title is visible, then either dispaly the user's custom title or Ploty's default title.
-    # Otherwise, get rid of the title
+    # Create the x axis param
     if graph_styling_params['xaxis']['visible']:
+        # If the x axis title is visible, then either dispaly the user's custom title or Ploty's default title.
         use_custom_xaxis_title = 'title' in graph_styling_params['xaxis']
         # Only apply the xaxis_title if it is set because if we set it to None, then we don't get ploty's default values
         if use_custom_xaxis_title:
@@ -226,22 +227,26 @@ def graph_styling(
         # Plotly makes us explicitly handle setting the xaxis_title and yaxis_title to None
         all_params['xaxis_title'] = None
 
-    # If the y axis title is visible, then either dispaly the user's custom title or Ploty's default title.
-    # Otherwise, get rid of the title
+    # Create the y axis title param
     if graph_styling_params['yaxis']['visible']:
+        # If the y axis title is visible, then either dispaly the user's custom title or Ploty's default title.
         use_custom_yaxis_title = 'title' in graph_styling_params['yaxis']
         # Only apply the xaxis_title if it is set because if we set it to None, then we don't get ploty's default values
         if use_custom_yaxis_title:
             all_params['yaxis_title'] = graph_styling_params['yaxis']['title']
     else: 
+        # Plotly makes us explicitly handle setting the xaxis_title and yaxis_title to None
         all_params['yaxis_title'] = None
 
+    # Create the barmode param
     barmode = get_barmode(graph_type)
     if barmode is not None:
         all_params['barmode'] = get_barmode(graph_type)
 
+    # Create the showlegend param
     all_params['showlegend'] = graph_styling_params['showlegend']
 
+    # Create the range slider param
     if graph_styling_params['xaxis']['rangeslider']['visible']:
         all_params['xaxis'] = dict(rangeslider=dict(visible=True, thickness=0.05))
 
@@ -265,16 +270,17 @@ def graph_styling_code(
     # Create the params used to style the graph
     all_params: List[Tuple[str, str, bool]] = []
 
-    # Create the title param
+    # Create the graph title param
     if graph_styling_params['title']['visible']:
         use_custom_title = 'title' in graph_styling_params['title']
         if use_custom_title:
             graph_title = graph_styling_params['title']['title'] 
+            all_params.append(("title", graph_title, True))
         else:
             graph_title = get_graph_title(column_headers, [], filtered, graph_type)
-        all_params.append(("title", graph_title, True))
+            all_params.append(("title", graph_title, True))
 
-    # Create the x axis title param
+    # Create the x axis param
     if graph_styling_params['xaxis']['visible']:
         # If the x axis title is visible, then either dispaly the user's custom title or Ploty's default title.
         use_custom_xaxis_title = 'title' in graph_styling_params['xaxis']
@@ -282,18 +288,18 @@ def graph_styling_code(
         if use_custom_xaxis_title:
             all_params.append(("xaxis_title", graph_styling_params['xaxis']['title'], True))
     else:
-        # Otherwise, get rid of the title
+        # Plotly makes us explicitly handle setting the xaxis_title and yaxis_title to None
         all_params.append(("xaxis_title", None, False))
 
     # Create the y axis title param
     if graph_styling_params['yaxis']['visible']:
         # If the y axis title is visible, then either dispaly the user's custom title or Ploty's default title.
-        use_custom_xaxis_title = 'title' in graph_styling_params['yaxis']
+        use_custom_yaxis_title = 'title' in graph_styling_params['yaxis']
         # Only apply the yaxis_title if it is set because if we set it to None, then we don't get ploty's default values
-        if use_custom_xaxis_title:
+        if use_custom_yaxis_title:
             all_params.append(("yaxis_title", graph_styling_params['yaxis']['title'], True))
     else:
-        # Otherwise, get rid of the title
+        # Plotly makes us explicitly handle setting the xaxis_title and yaxis_title to None
         all_params.append(("yaxis_title", None, False))
 
     # Create the barmode param

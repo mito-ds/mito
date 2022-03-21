@@ -48,13 +48,13 @@ const GraphSidebar = (props: {
     columnIDsMapArray: ColumnIDsMap[],
     dfNames: string[];
     graphID: GraphID
-    columnDtypesMap: Record<string, string>;
     mitoAPI: MitoAPI;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     uiState: UIState;
     graphDataDict: GraphDataDict
     analysisData: AnalysisData
     mitoContainerRef: React.RefObject<HTMLDivElement>
+
 }): JSX.Element => {
 
     /*
@@ -153,15 +153,9 @@ const GraphSidebar = (props: {
         if (boundingRect !== undefined) {
             const _stepID = await props.mitoAPI.editGraph(
                 graphID,
-                graphParams.graphCreation.graph_type,
-                graphParams.graphCreation.sheet_index,
-                graphParams.graphCreation.color,
-                graphParams.graphPreprocessing.safety_filter_turned_on_by_user,
-                graphParams.graphCreation.x_axis_column_ids,
-                graphParams.graphCreation.y_axis_column_ids,
+                graphParams,
                 `${boundingRect?.height - 10}px`, // Subtract pixels from the height & width to account for padding
                 `${boundingRect?.width - 20 - 250}px`, // NOTE: 250 is the width of the graph sidebar. KEEP THIS UP TO DATE WITH THE CSS
-                graphParams.graphStyling,
                 stepID
             );
             setStepID(_stepID)
@@ -202,60 +196,58 @@ const GraphSidebar = (props: {
                 </div>
                 <div className='graph-sidebar-toolbar-container'>
                     <div className='graph-sidebar-toolbar-content-container'>
-                        <>
-                            <Row justify='space-between' align='center'>
-                                <Col>
-                                    <p className='text-header-2'>
-                                        {selectedGraphSidebarTab === GraphSidebarTab.Setup && 'Setup Graph'}
-                                        {selectedGraphSidebarTab === GraphSidebarTab.Style && 'Style Graph'}
-                                        {selectedGraphSidebarTab === GraphSidebarTab.Export && 'Export Graph'}
-                                    </p>
-                                </Col>
-                                <Col>
-                                    <XIcon
-                                        onClick={() => {
-                                            props.setUIState((prevUIState) => {
-                                                return {
-                                                    ...prevUIState,
-                                                    selectedTabType: 'data',
-                                                    currOpenTaskpane: { type: TaskpaneType.NONE }
-                                                }
-                                            })
-                                        }}
-                                    />
-                                </Col>
-                            </Row>
-                            {selectedGraphSidebarTab === GraphSidebarTab.Setup && 
-                                <GraphSetupTab 
-                                    graphParams={graphParams}
-                                    setGraphParams={setGraphParams}
-                                    setGraphUpdatedNumber={setGraphUpdatedNumber}
-                                    uiState={props.uiState}
-                                    mitoAPI={props.mitoAPI}
-                                    sheetDataArray={props.sheetDataArray}
-                                    dfNames={props.dfNames}
-                                    columnDtypesMap={props.columnDtypesMap}
-                                    columnIDsMapArray={props.columnIDsMapArray}
-                                    setUIState={props.setUIState}
+                        <Row justify='space-between' align='center'>
+                            <Col>
+                                <p className='text-header-2'>
+                                    {selectedGraphSidebarTab === GraphSidebarTab.Setup && 'Setup Graph'}
+                                    {selectedGraphSidebarTab === GraphSidebarTab.Style && 'Style Graph'}
+                                    {selectedGraphSidebarTab === GraphSidebarTab.Export && 'Export Graph'}
+                                </p>
+                            </Col>
+                            <Col>
+                                <XIcon
+                                    onClick={() => {
+                                        props.setUIState((prevUIState) => {
+                                            return {
+                                                ...prevUIState,
+                                                selectedTabType: 'data',
+                                                currOpenTaskpane: { type: TaskpaneType.NONE }
+                                            }
+                                        })
+                                    }}
                                 />
-                            }
-                            {selectedGraphSidebarTab === GraphSidebarTab.Style &&
-                                <GraphStyleTab 
-                                    graphParams={graphParams}
-                                    setGraphParams={setGraphParams}
-                                    setGraphUpdatedNumber={setGraphUpdatedNumber}
-                                />
-                            }
-                            {selectedGraphSidebarTab === GraphSidebarTab.Export && 
-                                <GraphExportTab 
-                                    graphParams={graphParams}
-                                    mitoAPI={props.mitoAPI}
-                                    loading={loading}
-                                    graphOutput={graphOutput}
-                                    mitoContainerRef={props.mitoContainerRef}
-                                />
-                            }
-                        </>
+                            </Col>
+                        </Row>
+                        {selectedGraphSidebarTab === GraphSidebarTab.Setup && 
+                            <GraphSetupTab 
+                                graphParams={graphParams}
+                                setGraphParams={setGraphParams}
+                                setGraphUpdatedNumber={setGraphUpdatedNumber}
+                                uiState={props.uiState}
+                                mitoAPI={props.mitoAPI}
+                                sheetDataArray={props.sheetDataArray}
+                                dfNames={props.dfNames}
+                                columnDtypesMap={props.sheetDataArray[dataSourceSheetIndex].columnDtypeMap}
+                                columnIDsMapArray={props.columnIDsMapArray}
+                                setUIState={props.setUIState}
+                            />
+                        }
+                        {selectedGraphSidebarTab === GraphSidebarTab.Style &&
+                            <GraphStyleTab 
+                                graphParams={graphParams}
+                                setGraphParams={setGraphParams}
+                                setGraphUpdatedNumber={setGraphUpdatedNumber}
+                            />
+                        }
+                        {selectedGraphSidebarTab === GraphSidebarTab.Export && 
+                            <GraphExportTab 
+                                graphParams={graphParams}
+                                mitoAPI={props.mitoAPI}
+                                loading={loading}
+                                graphOutput={graphOutput}
+                                mitoContainerRef={props.mitoContainerRef}
+                            />
+                        }
                     </div>
                     <GraphSidebarTabs
                         selectedTab={selectedGraphSidebarTab}

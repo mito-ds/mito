@@ -104,6 +104,8 @@ class GraphStepPerformer(StepPerformer):
         height = graph_rendering["height"] 
         width = graph_rendering["width"]
 
+        print(height, width)
+
         # Get the x axis params, if they were provided
         x_axis_column_ids = graph_creation["x_axis_column_ids"] if graph_creation["x_axis_column_ids"] is not None else []
         x_axis_column_headers = prev_state.column_ids.get_column_headers_by_ids(sheet_index, x_axis_column_ids)

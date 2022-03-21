@@ -458,7 +458,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         dfNames={dfNames}
                         columnIDsMapArray={columnIDsMapArray}
                         sheetDataArray={sheetDataArray}
-                        columnDtypesMap={sheetDataArray[uiState.selectedSheetIndex]?.columnDtypeMap}
                         mitoAPI={props.mitoAPI}
                         setUIState={setUIState} 
                         uiState={uiState}

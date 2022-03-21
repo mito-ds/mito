@@ -224,16 +224,11 @@ export type GraphStylingParams = {
     },
     showlegend: boolean
 }
-export type GraphRenderingParams = {
-    width?: number
-    height?: number
-}
 
 export type GraphParams = {
     graphPreprocessing: GraphPreprocessingParams,
     graphCreation: GraphCreationParams,
     graphStyling: GraphStylingParams,
-    graphRendering: GraphRenderingParams
 };
 
 /**

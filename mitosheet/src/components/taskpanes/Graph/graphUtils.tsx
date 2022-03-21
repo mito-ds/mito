@@ -40,8 +40,7 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
                 visible: true
             },
             showlegend: true
-        },
-        graphRendering: {}
+        }
     }
 }
 
