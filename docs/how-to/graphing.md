@@ -27,5 +27,7 @@ To create a graph, click the **Graph** button in the Mito toolbar. In the the gr
 
 ![](<../.gitbook/assets/final mito graphing.png>)
 
+You can also set a **Color By Column**, which will add colors to the graph based on the values of the column you select. This option is selectable for all graphs expect the `Density heatmap`. 
+
 To save the graph and/or make further customizations to the graph, export the Plotly express graph code using the **copy graph code** button at the bottom of the graphing taskpane. Paste the graph code into a Jupyter notebook cell and use [Plotly documentation](https://plotly.com/python/plotly-express/) to customize it. 
 

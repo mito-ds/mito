@@ -270,7 +270,7 @@ function GraphSetupTab(
                     >
                         <Col>
                             <div className='text-header-3'>
-                                Color Breakdown
+                                Color By Column
                             </div>
                         </Col>
                         <Col>
