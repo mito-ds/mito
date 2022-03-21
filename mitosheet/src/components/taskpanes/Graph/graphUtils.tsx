@@ -101,7 +101,7 @@ export const getColorDropdownItems = (
         />
     )]
     
-    const columnDropdownItems = Object.keys(columnIDsMapArray[graphSheetIndex]).map(columnID => {
+    const columnDropdownItems = Object.keys(columnIDsMapArray[graphSheetIndex] || {}).map(columnID => {
         const columnHeader = columnIDsMapArray[graphSheetIndex][columnID];
 
         // Plotly doesn't support setting the color as a date series, so we disable date series dropdown items

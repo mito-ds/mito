@@ -228,13 +228,6 @@ def test_changing_column_type_refreshed_dependants():
     mito.change_column_dtype(0, 'A', 'int')
     assert mito.get_column(0, 'A', as_list=True) == [1, 2, 3]
     assert mito.get_column(0, 'B', as_list=True) == [1, 2, 3]
-
-    assert mito.transpiled_code == [
-        "df1.insert(1, 'B', 0)",
-        "df1['B'] = df1['A']",
-        "df1['A'] = df1['A'].astype('int')",
-        "df1['B'] = df1['A']"
-    ]
     
 def test_change_type_on_renamed_column():
 
@@ -244,8 +237,7 @@ def test_change_type_on_renamed_column():
     mito.change_column_dtype(0, 'B', 'int')
     assert mito.get_column(0, 'B', as_list=True) == [1, 2, 3]
 
-    assert mito.transpiled_code == [
-        "df1.rename(columns={\'A\': \'B\'}, inplace=True)",
-        "df1['B'] = df1['B'].astype('int')",
-    ]
-    
+def test_change_type_float_to_int_nan():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1.2, 2.0, None]}))
+    mito.change_column_dtype(0, 'A', 'int')
+    assert mito.get_column(0, 'A', as_list=True) == [1, 2, 0]

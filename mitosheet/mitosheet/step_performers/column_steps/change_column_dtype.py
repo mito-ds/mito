@@ -124,7 +124,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
                 if is_bool_dtype(new_dtype):
                     new_column = column.fillna(False).astype('bool')
                 elif is_int_dtype(new_dtype):
-                    new_column = column.astype('int')
+                    new_column = column.fillna(0).astype('int')
                 elif is_float_dtype(new_dtype):
                     pass
                 elif is_string_dtype(new_dtype):
@@ -279,7 +279,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
             if is_bool_dtype(new_dtype):
                 conversion_code = f'{df_name}[{transpiled_column_header}].fillna(False).astype(\'bool\')'
             elif is_int_dtype(new_dtype):
-                conversion_code = f'{df_name}[{transpiled_column_header}].astype(\'int\')'
+                conversion_code = f'{df_name}[{transpiled_column_header}].fillna(0).astype(\'int\')'
             elif is_float_dtype(new_dtype):
                 pass
             elif is_string_dtype(new_dtype):

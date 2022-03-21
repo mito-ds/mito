@@ -34,7 +34,7 @@ const AxisSection = (props: {
 }): JSX.Element => {
 
     // Filter the column headers that the user can select to only the columns that are the correct type for the graph
-    const selectableColumnIDs: ColumnID[] = Object.keys(props.columnIDsMap);
+    const selectableColumnIDs: ColumnID[] = Object.keys(props.columnIDsMap || {});
 
     // Create Large Selects and delete buttons for each of the columns that have already been selected
     const selectedColumnHeaderSelects = props.selectedColumnIDs.map((columnID, i) => {
