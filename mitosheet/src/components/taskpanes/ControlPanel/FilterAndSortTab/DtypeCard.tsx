@@ -95,13 +95,16 @@ function DtypeCard(props: DtypeCardProps): JSX.Element {
                             onChange={(newDtype: string) => {
                                 void changeColumnDtype(newDtype);
                             }}
-                            dropdownWidth='small'
+                            dropdownWidth='medium'
                         >
                             <DropdownItem
                                 title={ColumnDtypes.BOOL}
                             />
                             <DropdownItem
                                 title={ColumnDtypes.INT}
+                                subtext={'Casting to an int will turn all NaN values to 0.'}
+                                hideSubtext
+                                displaySubtextOnHover
                             />
                             <DropdownItem
                                 title={ColumnDtypes.FLOAT}
