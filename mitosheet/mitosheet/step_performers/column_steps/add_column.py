@@ -4,6 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from copy import deepcopy
+from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from mitosheet.errors import make_column_exists_error, make_no_sheet_error
@@ -69,10 +70,13 @@ class AddColumnStepPerformer(StepPerformer):
         post_state.column_format_types[sheet_index][column_id] = {'type': FORMAT_DEFAULT}
             
         # Update the dataframe
+        pandas_start_time = perf_counter()
         post_state.dfs[sheet_index].insert(column_header_index, column_header, 0)
+        pandas_processing_time = perf_counter() - pandas_start_time
         
         return post_state, {
-            'column_header_index': column_header_index
+            'column_header_index': column_header_index,
+            'pandas_processing_time': pandas_processing_time
         }
 
     @classmethod

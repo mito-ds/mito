@@ -4,6 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from copy import deepcopy
+from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from mitosheet.errors import make_invalid_column_delete_error
@@ -52,10 +53,13 @@ class DeleteColumnStepPerformer(StepPerformer):
         post_state = deepcopy(prev_state)
 
         # Actually delete the columns and update state
-        post_state = delete_column_ids(post_state, sheet_index, column_ids)
+        post_state, pandas_processing_time = delete_column_ids(post_state, sheet_index, column_ids)
 
-        # Add the num_cols_deleted to the execution data for logging purposes. 
-        return post_state, {'num_cols_deleted': len(column_ids)}
+        return post_state, {
+            # Add the num_cols_deleted to the execution data for logging purposes. 
+            'num_cols_deleted': len(column_ids),
+            'pandas_processing_time': pandas_processing_time
+        }
 
     @classmethod
     def transpile( # type: ignore
@@ -101,7 +105,7 @@ def delete_column_ids(
     state: State,
     sheet_index: int,
     column_ids: List[ColumnID],
-) -> State:
+) -> Tuple[State, float]:
 
     column_evaluation_graph = create_column_evaluation_graph(state, sheet_index)
 
@@ -113,10 +117,12 @@ def delete_column_ids(
 
     # Delete each column one by one
     unable_to_delete_columns = []
+    pandas_processing_time = 0.0
     for column_id in sorted_column_ids_to_delete:
-        state, success = _delete_column_id(state, sheet_index, column_id)
+        state, success, partial_pandas_processing_time = _delete_column_id(state, sheet_index, column_id)
         if not success:
             unable_to_delete_columns.append(column_id)
+        pandas_processing_time += partial_pandas_processing_time
 
     # If we weren't able to delete any of the columns, then raise an error
     if len(unable_to_delete_columns) > 0:
@@ -127,14 +133,14 @@ def delete_column_ids(
     
         raise make_invalid_column_delete_error(column_headers, dependant_columns)
 
-    return state 
+    return state, pandas_processing_time
 
 
 def _delete_column_id( 
     state: State,
     sheet_index: int,
     column_id: ColumnID
-) -> Tuple[State, bool]:
+) -> Tuple[State, bool, float]:
     
     column_evaluation_graph = create_column_evaluation_graph(state, sheet_index)
     column_header = state.column_ids.get_column_header_by_id(sheet_index, column_id)
@@ -142,11 +148,13 @@ def _delete_column_id(
     # Return False if there are any columns that currently rely on this column, 
     # so we can display an error message with all of the un-deletable columns.
     if len(column_evaluation_graph[column_id]) > 0:
-        return state, False
+        return state, False, 0
         
     # Actually drop the column
     df = state.dfs[sheet_index]
+    partial_pandas_start_time = perf_counter()
     df.drop(column_header, axis=1, inplace=True)
+    partial_pandas_processing_time = perf_counter() - partial_pandas_start_time
 
     # And then update all the state variables removing this column from the state
     del state.column_spreadsheet_code[sheet_index][column_id]
@@ -159,4 +167,4 @@ def _delete_column_id(
     # Clean up the IDs
     state.column_ids.delete_column_id(sheet_index, column_id)
     
-    return state, True
+    return state, True, partial_pandas_processing_time

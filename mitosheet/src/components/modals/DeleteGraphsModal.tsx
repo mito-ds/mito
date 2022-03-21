@@ -6,6 +6,7 @@ import DefaultModal from '../DefaultModal';
 import MitoAPI from '../../api';
 import TextButton from '../elements/TextButton';
 import { GraphID, UIState } from '../../types';
+import { TaskpaneType } from '../taskpanes/taskpanes';
 
 
 type DeleteGraphsModalProps = {
@@ -43,7 +44,8 @@ const DeleteGraphsModal = (props: DeleteGraphsModalProps): JSX.Element => {
                 ...prevUIState,
                 selectedTabType: 'data',
                 selectedSheetIndex: prevUIState.selectedSheetIndex > 0 ? prevUIState.selectedSheetIndex - 1 : 0,
-                currOpenModal: {type: ModalEnum.None}
+                currOpenModal: {type: ModalEnum.None},
+                currOpenTaskpane: {type: TaskpaneType.NONE}
             }
         })
     }

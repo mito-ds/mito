@@ -609,6 +609,9 @@ export default class MitoAPI {
     ): Promise<void> {
         const stepID = getRandomId();
 
+        // Filter out any undefined values, which would occur if the index column is selected
+        columnIDs = columnIDs.filter(columnID => columnID !== undefined)
+
         await this.send({
             'event': 'edit_event',
             'type': 'delete_column_edit',

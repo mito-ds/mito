@@ -64,6 +64,10 @@ class StepPerformer(ABC, object):
         Execute always returns the post_state, and optionally returns a dictionary
         of execution_data, which is data that may be useful to the transpiler in
         transpiling the code.
+
+        If the execution_data also includes the key `pandas_processing_time`, this 
+        will allow the logging infrastructure to determine how much overhead Mito
+        adds to executing this event.
         """
         pass
 

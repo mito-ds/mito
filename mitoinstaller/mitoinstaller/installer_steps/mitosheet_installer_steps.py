@@ -1,4 +1,5 @@
 import sys
+from time import perf_counter
 from mitoinstaller.commands import (get_jupyterlab_metadata,
                                     install_pip_packages,
                                     uninstall_pip_packages)
@@ -52,7 +53,7 @@ def remove_mitosheet_3_if_present():
 def install_step_mitosheet_install_mitosheet():
     install_pip_packages('mitosheet', test_pypi='--test-pypi' in sys.argv)
 
-
+    
 MITOSHEET_INSTALLER_STEPS = [
     InstallerStep(
         'Check dependencies',
@@ -64,6 +65,7 @@ MITOSHEET_INSTALLER_STEPS = [
     ),
     InstallerStep(
         'Install mitosheet',
-        install_step_mitosheet_install_mitosheet
+        install_step_mitosheet_install_mitosheet,
+        should_log_success=True
     ),
 ]

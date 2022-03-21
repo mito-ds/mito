@@ -16,6 +16,9 @@ jobs:
       matrix:
         python-version: [3.6, 3.8]
         os: [ubuntu-latest, windows-latest, macos-latest]
+        exclude:
+          - python-version: 3.6
+            os: 'windows-latest'
     runs-on: ${{ matrix.os }}
     steps:
     - name: Cancel Previous Runs
