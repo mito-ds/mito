@@ -262,7 +262,7 @@ function GraphStyleTab(props: {
                 <div className='text-header-2'>
                     Background
                 </div>
-                    {props.userProfile.isPro && 
+                {props.userProfile.isPro && 
                         <>
                             <Row justify='space-between' align='center'>
                                 <Col>
@@ -311,15 +311,15 @@ function GraphStyleTab(props: {
                                 />
                             </Row>   
                         </>
-                    }
-                    {!props.userProfile.isPro && 
+                }
+                {!props.userProfile.isPro && 
                         <Row justify='space-between' align='center'>
                             <p className='text-body-1'>
-                                Want to set the background color of your graph? <a href='https://trymito.io/plans' target='_blank'><span className='text-body-1-link'>Upgrade to Mito Pro.</span></a>
+                                Want to set the background color of your graph? <a href='https://trymito.io/plans' target='_blank' rel="noreferrer"><span className='text-body-1-link'>Upgrade to Mito Pro.</span></a>
                             </p>  
                         </Row>                
-                    }
-                </div>
+                }
+            </div>
 
                 
         </div> 

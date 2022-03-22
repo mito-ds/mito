@@ -946,7 +946,6 @@ class MitoWidgetTestWrapper:
         Returns the object that stores all the graph styling params, so that 
         we can easily make sure the structure is correct
         """
-        graph_styling_params = dict()
         graph_data = self.get_graph_data(graph_id)
         return graph_data["graphParams"]["graphStyling"]
 
