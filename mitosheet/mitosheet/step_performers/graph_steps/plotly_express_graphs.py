@@ -254,8 +254,6 @@ def graph_styling(
     paper_bgcolor = graph_styling_params['paper_bgcolor']
     if graph_styling_params != PAPER_BGCOLOR_DEFAULT: # NOTE: we don't need to set if it's a default
         all_params['paper_bgcolor'] = paper_bgcolor
-    
-    # Create the background param
     plot_bgcolor = graph_styling_params['plot_bgcolor']
     if plot_bgcolor != PLOT_BGCOLOR_DEFAULT: # NOTE: we don't need to set if it's a default
         all_params['plot_bgcolor'] = plot_bgcolor
