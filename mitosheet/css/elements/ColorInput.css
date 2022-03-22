@@ -11,3 +11,8 @@
     */
     height: 23px;
 }
+
+/* 
+    NOTE: we don't style the color input hover as it looks fine, and appears to be finicky
+    to mess with in a cross browser way
+*/

@@ -62,7 +62,7 @@ class GraphStepPerformer(StepPerformer):
 
     @classmethod
     def step_version(cls) -> int:
-        return 1
+        return 3
 
     @classmethod
     def step_type(cls) -> str:

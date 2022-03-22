@@ -1,7 +1,7 @@
 // Copyright (c) Saga Inc.
 
 import React from 'react';
-import { GraphParams } from '../../../types';
+import { GraphParams, UserProfile } from '../../../types';
 import ColorInput from '../../elements/ColorInput';
 import Input from '../../elements/Input';
 import Toggle from '../../elements/Toggle';
@@ -16,6 +16,7 @@ function GraphStyleTab(props: {
     graphParams: GraphParams
     setGraphParams: React.Dispatch<React.SetStateAction<GraphParams>>;
     setGraphUpdatedNumber: React.Dispatch<React.SetStateAction<number>>;
+    userProfile: UserProfile
 }): JSX.Element {
 
     const graphStylingParams = props.graphParams.graphStyling
@@ -231,41 +232,6 @@ function GraphStyleTab(props: {
             </div>
             <div>
                 <div className='text-header-2'>
-                    Background
-                </div>
-                <Row justify='space-between' align='center'>
-                    <Col>
-                        <p>
-                            Background Color
-                        </p>
-                    </Col>
-                    <ColorInput 
-                        value={graphStylingParams.paper_bgcolor} 
-                        onChange={(newColor) => {
-                            props.setGraphParams(prevGraphParams => {
-                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
-                                console.log({
-                                    ...graphParamsCopy,
-                                    graphStyling: {
-                                        ...graphParamsCopy.graphStyling,
-                                        paper_bgcolor: newColor
-                                    } 
-                                })
-                                return {
-                                    ...graphParamsCopy,
-                                    graphStyling: {
-                                        ...graphParamsCopy.graphStyling,
-                                        paper_bgcolor: newColor
-                                    } 
-                                }
-                            })
-                            props.setGraphUpdatedNumber(old => old + 1)
-                        }}     
-                    />
-                </Row>
-            </div>
-            <div>
-                <div className='text-header-2'>
                     Legend
                 </div>
                 <Row justify='space-between' align='center'>
@@ -292,6 +258,52 @@ function GraphStyleTab(props: {
                     />
                 </Row>
             </div>
+            <div>
+                <div className='text-header-2'>
+                    Background
+                </div>
+                    {props.userProfile.isPro && 
+                        <Row justify='space-between' align='center'>
+                            <Col>
+                                <p>
+                                    Background Color
+                                </p>
+                            </Col>
+                            <ColorInput 
+                                value={graphStylingParams.paper_bgcolor} 
+                                onChange={(newColor) => {
+                                    props.setGraphParams(prevGraphParams => {
+                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        console.log({
+                                            ...graphParamsCopy,
+                                            graphStyling: {
+                                                ...graphParamsCopy.graphStyling,
+                                                paper_bgcolor: newColor
+                                            } 
+                                        })
+                                        return {
+                                            ...graphParamsCopy,
+                                            graphStyling: {
+                                                ...graphParamsCopy.graphStyling,
+                                                paper_bgcolor: newColor
+                                            } 
+                                        }
+                                    })
+                                    props.setGraphUpdatedNumber(old => old + 1)
+                                }}     
+                            />
+                        </Row>                
+                    }
+                    {!props.userProfile.isPro && 
+                        <Row justify='space-between' align='center'>
+                            <p className='text-body-1'>
+                                Want to set the background color of your graph? <a href='https://trymito.io/plans' target='_blank'><span className='text-body-1-link'>Upgrade to Mito Pro.</span></a>
+                            </p>  
+                        </Row>                
+                    }
+                </div>
+
+                
         </div> 
     )
 } 
