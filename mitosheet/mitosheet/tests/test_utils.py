@@ -10,6 +10,7 @@ This file contains helpful functions and classes for testing operations.
 import json
 from functools import wraps
 from typing import Any, Dict, List, Optional, Tuple, Union
+from mitosheet.step_performers.graph_steps.plotly_express_graphs import PAPER_BGCOLOR_DEFAULT, PLOT_BGCOLOR_DEFAULT
 from numpy import number
 
 import pandas as pd
@@ -746,7 +747,8 @@ class MitoWidgetTestWrapper:
         yaxis_visible: bool=True,
         showlegend: bool=True,
         step_id: str=None,
-        paper_bgcolor: str='#FFFFFF'
+        paper_bgcolor: str='#FFFFFF',
+        plot_bgcolor: str='#E6EBF5',
     ) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
@@ -783,7 +785,8 @@ class MitoWidgetTestWrapper:
                             'visible': yaxis_visible
                         },
                         'showlegend': showlegend,
-                        'paper_bgcolor': paper_bgcolor
+                        'paper_bgcolor': paper_bgcolor,
+                        'plot_bgcolor': plot_bgcolor,
                     },
                     'graph_rendering': {
                         'height': height,
@@ -940,19 +943,12 @@ class MitoWidgetTestWrapper:
 
     def get_graph_styling_params(self, graph_id: str) -> Dict[str, Optional[Union[str, bool]]]:
         """
-        Returns an object with all of the graph styling params easily accessible
+        Returns the object that stores all the graph styling params, so that 
+        we can easily make sure the structure is correct
         """
         graph_styling_params = dict()
         graph_data = self.get_graph_data(graph_id)
-        graph_styling_params['title_title'] = graph_data["graphParams"]["graphStyling"]["title"]["title"]
-        graph_styling_params['title_visible'] = graph_data["graphParams"]["graphStyling"]["title"]["visible"]
-        graph_styling_params['xaxis_title'] = graph_data["graphParams"]["graphStyling"]["xaxis"]["title"]
-        graph_styling_params['xaxis_visible'] = graph_data["graphParams"]["graphStyling"]["xaxis"]["visible"]
-        graph_styling_params['xaxis_rangeslider_visible'] = graph_data["graphParams"]["graphStyling"]["xaxis"]["rangeslider"]["visible"]
-        graph_styling_params['yaxis_title'] = graph_data["graphParams"]["graphStyling"]["yaxis"]["title"]
-        graph_styling_params['yaxis_visible'] = graph_data["graphParams"]["graphStyling"]["yaxis"]["visible"]
-        graph_styling_params['showlegend'] = graph_data["graphParams"]["graphStyling"]["showlegend"]
-        return graph_styling_params
+        return graph_data["graphParams"]["graphStyling"]
 
 
 def create_mito_wrapper(sheet_one_A_data: List[Any], sheet_two_A_data: List[Any]=None) -> MitoWidgetTestWrapper:
