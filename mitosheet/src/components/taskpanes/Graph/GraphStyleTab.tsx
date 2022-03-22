@@ -36,7 +36,8 @@ function GraphStyleTab(props: {
                         placeholder="Default Graph Title"
                         onChange={(e) => {
                             props.setGraphParams(prevGraphParams => {
-                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams));
+                                // We set it to undefined so that the backend knows we're not trying to set a custom axis label 
                                 const newTitle =  e.target.value !== '' ? e.target.value : undefined
                                 return {
                                     ...graphParamsCopy,
@@ -96,6 +97,7 @@ function GraphStyleTab(props: {
                         onChange={(e) => {
                             props.setGraphParams(prevGraphParams => {
                                 const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                // We set it to undefined so that the backend knows we're not trying to set a custom axis label 
                                 const newTitle =  e.target.value !== '' ? e.target.value : undefined
                                 return {
                                     ...graphParamsCopy,

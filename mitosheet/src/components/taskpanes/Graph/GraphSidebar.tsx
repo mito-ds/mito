@@ -155,7 +155,7 @@ const GraphSidebar = (props: {
                 graphID,
                 graphParams,
                 `${boundingRect?.height - 10}px`, // Subtract pixels from the height & width to account for padding
-                `${boundingRect?.width - 20 - 250}px`, // NOTE: 250 is the width of the graph sidebar. KEEP THIS UP TO DATE WITH THE CSS
+                `${boundingRect?.width - 20 - 300}px`, // NOTE: 300 is the width of the graph sidebar. KEEP THIS UP TO DATE WITH THE CSS
                 stepID
             );
             setStepID(_stepID)

@@ -208,18 +208,18 @@ export type GraphCreationParams = {
 }
 export type GraphStylingParams = {
     title: {
-        title: string | undefined,
+        title: string | undefined, // when undefined, we use Ploty's default title
         visible: boolean
     },
     xaxis: {
-        title: string | undefined;
+        title: string | undefined; // when undefined, we use Ploty's default title
         visible: boolean;
         rangeslider: {
             visible: boolean,
         }
     },
     yaxis: {
-        title: string | undefined,
+        title: string | undefined, // when undefined, we use Ploty's default title
         visible: boolean
     },
     showlegend: boolean

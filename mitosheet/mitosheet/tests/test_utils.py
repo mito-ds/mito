@@ -9,7 +9,7 @@ This file contains helpful functions and classes for testing operations.
 
 import json
 from functools import wraps
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 from numpy import number
 
 import pandas as pd
@@ -737,6 +737,14 @@ class MitoWidgetTestWrapper:
         yAxisColumnIDs: List[ColumnID],
         height: str,
         width: str,
+        title_title: Optional[str]=None,
+        title_visible: bool=True,
+        xaxis_title: Optional[str]=None,
+        xaxis_visible: bool=True,
+        xaxis_rangeslider_visible: bool=True,
+        yaxis_title: Optional[str]=None,
+        yaxis_visible: bool=True,
+        showlegend: bool=True,
         step_id: str=None
     ) -> bool:
         return self.mito_widget.receive_message(
@@ -759,21 +767,21 @@ class MitoWidgetTestWrapper:
                     },
                     'graph_styling': {
                         'title': {
-                            'title': None,
-                            'visible': True
+                            'title': title_title,
+                            'visible': title_visible
                         },
                         'xaxis': {
-                            'title': None,
-                            'visible': True,
+                            'title': xaxis_title,
+                            'visible': xaxis_visible,
                             'rangeslider': {
-                                'visible': True
+                                'visible': xaxis_rangeslider_visible
                             }
                         },
                         'yaxis': {
-                            'title': None,
-                            'visible': True
+                            'title': yaxis_title,
+                            'visible': yaxis_visible
                         },
-                        'showlegend': True
+                        'showlegend': showlegend
                     },
                     'graph_rendering': {
                         'height': height,
@@ -927,6 +935,23 @@ class MitoWidgetTestWrapper:
         Returns true if all of the graphOuput is does not exist.
         """
         return "graphOutput" not in self.get_graph_data(graph_id)
+
+    def get_graph_styling_params(self, graph_id: str) -> Dict[str, Optional[Union[str, bool]]]:
+        """
+        Returns an object with all of the graph styling params easily accessible
+        """
+        graph_styling_params = dict()
+        graph_data = self.get_graph_data(graph_id)
+        graph_styling_params['title_title'] = graph_data["graphParams"]["graphStyling"]["title"]["title"]
+        graph_styling_params['title_visible'] = graph_data["graphParams"]["graphStyling"]["title"]["visible"]
+        graph_styling_params['xaxis_title'] = graph_data["graphParams"]["graphStyling"]["xaxis"]["title"]
+        graph_styling_params['xaxis_visible'] = graph_data["graphParams"]["graphStyling"]["xaxis"]["visible"]
+        graph_styling_params['xaxis_rangeslider_visible'] = graph_data["graphParams"]["graphStyling"]["xaxis"]["rangeslider"]["visible"]
+        graph_styling_params['yaxis_title'] = graph_data["graphParams"]["graphStyling"]["yaxis"]["title"]
+        graph_styling_params['yaxis_visible'] = graph_data["graphParams"]["graphStyling"]["yaxis"]["visible"]
+        graph_styling_params['showlegend'] = graph_data["graphParams"]["graphStyling"]["showlegend"]
+        return graph_styling_params
+
 
 def create_mito_wrapper(sheet_one_A_data: List[Any], sheet_two_A_data: List[Any]=None) -> MitoWidgetTestWrapper:
     """

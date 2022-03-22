@@ -48,13 +48,8 @@ function GraphExportTab(
                     variant='dark'
                     onClick={() => {
                         // Find the Plotly Download plot as png button, and then click it. 
-                        const node: Element | undefined | null = props.mitoContainerRef.current?.querySelector('[data-title="Download plot as a png"]')
-                        const clickEvent = new MouseEvent("click", {
-                            "view": window,
-                            "bubbles": true,
-                            "cancelable": false
-                        });
-                        node?.dispatchEvent(clickEvent)
+                        const downloadLink: HTMLLinkElement | undefined | null = props.mitoContainerRef.current?.querySelector<HTMLLinkElement>('[data-title="Download plot as a png"]')
+                        downloadLink?.click()
                     }}
                     disabled={props.loading || props.graphOutput === undefined}
                 >

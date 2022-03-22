@@ -227,6 +227,10 @@ def graph_styling(
         # Plotly makes us explicitly handle setting the xaxis_title and yaxis_title to None
         all_params['xaxis_title'] = None
 
+    # Create the range slider param
+    if graph_styling_params['xaxis']['rangeslider']['visible']:
+        all_params['xaxis'] = dict(rangeslider=dict(visible=True, thickness=0.05))
+
     # Create the y axis title param
     if graph_styling_params['yaxis']['visible']:
         # If the y axis title is visible, then either dispaly the user's custom title or Ploty's default title.
@@ -245,10 +249,6 @@ def graph_styling(
 
     # Create the showlegend param
     all_params['showlegend'] = graph_styling_params['showlegend']
-
-    # Create the range slider param
-    if graph_styling_params['xaxis']['rangeslider']['visible']:
-        all_params['xaxis'] = dict(rangeslider=dict(visible=True, thickness=0.05))
 
     # Actually update the style of the graph
     fig.update_layout(
@@ -291,6 +291,10 @@ def graph_styling_code(
         # Plotly makes us explicitly handle setting the xaxis_title and yaxis_title to None
         all_params.append(("xaxis_title", None, False))
 
+    # Create the range slider param
+    if graph_styling_params['xaxis']['rangeslider']['visible']:
+        all_params.append(("xaxis", RANGE_SLIDER_CODE, False))
+
     # Create the y axis title param
     if graph_styling_params['yaxis']['visible']:
         # If the y axis title is visible, then either dispaly the user's custom title or Ploty's default title.
@@ -309,10 +313,6 @@ def graph_styling_code(
 
     # Create the showlegend param
     all_params.append(("showlegend", graph_styling_params['showlegend'], False))
-
-    # Create the range slider param
-    if graph_styling_params['xaxis']['rangeslider']['visible']:
-        all_params.append(("xaxis", RANGE_SLIDER_CODE, False))
 
     # Use all of the styling parameters to create the fig.update_layout function call,
     # and format nicely!

@@ -52,7 +52,7 @@ def get_barmode(graph_type: str) -> Optional[str]:
         return None
 
 
-def create_parameter(param_key: str, param_value: Union[str, None], format_as_string: bool) -> str:
+def create_parameter(param_key: str, param_value: Optional[str], format_as_string: bool) -> str:
     """
     Returns the params ready to be used in the transpiled code.
     """
