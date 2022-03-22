@@ -1,0 +1,8 @@
+.color-input {
+    --color-input-width: 60px;
+
+    position: relative;
+    display: inline-block;
+    width: var(--color-input-width);
+    height: 30px;
+}
