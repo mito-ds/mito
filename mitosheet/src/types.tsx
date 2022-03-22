@@ -206,17 +206,29 @@ export type GraphCreationParams = {
     y_axis_column_ids: ColumnID[]
     color: ColumnID | undefined
 }
-export type GraphStylingParams = undefined
-export type GraphRenderingParams = {
-    width?: number
-    height?: number
+export type GraphStylingParams = {
+    title: {
+        title: string | undefined, // when undefined, we use Ploty's default title
+        visible: boolean
+    },
+    xaxis: {
+        title: string | undefined; // when undefined, we use Ploty's default title
+        visible: boolean;
+        rangeslider: {
+            visible: boolean,
+        }
+    },
+    yaxis: {
+        title: string | undefined, // when undefined, we use Ploty's default title
+        visible: boolean
+    },
+    showlegend: boolean
 }
 
 export type GraphParams = {
     graphPreprocessing: GraphPreprocessingParams,
     graphCreation: GraphCreationParams,
     graphStyling: GraphStylingParams,
-    graphRendering: GraphRenderingParams
 };
 
 /**

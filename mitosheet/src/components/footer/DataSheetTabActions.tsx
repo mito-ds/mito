@@ -100,28 +100,13 @@ export default function SheetTabActions(props: {
         const newGraphID = getRandomId() // Create a new graph
         const graphParams = getDefaultGraphParams(props.sheetDataArray, props.sheetIndex)
 
-        // In order to open the graph, we are watching for the graphDataDict to change in length. This allows us to only display the graph taskpane
-        // when the sheet tab exists. However, we need to know the stepID of the graph creation so that the configuration of the graph so that editing
-        // the graph doesn't cause a new step to get created. We could either create a new piece of state in the that stores the stepID or we can save the 
-        // stepID in the graphDataDict. Neither are good options. 
-
-        // NOTE: after trying to implement it as saving it in the state, I realized that this approach doesn't work due to race conditions 
-        // in the return stepID from the editGraph call and the graphDATAJSON updating. 
-
-
         await props.mitoAPI.editGraph(
             newGraphID,
-            graphParams.graphCreation.graph_type,
-            graphParams.graphCreation.sheet_index,
-            graphParams.graphCreation.color,
-            graphParams.graphPreprocessing.safety_filter_turned_on_by_user,
-            graphParams.graphCreation.x_axis_column_ids,
-            graphParams.graphCreation.y_axis_column_ids,
-            `100%`, 
-            `100%`, 
+            graphParams,
+            '100%',
+            '100%',
             undefined, 
         );
-        
     }
 
     return (

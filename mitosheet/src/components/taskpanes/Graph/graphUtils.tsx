@@ -23,8 +23,24 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
             y_axis_column_ids: [],
             color: undefined
         },
-        graphStyling: undefined,
-        graphRendering: {}
+        graphStyling: {
+            title: {
+                title: undefined,
+                visible: true
+            },
+            xaxis: {
+                title: undefined,
+                visible: true,
+                rangeslider: {
+                    visible: true,
+                }
+            },
+            yaxis: {
+                title: undefined,
+                visible: true
+            },
+            showlegend: true
+        }
     }
 }
 
