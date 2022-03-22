@@ -4,5 +4,10 @@
     position: relative;
     display: inline-block;
     width: var(--color-input-width);
-    height: 30px;
+
+    /* 
+        Different browsers render this element a bit differently. We choose
+        this height as some browsers put a box around the input, which is fine.
+    */
+    height: 23px;
 }

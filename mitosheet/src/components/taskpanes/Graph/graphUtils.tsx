@@ -39,7 +39,8 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
                 title: undefined,
                 visible: true
             },
-            showlegend: true
+            showlegend: true,
+            paper_bgcolor: '#FFFFFF'
         }
     }
 }

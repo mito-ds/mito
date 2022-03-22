@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { GraphParams } from '../../../types';
+import ColorInput from '../../elements/ColorInput';
 import Input from '../../elements/Input';
 import Toggle from '../../elements/Toggle';
 import Col from '../../spacing/Col';
@@ -220,6 +221,41 @@ function GraphStyleTab(props: {
                                             ...graphParamsCopy.graphStyling.yaxis,
                                             visible: !graphParamsCopy.graphStyling.yaxis.visible
                                         } 
+                                    } 
+                                }
+                            })
+                            props.setGraphUpdatedNumber(old => old + 1)
+                        }}     
+                    />
+                </Row>
+            </div>
+            <div>
+                <div className='text-header-2'>
+                    Background
+                </div>
+                <Row justify='space-between' align='center'>
+                    <Col>
+                        <p>
+                            Background Color
+                        </p>
+                    </Col>
+                    <ColorInput 
+                        value={graphStylingParams.paper_bgcolor} 
+                        onChange={(newColor) => {
+                            props.setGraphParams(prevGraphParams => {
+                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                console.log({
+                                    ...graphParamsCopy,
+                                    graphStyling: {
+                                        ...graphParamsCopy.graphStyling,
+                                        paper_bgcolor: newColor
+                                    } 
+                                })
+                                return {
+                                    ...graphParamsCopy,
+                                    graphStyling: {
+                                        ...graphParamsCopy.graphStyling,
+                                        paper_bgcolor: newColor
                                     } 
                                 }
                             })

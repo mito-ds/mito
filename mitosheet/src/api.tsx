@@ -509,6 +509,8 @@ export default class MitoAPI {
             stepID = getRandomId();
         }
 
+        console.log(graphParams)
+
         await this.send<string>({
             'event': 'edit_event',
             'type': 'graph_edit',

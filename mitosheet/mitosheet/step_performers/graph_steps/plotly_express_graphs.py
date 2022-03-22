@@ -247,6 +247,11 @@ def graph_styling(
     if barmode is not None:
         all_params['barmode'] = get_barmode(graph_type)
 
+    # Create the background param
+    paper_bgcolor = graph_styling_params['paper_bgcolor']
+    if graph_styling_params != '#FFFFF': # NOTE: we don't need to set if it's a default
+        all_params['paper_bgcolor'] = paper_bgcolor
+
     # Create the showlegend param
     all_params['showlegend'] = graph_styling_params['showlegend']
 
@@ -310,6 +315,11 @@ def graph_styling_code(
     barmode = get_barmode(graph_type)
     if barmode is not None:
         all_params.append(("barmode", barmode, True))
+
+    # Create the background param
+    paper_bgcolor = graph_styling_params['paper_bgcolor']
+    if graph_styling_params != '#FFFFF': # NOTE: we don't need to set if it's a default
+        all_params.append(("paper_bgcolor", paper_bgcolor, True))
 
     # Create the showlegend param
     all_params.append(("showlegend", graph_styling_params['showlegend'], False))

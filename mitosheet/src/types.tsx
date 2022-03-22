@@ -222,7 +222,8 @@ export type GraphStylingParams = {
         title: string | undefined, // when undefined, we use Ploty's default title
         visible: boolean
     },
-    showlegend: boolean
+    showlegend: boolean,
+    paper_bgcolor: string // defaults to white
 }
 
 export type GraphParams = {

@@ -745,7 +745,8 @@ class MitoWidgetTestWrapper:
         yaxis_title: Optional[str]=None,
         yaxis_visible: bool=True,
         showlegend: bool=True,
-        step_id: str=None
+        step_id: str=None,
+        paper_bgcolor: str='#FFFFFF'
     ) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
@@ -781,7 +782,8 @@ class MitoWidgetTestWrapper:
                             'title': yaxis_title,
                             'visible': yaxis_visible
                         },
-                        'showlegend': showlegend
+                        'showlegend': showlegend,
+                        'paper_bgcolor': paper_bgcolor
                     },
                     'graph_rendering': {
                         'height': height,
