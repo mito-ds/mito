@@ -3,12 +3,11 @@
 import { SortDirection } from "./components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
 import { GraphObject } from "./components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
 import { UniqueValueCount, UniqueValueSortType } from "./components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
-import { GraphType } from "./components/taskpanes/Graph/GraphSidebar";
 import { FileElement } from "./components/taskpanes/Import/ImportTaskpane";
 import { MergeType } from "./components/taskpanes/Merge/MergeTaskpane";
 import { valuesArrayToRecord } from "./components/taskpanes/PivotTable/pivotUtils";
 import { BackendPivotParams, FrontendPivotParams } from "./types";
-import { ColumnID, ExcelFileMetadata, FeedbackID, FilterGroupType, FilterType, FormatTypeObj, GraphID, MitoError, SearchMatches, SheetData } from "./types";
+import { ColumnID, ExcelFileMetadata, FeedbackID, FilterGroupType, FilterType, FormatTypeObj, GraphID, MitoError, SearchMatches, SheetData, GraphParams } from "./types";
 import { getDeduplicatedArray } from "./utils/arrays";
 
 
@@ -500,12 +499,7 @@ export default class MitoAPI {
 
     async editGraph(
         graphID: GraphID,
-        graphType: GraphType,
-        sheet_index: number,
-        color: ColumnID | undefined,
-        safety_filter_turned_on_by_user: boolean,
-        xAxisColumnIDs: ColumnID[],
-        yAxisColumnIDs: ColumnID[],
+        graphParams: GraphParams,
         height: string,
         width: string,
         stepID?: string,
@@ -523,23 +517,14 @@ export default class MitoAPI {
             'step_id': stepID,
             'params': {
                 'graph_id': graphID,
-                'graph_preprocessing': {
-                    'safety_filter_turned_on_by_user': safety_filter_turned_on_by_user
-                },
-                'graph_creation': {
-                    'graph_type': graphType,
-                    'sheet_index': sheet_index,
-                    'x_axis_column_ids': xAxisColumnIDs,
-                    'y_axis_column_ids': yAxisColumnIDs,
-                    'color': color
-                },
-                'graph_styling': {},
+                'graph_preprocessing': graphParams.graphPreprocessing,
+                'graph_creation': graphParams.graphCreation,
+                'graph_styling': graphParams.graphStyling,
                 'graph_rendering': {
-                    'height': height,
+                    'height': height, 
                     'width': width
                 }
             }
-            
         }, { maxRetries: 250 })
 
         return stepID

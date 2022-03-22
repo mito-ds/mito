@@ -285,7 +285,6 @@ function GraphSetupTab(
                         </Col>
                     </Row>
                 </div>
-                
                 <Row justify='space-between' align='center' title={getDefaultSafetyFilter(props.sheetDataArray, graphSheetIndex) ? SAFETY_FILTER_ENABLED_MESSAGE : SAFETY_FILTER_DISABLED_MESSAGE}>
                     <Col>
                         <p className='text-header-3' >
@@ -300,7 +299,6 @@ function GraphSetupTab(
                         />
                     </Col>
                 </Row>
-
             </div>
         </Fragment>
     )

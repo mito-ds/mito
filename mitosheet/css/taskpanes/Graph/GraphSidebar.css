@@ -49,13 +49,13 @@
     justify-content: space-between;
 
     border-left: 1px solid var(--mito-border);
-    width: 250px;
-    min-width: 250px;
+    width: 300px;
+    min-width: 300px;
     height: 100%;
     box-sizing: border-box;
 }
 
-.graph-sidebar-toolbar-tab-container {
+.graph-sidebar-toolbar-content-container {
     display: flex;
     flex-direction: column;
 
@@ -64,18 +64,19 @@
         Must be the same height as the height of the tabs defined .control-panel-taskpane-tab
     */
     height: calc(100% - 30px);
-    width: 250px;
+    width: 300px;
     
     padding-top: 5px;
-    padding-right: 10px; /* Extra padding on the right to make space for the scrollbar */
+    padding-right: 5px; 
     padding-left: 5px;
     box-sizing: border-box;
-
 }
 
 .graph-sidebar-toolbar-content {
     height: 90%;
+    padding-right: 10px; /* Extra padding on the right to make room for the scrollbar */
     overflow-y: scroll;
+
 }
 
 .graph-sidebar-toolbar-content > * + * {

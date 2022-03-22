@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 import plotly.express as px
@@ -37,6 +37,13 @@ GRAPH_SAFETY_FILTER_CUTOFF = 1000
 
 # Not all of Ploty's graphs support the color parameter. Those are listed here
 GRAPHS_THAT_DONT_SUPPORT_COLOR = [DENSITY_HEATMAP]
+
+RANGE_SLIDER_CODE = """dict(
+        rangeslider=dict(
+            visible=True,
+            thickness=.05
+        )
+    )"""
 
 
 def safety_filter_applied(
@@ -192,56 +199,128 @@ def graph_creation_code(
 
 
 def graph_styling(
-    fig: go.Figure, graph_type: str, column_headers: List[ColumnHeader], filtered: bool
+    fig: go.Figure, graph_type: str, column_headers: List[ColumnHeader], filtered: bool, graph_styling_params: Dict[str, Any]
 ) -> go.Figure:
     """
     Styles the Plotly express graph figure
     """
 
-    # Create the parameters that we use to style the graph
-    graph_title = get_graph_title(column_headers, [], filtered, graph_type)
+    # Create the parameters that we use to construct the graph
+    all_params: Dict[str, Union[ColumnHeader, List[ColumnHeader], str, None, dict]] = dict()
+
+    # Create the graph title param
+    if graph_styling_params['title']['visible']:
+        use_custom_title = 'title' in graph_styling_params['title']
+        if use_custom_title:
+            all_params['title'] = graph_styling_params['title']['title']
+        else:
+            all_params['title'] = get_graph_title(column_headers, [], filtered, graph_type)
+
+    # Create the x axis param
+    if graph_styling_params['xaxis']['visible']:
+        # If the x axis title is visible, then either dispaly the user's custom title or Ploty's default title.
+        use_custom_xaxis_title = 'title' in graph_styling_params['xaxis']
+        # Only apply the xaxis_title if it is set because if we set it to None, then we don't get ploty's default values
+        if use_custom_xaxis_title:
+            all_params['xaxis_title'] = graph_styling_params['xaxis']['title']
+    else: 
+        # Plotly makes us explicitly handle setting the xaxis_title and yaxis_title to None
+        all_params['xaxis_title'] = None
+
+    # Create the range slider param
+    if graph_styling_params['xaxis']['rangeslider']['visible']:
+        all_params['xaxis'] = dict(rangeslider=dict(visible=True, thickness=0.05))
+
+    # Create the y axis title param
+    if graph_styling_params['yaxis']['visible']:
+        # If the y axis title is visible, then either dispaly the user's custom title or Ploty's default title.
+        use_custom_yaxis_title = 'title' in graph_styling_params['yaxis']
+        # Only apply the xaxis_title if it is set because if we set it to None, then we don't get ploty's default values
+        if use_custom_yaxis_title:
+            all_params['yaxis_title'] = graph_styling_params['yaxis']['title']
+    else: 
+        # Plotly makes us explicitly handle setting the xaxis_title and yaxis_title to None
+        all_params['yaxis_title'] = None
+
+    # Create the barmode param
     barmode = get_barmode(graph_type)
+    if barmode is not None:
+        all_params['barmode'] = get_barmode(graph_type)
+
+    # Create the showlegend param
+    all_params['showlegend'] = graph_styling_params['showlegend']
 
     # Actually update the style of the graph
     fig.update_layout(
-        title=graph_title,
-        barmode=barmode,
-        xaxis=dict(rangeslider=dict(visible=True, thickness=0.05)),
+        **all_params
     )
     return fig
 
 
 def graph_styling_code(
-    graph_type: str, column_headers: List[ColumnHeader], filtered: bool
+    graph_type: 
+    str, column_headers: List[ColumnHeader], 
+    filtered: bool,
+    graph_styling_params: Dict[str, Any]
 ) -> str:
     """
     Returns the code for styling the Plotly express graph
     """
 
     # Create the params used to style the graph
-    all_params: List[Tuple[str, str, bool]] = []
+    all_params: List[Tuple[str, Optional[str], bool]] = []
 
-    graph_title = get_graph_title(column_headers, [], filtered, graph_type)
-    all_params.append(("title", graph_title, True))
+    # Create the graph title param
+    if graph_styling_params['title']['visible']:
+        use_custom_title = 'title' in graph_styling_params['title']
+        if use_custom_title:
+            graph_title = graph_styling_params['title']['title'] 
+            all_params.append(("title", graph_title, True))
+        else:
+            graph_title = get_graph_title(column_headers, [], filtered, graph_type)
+            all_params.append(("title", graph_title, True))
 
+    # Create the x axis param
+    if graph_styling_params['xaxis']['visible']:
+        # If the x axis title is visible, then either dispaly the user's custom title or Ploty's default title.
+        use_custom_xaxis_title = 'title' in graph_styling_params['xaxis']
+        # Only apply the xaxis_title if it is set because if we set it to None, then we don't get ploty's default values
+        if use_custom_xaxis_title:
+            all_params.append(("xaxis_title", graph_styling_params['xaxis']['title'], True))
+    else:
+        # Plotly makes us explicitly handle setting the xaxis_title and yaxis_title to None
+        all_params.append(("xaxis_title", None, False))
+
+    # Create the range slider param
+    if graph_styling_params['xaxis']['rangeslider']['visible']:
+        all_params.append(("xaxis", RANGE_SLIDER_CODE, False))
+
+    # Create the y axis title param
+    if graph_styling_params['yaxis']['visible']:
+        # If the y axis title is visible, then either dispaly the user's custom title or Ploty's default title.
+        use_custom_yaxis_title = 'title' in graph_styling_params['yaxis']
+        # Only apply the yaxis_title if it is set because if we set it to None, then we don't get ploty's default values
+        if use_custom_yaxis_title:
+            all_params.append(("yaxis_title", graph_styling_params['yaxis']['title'], True))
+    else:
+        # Plotly makes us explicitly handle setting the xaxis_title and yaxis_title to None
+        all_params.append(("yaxis_title", None, False))
+
+    # Create the barmode param
     barmode = get_barmode(graph_type)
     if barmode is not None:
         all_params.append(("barmode", barmode, True))
 
-    RANGE_SLIDER = """dict(
-        rangeslider=dict(
-            visible=True,
-            thickness=.05
-        )
-    )"""
-    all_params.append(("xaxis", RANGE_SLIDER, False))
+    # Create the showlegend param
+    all_params.append(("showlegend", graph_styling_params['showlegend'], False))
 
+    # Use all of the styling parameters to create the fig.update_layout function call,
+    # and format nicely!
     params = f"\n{TAB}"
     params += f",\n{TAB}".join(
         create_parameter(param[0], param[1], param[2]) for param in all_params
     )
     params += "\n"
-
     return f"fig.update_layout({params})"
 
 
@@ -251,7 +330,8 @@ def get_plotly_express_graph(
     safety_filter_turned_on_by_user: bool,
     x_axis_column_headers: List[ColumnHeader],
     y_axis_column_headers: List[ColumnHeader],
-    color_column_header: Optional[ColumnHeader]
+    color_column_header: Optional[ColumnHeader],
+    graph_styling_params: Dict[str, Any],
 ) -> go.Figure:
     """
     Generates and returns a Plotly express graph in 3 steps
@@ -271,7 +351,7 @@ def get_plotly_express_graph(
     fig = graph_creation(graph_type, df, x_axis_column_headers, y_axis_column_headers, color_column_header)
 
     # Step 3: Graph Styling
-    fig = graph_styling(fig, graph_type, all_column_headers, is_safety_filter_applied)
+    fig = graph_styling(fig, graph_type, all_column_headers, is_safety_filter_applied, graph_styling_params)
 
     return fig
 
@@ -283,6 +363,7 @@ def get_plotly_express_graph_code(
     x_axis_column_headers: List[ColumnHeader],
     y_axis_column_headers: List[ColumnHeader],
     color_column_header: Optional[ColumnHeader],
+    graph_styling_params: Dict[str, Any],
     df_name: str,
 ) -> str:
     """
@@ -319,7 +400,7 @@ def get_plotly_express_graph_code(
     # Step 3: Graph Styling
     all_column_headers = x_axis_column_headers + y_axis_column_headers
     code.append(
-        graph_styling_code(graph_type, all_column_headers, is_safety_filter_applied)
+        graph_styling_code(graph_type, all_column_headers, is_safety_filter_applied, graph_styling_params)
     )
 
     # We use fig.show(renderer="iframe") which works in both JLab 2 & 3
