@@ -15,6 +15,7 @@ function GraphExportTab(
         graphParams: GraphParams
         loading: boolean
         graphOutput: GraphOutput
+        mitoContainerRef: React.RefObject<HTMLDivElement>
     }): JSX.Element {
 
     const [_copyGraphCode, graphCodeCopied] = useCopyToClipboard(props.graphOutput?.graphGeneratedCode);
@@ -29,16 +30,33 @@ function GraphExportTab(
     }
 
     return (  
-        <TextButton
-            variant='dark'
-            onClick={copyGraphCode}
-            disabled={props.loading || props.graphOutput === undefined}
-        >
-            {!graphCodeCopied
-                ? "Copy Graph Code"
-                : "Copied!"
-            }
-        </TextButton>
+        <div className='graph-sidebar-toolbar-content'>
+            <div>
+                <TextButton
+                    variant='dark'
+                    onClick={copyGraphCode}
+                    disabled={props.loading || props.graphOutput === undefined}
+                >
+                    {!graphCodeCopied
+                        ? "Copy Graph Code"
+                        : "Copied!"
+                    }
+                </TextButton>
+            </div>
+            <div>
+                <TextButton
+                    variant='dark'
+                    onClick={() => {
+                        // Find the Plotly Download plot as png button, and then click it. 
+                        const downloadLink: HTMLLinkElement | undefined | null = props.mitoContainerRef.current?.querySelector<HTMLLinkElement>('[data-title="Download plot as a png"]')
+                        downloadLink?.click()
+                    }}
+                    disabled={props.loading || props.graphOutput === undefined}
+                >
+                    Download as PNG
+                </TextButton>
+            </div>
+        </div>
     )
 } 
 

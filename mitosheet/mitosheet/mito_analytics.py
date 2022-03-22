@@ -260,6 +260,15 @@ def log(log_event: str, params: Dict[Any, Any]=None, steps_manager: StepsManager
                 private_params['params_x_axis_column_ids'] = len(value['x_axis_column_ids'])
                 private_params['params_y_axis_column_ids'] = len(value['y_axis_column_ids'])
                 private_params['params_color'] = True if 'color' in value.keys() else False
+            elif 'graph_styling' in key:
+                private_params['params_title'] = True if 'title' in value['title'] else False
+                private_params['params_title_visible'] = value['title']['visible']
+                private_params['params_xaxis_title'] = True if 'title' in value['xaxis'] else False
+                private_params['params_xaxis_title_visible'] = value['xaxis']['visible']
+                private_params['params_xaxis_rangeslider_visible'] = value['xaxis']['rangeslider']['visible']
+                private_params['params_yaxis_title'] = True if 'title' in value['yaxis'] else False
+                private_params['params_yaxis_title_visible'] = value['yaxis']['visible']
+                private_params['params_showlegend'] = value['showlegend']
             elif 'sheet_index' in key:
                 private_params[key] = value
                 # Make sure the steps manager exists, and the source is in bounds
