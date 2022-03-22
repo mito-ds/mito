@@ -192,6 +192,8 @@ const GraphSidebar = (props: {
                     id='graph-div'
                     // Because we have padding on this div, but we want the graph to appear
                     // to take up the whole screen, we also style it with the background color
+                    // NOTE: there's a minor visual bug where this updates quicker than the graph
+                    // but we choose to view it as a nice preview rather than something to fix :-)
                     style={{
                         backgroundColor: graphParams.graphStyling.paper_bgcolor
                     }}

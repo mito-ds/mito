@@ -185,9 +185,7 @@ def upgrade_graph_2_to_3(step: Dict[str, Any], later_steps: List[Dict[str, Any]]
     }
     """
     params = step['params']
-    print(params)
     params['graph_styling']['paper_bgcolor'] = '#FFFFFF'
-    print(params)
 
     return [{
         "step_version": 3, 

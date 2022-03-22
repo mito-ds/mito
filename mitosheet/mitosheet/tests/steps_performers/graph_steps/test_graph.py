@@ -70,6 +70,7 @@ def test_all_styling_options():
     yaxis_title="Custom Y Axis Title"
     yaxis_visible=False
     showlegend=False    
+    paper_bgcolor='#FFCCDD'    
 
     mito.generate_graph(
         graph_id, BAR, 0, 
@@ -83,7 +84,8 @@ def test_all_styling_options():
         xaxis_rangeslider_visible=xaxis_rangeslider_visible,
         yaxis_title=yaxis_title,
         yaxis_visible=yaxis_visible,
-        showlegend=showlegend
+        showlegend=showlegend,
+        paper_bgcolor=paper_bgcolor
     )
 
     assert len(mito.steps) == 2
@@ -104,5 +106,6 @@ def test_all_styling_options():
     assert graph_styling_params['yaxis_title'] == yaxis_title
     assert graph_styling_params['yaxis_visible'] == yaxis_visible
     assert graph_styling_params['showlegend'] == showlegend
+    assert graph_styling_params['paper_bgcolor'] == paper_bgcolor
 
 
