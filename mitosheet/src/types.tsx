@@ -223,7 +223,8 @@ export type GraphStylingParams = {
         visible: boolean
     },
     showlegend: boolean,
-    paper_bgcolor: string // defaults to white
+    paper_bgcolor: string // The outter part of the plot around the data. Defaults to white
+    plot_bgcolor: string // The inner part of the plot with data background. Also defaults to white
 }
 
 export type GraphParams = {

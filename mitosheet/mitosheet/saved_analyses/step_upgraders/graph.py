@@ -5,6 +5,8 @@
 # Distributed under the terms of the GPL License.
 from typing import Any, Dict, List
 
+from mitosheet.step_performers.graph_steps.plotly_express_graphs import PAPER_BGCOLOR_DEFAULT, PLOT_BGCOLOR_DEFAULT
+
 def upgrade_graph_1_to_2(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Adds the default styling params 
@@ -101,7 +103,7 @@ def upgrade_graph_1_to_2(step: Dict[str, Any], later_steps: List[Dict[str, Any]]
 
 def upgrade_graph_2_to_3(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Adds the default styling params 
+    Adds paper_bgcolor and plot_bgcolor to the graph styling params
 
     OLD: 
         'step_version': 2,
@@ -175,7 +177,8 @@ def upgrade_graph_2_to_3(step: Dict[str, Any], later_steps: List[Dict[str, Any]]
                     visible: boolean
                 },
                 showlegend: boolean,
-                paper_bgcolor: string
+                paper_bgcolor: string,
+                plot_bgcolor: string
             },
             graph_rendering: {
                 height: int representing the div width
@@ -185,7 +188,8 @@ def upgrade_graph_2_to_3(step: Dict[str, Any], later_steps: List[Dict[str, Any]]
     }
     """
     params = step['params']
-    params['graph_styling']['paper_bgcolor'] = '#FFFFFF'
+    params['graph_styling']['paper_bgcolor'] = PAPER_BGCOLOR_DEFAULT
+    params['graph_styling']['plot_bgcolor'] = PLOT_BGCOLOR_DEFAULT
 
     return [{
         "step_version": 3, 

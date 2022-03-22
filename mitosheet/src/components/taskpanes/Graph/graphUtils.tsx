@@ -9,6 +9,10 @@ import DropdownItem from "../../elements/DropdownItem"
 import { GRAPH_SAFETY_FILTER_CUTOFF } from "./GraphSetupTab"
 import { GraphType } from "./GraphSidebar"
 
+// Note: these should match the constants in Python as well
+const PAPER_BGCOLOR_DEFAULT = '#FFFFFF'
+const PLOT_BGCOLOR_DEFAULT = '#E6EBF5'
+
 // unless a graph type is provided
 export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: number, graphType?: GraphType): GraphParams => {
     const safetyFilter = getDefaultSafetyFilter(sheetDataArray, sheetIndex)
@@ -40,7 +44,8 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
                 visible: true
             },
             showlegend: true,
-            paper_bgcolor: '#FFFFFF'
+            paper_bgcolor: PAPER_BGCOLOR_DEFAULT,
+            plot_bgcolor: PLOT_BGCOLOR_DEFAULT
         }
     }
 }

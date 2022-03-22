@@ -263,36 +263,54 @@ function GraphStyleTab(props: {
                     Background
                 </div>
                     {props.userProfile.isPro && 
-                        <Row justify='space-between' align='center'>
-                            <Col>
-                                <p>
-                                    Background Color
-                                </p>
-                            </Col>
-                            <ColorInput 
-                                value={graphStylingParams.paper_bgcolor} 
-                                onChange={(newColor) => {
-                                    props.setGraphParams(prevGraphParams => {
-                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
-                                        console.log({
-                                            ...graphParamsCopy,
-                                            graphStyling: {
-                                                ...graphParamsCopy.graphStyling,
-                                                paper_bgcolor: newColor
-                                            } 
+                        <>
+                            <Row justify='space-between' align='center'>
+                                <Col>
+                                    <p>
+                                        Background Color
+                                    </p>
+                                </Col>
+                                <ColorInput 
+                                    value={graphStylingParams.paper_bgcolor} 
+                                    onChange={(newColor) => {
+                                        props.setGraphParams(prevGraphParams => {
+                                            const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                            return {
+                                                ...graphParamsCopy,
+                                                graphStyling: {
+                                                    ...graphParamsCopy.graphStyling,
+                                                    paper_bgcolor: newColor
+                                                } 
+                                            }
                                         })
-                                        return {
-                                            ...graphParamsCopy,
-                                            graphStyling: {
-                                                ...graphParamsCopy.graphStyling,
-                                                paper_bgcolor: newColor
-                                            } 
-                                        }
-                                    })
-                                    props.setGraphUpdatedNumber(old => old + 1)
-                                }}     
-                            />
-                        </Row>                
+                                        props.setGraphUpdatedNumber(old => old + 1)
+                                    }}     
+                                />
+                            </Row>                
+                            <Row justify='space-between' align='center'>
+                                <Col>
+                                    <p>
+                                        Plot Backround Color
+                                    </p>
+                                </Col>
+                                <ColorInput 
+                                    value={graphStylingParams.plot_bgcolor} 
+                                    onChange={(newColor) => {
+                                        props.setGraphParams(prevGraphParams => {
+                                            const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                            return {
+                                                ...graphParamsCopy,
+                                                graphStyling: {
+                                                    ...graphParamsCopy.graphStyling,
+                                                    plot_bgcolor: newColor
+                                                } 
+                                            }
+                                        })
+                                        props.setGraphUpdatedNumber(old => old + 1)
+                                    }}     
+                                />
+                            </Row>   
+                        </>
                     }
                     {!props.userProfile.isPro && 
                         <Row justify='space-between' align='center'>

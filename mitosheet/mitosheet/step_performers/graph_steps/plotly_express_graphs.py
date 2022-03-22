@@ -27,6 +27,9 @@ from mitosheet.step_performers.graph_steps.graph_utils import (
 from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_to_transpiled_code
 from mitosheet.types import ColumnHeader
 
+PAPER_BGCOLOR_DEFAULT = '#FFFFFF'
+PLOT_BGCOLOR_DEFAULT = '#E6EBF5'
+
 # TAB is used in place of \t in generated code because
 # Jupyter turns \t into a grey arrow, but converts four spaces into a tab.
 TAB = "    "
@@ -247,10 +250,15 @@ def graph_styling(
     if barmode is not None:
         all_params['barmode'] = get_barmode(graph_type)
 
-    # Create the background param
+    # Create the background params
     paper_bgcolor = graph_styling_params['paper_bgcolor']
-    if graph_styling_params != '#FFFFF': # NOTE: we don't need to set if it's a default
+    if graph_styling_params != PAPER_BGCOLOR_DEFAULT: # NOTE: we don't need to set if it's a default
         all_params['paper_bgcolor'] = paper_bgcolor
+    
+    # Create the background param
+    plot_bgcolor = graph_styling_params['plot_bgcolor']
+    if plot_bgcolor != PLOT_BGCOLOR_DEFAULT: # NOTE: we don't need to set if it's a default
+        all_params['plot_bgcolor'] = plot_bgcolor
 
     # Create the showlegend param
     all_params['showlegend'] = graph_styling_params['showlegend']
@@ -316,10 +324,13 @@ def graph_styling_code(
     if barmode is not None:
         all_params.append(("barmode", barmode, True))
 
-    # Create the background param
+    # Create the background params
     paper_bgcolor = graph_styling_params['paper_bgcolor']
-    if graph_styling_params != '#FFFFF': # NOTE: we don't need to set if it's a default
+    if graph_styling_params != PAPER_BGCOLOR_DEFAULT:
         all_params.append(("paper_bgcolor", paper_bgcolor, True))
+    plot_bgcolor = graph_styling_params['plot_bgcolor']
+    if plot_bgcolor != PLOT_BGCOLOR_DEFAULT: # NOTE: we don't need to set if it's a default
+        all_params.append(("plot_bgcolor", plot_bgcolor, True))
 
     # Create the showlegend param
     all_params.append(("showlegend", graph_styling_params['showlegend'], False))
