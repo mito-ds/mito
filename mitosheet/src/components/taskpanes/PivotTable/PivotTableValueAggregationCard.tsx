@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { AggregationType } from './PivotTaskpane';
+import { AggregationType } from '../../../types';
 import Select from '../../elements/Select';
 import XIcon from '../../icons/XIcon';
 import Row from '../../spacing/Row';

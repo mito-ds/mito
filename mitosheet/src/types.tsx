@@ -243,6 +243,42 @@ export type GraphID = string;
 export type GraphDataDict = Record<GraphID, GraphData>
 
 
+// NOTE: these aggregation functions need to be supported
+// in mitosheet/steps/pivot.py as well
+export enum AggregationType {
+    SUM = 'sum',
+    MEAN = 'mean',
+    MEDIAN = 'median',
+    STD = 'std',
+    MIN = 'min',
+    MAX = 'max', 
+    COUNT = 'count', 
+    COUNT_UNIQUE = 'count unique',
+}
+
+// The parameters saved on the backend
+export interface BackendPivotParams {
+    sheet_index: number,
+    pivot_rows_column_ids: ColumnID[],
+    pivot_columns_column_ids: ColumnID[],
+    values_column_ids_map: Record<ColumnID, AggregationType[]>,
+    flatten_column_headers: boolean;
+}
+
+// The parameters used by the frontend. The type of the params is different between the 
+// backend and the frontend, due to it being easier to manipulate as an array on the 
+// frontend while keeping the ordering for values
+export interface FrontendPivotParams {
+    selectedSheetIndex: number,
+    pivotRowColumnIDs: ColumnID[],
+    pivotColumnsColumnIDs: ColumnID[],
+    // NOTE: storing these values as an array makes keeping an order of them
+    // much much easier, and generally is the way to do it!
+    pivotValuesColumnIDsArray: [ColumnID, AggregationType][],
+    flattenColumnHeaders: boolean 
+}
+
+
 /**
  * The current viewport of the sheet. As not all data is rendered, this object
  * marks what is actually rendered. Note that not all of it may be visible to 

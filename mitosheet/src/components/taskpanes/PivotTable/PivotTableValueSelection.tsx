@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { AggregationType } from './PivotTaskpane';
+import { AggregationType } from '../../../types';
 import PivotTableValueAggregationCard from './PivotTableValueAggregationCard';
 import PivotInvalidSelectedColumnsError from './PivotInvalidSelectedColumnsError';
 import MitoAPI from '../../../api';
