@@ -41,7 +41,7 @@ from mitosheet.saved_analyses.step_upgraders.set_column_formula import \
 from mitosheet.saved_analyses.step_upgraders.simple_import import \
     upgrade_simple_import_1_to_2_and_rename
 from mitosheet.saved_analyses.step_upgraders.sort import upgrade_sort_1_to_2
-from mitosheet.saved_analyses.step_upgraders.graph import upgrade_graph_1_to_2
+from mitosheet.saved_analyses.step_upgraders.graph import upgrade_graph_1_to_2, upgrade_graph_2_to_3
 from mitosheet.saved_analyses.step_upgraders.utils_rename_column_headers import (INITIAL_BULK_OLD_RENAME_STEP)
 
 """
@@ -111,7 +111,8 @@ STEP_UPGRADES_FUNCTION_MAPPING_NEW_FORMAT = {
         1: upgrade_sort_1_to_2
     },
     'graph': {
-        1: upgrade_graph_1_to_2
+        1: upgrade_graph_1_to_2,
+        2: upgrade_graph_2_to_3,
     }
 }
 

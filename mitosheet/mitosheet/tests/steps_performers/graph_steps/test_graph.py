@@ -70,6 +70,11 @@ def test_all_styling_options():
     yaxis_title="Custom Y Axis Title"
     yaxis_visible=False
     showlegend=False    
+    paper_bgcolor='#FFCCDD'    
+    plot_bgcolor='#FFCCEE'    
+    title_font_color='#CCCCEE'    
+    xaxis_title_font_color='#DDCCEE'    
+    yaxis_title_font_color='#EECCEE'    
 
     mito.generate_graph(
         graph_id, BAR, 0, 
@@ -83,7 +88,12 @@ def test_all_styling_options():
         xaxis_rangeslider_visible=xaxis_rangeslider_visible,
         yaxis_title=yaxis_title,
         yaxis_visible=yaxis_visible,
-        showlegend=showlegend
+        showlegend=showlegend,
+        paper_bgcolor=paper_bgcolor,
+        plot_bgcolor=plot_bgcolor,
+        title_font_color=title_font_color,
+        xaxis_title_font_color=xaxis_title_font_color,
+        yaxis_title_font_color=yaxis_title_font_color
     )
 
     assert len(mito.steps) == 2
@@ -96,13 +106,18 @@ def test_all_styling_options():
     assert not mito.get_is_graph_output_none(graph_id)
 
     graph_styling_params = mito.get_graph_styling_params(graph_id)
-    assert graph_styling_params['title_title'] == title_title
-    assert graph_styling_params['title_visible'] == title_visible
-    assert graph_styling_params['xaxis_title'] == xaxis_title
-    assert graph_styling_params['xaxis_visible'] == xaxis_visible
-    assert graph_styling_params['xaxis_rangeslider_visible'] == xaxis_rangeslider_visible
-    assert graph_styling_params['yaxis_title'] == yaxis_title
-    assert graph_styling_params['yaxis_visible'] == yaxis_visible
+    assert graph_styling_params['title']['title'] == title_title
+    assert graph_styling_params['title']['visible'] == title_visible
+    assert graph_styling_params['title']['title_font_color'] == title_font_color
+    assert graph_styling_params['xaxis']['title'] == xaxis_title
+    assert graph_styling_params['xaxis']['visible'] == xaxis_visible
+    assert graph_styling_params['xaxis']['title_font_color'] == xaxis_title_font_color
+    assert graph_styling_params['xaxis']['rangeslider']['visible'] == xaxis_rangeslider_visible
+    assert graph_styling_params['yaxis']['title'] == yaxis_title
+    assert graph_styling_params['yaxis']['visible'] == yaxis_visible
+    assert graph_styling_params['yaxis']['title_font_color'] == yaxis_title_font_color
     assert graph_styling_params['showlegend'] == showlegend
+    assert graph_styling_params['paper_bgcolor'] == paper_bgcolor
+    assert graph_styling_params['plot_bgcolor'] == plot_bgcolor
 
 

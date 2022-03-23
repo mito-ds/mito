@@ -187,7 +187,7 @@ def test_params_static():
 
     check_step(
         GraphStepPerformer,
-        1,
+        3,
         'graph'
     )
 

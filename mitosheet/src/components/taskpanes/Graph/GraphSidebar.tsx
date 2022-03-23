@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import MitoAPI from '../../../api';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
 import { useEffectOnUpdateEvent } from '../../../hooks/useEffectOnUpdateEvent';
-import { AnalysisData, ColumnIDsMap, GraphDataDict, GraphID, GraphSidebarTab, SheetData, UIState } from '../../../types';
+import { AnalysisData, ColumnIDsMap, GraphDataDict, GraphID, GraphSidebarTab, SheetData, UIState, UserProfile } from '../../../types';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import { TaskpaneType } from '../taskpanes';
 import GraphSidebarTabs from './GraphSidebarTabs';
@@ -53,7 +53,8 @@ const GraphSidebar = (props: {
     uiState: UIState;
     graphDataDict: GraphDataDict
     analysisData: AnalysisData
-    mitoContainerRef: React.RefObject<HTMLDivElement>
+    mitoContainerRef: React.RefObject<HTMLDivElement>,
+    userProfile: UserProfile
 
 }): JSX.Element => {
 
@@ -186,7 +187,17 @@ const GraphSidebar = (props: {
     } else {
         return (
             <div className='graph-sidebar-div'>
-                <div className='graph-sidebar-graph-div' id='graph-div' >
+                <div 
+                    className='graph-sidebar-graph-div' 
+                    id='graph-div'
+                    // Because we have padding on this div, but we want the graph to appear
+                    // to take up the whole screen, we also style it with the background color
+                    // NOTE: there's a minor visual bug where this updates quicker than the graph
+                    // but we choose to view it as a nice preview rather than something to fix :-)
+                    style={{
+                        backgroundColor: graphParams.graphStyling.paper_bgcolor
+                    }}
+                >
                     {graphOutput === undefined &&
                         <p className='graph-sidebar-welcome-text' >To generate a graph, select an axis.</p>
                     }
@@ -237,6 +248,7 @@ const GraphSidebar = (props: {
                                 graphParams={graphParams}
                                 setGraphParams={setGraphParams}
                                 setGraphUpdatedNumber={setGraphUpdatedNumber}
+                                userProfile={props.userProfile}
                             />
                         }
                         {selectedGraphSidebarTab === GraphSidebarTab.Export && 
