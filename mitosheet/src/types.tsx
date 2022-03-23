@@ -209,11 +209,13 @@ export type GraphCreationParams = {
 export type GraphStylingParams = {
     title: {
         title: string | undefined, // when undefined, we use Ploty's default title
-        visible: boolean
+        visible: boolean,
+        title_font_color: string, // defaults to #2f3e5d
     },
     xaxis: {
         title: string | undefined; // when undefined, we use Ploty's default title
         visible: boolean;
+        title_font_color: string, // defaults to #2f3e5d
         rangeslider: {
             visible: boolean,
         }
@@ -221,10 +223,11 @@ export type GraphStylingParams = {
     yaxis: {
         title: string | undefined, // when undefined, we use Ploty's default title
         visible: boolean
+        title_font_color: string, // defaults to #2f3e5d
     },
     showlegend: boolean,
+    plot_bgcolor: string // The inner part of the plot with data background. Defaults to a blue-ish shade
     paper_bgcolor: string // The outter part of the plot around the data. Defaults to white
-    plot_bgcolor: string // The inner part of the plot with data background. Also defaults to white
 }
 
 export type GraphParams = {
