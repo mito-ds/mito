@@ -10,7 +10,7 @@ This file contains helpful functions and classes for testing operations.
 import json
 from functools import wraps
 from typing import Any, Dict, List, Optional, Tuple, Union
-from mitosheet.step_performers.graph_steps.plotly_express_graphs import PAPER_BGCOLOR_DEFAULT, PLOT_BGCOLOR_DEFAULT
+from mitosheet.step_performers.graph_steps.plotly_express_graphs import DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT, DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT, DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT
 from numpy import number
 
 import pandas as pd
@@ -740,15 +740,18 @@ class MitoWidgetTestWrapper:
         width: str,
         title_title: Optional[str]=None,
         title_visible: bool=True,
+        title_font_color: str=DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT,
         xaxis_title: Optional[str]=None,
         xaxis_visible: bool=True,
+        xaxis_title_font_color: str=DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT,
         xaxis_rangeslider_visible: bool=True,
         yaxis_title: Optional[str]=None,
         yaxis_visible: bool=True,
+        yaxis_title_font_color: str=DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT,
         showlegend: bool=True,
         step_id: str=None,
-        paper_bgcolor: str='#FFFFFF',
-        plot_bgcolor: str='#E6EBF5',
+        paper_bgcolor: str=DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT,
+        plot_bgcolor: str=DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT,
     ) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
@@ -771,18 +774,21 @@ class MitoWidgetTestWrapper:
                     'graph_styling': {
                         'title': {
                             'title': title_title,
-                            'visible': title_visible
+                            'visible': title_visible,
+                            'title_font_color': title_font_color
                         },
                         'xaxis': {
                             'title': xaxis_title,
                             'visible': xaxis_visible,
+                            'title_font_color': xaxis_title_font_color,
                             'rangeslider': {
                                 'visible': xaxis_rangeslider_visible
                             }
                         },
                         'yaxis': {
                             'title': yaxis_title,
-                            'visible': yaxis_visible
+                            'visible': yaxis_visible,
+                            'title_font_color': yaxis_title_font_color,
                         },
                         'showlegend': showlegend,
                         'paper_bgcolor': paper_bgcolor,

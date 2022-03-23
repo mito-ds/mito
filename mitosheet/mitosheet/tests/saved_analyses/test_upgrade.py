@@ -6,7 +6,7 @@
 import json
 import os
 from pathlib import Path
-from mitosheet.step_performers.graph_steps.plotly_express_graphs import PAPER_BGCOLOR_DEFAULT, PLOT_BGCOLOR_DEFAULT
+from mitosheet.step_performers.graph_steps.plotly_express_graphs import DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT, DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT, DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT
 import pytest
 import pandas as pd
 
@@ -297,7 +297,7 @@ UPGRADE_TESTS = [
                 {"step_version": 2, "step_type": "simple_import", "params": {"file_names": ["Tesla.csv"]}}, 
                 {"step_version": 2, "step_type": "change_column_dtype", "params": {"sheet_index": 0, "column_id": "Date", "new_dtype": "datetime", "old_dtype": "object"}}, {"step_version": 2, "step_type": "add_column", "params": {"sheet_index": 0, "column_header": "new-column-9rkm", "column_header_index": 1}}, 
                 {"step_version": 2, "step_type": "set_column_formula", "params": {"sheet_index": 0, "column_id": "new-column-9rkm", "new_formula": "weekday(Date)", "old_formula": "=0"}}, 
-                {"step_version": 3, "step_type": "graph", "params": {"graph_id": "_iv911muyd", "graph_preprocessing": {"safety_filter_turned_on_by_user": True}, "graph_creation": {"graph_type": "bar", "sheet_index": 0, "x_axis_column_ids": ["Low"], "y_axis_column_ids": ["Open"], "color": "new-column-9rkm"}, "graph_styling": {"title": {"visible": True}, "xaxis": {"visible": True, "rangeslider": {"visible": True}}, "yaxis": {"visible": True}, "showlegend": True, 'paper_bgcolor': PAPER_BGCOLOR_DEFAULT, 'plot_bgcolor': PLOT_BGCOLOR_DEFAULT}, "graph_rendering": {"height": "426px", "width": "1141.800048828125px"}}}
+                {"step_version": 3, "step_type": "graph", "params": {"graph_id": "_iv911muyd", "graph_preprocessing": {"safety_filter_turned_on_by_user": True}, "graph_creation": {"graph_type": "bar", "sheet_index": 0, "x_axis_column_ids": ["Low"], "y_axis_column_ids": ["Open"], "color": "new-column-9rkm"}, "graph_styling": {"title": {"visible": True, "title_font_color": DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT}, "xaxis": {"visible": True, "title_font_color": DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT, "rangeslider": {"visible": True}}, "yaxis": {"visible": True, "title_font_color": DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT}, "showlegend": True, 'paper_bgcolor': DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT, 'plot_bgcolor': DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT}, "graph_rendering": {"height": "426px", "width": "1141.800048828125px"}}}
             ]
         }
 
