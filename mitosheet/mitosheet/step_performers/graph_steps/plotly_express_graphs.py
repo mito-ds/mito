@@ -92,17 +92,12 @@ def graph_filtering_code(
         # If we don't filter the graph, then return an empty string
         return ""
 
-
-def graph_creation(
-    graph_type: str,
-    df: pd.DataFrame,
-    x_axis_column_headers: List[ColumnHeader],
-    y_axis_column_headers: List[ColumnHeader],
-    color_column_header: Optional[ColumnHeader]
-) -> go.Figure:
-    """
-    Creates and returns the Plotly express graph figure
-    """
+def get_graph_creation_param_dict(
+        graph_type: str,
+        x_axis_column_headers: List[ColumnHeader],
+        y_axis_column_headers: List[ColumnHeader],
+        color_column_header: Optional[ColumnHeader]
+    ) -> Dict[str, Any]:
 
     # Create the parameters that we use to construct the graph
     all_params: Dict[str, Union[ColumnHeader, List[ColumnHeader], None]] = dict()
@@ -120,29 +115,46 @@ def graph_creation(
     elif len(y_axis_column_headers) > 1:
         all_params["y"] = y_axis_column_headers
 
-    if graph_type not in GRAPHS_THAT_DONT_SUPPORT_COLOR:
+    if graph_type not in GRAPHS_THAT_DONT_SUPPORT_COLOR and color_column_header is not None:
         all_params['color'] = color_column_header
 
+    return all_params
+
+def graph_creation(
+    graph_type: str,
+    df: pd.DataFrame,
+    x_axis_column_headers: List[ColumnHeader],
+    y_axis_column_headers: List[ColumnHeader],
+    color_column_header: Optional[ColumnHeader]
+) -> go.Figure:
+    """
+    Creates and returns the Plotly express graph figure
+    """
+
+    param_dict = get_graph_creation_param_dict(
+        graph_type, x_axis_column_headers, y_axis_column_headers, color_column_header
+    )
+
     if graph_type == BAR:
-        return px.bar(df, **all_params)
+        return px.bar(df, **param_dict)
     elif graph_type == LINE:
-        return px.line(df, **all_params)
+        return px.line(df, **param_dict)
     elif graph_type == SCATTER:
-        return px.scatter(df, **all_params)
+        return px.scatter(df, **param_dict)
     elif graph_type == HISTOGRAM:
-        return px.histogram(df, **all_params)
+        return px.histogram(df, **param_dict)
     elif graph_type == DENSITY_HEATMAP:
-        return px.density_heatmap(df, **all_params)
+        return px.density_heatmap(df, **param_dict)
     elif graph_type == DENSITY_CONTOUR:
-        return px.density_contour(df, **all_params)
+        return px.density_contour(df, **param_dict)
     elif graph_type == BOX:
-        return px.box(df, **all_params)
+        return px.box(df, **param_dict)
     elif graph_type == VIOLIN:
-        return px.violin(df, **all_params)
+        return px.violin(df, **param_dict)
     elif graph_type == STRIP:
-        return px.strip(df, **all_params)
+        return px.strip(df, **param_dict)
     elif graph_type == ECDF:
-        return px.ecdf(df, **all_params)
+        return px.ecdf(df, **param_dict)
 
 
 def graph_creation_code(
@@ -156,46 +168,31 @@ def graph_creation_code(
     Returns the code for creating the Plotly express graph
     """
 
-    # Create the params used to construct the graph
-    all_params: List[Tuple[str, str, bool]] = []
-
-    if len(x_axis_column_headers) == 1:
-        all_params.append(("x", column_header_to_transpiled_code(x_axis_column_headers[0]), False))
-    elif len(x_axis_column_headers) >= 1:
-        all_params.append(("x", column_header_list_to_transpiled_code(x_axis_column_headers), False))
-
-    if len(y_axis_column_headers) == 1:
-        all_params.append(("y", column_header_to_transpiled_code(y_axis_column_headers[0]), False))
-    elif len(y_axis_column_headers) >= 1:
-        all_params.append(("y", column_header_list_to_transpiled_code(y_axis_column_headers), False))
-
-    if color_column_header is not None:
-        all_params.append(('color', column_header_to_transpiled_code(color_column_header), False))
-
-    params = f", ".join(
-        create_parameter(param[0], param[1], param[2]) for param in all_params
+    param_dict = get_graph_creation_param_dict(
+        graph_type, x_axis_column_headers, y_axis_column_headers, color_column_header
     )
+    param_code = param_dict_to_code(param_dict, as_single_line=True)
 
     if graph_type == BAR:
-        return f"fig = px.bar({df_name}, {params})"
+        return f"fig = px.bar({df_name}, {param_code})"
     elif graph_type == LINE:
-        return f"fig = px.line({df_name}, {params})"
+        return f"fig = px.line({df_name}, {param_code})"
     elif graph_type == SCATTER:
-        return f"fig = px.scatter({df_name}, {params})"
+        return f"fig = px.scatter({df_name}, {param_code})"
     elif graph_type == HISTOGRAM:
-        return f"fig = px.histogram({df_name}, {params})"
+        return f"fig = px.histogram({df_name}, {param_code})"
     elif graph_type == DENSITY_HEATMAP:
-        return f"fig = px.density_heatmap({df_name}, {params})"
+        return f"fig = px.density_heatmap({df_name}, {param_code})"
     elif graph_type == DENSITY_CONTOUR:
-        return f"fig = px.density_contour({df_name}, {params})"
+        return f"fig = px.density_contour({df_name}, {param_code})"
     elif graph_type == BOX:
-        return f"fig = px.box({df_name}, {params})"
+        return f"fig = px.box({df_name}, {param_code})"
     elif graph_type == VIOLIN:
-        return f"fig = px.violin({df_name}, {params})"
+        return f"fig = px.violin({df_name}, {param_code})"
     elif graph_type == STRIP:
-        return f"fig = px.strip({df_name}, {params})"
+        return f"fig = px.strip({df_name}, {param_code})"
     elif graph_type == ECDF:
-        return f"fig = px.ecdf({df_name}, {params})"
+        return f"fig = px.ecdf({df_name}, {param_code})"
     return ""
 
 def get_graph_styling_param_dict(graph_type: str, column_headers: List[ColumnHeader], filtered: bool, graph_styling_params: Dict[str, Any]) -> Dict[str, Any]:

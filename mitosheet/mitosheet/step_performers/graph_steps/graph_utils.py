@@ -56,7 +56,7 @@ def get_barmode(graph_type: str) -> Optional[str]:
         return None
 
 
-def param_dict_to_code(param_dict: Dict[str, Any], level=0) -> str:
+def param_dict_to_code(param_dict: Dict[str, Any], level=0, as_single_line=False) -> str:
     """
     Takes a potentially nested params dictonary and turns it into a
     code string that we can use in the graph generated code.
@@ -65,10 +65,16 @@ def param_dict_to_code(param_dict: Dict[str, Any], level=0) -> str:
     should increment by 1 anytime we enter a new subdictonary.
     """
 
-    if level == 0:
-        code = f"\n"
+    if not as_single_line:
+        if level == 0:
+            code = f"\n"
+        else:
+            code = f"dict(\n"
     else:
-        code = f"dict(\n"
+        if level == 0:
+            code = f""
+        else:
+            code = f"dict("
 
     value_num = 0
     for key, value in param_dict.items():
@@ -83,18 +89,24 @@ def param_dict_to_code(param_dict: Dict[str, Any], level=0) -> str:
         
         # If we're not on the first value in this dict, we need to add a 
         # command new line after the last value
-        if value_num != 0:
-            code += f",\n"
+        if not as_single_line:
+            if value_num != 0:
+                code += f",\n"
 
         value_num += 1
 
-        code += f"{TAB * (level + 1)}{code_chunk}"
+        # Add spacing before the param
+        if not as_single_line:
+            code += f"{TAB * (level + 1)}"
 
-    if level == 0:
-        code += f"\n"
-    else:
-        # Make sure to close the dict
-        code += f"\n{TAB * (level)})"
+        code += f"{code_chunk}"
+
+    if not as_single_line:
+        if level == 0:
+            code += f"\n"
+        else:
+            # Make sure to close the dict
+            code += f"\n{TAB * (level)})"
     
     return code
 
