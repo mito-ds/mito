@@ -82,26 +82,28 @@ function GraphStyleTab(props: {
                         }}     
                     />
                 </Row>
-                <LabelAndColor
-                    label='Title color'
-                    color={graphStylingParams.title.title_font_color}
-                    onChange={(newColor) => {
-                        props.setGraphParams(prevGraphParams => {
-                            const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
-                            return {
-                                ...graphParamsCopy,
-                                graphStyling: {
-                                    ...graphParamsCopy.graphStyling,
-                                    title: {
-                                        ...graphParamsCopy.graphStyling.title,
-                                        title_font_color: newColor
+                {props.userProfile.isPro && 
+                    <LabelAndColor
+                        label='Title color'
+                        color={graphStylingParams.title.title_font_color}
+                        onChange={(newColor) => {
+                            props.setGraphParams(prevGraphParams => {
+                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                return {
+                                    ...graphParamsCopy,
+                                    graphStyling: {
+                                        ...graphParamsCopy.graphStyling,
+                                        title: {
+                                            ...graphParamsCopy.graphStyling.title,
+                                            title_font_color: newColor
+                                        } 
                                     } 
-                                } 
-                            }
-                        })
-                        props.setGraphUpdatedNumber(old => old + 1)
-                    }}
-                />
+                                }
+                            })
+                            props.setGraphUpdatedNumber(old => old + 1)
+                        }}
+                    />
+                }
             </div>
             <div>
                 <div className='text-header-2'>
@@ -327,53 +329,51 @@ function GraphStyleTab(props: {
                     Colors
                 </div>
                 {props.userProfile.isPro && 
-                        <>
-                            <LabelAndColor
-                                label='Plot Background Color'
-                                color={graphStylingParams.plot_bgcolor}
-                                onChange={(newColor) => {
-                                    props.setGraphParams(prevGraphParams => {
-                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
-                                        return {
-                                            ...graphParamsCopy,
-                                            graphStyling: {
-                                                ...graphParamsCopy.graphStyling,
-                                                plot_bgcolor: newColor
-                                            } 
-                                        }
-                                    })
-                                    props.setGraphUpdatedNumber(old => old + 1)
-                                }}
-                            />
-                            <LabelAndColor
-                                label='Paper Background Color'
-                                color={graphStylingParams.paper_bgcolor}
-                                onChange={(newColor) => {
-                                    props.setGraphParams(prevGraphParams => {
-                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
-                                        return {
-                                            ...graphParamsCopy,
-                                            graphStyling: {
-                                                ...graphParamsCopy.graphStyling,
-                                                paper_bgcolor: newColor
-                                            } 
-                                        }
-                                    })
-                                    props.setGraphUpdatedNumber(old => old + 1)
-                                }}
-                            />
-                        </>
+                    <>
+                        <LabelAndColor
+                            label='Plot Background Color'
+                            color={graphStylingParams.plot_bgcolor}
+                            onChange={(newColor) => {
+                                props.setGraphParams(prevGraphParams => {
+                                    const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                    return {
+                                        ...graphParamsCopy,
+                                        graphStyling: {
+                                            ...graphParamsCopy.graphStyling,
+                                            plot_bgcolor: newColor
+                                        } 
+                                    }
+                                })
+                                props.setGraphUpdatedNumber(old => old + 1)
+                            }}
+                        />
+                        <LabelAndColor
+                            label='Paper Background Color'
+                            color={graphStylingParams.paper_bgcolor}
+                            onChange={(newColor) => {
+                                props.setGraphParams(prevGraphParams => {
+                                    const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                    return {
+                                        ...graphParamsCopy,
+                                        graphStyling: {
+                                            ...graphParamsCopy.graphStyling,
+                                            paper_bgcolor: newColor
+                                        } 
+                                    }
+                                })
+                                props.setGraphUpdatedNumber(old => old + 1)
+                            }}
+                        />
+                    </>
                 }
                 {!props.userProfile.isPro && 
-                        <Row justify='space-between' align='center'>
-                            <p className='text-body-1'>
-                                Want to set the colors of the background and text of your graph? <a href='https://trymito.io/plans' target='_blank' rel="noreferrer"><span className='text-body-1-link'>Upgrade to Mito Pro.</span></a>
-                            </p>  
-                        </Row>                
+                    <Row justify='space-between' align='center'>
+                        <p className='text-body-1'>
+                            Want to set the colors of the background and text of your graph? <a href='https://trymito.io/plans' target='_blank' rel="noreferrer"><span className='text-body-1-link'>Upgrade to Mito Pro.</span></a>
+                        </p>  
+                    </Row>                
                 }
             </div>
-
-                
         </div> 
     )
 } 
