@@ -11,8 +11,12 @@ interface LabelAndColorProps {
 }
 
 
+/* 
+    A Pro element to be used in graph styling to allow
+    users to select the color of a certain element of
+    the graph
+*/
 const LabelAndColor = (props: LabelAndColorProps): JSX.Element => {
-
     return (
         <Row justify='space-between' align='center'>
             <Col>
