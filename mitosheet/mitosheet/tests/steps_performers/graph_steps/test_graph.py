@@ -108,7 +108,7 @@ def test_all_styling_options():
     graph_styling_params = mito.get_graph_styling_params(graph_id)
     assert graph_styling_params['title']['title'] == title_title
     assert graph_styling_params['title']['visible'] == title_visible
-    assert graph_styling_params['title_font_color'] == title_font_color
+    assert graph_styling_params['title']['title_font_color'] == title_font_color
     assert graph_styling_params['xaxis']['title'] == xaxis_title
     assert graph_styling_params['xaxis']['visible'] == xaxis_visible
     assert graph_styling_params['xaxis']['title_font_color'] == xaxis_title_font_color
