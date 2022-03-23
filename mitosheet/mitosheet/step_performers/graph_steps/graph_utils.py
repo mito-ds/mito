@@ -6,6 +6,8 @@
 
 from typing import Dict, List, Optional, Any, Union
 import io
+from xmlrpc.client import boolean
+from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
 
 from mitosheet.types import ColumnHeader
 import plotly.graph_objects as go
@@ -56,7 +58,7 @@ def get_barmode(graph_type: str) -> Optional[str]:
         return None
 
 
-def param_dict_to_code(param_dict: Dict[str, Any], level=0, as_single_line=False) -> str:
+def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line: boolean=False) -> str:
     """
     Takes a potentially nested params dictonary and turns it into a
     code string that we can use in the graph generated code.
@@ -65,48 +67,45 @@ def param_dict_to_code(param_dict: Dict[str, Any], level=0, as_single_line=False
     should increment by 1 anytime we enter a new subdictonary.
     """
 
-    if not as_single_line:
-        if level == 0:
-            code = f"\n"
-        else:
-            code = f"dict(\n"
+    # Make sure we handle as a single line properly
+    if as_single_line:
+        TAB_CONSTANT = ''
+        NEWLINE_CONSTANT = ''
     else:
-        if level == 0:
-            code = f""
-        else:
-            code = f"dict("
+        TAB_CONSTANT = TAB
+        NEWLINE_CONSTANT = '\n'
+
+    if level == 0:
+        code = f"{NEWLINE_CONSTANT}"
+    else:
+        code = f"dict({NEWLINE_CONSTANT}"
 
     value_num = 0
     for key, value in param_dict.items():
         if isinstance(value, dict):
             # Recurse on this nested param dictonary
             code_chunk = f"{key} = {param_dict_to_code(value, level=level + 1)}"
-        elif isinstance(value, str):
-            # Make sure strings keep their quotes
-            code_chunk = f"{key}='{value}'"
         else:
-            code_chunk = f"{key}={value}"
+            # We use this slighly misnamed function to make sure values get transpiled right
+            code_chunk = f"{key}={column_header_to_transpiled_code(value)}"
         
         # If we're not on the first value in this dict, we need to add a 
         # command new line after the last value
-        if not as_single_line:
-            if value_num != 0:
-                code += f",\n"
+        if value_num != 0:
+            code += f", {NEWLINE_CONSTANT}"
 
         value_num += 1
 
         # Add spacing before the param
-        if not as_single_line:
-            code += f"{TAB * (level + 1)}"
+        code += f"{TAB_CONSTANT * (level + 1)}"
 
         code += f"{code_chunk}"
 
-    if not as_single_line:
-        if level == 0:
-            code += f"\n"
-        else:
-            # Make sure to close the dict
-            code += f"\n{TAB * (level)})"
+    if level == 0:
+        code += f"{NEWLINE_CONSTANT}"
+    else:
+        # Make sure to close the dict
+        code += f"{NEWLINE_CONSTANT}{TAB_CONSTANT * (level)})"
     
     return code
 

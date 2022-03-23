@@ -200,7 +200,7 @@ def get_graph_styling_param_dict(graph_type: str, column_headers: List[ColumnHea
     A param dict is a potentially nested dictonary with strings as keys with
     """
     # Create the parameters that we use to construct the graph
-    all_params: Dict[str, Union[ColumnHeader, List[ColumnHeader], str, None, dict]] = dict()
+    all_params: Dict[str, Any] = dict()
 
     # Create the graph title param
     if graph_styling_params['title']['visible']:
