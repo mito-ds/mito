@@ -122,6 +122,12 @@ const Toolbar = (
                     onClick={props.actions[ActionEnum.Merge].actionFunction}
                 />
                 <ToolbarButton
+                    toolbarButtonType={ToolbarButtonType.CONCAT}
+                    buttonTitle={props.actions[ActionEnum.Concat_Sheets].shortTitle.toUpperCase()}
+                    buttonSubtext={props.actions[ActionEnum.Concat_Sheets].tooltip}
+                    onClick={props.actions[ActionEnum.Concat_Sheets].actionFunction}
+                />
+                <ToolbarButton
                     toolbarButtonType={ToolbarButtonType.DROP_DUPLICATES}
                     buttonTitle={props.actions[ActionEnum.Drop_Duplicates].shortTitle.toUpperCase()}
                     buttonSubtext={props.actions[ActionEnum.Drop_Duplicates].tooltip}

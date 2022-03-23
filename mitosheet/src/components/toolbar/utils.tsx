@@ -44,6 +44,7 @@ export enum ToolbarButtonType {
     DEL_COL = "DEL COL",
     PIVOT = "PIVOT",
     MERGE = "MERGE",
+    CONCAT = "CONCAT",
     DROP_DUPLICATES = "DROP DUPLICATES",
     GRAPH = "GRAPH",
     FORMAT = "FORMAT",
@@ -93,6 +94,10 @@ export const getToolbarItemIcon = (toolbarButtonType: ToolbarButtonType): {darkI
             lightIcon: <PivotIcon variant='light' />
         }
         case ToolbarButtonType.MERGE: return {
+            darkIcon: <MergeIcon />,
+            lightIcon: <MergeIcon variant='light' />
+        }
+        case ToolbarButtonType.CONCAT: return {
             darkIcon: <MergeIcon />,
             lightIcon: <MergeIcon variant='light' />
         }

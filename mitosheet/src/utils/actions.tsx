@@ -456,6 +456,28 @@ export const createActions = (
             searchTerms: ['merge', 'join', 'vlookup', 'lookup', 'anti', 'diff', 'difference', 'unique'],
             tooltip: "Merge two sheets together using a lookup, left, right, inner, or outer join. Or find the differences between two sheets."
         },
+        [ActionEnum.Concat_Sheets]: {
+            type: ActionEnum.Concat_Sheets,
+            shortTitle: 'concat',
+            longTitle: 'Concatenate two or more sheets together',
+            actionFunction: async () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // We open the merge taskpane
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenModal: {type: ModalEnum.None},
+                        currOpenTaskpane: {type: TaskpaneType.CONCAT},
+                        selectedTabType: 'data'
+                    }
+                })
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no sheets to merge together. Import data.'},
+            searchTerms: ['stack', 'merge', 'join', 'concat', 'concatenate', 'append'],
+            tooltip: "Concatenate two or more sheets by stacking them vertically on top of eachother."
+        },
         [ActionEnum.Pivot]: {
             type: ActionEnum.Pivot,
             shortTitle: 'pivot',

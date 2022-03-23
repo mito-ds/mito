@@ -10,7 +10,7 @@ import Col from '../../spacing/Col';
 import '../../../../css/taskpanes/Graph/AxisSection.css'
 import { ColumnID, ColumnIDsMap } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
-import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
+import { columnIDMapToDisplayHeadersMap, getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import SelectAndXIconCard from '../../elements/SelectAndXIconCard';
 
 
@@ -41,8 +41,8 @@ const AxisSection = (props: {
         return ((
             <SelectAndXIconCard 
                 key={i}
-                columnID={columnID}
-                columnIDsMap={props.columnIDsMap}
+                value={columnID}
+                titleMap={columnIDMapToDisplayHeadersMap(props.columnIDsMap)}
                 onChange={(columnID: string) => {
                     props.updateAxisData(
                         props.graphAxis,
@@ -51,7 +51,7 @@ const AxisSection = (props: {
                     )
                 }}
                 onDelete={() => props.updateAxisData(props.graphAxis, i)}
-                selectableColumnIDs={selectableColumnIDs}
+                selectableValues={selectableColumnIDs}
             />
         ))
     })

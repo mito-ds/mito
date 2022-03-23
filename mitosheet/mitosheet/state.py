@@ -16,6 +16,7 @@ DATAFRAME_SOURCE_PASSED = "passed"  # passed in mitosheet.sheet
 DATAFRAME_SOURCE_IMPORTED = "imported"  # imported through a simple import
 DATAFRAME_SOURCE_PIVOTED = "pivoted"  # created through a pivot
 DATAFRAME_SOURCE_MERGED = "merged"  # created through a merge
+DATAFRAME_SOURCE_CONCAT = "concated"  # created through a concat
 DATAFRAME_SOURCE_DUPLICATED = "duplicated"  # created through a sheet duplication
 
 # Constants used for formatting. Defined here to avoid circular imports

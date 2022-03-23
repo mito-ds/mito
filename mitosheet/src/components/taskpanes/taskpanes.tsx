@@ -29,6 +29,7 @@ export enum TaskpaneType {
     GRAPH = 'graph',
     IMPORT = 'import',
     MERGE = 'merge',
+    CONCAT = 'concat',
     NONE = 'none',
     PIVOT = 'pivot',    
     SEARCH = 'search',
@@ -45,6 +46,7 @@ export type TaskpaneInfo =
     }    
     | {type: TaskpaneType.IMPORT}
     | {type: TaskpaneType.MERGE}
+    | {type: TaskpaneType.CONCAT}
     | {type: TaskpaneType.NONE}
     | {
         type: TaskpaneType.PIVOT,

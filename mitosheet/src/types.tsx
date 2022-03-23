@@ -227,7 +227,7 @@ export type GraphStylingParams = {
     },
     showlegend: boolean,
     plot_bgcolor: string // The inner part of the plot with data background. Defaults to a blue-ish shade
-    paper_bgcolor: string // The outter part of the plot around the data. Defaults to white
+    paper_bgcolor: string // The outer part of the plot around the data. Defaults to white
 }
 
 export type GraphParams = {
@@ -258,6 +258,14 @@ export type GraphOutput = {
 export type GraphID = string;
 
 export type GraphDataDict = Record<GraphID, GraphData>
+
+
+
+export interface ConcatParams {
+    join: 'inner' | 'outer',
+    ignore_index: boolean,
+    sheetIndexes: number[]
+}
 
 
 /**
@@ -617,6 +625,7 @@ export enum ActionEnum {
     Help = 'help',
     Import = 'import',
     Merge = 'merge',
+    Concat_Sheets = 'concat_sheets', // Note the unfortunate overlap with concat
     Pivot = 'pivot',
     Redo = 'redo',
     Rename_Column = 'rename column',
