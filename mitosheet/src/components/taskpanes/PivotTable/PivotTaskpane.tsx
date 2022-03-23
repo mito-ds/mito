@@ -156,8 +156,8 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
 
     const addKey = (rowOrColumn: 'row' | 'column', columnID: ColumnID): void => {
         setPivotParams(oldPivotParams => {
-            let newColumnIDs: ColumnID[] = rowOrColumn === 'row' ? [...pivotParams.pivotRowColumnIDs] : [...pivotParams.pivotColumnsColumnIDs];
-            let key = rowOrColumn === 'row' ? 'pivotRowColumnIDs' : 'pivotColumnsColumnIDs';
+            const newColumnIDs: ColumnID[] = rowOrColumn === 'row' ? [...pivotParams.pivotRowColumnIDs] : [...pivotParams.pivotColumnsColumnIDs];
+            const key = rowOrColumn === 'row' ? 'pivotRowColumnIDs' : 'pivotColumnsColumnIDs';
             
             newColumnIDs.push(columnID)
     
@@ -171,8 +171,8 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
 
     const removeKey = (rowOrColumn: 'row' | 'column', keyIndex: number): void => {
         setPivotParams(oldPivotParams => {
-            let newColumnIDs: ColumnID[] = rowOrColumn === 'row' ? [...pivotParams.pivotRowColumnIDs] : [...pivotParams.pivotColumnsColumnIDs];
-            let key = rowOrColumn === 'row' ? 'pivotRowColumnIDs' : 'pivotColumnsColumnIDs';
+            const newColumnIDs: ColumnID[] = rowOrColumn === 'row' ? [...pivotParams.pivotRowColumnIDs] : [...pivotParams.pivotColumnsColumnIDs];
+            const key = rowOrColumn === 'row' ? 'pivotRowColumnIDs' : 'pivotColumnsColumnIDs';
             
             newColumnIDs.splice(keyIndex, 1);
     
@@ -186,8 +186,8 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
 
     const editKey = (rowOrColumn: 'row' | 'column', keyIndex: number, newColumnID: ColumnID): void => {
         setPivotParams(oldPivotParams => {
-            let newColumnIDs: ColumnID[] = rowOrColumn === 'row' ? [...pivotParams.pivotRowColumnIDs] : [...pivotParams.pivotColumnsColumnIDs];
-            let key = rowOrColumn === 'row' ? 'pivotRowColumnIDs' : 'pivotColumnsColumnIDs';
+            const newColumnIDs: ColumnID[] = rowOrColumn === 'row' ? [...pivotParams.pivotRowColumnIDs] : [...pivotParams.pivotColumnsColumnIDs];
+            const key = rowOrColumn === 'row' ? 'pivotRowColumnIDs' : 'pivotColumnsColumnIDs';
             
             newColumnIDs[keyIndex] = newColumnID;
     
