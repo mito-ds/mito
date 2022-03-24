@@ -391,6 +391,24 @@ export default class MitoAPI {
         }
     }
 
+    async getParams<T>(stepType: string, stepID: string | undefined, executionDataToMatch: Record<string, string | number>): Promise<T | undefined> {
+        
+        const params = await this.send<string>({
+            'event': 'api_call',
+            'type': 'get_params',
+            'step_type': stepType,
+            'step_id_to_match': stepID || '',
+            'execution_data_to_match': executionDataToMatch
+        }, {})
+
+        console.log(params)
+
+        if (params !== undefined && params !== '') {
+            return JSON.parse(params) as T
+        }
+        return undefined;
+    }
+
     /*
         Gets the parameters for the pivot table at desination sheet
         index, or nothing if there are no params
@@ -398,17 +416,19 @@ export default class MitoAPI {
     async getPivotParams(
         destinationSheetIndex: number
     ): Promise<PivotParams | undefined> {
-
-        const pivotParams = await this.send<string>({
-            'event': 'api_call',
-            'type': 'get_pivot_params',
+        return await this.getParams('pivot', undefined, {
             'destination_sheet_index': destinationSheetIndex
-        }, {})
+        })
+    }
 
-        if (pivotParams !== undefined && pivotParams !== '') {
-            return JSON.parse(pivotParams) as PivotParams
-        }
-        return undefined;
+    /*
+        Gets the parameters for the pivot table at desination sheet
+        index, or nothing if there are no params
+    */
+    async getConcatParams(
+        stepID: string
+    ): Promise<ConcatParams | undefined> {
+        return await this.getParams('concat', stepID, {})
     }
 
     /*
@@ -686,7 +706,7 @@ export default class MitoAPI {
             'params': {
                 'join': params.join,
                 'ignore_index': params.ignore_index,
-                'sheet_indexes': params.sheetIndexes,
+                'sheet_indexes': params.sheet_indexes,
             }
         }, {})
 

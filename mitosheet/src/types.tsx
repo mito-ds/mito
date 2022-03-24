@@ -264,7 +264,7 @@ export type GraphDataDict = Record<GraphID, GraphData>
 export interface ConcatParams {
     join: 'inner' | 'outer',
     ignore_index: boolean,
-    sheetIndexes: number[]
+    sheet_indexes: number[]
 }
 
 

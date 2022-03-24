@@ -489,6 +489,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
             )
             case TaskpaneType.CONCAT: return (
                 <ConcatTaskpane
+                    analysisData={analysisData}
                     sheetDataArray={sheetDataArray}
                     setUIState={setUIState}
                     mitoAPI={props.mitoAPI}
