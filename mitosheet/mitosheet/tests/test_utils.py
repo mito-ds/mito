@@ -81,7 +81,6 @@ def check_dataframes_equal(test_wrapper):
             for df_name in test_wrapper.mito_widget.steps_manager.curr_step.df_names
         ]
     )
-    print(code)
 
     import mitosheet
     exec(code, 
