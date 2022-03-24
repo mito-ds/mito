@@ -1,4 +1,4 @@
-import { ColumnHeader, ColumnIDsMap, MultiIndexColumnHeader, PrimitiveColumnHeader } from "../types";
+import { ColumnHeader, ColumnID, ColumnIDsMap, DisplayColumnHeader, MultiIndexColumnHeader, PrimitiveColumnHeader } from "../types";
 
 
 export const isPrimitiveColumnHeader = (columnHeader: ColumnHeader): columnHeader is PrimitiveColumnHeader => {
@@ -13,7 +13,7 @@ export const isPrimitiveColumnHeader = (columnHeader: ColumnHeader): columnHeade
  * 
  * @param columnHeader The column header to display
  */
-export const getDisplayColumnHeader = (columnHeader: ColumnHeader): string => {
+export const getDisplayColumnHeader = (columnHeader: ColumnHeader): DisplayColumnHeader => {
     if (isPrimitiveColumnHeader(columnHeader)) {
         return columnHeader.toString()
     } else {
@@ -21,7 +21,12 @@ export const getDisplayColumnHeader = (columnHeader: ColumnHeader): string => {
     }
 }
 
-export const columnIDMapToDisplayHeadersMap = (columnIDsMap: ColumnIDsMap): Record<string, string> => {
+/**
+ * 
+ * @param columnIDsMap the column header map to turn into a map from column id to display headers
+ * @returns a Record of ColumnID to display of a ColumnHeader
+ */
+export const columnIDMapToDisplayHeadersMap = (columnIDsMap: ColumnIDsMap): Record<ColumnID, DisplayColumnHeader> => {
     return Object.fromEntries(Object.entries(columnIDsMap).map(([columnID, columnHeader]) => {return [columnID, getDisplayColumnHeader(columnHeader)]}));
 }
 

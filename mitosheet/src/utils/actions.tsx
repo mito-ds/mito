@@ -452,7 +452,7 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no sheets to merge together. Import data.'},
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no sheets to concat together. Import data.'},
             searchTerms: ['merge', 'join', 'vlookup', 'lookup', 'anti', 'diff', 'difference', 'unique'],
             tooltip: "Merge two sheets together using a lookup, left, right, inner, or outer join. Or find the differences between two sheets."
         },

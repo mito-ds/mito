@@ -153,7 +153,7 @@ export interface MitoError {
 export type PrimitiveColumnHeader = string | number | boolean;
 export type MultiIndexColumnHeader = PrimitiveColumnHeader[]; // TODO: is this a bug? Can we have a multi-index with a multi-index inside it
 export type ColumnHeader = PrimitiveColumnHeader | MultiIndexColumnHeader;
-
+export type DisplayColumnHeader = string // we alias this for type clarity and readability
 
 export type ColumnID = string;
 /**
