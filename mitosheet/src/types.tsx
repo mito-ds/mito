@@ -699,7 +699,7 @@ export interface Action {
     // We store the type of the action so that we can introspect the type of the variable
     type: ActionEnum;
 
-    // The short title for the action. Should be lowercase.
+    // The short title for the action. Should be title case, as you want to display it.
     shortTitle: string
 
     // The optional long title for the action.

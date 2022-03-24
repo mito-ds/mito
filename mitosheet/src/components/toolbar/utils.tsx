@@ -17,6 +17,7 @@ import RedoIcon from '../icons/RedoIcon';
 import ClearIcon from '../icons/ClearIcon';
 import DropDuplicatesIcon from '../icons/DropDuplicatesIcon';
 import FormatIcon from '../icons/FormatIcon';
+import ConcatIcon from '../icons/ConcatIcon';
 
 /* 
     Each toolbar button icon has both a light and dark option. 
@@ -98,8 +99,8 @@ export const getToolbarItemIcon = (toolbarButtonType: ToolbarButtonType): {darkI
             lightIcon: <MergeIcon variant='light' />
         }
         case ToolbarButtonType.CONCAT: return {
-            darkIcon: <MergeIcon />,
-            lightIcon: <MergeIcon variant='light' />
+            darkIcon: <ConcatIcon />,
+            lightIcon: <ConcatIcon variant='light' />
         }
         case ToolbarButtonType.DROP_DUPLICATES: return {
             darkIcon: <DropDuplicatesIcon />,

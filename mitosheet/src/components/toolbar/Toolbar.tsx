@@ -57,20 +57,20 @@ const Toolbar = (
                 <ToolbarButton
                     id='mito-undo-button' // NOTE: this is used to click the undo button in plugin.tsx
                     toolbarButtonType={ToolbarButtonType.UNDO}
-                    buttonTitle={props.actions[ActionEnum.Undo].shortTitle.toUpperCase()}
+                    buttonTitle={props.actions[ActionEnum.Undo].shortTitle}
                     buttonSubtext={props.actions[ActionEnum.Undo].tooltip}
                     onClick={props.actions[ActionEnum.Undo].actionFunction}
                 />
                 <ToolbarButton
                     id='mito-redo-button' // NOTE: this is used to click the redo button in plugin.tsx
                     toolbarButtonType={ToolbarButtonType.REDO}
-                    buttonTitle={props.actions[ActionEnum.Redo].shortTitle.toUpperCase()}
+                    buttonTitle={props.actions[ActionEnum.Redo].shortTitle}
                     buttonSubtext={props.actions[ActionEnum.Redo].tooltip}
                     onClick={props.actions[ActionEnum.Redo].actionFunction}
                 />
                 <ToolbarButton
                     toolbarButtonType={ToolbarButtonType.CLEAR}
-                    buttonTitle={props.actions[ActionEnum.Clear].shortTitle.toUpperCase()}
+                    buttonTitle={props.actions[ActionEnum.Clear].shortTitle}
                     buttonSubtext={props.actions[ActionEnum.Clear].tooltip}
                     onClick={props.actions[ActionEnum.Clear].actionFunction}
                 />
@@ -79,13 +79,13 @@ const Toolbar = (
 
                 <ToolbarButton
                     toolbarButtonType={ToolbarButtonType.IMPORT}
-                    buttonTitle={props.actions[ActionEnum.Import].shortTitle.toUpperCase()}
+                    buttonTitle={props.actions[ActionEnum.Import].shortTitle}
                     buttonSubtext={props.actions[ActionEnum.Import].tooltip}
                     onClick={props.actions[ActionEnum.Import].actionFunction}
                 />
                 <ToolbarButton
                     toolbarButtonType={ToolbarButtonType.EXPORT}
-                    buttonTitle={props.actions[ActionEnum.Export].shortTitle.toUpperCase()}
+                    buttonTitle={props.actions[ActionEnum.Export].shortTitle}
                     buttonSubtext={props.actions[ActionEnum.Export].tooltip}
                     onClick={props.actions[ActionEnum.Export].actionFunction}
                 />
@@ -94,14 +94,14 @@ const Toolbar = (
 
                 <ToolbarButton
                     toolbarButtonType={ToolbarButtonType.ADD_COL}
-                    buttonTitle={props.actions[ActionEnum.Add_Column].shortTitle.toUpperCase()}
+                    buttonTitle={props.actions[ActionEnum.Add_Column].shortTitle}
                     buttonSubtext={props.actions[ActionEnum.Add_Column].tooltip}
                     onClick={props.actions[ActionEnum.Add_Column].actionFunction}
                     highlightToolbarButton={props.highlightAddColButton}
                 />
                 <ToolbarButton
                     toolbarButtonType={ToolbarButtonType.DEL_COL}
-                    buttonTitle={props.actions[ActionEnum.Delete_Column].shortTitle.toUpperCase()}
+                    buttonTitle={props.actions[ActionEnum.Delete_Column].shortTitle}
                     buttonSubtext={props.actions[ActionEnum.Delete_Column].tooltip}
                     onClick={props.actions[ActionEnum.Delete_Column].actionFunction}
                 />
@@ -110,26 +110,26 @@ const Toolbar = (
 
                 <ToolbarButton
                     toolbarButtonType={ToolbarButtonType.PIVOT}
-                    buttonTitle={props.actions[ActionEnum.Pivot].shortTitle.toUpperCase()}
+                    buttonTitle={props.actions[ActionEnum.Pivot].shortTitle}
                     buttonSubtext={props.actions[ActionEnum.Pivot].tooltip}
                     onClick={props.actions[ActionEnum.Pivot].actionFunction}
                     highlightToolbarButton={props.highlightPivotTableButton}
                 />
                 <ToolbarButton
                     toolbarButtonType={ToolbarButtonType.MERGE}
-                    buttonTitle={props.actions[ActionEnum.Merge].shortTitle.toUpperCase()}
+                    buttonTitle={props.actions[ActionEnum.Merge].shortTitle}
                     buttonSubtext={props.actions[ActionEnum.Merge].tooltip}
                     onClick={props.actions[ActionEnum.Merge].actionFunction}
                 />
                 <ToolbarButton
                     toolbarButtonType={ToolbarButtonType.CONCAT}
-                    buttonTitle={props.actions[ActionEnum.Concat_Sheets].shortTitle.toUpperCase()}
+                    buttonTitle={props.actions[ActionEnum.Concat_Sheets].shortTitle}
                     buttonSubtext={props.actions[ActionEnum.Concat_Sheets].tooltip}
                     onClick={props.actions[ActionEnum.Concat_Sheets].actionFunction}
                 />
                 <ToolbarButton
                     toolbarButtonType={ToolbarButtonType.DROP_DUPLICATES}
-                    buttonTitle={props.actions[ActionEnum.Drop_Duplicates].shortTitle.toUpperCase()}
+                    buttonTitle={props.actions[ActionEnum.Drop_Duplicates].shortTitle}
                     buttonSubtext={props.actions[ActionEnum.Drop_Duplicates].tooltip}
                     onClick={props.actions[ActionEnum.Drop_Duplicates].actionFunction}
                 />
@@ -138,7 +138,7 @@ const Toolbar = (
                 
                 <ToolbarButton
                     toolbarButtonType={ToolbarButtonType.GRAPH}
-                    buttonTitle={props.actions[ActionEnum.Graph].shortTitle.toUpperCase()}
+                    buttonTitle={props.actions[ActionEnum.Graph].shortTitle}
                     buttonSubtext={props.actions[ActionEnum.Graph].tooltip}
                     onClick={props.actions[ActionEnum.Graph].actionFunction}
                 />
@@ -147,7 +147,7 @@ const Toolbar = (
 
                 <ToolbarButton
                     toolbarButtonType={ToolbarButtonType.FORMAT}
-                    buttonTitle={props.actions[ActionEnum.Format].shortTitle.toUpperCase()}
+                    buttonTitle={props.actions[ActionEnum.Format].shortTitle}
                     buttonSubtext={props.actions[ActionEnum.Format].tooltip}
                     onClick={props.actions[ActionEnum.Format].actionFunction}
                     displayChildren={props.uiState.displayFormatToolbarDropdown}
@@ -181,7 +181,7 @@ const Toolbar = (
                 }
                 <ToolbarButton
                     toolbarButtonType={ToolbarButtonType.STEPS}
-                    buttonTitle={props.actions[ActionEnum.Steps].shortTitle.toUpperCase()}
+                    buttonTitle={props.actions[ActionEnum.Steps].shortTitle}
                     buttonSubtext={props.actions[ActionEnum.Steps].tooltip}
                     onClick={props.actions[ActionEnum.Steps].actionFunction}
                 />
@@ -190,7 +190,7 @@ const Toolbar = (
 
                 <ToolbarButton
                     toolbarButtonType={fullscreen ? ToolbarButtonType.CLOSE_FULLSCREEN : ToolbarButtonType.OPEN_FULLSCREEN}
-                    buttonTitle={props.actions[ActionEnum.Fullscreen].shortTitle.toUpperCase()}
+                    buttonTitle={props.actions[ActionEnum.Fullscreen].shortTitle}
                     buttonSubtext={props.actions[ActionEnum.Fullscreen].tooltip}
                     onClick={props.actions[ActionEnum.Fullscreen].actionFunction}
                 />
