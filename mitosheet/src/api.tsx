@@ -391,6 +391,10 @@ export default class MitoAPI {
         }
     }
 
+    /**
+     * A very useful general utility for getting the params
+     * of a step with a step id or with specific execution data
+     */
     async getParams<T>(stepType: string, stepID: string | undefined, executionDataToMatch: Record<string, string | number>): Promise<T | undefined> {
         
         const params = await this.send<string>({
@@ -400,8 +404,6 @@ export default class MitoAPI {
             'step_id_to_match': stepID || '',
             'execution_data_to_match': executionDataToMatch
         }, {})
-
-        console.log(params)
 
         if (params !== undefined && params !== '') {
             return JSON.parse(params) as T

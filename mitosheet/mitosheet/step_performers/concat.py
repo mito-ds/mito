@@ -79,8 +79,9 @@ class ConcatStepPerformer(StepPerformer):
         df_names_to_concat = [post_state.df_names[sheet_index] for sheet_index in sheet_indexes]
         df_new_name = post_state.df_names[len(post_state.dfs) - 1]
 
+
         return [
-            f'{df_new_name} = pd.concat({column_header_list_to_transpiled_code(df_names_to_concat)}, join={column_header_to_transpiled_code(join)}, ignore_index={ignore_index})'
+            f"{df_new_name} = pd.concat([{', '.join(df_names_to_concat)}], join=\'{join}\', ignore_index={ignore_index})"
         ]
 
     @classmethod

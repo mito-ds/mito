@@ -45,14 +45,12 @@ const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
             return;
         }
 
-        sendConcatEdit()
+        void sendConcatEdit()
     }, [updateNumber])
 
     useEffectOnUpdateEvent(() => {
         void refreshConcatParams()
     }, props.analysisData)
-
-    // TODO: make it work with undo
 
     const sendConcatEdit = async () => {
         const _stepID = await props.mitoAPI.editConcat(

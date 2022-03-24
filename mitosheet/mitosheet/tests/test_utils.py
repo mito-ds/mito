@@ -81,6 +81,7 @@ def check_dataframes_equal(test_wrapper):
             for df_name in test_wrapper.mito_widget.steps_manager.curr_step.df_names
         ]
     )
+    print(code)
 
     import mitosheet
     exec(code, 
@@ -248,6 +249,29 @@ class MitoWidgetTestWrapper:
                     'sheet_index_two': sheet_index_two,
                     'merge_key_column_id_two': merge_key_column_id_two,
                     'selected_column_ids_two': selected_column_ids_two
+                }
+            }
+        )
+    
+    @check_transpiled_code_after_call
+    def concat_sheets(
+            self, 
+            join: str,
+            ignore_index: bool,
+            sheet_indexes: int
+        ) -> bool:
+
+        return self.mito_widget.receive_message(
+            self.mito_widget,
+            {
+                'event': 'edit_event',
+                'id': get_new_id(),
+                'type': 'concat_edit',
+                'step_id': get_new_id(),
+                'params': {
+                    'join': join,
+                    'ignore_index': ignore_index,
+                    'sheet_indexes': sheet_indexes
                 }
             }
         )
