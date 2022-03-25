@@ -127,7 +127,7 @@ const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
-                header="Concatenate dataframes"
+                header="Concatenate Sheet"
                 setUIState={props.setUIState}            
             />
             <DefaultTaskpaneBody>
@@ -153,11 +153,11 @@ const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
                         >
                             <DropdownItem
                                 title='inner'
-                                subtext="Only includes columns that have matches in all sheets."
+                                subtext="Only includes columns that exist in all sheets"
                             />
                             <DropdownItem
                                 title="outer"
-                                subtext="Includes all columns from all sheets, regardless of if there is a match in the other sheets."
+                                subtext="Includes all columns from all sheets, regardless of if these columns are in the other sheets."
                             />
                         </Select>
                     </Col>

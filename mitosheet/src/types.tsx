@@ -23,6 +23,7 @@ export enum StepType {
     Sort = 'sort',
     Pivot = 'pivot',
     Merge = 'merge',
+    Concat = 'concat',
     DropDuplicates = 'drop_duplicates',
     ChangeColumnDtype = 'change_column_dtype',
     ChangeColumnFormat = 'change_column_format',

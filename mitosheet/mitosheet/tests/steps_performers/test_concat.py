@@ -16,6 +16,12 @@ CONCAT_TESTS = [
     (
         'inner',
         True,
+        [],
+        pd.DataFrame(),
+    ),
+    (
+        'inner',
+        True,
         [
             pd.DataFrame(data={'A': [1]}),
             pd.DataFrame(data={'A': [2]}),
@@ -71,8 +77,6 @@ CONCAT_TESTS = [
 @pytest.mark.parametrize("join, ignore_index, input_dfs, output_df", CONCAT_TESTS)
 def test_concat(join, ignore_index, input_dfs, output_df):
     mito = create_mito_wrapper_dfs(*input_dfs)
-
-    print([idx for idx in range(len(input_dfs))])
 
     mito.concat_sheets(
         join,

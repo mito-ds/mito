@@ -687,10 +687,7 @@ export default class MitoAPI {
 
         return error != undefined ? error : stepID
     }
-    /*
-        Does a merge with the passed parameters, returning the ID of the edit
-        event that was generated (in case you want to overwrite it).
-    */
+ 
     async editConcat(
         params: ConcatParams,
         stepID?: string

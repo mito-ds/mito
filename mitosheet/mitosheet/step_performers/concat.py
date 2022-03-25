@@ -11,13 +11,11 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import pandas as pd
 from mitosheet.state import DATAFRAME_SOURCE_CONCAT, State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.transpiler.transpile_utils import (
-    column_header_list_to_transpiled_code, column_header_to_transpiled_code)
-from mitosheet.types import ColumnHeader, ColumnID
+
 
 class ConcatStepPerformer(StepPerformer):
     """
-    Allows you to concatenage two or more dataframes together.
+    Allows you to concatenate two or more dataframes together.
     """
 
     @classmethod
@@ -54,9 +52,13 @@ class ConcatStepPerformer(StepPerformer):
 
         to_concat = [post_state.dfs[sheet_index] for sheet_index in sheet_indexes]
 
-        pandas_start_time = perf_counter()
-        new_df = pd.concat(to_concat, join=join, ignore_index=ignore_index)
-        pandas_processing_time = perf_counter() - pandas_start_time
+        if len(to_concat) == 0:
+            new_df = pd.DataFrame()
+            pandas_processing_time = 0.0
+        else:
+            pandas_start_time = perf_counter()
+            new_df = pd.concat(to_concat, join=join, ignore_index=ignore_index)
+            pandas_processing_time = perf_counter() - pandas_start_time
 
         # Add this dataframe to the new post state
         post_state.add_df_to_state(new_df, DATAFRAME_SOURCE_CONCAT)
@@ -79,10 +81,12 @@ class ConcatStepPerformer(StepPerformer):
         df_names_to_concat = [post_state.df_names[sheet_index] for sheet_index in sheet_indexes]
         df_new_name = post_state.df_names[len(post_state.dfs) - 1]
 
-
-        return [
-            f"{df_new_name} = pd.concat([{', '.join(df_names_to_concat)}], join=\'{join}\', ignore_index={ignore_index})"
-        ]
+        if len(df_names_to_concat) == 0:
+            return [f'{df_new_name} = pd.DataFrame()']
+        else:
+            return [
+                f"{df_new_name} = pd.concat([{', '.join(df_names_to_concat)}], join=\'{join}\', ignore_index={ignore_index})"
+            ]
 
     @classmethod
     def describe( # type: ignore

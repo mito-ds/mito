@@ -43,7 +43,8 @@ def get_first_unused_dataframe_name(existing_df_names: List[str], new_dataframe_
 
 def get_valid_dataframe_name(existing_df_names: List[str], original_dataframe_name: str) -> str:
     """
-    Given a string, turns it into a valid dataframe name.
+    Given a string, turns it into a valid dataframe name, making sure to 
+    not overlap with any existing dataframe names.
     """
     # We get all the words from the original name, and append them with underscores
     dataframe_name = '_'.join(filter(None, [

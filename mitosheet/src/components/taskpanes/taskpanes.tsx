@@ -70,5 +70,6 @@ export const EDITING_TASKPANES: TaskpaneType[] = [
     TaskpaneType.IMPORT,
     TaskpaneType.DROP_DUPLICATES,
     TaskpaneType.DOWNLOAD,
+    TaskpaneType.CONCAT,
 ]
     
