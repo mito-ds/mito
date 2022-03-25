@@ -40,8 +40,6 @@ const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
         props.analysisData
     )
 
-    console.log(concatParams)
-
     // Make sure the user cannot select the newly created dataframe
     const [selectableSheetIndexes] = useState(props.sheetDataArray.map((sd, index) => index));
 

@@ -72,4 +72,10 @@ export const EDITING_TASKPANES: TaskpaneType[] = [
     TaskpaneType.DOWNLOAD,
     TaskpaneType.CONCAT,
 ]
+
+/**
+ * Editing taskpanes where undo / redo should not close them, but rather
+ * keep them open (e.g. so they can refresh params)
+ */
+export const ALLOW_UNDO_REDO_EDITING_TASKPANES = [TaskpaneType.PIVOT, TaskpaneType.IMPORT, TaskpaneType.CONCAT]
     

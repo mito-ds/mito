@@ -6,7 +6,7 @@ import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFr
 import { ModalEnum } from "../components/modals/modals";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
 import { getDefaultGraphParams } from "../components/taskpanes/Graph/graphUtils";
-import { TaskpaneType } from "../components/taskpanes/taskpanes";
+import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../data/function_documentation";
 import { Action, ActionEnum, DFSource, EditorState, GridState, SheetData, UIState } from "../types"
@@ -549,7 +549,7 @@ export const createActions = (
                 setEditorState(undefined);
     
                 // We close the editing taskpane if its open
-                closeOpenEditingPopups([TaskpaneType.PIVOT, TaskpaneType.CONCAT]);
+                closeOpenEditingPopups(ALLOW_UNDO_REDO_EDITING_TASKPANES);
     
                 void mitoAPI.updateRedo();
             },
@@ -764,7 +764,7 @@ export const createActions = (
                 setEditorState(undefined);
         
                 // We close the editing taskpane if its open
-                closeOpenEditingPopups([TaskpaneType.PIVOT, TaskpaneType.IMPORT, TaskpaneType.CONCAT]);
+                closeOpenEditingPopups(ALLOW_UNDO_REDO_EDITING_TASKPANES);
         
                 void mitoAPI.updateUndo();
             },

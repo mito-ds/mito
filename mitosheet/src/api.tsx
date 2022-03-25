@@ -510,12 +510,12 @@ export default class MitoAPI {
 
     /**
      * A general utility function for sending an edit event with some
-     * set of params for that event
+     * set of params for that edit event.
      * 
      * @param edit_event_type 
-     * @param params 
-     * @param stepID 
-     * @returns 
+     * @param params the parameters of the step to send
+     * @param stepID the step id to overwrite (or undefined if not overwriting a step)
+     * @returns the stepID that was sent to the backend
      */
     async _edit<T>(
         edit_event_type: string,
