@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import MitoAPI from "../../../api";
-import { useEffectOnUpdateEvent } from "../../../hooks/useEffectOnUpdateEvent";
+import useSyncedParams from "../../../hooks/useSyncedParams";
 import { AnalysisData, ConcatParams, SheetData, UIState } from "../../../types"
 import DropdownButton from "../../elements/DropdownButton";
 import DropdownItem from "../../elements/DropdownItem";
@@ -29,57 +29,21 @@ interface ConcatTaskpaneProps {
 */
 const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
 
-    const [stepID, setStepID] = useState<string | undefined>(undefined);
-    const [concatParams, setConcatParams] = useState<ConcatParams>({
-        join: 'inner',
-        ignore_index: true,
-        sheet_indexes: []
-    })
-    const [updateNumber, setUpdateNumber] = useState(0)
+    const [concatParams, setConcatParams] = useSyncedParams<ConcatParams>(
+        {
+            join: 'inner',
+            ignore_index: true,
+            sheet_indexes: []
+        },
+        props.mitoAPI.getConcatParams.bind(props.mitoAPI),
+        props.mitoAPI.editConcat.bind(props.mitoAPI),
+        props.analysisData
+    )
+
+    console.log(concatParams)
 
     // Make sure the user cannot select the newly created dataframe
     const [selectableSheetIndexes] = useState(props.sheetDataArray.map((sd, index) => index));
-
-    useEffect(() => {
-        if (updateNumber === 0) {
-            return;
-        }
-
-        void sendConcatEdit()
-    }, [updateNumber])
-
-    useEffectOnUpdateEvent(() => {
-        void refreshConcatParams()
-    }, props.analysisData)
-
-    const sendConcatEdit = async () => {
-        const _stepID = await props.mitoAPI.editConcat(
-            concatParams,
-            stepID
-        )
-        setStepID(_stepID);
-    }
-
-    const refreshConcatParams = async () => {
-        if (stepID === undefined) {
-            return
-        }
-
-        const params = await props.mitoAPI.getConcatParams(stepID);
-        if (params !== undefined) {
-            // If there are params, we reset them
-            setConcatParams(params);
-        } else {
-            // If you undo all the way back to the point where this step does not
-            // exist, then we reset your params entirely
-            setConcatParams({
-                join: 'inner',
-                ignore_index: true,
-                sheet_indexes: []
-            })
-        }
-    }
-
 
     if (props.sheetDataArray.length < 2) {
         return (<DefaultEmptyTaskpane setUIState={props.setUIState} message="Import at least two datasets before concating."/>)
@@ -104,7 +68,6 @@ const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
                             sheet_indexes: newSheetIndexes
                         }
                     })
-                    setUpdateNumber(old => old + 1);
                 }}
                 onDelete={() => {
                     setConcatParams(prevConcatParams => {
@@ -116,7 +79,6 @@ const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
                             sheet_indexes: newSheetIndexes
                         }
                     })
-                    setUpdateNumber(old => old + 1);
                 }}
                 selectableValues={Object.keys(props.sheetDataArray)} // Note the cast to strings
             />
@@ -147,7 +109,6 @@ const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
                                         join: newJoin as 'inner' | 'outer'
                                     }
                                 })
-                                setUpdateNumber(old => old + 1)
                             }}
                             width='medium'
                         >
@@ -178,7 +139,6 @@ const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
                                         ignore_index: !prevConcatParams.ignore_index
                                     }
                                 })
-                                setUpdateNumber(old => old + 1)
                             }}                      
                         />
                     </Col>
@@ -215,7 +175,6 @@ const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
                                                     sheet_indexes: newSheetIndexes
                                                 }
                                             })
-                                            setUpdateNumber(old => old + 1);
                                         }}
                                     />
                                 )

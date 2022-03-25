@@ -549,7 +549,7 @@ export const createActions = (
                 setEditorState(undefined);
     
                 // We close the editing taskpane if its open
-                closeOpenEditingPopups([TaskpaneType.PIVOT]);
+                closeOpenEditingPopups([TaskpaneType.PIVOT, TaskpaneType.CONCAT]);
     
                 void mitoAPI.updateRedo();
             },
@@ -764,7 +764,7 @@ export const createActions = (
                 setEditorState(undefined);
         
                 // We close the editing taskpane if its open
-                closeOpenEditingPopups([TaskpaneType.PIVOT, TaskpaneType.IMPORT]);
+                closeOpenEditingPopups([TaskpaneType.PIVOT, TaskpaneType.IMPORT, TaskpaneType.CONCAT]);
         
                 void mitoAPI.updateUndo();
             },
