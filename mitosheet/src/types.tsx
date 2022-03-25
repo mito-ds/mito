@@ -258,14 +258,14 @@ export type GraphDataDict = Record<GraphID, GraphData>
 // NOTE: these aggregation functions need to be supported
 // in mitosheet/steps/pivot.py as well
 export enum AggregationType {
+    COUNT = 'count', 
+    COUNT_UNIQUE = 'count unique',
     SUM = 'sum',
     MEAN = 'mean',
     MEDIAN = 'median',
     STD = 'std',
     MIN = 'min',
     MAX = 'max', 
-    COUNT = 'count', 
-    COUNT_UNIQUE = 'count unique',
 }
 
 // The parameters saved on the backend

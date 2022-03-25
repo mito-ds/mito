@@ -207,6 +207,7 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
     }
 
+    const sheetData: SheetData | undefined = props.sheetDataArray[pivotParams.selectedSheetIndex];
     const columnIDsMap = props.columnIDsMapArray[pivotParams.selectedSheetIndex] || {}; // Make sure it's not undefined
     
     return (
@@ -302,6 +303,7 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
                 </div>
                 <div className='default-taskpane-body-section-div'>
                     <PivotTableValueSelection
+                        sheetData={sheetData}
                         columnIDsMap={columnIDsMap}
                         pivotValuesColumnIDsArray={pivotParams.pivotValuesColumnIDsArray}
                         addPivotValueAggregation={addPivotValueAggregation}
