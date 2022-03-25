@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import MitoAPI from "../api";
 import { AnalysisData } from "../types";
 import { useEffectOnUpdateEvent } from "./useEffectOnUpdateEvent";
 
@@ -10,8 +11,9 @@ import { useEffectOnUpdateEvent } from "./useEffectOnUpdateEvent";
 */
 function useSyncedParams<T>(
     defaultParams: T,
-    getExistingParams: (stepID: string) => Promise<T | undefined>,
-    onChangeParams: (params: T, stepID: string | undefined) => Promise<string>,
+    stepType: string,
+    editEventType: string,
+    mitoAPI: MitoAPI,
     analysisData: AnalysisData
 ): [T, React.Dispatch<React.SetStateAction<T>>] {
 
@@ -37,7 +39,7 @@ function useSyncedParams<T>(
     );
 
     const onChange = async () => {
-        const _stepID = await onChangeParams(params, stepID);
+        const _stepID = await mitoAPI._edit(editEventType, params, stepID);
         setStepID(_stepID);
     }
 
@@ -47,7 +49,7 @@ function useSyncedParams<T>(
             return;
         }
 
-        const newParams = await getExistingParams(stepID);
+        const newParams = await mitoAPI.getParams<typeof defaultParams>('concat', stepID, {});
         if (newParams !== undefined) {
             _setParams(newParams);
         } else {

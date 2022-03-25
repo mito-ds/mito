@@ -35,8 +35,8 @@ const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
             ignore_index: true,
             sheet_indexes: []
         },
-        props.mitoAPI.getConcatParams.bind(props.mitoAPI),
-        props.mitoAPI.editConcat.bind(props.mitoAPI),
+        'concat', 'concat_edit', 
+        props.mitoAPI,
         props.analysisData
     )
 

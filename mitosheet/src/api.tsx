@@ -6,7 +6,7 @@ import { UniqueValueCount, UniqueValueSortType } from "./components/taskpanes/Co
 import { FileElement } from "./components/taskpanes/Import/ImportTaskpane";
 import { MergeType } from "./components/taskpanes/Merge/MergeTaskpane";
 import { AggregationType, PivotParams } from "./components/taskpanes/PivotTable/PivotTaskpane";
-import { ColumnID, ConcatParams, ExcelFileMetadata, FeedbackID, FilterGroupType, FilterType, FormatTypeObj, GraphID, GraphParams, MitoError, SearchMatches, SheetData } from "./types";
+import { ColumnID, ExcelFileMetadata, FeedbackID, FilterGroupType, FilterType, FormatTypeObj, GraphID, GraphParams, MitoError, SearchMatches, SheetData } from "./types";
 
 
 /*
@@ -424,16 +424,6 @@ export default class MitoAPI {
     }
 
     /*
-        Gets the parameters for the pivot table at desination sheet
-        index, or nothing if there are no params
-    */
-    async getConcatParams(
-        stepID: string
-    ): Promise<ConcatParams | undefined> {
-        return await this.getParams('concat', stepID, {})
-    }
-
-    /*
         Gets metadata about an Excel file
     */
     async getExcelFileMetadata(
@@ -515,6 +505,36 @@ export default class MitoAPI {
             return JSON.parse(searchMatchesString);
         }
         return undefined;
+    }
+
+
+    /**
+     * A general utility function for sending an edit event with some
+     * set of params for that event
+     * 
+     * @param edit_event_type 
+     * @param params 
+     * @param stepID 
+     * @returns 
+     */
+    async _edit<T>(
+        edit_event_type: string,
+        params: T,
+        stepID?: string
+    ): Promise<string> {
+        // If we aren't overwritting a step, return the step id
+        if (stepID === undefined || stepID == '') {
+            stepID = getRandomId();
+        }
+
+        await this.send({
+            'event': 'edit_event',
+            'type': edit_event_type,
+            'step_id': stepID,
+            'params': params
+        }, {})
+
+        return stepID;
     }
 
     async editGraph(
@@ -686,30 +706,6 @@ export default class MitoAPI {
         }, {})
 
         return error != undefined ? error : stepID
-    }
- 
-    async editConcat(
-        params: ConcatParams,
-        stepID?: string
-    ): Promise<string> {
-        // If this is overwriting a merge event, then we do not need to
-        // create a new id, as we already have it!
-        if (stepID === undefined || stepID == '') {
-            stepID = getRandomId();
-        }
-
-        await this.send({
-            'event': 'edit_event',
-            'type': 'concat_edit',
-            'step_id': stepID,
-            'params': {
-                'join': params.join,
-                'ignore_index': params.ignore_index,
-                'sheet_indexes': params.sheet_indexes,
-            }
-        }, {})
-
-        return stepID;
     }
 
     /*
