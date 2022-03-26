@@ -152,8 +152,24 @@ const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
                             text='+ Add'
                             width='small'
                             searchable
-                        >
-                            {props.sheetDataArray.filter((sheetData, index) => {
+                        >   
+                            {/** We allow users to select all dataframes in the sheet, as some users want this */}
+                            {[
+                                <DropdownItem
+                                    key={-1}
+                                    title="Add all sheets"
+                                    onClick={() => {
+                                        setConcatParams(prevConcatParams => {
+                                            const newSheetIndexes = [...selectableSheetIndexes];;
+                    
+                                            return {
+                                                ...prevConcatParams,
+                                                sheet_indexes: newSheetIndexes
+                                            }
+                                        })
+                                    }}
+                                />
+                            ].concat(props.sheetDataArray.filter((sheetData, index) => {
                                 if (!selectableSheetIndexes.includes(index)) {
                                     return false;
                                 }
@@ -176,7 +192,7 @@ const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
                                         }}
                                     />
                                 )
-                            })}
+                            }))}
                         </DropdownButton>
                     </Col>
                 </Row>
