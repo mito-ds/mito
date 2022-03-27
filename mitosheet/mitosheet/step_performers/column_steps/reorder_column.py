@@ -43,10 +43,6 @@ class ReorderColumnStepPerformer(StepPerformer):
     @classmethod
     def step_display_name(cls) -> str:
         return 'Reordered Columns'
-    
-    @classmethod
-    def step_event_type(cls) -> str:
-        return 'reorder_column_edit'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:

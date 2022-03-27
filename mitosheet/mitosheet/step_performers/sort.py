@@ -38,10 +38,6 @@ class SortStepPerformer(StepPerformer):
         return 'Sorted a Column'
 
     @classmethod
-    def step_event_type(cls) -> str:
-        return 'sort_edit'
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 
