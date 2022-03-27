@@ -521,20 +521,20 @@ export default class MitoAPI {
         edit_event_type: string,
         params: T,
         stepID?: string
-    ): Promise<string> {
+    ): Promise<string | MitoError> {
         // If we aren't overwritting a step, return the step id
         if (stepID === undefined || stepID == '') {
             stepID = getRandomId();
         }
-
-        await this.send({
+        
+        const error: MitoError | undefined = await this.send({
             'event': 'edit_event',
             'type': edit_event_type,
             'step_id': stepID,
             'params': params
         }, {})
 
-        return stepID;
+        return error != undefined ? error : stepID
     }
 
     async editGraph(
