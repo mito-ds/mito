@@ -160,7 +160,7 @@ const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
                                     title="Add all sheets"
                                     onClick={() => {
                                         setConcatParams(prevConcatParams => {
-                                            const newSheetIndexes = [...selectableSheetIndexes];;
+                                            const newSheetIndexes = [...selectableSheetIndexes];
                     
                                             return {
                                                 ...prevConcatParams,

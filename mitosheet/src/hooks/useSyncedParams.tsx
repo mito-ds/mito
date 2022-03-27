@@ -33,7 +33,7 @@ function useSyncedParams<T>(
     const [stepID, setStepID] = useState<string | undefined>(undefined);
 
     useEffect(() => {
-        onChange()
+        void onChange()
     }, [updateNumber])
 
     useEffectOnUpdateEvent(() => {
