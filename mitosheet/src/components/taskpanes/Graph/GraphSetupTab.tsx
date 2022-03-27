@@ -153,7 +153,7 @@ function GraphSetupTab(
 
     const colorByColumnTitle = GRAPHS_THAT_DONT_SUPPORT_COLOR.includes(props.graphParams.graphCreation.graph_type)
         ? `${props.graphParams.graphCreation.graph_type} does not support further breaking down data using color.`
-        : 'Setting a column will cause the graph to use the values of this column to further breakdown the graph.';
+        : 'Use an additional column to further breakdown the data by color.';
 
     return (  
         <Fragment>
