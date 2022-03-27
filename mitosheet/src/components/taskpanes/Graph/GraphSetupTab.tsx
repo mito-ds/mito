@@ -12,6 +12,7 @@ import AxisSection, { GraphAxisType } from './AxisSection';
 import Toggle from '../../elements/Toggle';
 import { getColorDropdownItems, getDefaultGraphParams, getDefaultSafetyFilter } from './graphUtils';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
+import Tooltip from '../../elements/Tooltip';
 
 // Graphing a dataframe with more than this number of rows will
 // give the user the option to apply the safety filter
@@ -150,6 +151,10 @@ function GraphSetupTab(
         props.setGraphUpdatedNumber((old) => old + 1);
     }
 
+    const colorByColumnTitle = GRAPHS_THAT_DONT_SUPPORT_COLOR.includes(props.graphParams.graphCreation.graph_type)
+        ? `${props.graphParams.graphCreation.graph_type} does not support further breaking down data using color.`
+        : 'Setting a column will cause the graph to use the values of this column to further breakdown the graph.';
+
     return (  
         <Fragment>
             <div className='graph-sidebar-toolbar-content'>
@@ -263,15 +268,16 @@ function GraphSetupTab(
                     <Row 
                         justify='space-between' 
                         align='center' 
-                        title={GRAPHS_THAT_DONT_SUPPORT_COLOR.includes(props.graphParams.graphCreation.graph_type) ? 
-                            `${props.graphParams.graphCreation.graph_type} does not support further breaking down data using color.` :
-                            'Use an additional column to further breakdown the data by color.'}
+                        title={colorByColumnTitle}
                         suppressTopBottomMargin
                     >
                         <Col>
-                            <div className='text-header-3'>
-                                Color By Column
-                            </div>
+                            <Row justify='space-between' align='center' suppressTopBottomMargin>
+                                <div className='text-header-3'>
+                                    Color By Column &nbsp;
+                                </div>
+                                <Tooltip title={colorByColumnTitle}/>
+                            </Row>
                         </Col>
                         <Col>
                             <Select 
