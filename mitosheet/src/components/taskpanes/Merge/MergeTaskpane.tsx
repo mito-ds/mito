@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import MitoAPI from '../../../api';
 import useSyncedParams from '../../../hooks/useSyncedParams';
-import { AnalysisData, ColumnID, ColumnIDsMap, SheetData, UIState } from '../../../types';
+import { AnalysisData, ColumnID, ColumnIDsMap, SheetData, StepType, UIState } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import DropdownItem from '../../elements/DropdownItem';
 import MultiToggleBox from '../../elements/MultiToggleBox';
@@ -86,8 +86,8 @@ const getDefaultMergeParams = (sheetDataArray: SheetData[], selectedSheetIndex: 
         }
 
         // We default to selecting _all_ columns
-        const selectedColumnIDsOne = [...Object.keys(sheetDataArray[sheetOneIndex].columnIDsMap || {})]
-        const selectedColumnIDsTwo = [...Object.keys(sheetDataArray[sheetTwoIndex].columnIDsMap || {})]
+        const selectedColumnIDsOne = [...Object.keys(sheetDataArray[sheetOneIndex]?.columnIDsMap || {})]
+        const selectedColumnIDsTwo = [...Object.keys(sheetDataArray[sheetTwoIndex]?.columnIDsMap || {})]
         
         return {
             how: 'lookup',
@@ -106,7 +106,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
 
     const {params, setParams, error} = useSyncedParams(
         getDefaultMergeParams(props.sheetDataArray, props.selectedSheetIndex),
-        'merge', 'merge_edit',
+        StepType.Merge,
         props.mitoAPI,
         props.analysisData,
         50 // 50 ms debounce delay

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import MitoAPI from "../../../api";
 import useSyncedParams from "../../../hooks/useSyncedParams";
-import { AnalysisData, ConcatParams, SheetData, UIState } from "../../../types"
+import { AnalysisData, ConcatParams, SheetData, StepType, UIState } from "../../../types"
 import DropdownButton from "../../elements/DropdownButton";
 import DropdownItem from "../../elements/DropdownItem";
 import Select from "../../elements/Select";
@@ -35,7 +35,7 @@ const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
             ignore_index: true,
             sheet_indexes: []
         },
-        'concat', 'concat_edit', 
+        StepType.Concat, 
         props.mitoAPI,
         props.analysisData,
         50 // 50 ms debounce delay

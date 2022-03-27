@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import MitoAPI from '../../../api';
 import useSyncedParams from '../../../hooks/useSyncedParams';
-import { AnalysisData, ColumnHeader, ColumnID, SheetData, UIState } from '../../../types';
+import { AnalysisData, ColumnHeader, ColumnID, SheetData, StepType, UIState } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import DropdownItem from '../../elements/DropdownItem';
 import LoadingDots from '../../elements/LoadingDots';
@@ -60,7 +60,7 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
 
     const {params, setParams, loading} = useSyncedParams<DropDuplicatesParams>(
         getDefaultParams(props.selectedSheetIndex, props.sheetDataArray),
-        'drop_duplicates', 'drop_duplicates_edit',
+        StepType.DropDuplicates,
         props.mitoAPI, props.analysisData,
         SEND_MESSAGE_DELAY
     )
