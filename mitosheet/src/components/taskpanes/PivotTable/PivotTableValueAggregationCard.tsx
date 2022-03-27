@@ -9,18 +9,26 @@ import Col from '../../spacing/Col';
 import { ColumnID, ColumnIDsMap } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
-import { isStringDtype } from '../../../utils/dtypes';
+import { isDatetimeDtype, isStringDtype } from '../../../utils/dtypes';
 
 /**
  * Not every aggregation method works on all datatypes. Most commonly, users try
  * and aggregate a string column with an sum/mean/etc and this is not valid. Because
  * it would be horrible to try and figure out exactly what aggregations worked on what
  * types, we cover the most common case by far just by disabling certain aggregation 
- * methods when string columns are present
+ * methods when string columns or datetime columns are present
  */
 const STRING_AGGREGATIONS = [
     AggregationType.COUNT,
     AggregationType.COUNT_UNIQUE,
+]
+const DATETIME_AGGREGATIONS = [
+    AggregationType.COUNT, 
+    AggregationType.COUNT_UNIQUE,
+    AggregationType.MEAN,
+    AggregationType.MEDIAN,
+    AggregationType.MIN,
+    AggregationType.MAX
 ]
 
 /* 
@@ -57,14 +65,22 @@ const PivotTableValueAggregationCard = (props: {
                 >
                     {aggregationTypeList.map(aggregationType => {
 
-                        const disabled = isStringDtype(props.columnDtype) && !STRING_AGGREGATIONS.includes(aggregationType);
+                        let disabled = false
+                        let columnTypeLabel = ''
+                        if (isStringDtype(props.columnDtype) && !STRING_AGGREGATIONS.includes(aggregationType)) {
+                            disabled = true
+                            columnTypeLabel = 'string'
+                        } else if (isDatetimeDtype(props.columnDtype) && !DATETIME_AGGREGATIONS.includes(aggregationType)) {
+                            disabled = true
+                            columnTypeLabel = 'datetime'
+                        }
 
                         return (
                             <DropdownItem
                                 key={aggregationType}
                                 title={aggregationType}
                                 disabled={disabled}
-                                subtext={disabled ? 'Not valid for string column': undefined}
+                                subtext={disabled ? `Not valid for ${columnTypeLabel} column`: undefined}
                                 hideSubtext={true}
                                 displaySubtextOnHover={true}
                             />
