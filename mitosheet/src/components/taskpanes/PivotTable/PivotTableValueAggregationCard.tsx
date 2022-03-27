@@ -9,14 +9,12 @@ import Col from '../../spacing/Col';
 import { ColumnID, ColumnIDsMap } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
-import { isDatetimeDtype, isStringDtype } from '../../../utils/dtypes';
+import { isDatetimeDtype, isStringDtype, isTimedeltaDtype } from '../../../utils/dtypes';
 
 /**
- * Not every aggregation method works on all datatypes. Most commonly, users try
- * and aggregate a string column with an sum/mean/etc and this is not valid. Because
- * it would be horrible to try and figure out exactly what aggregations worked on what
- * types, we cover the most common case by far just by disabling certain aggregation 
- * methods when string columns or datetime columns are present
+ * Not every aggregation method works on all datatypes. 
+ * We cover the most common cases when string, datetime, 
+ * or timedelta columns are present.
  */
 const STRING_AGGREGATIONS = [
     AggregationType.COUNT,
@@ -25,6 +23,15 @@ const STRING_AGGREGATIONS = [
 const DATETIME_AGGREGATIONS = [
     AggregationType.COUNT, 
     AggregationType.COUNT_UNIQUE,
+    AggregationType.MEAN,
+    AggregationType.MEDIAN,
+    AggregationType.MIN,
+    AggregationType.MAX
+]
+const TIMEDELTA_AGGREGATIONS = [
+    AggregationType.COUNT, 
+    AggregationType.COUNT_UNIQUE,
+    AggregationType.SUM,
     AggregationType.MEAN,
     AggregationType.MEDIAN,
     AggregationType.MIN,
@@ -66,13 +73,16 @@ const PivotTableValueAggregationCard = (props: {
                     {aggregationTypeList.map(aggregationType => {
 
                         let disabled = false
-                        let columnTypeLabel = ''
+                        let columnDtypeLabel = ''
                         if (isStringDtype(props.columnDtype) && !STRING_AGGREGATIONS.includes(aggregationType)) {
                             disabled = true
-                            columnTypeLabel = 'string'
+                            columnDtypeLabel = 'string'
                         } else if (isDatetimeDtype(props.columnDtype) && !DATETIME_AGGREGATIONS.includes(aggregationType)) {
                             disabled = true
-                            columnTypeLabel = 'datetime'
+                            columnDtypeLabel = 'datetime'
+                        } else if (isTimedeltaDtype(props.columnDtype) && !TIMEDELTA_AGGREGATIONS.includes(aggregationType)) {
+                            disabled = true
+                            columnDtypeLabel = 'timedelta'
                         }
 
                         return (
@@ -80,7 +90,7 @@ const PivotTableValueAggregationCard = (props: {
                                 key={aggregationType}
                                 title={aggregationType}
                                 disabled={disabled}
-                                subtext={disabled ? `Not valid for ${columnTypeLabel} column`: undefined}
+                                subtext={disabled ? `Not valid for ${columnDtypeLabel} column`: undefined}
                                 hideSubtext={true}
                                 displaySubtextOnHover={true}
                             />
