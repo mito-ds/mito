@@ -28,10 +28,6 @@ class GraphDuplicateStepPerformer(StepPerformer):
     @classmethod
     def step_display_name(cls) -> str:
         return 'Duplicated a Graph'
-    
-    @classmethod
-    def step_event_type(cls) -> str:
-        return 'graph_duplicate_edit'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:

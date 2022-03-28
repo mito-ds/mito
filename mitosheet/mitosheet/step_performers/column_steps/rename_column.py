@@ -37,10 +37,6 @@ class RenameColumnStepPerformer(StepPerformer):
     @classmethod
     def step_display_name(cls) -> str:
         return 'Renamed a Column'
-    
-    @classmethod
-    def step_event_type(cls) -> str:
-        return 'rename_column_edit'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:

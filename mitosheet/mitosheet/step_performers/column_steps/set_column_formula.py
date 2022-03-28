@@ -38,10 +38,6 @@ class SetColumnFormulaStepPerformer(StepPerformer):
     @classmethod
     def step_display_name(cls) -> str:
         return 'Set Column Formula'
-    
-    @classmethod
-    def step_event_type(cls) -> str:
-        return 'set_column_formula_edit'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:

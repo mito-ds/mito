@@ -4,7 +4,6 @@ import { SortDirection } from "./components/taskpanes/ControlPanel/FilterAndSort
 import { GraphObject } from "./components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
 import { UniqueValueCount, UniqueValueSortType } from "./components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
 import { FileElement } from "./components/taskpanes/Import/ImportTaskpane";
-import { MergeType } from "./components/taskpanes/Merge/MergeTaskpane";
 import { valuesArrayToRecord } from "./components/taskpanes/PivotTable/pivotUtils";
 import { BackendPivotParams, FrontendPivotParams } from "./types";
 import { ColumnID, ExcelFileMetadata, FeedbackID, FilterGroupType, FilterType, FormatTypeObj, GraphID, MitoError, SearchMatches, SheetData, GraphParams } from "./types";
@@ -523,20 +522,20 @@ export default class MitoAPI {
         edit_event_type: string,
         params: T,
         stepID?: string
-    ): Promise<string> {
+    ): Promise<string | MitoError> {
         // If we aren't overwritting a step, return the step id
         if (stepID === undefined || stepID == '') {
             stepID = getRandomId();
         }
 
-        await this.send({
+        const error: MitoError | undefined = await this.send({
             'event': 'edit_event',
             'type': edit_event_type,
             'step_id': stepID,
             'params': params
         }, {})
 
-        return stepID;
+        return error != undefined ? error : stepID
     }
 
     async editGraph(
@@ -665,49 +664,6 @@ export default class MitoAPI {
                 'column_ids': columnIDs
             }
         }, {})
-    }
-
-    /*
-        Does a merge with the passed parameters, returning the ID of the edit
-        event that was generated (in case you want to overwrite it).
-    */
-    async editMerge(
-        mergeType: MergeType,
-        sheetOneIndex: number,
-        mergeKeyColumnIDOne: ColumnID,
-        selectedColumnIDsOne: ColumnID[],
-        sheetTwoIndex: number,
-        mergeKeyColumnIDTwo: ColumnID,
-        selectedColumnIDsTwo: ColumnID[],
-        /* 
-            If you want to overwrite, you have to pass the ID of the the step that
-            you want to overwrite. Not passing this argument, or passing an empty string,
-            will result in no overwrite occuring (and a new stepID) being returned.
-        */
-        stepID?: string
-    ): Promise<string | MitoError> {
-        // If this is overwriting a merge event, then we do not need to
-        // create a new id, as we already have it!
-        if (stepID === undefined || stepID == '') {
-            stepID = getRandomId();
-        }
-
-        const error: MitoError | undefined = await this.send({
-            'event': 'edit_event',
-            'type': 'merge_edit',
-            'step_id': stepID,
-            'params': {
-                'how': mergeType,
-                'sheet_index_one': sheetOneIndex,
-                'merge_key_column_id_one': mergeKeyColumnIDOne,
-                'selected_column_ids_one': selectedColumnIDsOne,
-                'sheet_index_two': sheetTwoIndex,
-                'merge_key_column_id_two': mergeKeyColumnIDTwo,
-                'selected_column_ids_two': selectedColumnIDsTwo,
-            }
-        }, {})
-
-        return error != undefined ? error : stepID
     }
 
     /*
@@ -849,33 +805,6 @@ export default class MitoAPI {
                 sheet_index: sheetIndex,
                 column_id: columnID,
                 sort_direction: sortDirection,
-            }
-        }, {});
-
-        return stepID;
-    }
-
-    /*
-        Drop duplicates in a dataframe
-    */
-    async editDropDuplicates(
-        sheetIndex: number,
-        columnIDs: ColumnID[],
-        keep: 'last' | 'first' | false,
-        stepID?: string
-    ): Promise<string> {
-        if (stepID === undefined || stepID === '') {
-            stepID = getRandomId();
-        }
-
-        await this.send({
-            event: 'edit_event',
-            type: 'drop_duplicates_edit',
-            'step_id': stepID,
-            'params': {
-                sheet_index: sheetIndex,
-                column_ids: columnIDs,
-                keep: keep,
             }
         }, {});
 

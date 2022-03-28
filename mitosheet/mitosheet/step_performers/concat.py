@@ -31,10 +31,6 @@ class ConcatStepPerformer(StepPerformer):
         return 'Concatenated Dataframes'
 
     @classmethod
-    def step_event_type(cls) -> str:
-        return 'concat_edit'
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 

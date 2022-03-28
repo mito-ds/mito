@@ -41,12 +41,12 @@ class StepPerformer(ABC, object):
         pass
     
     @classmethod
-    @abstractmethod
     def step_event_type(cls) -> str:
         """
-        The type of the edit event that generates this type of step.
+        The type of the edit event that generates this type of step. 
+        This is always just f'{cls.step_type}_edit'.
         """
-        pass
+        return f'{cls.step_type()}_edit'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Any) -> Dict[str, str]:
