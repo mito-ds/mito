@@ -16,9 +16,9 @@ Welcome to the documentation for Mito. Mito is a spreadsheet that helps you comp
 
 This documentation is under construction.
 
-1. To get started, see the [installation instructions](getting-started/installing-mito/), and follow the [tutorial](broken-reference/) to have your first useful experience with the tool.
-2. To learn how to use specific features in the tool in the tool, check out the [Feature Reference](broken-reference/). They provide videos and text to help you explore all Mito has to offer.
-3. To figure out how to accomplish a specific task, check out our [How To](broken-reference/) guides. They will walk you through accomplishing specific tasks in Mito as efficiently as possible.
+1. To get started, see the [installation instructions](getting-started/installing-mito/), and follow the [importing data instructions](how-to/importing-data-to-mito.md) to have your first useful experience with the tool.
+2. To learn how to use specific features in the tool in the tool, check out the [feature guides](broken-reference). They provide videos and text to help you explore all Mito has to offer.
+3. To figure out how to accomplish a specific task, check out our [How To](broken-reference) guides. They will walk you through accomplishing specific tasks in Mito as efficiently as possible.
 
 {% hint style="info" %}
 Our docs (and code) are open source! If you want to suggest changes to the documentation, add some sections, or check out or code, [follow us on Github](https://github.com/mito-ds/monorepo)
