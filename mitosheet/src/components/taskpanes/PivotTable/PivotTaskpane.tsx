@@ -41,7 +41,6 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
     const [pivotParams, setPivotParams] = useState(() => getDefaultPivotParams(props.sheetDataArray, props.selectedSheetIndex, props.existingPivotParams))
     const [pivotUpdateNumber, setPivotUpdateNumber] = useState(0);
 
-
     const [stepID, setStepID] = useState<string|undefined>(undefined);
 
     // We save the dataframe names upon creation of the pivot table
@@ -84,6 +83,7 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
 
 
     const refreshParamsAfterUndoOrRedo = async (): Promise<void> => {
+        
         // If there is a desintation index, then we are editing other that, otherwise
         // we are just editing the last sheet 
         const currentDestinationSheetIndex = props.destinationSheetIndex !== undefined 
