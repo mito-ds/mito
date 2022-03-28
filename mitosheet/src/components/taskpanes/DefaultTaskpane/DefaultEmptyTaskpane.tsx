@@ -39,7 +39,7 @@ const DefaultEmptyTaskpane = (
             <DefaultTaskpaneBody>
                 <p className='text-body-1 text-overflow-wrap'>
                     {props.message ? props.message : 'Before performing that action, you need to import data into Mito.'}
-                    {' '}<span className='text-body-1-link' onClick={openImportTaskpane}>Click here to import data.</span>.
+                    {' '}<span className='text-body-1-link' onClick={openImportTaskpane}>Click here to import data.</span>
                 </p>
             </DefaultTaskpaneBody>
         </DefaultTaskpane>

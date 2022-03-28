@@ -17,6 +17,7 @@ import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
+import { TaskpaneType } from '../taskpanes';
 
 
 // Millisecond delay between changing params, so that
@@ -67,6 +68,24 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
     const [originalNumRows, setOriginalNumRows] = useState(props.sheetDataArray[props.selectedSheetIndex]?.numRows || 0);
 
     if (props.sheetDataArray.length === 0 || params === undefined) {
+        return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
+    }
+
+    /*
+        If the sheetDataArray doesn't contain params.sheet_index,
+        just close the taskpane to avoid a sheet crashing bug.
+        
+        TODO: We should handle this in useSyncedParams to so we can move
+        closer to not having to write any custom code for this step.
+    */
+    if (props.sheetDataArray[params.sheet_index] === undefined) {
+        props.setUIState((prevUIState) => {
+            return {
+                ...prevUIState,
+                currOpenTaskpane: {type: TaskpaneType.NONE}
+            }
+        })
+        // Return the defaut taskpane while the taskpane is closing
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
     }
 
