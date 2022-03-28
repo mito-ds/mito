@@ -196,10 +196,6 @@ class FilterStepPerformer(StepPerformer):
         return "Filtered a Column"
 
     @classmethod
-    def step_event_type(cls) -> str:
-        return "filter_column_edit"
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         """
         Saturates the filter event with a `has_non_empty_filter` - which is useful

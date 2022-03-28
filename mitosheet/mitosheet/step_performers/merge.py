@@ -39,10 +39,6 @@ class MergeStepPerformer(StepPerformer):
         return 'Merged Dataframes'
 
     @classmethod
-    def step_event_type(cls) -> str:
-        return 'merge_edit'
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 

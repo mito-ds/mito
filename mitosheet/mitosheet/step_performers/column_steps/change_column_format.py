@@ -25,10 +25,6 @@ class ChangeColumnFormatStepPerformer(StepPerformer):
     @classmethod
     def step_display_name(cls) -> str:
         return 'Change Column Format'
-    
-    @classmethod
-    def step_event_type(cls) -> str:
-        return 'change_column_format_edit'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:

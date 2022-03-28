@@ -62,7 +62,7 @@ const MergeSheetAndKeySelection = (props: {
                     width='medium'
                     searchable
                 >
-                    {Object.entries(props.columnIDsMap).map(([columnID, columnHeader]) => {
+                    {Object.entries(props.columnIDsMap || {}).map(([columnID, columnHeader]) => {
                         return (
                             <DropdownItem
                                 key={columnID}
