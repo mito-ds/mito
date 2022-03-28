@@ -72,7 +72,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
         **params
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
         # Create the post state
-        post_state = prev_state.copy()
+        post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
         
