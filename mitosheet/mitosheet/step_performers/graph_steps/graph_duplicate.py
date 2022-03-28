@@ -45,7 +45,7 @@ class GraphDuplicateStepPerformer(StepPerformer):
         new_graph_id: GraphID,
         **params
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
-        post_state = deepcopy(prev_state)
+        post_state = prev_state.copy()
 
         # Execute the step
         graph_copy = deepcopy(post_state.graph_data_dict[old_graph_id])

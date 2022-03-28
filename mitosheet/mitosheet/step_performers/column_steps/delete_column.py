@@ -50,7 +50,7 @@ class DeleteColumnStepPerformer(StepPerformer):
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
 
         # Make a post state, that is a deep copy
-        post_state = deepcopy(prev_state)
+        post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
         # Actually delete the columns and update state
         post_state, pandas_processing_time = delete_column_ids(post_state, sheet_index, column_ids)

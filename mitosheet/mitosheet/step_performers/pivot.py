@@ -113,7 +113,7 @@ class PivotStepPerformer(StepPerformer):
             raise make_no_column_error(missing_pivot_keys)
 
         # Create the post state, it can be a shallow copy
-        post_state = copy(prev_state)
+        post_state = prev_state.copy()
 
         try:
             # Actually execute the pivoting

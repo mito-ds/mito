@@ -45,7 +45,7 @@ class ChangeColumnFormatStepPerformer(StepPerformer):
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
 
         # Make a post state, that is a deep copy
-        post_state = copy(prev_state)
+        post_state = prev_state.copy()
 
         # Actually update the format of the columns
         for column_id in column_ids:

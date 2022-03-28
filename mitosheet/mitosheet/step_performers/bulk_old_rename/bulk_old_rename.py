@@ -65,7 +65,7 @@ class BulkOldRenameStepPerformer(StepPerformer):
         do not have their analysis break when they upgrade.
         """
 
-        post_state = deepcopy(prev_state)
+        post_state = prev_state.copy(deep_sheet_indexes=list(range(len(prev_state.dfs))))
 
         column_header_renames_list = []
         for sheet_index, df in enumerate(prev_state.dfs):

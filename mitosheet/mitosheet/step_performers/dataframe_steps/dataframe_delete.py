@@ -47,7 +47,7 @@ class DataframeDeleteStepPerformer(StepPerformer):
         **params
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
         # Create a new step and save the parameters
-        post_state = copy(prev_state)
+        post_state = prev_state.copy()
 
         # Execute the delete
         post_state.column_ids.remove_df(sheet_index)

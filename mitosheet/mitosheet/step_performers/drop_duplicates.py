@@ -66,7 +66,7 @@ class DropDuplicatesStepPerformer(StepPerformer):
             return None
 
         # We make a new state to modify it
-        post_state = deepcopy(prev_state)
+        post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
         pandas_start_time = perf_counter()
         final_df = post_state.dfs[sheet_index].drop_duplicates(

@@ -57,7 +57,7 @@ class AddColumnStepPerformer(StepPerformer):
             raise make_column_exists_error(column_header)
 
         # We add a new step with the added column
-        post_state = deepcopy(prev_state)
+        post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
         # If the column_header_index is out of range, then make the new column the last column
         if column_header_index < 0 or len(prev_state.dfs[sheet_index].columns) <= column_header_index:
