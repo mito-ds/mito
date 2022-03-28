@@ -8,7 +8,7 @@ import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
 import { ColumnID, ColumnIDsMap } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
-import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
+import { columnIDMapToDisplayHeadersMap, getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import SelectAndXIconCard from '../../elements/SelectAndXIconCard';
 
 /* 
@@ -30,11 +30,11 @@ const PivotTableKeySelection = (props: {
         return (
             <SelectAndXIconCard 
                 key={keyIndex}
-                columnIDsMap={props.columnIDsMap}
-                columnID={columnID}
+                value={columnID}
+                titleMap={columnIDMapToDisplayHeadersMap(props.columnIDsMap)}
                 onChange={(columnID) => props.editKey(keyIndex, columnID)}
                 onDelete={() => props.removeKey(keyIndex)}
-                selectableColumnIDs={Object.keys(props.columnIDsMap)}
+                selectableValues={Object.keys(props.columnIDsMap)}
             />
         )
     })

@@ -393,6 +393,26 @@ export default class MitoAPI {
         }
     }
 
+    /**
+     * A very useful general utility for getting the params
+     * of a step with a step id or with specific execution data
+     */
+    async getParams<T>(stepType: string, stepID: string | undefined, executionDataToMatch: Record<string, string | number>): Promise<T | undefined> {
+        
+        const params = await this.send<string>({
+            'event': 'api_call',
+            'type': 'get_params',
+            'step_type': stepType,
+            'step_id_to_match': stepID || '',
+            'execution_data_to_match': executionDataToMatch
+        }, {})
+
+        if (params !== undefined && params !== '') {
+            return JSON.parse(params) as T
+        }
+        return undefined;
+    }
+
     /*
         Gets the parameters for the pivot table at desination sheet
         index, or nothing if there are no params
@@ -400,17 +420,9 @@ export default class MitoAPI {
     async getPivotParams(
         destinationSheetIndex: number
     ): Promise<BackendPivotParams | undefined> {
-
-        const pivotParams = await this.send<string>({
-            'event': 'api_call',
-            'type': 'get_pivot_params',
+        return await this.getParams('pivot', undefined, {
             'destination_sheet_index': destinationSheetIndex
-        }, {})
-
-        if (pivotParams !== undefined && pivotParams !== '') {
-            return JSON.parse(pivotParams) as BackendPivotParams
-        }
-        return undefined;
+        })
     }
 
     /*
@@ -495,6 +507,36 @@ export default class MitoAPI {
             return JSON.parse(searchMatchesString);
         }
         return undefined;
+    }
+
+
+    /**
+     * A general utility function for sending an edit event with some
+     * set of params for that edit event.
+     * 
+     * @param edit_event_type 
+     * @param params the parameters of the step to send
+     * @param stepID the step id to overwrite (or undefined if not overwriting a step)
+     * @returns the stepID that was sent to the backend
+     */
+    async _edit<T>(
+        edit_event_type: string,
+        params: T,
+        stepID?: string
+    ): Promise<string> {
+        // If we aren't overwritting a step, return the step id
+        if (stepID === undefined || stepID == '') {
+            stepID = getRandomId();
+        }
+
+        await this.send({
+            'event': 'edit_event',
+            'type': edit_event_type,
+            'step_id': stepID,
+            'params': params
+        }, {})
+
+        return stepID;
     }
 
     async editGraph(

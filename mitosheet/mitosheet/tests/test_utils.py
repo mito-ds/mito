@@ -251,6 +251,29 @@ class MitoWidgetTestWrapper:
                 }
             }
         )
+    
+    @check_transpiled_code_after_call
+    def concat_sheets(
+            self, 
+            join: str,
+            ignore_index: bool,
+            sheet_indexes: int
+        ) -> bool:
+
+        return self.mito_widget.receive_message(
+            self.mito_widget,
+            {
+                'event': 'edit_event',
+                'id': get_new_id(),
+                'type': 'concat_edit',
+                'step_id': get_new_id(),
+                'params': {
+                    'join': join,
+                    'ignore_index': ignore_index,
+                    'sheet_indexes': sheet_indexes
+                }
+            }
+        )
 
     @check_transpiled_code_after_call
     def drop_duplicates(

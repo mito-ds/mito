@@ -36,7 +36,7 @@
 .toolbar-button-container {
   /* Keep items evenly spaced */
   display: flex;
-  max-width: 65px;
+  max-width: 45px;
   min-width: max-content;
   width: 100%;
 
@@ -72,8 +72,8 @@
 
   color: inherit;
 
-  /* Use Roboto Condensed font for the toolbar item label */
-  font-family: Roboto Condensed;
+  /* Use Roboto font for the toolbar item label, not condensed as it makes it very unreadable at small fonts */
+  font-family: Roboto;
 }
 
 .toolbar-button-container:hover {

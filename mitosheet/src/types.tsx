@@ -23,6 +23,7 @@ export enum StepType {
     Sort = 'sort',
     Pivot = 'pivot',
     Merge = 'merge',
+    Concat = 'concat',
     DropDuplicates = 'drop_duplicates',
     ChangeColumnDtype = 'change_column_dtype',
     ChangeColumnFormat = 'change_column_format',
@@ -153,7 +154,7 @@ export interface MitoError {
 export type PrimitiveColumnHeader = string | number | boolean;
 export type MultiIndexColumnHeader = PrimitiveColumnHeader[]; // TODO: is this a bug? Can we have a multi-index with a multi-index inside it
 export type ColumnHeader = PrimitiveColumnHeader | MultiIndexColumnHeader;
-
+export type DisplayColumnHeader = string // we alias this for type clarity and readability
 
 export type ColumnID = string;
 /**
@@ -227,7 +228,7 @@ export type GraphStylingParams = {
     },
     showlegend: boolean,
     plot_bgcolor: string // The inner part of the plot with data background. Defaults to a blue-ish shade
-    paper_bgcolor: string // The outter part of the plot around the data. Defaults to white
+    paper_bgcolor: string // The outer part of the plot around the data. Defaults to white
 }
 
 export type GraphParams = {
@@ -259,6 +260,12 @@ export type GraphID = string;
 
 export type GraphDataDict = Record<GraphID, GraphData>
 
+
+export interface ConcatParams {
+    join: 'inner' | 'outer',
+    ignore_index: boolean,
+    sheet_indexes: number[]
+}
 
 // NOTE: these aggregation functions need to be supported
 // in mitosheet/steps/pivot.py as well
@@ -653,6 +660,7 @@ export enum ActionEnum {
     Help = 'help',
     Import = 'import',
     Merge = 'merge',
+    Concat_Sheets = 'concat_sheets', // Note the unfortunate overlap with concat
     Pivot = 'pivot',
     Redo = 'redo',
     Rename_Column = 'rename column',
@@ -726,7 +734,7 @@ export interface Action {
     // We store the type of the action so that we can introspect the type of the variable
     type: ActionEnum;
 
-    // The short title for the action. Should be lowercase.
+    // The short title for the action. Should be title case, as you want to display it.
     shortTitle: string
 
     // The optional long title for the action.

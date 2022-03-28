@@ -57,6 +57,7 @@ import loadPlotly from '../utils/plotly';
 import ErrorBoundary from './elements/ErrorBoundary';
 import DeleteGraphsModal from './modals/DeleteGraphsModal';
 import { selectPreviousGraphSheetTab } from './footer/SheetTab';
+import ConcatTaskpane from './taskpanes/Concat/ConcatTaskpane';
 
 export type MitoProps = {
     model_id: string;
@@ -481,6 +482,14 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     dfNames={dfNames}
                     columnIDsMapArray={columnIDsMapArray}
                     selectedSheetIndex={uiState.selectedSheetIndex}
+                    sheetDataArray={sheetDataArray}
+                    setUIState={setUIState}
+                    mitoAPI={props.mitoAPI}
+                />
+            )
+            case TaskpaneType.CONCAT: return (
+                <ConcatTaskpane
+                    analysisData={analysisData}
                     sheetDataArray={sheetDataArray}
                     setUIState={setUIState}
                     mitoAPI={props.mitoAPI}
