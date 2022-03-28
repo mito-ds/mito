@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AnalysisData } from "../types";
 
 /* 
@@ -8,9 +8,17 @@ import { AnalysisData } from "../types";
     This is useful for watching for undos/redos, and updating 
     parameters in interfaces to match what their current state
     is on the backend.
+
+    Note that this hook will by not run on first render.
 */
 export const useEffectOnUpdateEvent = (effect: () => void, analysisData: AnalysisData): void => {
+    const [firstRender, setFirstRender] = useState(true);
     useEffect(() => {
+        if (firstRender) {
+            setFirstRender(false);
+            return;
+        }
+
         effect()
     }, [analysisData.updateEventCount])
 }

@@ -44,7 +44,6 @@ export const selectPreviousGraphSheetTab = (
         // Safely mark as GraphID because of the check above that the compiler is unable to understand
         const _newGraphID: GraphID = newGraphID
 
-        console.log("here")
         setUIState((prevUIState) => {
             return {
                 ...prevUIState,
