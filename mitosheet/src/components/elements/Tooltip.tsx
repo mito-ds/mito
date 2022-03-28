@@ -6,7 +6,7 @@ import QuestionMarkIcon from '../icons/QuestionMarkIcon';
 
 interface TooltipProps {
     /** 
-        * @param title - The test to display when the tooltip is clicked or hovered on.
+        * @param title - The test to display when the tooltip is hovered on.
     */
     title: string;
 }

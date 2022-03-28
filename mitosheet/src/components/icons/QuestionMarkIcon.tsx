@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-const QuestionMarkIcon = (props: {}): JSX.Element => {
+const QuestionMarkIcon = (): JSX.Element => {
     return (
         <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M7.50018 11.5909C7.87674 11.5909 8.182 11.2856 8.182 10.9091C8.182 10.5325 7.87674 10.2273 7.50018 10.2273C7.12362 10.2273 6.81836 10.5325 6.81836 10.9091C6.81836 11.2856 7.12362 11.5909 7.50018 11.5909Z" fill="#494650"/>
