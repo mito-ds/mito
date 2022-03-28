@@ -1,8 +1,7 @@
 // Copyright (c) Mito
 import React from 'react';
-
-// import css
 import QuestionMarkIcon from '../icons/QuestionMarkIcon';
+import Row from '../spacing/Row';
 
 interface TooltipProps {
     /** 
@@ -18,9 +17,13 @@ interface TooltipProps {
 const Tooltip = (props: TooltipProps): JSX.Element => {
 
     return (
-        <div title={props.title} className='tooltip'>
+        <Row 
+            justify='center'
+            align='center'
+            title={props.title}
+        >
             <QuestionMarkIcon/>
-        </div>
+        </Row>
     )
 }
 

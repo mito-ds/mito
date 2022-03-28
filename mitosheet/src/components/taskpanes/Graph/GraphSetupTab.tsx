@@ -291,11 +291,17 @@ function GraphSetupTab(
                         </Col>
                     </Row>
                 </div>
-                <Row justify='space-between' align='center' title={getDefaultSafetyFilter(props.sheetDataArray, graphSheetIndex) ? SAFETY_FILTER_ENABLED_MESSAGE : SAFETY_FILTER_DISABLED_MESSAGE}>
+                <Row 
+                    justify='space-between' 
+                    align='center'
+                    title={getDefaultSafetyFilter(props.sheetDataArray, graphSheetIndex) ? SAFETY_FILTER_ENABLED_MESSAGE : SAFETY_FILTER_DISABLED_MESSAGE}>
                     <Col>
-                        <p className='text-header-3' >
-                            Filter to safe size
-                        </p>
+                        <Row justify='space-between' align='center' suppressTopBottomMargin> 
+                            <p className='text-header-3' >
+                                Filter to safe size &nbsp;
+                            </p>
+                            <Tooltip title={getDefaultSafetyFilter(props.sheetDataArray, graphSheetIndex) ? SAFETY_FILTER_ENABLED_MESSAGE : SAFETY_FILTER_DISABLED_MESSAGE}/>
+                        </Row>
                     </Col>
                     <Col>
                         <Toggle
