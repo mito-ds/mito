@@ -127,7 +127,7 @@ const PRESENTATION_FEATURES: Feature[] = [
     feature: 'Share Mito Analyses',
     planSupport: {
       'Open Source': false,
-      'Pro': false,
+      'Pro': 'Coming soon!',
       'Enterprise': 'Coming soon!' 
     }
   },
