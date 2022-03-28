@@ -40,7 +40,7 @@ class DataframeDuplicateStepPerformer(StepPerformer):
         sheet_index: int,
         **params
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
-        post_state = copy(prev_state)
+        post_state = prev_state.copy()
 
         # Execute the step
         pandas_start_time = perf_counter()

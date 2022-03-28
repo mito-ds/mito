@@ -63,7 +63,7 @@ class MergeStepPerformer(StepPerformer):
         selected_columns_two = prev_state.column_ids.get_column_headers_by_ids(sheet_index_two, selected_column_ids_two)
 
         # We create a shallow copy to make the new post state
-        post_state = copy(prev_state)
+        post_state = prev_state.copy()
 
         pandas_start_time = perf_counter()
         new_df = _execute_merge(

@@ -231,7 +231,7 @@ class FilterStepPerformer(StepPerformer):
         )
 
         # If no errors we create a new step for this filter
-        post_state = deepcopy(prev_state)
+        post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
         # Execute the filter
         final_df, pandas_processing_time = _execute_filter(

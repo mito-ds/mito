@@ -116,7 +116,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
             raise make_circular_reference_error(error_modal=False)
 
         # We check out a new step
-        post_state = deepcopy(prev_state)
+        post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
         # Update the column formula, and then execute the new formula graph
         try:

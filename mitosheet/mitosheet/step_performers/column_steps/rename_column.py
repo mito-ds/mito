@@ -62,7 +62,7 @@ class RenameColumnStepPerformer(StepPerformer):
             return prev_state, None
 
         # Create a new post state for this step
-        post_state = deepcopy(prev_state)
+        post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
         old_level_value, pandas_processing_time = rename_column_headers_in_state(
             post_state,

@@ -50,7 +50,7 @@ class GraphRenameStepPerformer(StepPerformer):
             return prev_state, None
 
         # Create a new step and save the parameters
-        post_state = copy(prev_state)
+        post_state = prev_state.copy()
 
         post_state.graph_data_dict[graph_id]["graphTabName"] = new_graph_tab_name
         

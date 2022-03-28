@@ -92,7 +92,7 @@ class GraphStepPerformer(StepPerformer):
         """
 
         # We make a new state to modify it
-        post_state = deepcopy(prev_state)
+        post_state = prev_state.copy()
 
         # Extract variables from graph parameters
         graph_type = graph_creation["graph_type"]

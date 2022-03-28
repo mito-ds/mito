@@ -45,7 +45,7 @@ class GraphDeleteStepPerformer(StepPerformer):
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
 
         # Create a new step and save the parameters
-        post_state = copy(prev_state)
+        post_state = prev_state.copy()
 
         # Execute the graph delete
         del post_state.graph_data_dict[graph_id]

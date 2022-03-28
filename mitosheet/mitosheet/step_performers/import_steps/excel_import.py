@@ -46,7 +46,7 @@ class ExcelImportStepPerformer(StepPerformer):
         **params
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
         # Create a new step
-        post_state = copy(prev_state)
+        post_state = prev_state.copy()
 
         read_excel_params = {
             'sheet_name': sheet_names,

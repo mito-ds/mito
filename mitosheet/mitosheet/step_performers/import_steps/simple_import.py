@@ -57,7 +57,7 @@ class SimpleImportStepPerformer(StepPerformer):
                 raise make_is_directory_error(file_name)
 
         # Create a new step
-        post_state = copy(prev_state)
+        post_state = prev_state.copy()
 
         file_delimeters = []
         file_encodings = []

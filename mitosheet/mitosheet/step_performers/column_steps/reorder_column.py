@@ -63,7 +63,7 @@ class ReorderColumnStepPerformer(StepPerformer):
         new_column_index = get_valid_index(prev_state.dfs, sheet_index, new_column_index)
             
         # Create a new post state
-        post_state = deepcopy(prev_state)
+        post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
         # Actually execute the column reordering
         pandas_start_time = perf_counter()
