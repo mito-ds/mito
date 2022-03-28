@@ -43,7 +43,7 @@ function useSyncedParams<T>(
     const [loading, setLoading] = useState(false);
 
     useDebouncedEffect(() => {
-        onChange()
+        void onChange()
     }, [updateNumber], debounceDelay)
 
     useEffectOnUpdateEvent(() => {

@@ -1,5 +1,29 @@
-import { AggregationType } from "./PivotTaskpane";
+import { AggregationType, BackendPivotParams, FrontendPivotParams, SheetData } from "../../../types";
 
+
+export const getDefaultPivotParams = (sheetDataArray: SheetData[], selectedSheetIndex: number, existingPivotParams: BackendPivotParams | undefined): FrontendPivotParams => {
+    if (existingPivotParams === undefined) {
+        return {
+            selectedSheetIndex: selectedSheetIndex,
+            pivotRowColumnIDs: [],
+            pivotColumnsColumnIDs: [],
+            pivotValuesColumnIDsArray: [],
+            flattenColumnHeaders: true
+        }
+    } 
+
+    return backendParamsToFrontendParams(existingPivotParams, sheetDataArray);
+}
+
+export const backendParamsToFrontendParams = (pivotParams: BackendPivotParams, sheetDataArray: SheetData[]): FrontendPivotParams => {
+    return {
+        selectedSheetIndex: Math.min(pivotParams.sheet_index, sheetDataArray.length - 1),
+        pivotRowColumnIDs: pivotParams.pivot_rows_column_ids,
+        pivotColumnsColumnIDs: pivotParams.pivot_columns_column_ids,
+        pivotValuesColumnIDsArray: valuesRecordToArray(pivotParams.values_column_ids_map),
+        flattenColumnHeaders: pivotParams.flatten_column_headers
+    };
+}
 
 /* 
     A helper function for turning a record of values to an array, 

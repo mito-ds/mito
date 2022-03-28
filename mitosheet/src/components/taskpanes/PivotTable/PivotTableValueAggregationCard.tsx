@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { AggregationType } from './PivotTaskpane';
+import { AggregationType } from '../../../types';
 import Select from '../../elements/Select';
 import XIcon from '../../icons/XIcon';
 import Row from '../../spacing/Row';
@@ -9,6 +9,34 @@ import Col from '../../spacing/Col';
 import { ColumnID, ColumnIDsMap } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
+import { isDatetimeDtype, isStringDtype, isTimedeltaDtype } from '../../../utils/dtypes';
+
+/**
+ * Not every aggregation method works on all datatypes. 
+ * We cover the most common cases when string, datetime, 
+ * or timedelta columns are present.
+ */
+const STRING_AGGREGATIONS = [
+    AggregationType.COUNT,
+    AggregationType.COUNT_UNIQUE,
+]
+const DATETIME_AGGREGATIONS = [
+    AggregationType.COUNT, 
+    AggregationType.COUNT_UNIQUE,
+    AggregationType.MEAN,
+    AggregationType.MEDIAN,
+    AggregationType.MIN,
+    AggregationType.MAX
+]
+const TIMEDELTA_AGGREGATIONS = [
+    AggregationType.COUNT, 
+    AggregationType.COUNT_UNIQUE,
+    AggregationType.SUM,
+    AggregationType.MEAN,
+    AggregationType.MEDIAN,
+    AggregationType.MIN,
+    AggregationType.MAX
+]
 
 /* 
   A custom component that displays the column headers chosen as the key for the pivot table. 
@@ -16,6 +44,7 @@ import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 const PivotTableValueAggregationCard = (props: {
     columnIDsMap: ColumnIDsMap,
     columnID: ColumnID,
+    columnDtype: string,
     aggregationType: AggregationType
     removePivotValueAggregation: () => void;
     editPivotValueAggregation: (newAggregationType: AggregationType, newColumnID: string) => void;
@@ -39,13 +68,31 @@ const PivotTableValueAggregationCard = (props: {
                     value={props.aggregationType}
                     onChange={setAggregationType}
                     width='small'
-                    dropdownWidth='small'
+                    dropdownWidth='medium'
                 >
                     {aggregationTypeList.map(aggregationType => {
+
+                        let disabled = false
+                        let columnDtypeLabel = ''
+                        if (isStringDtype(props.columnDtype) && !STRING_AGGREGATIONS.includes(aggregationType)) {
+                            disabled = true
+                            columnDtypeLabel = 'string'
+                        } else if (isDatetimeDtype(props.columnDtype) && !DATETIME_AGGREGATIONS.includes(aggregationType)) {
+                            disabled = true
+                            columnDtypeLabel = 'datetime'
+                        } else if (isTimedeltaDtype(props.columnDtype) && !TIMEDELTA_AGGREGATIONS.includes(aggregationType)) {
+                            disabled = true
+                            columnDtypeLabel = 'timedelta'
+                        }
+
                         return (
                             <DropdownItem
                                 key={aggregationType}
                                 title={aggregationType}
+                                disabled={disabled}
+                                subtext={disabled ? `Not valid for ${columnDtypeLabel} column`: undefined}
+                                hideSubtext={true}
+                                displaySubtextOnHover={true}
                             />
                         )
                     })}

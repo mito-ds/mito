@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import { GraphID } from "../../types"
-import { PivotParams } from "./PivotTable/PivotTaskpane"
+import { BackendPivotParams } from "../../types"
 
 /* 
     Each Taskpane has a type (included TaskpaneType.NONE, which is the type of _no taskpane_ (e.g. nothing is displayed)).
@@ -53,7 +53,7 @@ export type TaskpaneInfo =
         // Optional params only defined if this is a pivot
         // editing a specific existing pivot table
         destinationSheetIndex?: number;
-        existingPivotParams?: PivotParams, 
+        existingPivotParams?: BackendPivotParams, 
     } 
     | {type: TaskpaneType.SEARCH}
     | {type: TaskpaneType.STEPS}

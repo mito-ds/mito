@@ -113,7 +113,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
     )
     const [originalDfNames] = useState(props.sheetDataArray.map(sheetData => sheetData.dfName))
 
-     /*
+    /*
         Helper function for updating the merge type in state and 
         sending the merge message to the backend. 
     */
@@ -128,7 +128,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
 
     const setNewSheetIndex = (sheetNumber: MergeSheet, newSheetIndex: number): void => {
         const indexName = sheetNumber == MergeSheet.First ? 'sheet_index_one' : 'sheet_index_two'
-        const selectedColumnsName = sheetNumber == MergeSheet.First ? 'selected_column_ids_one' : 'selectselected_column_ids_two';
+        const selectedColumnsName = sheetNumber == MergeSheet.First ? 'selected_column_ids_one' : 'selected_column_ids_two';
 
         const newSelectedColumnIDs = props.sheetDataArray[newSheetIndex].data.map(c => c.columnID);
 
