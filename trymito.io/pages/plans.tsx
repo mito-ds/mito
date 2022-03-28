@@ -104,11 +104,30 @@ const EXPLORATION_FEATURES: Feature[] = [
       'Enterprise': true 
     }
   },
+]
+
+const PRESENTATION_FEATURES: Feature[] = [
   {
     feature: 'Graph Formatting',
     planSupport: {
       'Open Source': false,
-      'Pro': 'Coming soon!',
+      'Pro': true,
+      'Enterprise': true 
+    }
+  },
+  {
+    feature: 'Export Column Formats',
+    planSupport: {
+      'Open Source': false,
+      'Pro': true,
+      'Enterprise': true 
+    }
+  },
+  {
+    feature: 'Share Mito Analyses',
+    planSupport: {
+      'Open Source': false,
+      'Pro': false,
       'Enterprise': 'Coming soon!' 
     }
   },
@@ -453,6 +472,11 @@ const Plans: NextPage = () => {
               />
               <FeatureSection
                 mobilePlanDisplayed={mobilePlanDisplayed}
+                sectionTitle='Presentation'
+                features={PRESENTATION_FEATURES}
+              />
+              <FeatureSection
+                mobilePlanDisplayed={mobilePlanDisplayed}
                 sectionTitle='Transformation'
                 features={TRANSFORMATION_FEATURES}
               />
@@ -479,6 +503,10 @@ const Plans: NextPage = () => {
               <FeatureSection
                 sectionTitle='Transformation'
                 features={TRANSFORMATION_FEATURES}
+              />
+              <FeatureSection
+                sectionTitle='Presentation'
+                features={PRESENTATION_FEATURES}
               />
               <FeatureSection
                 sectionTitle='Privacy'
