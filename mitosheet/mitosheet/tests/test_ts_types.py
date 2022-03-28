@@ -136,7 +136,7 @@ def test_filter_conditions_match():
 
 def test_pivot_aggregation_functions_match():
     aggregation_types = get_enum_from_ts_file(
-        "./src/components/taskpanes/PivotTable/PivotTaskpane.tsx", "AggregationType"
+        "./src/types.tsx", "AggregationType"
     )
     assert set(aggregation_types.values()) == set(PIVOT_AGGREGATION_TYPES)
 

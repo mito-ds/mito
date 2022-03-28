@@ -5,8 +5,10 @@ import { GraphObject } from "./components/taskpanes/ControlPanel/SummaryStatsTab
 import { UniqueValueCount, UniqueValueSortType } from "./components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
 import { FileElement } from "./components/taskpanes/Import/ImportTaskpane";
 import { MergeType } from "./components/taskpanes/Merge/MergeTaskpane";
-import { AggregationType, PivotParams } from "./components/taskpanes/PivotTable/PivotTaskpane";
-import { ColumnID, ExcelFileMetadata, FeedbackID, FilterGroupType, FilterType, FormatTypeObj, GraphID, GraphParams, MitoError, SearchMatches, SheetData } from "./types";
+import { valuesArrayToRecord } from "./components/taskpanes/PivotTable/pivotUtils";
+import { BackendPivotParams, FrontendPivotParams } from "./types";
+import { ColumnID, ExcelFileMetadata, FeedbackID, FilterGroupType, FilterType, FormatTypeObj, GraphID, MitoError, SearchMatches, SheetData, GraphParams } from "./types";
+import { getDeduplicatedArray } from "./utils/arrays";
 
 
 /*
@@ -417,7 +419,7 @@ export default class MitoAPI {
     */
     async getPivotParams(
         destinationSheetIndex: number
-    ): Promise<PivotParams | undefined> {
+    ): Promise<BackendPivotParams | undefined> {
         return await this.getParams('pivot', undefined, {
             'destination_sheet_index': destinationSheetIndex
         })
@@ -713,11 +715,7 @@ export default class MitoAPI {
         event that was generated (in case you want to overwrite it).
     */
     async editPivot(
-        sheetIndex: number,
-        pivotRowColumnIDs: ColumnID[],
-        pivotColsIDs: ColumnID[],
-        valuesIDs: Record<ColumnID, AggregationType[]>,
-        flattenColumnHeaders: boolean,
+        pivotParams: FrontendPivotParams,
         destinationSheetIndex: number | undefined,
         stepID?: string
     ): Promise<string> {
@@ -732,14 +730,16 @@ export default class MitoAPI {
             type: 'pivot_edit',
             'step_id': stepID,
             'params': {
-                sheet_index: sheetIndex,
-                pivot_rows_column_ids: pivotRowColumnIDs,
-                pivot_columns_column_ids: pivotColsIDs,
-                values_column_ids_map: valuesIDs,
+                sheet_index: pivotParams.selectedSheetIndex,
+                // Deduplicate the rows and columns before sending them to the backend
+                // as otherwise this generates errors if you have duplicated key
+                pivot_rows_column_ids: getDeduplicatedArray(pivotParams.pivotRowColumnIDs),
+                pivot_columns_column_ids: getDeduplicatedArray(pivotParams.pivotColumnsColumnIDs),
+                values_column_ids_map: valuesArrayToRecord(pivotParams.pivotValuesColumnIDsArray),
+                flatten_column_headers: pivotParams.flattenColumnHeaders,
                 // Pass the optional destination_sheet_index, which will be removed
                 // automatically if it is undefined
                 destination_sheet_index: destinationSheetIndex,
-                flatten_column_headers: flattenColumnHeaders
             }
         }, {});
 
