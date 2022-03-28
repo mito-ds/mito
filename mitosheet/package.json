@@ -48,7 +48,7 @@
     "deploy:all": "python3 deployment/deploy.py all",
     "build": "jlpm run build:lib && jlpm run build:labextension:dev",
     "build:lib": "tsc",
-    "deploy:pypi": "python3 setup.py sdist bdist_wheel upload",
+    "deploy:pypi": "python3 -m build upload",
     "clean:nbextension": "rimraf mitosheet/nbextension/static/index.js",
     "build:all": "npm run build:labextension && npm run build:nbextension",
     "lint:check": "eslint src/ --ext .ts,.tsx",
