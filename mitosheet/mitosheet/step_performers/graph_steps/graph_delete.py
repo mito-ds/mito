@@ -27,10 +27,6 @@ class GraphDeleteStepPerformer(StepPerformer):
     @classmethod
     def step_display_name(cls) -> str:
         return 'Deleted a Graph'
-    
-    @classmethod
-    def step_event_type(cls) -> str:
-        return 'graph_delete_edit'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -49,7 +45,7 @@ class GraphDeleteStepPerformer(StepPerformer):
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
 
         # Create a new step and save the parameters
-        post_state = copy(prev_state)
+        post_state = prev_state.copy()
 
         # Execute the graph delete
         del post_state.graph_data_dict[graph_id]

@@ -3,11 +3,11 @@
 import { SortDirection } from "./components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
 import { GraphObject } from "./components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
 import { UniqueValueCount, UniqueValueSortType } from "./components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
-import { GraphType } from "./components/taskpanes/Graph/GraphSidebar";
 import { FileElement } from "./components/taskpanes/Import/ImportTaskpane";
-import { MergeType } from "./components/taskpanes/Merge/MergeTaskpane";
-import { AggregationType, PivotParams } from "./components/taskpanes/PivotTable/PivotTaskpane";
-import { ColumnID, ExcelFileMetadata, FeedbackID, FilterGroupType, FilterType, FormatTypeObj, GraphID, MitoError, SearchMatches, SheetData } from "./types";
+import { valuesArrayToRecord } from "./components/taskpanes/PivotTable/pivotUtils";
+import { BackendPivotParams, FrontendPivotParams } from "./types";
+import { ColumnID, ExcelFileMetadata, FeedbackID, FilterGroupType, FilterType, FormatTypeObj, GraphID, MitoError, SearchMatches, SheetData, GraphParams } from "./types";
+import { getDeduplicatedArray } from "./utils/arrays";
 
 
 /*
@@ -392,24 +392,36 @@ export default class MitoAPI {
         }
     }
 
+    /**
+     * A very useful general utility for getting the params
+     * of a step with a step id or with specific execution data
+     */
+    async getParams<T>(stepType: string, stepID: string | undefined, executionDataToMatch: Record<string, string | number>): Promise<T | undefined> {
+        
+        const params = await this.send<string>({
+            'event': 'api_call',
+            'type': 'get_params',
+            'step_type': stepType,
+            'step_id_to_match': stepID || '',
+            'execution_data_to_match': executionDataToMatch
+        }, {})
+
+        if (params !== undefined && params !== '') {
+            return JSON.parse(params) as T
+        }
+        return undefined;
+    }
+
     /*
         Gets the parameters for the pivot table at desination sheet
         index, or nothing if there are no params
     */
     async getPivotParams(
         destinationSheetIndex: number
-    ): Promise<PivotParams | undefined> {
-
-        const pivotParams = await this.send<string>({
-            'event': 'api_call',
-            'type': 'get_pivot_params',
+    ): Promise<BackendPivotParams | undefined> {
+        return await this.getParams('pivot', undefined, {
             'destination_sheet_index': destinationSheetIndex
-        }, {})
-
-        if (pivotParams !== undefined && pivotParams !== '') {
-            return JSON.parse(pivotParams) as PivotParams
-        }
-        return undefined;
+        })
     }
 
     /*
@@ -496,14 +508,39 @@ export default class MitoAPI {
         return undefined;
     }
 
+
+    /**
+     * A general utility function for sending an edit event with some
+     * set of params for that edit event.
+     * 
+     * @param edit_event_type 
+     * @param params the parameters of the step to send
+     * @param stepID the step id to overwrite (or undefined if not overwriting a step)
+     * @returns the stepID that was sent to the backend
+     */
+    async _edit<T>(
+        edit_event_type: string,
+        params: T,
+        stepID?: string
+    ): Promise<string | MitoError> {
+        // If we aren't overwritting a step, return the step id
+        if (stepID === undefined || stepID == '') {
+            stepID = getRandomId();
+        }
+
+        const error: MitoError | undefined = await this.send({
+            'event': 'edit_event',
+            'type': edit_event_type,
+            'step_id': stepID,
+            'params': params
+        }, {})
+
+        return error != undefined ? error : stepID
+    }
+
     async editGraph(
         graphID: GraphID,
-        graphType: GraphType,
-        sheet_index: number,
-        color: ColumnID | undefined,
-        safety_filter_turned_on_by_user: boolean,
-        xAxisColumnIDs: ColumnID[],
-        yAxisColumnIDs: ColumnID[],
+        graphParams: GraphParams,
         height: string,
         width: string,
         stepID?: string,
@@ -521,23 +558,14 @@ export default class MitoAPI {
             'step_id': stepID,
             'params': {
                 'graph_id': graphID,
-                'graph_preprocessing': {
-                    'safety_filter_turned_on_by_user': safety_filter_turned_on_by_user
-                },
-                'graph_creation': {
-                    'graph_type': graphType,
-                    'sheet_index': sheet_index,
-                    'x_axis_column_ids': xAxisColumnIDs,
-                    'y_axis_column_ids': yAxisColumnIDs,
-                    'color': color
-                },
-                'graph_styling': {},
+                'graph_preprocessing': graphParams.graphPreprocessing,
+                'graph_creation': graphParams.graphCreation,
+                'graph_styling': graphParams.graphStyling,
                 'graph_rendering': {
-                    'height': height,
+                    'height': height, 
                     'width': width
                 }
             }
-            
         }, { maxRetries: 250 })
 
         return stepID
@@ -639,58 +667,11 @@ export default class MitoAPI {
     }
 
     /*
-        Does a merge with the passed parameters, returning the ID of the edit
-        event that was generated (in case you want to overwrite it).
-    */
-    async editMerge(
-        mergeType: MergeType,
-        sheetOneIndex: number,
-        mergeKeyColumnIDOne: ColumnID,
-        selectedColumnIDsOne: ColumnID[],
-        sheetTwoIndex: number,
-        mergeKeyColumnIDTwo: ColumnID,
-        selectedColumnIDsTwo: ColumnID[],
-        /* 
-            If you want to overwrite, you have to pass the ID of the the step that
-            you want to overwrite. Not passing this argument, or passing an empty string,
-            will result in no overwrite occuring (and a new stepID) being returned.
-        */
-        stepID?: string
-    ): Promise<string | MitoError> {
-        // If this is overwriting a merge event, then we do not need to
-        // create a new id, as we already have it!
-        if (stepID === undefined || stepID == '') {
-            stepID = getRandomId();
-        }
-
-        const error: MitoError | undefined = await this.send({
-            'event': 'edit_event',
-            'type': 'merge_edit',
-            'step_id': stepID,
-            'params': {
-                'how': mergeType,
-                'sheet_index_one': sheetOneIndex,
-                'merge_key_column_id_one': mergeKeyColumnIDOne,
-                'selected_column_ids_one': selectedColumnIDsOne,
-                'sheet_index_two': sheetTwoIndex,
-                'merge_key_column_id_two': mergeKeyColumnIDTwo,
-                'selected_column_ids_two': selectedColumnIDsTwo,
-            }
-        }, {})
-
-        return error != undefined ? error : stepID
-    }
-
-    /*
         Does a pivot with the passed parameters, returning the ID of the edit
         event that was generated (in case you want to overwrite it).
     */
     async editPivot(
-        sheetIndex: number,
-        pivotRowColumnIDs: ColumnID[],
-        pivotColsIDs: ColumnID[],
-        valuesIDs: Record<ColumnID, AggregationType[]>,
-        flattenColumnHeaders: boolean,
+        pivotParams: FrontendPivotParams,
         destinationSheetIndex: number | undefined,
         stepID?: string
     ): Promise<string> {
@@ -705,14 +686,16 @@ export default class MitoAPI {
             type: 'pivot_edit',
             'step_id': stepID,
             'params': {
-                sheet_index: sheetIndex,
-                pivot_rows_column_ids: pivotRowColumnIDs,
-                pivot_columns_column_ids: pivotColsIDs,
-                values_column_ids_map: valuesIDs,
+                sheet_index: pivotParams.selectedSheetIndex,
+                // Deduplicate the rows and columns before sending them to the backend
+                // as otherwise this generates errors if you have duplicated key
+                pivot_rows_column_ids: getDeduplicatedArray(pivotParams.pivotRowColumnIDs),
+                pivot_columns_column_ids: getDeduplicatedArray(pivotParams.pivotColumnsColumnIDs),
+                values_column_ids_map: valuesArrayToRecord(pivotParams.pivotValuesColumnIDsArray),
+                flatten_column_headers: pivotParams.flattenColumnHeaders,
                 // Pass the optional destination_sheet_index, which will be removed
                 // automatically if it is undefined
                 destination_sheet_index: destinationSheetIndex,
-                flatten_column_headers: flattenColumnHeaders
             }
         }, {});
 
@@ -822,33 +805,6 @@ export default class MitoAPI {
                 sheet_index: sheetIndex,
                 column_id: columnID,
                 sort_direction: sortDirection,
-            }
-        }, {});
-
-        return stepID;
-    }
-
-    /*
-        Drop duplicates in a dataframe
-    */
-    async editDropDuplicates(
-        sheetIndex: number,
-        columnIDs: ColumnID[],
-        keep: 'last' | 'first' | false,
-        stepID?: string
-    ): Promise<string> {
-        if (stepID === undefined || stepID === '') {
-            stepID = getRandomId();
-        }
-
-        await this.send({
-            event: 'edit_event',
-            type: 'drop_duplicates_edit',
-            'step_id': stepID,
-            'params': {
-                sheet_index: sheetIndex,
-                column_ids: columnIDs,
-                keep: keep,
             }
         }, {});
 

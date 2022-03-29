@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 import plotly.express as px
@@ -23,13 +23,14 @@ from mitosheet.step_performers.graph_steps.graph_utils import (
     create_parameter,
     get_barmode,
     get_graph_title,
+    param_dict_to_code,
 )
 from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_to_transpiled_code
 from mitosheet.types import ColumnHeader
 
-# TAB is used in place of \t in generated code because
-# Jupyter turns \t into a grey arrow, but converts four spaces into a tab.
-TAB = "    "
+DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT = '#FFFFFF'
+DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT = '#E6EBF5'
+DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT = '#2F3E5D'
 
 # The number of rows that we filter the graph to
 # This must be kept in sync with GRAPH_SAFETY_FILTER_CUTOFF in GraphSidebar.tsx
@@ -37,6 +38,13 @@ GRAPH_SAFETY_FILTER_CUTOFF = 1000
 
 # Not all of Ploty's graphs support the color parameter. Those are listed here
 GRAPHS_THAT_DONT_SUPPORT_COLOR = [DENSITY_HEATMAP]
+
+RANGE_SLIDER_CODE = """dict(
+        rangeslider=dict(
+            visible=True,
+            thickness=.05
+        )
+    )"""
 
 
 def safety_filter_applied(
@@ -84,17 +92,12 @@ def graph_filtering_code(
         # If we don't filter the graph, then return an empty string
         return ""
 
-
-def graph_creation(
-    graph_type: str,
-    df: pd.DataFrame,
-    x_axis_column_headers: List[ColumnHeader],
-    y_axis_column_headers: List[ColumnHeader],
-    color_column_header: Optional[ColumnHeader]
-) -> go.Figure:
-    """
-    Creates and returns the Plotly express graph figure
-    """
+def get_graph_creation_param_dict(
+        graph_type: str,
+        x_axis_column_headers: List[ColumnHeader],
+        y_axis_column_headers: List[ColumnHeader],
+        color_column_header: Optional[ColumnHeader]
+    ) -> Dict[str, Any]:
 
     # Create the parameters that we use to construct the graph
     all_params: Dict[str, Union[ColumnHeader, List[ColumnHeader], None]] = dict()
@@ -112,29 +115,46 @@ def graph_creation(
     elif len(y_axis_column_headers) > 1:
         all_params["y"] = y_axis_column_headers
 
-    if graph_type not in GRAPHS_THAT_DONT_SUPPORT_COLOR:
+    if graph_type not in GRAPHS_THAT_DONT_SUPPORT_COLOR and color_column_header is not None:
         all_params['color'] = color_column_header
 
+    return all_params
+
+def graph_creation(
+    graph_type: str,
+    df: pd.DataFrame,
+    x_axis_column_headers: List[ColumnHeader],
+    y_axis_column_headers: List[ColumnHeader],
+    color_column_header: Optional[ColumnHeader]
+) -> go.Figure:
+    """
+    Creates and returns the Plotly express graph figure
+    """
+
+    param_dict = get_graph_creation_param_dict(
+        graph_type, x_axis_column_headers, y_axis_column_headers, color_column_header
+    )
+
     if graph_type == BAR:
-        return px.bar(df, **all_params)
+        return px.bar(df, **param_dict)
     elif graph_type == LINE:
-        return px.line(df, **all_params)
+        return px.line(df, **param_dict)
     elif graph_type == SCATTER:
-        return px.scatter(df, **all_params)
+        return px.scatter(df, **param_dict)
     elif graph_type == HISTOGRAM:
-        return px.histogram(df, **all_params)
+        return px.histogram(df, **param_dict)
     elif graph_type == DENSITY_HEATMAP:
-        return px.density_heatmap(df, **all_params)
+        return px.density_heatmap(df, **param_dict)
     elif graph_type == DENSITY_CONTOUR:
-        return px.density_contour(df, **all_params)
+        return px.density_contour(df, **param_dict)
     elif graph_type == BOX:
-        return px.box(df, **all_params)
+        return px.box(df, **param_dict)
     elif graph_type == VIOLIN:
-        return px.violin(df, **all_params)
+        return px.violin(df, **param_dict)
     elif graph_type == STRIP:
-        return px.strip(df, **all_params)
+        return px.strip(df, **param_dict)
     elif graph_type == ECDF:
-        return px.ecdf(df, **all_params)
+        return px.ecdf(df, **param_dict)
 
 
 def graph_creation_code(
@@ -148,101 +168,137 @@ def graph_creation_code(
     Returns the code for creating the Plotly express graph
     """
 
-    # Create the params used to construct the graph
-    all_params: List[Tuple[str, str, bool]] = []
-
-    if len(x_axis_column_headers) == 1:
-        all_params.append(("x", column_header_to_transpiled_code(x_axis_column_headers[0]), False))
-    elif len(x_axis_column_headers) >= 1:
-        all_params.append(("x", column_header_list_to_transpiled_code(x_axis_column_headers), False))
-
-    if len(y_axis_column_headers) == 1:
-        all_params.append(("y", column_header_to_transpiled_code(y_axis_column_headers[0]), False))
-    elif len(y_axis_column_headers) >= 1:
-        all_params.append(("y", column_header_list_to_transpiled_code(y_axis_column_headers), False))
-
-    if color_column_header is not None:
-        all_params.append(('color', column_header_to_transpiled_code(color_column_header), False))
-
-    params = f", ".join(
-        create_parameter(param[0], param[1], param[2]) for param in all_params
+    param_dict = get_graph_creation_param_dict(
+        graph_type, x_axis_column_headers, y_axis_column_headers, color_column_header
     )
+    param_code = param_dict_to_code(param_dict, as_single_line=True)
 
     if graph_type == BAR:
-        return f"fig = px.bar({df_name}, {params})"
+        return f"fig = px.bar({df_name}, {param_code})"
     elif graph_type == LINE:
-        return f"fig = px.line({df_name}, {params})"
+        return f"fig = px.line({df_name}, {param_code})"
     elif graph_type == SCATTER:
-        return f"fig = px.scatter({df_name}, {params})"
+        return f"fig = px.scatter({df_name}, {param_code})"
     elif graph_type == HISTOGRAM:
-        return f"fig = px.histogram({df_name}, {params})"
+        return f"fig = px.histogram({df_name}, {param_code})"
     elif graph_type == DENSITY_HEATMAP:
-        return f"fig = px.density_heatmap({df_name}, {params})"
+        return f"fig = px.density_heatmap({df_name}, {param_code})"
     elif graph_type == DENSITY_CONTOUR:
-        return f"fig = px.density_contour({df_name}, {params})"
+        return f"fig = px.density_contour({df_name}, {param_code})"
     elif graph_type == BOX:
-        return f"fig = px.box({df_name}, {params})"
+        return f"fig = px.box({df_name}, {param_code})"
     elif graph_type == VIOLIN:
-        return f"fig = px.violin({df_name}, {params})"
+        return f"fig = px.violin({df_name}, {param_code})"
     elif graph_type == STRIP:
-        return f"fig = px.strip({df_name}, {params})"
+        return f"fig = px.strip({df_name}, {param_code})"
     elif graph_type == ECDF:
-        return f"fig = px.ecdf({df_name}, {params})"
+        return f"fig = px.ecdf({df_name}, {param_code})"
     return ""
+
+def get_graph_styling_param_dict(graph_type: str, column_headers: List[ColumnHeader], filtered: bool, graph_styling_params: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    A param dict is a potentially nested dictonary with strings as keys with
+    """
+    # Create the parameters that we use to construct the graph
+    all_params: Dict[str, Any] = dict()
+
+    # Create the graph title param
+    if graph_styling_params['title']['visible']:
+        use_custom_title = 'title' in graph_styling_params['title']
+        if use_custom_title:
+            all_params['title'] = graph_styling_params['title']['title']
+        else:
+            all_params['title'] = get_graph_title(column_headers, [], filtered, graph_type)
+
+        # Set the font color of the main title, if it has been changed
+        title_font_color = graph_styling_params['title']['title_font_color']
+        if title_font_color != DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT:
+            all_params['title_font_color'] = title_font_color
+
+    # Create the x axis param
+    all_params['xaxis'] = dict()
+    if graph_styling_params['xaxis']['visible']:
+        # If the x axis title is visible, then either dispaly the user's custom title or Ploty's default title.
+        use_custom_xaxis_title = 'title' in graph_styling_params['xaxis']
+        # Only apply the xaxis title if it is set because if we set it to None, then we don't get ploty's default values
+        if use_custom_xaxis_title:
+            all_params['xaxis']['title'] = graph_styling_params['xaxis']['title']
+        
+        # Set the color of the axis, if it is not default
+        xaxis_title_font_color = graph_styling_params['xaxis']['title_font_color']
+        if xaxis_title_font_color != DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT:
+            all_params['xaxis']['title_font_color'] = xaxis_title_font_color
+    else: 
+        # Plotly makes us explicitly handle setting the xaxis title and yaxis title to None
+        all_params['xaxis']['title'] = None
+
+    # Create the range slider param
+    if graph_styling_params['xaxis']['rangeslider']['visible']:
+        all_params['xaxis']['rangeslider'] = dict(visible=True, thickness=0.05)
+
+    # Create the y axis title param
+    all_params['yaxis'] = dict()
+    if graph_styling_params['yaxis']['visible']:
+        # If the y axis title is visible, then either dispaly the user's custom title or Ploty's default title.
+        use_custom_yaxis_title = 'title' in graph_styling_params['yaxis']
+        # Only apply the xaxis_title if it is set because if we set it to None, then we don't get ploty's default values
+        if use_custom_yaxis_title:
+            all_params['yaxis']['title'] = graph_styling_params['yaxis']['title']
+
+        # Set the color of the axis, if it is not default
+        yaxis_title_font_color = graph_styling_params['yaxis']['title_font_color']
+        if yaxis_title_font_color != DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT:
+            all_params['yaxis']['title_font_color'] = yaxis_title_font_color
+    else: 
+        # Plotly makes us explicitly handle setting the xaxis_title and yaxis_title to None
+        all_params['yaxis']['title'] = None
+
+    # Create the barmode param
+    barmode = get_barmode(graph_type)
+    if barmode is not None:
+        all_params['barmode'] = get_barmode(graph_type)
+
+    # Create the background params
+    paper_bgcolor = graph_styling_params['paper_bgcolor']
+    if graph_styling_params != DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT: # NOTE: we don't need to set if it's a default
+        all_params['paper_bgcolor'] = paper_bgcolor
+    plot_bgcolor = graph_styling_params['plot_bgcolor']
+    if plot_bgcolor != DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT: # NOTE: we don't need to set if it's a default
+        all_params['plot_bgcolor'] = plot_bgcolor
+
+    # Create the showlegend param
+    all_params['showlegend'] = graph_styling_params['showlegend']
+
+    return all_params
 
 
 def graph_styling(
-    fig: go.Figure, graph_type: str, column_headers: List[ColumnHeader], filtered: bool
+    fig: go.Figure, graph_type: str, column_headers: List[ColumnHeader], filtered: bool, graph_styling_params: Dict[str, Any]
 ) -> go.Figure:
     """
     Styles the Plotly express graph figure
     """
-
-    # Create the parameters that we use to style the graph
-    graph_title = get_graph_title(column_headers, [], filtered, graph_type)
-    barmode = get_barmode(graph_type)
+    param_dict = get_graph_styling_param_dict(graph_type, column_headers, filtered, graph_styling_params) 
 
     # Actually update the style of the graph
     fig.update_layout(
-        title=graph_title,
-        barmode=barmode,
-        xaxis=dict(rangeslider=dict(visible=True, thickness=0.05)),
+        **param_dict
     )
     return fig
 
 
 def graph_styling_code(
-    graph_type: str, column_headers: List[ColumnHeader], filtered: bool
+    graph_type: 
+    str, column_headers: List[ColumnHeader], 
+    filtered: bool,
+    graph_styling_params: Dict[str, Any]
 ) -> str:
     """
     Returns the code for styling the Plotly express graph
     """
-
-    # Create the params used to style the graph
-    all_params: List[Tuple[str, str, bool]] = []
-
-    graph_title = get_graph_title(column_headers, [], filtered, graph_type)
-    all_params.append(("title", graph_title, True))
-
-    barmode = get_barmode(graph_type)
-    if barmode is not None:
-        all_params.append(("barmode", barmode, True))
-
-    RANGE_SLIDER = """dict(
-        rangeslider=dict(
-            visible=True,
-            thickness=.05
-        )
-    )"""
-    all_params.append(("xaxis", RANGE_SLIDER, False))
-
-    params = f"\n{TAB}"
-    params += f",\n{TAB}".join(
-        create_parameter(param[0], param[1], param[2]) for param in all_params
-    )
-    params += "\n"
-
-    return f"fig.update_layout({params})"
+    param_dict = get_graph_styling_param_dict(graph_type, column_headers, filtered, graph_styling_params) 
+    params_code = param_dict_to_code(param_dict)
+    return f"fig.update_layout({params_code})"
 
 
 def get_plotly_express_graph(
@@ -251,7 +307,8 @@ def get_plotly_express_graph(
     safety_filter_turned_on_by_user: bool,
     x_axis_column_headers: List[ColumnHeader],
     y_axis_column_headers: List[ColumnHeader],
-    color_column_header: Optional[ColumnHeader]
+    color_column_header: Optional[ColumnHeader],
+    graph_styling_params: Dict[str, Any],
 ) -> go.Figure:
     """
     Generates and returns a Plotly express graph in 3 steps
@@ -271,7 +328,7 @@ def get_plotly_express_graph(
     fig = graph_creation(graph_type, df, x_axis_column_headers, y_axis_column_headers, color_column_header)
 
     # Step 3: Graph Styling
-    fig = graph_styling(fig, graph_type, all_column_headers, is_safety_filter_applied)
+    fig = graph_styling(fig, graph_type, all_column_headers, is_safety_filter_applied, graph_styling_params)
 
     return fig
 
@@ -283,6 +340,7 @@ def get_plotly_express_graph_code(
     x_axis_column_headers: List[ColumnHeader],
     y_axis_column_headers: List[ColumnHeader],
     color_column_header: Optional[ColumnHeader],
+    graph_styling_params: Dict[str, Any],
     df_name: str,
 ) -> str:
     """
@@ -319,7 +377,7 @@ def get_plotly_express_graph_code(
     # Step 3: Graph Styling
     all_column_headers = x_axis_column_headers + y_axis_column_headers
     code.append(
-        graph_styling_code(graph_type, all_column_headers, is_safety_filter_applied)
+        graph_styling_code(graph_type, all_column_headers, is_safety_filter_applied, graph_styling_params)
     )
 
     # We use fig.show(renderer="iframe") which works in both JLab 2 & 3

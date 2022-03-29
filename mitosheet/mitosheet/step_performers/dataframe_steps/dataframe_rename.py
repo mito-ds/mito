@@ -28,10 +28,6 @@ class DataframeRenameStepPerformer(StepPerformer):
     @classmethod
     def step_display_name(cls) -> str:
         return 'Renamed a Dataframe'
-    
-    @classmethod
-    def step_event_type(cls) -> str:
-        return 'dataframe_rename_edit'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -54,7 +50,7 @@ class DataframeRenameStepPerformer(StepPerformer):
             return prev_state, None
 
         # Create a new step and save the parameters
-        post_state = copy(prev_state)
+        post_state = prev_state.copy()
 
         post_state.df_names[sheet_index] = get_valid_dataframe_name(post_state.df_names, new_dataframe_name)
 

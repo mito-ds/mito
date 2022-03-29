@@ -35,7 +35,24 @@ class GraphStepPerformer(StepPerformer):
             y_axis_column_ids: ColumnID[],
             color: columnID: columnID
         },
-        graph_styling: {},
+        graph_styling: {
+            title: {
+                title: string | None
+                visible: boolean
+            },
+            xaxis: {
+                title: string | None,
+                visible: boolean,
+                rangeslider: {
+                    visible: boolean
+                }
+            },
+            yaxis: {
+                title: string | None,
+                visible: boolean
+            },
+            showlegend: boolean
+        },
         graph_rendering: {
             height: int representing the div width
             width: int representing the div width
@@ -45,7 +62,7 @@ class GraphStepPerformer(StepPerformer):
 
     @classmethod
     def step_version(cls) -> int:
-        return 1
+        return 3
 
     @classmethod
     def step_type(cls) -> str:
@@ -54,10 +71,6 @@ class GraphStepPerformer(StepPerformer):
     @classmethod
     def step_display_name(cls) -> str:
         return "Created a graph"
-
-    @classmethod
-    def step_event_type(cls) -> str:
-        return "graph_edit"
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -79,7 +92,7 @@ class GraphStepPerformer(StepPerformer):
         """
 
         # We make a new state to modify it
-        post_state = deepcopy(prev_state)
+        post_state = prev_state.copy()
 
         # Extract variables from graph parameters
         graph_type = graph_creation["graph_type"]
@@ -128,7 +141,8 @@ class GraphStepPerformer(StepPerformer):
                 safety_filter_turned_on_by_user,
                 x_axis_column_headers,
                 y_axis_column_headers,
-                color_column_header
+                color_column_header,
+                graph_styling
             )
             pandas_processing_time = perf_counter() - pandas_start_time
 
@@ -151,6 +165,7 @@ class GraphStepPerformer(StepPerformer):
                 x_axis_column_headers,
                 y_axis_column_headers,
                 color_column_header,
+                graph_styling,
                 df_name,
             )
 

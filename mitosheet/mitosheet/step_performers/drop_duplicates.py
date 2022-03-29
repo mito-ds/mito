@@ -9,12 +9,8 @@ from typing import Any, Dict, List, Optional, Set, Union
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.errors import (
-    make_no_sheet_error,
-    make_no_column_error,
-    make_invalid_sort_error
-)
-from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import (
+    column_header_list_to_transpiled_code, column_header_to_transpiled_code)
 from mitosheet.types import ColumnID
 
 # CONSTANTS USED IN THE SORT STEP ITSELF
@@ -37,10 +33,6 @@ class DropDuplicatesStepPerformer(StepPerformer):
     @classmethod
     def step_display_name(cls) -> str:
         return 'Dropped Duplicates'
-
-    @classmethod
-    def step_event_type(cls) -> str:
-        return 'drop_duplicates_edit'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -66,7 +58,7 @@ class DropDuplicatesStepPerformer(StepPerformer):
             return None
 
         # We make a new state to modify it
-        post_state = deepcopy(prev_state)
+        post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
         pandas_start_time = perf_counter()
         final_df = post_state.dfs[sheet_index].drop_duplicates(

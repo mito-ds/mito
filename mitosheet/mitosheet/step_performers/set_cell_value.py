@@ -43,10 +43,6 @@ class SetCellValueStepPerformer(StepPerformer):
     @classmethod
     def step_display_name(cls) -> str:
         return 'Set Cell Value'
-    
-    @classmethod
-    def step_event_type(cls) -> str:
-        return 'set_cell_value_edit'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -83,7 +79,7 @@ class SetCellValueStepPerformer(StepPerformer):
         if old_value == new_value:
             return prev_state, None
 
-        post_state = deepcopy(prev_state)
+        post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
         column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
 

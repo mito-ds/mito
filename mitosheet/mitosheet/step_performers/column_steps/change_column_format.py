@@ -25,10 +25,6 @@ class ChangeColumnFormatStepPerformer(StepPerformer):
     @classmethod
     def step_display_name(cls) -> str:
         return 'Change Column Format'
-    
-    @classmethod
-    def step_event_type(cls) -> str:
-        return 'change_column_format_edit'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -45,7 +41,7 @@ class ChangeColumnFormatStepPerformer(StepPerformer):
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
 
         # Make a post state, that is a deep copy
-        post_state = copy(prev_state)
+        post_state = prev_state.copy()
 
         # Actually update the format of the columns
         for column_id in column_ids:

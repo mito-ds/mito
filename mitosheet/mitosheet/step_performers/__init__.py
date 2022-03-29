@@ -9,6 +9,7 @@ how to add a step!
 """
 
 from typing import Dict, List, Type
+from mitosheet.step_performers.concat import ConcatStepPerformer
 from mitosheet.step_performers.drop_duplicates import DropDuplicatesStepPerformer
 from mitosheet.step_performers.import_steps.excel_import import ExcelImportStepPerformer
 from mitosheet.step_performers.step_performer import StepPerformer
@@ -48,6 +49,7 @@ STEP_PERFORMERS: List[Type[StepPerformer]] = [
     ChangeColumnDtypeStepPerformer,
     ChangeColumnFormatStepPerformer,
     MergeStepPerformer,
+    ConcatStepPerformer,
     DeleteColumnStepPerformer,
     RenameColumnStepPerformer,
     SimpleImportStepPerformer,

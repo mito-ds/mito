@@ -6,7 +6,7 @@ import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFr
 import { ModalEnum } from "../components/modals/modals";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
 import { getDefaultGraphParams } from "../components/taskpanes/Graph/graphUtils";
-import { TaskpaneType } from "../components/taskpanes/taskpanes";
+import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../data/function_documentation";
 import { Action, ActionEnum, DFSource, EditorState, GridState, SheetData, UIState } from "../types"
@@ -47,7 +47,7 @@ export const createActions = (
     const actions: Record<ActionEnum, Action> = {
         [ActionEnum.Add_Column]: {
             type: ActionEnum.Add_Column,
-            shortTitle: 'add col',
+            shortTitle: 'Add Col',
             longTitle: 'Add a column',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -82,7 +82,7 @@ export const createActions = (
         },
         [ActionEnum.Change_Dtype]: {
             type: ActionEnum.Change_Dtype,
-            shortTitle: 'change dtype',
+            shortTitle: 'Change Dtype',
             longTitle: 'Change dtype of column',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -113,7 +113,7 @@ export const createActions = (
         },
         [ActionEnum.Clear]: {
             type: ActionEnum.Clear,
-            shortTitle: 'clear',
+            shortTitle: 'Clear',
             longTitle: "Clear all edits",
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -138,7 +138,7 @@ export const createActions = (
         },
         [ActionEnum.Column_Summary]: {
             type: ActionEnum.Column_Summary,
-            shortTitle: 'column summary',
+            shortTitle: 'Column Summary',
             longTitle: 'Column summary statistics and graph',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -161,7 +161,7 @@ export const createActions = (
         },
         [ActionEnum.Delete_Column]: {
             type: ActionEnum.Delete_Column,
-            shortTitle: 'del col',
+            shortTitle: 'Del Col',
             longTitle: 'Delete selected columns',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
@@ -198,7 +198,7 @@ export const createActions = (
         },
         [ActionEnum.Delete_Sheet]: {
             type: ActionEnum.Delete_Sheet,
-            shortTitle: 'delete sheet',
+            shortTitle: 'Delete Sheet',
             longTitle: 'Delete sheet',
             actionFunction: async () => {
                 // If the sheetIndex is not 0, decrement it.
@@ -225,7 +225,7 @@ export const createActions = (
         },
         [ActionEnum.Docs]: {
             type: ActionEnum.Docs,
-            shortTitle: 'docs',
+            shortTitle: 'Docs',
             longTitle: 'Documentation',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -244,7 +244,7 @@ export const createActions = (
         },
         [ActionEnum.Drop_Duplicates]: {
             type: ActionEnum.Drop_Duplicates,
-            shortTitle: 'dedup',
+            shortTitle: 'Dedup',
             longTitle: 'Deduplicate data',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -268,7 +268,7 @@ export const createActions = (
         },
         [ActionEnum.Duplicate_Sheet]: {
             type: ActionEnum.Duplicate_Sheet,
-            shortTitle: 'duplicate sheet',
+            shortTitle: 'Duplicate Sheet',
             longTitle: 'Duplicate selected sheet',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
@@ -284,7 +284,7 @@ export const createActions = (
         },
         [ActionEnum.Export]: {
             type: ActionEnum.Export,
-            shortTitle: 'export',
+            shortTitle: 'Export',
             longTitle: 'Export to .csv or .xlsx',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -310,7 +310,7 @@ export const createActions = (
         },
         [ActionEnum.Filter]: {
             type: ActionEnum.Filter,
-            shortTitle: 'filter',
+            shortTitle: 'Filter',
             longTitle: 'Filter selected column',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -333,7 +333,7 @@ export const createActions = (
         },
         [ActionEnum.Format]: {
             type: ActionEnum.Format,
-            shortTitle: 'format',
+            shortTitle: 'Format',
             longTitle: 'Format selected number columns',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -355,7 +355,7 @@ export const createActions = (
         },
         [ActionEnum.Fullscreen]: {
             type: ActionEnum.Fullscreen,
-            shortTitle: 'fullscreen',
+            shortTitle: 'Fullscreen',
             longTitle: 'Fullscreen mode',
             actionFunction: () => {
                 // We toggle to the opposite of whatever the fullscreen actually is (as detected by the
@@ -374,25 +374,34 @@ export const createActions = (
         },
         [ActionEnum.Graph]: {
             type: ActionEnum.Graph,
-            shortTitle: 'graph',
+            shortTitle: 'Graph',
             longTitle: 'Graph',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
+
+                // If there is no data, prompt the user to import and nothing else
+                if (sheetDataArray.length === 0) {
+                    setUIState((prevUIState) => {
+                        return {
+                            ...prevUIState,
+                            currOpenTaskpane: {
+                                type: TaskpaneType.IMPORT_FIRST,
+                                message: 'Before graphing data, you need to import some!'
+                            }
+                        }
+                    })
+                    return;
+                }
 
                 const newGraphID = getRandomId() // Create a new GraphID
                 const graphParams = getDefaultGraphParams(sheetDataArray, sheetIndex)
 
                 await mitoAPI.editGraph(
                     newGraphID,
-                    graphParams.graphCreation.graph_type,
-                    graphParams.graphCreation.sheet_index,
-                    graphParams.graphCreation.color,
-                    graphParams.graphPreprocessing.safety_filter_turned_on_by_user,
-                    graphParams.graphCreation.x_axis_column_ids,
-                    graphParams.graphCreation.y_axis_column_ids,
-                    `100%`, 
-                    `100%`, 
+                    graphParams,
+                    '100%',
+                    '100%',
                     undefined, 
                 );
             },
@@ -402,7 +411,7 @@ export const createActions = (
         },
         [ActionEnum.Help]: {
             type: ActionEnum.Help,
-            shortTitle: 'help',
+            shortTitle: 'Help',
             longTitle: 'Help',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -417,7 +426,7 @@ export const createActions = (
         },
         [ActionEnum.Import]: {
             type: ActionEnum.Import,
-            shortTitle: 'import',
+            shortTitle: 'Import',
             longTitle: 'Import .csv or .xlsx files',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -441,7 +450,7 @@ export const createActions = (
         },
         [ActionEnum.Merge]: {
             type: ActionEnum.Merge,
-            shortTitle: 'merge',
+            shortTitle: 'Merge',
             longTitle: 'Merge sheets together',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
@@ -461,9 +470,31 @@ export const createActions = (
             searchTerms: ['merge', 'join', 'vlookup', 'lookup', 'anti', 'diff', 'difference', 'unique'],
             tooltip: "Merge two sheets together using a lookup, left, right, inner, or outer join. Or find the differences between two sheets."
         },
+        [ActionEnum.Concat_Sheets]: {
+            type: ActionEnum.Concat_Sheets,
+            shortTitle: 'Concat',
+            longTitle: 'Concatenate two or more sheets together',
+            actionFunction: async () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // We open the merge taskpane
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenModal: {type: ModalEnum.None},
+                        currOpenTaskpane: {type: TaskpaneType.CONCAT},
+                        selectedTabType: 'data'
+                    }
+                })
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no sheets to concat together. Import data.'},
+            searchTerms: ['stack', 'merge', 'join', 'concat', 'concatenate', 'append'],
+            tooltip: "Concatenate two or more sheets by stacking them vertically on top of eachother."
+        },
         [ActionEnum.Pivot]: {
             type: ActionEnum.Pivot,
-            shortTitle: 'pivot',
+            shortTitle: 'Pivot',
             longTitle: 'Pivot Table',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
@@ -525,14 +556,14 @@ export const createActions = (
         },
         [ActionEnum.Redo]: {
             type: ActionEnum.Redo,
-            shortTitle: 'redo',
+            shortTitle: 'Redo',
             longTitle: 'Redo',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
     
                 // We close the editing taskpane if its open
-                closeOpenEditingPopups([TaskpaneType.PIVOT]);
+                closeOpenEditingPopups(ALLOW_UNDO_REDO_EDITING_TASKPANES);
     
                 void mitoAPI.updateRedo();
             },
@@ -542,7 +573,7 @@ export const createActions = (
         },
         [ActionEnum.Rename_Column]: {
             type: ActionEnum.Rename_Column,
-            shortTitle: 'rename column',
+            shortTitle: 'Rename Column',
             longTitle: 'Rename selected column',
             actionFunction: () => {
                 const columnHeader = getCellDataFromCellIndexes(sheetData, -1, startingColumnIndex).columnHeader;
@@ -567,7 +598,7 @@ export const createActions = (
         },
         [ActionEnum.Rename_Sheet]: {
             type: ActionEnum.Rename_Sheet,
-            shortTitle: 'rename sheet',
+            shortTitle: 'Rename Sheet',
             longTitle: 'Rename sheet',
             actionFunction: () => {
                 // Use a query selector to get the div and then double click on it
@@ -591,7 +622,7 @@ export const createActions = (
         },
         [ActionEnum.See_All_Functionality]: {
             type: ActionEnum.See_All_Functionality,
-            shortTitle: 'see all functionality',
+            shortTitle: 'See All Functionality',
             longTitle: 'See all functionality',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -633,7 +664,7 @@ export const createActions = (
         }, */
         [ActionEnum.Set_Cell_Value]: {
             type: ActionEnum.Set_Cell_Value,
-            shortTitle: 'set cell value',
+            shortTitle: 'Set Cell Value',
             longTitle: 'Set cell value',
             actionFunction: async () => {
                 if (startingColumnID === undefined) {
@@ -669,7 +700,7 @@ export const createActions = (
         },
         [ActionEnum.Set_Column_Formula]: {
             type: ActionEnum.Set_Column_Formula,
-            shortTitle: 'set column formula',
+            shortTitle: 'Set Column Formula',
             longTitle: 'Set column formula',
             actionFunction: async () => {            
                 setEditorState({
@@ -698,7 +729,7 @@ export const createActions = (
         },
         [ActionEnum.Sort]: {
             type: ActionEnum.Sort,
-            shortTitle: 'sort',
+            shortTitle: 'Sort',
             longTitle: 'Sort selected column',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -721,7 +752,7 @@ export const createActions = (
         },
         [ActionEnum.Steps]: {
             type: ActionEnum.Steps,
-            shortTitle: 'steps',
+            shortTitle: 'Steps',
             longTitle: 'Step history',
             actionFunction: () => {
                 void mitoAPI.log('click_open_steps')
@@ -740,14 +771,14 @@ export const createActions = (
         },
         [ActionEnum.Undo]: {
             type: ActionEnum.Undo,
-            shortTitle: 'undo',
+            shortTitle: 'Undo',
             longTitle: 'Undo',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
         
                 // We close the editing taskpane if its open
-                closeOpenEditingPopups([TaskpaneType.PIVOT, TaskpaneType.IMPORT]);
+                closeOpenEditingPopups(ALLOW_UNDO_REDO_EDITING_TASKPANES);
         
                 void mitoAPI.updateUndo();
             },
@@ -757,7 +788,7 @@ export const createActions = (
         },
         [ActionEnum.Unique_Values]: {
             type: ActionEnum.Unique_Values,
-            shortTitle: 'unique vals',
+            shortTitle: 'Unique Vals',
             longTitle: 'Unique Values',
             actionFunction: () => {
                 // We turn off editing mode, if it is on

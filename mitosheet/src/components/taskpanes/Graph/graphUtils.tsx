@@ -9,6 +9,11 @@ import DropdownItem from "../../elements/DropdownItem"
 import { GRAPH_SAFETY_FILTER_CUTOFF } from "./GraphSetupTab"
 import { GraphType } from "./GraphSidebar"
 
+// Note: these should match the constants in Python as well
+const DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT = '#FFFFFF'
+const DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT = '#E6EBF5'
+const DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT = '#2F3E5D'
+
 // unless a graph type is provided
 export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: number, graphType?: GraphType): GraphParams => {
     const safetyFilter = getDefaultSafetyFilter(sheetDataArray, sheetIndex)
@@ -23,8 +28,29 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
             y_axis_column_ids: [],
             color: undefined
         },
-        graphStyling: undefined,
-        graphRendering: {}
+        graphStyling: {
+            title: {
+                title: undefined,
+                visible: true,
+                title_font_color: DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT
+            },
+            xaxis: {
+                title: undefined,
+                visible: true,
+                title_font_color: DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT,
+                rangeslider: {
+                    visible: true,
+                }
+            },
+            yaxis: {
+                title: undefined,
+                visible: true,
+                title_font_color: DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT
+            },
+            showlegend: true,
+            paper_bgcolor: DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT,
+            plot_bgcolor: DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT
+        }
     }
 }
 

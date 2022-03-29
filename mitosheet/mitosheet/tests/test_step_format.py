@@ -30,7 +30,8 @@ from mitosheet.step_performers import (
     BulkOldRenameStepPerformer, 
     ExcelImportStepPerformer,
     DropDuplicatesStepPerformer,
-    GraphStepPerformer
+    GraphStepPerformer,
+    ConcatStepPerformer
 )
 from mitosheet.step_performers.graph_steps.graph_delete import GraphDeleteStepPerformer
 from mitosheet.step_performers.graph_steps.graph_duplicate import GraphDuplicateStepPerformer
@@ -187,7 +188,7 @@ def test_params_static():
 
     check_step(
         GraphStepPerformer,
-        1,
+        3,
         'graph'
     )
 
@@ -209,7 +210,13 @@ def test_params_static():
         'graph_rename'
     )
 
-    assert len(STEP_PERFORMERS) == 23
+    check_step(
+        ConcatStepPerformer,
+        1,
+        'concat'
+    )
+
+    assert len(STEP_PERFORMERS) == 24
 
 
 def get_fake_param(param_name):

@@ -37,10 +37,6 @@ class RenameColumnStepPerformer(StepPerformer):
     @classmethod
     def step_display_name(cls) -> str:
         return 'Renamed a Column'
-    
-    @classmethod
-    def step_event_type(cls) -> str:
-        return 'rename_column_edit'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -66,7 +62,7 @@ class RenameColumnStepPerformer(StepPerformer):
             return prev_state, None
 
         # Create a new post state for this step
-        post_state = deepcopy(prev_state)
+        post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
         old_level_value, pandas_processing_time = rename_column_headers_in_state(
             post_state,

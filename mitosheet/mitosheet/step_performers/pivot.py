@@ -55,10 +55,6 @@ class PivotStepPerformer(StepPerformer):
     @classmethod
     def step_display_name(cls) -> str:
         return 'Pivoted a Dataframe'
-    
-    @classmethod
-    def step_event_type(cls) -> str:
-        return 'pivot_edit'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -113,7 +109,7 @@ class PivotStepPerformer(StepPerformer):
             raise make_no_column_error(missing_pivot_keys)
 
         # Create the post state, it can be a shallow copy
-        post_state = copy(prev_state)
+        post_state = prev_state.copy()
 
         try:
             # Actually execute the pivoting

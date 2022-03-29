@@ -8,7 +8,7 @@ import json
 import uuid
 from copy import copy, deepcopy
 import pandas as pd
-from typing import Any, Callable, Dict, Collection, List, Set, Tuple, Union
+from typing import Any, Dict, Collection, List, Set, Tuple, Union
 from mitosheet.mito_analytics import log
 
 from mitosheet.step_performers.import_steps.simple_import import (

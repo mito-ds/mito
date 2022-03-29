@@ -37,10 +37,6 @@ class SimpleImportStepPerformer(StepPerformer):
     @classmethod
     def step_display_name(cls) -> str:
         return 'Imported CSV Files'
-    
-    @classmethod
-    def step_event_type(cls) -> str:
-        return 'simple_import_edit'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -61,7 +57,7 @@ class SimpleImportStepPerformer(StepPerformer):
                 raise make_is_directory_error(file_name)
 
         # Create a new step
-        post_state = copy(prev_state)
+        post_state = prev_state.copy()
 
         file_delimeters = []
         file_encodings = []

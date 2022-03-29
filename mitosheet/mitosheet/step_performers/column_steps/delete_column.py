@@ -31,10 +31,6 @@ class DeleteColumnStepPerformer(StepPerformer):
     @classmethod
     def step_display_name(cls) -> str:
         return 'Deleted Column(s)'
-    
-    @classmethod
-    def step_event_type(cls) -> str:
-        return 'delete_column_edit'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -50,7 +46,7 @@ class DeleteColumnStepPerformer(StepPerformer):
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
 
         # Make a post state, that is a deep copy
-        post_state = deepcopy(prev_state)
+        post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
         # Actually delete the columns and update state
         post_state, pandas_processing_time = delete_column_ids(post_state, sheet_index, column_ids)

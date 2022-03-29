@@ -38,10 +38,6 @@ class SortStepPerformer(StepPerformer):
         return 'Sorted a Column'
 
     @classmethod
-    def step_event_type(cls) -> str:
-        return 'sort_edit'
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 
@@ -63,7 +59,7 @@ class SortStepPerformer(StepPerformer):
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
 
         # We make a new state to modify it
-        post_state = deepcopy(prev_state)
+        post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
         try: 
             pandas_start_time = perf_counter()

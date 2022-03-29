@@ -12,6 +12,7 @@ import AxisSection, { GraphAxisType } from './AxisSection';
 import Toggle from '../../elements/Toggle';
 import { getColorDropdownItems, getDefaultGraphParams, getDefaultSafetyFilter } from './graphUtils';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
+import Tooltip from '../../elements/Tooltip';
 
 // Graphing a dataframe with more than this number of rows will
 // give the user the option to apply the safety filter
@@ -150,6 +151,10 @@ function GraphSetupTab(
         props.setGraphUpdatedNumber((old) => old + 1);
     }
 
+    const colorByColumnTitle = GRAPHS_THAT_DONT_SUPPORT_COLOR.includes(props.graphParams.graphCreation.graph_type)
+        ? `${props.graphParams.graphCreation.graph_type} does not support further breaking down data using color.`
+        : 'Use an additional column to further breakdown the data by color.';
+
     return (  
         <Fragment>
             <div className='graph-sidebar-toolbar-content'>
@@ -263,15 +268,16 @@ function GraphSetupTab(
                     <Row 
                         justify='space-between' 
                         align='center' 
-                        title={GRAPHS_THAT_DONT_SUPPORT_COLOR.includes(props.graphParams.graphCreation.graph_type) ? 
-                            `${props.graphParams.graphCreation.graph_type} does not support further breaking down data using color.` :
-                            'Use an additional column to further breakdown the data by color.'}
+                        title={colorByColumnTitle}
                         suppressTopBottomMargin
                     >
                         <Col>
-                            <div className='text-header-3'>
-                                Color By Column
-                            </div>
+                            <Row justify='space-between' align='center' suppressTopBottomMargin>
+                                <div className='text-header-3'>
+                                    Color By Column &nbsp;
+                                </div>
+                                <Tooltip title={colorByColumnTitle}/>
+                            </Row>
                         </Col>
                         <Col>
                             <Select 
@@ -285,12 +291,17 @@ function GraphSetupTab(
                         </Col>
                     </Row>
                 </div>
-                
-                <Row justify='space-between' align='center' title={getDefaultSafetyFilter(props.sheetDataArray, graphSheetIndex) ? SAFETY_FILTER_ENABLED_MESSAGE : SAFETY_FILTER_DISABLED_MESSAGE}>
+                <Row 
+                    justify='space-between' 
+                    align='center'
+                    title={getDefaultSafetyFilter(props.sheetDataArray, graphSheetIndex) ? SAFETY_FILTER_ENABLED_MESSAGE : SAFETY_FILTER_DISABLED_MESSAGE}>
                     <Col>
-                        <p className='text-header-3' >
-                            Filter to safe size
-                        </p>
+                        <Row justify='space-between' align='center' suppressTopBottomMargin> 
+                            <p className='text-header-3' >
+                                Filter to safe size &nbsp;
+                            </p>
+                            <Tooltip title={getDefaultSafetyFilter(props.sheetDataArray, graphSheetIndex) ? SAFETY_FILTER_ENABLED_MESSAGE : SAFETY_FILTER_DISABLED_MESSAGE}/>
+                        </Row>
                     </Col>
                     <Col>
                         <Toggle
@@ -300,7 +311,6 @@ function GraphSetupTab(
                         />
                     </Col>
                 </Row>
-
             </div>
         </Fragment>
     )

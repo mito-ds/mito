@@ -28,10 +28,6 @@ class GraphDuplicateStepPerformer(StepPerformer):
     @classmethod
     def step_display_name(cls) -> str:
         return 'Duplicated a Graph'
-    
-    @classmethod
-    def step_event_type(cls) -> str:
-        return 'graph_duplicate_edit'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -45,7 +41,7 @@ class GraphDuplicateStepPerformer(StepPerformer):
         new_graph_id: GraphID,
         **params
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
-        post_state = deepcopy(prev_state)
+        post_state = prev_state.copy()
 
         # Execute the step
         graph_copy = deepcopy(post_state.graph_data_dict[old_graph_id])

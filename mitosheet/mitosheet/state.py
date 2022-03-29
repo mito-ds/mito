@@ -5,17 +5,19 @@
 # Distributed under the terms of the GPL License.
 from collections import OrderedDict
 from copy import deepcopy
-from typing import Any, Collection, List, Dict, Set
+from typing import Any, Collection, List, Dict, Optional, Set
 import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap
 from mitosheet.types import ColumnID
+from mitosheet.utils import get_first_unused_dataframe_name
 
 # Constants for where the dataframe in the state came from
 DATAFRAME_SOURCE_PASSED = "passed"  # passed in mitosheet.sheet
 DATAFRAME_SOURCE_IMPORTED = "imported"  # imported through a simple import
 DATAFRAME_SOURCE_PIVOTED = "pivoted"  # created through a pivot
 DATAFRAME_SOURCE_MERGED = "merged"  # created through a merge
+DATAFRAME_SOURCE_CONCAT = "concated"  # created through a concat
 DATAFRAME_SOURCE_DUPLICATED = "duplicated"  # created through a sheet duplication
 
 # Constants used for formatting. Defined here to avoid circular imports
@@ -121,29 +123,17 @@ class State:
         # This is helpful for undoing, for example. 
         self.graph_data_dict: OrderedDict[str, Dict[str, Any]] = graph_data_dict if graph_data_dict is not None else OrderedDict()
 
-    def __copy__(self):
+    def copy(self, deep_sheet_indexes: Optional[List[int]]=None) -> "State":
         """
-        If you copy a state using the copy() function, this Python
-        function is called, and returns a shallow copy of the state
+        Returns a copy of the state, while only making deep copies of
+        those dataframes in the deep_sheet_indexes. Ideally, we'd copy
+        even less than that deeply.
         """
+        if deep_sheet_indexes is None:
+            deep_sheet_indexes = []
+        
         return State(
-            [df.copy(deep=False) for df in self.dfs],
-            df_names=deepcopy(self.df_names),
-            df_sources=deepcopy(self.df_sources),
-            column_ids=deepcopy(self.column_ids),
-            column_spreadsheet_code=deepcopy(self.column_spreadsheet_code),
-            column_filters=deepcopy(self.column_filters),
-            column_format_types=deepcopy(self.column_format_types),
-            graph_data_dict=deepcopy(self.graph_data_dict)
-        )
-
-    def __deepcopy__(self, memo):
-        """
-        If you copy a state using the deepcopy() function, this Python
-        function is called, and returns a deep copy of the state
-        """
-        return State(
-            [df.copy(deep=True) for df in self.dfs],
+            [df.copy(deep=True) if index in deep_sheet_indexes else df.copy(deep=False) for index, df in enumerate(self.dfs)],
             df_names=deepcopy(self.df_names),
             df_sources=deepcopy(self.df_sources),
             column_ids=deepcopy(self.column_ids),
@@ -175,7 +165,9 @@ class State:
             self.dfs.append(new_df)
             # Also update the dataframe name
             if df_name is None:
-                self.df_names.append(f"df{len(self.df_names) + 1}")
+                self.df_names.append(
+                    get_first_unused_dataframe_name(self.df_names, f"df{len(self.df_names) + 1}")
+                )
             else:
                 self.df_names.append(df_name)
 

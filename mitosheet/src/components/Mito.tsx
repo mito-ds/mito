@@ -57,6 +57,8 @@ import loadPlotly from '../utils/plotly';
 import ErrorBoundary from './elements/ErrorBoundary';
 import DeleteGraphsModal from './modals/DeleteGraphsModal';
 import { selectPreviousGraphSheetTab } from './footer/SheetTab';
+import ConcatTaskpane from './taskpanes/Concat/ConcatTaskpane';
+import DefaultEmptyTaskpane from './taskpanes/DefaultTaskpane/DefaultEmptyTaskpane';
 
 export type MitoProps = {
     model_id: string;
@@ -449,6 +451,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     mitoAPI={props.mitoAPI}
                     sheetDataArray={sheetDataArray}
+                    analysisData={analysisData}
                 />
             )
             case TaskpaneType.GRAPH:
@@ -463,6 +466,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         uiState={uiState}
                         graphDataDict={analysisData.graphDataDict}
                         analysisData={analysisData}
+                        mitoContainerRef={mitoContainerRef}
+                        userProfile={userProfile}
                     />
                 )
             case TaskpaneType.IMPORT: return (
@@ -479,6 +484,15 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     dfNames={dfNames}
                     columnIDsMapArray={columnIDsMapArray}
                     selectedSheetIndex={uiState.selectedSheetIndex}
+                    sheetDataArray={sheetDataArray}
+                    setUIState={setUIState}
+                    mitoAPI={props.mitoAPI}
+                    analysisData={analysisData}
+                />
+            )
+            case TaskpaneType.CONCAT: return (
+                <ConcatTaskpane
+                    analysisData={analysisData}
                     sheetDataArray={sheetDataArray}
                     setUIState={setUIState}
                     mitoAPI={props.mitoAPI}
@@ -517,6 +531,12 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     mitoAPI={props.mitoAPI}
                     currStepIdx={analysisData.currStepIdx}
+                />
+            )
+            case TaskpaneType.IMPORT_FIRST: return (
+                <DefaultEmptyTaskpane
+                    setUIState={setUIState}
+                    message={uiState.currOpenTaskpane.message}
                 />
             )
         }

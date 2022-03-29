@@ -9,7 +9,8 @@ This file contains helpful functions and classes for testing operations.
 
 import json
 from functools import wraps
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
+from mitosheet.step_performers.graph_steps.plotly_express_graphs import DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT, DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT, DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT
 from numpy import number
 
 import pandas as pd
@@ -247,6 +248,29 @@ class MitoWidgetTestWrapper:
                     'sheet_index_two': sheet_index_two,
                     'merge_key_column_id_two': merge_key_column_id_two,
                     'selected_column_ids_two': selected_column_ids_two
+                }
+            }
+        )
+    
+    @check_transpiled_code_after_call
+    def concat_sheets(
+            self, 
+            join: str,
+            ignore_index: bool,
+            sheet_indexes: int
+        ) -> bool:
+
+        return self.mito_widget.receive_message(
+            self.mito_widget,
+            {
+                'event': 'edit_event',
+                'id': get_new_id(),
+                'type': 'concat_edit',
+                'step_id': get_new_id(),
+                'params': {
+                    'join': join,
+                    'ignore_index': ignore_index,
+                    'sheet_indexes': sheet_indexes
                 }
             }
         )
@@ -737,7 +761,20 @@ class MitoWidgetTestWrapper:
         yAxisColumnIDs: List[ColumnID],
         height: str,
         width: str,
-        step_id: str=None
+        title_title: Optional[str]=None,
+        title_visible: bool=True,
+        title_font_color: str=DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT,
+        xaxis_title: Optional[str]=None,
+        xaxis_visible: bool=True,
+        xaxis_title_font_color: str=DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT,
+        xaxis_rangeslider_visible: bool=True,
+        yaxis_title: Optional[str]=None,
+        yaxis_visible: bool=True,
+        yaxis_title_font_color: str=DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT,
+        showlegend: bool=True,
+        step_id: str=None,
+        paper_bgcolor: str=DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT,
+        plot_bgcolor: str=DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT,
     ) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
@@ -749,7 +786,7 @@ class MitoWidgetTestWrapper:
                 'params': {
                     'graph_id': graph_id,
                     'graph_preprocessing': {
-                    'safety_filter_turned_on_by_user': safety_filter_turned_on_by_user
+                        'safety_filter_turned_on_by_user': safety_filter_turned_on_by_user
                     },
                     'graph_creation': {
                         'graph_type': graph_type,
@@ -757,7 +794,29 @@ class MitoWidgetTestWrapper:
                         'x_axis_column_ids': xAxisColumnIDs,
                         'y_axis_column_ids': yAxisColumnIDs,
                     },
-                    'graph_styling': {},
+                    'graph_styling': {
+                        'title': {
+                            'title': title_title,
+                            'visible': title_visible,
+                            'title_font_color': title_font_color
+                        },
+                        'xaxis': {
+                            'title': xaxis_title,
+                            'visible': xaxis_visible,
+                            'title_font_color': xaxis_title_font_color,
+                            'rangeslider': {
+                                'visible': xaxis_rangeslider_visible
+                            }
+                        },
+                        'yaxis': {
+                            'title': yaxis_title,
+                            'visible': yaxis_visible,
+                            'title_font_color': yaxis_title_font_color,
+                        },
+                        'showlegend': showlegend,
+                        'paper_bgcolor': paper_bgcolor,
+                        'plot_bgcolor': plot_bgcolor,
+                    },
                     'graph_rendering': {
                         'height': height,
                         'width': width
@@ -910,6 +969,15 @@ class MitoWidgetTestWrapper:
         Returns true if all of the graphOuput is does not exist.
         """
         return "graphOutput" not in self.get_graph_data(graph_id)
+
+    def get_graph_styling_params(self, graph_id: str) -> Dict[str, Optional[Union[str, bool]]]:
+        """
+        Returns the object that stores all the graph styling params, so that 
+        we can easily make sure the structure is correct
+        """
+        graph_data = self.get_graph_data(graph_id)
+        return graph_data["graphParams"]["graphStyling"]
+
 
 def create_mito_wrapper(sheet_one_A_data: List[Any], sheet_two_A_data: List[Any]=None) -> MitoWidgetTestWrapper:
     """

@@ -30,8 +30,7 @@ jobs:
       - name: Install Node.js dependencies
         run: | 
           cd mitosheet
-          python3 -m pip install jupyterlab
-          npm install
+          npm install eslint
       - name: Run Linters
         run: |
           cd mitosheet

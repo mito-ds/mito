@@ -39,10 +39,6 @@ class MergeStepPerformer(StepPerformer):
         return 'Merged Dataframes'
 
     @classmethod
-    def step_event_type(cls) -> str:
-        return 'merge_edit'
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 
@@ -67,7 +63,7 @@ class MergeStepPerformer(StepPerformer):
         selected_columns_two = prev_state.column_ids.get_column_headers_by_ids(sheet_index_two, selected_column_ids_two)
 
         # We create a shallow copy to make the new post state
-        post_state = copy(prev_state)
+        post_state = prev_state.copy()
 
         pandas_start_time = perf_counter()
         new_df = _execute_merge(

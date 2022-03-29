@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { AggregationType } from './PivotTaskpane';
+import { AggregationType, SheetData } from '../../../types';
 import PivotTableValueAggregationCard from './PivotTableValueAggregationCard';
 import PivotInvalidSelectedColumnsError from './PivotInvalidSelectedColumnsError';
 import MitoAPI from '../../../api';
@@ -17,6 +17,7 @@ import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
   user select column headers to add to the row or column keys
 */
 const PivotTableValueSelection = (props: {
+    sheetData: SheetData | undefined,
     columnIDsMap: ColumnIDsMap,
     pivotValuesColumnIDsArray: [ColumnID, AggregationType][];
     addPivotValueAggregation: (columnID: ColumnID) => void;
@@ -61,11 +62,14 @@ const PivotTableValueSelection = (props: {
             />
             {
                 props.pivotValuesColumnIDsArray.map(([columnID, aggregationType], valueIndex) => {
+                    const columnDtype = props.sheetData?.columnDtypeMap[columnID] || '';
+
                     return (
                         <PivotTableValueAggregationCard
                             key={columnID + valueIndex + aggregationType}
                             columnIDsMap={props.columnIDsMap}
                             columnID={columnID}
+                            columnDtype={columnDtype}
                             aggregationType={aggregationType}
                             removePivotValueAggregation={() => {
                                 props.removePivotValueAggregation(valueIndex);

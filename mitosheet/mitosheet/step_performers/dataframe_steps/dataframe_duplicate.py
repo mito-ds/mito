@@ -28,10 +28,6 @@ class DataframeDuplicateStepPerformer(StepPerformer):
     @classmethod
     def step_display_name(cls) -> str:
         return 'Duplicated a Dataframe'
-    
-    @classmethod
-    def step_event_type(cls) -> str:
-        return 'dataframe_duplicate_edit'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -44,7 +40,7 @@ class DataframeDuplicateStepPerformer(StepPerformer):
         sheet_index: int,
         **params
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
-        post_state = copy(prev_state)
+        post_state = prev_state.copy()
 
         # Execute the step
         pandas_start_time = perf_counter()

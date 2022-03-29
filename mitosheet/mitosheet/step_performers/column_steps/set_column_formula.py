@@ -38,10 +38,6 @@ class SetColumnFormulaStepPerformer(StepPerformer):
     @classmethod
     def step_display_name(cls) -> str:
         return 'Set Column Formula'
-    
-    @classmethod
-    def step_event_type(cls) -> str:
-        return 'set_column_formula_edit'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -120,7 +116,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
             raise make_circular_reference_error(error_modal=False)
 
         # We check out a new step
-        post_state = deepcopy(prev_state)
+        post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
         # Update the column formula, and then execute the new formula graph
         try:

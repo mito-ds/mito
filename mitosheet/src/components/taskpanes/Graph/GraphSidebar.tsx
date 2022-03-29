@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import MitoAPI from '../../../api';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
 import { useEffectOnUpdateEvent } from '../../../hooks/useEffectOnUpdateEvent';
-import { AnalysisData, ColumnIDsMap, GraphDataDict, GraphID, GraphSidebarTab, SheetData, UIState } from '../../../types';
+import { AnalysisData, ColumnIDsMap, GraphDataDict, GraphID, GraphSidebarTab, SheetData, UIState, UserProfile } from '../../../types';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import { TaskpaneType } from '../taskpanes';
 import GraphSidebarTabs from './GraphSidebarTabs';
@@ -53,6 +53,9 @@ const GraphSidebar = (props: {
     uiState: UIState;
     graphDataDict: GraphDataDict
     analysisData: AnalysisData
+    mitoContainerRef: React.RefObject<HTMLDivElement>,
+    userProfile: UserProfile
+
 }): JSX.Element => {
 
     /*
@@ -151,14 +154,9 @@ const GraphSidebar = (props: {
         if (boundingRect !== undefined) {
             const _stepID = await props.mitoAPI.editGraph(
                 graphID,
-                graphParams.graphCreation.graph_type,
-                graphParams.graphCreation.sheet_index,
-                graphParams.graphCreation.color,
-                graphParams.graphPreprocessing.safety_filter_turned_on_by_user,
-                graphParams.graphCreation.x_axis_column_ids,
-                graphParams.graphCreation.y_axis_column_ids,
+                graphParams,
                 `${boundingRect?.height - 10}px`, // Subtract pixels from the height & width to account for padding
-                `${boundingRect?.width - 20 - 250}px`, // NOTE: 250 is the width of the graph sidebar. KEEP THIS UP TO DATE WITH THE CSS
+                `${boundingRect?.width - 20 - 300}px`, // NOTE: 300 is the width of the graph sidebar. KEEP THIS UP TO DATE WITH THE CSS
                 stepID
             );
             setStepID(_stepID)
@@ -189,7 +187,17 @@ const GraphSidebar = (props: {
     } else {
         return (
             <div className='graph-sidebar-div'>
-                <div className='graph-sidebar-graph-div' id='graph-div' >
+                <div 
+                    className='graph-sidebar-graph-div' 
+                    id='graph-div'
+                    // Because we have padding on this div, but we want the graph to appear
+                    // to take up the whole screen, we also style it with the background color
+                    // NOTE: there's a minor visual bug where this updates quicker than the graph
+                    // but we choose to view it as a nice preview rather than something to fix :-)
+                    style={{
+                        backgroundColor: graphParams.graphStyling.paper_bgcolor
+                    }}
+                >
                     {graphOutput === undefined &&
                         <p className='graph-sidebar-welcome-text' >To generate a graph, select an axis.</p>
                     }
@@ -198,56 +206,60 @@ const GraphSidebar = (props: {
                     }
                 </div>
                 <div className='graph-sidebar-toolbar-container'>
-                    <div className='graph-sidebar-toolbar-tab-container'>
-                        <>
-                            <Row justify='space-between' align='center'>
-                                <Col>
-                                    <p className='text-header-2'>
-                                        {selectedGraphSidebarTab === GraphSidebarTab.Setup && 'Setup Graph'}
-                                        {selectedGraphSidebarTab === GraphSidebarTab.Style && 'Style Graph'}
-                                        {selectedGraphSidebarTab === GraphSidebarTab.Export && 'Export Graph'}
-                                    </p>
-                                </Col>
-                                <Col>
-                                    <XIcon
-                                        onClick={() => {
-                                            props.setUIState((prevUIState) => {
-                                                return {
-                                                    ...prevUIState,
-                                                    selectedTabType: 'data',
-                                                    currOpenTaskpane: { type: TaskpaneType.NONE }
-                                                }
-                                            })
-                                        }}
-                                    />
-                                </Col>
-                            </Row>
-                            {selectedGraphSidebarTab === GraphSidebarTab.Setup && 
-                                <GraphSetupTab 
-                                    graphParams={graphParams}
-                                    setGraphParams={setGraphParams}
-                                    setGraphUpdatedNumber={setGraphUpdatedNumber}
-                                    uiState={props.uiState}
-                                    mitoAPI={props.mitoAPI}
-                                    sheetDataArray={props.sheetDataArray}
-                                    dfNames={props.dfNames}
-                                    columnDtypesMap={props.sheetDataArray[dataSourceSheetIndex].columnDtypeMap}
-                                    columnIDsMapArray={props.columnIDsMapArray}
-                                    setUIState={props.setUIState}
+                    <div className='graph-sidebar-toolbar-content-container'>
+                        <Row justify='space-between' align='center'>
+                            <Col>
+                                <p className='text-header-2'>
+                                    {selectedGraphSidebarTab === GraphSidebarTab.Setup && 'Setup Graph'}
+                                    {selectedGraphSidebarTab === GraphSidebarTab.Style && 'Style Graph'}
+                                    {selectedGraphSidebarTab === GraphSidebarTab.Export && 'Export Graph'}
+                                </p>
+                            </Col>
+                            <Col>
+                                <XIcon
+                                    onClick={() => {
+                                        props.setUIState((prevUIState) => {
+                                            return {
+                                                ...prevUIState,
+                                                selectedTabType: 'data',
+                                                currOpenTaskpane: { type: TaskpaneType.NONE }
+                                            }
+                                        })
+                                    }}
                                 />
-                            }
-                            {selectedGraphSidebarTab === GraphSidebarTab.Style &&
-                                <GraphStyleTab />
-                            }
-                            {selectedGraphSidebarTab === GraphSidebarTab.Export && 
-                                <GraphExportTab 
-                                    graphParams={graphParams}
-                                    mitoAPI={props.mitoAPI}
-                                    loading={loading}
-                                    graphOutput={graphOutput}
-                                />
-                            }
-                        </>
+                            </Col>
+                        </Row>
+                        {selectedGraphSidebarTab === GraphSidebarTab.Setup && 
+                            <GraphSetupTab 
+                                graphParams={graphParams}
+                                setGraphParams={setGraphParams}
+                                setGraphUpdatedNumber={setGraphUpdatedNumber}
+                                uiState={props.uiState}
+                                mitoAPI={props.mitoAPI}
+                                sheetDataArray={props.sheetDataArray}
+                                dfNames={props.dfNames}
+                                columnDtypesMap={props.sheetDataArray[dataSourceSheetIndex].columnDtypeMap}
+                                columnIDsMapArray={props.columnIDsMapArray}
+                                setUIState={props.setUIState}
+                            />
+                        }
+                        {selectedGraphSidebarTab === GraphSidebarTab.Style &&
+                            <GraphStyleTab 
+                                graphParams={graphParams}
+                                setGraphParams={setGraphParams}
+                                setGraphUpdatedNumber={setGraphUpdatedNumber}
+                                userProfile={props.userProfile}
+                            />
+                        }
+                        {selectedGraphSidebarTab === GraphSidebarTab.Export && 
+                            <GraphExportTab 
+                                graphParams={graphParams}
+                                mitoAPI={props.mitoAPI}
+                                loading={loading}
+                                graphOutput={graphOutput}
+                                mitoContainerRef={props.mitoContainerRef}
+                            />
+                        }
                     </div>
                     <GraphSidebarTabs
                         selectedTab={selectedGraphSidebarTab}

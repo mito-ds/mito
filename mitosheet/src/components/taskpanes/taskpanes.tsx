@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import { GraphID } from "../../types"
-import { PivotParams } from "./PivotTable/PivotTaskpane"
+import { BackendPivotParams } from "../../types"
 
 /* 
     Each Taskpane has a type (included TaskpaneType.NONE, which is the type of _no taskpane_ (e.g. nothing is displayed)).
@@ -29,10 +29,12 @@ export enum TaskpaneType {
     GRAPH = 'graph',
     IMPORT = 'import',
     MERGE = 'merge',
+    CONCAT = 'concat',
     NONE = 'none',
     PIVOT = 'pivot',    
     SEARCH = 'search',
     STEPS = 'steps',
+    IMPORT_FIRST = 'import_first', // when you want to tell the user to import first
 }
 
 export type TaskpaneInfo = 
@@ -45,16 +47,21 @@ export type TaskpaneInfo =
     }    
     | {type: TaskpaneType.IMPORT}
     | {type: TaskpaneType.MERGE}
+    | {type: TaskpaneType.CONCAT}
     | {type: TaskpaneType.NONE}
     | {
         type: TaskpaneType.PIVOT,
         // Optional params only defined if this is a pivot
         // editing a specific existing pivot table
         destinationSheetIndex?: number;
-        existingPivotParams?: PivotParams, 
+        existingPivotParams?: BackendPivotParams, 
     } 
     | {type: TaskpaneType.SEARCH}
     | {type: TaskpaneType.STEPS}
+    | {
+        type: TaskpaneType.IMPORT_FIRST,
+        message: string
+    }
     
 
 /*
@@ -65,8 +72,24 @@ export type TaskpaneInfo =
 export const EDITING_TASKPANES: TaskpaneType[] = [
     TaskpaneType.PIVOT, 
     TaskpaneType.MERGE, 
-    TaskpaneType.IMPORT,
+    TaskpaneType.CONCAT,
     TaskpaneType.DROP_DUPLICATES,
+    TaskpaneType.IMPORT,
     TaskpaneType.DOWNLOAD,
+]
+
+/**
+ * Editing taskpanes where undo / redo should not close them, but rather
+ * keep them open (e.g. so they can refresh params)
+ * 
+ * TODO: remove this, once we make all of the taskpanes work with
+ * undo and redo
+ */
+export const ALLOW_UNDO_REDO_EDITING_TASKPANES = [
+    TaskpaneType.PIVOT, 
+    TaskpaneType.MERGE,
+    TaskpaneType.CONCAT,
+    TaskpaneType.DROP_DUPLICATES,
+    TaskpaneType.IMPORT, 
 ]
     

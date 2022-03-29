@@ -5,37 +5,40 @@ import XIcon from '../icons/XIcon';
 import Select from './Select';
 import Row from '../spacing/Row';
 import Col from '../spacing/Col';
-import { ColumnID, ColumnIDsMap } from '../../types';
 import DropdownItem from './DropdownItem';
-import { getDisplayColumnHeader } from '../../utils/columnHeaders';
+
+
+interface SelectAndXIconProps {
+    value: string,
+    titleMap: Record<string, string>; // Map from id -> display title
+    onChange: (newID: string) => void;
+    onDelete: () => void;
+    selectableValues: string[]
+}
 
 
 /*
     This component is a row with a select followed by an X Icon.
 */
-const SelectAndXIconCard = (props: {
-    columnID: ColumnID
-    columnIDsMap: ColumnIDsMap;
-    onChange: (columnID: string) => void;
-    onDelete: () => void;
-    selectableColumnIDs: ColumnID[]
-}): JSX.Element => {
+const SelectAndXIconCard = (props: SelectAndXIconProps): JSX.Element => {
 
     return (
-        <Row key={props.columnID} justify='space-between' align='center'>
+        <Row key={props.value} justify='space-between' align='center'>
             <Col flex='1'>
                 <Select
-                    value={props.columnID}
-                    onChange={(columnID: string) => props.onChange(columnID)}
+                    value={props.value + ''}
+                    onChange={(newID: string) => {
+                        props.onChange(newID)
+                    }}
                     searchable
                 >
-                    {props.selectableColumnIDs.map(columnID => {
-                        const columnHeader = props.columnIDsMap[columnID];
+                    {props.selectableValues.map(id => {
+                        const title = props.titleMap[id];
                         return (
                             <DropdownItem
-                                key={columnID}
-                                id={columnID}
-                                title={getDisplayColumnHeader(columnHeader)}
+                                key={id}
+                                id={id}
+                                title={title}
                             />
                         )
                     })}

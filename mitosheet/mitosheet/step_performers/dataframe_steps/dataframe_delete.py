@@ -26,10 +26,6 @@ class DataframeDeleteStepPerformer(StepPerformer):
     @classmethod
     def step_display_name(cls) -> str:
         return 'Deleted a Dataframe'
-    
-    @classmethod
-    def step_event_type(cls) -> str:
-        return 'dataframe_delete_edit'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -47,7 +43,7 @@ class DataframeDeleteStepPerformer(StepPerformer):
         **params
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
         # Create a new step and save the parameters
-        post_state = copy(prev_state)
+        post_state = prev_state.copy()
 
         # Execute the delete
         post_state.column_ids.remove_df(sheet_index)

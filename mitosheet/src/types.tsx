@@ -23,6 +23,7 @@ export enum StepType {
     Sort = 'sort',
     Pivot = 'pivot',
     Merge = 'merge',
+    Concat = 'concat',
     DropDuplicates = 'drop_duplicates',
     ChangeColumnDtype = 'change_column_dtype',
     ChangeColumnFormat = 'change_column_format',
@@ -153,7 +154,7 @@ export interface MitoError {
 export type PrimitiveColumnHeader = string | number | boolean;
 export type MultiIndexColumnHeader = PrimitiveColumnHeader[]; // TODO: is this a bug? Can we have a multi-index with a multi-index inside it
 export type ColumnHeader = PrimitiveColumnHeader | MultiIndexColumnHeader;
-
+export type DisplayColumnHeader = string // we alias this for type clarity and readability
 
 export type ColumnID = string;
 /**
@@ -206,17 +207,34 @@ export type GraphCreationParams = {
     y_axis_column_ids: ColumnID[]
     color: ColumnID | undefined
 }
-export type GraphStylingParams = undefined
-export type GraphRenderingParams = {
-    width?: number
-    height?: number
+export type GraphStylingParams = {
+    title: {
+        title: string | undefined, // when undefined, we use Ploty's default title
+        visible: boolean,
+        title_font_color: string, // defaults to #2f3e5d
+    },
+    xaxis: {
+        title: string | undefined; // when undefined, we use Ploty's default title
+        visible: boolean;
+        title_font_color: string, // defaults to #2f3e5d
+        rangeslider: {
+            visible: boolean,
+        }
+    },
+    yaxis: {
+        title: string | undefined, // when undefined, we use Ploty's default title
+        visible: boolean
+        title_font_color: string, // defaults to #2f3e5d
+    },
+    showlegend: boolean,
+    plot_bgcolor: string // The inner part of the plot with data background. Defaults to a blue-ish shade
+    paper_bgcolor: string // The outer part of the plot around the data. Defaults to white
 }
 
 export type GraphParams = {
     graphPreprocessing: GraphPreprocessingParams,
     graphCreation: GraphCreationParams,
     graphStyling: GraphStylingParams,
-    graphRendering: GraphRenderingParams
 };
 
 /**
@@ -241,6 +259,48 @@ export type GraphOutput = {
 export type GraphID = string;
 
 export type GraphDataDict = Record<GraphID, GraphData>
+
+
+export interface ConcatParams {
+    join: 'inner' | 'outer',
+    ignore_index: boolean,
+    sheet_indexes: number[]
+}
+
+// NOTE: these aggregation functions need to be supported
+// in mitosheet/steps/pivot.py as well
+export enum AggregationType {
+    COUNT = 'count', 
+    COUNT_UNIQUE = 'count unique',
+    SUM = 'sum',
+    MEAN = 'mean',
+    MEDIAN = 'median',
+    STD = 'std',
+    MIN = 'min',
+    MAX = 'max', 
+}
+
+// The parameters saved on the backend
+export interface BackendPivotParams {
+    sheet_index: number,
+    pivot_rows_column_ids: ColumnID[],
+    pivot_columns_column_ids: ColumnID[],
+    values_column_ids_map: Record<ColumnID, AggregationType[]>,
+    flatten_column_headers: boolean;
+}
+
+// The parameters used by the frontend. The type of the params is different between the 
+// backend and the frontend, due to it being easier to manipulate as an array on the 
+// frontend while keeping the ordering for values
+export interface FrontendPivotParams {
+    selectedSheetIndex: number,
+    pivotRowColumnIDs: ColumnID[],
+    pivotColumnsColumnIDs: ColumnID[],
+    // NOTE: storing these values as an array makes keeping an order of them
+    // much much easier, and generally is the way to do it!
+    pivotValuesColumnIDsArray: [ColumnID, AggregationType][],
+    flattenColumnHeaders: boolean 
+}
 
 
 /**
@@ -600,6 +660,7 @@ export enum ActionEnum {
     Help = 'help',
     Import = 'import',
     Merge = 'merge',
+    Concat_Sheets = 'concat_sheets', // Note the unfortunate overlap with concat
     Pivot = 'pivot',
     Redo = 'redo',
     Rename_Column = 'rename column',
@@ -673,7 +734,7 @@ export interface Action {
     // We store the type of the action so that we can introspect the type of the variable
     type: ActionEnum;
 
-    // The short title for the action. Should be lowercase.
+    // The short title for the action. Should be title case, as you want to display it.
     shortTitle: string
 
     // The optional long title for the action.
