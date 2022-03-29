@@ -39,7 +39,7 @@ function GraphExportTab(
                 >
                     {!graphCodeCopied
                         ? "Copy Graph Code"
-                        : "Copied!"
+                        : "Copied to Clipboard!"
                     }
                 </TextButton>
             </div>
