@@ -8,7 +8,7 @@ description: Want to see what is new in the Mitosheet? Check it out below.
 
 New Features:
 
-* Add concatenate, allowing users to append dataframes vertically. This is our most request feature!
+* Add concatenate, allowing users to append dataframes vertically. This is our most requested feature!
 * Add basic graph styling, allowing users to set graph titles and toggle axes. Mito Pro users can additionally style graph colors.
 * Dramatically speed up all Mito operations when the user has multiple large dataframes by copying less data.
 * Shrunk the size of the toolbar buttons, to let us give users all the actions they want at their fingertips :-)
