@@ -34,6 +34,7 @@ export enum TaskpaneType {
     PIVOT = 'pivot',    
     SEARCH = 'search',
     STEPS = 'steps',
+    IMPORT_FIRST = 'import_first', // when you want to tell the user to import first
 }
 
 export type TaskpaneInfo = 
@@ -57,6 +58,10 @@ export type TaskpaneInfo =
     } 
     | {type: TaskpaneType.SEARCH}
     | {type: TaskpaneType.STEPS}
+    | {
+        type: TaskpaneType.IMPORT_FIRST,
+        message: string
+    }
     
 
 /*
