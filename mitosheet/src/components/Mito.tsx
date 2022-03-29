@@ -58,6 +58,7 @@ import ErrorBoundary from './elements/ErrorBoundary';
 import DeleteGraphsModal from './modals/DeleteGraphsModal';
 import { selectPreviousGraphSheetTab } from './footer/SheetTab';
 import ConcatTaskpane from './taskpanes/Concat/ConcatTaskpane';
+import DefaultEmptyTaskpane from './taskpanes/DefaultTaskpane/DefaultEmptyTaskpane';
 
 export type MitoProps = {
     model_id: string;
@@ -530,6 +531,12 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     mitoAPI={props.mitoAPI}
                     currStepIdx={analysisData.currStepIdx}
+                />
+            )
+            case TaskpaneType.IMPORT_FIRST: return (
+                <DefaultEmptyTaskpane
+                    setUIState={setUIState}
+                    message={uiState.currOpenTaskpane.message}
                 />
             )
         }

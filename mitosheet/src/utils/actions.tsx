@@ -380,6 +380,20 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
 
+                // If there is no data, prompt the user to import and nothing else
+                if (sheetDataArray.length === 0) {
+                    setUIState((prevUIState) => {
+                        return {
+                            ...prevUIState,
+                            currOpenTaskpane: {
+                                type: TaskpaneType.IMPORT_FIRST,
+                                message: 'Before graphing data, you need to import some!'
+                            }
+                        }
+                    })
+                    return;
+                }
+
                 const newGraphID = getRandomId() // Create a new GraphID
                 const graphParams = getDefaultGraphParams(sheetDataArray, sheetIndex)
 
