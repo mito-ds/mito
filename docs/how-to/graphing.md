@@ -1,5 +1,5 @@
 ---
-description: This documentation explains how to create exploratory graphs in Mito.
+description: This documentation explains how to create presentation-ready graphs in Mito.
 ---
 
 # Graphing
