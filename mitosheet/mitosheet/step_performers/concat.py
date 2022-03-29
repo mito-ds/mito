@@ -44,7 +44,7 @@ class ConcatStepPerformer(StepPerformer):
         **params
     ) -> Tuple[State, Optional[Dict[str, Any]]]:
 
-        post_state = copy(prev_state)
+        post_state = prev_state.copy()
 
         to_concat = [post_state.dfs[sheet_index] for sheet_index in sheet_indexes]
 
