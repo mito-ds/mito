@@ -161,8 +161,43 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 window.setMitoStateMap.delete(props.model_id);
             }
         }
+    }, [])
 
-        
+
+    useEffect(() => {
+        /**
+         * In the past, we used to only store the analysis id in the generated code cell,
+         * which led to a ton of issues making it really hard to handle things like users
+         * running all, etc. 
+         * 
+         * We moved to storing the analysis id in the mitosheet call and the generated code
+         * cell, which allows us to easily link them together. 
+         * 
+         * However, we need to maintain this code to make this transition happen, to make sure
+         * that we take the old system and upgrade it to the new system.
+         * 
+         * TODO: remove this effect 6 months after implemented, as pretty much all users will
+         * have upgraded by then. Delete this code on September 1, 2022.
+         */
+        // Get any previous analysis and send it back to the model!
+        window.commands?.execute('DEPRECIATED-read-existing-analysis').then(async (analysisName: string | undefined) => {
+            // If there is no previous analysis, we just ignore this step
+            if (!analysisName) return;
+
+            // We send it to the backend
+            await props.mitoAPI.updateReplayAnalysis(
+                analysisName,
+                undefined,
+                /* 
+                    When we read in an analysis name from a cell, we replay this analysis
+                    while also overwriting _everything_ that is already in the analysis. 
+
+                    This is to avoid issues w/ passing in a saved analysis to the mitosheet.sheet
+                    call, where then rerunning the cell with this call w/ doubly-apply things.
+                */
+                true
+            )
+        });
     }, [])
 
     // Load plotly, so we can generate graphs

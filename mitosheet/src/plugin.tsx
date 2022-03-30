@@ -92,10 +92,10 @@ function codeContainer(
     // If telemetry not enabled, we want to be clear about this by
     // simply not calling a func w/ the analysis name
     if (telemetryEnabled) {
-        return `from mitosheet import *; register_analysis('${analysisName}')
+        return `from mitosheet import *; register_analysis("${analysisName}");
     ${finalCode}`
     } else {
-        return `from mitosheet import *; # Analysis:${analysisName}
+        return `from mitosheet import *; # Analysis Name:${analysisName};
     ${finalCode}`
     }
 
@@ -134,8 +134,31 @@ function getParentMitoContainer(): Element | null {
     
     Format 4 (when telemetry is turned off):
     from mitosheet import *; # Analysis:${analysisName}
+
+    NOTE: after Format 4, we moved from storing the analysis name just in the generated
+    code to storing it in the mitosheet.sheet call as well. This means we no longer need
+    to get the analysis name from a generated codeblock, EXCEPT for the fact that we need
+    to upgrade all the old code blocks to the new system. Thus, to keep track of this, we 
+    add two new formats, and make these formats return early without reading in the analysis
+    name. 
+
+    The net result: after we read in the analysis once, and replay it once, we never have
+    to read in the generated code cell again to try to figure out the analysis name. 
+
+    Format 5:
+    from mitosheet import *; register_analysis("${analysisName}"); 
+    Format 6 (when telemetry is turned off):
+    from mitosheet import *; # Analysis Name:${analysisName};
+
+    Note that format 5 is different than Format 3 because of the types of quotes it uses
+
 */
 function getAnalysisName(codeblock: string): string | undefined {
+    if (codeblock.includes('register_analysis("') || codeblock.includes("Analysis Name:")) {
+        // Return nothing for formats 5 and 6
+        return;
+    }
+
     if (codeblock.includes('SAVED-ANALYSIS-START')) {
         // Format 1
         return codeblock.substring(
@@ -390,7 +413,6 @@ function activateWidgetExtension(
     tracker: INotebookTracker
 ): void {
 
-
     app.commands.addCommand('write-code-for-analysis', {
         label: 'Write ',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -454,92 +476,6 @@ function activateWidgetExtension(
         }
     })
 
-    /*
-        We define a command here, so that we can call it elsewhere in the
-        app - and here is the only place we have access to the app (which we
-        need to be able to add commands) and tracker (which we need to get
-        the current notebook).
-    */
-    app.commands.addCommand('write-code-to-cell', {
-        label: 'Write Mito Code to a Cell',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        execute: (args: any) => {
-            /*
-                Given an analysisName and code, this writes the code to the cell
-
-                If there is already a cell that contains this analysis name, than
-                this call will overwrite that cell, as we now want the updated code.
-
-                If there is not a cell that contains this analysis name, then we try
-                and figure out if we're in a call with a mitosheet.sheet call, and 
-                if so write below that (avoiding overwriting existing code). If we're
-                in an anlaysis cell, we just overwrite that.
-            */
-                    
-            const analysisName = args.analysisName as string;
-            // TODO: update the code type name!
-            const codeObj = args.code as Code;
-            const overwriteIfCodeEmpty = args.overwriteIfCodeEmpty;
-            const telemetryEnabled = args.telemetryEnabled as boolean;
-
-            // This is the code that was passed to write to the cell.
-            const code = codeContainer(analysisName, codeObj.code, telemetryEnabled);
-
-            // We get the current notebook (currentWidget)
-            const notebook = tracker.currentWidget?.content;
-            const cells = notebook?.model?.cells;
-
-            if (notebook == undefined || cells == undefined) {
-                return;
-            }
-
-            // First, we try and find a cell with this analysis name, 
-            // and overwrite it
-            const cellsIterator = cells.iter();
-            let cell = cellsIterator.next();
-            while (cell) {
-                if (containsAnalysisName(cell, analysisName)) {
-                    writeToCell(cell, code);
-                    return;
-                }
-
-                cell = cellsIterator.next();
-            }
-
-            const activeCell = notebook.activeCell;
-            const activeCellIndex = notebook.activeCellIndex;
-
-            if (isMitosheetSheetCell(activeCell?.model)) {
-                const nextCell = getCellAtIndex(cells, activeCellIndex + 1)
-                if (isMitoAnalysisCell(nextCell) || isEmptyCell(nextCell)) {
-                    // If the next cell contains a mito analysis, we overwrite it
-                    writeToCell(nextCell, code);
-                } else {
-                    // Otherwise, we insert a cell below and write to that. 
-                    NotebookActions.insertBelow(notebook);
-                    const newNextCell = getCellAtIndex(cells, activeCellIndex + 1);
-                    writeToCell(newNextCell, code);
-                }
-            } else {
-                // We assume the current cell is where the analysis should be written
-                if (isMitoAnalysisCell(activeCell?.model)) {
-                    // If this is already analysis, we overwrite it, if the arguments says to
-                    if (overwriteIfCodeEmpty) {
-                        writeToCell(activeCell?.model, code);
-                    }
-                } else {
-                    // Otherwise, we insert a cell above, and write to that, if the current cell is not empty
-                    if (!isEmptyCell(activeCell?.model)) {
-                        NotebookActions.insertAbove(notebook);
-                    }
-                    // New cell is the previous cell, now
-                    const prevCell = notebook.activeCell;
-                    writeToCell(prevCell?.model, code);
-                }
-            }
-        }
-    });
-
     app.commands.addCommand('get-args', {
         label: 'Reads the arguments passed to the mitosheet.sheet call',
         execute: (): string[] => {
@@ -575,6 +511,8 @@ function activateWidgetExtension(
             However, since this is rare for now, we don't worry about it and just do whatever
             here for now, and hope the user will refresh the sheet if it's not working!
         */
+
+            // TODO: update this function to work with the mitosheet.sheet() call
 
             // We get the current notebook (currentWidget)
             const notebook = tracker.currentWidget?.content;
@@ -653,8 +591,8 @@ function activateWidgetExtension(
         }
     });
 
-    app.commands.addCommand('read-existing-analysis', {
-        label: 'Reads any existing mito analysis from the previous cell, and returns the saved ColumnSpreadsheetCodeJSON, if it exists.',
+    app.commands.addCommand('DEPRECIATED-read-existing-analysis', {
+        label: 'Depreciated: reads any existing mito analysis from the previous cell, and returns the saved ColumnSpreadsheetCodeJSON, if it exists.',
         execute: (): string | undefined => {
         /*
             This should _only_ run right after the mitosheet.sheet call is run, 
