@@ -247,6 +247,137 @@ function getLastNonEmptyLine(cell: ICellModel | undefined): string | undefined {
     return filteredActiveText.length > 0 ? filteredActiveText.pop() : undefined
 }
 
+/* 
+    Returns true if the cell contains a mitosheet.sheet(analysis_to_replay={analysisName})
+*/
+function containsMitosheetCallWithSpecificAnalysisToReplay(cell: ICellModel | undefined, analysisName: string): boolean {
+    const currentCode = getCellText(cell);
+    return currentCode.includes('sheet(') && currentCode.includes(`analysis_to_replay="${analysisName}"`)
+}
+
+/* 
+    Returns true if the cell contains a mitosheet.sheet(analysis_to_replay={analysisName})
+*/
+function containsMitosheetCallWithAnyAnalysisToReplay(cell: ICellModel | undefined): boolean {
+    const currentCode = getCellText(cell);
+    return isMitoAnalysisCell(cell) && currentCode.includes(`analysis_to_replay=`)
+}
+
+/* 
+    Returns true if the cell contains the code generated for a specific analysis name
+*/
+function containsGeneratedCodeOfAnalysis(cell: ICellModel | undefined, analysisName: string): boolean {
+    const currentCode = getCellText(cell);
+    return isMitoAnalysisCell(cell) && currentCode.includes(analysisName);
+}
+
+
+
+/**
+ * Returns the cell that has the mitosheet.sheet(analysis_to_replay={analysisName}) in it,
+ * or undefined if no such cell exists
+ */
+function getCellCallingMitoshetWithAnalysis(tracker: INotebookTracker, analysisName: string): [ICellModel, number] | undefined  {
+    const notebook = tracker.currentWidget?.content;
+    const cells = notebook?.model?.cells;
+
+    if (cells === undefined) {
+        return undefined;
+    }
+
+    const cellsIterator = cells.iter();
+    let cell = cellsIterator.next();
+    let cellIndex = 0;
+    while (cell) {
+        if (containsMitosheetCallWithSpecificAnalysisToReplay(cell, analysisName)) {
+            return [cell, cellIndex];
+        }
+
+        cellIndex++;
+        cell = cellsIterator.next();
+    }
+
+    return undefined;
+}
+
+/**
+ * Given a cell, will check if it has a mitosheet.sheet() call with no
+ * analysis_to_replay, and if so add the analysisName as a parameter to
+ * this cell. It will return true in this case. 
+ * 
+ * Otherwise, if this is not a mitosheet.sheet() call, or if it already has
+ * a analysis_to_replay parameter, this will return false.
+ */
+function tryWriteAnalysisToReplayParameter(cell: ICellModel | undefined, analysisName: string): boolean {
+    if (isMitosheetSheetCell(cell) && !containsMitosheetCallWithAnyAnalysisToReplay(cell)) {
+        const currentCode = getCellText(cell);
+
+        // We know the mitosheet.sheet() call is the last thing in the cell, so we 
+        // just replace the last closing paren
+        const lastIndex = currentCode.lastIndexOf(')');
+        let replacement = ``;
+        if (currentCode.includes('sheet()')) {
+            replacement = `analysis_to_replay="${analysisName}")`;
+        } else {
+            replacement = `, analysis_to_replay="${analysisName}")`;
+        }
+        const newCode = currentCode.substring(0, lastIndex) + replacement + currentCode.substring(lastIndex + 1);
+        writeToCell(cell, newCode);
+        return true;
+    } 
+
+    return false;
+}
+
+/**
+ * Uses the current active cell location to write the analysis_to_replay to a mitosheet.sheet()
+ * call. Note that this should only be called if there is no such mitosheet.sheet call replaying
+ * this analysis already.
+ */
+function writeAnalysisToReplayToMitosheetCall(tracker: INotebookTracker, analysisName: string): [ICellModel, number] | undefined {
+    // We get the current notebook (currentWidget)
+    const notebook = tracker.currentWidget?.content;
+    const cells = notebook?.model?.cells;
+
+    if (notebook == undefined || cells == undefined) {
+        return;
+    }
+
+    const activeCell = notebook.activeCell;
+    const activeCellIndex = notebook.activeCellIndex;
+
+    const previousCell = getCellAtIndex(cells, activeCellIndex - 1)
+
+    // As the most common way for a user to run a cell for the first time is to run and advanced, this 
+    // means that the active cell will most likely be one below the mitosheet.sheet() call we want to 
+    // write to, so we check this first
+    if (tryWriteAnalysisToReplayParameter(previousCell, analysisName)) {
+        return previousCell ? [previousCell, activeCellIndex - 1] : undefined;
+    } 
+
+    // The next case we check is if they did a run and not advance, which means that the currently
+    // selected cell is the mitosheet.sheet call
+    if (tryWriteAnalysisToReplayParameter(activeCell?.model, analysisName)) {
+        return activeCell?.model ? [activeCell?.model, activeCellIndex] : undefined;
+    }
+
+    // The last case is that the user did some sort of run all, in which case we cross our fingers
+    // that there is only one cell that does not have a mitosheet call, and go looking for it
+    let index = activeCellIndex;
+    while (index >= 0) {
+        // TODO: this is horribly inefficient, and I feel like we should just use a forward loop, desipte
+        // how it feels worse... but idk if performance matters really!
+        const previousCell = getCellAtIndex(cells, index)
+        if (tryWriteAnalysisToReplayParameter(previousCell, analysisName)) {
+            return previousCell ? [previousCell, index] : undefined
+        }
+        index--;
+    }
+
+    // Otherwise, we have failed, and we just give up here, and don't write anything...
+    // TODO: do we want to log an error or something? I think we should log it elsewhere
+}
+
 /**
  * Activate the widget extension.
  * 
@@ -258,6 +389,70 @@ function activateWidgetExtension(
     registry: IJupyterWidgetRegistry,
     tracker: INotebookTracker
 ): void {
+
+
+    app.commands.addCommand('write-code-for-analysis', {
+        label: 'Write ',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        execute: (args: any) => {
+            const analysisName = args.analysisName as string;
+            //const codeObj = args.code as Code;
+            const telemetryEnabled = args.telemetryEnabled as boolean;
+            const code = codeContainer(analysisName, ["x = 1"], telemetryEnabled);
+            
+            // Look through all notebook cells to find the cell with the call to the mitosheet.sheet
+            // that passes this analysis_to_replay
+            let mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(tracker, analysisName);
+            
+            if (mitosheetCallCellAndIndex === undefined) {
+                // If this cell does not exist, then we must be in the first time that this mitosheet.sheet() call
+                // has been made. This is the only time that we have to use active cell location information to 
+                // figure out where to write the analysis name to the correct mitosheet.sheet call
+                mitosheetCallCellAndIndex = writeAnalysisToReplayToMitosheetCall(tracker, analysisName);
+            }
+
+            // If the mitosheet call cell is still not defined, we cannot recover from this error 
+            // and so we log this and return
+            if (mitosheetCallCellAndIndex === undefined) {
+                // TODO: log this
+                return;
+            }
+
+            const [, mitosheetCallIndex] = mitosheetCallCellAndIndex;
+
+            const notebook = tracker.currentWidget?.content;
+            const cells = notebook?.model?.cells;
+
+            if (notebook === undefined || cells === undefined) {
+                return;
+            }
+
+            const activeCellIndex = notebook.activeCellIndex;
+
+            const codeCell = getCellAtIndex(cells, mitosheetCallIndex + 1);
+
+            if (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(codeCell, analysisName)) {
+                writeToCell(codeCell, code)
+            } else {
+                if (mitosheetCallIndex !== activeCellIndex) {
+                    // We have to move our selection back up to the cell that we 
+                    // make the mitosheet call to 
+                    if (mitosheetCallIndex < activeCellIndex) {
+                        for (let i = 0; i < (activeCellIndex - mitosheetCallIndex); i++) {
+                            NotebookActions.selectAbove(notebook);
+                        }
+                    } else if (mitosheetCallIndex > activeCellIndex) {
+                        for (let i = 0; i < (activeCellIndex - mitosheetCallIndex); i++) {
+                            NotebookActions.selectBelow(notebook);
+                        }
+                    }
+                }
+                // And then write to this new cell below, which is now the active cell
+                NotebookActions.insertBelow(notebook);
+                writeToCell(notebook?.activeCell?.model, code);
+            }
+        }
+    })
 
     /*
         We define a command here, so that we can call it elsewhere in the
@@ -397,9 +592,14 @@ function activateWidgetExtension(
                     nameString = nameString.split('tutorial_mode')[0].trim();
                 }
             
-                // If there is a analysis name parameter passed, we ignore it
+                // If there is a (old) analysis name parameter passed, we ignore it
                 if (nameString.includes('saved_analysis_name')) {
                     nameString = nameString.split('saved_analysis_name')[0].trim();
+                }
+
+                // If there is a (new) analysis name parameter passed, we ignore it
+                if (nameString.includes('analysis_to_replay')) {
+                    nameString = nameString.split('analysis_to_replay')[0].trim();
                 }
             
                 // If there is a view_df name parameter, we ignore it

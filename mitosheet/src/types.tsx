@@ -551,6 +551,10 @@ export type FormatTypeObj =
  */
 export interface AnalysisData {
     analysisName: string,
+    analysisToReplay: {
+        analysisName: string,
+        existsOnDisk: boolean
+    },
     code: Code,
     stepSummaryList: StepSummary[],
     currStepIdx: number,

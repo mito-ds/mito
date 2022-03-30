@@ -137,19 +137,18 @@ export class ExampleView extends DOMWidgetView {
         stateUpdaters.setAnalysisData(analysisData);
         stateUpdaters.setUserProfile(userProfile);
 
+        /*
         window.commands?.execute('write-code-to-cell', {
             analysisName: analysisData.analysisName,
             code: analysisData.code,
-            /* 
                 If there is an analysis that is read in and takes a bit to replay, then the code
                 disappears for a little bit, which is pretty disorienting. As such, if we're writing
                 empty code, and we're within the first 60 seconds of creating the sheet, then we do 
                 not actually clear the cell if there is something there. This stops an anlaysis that
                 is read in from flashing
-            */
             overwriteIfCodeEmpty: this.creationSeconds !== undefined ? (this.creationSeconds < (new Date().getSeconds() - 60)) : true,
             telemetryEnabled: userProfile.telemetryEnabled
-        });
+        }); */
     }
 
     /* 

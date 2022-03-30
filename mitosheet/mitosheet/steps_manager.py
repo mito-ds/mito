@@ -10,6 +10,7 @@ from copy import copy, deepcopy
 import pandas as pd
 from typing import Any, Dict, Collection, List, Set, Tuple, Union
 from mitosheet.mito_analytics import log
+from mitosheet.saved_analyses.save_utils import get_analysis_exists
 
 from mitosheet.step_performers.import_steps.simple_import import (
     SimpleImportStepPerformer,
@@ -157,7 +158,7 @@ class StepsManager:
     and parameters stay the same and are append-only.
     """
 
-    def __init__(self, args: Collection[Union[pd.DataFrame, str]]):
+    def __init__(self, args: Collection[Union[pd.DataFrame, str]], analysis_to_replay: str=None):
         """
         When initalizing the StepsManager, we also do preprocessing
         of the arguments that were passed to the mitosheet.
@@ -168,6 +169,8 @@ class StepsManager:
         # We just randomly generate analysis names.
         # We append a UUID to note that this is not an analysis the user has saved.
         self.analysis_name = "UUID-" + str(uuid.uuid4())
+        self.analysis_to_replay = analysis_to_replay
+        self.analysis_to_replay_exists = get_analysis_exists(analysis_to_replay)
 
         # The args are a tuple of dataframes or strings, and we start by making them
         # into a list, and making copies of them for safe keeping
@@ -276,6 +279,10 @@ class StepsManager:
         return json.dumps(
             {
                 "analysisName": self.analysis_name,
+                "analysisToReplay": {
+                    'analysisName': self.analysis_to_replay,
+                    'existsOnDisk': self.analysis_to_replay_exists
+                },
                 "code": transpile(self),
                 "stepSummaryList": self.step_summary_list,
                 "currStepIdx": self.curr_step_idx,

@@ -152,26 +152,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
             await props.mitoAPI.updateArgs(args);
         });
 
-        // Get any previous analysis and send it back to the model!
-        window.commands?.execute('read-existing-analysis').then(async (analysisName: string | undefined) => {
-            // If there is no previous analysis, we just ignore this step
-            if (!analysisName) return;
-
-            // We send it to the backend
-            await props.mitoAPI.updateReplayAnalysis(
-                analysisName,
-                undefined,
-                /* 
-                    When we read in an analysis name from a cell, we replay this analysis
-                    while also overwriting _everything_ that is already in the analysis. 
-
-                    This is to avoid issues w/ passing in a saved analysis to the mitosheet.sheet
-                    call, where then rerunning the cell with this call w/ doubly-apply things.
-                */
-                true
-            )
-        });
-
         // We log that the mitosheet has rendered explicitly, so that we can
         // tell if an installation is broken
         void props.mitoAPI.log('mitosheet_rendered');
@@ -270,6 +250,15 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
         previousNumGraphsRef.current = newNumGraphs
     }, [Object.keys(analysisData.graphDataDict || {}).length])
+
+    useEffect(() => {
+        console.log(analysisData)
+        window.commands?.execute('write-code-for-analysis', {
+            analysisName: analysisData.analysisToReplay.analysisName,
+            code: "123",
+            telemetryEnabled: true
+        });
+    }, [])
 
 
     /*

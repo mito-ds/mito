@@ -25,14 +25,23 @@ MITO_FOLDER = os.path.expanduser("~/.mito")
 SAVED_ANALYSIS_FOLDER = os.path.join(MITO_FOLDER, 'saved_analyses')
 
 
+def get_analysis_exists(analysis_name: Optional[str]) -> bool:
+    """
+    Given an analysis_name, returns if the saved analysis in
+    ~/.mito/{analysis_name}.json exists
+    """
+
+    if analysis_name is None:
+        return False
+
+    analysis_path = f'{SAVED_ANALYSIS_FOLDER}/{analysis_name}.json'
+    return os.path.exists(analysis_path)
+
 def read_analysis(analysis_name: str) -> Optional[Dict[str, Any]]:
     """
     Given an analysis_name, reads the saved analysis in
     ~/.mito/{analysis_name}.json and returns a JSON object
     representing it.
-
-    Also, checks if the analysis name is in the list of Mito
-    saves, and will return that if so.
     """
 
     analysis_path = f'{SAVED_ANALYSIS_FOLDER}/{analysis_name}.json'

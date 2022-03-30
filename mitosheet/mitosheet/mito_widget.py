@@ -47,7 +47,7 @@ class MitoWidget(DOMWidget):
     analysis_data_json = t.Unicode('').tag(sync=True)
     user_profile_json = t.Unicode('').tag(sync=True)
     
-    def __init__(self, *args: List[Union[pd.DataFrame, str]]):
+    def __init__(self, *args: List[Union[pd.DataFrame, str]], analysis_to_replay: str=None):
         """
         Takes a list of dataframes and strings that are paths to CSV files
         passed through *args.
@@ -56,7 +56,7 @@ class MitoWidget(DOMWidget):
         super(MitoWidget, self).__init__()
             
         # Set up the state container to hold private widget state
-        self.steps_manager = StepsManager(args)
+        self.steps_manager = StepsManager(args, analysis_to_replay=analysis_to_replay)
 
         # Set up message handler
         self.on_msg(self.receive_message)
@@ -242,9 +242,11 @@ class MitoWidget(DOMWidget):
 
 def sheet(
         *args: Any,
-        view_df: bool=False # We use this param to log if the mitosheet.sheet call is created from the df output button
+        view_df: bool=False, # We use this param to log if the mitosheet.sheet call is created from the df output button,
+        analysis_to_replay: str=None
         # NOTE: if you add named variables to this function, make sure argument parsing on the front-end still
         # works by updating the getArgsFromCellContent function.
+
     ) -> MitoWidget:
     """
     Renders a Mito sheet. If no arguments are passed, renders an empty sheet. Otherwise, renders
@@ -272,7 +274,7 @@ def sheet(
 
     try:
         # We pass in the dataframes directly to the widget
-        widget = MitoWidget(*args) 
+        widget = MitoWidget(*args, analysis_to_replay=analysis_to_replay) 
 
         # Log they have personal data in the tool if they passed a dataframe
         # that is not tutorial data or sample data from import docs
