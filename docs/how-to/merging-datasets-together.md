@@ -12,6 +12,10 @@ description: >-
 
 Mito's merge functionality can be used to combine datasets together horizontally. Merge looks for matches between the key column of the first sheet and the key column of the second sheet. Mito supports all of the most common merges.
 
+{% hint style="info" %}
+Looking to combine datasets vertically by stacking rows on top of eachother? You're looking to concatenate. Check out concatenate documentation [here.](concatenate-dataframes.md)
+{% endhint %}
+
 * **Left Merge**: Includes all rows from the first sheet and only matching rows from the second sheet. Includes all matches.
 * **Right Merge**: Includes all rows from the second sheet and only matching rows from the first sheet. Includes all matches.
 * **Inner Merge**: Only includes rows that have matches in both sheets.

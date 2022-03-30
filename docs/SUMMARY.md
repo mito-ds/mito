@@ -25,6 +25,7 @@
   * [Formula Reference](how-to/interacting-with-your-data/mito-spreadsheet-formulas.md)
 * [Editing Individual Cells](how-to/editing-individual-cells.md)
 * [Merging/Diffing Datasets](how-to/merging-datasets-together.md)
+* [Concatenate Dataframes](how-to/concatenate-dataframes.md)
 * [Sort Data](how-to/sort-data.md)
 * [Deleting Columns](how-to/deleting-columns.md)
 * [Deduplicate](how-to/deduplicate.md)
@@ -35,6 +36,7 @@
 
 ## How To
 
+* [Create a line chart of time series data](how-to-1/create-a-line-chart-of-time-series-data.md)
 * [Delete Columns with Missing Values](how-to-1/delete-columns-with-missing-values.md)
 * [Use the Mito Generated Code outside of JupyterLab](how-to-1/use-the-mito-generated-code-outside-of-jupyterlab.md)
 * [Exploratory Data Analysis](how-to-1/exploratory-data-analysis.md)
