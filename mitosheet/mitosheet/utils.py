@@ -21,7 +21,7 @@ from mitosheet.sheet_functions.types.utils import get_float_dt_td_columns
 # We only send the first 1500 rows of a dataframe; note that this
 # must match this variable defined on the front-end
 MAX_ROWS = 1_500
-
+MAX_COLUMNS = 1_500
 
 def get_first_unused_dataframe_name(existing_df_names: List[str], new_dataframe_name: str) -> str:
     """
@@ -106,8 +106,9 @@ def dfs_to_array_for_json(
                     column_filters_array[sheet_index],
                     column_ids.column_header_to_column_id[sheet_index],
                     column_format_types[sheet_index],
-                    # We only send the first 1500 rows, and this must 
+                    # We only send the first 1500 rows and 1500 columns
                     max_length=MAX_ROWS,
+                    max_columns=MAX_COLUMNS
                 ) 
             )
         else:
@@ -125,6 +126,7 @@ def df_to_json_dumpsable(
         column_headers_to_column_ids: Dict[ColumnHeader, ColumnID],
         column_format_types: Dict[ColumnID, Dict[ColumnID, str]],
         max_length: Optional[int]=MAX_ROWS, # How many items you want to display
+        max_columns: int=MAX_COLUMNS # How many columns you want to display, there's no need for it to be undefined
     ) -> Dict[str, Any]:
     """
     Returns a dataframe represented in a way that can be turned into a 
@@ -158,6 +160,9 @@ def df_to_json_dumpsable(
     else:
         # we only show the first max_length rows!
         df = original_df.head(n=max_length if max_length else num_rows).copy(deep=True)
+
+    # we only show the first max_columns columns!
+    df = df.iloc[: , :max_columns]
 
     float_columns, date_columns, timedelta_columns = get_float_dt_td_columns(df)
     # Second, we figure out which of the columns contain dates, and we
