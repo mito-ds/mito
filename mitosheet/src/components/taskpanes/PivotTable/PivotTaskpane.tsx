@@ -292,6 +292,7 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
                 <div className = 'default-taskpane-body-section-div'>
                     <PivotTableKeySelection
                         sectionTitle='Columns'
+                        sectionSubtext='Hint: For best performance, try only using rows and values in your pivot table.'
                         columnIDsMap={columnIDsMap}
                         selectedColumnIDs={pivotParams.pivotColumnsColumnIDs}
                         addKey={(columnID) => {addKey('column', columnID)}}
