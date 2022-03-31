@@ -125,8 +125,8 @@ def df_to_json_dumpsable(
         column_filters: Dict[ColumnID, Any],
         column_headers_to_column_ids: Dict[ColumnHeader, ColumnID],
         column_format_types: Dict[ColumnID, Dict[ColumnID, str]],
-        max_length: Optional[int]=MAX_ROWS, # How many items you want to display
-        max_columns: int=MAX_COLUMNS # How many columns you want to display, there's no need for it to be undefined
+        max_length: Optional[int]=MAX_ROWS, # How many items you want to display. None when using this function to get unique value counts
+        max_columns: int=MAX_COLUMNS # How many columns you want to display. Unlike max_length, this is always defined
     ) -> Dict[str, Any]:
     """
     Returns a dataframe represented in a way that can be turned into a 
