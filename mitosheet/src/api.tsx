@@ -1092,17 +1092,15 @@ export default class MitoAPI {
     */
     async updateReplayAnalysis(
         analysisName: string,
-        newFileNames?: ImportSummaries,
-        clearExistingAnalysis?: boolean
-    ): Promise<void> {
+    ): Promise<MitoError | undefined> {
 
-        await this.send({
+        const result: MitoError | undefined = await this.send({
             'event': 'update_event',
             'type': 'replay_analysis_update',
-            'analysis_name': analysisName,
-            'import_summaries': newFileNames === undefined ? {} : newFileNames,
-            'clear_existing_analysis': clearExistingAnalysis === undefined ? false : clearExistingAnalysis
+            'analysis_name': analysisName
         }, { maxRetries: 500 });
+
+        return result;
     }
 
 

@@ -20,7 +20,6 @@ import {
     IObservableString,
     IObservableUndoableList
 } from '@jupyterlab/observables';
-import { Code } from './types';
 
 const EXTENSION_ID = 'mitosheet:plugin';
 
@@ -153,7 +152,7 @@ function getParentMitoContainer(): Element | null {
     Note that format 5 is different than Format 3 because of the types of quotes it uses
 
 */
-function getAnalysisName(codeblock: string): string | undefined {
+function getAnalysisNameFromOldGeneratedCode(codeblock: string): string | undefined {
     if (codeblock.includes('register_analysis("') || codeblock.includes("Analysis Name:")) {
         // Return nothing for formats 5 and 6
         return;
@@ -233,15 +232,6 @@ function isMitoAnalysisCell(cell: ICellModel | undefined): boolean {
 }
 
 /* 
-    Returns true if the cell contains the 
-    generated code for the analysis name
-*/
-function containsAnalysisName(cell: ICellModel | undefined, analysisName: string): boolean {
-    const currentCode = getCellText(cell);
-    return currentCode.includes(analysisName);
-}
-
-/* 
     Returns True if the passed cell is empty.
     Returns False if the passed cells is either not empty or undefined 
 */
@@ -283,7 +273,8 @@ function containsMitosheetCallWithSpecificAnalysisToReplay(cell: ICellModel | un
 */
 function containsMitosheetCallWithAnyAnalysisToReplay(cell: ICellModel | undefined): boolean {
     const currentCode = getCellText(cell);
-    return isMitoAnalysisCell(cell) && currentCode.includes(`analysis_to_replay=`)
+    console.log("CHECKING FOR ANY ANALYSIS", currentCode, currentCode.includes(`analysis_to_replay=`))
+    return isMitosheetSheetCell(cell) && currentCode.includes(`analysis_to_replay=`)
 }
 
 /* 
@@ -332,8 +323,10 @@ function getCellCallingMitoshetWithAnalysis(tracker: INotebookTracker, analysisN
  * a analysis_to_replay parameter, this will return false.
  */
 function tryWriteAnalysisToReplayParameter(cell: ICellModel | undefined, analysisName: string): boolean {
-    if (isMitosheetSheetCell(cell) && !containsMitosheetCallWithAnyAnalysisToReplay(cell)) {
+    if (!containsMitosheetCallWithAnyAnalysisToReplay(cell)) {
         const currentCode = getCellText(cell);
+
+        console.log(currentCode);
 
         // We know the mitosheet.sheet() call is the last thing in the cell, so we 
         // just replace the last closing paren
@@ -413,14 +406,41 @@ function activateWidgetExtension(
     tracker: INotebookTracker
 ): void {
 
-    app.commands.addCommand('write-code-for-analysis', {
+    app.commands.addCommand('write-analysis-to-replay-to-mitosheet-call', {
+        label: 'TODO',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        execute: (args: any) => {
+            console.log("write-analysis-to-replay-to-mitosheet-call")
+            const analysisName = args.analysisName as string;
+            
+            // Look through all notebook cells to find the cell with the call to the mitosheet.sheet
+            // that passes this analysis_to_replay
+            let mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(tracker, analysisName);
+            
+            if (mitosheetCallCellAndIndex === undefined) {
+                // If this cell does not exist, then we must be in the first time that this mitosheet.sheet() call
+                // has been made. This is the only time that we have to use active cell location information to 
+                // figure out where to write the analysis name to the correct mitosheet.sheet call
+                mitosheetCallCellAndIndex = writeAnalysisToReplayToMitosheetCall(tracker, analysisName);
+            }
+
+            // If the mitosheet call cell is still not defined, we cannot recover from this error 
+            // and so we log this and return
+            if (mitosheetCallCellAndIndex === undefined) {
+                // TODO: log this
+            }
+        }
+    })
+
+    app.commands.addCommand('write-generated-code-cell', {
         label: 'Write ',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         execute: (args: any) => {
+            console.log("write-generated-code-cell")
             const analysisName = args.analysisName as string;
-            //const codeObj = args.code as Code;
+            const codeLines = args.code as string[];
             const telemetryEnabled = args.telemetryEnabled as boolean;
-            const code = codeContainer(analysisName, ["x = 1"], telemetryEnabled);
+            const code = codeContainer(analysisName, codeLines, telemetryEnabled);
             
             // Look through all notebook cells to find the cell with the call to the mitosheet.sheet
             // that passes this analysis_to_replay
@@ -439,6 +459,7 @@ function activateWidgetExtension(
                 // TODO: log this
                 return;
             }
+
 
             const [, mitosheetCallIndex] = mitosheetCallCellAndIndex;
 
@@ -511,6 +532,7 @@ function activateWidgetExtension(
             However, since this is rare for now, we don't worry about it and just do whatever
             here for now, and hope the user will refresh the sheet if it's not working!
         */
+            console.log("get-args")
 
             // TODO: update this function to work with the mitosheet.sheet() call
 
@@ -591,29 +613,76 @@ function activateWidgetExtension(
         }
     });
 
-    app.commands.addCommand('DEPRECIATED-read-existing-analysis', {
-        label: 'Depreciated: reads any existing mito analysis from the previous cell, and returns the saved ColumnSpreadsheetCodeJSON, if it exists.',
-        execute: (): string | undefined => {
-        /*
-            This should _only_ run right after the mitosheet.sheet call is run, 
-            and so the currently selected cell is the cell that actually contains the mito
-            analysis.
-        */
+    app.commands.addCommand('move-saved-analysis-id-to-mitosheet-call', {
+        label: 'Reads an old existing mito analysis from the generated code cell, and moves it to the mitosheet.sheet call above, to upgrade to the new format.',
+        execute: async (): Promise<boolean> => {
+            console.log("move-saved-analysis-id-to-mitosheet-call")
+
+            /*
+                This should _only_ run right after the mitosheet.sheet call is run, 
+                and so the currently selected cell is the cell that actually contains the mito
+                analysis.
+            */
 
             // We get the current notebook (currentWidget)
             const notebook = tracker.currentWidget?.content;
+            const cells = notebook?.model?.cells;
 
-            if (!notebook) return undefined;
+            if (!notebook || !cells) {
+                return false;
+            };
 
             // We get the previous cell to the current active cell
-            const activeCell = notebook.activeCell;
+            const activeCell = notebook.activeCell?.model;
+            const activeCellIndex = notebook.activeCellIndex;
 
-            if (activeCell) {
-                // remove the df argument to mitosheet.sheet() from the cell's text
-                const previousValue = activeCell.model.modelDB.get('value') as IObservableString;
-                return getAnalysisName(previousValue.text);
-            } 
-            return undefined;
+            if (!activeCell)  {
+                return false;
+            };
+
+            const activeCellCode = getCellText(activeCell);
+            const oldAnalysisName = getAnalysisNameFromOldGeneratedCode(activeCellCode);
+
+            if (oldAnalysisName === undefined)  {
+                return false;
+            };
+
+            // If there is an analysis name in the generated code with the old format, 
+            // we go to the previous cell (which should be a mitosheet.sheet call), and
+            // add it as a parameter to this call, and then rerun this top cell. This allows
+            // us to remove a large amount of legacy code with how we used to replay analyses
+            const previousCell = getCellAtIndex(cells, activeCellIndex - 1)
+
+            if (!isMitosheetSheetCell(previousCell)) {
+                return false;
+            }
+            console.log("CELL TEXT", getCellText(previousCell));
+
+            // If it already has a saved analysis (though this should never happen), return
+            const x = containsMitosheetCallWithAnyAnalysisToReplay(previousCell);
+            console.log("XXXX", x)
+            if (x) {
+                console.log("RETURNING!")
+                return false;
+            }
+
+            console.log("WRITING!", "HERE")
+
+            // Otherwise, add this parameter to the mitosheet call!
+            const written = tryWriteAnalysisToReplayParameter(previousCell, oldAnalysisName);
+            if (!written) {
+                return false;
+            }
+
+            // And then move up to the mitosheet.sheet() call and rerun this!
+            NotebookActions.selectAbove(notebook);
+
+            const sessionContext = tracker.currentWidget?.context?.sessionContext;
+            NotebookActions.runAndAdvance(notebook, sessionContext);
+
+            console.log("MOVED IT!")
+            // Return true if we actually added this analysis to replay to the top cell
+            return true;
         }
     });
 

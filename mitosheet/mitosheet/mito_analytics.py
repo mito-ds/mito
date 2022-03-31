@@ -407,12 +407,6 @@ def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, 
             'wsc_curr_step_type': steps_manager.curr_step.step_type,
         }
 
-        if event['type'] == 'replay_analysis_update' or event['type'] == 'save_analysis_update':
-            # We log the steps, when the user saves or replays an analysis
-            steps_manager_properties['steps_manager_steps'] = [
-                step.step_type for step in steps_manager.steps
-            ]
-
         # We also check there is an edit_error, and if there is, then we add the error logs
         if mito_error is not None:
             recent_traceback = get_recent_traceback_as_list()

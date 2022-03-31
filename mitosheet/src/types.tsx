@@ -473,18 +473,6 @@ export interface GridState {
 }
 
 /**
- * An object storing all the data necessary to write a code cell.
- * 
- * @param imports - the import string
- * @param code - the lines of code to write to the cell
- */
-export interface Code {
-    imports: string;
-    code: string[];
-}
-
-
-/**
  * The type of data that is in this current Mito analysis.
  * 
  * @remark this should be the same as the file in the Python code
@@ -553,9 +541,10 @@ export interface AnalysisData {
     analysisName: string,
     analysisToReplay: {
         analysisName: string,
-        existsOnDisk: boolean
+        existsOnDisk: boolean,
+        hasBeenRun: boolean
     },
-    code: Code,
+    code: string[],
     stepSummaryList: StepSummary[],
     currStepIdx: number,
     dataTypeInTool: DataTypeInMito;

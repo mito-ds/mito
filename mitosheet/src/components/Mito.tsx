@@ -164,41 +164,94 @@ export const Mito = (props: MitoProps): JSX.Element => {
     }, [])
 
 
+
     useEffect(() => {
-        /**
-         * In the past, we used to only store the analysis id in the generated code cell,
-         * which led to a ton of issues making it really hard to handle things like users
-         * running all, etc. 
-         * 
-         * We moved to storing the analysis id in the mitosheet call and the generated code
-         * cell, which allows us to easily link them together. 
-         * 
-         * However, we need to maintain this code to make this transition happen, to make sure
-         * that we take the old system and upgrade it to the new system.
-         * 
-         * TODO: remove this effect 6 months after implemented, as pretty much all users will
-         * have upgraded by then. Delete this code on September 1, 2022.
-         */
-        // Get any previous analysis and send it back to the model!
-        window.commands?.execute('DEPRECIATED-read-existing-analysis').then(async (analysisName: string | undefined) => {
-            // If there is no previous analysis, we just ignore this step
-            if (!analysisName) return;
 
-            // We send it to the backend
-            await props.mitoAPI.updateReplayAnalysis(
-                analysisName,
-                undefined,
-                /* 
-                    When we read in an analysis name from a cell, we replay this analysis
-                    while also overwriting _everything_ that is already in the analysis. 
+        const updateMitosheetCallCell = async () => {
 
-                    This is to avoid issues w/ passing in a saved analysis to the mitosheet.sheet
-                    call, where then rerunning the cell with this call w/ doubly-apply things.
-                */
-                true
-            )
-        });
+            // If we didn't pass an analysis to replay
+            if (!analysisData.analysisToReplay.analysisName) {
+
+                /**
+                 * First, we check if we need to upgrade from the old analysis_to_replay format to
+                 * the new one.
+                 * 
+                 * In the past, we used to only store the analysis id in the generated code cell,
+                 * which led to a ton of issues making it really hard to handle things like users
+                 * running all, etc. 
+                 * 
+                 * We moved to storing the analysis id in the mitosheet call and the generated code
+                 * cell, which allows us to easily link them together. 
+                 * 
+                 * To transition from the old system to the new system, we run this piece of code
+                 * that moves the saved analysis id from the generated code to the mitosheet call,
+                 * and then reruns this mitosheet call. 
+                 * 
+                 * This is the cleanest way to have this transition occur, by far, based on the 48
+                 * hours that I spent thinking about such things.
+                 * 
+                 * TODO: remove this effect 6 months after implemented, as pretty much all users will
+                 * have upgraded by then. Delete this code on September 1, 2022.
+                 */
+                const upgradedFromSaveInGeneratedCodeToSheet = await window.commands?.execute('move-saved-analysis-id-to-mitosheet-call');
+                if (upgradedFromSaveInGeneratedCodeToSheet) {
+                    // We stop here, and do not do anything else in this case
+                    return;
+                }
+
+                /**
+                 * If we didn't have to upgrade from the old format to the new format, and we don't
+                 * have a analysis_to_replay, then we need to write the analysis_to_replay to the 
+                 * mitosheet.sheet call. 
+                 * 
+                 * Specifically, we want to write the analysis name of this analysis, as this is the 
+                 * analysis that will get written to the code cell below.
+                 */
+                window.commands?.execute('write-analysis-to-replay-to-mitosheet-call', {
+                    analysisName: analysisData.analysisName,
+                });
+
+            } else {
+                /**
+                 * In the case where we do have an analysis to replay that has been passed, we go ahead and
+                 * tell the backend to rerun it. That's all we have to do in this case - no writing to 
+                 * the mitosheet.sheet calls required!
+                 */
+                if (analysisData.analysisToReplay.analysisName) {
+                    const error = await props.mitoAPI.updateReplayAnalysis(analysisData.analysisToReplay.analysisName);
+
+                    if (!error) {
+                        return;
+                    } else {
+                        // Otherwise, if there an error, we can display it here. TODO!
+                    }
+                }
+            }
+        }
+        void updateMitosheetCallCell()
     }, [])
+
+    useEffect(() => {
+        // This is the effect that writes code to the generated code cell. In general, it should
+        // never overwrite an existing code cell other than it's own. It will also not write code 
+        // until there is an existing analysis that needs to be replayed, that has been replayed
+        // TODO: explain how this relates to the changing of the analysis name on the backend.
+
+
+        // TODO: some timing things with writing code?
+        const analysisNameToWrite = !analysisData.analysisToReplay.analysisName ? analysisData.analysisName : analysisData.analysisToReplay.analysisName;
+
+        if (!analysisData.analysisToReplay.analysisName || analysisData.analysisToReplay.hasBeenRun) {
+            // Finially, we can go and write the code!
+            window.commands?.execute('write-generated-code-cell', {
+                analysisName: analysisNameToWrite,
+                code: analysisData.code,
+                telemetryEnabled: userProfile.telemetryEnabled,
+            });
+        }
+    
+    }, [analysisData])
+
 
     // Load plotly, so we can generate graphs
     useEffect(() => {
@@ -285,15 +338,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
         previousNumGraphsRef.current = newNumGraphs
     }, [Object.keys(analysisData.graphDataDict || {}).length])
-
-    useEffect(() => {
-        console.log(analysisData)
-        window.commands?.execute('write-code-for-analysis', {
-            analysisName: analysisData.analysisToReplay.analysisName,
-            code: "123",
-            telemetryEnabled: true
-        });
-    }, [])
 
 
     /*

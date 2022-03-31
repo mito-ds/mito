@@ -171,6 +171,7 @@ class StepsManager:
         self.analysis_name = "UUID-" + str(uuid.uuid4())
         self.analysis_to_replay = analysis_to_replay
         self.analysis_to_replay_exists = get_analysis_exists(analysis_to_replay)
+        self.analysis_to_replay_has_been_run = False
 
         # The args are a tuple of dataframes or strings, and we start by making them
         # into a list, and making copies of them for safe keeping
@@ -281,7 +282,8 @@ class StepsManager:
                 "analysisName": self.analysis_name,
                 "analysisToReplay": {
                     'analysisName': self.analysis_to_replay,
-                    'existsOnDisk': self.analysis_to_replay_exists
+                    'existsOnDisk': self.analysis_to_replay_exists,
+                    'hasBeenRun': self.analysis_to_replay_has_been_run,
                 },
                 "code": transpile(self),
                 "stepSummaryList": self.step_summary_list,

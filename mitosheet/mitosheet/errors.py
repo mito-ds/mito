@@ -396,6 +396,21 @@ def make_no_analysis_error(analysis_id: str, error_modal: bool=True) -> MitoErro
         error_modal=error_modal
     )
 
+def make_replay_analysis_error(error_modal: bool=True) -> MitoError:
+    """
+    Helper function for creating a replay_analysis_error.
+
+    Occurs when a user tries to replay an analysis and it failes
+    """
+    to_fix = f'TODO' 
+    
+    return MitoError(
+        'replay_analysis_error', 
+        "One of the steps of this analysis failed",
+        to_fix,
+        error_modal=error_modal
+    )
+
 
 ARG_FULL_NAME = {
     'int': 'number',
