@@ -292,7 +292,7 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
                 <div className = 'default-taskpane-body-section-div'>
                     <PivotTableKeySelection
                         sectionTitle='Columns'
-                        sectionSubtext={'Select a column with a small number of unique values for best performance.'}
+                        sectionSubtext={'For the best performance, select a column with a small number of unique values.'}
                         columnIDsMap={columnIDsMap}
                         selectedColumnIDs={pivotParams.pivotColumnsColumnIDs}
                         addKey={(columnID) => {addKey('column', columnID)}}
