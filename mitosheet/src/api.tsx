@@ -87,19 +87,19 @@ export enum UserJsonFields {
 export default class MitoAPI {
     model_id: string;
     _send: (msg: Record<string, unknown>) => void;
-    updateSheetAndCode: () => void;
+    updateMitoState: () => void;
     setErrorModal: (error: MitoError) => void;
     unconsumedResponses: Record<string, unknown>[];
 
     constructor(
         model_id: string,
         send: (msg: Record<string, unknown>) => void,
-        updateSheetAndCode: () => void,
+        updateMitoState: () => void,
         setErrorModal: (error: MitoError) => void,
     ) {
         this.model_id = model_id;
         this._send = send;
-        this.updateSheetAndCode = updateSheetAndCode;
+        this.updateMitoState = updateMitoState;
         this.setErrorModal = setErrorModal;
 
         this.unconsumedResponses = [];
@@ -182,7 +182,7 @@ export default class MitoAPI {
         // If the response is a "response", then we update the sheet and the code
         // as this means there was a successful response
         if (response['event'] == 'response') {
-            this.updateSheetAndCode();
+            this.updateMitoState();
         } else if (response['event'] == 'edit_error') {
             // If the backend sets the data field of the error, then we know
             // that this is an error that we want to only pass through, without 

@@ -27,8 +27,7 @@ def execute_replay_analysis_update(
     This function reapplies all the steps summarized in the passed step summaries, 
     which come from a saved analysis. 
 
-    If any of the step summaries fails, this function tries to roll back to before
-    it applied any of the stems.
+    If any of the step summaries fails, none of the analysis gets replayed at all.
     """
 
     # If we're getting an event telling us to update, we read in the steps from the file
@@ -41,6 +40,10 @@ def execute_replay_analysis_update(
 
     # We set this to True even if there is an error
     steps_manager.analysis_to_replay_has_been_run = True
+
+    # NOTE: this is a tricky thing, that needs to happen so that we can
+    # overwrite the generated code for an analysis after we replay it and
+    # start editing it
     steps_manager.analysis_name = analysis_name
 
     try:

@@ -300,26 +300,6 @@ def test_upgrades_old_analysis_before_replaying_it():
         pd.DataFrame({'A': [123], 'B_sum': [123]})
     )
 
-def test_replay_analysis_can_overwrite_entire_analysis():
-
-    df = pd.DataFrame({'A': [123]})
-    mito = create_mito_wrapper_dfs(df)
-    mito.rename_column(0, 'A', 'B')
-
-    random_name = 'UUID-test_save' + str(random.random())
-    mito.save_analysis(random_name)
-
-    df1 = pd.DataFrame(data={'A': [123]})
-    new_mito = create_mito_wrapper_dfs(df1)
-    new_mito.rename_column(0, 'A', 'C')
-    new_mito.replay_analysis(random_name, clear_existing_analysis=True)
-    
-    assert len(new_mito.steps) == 2
-    assert mito.dfs[0].equals(
-        pd.DataFrame({'B': [123]})
-    )
-
-
 def test_save_analysis_saves_skipped_steps():
     mito = create_mito_wrapper([1, 2, 3])
     mito.filter(0, 'A', 'And', FC_NUMBER_EXACTLY, 2)
@@ -358,36 +338,4 @@ def test_save_replays_overwrite_by_ids_propererly():
 
     assert new_mito.dfs[1].equals(
         pd.DataFrame({'A': [1, 2, 3], 'A count': [1, 1, 1]})
-    )
-
-def test_replay_analysis_does_not_replay_set_cell_value_steps_when_clearing_analysis():
-    df = pd.DataFrame({'A': [1, 2, 3]})
-    mito = create_mito_wrapper_dfs(df)
-    mito.set_cell_value(0, 'A', 0, 4)
-
-    random_name = 'UUID-test_save' + str(random.random())
-    mito.save_analysis(random_name)
-
-    df1 = pd.DataFrame(data={'A': [1, 2, 3]})
-    new_mito = create_mito_wrapper_dfs(df1)
-    new_mito.replay_analysis(random_name, clear_existing_analysis=False)
-    
-    assert new_mito.dfs[0].equals(
-        pd.DataFrame({'A': [1, 2, 3]})
-    )
-
-def test_replay_analysis_does_replay_set_cell_value_steps_when_not_clearing_analysis():
-    df = pd.DataFrame({'A': [1, 2, 3]})
-    mito = create_mito_wrapper_dfs(df)
-    mito.set_cell_value(0, 'A', 0, 4)
-
-    random_name = 'UUID-test_save' + str(random.random())
-    mito.save_analysis(random_name)
-
-    df1 = pd.DataFrame(data={'A': [1, 2, 3]})
-    new_mito = create_mito_wrapper_dfs(df1)
-    new_mito.replay_analysis(random_name, clear_existing_analysis=True)
-    
-    assert mito.dfs[0].equals(
-        pd.DataFrame({'A': [4, 2, 3]})
     )

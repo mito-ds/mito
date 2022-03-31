@@ -42,6 +42,7 @@ def execute_args_update(
     names we turn it into _must be the same as the names transpiled_
     by the preprocess read file paths preprocessing step!
     """
+
     # We send / don't do anything with empty df_name updates
     # as we want the sheet to refresh in this case with no errors
     if len(args) > 0:
@@ -68,8 +69,10 @@ def execute_args_update(
         # Finially, we don't add more names than there are dataframes (as this is clearly
         # nonsense), and thus this allows us to filter out Nones that are passed at the 
         # end of the arguments (not creating phantom tabs that cannot be clicked)
-        steps_manager.curr_step.post_state.df_names = final_names[:len(steps_manager.curr_step.dfs)]
-
+        # TODO: note we no longer handle nones passed at the end
+        remaining_names = steps_manager.curr_step.post_state.df_names[len(final_names):]
+        steps_manager.curr_step.post_state.df_names = final_names + remaining_names
+    
 
 ARGS_UPDATE = {
     'event_type': ARGS_UPDATE_EVENT,

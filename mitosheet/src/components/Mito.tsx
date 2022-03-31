@@ -116,12 +116,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     /**
      * Save the state updaters in the window, so they are accessible
      * from outside the component, so the API can update them when it
-     * gets a message
-     * 
-     * Then, also read in the arguments below the mitosheet, as well as
-     * the analysis below the mitosheet, and send them to the backend. We
-     * do this here so we can be sure it's after the state updaters have
-     * been defined.
+     * gets a message.
      */
     useEffect(() => {
         if (window.setMitoStateMap === undefined) {
@@ -135,22 +130,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 setUserProfile: setUserProfile,
                 setUIState: setUIState,
             });
-        }
-
-        if (!window.commands) {
-            // If the window commands are not defined, we throw an error
-            // message so that we know this is happening
-            void props.mitoAPI.log('window_commands_not_defined_failed')
-        } else if (!window.commands.hasCommand('get-args')) {
-            // Also check the case where our commands are not yet defined,
-            // as this may also be happening as a race condition
-            void props.mitoAPI.log('window_commands_get_args_not_defined_failed')
-        }
-
-        // Get the arguments passed to the mitosheet.sheet call
-        window.commands?.execute('get-args').then(async (args: string[]) => {
-            await props.mitoAPI.updateArgs(args);
-        });
+        }        
 
         // We log that the mitosheet has rendered explicitly, so that we can
         // tell if an installation is broken
@@ -164,11 +144,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
     }, [])
 
 
-
     useEffect(() => {
-
         const updateMitosheetCallCell = async () => {
-
             // If we didn't pass an analysis to replay
             if (!analysisData.analysisToReplay.analysisName) {
 
@@ -210,7 +187,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 window.commands?.execute('write-analysis-to-replay-to-mitosheet-call', {
                     analysisName: analysisData.analysisName,
                 });
-
             } else {
                 /**
                  * In the case where we do have an analysis to replay that has been passed, we go ahead and
@@ -220,25 +196,41 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 if (analysisData.analysisToReplay.analysisName) {
                     const error = await props.mitoAPI.updateReplayAnalysis(analysisData.analysisToReplay.analysisName);
 
-                    if (!error) {
-                        return;
-                    } else {
+                    if (error) {
                         // Otherwise, if there an error, we can display it here. TODO!
                     }
                 }
             }
+
+            /**
+             * Once we get down here, we either have the analysis id written to the mitosheet
+             * call, or it was written already. 
+             * 
+             * In which case, we are finially ready to get the other arguments from this call, 
+             * since that cell is so easy to find now!
+             * 
+             * We take special care to look for the right analysis name, which requires casing
+             * in the same way as the conditional.
+             */
+
+            const analysisName = !analysisData.analysisToReplay.analysisName ? analysisData.analysisName : analysisData.analysisToReplay.analysisName;
+
+            window.commands?.execute('get-args', {analysisName: analysisName}).then(async (args: string[]) => {
+                await props.mitoAPI.updateArgs(args);
+            });
         }
         void updateMitosheetCallCell()
     }, [])
 
     useEffect(() => {
-        // This is the effect that writes code to the generated code cell. In general, it should
-        // never overwrite an existing code cell other than it's own. It will also not write code 
-        // until there is an existing analysis that needs to be replayed, that has been replayed
-        // TODO: explain how this relates to the changing of the analysis name on the backend.
+        /**
+         * This is the effect that writes code to the generated code cell. In general, it should
+         * never overwrite an existing code cell other than it's own. It will also not write code 
+         * unless a) there is no analysis to replay, or b) the analysis to replay has been 
+         * replayed already.
+         */
 
-
-        // TODO: some timing things with writing code?
+        // As above, we take special care to write the correct name to the generated code cell
         const analysisNameToWrite = !analysisData.analysisToReplay.analysisName ? analysisData.analysisName : analysisData.analysisToReplay.analysisName;
 
         if (!analysisData.analysisToReplay.analysisName || analysisData.analysisToReplay.hasBeenRun) {
@@ -249,7 +241,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 telemetryEnabled: userProfile.telemetryEnabled,
             });
         }
-    
+        // TODO: we should store some data with analysis data to not make
+        // this run too often. 
     }, [analysisData])
 
 
