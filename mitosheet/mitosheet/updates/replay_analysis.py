@@ -38,7 +38,8 @@ def execute_replay_analysis_update(
         log('replayed_nonexistant_analysis_failed')
         raise make_no_analysis_error(analysis_name, error_modal=False)
 
-    # We set this to True even if there is an error
+    # We set this to True even if there is an error, as we don't want to
+    # replay this again
     steps_manager.analysis_to_replay_has_been_run = True
 
     # NOTE: this is a tricky thing, that needs to happen so that we can

@@ -147,7 +147,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     useEffect(() => {
         const updateMitosheetCallCell = async () => {
             // If we didn't pass an analysis to replay
-            if (!analysisData.analysisToReplay.analysisName) {
+            if (!analysisData.analysisToReplay) {
 
                 /**
                  * First, we check if we need to upgrade from the old analysis_to_replay format to
@@ -193,10 +193,11 @@ export const Mito = (props: MitoProps): JSX.Element => {
                  * tell the backend to rerun it. That's all we have to do in this case - no writing to 
                  * the mitosheet.sheet calls required!
                  */
-                if (analysisData.analysisToReplay.analysisName) {
+                if (analysisData.analysisToReplay) {
                     const error = await props.mitoAPI.updateReplayAnalysis(analysisData.analysisToReplay.analysisName);
 
                     if (error) {
+                        console.log("ERROR", error)
                         // Otherwise, if there an error, we can display it here. TODO!
                     }
                 }
@@ -213,7 +214,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
              * in the same way as the conditional.
              */
 
-            const analysisName = !analysisData.analysisToReplay.analysisName ? analysisData.analysisName : analysisData.analysisToReplay.analysisName;
+            const analysisName = !analysisData.analysisToReplay ? analysisData.analysisName : analysisData.analysisToReplay.analysisName;
 
             window.commands?.execute('get-args', {analysisName: analysisName}).then(async (args: string[]) => {
                 await props.mitoAPI.updateArgs(args);
@@ -231,9 +232,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
          */
 
         // As above, we take special care to write the correct name to the generated code cell
-        const analysisNameToWrite = !analysisData.analysisToReplay.analysisName ? analysisData.analysisName : analysisData.analysisToReplay.analysisName;
+        const analysisNameToWrite = !analysisData.analysisToReplay ? analysisData.analysisName : analysisData.analysisToReplay.analysisName;
 
-        if (!analysisData.analysisToReplay.analysisName || analysisData.analysisToReplay.hasBeenRun) {
+        if (!analysisData.analysisToReplay || analysisData.analysisToReplay.hasBeenRun) {
             // Finially, we can go and write the code!
             window.commands?.execute('write-generated-code-cell', {
                 analysisName: analysisNameToWrite,

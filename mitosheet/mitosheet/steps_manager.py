@@ -166,9 +166,11 @@ class StepsManager:
         All preprocessing can be found in mitosheet/preprocessing, and each of
         the transformations are applied before the data is considered imported.
         """
-        # We just randomly generate analysis names.
-        # We append a UUID to note that this is not an analysis the user has saved.
+        # We just randomly generate analysis names. TODO: do we want to make these look better?
         self.analysis_name = "UUID-" + str(uuid.uuid4())
+
+        # We also save some data about the analysis the user wants to replay, if there
+        # is such an analysis
         self.analysis_to_replay = analysis_to_replay
         self.analysis_to_replay_exists = get_analysis_exists(analysis_to_replay)
         self.analysis_to_replay_has_been_run = False
@@ -284,7 +286,7 @@ class StepsManager:
                     'analysisName': self.analysis_to_replay,
                     'existsOnDisk': self.analysis_to_replay_exists,
                     'hasBeenRun': self.analysis_to_replay_has_been_run,
-                },
+                } if self.analysis_to_replay else None,
                 "code": transpile(self),
                 "stepSummaryList": self.step_summary_list,
                 "currStepIdx": self.curr_step_idx,

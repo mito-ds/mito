@@ -543,7 +543,7 @@ export interface AnalysisData {
         analysisName: string,
         existsOnDisk: boolean,
         hasBeenRun: boolean
-    },
+    } | null | undefined,
     code: string[],
     stepSummaryList: StepSummary[],
     currStepIdx: number,

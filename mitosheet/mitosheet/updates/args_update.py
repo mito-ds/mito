@@ -66,10 +66,9 @@ def execute_args_update(
             else:
                 final_names.append(arg)
 
-        # Finially, we don't add more names than there are dataframes (as this is clearly
-        # nonsense), and thus this allows us to filter out Nones that are passed at the 
-        # end of the arguments (not creating phantom tabs that cannot be clicked)
-        # TODO: note we no longer handle nones passed at the end
+        # Finially, we make sure that we keep any dataframe names that a) we have, and 
+        # b) are actually valid dataframe names (e.g. from a replayed analysis), rather 
+        # than being the default names we randomly make up
         remaining_names = steps_manager.curr_step.post_state.df_names[len(final_names):]
         steps_manager.curr_step.post_state.df_names = final_names + remaining_names
     
