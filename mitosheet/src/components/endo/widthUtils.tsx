@@ -23,7 +23,7 @@ export const getWidthData = (sheetData: SheetData | undefined, defaultWidthData:
     const widthArray = new Array<number>(sheetData.numColumns);
     const widthSumArray = new Array<number>(sheetData.numColumns);
 
-    for (let columnIndex = 0; columnIndex < sheetData.numColumns; columnIndex++) {
+    for (let columnIndex = 0; columnIndex < sheetData.data.length; columnIndex++) {
         const columnID = sheetData.data[columnIndex].columnID;
         let columnWidth = DEFAULT_WIDTH;
         if (defaultWidthData !== undefined) {

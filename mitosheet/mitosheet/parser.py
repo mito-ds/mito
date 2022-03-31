@@ -364,7 +364,8 @@ def parse_formula(
     by returning (python_code, functions, column_header_dependencies), where column_headers
     is a list of dependencies that the formula references.
     """
-    if formula is None:
+    # If the column doesn't have a formula, then there are no dependencies, duh!
+    if formula is None or formula == '':
         return '', set(), set()
 
     if throw_errors:
