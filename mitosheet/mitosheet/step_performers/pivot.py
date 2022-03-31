@@ -4,13 +4,17 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from copy import copy
+import json
+import sys
 from time import perf_counter
 from typing import Any, Callable, Dict, Collection, List, Optional, Set, Tuple
 import pandas as pd
+import warnings
 
 from mitosheet.column_headers import flatten_column_header
 from mitosheet.errors import (make_invalid_aggregation_error,
                               make_invalid_pivot_error, make_no_column_error)
+from mitosheet.mito_analytics import log
 from mitosheet.state import DATAFRAME_SOURCE_PIVOTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from pandas.core.base import DataError
@@ -237,8 +241,6 @@ class PivotStepPerformer(StepPerformer):
             return {destination_sheet_index}
         return {-1}
     
-
-
 def values_to_functions(values: Dict[ColumnHeader, Collection[str]]) -> Dict[ColumnHeader, List[Callable]]:
     """
     Helper function for turning the values mapping sent by the frontend to 
@@ -299,8 +301,14 @@ def _execute_pivot(
     unused_columns = df.columns.difference(set(pivot_rows).union(set(pivot_columns)).union(set(values_keys)))
     df = df.drop(unused_columns, axis=1)
 
-    # Actually perform the pivot
-    pivot_table = df.pivot_table(**args) # type: pd.DataFrame
+    # While performing the pivot table, catch warnings that are created
+    # by pandas so that we can log them.
+    with warnings.catch_warnings(record=True):
+        # Forward the warning handling to our custom function to log it
+        warnings.showwarning = log_pivot_table_warnings
+        
+        # Actually perform the pivot
+        pivot_table = df.pivot_table(**args) # type: pd.DataFrame
 
     # On earlier pandas versions (e.g. 0.24.2), the pivot table function returned
     # a series from the above function call. Thus, we need to move it to a df for
@@ -367,3 +375,13 @@ def get_new_pivot_df_name(post_state: State, sheet_index: int) -> str:
         curr_df_name = f'{new_df_name_original}_{multiple_sheet_indicator}'
         multiple_sheet_indicator += 1
     return curr_df_name
+
+
+def log_pivot_table_warnings(message, *args):
+    """
+    Logs warnings that are created by the pandas pivot table function.
+    Using warnings.showwarning passes several additional arguments to the function, 
+    so we must include *args to support them.
+    """
+    params = {'message': str(message)}
+    log('pivot_table_performance_warning', params)
