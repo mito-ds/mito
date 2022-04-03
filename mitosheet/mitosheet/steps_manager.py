@@ -9,6 +9,7 @@ import uuid
 from copy import copy, deepcopy
 import pandas as pd
 from typing import Any, Dict, Collection, List, Set, Tuple, Union
+from mitosheet.errors import make_execution_error
 from mitosheet.mito_analytics import log
 from mitosheet.saved_analyses.save_utils import get_analysis_exists
 
@@ -21,6 +22,7 @@ from mitosheet.step import Step
 from mitosheet.step_performers import EVENT_TYPE_TO_STEP_PERFORMER
 from mitosheet.updates import UPDATES
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
+from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
 from mitosheet.utils import dfs_to_array_for_json, get_new_id, is_default_df_names
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.data_in_mito import DataTypeInMito, get_data_type_in_mito
@@ -230,6 +232,12 @@ class StepsManager:
         # which allows us to have some awareness about undos and redos in the front-end
         self.update_event_count = 0
 
+        # This stores the number of times that the sheet renders, and we use it to detect
+        # when we are on the first render of a sheet. This is very useful for making
+        # sure we only update the state of the backend on the first render of a sheet
+        # that corresponds to that backend
+        self.render_count = 0
+
     @property
     def curr_step(self) -> Step:
         """
@@ -286,13 +294,14 @@ class StepsManager:
                     'analysisName': self.analysis_to_replay,
                     'existsOnDisk': self.analysis_to_replay_exists,
                     'hasBeenRun': self.analysis_to_replay_has_been_run,
-                } if self.analysis_to_replay else None,
+                } if self.analysis_to_replay is not None else None,
                 "code": transpile(self),
                 "stepSummaryList": self.step_summary_list,
                 "currStepIdx": self.curr_step_idx,
                 "dataTypeInTool": self.data_type_in_mito.value,
                 "graphDataDict": self.curr_step.graph_data_dict,
                 'updateEventCount': self.update_event_count,
+                'renderCount': self.render_count
             }
         )
 

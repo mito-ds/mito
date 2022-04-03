@@ -15,7 +15,7 @@ https://stackoverflow.com/questions/16138232/is-it-a-good-practice-to-use-try-ex
 """
 import re
 import traceback
-from typing import Any, Collection, Set, List
+from typing import Any, Collection, Optional, Set, List
 
 from mitosheet.types import ColumnHeader
 
@@ -241,18 +241,27 @@ def make_unsupported_function_error(functions: Set[str], error_modal: bool=True)
         error_modal=error_modal
     )
 
-def make_invalid_column_delete_error(column_headers: Collection[ColumnHeader], dependents: Collection[ColumnHeader]) -> MitoError:
+
+def make_invalid_column_delete_error(column_headers: Collection[ColumnHeader], dependents: Optional[Collection[ColumnHeader]]=None) -> MitoError:
     """
     Helper function for creating a invalid_column_delete_error.
 
     Occurs when:
-    -  the user deletes a column that is referenced by other columns
+    - the user deletes a column that is referenced by other columns
+    - the user deletes a column that does not exist
     """
+    if dependents is not None:
+        header = 'Column Has Dependents'
+        to_fix = f'{(", ").join(map(str, column_headers))} cannot be deleted, as {"they are" if len(column_headers) > 1 else "it is"} referenced in {(", ".join(map(str, dependents)))}. Please remove these references before deleting.'
+    else:
+        header = 'Column Does not exist'
+        to_fix = f'{(", ").join(map(str, column_headers))} cannot be deleted, as not all of these columns exist.'
+   
 
     return MitoError(
         'invalid_column_delete_error',
-        'Column Has Dependents',
-        f'{(", ").join(map(str, column_headers))} cannot be deleted, as {"they are" if len(column_headers) > 1 else "it is"} referenced in {(", ".join(map(str, dependents)))}. Please remove these references before deleting.'
+        header,
+        to_fix
     )
 
 def make_invalid_arguments_error(function: str) -> MitoError:

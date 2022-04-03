@@ -9,7 +9,7 @@ import { IJupyterWidgetRegistry } from '@jupyter-widgets/base';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { Application, IPlugin } from 'application';
 import { Widget } from 'widgets';
-import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, getArgsFromMitosheetCallCell, getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getLastNonEmptyLine, getParentMitoContainer, isEmptyCell, isMitosheetCallCell, tryWriteAnalysisToReplayParameter, writeAnalysisToReplayToMitosheetCall, writeToCell } from './jupyterlab/pluginUtils';
+import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, getArgsFromMitosheetCallCell, getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getLastNonEmptyLine, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, isMitosheetCallCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell } from './jupyterlab/pluginUtils';
 import { getAnalysisNameFromOldGeneratedCode, getCodeString } from './utils/code';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 import * as widgetExports from './widget';
@@ -48,26 +48,35 @@ function activateWidgetExtension(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         execute: (args: any) => {
             const analysisName = args.analysisName as string;
-            
-            // Look through all notebook cells to find the cell with the call to the mitosheet.sheet
-            // that passes this analysis_to_replay, and terminate if we can find it
-            let mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(tracker, analysisName);
+            const cellAndIndex = getMostLikelyMitosheetCallingCell(tracker, analysisName);
 
-            if (mitosheetCallCellAndIndex !== undefined) {
+            if (cellAndIndex) {
+                const [cell, ] = cellAndIndex;
+                tryWriteAnalysisToReplayParameter(cell, analysisName);
+            } else {
+                // TODO: do we want to log this?
+            }
+        }
+    })
+
+    app.commands.addCommand('overwrite-analysis-to-replay-to-mitosheet-call', {
+        label: 'Given an oldAnalysisName and newAnalysisName, writes it to the mitosheet.sheet() call that has the oldAnalysisName, by switching to the newAnalysisName.',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        execute: (args: any) => {
+            console.log('overwrite-analysis-to-replay-to-mitosheet-call');
+            const oldAnalysisName = args.oldAnalysisName as string;
+            const newAnalysisName = args.newAnalysisName as string;
+
+            let mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(tracker, oldAnalysisName);
+            if (mitosheetCallCellAndIndex === undefined) {
                 return;
             }
-            
-            // If this cell does not exist, then we must be in the first time that this mitosheet.sheet() call
-            // has been made. This is the only time that we have to use active cell location information to 
-            // figure out where to write the analysis name to the correct mitosheet.sheet call
-            mitosheetCallCellAndIndex = writeAnalysisToReplayToMitosheetCall(tracker, analysisName);
 
-            // If the mitosheet call cell is still not defined, we cannot recover from this error 
-            // and so we log this and return
-            if (mitosheetCallCellAndIndex === undefined) {
-                // TODO: do we want to log the case where we cannot find an analysis ID to write to a cell?
-                // I don't really think it would help us do anything, but would be nice to know
-            }
+            const [mitosheetCallCell, ] = mitosheetCallCellAndIndex;
+
+            const updated = tryOverwriteAnalysisToReplayParameter(mitosheetCallCell, oldAnalysisName, newAnalysisName);
+            console.log(updated, oldAnalysisName, newAnalysisName)
+            // TODO: do we want to log if it's not updated
         }
     })
 
@@ -127,18 +136,17 @@ function activateWidgetExtension(
     })
 
     app.commands.addCommand('get-args', {
-        label: 'Reads the arguments passed to the mitosheet.sheet call. NOTE: this should only be called after the analysis_to_replay has been written to the mitosheet.sheet() call.',
+        label: 'Reads the arguments passed to the mitosheet.sheet call.',
         execute: (args: any): string[] => {
-            const analysisName = args.analysisName as string;
+            const analysisToReplayName = args.analysisToReplayName as string | undefined;
+            const cellAndIndex = getMostLikelyMitosheetCallingCell(tracker, analysisToReplayName);
 
-            const mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(tracker, analysisName);
-            if (mitosheetCallCellAndIndex === undefined) {
-                // TODO: log this?
+            if (cellAndIndex) {
+                const [cell, ] = cellAndIndex;
+                return getArgsFromMitosheetCallCell(cell);
+            } else {
                 return [];
             }
-
-            const [analysisCell, ] = mitosheetCallCellAndIndex;
-            return getArgsFromMitosheetCallCell(analysisCell) 
         }
     });
 

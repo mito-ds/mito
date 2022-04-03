@@ -59,6 +59,7 @@ import DeleteGraphsModal from './modals/DeleteGraphsModal';
 import { selectPreviousGraphSheetTab } from './footer/SheetTab';
 import ConcatTaskpane from './taskpanes/Concat/ConcatTaskpane';
 import DefaultEmptyTaskpane from './taskpanes/DefaultTaskpane/DefaultEmptyTaskpane';
+import InvalidReplayAnalysisModal from './modals/InvalidReplayAnalysisModal';
 
 export type MitoProps = {
     model_id: string;
@@ -143,101 +144,123 @@ export const Mito = (props: MitoProps): JSX.Element => {
         }
     }, [])
 
+    
+
 
     useEffect(() => {
-        const updateMitosheetCallCell = async () => {
-            // If we didn't pass an analysis to replay
-            if (!analysisData.analysisToReplay) {
 
-                /**
-                 * First, we check if we need to upgrade from the old analysis_to_replay format to
-                 * the new one.
-                 * 
-                 * In the past, we used to only store the analysis id in the generated code cell,
-                 * which led to a ton of issues making it really hard to handle things like users
-                 * running all, etc. 
-                 * 
-                 * We moved to storing the analysis id in the mitosheet call and the generated code
-                 * cell, which allows us to easily link them together. 
-                 * 
-                 * To transition from the old system to the new system, we run this piece of code
-                 * that moves the saved analysis id from the generated code to the mitosheet call,
-                 * and then reruns this mitosheet call. 
-                 * 
-                 * This is the cleanest way to have this transition occur, by far, based on the 48
-                 * hours that I spent thinking about such things.
-                 * 
-                 * TODO: remove this effect 6 months after implemented, as pretty much all users will
-                 * have upgraded by then. Delete this code on September 1, 2022.
-                 */
-                const upgradedFromSaveInGeneratedCodeToSheet = await window.commands?.execute('move-saved-analysis-id-to-mitosheet-call');
-                if (upgradedFromSaveInGeneratedCodeToSheet) {
-                    // We stop here, and do not do anything else in this case
-                    return;
-                }
-
-                /**
-                 * If we didn't have to upgrade from the old format to the new format, and we don't
-                 * have a analysis_to_replay, then we need to write the analysis_to_replay to the 
-                 * mitosheet.sheet call. 
-                 * 
-                 * Specifically, we want to write the analysis name of this analysis, as this is the 
-                 * analysis that will get written to the code cell below.
-                 */
-                window.commands?.execute('write-analysis-to-replay-to-mitosheet-call', {
-                    analysisName: analysisData.analysisName,
-                });
-            } else {
-                /**
-                 * In the case where we do have an analysis to replay that has been passed, we go ahead and
-                 * tell the backend to rerun it. That's all we have to do in this case - no writing to 
-                 * the mitosheet.sheet calls required!
-                 */
-                if (analysisData.analysisToReplay) {
-                    const error = await props.mitoAPI.updateReplayAnalysis(analysisData.analysisToReplay.analysisName);
-
-                    if (error) {
-                        console.log("ERROR", error)
-                        // Otherwise, if there an error, we can display it here. TODO!
-                    }
-                }
-            }
-
-            /**
-             * Once we get down here, we either have the analysis id written to the mitosheet
-             * call, or it was written already. 
-             * 
-             * In which case, we are finially ready to get the other arguments from this call, 
-             * since that cell is so easy to find now!
-             * 
-             * We take special care to look for the right analysis name, which requires casing
-             * in the same way as the conditional.
-             */
-
-            const analysisName = !analysisData.analysisToReplay ? analysisData.analysisName : analysisData.analysisToReplay.analysisName;
-
-            window.commands?.execute('get-args', {analysisName: analysisName}).then(async (args: string[]) => {
+        /**
+         * The mitosheet is rendered first when the mitosheet.sheet() call is made,
+         * but then it may be rerendered when the page the mitosheet is on is refreshed.
+         * 
+         * However, there are a few things we only want to do on this first render, and
+         * not when the page is refreshed.
+         * 
+         * We do those things here. 
+         */
+        const updateMitosheetCallCellOnFirstRender = async () => {
+            // The first thing we need to do is go and read the arguments to the mitosheet.sheet() call. If there
+            // is an analysis to replay, we use this to lookup the call, and if not
+            window.commands?.execute('get-args', {analysisToReplayName: analysisData.analysisToReplay?.analysisName}).then(async (args: string[]) => {
                 await props.mitoAPI.updateArgs(args);
+
+                // Then, after we have the args, we replay an analysis if there is an analysis to replay
+                // Note that this has to happen after so that we have the the argument names loaded in at
+                // the very start of the analysis
+                if (analysisData.analysisToReplay) {
+                    // First, we replay an analysis if an analysis is meant to be replayed
+                    const error = await props.mitoAPI.updateReplayAnalysis(analysisData.analysisToReplay.analysisName);
+                    
+                    if (error !== undefined) {
+                        /**
+                         * If the replayed analysis fails, the first thing that we need to do is to
+                         * report this to the user by displaying a modal that tells them as much
+                         */
+                        setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                currOpenModal: {
+                                    type: ModalEnum.InvalidReplayAnalysis,
+                                    error: error
+                                }
+                            }
+                        })
+
+                        /**
+                         * We also need to actually change the analysis to replay in the code cell, 
+                         * so that we know something happened to invalidate this analysis to replay,
+                         * and we can write new code?
+                         */
+                        window.commands?.execute('overwrite-analysis-to-replay-to-mitosheet-call', {
+                            oldAnalysisName: analysisData.analysisToReplay.analysisName,
+                            newAnalysisName: analysisData.analysisName,
+                        });
+                    }
+                } else {
+                    /**
+                     * If we don't have an analysis to replay, we check if we need to upgrade from the 
+                     * old analysis_to_replay format to the new one.
+                     * 
+                     * In the past, we used to only store the analysis id in the generated code cell,
+                     * which led to a ton of issues making it really hard to handle things like users
+                     * running all, etc. 
+                     * 
+                     * We moved to storing the analysis id in the mitosheet call and the generated code
+                     * cell, which allows us to easily link them together. 
+                     * 
+                     * To transition from the old system to the new system, we run this piece of code
+                     * that moves the saved analysis id from the generated code to the mitosheet call,
+                     * and then reruns this mitosheet call. 
+                     * 
+                     * This is the cleanest way to have this transition occur, by far, based on the 48
+                     * hours that I spent thinking about such things.
+                     * 
+                     * TODO: remove this effect 6 months after implemented, as pretty much all users will
+                     * have upgraded by then. Delete this code on September 1, 2022.
+                     */
+                    const upgradedFromSaveInGeneratedCodeToSheet = await window.commands?.execute('move-saved-analysis-id-to-mitosheet-call');
+                    if (upgradedFromSaveInGeneratedCodeToSheet) {
+                        // We stop here, and do not do anything else in this case
+                        return;
+                    }
+    
+                    /**
+                     * If we didn't have to upgrade from the old format to the new format, and we don't
+                     * have a analysis_to_replay, then we need to write the analysis_to_replay to the 
+                     * mitosheet.sheet call. 
+                     * 
+                     * Specifically, we want to write the analysis name of this analysis, as this is the 
+                     * analysis that will get written to the code cell below.
+                     */
+                    window.commands?.execute('write-analysis-to-replay-to-mitosheet-call', {
+                        analysisName: analysisData.analysisName,
+                    });
+                }
+
+
             });
         }
-        void updateMitosheetCallCell()
+
+        const handleRender = async () => {
+            if (analysisData.renderCount === 0) {
+                await updateMitosheetCallCellOnFirstRender();
+            }
+
+            await props.mitoAPI.updateRenderCount();
+        }
+
+        handleRender();
     }, [])
 
     useEffect(() => {
         /**
-         * This is the effect that writes code to the generated code cell. In general, it should
-         * never overwrite an existing code cell other than it's own. It will also not write code 
-         * unless a) there is no analysis to replay, or b) the analysis to replay has been 
-         * replayed already.
+         * We only write code after the render count has been incremented once, which
+         * means that we have read in and replayed the updated analysis, etc. 
          */
-
-        // As above, we take special care to write the correct name to the generated code cell
-        const analysisNameToWrite = !analysisData.analysisToReplay ? analysisData.analysisName : analysisData.analysisToReplay.analysisName;
-
-        if (!analysisData.analysisToReplay || analysisData.analysisToReplay.hasBeenRun) {
+        if (analysisData.renderCount >= 1) {
             // Finially, we can go and write the code!
             window.commands?.execute('write-generated-code-cell', {
-                analysisName: analysisNameToWrite,
+                analysisName: analysisData.analysisName,
                 code: analysisData.code,
                 telemetryEnabled: userProfile.telemetryEnabled,
             });
@@ -245,7 +268,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
         // TODO: we should store some data with analysis data to not make
         // this run too often. 
     }, [analysisData])
-
 
     // Load plotly, so we can generate graphs
     useEffect(() => {
@@ -458,6 +480,13 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 <UpgradeModal
                     setUIState={setUIState}
                     mitoAPI={props.mitoAPI}
+                />
+            )
+            case ModalEnum.InvalidReplayAnalysis: return (
+                <InvalidReplayAnalysisModal
+                    setUIState={setUIState}
+                    mitoAPI={props.mitoAPI}
+                    error={uiState.currOpenModal.error}
                 />
             )
             case ModalEnum.DeleteGraphs: return (

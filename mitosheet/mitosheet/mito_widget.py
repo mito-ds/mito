@@ -12,6 +12,7 @@ import time
 from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
+from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
 from mitosheet.user.location import is_in_google_colab, is_in_vs_code
 import traitlets as t
 from ipywidgets import DOMWidget
@@ -19,7 +20,7 @@ from ipywidgets import DOMWidget
 from mitosheet._frontend import module_name, module_version
 from mitosheet.api import API
 from mitosheet.data_in_mito import DataTypeInMito
-from mitosheet.errors import MitoError, get_recent_traceback
+from mitosheet.errors import MitoError, get_recent_traceback, make_execution_error
 from mitosheet.mito_analytics import (log, log_event_processed,
                                       log_recent_error, telemetry_turned_on)
 from mitosheet.saved_analyses import write_analysis
@@ -142,11 +143,18 @@ class MitoWidget(DOMWidget):
         - Name of an existing analysis
         """
 
-        self.steps_manager.handle_update_event(event)
+        try:
+            self.steps_manager.handle_update_event(event)
 
-        # Update all state variables
-        self.update_shared_state_variables()
-
+            # Update all state variables
+            self.update_shared_state_variables()
+        except:
+            # We handle the case of replaying the analysis specially, because we don't
+            # want to display the error modal vs. return it in place
+            if event["type"] == REPLAY_ANALYSIS_UPDATE['event_type']:
+                print("HERE!")
+                raise make_execution_error(error_modal=False)
+            raise
         # Also, write the analysis to a file!
         write_analysis(self.steps_manager)
 
@@ -196,6 +204,7 @@ class MitoWidget(DOMWidget):
 
             return True
         except MitoError as e:
+            print("HERE1", e.error_modal)
             print(get_recent_traceback())
             print(e)
             
@@ -225,6 +234,7 @@ class MitoWidget(DOMWidget):
             # Report it to the user, and then return
             self.send(response)
         except:
+            print("HERE")
             print(get_recent_traceback())
             # We log that processing failed, but have no edit error
             log_event_processed(event, self.steps_manager, failed=True, start_time=start_time)

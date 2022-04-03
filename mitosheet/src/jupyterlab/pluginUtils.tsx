@@ -200,6 +200,26 @@ export function getCellCallingMitoshetWithAnalysis(tracker: INotebookTracker, an
 }
 
 /**
+ * Given a cell, will check if it has a mitosheet.sheet() call with the old
+ * analysis to replay, and if so will replace it with the new analysis to 
+ * replay
+ */
+export function tryOverwriteAnalysisToReplayParameter(cell: ICellModel | undefined, oldAnalysisName: string, newAnalysisName: string): boolean {
+    if (isMitosheetCallCell(cell) && containsMitosheetCallWithSpecificAnalysisToReplay(cell, oldAnalysisName)) {
+        const currentCode = getCellText(cell);
+
+        const newCode = currentCode.replace(
+            `analysis_to_replay="${oldAnalysisName}")`,
+            `analysis_to_replay="${newAnalysisName}")`
+        )
+        writeToCell(cell, newCode);
+        return true;
+    } 
+
+    return false;
+}
+
+/**
  * Given a cell, will check if it has a mitosheet.sheet() call with no
  * analysis_to_replay, and if so add the analysisName as a parameter to
  * this cell. It will return true in this case. 
@@ -229,12 +249,22 @@ export function tryWriteAnalysisToReplayParameter(cell: ICellModel | undefined, 
 }
 
 /**
- * Uses the current active cell location to write the analysis_to_replay to a mitosheet.sheet()
- * call. Note that this should only be called if there is no such mitosheet.sheet call replaying
- * this analysis already.
+ * A function that returns the [cell, index] pair of the mitosheet.sheet() call that contains
+ * the analysis name. 
+ * 
+ * If no mitosheet.sheet() call contains this analysis name, then we assume it hasen't been 
+ * written yet, and take our best guess at which sheet this is
  */
-export function writeAnalysisToReplayToMitosheetCall(tracker: INotebookTracker, analysisName: string): [ICellModel, number] | undefined {
-    // We get the current notebook (currentWidget)
+export function getMostLikelyMitosheetCallingCell(tracker: INotebookTracker, analysisName: string | undefined): [ICellModel, number] | undefined {
+    
+    // First, we check if this analysis name is in a mitosheet call, in which case things are easy
+    if (analysisName) {
+        const mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(tracker, analysisName);
+        if (mitosheetCallCellAndIndex !== undefined) {
+            return mitosheetCallCellAndIndex;
+        }
+    }
+
     const notebook = tracker.currentWidget?.content;
     const cells = notebook?.model?.cells;
 
@@ -242,7 +272,7 @@ export function writeAnalysisToReplayToMitosheetCall(tracker: INotebookTracker, 
         return;
     }
 
-    const activeCell = notebook.activeCell;
+    const activeCell = notebook.activeCell?.model;
     const activeCellIndex = notebook.activeCellIndex;
 
     const previousCell = getCellAtIndex(cells, activeCellIndex - 1)
@@ -250,29 +280,26 @@ export function writeAnalysisToReplayToMitosheetCall(tracker: INotebookTracker, 
     // As the most common way for a user to run a cell for the first time is to run and advanced, this 
     // means that the active cell will most likely be one below the mitosheet.sheet() call we want to 
     // write to, so we check this first
-    if (tryWriteAnalysisToReplayParameter(previousCell, analysisName)) {
-        return previousCell ? [previousCell, activeCellIndex - 1] : undefined;
+    if (previousCell && isMitosheetCallCell(previousCell) && !containsMitosheetCallWithAnyAnalysisToReplay(previousCell)) {
+        return [previousCell, activeCellIndex - 1];
     } 
 
     // The next case we check is if they did a run and not advance, which means that the currently
     // selected cell is the mitosheet.sheet call
-    if (tryWriteAnalysisToReplayParameter(activeCell?.model, analysisName)) {
-        return activeCell?.model ? [activeCell?.model, activeCellIndex] : undefined;
+    if (activeCell && isMitosheetCallCell(activeCell) && !containsMitosheetCallWithAnyAnalysisToReplay(activeCell)) {
+        return [activeCell, activeCellIndex];
     }
 
     // The last case is that the user did some sort of run all, in which case we cross our fingers
     // that there is only one cell that does not have a mitosheet call, and go looking for it
     let index = activeCellIndex;
     while (index >= 0) {
-        // TODO: this is horribly inefficient, and I feel like we should just use a forward loop, desipte
-        // how it feels worse... but idk if performance matters really!
-        const previousCell = getCellAtIndex(cells, index)
-        if (tryWriteAnalysisToReplayParameter(previousCell, analysisName)) {
-            return previousCell ? [previousCell, index] : undefined
+        const cell = getCellAtIndex(cells, index)
+        if (cell && isMitosheetCallCell(cell) && !containsMitosheetCallWithAnyAnalysisToReplay(cell)) {
+            return [cell, index];
         }
         index--;
     }
 
-    // Otherwise, we have failed, and we just give up here, and don't write anything...
-    // TODO: do we want to log an error or something? I think we should log it elsewhere
+    return undefined;
 }
