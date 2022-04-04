@@ -162,7 +162,7 @@ export function isEmptyCell(cell: ICellModel | undefined): boolean {
  * Returns the cell that has the mitosheet.sheet(analysis_to_replay={analysisName}) in it,
  * or undefined if no such cell exists
  */
- export function getCellCallingMitoshetWithAnalysis(tracker: INotebookTracker, analysisName: string): [ICellModel, number] | undefined  {
+export function getCellCallingMitoshetWithAnalysis(tracker: INotebookTracker, analysisName: string): [ICellModel, number] | undefined  {
     const notebook = tracker.currentWidget?.content;
     const cells = notebook?.model?.cells;
 
@@ -195,7 +195,7 @@ export function isEmptyCell(cell: ICellModel | undefined): boolean {
  * 
  * Returns undefined if it can find no good guess for a calling mitosheet cell.
  */
- export function getMostLikelyMitosheetCallingCell(tracker: INotebookTracker, analysisName: string | undefined): [ICellModel, number] | undefined {
+export function getMostLikelyMitosheetCallingCell(tracker: INotebookTracker, analysisName: string | undefined): [ICellModel, number] | undefined {
     
     // First, we check if this analysis name is in a mitosheet call, in which case things are easy
     if (analysisName) {

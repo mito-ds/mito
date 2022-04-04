@@ -29,7 +29,7 @@ export const NonexistantReplayedAnalysisModal = (
                 <Fragment>
                     
                     <div className='text-align-left text-body-1'>
-                        We're unable to replay {props.oldAnalysisName} because you don't have access to it. This is probably because the analysis was created on a different computer.
+                        We&apos;re unable to replay {props.oldAnalysisName} because you don&apos;t have access to it. This is probably because the analysis was created on a different computer.
                     </div>
                 </Fragment>
             }
