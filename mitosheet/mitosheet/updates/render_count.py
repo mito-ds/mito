@@ -18,10 +18,11 @@ Resets (because it's an entirely new backend) when:
 1. The kernel is restarted for any reason
 """
 
+from typing import List
 from mitosheet.types import StepsManagerType
 
 RENDER_COUNT_UPDATE_EVENT = 'render_count_update'
-RENDER_COUNT_UPDATE_PARAMS = []
+RENDER_COUNT_UPDATE_PARAMS: List[str] = []
 
 def execute_render_count_update(steps_manager: StepsManagerType) -> None:
     steps_manager.render_count += 1
