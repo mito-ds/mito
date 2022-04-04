@@ -8,6 +8,7 @@ import {
 
 
 export function getParentMitoContainer(): Element | null {
+    // NOTE: This only works if the active element in the document is a child of Mito
     // First, get the mito container that this element is a part of
     let currentElement = document.activeElement;
     while (currentElement !== null) {
@@ -62,22 +63,13 @@ export const getArgsFromMitosheetCallCell = (mitosheetCallCell: ICellModel | und
 
     let nameString = content.split('mitosheet.sheet(')[1].split(')')[0];
 
-    // If there is a tutorial mode parameter passed, we ignore it
-    if (nameString.includes('tutorial_mode')) {
-        nameString = nameString.split('tutorial_mode')[0].trim();
-    }
-
-    // If there is a (old) analysis name parameter passed, we ignore it
-    if (nameString.includes('saved_analysis_name')) {
-        nameString = nameString.split('saved_analysis_name')[0].trim();
-    }
-
     // If there is a (new) analysis name parameter passed, we ignore it
     if (nameString.includes('analysis_to_replay')) {
         nameString = nameString.split('analysis_to_replay')[0].trim();
     }
 
     // If there is a view_df name parameter, we ignore it
+    // TODO: remove this on Jan 1, 2023 (since we no longer need it)
     if (nameString.includes('view_df')) {
         nameString = nameString.split('view_df')[0].trim();
     }
@@ -126,6 +118,7 @@ function isMitoAnalysisCell(cell: ICellModel | undefined): boolean {
     return currentCode.startsWith('# MITO CODE START') 
         || currentCode.startsWith('from mitosheet import *; register_analysis(')
         || currentCode.startsWith('from mitosheet import *; # Analysis:')
+        || currentCode.startsWith('from mitosheet import *; # Analysis Name:')
 }
 
 
@@ -198,7 +191,9 @@ export function isEmptyCell(cell: ICellModel | undefined): boolean {
  * the analysis name. 
  * 
  * If no mitosheet.sheet() call contains this analysis name, then we assume it hasen't been 
- * written yet, and take our best guess at which sheet this is
+ * written yet, and take our best guess at which sheet this is.
+ * 
+ * Returns undefined if it can find no good guess for a calling mitosheet cell.
  */
  export function getMostLikelyMitosheetCallingCell(tracker: INotebookTracker, analysisName: string | undefined): [ICellModel, number] | undefined {
     
@@ -236,7 +231,8 @@ export function isEmptyCell(cell: ICellModel | undefined): boolean {
     }
 
     // The last case is that the user did some sort of run all, in which case we cross our fingers
-    // that there is only one cell that does not have a mitosheet call, and go looking for it
+    // that there is only one cell that does not have a mitosheet call with an analysis_to_replay, 
+    // and go looking for it
     let index = activeCellIndex;
     while (index >= 0) {
         const cell = getCellAtIndex(cells, index)

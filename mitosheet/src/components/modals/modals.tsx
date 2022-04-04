@@ -45,7 +45,8 @@ interface ClearAnalysisInfo {
 }
 interface NonexistantReplayedAnalysisInfo {
     type: ModalEnum.NonexistantReplayAnalysis;
-    analysisName: string
+    oldAnalysisName: string;
+    newAnalysisName: string;
 }
 interface InvalidReplayedAnalysisInfo {
     type: ModalEnum.InvalidReplayedAnalysis;

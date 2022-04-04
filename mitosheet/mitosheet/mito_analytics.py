@@ -398,7 +398,6 @@ def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, 
         # NOTE: we keep this as underscored with wsc for backwards compatibility with
         # our logs!
         steps_manager_properties = {
-            # NOTE: Analysis name is the UUID that mito saves the analysis under
             'wsc_analysis_name': steps_manager.analysis_name,
             # NOTE: Change this when code fixing this logic is merged in
             'wsc_data_type_in_mito': str(steps_manager.data_type_in_mito),

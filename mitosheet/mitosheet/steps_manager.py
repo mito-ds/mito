@@ -5,27 +5,29 @@
 # Distributed under the terms of the GPL License.
 
 import json
+import random
+import string
 import uuid
 from copy import copy, deepcopy
-import pandas as pd
-from typing import Any, Dict, Collection, List, Set, Tuple, Union
-from mitosheet.errors import make_execution_error
-from mitosheet.mito_analytics import log
-from mitosheet.saved_analyses.save_utils import get_analysis_exists
+from typing import Any, Collection, Dict, List, Set, Tuple, Union
 
-from mitosheet.step_performers.import_steps.simple_import import (
-    SimpleImportStepPerformer,
-)
-from mitosheet.step_performers.import_steps.excel_import import ExcelImportStepPerformer
+import pandas as pd
+
+from mitosheet.data_in_mito import DataTypeInMito, get_data_type_in_mito
+from mitosheet.mito_analytics import log
+from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
+from mitosheet.saved_analyses.save_utils import get_analysis_exists
 from mitosheet.state import State
 from mitosheet.step import Step
 from mitosheet.step_performers import EVENT_TYPE_TO_STEP_PERFORMER
-from mitosheet.updates import UPDATES
-from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
-from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
-from mitosheet.utils import dfs_to_array_for_json, get_new_id, is_default_df_names
+from mitosheet.step_performers.import_steps.excel_import import \
+    ExcelImportStepPerformer
+from mitosheet.step_performers.import_steps.simple_import import \
+    SimpleImportStepPerformer
 from mitosheet.transpiler.transpile import transpile
-from mitosheet.data_in_mito import DataTypeInMito, get_data_type_in_mito
+from mitosheet.updates import UPDATES
+from mitosheet.utils import (dfs_to_array_for_json, get_new_id,
+                             is_default_df_names)
 
 
 def get_step_indexes_to_skip(step_list: List[Step]) -> Set[int]:
@@ -168,8 +170,8 @@ class StepsManager:
         All preprocessing can be found in mitosheet/preprocessing, and each of
         the transformations are applied before the data is considered imported.
         """
-        # We just randomly generate analysis names. TODO: do we want to make these look better?
-        self.analysis_name = "UUID-" + str(uuid.uuid4())
+        # We just randomly generate analysis names as a string of 10 letters
+        self.analysis_name = 'id-' + ''.join(random.choice(string.ascii_lowercase) for _ in range(10))
 
         # We also save some data about the analysis the user wants to replay, if there
         # is such an analysis

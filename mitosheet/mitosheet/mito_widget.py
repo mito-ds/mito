@@ -255,7 +255,6 @@ def sheet(
         view_df: bool=False, # We use this param to log if the mitosheet.sheet call is created from the df output button,
         # NOTE: if you add named variables to this function, make sure argument parsing on the front-end still
         # works by updating the getArgsFromCellContent function.
-
     ) -> MitoWidget:
     """
     Renders a Mito sheet. If no arguments are passed, renders an empty sheet. Otherwise, renders

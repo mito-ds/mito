@@ -15,7 +15,7 @@ Increments when:
 2. The page is refreshed
 
 Resets (because it's an entirely new backend) when:
-1. The kernel is restarted for any reason
+1. The kernel is restarted for any reason and then you make a new mitosheet.sheet() call
 """
 
 from typing import List

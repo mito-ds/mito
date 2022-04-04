@@ -96,7 +96,7 @@ def delete_saved_analysis(analysis_name):
 
     analysis = read_analysis(analysis_name)
 
-    # If the saved_analysis_name exists, delete it
+    # If the analysis name exists, delete it
     if analysis is not None:
         os.remove(os.path.join(SAVED_ANALYSIS_FOLDER, analysis_name + '.json'))
     else:

@@ -9,6 +9,7 @@ import { IJupyterWidgetRegistry } from '@jupyter-widgets/base';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { Application, IPlugin } from 'application';
 import { Widget } from 'widgets';
+import MitoAPI from './api';
 import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, getArgsFromMitosheetCallCell, getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getLastNonEmptyLine, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, isMitosheetCallCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell } from './jupyterlab/pluginUtils';
 import { getAnalysisNameFromOldGeneratedCode, getCodeString } from './utils/code';
 import { MODULE_NAME, MODULE_VERSION } from './version';
@@ -48,14 +49,19 @@ function activateWidgetExtension(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         execute: (args: any) => {
             const analysisName = args.analysisName as string;
+            const mitoAPI = args.mitoAPI as MitoAPI;
             const cellAndIndex = getMostLikelyMitosheetCallingCell(tracker, analysisName);
 
             if (cellAndIndex) {
                 const [cell, ] = cellAndIndex;
-                tryWriteAnalysisToReplayParameter(cell, analysisName);
-            } else {
-                // TODO: do we want to log this?
-            }
+                const written = tryWriteAnalysisToReplayParameter(cell, analysisName);
+                if (written) {
+                    return;
+                }
+            } 
+
+            // Log if we are unable to write this param for any reason
+            void mitoAPI.log('write_analysis_to_replay_to_mitosheet_call_failed');
         }
     })
 
@@ -63,9 +69,9 @@ function activateWidgetExtension(
         label: 'Given an oldAnalysisName and newAnalysisName, writes the newAnalysisName to the mitosheet.sheet() call that has the oldAnalysisName.',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         execute: (args: any) => {
-            console.log('overwrite-analysis-to-replay-to-mitosheet-call');
             const oldAnalysisName = args.oldAnalysisName as string;
             const newAnalysisName = args.newAnalysisName as string;
+            const mitoAPI = args.mitoAPI as MitoAPI;
 
             const mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(tracker, oldAnalysisName);
             if (mitosheetCallCellAndIndex === undefined) {
@@ -74,8 +80,10 @@ function activateWidgetExtension(
 
             const [mitosheetCallCell, ] = mitosheetCallCellAndIndex;
 
-            tryOverwriteAnalysisToReplayParameter(mitosheetCallCell, oldAnalysisName, newAnalysisName);
-            // TODO: do we want to log if it's not updated?
+            const overwritten = tryOverwriteAnalysisToReplayParameter(mitosheetCallCell, oldAnalysisName, newAnalysisName);
+            if (!overwritten) {
+                void mitoAPI.log('overwrite_analysis_to_replay_to_mitosheet_call_failed');
+            }
         }
     })
 
@@ -152,13 +160,15 @@ function activateWidgetExtension(
             const analysisName = args.analysisName as string;
             const codeLines = args.code as string[];
             const telemetryEnabled = args.telemetryEnabled as boolean;
+            const mitoAPI = args.mitoAPI as MitoAPI;
+
             const code = getCodeString(analysisName, codeLines, telemetryEnabled);
             
             // Find the cell that made the mitosheet.sheet call, and if it does not exist, give
             // up immediately
             const mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(tracker, analysisName);
             if (mitosheetCallCellAndIndex === undefined) {
-                // TODO: log this?
+                void mitoAPI.log('write_generated_code_cell_failed');
                 return;
             }
 
@@ -248,7 +258,7 @@ function activateWidgetExtension(
             NotebookActions.insertBelow(notebook);
             const newActiveCell = notebook.activeCell;
 
-            writeToCell(newActiveCell?.model, `import mitosheet\nmitosheet.sheet(${dataframeVariableName}, view_df=True)`);
+            writeToCell(newActiveCell?.model, `import mitosheet\nmitosheet.sheet(${dataframeVariableName})`);
 
             // Execute the new code cell
             void NotebookActions.run(notebook, context.sessionContext);

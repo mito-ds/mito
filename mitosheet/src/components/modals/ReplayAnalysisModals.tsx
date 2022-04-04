@@ -16,7 +16,8 @@ export const NonexistantReplayedAnalysisModal = (
     props: {
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
         mitoAPI: MitoAPI,
-        analysisName: string;
+        oldAnalysisName: string;
+        newAnalysisName: string;
     }): JSX.Element => {
 
     return (
@@ -28,7 +29,7 @@ export const NonexistantReplayedAnalysisModal = (
                 <Fragment>
                     
                     <div className='text-align-left text-body-1'>
-                        The analysis_to_replay {props.analysisName} does not exist on this computer. TODO: what should we say here? Should we overwrite the analysis ID in the calling cell? But thats confusing.              
+                        We're unable to replay {props.oldAnalysisName} because you don't have access to it. This is probably because the analysis was created on a different computer.
                     </div>
                 </Fragment>
             }
@@ -36,18 +37,6 @@ export const NonexistantReplayedAnalysisModal = (
                 <>
                     <TextButton
                         variant='light'
-                        width='small'
-                        onClick={() => {props.setUIState((prevUIState) => {
-                            return {
-                                ...prevUIState,
-                                currOpenModal: {type: ModalEnum.None}
-                            }
-                        })}}
-                    >
-                        Close
-                    </TextButton>
-                    <TextButton
-                        variant='dark'
                         width='medium'
                         href={DISCORD_INVITE_LINK}
                         target='_blank'
@@ -62,7 +51,27 @@ export const NonexistantReplayedAnalysisModal = (
                             return true;
                         }}
                     >
-                        Get Immediate Support
+                        Get Support
+                    </TextButton>
+                    <TextButton
+                        variant='dark'
+                        width='medium'
+                        onClick={() => {    
+                            window.commands?.execute('overwrite-analysis-to-replay-to-mitosheet-call', {
+                                oldAnalysisName: props.oldAnalysisName,
+                                newAnalysisName: props.newAnalysisName,
+                                mitoAPI: props.mitoAPI
+                            });
+                            
+                            props.setUIState((prevUIState) => {
+                                return {
+                                    ...prevUIState,
+                                    currOpenModal: {type: ModalEnum.None}
+                                }
+                            })}
+                        }
+                    >
+                        Start New Analysis
                     </TextButton>
                 </> 
             }
@@ -90,14 +99,14 @@ export const InvalidReplayedAnalysisModal = (
 
     return (
         <DefaultModal
-            header={"Analyis Could Not Be Replayed"}
+            header={"Analysis Could Not Be Replayed"}
             modalType={ModalEnum.Error}
             wide
             viewComponent={
                 <Fragment>
                     {props.error.to_fix &&
                         <div className='text-align-left text-body-1' onClick={() => setViewTraceback((viewTraceback) => !viewTraceback)}>
-                            There was an error in replaying your analysis. The generated code can be found below, but this anlaysis could not be replayed on the new dataset. {' '}
+                            There was an error replaying your analysis because of changes in the input data. You can see the previous analysis in the code cell below. {' '}
                             {props.error.traceback && 
                                 <span className='text-body-1-link'>
                                     Click to view full traceback.
@@ -121,11 +130,12 @@ export const InvalidReplayedAnalysisModal = (
                             /**
                              * We also need to actually change the analysis to replay in the code cell, 
                              * so that we know something happened to invalidate this analysis to replay,
-                             * and we can write new code?
+                             * and we can write new code
                              */
                             window.commands?.execute('overwrite-analysis-to-replay-to-mitosheet-call', {
                                 oldAnalysisName: props.oldAnalysisName,
                                 newAnalysisName: props.newAnalysisName,
+                                mitoAPI: props.mitoAPI
                             });
 
                             props.setUIState(prevUIState => {

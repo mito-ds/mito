@@ -175,7 +175,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
                                 ...prevUIState,
                                 currOpenModal: {
                                     type: ModalEnum.NonexistantReplayAnalysis,
-                                    analysisName: analysisToReplayName
+                                    oldAnalysisName: analysisToReplayName,
+                                    newAnalysisName: analysisData.analysisName
                                 }
                             }
                         })
@@ -241,6 +242,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                      */
                     window.commands?.execute('write-analysis-to-replay-to-mitosheet-call', {
                         analysisName: analysisData.analysisName,
+                        mitoAPI: props.mitoAPI
                     });
                 }
             });
@@ -268,6 +270,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 analysisName: analysisData.analysisName,
                 code: analysisData.code,
                 telemetryEnabled: userProfile.telemetryEnabled,
+                mitoAPI: props.mitoAPI
             });
         }
         // TODO: we should store some data with analysis data to not make
@@ -491,7 +494,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 <NonexistantReplayedAnalysisModal
                     setUIState={setUIState}
                     mitoAPI={props.mitoAPI}
-                    analysisName={uiState.currOpenModal.analysisName}
+                    newAnalysisName={uiState.currOpenModal.newAnalysisName}
+                    oldAnalysisName={uiState.currOpenModal.oldAnalysisName}
                 />
             )
             case ModalEnum.InvalidReplayedAnalysis: return (
