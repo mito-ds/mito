@@ -103,8 +103,9 @@ def delete_column_ids(
     column_ids: List[ColumnID],
 ) -> Tuple[State, float]:
 
+
     # First, we check that we can delete these columns, and error if we cannot
-    if not set(column_ids).issubset(set(state.dfs[sheet_index].keys())):
+    if not set(column_ids).issubset(set(state.column_ids.get_column_ids_map(sheet_index).keys())):
         raise make_invalid_column_delete_error(column_ids)
 
     column_evaluation_graph = create_column_evaluation_graph(state, sheet_index)
