@@ -97,3 +97,12 @@ def user_json_is_installer_default() -> bool:
             return len(user_json_object) <= len(USER_JSON_DEFAULT)
     except:
         return False
+
+def go_pro() -> None:
+    with open(USER_JSON_PATH, 'r') as f:
+        updated_user_json = json.loads(f.read())
+        updated_user_json['mitosheet_telemetry'] = False
+        updated_user_json['mitosheet_pro'] = True
+    
+    with open(USER_JSON_PATH, 'w') as f:
+        f.write(json.dumps(updated_user_json))
