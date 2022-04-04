@@ -184,12 +184,10 @@ export default class MitoAPI {
         if (response['event'] == 'response') {
             this.updateMitoState();
         } else if (response['event'] == 'edit_error') {
-            console.log("GOT ERROR", response)
             // If the backend sets the data field of the error, then we know
             // that this is an error that we want to only pass through, without 
             // displaying an error modal
             if (response['data'] === undefined) {
-                console.log("setting the error modal")
                 this.setErrorModal((response as unknown) as MitoError);
             }
         }

@@ -529,7 +529,8 @@ export type FormatTypeObj =
 /**
  * An object representing all the data about the analysis that is occuring currently.
  * 
- * @param analysisName - the name of the analysis used for writing to the cell. NOT THE SAVED ANALYSIS NAME.
+ * @param analysisName - the name of the analysis id that is for writing to the cell (after the analysis has been replayed)
+ * @param analysisToReplay - the analysis that was passed through the analysis_to_replay parameter to the mitosheet.sheet call
  * @param code - the transpiled code of this analysis
  * @param stepSummaryList - a list of step summaries for the steps in this analysis
  * @param currStepIdx - the index of the currently checked out step, in the stepSummaryList
@@ -545,7 +546,6 @@ export interface AnalysisData {
     analysisToReplay: {
         analysisName: string,
         existsOnDisk: boolean,
-        hasBeenRun: boolean
     } | null | undefined,
     code: string[],
     stepSummaryList: StepSummary[],

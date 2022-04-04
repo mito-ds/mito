@@ -7,6 +7,19 @@ import {
 } from '@jupyterlab/observables';
 
 
+export function getParentMitoContainer(): Element | null {
+    // First, get the mito container that this element is a part of
+    let currentElement = document.activeElement;
+    while (currentElement !== null) {
+        if (currentElement.classList.contains('mito-container')) {
+            break;
+        }
+        currentElement = currentElement.parentElement;
+    }
+
+    return currentElement;
+}
+
 
 export function getCellAtIndex(cells: IObservableUndoableList<ICellModel> | undefined, index: number): ICellModel | undefined {
     if (cells == undefined) {
@@ -29,77 +42,10 @@ export function getCellAtIndex(cells: IObservableUndoableList<ICellModel> | unde
     return undefined;
 }
 
-export function getParentMitoContainer(): Element | null {
-    // First, get the mito container that this element is a part of
-    let currentElement = document.activeElement;
-    while (currentElement !== null) {
-        if (currentElement.classList.contains('mito-container')) {
-            break;
-        }
-        currentElement = currentElement.parentElement;
-    }
-
-    return currentElement;
-}
-
-
 export function getCellText(cell: ICellModel| undefined): string {
     if (cell == undefined) return ''; 
     const value = cell.modelDB.get('value') as IObservableString;
     return value.text;
-}
-
-// Returns true iff a the given cell ends with a mitosheet.sheet call
-export function isMitosheetCallCell(cell: ICellModel | undefined): boolean {
-    const currentCode = getCellText(cell);
-
-    // Take all the non-empty lines from the cell
-    const lines = currentCode.split('\n').filter(line => {return line.length > 0});
-    if (lines.length == 0) {
-        return false;
-    }
-
-    const lastLine = lines[lines.length - 1];
-    /* 
-        We check if the last line contains a mitosheet.sheet call, which can happen in a few ways
-        
-        1. `import mitosheet` -> mitosheet.sheet()
-        2. `import mitosheet as {THING}` -> {THING}.sheet(
-        3. `from mitosheet import sheet` -> sheet(
-
-        We detect all three by checking if the line contains `sheet(`!
-    */
-
-    return lastLine.indexOf('sheet(') !== -1;
-}
-
-// Returns true iff a the given cell is a cell containing the generated code
-function isMitoAnalysisCell(cell: ICellModel | undefined): boolean {
-    const currentCode = getCellText(cell);
-    // Handle the old and new Mito boilerplate code
-    return currentCode.startsWith('# MITO CODE START') 
-        || currentCode.startsWith('from mitosheet import *; register_analysis(')
-        || currentCode.startsWith('from mitosheet import *; # Analysis:')
-}
-
-/* 
-    Returns True if the passed cell is empty.
-    Returns False if the passed cells is either not empty or undefined 
-*/
-export function isEmptyCell(cell: ICellModel | undefined): boolean {
-    if (cell === undefined) {
-        return false;
-    }
-    const currentCode = getCellText(cell);
-    return currentCode.trim() === '';
-}
-
-export function writeToCell(cell: ICellModel | undefined, code: string): void {
-    if (cell == undefined) {
-        return;
-    }
-    const value = cell.modelDB.get('value') as IObservableString;
-    value.text = code;
 }
 
 export function getLastNonEmptyLine(cell: ICellModel | undefined): string | undefined {
@@ -110,31 +56,6 @@ export function getLastNonEmptyLine(cell: ICellModel | undefined): string | unde
     const filteredActiveText = activeCellText.split(/\r?\n/).filter(line => line.trim().length > 0)
     return filteredActiveText.length > 0 ? filteredActiveText.pop() : undefined
 }
-
-/* 
-    Returns true if the cell contains a mitosheet.sheet(analysis_to_replay={analysisName})
-*/
-export function containsMitosheetCallWithSpecificAnalysisToReplay(cell: ICellModel | undefined, analysisName: string): boolean {
-    const currentCode = getCellText(cell);
-    return currentCode.includes('sheet(') && currentCode.includes(`analysis_to_replay="${analysisName}"`)
-}
-
-/* 
-    Returns true if the cell contains a mitosheet.sheet(analysis_to_replay={analysisName})
-*/
-export function containsMitosheetCallWithAnyAnalysisToReplay(cell: ICellModel | undefined): boolean {
-    const currentCode = getCellText(cell);
-    return isMitosheetCallCell(cell) && currentCode.includes(`analysis_to_replay=`)
-}
-
-/* 
-    Returns true if the cell contains the code generated for a specific analysis name
-*/
-export function containsGeneratedCodeOfAnalysis(cell: ICellModel | undefined, analysisName: string): boolean {
-    const currentCode = getCellText(cell);
-    return isMitoAnalysisCell(cell) && currentCode.includes(analysisName);
-}
-
 
 export const getArgsFromMitosheetCallCell = (mitosheetCallCell: ICellModel | undefined): string[] => {
     const content = getCellText(mitosheetCallCell);
@@ -172,11 +93,83 @@ export const getArgsFromMitosheetCallCell = (mitosheetCallCell: ICellModel | und
 }
 
 
+// Returns true iff a the given cell ends with a mitosheet.sheet call
+export function isMitosheetCallCell(cell: ICellModel | undefined): boolean {
+    const currentCode = getCellText(cell);
+
+    // Take all the non-empty lines from the cell
+    const lines = currentCode.split('\n').filter(line => {return line.length > 0});
+    if (lines.length == 0) {
+        return false;
+    }
+
+    const lastLine = lines[lines.length - 1];
+    /* 
+        We check if the last line contains a mitosheet.sheet call, which can happen in a few ways
+        
+        1. `import mitosheet` -> mitosheet.sheet()
+        2. `import mitosheet as {THING}` -> {THING}.sheet(
+        3. `from mitosheet import sheet` -> sheet(
+
+        We detect all three by checking if the line contains `sheet(`!
+    */
+
+    return lastLine.indexOf('sheet(') !== -1;
+}
+
+
+
+// Returns true iff a the given cell is a cell containing the generated code
+function isMitoAnalysisCell(cell: ICellModel | undefined): boolean {
+    const currentCode = getCellText(cell);
+    // Handle the old and new Mito boilerplate code
+    return currentCode.startsWith('# MITO CODE START') 
+        || currentCode.startsWith('from mitosheet import *; register_analysis(')
+        || currentCode.startsWith('from mitosheet import *; # Analysis:')
+}
+
+
+/* 
+    Returns true if the cell contains a mitosheet.sheet(analysis_to_replay={analysisName})
+*/
+export function containsMitosheetCallWithSpecificAnalysisToReplay(cell: ICellModel | undefined, analysisName: string): boolean {
+    const currentCode = getCellText(cell);
+    return currentCode.includes('sheet(') && currentCode.includes(`analysis_to_replay="${analysisName}"`)
+}
+
+/* 
+    Returns true if the cell contains a mitosheet.sheet(analysis_to_replay={analysisName})
+*/
+export function containsMitosheetCallWithAnyAnalysisToReplay(cell: ICellModel | undefined): boolean {
+    const currentCode = getCellText(cell);
+    return isMitosheetCallCell(cell) && currentCode.includes(`analysis_to_replay=`)
+}
+
+/* 
+    Returns true if the cell contains the code generated for a specific analysis name
+*/
+export function containsGeneratedCodeOfAnalysis(cell: ICellModel | undefined, analysisName: string): boolean {
+    const currentCode = getCellText(cell);
+    return isMitoAnalysisCell(cell) && currentCode.includes(analysisName);
+}
+
+/* 
+    Returns True if the passed cell is empty.
+    Returns False if the passed cells is either not empty or undefined 
+*/
+export function isEmptyCell(cell: ICellModel | undefined): boolean {
+    if (cell === undefined) {
+        return false;
+    }
+    const currentCode = getCellText(cell);
+    return currentCode.trim() === '';
+}
+
 /**
  * Returns the cell that has the mitosheet.sheet(analysis_to_replay={analysisName}) in it,
  * or undefined if no such cell exists
  */
-export function getCellCallingMitoshetWithAnalysis(tracker: INotebookTracker, analysisName: string): [ICellModel, number] | undefined  {
+ export function getCellCallingMitoshetWithAnalysis(tracker: INotebookTracker, analysisName: string): [ICellModel, number] | undefined  {
     const notebook = tracker.currentWidget?.content;
     const cells = notebook?.model?.cells;
 
@@ -198,6 +191,72 @@ export function getCellCallingMitoshetWithAnalysis(tracker: INotebookTracker, an
 
     return undefined;
 }
+
+
+/**
+ * A function that returns the [cell, index] pair of the mitosheet.sheet() call that contains
+ * the analysis name. 
+ * 
+ * If no mitosheet.sheet() call contains this analysis name, then we assume it hasen't been 
+ * written yet, and take our best guess at which sheet this is
+ */
+ export function getMostLikelyMitosheetCallingCell(tracker: INotebookTracker, analysisName: string | undefined): [ICellModel, number] | undefined {
+    
+    // First, we check if this analysis name is in a mitosheet call, in which case things are easy
+    if (analysisName) {
+        const mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(tracker, analysisName);
+        if (mitosheetCallCellAndIndex !== undefined) {
+            return mitosheetCallCellAndIndex;
+        }
+    }
+
+    const notebook = tracker.currentWidget?.content;
+    const cells = notebook?.model?.cells;
+
+    if (notebook == undefined || cells == undefined) {
+        return;
+    }
+
+    const activeCell = notebook.activeCell?.model;
+    const activeCellIndex = notebook.activeCellIndex;
+
+    const previousCell = getCellAtIndex(cells, activeCellIndex - 1)
+
+    // As the most common way for a user to run a cell for the first time is to run and advanced, this 
+    // means that the active cell will most likely be one below the mitosheet.sheet() call we want to 
+    // write to, so we check this first
+    if (previousCell && isMitosheetCallCell(previousCell) && !containsMitosheetCallWithAnyAnalysisToReplay(previousCell)) {
+        return [previousCell, activeCellIndex - 1];
+    } 
+
+    // The next case we check is if they did a run and not advance, which means that the currently
+    // selected cell is the mitosheet.sheet call
+    if (activeCell && isMitosheetCallCell(activeCell) && !containsMitosheetCallWithAnyAnalysisToReplay(activeCell)) {
+        return [activeCell, activeCellIndex];
+    }
+
+    // The last case is that the user did some sort of run all, in which case we cross our fingers
+    // that there is only one cell that does not have a mitosheet call, and go looking for it
+    let index = activeCellIndex;
+    while (index >= 0) {
+        const cell = getCellAtIndex(cells, index)
+        if (cell && isMitosheetCallCell(cell) && !containsMitosheetCallWithAnyAnalysisToReplay(cell)) {
+            return [cell, index];
+        }
+        index--;
+    }
+
+    return undefined;
+}
+
+export function writeToCell(cell: ICellModel | undefined, code: string): void {
+    if (cell == undefined) {
+        return;
+    }
+    const value = cell.modelDB.get('value') as IObservableString;
+    value.text = code;
+}
+
 
 /**
  * Given a cell, will check if it has a mitosheet.sheet() call with the old
@@ -246,60 +305,4 @@ export function tryWriteAnalysisToReplayParameter(cell: ICellModel | undefined, 
     } 
 
     return false;
-}
-
-/**
- * A function that returns the [cell, index] pair of the mitosheet.sheet() call that contains
- * the analysis name. 
- * 
- * If no mitosheet.sheet() call contains this analysis name, then we assume it hasen't been 
- * written yet, and take our best guess at which sheet this is
- */
-export function getMostLikelyMitosheetCallingCell(tracker: INotebookTracker, analysisName: string | undefined): [ICellModel, number] | undefined {
-    
-    // First, we check if this analysis name is in a mitosheet call, in which case things are easy
-    if (analysisName) {
-        const mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(tracker, analysisName);
-        if (mitosheetCallCellAndIndex !== undefined) {
-            return mitosheetCallCellAndIndex;
-        }
-    }
-
-    const notebook = tracker.currentWidget?.content;
-    const cells = notebook?.model?.cells;
-
-    if (notebook == undefined || cells == undefined) {
-        return;
-    }
-
-    const activeCell = notebook.activeCell?.model;
-    const activeCellIndex = notebook.activeCellIndex;
-
-    const previousCell = getCellAtIndex(cells, activeCellIndex - 1)
-
-    // As the most common way for a user to run a cell for the first time is to run and advanced, this 
-    // means that the active cell will most likely be one below the mitosheet.sheet() call we want to 
-    // write to, so we check this first
-    if (previousCell && isMitosheetCallCell(previousCell) && !containsMitosheetCallWithAnyAnalysisToReplay(previousCell)) {
-        return [previousCell, activeCellIndex - 1];
-    } 
-
-    // The next case we check is if they did a run and not advance, which means that the currently
-    // selected cell is the mitosheet.sheet call
-    if (activeCell && isMitosheetCallCell(activeCell) && !containsMitosheetCallWithAnyAnalysisToReplay(activeCell)) {
-        return [activeCell, activeCellIndex];
-    }
-
-    // The last case is that the user did some sort of run all, in which case we cross our fingers
-    // that there is only one cell that does not have a mitosheet call, and go looking for it
-    let index = activeCellIndex;
-    while (index >= 0) {
-        const cell = getCellAtIndex(cells, index)
-        if (cell && isMitosheetCallCell(cell) && !containsMitosheetCallWithAnyAnalysisToReplay(cell)) {
-            return [cell, index];
-        }
-        index--;
-    }
-
-    return undefined;
 }

@@ -7,7 +7,15 @@
 Increments the render_count, which is the number of times that a sheet
 has been rendered for this specific analysis.
 
-Note that this 
+Note that this count persists for the lifetime of the backend object, 
+meaning that we have the following conditions:
+
+Increments when:
+1. You make the first mitosheet.sheet call, causing a render.
+2. The page is refreshed
+
+Resets (because it's an entirely new backend) when:
+1. The kernel is restarted for any reason
 """
 
 from mitosheet.types import StepsManagerType

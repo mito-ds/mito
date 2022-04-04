@@ -28,7 +28,7 @@ export const NonexistantReplayedAnalysisModal = (
                 <Fragment>
                     
                     <div className='text-align-left text-body-1'>
-                        The analysis_to_replay {props.analysisName} does not exist on this computer. TODO: what should we say here? It doesn't work if we don't overwrite, but that's confusing?              
+                        The analysis_to_replay {props.analysisName} does not exist on this computer. TODO: what should we say here? Should we overwrite the analysis ID in the calling cell? But thats confusing.              
                     </div>
                 </Fragment>
             }

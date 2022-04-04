@@ -145,19 +145,17 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
 
     useEffect(() => {
-
         /**
          * The mitosheet is rendered first when the mitosheet.sheet() call is made,
          * but then it may be rerendered when the page the mitosheet is on is refreshed.
          * 
          * However, there are a few things we only want to do on this first render, and
-         * not when the page is refreshed.
-         * 
-         * We do those things here. 
+         * not when the page is refreshed. We do those things in this effect, and additionally
+         * track each time we rerender.
          */
         const updateMitosheetCallCellOnFirstRender = async () => {
             // The first thing we need to do is go and read the arguments to the mitosheet.sheet() call. If there
-            // is an analysis to replay, we use this to lookup the call, and if not
+            // is an analysis to replay, we use this to help lookup the call
             window.commands?.execute('get-args', {analysisToReplayName: analysisData.analysisToReplay?.analysisName}).then(async (args: string[]) => {
                 await props.mitoAPI.updateArgs(args);
 
@@ -170,6 +168,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     // First, if the analysis to replay does not exist at all, we just open an error modal
                     // and tell users that this does not exist on their computer
                     if (!analysisData.analysisToReplay.existsOnDisk) {
+                        void props.mitoAPI.log('replayed_nonexistant_analysis_failed')
+
                         setUIState(prevUIState => {
                             return {
                                 ...prevUIState,
@@ -183,7 +183,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     }
 
 
-                    // First, we replay an analysis if an analysis is meant to be replayed
+                    // Then, we replay the analysis to replay!
                     const error = await props.mitoAPI.updateReplayAnalysis(analysisToReplayName);
                     
                     if (error !== undefined) {
@@ -243,8 +243,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         analysisName: analysisData.analysisName,
                     });
                 }
-
-
             });
         }
 
@@ -252,11 +250,11 @@ export const Mito = (props: MitoProps): JSX.Element => {
             if (analysisData.renderCount === 0) {
                 await updateMitosheetCallCellOnFirstRender();
             }
-
+            // Anytime we render, update the render count
             await props.mitoAPI.updateRenderCount();
         }
 
-        handleRender();
+        void handleRender();
     }, [])
 
     useEffect(() => {
@@ -273,7 +271,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
             });
         }
         // TODO: we should store some data with analysis data to not make
-        // this run too often. 
+        // this run too often?
     }, [analysisData])
 
     // Load plotly, so we can generate graphs

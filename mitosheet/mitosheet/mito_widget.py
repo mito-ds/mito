@@ -150,9 +150,10 @@ class MitoWidget(DOMWidget):
             self.update_shared_state_variables()
         except:
             # We handle the case of replaying the analysis specially, because we don't
-            # want to display the error modal vs. return it in place
+            # want to display the error modal - we want to display something specific
+            # in this case. Note that we include the updating of shared state variables
+            # in the try catch, as this is sometimes where errors occur
             if event["type"] == REPLAY_ANALYSIS_UPDATE['event_type']:
-                print("HERE!")
                 raise make_execution_error(error_modal=False)
             raise
         # Also, write the analysis to a file!
@@ -204,7 +205,6 @@ class MitoWidget(DOMWidget):
 
             return True
         except MitoError as e:
-            print("HERE1", e.error_modal)
             print(get_recent_traceback())
             print(e)
             
@@ -234,7 +234,6 @@ class MitoWidget(DOMWidget):
             # Report it to the user, and then return
             self.send(response)
         except:
-            print("HERE")
             print(get_recent_traceback())
             # We log that processing failed, but have no edit error
             log_event_processed(event, self.steps_manager, failed=True, start_time=start_time)
