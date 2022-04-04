@@ -248,17 +248,13 @@ class FilterStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile(  # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        sheet_index: int,
-        column_id: ColumnID,
-        operator: str,
-        filters,
-        **params,
-    ) -> List[str]:
+    ) -> List[CodeChunk]:
         df_name = post_state.df_names[sheet_index]
         column_header = post_state.column_ids.get_column_header_by_id(
             sheet_index, column_id

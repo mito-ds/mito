@@ -59,15 +59,14 @@ class DataframeRenameStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        sheet_index: int,
-        old_dataframe_name: str,
-        new_dataframe_name: str
-    ) -> List[str]:
+    ) -> List[CodeChunk]:
+
         if old_dataframe_name == new_dataframe_name:
             return []
         return [f'{post_state.df_names[sheet_index]} = {old_dataframe_name}']

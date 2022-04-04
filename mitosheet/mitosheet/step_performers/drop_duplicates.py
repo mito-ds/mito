@@ -74,15 +74,13 @@ class DropDuplicatesStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        sheet_index: int,
-        column_ids: List[ColumnID],
-        keep: Union[str, bool],
-    ) -> List[str]:
+    ) -> List[CodeChunk]:
 
         column_headers = [
             prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)

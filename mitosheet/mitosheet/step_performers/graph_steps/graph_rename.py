@@ -59,15 +59,14 @@ class GraphRenameStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        graph_id: GraphID,
-        old_graph_tab_name: str,
-        new_graph_tab_name: str,
-    ) -> List[str]:
+    ) -> List[CodeChunk]:
+
         # Graph steps don't add any generated code to the analysis script. 
         return []
 

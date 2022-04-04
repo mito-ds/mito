@@ -74,17 +74,13 @@ class ExcelImportStepPerformer(StepPerformer):
 
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        file_name: str,
-        sheet_names: List[str],
-        has_headers: bool,
-        skiprows: int,
-        **params
-    ) -> List[str]:
+    ) -> List[CodeChunk]:
 
         read_excel_params = {
             'sheet_name': sheet_names,

@@ -64,15 +64,13 @@ class ConcatStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        join: str, # inner | outter
-        ignore_index: bool,
-        sheet_indexes: List[int]
-    ) -> List[str]:
+    ) -> List[CodeChunk]:
 
         df_names_to_concat = [post_state.df_names[sheet_index] for sheet_index in sheet_indexes]
         df_new_name = post_state.df_names[len(post_state.dfs) - 1]

@@ -8,6 +8,7 @@ from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
+from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.errors import (MitoError, make_circular_reference_error,
                               make_execution_error, make_no_column_error,
                               make_operator_type_error,
@@ -136,16 +137,13 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        sheet_index: int,
-        column_id: ColumnID,
-        old_formula: str,
-        new_formula: str
-    ) -> List[str]:
+    ) -> List[CodeChunk]:
         """
         Transpiles an set_column_formula step to python code!
         """
@@ -315,7 +313,7 @@ def transpile_dependant_columns(
         post_state: State, 
         sheet_index: int, 
         column_id: ColumnID
-    ) -> List[str]: 
+    ) -> CodeChunk:
     """
     Use this helper function when making a change to a column and you want to transpile
     the columns that are dependant on the column you changed. 

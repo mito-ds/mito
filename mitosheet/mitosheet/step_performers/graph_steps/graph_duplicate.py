@@ -57,14 +57,14 @@ class GraphDuplicateStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        old_graph_id: GraphID,
-        new_graph_id: GraphID,
-    ) -> List[str]:
+    ) -> List[CodeChunk]:
+
         # Graph steps don't add any generated code to the analysis script. 
         return []
 

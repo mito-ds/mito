@@ -148,20 +148,13 @@ class PivotStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        sheet_index: int,
-        pivot_rows_column_ids: List[ColumnID],
-        pivot_columns_column_ids: List[ColumnID],
-        values_column_ids_map: Dict[ColumnID, Collection[str]],
-        flatten_column_headers: bool,
-        destination_sheet_index: int=None,
-        use_deprecated_id_algorithm: bool=False,
-        **params
-    ) -> List[str]:
+    ) -> List[CodeChunk]:
         old_df_name = post_state.df_names[sheet_index]
         if destination_sheet_index is None:
             new_df_name = post_state.df_names[-1]

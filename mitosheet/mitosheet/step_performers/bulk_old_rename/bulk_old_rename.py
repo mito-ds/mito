@@ -92,13 +92,13 @@ class BulkOldRenameStepPerformer(StepPerformer):
         
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        **params
-    ) -> List[str]:
+    ) -> List[CodeChunk]:
         code = []
         for sheet_index, df_name in enumerate(post_state.df_names):
             renames = execution_data['column_header_renames_list'][sheet_index] if execution_data else {}

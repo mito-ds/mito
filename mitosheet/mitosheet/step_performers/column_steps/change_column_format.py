@@ -51,15 +51,13 @@ class ChangeColumnFormatStepPerformer(StepPerformer):
         return post_state, {'num_cols_formatted': len(column_ids)}
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        sheet_index: int,
-        column_ids: List[ColumnID],
-        format_type: Dict[str, Any]
-    ) -> List[str]:
+    ) -> List[CodeChunk]:
         # Formatting columns only effects the display in Mito, not the generated code.
         return []
     

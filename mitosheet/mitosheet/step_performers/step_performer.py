@@ -4,6 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from abc import ABC, abstractmethod
+from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
 from typing import Any, Dict, List, Optional, Set, Tuple
  
@@ -72,11 +73,16 @@ class StepPerformer(ABC, object):
         pass
 
     @classmethod
-    @abstractmethod
-    def transpile(cls, prev_state: State, post_state: State, **params: Any) -> List[str]:
+    def transpile(
+        cls,
+        prev_state: State,
+        post_state: State,
+        params: Dict[str, Any],
+        execution_data: Optional[Dict[str, Any]],
+    ) -> List[CodeChunk]:
         """
-        Returns a list of the Python code lines that corresponds to this 
-        step being executed.
+        Returns a list of the CodeChunks that correspond to this 
+        step being executed
         """
         pass
 

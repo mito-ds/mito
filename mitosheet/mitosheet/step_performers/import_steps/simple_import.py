@@ -91,14 +91,14 @@ class SimpleImportStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        file_names: List[str],
-        use_deprecated_id_algorithm: bool=False,
-    ) -> List[str]:
+    ) -> List[CodeChunk]:
+
         code = ['import pandas as pd']
 
         index = 0

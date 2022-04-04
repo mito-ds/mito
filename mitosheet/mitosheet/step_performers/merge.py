@@ -87,19 +87,13 @@ class MergeStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        how: str,
-        sheet_index_one: int,
-        merge_key_column_id_one: ColumnID,
-        selected_column_ids_one: List[ColumnID],
-        sheet_index_two: int,
-        merge_key_column_id_two: ColumnID,
-        selected_column_ids_two: List[ColumnID],
-    ) -> List[str]:
+    ) -> List[CodeChunk]:
 
         merge_key_one = prev_state.column_ids.get_column_header_by_id(sheet_index_one, merge_key_column_id_one)
         merge_key_two = prev_state.column_ids.get_column_header_by_id(sheet_index_two, merge_key_column_id_two)

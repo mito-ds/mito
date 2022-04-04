@@ -59,14 +59,13 @@ class DataframeDeleteStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        sheet_index: int,
-        old_dataframe_name: str
-    ) -> List[str]:
+    ) -> List[CodeChunk]:
         return [f'del {old_dataframe_name}']
 
     @classmethod

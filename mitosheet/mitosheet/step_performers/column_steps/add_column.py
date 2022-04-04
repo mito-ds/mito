@@ -76,15 +76,13 @@ class AddColumnStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        sheet_index: int,
-        column_header: str,
-        column_header_index: int
-    ) -> List[str]:
+    ) -> List[CodeChunk]:
         transpiled_column_header = column_header_to_transpiled_code(column_header)
         column_header_index = execution_data["column_header_index"] if execution_data is not None else column_header_index
         return [

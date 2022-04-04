@@ -189,17 +189,14 @@ class GraphStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile(  # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        graph_preprocessing: Dict[str, Any],
-        graph_creation: Dict[str, Any],
-        graph_styling: Dict[str, Any],
-        graph_rendering: Dict[str, Any],
-        **params,
-    ) -> List[str]:
+    ) -> List[CodeChunk]:
+
         # Graph steps don't add any generated code to the analysis script. 
         # Instead, the graph code is created during execution of the function and is
         # retuned to the frontend through the graph_data_dict object so that the user can copy 

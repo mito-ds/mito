@@ -78,16 +78,13 @@ class RenameColumnStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        sheet_index: int,
-        column_id: ColumnID,
-        new_column_header: str,
-        level=None
-    ) -> List[str]:
+    ) -> List[CodeChunk]:
         
         # Process the no-op if the header is empty
         if new_column_header == '':

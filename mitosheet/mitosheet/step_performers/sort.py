@@ -6,6 +6,8 @@
 from copy import deepcopy
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.sort import SortCodeChunk
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
@@ -78,23 +80,15 @@ class SortStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        sheet_index: int,
-        column_id: ColumnID,
-        sort_direction: str
-    ) -> List[str]:
-        df_name = post_state.df_names[sheet_index]
-        column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-        transpiled_column_header = column_header_to_transpiled_code(column_header)
-        
-        na_position_string = 'first' if sort_direction == ASCENDING else 'last'
-        
+    ) -> List[CodeChunk]:
         return [
-            f'{df_name} = {df_name}.sort_values(by={transpiled_column_header}, ascending={sort_direction == ASCENDING}, na_position=\'{na_position_string}\')', 
+            SortCodeChunk(prev_state, post_state, params, execution_data)
         ]
 
     @classmethod

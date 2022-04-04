@@ -58,14 +58,13 @@ class DeleteColumnStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        sheet_index: int,
-        column_ids: List[ColumnID]
-    ) -> List[str]:
+    ) -> List[CodeChunk]:
 
         df_name = post_state.df_names[sheet_index]
         column_headers_list_string = column_header_list_to_transpiled_code(
