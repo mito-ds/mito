@@ -40,16 +40,6 @@ export const NonexistantReplayedAnalysisModal = (
                         width='medium'
                         href={DISCORD_INVITE_LINK}
                         target='_blank'
-                        onClick={() => {
-                            props.setUIState((prevUIState) => {
-                                return {
-                                    ...prevUIState,
-                                    currOpenModal: {type: ModalEnum.None}
-                                }
-                            })
-                            // TODO: do we want to change the parameter here, so they don't get overwritten?
-                            return true;
-                        }}
                     >
                         Get Support
                     </TextButton>
