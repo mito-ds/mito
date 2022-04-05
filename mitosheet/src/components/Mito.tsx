@@ -37,7 +37,7 @@ import ClearAnalysisModal from './modals/ClearAnalysisModal';
 import DeleteGraphsModal from './modals/DeleteGraphsModal';
 import ErrorModal from './modals/ErrorModal';
 import { ModalEnum } from './modals/modals';
-import { InvalidReplayedAnalysisModal, NonexistantReplayedAnalysisModal } from './modals/ReplayAnalysisModals';
+import ErrorReplayedAnalysisModal from './modals/ReplayAnalysisModals';
 import SignUpModal from './modals/SignupModal';
 import UpgradeModal from './modals/UpgradeModal';
 import ConcatTaskpane from './taskpanes/Concat/ConcatTaskpane';
@@ -174,7 +174,10 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             return {
                                 ...prevUIState,
                                 currOpenModal: {
-                                    type: ModalEnum.NonexistantReplayAnalysis,
+                                    type: ModalEnum.ErrorReplayedAnalysis,
+                                    header: 'analysis_to_replay does not exist',
+                                    message: `We're unable to replay ${analysisToReplayName} because you don't have access to it. This is probably because the analysis was created on a different computer.`,
+                                    error: undefined,
                                     oldAnalysisName: analysisToReplayName,
                                     newAnalysisName: analysisData.analysisName
                                 }
@@ -196,7 +199,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             return {
                                 ...prevUIState,
                                 currOpenModal: {
-                                    type: ModalEnum.InvalidReplayedAnalysis,
+                                    type: ModalEnum.ErrorReplayedAnalysis,
+                                    header: 'Analysis Could Not Be Replayed',
+                                    message: 'There was an error replaying your analysis because of changes in the input data. You can see the previous analysis in the code cell below.',
                                     error: error,
                                     oldAnalysisName: analysisToReplayName,
                                     newAnalysisName: analysisData.analysisName
@@ -489,18 +494,12 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     mitoAPI={props.mitoAPI}
                 />
             )
-            case ModalEnum.NonexistantReplayAnalysis: return (
-                <NonexistantReplayedAnalysisModal
+            case ModalEnum.ErrorReplayedAnalysis: return (
+                <ErrorReplayedAnalysisModal
                     setUIState={setUIState}
                     mitoAPI={props.mitoAPI}
-                    newAnalysisName={uiState.currOpenModal.newAnalysisName}
-                    oldAnalysisName={uiState.currOpenModal.oldAnalysisName}
-                />
-            )
-            case ModalEnum.InvalidReplayedAnalysis: return (
-                <InvalidReplayedAnalysisModal
-                    setUIState={setUIState}
-                    mitoAPI={props.mitoAPI}
+                    header={uiState.currOpenModal.header}
+                    message={uiState.currOpenModal.message}
                     error={uiState.currOpenModal.error}
                     newAnalysisName={uiState.currOpenModal.newAnalysisName}
                     oldAnalysisName={uiState.currOpenModal.oldAnalysisName}

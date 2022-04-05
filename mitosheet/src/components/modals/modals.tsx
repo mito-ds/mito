@@ -12,8 +12,7 @@ export enum ModalEnum {
     Upgrade = 'Upgrade',
     Feedback = 'Feedback',
     DeleteGraphs = 'DeleteGraphs',
-    NonexistantReplayAnalysis = 'NonexistantReplayAnalysis',
-    InvalidReplayedAnalysis = 'InvalidReplayedAnalysis'
+    ErrorReplayedAnalysis = 'ErrorReplayAnalysis',
 }
 
 /* 
@@ -43,14 +42,11 @@ interface UpgradeModalInfo {
 interface ClearAnalysisInfo {
     type: ModalEnum.ClearAnalysis;
 }
-interface NonexistantReplayedAnalysisInfo {
-    type: ModalEnum.NonexistantReplayAnalysis;
-    oldAnalysisName: string;
-    newAnalysisName: string;
-}
-interface InvalidReplayedAnalysisInfo {
-    type: ModalEnum.InvalidReplayedAnalysis;
-    error: MitoError;
+interface ErrorReplayedAnalysisInfo {
+    type: ModalEnum.ErrorReplayedAnalysis;
+    header: string,
+    message: string,
+    error: MitoError | undefined;
     oldAnalysisName: string;
     newAnalysisName: string;
 }
@@ -71,5 +67,4 @@ export type ModalInfo =
     | UpgradeModalInfo
     | ClearAnalysisInfo
     | DeleteGraphsModalInfo
-    | NonexistantReplayedAnalysisInfo
-    | InvalidReplayedAnalysisInfo
+    | ErrorReplayedAnalysisInfo
