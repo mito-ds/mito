@@ -176,7 +176,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                                 currOpenModal: {
                                     type: ModalEnum.ErrorReplayedAnalysis,
                                     header: 'analysis_to_replay does not exist',
-                                    message: `We\'re unable to replay ${analysisToReplayName} because you don't have access to it. This is probably because the analysis was created on a different computer.`,
+                                    message: `We're unable to replay ${analysisToReplayName} because you don't have access to it. This is probably because the analysis was created on a different computer.`,
                                     error: undefined,
                                     oldAnalysisName: analysisToReplayName,
                                     newAnalysisName: analysisData.analysisName
