@@ -12,7 +12,13 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 
 class BulkOldRenameCodeChunk(CodeChunk):
 
-    def transpile(self) -> List[str]:
+    def get_display_name(self) -> str:
+        return 'Bulk rename'
+    
+    def get_description_comment(self) -> str:
+        return f'Renamed headers for compatibility with previous Mito versions'
+
+    def get_code(self) -> List[str]:
         column_header_renames_list = self.get_execution_data('column_header_renames_list')
 
         code = []

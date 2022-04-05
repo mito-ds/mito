@@ -37,10 +37,6 @@ class SimpleImportStepPerformer(StepPerformer):
         return 'simple_import'
 
     @classmethod
-    def step_display_name(cls) -> str:
-        return 'Imported CSV Files'
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 
@@ -103,16 +99,6 @@ class SimpleImportStepPerformer(StepPerformer):
         return [
             SimpleImportCodeChunk(prev_state, post_state, params, execution_data)
         ]
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        file_names: List[str],
-        use_deprecated_id_algorithm: bool=False,
-        df_names=None,
-        **params
-    ) -> str:
-        return f'Imported {", ".join(file_names)}'
     
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

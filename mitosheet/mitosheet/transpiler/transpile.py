@@ -8,7 +8,8 @@ Exports the transpile function, which takes the backend widget
 container and generates transpiled Python code.
 """
 
-from typing import Any, Dict
+from typing import Any, Dict, List
+from mitosheet.code_chunks.code_chunk import CodeChunk
 
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
 from mitosheet.types import StepsManagerType
@@ -40,41 +41,30 @@ def transpile(steps_manager: StepsManagerType, add_comments: bool=True) -> Dict[
     step_indexes_to_skip = get_step_indexes_to_skip(steps_manager.steps)
 
     # We only transpile up to the currently checked out step
+    all_code_chunks: List[CodeChunk] = []
     for step_index, step in enumerate(steps_manager.steps[:steps_manager.curr_step_idx + 1]):
         # Skip the initalize step, or any step we should skip
         if step.step_type == 'initialize' or step_index in step_indexes_to_skip:
             continue
 
-        # The total code for this step
-        step_code = []
-
-        # NOTE: we add a comment if add_comment is True
-        if add_comments:
-            step_code.append(
-                '# ' + step.step_performer.describe(
-                    **step.params,
-                    df_names=step.df_names
-                )
+        all_code_chunks.extend(
+            step.step_performer.transpile(
+                step.prev_state,
+                step.post_state,
+                step.params,
+                step.execution_data,
             )
-        
-        code_chunks = step.step_performer.transpile( # type: ignore
-            step.prev_state, # type: ignore
-            step.post_state, # type: ignore
-            step.params,
-            step.execution_data,
         )
+    
+    for code_chunk in all_code_chunks:
+        comment = '# ' + code_chunk.get_description_comment()
+        chunk_code = code_chunk.get_code()
 
-        transpiled_code = [line for code_chunk in code_chunks for line in code_chunk.transpile()]
-        
-        
         # Make sure to not generate comments or code for steps with no code 
-        if len(transpiled_code) > 0:
-
-            step_code.extend(
-                transpiled_code
-            )
-            
-            code.extend(step_code)
+        if len(chunk_code) > 0:
+            if add_comments:
+                chunk_code.insert(0, comment)
+            code.extend(chunk_code)
 
     # If we have a historical step checked out, then we add a comment letting
     # the user know this is the case

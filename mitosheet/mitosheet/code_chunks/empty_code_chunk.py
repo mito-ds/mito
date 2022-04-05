@@ -10,5 +10,11 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 
 class EmptyCodeChunk(CodeChunk):
 
-    def transpile(self) -> List[str]:
+    def get_display_name(self) -> str:
+        return 'No operation'
+    
+    def get_description_comment(self) -> str:
+        return 'Did nothing'
+
+    def get_code(self) -> List[str]:
         return []

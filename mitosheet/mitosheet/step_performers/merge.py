@@ -35,10 +35,6 @@ class MergeStepPerformer(StepPerformer):
     @classmethod
     def step_type(cls) -> str:
         return 'merge'
-    
-    @classmethod
-    def step_display_name(cls) -> str:
-        return 'Merged Dataframes'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -99,25 +95,6 @@ class MergeStepPerformer(StepPerformer):
         return [
             MergeCodeChunk(prev_state, post_state, params, execution_data)
         ]
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        how: str,
-        sheet_index_one: int,
-        merge_key_column_id_one: ColumnID,
-        selected_column_ids_one: List[ColumnID],
-        sheet_index_two: int,
-        merge_key_column_id_two: ColumnID,
-        selected_column_ids_two: List[ColumnID],
-        df_names=None,
-        **params
-    ) -> str:
-        if df_names is not None:
-            df_one_name = df_names[sheet_index_one]
-            df_two_name = df_names[sheet_index_two]
-            return f'Merged {df_one_name} and {df_two_name}'
-        return f'Merged dataframes {sheet_index_one} and {sheet_index_two}'
     
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

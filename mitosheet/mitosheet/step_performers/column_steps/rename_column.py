@@ -37,10 +37,6 @@ class RenameColumnStepPerformer(StepPerformer):
         return 'rename_column' 
 
     @classmethod
-    def step_display_name(cls) -> str:
-        return 'Renamed a Column'
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 
@@ -90,21 +86,6 @@ class RenameColumnStepPerformer(StepPerformer):
         return [
             RenameColumnCodeChunk(prev_state, post_state, params, execution_data)
         ]
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        sheet_index: int,
-        column_id: ColumnID,
-        new_column_header: str,
-        level=None,
-        df_names=None,
-        **params
-    ) -> str:
-        if df_names is not None:
-            df_name = df_names[sheet_index]
-            return f'Renamed {column_id} to {new_column_header} in {df_name}'
-        return f'Renamed {column_id} to {new_column_header}'
     
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

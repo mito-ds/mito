@@ -50,10 +50,6 @@ class PivotStepPerformer(StepPerformer):
         return 'pivot'
 
     @classmethod
-    def step_display_name(cls) -> str:
-        return 'Pivoted a Dataframe'
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         """
         Saturates the pivot table with just a `created_non_empty_dataframe` key, which
@@ -153,24 +149,6 @@ class PivotStepPerformer(StepPerformer):
         return [
             PivotCodeChunk(prev_state, post_state, params, execution_data)
         ]
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        sheet_index,
-        pivot_rows_column_ids,
-        pivot_columns_column_ids,
-        values_column_ids_map,
-        destination_sheet_index=None,
-        use_deprecated_id_algorithm: bool=False,
-        df_names=None,
-        **params
-    ) -> str:
-        if df_names is not None:
-            new_df_name = f'df{len(df_names)}'
-            old_df_name = df_names[sheet_index]
-            return f'Pivoted {old_df_name} into {new_df_name}'
-        return f'Pivoted dataframe {sheet_index}'
 
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

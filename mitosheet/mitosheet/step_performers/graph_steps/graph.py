@@ -71,10 +71,6 @@ class GraphStepPerformer(StepPerformer):
         return "graph"
 
     @classmethod
-    def step_display_name(cls) -> str:
-        return "Created a graph"
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 
@@ -202,24 +198,6 @@ class GraphStepPerformer(StepPerformer):
         return [
             EmptyCodeChunk(prev_state, post_state, params, execution_data)
         ]
-
-
-    @classmethod
-    def describe(  # type: ignore
-        cls,
-        graph_preprocessing: Any,
-        graph_creation: Any,
-        graph_styling: Any,
-        graph_rendering: Any,
-        df_names=None,
-        **params,
-    ) -> str:
-        sheet_index = graph_creation["sheet_index"]
-        graph_type = graph_creation["graph_type"]
-        if df_names is not None:
-            df_name = df_names[sheet_index]
-            return f"Graphed {df_name} as {GRAPH_TITLE_LABELS[graph_type]}"
-        return f"Created {GRAPH_TITLE_LABELS[graph_type]}"
 
     @classmethod
     def get_modified_dataframe_indexes(cls, graph_creation, **params) -> Set[int]:  # type: ignore

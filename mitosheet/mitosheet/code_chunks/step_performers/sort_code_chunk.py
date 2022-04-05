@@ -11,7 +11,16 @@ from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_cod
 
 class SortCodeChunk(CodeChunk):
 
-    def transpile(self) -> List[str]:
+    def get_display_name(self) -> str:
+        return 'Sorted a column'
+    
+    def get_description_comment(self) -> str:
+        sheet_index = self.get_param('sheet_index')
+        column_id = self.get_param('column_id')
+        column_header = self.post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
+        return f'Sorted {column_header}'
+
+    def get_code(self) -> List[str]:
         from mitosheet.step_performers.sort import ASCENDING
 
         sheet_index = self.get_param('sheet_index')

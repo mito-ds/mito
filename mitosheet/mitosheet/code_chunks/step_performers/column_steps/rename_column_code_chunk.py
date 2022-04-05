@@ -13,7 +13,17 @@ from mitosheet.transpiler.transpile_utils import \
 
 class RenameColumnCodeChunk(CodeChunk):
 
-    def transpile(self) -> List[str]:
+    def get_display_name(self) -> str:
+        return 'Renamed column'
+    
+    def get_description_comment(self) -> str:
+        sheet_index = self.get_param('sheet_index')
+        column_id = self.get_param('column_id')
+        old_column_header = self.prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
+        new_column_header = self.post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
+        return f'Renamed {old_column_header} to {new_column_header}'
+
+    def get_code(self) -> List[str]:
 
         sheet_index = self.get_param('sheet_index')
         column_id = self.get_param('column_id')

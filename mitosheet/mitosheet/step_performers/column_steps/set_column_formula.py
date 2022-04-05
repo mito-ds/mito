@@ -38,10 +38,6 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         return 'set_column_formula'
 
     @classmethod
-    def step_display_name(cls) -> str:
-        return 'Set Column Formula'
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         sheet_index = params['sheet_index']
         column_id = params['column_id']
@@ -151,21 +147,6 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         return [
             RefreshDependantColumnsCodeChunk(prev_state, post_state, params, execution_data)
         ]
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        sheet_index: int,
-        column_id: ColumnID,
-        old_formula: str,
-        new_formula: str,
-        df_names=None,
-        **params
-    ) -> str:
-        if df_names is not None:
-            df_name = df_names[sheet_index]
-            return f'Set {column_id} in {df_name} to {new_formula}'
-        return f'Set {column_id} to {new_formula}'
 
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

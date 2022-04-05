@@ -13,7 +13,16 @@ from mitosheet.transpiler.transpile_utils import \
 
 class DeleteColumnCodeChunk(CodeChunk):
 
-    def transpile(self) -> List[str]:
+    def get_display_name(self) -> str:
+        return 'Deleted columns'
+    
+    def get_description_comment(self) -> str:
+        sheet_index = self.get_param('sheet_index')
+        column_ids = self.get_param('column_ids')
+        column_headers = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index, column_ids)
+        return f'Deleted columns {", ".join(column_headers)}'
+
+    def get_code(self) -> List[str]:
         sheet_index = self.get_param('sheet_index')
         column_ids = self.get_param('column_ids')
 

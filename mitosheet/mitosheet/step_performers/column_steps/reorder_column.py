@@ -43,10 +43,6 @@ class ReorderColumnStepPerformer(StepPerformer):
         return 'reorder_column'
 
     @classmethod
-    def step_display_name(cls) -> str:
-        return 'Reordered Columns'
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 
@@ -93,20 +89,6 @@ class ReorderColumnStepPerformer(StepPerformer):
         return [
             ReorderColumnCodeChunk(prev_state, post_state, params, execution_data)
         ]
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        sheet_index: int,
-        column_id: ColumnID,
-        new_column_index: int,
-        df_names=None,
-        **params
-    ) -> str:
-        if df_names is not None:
-            df_name = df_names[sheet_index]
-            return f'Reordered {column_id} in {df_name}'
-        return f'Reordered {column_id}'
     
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

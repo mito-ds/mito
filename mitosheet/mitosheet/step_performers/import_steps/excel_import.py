@@ -30,10 +30,6 @@ class ExcelImportStepPerformer(StepPerformer):
         return 'excel_import'
 
     @classmethod
-    def step_display_name(cls) -> str:
-        return 'Imported Excel File'
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 
@@ -85,18 +81,6 @@ class ExcelImportStepPerformer(StepPerformer):
         return [
             ExcelImportCodeChunk(prev_state, post_state, params, execution_data)
         ]
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        file_name: str,
-        sheet_names: List[str],
-        has_headers: bool,
-        use_deprecated_id_algorithm: bool=False,
-        df_names=None,
-        **params
-    ) -> str:
-        return f'Imported {file_name}'
 
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

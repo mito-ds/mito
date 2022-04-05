@@ -31,10 +31,6 @@ class DeleteColumnStepPerformer(StepPerformer):
         return 'delete_column'
 
     @classmethod
-    def step_display_name(cls) -> str:
-        return 'Deleted Column(s)'
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 
@@ -70,20 +66,6 @@ class DeleteColumnStepPerformer(StepPerformer):
         return [
             DeleteColumnCodeChunk(prev_state, post_state, params, execution_data)
         ]
-    
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        sheet_index: int,
-        column_ids: List[ColumnID],
-        df_names=None,
-        **params
-    ) -> str:
-        formated_column_ids = (', '.join(column_ids))
-        if df_names is not None:
-            df_name = df_names[sheet_index]
-            return f'Deleted column{"s" if len(column_ids) > 1 else ""} {formated_column_ids} from {df_name}'
-        return f'Deleted column{"s" if len(column_ids) > 1 else ""} {formated_column_ids}'
 
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

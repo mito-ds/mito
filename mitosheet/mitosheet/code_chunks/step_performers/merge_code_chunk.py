@@ -18,7 +18,18 @@ UNIQUE_IN_RIGHT = 'unique in right'
 
 class MergeCodeChunk(CodeChunk):
 
-    def transpile(self) -> List[str]:
+    def get_display_name(self) -> str:
+        return 'Merged'
+    
+    def get_description_comment(self) -> str:
+        sheet_index_one = self.get_param('sheet_index_one')
+        sheet_index_two = self.get_param('sheet_index_two')
+        df_one_name = self.post_state.df_names[sheet_index_one]
+        df_two_name = self.post_state.df_names[sheet_index_two]
+        df_new_name = self.post_state.df_names[len(self.post_state.dfs) - 1]
+        return f'Merged {df_one_name} and {df_two_name} into {df_new_name}'
+
+    def get_code(self) -> List[str]:
         how = self.get_param('how') 
         sheet_index_one = self.get_param('sheet_index_one') 
         merge_key_column_id_one = self.get_param('merge_key_column_id_one') 

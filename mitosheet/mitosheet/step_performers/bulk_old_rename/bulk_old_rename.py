@@ -36,10 +36,6 @@ class BulkOldRenameStepPerformer(StepPerformer):
     @classmethod
     def step_type(cls) -> str:
         return 'bulk_old_rename'
-
-    @classmethod
-    def step_display_name(cls) -> str:
-        return 'Renamed Columns'
     
     @classmethod
     def step_event_type(cls) -> str:
@@ -104,14 +100,6 @@ class BulkOldRenameStepPerformer(StepPerformer):
         return [
             BulkOldRenameCodeChunk(prev_state, post_state, params, execution_data)
         ]
-        
-    @classmethod
-    def describe(
-        cls,
-        df_names: List[str]=None,
-        **params: Any
-    ) -> str:
-        return f'Renamed headers for compatibility with previous Mito versions'
 
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

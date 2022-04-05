@@ -28,10 +28,6 @@ class DataframeDuplicateStepPerformer(StepPerformer):
         return 'dataframe_duplicate'
 
     @classmethod
-    def step_display_name(cls) -> str:
-        return 'Duplicated a Dataframe'
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 
@@ -68,20 +64,6 @@ class DataframeDuplicateStepPerformer(StepPerformer):
         return [
             DataframeDuplicateCodeChunk(prev_state, post_state, params, execution_data)
         ]
-
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        sheet_index: int,
-        df_names=None,
-        **params
-    ) -> str:
-        if df_names is not None:
-            old_df_name = df_names[sheet_index]
-            new_df_name = df_names[len(df_names) - 1]
-            return f'Duplicated {old_df_name} to {new_df_name}'
-        return f'Duplicated a df'
     
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

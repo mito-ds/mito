@@ -12,7 +12,16 @@ from mitosheet.transpiler.transpile_utils import \
 
 class ReorderColumnCodeChunk(CodeChunk):
 
-    def transpile(self) -> List[str]:
+    def get_display_name(self) -> str:
+        return 'Reordered column'
+    
+    def get_description_comment(self) -> str:
+        sheet_index = self.get_param('sheet_index')
+        column_id = self.get_param('column_id')
+        column_header = self.post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
+        return f'Reordered column {column_header}'
+
+    def get_code(self) -> List[str]:
         from mitosheet.step_performers.column_steps.reorder_column import get_valid_index
         sheet_index = self.get_param('sheet_index')
         column_id = self.get_param('column_id')

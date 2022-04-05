@@ -11,7 +11,15 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 
 class ConcatCodeChunk(CodeChunk):
 
-    def transpile(self) -> List[str]:
+    def get_display_name(self) -> str:
+        return 'Concatenated'
+    
+    def get_description_comment(self) -> str:
+        sheet_indexes = self.get_param('sheet_indexes')
+        df_name = self.post_state.df_names[len(self.post_state.df_names) - 1]
+        return f'Concatenated {len(sheet_indexes)} into dataframes into {df_name}'
+
+    def get_code(self) -> List[str]:
         join = self.get_param('join')
         ignore_index = self.get_param('ignore_index')
         sheet_indexes = self.get_param('sheet_indexes')

@@ -31,15 +31,6 @@ class StepPerformer(ABC, object):
         the step and bump the version.
         """
         pass
-
-    @classmethod
-    @abstractmethod
-    def step_display_name(cls) -> str:
-        """
-        The name of the step that is displayed to the user
-        in the frontend.
-        """
-        pass
     
     @classmethod
     def step_event_type(cls) -> str:
@@ -83,15 +74,6 @@ class StepPerformer(ABC, object):
         """
         Returns a list of the CodeChunks that correspond to this 
         step being executed
-        """
-        pass
-
-    @classmethod
-    @abstractmethod
-    def describe(cls, **params: Any) -> str:
-        """
-        Describes the step in a single sentence, usually for comments or for presentation
-        to the user in the frontend.
         """
         pass
 

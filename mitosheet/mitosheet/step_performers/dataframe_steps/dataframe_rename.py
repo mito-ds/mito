@@ -28,10 +28,6 @@ class DataframeRenameStepPerformer(StepPerformer):
         return 'dataframe_rename'
 
     @classmethod
-    def step_display_name(cls) -> str:
-        return 'Renamed a Dataframe'
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         sheet_index = params['sheet_index']
         old_dataframe_name = prev_state.df_names[sheet_index]
@@ -71,17 +67,6 @@ class DataframeRenameStepPerformer(StepPerformer):
         return [
             DataframeRenameCodeChunk(prev_state, post_state, params, execution_data)
         ]
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        sheet_index: int,
-        old_dataframe_name: str,
-        new_dataframe_name: str,
-        df_names=None,
-        **params
-    ) -> str:
-        return f'Renamed {old_dataframe_name} to {new_dataframe_name}'
 
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

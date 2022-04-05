@@ -28,10 +28,6 @@ class GraphDuplicateStepPerformer(StepPerformer):
         return 'graph_duplicate'
 
     @classmethod
-    def step_display_name(cls) -> str:
-        return 'Duplicated a Graph'
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 
@@ -71,16 +67,6 @@ class GraphDuplicateStepPerformer(StepPerformer):
         return [
             EmptyCodeChunk(prev_state, post_state, params, execution_data)
         ]
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        old_graph_id: GraphID,
-        new_graph_id: GraphID,
-        df_names=None,
-        **params
-    ) -> str:
-        return f'Duplicated a Graph'
     
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

@@ -14,7 +14,16 @@ from mitosheet.parser import parse_formula
 
 class RefreshDependantColumnsCodeChunk(CodeChunk):
 
-    def transpile(self) -> List[str]:
+    def get_display_name(self) -> str:
+        return 'Updated column formula'
+    
+    def get_description_comment(self) -> str:
+        sheet_index = self.get_param('sheet_index')
+        column_id = self.get_param('column_id')
+        column_header = self.post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
+        return f'Set formula of {column_header}'
+
+    def get_code(self) -> List[str]:
         """
         Use this helper function when making a change to a column and you want to transpile
         the columns that are dependant on the column you changed. 

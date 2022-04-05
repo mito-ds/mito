@@ -26,10 +26,6 @@ class DataframeDeleteStepPerformer(StepPerformer):
         return 'dataframe_delete'
 
     @classmethod
-    def step_display_name(cls) -> str:
-        return 'Deleted a Dataframe'
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         sheet_index = params['sheet_index']
         old_dataframe_name = prev_state.df_names[sheet_index]
@@ -71,16 +67,6 @@ class DataframeDeleteStepPerformer(StepPerformer):
         return [
             DataframeDeleteCodeChunk(prev_state, post_state, params, execution_data)
         ]
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        sheet_index: int,
-        old_dataframe_name: str,
-        df_names=None,
-        **params
-    ) -> str:
-        return f'Deleted dataframe {old_dataframe_name}'
     
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

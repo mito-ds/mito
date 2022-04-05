@@ -27,10 +27,6 @@ class DropDuplicatesStepPerformer(StepPerformer):
     @classmethod
     def step_type(cls) -> str:
         return 'drop_duplicates'
-    
-    @classmethod
-    def step_display_name(cls) -> str:
-        return 'Dropped Duplicates'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -82,20 +78,6 @@ class DropDuplicatesStepPerformer(StepPerformer):
         return [
             DropDuplicatesCodeChunk(prev_state, post_state, params, execution_data)
         ]
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        sheet_index: int,
-        column_ids: List[ColumnID],
-        keep: str,
-        df_names=None,
-        **params
-    ) -> str:
-        if df_names is not None:
-            df_name = df_names[sheet_index]
-            return f'Drop duplicates in {df_name}'
-        return f'Drop duplicates'
 
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

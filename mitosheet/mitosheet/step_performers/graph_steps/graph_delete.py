@@ -27,10 +27,6 @@ class GraphDeleteStepPerformer(StepPerformer):
         return 'graph_delete'
 
     @classmethod
-    def step_display_name(cls) -> str:
-        return 'Deleted a Graph'
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         graph_id = params['graph_id']
         old_graph_tab_name = prev_state.graph_data_dict[graph_id]
@@ -69,16 +65,6 @@ class GraphDeleteStepPerformer(StepPerformer):
         return [
             EmptyCodeChunk(prev_state, post_state, params, execution_data)
         ]
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        graph_id: GraphID,
-        old_graph_tab_name: str,
-        df_names=None,
-        **params
-    ) -> str:
-        return f'Deleted {old_graph_tab_name}'
     
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

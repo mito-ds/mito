@@ -11,7 +11,15 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 
 class ExcelImportCodeChunk(CodeChunk):
 
-    def transpile(self) -> List[str]:
+    def get_display_name(self) -> str:
+        return 'Imported'
+    
+    def get_description_comment(self) -> str:
+        file_name = self.get_param('file_name')
+        sheet_names = self.get_param('sheet_names')
+        return f'Imported {",".join(sheet_names)} from {file_name}'
+
+    def get_code(self) -> List[str]:
         file_name = self.get_param('file_name')
         sheet_names = self.get_param('sheet_names')
         has_headers = self.get_param('has_headers')

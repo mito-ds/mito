@@ -44,10 +44,6 @@ class SetCellValueStepPerformer(StepPerformer):
         return 'set_cell_value'
 
     @classmethod
-    def step_display_name(cls) -> str:
-        return 'Set Cell Value'
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         # Mito doesn't allow empty cells, so if the new value is empty, change it to None.
         if params['new_value'] == '':
@@ -132,25 +128,6 @@ class SetCellValueStepPerformer(StepPerformer):
             )
         ]
 
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        sheet_index: int,
-        column_id: ColumnID,
-        row_index: int,
-        old_value: str,
-        new_value: Union[str, None],
-        df_names=None,
-        **params
-    ) -> str:
-        # Note: Since we don't have access to the dataframes, we can't run the new_value
-        # through cast_value_to_type which might change the actual value. Therefore, the new_value
-        # that is used in the comment might be incorrect.
-        if df_names is not None:
-            df_name = df_names[sheet_index]
-            return f'Set column {column_id} at index {row_index} in {df_name} to {new_value}'
-        return f'Set column {column_id} at index {row_index} to {new_value}'
 
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

@@ -36,10 +36,6 @@ class SortStepPerformer(StepPerformer):
         return 'sort'
     
     @classmethod
-    def step_display_name(cls) -> str:
-        return 'Sorted a Column'
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 
@@ -90,20 +86,6 @@ class SortStepPerformer(StepPerformer):
         return [
             SortCodeChunk(prev_state, post_state, params, execution_data)
         ]
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        sheet_index: int,
-        column_id: ColumnID,
-        sort_direction: str,
-        df_names=None,
-        **params
-    ) -> str:
-        if df_names is not None:
-            df_name = df_names[sheet_index]
-            return f'Sorted {column_id} in {df_name} in {sort_direction} order'
-        return f'Sorted {column_id} in {sort_direction} order'
 
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

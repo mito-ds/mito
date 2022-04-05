@@ -11,7 +11,15 @@ from mitosheet.transpiler.transpile_utils import (
 
 class DropDuplicatesCodeChunk(CodeChunk):
 
-    def transpile(self) -> List[str]:
+    def get_display_name(self) -> str:
+        return 'Dropped duplicates'
+    
+    def get_description_comment(self) -> str:
+        sheet_index = self.get_param('sheet_index')
+        df_name = self.post_state.df_names[sheet_index]
+        return f'Dropped duplicates in {df_name}'
+
+    def get_code(self) -> List[str]:
         sheet_index = self.get_param('sheet_index')
         column_ids = self.get_param('column_ids')
         keep = self.get_param('keep')

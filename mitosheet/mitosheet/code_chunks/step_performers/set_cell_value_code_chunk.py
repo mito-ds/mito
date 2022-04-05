@@ -17,7 +17,14 @@ from mitosheet.transpiler.transpile_utils import \
 
 class SetCellValueCodeChunk(CodeChunk):
 
-    def transpile(self) -> List[str]:
+    def get_display_name(self) -> str:
+        return 'Set cell value'
+    
+    def get_description_comment(self) -> str:
+        column_id = self.get_param('column_id')
+        return f'Set a cell value in {column_id}'
+
+    def get_code(self) -> List[str]:
         sheet_index = self.get_param('sheet_index')
         column_id = self.get_param('column_id')
         row_index = self.get_param('row_index')

@@ -25,10 +25,6 @@ class ChangeColumnFormatStepPerformer(StepPerformer):
         return 'change_column_format'
 
     @classmethod
-    def step_display_name(cls) -> str:
-        return 'Change Column Format'
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 
@@ -64,18 +60,6 @@ class ChangeColumnFormatStepPerformer(StepPerformer):
         return [
             EmptyCodeChunk(prev_state, post_state, params, execution_data)
         ]
-    
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        sheet_index: int,
-        column_ids: List[ColumnID],
-        format_type: Dict[str, Any],
-        df_names=None,
-        **params
-    ) -> str:
-        formated_column_ids = (', '.join(column_ids))
-        return f'Formatted column{"s" if len(column_ids) > 1 else ""} {formated_column_ids} as {format_type["type"]}'
 
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

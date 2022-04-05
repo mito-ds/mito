@@ -32,7 +32,14 @@ def generate_read_csv_code(file_name: str, df_name: str, delimeter: str, encodin
 
 class SimpleImportCodeChunk(CodeChunk):
 
-    def transpile(self) -> List[str]:
+    def get_display_name(self) -> str:
+        return 'Imported'
+    
+    def get_description_comment(self) -> str:
+        file_names = self.get_param('file_names')
+        return f'Imported {", ".join(file_names)}'
+
+    def get_code(self) -> List[str]:
         file_names = self.get_param('file_names')
         file_delimeters = self.get_execution_data('file_delimeters')
         file_encodings = self.get_execution_data('file_encodings')

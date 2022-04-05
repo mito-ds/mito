@@ -27,10 +27,6 @@ class ConcatStepPerformer(StepPerformer):
     @classmethod
     def step_type(cls) -> str:
         return 'concat'
-    
-    @classmethod
-    def step_display_name(cls) -> str:
-        return 'Concatenated Dataframes'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -76,20 +72,6 @@ class ConcatStepPerformer(StepPerformer):
         return [
             ConcatCodeChunk(prev_state, post_state, params, execution_data)
         ]
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        join: str, # inner | outter
-        ignore_index: bool,
-        sheet_indexes: List[int],
-        df_names=None,
-        **params
-    ) -> str:
-        if df_names is not None:
-            df_names_to_concat = [df_names[sheet_index] for sheet_index in sheet_indexes]
-            return f'Concated ' + ", ".join(df_names_to_concat)
-        return f'Concated dataframes'
     
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

@@ -314,11 +314,8 @@ class StepsManager:
                     "step_id": step.step_id,
                     "step_idx": index,
                     "step_type": step.step_type,
-                    "step_display_name": step.step_performer.step_display_name(),
-                    "step_description": step.step_performer.describe(
-                        df_names=step.df_names,
-                        **step.params,
-                    ),
+                    "step_display_name": "TODO: fill this in with code chunks",
+                    "step_description": "TODO: fill this in with code cunks",
                 }
             )
 

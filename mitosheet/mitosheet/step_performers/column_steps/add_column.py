@@ -30,10 +30,6 @@ class AddColumnStepPerformer(StepPerformer):
         return 'add_column'
 
     @classmethod
-    def step_display_name(cls) -> str:
-        return 'Added a Column'
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 
@@ -88,20 +84,6 @@ class AddColumnStepPerformer(StepPerformer):
         return [
             AddColumnCodeChunk(prev_state, post_state, params, execution_data)
         ]
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        sheet_index: int,
-        column_header: str,
-        column_header_index: int,
-        df_names=None,
-        **params
-    ) -> str:
-        if df_names is not None:
-            df_name = df_names[sheet_index]
-            return f'Added column {column_header} to {df_name}'
-        return f'Added column {column_header}' 
 
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

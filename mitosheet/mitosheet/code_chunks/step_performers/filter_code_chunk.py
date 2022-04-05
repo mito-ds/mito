@@ -277,7 +277,16 @@ def create_filter_string_for_condition(
 
 class FilterCodeChunk(CodeChunk):
 
-    def transpile(self) -> List[str]:
+    def get_display_name(self) -> str:
+        return 'Filtered'
+    
+    def get_description_comment(self) -> str:
+        sheet_index = self.get_param('sheet_index')
+        column_id = self.get_param('column_id')
+        column_header = self.post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
+        return f'Filtered {column_header}'
+
+    def get_code(self) -> List[str]:
         sheet_index = self.get_param('sheet_index')
         column_id = self.get_param('column_id')
         operator = self.get_param('operator')

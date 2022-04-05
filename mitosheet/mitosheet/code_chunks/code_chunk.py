@@ -1,4 +1,8 @@
+#!/usr/bin/env python
+# coding: utf-8
 
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
 
 
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
@@ -21,6 +25,10 @@ class CodeChunk:
         self.params = params
         self.execution_data = execution_data
 
+    # TODO: we could add a function that returns a list of params and execution
+    # data that you're allowed to reference, and then check this when you create
+    # the step, for strong typing!
+
     def get_param(self, key) -> Optional[Any]:
         if key in self.params:
             return self.params[key]
@@ -40,5 +48,11 @@ class CodeChunk:
     def combine_right(self, other_code_chunk) -> Optional["CodeChunk"]:
         return None
 
-    def transpile(self) -> List[str]:
+    def get_display_name(self) -> str:
+        raise NotImplementedError('Implement in subclass')
+    
+    def get_description_comment(self) -> str:
+        raise NotImplementedError('Implement in subclass')
+
+    def get_code(self) -> List[str]:
         raise NotImplementedError('Implement in subclass')

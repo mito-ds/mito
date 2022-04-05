@@ -10,7 +10,15 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 
 class DataframeRenameCodeChunk(CodeChunk):
 
-    def transpile(self) -> List[str]:
+    def get_display_name(self) -> str:
+        return 'Renamed Dataframe'
+    
+    def get_description_comment(self) -> str:
+        old_dataframe_name = self.get_param('old_dataframe_name')
+        new_dataframe_name = self.get_param('new_dataframe_name')
+        return f'Renamed {old_dataframe_name} to {new_dataframe_name}'
+
+    def get_code(self) -> List[str]:
         sheet_index = self.get_param('sheet_index')
         old_dataframe_name = self.get_param('old_dataframe_name')
         new_dataframe_name = self.get_param('new_dataframe_name')

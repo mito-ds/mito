@@ -49,10 +49,6 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
         return 'change_column_dtype'
 
     @classmethod
-    def step_display_name(cls) -> str:
-        return 'Change column dtype'
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         sheet_index = params['sheet_index']
         column_id = params['column_id']
@@ -244,18 +240,6 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
                 None
             )
         ]
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        sheet_index: int,
-        column_id: ColumnID,
-        old_dtype: str,
-        new_dtype: str,
-        df_names=None,
-        **params
-    ) -> str:
-        return f'Changed {column_id} from {old_dtype} to {new_dtype}'
 
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

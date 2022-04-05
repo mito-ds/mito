@@ -62,10 +62,6 @@ class FilterStepPerformer(StepPerformer):
         return "filter_column"
 
     @classmethod
-    def step_display_name(cls) -> str:
-        return "Filtered a Column"
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         """
         Saturates the filter event with a `has_non_empty_filter` - which is useful
@@ -129,21 +125,6 @@ class FilterStepPerformer(StepPerformer):
         return [
             FilterCodeChunk(prev_state, post_state, params, execution_data)
         ]
-
-    @classmethod
-    def describe(  # type: ignore
-        cls,
-        sheet_index: int,
-        column_id: ColumnID,
-        operator: str,
-        filters,
-        df_names=None,
-        **params,
-    ) -> str:
-        if df_names is not None:
-            df_name = df_names[sheet_index]
-            return f"Filtered {column_id} in {df_name}"
-        return f"Filtered {column_id}"
 
     @classmethod
     def get_modified_dataframe_indexes(  # type: ignore
