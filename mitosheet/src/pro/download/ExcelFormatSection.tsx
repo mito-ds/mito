@@ -23,7 +23,7 @@ const ExcelFormatSection = (props: {
 
     // Returns the approporiate disabled message, not letting the user format a non-number column or a column that already has formatting
     const getFormatAddDisabledMessage = (columnID: string, exportedSheetIndex: number): string => {
-        const columnDtype = props.sheetDataArray[exportedSheetIndex].columnDtypeMap[columnID]
+        const columnDtype = props.sheetDataArray[exportedSheetIndex]?.columnDtypeMap[columnID] || '';
         return !isNumberDtype(columnDtype) ? 'Formatting is only available for number columns.' :
             props.sheetDataArray[exportedSheetIndex].columnFormatTypeObjMap[columnID].type != FormatType.DEFAULT ? 'This column already has a format applied to it. Find it in the list below.' : ''
     }
@@ -99,7 +99,7 @@ const ExcelFormatSection = (props: {
                         */}
                         {columnFormatTypeObjMap.map(([columnID, columnFormatTypeObj]) => {
                             const columnHeader = getDisplayColumnHeader(columnIDsMap[columnID])
-                            const columnDtype = props.sheetDataArray[exportedSheetIndex].columnDtypeMap[columnID]
+                            const columnDtype = props.sheetDataArray[exportedSheetIndex]?.columnDtypeMap[columnID] || '';
                             
                             return(
                                 <Row 
