@@ -160,7 +160,6 @@ function activateWidgetExtension(
             const analysisName = args.analysisName as string;
             const codeLines = args.code as string[];
             const telemetryEnabled = args.telemetryEnabled as boolean;
-            const mitoAPI = args.mitoAPI as MitoAPI;
 
             const code = getCodeString(analysisName, codeLines, telemetryEnabled);
             
@@ -168,7 +167,6 @@ function activateWidgetExtension(
             // up immediately
             const mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(tracker, analysisName);
             if (mitosheetCallCellAndIndex === undefined) {
-                void mitoAPI.log('write_generated_code_cell_failed');
                 return;
             }
 

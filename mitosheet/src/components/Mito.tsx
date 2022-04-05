@@ -270,7 +270,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 analysisName: analysisData.analysisName,
                 code: analysisData.code,
                 telemetryEnabled: userProfile.telemetryEnabled,
-                mitoAPI: props.mitoAPI
             });
         }
         // TODO: we should store some data with analysis data to not make
