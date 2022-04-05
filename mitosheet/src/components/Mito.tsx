@@ -1,64 +1,62 @@
 // Copyright (c) Mito
 
 import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
-
-/* 
+import '../../css/sitewide/all-modals.css';
+import '../../css/sitewide/animations.css';
+import '../../css/sitewide/borders.css';
+/*
     Import CSS that we use globally, list these in alphabetical order
     to make it easier to confirm we have imported all sitewide css.
 
-    Except we put the colors.css first because it creates variables used elsewhere. 
+    Except we put the colors.css first because it creates variables used elsewhere.
 */
 import '../../css/sitewide/colors.css';
-import '../../css/sitewide/all-modals.css';
-import '../../css/sitewide/animations.css';
-import '../../css/sitewide/borders.css'
 import '../../css/sitewide/element-sizes.css';
 import '../../css/sitewide/flexbox.css';
 import '../../css/sitewide/fonts.css';
 import '../../css/sitewide/height.css';
+import '../../css/sitewide/icons.css';
 import '../../css/sitewide/margins.css';
 import '../../css/sitewide/paddings.css';
 import '../../css/sitewide/text.css';
 import '../../css/sitewide/widths.css';
-import '../../css/sitewide/icons.css';
-
-// Import sheet and code components
-import Footer from './footer/Footer';
-import Toolbar from './toolbar/Toolbar';
-import LoadingIndicator from './LoadingIndicator';
-
-import ErrorModal from './modals/ErrorModal';
 import MitoAPI from '../api';
-import PivotTaskpane from './taskpanes/PivotTable/PivotTaskpane';
-import { EDITING_TASKPANES, TaskpaneType } from './taskpanes/taskpanes';
-import MergeTaskpane from './taskpanes/Merge/MergeTaskpane';
-import ControlPanelTaskpane, { ControlPanelTab } from './taskpanes/ControlPanel/ControlPanelTaskpane';
+import { AnalysisData, DataTypeInMito, DFSource, EditorState, GridState, SheetData, UIState, UserProfile } from '../types';
+import { createActions } from '../utils/actions';
+import { classNames } from '../utils/classNames';
+import loadPlotly from '../utils/plotly';
+import CatchUpPopup from './CatchUpPopup';
+import ErrorBoundary from './elements/ErrorBoundary';
+import EndoGrid from './endo/EndoGrid';
+import { focusGrid } from './endo/focusUtils';
+import { getCellDataFromCellIndexes, getDefaultGridState } from './endo/utils';
+import Footer from './footer/Footer';
+import { selectPreviousGraphSheetTab } from './footer/SheetTab';
+import LoadingIndicator from './LoadingIndicator';
+import ClearAnalysisModal from './modals/ClearAnalysisModal';
+import DeleteGraphsModal from './modals/DeleteGraphsModal';
+import ErrorModal from './modals/ErrorModal';
+import { ModalEnum } from './modals/modals';
+import { InvalidReplayedAnalysisModal, NonexistantReplayedAnalysisModal } from './modals/ReplayAnalysisModals';
 import SignUpModal from './modals/SignupModal';
 import UpgradeModal from './modals/UpgradeModal';
-import StepsTaskpane from './taskpanes/Steps/StepsTaskpane';
-import CatchUpPopup from './CatchUpPopup';
+import ConcatTaskpane from './taskpanes/Concat/ConcatTaskpane';
+import ControlPanelTaskpane, { ControlPanelTab } from './taskpanes/ControlPanel/ControlPanelTaskpane';
+import DefaultEmptyTaskpane from './taskpanes/DefaultTaskpane/DefaultEmptyTaskpane';
+import DownloadTaskpane from './taskpanes/Download/DownloadTaskpane';
+import DropDuplicatesTaskpane from './taskpanes/DropDuplicates/DropDuplicates';
+import GraphSidebar from './taskpanes/Graph/GraphSidebar';
 import ImportTaskpane from './taskpanes/Import/ImportTaskpane';
+import MergeTaskpane from './taskpanes/Merge/MergeTaskpane';
+import PivotTaskpane from './taskpanes/PivotTable/PivotTaskpane';
+import SearchTaskpane from './taskpanes/Search/SearchTaskpane';
+import StepsTaskpane from './taskpanes/Steps/StepsTaskpane';
+import { EDITING_TASKPANES, TaskpaneType } from './taskpanes/taskpanes';
+import Toolbar from './toolbar/Toolbar';
 import Tour from './tour/Tour';
 import { TourName } from './tour/Tours';
-import GraphSidebar from './taskpanes/Graph/GraphSidebar';
-import DownloadTaskpane from './taskpanes/Download/DownloadTaskpane';
-import ClearAnalysisModal from './modals/ClearAnalysisModal';
-import { ModalEnum } from './modals/modals';
-import { AnalysisData, EditorState, DataTypeInMito, DFSource, GridState, UIState, UserProfile } from '../types';
-import { getDefaultGridState, getCellDataFromCellIndexes } from './endo/utils';
-import EndoGrid from './endo/EndoGrid';
-import { SheetData } from '../types';
-import { classNames } from '../utils/classNames';
-import { focusGrid } from './endo/focusUtils';
-import DropDuplicatesTaskpane from './taskpanes/DropDuplicates/DropDuplicates';
-import { createActions } from '../utils/actions';
-import SearchTaskpane from './taskpanes/Search/SearchTaskpane';
-import loadPlotly from '../utils/plotly';
-import ErrorBoundary from './elements/ErrorBoundary';
-import DeleteGraphsModal from './modals/DeleteGraphsModal';
-import { selectPreviousGraphSheetTab } from './footer/SheetTab';
-import ConcatTaskpane from './taskpanes/Concat/ConcatTaskpane';
-import DefaultEmptyTaskpane from './taskpanes/DefaultTaskpane/DefaultEmptyTaskpane';
+
+
 
 export type MitoProps = {
     model_id: string;
@@ -116,12 +114,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     /**
      * Save the state updaters in the window, so they are accessible
      * from outside the component, so the API can update them when it
-     * gets a message
-     * 
-     * Then, also read in the arguments below the mitosheet, as well as
-     * the analysis below the mitosheet, and send them to the backend. We
-     * do this here so we can be sure it's after the state updaters have
-     * been defined.
+     * gets a message.
      */
     useEffect(() => {
         if (window.setMitoStateMap === undefined) {
@@ -135,42 +128,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 setUserProfile: setUserProfile,
                 setUIState: setUIState,
             });
-        }
-
-        if (!window.commands) {
-            // If the window commands are not defined, we throw an error
-            // message so that we know this is happening
-            void props.mitoAPI.log('window_commands_not_defined_failed')
-        } else if (!window.commands.hasCommand('get-args')) {
-            // Also check the case where our commands are not yet defined,
-            // as this may also be happening as a race condition
-            void props.mitoAPI.log('window_commands_get_args_not_defined_failed')
-        }
-
-        // Get the arguments passed to the mitosheet.sheet call
-        window.commands?.execute('get-args').then(async (args: string[]) => {
-            await props.mitoAPI.updateArgs(args);
-        });
-
-        // Get any previous analysis and send it back to the model!
-        window.commands?.execute('read-existing-analysis').then(async (analysisName: string | undefined) => {
-            // If there is no previous analysis, we just ignore this step
-            if (!analysisName) return;
-
-            // We send it to the backend
-            await props.mitoAPI.updateReplayAnalysis(
-                analysisName,
-                undefined,
-                /* 
-                    When we read in an analysis name from a cell, we replay this analysis
-                    while also overwriting _everything_ that is already in the analysis. 
-
-                    This is to avoid issues w/ passing in a saved analysis to the mitosheet.sheet
-                    call, where then rerunning the cell with this call w/ doubly-apply things.
-                */
-                true
-            )
-        });
+        }        
 
         // We log that the mitosheet has rendered explicitly, so that we can
         // tell if an installation is broken
@@ -181,9 +139,143 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 window.setMitoStateMap.delete(props.model_id);
             }
         }
-
-        
     }, [])
+
+    
+
+
+    useEffect(() => {
+        /**
+         * The mitosheet is rendered first when the mitosheet.sheet() call is made,
+         * but then it may be rerendered when the page the mitosheet is on is refreshed.
+         * 
+         * However, there are a few things we only want to do on this first render, and
+         * not when the page is refreshed. We do those things in this effect, and additionally
+         * track each time we rerender.
+         */
+        const updateMitosheetCallCellOnFirstRender = async () => {
+            // The first thing we need to do is go and read the arguments to the mitosheet.sheet() call. If there
+            // is an analysis to replay, we use this to help lookup the call
+            window.commands?.execute('get-args', {analysisToReplayName: analysisData.analysisToReplay?.analysisName}).then(async (args: string[]) => {
+                await props.mitoAPI.updateArgs(args);
+
+                // Then, after we have the args, we replay an analysis if there is an analysis to replay
+                // Note that this has to happen after so that we have the the argument names loaded in at
+                // the very start of the analysis
+                if (analysisData.analysisToReplay) {
+                    const analysisToReplayName = analysisData.analysisToReplay?.analysisName;
+
+                    // First, if the analysis to replay does not exist at all, we just open an error modal
+                    // and tell users that this does not exist on their computer
+                    if (!analysisData.analysisToReplay.existsOnDisk) {
+                        void props.mitoAPI.log('replayed_nonexistant_analysis_failed')
+
+                        setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                currOpenModal: {
+                                    type: ModalEnum.NonexistantReplayAnalysis,
+                                    oldAnalysisName: analysisToReplayName,
+                                    newAnalysisName: analysisData.analysisName
+                                }
+                            }
+                        })
+                        return;
+                    }
+
+
+                    // Then, we replay the analysis to replay!
+                    const error = await props.mitoAPI.updateReplayAnalysis(analysisToReplayName);
+                    
+                    if (error !== undefined) {
+                        /**
+                         * If the replayed analysis fails, the first thing that we need to do is to
+                         * report this to the user by displaying a modal that tells them as much
+                         */
+                        setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                currOpenModal: {
+                                    type: ModalEnum.InvalidReplayedAnalysis,
+                                    error: error,
+                                    oldAnalysisName: analysisToReplayName,
+                                    newAnalysisName: analysisData.analysisName
+                                }
+                            }
+                        })
+                    }
+                } else {
+                    /**
+                     * If we don't have an analysis to replay, we check if we need to upgrade from the 
+                     * old analysis_to_replay format to the new one.
+                     * 
+                     * In the past, we used to only store the analysis id in the generated code cell,
+                     * which led to a ton of issues making it really hard to handle things like users
+                     * running all, etc. 
+                     * 
+                     * We moved to storing the analysis id in the mitosheet call and the generated code
+                     * cell, which allows us to easily link them together. 
+                     * 
+                     * To transition from the old system to the new system, we run this piece of code
+                     * that moves the saved analysis id from the generated code to the mitosheet call,
+                     * and then reruns this mitosheet call. 
+                     * 
+                     * This is the cleanest way to have this transition occur, by far, based on the 48
+                     * hours that I spent thinking about such things.
+                     * 
+                     * TODO: remove this effect 6 months after implemented, as pretty much all users will
+                     * have upgraded by then. Delete this code on September 1, 2022.
+                     */
+                    const upgradedFromSaveInGeneratedCodeToSheet = await window.commands?.execute('move-saved-analysis-id-to-mitosheet-call');
+                    if (upgradedFromSaveInGeneratedCodeToSheet) {
+                        // We stop here, and do not do anything else in this case
+                        return;
+                    }
+    
+                    /**
+                     * If we didn't have to upgrade from the old format to the new format, and we don't
+                     * have a analysis_to_replay, then we need to write the analysis_to_replay to the 
+                     * mitosheet.sheet call. 
+                     * 
+                     * Specifically, we want to write the analysis name of this analysis, as this is the 
+                     * analysis that will get written to the code cell below.
+                     */
+                    window.commands?.execute('write-analysis-to-replay-to-mitosheet-call', {
+                        analysisName: analysisData.analysisName,
+                        mitoAPI: props.mitoAPI
+                    });
+                }
+            });
+        }
+
+        const handleRender = async () => {
+            if (analysisData.renderCount === 0) {
+                await updateMitosheetCallCellOnFirstRender();
+            }
+            // Anytime we render, update the render count
+            await props.mitoAPI.updateRenderCount();
+        }
+
+        void handleRender();
+    }, [])
+
+    useEffect(() => {
+        /**
+         * We only write code after the render count has been incremented once, which
+         * means that we have read in and replayed the updated analysis, etc. 
+         */
+        if (analysisData.renderCount >= 1) {
+            // Finially, we can go and write the code!
+            window.commands?.execute('write-generated-code-cell', {
+                analysisName: analysisData.analysisName,
+                code: analysisData.code,
+                telemetryEnabled: userProfile.telemetryEnabled,
+                mitoAPI: props.mitoAPI
+            });
+        }
+        // TODO: we should store some data with analysis data to not make
+        // this run too often?
+    }, [analysisData])
 
     // Load plotly, so we can generate graphs
     useEffect(() => {
@@ -396,6 +488,23 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 <UpgradeModal
                     setUIState={setUIState}
                     mitoAPI={props.mitoAPI}
+                />
+            )
+            case ModalEnum.NonexistantReplayAnalysis: return (
+                <NonexistantReplayedAnalysisModal
+                    setUIState={setUIState}
+                    mitoAPI={props.mitoAPI}
+                    newAnalysisName={uiState.currOpenModal.newAnalysisName}
+                    oldAnalysisName={uiState.currOpenModal.oldAnalysisName}
+                />
+            )
+            case ModalEnum.InvalidReplayedAnalysis: return (
+                <InvalidReplayedAnalysisModal
+                    setUIState={setUIState}
+                    mitoAPI={props.mitoAPI}
+                    error={uiState.currOpenModal.error}
+                    newAnalysisName={uiState.currOpenModal.newAnalysisName}
+                    oldAnalysisName={uiState.currOpenModal.oldAnalysisName}
                 />
             )
             case ModalEnum.DeleteGraphs: return (
