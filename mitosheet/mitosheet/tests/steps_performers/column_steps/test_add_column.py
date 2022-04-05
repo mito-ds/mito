@@ -114,3 +114,24 @@ def test_add_column_out_of_bounds():
         'C': [0],
         'D': [0]
     }))
+
+def test_add_then_delete_optimizes():
+    mito = create_mito_wrapper([1])
+    mito.add_column(0, 'B')
+    mito.delete_columns(0, ['B'])
+
+    assert mito.transpiled_code == []
+
+    
+def test_add_then_delete_multiple_optimizes():
+    mito = create_mito_wrapper([1])
+    mito.add_column(0, 'B')
+    mito.add_column(0, 'C')
+    mito.delete_columns(0, ['B', 'C'])
+
+    assert mito.transpiled_code == [
+        "df1.insert(1, 'B', 0)",
+        "df1.drop(['B'], axis=1, inplace=True)"
+    ]
+
+    

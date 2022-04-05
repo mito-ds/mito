@@ -72,3 +72,10 @@ def test_create_delete_then_create():
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1], 'B': [3]}))
 
+
+def test_add_then_delete_optimizes():
+    mito = create_mito_wrapper([1])
+    mito.add_column(0, 'B')
+    mito.delete_columns(0, ['B'])
+
+    

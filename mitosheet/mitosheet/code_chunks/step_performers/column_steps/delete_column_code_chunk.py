@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import List
+from typing import List, Optional
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.transpiler.transpile_utils import \

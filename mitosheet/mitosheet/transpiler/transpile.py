@@ -10,6 +10,7 @@ container and generates transpiled Python code.
 
 from typing import Any, Dict, List
 from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
 
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
 from mitosheet.types import StepsManagerType
@@ -37,24 +38,8 @@ def transpile(steps_manager: StepsManagerType, add_comments: bool=True) -> Dict[
         if len(preprocess_code) > 0:
             code.extend(preprocess_code)
 
-    from mitosheet.steps_manager import get_step_indexes_to_skip
-    step_indexes_to_skip = get_step_indexes_to_skip(steps_manager.steps)
-
     # We only transpile up to the currently checked out step
-    all_code_chunks: List[CodeChunk] = []
-    for step_index, step in enumerate(steps_manager.steps[:steps_manager.curr_step_idx + 1]):
-        # Skip the initalize step, or any step we should skip
-        if step.step_type == 'initialize' or step_index in step_indexes_to_skip:
-            continue
-
-        all_code_chunks.extend(
-            step.step_performer.transpile(
-                step.prev_state,
-                step.post_state,
-                step.params,
-                step.execution_data,
-            )
-        )
+    all_code_chunks: List[CodeChunk] = get_code_chunks(steps_manager.steps[:steps_manager.curr_step_idx + 1])
     
     for code_chunk in all_code_chunks:
         comment = '# ' + code_chunk.get_description_comment()

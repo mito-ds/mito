@@ -176,8 +176,6 @@ def test_optimization_with_other_edits():
         'df1[\'D\'] = df1[\'A\']',
         'temp_df = df2.drop_duplicates(subset=\'A\') # Remove duplicates so lookup merge only returns first match', 
         'df3 = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
-        'df1.insert(4, \'AAA\', 0)',
-        'df1.drop([\'AAA\'], axis=1, inplace=True)'
     ]
 
 TAB = '    '

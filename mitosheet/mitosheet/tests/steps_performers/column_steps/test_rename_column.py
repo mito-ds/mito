@@ -9,8 +9,7 @@ Contains tests for a column rename.
 
 import pandas as pd
 
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs, make_multi_index_header_df
-from mitosheet.tests.test_utils import create_mito_wrapper
+from mitosheet.tests.test_utils import create_mito_wrapper, create_mito_wrapper_dfs
 from mitosheet.column_headers import get_column_header_id
 
 def test_rename_works():
@@ -97,3 +96,24 @@ def test_rename_then_merge():
     assert mito.dfs[0].equals(pd.DataFrame(data={'KEY': [1]}))
     assert mito.dfs[1].equals(pd.DataFrame(data={'KEY': [1]}))
     assert mito.dfs[2].equals(pd.DataFrame(data={'KEY': [1]}))
+
+
+def test_double_rename_optimizes():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123]}))
+    mito.rename_column(0, 'A', 'B')
+    mito.rename_column(0, 'B', 'C')
+
+    assert mito.transpiled_code == [
+        "df1.rename(columns={'A': 'C'}, inplace=True)"
+    ]
+
+def test_multiple_rename_optimizes():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123]}))
+    mito.rename_column(0, 'A', 'B')
+    mito.rename_column(0, 'B', 'C')
+    mito.rename_column(0, 'C', 'D')
+    mito.rename_column(0, 'D', 'E')
+
+    assert mito.transpiled_code == [
+        "df1.rename(columns={'A': 'E'}, inplace=True)"
+    ]
