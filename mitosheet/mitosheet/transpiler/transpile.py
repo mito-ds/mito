@@ -57,12 +57,15 @@ def transpile(steps_manager: StepsManagerType, add_comments: bool=True) -> Dict[
                 )
             )
         
-        transpiled_code = step.step_performer.transpile( # type: ignore
+        code_chunks = step.step_performer.transpile( # type: ignore
             step.prev_state, # type: ignore
             step.post_state, # type: ignore
+            step.params,
             step.execution_data,
-            **step.params
         )
+
+        transpiled_code = [line for code_chunk in code_chunks for line in code_chunk.transpile()]
+        
         
         # Make sure to not generate comments or code for steps with no code 
         if len(transpiled_code) > 0:

@@ -7,8 +7,8 @@ from copy import deepcopy
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.column_steps.set_column_formula import RefreshDependantColumnsCodeChunk
-from mitosheet.code_chunks.step_performers.set_cell_value import SetCellValueCodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.set_column_formula_code_chunk import RefreshDependantColumnsCodeChunk
+from mitosheet.code_chunks.step_performers.set_cell_value_code_chunk import SetCellValueCodeChunk
 
 import numpy as np
 from mitosheet.errors import (make_cast_value_to_type_error,
@@ -117,7 +117,6 @@ class SetCellValueStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
 
-        transpile_dependant_columns
         return [
             SetCellValueCodeChunk(prev_state, post_state, params, execution_data),
             # Note that we also refresh all the dependant columns, starting with the set cell value

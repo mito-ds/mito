@@ -6,6 +6,8 @@
 from copy import deepcopy
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.add_column_code_chunk import AddColumnCodeChunk
 
 from mitosheet.errors import make_column_exists_error, make_no_sheet_error
 from mitosheet.state import FORMAT_DEFAULT, State
@@ -83,10 +85,8 @@ class AddColumnStepPerformer(StepPerformer):
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
-        transpiled_column_header = column_header_to_transpiled_code(column_header)
-        column_header_index = execution_data["column_header_index"] if execution_data is not None else column_header_index
         return [
-            f'{post_state.df_names[sheet_index]}.insert({column_header_index}, {transpiled_column_header}, 0)'
+            AddColumnCodeChunk(prev_state, post_state, params, execution_data)
         ]
 
     @classmethod

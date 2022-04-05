@@ -19,8 +19,8 @@ class RefreshDependantColumnsCodeChunk(CodeChunk):
         Use this helper function when making a change to a column and you want to transpile
         the columns that are dependant on the column you changed. 
         """
-        sheet_index = self.get_param(sheet_index)
-        column_id = self.get_param(column_id)
+        sheet_index = self.get_param('sheet_index')
+        column_id = self.get_param('column_id')
 
         code = []
 

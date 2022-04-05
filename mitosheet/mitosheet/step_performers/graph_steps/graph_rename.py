@@ -5,11 +5,12 @@
 # Distributed under the terms of the GPL License.
 from copy import copy
 from typing import Any, Dict, List, Optional, Set, Tuple
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.types import GraphID
-from mitosheet.utils import get_valid_dataframe_name
 
 
 class GraphRenameStepPerformer(StepPerformer):
@@ -68,7 +69,9 @@ class GraphRenameStepPerformer(StepPerformer):
     ) -> List[CodeChunk]:
 
         # Graph steps don't add any generated code to the analysis script. 
-        return []
+        return [
+            EmptyCodeChunk(prev_state, post_state, params, execution_data)
+        ]
 
     @classmethod
     def describe( # type: ignore

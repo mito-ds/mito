@@ -8,6 +8,8 @@ from copy import deepcopy
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 import pandas as pd
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
 
 from mitosheet.state import State
 from mitosheet.step_performers.graph_steps.graph_utils import GRAPH_TITLE_LABELS, get_html_and_script_from_figure, get_new_graph_tab_name
@@ -196,12 +198,11 @@ class GraphStepPerformer(StepPerformer):
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
-
         # Graph steps don't add any generated code to the analysis script. 
-        # Instead, the graph code is created during execution of the function and is
-        # retuned to the frontend through the graph_data_dict object so that the user can copy 
-        # and paste it. 
-        return []
+        return [
+            EmptyCodeChunk(prev_state, post_state, params, execution_data)
+        ]
+
 
     @classmethod
     def describe(  # type: ignore

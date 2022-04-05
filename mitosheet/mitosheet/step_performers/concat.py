@@ -9,6 +9,8 @@ from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.concat_code_chunk import ConcatCodeChunk
 from mitosheet.state import DATAFRAME_SOURCE_CONCAT, State
 from mitosheet.step_performers.step_performer import StepPerformer
 
@@ -71,16 +73,9 @@ class ConcatStepPerformer(StepPerformer):
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
-
-        df_names_to_concat = [post_state.df_names[sheet_index] for sheet_index in sheet_indexes]
-        df_new_name = post_state.df_names[len(post_state.dfs) - 1]
-
-        if len(df_names_to_concat) == 0:
-            return [f'{df_new_name} = pd.DataFrame()']
-        else:
-            return [
-                f"{df_new_name} = pd.concat([{', '.join(df_names_to_concat)}], join=\'{join}\', ignore_index={ignore_index})"
-            ]
+        return [
+            ConcatCodeChunk(prev_state, post_state, params, execution_data)
+        ]
 
     @classmethod
     def describe( # type: ignore

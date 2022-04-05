@@ -6,6 +6,8 @@
 from copy import deepcopy
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnCodeChunk
 
 from mitosheet.errors import make_invalid_column_delete_error
 from mitosheet.state import State
@@ -65,13 +67,9 @@ class DeleteColumnStepPerformer(StepPerformer):
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
-
-        df_name = post_state.df_names[sheet_index]
-        column_headers_list_string = column_header_list_to_transpiled_code(
-            [prev_state.column_ids.get_column_header_by_id(sheet_index, column_id) for column_id in column_ids]
-        )
-
-        return [f'{df_name}.drop({column_headers_list_string}, axis=1, inplace=True)']
+        return [
+            DeleteColumnCodeChunk(prev_state, post_state, params, execution_data)
+        ]
     
     @classmethod
     def describe( # type: ignore

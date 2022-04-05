@@ -7,6 +7,8 @@
 from copy import deepcopy
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.rename_column_code_chunk import RenameColumnCodeChunk
 
 from mitosheet.errors import make_column_exists_error
 from mitosheet.evaluation_graph_utils import create_column_evaluation_graph
@@ -85,20 +87,9 @@ class RenameColumnStepPerformer(StepPerformer):
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
-        
-        # Process the no-op if the header is empty
-        if new_column_header == '':
-            return []
-
-        df_name = post_state.df_names[sheet_index]
-        old_column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-
-        transpiled_old_column_header = column_header_to_transpiled_code(old_column_header)
-        transpiled_new_column_header = column_header_to_transpiled_code(new_column_header)
-        rename_dict = "{" + f'{transpiled_old_column_header}: {transpiled_new_column_header}' + "}"
-
-        rename_string = f'{df_name}.rename(columns={rename_dict}, inplace=True)'
-        return [rename_string]
+        return [
+            RenameColumnCodeChunk(prev_state, post_state, params, execution_data)
+        ]
 
     @classmethod
     def describe( # type: ignore

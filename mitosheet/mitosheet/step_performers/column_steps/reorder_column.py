@@ -8,6 +8,8 @@ from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.reorder_column_code_chunk import ReorderColumnCodeChunk
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.transpiler.transpile_utils import \
@@ -88,23 +90,9 @@ class ReorderColumnStepPerformer(StepPerformer):
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
-
-        column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-        transpiled_column_header = column_header_to_transpiled_code(column_header)
-
-        new_column_index = get_valid_index(prev_state.dfs, sheet_index, new_column_index)
-        df_name = post_state.df_names[sheet_index]
-
-        # Get columns in df
-        columns_list_line = f'{df_name}_columns = [col for col in {df_name}.columns if col != {transpiled_column_header}]'
-
-        # Insert column into correct location 
-        insert_line = f'{df_name}_columns.insert({new_column_index}, {transpiled_column_header})'
-        
-        # Apply reorder line
-        apply_reorder_line = f'{df_name} = {df_name}[{df_name}_columns]'
-
-        return [columns_list_line, insert_line, apply_reorder_line]
+        return [
+            ReorderColumnCodeChunk(prev_state, post_state, params, execution_data)
+        ]
 
     @classmethod
     def describe( # type: ignore

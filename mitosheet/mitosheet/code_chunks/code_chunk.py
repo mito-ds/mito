@@ -1,10 +1,12 @@
 
 
 
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
-from mitosheet.state import State
-
+if TYPE_CHECKING:
+    from mitosheet.state import State
+else:
+    State = Any
 
 class CodeChunk:
 
@@ -29,7 +31,7 @@ class CodeChunk:
             return self.execution_data[key]
         return None
 
-    def combine(self, other_code_chunk) -> Optional["CodeChunk"]:
+    def combine_right(self, other_code_chunk) -> Optional["CodeChunk"]:
         return None
 
     def transpile(self) -> List[str]:

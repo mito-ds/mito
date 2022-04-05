@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 import json
 from typing import Any, Dict, List, Tuple
-from mitosheet.steps_manager import StepsManager
+from mitosheet.types import StepsManagerType
 import numpy as np
 import pandas as pd
 
@@ -32,7 +32,7 @@ def get_search_cell_indexes(df: pd.DataFrame, search_string: str) -> List[Tuple[
     return cell_indexes
 
 
-def get_search_matches(event: Dict[str, Any], steps_manager: StepsManager) -> str:
+def get_search_matches(event: Dict[str, Any], steps_manager: StepsManagerType) -> str:
     """
     Returns the cell indexes of the cells / headers that match the passed
     search string, only searching at most 2k cells at once. Use pagination 

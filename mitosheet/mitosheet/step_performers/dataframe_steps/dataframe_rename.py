@@ -5,6 +5,8 @@
 # Distributed under the terms of the GPL License.
 from copy import copy
 from typing import Any, Dict, List, Optional, Set, Tuple
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.dataframe_steps.dataframe_rename_code_chunk import DataframeRenameCodeChunk
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
@@ -66,10 +68,9 @@ class DataframeRenameStepPerformer(StepPerformer):
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
-
-        if old_dataframe_name == new_dataframe_name:
-            return []
-        return [f'{post_state.df_names[sheet_index]} = {old_dataframe_name}']
+        return [
+            DataframeRenameCodeChunk(prev_state, post_state, params, execution_data)
+        ]
 
     @classmethod
     def describe( # type: ignore

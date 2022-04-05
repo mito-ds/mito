@@ -5,6 +5,8 @@
 # Distributed under the terms of the GPL License.
 from copy import copy
 from typing import Any, Dict, List, Optional, Set, Tuple
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.types import ColumnID
@@ -59,7 +61,9 @@ class ChangeColumnFormatStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         # Formatting columns only effects the display in Mito, not the generated code.
-        return []
+        return [
+            EmptyCodeChunk(prev_state, post_state, params, execution_data)
+        ]
     
     @classmethod
     def describe( # type: ignore

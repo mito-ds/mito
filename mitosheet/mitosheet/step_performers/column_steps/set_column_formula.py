@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.set_column_formula_code_chunk import RefreshDependantColumnsCodeChunk
 from mitosheet.errors import (MitoError, make_circular_reference_error,
                               make_execution_error, make_no_column_error,
                               make_operator_type_error,
@@ -147,7 +148,9 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         """
         Transpiles an set_column_formula step to python code!
         """
-        return transpile_dependant_columns(post_state, sheet_index, column_id)
+        return [
+            RefreshDependantColumnsCodeChunk(prev_state, post_state, params, execution_data)
+        ]
 
     @classmethod
     def describe( # type: ignore

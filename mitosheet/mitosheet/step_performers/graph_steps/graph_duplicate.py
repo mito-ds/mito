@@ -6,6 +6,8 @@
 from copy import copy, deepcopy
 from typing import Any, Dict, List, Optional, Set, Tuple
 import uuid
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
@@ -66,7 +68,9 @@ class GraphDuplicateStepPerformer(StepPerformer):
     ) -> List[CodeChunk]:
 
         # Graph steps don't add any generated code to the analysis script. 
-        return []
+        return [
+            EmptyCodeChunk(prev_state, post_state, params, execution_data)
+        ]
 
     @classmethod
     def describe( # type: ignore

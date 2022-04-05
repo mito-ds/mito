@@ -12,6 +12,8 @@ from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 import chardet
 import pandas as pd
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import SimpleImportCodeChunk
 
 from mitosheet.utils import get_valid_dataframe_names
 from mitosheet.errors import make_is_directory_error
@@ -98,22 +100,9 @@ class SimpleImportStepPerformer(StepPerformer):
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
-
-        code = ['import pandas as pd']
-
-        index = 0
-        for file_name, df_name in zip(file_names, post_state.df_names[len(post_state.df_names) - len(file_names):]):
-
-            delimeter = execution_data['file_delimeters'][index] if execution_data is not None else None
-            encoding = execution_data['file_encodings'][index] if execution_data is not None else None
-
-            code.append(
-                generate_read_csv_code(file_name, df_name, delimeter, encoding)
-            )
-            
-            index += 1
-
-        return code
+        return [
+            SimpleImportCodeChunk(prev_state, post_state, params, execution_data)
+        ]
 
     @classmethod
     def describe( # type: ignore
@@ -133,27 +122,6 @@ class SimpleImportStepPerformer(StepPerformer):
         **params
     ) -> Set[int]:
         return {-1} # changes the new dataframe(s - there might be multiple made in this step)
-
-
-def generate_read_csv_code(file_name: str, df_name: str, delimeter: str, encoding: str) -> str:
-    """
-    Helper function for generating minimal read_csv code 
-    depending on the delimeter and the encoding of a file
-    """
-    if encoding != 'default' and delimeter != ',':
-        # If there is a non comma delimieter and an encoding, we use both.
-        # NOTE: we add a r in front of the string so that it is a raw string
-        # and file slashes are not interpreted as a unicode sequence
-        return f'{df_name} = pd.read_csv(r\'{file_name}\', sep=\'{delimeter}\', encoding=\'{encoding}\')'
-    elif encoding != 'default':
-        # If there is a comma delimieter and an encoding, we set the encoding
-        return f'{df_name} = pd.read_csv(r\'{file_name}\', encoding=\'{encoding}\')'
-    elif delimeter != ',':
-        # If there is a delimeter for this file, we use it
-        return f'{df_name} = pd.read_csv(r\'{file_name}\', sep=\'{delimeter}\')'
-    else:
-        # We don't add or encoding if they are the Default.
-        return f'{df_name} = pd.read_csv(r\'{file_name}\')'
 
 
 def read_csv_get_delimeter_and_encoding(file_name: str) -> Tuple[pd.DataFrame, str, str]:

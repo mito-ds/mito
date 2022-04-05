@@ -6,6 +6,8 @@
 from copy import copy
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.dataframe_steps.dataframe_duplicate_code_chunk import DataframeDuplicateCodeChunk
 
 from mitosheet.state import DATAFRAME_SOURCE_DUPLICATED, State
 from mitosheet.step_performers.step_performer import StepPerformer
@@ -63,11 +65,10 @@ class DataframeDuplicateStepPerformer(StepPerformer):
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
+        return [
+            DataframeDuplicateCodeChunk(prev_state, post_state, params, execution_data)
+        ]
 
-        old_df_name = post_state.df_names[sheet_index]
-        new_df_name = post_state.df_names[len(post_state.dfs) - 1]
-
-        return [f'{new_df_name} = {old_df_name}.copy(deep=True)']
 
     @classmethod
     def describe( # type: ignore
