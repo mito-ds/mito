@@ -83,7 +83,7 @@ def test_can_call_sheet_with_df_and_filename():
 
     code_container = transpile(mito.steps_manager)
 
-    assert code_container['code'] == [
+    assert code_container == [
         '# Read in filepaths as dataframes',
         'df_1 = pd.read_csv(r\'../1.csv\')',
     ]
@@ -102,7 +102,7 @@ def test_can_use_utf_16_when_passing_string():
 
     code_container = transpile(mito.steps_manager)
 
-    assert code_container['code'] == [
+    assert code_container == [
         '# Read in filepaths as dataframes',
         f'test_file_path = pd.read_csv(r\'test_file_path.csv\', encoding=\'{encoding}\')',
     ]

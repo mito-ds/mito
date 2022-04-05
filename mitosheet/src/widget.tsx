@@ -70,7 +70,7 @@ export class ExampleView extends DOMWidgetView {
 
         // Bind the functions we pass down to other classes
         this.send = this.send.bind(this);
-        this.updateSheetAndCode = this.updateSheetAndCode.bind(this);
+        this.updateMitoState = this.updateMitoState.bind(this);
         this.setErrorModal = this.setErrorModal.bind(this);
         this.creationSeconds = new Date().getSeconds();
     }
@@ -86,7 +86,7 @@ export class ExampleView extends DOMWidgetView {
     render(): void {
 
         const model_id = this.model.model_id;
-        const mitoAPI = new MitoAPI(model_id, this.send, this.updateSheetAndCode, this.setErrorModal);
+        const mitoAPI = new MitoAPI(model_id, this.send, this.updateMitoState, this.setErrorModal);
 
         // Store the API in a global map so we can receive messages on it
         if (window.mitoAPIMap === undefined) {
@@ -117,11 +117,8 @@ export class ExampleView extends DOMWidgetView {
         This is the function actually responsible for updating the Mito component
         with the new state, and is called by the MitoAPI when it receives a successful
         response from the backend! 
-
-        If you are adding a new shared variable, you want to add it's updating here
-        if you want it to update on success.
     */
-    updateSheetAndCode(): void {
+    updateMitoState(): void {
         const model_id = this.model.model_id;
         const stateUpdaters = window.setMitoStateMap?.get(model_id);
 
@@ -136,20 +133,6 @@ export class ExampleView extends DOMWidgetView {
         stateUpdaters.setSheetDataArray(sheetDataArray);
         stateUpdaters.setAnalysisData(analysisData);
         stateUpdaters.setUserProfile(userProfile);
-
-        window.commands?.execute('write-code-to-cell', {
-            analysisName: analysisData.analysisName,
-            code: analysisData.code,
-            /* 
-                If there is an analysis that is read in and takes a bit to replay, then the code
-                disappears for a little bit, which is pretty disorienting. As such, if we're writing
-                empty code, and we're within the first 60 seconds of creating the sheet, then we do 
-                not actually clear the cell if there is something there. This stops an anlaysis that
-                is read in from flashing
-            */
-            overwriteIfCodeEmpty: this.creationSeconds !== undefined ? (this.creationSeconds < (new Date().getSeconds() - 60)) : true,
-            telemetryEnabled: userProfile.telemetryEnabled
-        });
     }
 
     /* 

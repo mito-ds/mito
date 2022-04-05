@@ -12,6 +12,7 @@ import time
 from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
+from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
 from mitosheet.user.location import is_in_google_colab, is_in_vs_code
 import traitlets as t
 from ipywidgets import DOMWidget
@@ -19,7 +20,7 @@ from ipywidgets import DOMWidget
 from mitosheet._frontend import module_name, module_version
 from mitosheet.api import API
 from mitosheet.data_in_mito import DataTypeInMito
-from mitosheet.errors import MitoError, get_recent_traceback
+from mitosheet.errors import MitoError, get_recent_traceback, make_execution_error
 from mitosheet.mito_analytics import (log, log_event_processed,
                                       log_recent_error, telemetry_turned_on)
 from mitosheet.saved_analyses import write_analysis
@@ -47,7 +48,7 @@ class MitoWidget(DOMWidget):
     analysis_data_json = t.Unicode('').tag(sync=True)
     user_profile_json = t.Unicode('').tag(sync=True)
     
-    def __init__(self, *args: List[Union[pd.DataFrame, str]]):
+    def __init__(self, *args: List[Union[pd.DataFrame, str]], analysis_to_replay: str=None):
         """
         Takes a list of dataframes and strings that are paths to CSV files
         passed through *args.
@@ -56,7 +57,7 @@ class MitoWidget(DOMWidget):
         super(MitoWidget, self).__init__()
             
         # Set up the state container to hold private widget state
-        self.steps_manager = StepsManager(args)
+        self.steps_manager = StepsManager(args, analysis_to_replay=analysis_to_replay)
 
         # Set up message handler
         self.on_msg(self.receive_message)
@@ -142,11 +143,19 @@ class MitoWidget(DOMWidget):
         - Name of an existing analysis
         """
 
-        self.steps_manager.handle_update_event(event)
+        try:
+            self.steps_manager.handle_update_event(event)
 
-        # Update all state variables
-        self.update_shared_state_variables()
-
+            # Update all state variables
+            self.update_shared_state_variables()
+        except:
+            # We handle the case of replaying the analysis specially, because we don't
+            # want to display the error modal - we want to display something specific
+            # in this case. Note that we include the updating of shared state variables
+            # in the try catch, as this is sometimes where errors occur
+            if event["type"] == REPLAY_ANALYSIS_UPDATE['event_type']:
+                raise make_execution_error(error_modal=False)
+            raise
         # Also, write the analysis to a file!
         write_analysis(self.steps_manager)
 
@@ -242,7 +251,8 @@ class MitoWidget(DOMWidget):
 
 def sheet(
         *args: Any,
-        view_df: bool=False # We use this param to log if the mitosheet.sheet call is created from the df output button
+        analysis_to_replay: str=None, # This is the parameter that tracks the analysis that you want to replay (NOTE: requires a frontend to be replayed!)
+        view_df: bool=False, # We use this param to log if the mitosheet.sheet call is created from the df output button,
         # NOTE: if you add named variables to this function, make sure argument parsing on the front-end still
         # works by updating the getArgsFromCellContent function.
     ) -> MitoWidget:
@@ -272,7 +282,7 @@ def sheet(
 
     try:
         # We pass in the dataframes directly to the widget
-        widget = MitoWidget(*args) 
+        widget = MitoWidget(*args, analysis_to_replay=analysis_to_replay) 
 
         # Log they have personal data in the tool if they passed a dataframe
         # that is not tutorial data or sample data from import docs
