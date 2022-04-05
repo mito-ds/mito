@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import List
+from typing import List, Optional, Union
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.transpiler.transpile_utils import \
@@ -32,3 +32,20 @@ class RenameColumnCodeChunk(CodeChunk):
 
         rename_string = f'{df_name}.rename(columns={rename_dict}, inplace=True)'
         return [rename_string]
+
+    def _combine_right_with_rename_column_code_chunk(self, other_code_chunk: "RenameColumnCodeChunk") -> Optional["RenameColumnCodeChunk"]:
+        if not self.params_match(other_code_chunk, ['sheet_index', 'column_id']):
+            return None
+
+        return RenameColumnCodeChunk(
+            self.prev_state, 
+            other_code_chunk.post_state, 
+            other_code_chunk.params,
+            other_code_chunk.execution_data # TODO: this is out of date, but we don't use it!
+        )
+
+    def combine_right(self, other_code_chunk) -> Optional["CodeChunk"]:
+        if isinstance(other_code_chunk, RenameColumnCodeChunk):
+            return self._combine_right_with_rename_column_code_chunk(other_code_chunk)
+            
+        return None

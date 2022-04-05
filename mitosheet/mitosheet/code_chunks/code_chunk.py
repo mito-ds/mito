@@ -31,6 +31,12 @@ class CodeChunk:
             return self.execution_data[key]
         return None
 
+    def params_match(self, other_code_chunk: "CodeChunk", param_keys: List[str]) -> bool:
+        for key in param_keys:
+            if self.get_param(key) != other_code_chunk.get_param(key):
+                return False
+        return True
+    
     def combine_right(self, other_code_chunk) -> Optional["CodeChunk"]:
         return None
 
