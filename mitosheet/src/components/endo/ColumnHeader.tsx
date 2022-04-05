@@ -11,6 +11,7 @@ import Input from '../elements/Input';
 import { focusGrid } from './focusUtils';
 import { getColumnHeaderParts, getDisplayColumnHeader, isPrimitiveColumnHeader, rowIndexToColumnHeaderLevel } from '../../utils/columnHeaders';
 import { DEFAULT_HEIGHT } from './EndoGrid';
+import { ControlPanelTab } from '../taskpanes/ControlPanel/ControlPanelTaskpane';
 
 
 /* 
@@ -227,6 +228,7 @@ const ColumnHeader = (props: {
                     props.setUIState(prevUIState => {
                         return {
                             ...prevUIState,
+                            selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
                             currOpenTaskpane: { type: TaskpaneType.CONTROL_PANEL }
                         }
                     })

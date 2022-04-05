@@ -24,6 +24,7 @@ from mitosheet.updates.checkout_step_by_idx import CHECKOUT_STEP_BY_IDX_UPDATE
 from mitosheet.updates.append_user_field import APPEND_USER_FIELD_UPDATE
 from mitosheet.updates.update_feedback_v2_object import UPDATE_FEEDBACK_V2_OBJECT_UPDATE
 from mitosheet.updates.go_pro import GO_PRO_UPDATE
+from mitosheet.updates.render_count import RENDER_COUNT_UPDATE
 
 
 # All update events must be listed in this variable.
@@ -39,5 +40,6 @@ UPDATES = [
     SET_USER_FIELD_UPDATE,
     CHECKOUT_STEP_BY_IDX_UPDATE,
     UPDATE_FEEDBACK_V2_OBJECT_UPDATE,
-    GO_PRO_UPDATE
+    GO_PRO_UPDATE,
+    RENDER_COUNT_UPDATE
 ]

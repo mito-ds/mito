@@ -103,6 +103,11 @@ def delete_column_ids(
     column_ids: List[ColumnID],
 ) -> Tuple[State, float]:
 
+
+    # First, we check that we can delete these columns, and error if we cannot
+    if not set(column_ids).issubset(set(state.column_ids.get_column_ids_map(sheet_index).keys())):
+        raise make_invalid_column_delete_error(column_ids)
+
     column_evaluation_graph = create_column_evaluation_graph(state, sheet_index)
 
     # Put the columns in a topological sorting so we delete columns that reference
@@ -140,7 +145,7 @@ def _delete_column_id(
     
     column_evaluation_graph = create_column_evaluation_graph(state, sheet_index)
     column_header = state.column_ids.get_column_header_by_id(sheet_index, column_id)
-    
+
     # Return False if there are any columns that currently rely on this column, 
     # so we can display an error message with all of the un-deletable columns.
     if len(column_evaluation_graph[column_id]) > 0:

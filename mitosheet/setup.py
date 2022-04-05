@@ -130,7 +130,7 @@ if name == 'mitosheet2':
                 'wheel', 
                 'twine',
                 "jupyter_packaging<=0.10.6",
-                "setuptools>=40.8.0,<61.0.0"
+                "setuptools==56.0.0"
             ]
         },
         entry_points = {
@@ -233,7 +233,7 @@ elif name == 'mitosheet' or name == 'mitosheet3' or name == 'mitosheet-private':
                 'wheel', 
                 'twine',
                 "jupyter_packaging<=0.10.6",
-                "setuptools>=40.8.0,<61.0.0"
+                "setuptools==56.0.0"
             ]
         },
         zip_safe                = False,

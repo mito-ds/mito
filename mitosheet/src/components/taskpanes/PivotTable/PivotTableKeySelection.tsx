@@ -17,6 +17,7 @@ import SelectAndXIconCard from '../../elements/SelectAndXIconCard';
 */
 const PivotTableKeySelection = (props: {
     sectionTitle: string;
+    sectionSubtext?: string;
     rowOrColumn: 'row' | 'column';
     columnIDsMap: ColumnIDsMap;
     selectedColumnIDs: ColumnID[];
@@ -69,6 +70,11 @@ const PivotTableKeySelection = (props: {
                     </DropdownButton>
                 </Col>
             </Row>
+            {props.sectionSubtext !== undefined &&
+                <p className='text-subtext-1'>
+                    {props.sectionSubtext}
+                </p>
+            }
             <PivotInvalidSelectedColumnsError
                 columnIDsMap={props.columnIDsMap}
                 selectedColumnIDs={props.selectedColumnIDs}

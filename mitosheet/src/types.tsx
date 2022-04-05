@@ -473,18 +473,6 @@ export interface GridState {
 }
 
 /**
- * An object storing all the data necessary to write a code cell.
- * 
- * @param imports - the import string
- * @param code - the lines of code to write to the cell
- */
-export interface Code {
-    imports: string;
-    code: string[];
-}
-
-
-/**
  * The type of data that is in this current Mito analysis.
  * 
  * @remark this should be the same as the file in the Python code
@@ -541,22 +529,31 @@ export type FormatTypeObj =
 /**
  * An object representing all the data about the analysis that is occuring currently.
  * 
- * @param analysisName - the name of the analysis used for writing to the cell. NOT THE SAVED ANALYSIS NAME.
+ * @param analysisName - the name of the analysis id that is for writing to the cell (after the analysis has been replayed)
+ * @param analysisToReplay - the analysis that was passed through the analysis_to_replay parameter to the mitosheet.sheet call
  * @param code - the transpiled code of this analysis
  * @param stepSummaryList - a list of step summaries for the steps in this analysis
  * @param currStepIdx - the index of the currently checked out step, in the stepSummaryList
  * @param dataTypeInTool - the type of data in the tool in this analysis
  * @param graphDataDict - a mapping from graphID to all of the relevant graph information
  * @param updateEventCount - the number of update events that have been successfully processed by the frontend
+ * @param renderCount - the number of times this sheet has rendered. Note that this is per instance of the backend object, 
+ *        so it increments by one when the page the sheet is rendered on is refreshed, but resets to zero if a new
+ *        mitosheet.sheet() call is made (even if it replays the analysis), as this is a new backend object.
  */
 export interface AnalysisData {
     analysisName: string,
-    code: Code,
+    analysisToReplay: {
+        analysisName: string,
+        existsOnDisk: boolean,
+    } | null | undefined,
+    code: string[],
     stepSummaryList: StepSummary[],
     currStepIdx: number,
     dataTypeInTool: DataTypeInMito;
     graphDataDict: GraphDataDict;
     updateEventCount: number;
+    renderCount: number;
 }
 
 /**

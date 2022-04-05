@@ -101,6 +101,8 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
     }, [props.tabName])
     
     const onRename = async (): Promise<void> => {
+        void props.closeOpenEditingPopups(); // First, make sure to close open editing popups
+
         if (props.tabIDObj.tabType === 'data') {
             await props.mitoAPI.editDataframeRename(
                 props.tabIDObj.sheetIndex,
