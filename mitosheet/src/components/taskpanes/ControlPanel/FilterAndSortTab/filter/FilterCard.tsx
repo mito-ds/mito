@@ -24,6 +24,8 @@ interface FilterCardProps {
     columnID: ColumnID;
     columnDtype: string;
     mitoAPI: MitoAPI;
+    rowDifference: number;
+    editedFilter: React.MutableRefObject<boolean>
 }
 
 export const ADD_FILTER_SELECT_TITLE = '+ Add Filter'
@@ -256,6 +258,14 @@ function FilterCard (props: FilterCardProps): JSX.Element {
                     onClick={addFilterGroup}
                 />
             </DropdownButton>
+            {props.editedFilter.current && 
+                <Row className='text-subtext-1'>
+                    {props.rowDifference >= 0 ?
+                        `Removed an additional ${Math.abs(props.rowDifference)} rows` : 
+                        `Added back ${Math.abs(props.rowDifference)} rows`
+                    }
+                </Row>
+            }
         </div>
     )
 }
