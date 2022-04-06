@@ -4,6 +4,16 @@ description: Want to see what is new in the Mitosheet? Check it out below.
 
 # Release Notes
 
+## 2022-4-5 <a href="#2022-4-5" id="2022-4-5"></a>
+
+
+Bug Fixes:
+* Make sheets with massive numbers of columns work with Mito better, by only displaying the first 1500 columns.
+* Add a warning to pivot tables letting users know that adding a `column` key with a large number of unique values will cause performance problems.
+* Make analysis replaying much more robust by adding an `analysis_to_replay` parameter to the `mitosheet.sheet()` call. This will stop Mito generated code from getting deleted from the sheet, as it did in the past!
+
+
+
 ## 2022-3-29 <a href="#2022-3-29" id="2022-3-29"></a>
 
 New Features:

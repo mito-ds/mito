@@ -18,7 +18,7 @@ from mitosheet.types import StepsManagerType
 
 IN_PREVIOUS_STEP_COMMENT = '# You\'re viewing a previous step. Click fast forward in the Mitosheet above to see the full analysis.'
 
-def transpile(steps_manager: StepsManagerType, add_comments: bool=True) -> Dict[str, Any]:
+def transpile(steps_manager: StepsManagerType, add_comments: bool=True) -> List[str]:
     """
     Transpiles the code from the current steps in the steps_manager, 
     displaying up to the checked out step.
@@ -56,7 +56,4 @@ def transpile(steps_manager: StepsManagerType, add_comments: bool=True) -> Dict[
     if steps_manager.curr_step_idx != len(steps_manager.steps) - 1:
         code.append(IN_PREVIOUS_STEP_COMMENT)
 
-    return {
-        'imports': f'from mitosheet import *',
-        'code': code
-    }
+    return code
