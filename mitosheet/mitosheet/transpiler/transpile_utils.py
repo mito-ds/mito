@@ -4,8 +4,10 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Any, List, Set, Union
+from typing import Any, Dict, List, Set, Union
 from mitosheet.types import ColumnHeader
+
+TAB = '    '
 
 
 def column_header_list_to_transpiled_code(column_headers: Union[List[Any], Set[Any]]) -> str:
@@ -47,3 +49,20 @@ def list_to_string_without_internal_quotes(list: List[Any]) -> str:
     """
     string = (', ').join(list)
     return "[" + string +  "]"
+
+def column_header_map_to_string(column_header_map: Dict[ColumnHeader, ColumnHeader]) -> str:
+    if len(column_header_map) <= 3:
+        # If there are only a few column headers, we put them in a single line
+        result = '{' 
+        for column_header_key, column_header_value in column_header_map.items():
+            result += f'{column_header_to_transpiled_code(column_header_key)}: {column_header_to_transpiled_code(column_header_value)}, '
+        result = result[:-2] + "}" # don't take the last comma and space
+        return result
+    else:
+        result = '{\n' 
+        for column_header_key, column_header_value in column_header_map.items():
+            result += f'{TAB}{column_header_to_transpiled_code(column_header_key)}: {column_header_to_transpiled_code(column_header_value)},\n'
+        result = result[:-2] + "\n}" # don't take the last comma and new line
+        return result
+    
+    

@@ -117,3 +117,46 @@ def test_multiple_rename_optimizes():
     assert mito.transpiled_code == [
         "df1.rename(columns={'A': 'E'}, inplace=True)"
     ]
+
+def test_multiple_rename_different_columns_optimizes():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123], 'AA': [1234]}))
+    mito.rename_column(0, 'A', 'B')
+    mito.rename_column(0, 'AA', 'BB')
+    mito.rename_column(0, 'B', 'C')
+    mito.rename_column(0, 'BB', 'CC')
+    mito.rename_column(0, 'C', 'D')
+    mito.rename_column(0, 'CC', 'DD')
+    mito.rename_column(0, 'D', 'E')
+    mito.rename_column(0, 'DD', 'EE')
+
+    assert mito.transpiled_code == [
+        "df1.rename(columns={'A': 'E', 'AA': 'EE'}, inplace=True)"
+    ]
+
+def test_multiple_rename_more_than_three_columns():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123], 'AA': [1234], 'AAA': [12345], 'AAAA': [123456]}))
+    mito.rename_column(0, 'A', 'B')
+    mito.rename_column(0, 'AA', 'BB')
+    mito.rename_column(0, 'AAA', 'BBB')
+    mito.rename_column(0, 'AAAA', 'BBBB')
+    mito.rename_column(0, 'B', 'C')
+    mito.rename_column(0, 'BB', 'CC')
+    mito.rename_column(0, 'BBB', 'CCC')
+    mito.rename_column(0, 'BBBB', 'CCCC')
+    mito.rename_column(0, 'C', 'D')
+    mito.rename_column(0, 'CC', 'DD')
+    mito.rename_column(0, 'CCC', 'DDD')
+    mito.rename_column(0, 'CCCC', 'DDDD')
+    mito.rename_column(0, 'D', 'E')
+    mito.rename_column(0, 'DD', 'EE')
+    mito.rename_column(0, 'DDD', 'EEE')
+    mito.rename_column(0, 'DDDD', 'EEEE')
+
+    assert mito.transpiled_code == [
+        "df1.rename(columns={\n\
+    'A': 'E',\n\
+    'AA': 'EE',\n\
+    'AAA': 'EEE',\n\
+    'AAAA': 'EEEE'\n\
+}, inplace=True)"
+    ]

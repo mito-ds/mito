@@ -10,8 +10,8 @@ from mitosheet.code_chunks.add_column_set_formula_code_chunk import AddColumnSet
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
+from mitosheet.code_chunks.rename_columns_code_chunk import RenameColumnsCodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnCodeChunk
-from mitosheet.code_chunks.step_performers.column_steps.rename_column_code_chunk import RenameColumnCodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.set_column_formula_code_chunk import RefreshDependantColumnsCodeChunk
 from mitosheet.transpiler.transpile_utils import \
     column_header_to_transpiled_code
@@ -74,7 +74,7 @@ class AddColumnCodeChunk(CodeChunk):
         
         return None
     
-    def _combine_right_with_rename_column_code_chunk(self, other_code_chunk: RenameColumnCodeChunk) -> Optional["CodeChunk"]:
+    def _combine_right_with_rename_columns_code_chunk(self, other_code_chunk: RenameColumnsCodeChunk) -> Optional["CodeChunk"]:
         # Make sure the sheet index matches up first
         if not self.params_match(other_code_chunk, ['sheet_index']):
             return None
@@ -83,21 +83,24 @@ class AddColumnCodeChunk(CodeChunk):
         sheet_index = self.get_param('sheet_index')
         added_column_header = self.get_param('column_header')
         added_column_id = self.post_state.column_ids.get_column_id_by_header(sheet_index, added_column_header)
-        renamed_column_id = other_code_chunk.get_param('column_id')
+        column_ids_to_new_column_headers = other_code_chunk.get_param('column_ids_to_new_column_headers')
 
-        if added_column_id != renamed_column_id:
+        if added_column_id in column_ids_to_new_column_headers and len(column_ids_to_new_column_headers) == 1:
+            # Handle the case where the is just one column added here
+            new_column_header = column_ids_to_new_column_headers[added_column_id]
+            return AddColumnCodeChunk(
+                self.prev_state,
+                other_code_chunk.post_state,
+                {
+                    'sheet_index': self.get_param('sheet_index'),
+                    'column_header': new_column_header,
+                },
+                self.execution_data
+            )
+        else:
+            # We'd prefer to keep all the renames together in this case, although
+            # this will not happen often
             return None
-
-        new_column_header = other_code_chunk.get_param('new_column_header')
-        return AddColumnCodeChunk(
-            self.prev_state,
-            other_code_chunk.post_state,
-            {
-                'sheet_index': self.get_param('sheet_index'),
-                'column_header': new_column_header,
-            },
-            self.execution_data
-        )
     
     def _combine_right_with_refresh_dependant_columns_code_chunk(self, other_code_chunk: RefreshDependantColumnsCodeChunk) -> Optional["CodeChunk"]:
         if not self.params_match(other_code_chunk, ['sheet_index']):
@@ -124,8 +127,8 @@ class AddColumnCodeChunk(CodeChunk):
     def combine_right(self, other_code_chunk) -> Optional["CodeChunk"]:
         if isinstance(other_code_chunk, DeleteColumnCodeChunk):
             return self._combine_right_with_delete_column_code_chunk(other_code_chunk)
-        elif isinstance(other_code_chunk, RenameColumnCodeChunk):
-            return self._combine_right_with_rename_column_code_chunk(other_code_chunk)
+        elif isinstance(other_code_chunk, RenameColumnsCodeChunk):
+            return self._combine_right_with_rename_columns_code_chunk(other_code_chunk)
         elif isinstance(other_code_chunk, RefreshDependantColumnsCodeChunk):
             return self._combine_right_with_refresh_dependant_columns_code_chunk(other_code_chunk)
 

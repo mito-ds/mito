@@ -4,18 +4,17 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from copy import deepcopy
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.column_steps.rename_column_code_chunk import RenameColumnCodeChunk
+from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
+from mitosheet.code_chunks.rename_columns_code_chunk import RenameColumnsCodeChunk
 
 from mitosheet.errors import make_column_exists_error
 from mitosheet.evaluation_graph_utils import create_column_evaluation_graph
 from mitosheet.parser import safe_replace
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
 from mitosheet.types import ColumnHeader, ColumnID
 
 
@@ -83,8 +82,23 @@ class RenameColumnStepPerformer(StepPerformer):
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
+        if params['new_column_header'] == '':
+            # If the new column header is an empty string, it's a noop
+            return [EmptyCodeChunk(prev_state, post_state, {}, {})]
+
+
         return [
-            RenameColumnCodeChunk(prev_state, post_state, params, execution_data)
+            RenameColumnsCodeChunk(
+                prev_state, 
+                post_state, 
+                {
+                    'sheet_index': params['sheet_index'],
+                    'column_ids_to_new_column_headers': {
+                        params['column_id']: params['new_column_header']
+                    },
+                }, 
+                execution_data
+            )
         ]
     
     @classmethod
