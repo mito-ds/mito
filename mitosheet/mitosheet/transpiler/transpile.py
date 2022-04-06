@@ -60,7 +60,4 @@ def transpile(
     if steps_manager.curr_step_idx != len(steps_manager.steps) - 1:
         code.append(IN_PREVIOUS_STEP_COMMENT)
 
-    return {
-        'imports': f'from mitosheet import *',
-        'code': code
-    }
+    return code

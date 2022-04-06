@@ -30,11 +30,11 @@ function useSyncedParams<T>(
     analysisData: AnalysisData,
     debounceDelay: number
 ): {
-    params: T | undefined, // If this is undefined, no messages will be send to the backend
-    setParams: React.Dispatch<React.SetStateAction<T>>, 
-    error: string | undefined,
-    loading: boolean // This loading indicator is for if the edit message is processing
-} {
+        params: T | undefined, // If this is undefined, no messages will be send to the backend
+        setParams: React.Dispatch<React.SetStateAction<T>>, 
+        error: string | undefined,
+        loading: boolean // This loading indicator is for if the edit message is processing
+    } {
 
     const [params, _setParams] = useState(defaultParams);
     const [updateNumber, setUpdateNumber] = useState(0);

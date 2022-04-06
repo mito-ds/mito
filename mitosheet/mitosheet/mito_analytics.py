@@ -398,7 +398,6 @@ def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, 
         # NOTE: we keep this as underscored with wsc for backwards compatibility with
         # our logs!
         steps_manager_properties = {
-            # NOTE: Analysis name is the UUID that mito saves the analysis under
             'wsc_analysis_name': steps_manager.analysis_name,
             # NOTE: Change this when code fixing this logic is merged in
             'wsc_data_type_in_mito': str(steps_manager.data_type_in_mito),
@@ -406,12 +405,6 @@ def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, 
             'wsc_curr_step_idx': steps_manager.curr_step_idx,
             'wsc_curr_step_type': steps_manager.curr_step.step_type,
         }
-
-        if event['type'] == 'replay_analysis_update' or event['type'] == 'save_analysis_update':
-            # We log the steps, when the user saves or replays an analysis
-            steps_manager_properties['steps_manager_steps'] = [
-                step.step_type for step in steps_manager.steps
-            ]
 
         # We also check there is an edit_error, and if there is, then we add the error logs
         if mito_error is not None:

@@ -125,7 +125,7 @@ class MitoWidgetTestWrapper:
     def transpiled_code(self):
         # NOTE: we don't add comments to this testing functionality, so that 
         # we don't have to change tests if we update comments
-        return transpile(self.mito_widget.steps_manager, add_comments=False)['code']
+        return transpile(self.mito_widget.steps_manager, add_comments=False)
 
     @property
     def curr_step_idx(self):
@@ -725,7 +725,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def replay_analysis(self, analysis_name: str, import_summaries: Dict[str, Any]=None, clear_existing_analysis: bool=False) -> bool:
+    def replay_analysis(self, analysis_name: str) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
             {
@@ -733,8 +733,6 @@ class MitoWidgetTestWrapper:
                 'id': get_new_id(),
                 'type': 'replay_analysis_update',
                 'analysis_name': analysis_name,
-                'import_summaries': import_summaries,
-                'clear_existing_analysis': clear_existing_analysis
             }
         )
 
