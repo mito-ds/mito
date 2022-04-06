@@ -6,6 +6,7 @@
 """
 Contains tests for sort edit events.
 """
+from mitosheet.step_performers.sort import ASCENDING, DESCENDING
 import pytest
 import pandas as pd
 

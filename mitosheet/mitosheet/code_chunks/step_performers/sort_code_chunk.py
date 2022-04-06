@@ -4,9 +4,11 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import List
+from typing import List, Optional
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.code_chunk_utils import get_right_combine_with_column_delete_code_chunk
+from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnsCodeChunk
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
 
 class SortCodeChunk(CodeChunk):

@@ -5,15 +5,16 @@
 # Distributed under the terms of the GPL License.
 
 
-from collections import deque
 from copy import copy
-from typing import List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Any
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.no_op_code_chunk import NoOpCodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnsCodeChunk
-from mitosheet.step import Step
-from mitosheet.types import ColumnID
+
+if TYPE_CHECKING:
+    from mitosheet.step import Step
+else:
+    Step = Any
 
 def optimize_code_chunks(all_code_chunks: List[CodeChunk]) -> List[CodeChunk]:
     """
@@ -109,8 +110,16 @@ def get_right_combine_with_column_delete_code_chunk(
     a delete column chunk, can be optimized out. 
 
     As such, we have a general utility we can apply to apply this optimization
-    to a variety of steps, including: changing dtypes, sorting columns, setting
-    formulas, etc.
+    to a variety of steps, including: setting cell values, setting column formulas.
+
+    NOTE: If you set a cell value, and there are formulas dependent on this column,
+    then these formulas refresh. Thus, it might seem like optimizing out the setting
+    cell values might lead to invalid code - but notably, you cannot delete columns
+    that have columns that are dependant on them - so this is not a problem!
+
+    NOTE: we cannot use this on sort, as sort potentially changes the indexes of the 
+    dataframe, which is a lasting changing that occurs even after this column
+    is deleted
     """
     # If the sheet indexes don't match, bail
     if code_chunk.get_param(sheet_index_key) != delete_columns_code_chunk.get_param('sheet_index'):

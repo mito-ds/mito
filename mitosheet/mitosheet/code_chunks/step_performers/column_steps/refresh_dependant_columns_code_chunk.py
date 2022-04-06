@@ -5,9 +5,11 @@
 # Distributed under the terms of the GPL License.
 
 
-from typing import List
+from typing import List, Optional
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.code_chunk_utils import get_right_combine_with_column_delete_code_chunk
+from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnsCodeChunk
 from mitosheet.evaluation_graph_utils import topological_sort_dependent_columns
 from mitosheet.parser import parse_formula
 
@@ -54,3 +56,17 @@ class RefreshDependantColumnsCodeChunk(CodeChunk):
             code.append(python_code)
 
         return code
+
+    def _combine_right_with_delete_column_code_chunk(self, other_code_chunk: DeleteColumnsCodeChunk) -> Optional["CodeChunk"]:
+        return get_right_combine_with_column_delete_code_chunk(
+            self,
+            other_code_chunk,
+            'sheet_index',
+            'column_id',
+        )
+
+    def combine_right(self, other_code_chunk) -> Optional["CodeChunk"]:
+        if isinstance(other_code_chunk, DeleteColumnsCodeChunk):
+            return self._combine_right_with_delete_column_code_chunk(other_code_chunk)
+
+        return None

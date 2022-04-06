@@ -172,3 +172,53 @@ def test_set_formula_then_rename_no_optimize_yet():
         "df1['B'] = 10", 
         "df1.rename(columns={'B': 'C'}, inplace=True)"
     ]
+
+def test_set_formula_then_delete_optimize():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
+    mito.add_column(0, 'B')
+    mito.sort(0, 'B', ASCENDING) # Sort to break up the optimization
+    mito.set_formula('=10', 0, 'B', add_column=False)
+    mito.delete_columns(0, ['B'])
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1]}))
+    assert mito.transpiled_code == [
+        "df1.insert(1, 'B', 0)", 
+        "df1 = df1.sort_values(by='B', ascending=True, na_position='first')",
+        "df1.drop(['B'], axis=1, inplace=True)"
+    ]
+
+def test_set_formula_then_delete_optimizes_multiple():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
+    mito.add_column(0, 'B')
+    mito.sort(0, 'B', ASCENDING) # Sort to break up the optimization
+    mito.set_formula('=10', 0, 'B', add_column=False)
+    mito.set_formula('=11', 0, 'B', add_column=False)
+    mito.set_formula('=12', 0, 'B', add_column=False)
+    mito.set_formula('=13', 0, 'B', add_column=False)
+    mito.delete_columns(0, ['B'])
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1]}))
+    assert mito.transpiled_code == [
+        "df1.insert(1, 'B', 0)", 
+        "df1 = df1.sort_values(by='B', ascending=True, na_position='first')",
+        "df1.drop(['B'], axis=1, inplace=True)"
+    ]
+
+def test_set_multiple_formula_then_delete_optimizes_multiple():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
+    mito.add_column(0, 'B')
+    mito.add_column(0, 'C')
+    mito.sort(0, 'B', ASCENDING) # Sort to break up the optimization
+    mito.set_formula('=10', 0, 'B', add_column=False)
+    mito.set_formula('=11', 0, 'B', add_column=False)
+    mito.set_formula('=12', 0, 'C', add_column=False)
+    mito.set_formula('=13', 0, 'C', add_column=False)
+    mito.delete_columns(0, ['B', 'C'])
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1]}))
+    assert mito.transpiled_code == [
+        "df1.insert(1, 'B', 0)", 
+        "df1.insert(2, 'C', 0)", 
+        "df1 = df1.sort_values(by='B', ascending=True, na_position='first')",
+        "df1.drop(['B', 'C'], axis=1, inplace=True)"
+    ]
