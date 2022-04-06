@@ -6,23 +6,22 @@
 from copy import deepcopy
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
-from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.column_steps.set_column_formula_code_chunk import RefreshDependantColumnsCodeChunk
-from mitosheet.code_chunks.step_performers.set_cell_value_code_chunk import SetCellValueCodeChunk
 
 import numpy as np
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.refresh_dependant_columns_code_chunk import \
+    RefreshDependantColumnsCodeChunk
+from mitosheet.code_chunks.step_performers.set_cell_value_code_chunk import \
+    SetCellValueCodeChunk
 from mitosheet.errors import (make_cast_value_to_type_error,
                               make_no_column_error)
 from mitosheet.sheet_functions.types import get_function_to_convert_to_series
-from mitosheet.sheet_functions.types.utils import (is_bool_dtype, is_int_dtype,
-                                                   is_none_type,
+from mitosheet.sheet_functions.types.utils import (is_int_dtype, is_none_type,
                                                    is_number_dtype,
-                                                   is_string_dtype,
-                                                   is_datetime_dtype,
-                                                   is_timedelta_dtype)
+                                                   is_string_dtype)
 from mitosheet.state import State
-from mitosheet.step_performers.column_steps.set_column_formula import (
-    refresh_dependant_columns, transpile_dependant_columns)
+from mitosheet.step_performers.column_steps.set_column_formula import \
+    refresh_dependant_columns
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.transpiler.transpile_utils import \
     column_header_to_transpiled_code

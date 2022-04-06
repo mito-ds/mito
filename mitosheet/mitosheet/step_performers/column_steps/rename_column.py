@@ -8,7 +8,8 @@ from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
-from mitosheet.code_chunks.rename_columns_code_chunk import RenameColumnsCodeChunk
+from mitosheet.code_chunks.no_op_code_chunk import NoOpCodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.rename_columns_code_chunk import RenameColumnsCodeChunk
 
 from mitosheet.errors import make_column_exists_error
 from mitosheet.evaluation_graph_utils import create_column_evaluation_graph
@@ -84,13 +85,16 @@ class RenameColumnStepPerformer(StepPerformer):
     ) -> List[CodeChunk]:
         if params['new_column_header'] == '':
             # If the new column header is an empty string, it's a noop
-            return [EmptyCodeChunk(prev_state, post_state, {}, {})]
+            return [NoOpCodeChunk(prev_state, post_state, {}, {})]
 
 
         return [
             RenameColumnsCodeChunk(
                 prev_state, 
                 post_state, 
+                # We construct a rename for mulitple columns, as this is the most 
+                # convenient way to allow us to combine multiple renames
+                # into one
                 {
                     'sheet_index': params['sheet_index'],
                     'column_ids_to_new_column_headers': {

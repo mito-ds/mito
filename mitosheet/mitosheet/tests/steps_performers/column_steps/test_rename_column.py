@@ -199,3 +199,41 @@ def test_multiple_renames_optimizes_then_delete_multiple():
     assert mito.transpiled_code == [
         "df1.drop(['A', 'F'], axis=1, inplace=True)"
     ]
+
+def test_rename_different_sheets_does_not_optimize():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123]}))
+    mito.duplicate_dataframe(0)
+    mito.rename_column(0, 'A', 'B')
+    mito.rename_column(1, 'A', 'B')
+
+    assert mito.transpiled_code == [
+        'df1_copy = df1.copy(deep=True)',
+        "df1.rename(columns={'A': 'B'}, inplace=True)",
+        "df1_copy.rename(columns={'A': 'B'}, inplace=True)"
+    ]
+
+def test_double_rename_different_sheets_does_optimize():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123]}))
+    mito.duplicate_dataframe(0)
+    mito.rename_column(0, 'A', 'B')
+    mito.rename_column(0, 'B', 'C')
+    mito.rename_column(1, 'A', 'B')
+    mito.rename_column(1, 'B', 'C')
+
+    assert mito.transpiled_code == [
+        'df1_copy = df1.copy(deep=True)',
+        "df1.rename(columns={'A': 'C'}, inplace=True)",
+        "df1_copy.rename(columns={'A': 'C'}, inplace=True)"
+    ]
+
+def test_rename_then_delete_different_sheet_no_optimize():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123]}))
+    mito.duplicate_dataframe(0)
+    mito.rename_column(0, 'A', 'B')
+    mito.delete_columns(1, 'A')
+
+    assert mito.transpiled_code == [
+        'df1_copy = df1.copy(deep=True)',
+        "df1.rename(columns={'A': 'B'}, inplace=True)",
+        "df1_copy.drop(['A'], axis=1, inplace=True)",
+    ]

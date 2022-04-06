@@ -9,6 +9,7 @@ import uuid
 from copy import copy, deepcopy
 import pandas as pd
 from typing import Any, Dict, Collection, List, Set, Tuple, Union
+from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
 from mitosheet.mito_analytics import log
 
 from mitosheet.step_performers.import_steps.simple_import import (
@@ -289,33 +290,19 @@ class StepsManager:
     def step_summary_list(self) -> List:
         """
         Returns a json list of step summaries, not including
-        the skipped steps
+        the skipped steps. 
         """
         step_summary_list = []
-        step_indexes_to_skip = get_step_indexes_to_skip(self.steps)
-        for index, step in enumerate(self.steps):
-            if step.step_type == "initialize":
-                step_summary_list.append(
-                    {
-                        "step_id": step.step_id,
-                        "step_idx": 0,
-                        "step_type": step.step_type,
-                        "step_display_name": "Created a mitosheet",
-                        "step_description": "Created a new mitosheet",
-                    }
-                )
-                continue
-
-            if index in step_indexes_to_skip:
-                continue
-
+        
+        code_chunks = get_code_chunks(self.steps)
+        for index, code_chunk in enumerate(code_chunks):
             step_summary_list.append(
                 {
-                    "step_id": step.step_id,
+                    "step_id": 'TODO',
                     "step_idx": index,
-                    "step_type": step.step_type,
-                    "step_display_name": "TODO: fill this in with code chunks",
-                    "step_description": "TODO: fill this in with code cunks",
+                    "step_type": 'abc',
+                    "step_display_name": code_chunk.get_display_name(),
+                    "step_description": code_chunk.get_description_comment(),
                 }
             )
 

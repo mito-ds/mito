@@ -9,10 +9,10 @@ from typing import List, Optional
 from mitosheet.code_chunks.add_column_set_formula_code_chunk import AddColumnSetFormulaCodeChunk
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
-from mitosheet.code_chunks.rename_columns_code_chunk import RenameColumnsCodeChunk
+from mitosheet.code_chunks.no_op_code_chunk import NoOpCodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.rename_columns_code_chunk import RenameColumnsCodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnsCodeChunk
-from mitosheet.code_chunks.step_performers.column_steps.set_column_formula_code_chunk import RefreshDependantColumnsCodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.refresh_dependant_columns_code_chunk import RefreshDependantColumnsCodeChunk
 from mitosheet.transpiler.transpile_utils import \
     column_header_to_transpiled_code
 
@@ -51,10 +51,10 @@ class AddColumnCodeChunk(CodeChunk):
         deleted_column_ids = other_code_chunk.get_param('column_ids')
 
         if added_column_id in deleted_column_ids and len(deleted_column_ids) == 1:
-            return EmptyCodeChunk(
+            return NoOpCodeChunk(
                 self.prev_state, 
                 other_code_chunk.post_state, 
-                other_code_chunk.params,
+                {},
                 other_code_chunk.execution_data # TODO: this is out of date, but we don't use it!
             )
         elif added_column_id in deleted_column_ids:

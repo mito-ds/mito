@@ -66,9 +66,17 @@ class GraphRenameStepPerformer(StepPerformer):
 
         # Graph steps don't add any generated code to the analysis script. 
         return [
-            EmptyCodeChunk(prev_state, post_state, params, execution_data)
+            EmptyCodeChunk(
+                prev_state, 
+                post_state, 
+                {
+                    'display_name': 'Renamed graph',
+                    'description_comment': 'Renamed a graph',
+                }, 
+                execution_data
+            )
         ]
-
+    
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore
         cls, 

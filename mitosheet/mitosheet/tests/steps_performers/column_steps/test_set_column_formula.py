@@ -6,6 +6,7 @@
 """
 Contains tests for set column formula edit events
 """
+from mitosheet.step_performers.sort import ASCENDING
 from numpy import add
 import pandas as pd
 
@@ -156,3 +157,18 @@ def test_formula_with_letters_df_in_column_header_works():
             'A': [1]
         })
     )
+
+def test_set_formula_then_rename_no_optimize_yet():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
+    mito.add_column(0, 'B')
+    mito.sort(0, 'B', ASCENDING) # Sort to break up the optimization
+    mito.set_formula('=10', 0, 'B', add_column=False)
+    mito.rename_column(0, 'B', 'C')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1], 'C': [10]}))
+    assert mito.transpiled_code == [
+        "df1.insert(1, 'B', 0)", 
+        "df1 = df1.sort_values(by='B', ascending=True, na_position='first')", 
+        "df1['B'] = 10", 
+        "df1.rename(columns={'B': 'C'}, inplace=True)"
+    ]

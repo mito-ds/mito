@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Set, Union
 from mitosheet.types import ColumnHeader
 
 TAB = '    '
+NEWLINE_TAB = f'\n{TAB}'
 
 
 def column_header_list_to_transpiled_code(column_headers: Union[List[Any], Set[Any]]) -> str:

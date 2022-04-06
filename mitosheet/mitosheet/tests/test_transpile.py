@@ -3,6 +3,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
+from mitosheet.transpiler.transpile_utils import NEWLINE_TAB
 import pytest
 import pandas as pd
 
@@ -169,8 +170,6 @@ def test_optimization_with_other_edits():
         'df3 = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
     ]
 
-TAB = '    '
-NEWLINE_TAB = f'\n{TAB}'
 flatten_code = f'pivot_table.columns = [{NEWLINE_TAB}\'_\'.join([str(c) for c in col]).strip() if isinstance(col, tuple) else col{NEWLINE_TAB}for col in pivot_table.columns.values\n]'
 
 

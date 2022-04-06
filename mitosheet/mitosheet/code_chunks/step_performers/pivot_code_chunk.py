@@ -7,11 +7,10 @@
 from typing import Collection, Dict, List
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.transpiler.transpile_utils import NEWLINE_TAB
 from mitosheet.types import ColumnHeader
 
 # Helpful constants for code formatting
-TAB = '    '
-NEWLINE_TAB = f'\n{TAB}'
 
 FLATTEN_CODE = f'pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1, inplace=True)'
 

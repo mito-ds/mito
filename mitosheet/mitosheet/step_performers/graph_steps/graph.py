@@ -196,7 +196,15 @@ class GraphStepPerformer(StepPerformer):
     ) -> List[CodeChunk]:
         # Graph steps don't add any generated code to the analysis script. 
         return [
-            EmptyCodeChunk(prev_state, post_state, params, execution_data)
+            EmptyCodeChunk(
+                prev_state, 
+                post_state, 
+                {
+                    'display_name': 'Edited graph',
+                    'description_comment': 'Edited a graph',
+                },
+                execution_data
+            )
         ]
 
     @classmethod

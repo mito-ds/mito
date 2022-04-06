@@ -9,16 +9,19 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 
 
 class EmptyCodeChunk(CodeChunk):
+    """
+    A code chunk that generates no code, but has a title. 
+
+    NOTE: This is different than a NoOpCodeChunk, which we
+    always want to be optimized out, as this has data we
+    want to display to the user.
+    """
 
     def get_display_name(self) -> str:
-        return 'No operation'
+        return self.get_param('display_name')
     
     def get_description_comment(self) -> str:
-        return 'Did nothing'
+        return self.get_param('description_comment')
 
     def get_code(self) -> List[str]:
         return []
-
-    def combine_right(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:
-        # The empty code chunk always overwrites itself with the right code chunk
-        return other_code_chunk

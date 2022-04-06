@@ -65,7 +65,15 @@ class GraphDuplicateStepPerformer(StepPerformer):
 
         # Graph steps don't add any generated code to the analysis script. 
         return [
-            EmptyCodeChunk(prev_state, post_state, params, execution_data)
+            EmptyCodeChunk(
+                prev_state, 
+                post_state, 
+                {
+                    'display_name': 'Duplicated graph',
+                    'description_comment': 'Duplicated a graph',
+                }, 
+                execution_data
+            )
         ]
     
     @classmethod

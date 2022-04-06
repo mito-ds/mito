@@ -63,7 +63,15 @@ class GraphDeleteStepPerformer(StepPerformer):
 
         # Graph steps don't add any generated code to the analysis script. 
         return [
-            EmptyCodeChunk(prev_state, post_state, params, execution_data)
+            EmptyCodeChunk(
+                prev_state, 
+                post_state, 
+                {
+                    'display_name': 'Deleted graph',
+                    'description_comment': 'Deleted a graph',
+                }, 
+                execution_data
+            )
         ]
     
     @classmethod

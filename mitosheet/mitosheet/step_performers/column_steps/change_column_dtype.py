@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.change_column_dtype_code_chunk import ChangeColumnDtypeCodeChunk
-from mitosheet.code_chunks.step_performers.column_steps.set_column_formula_code_chunk import RefreshDependantColumnsCodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.refresh_dependant_columns_code_chunk import RefreshDependantColumnsCodeChunk
 
 from mitosheet.errors import get_recent_traceback, make_invalid_column_type_change_error
 from mitosheet.sheet_functions.types import to_int_series
@@ -26,9 +26,8 @@ from mitosheet.sheet_functions.types.utils import (get_datetime_format,
                                                    is_timedelta_dtype)
 from mitosheet.state import FORMAT_DEFAULT, State
 from mitosheet.step_performers.column_steps.set_column_formula import (
-    refresh_dependant_columns, transpile_dependant_columns)
+    refresh_dependant_columns)
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
 from mitosheet.types import ColumnID
 
 

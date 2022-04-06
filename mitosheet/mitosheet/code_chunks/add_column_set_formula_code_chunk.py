@@ -8,8 +8,9 @@ from copy import copy
 from typing import List, Optional
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
+from mitosheet.code_chunks.no_op_code_chunk import NoOpCodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnsCodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.rename_columns_code_chunk import RenameColumnsCodeChunk
 from mitosheet.parser import parse_formula
 from mitosheet.transpiler.transpile_utils import \
     column_header_to_transpiled_code
@@ -58,10 +59,10 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
         deleted_column_ids = other_code_chunk.get_param('column_ids')
 
         if added_column_id in deleted_column_ids and len(deleted_column_ids) == 1:
-            return EmptyCodeChunk(
+            return NoOpCodeChunk(
                 self.prev_state, 
                 other_code_chunk.post_state, 
-                other_code_chunk.params,
+                {},
                 other_code_chunk.execution_data # TODO: this is out of date, but we don't use it!
             )
         elif added_column_id in deleted_column_ids:
@@ -82,8 +83,31 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
         
         return None
 
+    def _combine_right_with_rename_columns_code_chunk(self, other_code_chunk: RenameColumnsCodeChunk) -> Optional["CodeChunk"]:
+        if not self.params_match(other_code_chunk, ['sheet_index']):
+            return None
+
+        added_column_id = self.get_param('column_id')
+        column_ids_to_new_column_headers = other_code_chunk.get_param('column_ids_to_new_column_headers')
+
+        if added_column_id in column_ids_to_new_column_headers and len(column_ids_to_new_column_headers) == 1:
+            return AddColumnSetFormulaCodeChunk(
+                self.prev_state,
+                other_code_chunk.post_state,
+                {
+                    'sheet_index': self.get_param('sheet_index'),
+                    'column_id': self.get_param('column_id'),
+                    'column_header': column_ids_to_new_column_headers[added_column_id],
+                },
+                self.execution_data # We need execution data here
+            )
+
+        return None
+        
     def combine_right(self, other_code_chunk) -> Optional["CodeChunk"]:
         if isinstance(other_code_chunk, DeleteColumnsCodeChunk):
             return self._combine_right_with_delete_columns_code_chunk(other_code_chunk)
+        elif isinstance(other_code_chunk, RenameColumnsCodeChunk):
+            return self._combine_right_with_rename_columns_code_chunk(other_code_chunk)
 
         return None

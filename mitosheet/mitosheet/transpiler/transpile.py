@@ -18,7 +18,11 @@ from mitosheet.types import StepsManagerType
 
 IN_PREVIOUS_STEP_COMMENT = '# You\'re viewing a previous step. Click fast forward in the Mitosheet above to see the full analysis.'
 
-def transpile(steps_manager: StepsManagerType, add_comments: bool=True) -> Dict[str, Any]:
+def transpile(
+        steps_manager: StepsManagerType, 
+        add_comments: bool=True,
+        optimize: bool=True
+    ) -> Dict[str, Any]:
     """
     Transpiles the code from the current steps in the steps_manager, 
     displaying up to the checked out step.
@@ -39,17 +43,17 @@ def transpile(steps_manager: StepsManagerType, add_comments: bool=True) -> Dict[
             code.extend(preprocess_code)
 
     # We only transpile up to the currently checked out step
-    all_code_chunks: List[CodeChunk] = get_code_chunks(steps_manager.steps[:steps_manager.curr_step_idx + 1])
+    all_code_chunks: List[CodeChunk] = get_code_chunks(steps_manager.steps[:steps_manager.curr_step_idx + 1], optimize=optimize)
     
     for code_chunk in all_code_chunks:
         comment = '# ' + code_chunk.get_description_comment()
-        chunk_code = code_chunk.get_code()
+        gotten_code = code_chunk.get_code()
 
         # Make sure to not generate comments or code for steps with no code 
-        if len(chunk_code) > 0:
+        if len(gotten_code) > 0:
             if add_comments:
-                chunk_code.insert(0, comment)
-            code.extend(chunk_code)
+                gotten_code.insert(0, comment)
+            code.extend(gotten_code)
 
     # If we have a historical step checked out, then we add a comment letting
     # the user know this is the case

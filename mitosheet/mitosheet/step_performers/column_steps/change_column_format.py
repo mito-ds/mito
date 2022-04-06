@@ -58,7 +58,15 @@ class ChangeColumnFormatStepPerformer(StepPerformer):
     ) -> List[CodeChunk]:
         # Formatting columns only effects the display in Mito, not the generated code.
         return [
-            EmptyCodeChunk(prev_state, post_state, params, execution_data)
+            EmptyCodeChunk(
+                prev_state, 
+                post_state, 
+                {
+                    'display_name': 'Changed column format',
+                    'description_comment': f'Changed the format of a {len(params["column_ids"])} columns to {params["format_type"]}',
+                }, 
+                execution_data
+            )
         ]
 
     @classmethod
