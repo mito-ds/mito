@@ -5,29 +5,24 @@
 # Distributed under the terms of the GPL License.
 
 import json
-import random
-import string
+import uuid
 from copy import copy, deepcopy
 import pandas as pd
 from typing import Any, Dict, Collection, List, Set, Tuple, Union
-from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
 from mitosheet.mito_analytics import log
 
-from mitosheet.data_in_mito import DataTypeInMito, get_data_type_in_mito
-from mitosheet.mito_analytics import log
-from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
-from mitosheet.saved_analyses.save_utils import get_analysis_exists
+from mitosheet.step_performers.import_steps.simple_import import (
+    SimpleImportStepPerformer,
+)
+from mitosheet.step_performers.import_steps.excel_import import ExcelImportStepPerformer
 from mitosheet.state import State
 from mitosheet.step import Step
 from mitosheet.step_performers import EVENT_TYPE_TO_STEP_PERFORMER
-from mitosheet.step_performers.import_steps.excel_import import \
-    ExcelImportStepPerformer
-from mitosheet.step_performers.import_steps.simple_import import \
-    SimpleImportStepPerformer
-from mitosheet.transpiler.transpile import transpile
 from mitosheet.updates import UPDATES
-from mitosheet.utils import (dfs_to_array_for_json, get_new_id,
-                             is_default_df_names)
+from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
+from mitosheet.utils import dfs_to_array_for_json, get_new_id, is_default_df_names
+from mitosheet.transpiler.transpile import transpile
+from mitosheet.data_in_mito import DataTypeInMito, get_data_type_in_mito
 
 
 def get_step_indexes_to_skip(step_list: List[Step]) -> Set[int]:
@@ -162,7 +157,7 @@ class StepsManager:
     and parameters stay the same and are append-only.
     """
 
-    def __init__(self, args: Collection[Union[pd.DataFrame, str]], analysis_to_replay: str=None):
+    def __init__(self, args: Collection[Union[pd.DataFrame, str]]):
         """
         When initalizing the StepsManager, we also do preprocessing
         of the arguments that were passed to the mitosheet.
@@ -170,13 +165,9 @@ class StepsManager:
         All preprocessing can be found in mitosheet/preprocessing, and each of
         the transformations are applied before the data is considered imported.
         """
-        # We just randomly generate analysis names as a string of 10 letters
-        self.analysis_name = 'id-' + ''.join(random.choice(string.ascii_lowercase) for _ in range(10))
-
-        # We also save some data about the analysis the user wants to replay, if there
-        # is such an analysis
-        self.analysis_to_replay = analysis_to_replay
-        self.analysis_to_replay_exists = get_analysis_exists(analysis_to_replay)
+        # We just randomly generate analysis names.
+        # We append a UUID to note that this is not an analysis the user has saved.
+        self.analysis_name = "UUID-" + str(uuid.uuid4())
 
         # The args are a tuple of dataframes or strings, and we start by making them
         # into a list, and making copies of them for safe keeping
@@ -233,12 +224,6 @@ class StepsManager:
         # which allows us to have some awareness about undos and redos in the front-end
         self.update_event_count = 0
 
-        # This stores the number of times that the sheet renders, and we use it to detect
-        # when we are on the first render of a sheet. This is very useful for making
-        # sure we only update the state of the backend on the first render of a sheet
-        # that corresponds to that backend
-        self.render_count = 0
-
     @property
     def curr_step(self) -> Step:
         """
@@ -291,17 +276,12 @@ class StepsManager:
         return json.dumps(
             {
                 "analysisName": self.analysis_name,
-                "analysisToReplay": {
-                    'analysisName': self.analysis_to_replay,
-                    'existsOnDisk': self.analysis_to_replay_exists,
-                } if self.analysis_to_replay is not None else None,
                 "code": transpile(self),
                 "stepSummaryList": self.step_summary_list,
                 "currStepIdx": self.curr_step_idx,
                 "dataTypeInTool": self.data_type_in_mito.value,
                 "graphDataDict": self.curr_step.graph_data_dict,
                 'updateEventCount': self.update_event_count,
-                'renderCount': self.render_count
             }
         )
 
@@ -310,18 +290,34 @@ class StepsManager:
         """
         Returns a json list of step summaries, not including
         the skipped steps. 
+
+        NOTE: we need to update this now
         """
         step_summary_list = []
-        
-        code_chunks = get_code_chunks(self.steps)
-        for index, code_chunk in enumerate(code_chunks):
+        step_indexes_to_skip = get_step_indexes_to_skip(self.steps)
+        for index, step in enumerate(self.steps):
+            if step.step_type == "initialize":
+                step_summary_list.append(
+                    {
+                        "step_id": step.step_id,
+                        "step_idx": 0,
+                        "step_type": step.step_type,
+                        "step_display_name": "Created a mitosheet",
+                        "step_description": "Created a new mitosheet",
+                    }
+                )
+                continue
+
+            if index in step_indexes_to_skip:
+                continue
+
             step_summary_list.append(
                 {
-                    "step_id": 'TODO',
+                    "step_id": step.step_id,
                     "step_idx": index,
-                    "step_type": 'abc',
-                    "step_display_name": code_chunk.get_display_name(),
-                    "step_description": code_chunk.get_description_comment(),
+                    "step_type": step.step_type,
+                    "step_display_name": "TODO: fill this in with code chunks",
+                    "step_description": "TODO: fill this in with code cunks",
                 }
             )
 
