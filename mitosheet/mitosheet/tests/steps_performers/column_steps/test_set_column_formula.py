@@ -222,3 +222,17 @@ def test_set_multiple_formula_then_delete_optimizes_multiple():
         "df1 = df1.sort_values(by='B', ascending=True, na_position='first')",
         "df1.drop(['B', 'C'], axis=1, inplace=True)"
     ]
+
+
+def test_set_column_formula_in_duplicate_does_not_overoptmize():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
+    mito.add_column(0, 'B')
+    mito.duplicate_dataframe(0) # Duplicate to break up the optimization
+    mito.rename_column(1, 'B', 'aaron')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1], 'B': [0]}))
+    assert mito.transpiled_code == [
+        "df1.insert(1, 'B', 0)", 
+        "df1_copy = df1.copy(deep=True)",
+        "df1_copy.rename(columns={'B': 'aaron'}, inplace=True)"
+    ]

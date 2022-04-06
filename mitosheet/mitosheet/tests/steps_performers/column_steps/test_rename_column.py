@@ -237,3 +237,16 @@ def test_rename_then_delete_different_sheet_no_optimize():
         "df1.rename(columns={'A': 'B'}, inplace=True)",
         "df1_copy.drop(['A'], axis=1, inplace=True)",
     ]
+
+def test_two_new_columns_two_renames():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123]}))
+    mito.add_column(0, 'new_one')
+    mito.add_column(0, 'new_two')
+    mito.rename_column(0, 'new_one', 'new_one_prime')
+    mito.rename_column(0, 'new_two', 'new_two_prime')
+
+    assert mito.transpiled_code == [
+        "df1.insert(1, 'new_one', 0)",
+        "df1.insert(2, 'new_two', 0)",
+        "df1.rename(columns={'new_one': 'new_one_prime', 'new_two': 'new_two_prime'}, inplace=True)"
+    ]
