@@ -129,9 +129,52 @@ def test_add_then_delete_multiple_optimizes():
     mito.add_column(0, 'C')
     mito.delete_columns(0, ['B', 'C'])
 
+    assert mito.transpiled_code == []
+
+def test_add_then_rename_multiple_optimizes():
+    mito = create_mito_wrapper([1])
+    mito.add_column(0, 'B')
+    mito.rename_column(0, 'B', 'C')
+
     assert mito.transpiled_code == [
-        "df1.insert(1, 'B', 0)",
-        "df1.drop(['B'], axis=1, inplace=True)"
+        "df1.insert(1, 'C', 0)",
     ]
+
+def test_add_then_rename_then_delete_optimizes():
+    mito = create_mito_wrapper([1])
+    mito.add_column(0, 'B')
+    mito.rename_column(0, 'B', 'C')
+    mito.delete_columns(0, ['C'])
+
+    assert mito.transpiled_code == []
+
+def test_add_then_rename_then_set_formula_optimizes():
+    mito = create_mito_wrapper([1])
+    mito.add_column(0, 'B')
+    mito.rename_column(0, 'B', 'C')
+    mito.set_formula('=10', 0, 'C', add_column=False)
+
+    assert mito.transpiled_code == [
+        "df1.insert(1, 'C', 10)"
+    ]
+
+def test_add_then_rename_then_set_formula_then_delete_optimizes():
+    mito = create_mito_wrapper([1])
+    mito.add_column(0, 'B')
+    mito.rename_column(0, 'B', 'C')
+    mito.set_formula('=10', 0, 'C', add_column=False)
+    mito.delete_columns(0, ['C'])
+
+    assert mito.transpiled_code == []
+
+def test_add_then_rename_then_set_formula_then_delete_optimizes():
+    mito = create_mito_wrapper([1])
+    mito.add_column(0, 'D')
+    mito.add_column(0, 'B')
+    mito.rename_column(0, 'B', 'C')
+    mito.set_formula('=10', 0, 'C', add_column=False)
+    mito.delete_columns(0, ['C', 'D'])
+
+    assert mito.transpiled_code == []
 
     

@@ -138,12 +138,9 @@ def test_only_writes_downstream_code():
     mito.set_formula('=100', 0, 'B', add_column=True)
 
     assert mito.transpiled_code == [
-        "df1.insert(1, 'B', 0)", 
-        "df1['B'] = df1['A']", 
-        "df1.insert(2, 'C', 0)", 
-        "df1['C'] = df1['B']", 
-        "df1.insert(3, 'D', 0)", 
-        "df1['D'] = df1['A']", 
+        "df1.insert(1, 'B', df1['A'])", 
+        "df1.insert(2, 'C', df1['B'])", 
+        "df1.insert(3, 'D', df1['A'])", 
         "df1['B'] = 100", 
         "df1['C'] = df1['B']", 
     ]
