@@ -93,9 +93,9 @@ const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
                 />
                 {notIncludedColumnsArray !== undefined &&
                     <Row className='text-subtext-1' >
-                        {notIncludedColumnsArray[sheetIndex].length === 0 ? `\u2713 All columns are included in the concatenated sheet.` : 
-                            notIncludedColumnsArray[sheetIndex].length < 4 ? `Columns ${notIncludedColumnsArray[sheetIndex].join(', ')} are not included.` :
-                                `Columns ${notIncludedColumnsArray[sheetIndex].slice(0,3).join(', ')} and ${notIncludedColumnsArray[sheetIndex].length - 3} others are not included.`
+                        {notIncludedColumnsArray[arrIndex].length === 0 ? `\u2713 All columns are included in the concatenated sheet.` : 
+                            notIncludedColumnsArray[arrIndex].length < 4 ? `Columns ${notIncludedColumnsArray[arrIndex].join(', ')} are not included.` :
+                                `Columns ${notIncludedColumnsArray[arrIndex].slice(0,3).join(', ')} and ${notIncludedColumnsArray[arrIndex].length - 3} others are not included.`
                         }
                     </Row>
                 }
