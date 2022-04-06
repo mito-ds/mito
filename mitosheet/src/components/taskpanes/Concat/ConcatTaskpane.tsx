@@ -7,6 +7,7 @@ import DropdownItem from "../../elements/DropdownItem";
 import Select from "../../elements/Select";
 import SelectAndXIconCard from "../../elements/SelectAndXIconCard";
 import Toggle from "../../elements/Toggle";
+import Tooltip from "../../elements/Tooltip";
 import Col from "../../spacing/Col";
 import Row from "../../spacing/Row";
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
@@ -92,9 +93,9 @@ const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
                 />
                 {notIncludedColumnsArray !== undefined &&
                     <Row className='text-subtext-1' >
-                        {notIncludedColumnsArray[sheetIndex].length === 0 ? `\u2713 All columns are included in the concatenated sheet` : 
-                            notIncludedColumnsArray[sheetIndex].length < 4 ? `Columns ${notIncludedColumnsArray[sheetIndex].join(', ')} are not included` :
-                                `Columns ${notIncludedColumnsArray[sheetIndex].slice(0,3).join(', ')} and ${notIncludedColumnsArray[sheetIndex].length} others are not included`
+                        {notIncludedColumnsArray[sheetIndex].length === 0 ? `\u2713 All columns are included in the concatenated sheet.` : 
+                            notIncludedColumnsArray[sheetIndex].length < 4 ? `Columns ${notIncludedColumnsArray[sheetIndex].join(', ')} are not included.` :
+                                `Columns ${notIncludedColumnsArray[sheetIndex].slice(0,3).join(', ')} and ${notIncludedColumnsArray[sheetIndex].length - 3} others are not included.`
                         }
                     </Row>
                 }
@@ -141,9 +142,13 @@ const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
                 </Row>
                 <Row justify='space-between' align='center'>
                     <Col>
-                        <p className='text-header-3'>
-                            Ignore Existing Indexes
-                        </p>
+                        <Row align='center' suppressTopBottomMargin>
+                            <p className='text-header-3'>
+                                Ignore Existing Indexes &nbsp;
+                            </p>
+                            <Tooltip title={"When on, the resulting dataframe will have indexes 0, 1, 2, etc.. This is useful if you're concatenating objects that don't have meaningful indexing information."}/>
+                        </Row>
+                        
                     </Col>
                     <Col>
                         <Toggle 
