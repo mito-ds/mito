@@ -8,6 +8,7 @@ from copy import copy
 from typing import List, Optional
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnsCodeChunk
 from mitosheet.transpiler.transpile_utils import column_header_map_to_string
 
 
@@ -35,7 +36,7 @@ class RenameColumnsCodeChunk(CodeChunk):
         rename_string = f'{df_name}.rename(columns={rename_dict}, inplace=True)'
         return [rename_string]
 
-    def _combine_right_with_rename_multi_column_code_chunk(self, other_code_chunk: "RenameColumnsCodeChunk") -> Optional["RenameColumnsCodeChunk"]:
+    def _combine_right_with_rename_columns_code_chunk(self, other_code_chunk: "RenameColumnsCodeChunk") -> Optional["RenameColumnsCodeChunk"]:
         if not self.params_match(other_code_chunk, ['sheet_index']):
             return None
 
@@ -53,9 +54,31 @@ class RenameColumnsCodeChunk(CodeChunk):
             },
             other_code_chunk.execution_data
         )
+    
+    def _combine_right_with_delete_columns_code_chunk(self, other_code_chunk: "DeleteColumnsCodeChunk") -> Optional["RenameColumnsCodeChunk"]:
+        if not self.params_match(other_code_chunk, ['sheet_index']):
+            return None
+
+        column_ids_to_new_column_headers = self.get_param('column_ids_to_new_column_headers')
+        column_ids_being_renamed = column_ids_to_new_column_headers.keys()
+        column_ids_being_deleted = other_code_chunk.get_param('column_ids')
+
+        if set(column_ids_being_renamed).issubset(set(column_ids_being_deleted)):
+            # If the columns being deleted are columns that were renamed, we can skip
+            # the rename step and just do the deletion of these columns
+            return DeleteColumnsCodeChunk(
+                self.prev_state,
+                other_code_chunk.post_state,
+                other_code_chunk.params,
+                other_code_chunk.execution_data
+            )
+        
+        return None
 
     def combine_right(self, other_code_chunk) -> Optional["CodeChunk"]:
         if isinstance(other_code_chunk, RenameColumnsCodeChunk):
-            return self._combine_right_with_rename_multi_column_code_chunk(other_code_chunk)
+            return self._combine_right_with_rename_columns_code_chunk(other_code_chunk)
+        if isinstance(other_code_chunk, DeleteColumnsCodeChunk):
+            return self._combine_right_with_delete_columns_code_chunk(other_code_chunk)
             
         return None

@@ -7,7 +7,7 @@ from copy import deepcopy
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnCodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnsCodeChunk
 
 from mitosheet.errors import make_invalid_column_delete_error
 from mitosheet.state import State
@@ -64,7 +64,7 @@ class DeleteColumnStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            DeleteColumnCodeChunk(prev_state, post_state, params, execution_data)
+            DeleteColumnsCodeChunk(prev_state, post_state, params, execution_data)
         ]
 
     @classmethod

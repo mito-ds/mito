@@ -9,7 +9,7 @@ from typing import List, Optional
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
-from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnCodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnsCodeChunk
 from mitosheet.parser import parse_formula
 from mitosheet.transpiler.transpile_utils import \
     column_header_to_transpiled_code
@@ -46,7 +46,7 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
             f'{self.post_state.df_names[sheet_index]}.insert({column_header_index}, {transpiled_column_header}, {python_code})'
         ]
 
-    def _combine_right_with_delete_columns_code_chunk(self, other_code_chunk: DeleteColumnCodeChunk) -> Optional["CodeChunk"]:
+    def _combine_right_with_delete_columns_code_chunk(self, other_code_chunk: DeleteColumnsCodeChunk) -> Optional["CodeChunk"]:
         # Make sure the sheet index matches up first
         if not self.params_match(other_code_chunk, ['sheet_index']):
             return None
@@ -70,7 +70,7 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
             new_deleted_column_ids = copy(deleted_column_ids)
             new_deleted_column_ids.remove(added_column_id)
 
-            return DeleteColumnCodeChunk(
+            return DeleteColumnsCodeChunk(
                 self.prev_state,
                 other_code_chunk.post_state,
                 {
@@ -83,7 +83,7 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
         return None
 
     def combine_right(self, other_code_chunk) -> Optional["CodeChunk"]:
-        if isinstance(other_code_chunk, DeleteColumnCodeChunk):
+        if isinstance(other_code_chunk, DeleteColumnsCodeChunk):
             return self._combine_right_with_delete_columns_code_chunk(other_code_chunk)
 
         return None

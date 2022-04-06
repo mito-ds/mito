@@ -160,3 +160,42 @@ def test_multiple_rename_more_than_three_columns():
     'AAAA': 'EEEE'\n\
 }, inplace=True)"
     ]
+
+def test_multiple_rename_optimizes_then_delete():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123]}))
+    mito.rename_column(0, 'A', 'B')
+    mito.rename_column(0, 'B', 'C')
+    mito.rename_column(0, 'C', 'D')
+    mito.rename_column(0, 'D', 'E')
+    mito.delete_columns(0, ['E'])
+
+    assert mito.transpiled_code == [
+        "df1.drop(['A'], axis=1, inplace=True)"
+    ]
+
+def test_multiple_rename_optimizes_then_delete_multiple():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123], 'F': [123]}))
+    mito.rename_column(0, 'A', 'B')
+    mito.rename_column(0, 'B', 'C')
+    mito.rename_column(0, 'C', 'D')
+    mito.rename_column(0, 'D', 'E')
+    mito.delete_columns(0, ['E', 'F'])
+
+    assert mito.dfs[0].empty
+    assert mito.transpiled_code == [
+        "df1.drop(['A', 'F'], axis=1, inplace=True)"
+    ]
+
+def test_multiple_renames_optimizes_then_delete_multiple():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123], 'F': [123]}))
+    mito.rename_column(0, 'A', 'B')
+    mito.rename_column(0, 'B', 'C')
+    mito.rename_column(0, 'C', 'D')
+    mito.rename_column(0, 'D', 'E')
+    mito.rename_column(0, 'F', 'FF')
+    mito.delete_columns(0, ['E', 'FF'])
+
+    assert mito.dfs[0].empty
+    assert mito.transpiled_code == [
+        "df1.drop(['A', 'F'], axis=1, inplace=True)"
+    ]

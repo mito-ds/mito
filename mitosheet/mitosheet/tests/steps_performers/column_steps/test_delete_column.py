@@ -9,7 +9,7 @@ Contains tests for a column rename.
 
 import pandas as pd
 
-from mitosheet.tests.test_utils import create_mito_wrapper
+from mitosheet.tests.test_utils import create_mito_wrapper, create_mito_wrapper_dfs
 
 
 def test_delete_works():
@@ -71,3 +71,24 @@ def test_create_delete_then_create():
     mito.set_formula('=A + 2', 0, 'B', add_column=True)
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1], 'B': [3]}))
+
+def test_double_delete_optimizes():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123], 'B': [1234]}))
+    mito.delete_columns(0, ['A'])
+    mito.delete_columns(0, ['B'])
+
+    assert mito.dfs[0].empty
+    assert mito.transpiled_code == [
+        "df1.drop(['A', 'B'], axis=1, inplace=True)"
+    ]
+
+def test_multi_delete_optimizes():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123], 'B': [1234], 'C': [12345], 'D': [12346]}))
+    mito.delete_columns(0, ['A'])
+    mito.delete_columns(0, ['B'])
+    mito.delete_columns(0, ['C', 'D'])
+
+    assert mito.dfs[0].empty
+    assert mito.transpiled_code == [
+        "df1.drop(['A', 'B', 'C', 'D'], axis=1, inplace=True)"
+    ]
