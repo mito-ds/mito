@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import MitoAPI from "../../../api";
 import useSyncedParams from "../../../hooks/useSyncedParams";
-import { AnalysisData, ConcatParams, SheetData, StepType, UIState } from "../../../types"
+import { AnalysisData, ColumnHeader, ConcatParams, SheetData, StepType, UIState } from "../../../types"
 import DropdownButton from "../../elements/DropdownButton";
 import DropdownItem from "../../elements/DropdownItem";
 import Select from "../../elements/Select";
@@ -22,6 +22,45 @@ interface ConcatTaskpaneProps {
     analysisData: AnalysisData;
     sheetDataArray: SheetData[];
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
+}
+
+/* 
+    Given a list of column headers, returns a formatted string with the first num characters in the column headers
+    and the number of column headers that didn't have any character in the first num characters of the list
+*/
+const getFirstCharactersOfColumnHeaders = (columnHeaders: ColumnHeader[], num: number): [string, number] => {
+    const columnHeadersCopy = [...columnHeaders]
+    let charsRemaining = num
+    const columnHeadersToDisplay = []
+    while (columnHeadersCopy.length > 0 && charsRemaining > 0) {
+        const nextFullString = (columnHeadersCopy.shift() as string)
+        let nextPartialString = ''
+        for (let i = 0; i < nextFullString.length; i++) {
+            if (charsRemaining > 0) {
+                nextPartialString += nextFullString[i];
+                charsRemaining--;
+            }
+        }
+        columnHeadersToDisplay.push(nextPartialString)
+    }
+    return [columnHeadersToDisplay.join(', '), columnHeadersCopy.length]
+}
+
+/* 
+    Constructs a message that says if all the column headers in a sheet are included in the concatanated sheet. 
+    If any column headers are not included, it reports them to the user.
+*/
+const getColumnHeadersIncludedMessage = (notIncludedColumnsArray: ColumnHeader[][], arrIndex: number): JSX.Element => {
+    if (notIncludedColumnsArray[arrIndex].length === 0) {
+        return (<p>&#x2713; All columns are included in the concatenated sheet.</p>)
+    } 
+    const [columnHeadersString, numOtherColumnHeaders] = getFirstCharactersOfColumnHeaders(notIncludedColumnsArray[arrIndex], 25)
+    
+    if (numOtherColumnHeaders === 0) {
+        return (<p>Columns <span className='text-color-gray-important'>{columnHeadersString}</span> are not included.</p>)
+    } else {
+        return (<p>Columns <span className='text-color-gray-important'>{columnHeadersString}</span> and <span className='text-color-gray-important'>{numOtherColumnHeaders}</span> others are not included.</p>)
+    }
 }
 
 /* 
@@ -46,11 +85,12 @@ const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
     const [selectableSheetIndexes] = useState(props.sheetDataArray.map((sd, index) => index));
 
     // For each sheet concatonated together, find all of the columns that are not included in the final result
+    const concatSheetColumnHeaders = Object.values(props.sheetDataArray[props.sheetDataArray.length - 1].columnIDsMap)
     const notIncludedColumnsArray = params?.sheet_indexes.map(sheetIndex => {
-        return Object.values(props.sheetDataArray[sheetIndex].columnIDsMap).filter(columnHeader => {
+        return Object.values(props.sheetDataArray[sheetIndex]?.columnIDsMap || {}).filter(columnHeader => {
             // Because concat_edit makes a new sheet and you can't reopen the concat taskpane or reorder sheets,
             // the sheet this taskpane creates is always the last sheet in the sheetDataArray 
-            return !Object.values(props.sheetDataArray[props.sheetDataArray.length - 1].columnIDsMap).includes(columnHeader)
+            return !concatSheetColumnHeaders.includes(columnHeader)
         })
     })
     
@@ -92,11 +132,8 @@ const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
                     selectableValues={Object.keys(props.sheetDataArray)} // Note the cast to strings
                 />
                 {notIncludedColumnsArray !== undefined &&
-                    <Row className='text-subtext-1' >
-                        {notIncludedColumnsArray[arrIndex].length === 0 ? `\u2713 All columns are included in the concatenated sheet.` : 
-                            notIncludedColumnsArray[arrIndex].length < 4 ? `Columns ${notIncludedColumnsArray[arrIndex].join(', ')} are not included.` :
-                                `Columns ${notIncludedColumnsArray[arrIndex].slice(0,3).join(', ')} and ${notIncludedColumnsArray[arrIndex].length - 3} others are not included.`
-                        }
+                    <Row className='text-subtext-1'>
+                        {getColumnHeadersIncludedMessage(notIncludedColumnsArray, arrIndex)}
                     </Row>
                 }
             </div>
@@ -146,7 +183,7 @@ const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
                             <p className='text-header-3'>
                                 Ignore Existing Indexes &nbsp;
                             </p>
-                            <Tooltip title={"When on, the resulting dataframe will have indexes 0, 1, 2, etc.. This is useful if you're concatenating objects that don't have meaningful indexing information."}/>
+                            <Tooltip title={"When on, the resulting dataframe will have indexes 0, 1, 2, etc.. This is useful if you're concatenating objects that don't have meaningful index information."}/>
                         </Row>
                         
                     </Col>

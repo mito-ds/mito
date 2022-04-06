@@ -58,8 +58,8 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
     const [operator, setOperator] = useState(columnFilters !== undefined ? columnFilters.operator : 'And');
     const [stepID, setStepID] = useState('');
 
-    const originalNumRows = useRef(props.sheetData?.numRows || 0);
-    const editedFilter = useRef(false)
+    const [originalNumRows, ] = useState(props.sheetData?.numRows || 0)
+    const [editedFilter, setEditedFilter] = useState(false)
 
     // When the filters or operator changes, send a new message, as long as this is not
     // the first time that this rendered. We use a ref to avoid sending a message the first 
@@ -138,7 +138,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
             props.tab
         )
 
-        editedFilter.current = true  
+        setEditedFilter(true) 
         setStepID(_stepID);    
     }
 
@@ -188,7 +188,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                                 columnDtype={columnDtype}
                                 operator={operator}
                                 mitoAPI={props.mitoAPI}
-                                rowDifference={originalNumRows.current - (props.sheetData?.numRows || 0)}
+                                rowDifference={originalNumRows - (props.sheetData?.numRows || 0)}
                                 editedFilter={editedFilter}
                             />
                         </React.Fragment>
