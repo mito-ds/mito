@@ -44,46 +44,63 @@ const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
     // Make sure the user cannot select the newly created dataframe
     const [selectableSheetIndexes] = useState(props.sheetDataArray.map((sd, index) => index));
 
+    // For each sheet concatonated together, find all of the columns that are not included in the final result
+    const notIncludedColumnsArray = params?.sheet_indexes.map(sheetIndex => {
+        return Object.values(props.sheetDataArray[sheetIndex].columnIDsMap).filter(columnHeader => {
+            // Because concat_edit makes a new sheet and you can't reopen the concat taskpane or reorder sheets,
+            // the sheet this taskpane creates is always the last sheet in the sheetDataArray 
+            return !Object.values(props.sheetDataArray[props.sheetDataArray.length - 1].columnIDsMap).includes(columnHeader)
+        })
+    })
+    
     if (params === undefined) {
         return (<DefaultEmptyTaskpane setUIState={props.setUIState} message="Import at least two datasets before concating."/>)
     }
 
     const dataframeCards: JSX.Element[] = params.sheet_indexes.map((sheetIndex, arrIndex) => {
         return (
-            <SelectAndXIconCard 
-                key={arrIndex}
-                titleMap={Object.fromEntries(props.sheetDataArray.map((sheetData, index) => {
-                    return [index + '', sheetData.dfName]
-                }))}
-                value={sheetIndex + ''}
-                onChange={(newSheetIndexStr) => {
-                    const newSheetIndex = parseInt(newSheetIndexStr);
-                    setParams(prevConcatParams => {
-                        const newSheetIndexes = [...prevConcatParams.sheet_indexes];
-                        newSheetIndexes[arrIndex] = newSheetIndex;
+            <div key={arrIndex}>
+                <SelectAndXIconCard 
+                    titleMap={Object.fromEntries(props.sheetDataArray.map((sheetData, index) => {
+                        return [index + '', sheetData.dfName]
+                    }))}
+                    value={sheetIndex + ''}
+                    onChange={(newSheetIndexStr) => {
+                        const newSheetIndex = parseInt(newSheetIndexStr);
+                        setParams(prevConcatParams => {
+                            const newSheetIndexes = [...prevConcatParams.sheet_indexes];
+                            newSheetIndexes[arrIndex] = newSheetIndex;
 
-                        return {
-                            ...prevConcatParams,
-                            sheet_indexes: newSheetIndexes
-                        }
-                    })
-                }}
-                onDelete={() => {
-                    setParams(prevConcatParams => {
-                        const newSheetIndexes = [...prevConcatParams.sheet_indexes];
-                        newSheetIndexes.splice(arrIndex, 1);
+                            return {
+                                ...prevConcatParams,
+                                sheet_indexes: newSheetIndexes
+                            }
+                        })
+                    }}
+                    onDelete={() => {
+                        setParams(prevConcatParams => {
+                            const newSheetIndexes = [...prevConcatParams.sheet_indexes];
+                            newSheetIndexes.splice(arrIndex, 1);
 
-                        return {
-                            ...prevConcatParams,
-                            sheet_indexes: newSheetIndexes
+                            return {
+                                ...prevConcatParams,
+                                sheet_indexes: newSheetIndexes
+                            }
+                        })
+                    }}
+                    selectableValues={Object.keys(props.sheetDataArray)} // Note the cast to strings
+                />
+                {notIncludedColumnsArray !== undefined &&
+                    <Row className='text-subtext-1' >
+                        {notIncludedColumnsArray[sheetIndex].length === 0 ? `\u2713 All columns are included in the concatenated sheet` : 
+                            notIncludedColumnsArray[sheetIndex].length < 4 ? `Columns ${notIncludedColumnsArray[sheetIndex].join(', ')} are not included` :
+                                `Columns ${notIncludedColumnsArray[sheetIndex].slice(0,3).join(', ')} and ${notIncludedColumnsArray[sheetIndex].length} others are not included`
                         }
-                    })
-                }}
-                selectableValues={Object.keys(props.sheetDataArray)} // Note the cast to strings
-            />
+                    </Row>
+                }
+            </div>
         )
     })
-          
 
     return (
         <DefaultTaskpane>
