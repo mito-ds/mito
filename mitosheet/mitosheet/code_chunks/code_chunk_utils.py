@@ -10,6 +10,8 @@ from typing import TYPE_CHECKING, List, Optional, Any
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnsCodeChunk
+from mitosheet.code_chunks.step_performers.filter_code_chunk import FilterCodeChunk
+from mitosheet.code_chunks.step_performers.sort_code_chunk import SortCodeChunk
 
 if TYPE_CHECKING:
     from mitosheet.step import Step
@@ -50,9 +52,9 @@ def optimize_code_chunks(all_code_chunks: List[CodeChunk]) -> List[CodeChunk]:
             all_code_chunks_reversed.append(second_code_chunk)            
     
     # Make sure we take the final item in the code chunks list, 
-    # as it has nothing ot combine_right with
+    # as it has nothing to combine_right with
     if len(all_code_chunks_reversed) == 1:
-        code_chunks_list.append(all_code_chunks_reversed[-1])
+        code_chunks_list.append(all_code_chunks_reversed[0])
 
     # TODO: we could combine_left here? This would allow us to 
     # express overwriting conditions very naturally for deleting
@@ -63,7 +65,6 @@ def optimize_code_chunks(all_code_chunks: List[CodeChunk]) -> List[CodeChunk]:
     if optimized:
         return optimize_code_chunks(code_chunks_list)
 
-    
     return code_chunks_list
     
 
@@ -85,8 +86,8 @@ def get_code_chunks(all_steps: List[Step], optimize: bool=True) -> List[CodeChun
             continue
 
         all_code_chunks.extend(step.step_performer.transpile(
-            step.prev_state,
-            step.post_state,
+            step.prev_state, # type: ignore
+            step.post_state, # type: ignore
             step.params,
             step.execution_data,
         ))
@@ -98,6 +99,15 @@ def get_code_chunks(all_steps: List[Step], optimize: bool=True) -> List[CodeChun
 
     return code_chunks_list
 
+
+# NOTE: we cannot use get_right_combine_with_column_delete_code_chunk on sort/filter, 
+# as sort potentially changes the indexes of the dataframe, which is a lasting change
+# that occurs even after this column is deleted. Hence, we throw errors in this util 
+# so that remember to not do that
+CANNOT_RIGHT_COMBINE_WITH_DELETE_COLUMNS: List[CodeChunk] = [
+    FilterCodeChunk,
+    SortCodeChunk
+]
 
 def get_right_combine_with_column_delete_code_chunk(
         code_chunk: CodeChunk,
@@ -116,11 +126,12 @@ def get_right_combine_with_column_delete_code_chunk(
     then these formulas refresh. Thus, it might seem like optimizing out the setting
     cell values might lead to invalid code - but notably, you cannot delete columns
     that have columns that are dependant on them - so this is not a problem!
-
-    NOTE: we cannot use this on sort, as sort potentially changes the indexes of the 
-    dataframe, which is a lasting changing that occurs even after this column
-    is deleted
     """
+    for invalid_code_chunk_type in CANNOT_RIGHT_COMBINE_WITH_DELETE_COLUMNS:
+        if isinstance(code_chunk, invalid_code_chunk_type):
+            raise Exception("Code chunk of this type is not valid for right combine with delete", CANNOT_RIGHT_COMBINE_WITH_DELETE_COLUMNS)
+
+
     # If the sheet indexes don't match, bail
     if code_chunk.get_param(sheet_index_key) != delete_columns_code_chunk.get_param('sheet_index'):
         return None

@@ -63,11 +63,9 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
                 self.prev_state, 
                 other_code_chunk.post_state, 
                 {},
-                other_code_chunk.execution_data # TODO: this is out of date, but we don't use it!
+                other_code_chunk.execution_data # NOTE: this is out of date, but we don't use it!
             )
         elif added_column_id in deleted_column_ids:
-            print("added_column_id in deleted_column_ids", added_column_id in deleted_column_ids)
-            # TODO: check this is the right thing
             new_deleted_column_ids = copy(deleted_column_ids)
             new_deleted_column_ids.remove(added_column_id)
 
@@ -104,7 +102,7 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
 
         return None
         
-    def combine_right(self, other_code_chunk) -> Optional["CodeChunk"]:
+    def combine_right(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:
         if isinstance(other_code_chunk, DeleteColumnsCodeChunk):
             return self._combine_right_with_delete_columns_code_chunk(other_code_chunk)
         elif isinstance(other_code_chunk, RenameColumnsCodeChunk):

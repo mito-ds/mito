@@ -17,7 +17,7 @@ class ExcelImportCodeChunk(CodeChunk):
     def get_description_comment(self) -> str:
         file_name = self.get_param('file_name')
         sheet_names = self.get_param('sheet_names')
-        return f'Imported {",".join(sheet_names)} from {file_name}'
+        return f'Imported {", ".join(sheet_names)} from {file_name}'
 
     def get_code(self) -> List[str]:
         file_name = self.get_param('file_name')

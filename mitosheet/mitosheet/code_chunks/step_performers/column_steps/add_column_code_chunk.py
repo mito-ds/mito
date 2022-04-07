@@ -39,7 +39,7 @@ class AddColumnCodeChunk(CodeChunk):
             f'{self.post_state.df_names[sheet_index]}.insert({column_header_index}, {transpiled_column_header}, 0)'
         ]
 
-    def _combine_right_with_delete_column_code_chunk(self, other_code_chunk: DeleteColumnsCodeChunk) -> Optional["CodeChunk"]:
+    def _combine_right_with_delete_column_code_chunk(self, other_code_chunk: DeleteColumnsCodeChunk) -> Optional[CodeChunk]:
         # Make sure the sheet index matches up first
         if not self.params_match(other_code_chunk, ['sheet_index']):
             return None
@@ -74,7 +74,7 @@ class AddColumnCodeChunk(CodeChunk):
         
         return None
     
-    def _combine_right_with_rename_columns_code_chunk(self, other_code_chunk: RenameColumnsCodeChunk) -> Optional["CodeChunk"]:
+    def _combine_right_with_rename_columns_code_chunk(self, other_code_chunk: RenameColumnsCodeChunk) -> Optional[CodeChunk]:
         # Make sure the sheet index matches up first
         if not self.params_match(other_code_chunk, ['sheet_index']):
             return None
@@ -102,7 +102,7 @@ class AddColumnCodeChunk(CodeChunk):
             # this will not happen often
             return None
     
-    def _combine_right_with_refresh_dependant_columns_code_chunk(self, other_code_chunk: RefreshDependantColumnsCodeChunk) -> Optional["CodeChunk"]:
+    def _combine_right_with_refresh_dependant_columns_code_chunk(self, other_code_chunk: RefreshDependantColumnsCodeChunk) -> Optional[CodeChunk]:
         if not self.params_match(other_code_chunk, ['sheet_index']):
             return None
 
@@ -124,7 +124,7 @@ class AddColumnCodeChunk(CodeChunk):
             self.execution_data
         )
 
-    def combine_right(self, other_code_chunk) -> Optional["CodeChunk"]:
+    def combine_right(self, other_code_chunk: CodeChunk) -> Optional[CodeChunk]:
         if isinstance(other_code_chunk, DeleteColumnsCodeChunk):
             return self._combine_right_with_delete_column_code_chunk(other_code_chunk)
         elif isinstance(other_code_chunk, RenameColumnsCodeChunk):

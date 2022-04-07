@@ -22,7 +22,7 @@ def transpile(
         steps_manager: StepsManagerType, 
         add_comments: bool=True,
         optimize: bool=True
-    ) -> Dict[str, Any]:
+    ) -> List[str]:
     """
     Transpiles the code from the current steps in the steps_manager, 
     displaying up to the checked out step.

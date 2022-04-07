@@ -167,7 +167,7 @@ def test_add_then_rename_then_set_formula_then_delete_optimizes():
 
     assert mito.transpiled_code == []
 
-def test_add_then_rename_then_set_formula_then_delete_optimizes():
+def test_add_then_rename_then_set_formula_then_multiple_delete_optimizes():
     mito = create_mito_wrapper([1])
     mito.add_column(0, 'D')
     mito.add_column(0, 'B')

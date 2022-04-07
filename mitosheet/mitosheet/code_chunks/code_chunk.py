@@ -51,7 +51,7 @@ class CodeChunk:
     # data that you're allowed to reference, and then check this when you create
     # the step, for strong typing!
 
-    def get_param(self, key) -> Optional[Any]:
+    def get_param(self, key: str) -> Optional[Any]:
         """
         Gets a value from the params passed to this CodeChunk
         """
@@ -59,7 +59,7 @@ class CodeChunk:
             return self.params[key]
         return None
 
-    def get_execution_data(self, key) -> Optional[Any]:
+    def get_execution_data(self, key: str) -> Optional[Any]:
         """
         Gets a value from the execution_data passed to this CodeChunk
         """
@@ -70,7 +70,7 @@ class CodeChunk:
     def params_match(self, other_code_chunk: "CodeChunk", param_keys: List[str]) -> bool:
         """
         Given a different code chunk, and a list of keys to check, returns True if
-        all the give keys match in the params. A useful utility for checking if 
+        all the given keys match in the params. A useful utility for checking if 
         CodeChunks are compatible for combination.
         """
         for key in param_keys:
@@ -78,7 +78,7 @@ class CodeChunk:
                 return False
         return True
     
-    def combine_right(self, other_code_chunk) -> Optional["CodeChunk"]:
+    def combine_right(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:
         """
         Given a list of CodeChunks [A, B], combine right called on A with
         B as a parameter will check if A and B can be combined into a new

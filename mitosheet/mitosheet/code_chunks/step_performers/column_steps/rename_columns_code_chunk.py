@@ -75,7 +75,7 @@ class RenameColumnsCodeChunk(CodeChunk):
         
         return None
 
-    def combine_right(self, other_code_chunk) -> Optional["CodeChunk"]:
+    def combine_right(self, other_code_chunk: CodeChunk) -> Optional[CodeChunk]:
         if isinstance(other_code_chunk, RenameColumnsCodeChunk):
             return self._combine_right_with_rename_columns_code_chunk(other_code_chunk)
         if isinstance(other_code_chunk, DeleteColumnsCodeChunk):

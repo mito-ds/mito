@@ -7,8 +7,6 @@
 from typing import List, Optional
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.code_chunk_utils import get_right_combine_with_column_delete_code_chunk
-from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnsCodeChunk
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
 
 class SortCodeChunk(CodeChunk):
@@ -19,8 +17,9 @@ class SortCodeChunk(CodeChunk):
     def get_description_comment(self) -> str:
         sheet_index = self.get_param('sheet_index')
         column_id = self.get_param('column_id')
+        sort_direction = self.get_param('sort_direction')
         column_header = self.post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-        return f'Sorted {column_header}'
+        return f'Sorted {column_header} in {sort_direction} order'
 
     def get_code(self) -> List[str]:
         from mitosheet.step_performers.sort import ASCENDING

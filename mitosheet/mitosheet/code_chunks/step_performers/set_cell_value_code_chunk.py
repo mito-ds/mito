@@ -23,8 +23,10 @@ class SetCellValueCodeChunk(CodeChunk):
         return 'Set cell value'
     
     def get_description_comment(self) -> str:
+        sheet_index = self.get_param('sheet_index')
         column_id = self.get_param('column_id')
-        return f'Set a cell value in {column_id}'
+        column_header = self.post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
+        return f'Set a cell value in {column_header}'
 
     def get_code(self) -> List[str]:
         sheet_index = self.get_param('sheet_index')
@@ -69,7 +71,7 @@ class SetCellValueCodeChunk(CodeChunk):
             'column_id',
         )
 
-    def combine_right(self, other_code_chunk) -> Optional["CodeChunk"]:
+    def combine_right(self, other_code_chunk: CodeChunk) -> Optional[CodeChunk]:
         if isinstance(other_code_chunk, DeleteColumnsCodeChunk):
             return self._combine_right_with_delete_column_code_chunk(other_code_chunk)
 

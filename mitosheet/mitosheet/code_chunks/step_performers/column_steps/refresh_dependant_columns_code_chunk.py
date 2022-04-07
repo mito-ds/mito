@@ -57,7 +57,7 @@ class RefreshDependantColumnsCodeChunk(CodeChunk):
 
         return code
 
-    def _combine_right_with_delete_column_code_chunk(self, other_code_chunk: DeleteColumnsCodeChunk) -> Optional["CodeChunk"]:
+    def _combine_right_with_delete_column_code_chunk(self, other_code_chunk: DeleteColumnsCodeChunk) -> Optional[CodeChunk]:
         return get_right_combine_with_column_delete_code_chunk(
             self,
             other_code_chunk,
@@ -65,7 +65,7 @@ class RefreshDependantColumnsCodeChunk(CodeChunk):
             'column_id',
         )
 
-    def combine_right(self, other_code_chunk) -> Optional["CodeChunk"]:
+    def combine_right(self, other_code_chunk: CodeChunk) -> Optional[CodeChunk]:
         if isinstance(other_code_chunk, DeleteColumnsCodeChunk):
             return self._combine_right_with_delete_column_code_chunk(other_code_chunk)
 

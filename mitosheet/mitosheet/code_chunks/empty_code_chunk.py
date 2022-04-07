@@ -14,7 +14,8 @@ class EmptyCodeChunk(CodeChunk):
 
     NOTE: This is different than a NoOpCodeChunk, which we
     always want to be optimized out, as this has data we
-    want to display to the user.
+    want to display to the user. Graphing steps are an example
+    of this!
     """
 
     def get_display_name(self) -> str:

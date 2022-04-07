@@ -329,13 +329,20 @@ class StepsManager:
             if index in step_indexes_to_skip:
                 continue
 
+            code_chunks = step.step_performer.transpile(
+                step.prev_state, # type: ignore
+                step.post_state, # type: ignore
+                step.params,
+                step.execution_data,
+            )
+
             step_summary_list.append(
                 {
                     "step_id": step.step_id,
                     "step_idx": index,
                     "step_type": step.step_type,
-                    "step_display_name": "TODO: fix",
-                    "step_description": "TODO: fix",
+                    "step_display_name": code_chunks[0].get_display_name(),
+                    "step_description": code_chunks[0].get_description_comment(),
                 }
             )
 

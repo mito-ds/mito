@@ -20,6 +20,6 @@ class NoOpCodeChunk(CodeChunk):
     def get_code(self) -> List[str]:
         return []
 
-    def combine_right(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:
+    def combine_right(self, other_code_chunk: CodeChunk) -> Optional[CodeChunk]:
         # The empty code chunk always overwrites itself with the right code chunk
         return other_code_chunk
