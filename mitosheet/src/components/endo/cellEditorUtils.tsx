@@ -5,7 +5,6 @@ import { ColumnHeader, ColumnID, SheetData } from "../../types";
 import { getDisplayColumnHeader, isPrimitiveColumnHeader, rowIndexToColumnHeaderLevel } from "../../utils/columnHeaders";
 import { getCellDataFromCellIndexes } from "./utils";
 
-
 /* 
     Given a formula and and optional pending columns that are inserted
     at some location, creates the formula that would result if the user

@@ -151,6 +151,7 @@ const ColumnHeader = (props: {
                                         rowIndex: rowIndex,
                                         columnIndex: props.columnIndex,
                                         formula: getDisplayColumnHeader(lowerLevelColumnHeader),
+                                        editorLocation: 'cell'
                                     })
                                 }}
                             >
@@ -258,6 +259,7 @@ const ColumnHeader = (props: {
                                     rowIndex: -1,
                                     columnIndex: props.columnIndex,
                                     formula: getDisplayColumnHeader(finalColumnHeader),
+                                    editorLocation: 'cell'
                                 })
                             }}
                             key={props.columnIndex}

@@ -480,7 +480,8 @@ function EndoGrid(props: {
             formula: startingFormula,
             // As in google sheets, if the starting formula is non empty, we default to the 
             // arrow keys scrolling in the editor
-            arrowKeysScrollInFormula: startingFormula.length > 0
+            arrowKeysScrollInFormula: startingFormula.length > 0,
+            editorLocation: 'cell'
         })
     }
     
@@ -536,7 +537,8 @@ function EndoGrid(props: {
                         formula: startingFormula,
                         // As in google sheets, if the starting formula is non empty, we default to the 
                         // arrow keys scrolling in the editor
-                        arrowKeysScrollInFormula: startingFormula.length > 0
+                        arrowKeysScrollInFormula: startingFormula.length > 0,
+                        editorLocation: 'cell'
                     });
 
                     e.preventDefault();
@@ -589,6 +591,13 @@ function EndoGrid(props: {
                 sheetData={sheetData}
                 selection={gridState.selections[gridState.selections.length - 1]}
                 editorState={editorState}
+                sheetIndex={sheetIndex}
+                gridState={gridState}
+                setGridState={setGridState}
+                setEditorState={setEditorState}
+                scrollAndRenderedContainerRef={scrollAndRenderedContainerRef}
+                containerRef={containerRef}
+                mitoAPI={mitoAPI}
             />
             <div 
                 className='endo-grid-container' 
@@ -660,7 +669,7 @@ function EndoGrid(props: {
                         />
                     </div>
                 </div>
-                {sheetData !== undefined && editorState !== undefined && editorState.rowIndex > -1 &&
+                {sheetData !== undefined && editorState !== undefined && editorState.editorLocation === 'cell' && editorState.rowIndex > -1 &&
                     <CellEditor
                         sheetData={sheetData}
                         sheetIndex={sheetIndex}

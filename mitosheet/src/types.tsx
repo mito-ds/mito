@@ -412,6 +412,7 @@ export type EditorState = {
     rowIndex: number;
     columnIndex: number;
     formula: string;
+    editorLocation: 'cell' | 'formula bar'
 
     pendingSelectedColumns?: {
         columnHeaders: (ColumnHeader)[]
