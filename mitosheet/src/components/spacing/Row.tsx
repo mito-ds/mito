@@ -37,6 +37,11 @@ interface RowProps {
      */
     title?: string
 
+    /**
+     * @param [ref] - A ref to register on this row
+     */
+    ref?: React.RefObject<HTMLDivElement>
+
 }
 
 /**
@@ -80,7 +85,9 @@ const Row = (props: RowProps): JSX.Element => {
                 ...props.style,
                 justifyContent: props.justify,
                 alignItems: props.align,
-            }}>
+            }}
+            ref={props.ref}
+        >
             {props.children}
         </div>
     )

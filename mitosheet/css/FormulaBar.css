@@ -1,6 +1,10 @@
+:root {
+    --formula-bar-height: 30px;
+}
+
 .formula-bar-column-header {
-    max-width: 200px;
-    height: 30px;
+    width: 100px;
+    height: var(--formula-bar-height);
     display: flex;
     justify-content: center;
     flex-direction: column;
@@ -18,7 +22,7 @@
 
 .formula-bar-vertical-line {
     border-left: 1px solid var(--mito-gray);
-    height: 11px;
+    height: var(--formula-bar-height);
     margin-left: 10px;
     margin-right: 10px;
 }

@@ -71,8 +71,15 @@ const CellEditor = (props: {
     // and it really don't effect the experience of using the cell editor at all!
     // If you want to make the editor refresh it's location, just make it subscribe to 
     // grid state changes
-    useEffect(() => {        
+    useEffect(() => {   
+
         const updateCellEditorPosition = () => {
+            if (props.editorState.editorLocation === 'formula bar') {
+                setEditorStyle({
+                    top: 47, // Must be the same as the toolbar-container height in toolbar.css,
+                    left: 100 // Must be the same as the --formula-bar-height in FormulaBar.css
+                });
+            }
     
             const scrollAndRenderedContainerRect = props.scrollAndRenderedContainerRef.current?.getBoundingClientRect();
             if (scrollAndRenderedContainerRect === undefined) {
@@ -487,12 +494,14 @@ const CellEditor = (props: {
         }
     }
 
+    const width = props.editorState.editorLocation === 'cell' ? `${CELL_EDITOR_WIDTH}px` : '100%'
     return (
         <div 
             className='cell-editor' 
             style={{
                 ...editorStyle,
-                width: `${CELL_EDITOR_WIDTH}px`
+                width: width,
+                flexGrow: 1
             }}
         >
             <form

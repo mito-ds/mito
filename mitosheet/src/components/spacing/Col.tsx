@@ -40,6 +40,10 @@ interface ColProps {
        * @param [title] - Title to put on the column div
     */
     title?: string;
+    /**
+     * @param [ref] - A ref to register on this row
+    */
+    ref?: React.RefObject<HTMLDivElement>
 }
 
 
@@ -65,6 +69,7 @@ const Col = (props: ColProps): JSX.Element => {
             }}
             onClick={props.onClick}
             title={props.title}
+            ref={props.ref}
         >
             {props.children}
         </div>
