@@ -138,6 +138,7 @@ def _delete_column_id(
 
     # And then update all the state variables removing this column from the state
     del state.column_spreadsheet_code[sheet_index][column_id]
+    print(state.column_format_types[sheet_index])
     del state.column_format_types[sheet_index][column_id]
 
     # We also have to delete the places in the graph where this node is 

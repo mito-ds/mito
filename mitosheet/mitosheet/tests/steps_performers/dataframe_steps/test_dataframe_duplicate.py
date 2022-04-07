@@ -43,3 +43,14 @@ def test_can_double_duplicate():
     assert len(mito.dfs) == 3
     assert mito.dfs[0].equals(mito.dfs[1])
     assert mito.dfs[0].equals(mito.dfs[2])
+
+def test_can_duplicate_with_renamed_column_then_delete():
+    df = pd.DataFrame({'A': [123]})
+    mito = create_mito_wrapper_dfs(df)
+    mito.add_column(0, 'B')
+    mito.rename_column(0, 'B', 'C')
+    mito.duplicate_dataframe(0)
+    mito.delete_columns(1, ['C'])
+
+    assert len(mito.dfs) == 2
+    assert mito.dfs[1].equals(pd.DataFrame({'A': [123]}))
