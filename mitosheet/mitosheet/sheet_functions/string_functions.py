@@ -34,6 +34,7 @@ def CLEAN(series: pd.Series) -> pd.Series:
     {
         "function": "CLEAN",
         "description": "Returns the text with the non-printable ASCII characters removed.",
+        "search_terms": ["clean", "trim", "remove"],
         "examples": [
             "CLEAN(A)"
         ],
@@ -59,6 +60,7 @@ def CONCAT(*argv: pd.Series) -> pd.Series:
     {
         "function": "CONCAT",
         "description": "Returns the passed strings and series appended together.",
+        "search_terms": ["&", "concatenate", "append", "combine"],
         "examples": [
             "CONCAT('Bite', 'the bullet')",
             "CONCAT(A, B)"
@@ -101,6 +103,7 @@ def FIND(series: pd.Series, substrings: pd.Series) -> pd.Series:
     {
         "function": "FIND",
         "description": "Returns the position at which a string is first found within text, case-sensitive. Returns 0 if not found.",
+        "search_terms": ["find", "search"],
         "examples": [
             "FIND(A, 'Jack')",
             "FIND('Ben has a friend Jack', 'Jack')"
@@ -149,6 +152,7 @@ def LEFT(series: pd.Series, num_chars: pd.Series=None) -> pd.Series:
     {
         "function": "LEFT",
         "description": "Returns a substring from the beginning of a specified string.",
+        "search_terms": ["left"],
         "examples": [
             "LEFT(A, 2)",
             "LEFT('The first character!')"
@@ -190,6 +194,7 @@ def LEN(series: pd.Series) -> pd.Series:
     {
         "function": "LEN",
         "description": "Returns the length of a string.",
+        "search_terms": ["length", "size"],
         "examples": [
             "LEN(A)",
             "LEN('This is 21 characters')"
@@ -219,6 +224,7 @@ def LOWER(series: pd.Series) -> pd.Series:
     {
         "function": "LOWER",
         "description": "Converts a given string to lowercase.",
+        "search_terms": ["lowercase", "uppercase"],
         "examples": [
             "=LOWER('ABC')",
             "=LOWER(A)",
@@ -261,6 +267,7 @@ def MID(series: pd.Series, start_loc: pd.Series, num_chars: pd.Series) -> pd.Ser
     {
         "function": "MID",
         "description": "Returns a segment of a string.",
+        "search_terms": ["middle"],
         "examples": [
             "MID(A, 2, 2)",
             "MID('Some middle characters!', 3, 4)"
@@ -308,6 +315,7 @@ def PROPER(series: pd.Series) -> pd.Series:
     {
         "function": "PROPER",
         "description": "Capitalizes the first letter of each word in a specified string.",
+        "search_terms": ["proper", "capitalize"],
         "examples": [
             "=PROPER('nate nush')",
             "=PROPER(A)"
@@ -344,6 +352,7 @@ def RIGHT(series: pd.Series, num_chars: pd.Series=None) -> pd.Series:
     {
         "function": "RIGHT",
         "description": "Returns a substring from the beginning of a specified string.",
+        "search_terms": [],
         "examples": [
             "RIGHT(A, 2)",
             "RIGHT('The last character!')"
@@ -405,6 +414,7 @@ def SUBSTITUTE(series: pd.Series, old_text: pd.Series, new_text: pd.Series, coun
     {
         "function": "SUBSTITUTE",
         "description": "Replaces existing text with new text in a string.",
+        "search_terms": ["replace", "find and replace"],
         "examples": [
             "SUBSTITUTE('Better great than never', 'great', 'late')",
             "SUBSTITUTE(A, 'dog', 'cat')"
@@ -452,6 +462,7 @@ def TEXT(series: pd.Series) -> pd.Series:
     {
         "function": "TEXT",
         "description": "Turns the passed series into a string.",
+        "search_terms": ["string", "dtype"],
         "examples": [
             "=TEXT(Product_Number)",
             "=TEXT(Start_Date)"
@@ -482,6 +493,7 @@ def TRIM(series: pd.Series) -> pd.Series:
     {
         "function": "TRIM",
         "description": "Returns a string with the leading and trailing whitespace removed.",
+        "search_terms": ["trim", "whitespace", "spaces"],
         "examples": [
             "=TRIM('  ABC')",
             "=TRIM('  ABC  ')",
@@ -512,6 +524,7 @@ def UPPER(series: pd.Series) -> pd.Series:
     {
         "function": "UPPER",
         "description": "Converts a given string to uppercase.",
+        "search_terms": ["uppercase", "capitalize"],
         "examples": [
             "=UPPER('abc')",
             "=UPPER(A)",
