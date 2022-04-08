@@ -33,6 +33,7 @@ def ABS(series: pd.Series) -> pd.Series:
     {
         "function": "ABS",
         "description": "Returns the absolute value of the passed number or series.",
+        "search_terms": ["abs", "absolute value"],
         "examples": [
             "ABS(-1.3)",
             "ABS(A)"
@@ -56,6 +57,7 @@ def AVG(*argv: pd.Series) -> pd.Series:
     {
         "function": "AVG",
         "description": "Returns the numerical mean value of the passed numbers and series.",
+        "search_terms": ["avg", "average", "mean"],
         "examples": [
             "AVG(1, 2)",
             "AVG(A, B)",
@@ -98,6 +100,7 @@ def CORR(s1: pd.Series, s2: pd.Series) -> pd.Series:
     {
         "function": "CORR",
         "description": "Computes the correlation between two series, excluding missing values.",
+        "search_terms": ["corr", "correlation", "r^2"],
         "examples": [
             "=CORR(A, B)",
             "=CORR(B, A)"
@@ -132,6 +135,7 @@ def FLOAT(series: pd.Series) -> pd.Series:
     {
         "function": "FLOAT",
         "description": "Converts a string series to a float series. Any values that fail to convert will return NaN.",
+        "search_terms": ["number", "to number"],
         "examples": [
             "=FLOAT(Prices_string)",
             "=FLOAT('123.123')"
@@ -159,6 +163,7 @@ def INT(series: pd.Series) -> pd.Series:
     {
         "function": "INT",
         "description": "Converts a string series to a int series. Any values that fail to convert will return 0.",
+        "search_terms": ["number", "to integer"],
         "examples": [
             "=INT(Prices_string)",
             "=INT('123')"
@@ -187,6 +192,7 @@ def KURT(series: pd.Series) -> pd.Series:
     {
         "function": "KURT",
         "description": "Computes the unbiased kurtosis, a measure of tailedness, of a series, excluding missing values.",
+        "search_terms": ["kurtosis"],
         "examples": [
             "=KURT(A)",
             "=KURT(A * B)"
@@ -215,6 +221,7 @@ def MAX(*argv: pd.Series) -> pd.Series:
     {
         "function": "MAX",
         "description": "Returns the maximum value among the passed arguments.",
+        "search_terms": ["max", "maximum", "minimum"],
         "examples": [
             "MAX(10, 11)",
             "MAX(Old_Data, New_Data)"
@@ -245,6 +252,7 @@ def MIN(*argv: pd.Series) -> pd.Series:
     {
         "function": "MIN",
         "description": "Returns the minimum value among the passed arguments.",
+        "search_terms": ["min", "minimum", "maximum"],
         "examples": [
             "MIN(10, 11)",
             "MIN(Old_Data, New_Data)"
@@ -274,6 +282,7 @@ def MULTIPLY(*argv: pd.Series) -> pd.Series:
     {
         "function": "MULTIPLY",
         "description": "Returns the product of two numbers.",
+        "search_terms": ["mulitply", "product"],
         "examples": [
             "MULTIPLY(2,3)",
             "MULTIPLY(A,3)"
@@ -315,6 +324,7 @@ def POWER(series, power):
     {
         "function": "POWER",
         "description": "The POWER function can be used to raise a number to a given power.",
+        "search_terms": ["power", "raise", "exponent", "square", "cube"],
         "examples": [
             "POWER(4, 1/2)",
             "POWER(Dose, 2)"
@@ -355,6 +365,7 @@ def ROUND(series, decimals=None):
     {
         "function": "ROUND",
         "description": "Rounds a number to a given number of decimals.",
+        "search_terms": ["round", "decimal", "integer"],
         "examples": [
             "ROUND(1.3)",
             "ROUND(A, 2)"
@@ -397,6 +408,7 @@ def SKEW(series: pd.Series) -> pd.Series:
     {
         "function": "SKEW",
         "description": "Computes the skew of a series, excluding missing values.",
+        "search_terms": [],
         "examples": [
             "=SKEW(A)",
             "=SKEW(A * B)"
@@ -424,6 +436,7 @@ def SUM(*argv: pd.Series) -> pd.Series:
     {
         "function": "SUM",
         "description": "Returns the sum of the given numbers and series.",
+        "search_terms": ["add"],
         "examples": [
             "SUM(10, 11)",
             "SUM(A, B, D, F)",
@@ -460,6 +473,7 @@ def STDEV(series: pd.Series) -> pd.Series:
     {
         "function": "STDEV",
         "description": "Computes the standard deviation of a series, excluding missing values.",
+        "search_terms": ["standard", "deviation", "standard", "distribution"],
         "examples": [
             "=STDEV(A)",
             "=STDEV(A * B)"
@@ -493,6 +507,7 @@ def VALUE(series: pd.Series) -> pd.Series:
     {
         "function": "VALUE",
         "description": "Converts a string series to a number series. Any values that fail to convert will return an NaN.",
+        "search_terms": ["number", "to number", "dtype", "convert", "parse"],
         "examples": [
             "=VALUE(A)",
             "=VALUE('123')"
@@ -521,6 +536,7 @@ def EXP(series: pd.Series) -> pd.Series:
     {
         "function": "EXP",
         "description": "Returns e, the base of the natural logarithm, raised to the power of passed series.",
+        "search_terms": ["exp", "exponent", "log", "natural log"],
         "examples": [
             "=EXP(data)",
             "=EXP(A)"
@@ -549,6 +565,7 @@ def VAR(series: pd.Series) -> pd.Series:
     {
         "function": "VAR",
         "description": "Computes the variance of a series, excluding missing values.",
+        "search_terms": ["variance"],
         "examples": [
             "=VAR(A)",
             "=VAR(A - B)"
