@@ -42,7 +42,7 @@ const ErrorModal = (
                         </div>
                     }
                     {props.error.traceback && viewTraceback &&
-                        <div className='flex flex-column text-align-left text-overflow-hidden text-overflow-scroll mt-5px' style={{height: '200px', border: '1px solid var(--mito-purple)', borderRadius: '2px', padding: '5px'}}>
+                        <div className='flex text-align-left text-overflow-hidden text-overflow-scroll mt-5px' style={{height: '200px', border: '1px solid var(--mito-purple)', borderRadius: '2px', padding: '5px'}}>
                             <pre>{props.error.traceback}</pre>
                         </div>
                     }

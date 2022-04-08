@@ -33,7 +33,7 @@ const FormulaBar = (props: {
     const formulaBarColumnHeader = props.editorState === undefined ? columnHeader : cellEditingCellData?.columnHeader;
     const formulaBarValue = props.editorState === undefined ? originalFormulaBarValue : getFullFormula(props.editorState.formula, formulaBarColumnHeader || '', props.editorState.pendingSelectedColumns);
 
-    // The formula bar ref
+    // The container for the entire formula bar
     const containerRef = useRef<HTMLDivElement>(null);
 
     return(
@@ -48,9 +48,9 @@ const FormulaBar = (props: {
             suppressTopBottomMargin
         >
             <Col offset={.25}>
-                <p className="formula-bar-column-header text-header-3 text-overflow-hide">
+                <div className="formula-bar-column-header text-header-3 text-overflow-hide">
                     {formulaBarColumnHeader}
-                </p>
+                </div>
             </Col>
             {(props.editorState === undefined || props.editorState.editorLocation !== 'formula bar') &&
                 <>
@@ -83,10 +83,7 @@ const FormulaBar = (props: {
                 </>
             }
             {props.editorState !== undefined && props.editorState.editorLocation === 'formula bar' &&
-                <Col flex='1' ref={containerRef}>
-                    <div>
-                        cell Editor
-                    </div>
+                <Col flex='1'>
                     <CellEditor 
                         sheetData={props.sheetData}
                         sheetIndex={props.sheetIndex}

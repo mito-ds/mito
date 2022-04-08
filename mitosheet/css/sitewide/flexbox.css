@@ -19,3 +19,7 @@
 .flexbox-justify-end {
     justify-content: end;
 }
+
+.flexbox-align-items-center {
+    align-items: center;
+}

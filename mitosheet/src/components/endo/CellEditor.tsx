@@ -76,9 +76,10 @@ const CellEditor = (props: {
         const updateCellEditorPosition = () => {
             if (props.editorState.editorLocation === 'formula bar') {
                 setEditorStyle({
-                    top: 47, // Must be the same as the toolbar-container height in toolbar.css,
-                    left: 100 // Must be the same as the --formula-bar-height in FormulaBar.css
+                    top: 49, // Must be the same as the toolbar-container height in toolbar.css,
+                    left: 120 // Must be the same as the --formula-bar-height in FormulaBar.css
                 });
+                return 
             }
     
             const scrollAndRenderedContainerRect = props.scrollAndRenderedContainerRef.current?.getBoundingClientRect();
@@ -168,6 +169,8 @@ const CellEditor = (props: {
         setTimeout(() => {
             // Focus the input
             cellEditorInputRef.current?.focus();
+
+            console.log('here')
 
             // If there is a pendingSelectedColumns, then we set the selection to be 
             // at the _end_ of them!
@@ -494,6 +497,7 @@ const CellEditor = (props: {
         }
     }
 
+    console.log(props.containerRef)
     const width = props.editorState.editorLocation === 'cell' ? `${CELL_EDITOR_WIDTH}px` : '100%'
     return (
         <div 
@@ -554,7 +558,7 @@ const CellEditor = (props: {
                 In the dropdown box, we either show an error, a loading message, suggestions
                 or the documentation for the last function, depending on the cases below
             */}
-            <div className='cell-editor-dropdown-box'>
+            <div className='cell-editor-dropdown-box' style={{width: props.editorState.editorLocation === 'formula bar' ? `${CELL_EDITOR_WIDTH}px` : undefined}}>
                 {cellEditorError === undefined && 
                     <p className={classNames('cell-editor-label', 'text-subtext-1', 'ml-5px')}>
                         {isFormulaColumn ? "You're setting the formula of this column" : "You're changing the value of this cell"}

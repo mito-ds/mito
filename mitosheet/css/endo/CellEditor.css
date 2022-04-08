@@ -4,7 +4,6 @@
     z-index: 2;
     position: absolute;
     box-sizing: border-box;
-    background: white;
 }
 
 .cell-editor-form {
@@ -14,7 +13,7 @@
 }
 
 .cell-editor-input {
-    height: 25px;
+    height: 26px;
     width: 100%;
     border: none;
     box-sizing: border-box;
@@ -26,7 +25,8 @@
     
     display: flex;
     flex-direction: column;
-    overflow-x: hidden;
+    overflow-wrap: break-word;
+    white-space: normal; 
 }
 
 .cell-editor-suggestion {
