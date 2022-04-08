@@ -4,12 +4,26 @@
     z-index: 2;
     position: absolute;
     box-sizing: border-box;
+
+    /* 
+        Set the pointer-events: none allows the user to select elements that are behind the 
+        cell editor. The formula bar cell editor's rectangular div covers the column headers. 
+        However, most of the rectangle is translucent. 
+
+        We set the entire cell-editor to have no pointer events, and we turn on the pointer events
+        for the specific parts of the cell editor that are displayed. This lets the user interact with 
+        all of the visible elements as they would expect. 
+    */
+    pointer-events: none;
 }
 
 .cell-editor-form {
     border: 2px solid var(--mito-purple);
     width: 100%;
     box-sizing: border-box;
+
+    /* Let the user click on the cell editor form */
+    pointer-events: all 
 }
 
 .cell-editor-input {
@@ -27,6 +41,9 @@
     flex-direction: column;
     overflow-wrap: break-word;
     white-space: normal; 
+
+    /* Let the user click on the dropdown box */
+    pointer-events: all;
 }
 
 .cell-editor-suggestion {
