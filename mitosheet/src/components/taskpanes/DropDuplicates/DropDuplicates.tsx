@@ -48,7 +48,7 @@ export const getDefaultParams = (selectedSheetIndex: number, sheetDataArray: She
 
     return {
         sheet_index: selectedSheetIndex,
-        column_ids: sheetDataArray[selectedSheetIndex]?.data?.map(c => c.columnID) || [],
+        column_ids: [],
         keep: 'first',
     }
 }
