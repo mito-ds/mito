@@ -170,8 +170,6 @@ const CellEditor = (props: {
             // Focus the input
             cellEditorInputRef.current?.focus();
 
-            console.log('here')
-
             // If there is a pendingSelectedColumns, then we set the selection to be 
             // at the _end_ of them!
             if (props.editorState.pendingSelectedColumns !== undefined) {
@@ -497,8 +495,15 @@ const CellEditor = (props: {
         }
     }
 
-    console.log(props.containerRef)
-    const width = props.editorState.editorLocation === 'cell' ? `${CELL_EDITOR_WIDTH}px` : '100%'
+    let width = '80%';
+    if (props.editorState.editorLocation === 'cell') {
+        width = `${CELL_EDITOR_WIDTH}px`
+    } else if (props.containerRef.current !== undefined && props.containerRef.current !== null) {
+        // When the editorLocation is the formula bar, the containerRef is the MitoContainer. 
+        // So to find the correct width, we need to subtract the space used to display the column header and padding
+        width = `${props.containerRef.current.clientWidth - 120}px`
+    } 
+    
     return (
         <div 
             className='cell-editor' 

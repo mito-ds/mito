@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import React, { useRef } from 'react';
+import React from 'react';
 
 // Import css
 import "../../../css/FormulaBar.css";
@@ -23,6 +23,7 @@ const FormulaBar = (props: {
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>,
     setGridState: React.Dispatch<React.SetStateAction<GridState>>,
     mitoAPI: MitoAPI,
+    mitoContainerRef: React.RefObject<HTMLDivElement>;
 }): JSX.Element => {
     const rowIndex = props.selection.endingRowIndex
     const columnIndex = props.selection.endingColumnIndex
@@ -32,9 +33,6 @@ const FormulaBar = (props: {
     const cellEditingCellData = props.editorState === undefined ? undefined : getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
     const formulaBarColumnHeader = props.editorState === undefined ? columnHeader : cellEditingCellData?.columnHeader;
     const formulaBarValue = props.editorState === undefined ? originalFormulaBarValue : getFullFormula(props.editorState.formula, formulaBarColumnHeader || '', props.editorState.pendingSelectedColumns);
-
-    // The container for the entire formula bar
-    const containerRef = useRef<HTMLDivElement>(null);
 
     return(
         <Row 
@@ -91,8 +89,9 @@ const FormulaBar = (props: {
                         editorState={props.editorState}
                         setGridState={props.setGridState}
                         setEditorState={props.setEditorState}
-                        scrollAndRenderedContainerRef={containerRef}
-                        containerRef={containerRef}
+                        // Since no scrolling effects the formula bar cell editor, we just pass the mitoContainerRef for both
+                        scrollAndRenderedContainerRef={props.mitoContainerRef}  
+                        containerRef={props.mitoContainerRef}
                         mitoAPI={props.mitoAPI}
                     />
                 </Col>

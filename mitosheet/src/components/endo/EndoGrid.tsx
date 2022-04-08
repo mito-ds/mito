@@ -76,6 +76,7 @@ function EndoGrid(props: {
     */
     editorState: EditorState | undefined,
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>
+    mitoContainerRef: React.RefObject<HTMLDivElement>;
 }): JSX.Element {
 
     // The container for the entire EndoGrid
@@ -91,7 +92,7 @@ function EndoGrid(props: {
         gridState, setGridState, 
         editorState, setEditorState, 
         uiState, setUIState,
-        mitoAPI
+        mitoAPI, mitoContainerRef
     } = props;
 
     const sheetData = sheetDataArray[sheetIndex];
@@ -596,6 +597,7 @@ function EndoGrid(props: {
                 setGridState={setGridState}
                 setEditorState={setEditorState}
                 mitoAPI={mitoAPI}
+                mitoContainerRef={mitoContainerRef}
             />
             <div 
                 className='endo-grid-container' 

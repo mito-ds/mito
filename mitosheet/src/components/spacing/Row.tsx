@@ -36,12 +36,6 @@ interface RowProps {
      * @param [title] - Tooltip to be displayed when the user's mouse hovers over the row
      */
     title?: string
-
-    /**
-     * @param [ref] - A ref to register on this row
-     */
-    ref?: React.RefObject<HTMLDivElement>
-
 }
 
 /**
@@ -86,7 +80,6 @@ const Row = (props: RowProps): JSX.Element => {
                 justifyContent: props.justify,
                 alignItems: props.align,
             }}
-            ref={props.ref}
         >
             {props.children}
         </div>
