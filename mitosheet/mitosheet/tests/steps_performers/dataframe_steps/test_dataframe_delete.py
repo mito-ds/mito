@@ -107,4 +107,4 @@ def test_can_delete_mulitple_dataframe_more():
     ]
 
     # We also check that it adjusted the sheet indexes internally correct
-    assert get_code_chunks(mito.steps, optimize=True)[-1].get_param('sheet_indexes') == [0, 2]
+    assert get_code_chunks(mito.steps, optimize=True)[-1].get_param('sheet_indexes') == [0, 2]    
