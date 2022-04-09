@@ -256,3 +256,20 @@ def test_all_other_steps_after_pivot():
     assert mito.dfs[3].equals(
         pd.DataFrame({'Name': ['Aaron']})
     )
+
+def test_simple_pivot_optimizes_after_delete():
+    df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
+    mito = create_mito_wrapper_dfs(df1)
+    mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']})
+    mito.delete_dataframe(1)
+
+    assert mito.transpiled_code == []
+
+def test_simple_pivot_no_optimizes_after_edit():
+    df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
+    mito = create_mito_wrapper_dfs(df1)
+    mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']})
+    mito.pivot_sheet(0, ['Name'], [], {'Height': ['mean']}, destination_sheet_index=1)
+    mito.delete_dataframe(1)
+
+    assert len(mito.transpiled_code) > 0

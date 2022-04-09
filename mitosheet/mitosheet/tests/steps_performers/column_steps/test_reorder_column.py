@@ -86,3 +86,13 @@ def test_reorder_column_several_columns():
     assert correct_column_order[1] == mito.dfs[0].columns[1]
     assert correct_column_order[2] == mito.dfs[0].columns[2]
     assert correct_column_order[3] == mito.dfs[0].columns[3]
+
+def test_reorder_column_several_columns_then_delete_optimizes():
+    df = pd.DataFrame(data={'A': [1], 'B': [2], 'C': [3], 'D': [4]})
+    mito = create_mito_wrapper_dfs(df)
+    # Put A in second spot
+    mito.reorder_column(0, 'D', 1)
+    mito.reorder_column(0, 'C', 1)
+    mito.delete_dataframe(0)
+
+    assert mito.transpiled_code == ['del df1']

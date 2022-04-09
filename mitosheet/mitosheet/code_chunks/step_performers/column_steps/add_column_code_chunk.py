@@ -72,6 +72,9 @@ class AddColumnCodeChunk(CodeChunk):
             )
         
         return None
+
+    def edits_sheet_indexes(self, sheet_indexes: List[int]) -> bool:
+        return self.get_param('sheet_index') in sheet_indexes
     
     def _combine_right_with_rename_columns_code_chunk(self, other_code_chunk: RenameColumnsCodeChunk) -> Optional[CodeChunk]:
         # Make sure the sheet index matches up first

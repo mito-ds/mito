@@ -250,3 +250,13 @@ def test_two_new_columns_two_renames():
         "df1.insert(2, 'new_two', 0)",
         "df1.rename(columns={'new_one': 'new_one_prime', 'new_two': 'new_two_prime'}, inplace=True)"
     ]
+
+def test_optimize_out_renames_after_delete():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123]}))
+    mito.add_column(0, 'new_one')
+    mito.add_column(0, 'new_two')
+    mito.rename_column(0, 'new_one', 'new_one_prime')
+    mito.rename_column(0, 'new_two', 'new_two_prime')
+    mito.delete_dataframe(0)
+
+    assert mito.transpiled_code == ['del df1']

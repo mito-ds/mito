@@ -112,3 +112,12 @@ class PivotCodeChunk(CodeChunk):
         transpiled_code.append(f'{new_df_name} = pivot_table.reset_index()')
 
         return transpiled_code
+
+    def creates_sheet_indexes(self, sheet_indexes: List[int]) -> bool:
+        destination_sheet_index = self.get_param('destination_sheet_index')
+        if destination_sheet_index is None:
+            return len(self.post_state.dfs) - 1 in sheet_indexes
+        else:
+            # We don't optimize out pivot table edits, because it sounds scary and like
+            # it might lead to invalid code in ways I literally am too dumb to think about
+            return False

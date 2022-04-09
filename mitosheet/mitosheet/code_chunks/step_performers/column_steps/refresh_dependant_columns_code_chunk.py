@@ -57,6 +57,9 @@ class RefreshDependantColumnsCodeChunk(CodeChunk):
 
         return code
 
+    def edits_sheet_indexes(self, sheet_indexes: List[int]) -> bool:
+        return self.get_param('sheet_index') in sheet_indexes
+
     def _combine_right_with_delete_column_code_chunk(self, other_code_chunk: DeleteColumnsCodeChunk) -> Optional[CodeChunk]:
         return get_right_combine_with_column_delete_code_chunk(
             self,

@@ -120,3 +120,15 @@ def test_double_delete_different_sheets_does_optimize():
         "df1.drop(['A', 'B'], axis=1, inplace=True)",
         "df1_copy.drop(['A', 'B'], axis=1, inplace=True)",
     ]
+
+def test_double_delete_sheets_does_optimize():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123], 'B': [1234]}))
+    mito.duplicate_dataframe(0)
+    mito.delete_columns(0, ['A'])
+    mito.delete_columns(0, ['B'])
+    mito.delete_columns(1, ['A'])
+    mito.delete_columns(1, ['B'])
+    mito.delete_dataframe(0)
+    mito.delete_dataframe(0)
+
+    assert mito.transpiled_code == []

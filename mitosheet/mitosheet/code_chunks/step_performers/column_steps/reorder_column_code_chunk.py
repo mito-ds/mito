@@ -43,3 +43,6 @@ class ReorderColumnCodeChunk(CodeChunk):
         apply_reorder_line = f'{df_name} = {df_name}[{df_name}_columns]'
 
         return [columns_list_line, insert_line, apply_reorder_line]
+
+    def edits_sheet_indexes(self, sheet_indexes: List[int]) -> bool:
+        return self.get_param('sheet_index') in sheet_indexes

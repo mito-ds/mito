@@ -26,3 +26,6 @@ class DataframeDuplicateCodeChunk(CodeChunk):
         new_df_name = self.post_state.df_names[len(self.post_state.dfs) - 1]
 
         return [f'{new_df_name} = {old_df_name}.copy(deep=True)']
+
+    def creates_sheet_indexes(self, sheet_indexes: List[int]) -> bool:
+        return len(self.post_state.dfs) - 1 in sheet_indexes

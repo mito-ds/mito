@@ -150,3 +150,6 @@ class ChangeColumnDtypeCodeChunk(CodeChunk):
             code.insert(0, 'import pandas as pd')
 
         return code
+
+    def edits_sheet_indexes(self, sheet_indexes: List[int]) -> bool:
+        return self.get_param('sheet_index') in sheet_indexes
