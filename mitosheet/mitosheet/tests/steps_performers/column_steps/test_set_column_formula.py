@@ -6,6 +6,7 @@
 """
 Contains tests for set column formula edit events
 """
+from mitosheet.step_performers.sort import ASCENDING
 from numpy import add
 import pandas as pd
 
@@ -138,12 +139,9 @@ def test_only_writes_downstream_code():
     mito.set_formula('=100', 0, 'B', add_column=True)
 
     assert mito.transpiled_code == [
-        "df1.insert(1, 'B', 0)", 
-        "df1['B'] = df1['A']", 
-        "df1.insert(2, 'C', 0)", 
-        "df1['C'] = df1['B']", 
-        "df1.insert(3, 'D', 0)", 
-        "df1['D'] = df1['A']", 
+        "df1.insert(1, 'B', df1['A'])", 
+        "df1.insert(2, 'C', df1['B'])", 
+        "df1.insert(3, 'D', df1['A'])", 
         "df1['B'] = 100", 
         "df1['C'] = df1['B']", 
     ]
@@ -159,3 +157,82 @@ def test_formula_with_letters_df_in_column_header_works():
             'A': [1]
         })
     )
+
+def test_set_formula_then_rename_no_optimize_yet():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
+    mito.add_column(0, 'B')
+    mito.sort(0, 'B', ASCENDING) # Sort to break up the optimization
+    mito.set_formula('=10', 0, 'B', add_column=False)
+    mito.rename_column(0, 'B', 'C')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1], 'C': [10]}))
+    assert mito.transpiled_code == [
+        "df1.insert(1, 'B', 0)", 
+        "df1 = df1.sort_values(by='B', ascending=True, na_position='first')", 
+        "df1['B'] = 10", 
+        "df1.rename(columns={'B': 'C'}, inplace=True)"
+    ]
+
+def test_set_formula_then_delete_optimize():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
+    mito.add_column(0, 'B')
+    mito.sort(0, 'B', ASCENDING) # Sort to break up the optimization
+    mito.set_formula('=10', 0, 'B', add_column=False)
+    mito.delete_columns(0, ['B'])
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1]}))
+    assert mito.transpiled_code == [
+        "df1.insert(1, 'B', 0)", 
+        "df1 = df1.sort_values(by='B', ascending=True, na_position='first')",
+        "df1.drop(['B'], axis=1, inplace=True)"
+    ]
+
+def test_set_formula_then_delete_optimizes_multiple():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
+    mito.add_column(0, 'B')
+    mito.sort(0, 'B', ASCENDING) # Sort to break up the optimization
+    mito.set_formula('=10', 0, 'B', add_column=False)
+    mito.set_formula('=11', 0, 'B', add_column=False)
+    mito.set_formula('=12', 0, 'B', add_column=False)
+    mito.set_formula('=13', 0, 'B', add_column=False)
+    mito.delete_columns(0, ['B'])
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1]}))
+    assert mito.transpiled_code == [
+        "df1.insert(1, 'B', 0)", 
+        "df1 = df1.sort_values(by='B', ascending=True, na_position='first')",
+        "df1.drop(['B'], axis=1, inplace=True)"
+    ]
+
+def test_set_multiple_formula_then_delete_optimizes_multiple():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
+    mito.add_column(0, 'B')
+    mito.add_column(0, 'C')
+    mito.sort(0, 'B', ASCENDING) # Sort to break up the optimization
+    mito.set_formula('=10', 0, 'B', add_column=False)
+    mito.set_formula('=11', 0, 'B', add_column=False)
+    mito.set_formula('=12', 0, 'C', add_column=False)
+    mito.set_formula('=13', 0, 'C', add_column=False)
+    mito.delete_columns(0, ['B', 'C'])
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1]}))
+    assert mito.transpiled_code == [
+        "df1.insert(1, 'B', 0)", 
+        "df1.insert(2, 'C', 0)", 
+        "df1 = df1.sort_values(by='B', ascending=True, na_position='first')",
+        "df1.drop(['B', 'C'], axis=1, inplace=True)"
+    ]
+
+
+def test_set_column_formula_in_duplicate_does_not_overoptmize():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
+    mito.add_column(0, 'B')
+    mito.duplicate_dataframe(0) # Duplicate to break up the optimization
+    mito.rename_column(1, 'B', 'aaron')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1], 'B': [0]}))
+    assert mito.transpiled_code == [
+        "df1.insert(1, 'B', 0)", 
+        "df1_copy = df1.copy(deep=True)",
+        "df1_copy.rename(columns={'B': 'aaron'}, inplace=True)"
+    ]

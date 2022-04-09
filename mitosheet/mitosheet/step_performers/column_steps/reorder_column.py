@@ -8,6 +8,8 @@ from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.reorder_column_code_chunk import ReorderColumnCodeChunk
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.transpiler.transpile_utils import \
@@ -39,10 +41,6 @@ class ReorderColumnStepPerformer(StepPerformer):
     @classmethod
     def step_type(cls) -> str:
         return 'reorder_column'
-
-    @classmethod
-    def step_display_name(cls) -> str:
-        return 'Reordered Columns'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -81,45 +79,16 @@ class ReorderColumnStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        sheet_index: int,
-        column_id: ColumnID,
-        new_column_index: int
-    ) -> List[str]:
-        column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-        transpiled_column_header = column_header_to_transpiled_code(column_header)
-
-        new_column_index = get_valid_index(prev_state.dfs, sheet_index, new_column_index)
-        df_name = post_state.df_names[sheet_index]
-
-        # Get columns in df
-        columns_list_line = f'{df_name}_columns = [col for col in {df_name}.columns if col != {transpiled_column_header}]'
-
-        # Insert column into correct location 
-        insert_line = f'{df_name}_columns.insert({new_column_index}, {transpiled_column_header})'
-        
-        # Apply reorder line
-        apply_reorder_line = f'{df_name} = {df_name}[{df_name}_columns]'
-
-        return [columns_list_line, insert_line, apply_reorder_line]
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        sheet_index: int,
-        column_id: ColumnID,
-        new_column_index: int,
-        df_names=None,
-        **params
-    ) -> str:
-        if df_names is not None:
-            df_name = df_names[sheet_index]
-            return f'Reordered {column_id} in {df_name}'
-        return f'Reordered {column_id}'
+    ) -> List[CodeChunk]:
+        return [
+            ReorderColumnCodeChunk(prev_state, post_state, params, execution_data)
+        ]
     
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

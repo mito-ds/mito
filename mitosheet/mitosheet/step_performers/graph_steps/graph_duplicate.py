@@ -6,6 +6,8 @@
 from copy import copy, deepcopy
 from typing import Any, Dict, List, Optional, Set, Tuple
 import uuid
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
@@ -24,10 +26,6 @@ class GraphDuplicateStepPerformer(StepPerformer):
     @classmethod
     def step_type(cls) -> str:
         return 'graph_duplicate'
-
-    @classmethod
-    def step_display_name(cls) -> str:
-        return 'Duplicated a Graph'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -57,26 +55,26 @@ class GraphDuplicateStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        old_graph_id: GraphID,
-        new_graph_id: GraphID,
-    ) -> List[str]:
-        # Graph steps don't add any generated code to the analysis script. 
-        return []
+    ) -> List[CodeChunk]:
 
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        old_graph_id: GraphID,
-        new_graph_id: GraphID,
-        df_names=None,
-        **params
-    ) -> str:
-        return f'Duplicated a Graph'
+        # Graph steps don't add any generated code to the analysis script. 
+        return [
+            EmptyCodeChunk(
+                prev_state, 
+                post_state, 
+                {
+                    'display_name': 'Duplicated graph',
+                    'description_comment': 'Duplicated a graph',
+                }, 
+                execution_data
+            )
+        ]
     
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

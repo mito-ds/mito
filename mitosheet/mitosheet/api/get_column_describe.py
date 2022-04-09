@@ -8,10 +8,10 @@ from typing import Any, Dict
 
 import pandas as pd
 from mitosheet.sheet_functions.types.utils import is_number_dtype
-from mitosheet.steps_manager import StepsManager
+from mitosheet.types import StepsManagerType
 
 
-def get_column_describe(event: Dict[str, Any], steps_manager: StepsManager) -> str:
+def get_column_describe(event: Dict[str, Any], steps_manager: StepsManagerType) -> str:
     """
     Sends back a string that can be parsed to a JSON object that
     contains _all_ the results from the series .describe function

@@ -5,6 +5,8 @@
 # Distributed under the terms of the GPL License.
 from copy import copy
 from typing import Any, Dict, List, Optional, Set, Tuple
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
@@ -23,10 +25,6 @@ class GraphDeleteStepPerformer(StepPerformer):
     @classmethod
     def step_type(cls) -> str:
         return 'graph_delete'
-
-    @classmethod
-    def step_display_name(cls) -> str:
-        return 'Deleted a Graph'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -55,26 +53,26 @@ class GraphDeleteStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        graph_id: GraphID,
-        old_graph_tab_name: str
-    ) -> List[str]:
-        # Since we don't generate any code for graphs, don't return any transpiled code.
-        return []
+    ) -> List[CodeChunk]:
 
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        graph_id: GraphID,
-        old_graph_tab_name: str,
-        df_names=None,
-        **params
-    ) -> str:
-        return f'Deleted {old_graph_tab_name}'
+        # Graph steps don't add any generated code to the analysis script. 
+        return [
+            EmptyCodeChunk(
+                prev_state, 
+                post_state, 
+                {
+                    'display_name': 'Deleted graph',
+                    'description_comment': 'Deleted a graph',
+                }, 
+                execution_data
+            )
+        ]
     
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

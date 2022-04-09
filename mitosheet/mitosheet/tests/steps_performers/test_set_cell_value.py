@@ -224,3 +224,48 @@ def test_set_cell_value_convert_datetime_to_none():
     assert mito.transpiled_code == [
         'df1.at[0, \'A\'] = None'
     ]
+
+def test_set_cell_value_then_delete_optimizes():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
+    mito.set_cell_value(0, 'A', 0, 10)
+    mito.delete_columns(0, ['A'])
+
+    assert mito.dfs[0].empty
+    assert mito.transpiled_code == [
+        "df1.drop(['A'], axis=1, inplace=True)"
+    ]
+
+def test_multiple_set_cell_value_then_delete_optimizes():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
+    mito.set_cell_value(0, 'A', 0, 10)
+    mito.set_cell_value(0, 'A', 0, 11)
+    mito.set_cell_value(0, 'A', 0, 12)
+    mito.delete_columns(0, ['A'])
+
+    assert mito.dfs[0].empty
+    assert mito.transpiled_code == [
+        "df1.drop(['A'], axis=1, inplace=True)"
+    ]
+
+def test_multiple_set_cell_value_then_multiple_delete_optimizes():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1], 'B': [2]}))
+    mito.set_cell_value(0, 'A', 0, 10)
+    mito.set_cell_value(0, 'A', 0, 11)
+    mito.set_cell_value(0, 'B', 0, 10)
+    mito.delete_columns(0, ['A', 'B'])
+
+    assert mito.dfs[0].empty
+    assert mito.transpiled_code == [
+        "df1.drop(['A', 'B'], axis=1, inplace=True)"
+    ]
+
+def test_set_cell_value_then_multiple_delete_optimizes():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1], 'B': [2]}))
+    mito.set_cell_value(0, 'A', 0, 10)
+    mito.set_cell_value(0, 'A', 0, 11)
+    mito.delete_columns(0, ['A', 'B'])
+
+    assert mito.dfs[0].empty
+    assert mito.transpiled_code == [
+        "df1.drop(['A', 'B'], axis=1, inplace=True)"
+    ]

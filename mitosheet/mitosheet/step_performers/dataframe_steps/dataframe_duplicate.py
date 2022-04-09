@@ -6,6 +6,9 @@
 from copy import copy
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.dataframe_steps.dataframe_duplicate_code_chunk import DataframeDuplicateCodeChunk
+from mitosheet.column_headers import get_column_header_id
 
 from mitosheet.state import DATAFRAME_SOURCE_DUPLICATED, State
 from mitosheet.step_performers.step_performer import StepPerformer
@@ -26,10 +29,6 @@ class DataframeDuplicateStepPerformer(StepPerformer):
         return 'dataframe_duplicate'
 
     @classmethod
-    def step_display_name(cls) -> str:
-        return 'Duplicated a Dataframe'
-
-    @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 
@@ -47,8 +46,18 @@ class DataframeDuplicateStepPerformer(StepPerformer):
         df_copy = post_state.dfs[sheet_index].copy(deep=True)
         pandas_processing_time = perf_counter() - pandas_start_time
         new_name = get_first_unused_dataframe_name(post_state.df_names, post_state.df_names[sheet_index] + '_copy')
-        # Copy the formatting to the new sheet
+
+        # Copy the formatting to the new sheet. Because the mapping is column id -> format object, and
+        # the column ids that are created for the df_copy in the add_df_to_state function might be different
+        # than the column_ids created initially (e.g. because of renames), we have to go through and updated
+        # the mapping with the new column ids that the format types must rely on
         format_types = post_state.column_format_types[sheet_index].copy()
+        for column_id, column_header in post_state.column_ids.get_column_ids_map(sheet_index).items():
+            new_column_id = get_column_header_id(column_header)
+            format_types[new_column_id] = format_types[column_id]
+            if column_id != new_column_id:
+                del format_types[column_id]
+
         post_state.add_df_to_state(df_copy, DATAFRAME_SOURCE_DUPLICATED, df_name=new_name, format_types=format_types)
 
         return post_state, {
@@ -56,30 +65,16 @@ class DataframeDuplicateStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        sheet_index: int
-    ) -> List[str]:
-        old_df_name = post_state.df_names[sheet_index]
-        new_df_name = post_state.df_names[len(post_state.dfs) - 1]
-
-        return [f'{new_df_name} = {old_df_name}.copy(deep=True)']
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        sheet_index: int,
-        df_names=None,
-        **params
-    ) -> str:
-        if df_names is not None:
-            old_df_name = df_names[sheet_index]
-            new_df_name = df_names[len(df_names) - 1]
-            return f'Duplicated {old_df_name} to {new_df_name}'
-        return f'Duplicated a df'
+    ) -> List[CodeChunk]:
+        return [
+            DataframeDuplicateCodeChunk(prev_state, post_state, params, execution_data)
+        ]
     
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

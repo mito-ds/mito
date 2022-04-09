@@ -3,10 +3,10 @@
 import json
 from typing import Any, Dict
 
-from mitosheet.steps_manager import StepsManager
+from mitosheet.types import StepsManagerType
 
 
-def get_params(event: Dict[str, Any], steps_manager: StepsManager) -> str:
+def get_params(event: Dict[str, Any], steps_manager: StepsManagerType) -> str:
     """
     Loops back over the steps, looking for a matching step. Specifically, it tries
     to find the most recent step with the given params passed.

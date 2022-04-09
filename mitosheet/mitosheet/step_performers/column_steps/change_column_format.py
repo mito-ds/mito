@@ -5,6 +5,8 @@
 # Distributed under the terms of the GPL License.
 from copy import copy
 from typing import Any, Dict, List, Optional, Set, Tuple
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.types import ColumnID
@@ -21,10 +23,6 @@ class ChangeColumnFormatStepPerformer(StepPerformer):
     @classmethod
     def step_type(cls) -> str:
         return 'change_column_format'
-
-    @classmethod
-    def step_display_name(cls) -> str:
-        return 'Change Column Format'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -51,29 +49,25 @@ class ChangeColumnFormatStepPerformer(StepPerformer):
         return post_state, {'num_cols_formatted': len(column_ids)}
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        sheet_index: int,
-        column_ids: List[ColumnID],
-        format_type: Dict[str, Any]
-    ) -> List[str]:
+    ) -> List[CodeChunk]:
         # Formatting columns only effects the display in Mito, not the generated code.
-        return []
-    
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        sheet_index: int,
-        column_ids: List[ColumnID],
-        format_type: Dict[str, Any],
-        df_names=None,
-        **params
-    ) -> str:
-        formated_column_ids = (', '.join(column_ids))
-        return f'Formatted column{"s" if len(column_ids) > 1 else ""} {formated_column_ids} as {format_type["type"]}'
+        return [
+            EmptyCodeChunk(
+                prev_state, 
+                post_state, 
+                {
+                    'display_name': 'Changed column format',
+                    'description_comment': f'Changed the format of a {len(params["column_ids"])} columns to {params["format_type"]}',
+                }, 
+                execution_data
+            )
+        ]
 
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

@@ -357,12 +357,16 @@ def parse_formula(
         column_header: ColumnHeader, 
         column_headers: List[ColumnHeader],
         throw_errors: bool=True,
-        df_name: str='df'
+        df_name: str='df',
+        include_df_set: bool=True,
     ) -> Tuple[str, Set[str], Set[ColumnHeader]]:
     """
     Returns a representation of the formula that is easy to handle, specifically
     by returning (python_code, functions, column_header_dependencies), where column_headers
     is a list of dependencies that the formula references.
+
+    If include_df_set, then will return {df_name}[{column_header}] = {parsed formula}, and if
+    not then will just return {parsed formula}
     """
     # If the column doesn't have a formula, then there are no dependencies, duh!
     if formula is None or formula == '':
@@ -392,4 +396,9 @@ def parse_formula(
     )
 
     transpiled_column_header = column_header_to_transpiled_code(column_header)
-    return f'{df_name}[{transpiled_column_header}] = {code_with_functions}', functions, column_header_dependencies
+
+    if include_df_set:
+        final_code = f'{df_name}[{transpiled_column_header}] = {code_with_functions}'
+    else:
+        final_code = f'{code_with_functions}'
+    return final_code, functions, column_header_dependencies

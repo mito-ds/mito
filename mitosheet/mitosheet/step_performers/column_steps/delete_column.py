@@ -6,6 +6,8 @@
 from copy import deepcopy
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnsCodeChunk
 
 from mitosheet.errors import make_invalid_column_delete_error
 from mitosheet.state import State
@@ -27,10 +29,6 @@ class DeleteColumnStepPerformer(StepPerformer):
     @classmethod
     def step_type(cls) -> str:
         return 'delete_column'
-
-    @classmethod
-    def step_display_name(cls) -> str:
-        return 'Deleted Column(s)'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -58,35 +56,16 @@ class DeleteColumnStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        sheet_index: int,
-        column_ids: List[ColumnID]
-    ) -> List[str]:
-
-        df_name = post_state.df_names[sheet_index]
-        column_headers_list_string = column_header_list_to_transpiled_code(
-            [prev_state.column_ids.get_column_header_by_id(sheet_index, column_id) for column_id in column_ids]
-        )
-
-        return [f'{df_name}.drop({column_headers_list_string}, axis=1, inplace=True)']
-    
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        sheet_index: int,
-        column_ids: List[ColumnID],
-        df_names=None,
-        **params
-    ) -> str:
-        formated_column_ids = (', '.join(column_ids))
-        if df_names is not None:
-            df_name = df_names[sheet_index]
-            return f'Deleted column{"s" if len(column_ids) > 1 else ""} {formated_column_ids} from {df_name}'
-        return f'Deleted column{"s" if len(column_ids) > 1 else ""} {formated_column_ids}'
+    ) -> List[CodeChunk]:
+        return [
+            DeleteColumnsCodeChunk(prev_state, post_state, params, execution_data)
+        ]
 
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore
