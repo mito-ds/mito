@@ -99,3 +99,6 @@ class MergeCodeChunk(CodeChunk):
 
         # And then return it
         return merge_code
+
+    def creates_sheet_indexes(self, sheet_indexes: List[int]) -> bool:
+        return len(self.post_state.dfs) - 1 in sheet_indexes

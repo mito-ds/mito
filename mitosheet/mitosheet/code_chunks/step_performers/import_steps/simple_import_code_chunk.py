@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import List
+from typing import List, Optional
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 
@@ -59,3 +59,33 @@ class SimpleImportCodeChunk(CodeChunk):
             index += 1
 
         return code
+
+    def creates_sheet_indexes(self, sheet_indexes: List[int]) -> bool:
+        file_names = self.get_param('file_names')
+    
+        if len(sheet_indexes) < len(file_names):
+            return False
+
+        # We make sure that all the sheet_indexes it being created are greater than the minimum imported index
+        minimum_imported_index = len(self.post_state.dfs) - len(file_names)
+        return not any(sheet_index < minimum_imported_index for sheet_index in sheet_indexes)
+
+    def _combine_right_simple_import(self, other_code_chunk: "SimpleImportCodeChunk") -> Optional["CodeChunk"]:
+        file_names = self.get_param('file_names') + other_code_chunk.get_param('file_names')
+        new_file_delimeters = self.get_execution_data('file_delimeters') + other_code_chunk.get_execution_data('file_delimeters')
+        new_file_encodings = self.get_execution_data('file_encodings') + other_code_chunk.get_execution_data('file_encodings')
+        print(file_names, new_file_delimeters, new_file_encodings)
+
+        return SimpleImportCodeChunk(
+            self.prev_state,
+            other_code_chunk.post_state,
+            {'file_names': file_names},
+            {
+                'file_delimeters': new_file_delimeters,
+                'file_encodings': new_file_encodings,
+            }
+        )
+
+    def combine_right(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:
+        if isinstance(other_code_chunk, SimpleImportCodeChunk):
+            return self._combine_right_simple_import(other_code_chunk)

@@ -7,6 +7,7 @@
 Contains tests for dataframe_delete
 """
 import pandas as pd
+from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
 
 from mitosheet.step_performers.dataframe_steps.dataframe_delete import DataframeDeleteStepPerformer
 from mitosheet.column_headers import ColumnIDMap
@@ -66,3 +67,44 @@ def test_can_delete_middle_of_multiple_dfs():
     assert mito.transpiled_code == [
         'del df2'
     ]
+
+
+def test_can_delete_mulitple_dataframe():
+    df = pd.DataFrame({'A': [123]})
+    df1 = pd.DataFrame({'A': [123]})
+    mito = create_mito_wrapper_dfs(df, df1)
+    mito.delete_dataframe(0)
+    mito.delete_dataframe(0)
+
+    curr_step = mito.curr_step
+    for key, value in curr_step.__dict__.items():
+        # Check we have deleted from all the lists
+        if isinstance(value, list):
+            assert len(value) == 0
+
+    assert mito.transpiled_code == [
+        'del df1',
+        'del df2',
+    ]
+
+def test_can_delete_mulitple_dataframe_more():
+    df = pd.DataFrame({'A': [123]})
+    df1 = pd.DataFrame({'A': [123]})
+    df2 = pd.DataFrame({'A': [123]})
+    mito = create_mito_wrapper_dfs(df, df1, df2)
+    mito.delete_dataframe(0)
+    mito.delete_dataframe(1)
+
+    curr_step = mito.curr_step
+    for key, value in curr_step.__dict__.items():
+        # Check we have deleted from all the lists
+        if isinstance(value, list):
+            assert len(value) == 0
+
+    assert mito.transpiled_code == [
+        'del df1',
+        'del df3',
+    ]
+
+    # We also check that it adjusted the sheet indexes internally correct
+    assert get_code_chunks(mito.steps, optimize=True)[-1].get_param('sheet_indexes') == [0, 2]

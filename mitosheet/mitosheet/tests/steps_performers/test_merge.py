@@ -329,3 +329,13 @@ def test_merge_between_multi_index_and_non_errors():
 
     assert len(mito.dfs) == 2
 
+def test_delete_merged_sheet_optimizes():
+    df1 = pd.DataFrame(data={'A': [1], 'B': [2]})
+    df2 = pd.DataFrame(data={'A': [1], 'C': [3]})
+    mito = create_mito_wrapper_dfs(df1, df2)
+
+    mito.merge_sheets(
+        'lookup', 0, 'A', ['A', 'B'], 1, 'A', ['A', 'C']
+    )
+    mito.delete_dataframe(2)
+    assert mito.transpiled_code == []
