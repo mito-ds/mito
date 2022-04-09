@@ -364,6 +364,9 @@ def parse_formula(
     Returns a representation of the formula that is easy to handle, specifically
     by returning (python_code, functions, column_header_dependencies), where column_headers
     is a list of dependencies that the formula references.
+
+    If include_df_set, then will return {df_name}[{column_header}] = {parsed formula}, and if
+    not then will just return {parsed formula}
     """
     # If the column doesn't have a formula, then there are no dependencies, duh!
     if formula is None or formula == '':

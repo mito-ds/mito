@@ -19,11 +19,11 @@ from mitosheet.transpiler.transpile_utils import \
 class AddColumnSetFormulaCodeChunk(CodeChunk):
 
     def get_display_name(self) -> str:
-        return 'Added a column'
+        return 'Added column'
     
     def get_description_comment(self) -> str:
         column_header = self.get_param('column_header')
-        return f'Added a column {column_header}'
+        return f'Added column {column_header}'
 
     def get_code(self) -> List[str]:
         sheet_index = self.get_param('sheet_index')

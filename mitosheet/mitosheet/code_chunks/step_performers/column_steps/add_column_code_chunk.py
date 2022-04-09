@@ -58,7 +58,6 @@ class AddColumnCodeChunk(CodeChunk):
                 other_code_chunk.execution_data # TODO: this is out of date, but we don't use it!
             )
         elif added_column_id in deleted_column_ids:
-            # TODO: check this is the right thing
             new_deleted_column_ids = copy(deleted_column_ids)
             new_deleted_column_ids.remove(added_column_id)
 
