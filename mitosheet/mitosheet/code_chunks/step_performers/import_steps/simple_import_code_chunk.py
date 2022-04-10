@@ -89,3 +89,5 @@ class SimpleImportCodeChunk(CodeChunk):
     def combine_right(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:
         if isinstance(other_code_chunk, SimpleImportCodeChunk):
             return self._combine_right_simple_import(other_code_chunk)
+
+        return None
