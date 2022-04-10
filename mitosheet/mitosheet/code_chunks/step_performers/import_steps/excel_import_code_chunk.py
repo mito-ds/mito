@@ -51,12 +51,6 @@ class ExcelImportCodeChunk(CodeChunk):
             read_excel_line
         ] + df_definitions
 
-    def creates_sheet_indexes(self, sheet_indexes: List[int]) -> bool:
+    def get_created_sheet_indexes(self) -> List[int]:
         sheet_names = self.get_param('sheet_names')
-    
-        if len(sheet_indexes) < len(sheet_names):
-            return False
-
-        # We make sure that all the sheet_indexes it being created are greater than the minimum imported index
-        minimum_imported_index = len(self.post_state.dfs) - len(sheet_names)
-        return not any(sheet_index < minimum_imported_index for sheet_index in sheet_indexes)
+        return [i for i in range(len(self.post_state.dfs) - len(sheet_names), len(self.post_state.dfs))]

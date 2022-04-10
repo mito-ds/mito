@@ -3,6 +3,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
+from copy import copy
 from typing import List, Optional
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
@@ -54,11 +55,45 @@ class DataframeDeleteCodeChunk(CodeChunk):
         return None
 
     def combine_left(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:
-        sheet_indexes = self.get_param('sheet_indexes')
-        if other_code_chunk.creates_sheet_indexes(sheet_indexes):
+        deleted_sheet_indexes = self.get_param('sheet_indexes')
+        created_sheet_indexes = other_code_chunk.get_created_sheet_indexes()
+        print(deleted_sheet_indexes, created_sheet_indexes)
+        if created_sheet_indexes and set(deleted_sheet_indexes) == set(created_sheet_indexes):
             return NoOpCodeChunk(other_code_chunk.prev_state, self.post_state, {}, {})
-        elif other_code_chunk.edits_sheet_indexes(sheet_indexes):
+        elif created_sheet_indexes and set(deleted_sheet_indexes).issuperset(set(created_sheet_indexes)):
+            # If the set we are deleting is a superset of the the dataframes that we created
+            # in this other step, then we must create a new code chunk that doesn't have these
+            # deletes for the created sheets (as we're just not including these created steps)
+            new_deleted_sheet_indexes = copy(self.get_param('sheet_indexes'))
+            new_old_dataframe_names = copy(self.get_param('old_dataframe_names'))
+
+            print(new_deleted_sheet_indexes, new_old_dataframe_names, "REMOVING", created_sheet_indexes)
+
+            for created_sheet_index in created_sheet_indexes:
+                # Find the index of the sheet index we need to delete, and remove that as well
+                # as the old dataframe name, which is at the same index
+                index_in_params_array = new_deleted_sheet_indexes.index(created_sheet_index)
+                new_deleted_sheet_indexes.pop(index_in_params_array)
+                new_old_dataframe_names.pop(index_in_params_array)
+            
+            return DataframeDeleteCodeChunk(
+                other_code_chunk.prev_state,
+                self.post_state,
+                {
+                    'sheet_indexes': new_deleted_sheet_indexes,
+                    'old_dataframe_names': new_old_dataframe_names,
+                },
+                {}
+            )
+            
+            # TODO: we need to create a dataframe delete without the 
+            pass
+
+
+        sheet_indexes_edited = other_code_chunk.get_edited_sheet_indexes()
+        if sheet_indexes_edited and set(deleted_sheet_indexes).issuperset(set(sheet_indexes_edited)):
             return self
+
         return None
 
 

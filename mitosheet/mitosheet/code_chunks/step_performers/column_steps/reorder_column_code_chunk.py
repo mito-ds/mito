@@ -44,5 +44,5 @@ class ReorderColumnCodeChunk(CodeChunk):
 
         return [columns_list_line, insert_line, apply_reorder_line]
 
-    def edits_sheet_indexes(self, sheet_indexes: List[int]) -> bool:
-        return self.get_param('sheet_index') in sheet_indexes
+    def get_edited_sheet_indexes(self) -> List[int]:
+        return [self.get_param('sheet_index')]

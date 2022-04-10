@@ -36,8 +36,8 @@ class RenameColumnsCodeChunk(CodeChunk):
         rename_string = f'{df_name}.rename(columns={rename_dict}, inplace=True)'
         return [rename_string]
 
-    def edits_sheet_indexes(self, sheet_indexes: List[int]) -> bool:
-        return self.get_param('sheet_index') in sheet_indexes
+    def get_edited_sheet_indexes(self) -> List[int]:
+        return [self.get_param('sheet_index')]
 
     def _combine_right_with_rename_columns_code_chunk(self, other_code_chunk: "RenameColumnsCodeChunk") -> Optional["RenameColumnsCodeChunk"]:
         if not self.params_match(other_code_chunk, ['sheet_index']):

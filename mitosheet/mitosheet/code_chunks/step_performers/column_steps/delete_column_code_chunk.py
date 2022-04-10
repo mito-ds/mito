@@ -34,8 +34,8 @@ class DeleteColumnsCodeChunk(CodeChunk):
 
         return [f'{df_name}.drop({column_headers_list_string}, axis=1, inplace=True)']
 
-    def edits_sheet_indexes(self, sheet_indexes: List[int]) -> bool:
-        return self.get_param('sheet_index') in sheet_indexes
+    def get_edited_sheet_indexes(self) -> List[int]:
+        return [self.get_param('sheet_index')]
 
     def _combine_right_with_delete_columns_code_chunk(self, other_code_chunk: "DeleteColumnsCodeChunk") -> Optional["DeleteColumnsCodeChunk"]:
         if not self.params_match(other_code_chunk, ['sheet_index']):

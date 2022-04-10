@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 if TYPE_CHECKING:
     from mitosheet.state import State
@@ -78,24 +78,28 @@ class CodeChunk:
                 return False
         return True
 
-    def creates_sheet_indexes(self, sheet_indexes: List[int]) -> bool:
+    def get_created_sheet_indexes(self) -> Union[bool, List[int]]:
         """
         Dataframe deletes allow us to optimize a lot of code, we allow steps to
         optionally say that they only create some specific list of sheet_indexes.
 
-        If this function returns True on a sheet index, then a later dataframe delete
-        of this sheet index, then we will optimize out this step as well as the 
-        deleting of this dataframe
+        If this function returns a sheet index, and later dataframe delete steps
+        delete this sheet index, then we will optimize out this step as well as
+        the deleting of the dataframe.
+
+        NOTE: if this returns false, cannot do this optimization.
         """
         return False
     
-    def edits_sheet_indexes(self, sheet_indexes: List[int]) -> bool:
+    def get_edited_sheet_indexes(self) -> Union[bool, List[int]]:
         """
         Dataframe deletes allow us to optimize a lot of code, we allow steps to
         optionally say that they only edit some specific list of sheet_indexes.
 
-        If this function returns True on a sheet index, then a later dataframe delete
-        of this sheet index will optimize it out.
+        This allows us to easily optimize out these steps if the dataframe they 
+        are editing is then deleted.
+
+        NOTE: if it returns false, cannot be optimized in this way
         """
         return False
     

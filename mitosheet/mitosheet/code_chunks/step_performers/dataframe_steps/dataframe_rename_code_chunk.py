@@ -28,7 +28,7 @@ class DataframeRenameCodeChunk(CodeChunk):
 
         return [f'{self.post_state.df_names[sheet_index]} = {old_dataframe_name}']
 
-    def edits_sheet_indexes(self, sheet_indexes: List[int]) -> bool:
+    def get_edited_sheet_indexes(self) -> bool:
         # NOTE: this cannot be set to true, as we cannot combine with dataframe
         # deletes, as a rename changes the old dataframe name
         return False

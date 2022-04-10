@@ -60,15 +60,9 @@ class SimpleImportCodeChunk(CodeChunk):
 
         return code
 
-    def creates_sheet_indexes(self, sheet_indexes: List[int]) -> bool:
-        file_names = self.get_param('file_names')
-    
-        if len(sheet_indexes) < len(file_names):
-            return False
-
-        # We make sure that all the sheet_indexes it being created are greater than the minimum imported index
-        minimum_imported_index = len(self.post_state.dfs) - len(file_names)
-        return not any(sheet_index < minimum_imported_index for sheet_index in sheet_indexes)
+    def get_created_sheet_indexes(self) -> List[int]:
+        sheet_names = self.get_param('file_names')
+        return [i for i in range(len(self.post_state.dfs) - len(sheet_names), len(self.post_state.dfs))]
 
     def _combine_right_simple_import(self, other_code_chunk: "SimpleImportCodeChunk") -> Optional["CodeChunk"]:
         file_names = self.get_param('file_names') + other_code_chunk.get_param('file_names')

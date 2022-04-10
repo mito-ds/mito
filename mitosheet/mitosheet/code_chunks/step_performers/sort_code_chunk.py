@@ -38,5 +38,5 @@ class SortCodeChunk(CodeChunk):
             f'{df_name} = {df_name}.sort_values(by={transpiled_column_header}, ascending={sort_direction == ASCENDING}, na_position=\'{na_position_string}\')', 
         ]
     
-    def edits_sheet_indexes(self, sheet_indexes: List[int]) -> bool:
-        return self.get_param('sheet_index') in sheet_indexes
+    def get_edited_sheet_indexes(self) -> List[int]:
+        return [self.get_param('sheet_index')]

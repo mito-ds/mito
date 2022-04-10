@@ -113,18 +113,17 @@ class PivotCodeChunk(CodeChunk):
 
         return transpiled_code
 
-    def creates_sheet_indexes(self, sheet_indexes: List[int]) -> bool:
+    def get_created_sheet_indexes(self) -> List[int]:
         destination_sheet_index = self.get_param('destination_sheet_index')
         if destination_sheet_index is None:
-            return len(self.post_state.dfs) - 1 in sheet_indexes
+            return [len(self.post_state.dfs) - 1]
         else:
             # Note: editing a dataframe does not create a sheet index, it 
-            # overwrites it instead
+            # overwrites it instead. See get_edited_sheet_indexes below
             return False
 
-    def edits_sheet_indexes(self, sheet_indexes: List[int]) -> bool:
+    def get_edited_sheet_indexes(self) -> List[int]:
         destination_sheet_index = self.get_param('destination_sheet_index')
         if destination_sheet_index is not None:
-            return destination_sheet_index in sheet_indexes
-        
-        return False
+            return [destination_sheet_index]
+        return []

@@ -114,4 +114,6 @@ def test_concat_optimized_with_other_deletes():
     mito.delete_dataframe(0)
     mito.delete_dataframe(0)
 
-    assert len(mito.transpiled_code) == 0
+    assert mito.transpiled_code == [
+        'del df1', 'del df2'
+    ]

@@ -364,5 +364,5 @@ class FilterCodeChunk(CodeChunk):
                 f"{df_name} = {df_name}[{filter_string}]",
             ]
 
-    def edits_sheet_indexes(self, sheet_indexes: List[int]) -> bool:
-        return self.get_param('sheet_index') in sheet_indexes
+    def get_edited_sheet_indexes(self) -> List[int]:
+        return [self.get_param('sheet_index')]

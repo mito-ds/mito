@@ -231,7 +231,7 @@ def test_add_then_set_formula_then_rename_then_delete_diff_sheet_does_not_optimi
     ]
 
     
-def test_add_then_set_formula_then_rename_then_delete_sheet_does_not_optimize():
+def test_add_then_set_formula_then_rename_then_delete_sheet_does_optimize():
     mito = create_mito_wrapper([1])
     mito.duplicate_dataframe(0)
     mito.add_column(1, 'B')
@@ -243,6 +243,6 @@ def test_add_then_set_formula_then_rename_then_delete_sheet_does_not_optimize():
     mito.delete_dataframe(0)
     mito.delete_dataframe(0)
 
-    assert mito.transpiled_code == []
+    assert mito.transpiled_code == ['del df1']
 
     

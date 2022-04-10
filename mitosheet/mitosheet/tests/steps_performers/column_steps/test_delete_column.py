@@ -131,4 +131,4 @@ def test_double_delete_sheets_does_optimize():
     mito.delete_dataframe(0)
     mito.delete_dataframe(0)
 
-    assert mito.transpiled_code == []
+    assert mito.transpiled_code == ['del df1']
