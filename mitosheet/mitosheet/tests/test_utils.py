@@ -83,6 +83,7 @@ def check_dataframes_equal(test_wrapper):
     )
 
     import mitosheet
+    print("\n\nCODE")
     print(code)
     exec(code, 
         {

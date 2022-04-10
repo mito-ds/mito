@@ -120,7 +120,7 @@ class PivotStepPerformer(StepPerformer):
                 new_df, 
                 DATAFRAME_SOURCE_PIVOTED,
                 sheet_index=destination_sheet_index,
-                df_name=get_new_pivot_df_name(post_state, sheet_index),
+                df_name=get_new_pivot_df_name(post_state, sheet_index) if destination_sheet_index is None else post_state.df_names[destination_sheet_index],
                 use_deprecated_id_algorithm=use_deprecated_id_algorithm
             )
 

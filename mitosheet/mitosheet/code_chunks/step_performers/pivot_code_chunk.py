@@ -118,6 +118,13 @@ class PivotCodeChunk(CodeChunk):
         if destination_sheet_index is None:
             return len(self.post_state.dfs) - 1 in sheet_indexes
         else:
-            # We don't optimize out pivot table edits, because it sounds scary and like
-            # it might lead to invalid code in ways I literally am too dumb to think about
+            # Note: editing a dataframe does not create a sheet index, it 
+            # overwrites it instead
             return False
+
+    def edits_sheet_indexes(self, sheet_indexes: List[int]) -> bool:
+        destination_sheet_index = self.get_param('destination_sheet_index')
+        if destination_sheet_index is not None:
+            return destination_sheet_index in sheet_indexes
+        
+        return False
