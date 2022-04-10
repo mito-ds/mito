@@ -87,7 +87,9 @@ class CodeChunk:
         delete this sheet index, then we will optimize out this step as well as
         the deleting of the dataframe.
 
-        NOTE: if this returns false, cannot do this optimization.
+        NOTE: if this funciton returns False, it is this CodeChunk saying that
+        it cannot do any optimization with dataframe delete - which we do by
+        default.
         """
         return False
     
@@ -99,7 +101,9 @@ class CodeChunk:
         This allows us to easily optimize out these steps if the dataframe they 
         are editing is then deleted.
 
-        NOTE: if it returns false, cannot be optimized in this way
+        NOTE: if this funciton returns False, it is this CodeChunk saying that
+        it cannot do any optimization with dataframe delete - which we do by
+        default.
         """
         return False
     
@@ -124,7 +128,6 @@ class CodeChunk:
         combined, the new combined CodeChunk will be returned, and thus
         [A, B] goes to [B.combine_right(A)]
 
-        NOTE: combine_lefts are only done after the combine_rights are all 
-        done, so expect as much. 
+        NOTE: combine_lefts are only done after the combine_rights.
         """
         return None

@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Collection, Dict, List
+from typing import Collection, Dict, List, Union
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.transpiler.transpile_utils import NEWLINE_TAB
@@ -113,7 +113,7 @@ class PivotCodeChunk(CodeChunk):
 
         return transpiled_code
 
-    def get_created_sheet_indexes(self) -> List[int]:
+    def get_created_sheet_indexes(self) -> Union[bool, List[int]]:
         destination_sheet_index = self.get_param('destination_sheet_index')
         if destination_sheet_index is None:
             return [len(self.post_state.dfs) - 1]

@@ -260,3 +260,14 @@ def test_optimize_out_renames_after_delete():
     mito.delete_dataframe(0)
 
     assert mito.transpiled_code == ['del df1']
+
+def test_not_optimize_out_renames_after_delete_different():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123]}))
+    mito.duplicate_dataframe(0)
+    mito.add_column(0, 'new_one')
+    mito.add_column(0, 'new_two')
+    mito.rename_column(0, 'new_one', 'new_one_prime')
+    mito.rename_column(0, 'new_two', 'new_two_prime')
+    mito.delete_dataframe(1)
+
+    assert len(mito.optimized_code_chunks) >= 3

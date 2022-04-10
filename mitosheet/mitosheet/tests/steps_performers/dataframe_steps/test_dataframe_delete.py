@@ -107,4 +107,22 @@ def test_can_delete_mulitple_dataframe_more():
     ]
 
     # We also check that it adjusted the sheet indexes internally correct
-    assert get_code_chunks(mito.steps, optimize=True)[-1].get_param('sheet_indexes') == [0, 2]    
+    assert mito.optimized_code_chunks[-1].get_param('sheet_indexes') == [0, 2]
+
+def test_delete_multi_combines_correctly():
+    df = pd.DataFrame({'A': [123]})
+    mito = create_mito_wrapper_dfs(df, df, df, df, df, df, df, df)
+    mito.delete_dataframe(0)
+    mito.delete_dataframe(1)
+    mito.delete_dataframe(0)
+    mito.delete_dataframe(4)
+
+    assert mito.transpiled_code == [
+        'del df1',
+        'del df3',
+        'del df2',
+        'del df8',
+    ]
+
+    # We also check that it adjusted the sheet indexes internally correct
+    assert mito.optimized_code_chunks[-1].get_param('sheet_indexes') == [0, 2, 1, 7]

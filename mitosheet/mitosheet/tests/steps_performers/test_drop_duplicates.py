@@ -64,3 +64,12 @@ def test_drop_duplicates_optimizes_after_delete():
     mito.delete_dataframe(0)
 
     assert mito.transpiled_code == ['del df1']
+
+def test_drop_duplicates_not_optimizes_after_different_delete():
+    df = pd.DataFrame({0: [1, 2, 1], 'B': [4, 5, 3]})
+    mito = create_mito_wrapper_dfs(df)
+    mito.duplicate_dataframe(0)
+    mito.drop_duplicates(0, [0], 'last')
+    mito.delete_dataframe(1)
+
+    assert len(mito.optimized_code_chunks) >= 0

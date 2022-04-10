@@ -229,6 +229,3 @@ def test_transpile_merge_then_sort():
         'df3 = df1.merge(temp_df, left_on=[\'Name\'], right_on=[\'Name\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
         'df3 = df3.sort_values(by=\'Number\', ascending=True, na_position=\'first\')',
     ]
-
-
-# id-iecexxukkt

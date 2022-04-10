@@ -65,10 +65,10 @@ class SimpleImportCodeChunk(CodeChunk):
         return [i for i in range(len(self.post_state.dfs) - len(sheet_names), len(self.post_state.dfs))]
 
     def _combine_right_simple_import(self, other_code_chunk: "SimpleImportCodeChunk") -> Optional["CodeChunk"]:
+        # We can easily combine simple imports, so we do so
         file_names = self.get_param('file_names') + other_code_chunk.get_param('file_names')
         new_file_delimeters = self.get_execution_data('file_delimeters') + other_code_chunk.get_execution_data('file_delimeters')
         new_file_encodings = self.get_execution_data('file_encodings') + other_code_chunk.get_execution_data('file_encodings')
-        print(file_names, new_file_delimeters, new_file_encodings)
 
         return SimpleImportCodeChunk(
             self.prev_state,

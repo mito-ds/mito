@@ -278,3 +278,13 @@ def test_set_cell_value_then_delete_dataframe():
     mito.delete_dataframe(0)
 
     assert mito.transpiled_code == ['del df1']
+
+def test_set_cell_value_then_delete_different_dataframe():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1], 'B': [2]}))
+    mito.duplicate_dataframe(0)
+    mito.set_cell_value(0, 'A', 0, 10)
+    mito.set_cell_value(0, 'A', 0, 11)
+    mito.delete_columns(0, ['A', 'B'])
+    mito.delete_dataframe(1)
+
+    assert len(mito.optimized_code_chunks) >= 3

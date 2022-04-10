@@ -132,3 +132,12 @@ def test_double_delete_sheets_does_optimize():
     mito.delete_dataframe(0)
 
     assert mito.transpiled_code == ['del df1']
+
+def test_delete_diffrent_sheets_does_optimize():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123], 'B': [1234]}))
+    mito.duplicate_dataframe(0)
+    mito.delete_columns(0, ['A'])
+    mito.delete_columns(0, ['B'])
+    mito.delete_dataframe(1)
+
+    assert len(mito.optimized_code_chunks) >= 3

@@ -10,6 +10,7 @@ This file contains helpful functions and classes for testing operations.
 import json
 from functools import wraps
 from typing import Any, Dict, List, Optional, Tuple, Union
+from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
 from mitosheet.step_performers.graph_steps.plotly_express_graphs import DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT, DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT, DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT
 from numpy import number
 
@@ -83,8 +84,6 @@ def check_dataframes_equal(test_wrapper):
     )
 
     import mitosheet
-    print("\n\nCODE")
-    print(code)
     exec(code, 
         {
             'check_final_dataframe': check_final_dataframe,
@@ -128,6 +127,12 @@ class MitoWidgetTestWrapper:
         # NOTE: we don't add comments to this testing functionality, so that 
         # we don't have to change tests if we update comments
         return transpile(self.mito_widget.steps_manager, add_comments=False)
+    
+    @property
+    def optimized_code_chunks(self):
+        # NOTE: we don't add comments to this testing functionality, so that 
+        # we don't have to change tests if we update comments
+        return get_code_chunks(self.mito_widget.steps_manager.steps, optimize=True)
 
     @property
     def curr_step_idx(self):

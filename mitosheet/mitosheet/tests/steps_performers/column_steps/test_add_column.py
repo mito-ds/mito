@@ -245,4 +245,17 @@ def test_add_then_set_formula_then_rename_then_delete_sheet_does_optimize():
 
     assert mito.transpiled_code == ['del df1']
 
+def test_add_then_set_formula_then_rename_then_delete_different_sheet_does_not_optimize():
+    mito = create_mito_wrapper([1])
+    mito.duplicate_dataframe(0)
+    mito.add_column(1, 'B')
+    mito.rename_column(1, 'B', 'C')
+    mito.add_column(0, 'B')
+    mito.set_formula('=10', 0, 'B', add_column=False)
+    mito.rename_column(0, 'B', 'C')
+    mito.delete_columns(1, ['A', 'C'])
+    mito.delete_dataframe(1)
+
+    assert len(mito.optimized_code_chunks) >= 3
+
     

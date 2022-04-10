@@ -68,7 +68,8 @@ class DataframeDeleteStepPerformer(StepPerformer):
             DataframeDeleteCodeChunk(
                 prev_state, 
                 post_state, 
-                # We turn this single dataframe delete into one suited for the mulitple setting
+                # Our dataframe delete code chunk can support mulitple dataframes being deleted
+                # at once, so we turn it into this format
                 {
                     'sheet_indexes': [params['sheet_index']],
                     'old_dataframe_names': [params['old_dataframe_name']],

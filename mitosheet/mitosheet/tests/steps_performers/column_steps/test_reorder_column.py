@@ -96,3 +96,14 @@ def test_reorder_column_several_columns_then_delete_optimizes():
     mito.delete_dataframe(0)
 
     assert mito.transpiled_code == ['del df1']
+
+def test_reorder_column_several_columns_then_delete_different_notoptimizes():
+    df = pd.DataFrame(data={'A': [1], 'B': [2], 'C': [3], 'D': [4]})
+    mito = create_mito_wrapper_dfs(df)
+    
+    mito.duplicate_dataframe(0)
+    mito.reorder_column(0, 'D', 1)
+    mito.reorder_column(0, 'C', 1)
+    mito.delete_dataframe(1)
+
+    assert len(mito.optimized_code_chunks) >= 3

@@ -59,15 +59,15 @@ class DataframeDeleteCodeChunk(CodeChunk):
         created_sheet_indexes = other_code_chunk.get_created_sheet_indexes()
         print(deleted_sheet_indexes, created_sheet_indexes)
         if created_sheet_indexes and set(deleted_sheet_indexes) == set(created_sheet_indexes):
+            # If all we did was creat the dfs we deleted, we can just return a no op
             return NoOpCodeChunk(other_code_chunk.prev_state, self.post_state, {}, {})
+            
         elif created_sheet_indexes and set(deleted_sheet_indexes).issuperset(set(created_sheet_indexes)):
             # If the set we are deleting is a superset of the the dataframes that we created
             # in this other step, then we must create a new code chunk that doesn't have these
             # deletes for the created sheets (as we're just not including these created steps)
             new_deleted_sheet_indexes = copy(self.get_param('sheet_indexes'))
             new_old_dataframe_names = copy(self.get_param('old_dataframe_names'))
-
-            print(new_deleted_sheet_indexes, new_old_dataframe_names, "REMOVING", created_sheet_indexes)
 
             for created_sheet_index in created_sheet_indexes:
                 # Find the index of the sheet index we need to delete, and remove that as well
@@ -85,10 +85,6 @@ class DataframeDeleteCodeChunk(CodeChunk):
                 },
                 {}
             )
-            
-            # TODO: we need to create a dataframe delete without the 
-            pass
-
 
         sheet_indexes_edited = other_code_chunk.get_edited_sheet_indexes()
         if sheet_indexes_edited and set(deleted_sheet_indexes).issuperset(set(sheet_indexes_edited)):
