@@ -25,7 +25,7 @@ interface FilterCardProps {
     columnDtype: string;
     mitoAPI: MitoAPI;
     rowDifference: number;
-    editedFilter: boolean
+    editedFilter: boolean;
 }
 
 export const ADD_FILTER_SELECT_TITLE = '+ Add Filter'

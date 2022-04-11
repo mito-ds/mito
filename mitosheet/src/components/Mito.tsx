@@ -538,6 +538,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         tab={uiState.selectedColumnControlPanelTab}
                         lastStepIndex={lastStepSummary.step_idx}
                         lastStepType={lastStepSummary.step_type}
+                        analysisData={analysisData}
                     />
                 )
             case TaskpaneType.DOWNLOAD: return (
