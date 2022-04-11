@@ -55,7 +55,7 @@ class RenameColumnsCodeChunk(CodeChunk):
             other_code_chunk.execution_data
         )
     
-    def _combine_right_with_delete_columns_code_chunk(self, other_code_chunk: "DeleteColumnsCodeChunk") -> Optional["RenameColumnsCodeChunk"]:
+    def _combine_right_with_delete_columns_code_chunk(self, other_code_chunk: "DeleteColumnsCodeChunk") -> Optional[CodeChunk]:
         if not self.params_match(other_code_chunk, ['sheet_index']):
             return None
 
