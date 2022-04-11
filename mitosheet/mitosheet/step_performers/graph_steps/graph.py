@@ -8,6 +8,8 @@ from copy import deepcopy
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 import pandas as pd
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
 
 from mitosheet.state import State
 from mitosheet.step_performers.graph_steps.graph_utils import GRAPH_TITLE_LABELS, get_html_and_script_from_figure, get_new_graph_tab_name
@@ -67,10 +69,6 @@ class GraphStepPerformer(StepPerformer):
     @classmethod
     def step_type(cls) -> str:
         return "graph"
-
-    @classmethod
-    def step_display_name(cls) -> str:
-        return "Created a graph"
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -189,39 +187,25 @@ class GraphStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile(  # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        graph_preprocessing: Dict[str, Any],
-        graph_creation: Dict[str, Any],
-        graph_styling: Dict[str, Any],
-        graph_rendering: Dict[str, Any],
-        **params,
-    ) -> List[str]:
+    ) -> List[CodeChunk]:
         # Graph steps don't add any generated code to the analysis script. 
-        # Instead, the graph code is created during execution of the function and is
-        # retuned to the frontend through the graph_data_dict object so that the user can copy 
-        # and paste it. 
-        return []
-
-    @classmethod
-    def describe(  # type: ignore
-        cls,
-        graph_preprocessing: Any,
-        graph_creation: Any,
-        graph_styling: Any,
-        graph_rendering: Any,
-        df_names=None,
-        **params,
-    ) -> str:
-        sheet_index = graph_creation["sheet_index"]
-        graph_type = graph_creation["graph_type"]
-        if df_names is not None:
-            df_name = df_names[sheet_index]
-            return f"Graphed {df_name} as {GRAPH_TITLE_LABELS[graph_type]}"
-        return f"Created {GRAPH_TITLE_LABELS[graph_type]}"
+        return [
+            EmptyCodeChunk(
+                prev_state, 
+                post_state, 
+                {
+                    'display_name': 'Edited graph',
+                    'description_comment': 'Edited a graph',
+                },
+                execution_data
+            )
+        ]
 
     @classmethod
     def get_modified_dataframe_indexes(cls, graph_creation, **params) -> Set[int]:  # type: ignore

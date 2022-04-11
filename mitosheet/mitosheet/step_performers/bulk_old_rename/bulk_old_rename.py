@@ -7,6 +7,8 @@
 import json
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Set, Tuple
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.bulk_old_rename.bulk_old_rename_code_chunk import BulkOldRenameCodeChunk
 
 from mitosheet.state import State
 from mitosheet.step_performers.bulk_old_rename.deprecated_utils import \
@@ -34,10 +36,6 @@ class BulkOldRenameStepPerformer(StepPerformer):
     @classmethod
     def step_type(cls) -> str:
         return 'bulk_old_rename'
-
-    @classmethod
-    def step_display_name(cls) -> str:
-        return 'Renamed Columns'
     
     @classmethod
     def step_event_type(cls) -> str:
@@ -92,35 +90,16 @@ class BulkOldRenameStepPerformer(StepPerformer):
         
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        **params
-    ) -> List[str]:
-        code = []
-        for sheet_index, df_name in enumerate(post_state.df_names):
-            renames = execution_data['column_header_renames_list'][sheet_index] if execution_data else {}
-            if len(renames) == 0:
-                continue
-
-            code.append(
-                f'{df_name}.rename(columns={json.dumps(renames)}, inplace=True)'
-            )
-
-        if len(code) > 0:
-            code.insert(0, '# Rename headers to make them work with Mito')
-
-        return code
-        
-    @classmethod
-    def describe(
-        cls,
-        df_names: List[str]=None,
-        **params: Any
-    ) -> str:
-        return f'Renamed headers for compatibility with previous Mito versions'
+    ) -> List[CodeChunk]:
+        return [
+            BulkOldRenameCodeChunk(prev_state, post_state, params, execution_data)
+        ]
 
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

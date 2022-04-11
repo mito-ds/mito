@@ -8,6 +8,8 @@ from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.refresh_dependant_columns_code_chunk import RefreshDependantColumnsCodeChunk
 from mitosheet.errors import (MitoError, make_circular_reference_error,
                               make_execution_error, make_no_column_error,
                               make_operator_type_error,
@@ -34,10 +36,6 @@ class SetColumnFormulaStepPerformer(StepPerformer):
     @classmethod
     def step_type(cls) -> str:
         return 'set_column_formula'
-
-    @classmethod
-    def step_display_name(cls) -> str:
-        return 'Set Column Formula'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -136,35 +134,19 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        sheet_index: int,
-        column_id: ColumnID,
-        old_formula: str,
-        new_formula: str
-    ) -> List[str]:
+    ) -> List[CodeChunk]:
         """
         Transpiles an set_column_formula step to python code!
         """
-        return transpile_dependant_columns(post_state, sheet_index, column_id)
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        sheet_index: int,
-        column_id: ColumnID,
-        old_formula: str,
-        new_formula: str,
-        df_names=None,
-        **params
-    ) -> str:
-        if df_names is not None:
-            df_name = df_names[sheet_index]
-            return f'Set {column_id} in {df_name} to {new_formula}'
-        return f'Set {column_id} to {new_formula}'
+        return [
+            RefreshDependantColumnsCodeChunk(prev_state, post_state, params, execution_data)
+        ]
 
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore
@@ -309,37 +291,3 @@ def refresh_dependant_columns(post_state: State, df: pd.DataFrame, sheet_index: 
             # throw a name error, in which case we alert the user
             column_header = str(e).split('\'')[1]
             raise make_no_column_error({column_header})
-
-
-def transpile_dependant_columns(
-        post_state: State, 
-        sheet_index: int, 
-        column_id: ColumnID
-    ) -> List[str]: 
-    """
-    Use this helper function when making a change to a column and you want to transpile
-    the columns that are dependant on the column you changed. 
-    """
-    code = []
-
-    # We only look at the sheet that was changed, and sort the columns, taking only
-    # those downstream from the changed columns
-    topological_sort = topological_sort_dependent_columns(post_state, sheet_index, column_id)
-    column_headers = post_state.dfs[sheet_index].keys()
-
-    # We compile all of their formulas
-    for other_column_id in topological_sort:
-
-        if post_state.column_spreadsheet_code[sheet_index][other_column_id] == '':
-            continue
-
-        column_header = post_state.column_ids.get_column_header_by_id(sheet_index, other_column_id)
-        python_code, _, _ = parse_formula(
-            post_state.column_spreadsheet_code[sheet_index][other_column_id], 
-            column_header,
-            column_headers,
-            df_name=post_state.df_names[sheet_index]
-        )
-        code.append(python_code)
-
-    return code

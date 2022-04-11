@@ -4,10 +4,10 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from typing import Any, Dict
-from mitosheet.steps_manager import StepsManager
+from mitosheet.types import StepsManagerType
 
 
-def get_dataframe_as_csv(event: Dict[str, Any], steps_manager: StepsManager) -> str:
+def get_dataframe_as_csv(event: Dict[str, Any], steps_manager: StepsManagerType) -> str:
     """
     Sends a dataframe as a CSV string
     """

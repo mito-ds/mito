@@ -31,6 +31,7 @@ def AND(*argv: pd.Series) -> pd.Series:
     {
         "function": "AND",
         "description": "Returns True if all of the provided arguments are True, and False if any of the provided arguments are False.",
+        "search_terms": ["and", "&", "if", "conditional"],
         "examples": [
             "AND(True, False)",
             "AND(Nums > 100, Nums < 200)",
@@ -67,6 +68,7 @@ def BOOL(series: pd.Series) -> pd.Series:
     {
         "function": "BOOL",
         "description": "Converts the passed arguments to boolean values, either True or False. For numberic values, 0 converts to False while all other values convert to True.",
+        "search_terms": ["bool", "boolean", "true", "false", "dtype", "convert"],
         "examples": [
             "BOOL(Amount_Payed)",
             "AND(BOOL(Amount_Payed), Is_Paying)"
@@ -107,6 +109,7 @@ def IF(condition: pd.Series, true_series: pd.Series, false_series: pd.Series) ->
     {
         "function": "IF",
         "description": "Returns one value if the condition is True. Returns the other value if the conditon is False.",
+        "search_terms": ["if", "conditional", "and", "or"],
         "examples": [
             "IF(Status == 'success', 1, 0)",
             "IF(Nums > 100, 100, Nums)",
@@ -145,6 +148,7 @@ def OR(*argv: pd.Series) -> pd.Series:
     {
         "function": "OR",
         "description": "Returns True if any of the provided arguments are True, and False if all of the provided arguments are False.",
+        "search_terms": ["or", "if", "conditional"],
         "examples": [
             "OR(True, False)",
             "OR(Status == 'success', Status == 'pass', Status == 'passed')"

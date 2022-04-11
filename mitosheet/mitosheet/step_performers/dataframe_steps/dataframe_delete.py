@@ -5,6 +5,8 @@
 # Distributed under the terms of the GPL License.
 from copy import copy
 from typing import Any, Dict, List, Optional, Set, Tuple
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.dataframe_steps.dataframe_delete_code_chunk import DataframeDeleteCodeChunk
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
@@ -22,10 +24,6 @@ class DataframeDeleteStepPerformer(StepPerformer):
     @classmethod
     def step_type(cls) -> str:
         return 'dataframe_delete'
-
-    @classmethod
-    def step_display_name(cls) -> str:
-        return 'Deleted a Dataframe'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -59,25 +57,16 @@ class DataframeDeleteStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        sheet_index: int,
-        old_dataframe_name: str
-    ) -> List[str]:
-        return [f'del {old_dataframe_name}']
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        sheet_index: int,
-        old_dataframe_name: str,
-        df_names=None,
-        **params
-    ) -> str:
-        return f'Deleted dataframe {old_dataframe_name}'
+    ) -> List[CodeChunk]:
+        return [
+            DataframeDeleteCodeChunk(prev_state, post_state, params, execution_data)
+        ]
     
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

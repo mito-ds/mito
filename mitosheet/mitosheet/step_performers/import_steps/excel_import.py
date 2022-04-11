@@ -7,6 +7,8 @@ from copy import copy
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 import pandas as pd
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.import_steps.excel_import_code_chunk import ExcelImportCodeChunk
 
 from mitosheet.utils import get_valid_dataframe_name
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
@@ -26,10 +28,6 @@ class ExcelImportStepPerformer(StepPerformer):
     @classmethod
     def step_type(cls) -> str:
         return 'excel_import'
-
-    @classmethod
-    def step_display_name(cls) -> str:
-        return 'Imported Excel File'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -72,57 +70,17 @@ class ExcelImportStepPerformer(StepPerformer):
             'pandas_processing_time': pandas_processing_time
         }
 
-
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        file_name: str,
-        sheet_names: List[str],
-        has_headers: bool,
-        skiprows: int,
-        **params
-    ) -> List[str]:
-
-        read_excel_params = {
-            'sheet_name': sheet_names,
-            'skiprows': skiprows
-        }
-
-        # Get rid of the headers if it doesn't have them
-        if not has_headers:
-            read_excel_params['header'] = None
-
-        read_excel_line = f'sheet_df_dictonary = pd.read_excel(\'{file_name}\', engine=\'openpyxl\''
-        for key, value in read_excel_params.items():
-            read_excel_line += f', {key}={value}'
-        read_excel_line += ')'
-
-        df_definitions = []
-        for index, sheet_name in enumerate(sheet_names):
-            adjusted_index = len(post_state.df_names) - len(sheet_names) + index
-            df_definitions.append(
-                f'{post_state.df_names[adjusted_index]} = sheet_df_dictonary[\'{sheet_name}\']'
-            )
-
+    ) -> List[CodeChunk]:
         return [
-            'import pandas as pd',
-            read_excel_line
-        ] + df_definitions
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        file_name: str,
-        sheet_names: List[str],
-        has_headers: bool,
-        use_deprecated_id_algorithm: bool=False,
-        df_names=None,
-        **params
-    ) -> str:
-        return f'Imported {file_name}'
+            ExcelImportCodeChunk(prev_state, post_state, params, execution_data)
+        ]
 
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

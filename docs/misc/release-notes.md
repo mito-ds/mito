@@ -4,6 +4,22 @@ description: Want to see what is new in the Mitosheet? Check it out below.
 
 # Release Notes
 
+## 2022-4-11 <a href="#2022-4-5" id="2022-4-5"></a>
+
+New Features:
+* Code optimization for Mito Pro users. Common scripts now will be 1/3 the size of previous scripts, as Mito automatically generates optimized code as you edit. 
+* Filter and concatenate operations now display text telling you the result of the operation - how many rows were removed and how many columns were included respectively - making it easier to figure out the effect of these operations.
+
+Bug Fixes:
+* Drop duplicates now opens with no column selected, to allow users to opt into changing the data if they are just exploring.
+
+
+Bug Fixes:
+* Make sheets with massive numbers of columns work with Mito better, by only displaying the first 1500 columns.
+* Add a warning to pivot tables letting users know that adding a `column` key with a large number of unique values will cause performance problems.
+* Make analysis replaying much more robust by adding an `analysis_to_replay` parameter to the `mitosheet.sheet()` call. This will stop Mito generated code from getting deleted from the sheet, as it did in the past!
+
+
 ## 2022-4-5 <a href="#2022-4-5" id="2022-4-5"></a>
 
 

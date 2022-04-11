@@ -3,6 +3,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
+from mitosheet.transpiler.transpile_utils import NEWLINE_TAB
 import pytest
 import pandas as pd
 
@@ -15,8 +16,7 @@ def test_transpile_single_column():
     mito.set_formula('=A', 0, 'B', add_column=True)
 
     assert mito.transpiled_code == [
-        "df1.insert(1, 'B', 0)", 
-        'df1[\'B\'] = df1[\'A\']'
+        "df1.insert(1, 'B', df1[\'A\'])", 
     ]
 
 
@@ -45,10 +45,8 @@ def test_transpile_multiple_columns_linear():
     mito.set_formula('=B', 0, 'C', add_column=True)
 
     assert mito.transpiled_code == [
-        'df1.insert(1, \'B\', 0)',
-        'df1[\'B\'] = df1[\'A\']', 
-        'df1.insert(2, \'C\', 0)',
-        'df1[\'C\'] = df1[\'B\']'
+        'df1.insert(1, \'B\', df1[\'A\'])',
+        'df1.insert(2, \'C\', df1[\'B\'])',
     ]
 
 COLUMN_HEADERS = [
@@ -68,8 +66,7 @@ def test_transpile_column_headers_non_alphabet(column_header):
     mito.set_formula('=A', 0, column_header, add_column=True)
 
     assert mito.transpiled_code == [
-        f'df1.insert(1, \'{column_header}\', 0)', 
-        f'df1[\'{column_header}\'] = df1[\'A\']'
+        f'df1.insert(1, \'{column_header}\', df1[\'A\'])', 
     ]
 
 
@@ -91,10 +88,8 @@ def test_transpile_column_headers_non_alphabet_multi_sheet(column_header):
     mito.set_formula('=A', 1, column_header, add_column=True)
 
     assert mito.transpiled_code == [
-        f'df1.insert(1, \'{column_header}\', 0)', 
-        f'df1[\'{column_header}\'] = df1[\'A\']', 
-        f'df2.insert(1, \'{column_header}\', 0)', 
-        f'df2[\'{column_header}\'] = df2[\'A\']'
+        f'df1.insert(1, \'{column_header}\', df1[\'A\'])', 
+        f'df2.insert(1, \'{column_header}\', df2[\'A\'])', 
     ]
 
 def test_preserves_order_columns():
@@ -133,10 +128,8 @@ def test_removes_unedited_formulas_for_unedited_sheets():
     mito.set_formula('=C + 1', 1, 'D', add_column=True)
 
     assert mito.transpiled_code == [
-        "df1.insert(3, 'D', 0)", 
-        'df1[\'D\'] = df1[\'C\']',
-        "df2.insert(3, 'D', 0)", 
-        'df2[\'D\'] = df2[\'C\']',
+        "df1.insert(3, 'D', df1[\'C\'])", 
+        "df2.insert(3, 'D', df2[\'C\'])", 
         'temp_df = df2.drop_duplicates(subset=\'A\') # Remove duplicates so lookup merge only returns first match', 
         'df3 = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
         'df2[\'D\'] = df2[\'C\'] + 1',
@@ -172,16 +165,11 @@ def test_optimization_with_other_edits():
     mito.delete_columns(0, ['AAA'])
 
     assert mito.transpiled_code == [
-        "df1.insert(3, 'D', 0)", 
-        'df1[\'D\'] = df1[\'A\']',
+        "df1.insert(3, 'D', df1[\'A\'])", 
         'temp_df = df2.drop_duplicates(subset=\'A\') # Remove duplicates so lookup merge only returns first match', 
         'df3 = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
-        'df1.insert(4, \'AAA\', 0)',
-        'df1.drop([\'AAA\'], axis=1, inplace=True)'
     ]
 
-TAB = '    '
-NEWLINE_TAB = f'\n{TAB}'
 flatten_code = f'pivot_table.columns = [{NEWLINE_TAB}\'_\'.join([str(c) for c in col]).strip() if isinstance(col, tuple) else col{NEWLINE_TAB}for col in pivot_table.columns.values\n]'
 
 

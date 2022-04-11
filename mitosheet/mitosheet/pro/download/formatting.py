@@ -3,7 +3,7 @@ from mitosheet.sheet_functions.types.utils import is_int_dtype, is_number_dtype
 from mitosheet.state import (FORMAT_ACCOUNTING, FORMAT_DEFAULT, FORMAT_K_M_B,
                              FORMAT_PERCENTAGE, FORMAT_PLAIN_TEXT,
                              FORMAT_ROUND_DECIMALS, FORMAT_SCIENTIFIC_NOTATION)
-from mitosheet.steps_manager import StepsManager
+from mitosheet.types import StepsManagerType
 
 
 def get_excel_range_from_column_index(col_index: int) -> str:
@@ -21,7 +21,7 @@ def get_excel_range_from_column_index(col_index: int) -> str:
 
 def add_formatting_to_excel_sheet(
         writer: pd.ExcelWriter, 
-        steps_manager: StepsManager, 
+        steps_manager: StepsManagerType, 
         sheet_index: int,
     ) -> None:
     """

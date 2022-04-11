@@ -820,313 +820,271 @@ export const createActions = (
         [ActionEnum.ABS]: getSpreadsheetFormulaAction(
             ActionEnum.ABS,
             getFuncDocObjFromFuncName('abs'), 
-            ['abs', 'absolute value'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.AND]: getSpreadsheetFormulaAction(
             ActionEnum.AND,
             getFuncDocObjFromFuncName('and'), 
-            ['and', '&', 'if', 'conditional'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.AVG]: getSpreadsheetFormulaAction(
             ActionEnum.AVG,
             getFuncDocObjFromFuncName('avg'), 
-            ['avg', 'average', 'mean'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.BOOL]: getSpreadsheetFormulaAction(
             ActionEnum.BOOL,
             getFuncDocObjFromFuncName('bool'), 
-            ['bool', 'boolean', 'true', 'false', 'dtype', 'convert'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.CLEAN]: getSpreadsheetFormulaAction(
             ActionEnum.CLEAN,
             getFuncDocObjFromFuncName('clean'), 
-            ['clean', 'trim', 'remove'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.CONCAT]: getSpreadsheetFormulaAction(
             ActionEnum.CONCAT,
             getFuncDocObjFromFuncName('concat'), 
-            ['concat', 'concatenate', 'combine'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.CORR]: getSpreadsheetFormulaAction(
             ActionEnum.CORR,
             getFuncDocObjFromFuncName('corr'), 
-            ['corr', 'correlation', 'r^2'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.DATEVALUE]: getSpreadsheetFormulaAction(
             ActionEnum.DATEVALUE,
             getFuncDocObjFromFuncName('datevalue'), 
-            ['datevalue', 'date value', 'date', 'string to date', 'datetime', 'dtype', 'convert'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.DAY]: getSpreadsheetFormulaAction(
             ActionEnum.DAY,
             getFuncDocObjFromFuncName('day'), 
-            ['day', 'date'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.ENDOFBUSINESSMONTH]: getSpreadsheetFormulaAction(
             ActionEnum.ENDOFBUSINESSMONTH,
             getFuncDocObjFromFuncName('endofbusinessmonth'), 
-            ['business', 'month', 'EOM', 'EOBM', 'date', 'workday', 'end'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.ENDOFMONTH]: getSpreadsheetFormulaAction(
             ActionEnum.ENDOFMONTH,
             getFuncDocObjFromFuncName('endofmonth'), 
-            ['month', 'EOM', 'EOM', 'date', 'eomonth', 'end'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.EXP]: getSpreadsheetFormulaAction(
             ActionEnum.EXP,
             getFuncDocObjFromFuncName('exp'), 
-            ['exp', 'exponent', 'log', 'natural log'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.FILLNAN]: getSpreadsheetFormulaAction(
             ActionEnum.FILLNAN,
             getFuncDocObjFromFuncName('fillnan'), 
-            ['fillnan', 'nan', 'fill nan', 'missing values', 'null', 'null value', 'fill null'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.FIND]: getSpreadsheetFormulaAction(
             ActionEnum.FIND,
             getFuncDocObjFromFuncName('find'), 
-            ['find', 'search'],
+            gridState, sheetDataArray, sheetIndex, setEditorState
+        ),
+        [ActionEnum.FLOAT]: getSpreadsheetFormulaAction(
+            ActionEnum.FLOAT,
+            getFuncDocObjFromFuncName('float'), 
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.HOUR]: getSpreadsheetFormulaAction(
             ActionEnum.HOUR,
             getFuncDocObjFromFuncName('hour'), 
-            ['hour', 'hr', 'extract'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.IF]: getSpreadsheetFormulaAction(
             ActionEnum.IF,
             getFuncDocObjFromFuncName('if'), 
-            ['if', 'conditional', 'and', 'or'],
+            gridState, sheetDataArray, sheetIndex, setEditorState
+        ),
+        [ActionEnum.INT]: getSpreadsheetFormulaAction(
+            ActionEnum.INT,
+            getFuncDocObjFromFuncName('int'), 
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.KURT]: getSpreadsheetFormulaAction(
             ActionEnum.KURT,
             getFuncDocObjFromFuncName('kurt'), 
-            ['kurt', 'kurtosis'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.LEFT]: getSpreadsheetFormulaAction(
             ActionEnum.LEFT,
             getFuncDocObjFromFuncName('left'), 
-            ['left', 'parse'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.LEN]: getSpreadsheetFormulaAction(
             ActionEnum.LEN,
             getFuncDocObjFromFuncName('len'), 
-            ['len', 'length', 'size'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.LOWER]: getSpreadsheetFormulaAction(
             ActionEnum.LOWER,
             getFuncDocObjFromFuncName('lower'), 
-            ['lower', 'conditional'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.MAX]: getSpreadsheetFormulaAction(
             ActionEnum.MAX,
             getFuncDocObjFromFuncName('max'), 
-            ['max', 'largest', 'biggest'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.MID]: getSpreadsheetFormulaAction(
             ActionEnum.MID,
             getFuncDocObjFromFuncName('mid'), 
-            ['mid', 'middle', 'parse'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.MIN]: getSpreadsheetFormulaAction(
             ActionEnum.MIN,
             getFuncDocObjFromFuncName('min'), 
-            ['min', 'minimum', 'smallest'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.MINUTE]: getSpreadsheetFormulaAction(
             ActionEnum.MINUTE,
             getFuncDocObjFromFuncName('minute'), 
-            ['minute', 'min', 'extract'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.MONTH]: getSpreadsheetFormulaAction(
             ActionEnum.MONTH,
             getFuncDocObjFromFuncName('month'), 
-            ['month', 'date'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.MULTIPLY]: getSpreadsheetFormulaAction(
             ActionEnum.MULTIPLY,
             getFuncDocObjFromFuncName('multiply'), 
-            ['multiply'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.OR]: getSpreadsheetFormulaAction(
             ActionEnum.OR,
             getFuncDocObjFromFuncName('or'), 
-            ['or', 'if', 'conditional'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.POWER]: getSpreadsheetFormulaAction(
             ActionEnum.POWER,
             getFuncDocObjFromFuncName('power'), 
-            ['power', 'exponent'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.PROPER]: getSpreadsheetFormulaAction(
             ActionEnum.PROPER,
             getFuncDocObjFromFuncName('proper'), 
-            ['proper', 'name'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.QUARTER]: getSpreadsheetFormulaAction(
             ActionEnum.QUARTER,
             getFuncDocObjFromFuncName('quarter'), 
-            ['quarter',],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.RIGHT]: getSpreadsheetFormulaAction(
             ActionEnum.RIGHT,
             getFuncDocObjFromFuncName('right'), 
-            ['right', 'parse'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.ROUND]: getSpreadsheetFormulaAction(
             ActionEnum.ROUND,
             getFuncDocObjFromFuncName('round'), 
-            ['round', 'decimal'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.SECOND]: getSpreadsheetFormulaAction(
             ActionEnum.SECOND,
             getFuncDocObjFromFuncName('second'), 
-            ['second', 'sec', 'extract'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.SKEW]: getSpreadsheetFormulaAction(
             ActionEnum.SKEW,
             getFuncDocObjFromFuncName('skew'), 
-            ['skew'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.STARTOFBUSINESSMONTH]: getSpreadsheetFormulaAction(
             ActionEnum.STARTOFBUSINESSMONTH,
             getFuncDocObjFromFuncName('startofbusinessmonth'), 
-            ['business', 'month', 'SOM', 'SOBM', 'date', 'start'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.STARTOFMONTH]: getSpreadsheetFormulaAction(
             ActionEnum.STARTOFMONTH,
             getFuncDocObjFromFuncName('startofmonth'), 
-            ['month', 'SOM', 'date', 'start'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.STRIPTIMETOMINUTES]: getSpreadsheetFormulaAction(
             ActionEnum.STRIPTIMETOMINUTES,
             getFuncDocObjFromFuncName('striptimetominutes'), 
-            ['time', 'date', 'minutes', 'strip'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.STRIPTIMETOHOURS]: getSpreadsheetFormulaAction(
             ActionEnum.STRIPTIMETOHOURS,
             getFuncDocObjFromFuncName('striptimetohours'), 
-            ['time', 'date', 'hours', 'minutes', 'strip'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.STRIPTIMETODAYS]: getSpreadsheetFormulaAction(
             ActionEnum.STRIPTIMETODAYS,
             getFuncDocObjFromFuncName('striptimetodays'), 
-            ['time', 'date', 'remove', 'days', 'hours', 'minutes', 'strip'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.STRIPTIMETOMONTHS]: getSpreadsheetFormulaAction(
             ActionEnum.STRIPTIMETOMONTHS,
             getFuncDocObjFromFuncName('striptimetomonths'), 
-            ['time', 'date', 'remove', 'months', 'days', 'hours', 'minutes', 'strip'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.STRIPTIMETOYEARS]: getSpreadsheetFormulaAction(
             ActionEnum.STRIPTIMETOYEARS,
             getFuncDocObjFromFuncName('striptimetoyears'), 
-            ['time', 'date', 'remove', 'years', 'months', 'days', 'hours', 'minutes', 'strip'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.SUBSTITUTE]: getSpreadsheetFormulaAction(
             ActionEnum.SUBSTITUTE,
             getFuncDocObjFromFuncName('substitute'), 
-            ['substitute', 'replace', 'find and replace'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.SUM]: getSpreadsheetFormulaAction(
             ActionEnum.SUM,
             getFuncDocObjFromFuncName('sum'), 
-            ['sum', 'add'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.TEXT]: getSpreadsheetFormulaAction(
             ActionEnum.TEXT,
             getFuncDocObjFromFuncName('text'), 
-            ['text', 'string', 'dtype', 'convert'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.TRIM]: getSpreadsheetFormulaAction(
             ActionEnum.TRIM,
             getFuncDocObjFromFuncName('trim'), 
-            ['trim', 'clean', 'whitespace'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.TYPE]: getSpreadsheetFormulaAction(
             ActionEnum.TYPE,
             getFuncDocObjFromFuncName('type'), 
-            ['type', 'dtype', 'convert'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.UPPER]: getSpreadsheetFormulaAction(
             ActionEnum.UPPER,
             getFuncDocObjFromFuncName('upper'), 
-            ['upper', 'capitalize'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.VALUE]: getSpreadsheetFormulaAction(
             ActionEnum.VALUE,
             getFuncDocObjFromFuncName('value'), 
-            ['value', 'number', 'dtype', 'convert', 'parse string'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.VAR]: getSpreadsheetFormulaAction(
             ActionEnum.VAR,
             getFuncDocObjFromFuncName('var'), 
-            ['var', 'variance'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.WEEK]: getSpreadsheetFormulaAction(
             ActionEnum.WEEK,
             getFuncDocObjFromFuncName('week'), 
-            ['week', '1', '52', 'extract'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.WEEEKDAY]: getSpreadsheetFormulaAction(
             ActionEnum.WEEEKDAY,
             getFuncDocObjFromFuncName('weekday'), 
-            ['weekday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
         [ActionEnum.YEAR]: getSpreadsheetFormulaAction(
             ActionEnum.YEAR,
             getFuncDocObjFromFuncName('year'), 
-            ['year', 'date'],
             gridState, sheetDataArray, sheetIndex, setEditorState
         ),
     }
@@ -1151,7 +1109,6 @@ export const getSearchTermToActionEnumMapping = (actions: Record<ActionEnum, Act
 export const getSpreadsheetFormulaAction = (
     type: ActionEnum,
     spreadsheetAction: FunctionDocumentationObject | undefined , 
-    searchTerms: string[],
     gridState: GridState, 
     sheetDataArray: SheetData[], 
     sheetIndex: number,
@@ -1195,7 +1152,7 @@ export const getSpreadsheetFormulaAction = (
 
             return undefined
         },
-        searchTerms: searchTerms,
+        searchTerms: spreadsheetAction?.search_terms || [],
         tooltip: spreadsheetAction?.description ? spreadsheetAction.description : '',
         category: 'spreadsheet formula',
     }

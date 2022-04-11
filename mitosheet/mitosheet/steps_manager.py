@@ -26,6 +26,7 @@ from mitosheet.step_performers.import_steps.simple_import import \
     SimpleImportStepPerformer
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.updates import UPDATES
+from mitosheet.user.utils import is_pro, is_running_test
 from mitosheet.utils import (dfs_to_array_for_json, get_new_id,
                              is_default_df_names)
 
@@ -295,7 +296,7 @@ class StepsManager:
                     'analysisName': self.analysis_to_replay,
                     'existsOnDisk': self.analysis_to_replay_exists,
                 } if self.analysis_to_replay is not None else None,
-                "code": transpile(self),
+                "code": transpile(self, optimize=(is_pro() or is_running_test())),
                 "stepSummaryList": self.step_summary_list,
                 "currStepIdx": self.curr_step_idx,
                 "dataTypeInTool": self.data_type_in_mito.value,
@@ -329,16 +330,20 @@ class StepsManager:
             if index in step_indexes_to_skip:
                 continue
 
+            code_chunks = step.step_performer.transpile(
+                step.prev_state, # type: ignore
+                step.post_state, # type: ignore
+                step.params,
+                step.execution_data,
+            )
+
             step_summary_list.append(
                 {
                     "step_id": step.step_id,
                     "step_idx": index,
                     "step_type": step.step_type,
-                    "step_display_name": step.step_performer.step_display_name(),
-                    "step_description": step.step_performer.describe(
-                        df_names=step.df_names,
-                        **step.params,
-                    ),
+                    "step_display_name": code_chunks[0].get_display_name(),
+                    "step_description": code_chunks[0].get_description_comment(),
                 }
             )
 

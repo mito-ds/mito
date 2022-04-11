@@ -214,7 +214,7 @@ export const getSuggestedFunctions = (formula: string, minLength: number): [numb
         })];
     }
 
-
+    // Then, we lookup based on the name of the function
     const maxFunctionNameLength = Math.max(...functionDocumentationObjects.map(f => f.function.length));
 
     for (let i = maxFunctionNameLength; i > minLength - 1; i--) {
@@ -225,7 +225,21 @@ export const getSuggestedFunctions = (formula: string, minLength: number): [numb
         if (substring === '' || (charBeforeSubstringStarts && charBeforeSubstringStarts.match(/^[0-9a-z]+$/i))) {
             continue;
         }
-        const foundFunctionObjects = functionDocumentationObjects.filter(f => f.function.toLowerCase().startsWith(substring))
+        const foundFunctionObjects = functionDocumentationObjects.filter(f => {
+            // We first check the titles of the function
+            if (f.function.toLowerCase().startsWith(substring)) {
+                return true;
+            } else {
+                // We check all the search terms
+                for (let i = 0; i < f.search_terms.length; i++) {
+                    const searchTerm = f.search_terms[i];
+                    if (searchTerm.toLowerCase().startsWith(substring)) {
+                        return true
+                    }
+                }
+            }
+            return false;
+        })
         const suggestedFunctions: [string, string][] = foundFunctionObjects.map(f => {
             return [f.function, f.description]
         });
@@ -233,6 +247,7 @@ export const getSuggestedFunctions = (formula: string, minLength: number): [numb
             return [substring.length, suggestedFunctions];
         }
     }
+
 
     return [0, []];
 }

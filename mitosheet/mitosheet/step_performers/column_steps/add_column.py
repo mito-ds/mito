@@ -6,6 +6,8 @@
 from copy import deepcopy
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.add_column_code_chunk import AddColumnCodeChunk
 
 from mitosheet.errors import make_column_exists_error, make_no_sheet_error
 from mitosheet.state import FORMAT_DEFAULT, State
@@ -26,10 +28,6 @@ class AddColumnStepPerformer(StepPerformer):
     @classmethod
     def step_type(cls) -> str:
         return 'add_column'
-
-    @classmethod
-    def step_display_name(cls) -> str:
-        return 'Added a Column'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -76,34 +74,16 @@ class AddColumnStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        sheet_index: int,
-        column_header: str,
-        column_header_index: int
-    ) -> List[str]:
-        transpiled_column_header = column_header_to_transpiled_code(column_header)
-        column_header_index = execution_data["column_header_index"] if execution_data is not None else column_header_index
+    ) -> List[CodeChunk]:
         return [
-            f'{post_state.df_names[sheet_index]}.insert({column_header_index}, {transpiled_column_header}, 0)'
+            AddColumnCodeChunk(prev_state, post_state, params, execution_data)
         ]
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        sheet_index: int,
-        column_header: str,
-        column_header_index: int,
-        df_names=None,
-        **params
-    ) -> str:
-        if df_names is not None:
-            df_name = df_names[sheet_index]
-            return f'Added column {column_header} to {df_name}'
-        return f'Added column {column_header}' 
 
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

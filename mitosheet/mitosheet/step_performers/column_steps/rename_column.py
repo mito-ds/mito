@@ -4,16 +4,18 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from copy import deepcopy
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
+from mitosheet.code_chunks.no_op_code_chunk import NoOpCodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.rename_columns_code_chunk import RenameColumnsCodeChunk
 
 from mitosheet.errors import make_column_exists_error
 from mitosheet.evaluation_graph_utils import create_column_evaluation_graph
 from mitosheet.parser import safe_replace
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
 from mitosheet.types import ColumnHeader, ColumnID
 
 
@@ -33,10 +35,6 @@ class RenameColumnStepPerformer(StepPerformer):
     @classmethod
     def step_type(cls) -> str:
         return 'rename_column' 
-
-    @classmethod
-    def step_display_name(cls) -> str:
-        return 'Renamed a Column'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -78,45 +76,34 @@ class RenameColumnStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        sheet_index: int,
-        column_id: ColumnID,
-        new_column_header: str,
-        level=None
-    ) -> List[str]:
-        
-        # Process the no-op if the header is empty
-        if new_column_header == '':
-            return []
+    ) -> List[CodeChunk]:
+        if params['new_column_header'] == '':
+            # If the new column header is an empty string, it's a noop
+            return [NoOpCodeChunk(prev_state, post_state, {}, {})]
 
-        df_name = post_state.df_names[sheet_index]
-        old_column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
 
-        transpiled_old_column_header = column_header_to_transpiled_code(old_column_header)
-        transpiled_new_column_header = column_header_to_transpiled_code(new_column_header)
-        rename_dict = "{" + f'{transpiled_old_column_header}: {transpiled_new_column_header}' + "}"
-
-        rename_string = f'{df_name}.rename(columns={rename_dict}, inplace=True)'
-        return [rename_string]
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        sheet_index: int,
-        column_id: ColumnID,
-        new_column_header: str,
-        level=None,
-        df_names=None,
-        **params
-    ) -> str:
-        if df_names is not None:
-            df_name = df_names[sheet_index]
-            return f'Renamed {column_id} to {new_column_header} in {df_name}'
-        return f'Renamed {column_id} to {new_column_header}'
+        return [
+            RenameColumnsCodeChunk(
+                prev_state, 
+                post_state, 
+                # We construct a rename for mulitple columns, as this is the most 
+                # convenient way to allow us to combine multiple renames
+                # into one
+                {
+                    'sheet_index': params['sheet_index'],
+                    'column_ids_to_new_column_headers': {
+                        params['column_id']: params['new_column_header']
+                    },
+                }, 
+                execution_data
+            )
+        ]
     
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

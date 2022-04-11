@@ -9,11 +9,11 @@ from typing import Any, Dict
 
 import pandas as pd
 from mitosheet.pro.download.formatting import add_formatting_to_excel_sheet
-from mitosheet.steps_manager import StepsManager
+from mitosheet.types import StepsManagerType
 from mitosheet.user import is_pro
 
 
-def get_dataframe_as_excel(event: Dict[str, Any], steps_manager: StepsManager) -> str:
+def get_dataframe_as_excel(event: Dict[str, Any], steps_manager: StepsManagerType) -> str:
     """
     Sends a dataframe as a excel string.
     """

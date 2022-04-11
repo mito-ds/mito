@@ -8,18 +8,20 @@ from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import numpy as np
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.refresh_dependant_columns_code_chunk import \
+    RefreshDependantColumnsCodeChunk
+from mitosheet.code_chunks.step_performers.set_cell_value_code_chunk import \
+    SetCellValueCodeChunk
 from mitosheet.errors import (make_cast_value_to_type_error,
                               make_no_column_error)
 from mitosheet.sheet_functions.types import get_function_to_convert_to_series
-from mitosheet.sheet_functions.types.utils import (is_bool_dtype, is_int_dtype,
-                                                   is_none_type,
+from mitosheet.sheet_functions.types.utils import (is_int_dtype, is_none_type,
                                                    is_number_dtype,
-                                                   is_string_dtype,
-                                                   is_datetime_dtype,
-                                                   is_timedelta_dtype)
+                                                   is_string_dtype)
 from mitosheet.state import State
-from mitosheet.step_performers.column_steps.set_column_formula import (
-    refresh_dependant_columns, transpile_dependant_columns)
+from mitosheet.step_performers.column_steps.set_column_formula import \
+    refresh_dependant_columns
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.transpiler.transpile_utils import \
     column_header_to_transpiled_code
@@ -39,10 +41,6 @@ class SetCellValueStepPerformer(StepPerformer):
     @classmethod
     def step_type(cls) -> str:
         return 'set_cell_value'
-
-    @classmethod
-    def step_display_name(cls) -> str:
-        return 'Set Cell Value'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -106,68 +104,29 @@ class SetCellValueStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        sheet_index: int,
-        column_id: ColumnID,
-        row_index: int,
-        old_value: str,
-        new_value: Union[str, None],
-    ) -> List[str]:
-        code: List[str] = []
+    ) -> List[CodeChunk]:
 
-        # If nothings changed, we don't write any code
-        if old_value == new_value:
-            return code
+        return [
+            SetCellValueCodeChunk(prev_state, post_state, params, execution_data),
+            # Note that we also refresh all the dependant columns, starting with the set cell value
+            RefreshDependantColumnsCodeChunk(
+                prev_state, 
+                post_state, 
+                # We construct the params for this CodeChunk as well
+                {
+                    'sheet_index': params['sheet_index'],
+                    'column_id': params['column_id'],
+                }, 
+                None
+            )
+        ]
 
-        # Cast the new_value to the correct type
-        type_corrected_new_value = execution_data['type_corrected_new_value'] if execution_data else None
-
-        column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-        transpiled_column_header = column_header_to_transpiled_code(column_header)
-
-        # If the series is an int, but the new value is a float, convert the series to floats before adding the new value
-        column_dtype = str(prev_state.dfs[sheet_index][column_header].dtype)
-        if new_value is not None and '.' in new_value and is_int_dtype(column_dtype):
-            code.append(f'{post_state.df_names[sheet_index]}[{transpiled_column_header}] = {post_state.df_names[sheet_index]}[\'{column_header}\'].astype(\'float\')')
-
-        # Actually set the new value
-        # We don't need to wrap the value in " if its None, a Boolean Series, or a Number Series.
-        if type_corrected_new_value is None or is_bool_dtype(column_dtype) or is_number_dtype(column_dtype):
-            code.append(f'{post_state.df_names[sheet_index]}.at[{row_index}, {transpiled_column_header}] = {type_corrected_new_value}')
-        elif is_datetime_dtype(column_dtype):
-            code.append(f'{post_state.df_names[sheet_index]}.at[{row_index}, {transpiled_column_header}] = pd.to_datetime(\"{type_corrected_new_value}\")')
-        elif is_timedelta_dtype(column_dtype):
-            code.append(f'{post_state.df_names[sheet_index]}.at[{row_index}, {transpiled_column_header}] = pd.to_timedelta(\"{type_corrected_new_value}\")')
-        else:
-            code.append(f'{post_state.df_names[sheet_index]}.at[{row_index}, {transpiled_column_header}] = \"{type_corrected_new_value}\"')
-
-        # Add the transpiled code for all of the dependant columns inorder to refresh the dependant cells
-        code = code + transpile_dependant_columns(post_state, sheet_index, column_id)
-        return code
-
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        sheet_index: int,
-        column_id: ColumnID,
-        row_index: int,
-        old_value: str,
-        new_value: Union[str, None],
-        df_names=None,
-        **params
-    ) -> str:
-        # Note: Since we don't have access to the dataframes, we can't run the new_value
-        # through cast_value_to_type which might change the actual value. Therefore, the new_value
-        # that is used in the comment might be incorrect.
-        if df_names is not None:
-            df_name = df_names[sheet_index]
-            return f'Set column {column_id} at index {row_index} in {df_name} to {new_value}'
-        return f'Set column {column_id} at index {row_index} to {new_value}'
 
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore

@@ -38,6 +38,7 @@ def FILLNAN(series: pd.Series, replacement: pd.Series) -> pd.Series:
     {
         "function": "FILLNAN",
         "description": "Replaces the NaN values in the series with the replacement value.",
+        "search_terms": ["fillnan", "nan", "fill nan", "missing values", "null", "null value", "fill null"],
         "examples": [
             "FILLNAN(A, 10)",
             "FILLNAN(A, 'replacement')"
@@ -72,6 +73,7 @@ def TYPE(series: pd.Series) -> pd.Series:
     {
         "function": "TYPE",
         "description": "Returns the type of each element of the passed series. Return values are 'number', 'str', 'bool', 'datetime', 'object', or 'NaN'.",
+        "search_terms": ["type", "dtype"],
         "examples": [
             "TYPE(Nums_and_Strings)",
             "IF(TYPE(Account_Numbers) != 'NaN', Account_Numbers, 0)"

@@ -3,11 +3,12 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from copy import copy
 from time import perf_counter
 from typing import Any, Callable, Dict, Collection, List, Optional, Set, Tuple
 import pandas as pd
 import warnings
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.pivot_code_chunk import PivotCodeChunk
 
 from mitosheet.column_headers import flatten_column_header
 from mitosheet.errors import (make_invalid_aggregation_error,
@@ -34,12 +35,6 @@ PIVOT_AGGREGATION_TYPES = [
     PA_COUNT_UNIQUE
 ]
 
-# Helpful constants for code formatting
-TAB = '    '
-NEWLINE_TAB = f'\n{TAB}'
-
-FLATTEN_CODE = f'pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1, inplace=True)'
-
 class PivotStepPerformer(StepPerformer):
     """
     A pivot, which allows you to pivot data from an existing dataframe 
@@ -53,10 +48,6 @@ class PivotStepPerformer(StepPerformer):
     @classmethod
     def step_type(cls) -> str:
         return 'pivot'
-
-    @classmethod
-    def step_display_name(cls) -> str:
-        return 'Pivoted a Dataframe'
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -148,81 +139,16 @@ class PivotStepPerformer(StepPerformer):
         }
 
     @classmethod
-    def transpile( # type: ignore
+    def transpile(
         cls,
         prev_state: State,
         post_state: State,
+        params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
-        sheet_index: int,
-        pivot_rows_column_ids: List[ColumnID],
-        pivot_columns_column_ids: List[ColumnID],
-        values_column_ids_map: Dict[ColumnID, Collection[str]],
-        flatten_column_headers: bool,
-        destination_sheet_index: int=None,
-        use_deprecated_id_algorithm: bool=False,
-        **params
-    ) -> List[str]:
-        old_df_name = post_state.df_names[sheet_index]
-        if destination_sheet_index is None:
-            new_df_name = post_state.df_names[-1]
-        else:
-            # If we're repivoting an existing pivot table, we have
-            # to make sure to overwrite the correct pivot table 
-            # by using the right name
-            new_df_name = post_state.df_names[destination_sheet_index]
-
-        pivot_rows = prev_state.column_ids.get_column_headers_by_ids(sheet_index, pivot_rows_column_ids)
-        pivot_columns = prev_state.column_ids.get_column_headers_by_ids(sheet_index, pivot_columns_column_ids)
-        values = {
-            prev_state.column_ids.get_column_header_by_id(sheet_index, column_id): value 
-            for column_id, value in values_column_ids_map.items()
-        }
-        
-        # If there are no keys or values to aggregate on we return an empty dataframe. 
-        if len(pivot_rows) == 0 and len(pivot_columns) == 0 or len(values) == 0:
-            return [f'{new_df_name} = pd.DataFrame(data={{}})']
-
-        transpiled_code = []
-
-        # Drop any columns we don't need, to avoid issues where pandas freaks out
-        # and says there is a non-1-dimensional grouper
-        transpiled_code.append(f'unused_columns = {old_df_name}.columns.difference(set({pivot_rows}).union(set({pivot_columns})).union(set({set(values.keys())})))')
-        transpiled_code.append(f'tmp_df = {old_df_name}.drop(unused_columns, axis=1)')
-
-        # Do the actual pivot
-        pivot_table_args = build_args_code(pivot_rows, pivot_columns, values)
-        transpiled_code.append(f'pivot_table = tmp_df.pivot_table({NEWLINE_TAB}{pivot_table_args}\n)')
-
-        if execution_data and execution_data['was_series']:
-            # TODO: do we want a comment to explain this?
-            transpiled_code.append(f'pivot_table = pd.DataFrame(pivot_table)')
-
-        if flatten_column_headers:
-            # Flatten column headers, which we always do because it's hard to tell when we should
-            transpiled_code.append(FLATTEN_CODE)
-
-        # Finially, reset the column name, and the indexes!
-        transpiled_code.append(f'{new_df_name} = pivot_table.reset_index()')
-
-        return transpiled_code
-
-    @classmethod
-    def describe( # type: ignore
-        cls,
-        sheet_index,
-        pivot_rows_column_ids,
-        pivot_columns_column_ids,
-        values_column_ids_map,
-        destination_sheet_index=None,
-        use_deprecated_id_algorithm: bool=False,
-        df_names=None,
-        **params
-    ) -> str:
-        if df_names is not None:
-            new_df_name = f'df{len(df_names)}'
-            old_df_name = df_names[sheet_index]
-            return f'Pivoted {old_df_name} into {new_df_name}'
-        return f'Pivoted dataframe {sheet_index}'
+    ) -> List[CodeChunk]:
+        return [
+            PivotCodeChunk(prev_state, post_state, params, execution_data)
+        ]
 
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore
@@ -324,41 +250,6 @@ def _execute_pivot(
     pivot_table = pivot_table.reset_index()
 
     return pivot_table, was_series
-
-def values_to_functions_code(values: Dict[ColumnHeader, Collection[str]]) -> str:
-    """
-    Helper function for turning the values mapping sent by the frontend to the values
-    mapping that works in generated code. Namely, needs to replay Count Unique with the
-    function pd.Series.nunique.
-    """
-    string_values = f'{values}'
-    # NOTE: this needs to match the values sent from the frontend
-    # also note that we overwrite the quotes around Count Unique
-    return string_values.replace('\'count unique\'', 'pd.Series.nunique')
-
-def build_args_code(
-        pivot_rows: List[ColumnHeader],
-        pivot_columns: List[ColumnHeader],
-        values: Dict[ColumnHeader, Collection[str]]
-    ) -> str:
-    """
-    Helper function for building an arg string, while leaving
-    out empty arguments. 
-    """
-    values_keys = list(values.keys())
-
-    args = []
-    if len(pivot_rows) > 0:
-        args.append(f'index={pivot_rows},')
-
-    if len(pivot_columns) > 0:
-        args.append(f'columns={pivot_columns},')
-
-    if len(values) > 0:
-        args.append(f'values={values_keys},')
-        args.append(f'aggfunc={values_to_functions_code(values)}')
-        
-    return NEWLINE_TAB.join(args)
 
 def get_new_pivot_df_name(post_state: State, sheet_index: int) -> str: 
     """
