@@ -16,6 +16,46 @@ import { Height, Width } from './sizes.d';
 */
 const MAX_DISPLAYED = 10000;
 
+
+const MultiToggleBoxMessage = (props: {loading?: boolean, maxDisplayed: boolean, numDisplayed: number, isSubset?: boolean, message?: string;}): JSX.Element => {
+    if (props.loading) {
+        return (
+            <Row justify='center'>
+                <p className='text-body-1 text-align-center'> 
+                    Loading items<LoadingDots/>
+                </p>
+            </Row>
+        )
+    } else if (props.maxDisplayed || props.isSubset) {
+        return (
+            <Row justify='center'>
+                <p className='text-body-1 text-align-center'> 
+                    There are too many items to display. Search to filter down to the items you care about.
+                </p>
+            </Row>
+        )
+    } else if (props.numDisplayed === 0) {
+        return (
+            <Row justify='center'>
+                <p className='text-body-1'> 
+                    No items to display.
+                </p>
+            </Row>
+        )
+    } else if (props.message !== undefined) {
+        return (
+            <Row justify='center'>
+                <p className='text-body-1 text-align-center'> 
+                    {props.message}
+                </p>
+            </Row>
+        )
+    }
+
+    return (<></>)
+}
+
+
 /* 
   A box that contains a variety of options that can be toggled on and off indivigually.
   
@@ -62,10 +102,21 @@ const MultiToggleBox = (props: {
     loading?: boolean;
 
     /** 
-        * @param [isFiltered] - Display a message if not all data is being passed here,
+        * @param [isSubset] - Display a message if not all data is being passed here,
         * for example if there is too much of it
     */
-    isFiltered?: boolean;
+    isSubset?: boolean;
+    
+    /** 
+        * @param [message] - If there is no other message to display, displays this
+        * message at the top of the box
+    */
+    message?: string;
+
+    /** 
+        * @param [disabled] - Optionally make none of the buttons clickable here
+    */
+    disabled?: boolean;
 }): JSX.Element => {    
 
     // We can store state in this element, or in the parent element if we want
@@ -104,7 +155,12 @@ const MultiToggleBox = (props: {
         displayedAllToggled = displayedAllToggled && child.props.toggled; 
         displayedIndexes.push(child.props.index);
 
-        return child;
+        // Clone the child and make sure that if the multi-select is disabled entirely, 
+        // each element is disabled
+        return React.cloneElement(child, {
+            disabled: child.props.disabled || props.disabled
+        });
+        
     })
 
     const { toggleAllIndexes } = props;
@@ -128,33 +184,21 @@ const MultiToggleBox = (props: {
                 // so we do a calculation if the search box is displayed
                 style={{height: props.searchable ? 'calc(100% - 30px)' : '100%'}}
             >
-                {props.loading === true &&
-                    <Row justify='center'>
-                        <p className='text-body-1 text-align-center'> 
-                            Loading items<LoadingDots/>
-                        </p>
-                    </Row>
-                }
-                {!props.loading && (maxDisplayed || props.isFiltered) &&
-                    <Row justify='center'>
-                        <p className='text-body-1 text-align-center'> 
-                            There are too many items to display. Search to filter down to the items you care about.
-                        </p>
-                    </Row>
-                }
-                {!props.loading && numDisplayed === 0 && 
-                    <Row justify='center'>
-                        <p className='text-body-1'> 
-                            No items to display.
-                        </p>
-                    </Row>
-                
-                }
+                {<MultiToggleBoxMessage
+                    loading={props.loading}
+                    isSubset={props.isSubset}
+                    message={props.message}
+                    maxDisplayed={maxDisplayed}
+                    numDisplayed={numDisplayed}
+                />}
                 {toggleAllIndexes !== undefined && numDisplayed > 0 &&
                     <div 
                         key='Toggle All' 
                         className={classNames('multi-toggle-box-row', {'multi-toggle-box-row-selected': displayedAllToggled})}
                         onClick={() => {
+                            if (props.disabled) {
+                                return;
+                            }
                             toggleAllIndexes(displayedIndexes, !displayedAllToggled)
                         }}
                     >
