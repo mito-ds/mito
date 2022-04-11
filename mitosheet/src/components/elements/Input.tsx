@@ -41,6 +41,11 @@ interface InputProps {
      */
     onClick?: (e: React.MouseEvent) => void;
 
+    /**
+        * @param [onDoubleClick] - Function to be called when double clicked
+     */
+     onDoubleClick?: (e: React.MouseEvent) => void;
+
     /** 
         * @param [onChange] - Function to be called when the text changes
     */
@@ -141,6 +146,7 @@ const Input = (props: InputProps): JSX.Element => {
                 onKeyPress={props.onKeyPress}
                 onChange={props.onChange}
                 onClick={props.onClick}
+                onDoubleClick={props.onDoubleClick}
                 autoFocus={props.autoFocus}
                 required={props.required}
                 disabled={props.disabled}
