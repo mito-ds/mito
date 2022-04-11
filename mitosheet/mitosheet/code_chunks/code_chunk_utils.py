@@ -6,7 +6,7 @@
 
 
 from copy import copy
-from typing import TYPE_CHECKING, List, Optional, Any
+from typing import TYPE_CHECKING, List, Optional, Any, Type
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnsCodeChunk
@@ -55,7 +55,7 @@ def get_code_chunks(all_steps: List[Step], optimize: bool=True) -> List[CodeChun
 # as sort potentially changes the indexes of the dataframe, which is a lasting change
 # that occurs even after this column is deleted. Hence, we throw errors in this util 
 # so that remember to not do that
-CANNOT_RIGHT_COMBINE_WITH_DELETE_COLUMNS: List[CodeChunk] = [
+CANNOT_RIGHT_COMBINE_WITH_DELETE_COLUMNS: List[Type[CodeChunk]] = [
     FilterCodeChunk,
     SortCodeChunk
 ]
