@@ -149,6 +149,10 @@ const ColumnHeaders = (props: {
                             // Then, we find the column that we moved it to
                             const {columnIndex} = getIndexesFromXAndY(clientX, clientY)
                             const columnIDToReorder = props.sheetData.data[startingColumnIndex].columnID;
+
+                            if (dragColumnIndex === columnIndex) {
+                                return;
+                            }
     
                             if (columnIndex === undefined || columnIDToReorder === undefined) {
                                 return;
