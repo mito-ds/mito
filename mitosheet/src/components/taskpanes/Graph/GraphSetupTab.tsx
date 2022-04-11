@@ -173,6 +173,10 @@ function GraphSetupTab(
                             value={props.dfNames[graphSheetIndex]}
                             onChange={(newDfName: string) => {
                                 const newIndex = props.dfNames.indexOf(newDfName);
+
+                                if (newIndex == props.graphParams.graphCreation.sheet_index) {
+                                    return;
+                                }
                                 
                                 // Reset the graph params for the new sheet, but keep the graph type!
                                 const newSheetGraphParams = getDefaultGraphParams(props.sheetDataArray, newIndex, props.graphParams.graphCreation.graph_type)
