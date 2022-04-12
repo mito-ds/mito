@@ -66,7 +66,6 @@ const DropdownItem = (props: DropdownItemProps): JSX.Element => {
     const disabled = props.disabled === true  
     const hideSubtext = props.hideSubtext === true
     const displaySubtextOnHover = props.displaySubtextOnHover === true
-
     
     return (
         <div 

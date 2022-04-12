@@ -34,7 +34,6 @@ export interface SimpleImportSummary {
 }
 
 export interface PathContents {
-    path: string,
     path_parts: string[],
     elements: FileElement[];
 }

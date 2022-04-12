@@ -14,10 +14,22 @@ import { ExcelFileMetadata } from '../../../types';
 
 // CSS
 import '../../../../css/taskpanes/Import/ImportTaskpane.css'
+import { ImportTaskpaneState } from './ImportTaskpane';
 
 interface XLSXImportProps {
     mitoAPI: MitoAPI;
     pathParts: string[];
+    importState: ImportTaskpaneState;
+    setImportState: React.Dispatch<React.SetStateAction<ImportTaskpaneState>>
+}
+
+const getXLSXImportButtonText = (stepID: string | undefined, numSelectedSheets: number, loadingImport: boolean): string => {
+    if (loadingImport) {
+        return "Importing..."
+    }
+    return stepID === undefined 
+        ? `Import ${numSelectedSheets} Selected Sheet${numSelectedSheets === 1 ? '' : 's'}` 
+        : `Reimport ${numSelectedSheets} Selected Sheet${numSelectedSheets === 1 ? '' : 's'}`
 }
 
 /* 
@@ -66,6 +78,12 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
             return;
         }
 
+        props.setImportState(prevImportState => {
+            return {
+                ...prevImportState,
+                loadingImport: true
+            }
+        })
         const newStepID = await props.mitoAPI.editExcelImport(
             joinedPath,
             sheetsToImport,
@@ -73,7 +91,12 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
             parseInt(skiprows),
             stepID
         )
-
+        props.setImportState(prevImportState => {
+            return {
+                ...prevImportState,
+                loadingImport: false
+            }
+        })
         setStepID(newStepID);
     }
 
@@ -84,11 +107,7 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
         return prevValue;
     }, 0)
 
-    const importButtonText = stepID === undefined 
-        ? `Import ${numSelectedSheets} Selected Sheet${numSelectedSheets === 1 ? '' : 's'}` 
-        : `Reimport ${numSelectedSheets} Selected Sheet${numSelectedSheets === 1 ? '' : 's'}`
-
-
+    const importButtonText = getXLSXImportButtonText(stepID, numSelectedSheets, props.importState.loadingImport)
     return (
         <>
             <div> 
@@ -166,12 +185,13 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
                 }
                 
             </div>
-            <div className='import-taskpane-import-button-container' >
+            <div className='import-taskpane-import-button-container'>
                 <TextButton
                     variant='dark'
                     width='block'
                     onClick={importXLSXFile}
                     disabled={numSelectedSheets === 0}
+                    autoFocus
                 >
                     {importButtonText}
                 </TextButton>

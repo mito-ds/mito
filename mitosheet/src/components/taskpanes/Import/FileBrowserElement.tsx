@@ -1,21 +1,23 @@
 // Copyright (c) Mito
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import MitoAPI from '../../../api';
 import { getLastModifiedString } from '../../../utils/time';
+import { ensureInView } from '../../elements/Dropdown';
 import CSVFileIcon from '../../icons/CSVFileIcon';
 import DirectoryIcon from '../../icons/DirectoryIcon';
 import FileIcon from '../../icons/FileIcon';
 import Col from '../../spacing/Col';
 import Row from '../../spacing/Row';
-import { FileElement } from './ImportTaskpane';
+import { 
+    FileElement, ImportTaskpaneState } from './ImportTaskpane';
 
 interface FileBrowserElementProps {
     mitoAPI: MitoAPI,
-    pathParts: string[] | undefined,
-    setCurrPathParts: (newPathParts: string[]) => void;
+    index: number;
     element: FileElement;
-    selectedElement: FileElement | undefined;
-    setSelectedElement: (newSelectedElement: FileElement | undefined) => void;
+    setCurrPathParts: (newPathParts: string[]) => void;
+    importState: ImportTaskpaneState;
+    setImportState: React.Dispatch<React.SetStateAction<ImportTaskpaneState>>;
     importElement: (element: FileElement | undefined) => Promise<void>;
     excelImportEnabled: boolean;
 }
@@ -84,19 +86,30 @@ export const getInvalidFileError = (selectedElement: FileElement, excelImportEna
 */
 function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
 
+    const elementRef = useRef<HTMLDivElement>(null);
 
     // Check if this element being displayed is the selected element in the
     // file browser!
-    const isSelected = props.selectedElement !== undefined 
-        && props.element.isDirectory === props.selectedElement.isDirectory
-        && props.element.name === props.selectedElement.name;
+    const isSelected = props.index === props.importState.selectedElementIndex;
+
+    // If the element becomes selected, we make sure it is visible
+    useEffect(() => {
+        const element = elementRef.current;
+        const parent = elementRef.current?.parentElement;
+        console.log(parent)
+        if (isSelected && element && parent) {
+            console.log("ENSURING in view")
+            ensureInView(parent as HTMLDivElement, elementRef.current, 0)
+        }
+    }, [isSelected])
 
     const invalidFileError = getInvalidFileError(props.element, props.excelImportEnabled);
 
+
     return (
         <div 
-            // NOTE: we make this text unselectable, as we want users
-            // to be able to double click
+            // We make this text unselectable, as we want users to be able to double click
+            ref={elementRef}
             className='file-browser-element p-5px text-unselectable'
             title={props.element.name} // give it a little something on the hover
             style={{background: isSelected ? '#D5C0FF' : ''}}
@@ -112,14 +125,24 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
                     we select it.
                 */
                 if (isSelected) {
-                    props.setSelectedElement(undefined);
+                    props.setImportState(prevImportState => {
+                        return {
+                            ...prevImportState,
+                            selectedElementIndex: -1
+                        }
+                    });
                 } else {
-                    props.setSelectedElement(props.element)
+                    props.setImportState(prevImportState => {
+                        return {
+                            ...prevImportState,
+                            selectedElementIndex: props.index
+                        }
+                    });
                 }
             }}
             onDoubleClick={() => {
                 if (props.element.isDirectory) {
-                    const newPathParts = props.pathParts ? props.pathParts : [];
+                    const newPathParts = props.importState.pathContents.path_parts || [];
                     newPathParts.push(props.element.name);
                     props.setCurrPathParts(newPathParts);
                 } else {

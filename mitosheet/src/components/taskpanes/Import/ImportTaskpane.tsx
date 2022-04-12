@@ -16,6 +16,7 @@ import XLSXImport from './XLSXImport';
 import '../../../../css/taskpanes/Import/ImportTaskpane.css'
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
+import { getElementsToDisplay } from './importUtils';
 
 interface ImportTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -23,6 +24,15 @@ interface ImportTaskpaneProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     currPathParts: string[];
     setCurrPathParts: (newCurrPathParts: string[]) => void;
+}
+
+type FileSort = 'name_ascending' | 'name_descending' | 'last_modified_ascending' | 'last_modified_descending';
+export interface ImportTaskpaneState {
+    pathContents: PathContents,
+    sort: FileSort,
+    searchString: string,
+    selectedElementIndex: number,
+    loadingImport: boolean
 }
 
 // When storing what is selected, we store if it is a file 
@@ -39,7 +49,7 @@ export interface FileElement {
     and also the message to display on the button based on which
     element is selected.
 */
-const getImportButtonStatus = (selectedElement: FileElement | undefined, excelImportEnabled: boolean): {disabled: boolean, buttonText: string} => {
+const getImportButtonStatus = (selectedElement: FileElement | undefined, excelImportEnabled: boolean, loadingImport: boolean): {disabled: boolean, buttonText: string} => {
     if (selectedElement === undefined) {
         return {
             disabled: true,
@@ -59,53 +69,54 @@ const getImportButtonStatus = (selectedElement: FileElement | undefined, excelIm
             buttonText: 'Select a Supported File Type'
         };
     }
+
+    if (loadingImport) {
+        return {
+            disabled: false,
+            buttonText: 'Importing...'
+        };
+    }
     return {
         disabled: false,
         buttonText: 'Import ' + selectedElement.name
     };
 }
 
-/* 
-    Imports the selected element by:
-    1. Combining the path into one path string
-    2. Passing this combined path into a simple import
-*/
-export async function doImport(mitoAPI: MitoAPI, currPathParts: string[], element: FileElement): Promise<void> {
-    // Construct the final path that must be imported
-    const finalPath = [...currPathParts];
-    finalPath.push(element.name);
-    const joinedPath = await mitoAPI.getPathJoined(finalPath);
-    if (joinedPath === undefined) {
-        return;
-    }
-    // And then actually import it
-    await mitoAPI.editSimpleImport([joinedPath])
-}
-
-/* 
-    Provides a import modal that allows users to import data
-    using a file browser
-*/
 function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
 
-    // The path data for the currently selected path
-    const [pathContents, setPathContents] = useState<PathContents | undefined>(undefined);
-
-    // The file/folder that is currently selected 
-    const [selectedElement, setSelectedElement] = useState<FileElement | undefined>(undefined);
+    const [importState, setImportState] = useState<ImportTaskpaneState>({
+        pathContents: {
+            path_parts: props.currPathParts,
+            elements: []
+        },
+        sort: 'last_modified_descending',
+        searchString: '',
+        selectedElementIndex: -1,
+        loadingImport: false
+    })
 
     // If the file being imported is an XLSX, we need additional configuration
     // and so we use an import wizard for help
     const [fileForImportWizard, setFileForImportWizard] = useState<string | undefined>(undefined);
- 
+
+    // We make sure to get the elements that are displayed and use the index on that to get the correct element
+    const selectedElement: FileElement | undefined = getElementsToDisplay(importState)[importState.selectedElementIndex];
+
     // Loads the path data from the API and sets it for the file browser
     async function loadPathContents(currPathParts: string[]) {
         const _pathContents = await props.mitoAPI.getPathContents(currPathParts);
-        setPathContents(_pathContents);
+        if (_pathContents) {
+            setImportState(prevImportState => {
+                return {
+                    ...prevImportState,
+                    pathContents: _pathContents
+                }
+            })
+        }
     }
 
     async function importElement(element: FileElement | undefined): Promise<void> {
-        const importButtonStatus = getImportButtonStatus(element, props.userProfile.excelImportEnabled);
+        const importButtonStatus = getImportButtonStatus(element, props.userProfile.excelImportEnabled, importState.loadingImport);
         // Quit early if the selected thing is not importable, or if there
         // is nothing even selected
         if (importButtonStatus.disabled || element === undefined) {
@@ -118,12 +129,28 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
         }
 
         // Do the actual import
-        await doImport(props.mitoAPI, props.currPathParts, element);
-        // And then clear the selected element
-        setSelectedElement(undefined);
+        const finalPath = [...props.currPathParts];
+        finalPath.push(element.name);
+        const joinedPath = await props.mitoAPI.getPathJoined(finalPath);
+        if (joinedPath === undefined) {
+            return;
+        }
+        // And then actually import it
+        setImportState(prevImportState => {
+            return {
+                ...prevImportState,
+                loadingImport: true
+            }
+        })
+        await props.mitoAPI.editSimpleImport([joinedPath])
+        setImportState(prevImportState => {
+            return {
+                ...prevImportState,
+                loadingImport: false
+            }
+        })
     }
 
-    
     /* 
         Any time the current path changes, we update
         the files that are displayed
@@ -132,10 +159,16 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
         // When the current path changes, we reload the path contents
         void loadPathContents(props.currPathParts)
         // We also unselect anything that might be selected
-        setSelectedElement(undefined)
+        setImportState(prevImportState => {
+            return {
+                ...prevImportState,
+                selectedElementIndex: -1
+            }
+        })
         // Log how long the path is
         void props.mitoAPI.log('curr_path_changed', {'path_parts_length': props.currPathParts.length})
     }, [props.currPathParts])
+
 
     /* 
         Any time the selected element changes we log the file
@@ -143,6 +176,7 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
     */
     useEffect(() => {
         let selectedElementName = '';
+        
         if (selectedElement === undefined) {
             selectedElementName = 'undefined';
         } else if (selectedElement.isDirectory) {
@@ -159,11 +193,10 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
             'selected_element_changed',
             {'selected_element': selectedElementName}
         )
+
     }, [selectedElement])
 
-
-    const importButtonStatus = getImportButtonStatus(selectedElement, props.userProfile.excelImportEnabled);
-
+    const importButtonStatus = getImportButtonStatus(selectedElement, props.userProfile.excelImportEnabled, importState.loadingImport);
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader
@@ -180,10 +213,8 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                             <FileBrowser
                                 mitoAPI={props.mitoAPI}
                                 setCurrPathParts={props.setCurrPathParts}
-                                pathParts={pathContents?.path_parts}
-                                elements={pathContents?.elements || []}
-                                selectedElement={selectedElement}
-                                setSelectedElement={setSelectedElement}
+                                importState={importState}
+                                setImportState={setImportState}
                                 importElement={importElement}
                                 userProfile={props.userProfile}
                             />
@@ -205,11 +236,12 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                         <XLSXImport
                             mitoAPI={props.mitoAPI}
                             pathParts={[...props.currPathParts, fileForImportWizard]}
+                            importState={importState}
+                            setImportState={setImportState}
                         />
                     }
                 </div>
             </DefaultTaskpaneBody>
-            
         </DefaultTaskpane>            
     )
 }

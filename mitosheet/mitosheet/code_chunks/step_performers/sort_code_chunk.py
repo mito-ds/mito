@@ -22,18 +22,23 @@ class SortCodeChunk(CodeChunk):
         return f'Sorted {column_header} in {sort_direction} order'
 
     def get_code(self) -> List[str]:
-        from mitosheet.step_performers.sort import ASCENDING
+        from mitosheet.step_performers.sort import SORT_DIRECTION_ASCENDING
 
         sheet_index = self.get_param('sheet_index')
         column_id = self.get_param('column_id')
         sort_direction = self.get_param('sort_direction')
 
+        # If there is no sort applied in this step, then bail with no code
+        from mitosheet.step_performers.sort import SORT_DIRECTION_NONE
+        if sort_direction == SORT_DIRECTION_NONE:
+            return []
+
         df_name = self.post_state.df_names[sheet_index]
         column_header = self.post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
         transpiled_column_header = column_header_to_transpiled_code(column_header)
         
-        na_position_string = 'first' if sort_direction == ASCENDING else 'last'
+        na_position_string = 'first' if sort_direction == SORT_DIRECTION_ASCENDING else 'last'
         
         return [
-            f'{df_name} = {df_name}.sort_values(by={transpiled_column_header}, ascending={sort_direction == ASCENDING}, na_position=\'{na_position_string}\')', 
+            f'{df_name} = {df_name}.sort_values(by={transpiled_column_header}, ascending={sort_direction == SORT_DIRECTION_ASCENDING}, na_position=\'{na_position_string}\')', 
         ]

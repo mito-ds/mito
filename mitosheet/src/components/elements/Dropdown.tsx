@@ -7,6 +7,7 @@ import '../../../css/elements/Dropdown.css'
 import { useCallOnAnyClick } from '../../hooks/useCallOnAnyClick';
 import { classNames } from '../../utils/classNames';
 import { fuzzyMatch } from '../../utils/strings';
+import DropdownCheckmark from '../icons/DropdownCheckmark';
 import Row from '../spacing/Row';
 import Input from './Input';
 import { WIDTH_MAPPING } from './sizes.d';
@@ -367,7 +368,9 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                 className: classNames(child.props.className, {
                     'dropdown-item-selected': selected,
                     'dropdown-item-with-search-first-item': props.searchable === true && found === 0
-                })
+                }),
+                // TODO: this selected is wrong!
+                icon: selected && child.props.icon === undefined ? <DropdownCheckmark /> : child.props.icon
             })
             found += 1;
             return finalChild;            
