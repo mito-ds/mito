@@ -21,11 +21,10 @@ from mitosheet.state import (
 )
 from mitosheet.step_performers import (
     STEP_PERFORMERS,
-    STEP_TYPE_TO_USAGE_TRIGGERED_FEEDBACK_ID,
 )
 from mitosheet.step_performers.graph_steps.plotly_express_graphs import GRAPH_SAFETY_FILTER_CUTOFF
 from mitosheet.step_performers.pivot import PIVOT_AGGREGATION_TYPES
-from mitosheet.step_performers.sort import ASCENDING, DESCENDING
+from mitosheet.step_performers.sort import SORT_DIRECTION_ASCENDING, SORT_DIRECTION_DESCENDING
 from mitosheet.user.schemas import USER_JSON_DEFAULT
 
 
@@ -125,8 +124,8 @@ def test_sort_direction_match():
     # NOTE: the extra element here is no sort (on the frontend)
     assert len(sort_direcion) == 3
 
-    assert sort_direcion["ASCENDING"] == ASCENDING
-    assert sort_direcion["DESCENDING"] == DESCENDING
+    assert sort_direcion["ASCENDING"] == SORT_DIRECTION_ASCENDING
+    assert sort_direcion["DESCENDING"] == SORT_DIRECTION_DESCENDING
 
 
 def test_filter_conditions_match():

@@ -10,6 +10,7 @@ import Col from '../../spacing/Col';
 import Row from '../../spacing/Row';
 import { 
     FileElement, ImportTaskpaneState } from './ImportTaskpane';
+import { getInvalidFileError } from './importUtils';
 
 interface FileBrowserElementProps {
     mitoAPI: MitoAPI,
@@ -23,65 +24,6 @@ interface FileBrowserElementProps {
 }
 
 /* 
-    Helper function that gets an ending of a file, or
-    undefined if no such file ending exists
-*/
-export const getFileEnding = (elementName: string): string | undefined => {
-    try {
-        // Take just the file ending
-        const nameSplit = elementName.split('.');
-        return nameSplit[nameSplit.length - 1];
-    } catch {
-        return undefined;
-    }
-}
-
-
-/* 
-    Helper function that, for a given file, returns if there is an 
-    error in importing the file. 
-
-    Helpful in displaying in-place errors that tells users they cannot
-    import xlsx files.
-*/
-export const getInvalidFileError = (selectedElement: FileElement, excelImportEnabled: boolean): string | undefined => {
-    // We do not display an error on directories, as you cannot
-    // import them but we don't want to overload you
-    if (selectedElement.isDirectory) {
-        return undefined;
-    }
-    
-    const VALID_FILE_ENDINGS = [
-        'csv',
-        'tsv',
-        'txt',
-        'tab',
-    ]
-
-    // If excel import is enabled, then add it as a valid ending
-    if (excelImportEnabled) {
-        VALID_FILE_ENDINGS.push('xlsx');
-    }
-
-    // Check if the file ending is a type that we support out of the box
-    for (const ending of VALID_FILE_ENDINGS) {
-        if (selectedElement.name.toLowerCase().endsWith(ending)) {
-            return undefined;
-        }
-    }
-
-    // We try and get the ending from the file
-    const fileEnding = getFileEnding(selectedElement.name);
-    if (fileEnding === undefined) {
-        return 'Sorry, we don\'t support that file type.'
-    } else if (fileEnding == 'xlsx') {
-        return 'Upgrade to pandas>=0.25.0 and Python>3.6 to import Excel files.'
-    } else {
-        return `Sorry, we don't support ${fileEnding} files.`
-    }
-}
-
-/* 
     An file or folder that is displayed by the file browser
 */
 function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
@@ -92,19 +34,16 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
     // file browser!
     const isSelected = props.index === props.importState.selectedElementIndex;
 
-    // If the element becomes selected, we make sure it is visible
+    // If the element becomes selected, we make sure it is visible in the div
     useEffect(() => {
         const element = elementRef.current;
         const parent = elementRef.current?.parentElement;
-        console.log(parent)
         if (isSelected && element && parent) {
-            console.log("ENSURING in view")
             ensureInView(parent as HTMLDivElement, elementRef.current, 0)
         }
     }, [isSelected])
 
     const invalidFileError = getInvalidFileError(props.element, props.excelImportEnabled);
-
 
     return (
         <div 

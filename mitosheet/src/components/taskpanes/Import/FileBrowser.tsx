@@ -48,7 +48,10 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
         })
     }, [props.importState.pathContents.path_parts])
 
-    // We make sure to always focus back on the search input
+    // We make sure to always focus back on the search input after the selected
+    // element changes; this is because if the user clicks on a different element
+    // in the file browser, it will focus on this (and thus kill search and nav
+    // with the arrow keys)
     useEffect(() => {
         inputRef.current?.focus();
     }, [props.importState.selectedElementIndex, props.importState.sort])
@@ -108,8 +111,9 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                 </Col>
             </Row>
             <div className='mt-5px mb-5px'>
-                {/* NOTE: we use a raw input as we need to put a ref on it, which we don't support currently */}
                 <input
+                    // NOTE: we use a raw input as we need to put a ref on this, so we can focus on it,
+                    // but as of now we don't support an input with a passed ref (it's complex and confusing)
                     className={classNames('input', 'text-body-2', 'element-width-block')}
                     ref={inputRef}
                     value={props.importState.searchString}
@@ -123,9 +127,10 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                             }
                         })
                     }}
+                    // We use the onKeyDown function to handle arrow key presses as well as
+                    // as if the user wants to import by pressing enter
                     onKeyDown={(e) => {
                         if (e.key == 'ArrowUp') {
-                            // TODO: make it loop
                             props.setImportState(prevImportState => {
                                 return {
                                     ...prevImportState,
@@ -143,7 +148,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                             e.preventDefault();
                         } else if (e.key === 'Enter') {
                             if (selectedElement && !selectedElement.isDirectory) {
-                                props.importElement(selectedElement)
+                                void props.importElement(selectedElement)
                             } else if (selectedElement && selectedElement.isDirectory) {
                                 const newPathParts = props.importState.pathContents.path_parts || [];
                                 newPathParts.push(selectedElement.name);

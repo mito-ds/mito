@@ -359,6 +359,7 @@ const ColumnHeader = (props: {
                                     closeColumnHeaderEditor()
                                 }
                             }}
+                            // We submit the column header if the user focuses outside the input
                             onBlur={() => {
                                 void submitRenameColumnHeader();
                             }}

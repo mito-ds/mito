@@ -7,7 +7,6 @@ import MitoAPI from '../../../api';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import { PathContents } from '../../../api';
 import FileBrowser from './FileBrowser';
-import { getFileEnding, getInvalidFileError } from './FileBrowserElement';
 import TextButton from '../../elements/TextButton';
 import { UIState, UserProfile } from '../../../types';
 import XLSXImport from './XLSXImport';
@@ -16,7 +15,7 @@ import XLSXImport from './XLSXImport';
 import '../../../../css/taskpanes/Import/ImportTaskpane.css'
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
-import { getElementsToDisplay } from './importUtils';
+import { getElementsToDisplay, getFileEnding, getImportButtonStatus } from './importUtils';
 
 interface ImportTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -27,6 +26,7 @@ interface ImportTaskpaneProps {
 }
 
 type FileSort = 'name_ascending' | 'name_descending' | 'last_modified_ascending' | 'last_modified_descending';
+
 export interface ImportTaskpaneState {
     pathContents: PathContents,
     sort: FileSort,
@@ -42,44 +42,6 @@ export interface FileElement {
     isDirectory: boolean,
     name: string,
     lastModified: number;
-}
-
-/* 
-    Helper function that returns if the import button is usable, 
-    and also the message to display on the button based on which
-    element is selected.
-*/
-const getImportButtonStatus = (selectedElement: FileElement | undefined, excelImportEnabled: boolean, loadingImport: boolean): {disabled: boolean, buttonText: string} => {
-    if (selectedElement === undefined) {
-        return {
-            disabled: true,
-            buttonText: 'Select a File to Import'
-        };
-    }
-    if (selectedElement.isDirectory) {
-        return {
-            disabled: true,
-            buttonText: 'That\'s a Directory. Select a File'
-        };
-    }
-    const invalidFileError = getInvalidFileError(selectedElement, excelImportEnabled);
-    if (invalidFileError !== undefined) {
-        return {
-            disabled: true,
-            buttonText: 'Select a Supported File Type'
-        };
-    }
-
-    if (loadingImport) {
-        return {
-            disabled: false,
-            buttonText: 'Importing...'
-        };
-    }
-    return {
-        disabled: false,
-        buttonText: 'Import ' + selectedElement.name
-    };
 }
 
 function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
@@ -101,6 +63,54 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
 
     // We make sure to get the elements that are displayed and use the index on that to get the correct element
     const selectedElement: FileElement | undefined = getElementsToDisplay(importState)[importState.selectedElementIndex];
+
+
+
+    /* 
+        Any time the current path changes, we update
+        the files that are displayed
+    */
+    useEffect(() => {
+        // When the current path changes, we reload the path contents
+        void loadPathContents(props.currPathParts)
+        // We also unselect anything that might be selected
+        setImportState(prevImportState => {
+            return {
+                ...prevImportState,
+                selectedElementIndex: -1
+            }
+        })
+        // Log how long the path is
+        void props.mitoAPI.log('curr_path_changed', {'path_parts_length': props.currPathParts.length})
+    }, [props.currPathParts])
+
+
+    /* 
+        Any time the selected element changes we log the file
+        ending (or none, if it has none).
+    */
+    useEffect(() => {
+        let selectedElementName = '';
+        
+        if (selectedElement === undefined) {
+            selectedElementName = 'undefined';
+        } else if (selectedElement.isDirectory) {
+            selectedElementName = 'directory';
+        } else {
+            const fileEnding = getFileEnding(selectedElement.name);
+            if (fileEnding !== undefined) {
+                selectedElementName = fileEnding;
+            } else {
+                selectedElementName = 'No File Ending';
+            }
+        }
+        void props.mitoAPI.log(
+            'selected_element_changed',
+            {'selected_element': selectedElementName}
+        )
+
+    }, [selectedElement])
+    
 
     // Loads the path data from the API and sets it for the file browser
     async function loadPathContents(currPathParts: string[]) {
@@ -150,51 +160,6 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
             }
         })
     }
-
-    /* 
-        Any time the current path changes, we update
-        the files that are displayed
-    */
-    useEffect(() => {
-        // When the current path changes, we reload the path contents
-        void loadPathContents(props.currPathParts)
-        // We also unselect anything that might be selected
-        setImportState(prevImportState => {
-            return {
-                ...prevImportState,
-                selectedElementIndex: -1
-            }
-        })
-        // Log how long the path is
-        void props.mitoAPI.log('curr_path_changed', {'path_parts_length': props.currPathParts.length})
-    }, [props.currPathParts])
-
-
-    /* 
-        Any time the selected element changes we log the file
-        ending (or none, if it has none).
-    */
-    useEffect(() => {
-        let selectedElementName = '';
-        
-        if (selectedElement === undefined) {
-            selectedElementName = 'undefined';
-        } else if (selectedElement.isDirectory) {
-            selectedElementName = 'directory';
-        } else {
-            const fileEnding = getFileEnding(selectedElement.name);
-            if (fileEnding !== undefined) {
-                selectedElementName = fileEnding;
-            } else {
-                selectedElementName = 'No File Ending';
-            }
-        }
-        void props.mitoAPI.log(
-            'selected_element_changed',
-            {'selected_element': selectedElementName}
-        )
-
-    }, [selectedElement])
 
     const importButtonStatus = getImportButtonStatus(selectedElement, props.userProfile.excelImportEnabled, importState.loadingImport);
     return (

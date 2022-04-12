@@ -44,7 +44,7 @@ interface InputProps {
     /**
         * @param [onDoubleClick] - Function to be called when double clicked
      */
-     onDoubleClick?: (e: React.MouseEvent) => void;
+    onDoubleClick?: (e: React.MouseEvent) => void;
 
     /** 
         * @param [onChange] - Function to be called when the text changes

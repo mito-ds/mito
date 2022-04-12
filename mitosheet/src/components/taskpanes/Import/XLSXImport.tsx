@@ -15,6 +15,7 @@ import { ExcelFileMetadata } from '../../../types';
 // CSS
 import '../../../../css/taskpanes/Import/ImportTaskpane.css'
 import { ImportTaskpaneState } from './ImportTaskpane';
+import { getXLSXImportButtonText } from './importUtils';
 
 interface XLSXImportProps {
     mitoAPI: MitoAPI;
@@ -23,14 +24,6 @@ interface XLSXImportProps {
     setImportState: React.Dispatch<React.SetStateAction<ImportTaskpaneState>>
 }
 
-const getXLSXImportButtonText = (stepID: string | undefined, numSelectedSheets: number, loadingImport: boolean): string => {
-    if (loadingImport) {
-        return "Importing..."
-    }
-    return stepID === undefined 
-        ? `Import ${numSelectedSheets} Selected Sheet${numSelectedSheets === 1 ? '' : 's'}` 
-        : `Reimport ${numSelectedSheets} Selected Sheet${numSelectedSheets === 1 ? '' : 's'}`
-}
 
 /* 
     Allows a user to import an XLSX file with the given name, and
@@ -39,6 +32,8 @@ const getXLSXImportButtonText = (stepID: string | undefined, numSelectedSheets: 
 */
 function XLSXImport(props: XLSXImportProps): JSX.Element {
 
+    // NOTE: this loading state is just for getting the metadata about the sheets
+    // and not for importing the file
     const [loading, setLoading] = useState(true);
     const [fileMetadata, setFileMetadata] = useState<ExcelFileMetadata>({sheet_names: [], size: 0});
     const [sheetToggles, setSheetToggles] = useState<boolean[]>([]);
@@ -108,6 +103,7 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
     }, 0)
 
     const importButtonText = getXLSXImportButtonText(stepID, numSelectedSheets, props.importState.loadingImport)
+    
     return (
         <>
             <div> 

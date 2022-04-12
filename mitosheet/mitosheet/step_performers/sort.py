@@ -68,7 +68,6 @@ class SortStepPerformer(StepPerformer):
                 # We notably let the user sort by the "none" direction, which effectively allows the user
                 # to unapply the sort by toggling the sort button after they click it once
                 new_df = prev_state.dfs[sheet_index]
-                print("NOT SORTING")
             
             pandas_processing_time = perf_counter() - pandas_start_time
             post_state.dfs[sheet_index] = new_df
