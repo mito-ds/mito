@@ -1089,6 +1089,10 @@ export default class MitoAPI {
         await this.send({
             'event': 'update_event',
             'type': 'render_count_update',
+            // Log the number of rendered sheets in the notebook
+            'number_rendered_sheets': document.querySelectorAll('.mito-container').length,
+            // Log the theme of the notebook
+            'jupyterlab_theme': document.body.getAttribute('data-jp-theme-name') || 'undefined'
         }, {})
     }
 
@@ -1210,8 +1214,7 @@ export default class MitoAPI {
             message = Object.assign({}, params);
         }
 
-        // Get the browser information, so we can make sure
-        // Mito works for all Mito users
+        // Get the browser information, so we can make sure Mito works for all Mito users
         message['user_agent'] = window.navigator.userAgent
 
         // Save the type of event, as well as what is being logged
