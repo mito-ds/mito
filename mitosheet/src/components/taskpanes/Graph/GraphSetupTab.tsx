@@ -155,6 +155,8 @@ function GraphSetupTab(
         ? `${props.graphParams.graphCreation.graph_type} does not support further breaking down data using color.`
         : 'Use an additional column to further breakdown the data by color.';
 
+    const columnIDsMap = props.columnIDsMapArray[graphSheetIndex] || {};
+
     return (  
         <Fragment>
             <div className='graph-sidebar-toolbar-content'>
@@ -247,7 +249,7 @@ function GraphSetupTab(
                 </Row>
 
                 <AxisSection
-                    columnIDsMap={props.columnIDsMapArray[graphSheetIndex]}
+                    columnIDsMap={columnIDsMap}
                     graphType={props.graphParams.graphCreation.graph_type}
                     graphAxis={GraphAxisType.X_AXIS}
                     selectedColumnIDs={props.graphParams.graphCreation.x_axis_column_ids}
@@ -256,7 +258,7 @@ function GraphSetupTab(
                     mitoAPI={props.mitoAPI}
                 />
                 <AxisSection
-                    columnIDsMap={props.columnIDsMapArray[graphSheetIndex]}
+                    columnIDsMap={columnIDsMap}
                     graphType={props.graphParams.graphCreation.graph_type}
                     graphAxis={GraphAxisType.Y_AXIS}
                     selectedColumnIDs={props.graphParams.graphCreation.y_axis_column_ids}
@@ -281,7 +283,7 @@ function GraphSetupTab(
                         </Col>
                         <Col>
                             <Select 
-                                value={props.graphParams.graphCreation.color ? getDisplayColumnHeader(props.columnIDsMapArray[graphSheetIndex][props.graphParams.graphCreation.color]) : 'None'}
+                                value={props.graphParams.graphCreation.color ? getDisplayColumnHeader(columnIDsMap[props.graphParams.graphCreation.color]) : 'None'}
                                 disabled={GRAPHS_THAT_DONT_SUPPORT_COLOR.includes(props.graphParams.graphCreation.graph_type)}
                                 width='small'
                                 searchable
