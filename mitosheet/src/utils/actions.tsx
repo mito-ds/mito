@@ -50,6 +50,10 @@ export const createActions = (
             shortTitle: 'Add Col',
             longTitle: 'Add a column',
             actionFunction: () => {
+                if (sheetDataArray.length === 0) {
+                    return;
+                }
+
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
 
