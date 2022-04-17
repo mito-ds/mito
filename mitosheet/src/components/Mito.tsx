@@ -21,7 +21,7 @@ import '../../css/sitewide/paddings.css';
 import '../../css/sitewide/text.css';
 import '../../css/sitewide/widths.css';
 import MitoAPI from '../api';
-import { getArgs } from '../jupyter/jupyterUtils';
+import { getArgs, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell } from '../jupyter/jupyterUtils';
 import { AnalysisData, DataTypeInMito, DFSource, EditorState, GridState, SheetData, UIState, UserProfile } from '../types';
 import { createActions } from '../utils/actions';
 import { classNames } from '../utils/classNames';
@@ -232,6 +232,10 @@ export const Mito = (props: MitoProps): JSX.Element => {
                  * 
                  * TODO: remove this effect 6 months after implemented, as pretty much all users will
                  * have upgraded by then. Delete this code on September 1, 2022.
+                 * 
+                 * ALSO NOTE: We only do this in JupyterLab rather than both Lab and Notebooks, as we 
+                 * added notebook support way after this upgrade phrase, and the complexity isn't worth
+                 * it.
                  */
                 const upgradedFromSaveInGeneratedCodeToSheet = await window.commands?.execute('move-saved-analysis-id-to-mitosheet-call');
                 if (upgradedFromSaveInGeneratedCodeToSheet) {
@@ -247,10 +251,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                  * Specifically, we want to write the analysis name of this analysis, as this is the 
                  * analysis that will get written to the code cell below.
                  */
-                window.commands?.execute('write-analysis-to-replay-to-mitosheet-call', {
-                    analysisName: analysisData.analysisName,
-                    mitoAPI: props.mitoAPI
-                });
+                writeAnalysisToReplayToMitosheetCall(analysisData.analysisName, props.mitoAPI);
             }
         }
 
@@ -272,11 +273,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
          */
         if (analysisData.renderCount >= 1) {
             // Finially, we can go and write the code!
-            window.commands?.execute('write-generated-code-cell', {
-                analysisName: analysisData.analysisName,
-                code: analysisData.code,
-                telemetryEnabled: userProfile.telemetryEnabled,
-            });
+            writeGeneratedCodeToCell(analysisData.analysisName, analysisData.code, userProfile.telemetryEnabled);
         }
         // TODO: we should store some data with analysis data to not make
         // this run too often?

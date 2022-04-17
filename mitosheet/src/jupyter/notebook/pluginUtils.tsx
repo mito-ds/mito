@@ -1,8 +1,10 @@
+import MitoAPI from "../../api";
+import { getCodeString } from "../../utils/code";
 
 type CellType = any;
 
 export function getCellAtIndex(index: number): CellType | undefined {
-    return (window as any).Jupyter?.notebook?.get_cell(0);
+    return (window as any).Jupyter?.notebook?.get_cell(index);
 }
 
 export function getCellText(cell: CellType | undefined): string {
@@ -21,6 +23,8 @@ export function getLastNonEmptyLine(cell: CellType | undefined): string | undefi
 
 export const getArgsFromMitosheetCallCell = (mitosheetCallCell: CellType | undefined): string[] => {
     const content = getCellText(mitosheetCallCell);
+
+    console.log("CONTEXT", content);
 
     let nameString = content.split('mitosheet.sheet(')[1].split(')')[0];
 
@@ -124,22 +128,19 @@ export function isEmptyCell(cell: CellType | undefined): boolean {
  * or undefined if no such cell exists
  */
 export function getCellCallingMitoshetWithAnalysis(analysisName: string): [CellType, number] | undefined  {
-    const cells = (window as any).Jupyter?.notebook?.get_cells();
+    const cells: CellType[] = (window as any).Jupyter?.notebook?.get_cells();
 
     if (cells === undefined) {
         return undefined;
     }
 
-    const cellsIterator = cells.iter();
-    let cell = cellsIterator.next();
     let cellIndex = 0;
-    while (cell) {
+    for (const cell of cells) {
         if (containsMitosheetCallWithSpecificAnalysisToReplay(cell, analysisName)) {
             return [cell, cellIndex];
         }
 
         cellIndex++;
-        cell = cellsIterator.next();
     }
 
     return undefined;
@@ -156,7 +157,6 @@ export function getCellCallingMitoshetWithAnalysis(analysisName: string): [CellT
  * Returns undefined if it can find no good guess for a calling mitosheet cell.
  */
 export function getMostLikelyMitosheetCallingCell(analysisName: string | undefined): [CellType, number] | undefined {
-    console.log("HERE1")
 
     // First, we check if this analysis name is in a mitosheet call, in which case things are easy
     if (analysisName) {
@@ -165,7 +165,6 @@ export function getMostLikelyMitosheetCallingCell(analysisName: string | undefin
             return mitosheetCallCellAndIndex;
         }
     }
-    console.log("HERE12")
 
     const cells = (window as any).Jupyter?.notebook?.get_cells();
 
@@ -177,8 +176,6 @@ export function getMostLikelyMitosheetCallingCell(analysisName: string | undefin
     const activeCellIndex = (window as any).Jupyter?.notebook?.get_anchor_index() || 0;
 
     const previousCell = getCellAtIndex(activeCellIndex - 1)
-
-    console.log("HERE123")
 
     // As the most common way for a user to run a cell for the first time is to run and advanced, this 
     // means that the active cell will most likely be one below the mitosheet.sheet() call we want to 
@@ -268,7 +265,6 @@ export function tryWriteAnalysisToReplayParameter(cell: CellType | undefined, an
 
 export const notebookGetArgs = (analysisToReplayName: string | undefined): string[] => {
     const cellAndIndex = getMostLikelyMitosheetCallingCell(analysisToReplayName);
-    console.log("HERE", cellAndIndex);
     if (cellAndIndex) {
         const [cell, ] = cellAndIndex;
         return getArgsFromMitosheetCallCell(cell);
@@ -276,3 +272,83 @@ export const notebookGetArgs = (analysisToReplayName: string | undefined): strin
         return [];
     }
 }
+
+export const notebookWriteAnalysisToReplayToMitosheetCall = (analysisName: string, mitoAPI: MitoAPI) => {
+    const cellAndIndex = getMostLikelyMitosheetCallingCell(analysisName);
+
+    if (cellAndIndex) {
+        const [cell, ] = cellAndIndex;
+        const written = tryWriteAnalysisToReplayParameter(cell, analysisName);
+        if (written) {
+            return;
+        }
+    } 
+
+    // Log if we are unable to write this param for any reason
+    void mitoAPI.log('write_analysis_to_replay_to_mitosheet_call_failed');
+}
+
+export const notebookOverwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName: string, newAnalysisName: string, mitoAPI: MitoAPI) => {
+
+    const mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(oldAnalysisName);
+    if (mitosheetCallCellAndIndex === undefined) {
+        return;
+    }
+
+    const [mitosheetCallCell, ] = mitosheetCallCellAndIndex;
+
+    const overwritten = tryOverwriteAnalysisToReplayParameter(mitosheetCallCell, oldAnalysisName, newAnalysisName);
+    if (!overwritten) {
+        void mitoAPI.log('overwrite_analysis_to_replay_to_mitosheet_call_failed');
+    }
+}
+
+export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines: string[], telemetryEnabled: boolean) => {
+    const code = getCodeString(analysisName, codeLines, telemetryEnabled);
+        
+    // Find the cell that made the mitosheet.sheet call, and if it does not exist, give
+    // up immediately
+    const mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(analysisName);
+    if (mitosheetCallCellAndIndex === undefined) {
+        return;
+    }
+
+    const [, mitosheetCallIndex] = mitosheetCallCellAndIndex;
+
+    const cells = (window as any).Jupyter?.notebook?.get_cells();
+
+    if (cells === undefined) {
+        return;
+    }
+
+    const activeCellIndex = (window as any).Jupyter?.notebook?.get_anchor_index() || 0;
+
+    const codeCell = getCellAtIndex(mitosheetCallIndex + 1);
+
+    if (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(codeCell, analysisName)) {
+        writeToCell(codeCell, code)
+    } else {
+        // If we cannot write to the cell below, we have to go back a new cell below, 
+        // which can eb a bit of an involve process
+        if (mitosheetCallIndex !== activeCellIndex) {
+            // We have to move our selection back up to the cell that we 
+            // make the mitosheet call to 
+            if (mitosheetCallIndex < activeCellIndex) {
+                for (let i = 0; i < (activeCellIndex - mitosheetCallIndex); i++) {
+                    (window as any).Jupyter?.notebook?.select_prev();
+                }
+            } else if (mitosheetCallIndex > activeCellIndex) {
+                for (let i = 0; i < (mitosheetCallIndex - activeCellIndex); i++) {
+                    (window as any).Jupyter?.notebook?.select_next();
+                }
+            }
+        }
+        // And then write to this new cell below, which is not the active cell but we
+        // should make it the actice cell
+        (window as any).Jupyter?.notebook?.insert_cell_below();
+        (window as any).Jupyter?.notebook?.select_next();
+        const activeCell = (window as any).Jupyter?.notebook?.get_cell((window as any).Jupyter?.notebook?.get_anchor_index());
+        writeToCell(activeCell, code);
+    }
+}
+

@@ -214,7 +214,6 @@ function activateWidgetExtension(
         execute: (args: any): string[] => {
             const analysisToReplayName = args.analysisToReplayName as string | undefined;
             const cellAndIndex = getMostLikelyMitosheetCallingCell(tracker, analysisToReplayName);
-            console.log("CELL AND INDEX", cellAndIndex)
             if (cellAndIndex) {
                 const [cell, ] = cellAndIndex;
                 return getArgsFromMitosheetCallCell(cell);
