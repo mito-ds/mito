@@ -1,10 +1,21 @@
 // Copyright (c) Mito
 
 import { FilterType, FilterGroupType } from '../../../../../types';
-import { isBoolDtype, isDatetimeDtype, isNumberDtype, isStringDtype } from '../../../../../utils/dtypes';
+import { isBoolDtype, isDatetimeDtype, isNumberDtype, isStringDtype, isTimedeltaDtype } from '../../../../../utils/dtypes';
 import { CONDITIONS_WITH_NO_INPUT } from './filterConditions';
 import { isFilterGroup } from './filterTypes';
 
+/*
+    Given that we cannot filter all datatypes well, we have this utility 
+    for getting the message if the filters are disabled for a certain
+    columnDtpye
+*/
+export function getFilterDisabledMessage(columnDtype: string): string | undefined {
+    if (isTimedeltaDtype(columnDtype)) {
+        return 'Sorry, Mito does not support filtering on timedeltas columns currently. Try changing the column dtype to a string and filtering on that instead.'
+    }
+    return undefined;
+}
 
 /*
     Returns the correct empty filter data object for the given columnMitoType

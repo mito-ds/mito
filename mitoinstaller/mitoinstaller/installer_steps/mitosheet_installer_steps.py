@@ -51,6 +51,7 @@ def remove_mitosheet_3_if_present():
     
 
 def install_step_mitosheet_install_mitosheet():
+    print("This might take a few moments...")
     install_pip_packages('mitosheet', test_pypi='--test-pypi' in sys.argv)
 
     

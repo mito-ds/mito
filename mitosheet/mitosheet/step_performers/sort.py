@@ -18,8 +18,9 @@ from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_cod
 from mitosheet.types import ColumnID
 
 # CONSTANTS USED IN THE SORT STEP ITSELF
-ASCENDING = 'ascending'
-DESCENDING = 'descending'
+SORT_DIRECTION_ASCENDING = 'ascending'
+SORT_DIRECTION_DESCENDING = 'descending'
+SORT_DIRECTION_NONE = 'none'
 
 class SortStepPerformer(StepPerformer):
     """
@@ -61,7 +62,13 @@ class SortStepPerformer(StepPerformer):
 
         try: 
             pandas_start_time = perf_counter()
-            new_df = prev_state.dfs[sheet_index].sort_values(by=column_header, ascending=(sort_direction == ASCENDING), na_position=('first' if sort_direction == ASCENDING else 'last'))
+            if sort_direction != SORT_DIRECTION_NONE:
+                new_df = prev_state.dfs[sheet_index].sort_values(by=column_header, ascending=(sort_direction == SORT_DIRECTION_ASCENDING), na_position=('first' if sort_direction == SORT_DIRECTION_ASCENDING else 'last'))
+            else:
+                # We notably let the user sort by the "none" direction, which effectively allows the user
+                # to unapply the sort by toggling the sort button after they click it once
+                new_df = prev_state.dfs[sheet_index]
+            
             pandas_processing_time = perf_counter() - pandas_start_time
             post_state.dfs[sheet_index] = new_df
         except TypeError as e:

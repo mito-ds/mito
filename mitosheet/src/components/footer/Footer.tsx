@@ -53,7 +53,7 @@ function Footer(props: FooterProps): JSX.Element {
             >
                 <PlusIcon/>
             </div>
-            <div className="footer-tab-bar">
+            <div className="footer-tab-bar hide-scrollbar">
                 {/* First add the data tabs, and then add the graph tabs */}
                 {props.sheetDataArray.map(df => df.dfName).map((dfName, idx) => {
                     return (

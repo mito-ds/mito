@@ -1,15 +1,15 @@
 // Copyright (c) Mito
 
 import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
-import '../../css/sitewide/all-modals.css';
-import '../../css/sitewide/animations.css';
-import '../../css/sitewide/borders.css';
 /*
     Import CSS that we use globally, list these in alphabetical order
     to make it easier to confirm we have imported all sitewide css.
 
     Except we put the colors.css first because it creates variables used elsewhere.
 */
+import '../../css/sitewide/all-modals.css';
+import '../../css/sitewide/animations.css';
+import '../../css/sitewide/borders.css';
 import '../../css/sitewide/colors.css';
 import '../../css/sitewide/element-sizes.css';
 import '../../css/sitewide/flexbox.css';
@@ -18,6 +18,7 @@ import '../../css/sitewide/height.css';
 import '../../css/sitewide/icons.css';
 import '../../css/sitewide/margins.css';
 import '../../css/sitewide/paddings.css';
+import '../../css/sitewide/scroll.css';
 import '../../css/sitewide/text.css';
 import '../../css/sitewide/widths.css';
 import MitoAPI from '../api';
@@ -55,6 +56,7 @@ import { EDITING_TASKPANES, TaskpaneType } from './taskpanes/taskpanes';
 import Toolbar from './toolbar/Toolbar';
 import Tour from './tour/Tour';
 import { TourName } from './tour/Tours';
+
 
 
 
@@ -538,6 +540,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         tab={uiState.selectedColumnControlPanelTab}
                         lastStepIndex={lastStepSummary.step_idx}
                         lastStepType={lastStepSummary.step_type}
+                        analysisData={analysisData}
                     />
                 )
             case TaskpaneType.DOWNLOAD: return (

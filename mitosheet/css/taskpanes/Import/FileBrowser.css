@@ -29,6 +29,12 @@
 
     border-bottom: 1px solid grey;
     height: 100%;
+
+    /* 
+        We position this element so it's children can be scrolled into view effectively, 
+        which for some reason requires the parent to be positioned properly
+    */
+    position: relative;
 }
 
 .file-browser-element:hover {
