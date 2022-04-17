@@ -53,7 +53,7 @@ jlpm run watch
 
 NOTE: On Windows, this seperate terminal _must_ be a Adminstrator terminal. To launch an admin terminal, search for Command Prompt, and then right click on the app and click Run as adminstrator. Then navigate to the virtual enviornment, start it, and then run `jlpm run watch`. 
 
-Furthermore, if the final `jlpm run watch` command fails, you may need to run `export NODE_OPTIONS=--openssl-legacy-provider`. 
+Furthermore, if the final `jlpm run watch` or `npm install` command fails, you may need to run `export NODE_OPTIONS=--openssl-legacy-provider`. 
 
 ### One Liner Command for Mac
 ```bash

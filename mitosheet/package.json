@@ -10,7 +10,7 @@
     "outputDir": "mitosheet/labextension",
     "extension": "lib/plugin"
   },
-  "name": "mitosheet",
+  "name": "mitosheet2",
   "license": "AGPL-3.0-only",
   "author": {
     "name": "Mito Sheet",
@@ -23,15 +23,17 @@
     "url": "https://github.com/mito-ds/monorepo",
     "type": "git"
   },
-  "version": "0.3.131",
+  "version": "0.1.341",
   "dependencies": {
-    "@jupyter-widgets/base": "^4",
-    "@jupyterlab/notebook": "^3.0.6",
+    "@jupyter-widgets/base": "^1.1.10 || ^2 || ^3",
+    "@jupyterlab/notebook": "^2.2.5",
     "@types/fscreen": "^1.0.1",
-    "@types/react-dom": "^17.0.2",
+    "@types/jest": "^27.0.2",
+    "@types/react-dom": "^17.0.9",
     "fscreen": "^1.1.0",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1"
+    "react": "~16.9.0",
+    "react-dom": "~16.9.0",
+    "ts-jest": "^27.0.5"
   },
   "scripts": {
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
@@ -41,13 +43,13 @@
     "clean": "npm run clean:all",
 
     "build:nbextension:dev": "webpack --mode=development",
-    "build:labextension:dev": "jupyter labextension build --development True .",
+    "build:labextension:dev": "npm run clean:labextension && npm run build:lib && mkdirp mitosheet/labextension && cd mitosheet/labextension && npm pack ../..",
     "build:all:dev": "npm run build:nbextension:dev && build:labextension:dev",
     "build:dev": "npm run build:all:dev",
     
     "build:lib": "tsc",
-    "build:nbextension": "webpack --mode=production",
-    "build:labextension": "jupyter labextension build .",
+    "build:nbextension": "echo TODO",
+    "build:labextension": "npm run clean:labextension && mkdirp mitosheet/labextension && cd mitosheet/labextension && npm pack ../..",
     "build:all": "npm run build:lib && npm run build:labextension && npm run build:nbextension",
     "build": "npm run build:all",
 
@@ -56,18 +58,17 @@
     "watch:labextension": "jupyter labextension watch .",
     "watch:all": "run-p watch:lib watch:labextension watch:nbextension",
     "watch": "npm run watch:all",
-    
-    "lint:check": "eslint src/ --ext .ts,.tsx",
-    "lint": "eslint src/ --ext .ts,.tsx --fix",
 
-    "prepare": "jlpm run clean && jlpm run build:all",
-    "prepack": "npm run build:all"
+    "lint:check": "eslint src/ --ext .ts,.tsx",
+    "lint": "eslint src/ --ext .ts,.tsx --fix"
   },
   "keywords": [
     "jupyter",
     "jupyterlab",
     "jupyterlab-extension",
-    "widgets"
+    "widgets",
+    "ipython",
+    "ipywidgets"
   ],
   "devDependencies": {
     "@jupyterlab/builder": "^3.0.0",
@@ -75,30 +76,27 @@
     "@types/mocha": "^9.0.0",
     "@types/node": "^16.10.2",
     "@types/react": "^17.0.26",
-    "@typescript-eslint/eslint-plugin": "^4.8.1",
-    "@typescript-eslint/parser": "^4.8.1",
+    "@typescript-eslint/eslint-plugin": "^4.4.0",
+    "@typescript-eslint/parser": "^4.4.0",
     "acorn": "^8.5.0",
-    "application": "npm:@lumino/application@^1.13.1",
-    "eslint": "^7.14.0",
+    "application": "npm:@phosphor/application@^1.7.3",
+    "eslint": "^7.19.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-office-addins": "^1.0.3",
     "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-react": "^7.21.3",
+    "eslint-plugin-react": "^7.26.1",
     "expect.js": "^0.3.1",
     "fs-extra": "^10.0.0",
     "mkdirp": "^1.0.4",
     "mocha": "^9.1.2",
     "npm-run-all": "^4.1.5",
-    "prettier": "^2.1.1",
+    "prettier": "^2.0.5",
     "rimraf": "^3.0.2",
     "typescript": "^4.4.3",
-    "widgets": "npm:@lumino/widgets@^1.16.1"
+    "widgets": "npm:@phosphor/widgets@^1.9.3"
   },
   "main": "lib/index.js",
-  "homepage": "https://trymito.io",
+  "homepage": "https://github.com/mito-ds/monorepo",
   "types": "./lib/index.d.ts",
-  "description": "The Mito Spreadsheet",
-  "resolutions": {
-    "@types/react": "^17.0.2"
-  }
+  "description": "The Mito Spreadsheet"
 }

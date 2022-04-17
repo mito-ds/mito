@@ -39,7 +39,7 @@ MITOSHEET_TWO_PACKAGE_JSON = """{
     "outputDir": "mitosheet/labextension",
     "extension": "lib/plugin"
   },
-  "name": REPLACE_WITH_PACKAGE_NAME_WITH_REPLACE,
+  "name": "mitosheet2",
   "license": "AGPL-3.0-only",
   "author": {
     "name": "Mito Sheet",
@@ -65,43 +65,42 @@ MITOSHEET_TWO_PACKAGE_JSON = """{
     "ts-jest": "^27.0.5"
   },
   "scripts": {
-    "test:jest": "jest",
-    "deploy:staging": "python3 deployment/deploy.py staging",
-    "build:prod": "jlpm run build:lib && jlpm run build:labextension",
-    "clean:labextension": "rimraf mitosheet/labextension",
-    "deploy:app": "python3 deployment/deploy.py app",
-    "build:labextension:dev": "jupyter labextension build --development True .",
-    "prepare": "",
-    "watch:lib": "tsc -w",
-    "build:labextension": "npm run clean:labextension && npm run build:lib && mkdirp mitosheet/labextension && cd mitosheet/labextension && npm pack ../..",
-    "deploy:all": "python3 deployment/deploy.py all",
-    "build": "npm run build:lib",
-    "build:lib": "tsc",
-    "deploy:pypi": "python3 setup.py sdist bdist_wheel upload",
-    "clean:nbextension": "rimraf mitosheet/nbextension",
-    "build:all": "npm run build:labextension",
-    "lint:check": "eslint src/ --ext .ts,.tsx",
-    "watch:nbextension": "webpack --watch",
-    "lint": "eslint src/ --ext .ts,.tsx --fix",
-    "watch": "tsc -w",
-    "watch:labextension": "jupyter labextension watch .",
-    "install:extension": "jupyter labextension develop --overwrite .",
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
-    "prepack": "npm run build:lib",
-    "watch:src": "tsc -w",
-    "clean": "npm run clean:lib",
-    "clean:all": "npm run clean:lib && npm run clean:labextension"
+    "clean:nbextension": "rimraf mitosheet/nbextension",
+    "clean:labextension": "rimraf mitosheet/labextension",
+    "clean:all": "jlpm run clean:lib && jlpm run clean:nbextension && jlpm run clean:labextension",
+    "clean": "npm run clean:all",
+
+    "build:nbextension:dev": "webpack --mode=development",
+    "build:labextension:dev": "npm run clean:labextension && npm run build:lib && mkdirp mitosheet/labextension && cd mitosheet/labextension && npm pack ../..",
+    "build:all:dev": "npm run build:nbextension:dev && build:labextension:dev",
+    "build:dev": "npm run build:all:dev",
+    
+    "build:lib": "tsc",
+    "build:nbextension": "echo TODO",
+    "build:labextension": "npm run clean:labextension && mkdirp mitosheet/labextension && cd mitosheet/labextension && npm pack ../..",
+    "build:all": "npm run build:lib && npm run build:labextension && npm run build:nbextension",
+    "build": "npm run build:all",
+
+    "watch:lib": "tsc -w",
+    "watch:nbextension": "webpack --watch --mode=development",
+    "watch:labextension": "jupyter labextension watch .",
+    "watch:all": "run-p watch:lib watch:labextension watch:nbextension",
+    "watch": "npm run watch:all",
+
+    "lint:check": "eslint src/ --ext .ts,.tsx",
+    "lint": "eslint src/ --ext .ts,.tsx --fix"
   },
   "keywords": [
     "jupyter",
     "jupyterlab",
     "jupyterlab-extension",
-    "widgets"
+    "widgets",
+    "ipython",
+    "ipywidgets"
   ],
   "devDependencies": {
     "@jupyterlab/builder": "^3.0.0",
-    "@testing-library/jest-dom": "^5.14.1",
-    "@testing-library/react": "^12.1.2",
     "@types/expect.js": "^0.3.29",
     "@types/mocha": "^9.0.0",
     "@types/node": "^16.10.2",
@@ -117,8 +116,6 @@ MITOSHEET_TWO_PACKAGE_JSON = """{
     "eslint-plugin-react": "^7.26.1",
     "expect.js": "^0.3.1",
     "fs-extra": "^10.0.0",
-    "jest": "^27.2.4",
-    "jest-css-modules-transform": "^4.3.0",
     "mkdirp": "^1.0.4",
     "mocha": "^9.1.2",
     "npm-run-all": "^4.1.5",
@@ -202,12 +199,13 @@ MITOSHEET_PACKAGE_JSON = """{
     "jupyter",
     "jupyterlab",
     "jupyterlab-extension",
-    "widgets"
+    "widgets",
+    "ipython",
+    "ipywidgets"
   ],
   "devDependencies": {
     "@jupyterlab/builder": "^3.0.0",
     "@types/expect.js": "^0.3.29",
-    "@types/mocha": "^9.0.0",
     "@types/node": "^16.10.2",
     "@types/react": "^17.0.26",
     "@typescript-eslint/eslint-plugin": "^4.8.1",

@@ -9,7 +9,7 @@ node_modules/
 
 # Ignore files bundled with Mito
 docs/source/_static
-mitosheet/nbextension/static
+mitosheet/nbextension
 mitosheet/labextension
 lib
 mitovenv
