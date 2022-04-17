@@ -10,7 +10,7 @@ import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { Application, IPlugin } from 'application';
 import { Widget } from 'widgets';
 import MitoAPI from './api';
-import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, getArgsFromMitosheetCallCell, getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getLastNonEmptyLine, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, isMitosheetCallCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell } from './jupyterlab/pluginUtils';
+import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, getArgsFromMitosheetCallCell, getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getLastNonEmptyLine, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, isMitosheetCallCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell } from './jupyter/lab/pluginUtils';
 import { getAnalysisNameFromOldGeneratedCode, getCodeString } from './utils/code';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 import * as widgetExports from './widget';
@@ -47,6 +47,7 @@ function activateWidgetExtension(
     app.commands.addCommand('write-analysis-to-replay-to-mitosheet-call', {
         label: 'Given an analysisName, writes it to the mitosheet.sheet() call that created this mitosheet, if it is not already written to this cell.',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        isVisible: () => true,
         execute: (args: any) => {
             const analysisName = args.analysisName as string;
             const mitoAPI = args.mitoAPI as MitoAPI;
@@ -213,7 +214,7 @@ function activateWidgetExtension(
         execute: (args: any): string[] => {
             const analysisToReplayName = args.analysisToReplayName as string | undefined;
             const cellAndIndex = getMostLikelyMitosheetCallingCell(tracker, analysisToReplayName);
-
+            console.log("CELL AND INDEX", cellAndIndex)
             if (cellAndIndex) {
                 const [cell, ] = cellAndIndex;
                 return getArgsFromMitosheetCallCell(cell);

@@ -81,6 +81,8 @@ export const getArgsFromMitosheetCallCell = (mitosheetCallCell: ICellModel | und
     // may be strings, which we turn into valid df_names on the backend!
     args = args.filter(dfName => {return dfName.length > 0});
 
+    console.log("From", content, "got", args)
+
     return args;
 }
 
