@@ -2,11 +2,11 @@ import MitoAPI from "../api"
 import { notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteGeneratedCodeToCell } from "./notebook/pluginUtils"
 
 
-const isInJupyterLab = (): boolean => {
+export const isInJupyterLab = (): boolean => {
     return window.location.pathname.startsWith('/lab')
 }
 
-const isInJupyterNotebook = (): boolean => {
+export const isInJupyterNotebook = (): boolean => {
     return window.location.pathname.startsWith('/notebooks')
 }
 
@@ -47,6 +47,7 @@ export const writeGeneratedCodeToCell = (analysisName: string, code: string[], t
 
 
 export const getArgs = (analysisToReplayName: string | undefined): Promise<string[]> => {
+    console.log("ANALSIS NAME TO REPLAY", analysisToReplayName);
     return new Promise((resolve, reject) => {
         if (isInJupyterLab()) {
             window.commands?.execute('get-args', {analysisToReplayName: analysisToReplayName}).then(async (args: string[]) => {

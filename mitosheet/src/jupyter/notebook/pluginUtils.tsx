@@ -24,8 +24,6 @@ export function getLastNonEmptyLine(cell: CellType | undefined): string | undefi
 export const getArgsFromMitosheetCallCell = (mitosheetCallCell: CellType | undefined): string[] => {
     const content = getCellText(mitosheetCallCell);
 
-    console.log("CONTEXT", content);
-
     let nameString = content.split('mitosheet.sheet(')[1].split(')')[0];
 
     // If there is a (new) analysis name parameter passed, we ignore it

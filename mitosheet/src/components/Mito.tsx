@@ -136,9 +136,11 @@ export const Mito = (props: MitoProps): JSX.Element => {
         void props.mitoAPI.log('mitosheet_rendered');
 
         return () => {
+            /*
             if (window.setMitoStateMap) {
                 window.setMitoStateMap.delete(props.model_id);
             }
+             */
         }
     }, [])
 
