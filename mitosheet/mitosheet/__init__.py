@@ -56,4 +56,29 @@ initialize_user()
 # This function is only necessary for mitosheet3, as it is used
 # in jlab3 to find the extension. It is not used in jlab2
 def _jupyter_labextension_paths():
-    return [{"src": "labextension", "dest": "mitosheet3"}]
+    return [{"src": "labextension", "dest": "mitosheet"}]
+
+
+def _jupyter_nbextension_paths():
+    """Called by Jupyter Notebook Server to detect if it is a valid nbextension and
+    to install the widget
+
+    Returns
+    =======
+    section: The section of the Jupyter Notebook Server to change.
+        Must be 'notebook' for widget extensions
+    src: Source directory name to copy files from. Webpack outputs generated files
+        into this directory and Jupyter Notebook copies from this directory during
+        widget installation
+    dest: Destination directory name to install widget files to. Jupyter Notebook copies
+        from `src` directory into <jupyter path>/nbextensions/<dest> directory
+        during widget installation
+    require: Path to importable AMD Javascript module inside the
+        <jupyter path>/nbextensions/<dest> directory
+    """
+    return [{
+        'section': 'notebook',
+        'src': 'nbextension',
+        'dest': 'mitosheet',
+        'require': 'mitosheet/extension'
+    }]
