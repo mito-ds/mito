@@ -1,4 +1,4 @@
-.dropdown {
+.mito-dropdown {
     z-index: 3;
     position: absolute;
 
@@ -24,16 +24,16 @@
     state. This class is also used in the DropdownItem.css to
     compress the distance between elements.
 */
-.dropdown-compressed {
+.mito-dropdown-compressed {
     padding-top: 4px;
     padding-bottom: 4px;
 }
 
-.dropdown-search {
+.mito-dropdown-search {
     padding-top: 0px;
 }
 
-.dropdown-search-input {
+.mito-dropdown-search-input {
     position: fixed;
     padding: 10px;
     width: 320px;

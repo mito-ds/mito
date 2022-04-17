@@ -35,14 +35,14 @@ function FileBrowserPathSelector(props: FileBrowserPathSelectorProps): JSX.Eleme
                 }
 
                 return (
-                    <>
+                    <React.Fragment key={i}>
                         <div className='file-browser-path-part' key={i} onClick={() => {updateSelectedPath(i)}}>
                             {pathPart}
                         </div>
                         <div className='file-browser-path-seperator'>
                             /
                         </div>
-                    </>
+                    </React.Fragment>
                 )
             })}
         </div>

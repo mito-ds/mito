@@ -112,7 +112,7 @@ export function Filter(
             </Col>
             <Col span={9}>
                 <input 
-                    className='input element-width-block'
+                    className='mito-input element-width-block'
                     style={inputStyle}
                     type={isDatetimeDtype(props.columnDtype) ? 'date' : 'text'}
                     value={props.filter.value} 

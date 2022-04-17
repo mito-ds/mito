@@ -45,7 +45,7 @@ const UpgradeModal = (props: {
 
     return (
         <div className='overlay'>
-            <div className='upgrade-modal-container txt-16'>
+            <div className='upgrade-mito-modal-container txt-16'>
                 <h2 className='mt-5px'>
                     Time to Upgrade!
                 </h2>

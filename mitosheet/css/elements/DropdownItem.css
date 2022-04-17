@@ -1,4 +1,4 @@
-.dropdown-item {
+.mito-dropdown-item {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -14,7 +14,7 @@
     If we have the dropdown in a compressed state, then we 
     shrink the distance between elements
 */
-.dropdown-compressed > .dropdown-item {
+.mito-dropdown-compressed > .mito-dropdown-item {
     padding-top: 4px;
     padding-bottom: 4px;
 }
@@ -23,57 +23,57 @@
     If there is a search bar, we have to bump the items
     down 50px, so they aren't under the search bar
 */
-.dropdown-item-with-search-first-item {
+.mito-dropdown-item-with-search-first-item {
     margin-top: 50px;
 }
 
-.dropdown-item-selected {
+.mito-dropdown-item-selected {
     background-color: var(--mito-light-blue);
 }
-.dropdown-item:hover {
+.mito-dropdown-item:hover {
     background-color: var(--mito-light-blue);
 }
 
-.dropdown-item-icon-and-title-container {
+.mito-dropdown-item-icon-and-title-container {
     width: 100%;
     display: flex;
     flex-direction: row;
     padding-right: 10px;
 }
 
-.dropdown-item-icon-container {
+.mito-dropdown-item-icon-container {
     display: flex;
     flex-direction: row;
     justify-content: space-around;
     align-items: center;
 
-    /* Must be the same width as the .dropdown-item-subtext-container */
+    /* Must be the same width as the .mito-dropdown-item-subtext-container */
     width: 18px;
     flex-shrink: 0;
 }
 
-.dropdown-item-subtext-container {
+.mito-dropdown-item-subtext-container {
     margin-top: 4px;
 
-    /* Must be the same width as the .dropdown-item-icon-container */
+    /* Must be the same width as the .mito-dropdown-item-icon-container */
     margin-left: 18px; 
 }
 
-.dropdown-item-title-disabled {
+.mito-dropdown-item-title-disabled {
     color: var(--mito-light-gray);
 }
 
-.dropdown-item-subtext-disabled {
+.mito-dropdown-item-subtext-disabled {
     color: var(--mito-red);
 }
 
 /*  When the DropdownItem is not hovered over, don't show
     the subtext, when it is hovered over, show the subtext.
 */
-.dropdown-item .dropdown-item-display-subtext-on-hover {
+.mito-dropdown-item .mito-dropdown-item-display-subtext-on-hover {
     display: none;
 }
-.dropdown-item:hover .dropdown-item-display-subtext-on-hover {
+.mito-dropdown-item:hover .mito-dropdown-item-display-subtext-on-hover {
     display: inline-block;
 }
 

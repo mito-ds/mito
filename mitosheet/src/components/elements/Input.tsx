@@ -130,10 +130,10 @@ const Input = (props: InputProps): JSX.Element => {
     }, []);
     
     return (
-        <div className='input-container'>
+        <div className='mito-input-container'>
             <input
                 id={props.id}
-                className={classNames('input', 'text-body-2', widthClass, props.className)}
+                className={classNames('mito-input', 'text-body-2', widthClass, props.className)}
                 style={{paddingRight: paddingRight}}
                 value={props.value}
                 placeholder={props.placeholder}
@@ -161,7 +161,7 @@ const Input = (props: InputProps): JSX.Element => {
                 }}
             />
             {props.rightText && 
-                <div className='input-right-text'>
+                <div className='mito-input-right-text'>
                     {props.rightText}
                 </div>
             }

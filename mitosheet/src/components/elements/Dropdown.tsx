@@ -45,7 +45,7 @@ const rightInBounds = (right: number, widthPixels: number): boolean => {
     If an element (or it's descendants) with this class are clicked on
     when a dropdown is open, the dropdown will remain open.
 */
-export const DROPDOWN_IGNORE_CLICK_CLASS = 'dropdown-ignore-click';
+export const DROPDOWN_IGNORE_CLICK_CLASS = 'mito-dropdown-ignore-click';
 
 interface DropdownProps {
     /** 
@@ -153,8 +153,8 @@ export const handleKeyboardInDropdown = (
         // After a little timeout (e.g. the above executes), we scroll
         // to make sure that this newly selected element is visible
         setTimeout(() => {
-            const dropdownDiv = document.querySelector('.dropdown') as HTMLDivElement | null;
-            const selectedItemDiv = document.querySelector('.dropdown-item-selected') as HTMLDivElement | null;
+            const dropdownDiv = document.querySelector('.mito-dropdown') as HTMLDivElement | null;
+            const selectedItemDiv = document.querySelector('.mito-dropdown-item-selected') as HTMLDivElement | null;
             if (dropdownDiv !== null && selectedItemDiv !== null) {
                 ensureInView(dropdownDiv, selectedItemDiv, 50);
             }
@@ -164,7 +164,7 @@ export const handleKeyboardInDropdown = (
         // If the user presses enter, then we click on the element, after a slight delay so that 
         // this keyDown Enter event doesn't trigger the onSubmit event of any form that is opened.
         setTimeout(() => {
-            const selectedItemDiv = document.querySelector('.dropdown-item-selected') as HTMLDivElement | null;
+            const selectedItemDiv = document.querySelector('.mito-dropdown-item-selected') as HTMLDivElement | null;
             if (selectedItemDiv) {
                 selectedItemDiv.click()
             }
@@ -349,9 +349,9 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
 
     // If there are more than 4 elements in the dropdown, compress it so that the user
     // can see more of it. If it's a search, mark it as such
-    const dropdownClassNames = classNames('dropdown', `element-width-${width}`,{
-        'dropdown-compressed': React.Children.count(props.children) > 4,
-        'dropdown-search': props.searchable === true
+    const dropdownClassNames = classNames('mito-dropdown', `element-width-${width}`,{
+        'mito-dropdown-compressed': React.Children.count(props.children) > 4,
+        'mito-dropdown-search': props.searchable === true
     })
 
     
@@ -365,8 +365,8 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
             const selected = found === selectedIndex;  
             const finalChild = React.cloneElement(child, {
                 className: classNames(child.props.className, {
-                    'dropdown-item-selected': selected,
-                    'dropdown-item-with-search-first-item': props.searchable === true && found === 0
+                    'mito-dropdown-item-selected': selected,
+                    'mito-dropdown-item-with-search-first-item': props.searchable === true && found === 0
                 })
             })
             found += 1;
@@ -397,7 +397,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                         left: boundingRect.left, 
                     }}>
                     {props.searchable && 
-                        <div className={classNames('dropdown-search-input', DROPDOWN_IGNORE_CLICK_CLASS)}>
+                        <div className={classNames('mito-dropdown-search-input', DROPDOWN_IGNORE_CLICK_CLASS)}>
                             <Input 
                                 value={searchString}
                                 placeholder='Search'
@@ -413,7 +413,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                         </div>
                     }
                     {childrenToDisplay.length > 0 && 
-                        <div className='dropdown-items-container'>
+                        <div className='mito-dropdown-items-container'>
                             {childrenToDisplay}
                         </div>
                     }

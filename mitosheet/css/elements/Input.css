@@ -1,11 +1,11 @@
 
-.input-container {
+.mito-input-container {
     display: flex;
     position: relative;
 }
 
 
-.input {
+.mito-input {
     /* Clear defaults */ 
     border: none;
     background: var(--mito-very-light-gray);
@@ -22,20 +22,20 @@
     padding-left: 5px;
 }
 
-.input::placeholder {
+.mito-input::placeholder {
     color: var(--mito-medium-gray)
 }
 
-.input:hover {
+.mito-input:hover {
     border: 1px solid var(--mito-medium-purple);
 }
 
-.input:disabled {
+.mito-input:disabled {
     border: 1px solid var(--mito-white);
     color: var(--mito-light-gray)
 }
 
-.input-right-text {
+.mito-input-right-text {
     /* Position the text correctly */
     position: absolute;
     right: 0;
