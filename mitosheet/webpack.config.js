@@ -59,6 +59,13 @@ module.exports = (env, argv) => {
                     "process.env": "{}",
                 })
             ],
+            resolve: {
+                fallback: {
+                  "path": require.resolve("path-browserify"),
+                  'url': require.resolve("url/"),
+                  "util": require.resolve("util/")
+                } 
+              },
             externals: ['@jupyter-widgets/base'],
         },
     ];
