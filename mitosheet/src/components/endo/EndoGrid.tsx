@@ -489,7 +489,6 @@ function EndoGrid(props: {
     // Effect listeners for when keys are pressed
     useEffect(() => {
         const onKeyDown = (e: KeyboardEvent) => {
-            console.log(e.key)
 
             // If we're in editing mode, then we don't do anything with the keyboard 
             // events as they are handeled by the cell editor state machine!
