@@ -66,26 +66,22 @@ MITOSHEET_TWO_PACKAGE_JSON = """{
   },
   "scripts": {
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
-    "clean:nbextension": "rimraf mitosheet/nbextension",
     "clean:labextension": "rimraf mitosheet/labextension",
-    "clean:all": "jlpm run clean:lib && jlpm run clean:nbextension && jlpm run clean:labextension",
+    "clean:all": "jlpm run clean:lib && jlpm run clean:labextension",
     "clean": "npm run clean:all",
 
-    "build:nbextension:dev": "webpack --mode=development",
     "build:labextension:dev": "npm run clean:labextension && npm run build:lib && mkdirp mitosheet/labextension && cd mitosheet/labextension && npm pack ../..",
-    "build:all:dev": "npm run build:nbextension:dev && build:labextension:dev",
+    "build:all:dev": "npm run build:labextension:dev",
     "build:dev": "npm run build:all:dev",
     
     "build:lib": "tsc",
-    "build:nbextension": "webpack --mode=production",
     "build:labextension": "npm run clean:labextension && mkdirp mitosheet/labextension && cd mitosheet/labextension && npm pack ../..",
-    "build:all": "npm run build:lib && npm run build:labextension && npm run build:nbextension",
+    "build:all": "npm run build:lib && npm run build:labextension",
     "build": "npm run build:all",
 
     "watch:lib": "tsc -w",
-    "watch:nbextension": "webpack --watch --mode=development",
     "watch:labextension": "jupyter labextension watch .",
-    "watch:all": "run-p watch:lib watch:labextension watch:nbextension",
+    "watch:all": "run-p watch:lib watch:labextension",
     "watch": "npm run watch:all",
 
     "lint:check": "eslint src/ --ext .ts,.tsx",
@@ -120,12 +116,9 @@ MITOSHEET_TWO_PACKAGE_JSON = """{
     "mkdirp": "^1.0.4",
     "mocha": "^9.1.2",
     "npm-run-all": "^4.1.5",
-    "path-browserify": "^1.0.1",
     "prettier": "^2.0.5",
     "rimraf": "^3.0.2",
     "typescript": "^4.4.3",
-    "url": "^0.11.0",
-    "util": "^0.12.4",
     "widgets": "npm:@phosphor/widgets@^1.9.3"
   },
   "main": "lib/index.js",
