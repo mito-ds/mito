@@ -752,6 +752,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             setGridState={setGridState}
                             editorState={editorState}
                             setEditorState={setEditorState}
+                            mitoContainerRef={mitoContainerRef}
                         />
                     </div>
                     {uiState.currOpenTaskpane.type !== TaskpaneType.NONE && 

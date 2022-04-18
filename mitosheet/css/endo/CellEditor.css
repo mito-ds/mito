@@ -60,3 +60,9 @@
 .cell-editor-label {
     background-color: var(--mito-very-light-gray)
 }
+
+.cell-editor-error-container {
+    white-space: normal;
+    overflow-x: wrap;
+    overflow-wrap: break-word;
+}

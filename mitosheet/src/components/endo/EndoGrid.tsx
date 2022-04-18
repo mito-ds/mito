@@ -79,6 +79,7 @@ function EndoGrid(props: {
     */
     editorState: EditorState | undefined,
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>
+    mitoContainerRef: React.RefObject<HTMLDivElement>
 }): JSX.Element {
 
     // The container for the entire EndoGrid
@@ -206,9 +207,10 @@ function EndoGrid(props: {
 
                 // Get the column that was clicked, and then find the current selection
                 // within the cell editor, so that we can place the column header correctly
-                const {selectionStart, selectionEnd} = getCellEditorInputCurrentSelection(containerRef.current);
-
-
+                // If the cell cellEditor is open, then look inside the EndoGrid, otherwise look inside the mitoContainer
+                const cellEditorContainer = editorState.editorLocation === 'cell' ? containerRef.current : props.mitoContainerRef.current
+                const {selectionStart, selectionEnd} = getCellEditorInputCurrentSelection(cellEditorContainer);
+            
                 // If there is already some suggested column headers, we do not change this selection, 
                 // as we want any future expanded selection of column headers to overwrite the same 
                 // region. So default to pendingSelectedColumns?.selectionStart, but if this does not

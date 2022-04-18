@@ -461,7 +461,7 @@ const CellEditorInput = (props: {
                 }
                 {/* Show an error if there is currently an error */}
                 {cellEditorError !== undefined &&
-                    <div className='pl-10px pr-5px pt-5px pb-5px'>
+                    <div className='cell-editor-error-container pl-10px pr-5px pt-5px pb-5px'>
                         <p className='text-body-1 text-color-error'>
                             {cellEditorError}
                         </p>
