@@ -13,6 +13,8 @@ import LoadingDots from '../elements/LoadingDots';
 import { getDisplayColumnHeader } from '../../utils/columnHeaders';
 
 const MAX_SUGGESTIONS = 4;
+// NOTE: we just set the width to 250 pixels
+export const CELL_EDITOR_WIDTH = 250;
 
 /* 
     The cell editor is a popup that appears on top of the sheet, and displays
@@ -165,7 +167,7 @@ const CellEditorInput = (props: {
             ...props.editorState,
             formula: fullFormula,
             pendingSelectedColumns: undefined,
-            arrowKeysScrollInFormula: false
+            arrowKeysScrollInFormula: props.editorState.editorLocation === 'formula bar' ? true : false
         })
 
         // Make sure we jump to the end of the input, as we took the suggestion
@@ -425,15 +427,18 @@ const CellEditorInput = (props: {
                             '-', '+', '*', '/'
                         ]
 
-                        // If we are typing at the end of the formula, and we type a CHARS_TO_REMOVE_SCROLL_IN_FORMULA,
-                        // then we reset the arrowKeysScrollInFormula to false. Furtherrmore, if the formula is empty, 
-                        // we reset the arrow keys to scroll in the sheet. Otherwise, we keep it as is.
-                        // This attempts to match what Excel and Google Sheets do
-                        const atEndOfFormula = (e.target.selectionStart || 0) >= e.target.value.length;
-                        const finalChar = e.target.value.substring(e.target.value.length - 1);
-                        const endsInResetCharacter = atEndOfFormula && CHARS_TO_REMOVE_SCROLL_IN_FORMULA.includes(finalChar)
-                        const isEmpty = e.target.value.length === 0;
-                        const arrowKeysScrollInFormula = props.editorState.arrowKeysScrollInFormula && !endsInResetCharacter && !isEmpty; 
+                        let arrowKeysScrollInFormula: boolean | undefined = true
+                        if (props.editorState.editorLocation === 'cell') {
+                            // If we are typing at the end of the formula, and we type a CHARS_TO_REMOVE_SCROLL_IN_FORMULA,
+                            // then we reset the arrowKeysScrollInFormula to false. Furtherrmore, if the formula is empty, 
+                            // we reset the arrow keys to scroll in the sheet. Otherwise, we keep it as is.
+                            // This attempts to match what Excel and Google Sheets do
+                            const atEndOfFormula = (e.target.selectionStart || 0) >= e.target.value.length;
+                            const finalChar = e.target.value.substring(e.target.value.length - 1);
+                            const endsInResetCharacter = atEndOfFormula && CHARS_TO_REMOVE_SCROLL_IN_FORMULA.includes(finalChar)
+                            const isEmpty = e.target.value.length === 0;
+                            arrowKeysScrollInFormula = props.editorState.arrowKeysScrollInFormula && !endsInResetCharacter && !isEmpty; 
+                        }
                         
                         props.setEditorState({
                             ...props.editorState,
@@ -448,7 +453,7 @@ const CellEditorInput = (props: {
                 In the dropdown box, we either show an error, a loading message, suggestions
                 or the documentation for the last function, depending on the cases below
             */}
-            <div className='cell-editor-dropdown-box'>
+            <div className='cell-editor-dropdown-box' style={{width: `${CELL_EDITOR_WIDTH}px`}}>
                 {cellEditorError === undefined && 
                     <p className={classNames('cell-editor-label', 'text-subtext-1', 'ml-5px')}>
                         {isFormulaColumn ? "You're setting the formula of this column" : "You're changing the value of this cell"}

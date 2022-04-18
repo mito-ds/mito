@@ -3,13 +3,10 @@ import React, { useEffect, useState } from 'react';
 import MitoAPI from '../../api';
 import { EditorState, GridState, SheetData } from '../../types';
 import { isPrimitiveColumnHeader } from '../../utils/columnHeaders';
-import CellEditor from './CellEditorInput';
+import CellEditor, { CELL_EDITOR_WIDTH } from './CellEditorInput';
 import { calculateCurrentSheetView, getCellInColumn, getCellInRow } from './sheetViewUtils';
 import { getCellDataFromCellIndexes } from './utils';
 import '../../../css/endo/CellEditor.css';
-
-// NOTE: we just set the width to 250 pixels
-const CELL_EDITOR_WIDTH = 250;
 
 // Style that we apply to the cell editor in order to place it
 interface EditorStyle {top?: number, left?: number, bottom?: number, right?: number, display?: string}
