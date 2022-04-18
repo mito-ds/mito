@@ -180,5 +180,5 @@ This represents my best understanding of how the packaging process works. There 
 ### For Jupyter Notebooks
 
 1. First, the TypeScript is compiled to JS, and placed in the `./lib` folder.
-2. Then, the entry points `extension.js` and `notebook.js` are built by the `webpack.config.js` into `mitosheet/nbextension`. 
-3. On load of the notebook, the `extension.js` file runs. And `notebook.js` is used when the widget is actually called.
+2. Then, the entry points `extension.js` and `index.js` are built by the `webpack.config.js` into `mitosheet/nbextension`. 
+3. On load of the notebook, the `extension.js` file runs. And `index.js` is used when the widget is actually called - specifically, it gets the widgets it needs.

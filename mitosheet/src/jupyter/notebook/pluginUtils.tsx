@@ -1,5 +1,5 @@
 import MitoAPI from "../api";
-import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, getArgsFromMitosheetCallCode, getCodeString, isMitoAnalysisCode, isMitosheetCallCode } from "../../utils/code";
+import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, getArgsFromMitosheetCallCode, getCodeString, isMitosheetCallCode } from "../../utils/code";
 
 type CellType = any;
 

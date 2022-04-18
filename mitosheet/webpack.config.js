@@ -1,3 +1,5 @@
+// This webpack config is just for building the mitosheet/nbextension file
+
 var path = require('path');
 var version = require('./package.json').version;
 var webpack = require('webpack');
@@ -31,7 +33,7 @@ module.exports = (env, argv) => {
         // "load_ipython_extension" function which is required for any notebook
         // extension.
         //
-            entry: './lib/extension.js',
+            entry: './lib/jupyter/notebook/extension.js',
             output: {
                 filename: 'extension.js',
                 path: path.resolve(__dirname, 'mitosheet', 'nbextension'),
