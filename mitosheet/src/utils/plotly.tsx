@@ -15,10 +15,7 @@ import { isInJupyterLab } from "../jupyter/jupyterUtils";
  * a variety of very confusing errors. 
  * 
  * Thus, we need to take an approach that involves using requirejs, which comes
- * in the AMD context anyways.
- * 
- * Note that 
- * 
+ * in the AMD context anyways. 
  * 
  */
 const loadPlotly = (): void => {

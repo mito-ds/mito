@@ -10,8 +10,8 @@ import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { Application, IPlugin } from 'application';
 import { Widget } from 'widgets';
 import MitoAPI from './jupyter/api';
-import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, getArgsFromMitosheetCallCell, getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getLastNonEmptyLine, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, isMitosheetCallCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell } from './jupyter/lab/pluginUtils';
-import { getAnalysisNameFromOldGeneratedCode, getCodeString } from './utils/code';
+import { getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell } from './jupyter/lab/pluginUtils';
+import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, getAnalysisNameFromOldGeneratedCode, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine, isMitosheetCallCode } from './utils/code';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 import * as widgetExports from './jupyter/widget';
 
@@ -127,12 +127,12 @@ function activateWidgetExtension(
             // us to remove a large amount of legacy code with how we used to replay analyses
             const previousCell = getCellAtIndex(cells, activeCellIndex - 1)
 
-            if (!isMitosheetCallCell(previousCell)) {
+            if (!isMitosheetCallCode(getCellText(previousCell))) {
                 return false;
             }
 
             // If it already has a saved analysis (though this should never happen), return
-            if (containsMitosheetCallWithAnyAnalysisToReplay(previousCell)) {
+            if (containsMitosheetCallWithAnyAnalysisToReplay(getCellText(previousCell))) {
                 return false;
             }
 
@@ -183,7 +183,7 @@ function activateWidgetExtension(
 
             const codeCell = getCellAtIndex(cells, mitosheetCallIndex + 1);
 
-            if (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(codeCell, analysisName)) {
+            if (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(getCellText(codeCell), analysisName)) {
                 writeToCell(codeCell, code)
             } else {
                 // If we cannot write to the cell below, we have to go back a new cell below, 
@@ -216,7 +216,7 @@ function activateWidgetExtension(
             const cellAndIndex = getMostLikelyMitosheetCallingCell(tracker, analysisToReplayName);
             if (cellAndIndex) {
                 const [cell, ] = cellAndIndex;
-                return getArgsFromMitosheetCallCell(cell);
+                return getArgsFromMitosheetCallCode(getCellText(cell));
             } else {
                 return [];
             }
@@ -240,8 +240,8 @@ function activateWidgetExtension(
                 Note: clicking the button in the output to call this function first makes
                 the cell active, then calls this function. 
             */
-            const activeCell = notebook.activeCell;
-            let dataframeVariableName = getLastNonEmptyLine(activeCell?.model)
+            const activeCell = notebook.activeCell?.model;
+            let dataframeVariableName = getLastNonEmptyLine(getCellText(activeCell))
 
             // If the dataframeVariableName has a .head at the end of it, we strip this,
             // and display the entire dataframe
