@@ -1,4 +1,5 @@
 .floating-cell-editor {
+    /* The entire floating cell editor should float */
     z-index: 2;
     position: absolute;
     box-sizing: border-box;
@@ -29,6 +30,10 @@
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
+ 
+    /* This div should float whether it is in the cell or formula bar */
+    z-index: 2;
+    position: absolute;
 }
 
 .cell-editor-suggestion {
