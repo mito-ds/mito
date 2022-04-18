@@ -4,6 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
+import os
 from typing import List, Optional
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
@@ -37,7 +38,8 @@ class SimpleImportCodeChunk(CodeChunk):
     
     def get_description_comment(self) -> str:
         file_names = self.get_param('file_names')
-        return f'Imported {", ".join(file_names)}'
+        base_names = [os.path.basename(path) for path in file_names]
+        return f'Imported {", ".join(base_names)}'
 
     def get_code(self) -> List[str]:
         file_names = self.get_param('file_names')

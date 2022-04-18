@@ -18,44 +18,44 @@ if TYPE_CHECKING:
 else:
     Step = Any
 
-def optimize_code_chunks_combine_right(all_code_chunks: List[CodeChunk]) -> Tuple[bool, List[CodeChunk]]:
+def optimize_code_chunks_combine_right(code_chunks_to_optimize: List[CodeChunk]) -> Tuple[bool, List[CodeChunk]]:
     """
-    Given a list of code chunks, willattempt to optimize them right
+    Given a list of code chunks, will attempt to optimize them right
     with a single pass.
     """
 
-    all_code_chunks_reversed = copy(all_code_chunks)
-    all_code_chunks_reversed.reverse() # Reverse the list so we can pop from the old front quickly
+    code_chunks_to_optimize = copy(code_chunks_to_optimize)
+    code_chunks_to_optimize.reverse() # Reverse the list so we can pop from the old front quickly
 
     code_chunks_list: List[CodeChunk] = []
 
     optimized = False
-    while len(all_code_chunks_reversed) >= 2:
-        first_code_chunk = all_code_chunks_reversed.pop()
-        second_code_chunk = all_code_chunks_reversed.pop()
+    while len(code_chunks_to_optimize) >= 2:
+        later_code_chunk = code_chunks_to_optimize.pop()
+        earlier_code_chunk = code_chunks_to_optimize.pop()
 
-        combined_chunk = first_code_chunk.combine_right(second_code_chunk)
+        combined_chunk = later_code_chunk.combine_right(earlier_code_chunk)
 
         if combined_chunk is not None:
             # If we can combine the two chunks into one, take that
             optimized = True
-            all_code_chunks_reversed.append(combined_chunk)
+            code_chunks_to_optimize.append(combined_chunk)
         else:
             # If we cannot combine the two chunks, take the first chunk, 
             # and reset the second one to the new first chunk for the next loop
-            code_chunks_list.append(first_code_chunk)
-            all_code_chunks_reversed.append(second_code_chunk)            
+            code_chunks_list.append(later_code_chunk)
+            code_chunks_to_optimize.append(earlier_code_chunk)            
     
     # Make sure we take the final item in the code chunks list, 
     # as it has nothing to combine_right with
-    if len(all_code_chunks_reversed) == 1:
-        code_chunks_list.append(all_code_chunks_reversed[0])
+    if len(code_chunks_to_optimize) == 1:
+        code_chunks_list.append(code_chunks_to_optimize[0])
 
     return optimized, code_chunks_list
 
 def optimize_code_chunks_combine_left(code_chunks_to_optimize: List[CodeChunk]) -> Tuple[bool, List[CodeChunk]]:
     """
-    Given a list of code chunks, willattempt to optimize them left
+    Given a list of code chunks, will attempt to optimize them left
     with a single pass.
     """
 
@@ -80,11 +80,11 @@ def optimize_code_chunks_combine_left(code_chunks_to_optimize: List[CodeChunk]) 
             code_chunks_to_optimize.append(earlier_code_chunk)            
     
     # Make sure we take the final item in the code chunks list, 
-    # as it has nothing to combine_right with
+    # as it has nothing to combine_left with
     if len(code_chunks_to_optimize) == 1:
         code_chunks_list.append(code_chunks_to_optimize[0])
 
-    # Since we turned the list backwards, we need to turn it forwards again
+    # Since we build the result backwards, we have to reverse it at the end
     code_chunks_list.reverse()
 
     return optimized, code_chunks_list

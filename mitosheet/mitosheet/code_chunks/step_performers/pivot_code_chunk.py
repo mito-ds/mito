@@ -120,7 +120,7 @@ class PivotCodeChunk(CodeChunk):
         else:
             # Note: editing a dataframe does not create a sheet index, it 
             # overwrites it instead. See get_edited_sheet_indexes below
-            return False
+            return None
 
     def get_edited_sheet_indexes(self) -> List[int]:
         destination_sheet_index = self.get_param('destination_sheet_index')

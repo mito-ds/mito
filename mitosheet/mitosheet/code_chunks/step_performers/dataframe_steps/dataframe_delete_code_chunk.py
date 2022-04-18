@@ -8,6 +8,7 @@ from typing import List, Optional
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.no_op_code_chunk import NoOpCodeChunk
+from mitosheet.code_chunks.step_performers.dataframe_steps.dataframe_rename_code_chunk import DataframeRenameCodeChunk
 
 class DataframeDeleteCodeChunk(CodeChunk):
 
@@ -28,7 +29,8 @@ class DataframeDeleteCodeChunk(CodeChunk):
         second_sheet_indexes = other_code_chunk.get_param('sheet_indexes')
 
         # Because we don't have sheet ids, we need to bump any deleted dataframes
-        # that come later, so that they have the correct index now
+        # that are greater than those deleted first, so that they have the correct
+        # index in the newly combined step
         for first_sheet_index in first_sheet_indexes:
             for index, second_sheet_index in enumerate(second_sheet_indexes):
                 if first_sheet_index <= second_sheet_index:
@@ -55,14 +57,20 @@ class DataframeDeleteCodeChunk(CodeChunk):
         return None
 
     def combine_left(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:
+
+        # Dataframe renames are compicated to combine with dataframe deletes so we simple
+        # do not combine them
+        if isinstance(other_code_chunk, DataframeRenameCodeChunk):
+            return None
+
         deleted_sheet_indexes = self.get_param('sheet_indexes')
         created_sheet_indexes = other_code_chunk.get_created_sheet_indexes()
-        print(deleted_sheet_indexes, created_sheet_indexes)
-        if created_sheet_indexes and set(deleted_sheet_indexes) == set(created_sheet_indexes):
-            # If all we did was creat the dfs we deleted, we can just return a no op
+
+        if created_sheet_indexes is not None and set(deleted_sheet_indexes) == set(created_sheet_indexes):
+            # If all we did was create the dfs we deleted, we can just return a no op
             return NoOpCodeChunk(other_code_chunk.prev_state, self.post_state, {}, {})
             
-        elif created_sheet_indexes and set(deleted_sheet_indexes).issuperset(set(created_sheet_indexes)):
+        elif created_sheet_indexes is not None and set(deleted_sheet_indexes).issuperset(set(created_sheet_indexes)):
             # If the set we are deleting is a superset of the the dataframes that we created
             # in this other step, then we must create a new code chunk that doesn't have these
             # deletes for the created sheets (as we're just not including these created steps)
@@ -87,7 +95,7 @@ class DataframeDeleteCodeChunk(CodeChunk):
             )
 
         sheet_indexes_edited = other_code_chunk.get_edited_sheet_indexes()
-        if sheet_indexes_edited and set(deleted_sheet_indexes).issuperset(set(sheet_indexes_edited)):
+        if sheet_indexes_edited is not None and set(deleted_sheet_indexes).issuperset(set(sheet_indexes_edited)):
             return self
 
         return None
