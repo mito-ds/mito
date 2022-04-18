@@ -1,82 +1,28 @@
 // Copyright (c) Mito
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import MitoAPI from '../../../jupyter/api';
 import { getLastModifiedString } from '../../../utils/time';
+import { ensureInView } from '../../elements/Dropdown';
 import CSVFileIcon from '../../icons/CSVFileIcon';
 import DirectoryIcon from '../../icons/DirectoryIcon';
 import FileIcon from '../../icons/FileIcon';
 import Col from '../../spacing/Col';
 import Row from '../../spacing/Row';
-import { FileElement } from './ImportTaskpane';
+import {
+    FileElement, ImportTaskpaneState
+} from './ImportTaskpane';
+import { getInvalidFileError } from './importUtils';
+
 
 interface FileBrowserElementProps {
     mitoAPI: MitoAPI,
-    pathParts: string[] | undefined,
-    setCurrPathParts: (newPathParts: string[]) => void;
+    index: number;
     element: FileElement;
-    selectedElement: FileElement | undefined;
-    setSelectedElement: (newSelectedElement: FileElement | undefined) => void;
+    setCurrPathParts: (newPathParts: string[]) => void;
+    importState: ImportTaskpaneState;
+    setImportState: React.Dispatch<React.SetStateAction<ImportTaskpaneState>>;
     importElement: (element: FileElement | undefined) => Promise<void>;
     excelImportEnabled: boolean;
-}
-
-/* 
-    Helper function that gets an ending of a file, or
-    undefined if no such file ending exists
-*/
-export const getFileEnding = (elementName: string): string | undefined => {
-    try {
-        // Take just the file ending
-        const nameSplit = elementName.split('.');
-        return nameSplit[nameSplit.length - 1];
-    } catch {
-        return undefined;
-    }
-}
-
-
-/* 
-    Helper function that, for a given file, returns if there is an 
-    error in importing the file. 
-
-    Helpful in displaying in-place errors that tells users they cannot
-    import xlsx files.
-*/
-export const getInvalidFileError = (selectedElement: FileElement, excelImportEnabled: boolean): string | undefined => {
-    // We do not display an error on directories, as you cannot
-    // import them but we don't want to overload you
-    if (selectedElement.isDirectory) {
-        return undefined;
-    }
-    
-    const VALID_FILE_ENDINGS = [
-        'csv',
-        'tsv',
-        'txt',
-        'tab',
-    ]
-
-    // If excel import is enabled, then add it as a valid ending
-    if (excelImportEnabled) {
-        VALID_FILE_ENDINGS.push('xlsx');
-    }
-
-    // Check if the file ending is a type that we support out of the box
-    for (const ending of VALID_FILE_ENDINGS) {
-        if (selectedElement.name.toLowerCase().endsWith(ending)) {
-            return undefined;
-        }
-    }
-
-    // We try and get the ending from the file
-    const fileEnding = getFileEnding(selectedElement.name);
-    if (fileEnding === undefined) {
-        return 'Sorry, we don\'t support that file type.'
-    } else if (fileEnding == 'xlsx') {
-        return 'Upgrade to pandas>=0.25.0 and Python>3.6 to import Excel files.'
-    } else {
-        return `Sorry, we don't support ${fileEnding} files.`
-    }
 }
 
 /* 
@@ -84,19 +30,27 @@ export const getInvalidFileError = (selectedElement: FileElement, excelImportEna
 */
 function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
 
+    const elementRef = useRef<HTMLDivElement>(null);
 
     // Check if this element being displayed is the selected element in the
     // file browser!
-    const isSelected = props.selectedElement !== undefined 
-        && props.element.isDirectory === props.selectedElement.isDirectory
-        && props.element.name === props.selectedElement.name;
+    const isSelected = props.index === props.importState.selectedElementIndex;
+
+    // If the element becomes selected, we make sure it is visible in the div
+    useEffect(() => {
+        const element = elementRef.current;
+        const parent = elementRef.current?.parentElement;
+        if (isSelected && element && parent) {
+            ensureInView(parent as HTMLDivElement, elementRef.current, 0)
+        }
+    }, [isSelected])
 
     const invalidFileError = getInvalidFileError(props.element, props.excelImportEnabled);
 
     return (
         <div 
-            // NOTE: we make this text unselectable, as we want users
-            // to be able to double click
+            // We make this text unselectable, as we want users to be able to double click
+            ref={elementRef}
             className='file-browser-element p-5px text-unselectable'
             title={props.element.name} // give it a little something on the hover
             style={{background: isSelected ? '#D5C0FF' : ''}}
@@ -112,14 +66,24 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
                     we select it.
                 */
                 if (isSelected) {
-                    props.setSelectedElement(undefined);
+                    props.setImportState(prevImportState => {
+                        return {
+                            ...prevImportState,
+                            selectedElementIndex: -1
+                        }
+                    });
                 } else {
-                    props.setSelectedElement(props.element)
+                    props.setImportState(prevImportState => {
+                        return {
+                            ...prevImportState,
+                            selectedElementIndex: props.index
+                        }
+                    });
                 }
             }}
             onDoubleClick={() => {
                 if (props.element.isDirectory) {
-                    const newPathParts = props.pathParts ? props.pathParts : [];
+                    const newPathParts = props.importState.pathContents.path_parts || [];
                     newPathParts.push(props.element.name);
                     props.setCurrPathParts(newPathParts);
                 } else {

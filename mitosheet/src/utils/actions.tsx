@@ -343,6 +343,9 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
 
+                // We close editing taskpanes
+                closeOpenEditingPopups()
+
                 // Open the format toolbar dropdown
                 setUIState(prevUIState => {
                     return {

@@ -1,9 +1,9 @@
 // Copyright (c) Mito
 
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import "../../../../css/taskpanes/ControlPanel/ControlPanelTaskpane.css";
 import MitoAPI from '../../../jupyter/api';
-import { ColumnIDsMap, FilterGroupType, FilterType, MitoSelection, SheetData, StepType, UIState, EditorState, GridState } from '../../../types';
+import { ColumnIDsMap, FilterGroupType, FilterType, MitoSelection, SheetData, StepType, UIState, EditorState, GridState, AnalysisData } from '../../../types';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
 import { getCellDataFromCellIndexes } from '../../endo/utils';
 import { TaskpaneType } from '../taskpanes';
@@ -18,6 +18,7 @@ import ColumnSummaryGraph from './SummaryStatsTab/ColumnSummaryGraph';
 import ColumnSummaryStatistics from './SummaryStatsTab/ColumnSummaryStatistics';
 import { ValuesTab } from './ValuesTab/ValuesTab';
 import FormatCard from './FilterAndSortTab/FormatCard';
+import { useEffectOnUpdateEvent } from '../../../hooks/useEffectOnUpdateEvent';
 
 /* 
     We wait 500ms before sending a filter message to make sure
@@ -46,6 +47,7 @@ type ControlPanelTaskpaneProps = {
     tab: ControlPanelTab,
     lastStepIndex: number,
     lastStepType: StepType,
+    analysisData: AnalysisData;
 }
 
 
@@ -54,9 +56,21 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
     // Get the values for the last cell that was selected
     const {columnHeader, columnID, columnFormula, columnFilters, columnDtype, columnFormatType} = getCellDataFromCellIndexes(props.sheetData, props.selection.endingRowIndex, props.selection.endingColumnIndex);
 
-    const [filters, setFilters] = useState(columnFilters !== undefined ? columnFilters.filters : []);
+    const [filters, _setFilters] = useState(columnFilters !== undefined ? columnFilters.filters : []);
     const [operator, setOperator] = useState(columnFilters !== undefined ? columnFilters.operator : 'And');
+    const [updateNumber, setUpdateNumber] = useState(0);
     const [stepID, setStepID] = useState('');
+
+    // We wrap the _setFilters call we use internally, so that on undo
+    // and redo we can call the internal one, but all other calls will 
+    // automatically trigger a message to be sent
+    const setFilters: React.Dispatch<React.SetStateAction<(FilterType | FilterGroupType)[]>> = useCallback(
+        (args: any) => {
+            _setFilters(args);
+            setUpdateNumber(old => old + 1)
+        },
+        [],
+    );
 
     const [originalNumRows, ] = useState(props.sheetData?.numRows || 0)
     const [editedFilter, setEditedFilter] = useState(false)
@@ -64,13 +78,16 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
     // When the filters or operator changes, send a new message, as long as this is not
     // the first time that this rendered. We use a ref to avoid sending a message the first 
     // time it renders
-    const firstRender = useRef(true);
     useDebouncedEffect(() => {
-        if (!firstRender.current) {
+        if (updateNumber != 0) {
             void _sendFilterUpdateMessage();
         }
-        firstRender.current = false;
-    }, [filters, operator], FILTER_MESSAGE_DELAY)
+    }, [updateNumber], FILTER_MESSAGE_DELAY)
+
+    // Make sure to refresh the filters when they run
+    useEffectOnUpdateEvent(() => {
+        _setFilters(prevFilters => {return columnFilters?.filters || prevFilters})
+    }, props.analysisData)
     
     // If this is not a valid column, don't render anything, and close the takspane! 
     // We have to do this after the useState calls, to make sure this is valid react
@@ -178,6 +195,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                                 selectedSheetIndex={props.selectedSheetIndex}
                                 columnID={columnID} 
                                 mitoAPI={props.mitoAPI}
+                                analysisData={props.analysisData}
                             />
                             <FilterCard
                                 selectedSheetIndex={props.selectedSheetIndex}

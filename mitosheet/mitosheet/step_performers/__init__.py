@@ -76,10 +76,3 @@ STEP_TYPE_TO_STEP_PERFORMER: Dict[str, Type[StepPerformer]] = {
     step_performer.step_type(): step_performer
     for step_performer in STEP_PERFORMERS
 }
-
-# A dictionary mapping step performers to their usage triggered feedback id
-STEP_TYPE_TO_USAGE_TRIGGERED_FEEDBACK_ID: Dict[str, str] = {
-    step_performer.step_type(): step_performer.step_type() + '_usage_triggered'
-    for step_performer in STEP_PERFORMERS
-}
-del STEP_TYPE_TO_USAGE_TRIGGERED_FEEDBACK_ID[BulkOldRenameStepPerformer.step_type()]

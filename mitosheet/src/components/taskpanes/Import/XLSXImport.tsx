@@ -14,11 +14,16 @@ import { ExcelFileMetadata } from '../../../types';
 
 // CSS
 import '../../../../css/taskpanes/Import/ImportTaskpane.css'
+import { ImportTaskpaneState } from './ImportTaskpane';
+import { getXLSXImportButtonText } from './importUtils';
 
 interface XLSXImportProps {
     mitoAPI: MitoAPI;
     pathParts: string[];
+    importState: ImportTaskpaneState;
+    setImportState: React.Dispatch<React.SetStateAction<ImportTaskpaneState>>
 }
+
 
 /* 
     Allows a user to import an XLSX file with the given name, and
@@ -27,6 +32,8 @@ interface XLSXImportProps {
 */
 function XLSXImport(props: XLSXImportProps): JSX.Element {
 
+    // NOTE: this loading state is just for getting the metadata about the sheets
+    // and not for importing the file
     const [loading, setLoading] = useState(true);
     const [fileMetadata, setFileMetadata] = useState<ExcelFileMetadata>({sheet_names: [], size: 0});
     const [sheetToggles, setSheetToggles] = useState<boolean[]>([]);
@@ -66,6 +73,12 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
             return;
         }
 
+        props.setImportState(prevImportState => {
+            return {
+                ...prevImportState,
+                loadingImport: true
+            }
+        })
         const newStepID = await props.mitoAPI.editExcelImport(
             joinedPath,
             sheetsToImport,
@@ -73,7 +86,12 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
             parseInt(skiprows),
             stepID
         )
-
+        props.setImportState(prevImportState => {
+            return {
+                ...prevImportState,
+                loadingImport: false
+            }
+        })
         setStepID(newStepID);
     }
 
@@ -84,11 +102,8 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
         return prevValue;
     }, 0)
 
-    const importButtonText = stepID === undefined 
-        ? `Import ${numSelectedSheets} Selected Sheet${numSelectedSheets === 1 ? '' : 's'}` 
-        : `Reimport ${numSelectedSheets} Selected Sheet${numSelectedSheets === 1 ? '' : 's'}`
-
-
+    const importButtonText = getXLSXImportButtonText(stepID, numSelectedSheets, props.importState.loadingImport)
+    
     return (
         <>
             <div> 
@@ -166,12 +181,13 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
                 }
                 
             </div>
-            <div className='import-taskpane-import-button-container' >
+            <div className='import-taskpane-import-button-container'>
                 <TextButton
                     variant='dark'
                     width='block'
                     onClick={importXLSXFile}
                     disabled={numSelectedSheets === 0}
+                    autoFocus
                 >
                     {importButtonText}
                 </TextButton>

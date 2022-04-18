@@ -49,6 +49,7 @@ import analytics
 # Write key taken from segement.com
 analytics.write_key = '6I7ptc5wcIGC4WZ0N1t0NXvvAbjRGUgX' 
 
+
 from mitosheet._version import __version__, package_name
 from mitosheet.errors import MitoError, get_recent_traceback_as_list
 from mitosheet.user import (UJ_FEEDBACKS, UJ_INTENDED_BEHAVIOR,
@@ -56,6 +57,8 @@ from mitosheet.user import (UJ_FEEDBACKS, UJ_INTENDED_BEHAVIOR,
                             get_user_field, is_local_deployment,
                             is_running_test)
 
+# If you want, you can optionally choose to print logs
+PRINT_LOGS = False
 
 def telemetry_turned_on() -> bool:
     """
@@ -294,6 +297,12 @@ def log(log_event: str, params: Dict[Any, Any]=None, steps_manager: StepsManager
     # might exist in the above logging code
     if not is_running_test() and telemetry_turned_on():
         analytics.track(
+            get_user_field(UJ_STATIC_USER_ID), 
+            log_event, 
+            private_params
+        )
+    if PRINT_LOGS:
+        print(
             get_user_field(UJ_STATIC_USER_ID), 
             log_event, 
             private_params

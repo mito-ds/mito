@@ -93,6 +93,39 @@ const ColumnHeader = (props: {
         />
     )
 
+    const submitRenameColumnHeader = async (e?: React.FormEvent<HTMLFormElement>) => {
+        if (e) {
+            e.preventDefault();
+        }
+
+        // Only submit the formula if it actually has changed
+        const newColumnHeader = props.editorState?.formula || getDisplayColumnHeader(finalColumnHeader);
+        const oldColumnHeader = getDisplayColumnHeader(finalColumnHeader);
+        if (newColumnHeader !== oldColumnHeader) {
+            const levelIndex = isPrimitiveColumnHeader(columnHeader) ? undefined : rowIndexToColumnHeaderLevel(columnHeader, -1);
+            void props.mitoAPI.editRenameColumn(
+                props.gridState.sheetIndex,
+                columnID,
+                newColumnHeader,
+                levelIndex
+            )
+
+            // Close the taskpane if you do a rename, so that we don't get errors
+            // with live updating (e.g. editing a pivot, do a rename, try to edit
+            // the same pivot).
+            props.setUIState(prevUIState => {
+                if (prevUIState.currOpenTaskpane.type !== TaskpaneType.CONTROL_PANEL) {
+                    return {
+                        ...prevUIState,
+                        currOpenTaskpane: { type: TaskpaneType.NONE }
+                    }
+                }
+                return prevUIState;
+            })
+        }
+        closeColumnHeaderEditor()
+    }
+
     return (
         <div
             className={classNames(
@@ -225,6 +258,11 @@ const ColumnHeader = (props: {
                 mito-row-index={'-1'}
                 mito-col-index={props.columnIndex}
                 onClick={() => {
+                    // Don't open the control panel if we're editing, user is selecting column
+                    if (editingFinalColumnHeader) {
+                        return;
+                    }
+
                     props.setUIState(prevUIState => {
                         return {
                             ...prevUIState,
@@ -301,36 +339,7 @@ const ColumnHeader = (props: {
                 {editingFinalColumnHeader &&
                     <form
                         className='element-width-block'
-                        onSubmit={async (e) => {
-                            e.preventDefault();
-
-                            // Only submit the formula if it actually has changed
-                            const newColumnHeader = props.editorState?.formula || getDisplayColumnHeader(finalColumnHeader);
-                            const oldColumnHeader = getDisplayColumnHeader(finalColumnHeader);
-                            if (newColumnHeader !== oldColumnHeader) {
-                                const levelIndex = isPrimitiveColumnHeader(columnHeader) ? undefined : rowIndexToColumnHeaderLevel(columnHeader, -1);
-                                void props.mitoAPI.editRenameColumn(
-                                    props.gridState.sheetIndex,
-                                    columnID,
-                                    newColumnHeader,
-                                    levelIndex
-                                )
-
-                                // Close the taskpane if you do a rename, so that we don't get errors
-                                // with live updating (e.g. editing a pivot, do a rename, try to edit
-                                // the same pivot).
-                                props.setUIState(prevUIState => {
-                                    if (prevUIState.currOpenTaskpane.type !== TaskpaneType.CONTROL_PANEL) {
-                                        return {
-                                            ...prevUIState,
-                                            currOpenTaskpane: { type: TaskpaneType.NONE }
-                                        }
-                                    }
-                                    return prevUIState;
-                                })
-                            }
-                            closeColumnHeaderEditor()
-                        }}
+                        onSubmit={submitRenameColumnHeader}
                     >
                         <Input
                             value={props.editorState?.formula || ''}
@@ -349,6 +358,10 @@ const ColumnHeader = (props: {
                                 if (e.key === 'Escape') {
                                     closeColumnHeaderEditor()
                                 }
+                            }}
+                            // We submit the column header if the user focuses outside the input
+                            onBlur={() => {
+                                void submitRenameColumnHeader();
                             }}
                             autoFocus
                             width='block'

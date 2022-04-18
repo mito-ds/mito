@@ -416,7 +416,8 @@ class MitoWidgetTestWrapper:
             self, 
             sheet_index: int, 
             column_header: ColumnHeader,
-            sort_direction: str
+            sort_direction: str,
+            step_id: str=None
         ) -> bool:
 
         column_id = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
@@ -430,7 +431,7 @@ class MitoWidgetTestWrapper:
                 'event': 'edit_event',
                 'id': get_new_id(),
                 'type': 'sort_edit',
-                'step_id': get_new_id(),
+                'step_id': get_new_id() if step_id is None else step_id,
                 'params': {
                     'sheet_index': sheet_index,
                     'column_id': column_id,

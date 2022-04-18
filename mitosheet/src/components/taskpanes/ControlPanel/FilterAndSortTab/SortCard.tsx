@@ -1,13 +1,14 @@
 // Copyright (c) Mito
 
-import React, { useState, useEffect } from 'react';
 import MitoAPI from '../../../../jupyter/api';
+import React from 'react';
 import { classNames } from '../../../../utils/classNames';
 import Col from '../../../spacing/Col';
 import Row from '../../../spacing/Row';
 
 import '../../../../../css/taskpanes/ControlPanel/SortCard.css';
-import { ColumnID } from '../../../../types';
+import { AnalysisData, ColumnID } from '../../../../types';
+import useSyncedParams from '../../../../hooks/useSyncedParams';
 
 export enum SortDirection {
     ASCENDING = 'ascending',
@@ -15,10 +16,17 @@ export enum SortDirection {
     NONE = 'none'
 }
 
+export interface SortParams {
+    sheet_index: number,
+    column_id: ColumnID,
+    sort_direction: SortDirection,
+}
+
 type SortCardProps = {
     selectedSheetIndex: number;
     columnID: ColumnID;
     mitoAPI: MitoAPI;
+    analysisData: AnalysisData
 }
 
 /*
@@ -26,41 +34,26 @@ type SortCardProps = {
 */
 
 const SortCard = (props: SortCardProps): JSX.Element => {
-    const [stepID, setStepID] = useState('');
-    const [sortDirection, setSortDirection] = useState(SortDirection.NONE)
+    const {params, setParams} = useSyncedParams<SortParams>(undefined, 'sort', props.mitoAPI, props.analysisData, 0);
 
     const updateSortDirection = (newSortDirection: SortDirection): void => {
-        // If the user toggled the button that was already selected, turn off the sort
-        if (newSortDirection == sortDirection) {
-            setSortDirection(SortDirection.NONE);
-        } else {
-            setSortDirection(newSortDirection);
-        }
+        setParams(prevSortParams => {
+            // If the user toggled the button that was already selected, turn off the sort
+            let finalSortDirection = newSortDirection
+            if (prevSortParams && newSortDirection == prevSortParams.sort_direction) {
+                finalSortDirection = SortDirection.NONE;
+            } 
+            return {
+                sheet_index: props.selectedSheetIndex,
+                column_id: props.columnID,
+                sort_direction: finalSortDirection
+            }
+        })
     }
-
-    const sendSortUpdateMessage = async (): Promise<void> => {
-        // Sort the columns if the sortDirection is not None
-        if (sortDirection != SortDirection.NONE) {
-
-            const newStepID = await props.mitoAPI.editSort(
-                props.selectedSheetIndex,
-                props.columnID,
-                sortDirection,
-                stepID,
-            )
-
-            setStepID(newStepID)
-        }
-    }
-
-    useEffect(() => {
-        void sendSortUpdateMessage();
-    }, [sortDirection])
-
 
     // Determine css styling of sort buttons
-    const ascendingButtonClass = sortDirection == SortDirection.ASCENDING ? 'sort-button-selected' : '';
-    const descendingButtonClass = sortDirection == SortDirection.DESCENDING ? 'sort-button-selected' : '';
+    const ascendingButtonClass = params && params.sort_direction == SortDirection.ASCENDING ? 'sort-button-selected' : '';
+    const descendingButtonClass = params && params.sort_direction == SortDirection.DESCENDING ? 'sort-button-selected' : '';
 
     return (        
         <Row justify='space-between' align='center'>

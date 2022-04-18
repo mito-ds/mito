@@ -33,6 +33,9 @@ export const KEYS_TO_IGNORE_IF_PRESSED_ALONE = [
     'Alt',
     'Control',
     'CapsLock',
+    'NumLock',
+    'PageUp',
+    'PageDown',
     'Unidentified' // If you press the fn key on windows, this is the key
 ]
 
@@ -193,14 +196,12 @@ function EndoGrid(props: {
             const {rowIndex, columnIndex} = getIndexesFromMouseEvent(e);
 
             // If we're editing a column header and we click a different cell, then close
-            // the editor without submitting, as we assume the user is just trying to get
-            // out of the editor
+            // the editor without submitting, as we will submit on the blur of the input
+            // in the ColumnHeader itself
             if (editorState.rowIndex === -1 && (rowIndex !== editorState.rowIndex || columnIndex !== editorState.columnIndex)) {
-                setEditorState(undefined);
                 return;
             }
 
-            
             if (columnIndex !== undefined && sheetData?.data[columnIndex] !== undefined) {
 
                 // Get the column that was clicked, and then find the current selection
