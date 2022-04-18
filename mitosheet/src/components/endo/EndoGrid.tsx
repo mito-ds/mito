@@ -5,7 +5,6 @@ import MitoAPI from "../../api";
 import { EditorState, Dimension, GridState, RendererTranslate, SheetData, SheetView, UIState } from "../../types";
 import FormulaBar from "./FormulaBar";
 import { TaskpaneType } from "../taskpanes/taskpanes";
-import CellEditor from "./CellEditor";
 import { getCellEditorInputCurrentSelection, getStartingFormula } from "./cellEditorUtils";
 import ColumnHeaders from "./ColumnHeaders";
 import EmptyGridMessages from "./EmptyGridMessages";
@@ -17,6 +16,7 @@ import { calculateCurrentSheetView, calculateNewScrollPosition, calculateTransla
 import { firstNonNullOrUndefined, getColumnIDsArrayFromSheetDataArray } from "./utils";
 import { ensureCellVisible } from "./visibilityUtils";
 import { reconciliateWidthDataArray } from "./widthUtils";
+import FloatingCellEditor from "./FloatingCellEditor";
 
 // NOTE: these should match the css
 export const DEFAULT_WIDTH = 123;
@@ -481,7 +481,8 @@ function EndoGrid(props: {
             formula: startingFormula,
             // As in google sheets, if the starting formula is non empty, we default to the 
             // arrow keys scrolling in the editor
-            arrowKeysScrollInFormula: startingFormula.length > 0
+            arrowKeysScrollInFormula: startingFormula.length > 0,
+            editorLocation: 'cell'
         })
     }
     
@@ -537,7 +538,8 @@ function EndoGrid(props: {
                         formula: startingFormula,
                         // As in google sheets, if the starting formula is non empty, we default to the 
                         // arrow keys scrolling in the editor
-                        arrowKeysScrollInFormula: startingFormula.length > 0
+                        arrowKeysScrollInFormula: startingFormula.length > 0,
+                        editorLocation: 'cell'
                     });
 
                     e.preventDefault();
@@ -662,7 +664,7 @@ function EndoGrid(props: {
                     </div>
                 </div>
                 {sheetData !== undefined && editorState !== undefined && editorState.rowIndex > -1 &&
-                    <CellEditor
+                    <FloatingCellEditor
                         sheetData={sheetData}
                         sheetIndex={sheetIndex}
                         gridState={gridState}

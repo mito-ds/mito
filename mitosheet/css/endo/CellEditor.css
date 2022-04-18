@@ -1,9 +1,11 @@
-.cell-editor {
-    height: min-content;
-
+.floating-cell-editor {
     z-index: 2;
     position: absolute;
     box-sizing: border-box;
+}
+
+.cell-editor {
+    height: min-content;
     background: white;
 }
 
