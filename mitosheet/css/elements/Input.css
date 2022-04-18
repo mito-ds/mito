@@ -17,9 +17,14 @@
     box-sizing: border-box;
     border: 1px solid var(--mito-light-gray);
     border-radius: 3px;
+    outline: unset; /* We clear the outline, which is set on JNotebooks for some reason on focus*/
 
     height: 30px;
     padding-left: 5px;
+}
+
+.mito-input:focus {
+    border: 1px solid var(--mito-light-gray);
 }
 
 .mito-input::placeholder {

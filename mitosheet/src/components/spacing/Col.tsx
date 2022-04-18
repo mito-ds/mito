@@ -56,7 +56,7 @@ const Col = (props: ColProps): JSX.Element => {
     
     return (
         <div 
-            className={classNames('col', props.className)} 
+            className={classNames('spacing-col', props.className)} 
             style={{
                 width: width, 
                 marginLeft: marginLeft, 

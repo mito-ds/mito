@@ -39,4 +39,5 @@
     width: 320px;
     padding-bottom: 10px;
     background-color: white;
+    box-sizing: unset; /* Ignore the box sizing in JNotebook*/
 }
