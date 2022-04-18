@@ -1,9 +1,14 @@
 // Copyright (c) Mito
 
 export * from './version';
-export * from './widget';
+export * from './jupyter/widget';
 
-// We need to explore the plugin directly from this file
-// as only jlab 3 requires is, and jlab 2 ignores it
-import examplePlugin from './plugin';
-export default examplePlugin;
+/**
+ * By exporting this plugin directly, JLab 3 can get access 
+ * directly to the plugin and activate it.
+ * 
+ * I believe this is only required for JLab 3 and not Jlab 2
+ * or the notebook, but I could be wrong...
+ */
+import mitosheetJupyterLabPlugin from './plugin';
+export default mitosheetJupyterLabPlugin;

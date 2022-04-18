@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import MitoAPI from "../api";
+import MitoAPI from "../jupyter/api";
 import { AnalysisData } from "../types";
 import { useDebouncedEffect } from "./useDebouncedEffect";
 import { useEffectOnUpdateEvent } from "./useEffectOnUpdateEvent";

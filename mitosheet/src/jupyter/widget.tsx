@@ -5,14 +5,14 @@ import {
     WidgetView,
 } from '@jupyter-widgets/base';
 
-import { MODULE_NAME, MODULE_VERSION } from './version';
+import { MODULE_NAME, MODULE_VERSION } from '../version';
 
 // React
 import React from 'react';
 import ReactDOM from 'react-dom';
 
 // Components
-import Mito from './components/Mito';
+import Mito from '../components/Mito';
 
 
 export class ExampleModel extends DOMWidgetModel {
@@ -57,8 +57,8 @@ declare global {
 }
 
 import MitoAPI from './api';
-import { AnalysisData, MitoError, MitoStateUpdaters, SheetData, UserProfile } from './types';
-import { ModalEnum } from './components/modals/modals';
+import { AnalysisData, MitoError, MitoStateUpdaters, SheetData, UserProfile } from '../types';
+import { ModalEnum } from '../components/modals/modals';
 
 export class ExampleView extends DOMWidgetView {
     // Used to make code in the notebook not flash when read in for replaying.

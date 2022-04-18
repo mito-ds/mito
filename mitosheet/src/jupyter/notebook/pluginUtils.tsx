@@ -1,4 +1,4 @@
-import MitoAPI from "../../api";
+import MitoAPI from "../api";
 import { getCodeString } from "../../utils/code";
 
 type CellType = any;

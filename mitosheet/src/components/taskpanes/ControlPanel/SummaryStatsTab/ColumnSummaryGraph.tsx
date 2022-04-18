@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React, { useState, useEffect } from 'react';
-import MitoAPI from '../../../../api';
+import MitoAPI from '../../../../jupyter/api';
 import { ColumnID } from '../../../../types';
 
 type ColumnSummaryGraphProps = {

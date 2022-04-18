@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import "../../../css/tour.css"
-import MitoAPI from '../../api';
+import MitoAPI from '../../jupyter/api';
 import XIcon from '../icons/XIcon';
 import TextButton from '../elements/TextButton';
 import { TourName, TourPopupLocation, tours, TourStep } from './Tours';

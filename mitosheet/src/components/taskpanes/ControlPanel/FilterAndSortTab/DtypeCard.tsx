@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React, { useState } from 'react';
-import MitoAPI from '../../../../api';
+import MitoAPI from '../../../../jupyter/api';
 import { ColumnID, StepType } from '../../../../types';
 import DropdownItem from '../../../elements/DropdownItem';
 import Select from '../../../elements/Select';

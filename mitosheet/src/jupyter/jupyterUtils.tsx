@@ -16,7 +16,7 @@
  */
 
 
-import MitoAPI from "../api"
+import MitoAPI from "./api"
 import { notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteGeneratedCodeToCell } from "./notebook/pluginUtils"
 
 

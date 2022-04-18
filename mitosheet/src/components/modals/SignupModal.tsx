@@ -2,7 +2,7 @@
 
 import React, { FormEvent, useState } from 'react';
 import { ModalEnum } from './modals';
-import MitoAPI from '../../api';
+import MitoAPI from '../../jupyter/api';
 import BlueMitoFolk from '../icons/mitofolks/BlueMitoFolk';
 import PinkMitoFolk from '../icons/mitofolks/PinkMitoFolk';
 import YellowMitoFolk from '../icons/mitofolks/YellowMitoFolk';

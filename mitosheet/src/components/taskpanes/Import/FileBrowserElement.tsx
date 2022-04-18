@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 import React from 'react';
-import MitoAPI from '../../../api';
+import MitoAPI from '../../../jupyter/api';
 import { getLastModifiedString } from '../../../utils/time';
 import CSVFileIcon from '../../icons/CSVFileIcon';
 import DirectoryIcon from '../../icons/DirectoryIcon';

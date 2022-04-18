@@ -2,7 +2,7 @@
 
 import React, { Fragment } from 'react';
 import { ColumnID, ColumnIDsMap, GraphParams, SheetData, UIState } from '../../../types';
-import MitoAPI from '../../../api';
+import MitoAPI from '../../../jupyter/api';
 import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
 import Select from '../../elements/Select';

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import fscreen from 'fscreen';
-import MitoAPI from '../../api';
+import MitoAPI from '../../jupyter/api';
 import ToolbarButton from './ToolbarButton';
 import { ToolbarButtonType } from './utils';
 import { Action, ActionEnum, GridState, SheetData, UIState } from '../../types';

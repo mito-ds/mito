@@ -1,5 +1,5 @@
 import React from "react";
-import MitoAPI from "../../api";
+import MitoAPI from "../../jupyter/api";
 import { ExcelExportState, FormatType, SheetData } from "../../components/../types";
 import { removeIfPresent } from "../../components/../utils/arrays";
 import { getDisplayColumnHeader } from "../../components/../utils/columnHeaders";

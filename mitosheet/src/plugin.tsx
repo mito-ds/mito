@@ -9,11 +9,11 @@ import { IJupyterWidgetRegistry } from '@jupyter-widgets/base';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { Application, IPlugin } from 'application';
 import { Widget } from 'widgets';
-import MitoAPI from './api';
+import MitoAPI from './jupyter/api';
 import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, getArgsFromMitosheetCallCell, getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getLastNonEmptyLine, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, isMitosheetCallCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell } from './jupyter/lab/pluginUtils';
 import { getAnalysisNameFromOldGeneratedCode, getCodeString } from './utils/code';
 import { MODULE_NAME, MODULE_VERSION } from './version';
-import * as widgetExports from './widget';
+import * as widgetExports from './jupyter/widget';
 
 
 const EXTENSION_ID = 'mitosheet:plugin';
@@ -21,7 +21,7 @@ const EXTENSION_ID = 'mitosheet:plugin';
 /**
  * The example plugin.
  */
-const examplePlugin: IPlugin<Application<Widget>, void> = ({
+const mitosheetJupyterLabPlugin: IPlugin<Application<Widget>, void> = ({
     id: EXTENSION_ID,
     requires: [IJupyterWidgetRegistry, INotebookTracker],
     activate: activateWidgetExtension,
@@ -30,7 +30,7 @@ const examplePlugin: IPlugin<Application<Widget>, void> = ({
 // The "as unknown as ..." typecast above is solely to support JupyterLab 1
 // and 2 in the same codebase and should be removed when we migrate to Lumino.
 
-export default examplePlugin;
+export default mitosheetJupyterLabPlugin;
 
 /**
  * Activate the widget extension.

@@ -5,7 +5,7 @@ import FileBrowserPathSelector from './FileBrowserPathSelector';
 import { FileElement } from './ImportTaskpane';
 
 import '../../../../css/taskpanes/Import/FileBrowser.css';
-import MitoAPI from '../../../api';
+import MitoAPI from '../../../jupyter/api';
 import Input from '../../elements/Input';
 import { fuzzyMatch } from '../../../utils/strings';
 import Row from '../../spacing/Row';

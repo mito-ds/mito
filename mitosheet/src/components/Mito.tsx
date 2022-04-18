@@ -20,7 +20,7 @@ import '../../css/sitewide/margins.css';
 import '../../css/sitewide/paddings.css';
 import '../../css/sitewide/text.css';
 import '../../css/sitewide/widths.css';
-import MitoAPI from '../api';
+import MitoAPI from '../jupyter/api';
 import { getArgs, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell } from '../jupyter/jupyterUtils';
 import { AnalysisData, DataTypeInMito, DFSource, EditorState, GridState, SheetData, UIState, UserProfile } from '../types';
 import { createActions } from '../utils/actions';
