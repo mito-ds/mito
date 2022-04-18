@@ -591,7 +591,14 @@ function EndoGrid(props: {
             <FormulaBar
                 sheetData={sheetData}
                 selection={gridState.selections[gridState.selections.length - 1]}
+                sheetIndex={props.sheetIndex}
                 editorState={editorState}
+                setEditorState={props.setEditorState}
+                gridState={props.gridState}
+                setGridState={props.setGridState}
+                scrollAndRenderedContainerRef={scrollAndRenderedContainerRef}
+                containerRef={containerRef}
+                mitoAPI={props.mitoAPI}
             />
             <div 
                 className='endo-grid-container' 
@@ -663,7 +670,7 @@ function EndoGrid(props: {
                         />
                     </div>
                 </div>
-                {sheetData !== undefined && editorState !== undefined && editorState.rowIndex > -1 &&
+                {sheetData !== undefined && editorState !== undefined && editorState.editorLocation === 'cell' && editorState.rowIndex > -1 &&
                     <FloatingCellEditor
                         sheetData={sheetData}
                         sheetIndex={sheetIndex}
