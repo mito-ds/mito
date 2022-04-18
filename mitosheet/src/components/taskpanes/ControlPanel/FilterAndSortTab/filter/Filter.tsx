@@ -100,6 +100,7 @@ export function Filter(
                     value={props.filter.condition}
                     onChange={(newFilterCondition: string) => {
                         props.setFilter({
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             condition: newFilterCondition as any,
                             value: props.filter.value
                         })
@@ -118,6 +119,7 @@ export function Filter(
                     value={props.filter.value} 
                     onChange={e => {
                         props.setFilter({
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             condition: props.filter.condition as any,
                             value: e.target.value
                         })

@@ -47,7 +47,6 @@ function activateWidgetExtension(
     app.commands.addCommand('write-analysis-to-replay-to-mitosheet-call', {
         label: 'Given an analysisName, writes it to the mitosheet.sheet() call that created this mitosheet, if it is not already written to this cell.',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        isVisible: () => true,
         execute: (args: any) => {
             const analysisName = args.analysisName as string;
             const mitoAPI = args.mitoAPI as MitoAPI;
@@ -211,6 +210,7 @@ function activateWidgetExtension(
 
     app.commands.addCommand('get-args', {
         label: 'Reads the arguments passed to the mitosheet.sheet call.',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         execute: (args: any): string[] => {
             const analysisToReplayName = args.analysisToReplayName as string | undefined;
             const cellAndIndex = getMostLikelyMitosheetCallingCell(tracker, analysisToReplayName);

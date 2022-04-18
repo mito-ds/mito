@@ -10,7 +10,7 @@ export const isInJupyterNotebook = (): boolean => {
     return window.location.pathname.startsWith('/notebooks')
 }
 
-export const writeAnalysisToReplayToMitosheetCall = (analysisName: string, mitoAPI: MitoAPI) => {
+export const writeAnalysisToReplayToMitosheetCall = (analysisName: string, mitoAPI: MitoAPI): void => {
     if (isInJupyterLab()) {
         window.commands?.execute('write-analysis-to-replay-to-mitosheet-call', {
             analysisName: analysisName,
@@ -20,7 +20,7 @@ export const writeAnalysisToReplayToMitosheetCall = (analysisName: string, mitoA
         notebookWriteAnalysisToReplayToMitosheetCall(analysisName, mitoAPI);
     }
 }
-export const overwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName: string, newAnalysisName: string, mitoAPI: MitoAPI) => {
+export const overwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName: string, newAnalysisName: string, mitoAPI: MitoAPI): void => {
     if (isInJupyterLab()) {
         window.commands?.execute('overwrite-analysis-to-replay-to-mitosheet-call', {
             oldAnalysisName: oldAnalysisName,
@@ -33,7 +33,7 @@ export const overwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName: string
 }
 
 
-export const writeGeneratedCodeToCell = (analysisName: string, code: string[], telemetryEnabled: boolean) => {
+export const writeGeneratedCodeToCell = (analysisName: string, code: string[], telemetryEnabled: boolean): void => {
     if (isInJupyterLab()) {
         window.commands?.execute('write-generated-code-cell', {
             analysisName: analysisName,
@@ -47,8 +47,7 @@ export const writeGeneratedCodeToCell = (analysisName: string, code: string[], t
 
 
 export const getArgs = (analysisToReplayName: string | undefined): Promise<string[]> => {
-    console.log("ANALSIS NAME TO REPLAY", analysisToReplayName);
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         if (isInJupyterLab()) {
             window.commands?.execute('get-args', {analysisToReplayName: analysisToReplayName}).then(async (args: string[]) => {
                 return resolve(args);

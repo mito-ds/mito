@@ -271,7 +271,7 @@ export const notebookGetArgs = (analysisToReplayName: string | undefined): strin
     }
 }
 
-export const notebookWriteAnalysisToReplayToMitosheetCall = (analysisName: string, mitoAPI: MitoAPI) => {
+export const notebookWriteAnalysisToReplayToMitosheetCall = (analysisName: string, mitoAPI: MitoAPI): void => {
     const cellAndIndex = getMostLikelyMitosheetCallingCell(analysisName);
 
     if (cellAndIndex) {
@@ -286,7 +286,7 @@ export const notebookWriteAnalysisToReplayToMitosheetCall = (analysisName: strin
     void mitoAPI.log('write_analysis_to_replay_to_mitosheet_call_failed');
 }
 
-export const notebookOverwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName: string, newAnalysisName: string, mitoAPI: MitoAPI) => {
+export const notebookOverwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName: string, newAnalysisName: string, mitoAPI: MitoAPI): void => {
 
     const mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(oldAnalysisName);
     if (mitosheetCallCellAndIndex === undefined) {
@@ -301,7 +301,7 @@ export const notebookOverwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName
     }
 }
 
-export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines: string[], telemetryEnabled: boolean) => {
+export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines: string[], telemetryEnabled: boolean): void => {
     const code = getCodeString(analysisName, codeLines, telemetryEnabled);
         
     // Find the cell that made the mitosheet.sheet call, and if it does not exist, give

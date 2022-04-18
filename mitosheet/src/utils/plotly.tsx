@@ -32,10 +32,16 @@ const loadPlotly = (): void => {
         } else {
             // TODO: in the future, we should just check if we're an AMD context, which
             // I am sure there is easy code for
-            (window as any).requirejs(['https://cdn.plot.ly/plotly-latest.min.js'],
-                function   (p: any) {
-                    (window as any).Plotly = p
-            });
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const requirejs = (window as any).requirejs;
+            if (requirejs) {
+                requirejs(['https://cdn.plot.ly/plotly-latest.min.js'],
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    function   (p: any) {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        (window as any).Plotly = p
+                    });
+            }
         }
 
         
