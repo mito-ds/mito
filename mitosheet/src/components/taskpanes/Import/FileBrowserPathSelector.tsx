@@ -31,7 +31,7 @@ function FileBrowserPathSelector(props: FileBrowserPathSelectorProps): JSX.Eleme
                 // We do not display the leading part of the path that
                 // does not add anything to the users information
                 if (pathPart === '/' || pathPart === '' || pathPart == 'C:' || pathPart === 'D:') {
-                    return <></>
+                    return <React.Fragment key={i}></React.Fragment>
                 }
 
                 return (
