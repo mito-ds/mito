@@ -51,7 +51,7 @@ class CodeChunk:
     # data that you're allowed to reference, and then check this when you create
     # the step, for strong typing!
 
-    def get_param(self, key: str) -> Optional[Any]:
+    def get_param(self, key: str) -> Any:
         """
         Gets a value from the params passed to this CodeChunk
         """
@@ -59,7 +59,7 @@ class CodeChunk:
             return self.params[key]
         return None
 
-    def get_execution_data(self, key: str) -> Optional[Any]:
+    def get_execution_data(self, key: str) -> Any:
         """
         Gets a value from the execution_data passed to this CodeChunk
         """

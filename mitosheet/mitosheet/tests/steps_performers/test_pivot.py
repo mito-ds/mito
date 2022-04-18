@@ -7,7 +7,7 @@
 Contains tests for edit events.
 """
 from mitosheet.step_performers.graph_steps.graph_utils import BAR
-from mitosheet.step_performers.sort import ASCENDING
+from mitosheet.step_performers.sort import SORT_DIRECTION_ASCENDING
 import numpy as np
 import pandas as pd
 
@@ -301,7 +301,7 @@ def test_simple_pivot_edit_with_delete_after_sort_and_filter():
     mito = create_mito_wrapper_dfs(df1)
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']})
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['mean']}, destination_sheet_index=1)
-    mito.sort(1, 'Height mean', ASCENDING)
+    mito.sort(1, 'Height mean', SORT_DIRECTION_ASCENDING)
     mito.filter(1, 'Height mean', 'And', FC_NUMBER_EXACTLY, 5)
     mito.delete_dataframe(1)
     
@@ -313,7 +313,7 @@ def test_simple_pivot_edit_after_graph():
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']})
     mito.generate_graph('test', BAR, 1, False, [], [], 400, 400)
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['mean']}, destination_sheet_index=1)
-    mito.sort(1, 'Height mean', ASCENDING)
+    mito.sort(1, 'Height mean', SORT_DIRECTION_ASCENDING)
     mito.filter(1, 'Height mean', 'And', FC_NUMBER_EXACTLY, 5)
     mito.delete_dataframe(1)
     

@@ -21,7 +21,7 @@ class DeleteColumnsCodeChunk(CodeChunk):
         sheet_index = self.get_param('sheet_index')
         column_ids = self.get_param('column_ids')
         column_headers = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index, column_ids)
-        return f'Deleted columns {", ".join(column_headers)}'
+        return f'Deleted columns {", ".join([str(ch) for ch in column_headers])}'
 
     def get_code(self) -> List[str]:
         sheet_index = self.get_param('sheet_index')

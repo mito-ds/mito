@@ -1,32 +1,30 @@
 // Copyright (c) Mito
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import FileBrowserElement from './FileBrowserElement';
 import FileBrowserPathSelector from './FileBrowserPathSelector';
-import { FileElement } from './ImportTaskpane';
+import { FileElement, ImportTaskpaneState } from './ImportTaskpane';
 
+import '../../../../css/elements/Input.css'
 import '../../../../css/taskpanes/Import/FileBrowser.css';
 import MitoAPI from '../../../api';
-import Input from '../../elements/Input';
-import { fuzzyMatch } from '../../../utils/strings';
 import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
 import SortArrowIcon from '../../icons/SortArrowIcon';
 import { UserProfile } from '../../../types';
+import { classNames } from '../../../utils/classNames';
+import { getElementsToDisplay } from './importUtils';
 
 interface FileBrowserProps {
     mitoAPI: MitoAPI;
     userProfile: UserProfile;
-    selectedElement: FileElement | undefined;
-    setSelectedElement: (newSelectedElement: FileElement | undefined) => void;
-    importElement: (element: FileElement | undefined) => Promise<void>;
-
     setCurrPathParts: (newPathParts: string[]) => void;
 
-    pathParts: string[] | undefined;
-    elements: FileElement[];
+    importState: ImportTaskpaneState;
+    setImportState: React.Dispatch<React.SetStateAction<ImportTaskpaneState>>;
+
+    importElement: (element: FileElement | undefined) => Promise<void>;
 }
 
-type FileSort = 'name_ascending' | 'name_descending' | 'last_modified_ascending' | 'last_modified_descending';
 
 /* 
     This file browser component displays a list of files and folders
@@ -34,35 +32,36 @@ type FileSort = 'name_ascending' | 'name_descending' | 'last_modified_ascending'
 */
 function FileBrowser(props: FileBrowserProps): JSX.Element {
 
-    const [search, setSearch] = useState('');
-    const [sort, setSort] = useState<FileSort>('last_modified_descending')
+    const inputRef = useRef<HTMLInputElement>(null);
 
     // Filter to the searched for elements, and then sort properly
-    const elementsToDisplay = props.elements?.filter(element => {
-        return fuzzyMatch(element.name, search) > .8;
-    }).sort((elementOne, elementTwo) => {
-        if (sort === 'name_ascending') {
-            return elementOne.name < elementTwo.name ? -1 : 1;
-        } else if (sort === 'name_descending') {
-            return elementOne.name >= elementTwo.name ? -1 : 1;
-        } else if (sort === 'last_modified_ascending') {
-            return elementOne.lastModified < elementTwo.lastModified ? -1 : 1;
-        } else {
-            return elementOne.lastModified >= elementTwo.lastModified ? -1 : 1;
-        }
-    })
+    const elementsToDisplay = getElementsToDisplay(props.importState);
+    const selectedElement: FileElement | undefined = elementsToDisplay[props.importState.selectedElementIndex];
 
     useEffect(() => {
         // When the user switches folders, reset the search
-        setSearch('')
-    }, [props.pathParts])
+        props.setImportState(prevImportState => {
+            return {
+                ...prevImportState,
+                searchString: ''
+            }
+        })
+    }, [props.importState.pathContents.path_parts])
+
+    // We make sure to always focus back on the search input after the selected
+    // element changes; this is because if the user clicks on a different element
+    // in the file browser, it will focus on this (and thus kill search and nav
+    // with the arrow keys)
+    useEffect(() => {
+        inputRef.current?.focus();
+    }, [props.importState.selectedElementIndex, props.importState.sort])
 
     return (
         <div className='file-browser flexbox-column'>
             <div>
                 <FileBrowserPathSelector
                     setCurrPathParts={props.setCurrPathParts}
-                    pathParts={props.pathParts}
+                    pathParts={props.importState.pathContents.path_parts}
                 />
             </div>
             <Row className='border-t-light-gray border-b-light-gray' justify='space-between'>
@@ -70,15 +69,20 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                     span={18} 
                     className='flexbox-row flexbox-space-between border-r-light-gray'
                     onClick={() => {
-                        setSort(sort === 'name_descending' ? 'name_ascending' : 'name_descending');
+                        props.setImportState(prevImportState => {
+                            return {
+                                ...prevImportState,
+                                sort: prevImportState.sort === 'name_descending' ? 'name_ascending' : 'name_descending'
+                            }
+                        })
                     }}
                 >
                     <p className='text-body-2 pt-5px pb-5px'>
                         Name
                     </p>
-                    {sort.startsWith('name') &&
+                    {props.importState.sort.startsWith('name') &&
                         <div className='mr-5px ml-5px'>
-                            <SortArrowIcon direction={sort.endsWith('descending') ? 'descending' : 'ascending'}/>
+                            <SortArrowIcon direction={props.importState.sort.endsWith('descending') ? 'descending' : 'ascending'}/>
                         </div>
                     }
                 </Col>
@@ -86,12 +90,17 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                     span={6} 
                     className='flexbox-row flexbox-justify-end text-align-right'
                     onClick={() => {
-                        setSort(sort === 'last_modified_descending' ? 'last_modified_ascending' : 'last_modified_descending');
+                        props.setImportState(prevImportState => {
+                            return {
+                                ...prevImportState,
+                                sort: prevImportState.sort === 'last_modified_descending' ? 'last_modified_ascending' : 'last_modified_descending'
+                            }
+                        })
                     }}
                 >
-                    {sort.startsWith('last_modified') &&
+                    {props.importState.sort.startsWith('last_modified') &&
                         <div className='mr-5px ml-5px'>
-                            <SortArrowIcon direction={sort.endsWith('descending') ? 'descending' : 'ascending'}/>
+                            <SortArrowIcon direction={props.importState.sort.endsWith('descending') ? 'descending' : 'ascending'}/>
                         </div>
                     }
                     <p 
@@ -102,29 +111,68 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                 </Col>
             </Row>
             <div className='mt-5px mb-5px'>
-                <Input
-                    value={search}
+                <input
+                    // NOTE: we use a raw input as we need to put a ref on this, so we can focus on it,
+                    // but as of now we don't support an input with a passed ref (it's complex and confusing)
+                    className={classNames('input', 'text-body-2', 'element-width-block')}
+                    ref={inputRef}
+                    value={props.importState.searchString}
                     placeholder='Search the current folder'
-                    onChange={(e) => {setSearch(e.target.value)}}
+                    onChange={(e) => {
+                        const newSearchString = e.target.value;
+                        props.setImportState(prevImportState => {
+                            return {
+                                ...prevImportState,
+                                searchString: newSearchString
+                            }
+                        })
+                    }}
+                    // We use the onKeyDown function to handle arrow key presses as well as
+                    // as if the user wants to import by pressing enter
+                    onKeyDown={(e) => {
+                        if (e.key == 'ArrowUp') {
+                            props.setImportState(prevImportState => {
+                                return {
+                                    ...prevImportState,
+                                    selectedElementIndex: Math.max(prevImportState.selectedElementIndex - 1, -1)
+                                }
+                            })
+                            e.preventDefault();
+                        } else if (e.key === 'ArrowDown') {
+                            props.setImportState(prevImportState => {
+                                return {
+                                    ...prevImportState,
+                                    selectedElementIndex: Math.min(prevImportState.selectedElementIndex + 1, elementsToDisplay.length - 1)
+                                }
+                            })
+                            e.preventDefault();
+                        } else if (e.key === 'Enter') {
+                            if (selectedElement && !selectedElement.isDirectory) {
+                                void props.importElement(selectedElement)
+                            } else if (selectedElement && selectedElement.isDirectory) {
+                                const newPathParts = props.importState.pathContents.path_parts || [];
+                                newPathParts.push(selectedElement.name);
+                                props.setCurrPathParts(newPathParts);
+                            }
+                        }
+                    }}
                     width='block'
                     autoFocus
-                    // TODO: allow the user to scroll with arrow keys
                 />
             </div>
             <div className='file-browser-element-list'>
                 {elementsToDisplay?.map((element, i) => {
                     return (
                         <FileBrowserElement
-                            mitoAPI={props.mitoAPI}
                             key={i}
+                            mitoAPI={props.mitoAPI}
+                            index={i}
                             element={element}
-                            selectedElement={props.selectedElement}
-                            setSelectedElement={props.setSelectedElement}
+                            importState={props.importState}
+                            setImportState={props.setImportState}
                             importElement={props.importElement}
-                            pathParts={props.pathParts}
                             setCurrPathParts={props.setCurrPathParts}
                             excelImportEnabled={props.userProfile.excelImportEnabled}
-                    
                         />
                     )
                 })}

@@ -84,6 +84,10 @@ type BoundingRect = {
     Helper function ensures that an item is visible inside a container, 
     and scrolls the minimal amount to make sure that it is visible.
 
+    NOTE: container must have some non-default positioning on it for 
+    this function to work properly, otherwise scrolling will look all
+    screwed up and you'll be confused for a while.
+
     The topAdjustment is the amount of space you can leave at the top of 
     the container, in case there is something (like a search) fixed up there.
 */

@@ -85,7 +85,7 @@ const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
     const [selectableSheetIndexes] = useState(props.sheetDataArray.map((sd, index) => index));
 
     // For each sheet concatonated together, find all of the columns that are not included in the final result
-    const concatSheetColumnHeaders = Object.values(props.sheetDataArray[props.sheetDataArray.length - 1].columnIDsMap)
+    const concatSheetColumnHeaders = Object.values(props.sheetDataArray[props.sheetDataArray.length - 1]?.columnIDsMap || {})
     const notIncludedColumnsArray = params?.sheet_indexes.map(sheetIndex => {
         return Object.values(props.sheetDataArray[sheetIndex]?.columnIDsMap || {}).filter(columnHeader => {
             // Because concat_edit makes a new sheet and you can't reopen the concat taskpane or reorder sheets,
