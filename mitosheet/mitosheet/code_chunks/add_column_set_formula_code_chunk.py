@@ -47,6 +47,9 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
             f'{self.post_state.df_names[sheet_index]}.insert({column_header_index}, {transpiled_column_header}, {python_code})'
         ]
 
+    def get_edited_sheet_indexes(self) -> List[int]:
+        return [self.get_param('sheet_index')]
+
     def _combine_right_with_delete_columns_code_chunk(self, other_code_chunk: DeleteColumnsCodeChunk) -> Optional["CodeChunk"]:
         # Make sure the sheet index matches up first
         if not self.params_match(other_code_chunk, ['sheet_index']):

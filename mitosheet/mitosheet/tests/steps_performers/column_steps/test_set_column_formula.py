@@ -6,8 +6,7 @@
 """
 Contains tests for set column formula edit events
 """
-from mitosheet.step_performers.sort import ASCENDING
-from numpy import add
+from mitosheet.step_performers.sort import SORT_DIRECTION_ASCENDING
 import pandas as pd
 
 from mitosheet.utils import get_new_id
@@ -161,7 +160,7 @@ def test_formula_with_letters_df_in_column_header_works():
 def test_set_formula_then_rename_no_optimize_yet():
     mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
     mito.add_column(0, 'B')
-    mito.sort(0, 'B', ASCENDING) # Sort to break up the optimization
+    mito.sort(0, 'B', SORT_DIRECTION_ASCENDING) # Sort to break up the optimization
     mito.set_formula('=10', 0, 'B', add_column=False)
     mito.rename_column(0, 'B', 'C')
 
@@ -176,7 +175,7 @@ def test_set_formula_then_rename_no_optimize_yet():
 def test_set_formula_then_delete_optimize():
     mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
     mito.add_column(0, 'B')
-    mito.sort(0, 'B', ASCENDING) # Sort to break up the optimization
+    mito.sort(0, 'B', SORT_DIRECTION_ASCENDING) # Sort to break up the optimization
     mito.set_formula('=10', 0, 'B', add_column=False)
     mito.delete_columns(0, ['B'])
 
@@ -190,7 +189,7 @@ def test_set_formula_then_delete_optimize():
 def test_set_formula_then_delete_optimizes_multiple():
     mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
     mito.add_column(0, 'B')
-    mito.sort(0, 'B', ASCENDING) # Sort to break up the optimization
+    mito.sort(0, 'B', SORT_DIRECTION_ASCENDING) # Sort to break up the optimization
     mito.set_formula('=10', 0, 'B', add_column=False)
     mito.set_formula('=11', 0, 'B', add_column=False)
     mito.set_formula('=12', 0, 'B', add_column=False)
@@ -208,7 +207,7 @@ def test_set_multiple_formula_then_delete_optimizes_multiple():
     mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
     mito.add_column(0, 'B')
     mito.add_column(0, 'C')
-    mito.sort(0, 'B', ASCENDING) # Sort to break up the optimization
+    mito.sort(0, 'B', SORT_DIRECTION_ASCENDING) # Sort to break up the optimization
     mito.set_formula('=10', 0, 'B', add_column=False)
     mito.set_formula('=11', 0, 'B', add_column=False)
     mito.set_formula('=12', 0, 'C', add_column=False)
@@ -236,3 +235,33 @@ def test_set_column_formula_in_duplicate_does_not_overoptmize():
         "df1_copy = df1.copy(deep=True)",
         "df1_copy.rename(columns={'B': 'aaron'}, inplace=True)"
     ]
+
+def test_set_column_formula_then_delete_dataframe_optimizes():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
+    mito.add_column(0, 'B')
+    mito.add_column(0, 'C')
+    mito.sort(0, 'B', SORT_DIRECTION_ASCENDING) # Sort to break up the optimization
+    mito.set_formula('=10', 0, 'B', add_column=False)
+    mito.set_formula('=11', 0, 'B', add_column=False)
+    mito.set_formula('=12', 0, 'C', add_column=False)
+    mito.set_formula('=13', 0, 'C', add_column=False)
+    mito.delete_columns(0, ['B', 'C'])
+    mito.delete_dataframe(0)
+
+    assert mito.transpiled_code == ['del df1']
+
+def test_set_column_formula_then_delete_diff_dataframe_not_optimizes():
+    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
+
+    mito.duplicate_dataframe(0)
+    mito.add_column(0, 'B')
+    mito.add_column(0, 'C')
+    mito.sort(0, 'B', SORT_DIRECTION_ASCENDING) # Sort to break up the optimization
+    mito.set_formula('=10', 0, 'B', add_column=False)
+    mito.set_formula('=11', 0, 'B', add_column=False)
+    mito.set_formula('=12', 0, 'C', add_column=False)
+    mito.set_formula('=13', 0, 'C', add_column=False)
+    mito.delete_columns(0, ['B', 'C'])
+    mito.delete_dataframe(1)
+
+    assert len(mito.optimized_code_chunks) >= 3

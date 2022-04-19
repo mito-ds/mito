@@ -84,6 +84,10 @@ type BoundingRect = {
     Helper function ensures that an item is visible inside a container, 
     and scrolls the minimal amount to make sure that it is visible.
 
+    NOTE: container must have some non-default positioning on it for 
+    this function to work properly, otherwise scrolling will look all
+    screwed up and you'll be confused for a while.
+
     The topAdjustment is the amount of space you can leave at the top of 
     the container, in case there is something (like a search) fixed up there.
 */
@@ -365,8 +369,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
             const selected = found === selectedIndex;  
             const finalChild = React.cloneElement(child, {
                 className: classNames(child.props.className, {
-                    'dropdown-item-selected': selected,
-                    'dropdown-item-with-search-first-item': props.searchable === true && found === 0
+                    'dropdown-item-selected': selected
                 })
             })
             found += 1;

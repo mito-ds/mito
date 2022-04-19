@@ -8,4 +8,8 @@ Contains tests to make sure that the mito analytics test is
 performing correctly
 """
 
-# TODO: add tests for anonymization
+from mitosheet.mito_analytics import PRINT_LOGS
+
+
+def test_not_printing_logs():
+    assert PRINT_LOGS is False

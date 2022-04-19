@@ -241,3 +241,16 @@ def test_change_type_float_to_int_nan():
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1.2, 2.0, None]}))
     mito.change_column_dtype(0, 'A', 'int')
     assert mito.get_column(0, 'A', as_list=True) == [1, 2, 0]
+
+def test_change_type_deletes_dataframe_optimizes():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1.2, 2.0, None]}))
+    mito.change_column_dtype(0, 'A', 'int')
+    mito.delete_dataframe(0)
+    assert mito.transpiled_code == ['del df1']
+
+def test_change_type_deletes_diff_dataframe_no_optimizes():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1.2, 2.0, None]}))
+    mito.duplicate_dataframe(0)
+    mito.change_column_dtype(0, 'A', 'int')
+    mito.delete_dataframe(1)
+    assert len(mito.optimized_code_chunks) >= 3

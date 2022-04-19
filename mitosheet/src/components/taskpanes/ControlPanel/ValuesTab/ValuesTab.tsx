@@ -7,7 +7,7 @@ import Select from '../../../elements/Select';
 import { FilterType, FilterGroupType, ColumnID, FormatTypeObj } from '../../../../types';
 import Col from '../../../spacing/Col';
 import Row from '../../../spacing/Row';
-import { areFiltersEqual, getAllDoesNotContainsFilterValues, getExclusiveFilterData } from '../FilterAndSortTab/filter/utils';
+import { areFiltersEqual, getAllDoesNotContainsFilterValues, getExclusiveFilterData, getFilterDisabledMessage } from '../FilterAndSortTab/filter/utils';
 import MultiToggleItem from '../../../elements/MultiToggleItem';
 import DropdownItem from '../../../elements/DropdownItem';
 import { useDebouncedEffect } from '../../../../hooks/useDebouncedEffect';
@@ -187,7 +187,8 @@ export function ValuesTab(
         })
     }
 
-    const sortedUniqueValueCounts = sortUniqueValueCounts(uniqueValueCounts, sort)
+    const sortedUniqueValueCounts = sortUniqueValueCounts(uniqueValueCounts, sort);
+    const disabledMessage = getFilterDisabledMessage(props.columnDtype);
 
     return (
         <Fragment>
@@ -226,7 +227,9 @@ export function ValuesTab(
                         searchString: searchString,
                         setSearchString: setSearchString
                     }}
-                    isFiltered={!isAllData}
+                    isSubset={!isAllData}
+                    message={disabledMessage}
+                    disabled={disabledMessage !== undefined}
                 >
                     {sortedUniqueValueCounts.map((uniqueValueCount, index) => {
                         const valueToDisplay = formatCellData(uniqueValueCount.value, props.columnDtype, props.columnFormatType);

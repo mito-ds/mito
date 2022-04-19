@@ -192,6 +192,25 @@ const TRANSFORMATION_FEATURES: Feature[] = [
   },
 ]
 
+const CODE_GENERATION_FEATURES: Feature[] = [
+  {
+    feature: 'Code Generation',
+    planSupport: {
+      'Open Source': true,
+      'Pro': true,
+      'Enterprise': true 
+    }
+  },
+  {
+    feature: 'Optimized Generated Code',
+    planSupport: {
+      'Open Source': false,
+      'Pro': true,
+      'Enterprise': true 
+    }
+  },
+]
+
 const PRIVACY_FEATURES: Feature[] = [
   {
     feature: 'Local Extension',
@@ -482,6 +501,11 @@ const Plans: NextPage = () => {
               />
               <FeatureSection
                 mobilePlanDisplayed={mobilePlanDisplayed}
+                sectionTitle='Code Generation'
+                features={CODE_GENERATION_FEATURES}
+              />
+              <FeatureSection
+                mobilePlanDisplayed={mobilePlanDisplayed}
                 sectionTitle='Privacy'
                 features={PRIVACY_FEATURES}
               />
@@ -507,6 +531,10 @@ const Plans: NextPage = () => {
               <FeatureSection
                 sectionTitle='Presentation'
                 features={PRESENTATION_FEATURES}
+              />
+              <FeatureSection
+                sectionTitle='Code Generation'
+                features={CODE_GENERATION_FEATURES}
               />
               <FeatureSection
                 sectionTitle='Privacy'

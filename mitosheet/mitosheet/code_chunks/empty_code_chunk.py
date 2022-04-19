@@ -10,12 +10,12 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 
 class EmptyCodeChunk(CodeChunk):
     """
-    A code chunk that generates no code, but has a title. 
+    A code chunk that generates no code, but has a title and a description
+    comment, which is necessary for describing some steps in the step list
+    even if they don't have generated code (like graphing).
 
-    NOTE: This is different than a NoOpCodeChunk, which we
-    always want to be optimized out, as this has data we
-    want to display to the user. Graphing steps are an example
-    of this!
+    Notably, as they don't have generated code, we can still optimize out
+    these steps in the code optimization process.
     """
 
     def get_display_name(self) -> str:
@@ -26,3 +26,6 @@ class EmptyCodeChunk(CodeChunk):
 
     def get_code(self) -> List[str]:
         return []
+
+    def combine_right(self, other_code_chunk: CodeChunk) -> Optional[CodeChunk]:
+        return other_code_chunk

@@ -31,13 +31,28 @@ const MultiToggleItem = (props: {
         * @param [rightText] - Text to display on the right side of the element - useful for metadata
     */
     rightText?: string,
-}): JSX.Element => {    
-
-
+    /** 
+        * @param [disabled] - Optionally set this to true to disable toggling this element
+    */
+    disabled?: boolean,
+}): JSX.Element => {
     return (
         <div 
-            className={classNames('multi-toggle-box-row', {'multi-toggle-box-row-selected': props.toggled}, 'text-overflow-hide')}
-            onClick={() => {props.onToggle()}}
+            className={
+                classNames(
+                    'multi-toggle-box-row', 'text-overflow-hide', 
+                    {
+                        'multi-toggle-box-row-selected': props.toggled,
+                        'multi-toggle-box-row-disabled': props.disabled
+                    }
+                )
+            }
+            onClick={() => {
+                if (props.disabled) {
+                    return;
+                }
+                props.onToggle()
+            }}
         >
             <Row 
                 // Space differently depending if we have right text or not

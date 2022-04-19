@@ -118,11 +118,11 @@ function StepDataElement(props: StepDataElementProps): JSX.Element {
             <div className='step-taskpane-step-icon'>
                 {getStepIcon(props.stepData.step_type)}
             </div>
-            <div className='element-width-block'>
+            <div className='element-width-block hide-scrollbar'>
                 <div className='text-header-3'>
                     {props.stepData.step_display_name}
                 </div>
-                <div className='text-body-2 text-overflow-scroll'>
+                <div className='text-body-2 text-overflow-scroll hide-scrollbar'>
                     {props.stepData.step_description}
                 </div>
             </div>

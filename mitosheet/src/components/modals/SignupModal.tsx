@@ -409,10 +409,10 @@ const SignupModal = (
                 </div>
                 <div className='signup-modal-right-column-container' style={{backgroundColor: backgroundColors[step]}}>
                     {step === 1 &&
-                        <BlueMitoFolk/>
+                        <PinkMitoFolk/>
                     }
                     {step === 2 &&
-                        <PinkMitoFolk/>
+                        <BlueMitoFolk/>
                     }
                     {step === 3 &&
                         <YellowMitoFolk/>
