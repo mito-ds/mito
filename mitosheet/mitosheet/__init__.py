@@ -26,7 +26,7 @@ NOTE: if you have any issues with installation, please email jake@sagacollab.com
 import os
 import pandas as pd
 
-from mitosheet.mito_analytics import log
+from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.user import initialize_user
 from mitosheet.mito_widget import MitoWidget, sheet
 from mitosheet.saved_analyses import register_analysis

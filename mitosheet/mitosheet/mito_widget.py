@@ -12,21 +12,22 @@ import time
 from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
-from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
-from mitosheet.user.location import is_in_google_colab, is_in_vs_code
 import traitlets as t
 from ipywidgets import DOMWidget
 
 from mitosheet._frontend import module_name, module_version
 from mitosheet.api import API
 from mitosheet.data_in_mito import DataTypeInMito
-from mitosheet.errors import MitoError, get_recent_traceback, make_execution_error
-from mitosheet.mito_analytics import (log, log_event_processed,
-                                      log_recent_error, telemetry_turned_on)
+from mitosheet.errors import (MitoError, get_recent_traceback,
+                              make_execution_error)
 from mitosheet.saved_analyses import write_analysis
 from mitosheet.steps_manager import StepsManager
+from mitosheet.telemetry.telemetry_utils import (log, log_event_processed,
+                                                 telemetry_turned_on)
+from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
 from mitosheet.user import is_local_deployment, should_upgrade_mitosheet
 from mitosheet.user.db import get_user_field
+from mitosheet.user.location import is_in_google_colab, is_in_vs_code
 from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES,
                                     UJ_RECEIVED_TOURS, UJ_USER_EMAIL)
 from mitosheet.user.utils import is_excel_import_enabled, is_pro
@@ -277,7 +278,7 @@ def sheet(
     # vs code or google collab (these conditions are more secure than
     # the conditons for checking if we're in JLab or JNotebook).
     if is_in_vs_code() or is_in_google_colab():
-        log_recent_error('mitosheet_sheet_call_location_failed')
+        log('mitosheet_sheet_call_location_failed', failed=True)
         raise Exception("The mitosheet currently only works in JupyterLab.\n\nTo see instructions on getting Mitosheet running in JupyterLab, find install instructions here: https://docs.trymito.io/getting-started/installing-mito")
 
     try:
@@ -290,25 +291,21 @@ def sheet(
             log('used_personal_data') 
 
     except:
-        log_recent_error('mitosheet_sheet_call_failed')
+        log('mitosheet_sheet_call_failed', failed=True)
         raise
 
     # Then, we log that the call was successful, along with all of it's params
     log(
         'mitosheet_sheet_call',
-        dict(
-            **{
-                # NOTE: analysis name is the UUID that mito saves the analysis under
-                'steps_manager_analysis_name': widget.steps_manager.analysis_name,
-            },
-            **{
-                'param_num_args': len(args),
-                'params_num_str_args': len([arg for arg in args if isinstance(arg, str)]),
-                'params_num_df_args': len([arg for arg in args if isinstance(arg, pd.DataFrame)]),
-                'params_df_index_type': [str(type(arg.index)) for arg in args if isinstance(arg, pd.DataFrame)],
-                'params_view_df': view_df
-            }
-        )
+        {
+            # NOTE: analysis name is the UUID that mito saves the analysis under
+            'steps_manager_analysis_name': widget.steps_manager.analysis_name,
+            'num_args': len(args),
+            'num_str_args': len([arg for arg in args if isinstance(arg, str)]),
+            'num_df_args': len([arg for arg in args if isinstance(arg, pd.DataFrame)]),
+            'df_index_type': [str(type(arg.index)) for arg in args if isinstance(arg, pd.DataFrame)],
+            'view_df': view_df
+        }
     )
 
     return widget

@@ -14,7 +14,7 @@ from typing import Any, Collection, Dict, List, Set, Tuple, Union
 import pandas as pd
 
 from mitosheet.data_in_mito import DataTypeInMito, get_data_type_in_mito
-from mitosheet.mito_analytics import log
+from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
 from mitosheet.saved_analyses.save_utils import get_analysis_exists
 from mitosheet.state import State
@@ -396,7 +396,7 @@ class StepsManager:
         for update in UPDATES:
             if update_event["type"] == update["event_type"]:
                 # Get the params for this event
-                params = {key: value for key, value in update_event.items() if key in update["params"]}  # type: ignore
+                params = {key: value for key, value in update_event['params'].items() if key in update['params']}  # type: ignore
                 # Actually execute this event
                 update["execute"](self, **params)  # type: ignore
                 # Update the number of update events we record occuring

@@ -9,7 +9,7 @@ from typing import (Any, Collection, Dict, List, Optional,
 import pandas as pd
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import generate_read_csv_code
 from mitosheet.errors import get_recent_traceback_as_list
-from mitosheet.mito_analytics import log
+from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.preprocessing.preprocess_step_performer import \
     PreprocessStepPerformer
 from mitosheet.step_performers.import_steps.simple_import import (

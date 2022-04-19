@@ -5,7 +5,7 @@
 # Distributed under the terms of the Modified BSD License.
 from typing import Any, Dict, Collection, List, Optional, Tuple
 import pandas as pd
-from mitosheet.mito_analytics import log
+from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.preprocessing.preprocess_step_performer import \
     PreprocessStepPerformer
 from mitosheet.types import StepsManagerType
