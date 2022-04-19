@@ -89,24 +89,26 @@ def get_final_private_params_for_single_kv(key: str, value: Any, params: Dict[st
     turn them into a totally anonyimized version of the parameter. 
     """
     private_params = dict()
+
+    # If this is a log to linearize, then we recurse and create private versions of those
+    # nested parameters. Note we only do this if it's actually possible to recurse
+    if key in LOG_PARAMS_TO_LINEARIZE and isinstance(value, dict): 
+        for nested_key, nested_value in value.items():
+            nested_params = get_final_private_params_for_single_kv(nested_key, nested_value, params, steps_manager)
+            private_params = {
+                **private_params, 
+                # NOTE: we linearize the nested keys with {higher_key}_{lower_key} as the new key
+                **{key + "_" + k: v for k, v in  nested_params.items()}
+            }
     
+        return private_params
+
     if key in LOG_PARAMS_PUBLIC:
         private_params[key] = value
     elif key in LOG_PARAMS_TO_ANONYIMIZE:
         private_params[key] = anonyimize_object(value)
     elif key in LOG_PARAMS_FORMULAS:
         private_params[key] = anonymize_formula(value, params['sheet_index'], steps_manager)
-    elif key in LOG_PARAMS_TO_LINEARIZE:
-        # If this is a log to linearize, then we recurse and create private versions of those
-        # parameters. 
-        if isinstance(value, dict):
-            for nested_key, nested_value in value.items():
-                nested_params = get_final_private_params_for_single_kv(nested_key, nested_value, params, steps_manager)
-                nested_params = {key + "_" + k: v for k, v in  nested_params.items()}
-                private_params = {**private_params, **nested_params}
-        else:
-            raise Exception('key, value cannot be linearized as it is a flat type', key, value)
-
     else:
         raise Exception('key, value not in any log set', key, value)
     

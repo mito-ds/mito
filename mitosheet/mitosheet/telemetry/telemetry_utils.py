@@ -36,7 +36,7 @@ from mitosheet.user import (UJ_STATIC_USER_ID, get_user_field,
                             is_local_deployment, is_running_test)
 
 # If you want, you can optionally choose to print logs
-PRINT_LOGS = False
+PRINT_LOGS = True
 
 
 def telemetry_turned_on() -> bool:
@@ -59,13 +59,14 @@ def _get_anonymized_log_params(params: Dict[str, Any], steps_manager: StepsManag
     user data leaves the user's machine. We replace any potentially
     non-private params with private versions of them here.
     """
-    private_params: Dict[str, Any] = {}
+    private_params: Dict[str, Any] = dict()
 
     for key, value in params.items():
         private_params = {
             **private_params, 
             **get_final_private_params_for_single_kv(key, value, params, steps_manager)
         }
+        print("PRIVATE PARAMS", key, value, private_params)
 
     # Prefix all the params with params_ so we can easily find them
     private_params = {'params_' + key: value for key, value in private_params.items()}
