@@ -58,7 +58,7 @@ The `Graph` button in the Mito toolbar will create a new graph in Mito.&#x20;
 
 `Display Title`: Toggle to OFF to remove the title from the graph. Toggle to ON to display the title of the graph.
 
-`Title Color`: ![](../.gitbook/assets/mito\_pro\_logo.png) The color of the title (only availabe in Mito Pro).&#x20;
+`Title Color`: ![](<../.gitbook/assets/Pro Logo(1) (2).png>) The color of the title (only availabe in Mito Pro).&#x20;
 
 #### X Axis
 
@@ -66,7 +66,7 @@ The `Graph` button in the Mito toolbar will create a new graph in Mito.&#x20;
 
 `Display Title`: Toggle to OFF to remove the title from the x axis. Toggle to ON to display the title on the x axis.
 
-`X axis title color`: ![](../.gitbook/assets/mito\_pro\_logo.png) The color of the x axis title (only available in Mito Pro).&#x20;
+`X axis title color`: ![](<../.gitbook/assets/Pro Logo(1) (2).png>) The color of the x axis title (only available in Mito Pro).&#x20;
 
 `Display range slider`: The range slider is a horizontal bar underneath the x axis of the graph that can be used to zoom in on specific ranges of the graph. Toggle to OFF to remove the range slider. Toggle on ON to display the range slider.&#x20;
 
@@ -76,13 +76,13 @@ The `Graph` button in the Mito toolbar will create a new graph in Mito.&#x20;
 
 `Display Title`: Toggle to OFF to remove the title from the y axis. Toggle to ON to display the title on the y axis.
 
-`Y axis title color`: ![](../.gitbook/assets/mito\_pro\_logo.png) The color of the y axis title (only available in Mito Pro).&#x20;
+`Y axis title color`: ![](<../.gitbook/assets/Pro Logo(1) (2).png>) The color of the y axis title (only available in Mito Pro).&#x20;
 
-#### Colors ![](../.gitbook/assets/mito\_pro\_logo.png)&#x20;
+#### Colors ![](<../.gitbook/assets/Pro Logo(1) (2).png>)&#x20;
 
-`Plot Background Color`:  ![](../.gitbook/assets/mito\_pro\_logo.png) The background color of the area inside of the graph. (only available in Mito Pro)
+`Plot Background Color`:  ![](<../.gitbook/assets/Pro Logo(1) (2).png>) The background color of the area inside of the graph. (only available in Mito Pro)
 
-`Paper Background Color`: ![](../.gitbook/assets/mito\_pro\_logo.png) The background color of the area outside the graph. (only available in Mito Pro)&#x20;
+`Paper Background Color`: ![](<../.gitbook/assets/Pro Logo(1) (2).png>) The background color of the area outside the graph. (only available in Mito Pro)&#x20;
 
 ![Styling a graph in Mito](<../.gitbook/assets/Screen Shot 2022-03-23 at 2.58.59 PM.png>)
 
