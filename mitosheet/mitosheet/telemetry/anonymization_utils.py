@@ -47,6 +47,8 @@ def anonymize_word(word: Any) -> str:
     index_two = int(hash(salt + word + '1')) % len(valid_words)
     index_three = int(hash(salt + word + '2')) % len(valid_words)
 
+    print(word, valid_words[index_one] + valid_words[index_two] + valid_words[index_three])
+
     return valid_words[index_one] + valid_words[index_two] + valid_words[index_three]
 
 
@@ -81,7 +83,7 @@ def anonyimize_object(obj: Any) -> Any:
     elif isinstance(obj, dict):
         return {key: anonymize_word(v) for key, v in obj.items()}
     
-    return anonymize_word(any)
+    return anonymize_word(obj)
 
 def get_final_private_params_for_single_kv(key: str, value: Any, params: Dict[str, Any], steps_manager: StepsManagerType=None) -> Dict[str, Any]:
     """
