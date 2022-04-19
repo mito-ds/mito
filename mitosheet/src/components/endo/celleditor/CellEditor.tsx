@@ -23,6 +23,8 @@ export const CELL_EDITOR_WIDTH = 250;
     clicking or using the arrow keys. It is handled inside this component, 
     by overwriting the cell navigation logic and updating the selection here. 
     Clicking on columns is handeled inside the EndoGrid itself.
+
+    The CellEditor takes up the entire parent component. 
 */
 const CellEditor = (props: {
     sheetData: SheetData,
