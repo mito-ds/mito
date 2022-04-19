@@ -43,7 +43,7 @@ const CellEditor = (props: {
     scrollAndRenderedContainerRef: React.RefObject<HTMLDivElement>,
     containerRef: React.RefObject<HTMLDivElement>,
     mitoAPI: MitoAPI,
-    currentSheetView: SheetView // TODO: figure out if this makes sense with the formula bar cell editor
+    currentSheetView: SheetView
 }): JSX.Element => {
 
     const cellEditorInputRef = useRef<HTMLInputElement>(null);
@@ -52,6 +52,14 @@ const CellEditor = (props: {
     const [loading, setLoading] = useState(false);
     const [cellEditorError, setCellEditorError] = useState<string | undefined>(undefined);
     const {columnID, columnHeader} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
+
+    // When the CellEditor is created via the FloatingCellEditor, the component tries to set the focus on the input
+    // field while the cellEditorInputRef is still Null. So here, we wait until the cellEditorInputRef is not null
+    // and then set the focus.
+    useEffect(() => {
+        console.log(cellEditorInputRef.current?.id)
+        cellEditorInputRef.current?.focus();
+    }, [cellEditorInputRef.current?.id])
 
     /* 
         This effect makes sure that when the pending selected columns change,
@@ -402,6 +410,7 @@ const CellEditor = (props: {
             >
                 <input
                     ref={cellEditorInputRef}
+                    id='cell-editor-input'
                     className='cell-editor-input'
                     onClick={() => {
                         // As in Excel or Google Sheets, if you click the input, then
@@ -442,7 +451,6 @@ const CellEditor = (props: {
                             arrowKeysScrollInFormula: arrowKeysScrollInFormula
                         })}
                     }
-                    autoFocus
                 />
             </form>
             {/* 
