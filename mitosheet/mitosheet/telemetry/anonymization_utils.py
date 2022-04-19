@@ -1,4 +1,13 @@
+#!/usr/bin/env python
+# coding: utf-8
 
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
+
+"""
+This file contains utilities for anonyimizing data. See the README.md in
+this folder for more details on our approach to private telemetry.
+"""
 
 # When we anonymize, we use some combination of these words
 # to construct new private words

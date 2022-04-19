@@ -6,14 +6,14 @@ from typing import Any, Dict
 from mitosheet.types import StepsManagerType
 
 
-def get_params(event: Dict[str, Any], steps_manager: StepsManagerType) -> str:
+def get_params(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
     """
     Loops back over the steps, looking for a matching step. Specifically, it tries
     to find the most recent step with the given params passed.
     """
-    step_type = event['step_type']
-    step_id_to_match = event['step_id_to_match']
-    execution_data_to_match = event['execution_data_to_match']
+    step_type = params['step_type']
+    step_id_to_match = params['step_id_to_match']
+    execution_data_to_match = params['execution_data_to_match']
 
     # Loop over the steps backwards, so that we get the most recent one
     params = None

@@ -1,3 +1,15 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
+
+"""
+This file contains utilities for the rest of the mitosheet package
+to interact with telemetry. See the README.md file in this folder for
+more details.
+"""
+
 import platform
 import sys
 import time
@@ -6,10 +18,10 @@ from typing import Any, Dict
 
 from mitosheet.errors import MitoError, get_recent_traceback_as_list
 from mitosheet.telemetry.anonymization_utils import anonyimize_object, get_final_private_params_for_single_kv
-from mitosheet.telemetry.private_params_map import LOG_EXECUTION_DATA_ANONYIMIZE, LOG_EXECUTION_DATA_PUBLIC, LOG_PARAMS_TO_ANONYIMIZE
+from mitosheet.telemetry.private_params_map import LOG_EXECUTION_DATA_ANONYIMIZE, LOG_EXECUTION_DATA_PUBLIC
 from mitosheet.types import StepsManagerType
 from mitosheet.user.location import get_location, is_docker
-from mitosheet.user.schemas import UJ_FEEDBACKS, UJ_FEEDBACKS_V2, UJ_INTENDED_BEHAVIOR, UJ_MITOSHEET_TELEMETRY, UJ_USER_EMAIL, UJ_USER_SALT
+from mitosheet.user.schemas import UJ_FEEDBACKS, UJ_FEEDBACKS_V2, UJ_INTENDED_BEHAVIOR, UJ_MITOSHEET_TELEMETRY, UJ_USER_EMAIL
 from mitosheet.user.utils import is_local_deployment
 
 import analytics
@@ -42,9 +54,11 @@ def telemetry_turned_on() -> bool:
 
 
 def _get_anonymized_log_params(params: Dict[str, Any], steps_manager: StepsManagerType=None) -> Dict[str, Any]:
-    # Private params are where we _make sure_ that no private
-    # user data leaves the user's machine. We replace any potentially
-    # non-private params with private versions of them.
+    """
+    Private params are where we _make sure_ that no private
+    user data leaves the user's machine. We replace any potentially
+    non-private params with private versions of them here.
+    """
     private_params: Dict[str, Any] = {}
 
     for key, value in params.items():
@@ -60,6 +74,10 @@ def _get_anonymized_log_params(params: Dict[str, Any], steps_manager: StepsManag
 
 
 def _get_execution_data_log_params(steps_manager: StepsManagerType=None) -> Dict[str, Any]:
+    """
+    Get the execution params as well, again making sure
+    to remove any private data.
+    """
     execution_data_params = {}
 
     # First, try and get the execution data from the stpe
@@ -77,6 +95,11 @@ def _get_execution_data_log_params(steps_manager: StepsManagerType=None) -> Dict
     return execution_data_params
 
 def _get_wsc_log_params(steps_manager: StepsManagerType=None) -> Dict[str, Any]:
+    """
+    Get data from the widget state container that is useful for any
+    log event. Note that none of this is private data.
+    """
+
     if steps_manager:
         # We also get some metadata about the widget state container at this state
         # NOTE: we keep this as underscored with wsc for backwards compatibility with
@@ -93,6 +116,10 @@ def _get_wsc_log_params(steps_manager: StepsManagerType=None) -> Dict[str, Any]:
         return {}
 
 def _get_error_log_params(failed: bool=False, mito_error: MitoError=None)-> Dict[str, Any]:
+    """
+    Get relevant logging data from any recently thrown error
+    """
+
     # We also check there is an edit_error, and if there is, then we add the error logs
     if mito_error is not None or failed:
         recent_traceback = get_recent_traceback_as_list() 
@@ -107,6 +134,10 @@ def _get_error_log_params(failed: bool=False, mito_error: MitoError=None)-> Dict
         return {}
 
 def _get_processing_time_log_params(steps_manager: StepsManagerType=None, start_time: float=None)-> Dict[str, Any]:
+    """
+    Get data relevant for measuring performance impact
+    """
+
     processing_time_params = {}
      # We also log some timing information - which we round to a single decimal place just
     # so that we can bucket these items easily. Note we include a variety of roundings of 
@@ -150,6 +181,10 @@ except:
 location = None
 
 def _get_enviornment_params() -> Dict[str, Any]:
+    """
+    Get data relevant for tracking the enviornment, so we can 
+    ensure Mitosheet compatibility with any system
+    """
     global location
     if location is None:
         location = get_location()
@@ -169,12 +204,11 @@ def _get_enviornment_params() -> Dict[str, Any]:
 
 def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, failed: bool=False, mito_error: MitoError=None, start_time: float=None) -> None:
     """
-    Helper function for logging when an event is processed
-    by the widget state container. 
+    Helper function for logging when an event is processed by the backend,
+    including an edit event, an api call, or an update event. 
 
-    Does it's best to fill in helpful meta-data for interpreting the event
-    including the state of the steps_manager _after_ the step
-    was applied.
+    It generates mulitple logs so that aggregating and breaking down this 
+    data is easier.
 
     NOTE: if processing the event fails, then failed should be True. If there was an
     edit error that was thrown during the processing of the event, then edit_error
@@ -256,10 +290,15 @@ def identify() -> None:
         })
 
 
-all_keys = set()
-
 def log(log_event: str, params: Dict[str, Any]=None, steps_manager: StepsManagerType=None, failed: bool=False, mito_error: MitoError=None, start_time: float=None) -> None:
-    
+    """
+    This function is the entry point for all logging. It collects
+    all relevant parameters, exeuction data, and more info while
+    making sure to anonymize all data. 
+
+    Then, if telemetry is not turned off and we are not running tests,
+    we log this information.
+    """
     if params is None:
         params = {}
 

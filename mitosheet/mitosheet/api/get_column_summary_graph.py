@@ -24,15 +24,15 @@ from mitosheet.step_performers.graph_steps.graph_utils import BAR, BOX, SCATTER
 MAX_UNIQUE_NON_NUMBER_VALUES = 10_000
 
 
-def get_column_summary_graph(event: Dict[str, Any], steps_manager: StepsManager) -> str:
+def get_column_summary_graph(params: Dict[str, Any], steps_manager: StepsManager) -> str:
     """
     Creates a column summary graph and sends it back as a PNG
     string to the frontend for display.
     """
-    sheet_index = event['sheet_index']
-    column_id: ColumnID = event['column_id']
-    height = event['height']
-    width = event['width']
+    sheet_index = params['sheet_index']
+    column_id: ColumnID = params['column_id']
+    height = params['height']
+    width = params['width']
 
 
     # Create a copy of the dataframe, just for safety.

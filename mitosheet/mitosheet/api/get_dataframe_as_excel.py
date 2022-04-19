@@ -13,11 +13,11 @@ from mitosheet.types import StepsManagerType
 from mitosheet.user import is_pro
 
 
-def get_dataframe_as_excel(event: Dict[str, Any], steps_manager: StepsManagerType) -> str:
+def get_dataframe_as_excel(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
     """
     Sends a dataframe as a excel string.
     """
-    sheet_indexes = event['sheet_indexes']
+    sheet_indexes = params['sheet_indexes']
     is_pro_user = is_pro()
 
     # We write to a buffer so that we don't have to save the file
