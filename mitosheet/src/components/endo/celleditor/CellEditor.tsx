@@ -399,6 +399,7 @@ const CellEditor = (props: {
             <form
                 className='cell-editor-form'
                 onSubmit={onSubmit}
+                autoComplete='off' // Turn off autocomplete so the html suggestion box doesn't cover Mito's suggestion box.
             >
                 <input
                     ref={cellEditorInputRef}
