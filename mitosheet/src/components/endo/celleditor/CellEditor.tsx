@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import '../../../../css/endo/CellEditor.css';
 import MitoAPI from '../../../api';
-import { formulaEndsInColumnHeader, getFullFormula, getSuggestedColumnHeaders, getDocumentationFunction, getSuggestedFunctions } from '../cellEditorUtils';
+import { formulaEndsInColumnHeader, getFullFormula, getSuggestedColumnHeaders, getDocumentationFunction, getSuggestedFunctions } from './cellEditorUtils';
 import { KEYS_TO_IGNORE_IF_PRESSED_ALONE } from '../EndoGrid';
 import { focusGrid } from '../focusUtils';
 import { getColumnHeadersInSelection, getNewSelectionAfterKeyPress, isNavigationKeyPressed } from '../selectionUtils';
@@ -451,7 +451,7 @@ const CellEditor = (props: {
             */}
             <div className='cell-editor-dropdown-box' style={{width: `${CELL_EDITOR_WIDTH}px`}}>
                 {cellEditorError === undefined && 
-                    <p className={classNames('cell-editor-label', 'text-subtext-1', 'ml-5px')}>
+                    <p className={classNames('cell-editor-label', 'text-subtext-1', 'pl-5px')}>
                         {isFormulaColumn ? "You're setting the formula of this column" : "You're changing the value of this cell"}
                     </p>
                 }

@@ -6,7 +6,7 @@ import React from 'react';
 import "../../../css/FormulaBar.css";
 import "../../../css/mito.css"
 import { EditorState, SheetData, MitoSelection, GridState } from '../../types';
-import { getFullFormula } from './cellEditorUtils';
+import { getFullFormula } from './celleditor/cellEditorUtils';
 import { getCellDataFromCellIndexes } from './utils';
 import Col from '../spacing/Col';
 import Row from '../spacing/Row';
@@ -69,7 +69,7 @@ const FormulaBar = (props: {
                     />
                 } 
                 {(props.editorState === undefined || props.editorState.editorLocation === 'cell') &&
-                    <input 
+                    <div 
                         className="formula-bar-formula text-header-3 text-overflow-hide element-width-block" 
                         onDoubleClick={() => {
                             props.setEditorState({
@@ -80,8 +80,9 @@ const FormulaBar = (props: {
                                 editorLocation: 'formula bar'
                             })
                         }}
-                        value={formulaBarValue} 
-                    />
+                    >
+                        {formulaBarValue}
+                    </div>
                 }
             </Col>
         </Row>

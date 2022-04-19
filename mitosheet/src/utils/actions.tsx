@@ -1,6 +1,6 @@
 import fscreen from "fscreen";
 import MitoAPI, { getRandomId } from "../api";
-import { getStartingFormula } from "../components/endo/cellEditorUtils";
+import { getStartingFormula } from "../components/endo/celleditor/cellEditorUtils";
 import { getColumnIndexesInSelections, getSelectedNumberSeriesColumnIDs, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
 import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes } from "../components/endo/utils";
 import { ModalEnum } from "../components/modals/modals";

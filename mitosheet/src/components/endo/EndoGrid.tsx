@@ -5,7 +5,7 @@ import MitoAPI from "../../api";
 import { EditorState, Dimension, GridState, RendererTranslate, SheetData, SheetView, UIState } from "../../types";
 import FormulaBar from "./FormulaBar";
 import { TaskpaneType } from "../taskpanes/taskpanes";
-import { getCellEditorInputCurrentSelection, getStartingFormula } from "./cellEditorUtils";
+import { getCellEditorInputCurrentSelection, getStartingFormula } from "./celleditor/cellEditorUtils";
 import ColumnHeaders from "./ColumnHeaders";
 import EmptyGridMessages from "./EmptyGridMessages";
 import { focusGrid } from "./focusUtils";
