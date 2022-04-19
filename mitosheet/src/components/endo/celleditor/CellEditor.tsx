@@ -373,14 +373,16 @@ const CellEditor = (props: {
             errorMessage = await props.mitoAPI.editSetColumnFormula(
                 props.sheetIndex,
                 columnID,
-                formula
+                formula,
+                props.editorState.editorLocation
             )
         } else {
             errorMessage = await props.mitoAPI.editSetCellValue(
                 props.sheetIndex,
                 columnID,
                 index,
-                formula
+                formula,
+                props.editorState.editorLocation
             )
         } 
         setLoading(false);
