@@ -37,7 +37,7 @@ class CheckArgsTypePreprocessStepPerformer(PreprocessStepPerformer):
         for arg in args:
             if not isinstance(arg, pd.DataFrame) and not isinstance(arg, str) and not arg is None:
                 error_message = f'Invalid argument passed to sheet: {arg}. Please pass all dataframes or paths to CSV files.'
-                log('mitosheet_sheet_call_failed', {'error': error_message})
+                log('mitosheet_sheet_call_failed', {'error': error_message}, failed=True)
                 raise ValueError(error_message)
         
         # We do filter out all the None arguments

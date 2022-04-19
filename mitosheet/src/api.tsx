@@ -1249,7 +1249,7 @@ export default class MitoAPI {
         params?: Record<string, unknown>
     ): Promise<void> {
 
-        let message: Record<string, unknown> = {};
+        const message: Record<string, unknown> = {};
         // Copy the params, so we don't accidently modify anything
         if (params !== undefined) {
             message['params'] = Object.assign({}, params);
