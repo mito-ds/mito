@@ -357,3 +357,42 @@ def test_multiple_seperate_imports_analysis_are_deleted_by_mulitple_delete_later
 
     # Remove the test file
     os.remove(TEST_FILE_PATHS[0])
+
+
+def test_multiple_imports_deleted_with_events_in_between():
+    df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+    df.to_csv(TEST_FILE_PATHS[0], index=False)
+
+    # Create with no dataframes
+    mito = create_mito_wrapper_dfs()
+    # And then import just a test file
+    mito.simple_import([TEST_FILE_PATHS[0]])
+    mito.simple_import([TEST_FILE_PATHS[0]])
+    mito.add_column(1, 'C', '=0')
+    mito.delete_dataframe(0)
+    mito.delete_dataframe(0)
+
+    assert mito.transpiled_code == []
+
+    # Remove the test file
+    os.remove(TEST_FILE_PATHS[0])
+
+
+def test_multiple_imports_optimize_stopped_by_rename():
+    df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+    df.to_csv(TEST_FILE_PATHS[0], index=False)
+
+    # Create with no dataframes
+    mito = create_mito_wrapper_dfs(df)
+    # And then import just a test file
+    mito.simple_import([TEST_FILE_PATHS[0]])
+    mito.simple_import([TEST_FILE_PATHS[0]])
+    mito.add_column(1, 'C', '=0')
+    mito.rename_dataframe(0, 'newly_named_df')
+    mito.delete_dataframe(1)
+    mito.delete_dataframe(1)
+
+    assert len(mito.transpiled_code) > 2
+
+    # Remove the test file
+    os.remove(TEST_FILE_PATHS[0])
