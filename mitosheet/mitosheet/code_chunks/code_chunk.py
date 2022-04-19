@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 if TYPE_CHECKING:
     from mitosheet.state import State
@@ -77,6 +77,35 @@ class CodeChunk:
             if self.get_param(key) != other_code_chunk.get_param(key):
                 return False
         return True
+
+    def get_created_sheet_indexes(self) -> Optional[List[int]]:
+        """
+        Dataframe deletes allow us to optimize a lot of code, we allow steps to
+        optionally say that they only create some specific list of sheet_indexes.
+
+        If this function returns a sheet index, and later dataframe delete steps
+        delete this sheet index, then we will optimize out this step as well as
+        the deleting of the dataframe.
+
+        NOTE: if this funciton returns None, it is this CodeChunk saying that
+        it cannot do any optimization with dataframe delete - which we do by
+        default.
+        """
+        return None
+    
+    def get_edited_sheet_indexes(self) -> Optional[List[int]]:
+        """
+        Dataframe deletes allow us to optimize a lot of code, we allow steps to
+        optionally say that they only edit some specific list of sheet_indexes.
+
+        This allows us to easily optimize out these steps if the dataframe they 
+        are editing is then deleted.
+
+        NOTE: if this funciton returns None, it is this CodeChunk saying that
+        it cannot do any optimization with dataframe delete - which we do by
+        default.
+        """
+        return None
     
     def combine_right(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:
         """
@@ -87,5 +116,22 @@ class CodeChunk:
         If they cannot be combined, None will be returned. If they can be
         combined, the new combined CodeChunk will be returned, and thus
         [A, B] goes to [A.combine_right(B)]
+        """
+        return None
+    
+    def combine_left(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:
+        """Given a list of CodeChunks [A, B], combine right called on B with
+        A as a parameter will check if A and B can be combined into a new
+        CodeChunk. 
+
+        If they cannot be combined, None will be returned. If they can be
+        combined, the new combined CodeChunk will be returned, and thus
+        [A, B] goes to [B.combine_right(A)]
+
+        NOTE: combine_lefts are only done after the combine_rights. You might want
+        to do one vs. the other depending on how natural it is to express. For example,
+        because deleting a dataframe delete can remove a ton of other steps, expressing
+        it as a combine_left is much more natural as it results in this optimization
+        code all living in one location.
         """
         return None

@@ -63,6 +63,9 @@ class SetCellValueCodeChunk(CodeChunk):
 
         return code
 
+    def get_edited_sheet_indexes(self) -> List[int]:
+        return [self.get_param('sheet_index')]
+
     def _combine_right_with_delete_column_code_chunk(self, other_code_chunk: DeleteColumnsCodeChunk) -> Optional["CodeChunk"]:
         return get_right_combine_with_column_delete_code_chunk(
             self,
@@ -70,7 +73,6 @@ class SetCellValueCodeChunk(CodeChunk):
             'sheet_index',
             'column_id',
         )
-
     def combine_right(self, other_code_chunk: CodeChunk) -> Optional[CodeChunk]:
         if isinstance(other_code_chunk, DeleteColumnsCodeChunk):
             return self._combine_right_with_delete_column_code_chunk(other_code_chunk)

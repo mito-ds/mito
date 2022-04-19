@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Collection, Dict, List
+from typing import Collection, Dict, List, Optional, Union
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.transpiler.transpile_utils import NEWLINE_TAB
@@ -112,3 +112,18 @@ class PivotCodeChunk(CodeChunk):
         transpiled_code.append(f'{new_df_name} = pivot_table.reset_index()')
 
         return transpiled_code
+
+    def get_created_sheet_indexes(self) -> Optional[List[int]]:
+        destination_sheet_index = self.get_param('destination_sheet_index')
+        if destination_sheet_index is None:
+            return [len(self.post_state.dfs) - 1]
+        else:
+            # Note: editing a dataframe does not create a sheet index, it 
+            # overwrites it instead. See get_edited_sheet_indexes below
+            return None
+
+    def get_edited_sheet_indexes(self) -> List[int]:
+        destination_sheet_index = self.get_param('destination_sheet_index')
+        if destination_sheet_index is not None:
+            return [destination_sheet_index]
+        return []

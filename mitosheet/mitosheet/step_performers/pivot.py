@@ -115,12 +115,14 @@ class PivotStepPerformer(StepPerformer):
                 flatten_column_headers
             )
             pandas_processing_time = perf_counter() - pandas_start_time
+            # Create a new df name if we don't have one
+            df_name = get_new_pivot_df_name(post_state, sheet_index) if destination_sheet_index is None else post_state.df_names[destination_sheet_index]
             
             destination_sheet_index = post_state.add_df_to_state(
                 new_df, 
                 DATAFRAME_SOURCE_PIVOTED,
                 sheet_index=destination_sheet_index,
-                df_name=get_new_pivot_df_name(post_state, sheet_index),
+                df_name=df_name,
                 use_deprecated_id_algorithm=use_deprecated_id_algorithm
             )
 

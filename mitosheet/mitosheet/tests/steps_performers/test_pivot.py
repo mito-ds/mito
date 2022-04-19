@@ -6,10 +6,12 @@
 """
 Contains tests for edit events.
 """
+from mitosheet.step_performers.graph_steps.graph_utils import BAR
+from mitosheet.step_performers.sort import SORT_DIRECTION_ASCENDING
 import numpy as np
 import pandas as pd
 
-from mitosheet.step_performers.filter import FC_STRING_CONTAINS
+from mitosheet.step_performers.filter import FC_NUMBER_EXACTLY, FC_STRING_CONTAINS
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 from mitosheet.tests.decorators import pandas_post_1_only, pandas_pre_1_only
 
@@ -253,3 +255,92 @@ def test_all_other_steps_after_pivot():
     assert mito.dfs[3].equals(
         pd.DataFrame({'Name': ['Aaron']})
     )
+
+def test_simple_pivot_optimizes_after_delete():
+    df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
+    mito = create_mito_wrapper_dfs(df1)
+    mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']})
+    mito.delete_dataframe(1)
+
+    assert mito.transpiled_code == []
+
+def test_simple_pivot_edit_optimizes_after_delete():
+    df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
+    mito = create_mito_wrapper_dfs(df1)
+    mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']})
+    mito.pivot_sheet(0, ['Name'], [], {'Height': ['mean']}, destination_sheet_index=1)
+    mito.delete_dataframe(1)
+    
+    assert len(mito.transpiled_code) == 0
+
+def test_simple_pivot_edit_optimizes_after_delete_with_edit_to_pivot():
+    df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
+    mito = create_mito_wrapper_dfs(df1)
+    mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']})
+    mito.add_column(1, 'Test')
+    mito.pivot_sheet(0, ['Name'], [], {'Height': ['mean']}, destination_sheet_index=1)
+    mito.delete_dataframe(1)
+    
+    assert len(mito.transpiled_code) == 0
+
+def test_simple_pivot_edit_optimizes_after_delete_with_edit_to_source():
+    df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
+    mito = create_mito_wrapper_dfs(df1)
+    mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']})
+    mito.add_column(0, 'Test')
+    mito.pivot_sheet(0, ['Name'], [], {'Height': ['mean']}, destination_sheet_index=1)
+    mito.delete_dataframe(1)
+    
+    assert len(mito.transpiled_code) >= 0
+
+def test_simple_pivot_edit_with_delete_after_sort_and_filter():
+    df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
+    mito = create_mito_wrapper_dfs(df1)
+    mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']})
+    mito.pivot_sheet(0, ['Name'], [], {'Height': ['mean']}, destination_sheet_index=1)
+    mito.sort(1, 'Height mean', SORT_DIRECTION_ASCENDING)
+    mito.filter(1, 'Height mean', 'And', FC_NUMBER_EXACTLY, 5)
+    mito.delete_dataframe(1)
+    
+    assert len(mito.transpiled_code) == 0
+
+def test_simple_pivot_edit_after_graph():
+    df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
+    mito = create_mito_wrapper_dfs(df1)
+    mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']})
+    mito.generate_graph('test', BAR, 1, False, [], [], 400, 400)
+    mito.pivot_sheet(0, ['Name'], [], {'Height': ['mean']}, destination_sheet_index=1)
+    mito.sort(1, 'Height mean', SORT_DIRECTION_ASCENDING)
+    mito.filter(1, 'Height mean', 'And', FC_NUMBER_EXACTLY, 5)
+    mito.delete_dataframe(1)
+    
+    assert len(mito.transpiled_code) == 0
+
+
+def test_delete_pivot_table_optimizes():
+    df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
+    mito = create_mito_wrapper_dfs(df1)
+    mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']})
+    mito.delete_dataframe(1)
+    
+    assert len(mito.transpiled_code) == 0
+
+def test_delete_pivot_table_with_additional_edits_optimizes():
+    df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
+    mito = create_mito_wrapper_dfs(df1)
+    mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']})
+    mito.add_column(1, 'C')
+    mito.rename_column(1, 'C', 'CC')
+    mito.delete_dataframe(1)
+    
+    assert len(mito.transpiled_code) == 0
+
+def test_edit_pivot_table_then_delete_optimizes():
+    df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
+    mito = create_mito_wrapper_dfs(df1)
+    mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']})
+    mito.add_column(1, 'C')
+    mito.rename_column(1, 'C', 'CC')
+    mito.pivot_sheet(0, ['Name'], [], {'Height': ['mean']}, destination_sheet_index=1)
+    mito.delete_dataframe(1)
+    assert len(mito.transpiled_code) == 0
