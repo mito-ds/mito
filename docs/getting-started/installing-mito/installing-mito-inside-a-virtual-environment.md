@@ -14,7 +14,7 @@ First, create a new environment:
 python3 -m venv mitoenv
 ```
 
-Then, activate the environment. On Windows:
+Then, activate the environment. On Windows in command prompt:
 
 ```
 mitoenv\Scripts\activate.bat
