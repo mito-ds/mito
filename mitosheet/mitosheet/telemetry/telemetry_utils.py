@@ -303,7 +303,7 @@ def log(log_event: str, params: Dict[str, Any]=None, steps_manager: StepsManager
         params = {}
 
 
-    final_params = {}
+    final_params: Dict[str, Any] = {}
 
     # First, get the private params
     final_params = {**final_params, **_get_anonymized_log_params(params, steps_manager=steps_manager)}

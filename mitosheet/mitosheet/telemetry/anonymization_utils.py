@@ -47,8 +47,6 @@ def anonymize_word(word: Any) -> str:
     index_two = int(hash(salt + word + '1')) % len(valid_words)
     index_three = int(hash(salt + word + '2')) % len(valid_words)
 
-    print(word, valid_words[index_one] + valid_words[index_two] + valid_words[index_three])
-
     return valid_words[index_one] + valid_words[index_two] + valid_words[index_three]
 
 
@@ -90,7 +88,7 @@ def get_final_private_params_for_single_kv(key: str, value: Any, params: Dict[st
     Given a single key, value pair for a set of params, this function will 
     turn them into a totally anonyimized version of the parameter. 
     """
-    private_params = dict()
+    private_params: Dict[str, Any] = dict()
 
     # If this is a log to linearize, then we recurse and create private versions of those
     # nested parameters. Note we only do this if it's actually possible to recurse

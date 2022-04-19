@@ -527,7 +527,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     <ControlPanelTaskpane 
                         // Set the columnHeader, sheet index as the key so that the taskpane updates when it is switched
                         // TODO: figure out why we need this, if the other variables update?
-                        key={'' + columnID + uiState.selectedSheetIndex} 
+                        key={'' + columnID + uiState.selectedSheetIndex + uiState.selectedColumnControlPanelTab} 
                         selectedSheetIndex={uiState.selectedSheetIndex}
                         sheetData={sheetDataArray[uiState.selectedSheetIndex]}
                         columnIDsMapArray={columnIDsMapArray}
