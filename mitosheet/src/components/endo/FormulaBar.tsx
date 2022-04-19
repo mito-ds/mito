@@ -10,9 +10,9 @@ import { getFullFormula } from './cellEditorUtils';
 import { getCellDataFromCellIndexes } from './utils';
 import Col from '../spacing/Col';
 import Row from '../spacing/Row';
-import CellEditorInput from './CellEditorInput';
 import MitoAPI from '../../api';
 import { calculateCurrentSheetView } from './sheetViewUtils';
+import CellEditor from './celleditor/CellEditor';
 
 const FormulaBar = (props: {
     sheetData: SheetData,
@@ -55,7 +55,7 @@ const FormulaBar = (props: {
             </Col>
             <Col flex='1'>
                 {props.editorState?.editorLocation === 'formula bar' && 
-                    <CellEditorInput 
+                    <CellEditor
                         sheetData={props.sheetData}
                         sheetIndex={props.sheetIndex}
                         gridState={props.gridState}

@@ -1,12 +1,12 @@
 import fscreen from 'fscreen';
 import React, { useEffect, useState } from 'react';
-import MitoAPI from '../../api';
-import { EditorState, GridState, SheetData } from '../../types';
-import { isPrimitiveColumnHeader } from '../../utils/columnHeaders';
-import CellEditor, { CELL_EDITOR_WIDTH } from './CellEditorInput';
-import { calculateCurrentSheetView, getCellInColumn, getCellInRow } from './sheetViewUtils';
-import { getCellDataFromCellIndexes } from './utils';
-import '../../../css/endo/CellEditor.css';
+import MitoAPI from '../../../api';
+import { EditorState, GridState, SheetData } from '../../../types';
+import { isPrimitiveColumnHeader } from '../../../utils/columnHeaders';
+import CellEditor, { CELL_EDITOR_WIDTH } from './CellEditor';
+import { calculateCurrentSheetView, getCellInColumn, getCellInRow } from '../sheetViewUtils';
+import { getCellDataFromCellIndexes } from '../utils';
+import '../../../../css/endo/CellEditor.css';
 
 // Style that we apply to the cell editor in order to place it
 interface EditorStyle {top?: number, left?: number, bottom?: number, right?: number, display?: string}

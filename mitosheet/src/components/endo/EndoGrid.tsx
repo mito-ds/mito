@@ -16,7 +16,7 @@ import { calculateCurrentSheetView, calculateNewScrollPosition, calculateTransla
 import { firstNonNullOrUndefined, getColumnIDsArrayFromSheetDataArray } from "./utils";
 import { ensureCellVisible } from "./visibilityUtils";
 import { reconciliateWidthDataArray } from "./widthUtils";
-import FloatingCellEditor from "./FloatingCellEditor";
+import FloatingCellEditor from "./celleditor/FloatingCellEditor";
 
 // NOTE: these should match the css
 export const DEFAULT_WIDTH = 123;

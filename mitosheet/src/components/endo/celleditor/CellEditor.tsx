@@ -1,16 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
-import '../../../css/endo/CellEditor.css';
-import MitoAPI from '../../api';
-import { formulaEndsInColumnHeader, getFullFormula, getSuggestedColumnHeaders, getDocumentationFunction, getSuggestedFunctions } from './cellEditorUtils';
-import { KEYS_TO_IGNORE_IF_PRESSED_ALONE } from './EndoGrid';
-import { focusGrid } from './focusUtils';
-import { getColumnHeadersInSelection, getNewSelectionAfterKeyPress, isNavigationKeyPressed } from './selectionUtils';
-import { EditorState, GridState, MitoError, SheetData, SheetView } from '../../types';
-import { firstNonNullOrUndefined, getCellDataFromCellIndexes } from './utils';
-import { classNames } from '../../utils/classNames';
-import { ensureCellVisible } from './visibilityUtils';
-import LoadingDots from '../elements/LoadingDots';
-import { getDisplayColumnHeader } from '../../utils/columnHeaders';
+import '../../../../css/endo/CellEditor.css';
+import MitoAPI from '../../../api';
+import { formulaEndsInColumnHeader, getFullFormula, getSuggestedColumnHeaders, getDocumentationFunction, getSuggestedFunctions } from '../cellEditorUtils';
+import { KEYS_TO_IGNORE_IF_PRESSED_ALONE } from '../EndoGrid';
+import { focusGrid } from '../focusUtils';
+import { getColumnHeadersInSelection, getNewSelectionAfterKeyPress, isNavigationKeyPressed } from '../selectionUtils';
+import { EditorState, GridState, MitoError, SheetData, SheetView } from '../../../types';
+import { firstNonNullOrUndefined, getCellDataFromCellIndexes } from '../utils';
+import { classNames } from '../../../utils/classNames';
+import { ensureCellVisible } from '../visibilityUtils';
+import LoadingDots from '../../elements/LoadingDots';
+import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 
 const MAX_SUGGESTIONS = 4;
 // NOTE: we just set the width to 250 pixels
@@ -32,12 +32,8 @@ export const CELL_EDITOR_WIDTH = 250;
     inside this component, by overwriting the cell navigation logic and updating 
     the selection here. Clicking on columns is handeled inside the EndoGrid 
     itself.
-
-    NOTE: for now, we ignore single cell editing. In the future, we'll just
-    check the column type (formula vs constant), and do different things in
-    either cases! We leave this to integration ;-)
 */
-const CellEditorInput = (props: {
+const CellEditor = (props: {
     sheetData: SheetData,
     sheetIndex: number,
     gridState: GridState,
@@ -549,4 +545,4 @@ const CellEditorInput = (props: {
     )
 }
 
-export default CellEditorInput;
+export default CellEditor;
