@@ -50,3 +50,7 @@ class ExcelImportCodeChunk(CodeChunk):
             'import pandas as pd',
             read_excel_line
         ] + df_definitions
+
+    def get_created_sheet_indexes(self) -> List[int]:
+        sheet_names = self.get_param('sheet_names')
+        return [i for i in range(len(self.post_state.dfs) - len(sheet_names), len(self.post_state.dfs))]
