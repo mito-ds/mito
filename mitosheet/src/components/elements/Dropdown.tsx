@@ -369,8 +369,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
             const selected = found === selectedIndex;  
             const finalChild = React.cloneElement(child, {
                 className: classNames(child.props.className, {
-                    'dropdown-item-selected': selected,
-                    'dropdown-item-with-search-first-item': props.searchable === true && found === 0
+                    'dropdown-item-selected': selected
                 })
             })
             found += 1;
