@@ -7,7 +7,7 @@ description: Want to see what is new in the Mitosheet? Check it out below.
 ## 2022-4-19 <a href="#2022-4-19" id="2022-4-19"></a>
 
 New Features:
-* More Code optimization for Mito Pro users. When the user deletes a dataframe, Mito now deletes all of the code that was used to create that dataframe, in most casts. 
+* More Code optimization for Mito Pro users. When the user deletes a dataframe, Mito now deletes all of the code that was used to create that dataframe, in most cases. 
 * The file browser now works with arrow keys! Woo for efficiency.
 
 Bug Fixes:
