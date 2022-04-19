@@ -17,21 +17,12 @@ const MAX_SUGGESTIONS = 4;
 export const CELL_EDITOR_WIDTH = 250;
 
 /* 
-    The cell editor is a popup that appears on top of the sheet, and displays
-    a user an input that allows them to edit a formula. 
-
-    The two seperate complexities with the cell editor are making sure that
-    the cell editor is visible in the right location, and allowing users to
-    select column headers by clicking or using the arrow keys.
-
-    To make sure the editor is in the right location, we just have an effect
-    that runs when the props change, and effectively make sure the editor is
-    in the correct location. 
-
-    Allowing users to select column headers by using the arrow keys is handeled
-    inside this component, by overwriting the cell navigation logic and updating 
-    the selection here. Clicking on columns is handeled inside the EndoGrid 
-    itself.
+    A CellEditor allows the user to edit the formula or value of a cell.
+    
+    The main complexity is allowing the user to select column headers by 
+    clicking or using the arrow keys. It is handled inside this component, 
+    by overwriting the cell navigation logic and updating the selection here. 
+    Clicking on columns is handeled inside the EndoGrid itself.
 */
 const CellEditor = (props: {
     sheetData: SheetData,
@@ -57,7 +48,6 @@ const CellEditor = (props: {
     // field while the cellEditorInputRef is still Null. So here, we wait until the cellEditorInputRef is not null
     // and then set the focus.
     useEffect(() => {
-        console.log(cellEditorInputRef.current?.id)
         cellEditorInputRef.current?.focus();
     }, [cellEditorInputRef.current?.id])
 

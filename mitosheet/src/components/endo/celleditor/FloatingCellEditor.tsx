@@ -12,8 +12,13 @@ import '../../../../css/endo/CellEditor.css';
 interface EditorStyle {top?: number, left?: number, bottom?: number, right?: number, display?: string}
 
 /* 
-    The container for the headers at the top of the sheet, with support
-    for resizing and for reordering them.
+    The FloatingCellEditor is a popup that appears on top of the sheet, and displays
+    a CellEditor that allows them to edit a formula or cell value. 
+
+    The complexity with the FloatingCellEditor is making sure that
+    it is visible in the right location. To do so, we just have an effect
+    that runs when the props change, and effectively make sure the editor is
+    in the correct location. 
 */
 const FloatingCellEditor = (props: {
     sheetData: SheetData,
