@@ -5,8 +5,8 @@ from copy import copy
 from typing import Any, Dict
 
 from mitosheet.errors import MitoError, get_recent_traceback_as_list
-from mitosheet.telemetry.anonymization_utils import anonyimize_object, anonymize_formula, anonymize_word, get_final_private_params_for_single_kv
-from mitosheet.telemetry.private_params_map import FORMULAS_TO_ANONYIMIZE, PARAMS_TO_ANONYIMIZE, PUBLIC_EXECUTION_DATA_KEYS, PUBLIC_PARAMS
+from mitosheet.telemetry.anonymization_utils import anonyimize_object, get_final_private_params_for_single_kv
+from mitosheet.telemetry.private_params_map import LOG_EXECUTION_DATA_ANONYIMIZE, LOG_EXECUTION_DATA_PUBLIC, LOG_PARAMS_TO_ANONYIMIZE
 from mitosheet.types import StepsManagerType
 from mitosheet.user.location import get_location, is_docker
 from mitosheet.user.schemas import UJ_FEEDBACKS, UJ_FEEDBACKS_V2, UJ_INTENDED_BEHAVIOR, UJ_MITOSHEET_TELEMETRY, UJ_USER_EMAIL, UJ_USER_SALT
@@ -24,7 +24,7 @@ from mitosheet.user import (UJ_STATIC_USER_ID, get_user_field,
                             is_local_deployment, is_running_test)
 
 # If you want, you can optionally choose to print logs
-PRINT_LOGS = True
+PRINT_LOGS = False
 
 
 def telemetry_turned_on() -> bool:
@@ -66,8 +66,13 @@ def _get_execution_data_log_params(steps_manager: StepsManagerType=None) -> Dict
     if steps_manager and steps_manager.curr_step.execution_data:
         for key, value in steps_manager.curr_step.execution_data.items():
             # Only take those items that are marked as public
-            if key in PUBLIC_EXECUTION_DATA_KEYS:
+            if key in LOG_EXECUTION_DATA_PUBLIC:
                 execution_data_params['execution_data_' + key] = value
+            # And make the rest private
+            elif key in LOG_EXECUTION_DATA_ANONYIMIZE:
+                execution_data_params['execution_data_' + key] = anonyimize_object(value)
+            else:
+                raise Exception('key, value in execution data not in valid set', key, value)
         
     return execution_data_params
 

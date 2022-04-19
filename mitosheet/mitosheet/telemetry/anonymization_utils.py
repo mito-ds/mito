@@ -4,7 +4,7 @@
 # to construct new private words
 from typing import Any, Dict
 from mitosheet.parser import parse_formula
-from mitosheet.telemetry.private_params_map import FORMULAS_TO_ANONYIMIZE, PARAMS_TO_ANONYIMIZE, PARAMS_TO_LINEARIZE, PUBLIC_PARAMS
+from mitosheet.telemetry.private_params_map import LOG_PARAMS_FORMULAS, LOG_PARAMS_TO_ANONYIMIZE, LOG_PARAMS_TO_LINEARIZE, LOG_PARAMS_PUBLIC
 from mitosheet.types import StepsManagerType
 from mitosheet.user.db import get_user_field
 from mitosheet.user.schemas import UJ_USER_SALT
@@ -18,9 +18,11 @@ valid_words = ['cat', 'dog', 'hat', 'time', 'person', 'year', 'way', 'thing', 'm
 salt = None
 def anonymize_word(word: Any) -> str:
     """
-    Helper function that turns a column header into
-    a totally anonymous version of the column header,
-    as to not leak _any_ user data
+    Helper function that turns any specific value into
+    a totally anonymous version of the value, consistently.
+
+    Notably, this will cast the given value to a string before 
+    anonymizing it.
     """
     # We make sure that the salt is read in after the entire
     # app has been initalized, so that we don't have to read
@@ -62,37 +64,41 @@ def anonymize_formula(formula: str, sheet_index: int, steps_manager: StepsManage
 
 def anonyimize_object(obj: Any) -> Any:
     """
-    Anoymizes anything it is given
+    Anoymizes anything object it is given, handling any different
+    type of object that it might be given.
     """
     if isinstance(obj, list):
         return [anonymize_word(v) for v in obj]
     elif isinstance(obj, dict):
         return {key: anonymize_word(v) for key, v in obj.items()}
+    
+    return anonymize_word(any)
 
-all_keys = set()
 def get_final_private_params_for_single_kv(key: str, value: Any, params: Dict[str, Any], steps_manager: StepsManagerType=None) -> Dict[str, Any]:
+    """
+    Given a single key, value pair for a set of params, this function will 
+    turn them into a totally anonyimized version of the parameter. 
+    """
     private_params = dict()
     
-    added = False
-    if key in PUBLIC_PARAMS:
+    if key in LOG_PARAMS_PUBLIC:
         private_params[key] = value
-    elif key in PARAMS_TO_ANONYIMIZE:
+    elif key in LOG_PARAMS_TO_ANONYIMIZE:
         private_params[key] = anonyimize_object(value)
-    elif key in FORMULAS_TO_ANONYIMIZE:
+    elif key in LOG_PARAMS_FORMULAS:
         private_params[key] = anonymize_formula(value, params['sheet_index'], steps_manager)
-    elif key in PARAMS_TO_LINEARIZE:
-        # TODO: explain this
-        for nested_key, nested_value in value.items():
-            nested_params = get_final_private_params_for_single_kv(nested_key, nested_value, params, steps_manager)
-            nested_params = {key + "_" + k: v for k, v in  nested_params.items()}
-            private_params = {**private_params, **nested_params}
-    else:
-        global all_keys
-        all_keys.add(key)
-        added = True
+    elif key in LOG_PARAMS_TO_LINEARIZE:
+        # If this is a log to linearize, then we recurse and create private versions of those
+        # parameters. 
+        if isinstance(value, dict):
+            for nested_key, nested_value in value.items():
+                nested_params = get_final_private_params_for_single_kv(nested_key, nested_value, params, steps_manager)
+                nested_params = {key + "_" + k: v for k, v in  nested_params.items()}
+                private_params = {**private_params, **nested_params}
+        else:
+            raise Exception('key, value cannot be linearized as it is a flat type', key, value)
 
-    if added:
-        print(all_keys)
-        assert False
+    else:
+        raise Exception('key, value not in any log set', key, value)
     
     return private_params

@@ -6,4 +6,8 @@ If you want to turn off telemetry, you can purchase a Pro account on our [plans 
 
 ## What information is logged?
 
+We aim to be very transparent about the information we collect in our telemetry. You can see a complete enumeration of all the events we log in the `private_params_map.py` file in this folder. 
+
 ## How do you anonymize data?
+
+You can see the functions for logging 

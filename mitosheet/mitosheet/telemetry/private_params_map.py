@@ -4,24 +4,31 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-# These are parameters that are always fine to log, no matter what
-# log event they are in generated with
-PUBLIC_PARAMS = {'row_index', 'move_to_deprecated_id_algorithm', 'destination_sheet_index', 'level', 'new_column_index', 'df_index_type', 'sheet_index', 'user_serch_term', 'step_type', 'fullscreen', 'flatten_column_headers', 'column_header_index', 'keep', 'format_type', 'view_df', 'action', 'created_non_empty_dataframe', 'height', 'new_graph_id', 'ignore_index', 'graph_type', 'how', 'sort', 'step_id_to_match', 'sheet_indexes', 'num_args', 'step_idx', 'join', 'jupyterlab_theme', 'steps_manager_analysis_name', 'export_type', 'number_rendered_sheets', 'operator', 'path_parts_length', 'num_df_args', 'has_headers', 'sheet_index_one', 'has_non_empty_filter', 'graph_id', 'param_filtered', 'sheet_index_two', 'selected_element', 'skiprows', 'old_graph_id', 'sort_direction', 'new_dtype', 'new_dataframe_name', 'log_event', 'filter_location', 'search_string', 'old_dtype', 'width', 'num_str_args', 'old_version', 'new_version', 'feedback_id', 'old_signup_step', 'field', 'new_signup_step', 'value', 'num_usages', 'safety_filter_turned_on_by_user', 'questions_and_answers', 'visible', 'title_font_color', 'plot_bgcolor', 'paper_bgcolor', 'showlegend'}
+# Params that do not need to be anonyimized
+LOG_PARAMS_PUBLIC = { 'action', 'column_header_index', 'created_non_empty_dataframe', 'destination_sheet_index', 'df_index_type', 'export_type', 'feedback_id', 'field', 'filter_location', 'flatten_column_headers', 'format_type', 'fullscreen', 'graph_id', 'graph_type', 'has_headers', 'has_non_empty_filter', 'height', 'how', 'ignore_index', 'join', 'jupyterlab_theme', 'keep', 'level', 'log_event', 'move_to_deprecated_id_algorithm', 'new_column_index', 'new_dataframe_name', 'new_dtype', 'new_graph_id', 'new_signup_step', 'new_version', 'num_args', 'num_df_args', 'num_str_args', 'num_usages', 'number_rendered_sheets', 'old_dtype', 'old_graph_id', 'old_signup_step', 'old_version', 'operator', 'paper_bgcolor', 'param_filtered', 'path_parts_length', 'plot_bgcolor', 'questions_and_answers', 'safety_filter_turned_on_by_user', 'search_string', 'selected_element', 'sheet_index', 'sheet_index_one', 'sheet_index_two', 'sheet_indexes', 'showlegend', 'skiprows', 'sort', 'sort_direction', 'step_id_to_match', 'step_idx', 'step_type', 'steps_manager_analysis_name', 'title_font_color', 'user_serch_term', 'value', 'view_df', 'visible', 'width', 'row_index'}
 
-PARAMS_TO_ANONYIMIZE = {'old_graph_tab_name', 'file_names', 'selected_column_ids_two', 'sheet_names', 'args', 'analysis_name', 'execution_data_to_match', 'values_column_ids_map', 'column_id', 'column_ids', 'merge_key_column_id_two', 'merge_key_column_id_one', 'filters', 'pivot_columns_column_ids', 'selected_column_ids_one', 'column_header', 'path_parts', 'file_name', 'new_column_header', 'pivot_rows_column_ids', 'old_dataframe_name', 'new_graph_tab_name', 'new_value', 'old_value', 'x_axis_column_ids', 'y_axis_column_ids', 'color', 'title'}
+# Parameters that need to be anonyimized, so that no private data is taken
+LOG_PARAMS_TO_ANONYIMIZE = { 'analysis_name', 'args', 'color', 'column_header', 'column_id', 'column_ids', 'execution_data_to_match', 'file_name', 'file_names', 'filters', 'merge_key_column_id_one', 'merge_key_column_id_two', 'new_column_header', 'new_graph_tab_name', 'new_value', 'old_dataframe_name', 'old_value', 'path_parts', 'pivot_columns_column_ids', 'pivot_rows_column_ids', 'selected_column_ids_one', 'selected_column_ids_two', 'sheet_names', 'title', 'values_column_ids_map', 'x_axis_column_ids', 'y_axis_column_ids', 'old_graph_tab_name'}
 
-# TODO: linearize graph_rendering, etc, so they aren't nested. We should always do this?
+# Parameters that are formulas, and so need to be anonyimized in a special way
+LOG_PARAMS_FORMULAS = {'new_formula', 'old_formula'}
 
-FORMULAS_TO_ANONYIMIZE = {'new_formula', 'old_formula'}
+# Parameters that are nested dicts but should not be
+LOG_PARAMS_TO_LINEARIZE = {'graph_creation', 'graph_preprocessing', 'graph_rendering', 'graph_styling', 'rangeslider', 'xaxis', 'yaxis'}
 
-PARAMS_TO_LINEARIZE = {'graph_preprocessing', 'graph_creation', 'graph_styling', 'graph_rendering', 'xaxis', 'yaxis', 'rangeslider'}
+# We do sanity checks to make sure that there is no overlap between these sets
+print(LOG_PARAMS_PUBLIC.intersection(LOG_PARAMS_TO_ANONYIMIZE))
+assert len(LOG_PARAMS_PUBLIC.intersection(LOG_PARAMS_TO_ANONYIMIZE)) == 0
+assert len(LOG_PARAMS_PUBLIC.intersection(LOG_PARAMS_FORMULAS)) == 0
+assert len(LOG_PARAMS_PUBLIC.intersection(LOG_PARAMS_TO_LINEARIZE)) == 0
+assert len(LOG_PARAMS_TO_ANONYIMIZE.intersection(LOG_PARAMS_FORMULAS)) == 0
+assert len(LOG_PARAMS_TO_ANONYIMIZE.intersection(LOG_PARAMS_TO_LINEARIZE)) == 0
+assert len(LOG_PARAMS_FORMULAS.intersection(LOG_PARAMS_TO_LINEARIZE)) == 0
 
 
+# Keys from execution data that do not need to be anonyimized
+LOG_EXECUTION_DATA_PUBLIC = {'was_series', 'num_cols_deleted', 'column_header_index', 'pandas_processing_time', 'file_delimeters', 'destination_sheet_index', 'file_encodings', 'num_cols_formatted'}
 
-# {'graph_rendering', 'graph_creation', 'old_formula', 'new_formula', 'graph_preprocessing'}
-
-PUBLIC_EXECUTION_DATA_KEYS = set([
-    'test'
-])
-
+# Keys from execution data need to be anonyimized, so that no private data is taken
+LOG_EXECUTION_DATA_ANONYIMIZE = {'old_level_value', 'column_header_renames_list', 'type_corrected_new_value'}
 
