@@ -243,6 +243,7 @@ export default class MitoAPI {
         const dataFiles = await this.send<string[]>({
             'event': 'api_call',
             'type': 'datafiles',
+            'params': {},
         }, {})
 
         if (dataFiles == undefined) {
@@ -259,7 +260,9 @@ export default class MitoAPI {
         const pathDataString = await this.send<string>({
             'event': 'api_call',
             'type': 'get_path_contents',
-            'path_parts': pathParts
+            'params': {
+                'path_parts': pathParts
+            }
         }, {})
 
         if (pathDataString == undefined) {
@@ -284,7 +287,9 @@ export default class MitoAPI {
         const pathJoined = await this.send<string>({
             'event': 'api_call',
             'type': 'get_path_join',
-            'path_parts': pathParts
+            'params': {
+                'path_parts': pathParts
+            },
         }, {})
 
         return pathJoined;
@@ -301,7 +306,9 @@ export default class MitoAPI {
         const sheetData = await this.send<string>({
             'event': 'api_call',
             'type': 'get_dataframe_as_csv',
-            'sheet_index': sheetIndex
+            'params': {
+                'sheet_index': sheetIndex
+            },
         }, { maxRetries: 250 })
 
         if (sheetData == undefined) {
@@ -322,7 +329,9 @@ export default class MitoAPI {
         const excelFileString = await this.send<string>({
             'event': 'api_call',
             'type': 'get_dataframe_as_excel',
-            'sheet_indexes': sheetIndexes
+            'params': {
+                'sheet_indexes': sheetIndexes
+            },
         }, { maxRetries: 1000 });
 
         if (excelFileString == undefined) {
@@ -349,10 +358,12 @@ export default class MitoAPI {
         const graphString = await this.send<string>({
             'event': 'api_call',
             'type': 'get_column_summary_graph',
-            'sheet_index': sheetIndex,
-            'column_id': column_id,
-            'height': height,
-            'width': width
+            'params': {
+                'sheet_index': sheetIndex,
+                'column_id': column_id,
+                'height': height,
+                'width': width
+            },
         }, { maxRetries: 250 })
 
         if (graphString == undefined) {
@@ -375,8 +386,10 @@ export default class MitoAPI {
         const describeString = await this.send<string>({
             'event': 'api_call',
             'type': 'get_column_describe',
-            'sheet_index': sheetIndex,
-            'column_id': columnID
+            'params': {
+                'sheet_index': sheetIndex,
+                'column_id': columnID
+            },
         }, {})
 
         if (describeString == undefined) {
@@ -400,9 +413,11 @@ export default class MitoAPI {
         const params = await this.send<string>({
             'event': 'api_call',
             'type': 'get_params',
-            'step_type': stepType,
-            'step_id_to_match': stepID || '',
-            'execution_data_to_match': executionDataToMatch
+            'params': {
+                'step_type': stepType,
+                'step_id_to_match': stepID || '',
+                'execution_data_to_match': executionDataToMatch
+            },
         }, {})
 
         if (params !== undefined && params !== '') {
@@ -433,7 +448,9 @@ export default class MitoAPI {
         const excelFileMetadataString = await this.send<string>({
             'event': 'api_call',
             'type': 'get_excel_file_metadata',
-            'file_name': fileName
+            'params': {
+                'file_name': fileName
+            },
         }, {})
 
         if (excelFileMetadataString !== undefined && excelFileMetadataString !== '') {
@@ -457,10 +474,12 @@ export default class MitoAPI {
         const uniqueValueCountsString = await this.send<string>({
             'event': 'api_call',
             'type': 'get_unique_value_counts',
-            'sheet_index': sheetIndex,
-            'column_id': columnID,
-            'search_string': searchString,
-            'sort': sort
+            'params': {
+                'sheet_index': sheetIndex,
+                'column_id': columnID,
+                'search_string': searchString,
+                'sort': sort
+            },
         }, {})
 
         if (uniqueValueCountsString !== undefined && uniqueValueCountsString !== '') {
@@ -496,9 +515,11 @@ export default class MitoAPI {
         const searchMatchesString = await this.send<string>({
             'event': 'api_call',
             'type': 'get_search_matches',
-            'sheet_index': sheetIndex,
-            'search_string': searchString,
-            'starting_row_index': startingRowIndex
+            'params': {
+                'sheet_index': sheetIndex,
+                'search_string': searchString,
+                'starting_row_index': startingRowIndex
+            },
         }, {})
 
         if (searchMatchesString !== undefined && searchMatchesString !== '') {
@@ -1036,7 +1057,8 @@ export default class MitoAPI {
     async updateUndo(): Promise<void> {
         await this.send({
             'event': 'update_event',
-            'type': 'undo'
+            'type': 'undo',
+            'params': {}
         }, {})
     }
 
@@ -1048,7 +1070,8 @@ export default class MitoAPI {
     async updateGoPro(): Promise<void> {
         await this.send({
             'event': 'update_event',
-            'type': 'go_pro'
+            'type': 'go_pro',
+            'params': {}
         }, {})
     }
 
@@ -1058,7 +1081,8 @@ export default class MitoAPI {
     async updateRedo(): Promise<void> {
         await this.send({
             'event': 'update_event',
-            'type': 'redo'
+            'type': 'redo',
+            'params': {}
         }, {})
     }
 
@@ -1069,7 +1093,8 @@ export default class MitoAPI {
     async updateClear(): Promise<void> {
         await this.send({
             'event': 'update_event',
-            'type': 'clear'
+            'type': 'clear',
+            'params': {}
         }, {})
     }
 
@@ -1081,7 +1106,9 @@ export default class MitoAPI {
         await this.send({
             'event': 'update_event',
             'type': 'args_update',
-            'args': args
+            'params': {
+                'args': args
+            }
         }, {})
     }
 
@@ -1089,10 +1116,12 @@ export default class MitoAPI {
         await this.send({
             'event': 'update_event',
             'type': 'render_count_update',
-            // Log the number of rendered sheets in the notebook
-            'number_rendered_sheets': document.querySelectorAll('.mito-container').length,
-            // Log the theme of the notebook
-            'jupyterlab_theme': document.body.getAttribute('data-jp-theme-name') || 'undefined'
+            'params': {
+                // Log the number of rendered sheets in the notebook
+                'number_rendered_sheets': document.querySelectorAll('.mito-container').length,
+                // Log the theme of the notebook
+                'jupyterlab_theme': document.body.getAttribute('data-jp-theme-name') || 'undefined'
+            }
         }, {})
     }
 
@@ -1107,7 +1136,9 @@ export default class MitoAPI {
         const result: MitoError | undefined = await this.send({
             'event': 'update_event',
             'type': 'replay_analysis_update',
-            'analysis_name': analysisName
+            'params': {
+                'analysis_name': analysisName
+            }
         }, { maxRetries: 500 });
 
         return result;
@@ -1123,8 +1154,10 @@ export default class MitoAPI {
         await this.send({
             'event': 'update_event',
             'type': 'set_user_field_update',
-            'field': UserJsonFields.UJ_USER_EMAIL,
-            'value': userEmail
+            'params': {
+                'field': UserJsonFields.UJ_USER_EMAIL,
+                'value': userEmail
+            }
         }, {});
     }
 
@@ -1147,9 +1180,11 @@ export default class MitoAPI {
         await this.send({
             'event': 'update_event',
             'type': 'set_user_field_update',
-            'field': UserJsonFields.UJ_MITOSHEET_LAST_UPGRADED_DATE,
-            // Taken from https://stackoverflow.com/questions/23593052/format-javascript-date-as-yyyy-mm-dd
-            'value': tenDaysAgoDate.toISOString().split('T')[0]
+            'params': {
+                'field': UserJsonFields.UJ_MITOSHEET_LAST_UPGRADED_DATE,
+                // Taken from https://stackoverflow.com/questions/23593052/format-javascript-date-as-yyyy-mm-dd
+                'value': tenDaysAgoDate.toISOString().split('T')[0]
+            }
         }, {});
     }
 
@@ -1163,7 +1198,9 @@ export default class MitoAPI {
         await this.send({
             'event': 'update_event',
             'type': 'checkout_step_by_idx_update',
-            'step_idx': stepIndex
+            'params': {
+                'step_idx': stepIndex
+            }
         }, {});
     }
 
@@ -1174,8 +1211,10 @@ export default class MitoAPI {
         await this.send({
             'event': 'update_event',
             'type': 'append_user_field_update',
-            'field': UserJsonFields.UJ_RECEIVED_TOURS,
-            'value': tourNames
+            'params': {
+                'field': UserJsonFields.UJ_RECEIVED_TOURS,
+                'value': tourNames
+            }
         }, {})
     }
 
@@ -1184,9 +1223,11 @@ export default class MitoAPI {
         const message: Record<string, unknown> = {
             'event': 'update_event',
             'type': 'update_feedback_v2_obj_update',
-            'feedback_id': feedbackID,
-            'num_usages': numUsages,
-            'questions_and_answers': questionsAndAnswers
+            'params': {
+                'feedback_id': feedbackID,
+                'num_usages': numUsages,
+                'questions_and_answers': questionsAndAnswers
+            }
         }
 
         // Elevate the questions and answers to the highest level so that Mixpanel logs it in a way
@@ -1211,7 +1252,9 @@ export default class MitoAPI {
         let message: Record<string, unknown> = {};
         // Copy the params, so we don't accidently modify anything
         if (params !== undefined) {
-            message = Object.assign({}, params);
+            message['params'] = Object.assign({}, params);
+        } else {
+            message['params'] = {}
         }
 
         // Get the browser information, so we can make sure Mito works for all Mito users

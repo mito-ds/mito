@@ -607,7 +607,7 @@ export interface UIState {
     loading: number;
     currOpenModal: ModalInfo;
     currOpenTaskpane: TaskpaneInfo;
-    selectedColumnControlPanelTab: ControlPanelTab;
+    selectedColumnControlPanelTab: ControlPanelTab.FilterSort;
     exportConfiguration: CSVExportState | ExcelExportState;
     selectedSheetIndex: number;
     selectedGraphID: GraphID | undefined;
