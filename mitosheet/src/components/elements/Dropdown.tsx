@@ -405,7 +405,13 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                                 value={searchString}
                                 placeholder='Search'
                                 onKeyDown={(e) => {
-                                    handleKeyboardInDropdown(e, found, setSelectedIndex, props.closeDropdown)
+                                    // NOTE: we need to stop prop because in notebooks, this will go up to the 
+                                    // code cell, and start editing it (e.g. turning it to markdown). That is 
+                                    // obviously bad
+                                    e.stopPropagation();
+
+                                    handleKeyboardInDropdown(e, found, setSelectedIndex, props.closeDropdown);
+
                                 }}
                                 onChange={e => {
                                     setSelectedIndex(-1);
