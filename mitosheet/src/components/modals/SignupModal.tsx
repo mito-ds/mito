@@ -124,7 +124,7 @@ const StepTwo = (
         setIsPro(true);
 
         // We log this before going pro so that this is the last thing to appear in the logs
-        void props.mitoAPI.log('signup_completed_pro')
+        void props.mitoAPI.log('signup_completed_pro', {'location': 'signup'})
         void props.mitoAPI.updateGoPro();
 
         // Then, we go to the final page

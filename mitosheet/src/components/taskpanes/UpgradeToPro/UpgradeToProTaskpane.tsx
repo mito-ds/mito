@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MitoAPI from "../../../api";
 import { useInputValue } from "../../../hooks/useInputValue";
 import { UIState, UserProfile } from "../../../types"
@@ -48,6 +48,10 @@ const UpgradeToProTaskpane = (props: UpgradeTaskpaneProps): JSX.Element => {
 
     const isPro = props.userProfile.isPro;
 
+    useEffect(() => {
+        void props.mitoAPI.log('opened_upgrade_to_pro_taskpane');
+    }, [])
+
 
     if (!isPro && !isEnteringAccessCode) {
         return (
@@ -58,7 +62,7 @@ const UpgradeToProTaskpane = (props: UpgradeTaskpaneProps): JSX.Element => {
                 />
                 <DefaultTaskpaneBody>
                     <p className="text-body-1 mb-10px">
-                        <a href='https://trymito.io/plans' target='_blank' rel="noreferrer"><span className='text-body-1-link'>Mito Pro</span></a> gives you extra features to super charge you analysis:
+                        <a href='https://trymito.io/plans' target='_blank' rel="noreferrer"><span className='text-body-1-link'>Mito Pro</span></a> gives you extra features to super charge your analysis:
                     </p>
                     <ProListElement text="Turn off all telemetry"/>
                     <ProListElement text="Generated code optimization"/>
@@ -74,6 +78,7 @@ const UpgradeToProTaskpane = (props: UpgradeTaskpaneProps): JSX.Element => {
                                     className={classNames('text-button', 'text-header-3', 'text-overflow-wrap', 'element-width-block', 'text-button-variant-dark')} 
                                     type="submit"
                                     onClick={() => {
+                                        void props.mitoAPI.log('clicked_purchase_mito_pro');
                                         // A little hack to make sure the post is sent before we move to the next page
                                         setTimeout(() => setIsEnteringAccessCode(true), 100)
                                     }}
@@ -105,7 +110,7 @@ const UpgradeToProTaskpane = (props: UpgradeTaskpaneProps): JSX.Element => {
                 />
                 <DefaultTaskpaneBody>
                     <Row align="center">
-                        <Col span={6}>
+                        <Col span={5}>
                             <p className="text-heading-2">
                                 Access Code: 
                             </p>
@@ -136,7 +141,8 @@ const UpgradeToProTaskpane = (props: UpgradeTaskpaneProps): JSX.Element => {
                                         return;
                                     }
                                     setInvalidAccessCode(false);
-
+                                    
+                                    await props.mitoAPI.log('signup_completed_pro', {'location': 'upgrade_to_pro_taskpane'});
                                     await props.mitoAPI.updateGoPro();
 
                                     setIsEnteringAccessCode(false);
