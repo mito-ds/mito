@@ -36,6 +36,7 @@ HERE = Path(__file__).parent.resolve()
 
 package_json = json.loads(open('package.json').read())
 lab_path = Path(pjoin(HERE, 'mitosheet', 'labextension'))
+notebook_path = Path(pjoin(HERE, 'mitosheet', 'nbextension'))
 
 
 # The name of the project
@@ -162,9 +163,15 @@ elif name == 'mitosheet' or name == 'mitosheet3' or name == 'mitosheet-private':
     labext_name = name
 
     data_files_spec = [
+        # Notebook extension data files
+        ('share/jupyter/nbextensions/mitosheet', notebook_path, '*.*'),
+        ('etc/jupyter/nbconfig/notebook.d', '.', 'mitosheet.json'),
+
+        # Lab extension data files
         ("share/jupyter/labextensions/%s" % labext_name, str(lab_path), "**"),
         ("share/jupyter/labextensions/%s" % labext_name, str(HERE), "install.json"),
     ]
+
 
     cmdclass = create_cmdclass("jsdeps",
         package_data_spec=package_data_spec,
