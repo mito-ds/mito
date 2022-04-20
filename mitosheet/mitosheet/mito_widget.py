@@ -205,8 +205,6 @@ class MitoWidget(DOMWidget):
 
             return True
         except MitoError as e:
-            print(get_recent_traceback())
-            print(e)
             
             # Log processing this event failed
             log_event_processed(event, self.steps_manager, failed=True, mito_error=e, start_time=start_time)
@@ -234,7 +232,6 @@ class MitoWidget(DOMWidget):
             # Report it to the user, and then return
             self.send(response)
         except:
-            print(get_recent_traceback())
             # We log that processing failed, but have no edit error
             log_event_processed(event, self.steps_manager, failed=True, start_time=start_time)
             # Report it to the user, and then return

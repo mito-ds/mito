@@ -4,7 +4,7 @@ import React, {Fragment, useState} from 'react';
 import DefaultModal from '../DefaultModal'; 
 import { ModalEnum } from './modals';
 import TextButton from '../elements/TextButton';
-import MitoAPI from '../../api';
+import MitoAPI from '../../jupyter/api';
 import { MitoError, UIState } from '../../types';
 import { DISCORD_INVITE_LINK } from '../../data/documentationLinks';
 

@@ -1,5 +1,5 @@
 import React from "react"
-import MitoAPI from "../api"
+import MitoAPI from "../jupyter/api"
 import DropdownItem from "../components/elements/DropdownItem"
 import { getSelectedNumberSeriesColumnIDs } from "../components/endo/selectionUtils"
 import { ColumnID, FormatType, FormatTypeObj, GridState, MitoSelection, SheetData } from "../types"

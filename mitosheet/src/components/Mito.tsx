@@ -21,7 +21,8 @@ import '../../css/sitewide/paddings.css';
 import '../../css/sitewide/scroll.css';
 import '../../css/sitewide/text.css';
 import '../../css/sitewide/widths.css';
-import MitoAPI from '../api';
+import MitoAPI from '../jupyter/api';
+import { getArgs, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell } from '../jupyter/jupyterUtils';
 import { AnalysisData, DataTypeInMito, DFSource, EditorState, GridState, SheetData, UIState, UserProfile } from '../types';
 import { createActions } from '../utils/actions';
 import { classNames } from '../utils/classNames';
@@ -138,9 +139,11 @@ export const Mito = (props: MitoProps): JSX.Element => {
         void props.mitoAPI.log('mitosheet_rendered');
 
         return () => {
+            /*
             if (window.setMitoStateMap) {
                 window.setMitoStateMap.delete(props.model_id);
             }
+             */
         }
     }, [])
 
@@ -159,101 +162,101 @@ export const Mito = (props: MitoProps): JSX.Element => {
         const updateMitosheetCallCellOnFirstRender = async () => {
             // The first thing we need to do is go and read the arguments to the mitosheet.sheet() call. If there
             // is an analysis to replay, we use this to help lookup the call
-            window.commands?.execute('get-args', {analysisToReplayName: analysisData.analysisToReplay?.analysisName}).then(async (args: string[]) => {
-                await props.mitoAPI.updateArgs(args);
+            const args = await getArgs(analysisData.analysisToReplay?.analysisName);
+            await props.mitoAPI.updateArgs(args);
 
-                // Then, after we have the args, we replay an analysis if there is an analysis to replay
-                // Note that this has to happen after so that we have the the argument names loaded in at
-                // the very start of the analysis
-                if (analysisData.analysisToReplay) {
-                    const analysisToReplayName = analysisData.analysisToReplay?.analysisName;
+            // Then, after we have the args, we replay an analysis if there is an analysis to replay
+            // Note that this has to happen after so that we have the the argument names loaded in at
+            // the very start of the analysis
+            if (analysisData.analysisToReplay) {
+                const analysisToReplayName = analysisData.analysisToReplay?.analysisName;
 
-                    // First, if the analysis to replay does not exist at all, we just open an error modal
-                    // and tell users that this does not exist on their computer
-                    if (!analysisData.analysisToReplay.existsOnDisk) {
-                        void props.mitoAPI.log('replayed_nonexistant_analysis_failed')
+                // First, if the analysis to replay does not exist at all, we just open an error modal
+                // and tell users that this does not exist on their computer
+                if (!analysisData.analysisToReplay.existsOnDisk) {
+                    void props.mitoAPI.log('replayed_nonexistant_analysis_failed')
 
-                        setUIState(prevUIState => {
-                            return {
-                                ...prevUIState,
-                                currOpenModal: {
-                                    type: ModalEnum.ErrorReplayedAnalysis,
-                                    header: 'analysis_to_replay does not exist',
-                                    message: `We're unable to replay ${analysisToReplayName} because you don't have access to it. This is probably because the analysis was created on a different computer.`,
-                                    error: undefined,
-                                    oldAnalysisName: analysisToReplayName,
-                                    newAnalysisName: analysisData.analysisName
-                                }
+                    setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            currOpenModal: {
+                                type: ModalEnum.ErrorReplayedAnalysis,
+                                header: 'analysis_to_replay does not exist',
+                                message: `We're unable to replay ${analysisToReplayName} because you don't have access to it. This is probably because the analysis was created on a different computer.`,
+                                error: undefined,
+                                oldAnalysisName: analysisToReplayName,
+                                newAnalysisName: analysisData.analysisName
                             }
-                        })
-                        return;
-                    }
-
-
-                    // Then, we replay the analysis to replay!
-                    const error = await props.mitoAPI.updateReplayAnalysis(analysisToReplayName);
-                    
-                    if (error !== undefined) {
-                        /**
-                         * If the replayed analysis fails, the first thing that we need to do is to
-                         * report this to the user by displaying a modal that tells them as much
-                         */
-                        setUIState(prevUIState => {
-                            return {
-                                ...prevUIState,
-                                currOpenModal: {
-                                    type: ModalEnum.ErrorReplayedAnalysis,
-                                    header: 'Analysis Could Not Be Replayed',
-                                    message: 'There was an error replaying your analysis because of changes in the input data. You can see the previous analysis in the code cell below.',
-                                    error: error,
-                                    oldAnalysisName: analysisToReplayName,
-                                    newAnalysisName: analysisData.analysisName
-                                }
-                            }
-                        })
-                    }
-                } else {
-                    /**
-                     * If we don't have an analysis to replay, we check if we need to upgrade from the 
-                     * old analysis_to_replay format to the new one.
-                     * 
-                     * In the past, we used to only store the analysis id in the generated code cell,
-                     * which led to a ton of issues making it really hard to handle things like users
-                     * running all, etc. 
-                     * 
-                     * We moved to storing the analysis id in the mitosheet call and the generated code
-                     * cell, which allows us to easily link them together. 
-                     * 
-                     * To transition from the old system to the new system, we run this piece of code
-                     * that moves the saved analysis id from the generated code to the mitosheet call,
-                     * and then reruns this mitosheet call. 
-                     * 
-                     * This is the cleanest way to have this transition occur, by far, based on the 48
-                     * hours that I spent thinking about such things.
-                     * 
-                     * TODO: remove this effect 6 months after implemented, as pretty much all users will
-                     * have upgraded by then. Delete this code on September 1, 2022.
-                     */
-                    const upgradedFromSaveInGeneratedCodeToSheet = await window.commands?.execute('move-saved-analysis-id-to-mitosheet-call');
-                    if (upgradedFromSaveInGeneratedCodeToSheet) {
-                        // We stop here, and do not do anything else in this case
-                        return;
-                    }
-    
-                    /**
-                     * If we didn't have to upgrade from the old format to the new format, and we don't
-                     * have a analysis_to_replay, then we need to write the analysis_to_replay to the 
-                     * mitosheet.sheet call. 
-                     * 
-                     * Specifically, we want to write the analysis name of this analysis, as this is the 
-                     * analysis that will get written to the code cell below.
-                     */
-                    window.commands?.execute('write-analysis-to-replay-to-mitosheet-call', {
-                        analysisName: analysisData.analysisName,
-                        mitoAPI: props.mitoAPI
-                    });
+                        }
+                    })
+                    return;
                 }
-            });
+
+
+                // Then, we replay the analysis to replay!
+                const error = await props.mitoAPI.updateReplayAnalysis(analysisToReplayName);
+                
+                if (error !== undefined) {
+                    /**
+                     * If the replayed analysis fails, the first thing that we need to do is to
+                     * report this to the user by displaying a modal that tells them as much
+                     */
+                    setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            currOpenModal: {
+                                type: ModalEnum.ErrorReplayedAnalysis,
+                                header: 'Analysis Could Not Be Replayed',
+                                message: 'There was an error replaying your analysis because of changes in the input data. You can see the previous analysis in the code cell below.',
+                                error: error,
+                                oldAnalysisName: analysisToReplayName,
+                                newAnalysisName: analysisData.analysisName
+                            }
+                        }
+                    })
+                }
+            } else {
+                /**
+                 * If we don't have an analysis to replay, we check if we need to upgrade from the 
+                 * old analysis_to_replay format to the new one.
+                 * 
+                 * In the past, we used to only store the analysis id in the generated code cell,
+                 * which led to a ton of issues making it really hard to handle things like users
+                 * running all, etc. 
+                 * 
+                 * We moved to storing the analysis id in the mitosheet call and the generated code
+                 * cell, which allows us to easily link them together. 
+                 * 
+                 * To transition from the old system to the new system, we run this piece of code
+                 * that moves the saved analysis id from the generated code to the mitosheet call,
+                 * and then reruns this mitosheet call. 
+                 * 
+                 * This is the cleanest way to have this transition occur, by far, based on the 48
+                 * hours that I spent thinking about such things.
+                 * 
+                 * TODO: remove this effect 6 months after implemented, as pretty much all users will
+                 * have upgraded by then. Delete this code on September 1, 2022.
+                 * 
+                 * ALSO NOTE: We only do this in JupyterLab rather than both Lab and Notebooks, as we 
+                 * added notebook support way after this upgrade phrase, and the complexity isn't worth
+                 * it.
+                 */
+                const upgradedFromSaveInGeneratedCodeToSheet = await window.commands?.execute('move-saved-analysis-id-to-mitosheet-call');
+                if (upgradedFromSaveInGeneratedCodeToSheet) {
+                    // We stop here, and do not do anything else in this case
+                    return;
+                }
+
+                /**
+                 * If we didn't have to upgrade from the old format to the new format, and we don't
+                 * have a analysis_to_replay, then we need to write the analysis_to_replay to the 
+                 * mitosheet.sheet call. 
+                 * 
+                 * Specifically, we want to write the analysis name of this analysis, as this is the 
+                 * analysis that will get written to the code cell below.
+                 */
+                writeAnalysisToReplayToMitosheetCall(analysisData.analysisName, props.mitoAPI);
+            }
         }
 
         const handleRender = async () => {
@@ -274,11 +277,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
          */
         if (analysisData.renderCount >= 1) {
             // Finially, we can go and write the code!
-            window.commands?.execute('write-generated-code-cell', {
-                analysisName: analysisData.analysisName,
-                code: analysisData.code,
-                telemetryEnabled: userProfile.telemetryEnabled,
-            });
+            writeGeneratedCodeToCell(analysisData.analysisName, analysisData.code, userProfile.telemetryEnabled);
         }
         // TODO: we should store some data with analysis data to not make
         // this run too often?

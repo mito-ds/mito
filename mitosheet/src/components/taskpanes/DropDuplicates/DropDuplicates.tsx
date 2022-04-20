@@ -2,7 +2,7 @@
 // Distributed under the terms of the Modified BSD License.
 
 import React, { useState } from 'react';
-import MitoAPI from '../../../api';
+import MitoAPI from '../../../jupyter/api';
 import useSyncedParams from '../../../hooks/useSyncedParams';
 import { AnalysisData, ColumnHeader, ColumnID, SheetData, StepType, UIState } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';

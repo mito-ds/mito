@@ -70,11 +70,11 @@ interface RowProps {
  */
 const Row = (props: RowProps): JSX.Element => {
 
-    const marginClass = props.suppressTopBottomMargin ? 'row-no-top-bottom-margin' : 'row-top-bottom-margin';
+    const marginClass = props.suppressTopBottomMargin ? 'spacing-row-no-top-bottom-margin' : 'spacing-row-top-bottom-margin';
 
     return (
         <div
-            className={classNames('row', marginClass, props.className)}
+            className={classNames('spacing-row', marginClass, props.className)}
             title={props.title}
             style={{
                 ...props.style,

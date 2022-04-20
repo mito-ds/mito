@@ -5,7 +5,7 @@ import { MIN_WIDTH } from './EndoGrid';
 import { getIndexesFromXAndY } from './selectionUtils';
 import { calculateCurrentSheetView, calculateTranslate } from './sheetViewUtils';
 import { EditorState, GridState, SheetData, UIState } from '../../types';
-import MitoAPI from '../../api';
+import MitoAPI from '../../jupyter/api';
 import { classNames } from '../../utils/classNames';
 import ColumnHeader from './ColumnHeader';
 import { changeColumnWidthDataArray } from './widthUtils';

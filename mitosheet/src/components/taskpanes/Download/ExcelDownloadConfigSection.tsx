@@ -1,5 +1,5 @@
 import React from "react";
-import MitoAPI from "../../../api";
+import MitoAPI from "../../../jupyter/api";
 import ExcelFormatSection from "../../../pro/download/ExcelFormatSection";
 import { ExcelExportState, SheetData, UIState, UserProfile } from "../../../types";
 import { toggleInArray } from "../../../utils/arrays";
