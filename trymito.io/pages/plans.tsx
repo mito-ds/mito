@@ -30,7 +30,7 @@ export interface Feature {
 
 const INTEGRATION_FEATURES: Feature[] = [
   {
-    feature: 'JupyterLab 2 & 3',
+    feature: 'Jupyter Notebooks',
     planSupport: {
       'Open Source': true,
       'Pro': true,
