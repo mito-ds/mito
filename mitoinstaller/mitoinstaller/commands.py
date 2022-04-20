@@ -114,6 +114,7 @@ def upgrade_mito_installer() -> None:
     """
     Upgrades the mito installer package itself
     """
+    return # TODO: remove this, just for testing
     run_command([sys.executable, "-m", "pip", "install", 'mitoinstaller', '--upgrade', '--no-cache-dir'])
 
 

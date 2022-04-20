@@ -1,7 +1,7 @@
 import sys
 from time import perf_counter
 from mitoinstaller.commands import (get_jupyterlab_metadata,
-                                    install_pip_packages,
+                                    install_pip_packages, run_command,
                                     uninstall_pip_packages)
 from mitoinstaller.installer_steps.installer_step import InstallerStep
 from mitoinstaller.log_utils import log
@@ -54,6 +54,11 @@ def install_step_mitosheet_install_mitosheet():
     print("This might take a few moments...")
     install_pip_packages('mitosheet', test_pypi='--test-pypi' in sys.argv)
 
+def install_step_mitosheet_activate_notebook_extension():
+    #run_command(['jupyter', 'nbextension', 'install', 'mitosheet'])
+    #run_command(['jupyter', 'nbextension', 'enable', 'mitosheet'])
+    print("TODO: fix this step when mitosheet for notebooks is deployed!")
+
     
 MITOSHEET_INSTALLER_STEPS = [
     InstallerStep(
@@ -68,5 +73,9 @@ MITOSHEET_INSTALLER_STEPS = [
         'Install mitosheet',
         install_step_mitosheet_install_mitosheet,
         should_log_success=True
+    ),
+    InstallerStep(
+        'Activate extension',
+        install_step_mitosheet_activate_notebook_extension
     ),
 ]
