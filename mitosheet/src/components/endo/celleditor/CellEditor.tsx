@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../../../../css/endo/CellEditor.css';
 import MitoAPI from '../../../api';
 import { formulaEndsInColumnHeader, getFullFormula, getSuggestedColumnHeaders, getDocumentationFunction, getSuggestedFunctions } from './cellEditorUtils';
@@ -22,7 +22,7 @@ export const CELL_EDITOR_WIDTH = 250;
     The main complexity is allowing the user to select column headers by 
     clicking or using the arrow keys. It is handled inside this component, 
     by overwriting the cell navigation logic and updating the selection here. 
-    Clicking on columns is handeled inside the EndoGrid itself.
+    Clicking on columns is handled inside the EndoGrid itself.
 
     The CellEditor takes up the entire parent component. 
 */
@@ -39,19 +39,24 @@ const CellEditor = (props: {
     currentSheetView: SheetView
 }): JSX.Element => {
 
-    const cellEditorInputRef = useRef<HTMLInputElement>(null);
+    const cellEditorInputRef = useRef<HTMLInputElement | null>(null);
 
     const [selectedSuggestionIndex, setSavedSelectedSuggestionIndex] = useState(-1);
     const [loading, setLoading] = useState(false);
     const [cellEditorError, setCellEditorError] = useState<string | undefined>(undefined);
     const {columnID, columnHeader} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
 
-    // When the CellEditor is created via the FloatingCellEditor, the component tries to set the focus on the input
-    // field while the cellEditorInputRef is still Null. So here, we wait until the cellEditorInputRef is not null
-    // and then set the focus.
-    useEffect(() => {
-        cellEditorInputRef.current?.focus();
-    }, [cellEditorInputRef.current?.id])
+    // When we first render the cell edit input, make sure to save it and focus on it
+    const setRef = useCallback((unsavedInputAnchor: HTMLInputElement) => {
+        if (unsavedInputAnchor !== null) {
+            // Save this node, so that we can update 
+            cellEditorInputRef.current = unsavedInputAnchor;
+            // Focus on the input after a tiny delay. I'm not sure why we need this delay...
+            setTimeout(() => {
+                cellEditorInputRef.current?.focus()
+            }, 50);
+        }
+    },[]);
 
     /* 
         This effect makes sure that when the pending selected columns change,
@@ -404,7 +409,7 @@ const CellEditor = (props: {
                 autoComplete='off' // Turn off autocomplete so the html suggestion box doesn't cover Mito's suggestion box.
             >
                 <input
-                    ref={cellEditorInputRef}
+                    ref={setRef}
                     id='cell-editor-input'
                     className='cell-editor-input'
                     onClick={() => {
@@ -427,7 +432,7 @@ const CellEditor = (props: {
                             '-', '+', '*', '/'
                         ]
 
-                        let arrowKeysScrollInFormula: boolean | undefined = true
+                        let arrowKeysScrollInFormula = true
                         if (props.editorState.editorLocation === 'cell') {
                             // If we are typing at the end of the formula, and we type a CHARS_TO_REMOVE_SCROLL_IN_FORMULA,
                             // then we reset the arrowKeysScrollInFormula to false. Furtherrmore, if the formula is empty, 
@@ -437,7 +442,7 @@ const CellEditor = (props: {
                             const finalChar = e.target.value.substring(e.target.value.length - 1);
                             const endsInResetCharacter = atEndOfFormula && CHARS_TO_REMOVE_SCROLL_IN_FORMULA.includes(finalChar)
                             const isEmpty = e.target.value.length === 0;
-                            arrowKeysScrollInFormula = props.editorState.arrowKeysScrollInFormula && !endsInResetCharacter && !isEmpty; 
+                            arrowKeysScrollInFormula = props.editorState.arrowKeysScrollInFormula !== undefined && !endsInResetCharacter && !isEmpty; 
                         }
                         
                         props.setEditorState({
@@ -452,7 +457,7 @@ const CellEditor = (props: {
                 In the dropdown box, we either show an error, a loading message, suggestions
                 or the documentation for the last function, depending on the cases below
             */}
-            <div className='cell-editor-dropdown-box' style={{width: `${CELL_EDITOR_WIDTH}px`}}>
+            <div className='cell-editor-dropdown-box' style={{width: props.editorState.editorLocation === 'cell' ? `${CELL_EDITOR_WIDTH}px` : '300px'}}>
                 {cellEditorError === undefined && 
                     <p className={classNames('cell-editor-label', 'text-subtext-1', 'pl-5px')}>
                         {isFormulaColumn ? "You're setting the formula of this column" : "You're changing the value of this cell"}
@@ -488,7 +493,6 @@ const CellEditor = (props: {
                             const suggestionClassNames = classNames('cell-editor-suggestion', 'text-body-2', {
                                 'cell-editor-suggestion-selected': selected
                             });
-                            const subtextClassNames = classNames('cell-editor-suggestion-subtext', 'text-subtext-1');
                             
                             return (
                                 <div 
@@ -506,7 +510,7 @@ const CellEditor = (props: {
                                         {suggestion}
                                     </span>
                                     {selected &&
-                                        <div className={subtextClassNames}>
+                                        <div className={classNames('cell-editor-suggestion-subtext', 'text-subtext-1')}>
                                             {subtext}
                                         </div>
                                     }

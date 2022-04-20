@@ -11,13 +11,13 @@
 }
 
 .cell-editor-form {
-    border: 2px solid var(--mito-purple);
+    border: 2px solid var(--mito-medium-purple);
     width: 100%;
     box-sizing: border-box;
 }
 
 .cell-editor-input {
-    height: 25px;
+    height: 26px;
     width: 100%;
     border: none;
     box-sizing: border-box;
@@ -26,10 +26,12 @@
 .cell-editor-dropdown-box {
     background: white;
     box-shadow: 1px 1px 5px grey;
+    border-radius: 3px;
     
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
+    white-space: normal;
  
     /* This div should float whether it is in the cell or formula bar */
     z-index: 2;
@@ -53,6 +55,10 @@
     background-color: var(--mito-light-blue);
 }
 
+.cell-editor-function-documentation-header > * + * {
+    margin-top: 5px;
+}
+
 .cell-editor-function-documentation-example {
     color: var(--mito-purple);
 }
@@ -63,6 +69,5 @@
 
 .cell-editor-error-container {
     white-space: normal;
-    overflow-x: wrap;
     overflow-wrap: break-word;
 }
