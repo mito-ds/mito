@@ -8,7 +8,7 @@ description: >-
 
 ### The Mitosheet in a notebook
 
-Mitosheet is simply a spreadsheet that exists inside of your JupyterLab notebook. This allows you to _very_ quickly bounce back and forth between doing data analysis in Python and exploring/manipulating your data in the Mitosheet.
+Mitosheet is simply a spreadsheet that exists inside of your Jupyter notebook. This allows you to _very_ quickly bounce back and forth between doing data analysis in Python and exploring/manipulating your data in the Mitosheet.
 
 Because the Mitosheet is optimized for your Python data analysis, every tab inside of your Mitosheet represents a Pandas dataframe. To demonstrate this dataframe aspect, let's take a look at displaying a single dataframe (of Tesla stock prices) in a Mitosheet:
 

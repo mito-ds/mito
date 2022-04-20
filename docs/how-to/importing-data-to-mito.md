@@ -12,7 +12,7 @@ Mito can handle any tabular data. If it's in a dataframe, then it's ready for Mi
 
 ## Passing Dataframes to Mito
 
-Mito displays any dataframe that is passed directly to a `mitosheet.sheet(df1, df2)`. To see an example of displaying a dataframe in a Mitosheet, copy and run the code below in a JupyterLab cell:
+Mito displays any dataframe that is passed directly to a `mitosheet.sheet(df1, df2)`. To see an example of displaying a dataframe in a Mitosheet, copy and run the code below in a Jupyter cell:
 
 ```python
 # import Python packages
