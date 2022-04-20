@@ -139,7 +139,7 @@ MITOSHEET_PACKAGE_JSON = """{
     "outputDir": "mitosheet/labextension",
     "extension": "lib/plugin"
   },
-  "name": "mitosheet",
+  "name": REPLACE_WITH_PACKAGE_NAME_WITH_REPLACE,
   "license": "AGPL-3.0-only",
   "author": {
     "name": "Mito Sheet",
