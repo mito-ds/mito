@@ -5,7 +5,7 @@
 
 /* Avoid some strange JNotebook overwrites */
 .mutli-toggle-box-container * input[type="checkbox"] {
-    margin: unset;
+    margin: 3px;
 }
 
 .multi-toggle-box {

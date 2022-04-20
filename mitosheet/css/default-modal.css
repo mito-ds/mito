@@ -16,7 +16,7 @@
     background-color: white;
 
     /* Place the modal*/
-    width: 40%;
+    width: max(40%, 500px);
     margin: auto; /* Center it */
 
     /* Center the elements in the modal */
