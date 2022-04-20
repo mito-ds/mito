@@ -1,6 +1,6 @@
 import fscreen from 'fscreen';
 import React, { useEffect, useState } from 'react';
-import MitoAPI from '../../../api';
+import MitoAPI from '../../../jupyter/api'
 import { EditorState, GridState, SheetData } from '../../../types';
 import { isPrimitiveColumnHeader } from '../../../utils/columnHeaders';
 import CellEditor, { CELL_EDITOR_WIDTH } from './CellEditor';

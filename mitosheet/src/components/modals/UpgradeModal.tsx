@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { ModalEnum } from './modals';
 import "../../../css/upgrade-modal.css"
-import MitoAPI from '../../api';
+import MitoAPI from '../../jupyter/api';
 import TextButton from '../elements/TextButton';
 import { UIState } from '../../types';
 
@@ -45,7 +45,7 @@ const UpgradeModal = (props: {
 
     return (
         <div className='overlay'>
-            <div className='upgrade-modal-container txt-16'>
+            <div className='upgrade-mito-modal-container txt-16'>
                 <h2 className='mt-5px'>
                     Time to Upgrade!
                 </h2>

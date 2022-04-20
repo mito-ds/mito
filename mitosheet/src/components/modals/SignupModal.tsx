@@ -2,7 +2,7 @@
 
 import React, { FormEvent, useState } from 'react';
 import { ModalEnum } from './modals';
-import MitoAPI from '../../api';
+import MitoAPI from '../../jupyter/api';
 import BlueMitoFolk from '../icons/mitofolks/BlueMitoFolk';
 import PinkMitoFolk from '../icons/mitofolks/PinkMitoFolk';
 import YellowMitoFolk from '../icons/mitofolks/YellowMitoFolk';
@@ -11,14 +11,13 @@ import '../../../css/signup-modal.css';
 import TextButton from '../elements/TextButton';
 import Input from '../elements/Input';
 import { FeedbackID, UIState } from '../../types';
+import { checkProAccessCode } from '../../utils/pro';
 
 /* 
     This file contains all the screens used in the signup modal. As these
     are only used in this one file, we keep them together for cleanlyness.
 */
 
-// If the user signs up for pro, this is the access code they must put in
-const ACCESS_CODE = 'mito-pro-access-code-UEKXPTTQECAULCMW';
 
 // The first question we ask on the signup page
 const FirstQuestion = 'Your Company/Organization';
@@ -115,7 +114,7 @@ const StepTwo = (
     const [invalidAccessCode, setInvalidAccessCode] = useState(false);
 
     const attemptSubmitAccessCode = () => {
-        if (accessCode !== ACCESS_CODE) {
+        if (!checkProAccessCode(accessCode)) {
             setInvalidAccessCode(true)
             return;
         }
@@ -125,7 +124,7 @@ const StepTwo = (
         setIsPro(true);
 
         // We log this before going pro so that this is the last thing to appear in the logs
-        void props.mitoAPI.log('signup_completed_pro')
+        void props.mitoAPI.log('signup_completed_pro', {'location': 'signup'})
         void props.mitoAPI.updateGoPro();
 
         // Then, we go to the final page
@@ -151,7 +150,7 @@ const StepTwo = (
                         </p>
                     </div>
                     {!isPro &&
-                        <div className='signup-modal-buttons mt-10px'>
+                        <div className='signup-mito-modal-buttons mt-10px'>
                             <TextButton
                                 variant='light'
                                 width='small'
@@ -182,7 +181,7 @@ const StepTwo = (
                         </div> 
                     }
                     {isPro &&
-                        <div className='signup-modal-buttons mt-10px'>
+                        <div className='signup-mito-modal-buttons mt-10px'>
                             <TextButton
                                 variant='light'
                                 width='small'
@@ -233,7 +232,7 @@ const StepTwo = (
                             </p>
                         }
                     </div>
-                    <div className='signup-modal-buttons mt-10px'>
+                    <div className='signup-mito-modal-buttons mt-10px'>
                         <TextButton
                             variant='light'
                             width='small'
@@ -292,7 +291,7 @@ const StepThree = (
                     {' '} <a href='https://privacy.trymito.io/privacy-policy' target='_blank' rel="noreferrer"><u>here</u></a>.
                 </p>
             </div>
-            <div className='signup-modal-buttons mt-10px'>
+            <div className='signup-mito-modal-buttons mt-10px'>
                 <TextButton
                     variant='light'
                     width='small'
@@ -374,7 +373,7 @@ const SignupModal = (
 
     return (
         <div className='overlay'>
-            <div className='signup-modal-container'>
+            <div className='signup-mito-modal-container'>
                 <div className='signup-modal-left-column-container'>
                     {step === 1 &&
                         <StepOne

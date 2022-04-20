@@ -10,7 +10,7 @@ import { getFullFormula } from './celleditor/cellEditorUtils';
 import { getCellDataFromCellIndexes } from './utils';
 import Col from '../spacing/Col';
 import Row from '../spacing/Row';
-import MitoAPI from '../../api';
+import MitoAPI from '../../jupyter/api';
 import { calculateCurrentSheetView } from './sheetViewUtils';
 import CellEditor from './celleditor/CellEditor';
 

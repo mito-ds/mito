@@ -4,7 +4,7 @@ import React from 'react';
 import { AggregationType, SheetData } from '../../../types';
 import PivotTableValueAggregationCard from './PivotTableValueAggregationCard';
 import PivotInvalidSelectedColumnsError from './PivotInvalidSelectedColumnsError';
-import MitoAPI from '../../../api';
+import MitoAPI from '../../../jupyter/api';
 import DropdownButton from '../../elements/DropdownButton';
 import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';

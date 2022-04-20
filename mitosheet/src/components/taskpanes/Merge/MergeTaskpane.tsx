@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React, { useState } from 'react';
-import MitoAPI from '../../../api';
+import MitoAPI from '../../../jupyter/api';
 import useSyncedParams from '../../../hooks/useSyncedParams';
 import { AnalysisData, ColumnID, ColumnIDsMap, SheetData, StepType, UIState } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';

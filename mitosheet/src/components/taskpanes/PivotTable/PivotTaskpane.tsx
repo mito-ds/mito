@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import PivotTableKeySelection from './PivotTableKeySelection';
 import PivotTableValueSelection from './PivotTableValueSelection';
-import MitoAPI from '../../../api';
+import MitoAPI from '../../../jupyter/api';
 import Select from '../../elements/Select';
 import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';

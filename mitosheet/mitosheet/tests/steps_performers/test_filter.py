@@ -1182,3 +1182,26 @@ def test_filter_multiple_values_per_clause(
     )
 
     assert mito.transpiled_code == [transpiled_code]
+
+
+def test_filter_optimizes_out_after_delete():
+    df = pd.DataFrame({"A": ["aaron", "jake", "jon", 1, 2, "nate"]})
+    mito = create_mito_wrapper_dfs(df)
+
+    mito.filter(0, "A", "And", FC_STRING_CONTAINS, "a")
+    mito.filter(0, "A", "And", FC_STRING_CONTAINS, "r")
+    mito.delete_dataframe(0)
+
+    assert mito.transpiled_code == ['del df1']
+
+def test_filter_not_optimizes_out_after_delete_diff_sheet():
+    df = pd.DataFrame({"A": ["aaron", "jake", "jon", 1, 2, "nate"]})
+    mito = create_mito_wrapper_dfs(df)
+
+    mito.duplicate_dataframe(0)
+    mito.filter(0, "A", "And", FC_STRING_CONTAINS, "a")
+    mito.filter(0, "A", "And", FC_STRING_CONTAINS, "r")
+    mito.delete_dataframe(1)
+
+    assert mito.transpiled_code[-1] == 'del df1_copy'
+    assert len(mito.optimized_code_chunks) >= 3

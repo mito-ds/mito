@@ -6,7 +6,7 @@ import { FileElement, ImportTaskpaneState } from './ImportTaskpane';
 
 import '../../../../css/elements/Input.css'
 import '../../../../css/taskpanes/Import/FileBrowser.css';
-import MitoAPI from '../../../api';
+import MitoAPI from '../../../jupyter/api';
 import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
 import SortArrowIcon from '../../icons/SortArrowIcon';
@@ -114,7 +114,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                 <input
                     // NOTE: we use a raw input as we need to put a ref on this, so we can focus on it,
                     // but as of now we don't support an input with a passed ref (it's complex and confusing)
-                    className={classNames('input', 'text-body-2', 'element-width-block')}
+                    className={classNames('mito-input', 'text-body-2', 'element-width-block')}
                     ref={inputRef}
                     value={props.importState.searchString}
                     placeholder='Search the current folder'

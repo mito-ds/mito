@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import MitoAPI from '../../../api';
+import MitoAPI from '../../../jupyter/api';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
 import { GridState, SearchMatches, SheetData, UIState } from '../../../types';
 import Input from '../../elements/Input';

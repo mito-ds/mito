@@ -672,6 +672,7 @@ export enum ActionEnum {
     Steps = 'steps',
     Undo = 'undo',
     Unique_Values = 'unique values',
+    Upgrade_To_Pro = 'upgrade to pro',
     /* Spreadsheet Formulas Section */
     ABS = 'abs',
     AND = 'and',

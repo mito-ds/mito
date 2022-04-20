@@ -3,7 +3,7 @@
 import React from 'react';
 import { ModalEnum } from './modals';
 import DefaultModal from '../DefaultModal';
-import MitoAPI from '../../api';
+import MitoAPI from '../../jupyter/api';
 import TextButton from '../elements/TextButton';
 import { GraphID, UIState } from '../../types';
 import { TaskpaneType } from '../taskpanes/taskpanes';

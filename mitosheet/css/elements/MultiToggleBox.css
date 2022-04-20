@@ -3,6 +3,11 @@
     flex-direction: column;
 }
 
+/* Avoid some strange JNotebook overwrites */
+.mutli-toggle-box-container * input[type="checkbox"] {
+    margin: 3px;
+}
+
 .multi-toggle-box {
     /* These in pair make it so less than the max height will just take up the space it needs, and anything larger scrolls */
     overflow: auto;

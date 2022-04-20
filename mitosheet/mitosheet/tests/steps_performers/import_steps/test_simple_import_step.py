@@ -235,3 +235,164 @@ def test_imports_with_latin_1():
         assert mito.dfs[0].equals(df)
 
         os.remove(TEST_FILE_PATHS[0])
+
+
+def test_can_import_mulitple_csvs_combined():
+    df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+    df.to_csv(TEST_FILE_PATHS[0], index=False)
+
+    # Create with no dataframes
+    mito = create_mito_wrapper_dfs()
+    # And then import just a test file
+    mito.simple_import([TEST_FILE_PATHS[0]])
+    mito.simple_import([TEST_FILE_PATHS[0]])
+
+    # Make sure a step has been created, and that the dataframe is the correct dataframe
+    assert mito.curr_step.step_type == 'simple_import'
+    assert len(mito.dfs) == 2
+    assert mito.dfs[0].equals(df)
+    assert mito.dfs[1].equals(df)
+
+    assert mito.transpiled_code == [
+        "import pandas as pd",
+        "test_file = pd.read_csv(r'test_file.csv')",
+        "test_file_1 = pd.read_csv(r'test_file.csv')"
+    ]
+
+    # Remove the test file
+    os.remove(TEST_FILE_PATHS[0])
+
+def test_simple_import_optimized_by_delete():
+    df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+    df.to_csv(TEST_FILE_PATHS[0], index=False)
+
+    # Create with no dataframes
+    mito = create_mito_wrapper_dfs()
+    # And then import just a test file
+    mito.simple_import([TEST_FILE_PATHS[0]])
+    mito.delete_dataframe(0)
+
+    # Make sure a step has been created, and that the dataframe is the correct dataframe
+    assert len(mito.dfs) == 0
+
+    assert mito.transpiled_code == []
+    # Remove the test file
+    os.remove(TEST_FILE_PATHS[0])
+
+def test_multiple_imports_are_not_deleted_by_single_delete():
+    df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+    df.to_csv(TEST_FILE_PATHS[0], index=False)
+
+    # Create with no dataframes
+    mito = create_mito_wrapper_dfs()
+    # And then import just a test file
+    mito.simple_import([TEST_FILE_PATHS[0], TEST_FILE_PATHS[0]])
+    mito.delete_dataframe(0)
+
+    assert len(mito.dfs) == 1
+
+    assert mito.transpiled_code == [
+        "import pandas as pd",
+        "test_file = pd.read_csv(r'test_file.csv')",
+        "test_file_1 = pd.read_csv(r'test_file.csv')",
+        "del test_file"
+    ]
+
+    # Remove the test file
+    os.remove(TEST_FILE_PATHS[0])
+
+
+def test_multiple_imports_are_deleted_by_mulitple_delete():
+    df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+    df.to_csv(TEST_FILE_PATHS[0], index=False)
+
+    # Create with no dataframes
+    mito = create_mito_wrapper_dfs()
+    # And then import just a test file
+    mito.simple_import([TEST_FILE_PATHS[0], TEST_FILE_PATHS[0]])
+    mito.delete_dataframe(0)
+    mito.delete_dataframe(0)
+
+    assert len(mito.dfs) == 0
+
+    assert mito.transpiled_code == []
+
+    # Remove the test file
+    os.remove(TEST_FILE_PATHS[0])
+
+def test_multiple_seperate_imports_analysis_are_deleted_by_mulitple_delete():
+    df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+    df.to_csv(TEST_FILE_PATHS[0], index=False)
+
+    # Create with no dataframes
+    mito = create_mito_wrapper_dfs()
+    # And then import just a test file
+    mito.simple_import([TEST_FILE_PATHS[0]])
+    mito.simple_import([TEST_FILE_PATHS[0]])
+    mito.delete_dataframe(0)
+    mito.delete_dataframe(0)
+
+    assert len(mito.dfs) == 0
+
+    assert mito.transpiled_code == []
+
+    # Remove the test file
+    os.remove(TEST_FILE_PATHS[0])
+
+def test_multiple_seperate_imports_analysis_are_deleted_by_mulitple_delete_later_in_analysis():
+    df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+    df.to_csv(TEST_FILE_PATHS[0], index=False)
+
+    # Create with no dataframes
+    mito = create_mito_wrapper_dfs(df)
+    # And then import just a test file
+    mito.simple_import([TEST_FILE_PATHS[0]])
+    mito.simple_import([TEST_FILE_PATHS[0]])
+    mito.delete_dataframe(1)
+    mito.delete_dataframe(1)
+
+    assert len(mito.dfs) == 1
+
+    assert mito.transpiled_code == []
+
+    # Remove the test file
+    os.remove(TEST_FILE_PATHS[0])
+
+
+def test_multiple_imports_deleted_with_events_in_between():
+    df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+    df.to_csv(TEST_FILE_PATHS[0], index=False)
+
+    # Create with no dataframes
+    mito = create_mito_wrapper_dfs()
+    # And then import just a test file
+    mito.simple_import([TEST_FILE_PATHS[0]])
+    mito.simple_import([TEST_FILE_PATHS[0]])
+    mito.add_column(1, 'C', '=0')
+    mito.delete_dataframe(0)
+    mito.delete_dataframe(0)
+
+    assert mito.transpiled_code == []
+
+    # Remove the test file
+    os.remove(TEST_FILE_PATHS[0])
+
+
+def test_multiple_imports_optimize_stopped_by_rename():
+    df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+    df.to_csv(TEST_FILE_PATHS[0], index=False)
+
+    # Create with no dataframes
+    mito = create_mito_wrapper_dfs(df)
+    # And then import just a test file
+    mito.simple_import([TEST_FILE_PATHS[0]])
+    mito.simple_import([TEST_FILE_PATHS[0]])
+    mito.add_column(1, 'C', '=0')
+    mito.rename_dataframe(0, 'newly_named_df')
+    mito.delete_dataframe(1)
+    mito.delete_dataframe(1)
+
+    assert len(mito.transpiled_code) > 2
+
+    # Remove the test file
+    os.remove(TEST_FILE_PATHS[0])

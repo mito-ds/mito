@@ -31,18 +31,18 @@ function FileBrowserPathSelector(props: FileBrowserPathSelectorProps): JSX.Eleme
                 // We do not display the leading part of the path that
                 // does not add anything to the users information
                 if (pathPart === '/' || pathPart === '' || pathPart == 'C:' || pathPart === 'D:') {
-                    return <></>
+                    return <React.Fragment key={i}></React.Fragment>
                 }
 
                 return (
-                    <>
+                    <React.Fragment key={i}>
                         <div className='file-browser-path-part' key={i} onClick={() => {updateSelectedPath(i)}}>
                             {pathPart}
                         </div>
                         <div className='file-browser-path-seperator'>
                             /
                         </div>
-                    </>
+                    </React.Fragment>
                 )
             })}
         </div>

@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React, { useEffect } from 'react';
-import MitoAPI, { getRandomId } from '../../api';
+import MitoAPI, { getRandomId } from '../../jupyter/api';
 import { GraphDataDict, GraphID, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';

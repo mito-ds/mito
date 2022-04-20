@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { GraphOutput, GraphParams } from '../../../types';
-import MitoAPI from '../../../api';
+import MitoAPI from '../../../jupyter/api';
 import TextButton from '../../elements/TextButton';
 import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
 

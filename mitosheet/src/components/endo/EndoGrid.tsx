@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import '../../../css/endo/EndoGrid.css';
 import '../../../css/sitewide/colors.css';
-import MitoAPI from "../../api";
+import MitoAPI from "../../jupyter/api";
 import { EditorState, Dimension, GridState, RendererTranslate, SheetData, SheetView, UIState } from "../../types";
 import FormulaBar from "./FormulaBar";
 import { TaskpaneType } from "../taskpanes/taskpanes";

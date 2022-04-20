@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../../../../css/endo/CellEditor.css';
-import MitoAPI from '../../../api';
+import MitoAPI from '../../../jupyter/api';
 import { formulaEndsInColumnHeader, getFullFormula, getSuggestedColumnHeaders, getDocumentationFunction, getSuggestedFunctions } from './cellEditorUtils';
 import { KEYS_TO_IGNORE_IF_PRESSED_ALONE } from '../EndoGrid';
 import { focusGrid } from '../focusUtils';
