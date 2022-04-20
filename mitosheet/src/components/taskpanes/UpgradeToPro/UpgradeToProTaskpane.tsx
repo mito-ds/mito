@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import MitoAPI from "../../../api";
+import MitoAPI from "../../../jupyter/api";
 import { useInputValue } from "../../../hooks/useInputValue";
 import { UIState, UserProfile } from "../../../types"
 import { classNames } from "../../../utils/classNames";
