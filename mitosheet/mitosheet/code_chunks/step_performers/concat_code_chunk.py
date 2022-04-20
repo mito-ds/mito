@@ -33,3 +33,6 @@ class ConcatCodeChunk(CodeChunk):
             return [
                 f"{df_new_name} = pd.concat([{', '.join(df_names_to_concat)}], join=\'{join}\', ignore_index={ignore_index})"
             ]
+
+    def get_created_sheet_indexes(self) -> List[int]:
+        return [len(self.post_state.dfs) - 1]

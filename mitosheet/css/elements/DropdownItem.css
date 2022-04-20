@@ -19,14 +19,6 @@
     padding-bottom: 4px;
 }
 
-/* 
-    If there is a search bar, we have to bump the items
-    down 50px, so they aren't under the search bar
-*/
-.mito-dropdown-item-with-search-first-item {
-    margin-top: 50px;
-}
-
 .mito-dropdown-item-selected {
     background-color: var(--mito-light-blue);
 }

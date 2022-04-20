@@ -70,3 +70,23 @@ def test_rename_handles_invalid_names(invalid_name, correct_name):
     assert mito.transpiled_code == [
         f'{correct_name} = df1'
     ]
+
+
+def test_rename_optimized_after_dataframe_delete():
+    df = pd.DataFrame({'A': [123]})
+    mito = create_mito_wrapper_dfs(df)
+
+    mito.rename_dataframe(0, 'abc123')
+    mito.delete_dataframe(0)
+
+    assert len(mito.transpiled_code) > 0 
+
+def test_rename_not_optimized_after_different_dataframe_delete():
+    df = pd.DataFrame({'A': [123]})
+    mito = create_mito_wrapper_dfs(df)
+
+    mito.duplicate_dataframe(0)
+    mito.rename_dataframe(0, 'abc123')
+    mito.delete_dataframe(1)
+
+    assert len(mito.optimized_code_chunks) >= 3

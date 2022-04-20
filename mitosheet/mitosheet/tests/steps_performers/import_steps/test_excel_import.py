@@ -74,3 +74,111 @@ def test_can_import_multiple_sheets():
     assert mito.df_names == ['Sheet1', 'Sheet2']
     # Remove the test file
     os.remove(TEST_FILE)
+
+@pandas_post_1_only
+@python_post_3_6_only
+def test_can_import_multiple_sheets_then_delete_no_optimize():
+    df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+    with pd.ExcelWriter(TEST_FILE) as writer:  
+        df.to_excel(writer, sheet_name='Sheet1', index=False)
+        df.to_excel(writer, sheet_name='Sheet2', index=False)
+
+    # Create with no dataframes
+    mito = create_mito_wrapper_dfs()
+    # And then import just a test file
+    mito.excel_import(TEST_FILE, ['Sheet1', 'Sheet2'], True, 0)
+    mito.delete_dataframe(0)
+
+    # Make sure a step has been created, and that the dataframe is the correct dataframe
+    assert len(mito.dfs) == 1
+    assert mito.dfs[0].equals(df)
+    assert mito.df_names == ['Sheet2']
+    assert len(mito.transpiled_code) != 0
+    # Remove the test file
+    os.remove(TEST_FILE)
+
+@pandas_post_1_only
+@python_post_3_6_only
+def test_can_import_multiple_sheets_then_delete_last_no_optimize():
+    df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+    with pd.ExcelWriter(TEST_FILE) as writer:  
+        df.to_excel(writer, sheet_name='Sheet1', index=False)
+        df.to_excel(writer, sheet_name='Sheet2', index=False)
+
+    # Create with no dataframes
+    mito = create_mito_wrapper_dfs()
+    # And then import just a test file
+    mito.excel_import(TEST_FILE, ['Sheet1', 'Sheet2'], True, 0)
+    mito.delete_dataframe(1)
+
+    # Make sure a step has been created, and that the dataframe is the correct dataframe
+    assert len(mito.dfs) == 1
+    assert mito.dfs[0].equals(df)
+    assert mito.df_names == ['Sheet1']
+    assert len(mito.transpiled_code) != 0
+    # Remove the test file
+    os.remove(TEST_FILE)
+
+@pandas_post_1_only
+@python_post_3_6_only
+def test_can_import_multiple_sheets_then_multiple_deletes():
+    df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+    with pd.ExcelWriter(TEST_FILE) as writer:  
+        df.to_excel(writer, sheet_name='Sheet1', index=False)
+        df.to_excel(writer, sheet_name='Sheet2', index=False)
+
+    # Create with no dataframes
+    mito = create_mito_wrapper_dfs()
+    # And then import just a test file
+    mito.excel_import(TEST_FILE, ['Sheet1', 'Sheet2'], True, 0)
+    mito.delete_dataframe(0)
+    mito.delete_dataframe(0)
+
+    # Make sure a step has been created, and that the dataframe is the correct dataframe
+    assert len(mito.dfs) == 0
+    assert mito.transpiled_code == []
+    # Remove the test file
+    os.remove(TEST_FILE)
+
+@pandas_post_1_only
+@python_post_3_6_only
+def test_can_import_multiple_sheets_then_multiple_deletes_later_in_analysis():
+    df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+    with pd.ExcelWriter(TEST_FILE) as writer:  
+        df.to_excel(writer, sheet_name='Sheet1', index=False)
+        df.to_excel(writer, sheet_name='Sheet2', index=False)
+
+    mito = create_mito_wrapper_dfs(df)
+
+    mito.excel_import(TEST_FILE, ['Sheet1', 'Sheet2'], True, 0)
+    mito.delete_dataframe(2)
+    mito.delete_dataframe(1)
+
+    assert len(mito.dfs) == 1
+    assert mito.transpiled_code == []
+
+    # Remove the test file
+    os.remove(TEST_FILE)
+
+@pandas_post_1_only
+@python_post_3_6_only
+def test_remove_multiple_one_by_one_does_not_optimize_till_all_gone():
+    df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+    with pd.ExcelWriter(TEST_FILE) as writer:  
+        df.to_excel(writer, sheet_name='Sheet1', index=False)
+        df.to_excel(writer, sheet_name='Sheet2', index=False)
+
+    mito = create_mito_wrapper_dfs(df)
+
+    mito.excel_import(TEST_FILE, ['Sheet1', 'Sheet2'], True, 0)
+    mito.delete_dataframe(2)
+
+    assert len(mito.dfs) == 2
+    assert mito.transpiled_code[-1] == 'del Sheet2'
+
+    mito.delete_dataframe(1)
+
+    assert mito.transpiled_code == []
+
+    # Remove the test file
+    os.remove(TEST_FILE)

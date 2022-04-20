@@ -46,3 +46,6 @@ class DropDuplicatesCodeChunk(CodeChunk):
         return [
             f'{df_name} = {df_name}.drop_duplicates({param_string})'
         ]
+    
+    def get_edited_sheet_indexes(self) -> List[int]:
+        return [self.get_param('sheet_index')]

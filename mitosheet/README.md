@@ -23,7 +23,7 @@ python3 -m venv venv;
 source venv/bin/activate;
 ```
 
-On Windows:
+On Windows (in command prompt, not powershell):
 ```
 rmdir /s venv
 python3 -m venv venv
@@ -81,7 +81,7 @@ python3 -m venv venv;
 source venv/bin/activate;
 ```
 
-On Windows:
+On Windows (in command prompt, not powershell):
 ```
 rmdir /s venv
 python3 -m venv venv
