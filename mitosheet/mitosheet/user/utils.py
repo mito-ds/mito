@@ -96,4 +96,5 @@ def is_excel_import_enabled() -> bool:
 
 
 def check_pro_acccess_code(access_code: Optional[str]) -> bool:
+    """Checks if the passed access code is correct, by hashing it and comparing to the hashed value"""
     return access_code and hashlib.sha256(access_code.encode()).hexdigest() == '761a24dea594a8eafe698acfebb77de90bf0826c9400a2543500ee98929ea132'

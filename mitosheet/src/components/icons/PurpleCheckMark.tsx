@@ -11,7 +11,3 @@ const PurpleCheckMark = (): JSX.Element => {
 }
 
 export default PurpleCheckMark;
-
-
-
-

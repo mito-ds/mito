@@ -1,17 +1,22 @@
 // Utilities for the Open Source version of Mito that deal with Mito Pro
 
-// If the user signs up for pro, this is the access code they must put in
 
-const hash = (str: string): number => {
-    var hash = 0;
-    for (var i = 0; i < str.length; i++) {
-        var char = str.charCodeAt(i);
+const unsafeDoNotUseElsewhereHash = (str: string): number => {
+    /**
+     * This is a simple, NOT SECURE hash function that is just useful
+     * for checking if the pro access code is correct. Don't use it
+     * for anything else, doh.
+     */
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
         hash = ((hash<<5)-hash)+char;
         hash = hash & hash; // Convert to 32bit integer
     }
     return hash;
 }
 
+// Checks if the pro access code is correct, by comparing to the hashed value
 export const checkProAccessCode = (accessCode: string): boolean => {
-    return hash(accessCode) == 1979576830;
+    return unsafeDoNotUseElsewhereHash(accessCode) == 1979576830;
 }

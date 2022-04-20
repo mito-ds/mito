@@ -68,6 +68,7 @@ const UpgradeToProTaskpane = (props: UpgradeTaskpaneProps): JSX.Element => {
                     <ProListElement text="All future pro functionality!"/>
                     <div className="mt-25px">
                         <Row justify="space-around">
+                            {/* The Stripe link is no normal link, and requires a POST, so we're required to use a form to allow users to click on it */}
                             <form className='element-width-block' action="https://jl76z192i0.execute-api.us-east-1.amazonaws.com/Prod/create_checkout_session/" method="POST" target="_blank">
                                 <button 
                                     className={classNames('text-button', 'text-header-3', 'text-overflow-wrap', 'element-width-block', 'text-button-variant-dark')} 
@@ -157,7 +158,7 @@ const UpgradeToProTaskpane = (props: UpgradeTaskpaneProps): JSX.Element => {
                 />
                 <DefaultTaskpaneBody>
                     <p className="text-heading-4 mb-10px">
-                        You've successfully upgraded to Mito Pro. You can cancel any time by sending us an email.
+                        You&apos;ve successfully upgraded to Mito Pro. You can cancel any time by sending us an email.
                     </p>
                     <ProListElement text="All telemetry is off"/>
                     <ProListElement text="Generated code is being optimized"/>
