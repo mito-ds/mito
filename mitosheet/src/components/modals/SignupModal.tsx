@@ -11,14 +11,13 @@ import '../../../css/signup-modal.css';
 import TextButton from '../elements/TextButton';
 import Input from '../elements/Input';
 import { FeedbackID, UIState } from '../../types';
+import { checkProAccessCode } from '../../utils/pro';
 
 /* 
     This file contains all the screens used in the signup modal. As these
     are only used in this one file, we keep them together for cleanlyness.
 */
 
-// If the user signs up for pro, this is the access code they must put in
-const ACCESS_CODE = 'mito-pro-access-code-UEKXPTTQECAULCMW';
 
 // The first question we ask on the signup page
 const FirstQuestion = 'Your Company/Organization';
@@ -115,7 +114,7 @@ const StepTwo = (
     const [invalidAccessCode, setInvalidAccessCode] = useState(false);
 
     const attemptSubmitAccessCode = () => {
-        if (accessCode !== ACCESS_CODE) {
+        if (!checkProAccessCode(accessCode)) {
             setInvalidAccessCode(true)
             return;
         }

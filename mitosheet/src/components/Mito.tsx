@@ -53,6 +53,7 @@ import PivotTaskpane from './taskpanes/PivotTable/PivotTaskpane';
 import SearchTaskpane from './taskpanes/Search/SearchTaskpane';
 import StepsTaskpane from './taskpanes/Steps/StepsTaskpane';
 import { EDITING_TASKPANES, TaskpaneType } from './taskpanes/taskpanes';
+import UpgradeToProTaskpane from './taskpanes/UpgradeToPro/UpgradeToProTaskpane';
 import Toolbar from './toolbar/Toolbar';
 import Tour from './tour/Tour';
 import { TourName } from './tour/Tours';
@@ -543,6 +544,13 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         analysisData={analysisData}
                     />
                 )
+            case TaskpaneType.UPGRADE_TO_PRO: return (
+                <UpgradeToProTaskpane
+                    mitoAPI={props.mitoAPI}
+                    userProfile={userProfile}
+                    setUIState={setUIState}
+                />
+            )
             case TaskpaneType.DOWNLOAD: return (
                 <DownloadTaskpane
                     dfNames={dfNames}
