@@ -1,8 +1,9 @@
 // Copyright (c) Mito
 
 import React, { Fragment, useState } from 'react';
-import MitoAPI from '../../api';
+import MitoAPI from '../../jupyter/api';
 import { DISCORD_INVITE_LINK } from '../../data/documentationLinks';
+import { overwriteAnalysisToReplayToMitosheetCall } from '../../jupyter/jupyterUtils';
 import { MitoError, UIState } from '../../types';
 import DefaultModal from '../DefaultModal';
 import TextButton from '../elements/TextButton';
@@ -66,11 +67,11 @@ const ErrorReplayedAnalysisModal = (
                         variant='dark'
                         width='medium'
                         onClick={() => {    
-                            window.commands?.execute('overwrite-analysis-to-replay-to-mitosheet-call', {
-                                oldAnalysisName: props.oldAnalysisName,
-                                newAnalysisName: props.newAnalysisName,
-                                mitoAPI: props.mitoAPI
-                            });
+                            overwriteAnalysisToReplayToMitosheetCall(
+                                props.oldAnalysisName,
+                                props.newAnalysisName,
+                                props.mitoAPI
+                            )
                             
                             props.setUIState((prevUIState) => {
                                 return {

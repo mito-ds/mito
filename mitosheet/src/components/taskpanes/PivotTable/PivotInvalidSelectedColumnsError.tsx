@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React, { useEffect } from 'react';
-import MitoAPI from '../../../api';
+import MitoAPI from '../../../jupyter/api';
 import { ColumnID, ColumnIDsMap } from '../../../types';
 
 /* 

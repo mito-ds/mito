@@ -1,7 +1,7 @@
 // Copyright (c) Saga Inc.
 
 import React, { useEffect } from 'react';
-import MitoAPI, { getRandomId } from '../../api';
+import MitoAPI, { getRandomId } from '../../jupyter/api';
 import { GraphDataDict, GraphID, SheetData, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';

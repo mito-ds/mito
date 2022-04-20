@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import MitoAPI from '../../../../../api';
+import MitoAPI from '../../../../../jupyter/api';
 import { isFilterGroup } from './filterTypes';
 import { Filter } from './Filter';
 import FilterGroup from './FilterGroup';

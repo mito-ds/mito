@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React, { useEffect, useState } from 'react';
-import MitoAPI from '../../api';
+import MitoAPI from '../../jupyter/api';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
 import { Action, ActionEnum, GridState } from '../../types';
 import { getSortedActionsToDisplay } from '../../utils/actions';

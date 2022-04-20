@@ -18,6 +18,8 @@
     width: 100%;
     border: none;
     box-sizing: border-box;
+    /* Notebooks does some weird things with outlines */
+    outline: none;
 }
 
 .cell-editor-dropdown-box {

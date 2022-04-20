@@ -2,7 +2,7 @@
 
 import React, { FormEvent, useState } from 'react';
 import { ModalEnum } from './modals';
-import MitoAPI from '../../api';
+import MitoAPI from '../../jupyter/api';
 import BlueMitoFolk from '../icons/mitofolks/BlueMitoFolk';
 import PinkMitoFolk from '../icons/mitofolks/PinkMitoFolk';
 import YellowMitoFolk from '../icons/mitofolks/YellowMitoFolk';
@@ -151,7 +151,7 @@ const StepTwo = (
                         </p>
                     </div>
                     {!isPro &&
-                        <div className='signup-modal-buttons mt-10px'>
+                        <div className='signup-mito-modal-buttons mt-10px'>
                             <TextButton
                                 variant='light'
                                 width='small'
@@ -182,7 +182,7 @@ const StepTwo = (
                         </div> 
                     }
                     {isPro &&
-                        <div className='signup-modal-buttons mt-10px'>
+                        <div className='signup-mito-modal-buttons mt-10px'>
                             <TextButton
                                 variant='light'
                                 width='small'
@@ -233,7 +233,7 @@ const StepTwo = (
                             </p>
                         }
                     </div>
-                    <div className='signup-modal-buttons mt-10px'>
+                    <div className='signup-mito-modal-buttons mt-10px'>
                         <TextButton
                             variant='light'
                             width='small'
@@ -292,7 +292,7 @@ const StepThree = (
                     {' '} <a href='https://privacy.trymito.io/privacy-policy' target='_blank' rel="noreferrer"><u>here</u></a>.
                 </p>
             </div>
-            <div className='signup-modal-buttons mt-10px'>
+            <div className='signup-mito-modal-buttons mt-10px'>
                 <TextButton
                     variant='light'
                     width='small'
@@ -374,7 +374,7 @@ const SignupModal = (
 
     return (
         <div className='overlay'>
-            <div className='signup-modal-container'>
+            <div className='signup-mito-modal-container'>
                 <div className='signup-modal-left-column-container'>
                     {step === 1 &&
                         <StepOne

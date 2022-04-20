@@ -3,7 +3,7 @@
 
 import React, { useEffect } from 'react';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
-import MitoAPI from '../../../api';
+import MitoAPI from '../../../jupyter/api';
 import { GridState, SheetData, UIState } from '../../../types';
 import Search from './Search';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';

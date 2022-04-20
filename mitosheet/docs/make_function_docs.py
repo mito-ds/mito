@@ -90,6 +90,7 @@ def main():
 export interface FunctionDocumentationObject {
     function: string;
     description: string;
+    search_terms: string[];
     examples?: (string)[] | null;
     syntax: string;
     syntax_elements?: (SyntaxElementsEntity)[] | null;

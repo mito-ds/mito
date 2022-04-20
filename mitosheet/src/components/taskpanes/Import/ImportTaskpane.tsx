@@ -3,9 +3,9 @@
 import React, { useEffect, useState } from 'react';
 
 // Import 
-import MitoAPI from '../../../api';
+import MitoAPI from '../../../jupyter/api';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
-import { PathContents } from '../../../api';
+import { PathContents } from '../../../jupyter/api';
 import FileBrowser from './FileBrowser';
 import TextButton from '../../elements/TextButton';
 import { UIState, UserProfile } from '../../../types';

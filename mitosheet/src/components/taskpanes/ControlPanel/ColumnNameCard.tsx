@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import MitoAPI from '../../../api';
+import MitoAPI from '../../../jupyter/api';
 import { ColumnHeader, EditorState, GridState, UIState } from '../../../types';
 import XIcon from '../../icons/XIcon';
 import Col from '../../spacing/Col';

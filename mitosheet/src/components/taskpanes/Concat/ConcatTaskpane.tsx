@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import MitoAPI from "../../../api";
+import MitoAPI from "../../../jupyter/api";
 import useSyncedParams from "../../../hooks/useSyncedParams";
 import { AnalysisData, ColumnHeader, ConcatParams, SheetData, StepType, UIState } from "../../../types"
 import DropdownButton from "../../elements/DropdownButton";
