@@ -55,8 +55,8 @@ def install_step_mitosheet_install_mitosheet():
     install_pip_packages('mitosheet', test_pypi='--test-pypi' in sys.argv)
 
 def install_step_mitosheet_activate_notebook_extension():
-    run_command(['jupyter', 'nbextension', 'install', '--py', '--user', 'mitosheet'])
-    run_command(['jupyter', 'nbextension', 'enable', '--py', '--user', 'mitosheet'])
+    run_command([sys.executable, "-m", 'jupyter', 'nbextension', 'install', '--py', '--user', 'mitosheet'])
+    run_command([sys.executable, "-m", 'jupyter', 'nbextension', 'enable', '--py', '--user', 'mitosheet'])
 
     
 MITOSHEET_INSTALLER_STEPS = [

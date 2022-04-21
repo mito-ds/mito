@@ -2,7 +2,7 @@ import pytest
 import json
 import os
 
-from tests.conftest import VirtualEnvironment, clear_user_json
+from tests.conftest import VirtualEnvironment
 
 from mitoinstaller.user_install import get_static_user_id, try_create_user_json_file
 from mitoinstaller.user_install import USER_JSON_PATH
@@ -15,7 +15,7 @@ def get_mitosheet_version_in_user_json():
         return None
 
 
-def test_import_mitosheet_keeps_same_user_id(venv: VirtualEnvironment, clear_user_json):
+def test_import_mitosheet_keeps_same_user_id(venv: VirtualEnvironment):
     venv.run_python_module_command(['pip', 'install', '-r', 'requirements.txt'])    
     # First, check there is no user.json
     static_user_id_installer = get_static_user_id()
@@ -38,7 +38,7 @@ def test_import_mitosheet_keeps_same_user_id(venv: VirtualEnvironment, clear_use
     mitosheet_version = get_mitosheet_version_in_user_json()
     assert mitosheet_version is not None
 
-def test_installer_does_not_overwrite_static_user_id(venv: VirtualEnvironment, clear_user_json):
+def test_installer_does_not_overwrite_static_user_id(venv: VirtualEnvironment):
     venv.run_python_module_command(['pip', 'install', '-r', 'requirements.txt'])    
     # First, check there is no user.json
     static_user_id_installer = get_static_user_id()
@@ -69,7 +69,7 @@ def test_installer_does_not_overwrite_static_user_id(venv: VirtualEnvironment, c
     assert mitosheet_version is not None
 
 
-def test_running_installer_twice_does_not_overwrite_static_user_id(venv: VirtualEnvironment, clear_user_json):
+def test_running_installer_twice_does_not_overwrite_static_user_id(venv: VirtualEnvironment):
     venv.run_python_module_command(['pip', 'install', '-r', 'requirements.txt'])    
     # First, check there is no user.json
     static_user_id_installer = get_static_user_id()
