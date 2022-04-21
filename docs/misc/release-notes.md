@@ -2,7 +2,13 @@
 description: Want to see what is new in the Mitosheet? Check it out below.
 ---
 
+
 # Release Notes
+
+## 2022-4-21 <a href="#2022-4-21" id="2022-4-21"></a>
+
+New Features:
+* **Mito is now available in Jupyter Notebooks**. To use Mito in a Jupyter Notebook, follow the [upgrade instructions here.](../how-to/upgrading-mito.md#upgrading-to-mitosheet-on-jupyterlab-3-0). Then, launch `jupyter notebook` to and render a mitosheet as you normally would.
 
 ## 2022-4-19 <a href="#2022-4-19" id="2022-4-19"></a>
 
