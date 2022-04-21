@@ -43,6 +43,6 @@
     box-sizing: unset; /* Ignore the box sizing in JNotebook*/
 }
 
-.dropdown-items-container {
+.mito-dropdown-items-container {
     overflow-y: auto;
 }
