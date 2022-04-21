@@ -14,6 +14,10 @@ See the common installation issues section [here](../getting-started/installing-
 
 ## Where can I use Mito?
 
-Currently, Mito only works in Juptyer Lab 2.0 and 3.0. Mito does not work in Jupyter Notebooks, Google Collab, or Visual Studio Code.&#x20;
+Currently, Mito works in the following enviornments:
+- Classic Jupyter Notebooks
+- JupyterLab 2.x and 3.x
 
-##
+Mito does not support the following enviornments:
+- Google Collab
+- VS Code

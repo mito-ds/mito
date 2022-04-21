@@ -108,7 +108,8 @@ def install_pip_packages(*packages: str, test_pypi: bool=False) -> None:
         sys_call.append(package)
     sys_call.append('--upgrade')
 
-    run_command(sys_call)
+    stdout, stderr = run_command(sys_call)
+    print(stdout, stderr)
 
 def upgrade_mito_installer() -> None:
     """

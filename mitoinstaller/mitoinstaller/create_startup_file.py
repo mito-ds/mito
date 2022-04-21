@@ -45,10 +45,12 @@ def create_startup_file():
 
     # Create the startup folder if it does not exist
     if not os.path.exists(IPYTHON_STARTUP_FOLDER):
+        print("MAKING FOLDER")
         os.makedirs(IPYTHON_STARTUP_FOLDER)
         
     # Create the import mitosheet file
     with open(IMPORT_MITOSHEET_FILE_PATH, 'w+') as f:
+        print("WRITING!")
         # And write the default object
         f.write(IMPORT_MITOSHEET_FILE_CONTENTS)
 
