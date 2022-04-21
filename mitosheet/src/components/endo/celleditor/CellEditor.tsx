@@ -5,12 +5,13 @@ import { formulaEndsInColumnHeader, getFullFormula, getSuggestedColumnHeaders, g
 import { KEYS_TO_IGNORE_IF_PRESSED_ALONE } from '../EndoGrid';
 import { focusGrid } from '../focusUtils';
 import { getColumnHeadersInSelection, getNewSelectionAfterKeyPress, isNavigationKeyPressed } from '../selectionUtils';
-import { EditorState, GridState, MitoError, SheetData, SheetView } from '../../../types';
+import { EditorState, GridState, MitoError, SheetData, SheetView, UIState } from '../../../types';
 import { firstNonNullOrUndefined, getCellDataFromCellIndexes } from '../utils';
 import { classNames } from '../../../utils/classNames';
 import { ensureCellVisible } from '../visibilityUtils';
 import LoadingDots from '../../elements/LoadingDots';
-import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
+import { getColumnHeaderParts, getDisplayColumnHeader, isPrimitiveColumnHeader, rowIndexToColumnHeaderLevel } from '../../../utils/columnHeaders';
+import { TaskpaneType } from '../../taskpanes/taskpanes';
 
 const MAX_SUGGESTIONS = 4;
 // NOTE: we just set the width to 250 pixels
@@ -33,6 +34,7 @@ const CellEditor = (props: {
     editorState: EditorState,
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>,
     setGridState: React.Dispatch<React.SetStateAction<GridState>>,
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>,
     scrollAndRenderedContainerRef: React.RefObject<HTMLDivElement>,
     containerRef: React.RefObject<HTMLDivElement>,
     mitoAPI: MitoAPI,
@@ -365,30 +367,61 @@ const CellEditor = (props: {
 
         const columnID = props.sheetData.data[props.editorState.columnIndex].columnID;
         const columnHeader = props.sheetData.data[props.editorState.columnIndex].columnHeader;
-        const index = props.sheetData.index[props.editorState.rowIndex];
+        const rowIndex = props.sheetData.index[props.editorState.rowIndex];
         const formula = getFullFormula(props.editorState.formula, columnHeader, props.editorState.pendingSelectedColumns)
 
         // Mark this as loading
         setLoading(true);
         
         let errorMessage: MitoError | undefined = undefined;
+
         // Make sure to send the write type of message, depending on the editor
-        if (isFormulaColumn) {
-            errorMessage = await props.mitoAPI.editSetColumnFormula(
-                props.sheetIndex,
-                columnID,
-                formula,
-                props.editorState.editorLocation
-            )
+        if (rowIndex >= 0) {
+            if (isFormulaColumn) {
+                errorMessage = await props.mitoAPI.editSetColumnFormula(
+                    props.sheetIndex,
+                    columnID,
+                    formula,
+                    props.editorState.editorLocation
+                )
+            } else {
+                errorMessage = await props.mitoAPI.editSetCellValue(
+                    props.sheetIndex,
+                    columnID,
+                    rowIndex,
+                    formula,
+                    props.editorState.editorLocation
+                )
+            } 
         } else {
-            errorMessage = await props.mitoAPI.editSetCellValue(
-                props.sheetIndex,
-                columnID,
-                index,
-                formula,
-                props.editorState.editorLocation
-            )
-        } 
+            // Only submit the formula if it actually has changed
+            const finalColumnHeader = getColumnHeaderParts(columnHeader).finalColumnHeader;
+            const newColumnHeader = props.editorState?.formula || getDisplayColumnHeader(finalColumnHeader);
+            const oldColumnHeader = getDisplayColumnHeader(finalColumnHeader);
+            if (newColumnHeader !== oldColumnHeader) {
+                const levelIndex = isPrimitiveColumnHeader(columnHeader) ? undefined : rowIndexToColumnHeaderLevel(columnHeader, -1);
+                void props.mitoAPI.editRenameColumn(
+                    props.gridState.sheetIndex,
+                    columnID,
+                    newColumnHeader,
+                    levelIndex
+                )
+
+                // Close the taskpane if you do a rename, so that we don't get errors
+                // with live updating (e.g. editing a pivot, do a rename, try to edit
+                // the same pivot).
+                props.setUIState(prevUIState => {
+                    if (prevUIState.currOpenTaskpane.type !== TaskpaneType.CONTROL_PANEL) {
+                        return {
+                            ...prevUIState,
+                            currOpenTaskpane: { type: TaskpaneType.NONE }
+                        }
+                    }
+                    return prevUIState;
+                })
+            }
+        }
+        
         setLoading(false);
 
         // Don't let the user close the editor if this is an invalid formula
@@ -459,7 +492,8 @@ const CellEditor = (props: {
             <div className='cell-editor-dropdown-box' style={{width: props.editorState.editorLocation === 'cell' ? `${CELL_EDITOR_WIDTH}px` : '300px'}}>
                 {cellEditorError === undefined && 
                     <p className={classNames('cell-editor-label', 'text-subtext-1', 'pl-5px')}>
-                        {isFormulaColumn ? "You're setting the formula of this column" : "You're changing the value of this cell"}
+                        {props.editorState.rowIndex < 0 ? "You're renaming a column header" : 
+                            isFormulaColumn ? "You're setting the formula of this column" : "You're changing the value of this cell"}
                     </p>
                 }
                 {/* Show an error if there is currently an error */}

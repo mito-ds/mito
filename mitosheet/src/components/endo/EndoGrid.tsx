@@ -598,6 +598,7 @@ function EndoGrid(props: {
                 setEditorState={props.setEditorState}
                 gridState={props.gridState}
                 setGridState={props.setGridState}
+                setUIState={props.setUIState}
                 scrollAndRenderedContainerRef={scrollAndRenderedContainerRef}
                 containerRef={containerRef}
                 mitoAPI={props.mitoAPI}
@@ -680,6 +681,7 @@ function EndoGrid(props: {
                         editorState={editorState}
                         setGridState={setGridState}
                         setEditorState={setEditorState}
+                        setUIState={setUIState}
                         scrollAndRenderedContainerRef={scrollAndRenderedContainerRef}
                         containerRef={containerRef}
                         mitoAPI={mitoAPI}

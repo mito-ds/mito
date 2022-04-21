@@ -1,7 +1,7 @@
 import fscreen from 'fscreen';
 import React, { useEffect, useState } from 'react';
 import MitoAPI from '../../../jupyter/api'
-import { EditorState, GridState, SheetData } from '../../../types';
+import { EditorState, GridState, SheetData, UIState } from '../../../types';
 import { isPrimitiveColumnHeader } from '../../../utils/columnHeaders';
 import CellEditor, { CELL_EDITOR_WIDTH } from './CellEditor';
 import { calculateCurrentSheetView, getCellInColumn, getCellInRow } from '../sheetViewUtils';
@@ -25,6 +25,7 @@ const FloatingCellEditor = (props: {
     editorState: EditorState,
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>,
     setGridState: React.Dispatch<React.SetStateAction<GridState>>,
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>,
     scrollAndRenderedContainerRef: React.RefObject<HTMLDivElement>,
     containerRef: React.RefObject<HTMLDivElement>,
     mitoAPI: MitoAPI,
@@ -138,6 +139,7 @@ const FloatingCellEditor = (props: {
                 editorState={props.editorState}
                 setEditorState={props.setEditorState}
                 setGridState={props.setGridState}
+                setUIState={props.setUIState}
                 scrollAndRenderedContainerRef={props.scrollAndRenderedContainerRef}
                 containerRef={props.containerRef}
                 mitoAPI={props.mitoAPI}

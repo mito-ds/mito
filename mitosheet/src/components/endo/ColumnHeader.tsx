@@ -61,8 +61,8 @@ const ColumnHeader = (props: {
     }
 
     const hasFilters = columnFilters.filters.length > 0;
-    const editingColumnHeader = props.editorState !== undefined && props.editorState.rowIndex <= -1 && props.editorState.columnIndex === props.columnIndex;
-    const editingFinalColumnHeader = props.editorState !== undefined && props.editorState.rowIndex === -1 && props.editorState.columnIndex === props.columnIndex;
+    const editingColumnHeader = props.editorState !== undefined && props.editorState.editorLocation === 'cell' && props.editorState.rowIndex <= -1 && props.editorState.columnIndex === props.columnIndex;
+    const editingFinalColumnHeader = props.editorState !== undefined && props.editorState.editorLocation === 'cell' && props.editorState.rowIndex === -1 && props.editorState.columnIndex === props.columnIndex;
 
 
     const closeColumnHeaderEditor = () => {
