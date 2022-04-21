@@ -48,14 +48,17 @@ const CellEditor = (props: {
     const [cellEditorError, setCellEditorError] = useState<string | undefined>(undefined);
     const {columnID, columnHeader} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
 
-    // When we first render the cell edit input, make sure to save it and focus on it
+    // When we first render the cell editor input, make sure to save it and focus on it
     const setRef = useCallback((unsavedInputAnchor: HTMLInputElement) => {
         if (unsavedInputAnchor !== null) {
-            // Focus on the input
-            unsavedInputAnchor.focus()
-
             // Save this node, so that we can update 
             cellEditorInputRef.current = unsavedInputAnchor;
+
+            // Focus on the input after a tiny delay. I'm not sure why we need this delay, 
+            // it is only requred when the cell editor is in the grid, not in the formula bar.
+            setTimeout(() => {
+                cellEditorInputRef.current?.focus()
+            }, 50);
         }
     },[]);
 
