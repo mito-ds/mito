@@ -46,6 +46,8 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                 searchString: ''
             }
         })
+        // Also, focus on the search so we can start typing immediately
+        inputRef.current?.focus()
     }, [props.importState.pathContents.path_parts])
 
     // We make sure to always focus back on the search input after the selected
