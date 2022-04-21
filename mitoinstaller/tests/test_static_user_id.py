@@ -25,8 +25,6 @@ def test_import_mitosheet_keeps_same_user_id(venv: VirtualEnvironment, clear_use
     # We get the user id created by the installer
     static_user_id_installer = get_static_user_id()
     assert static_user_id_installer is not None
-    mitosheet_version = get_mitosheet_version_in_user_json()
-    assert mitosheet_version is None
     
     # Then, we import Mito
     venv.run_python_script('import mitosheet')
@@ -54,8 +52,6 @@ def test_installer_does_not_overwrite_static_user_id(venv: VirtualEnvironment, c
     # We get the user id created by the installer
     static_user_id_installer = get_static_user_id()
     assert static_user_id_installer is not None
-    mitosheet_version = get_mitosheet_version_in_user_json()
-    assert mitosheet_version is None
     
     # Then, we import Mito
     venv.run_python_script('import mitosheet')
