@@ -9,9 +9,10 @@ import { TaskpaneType } from '../taskpanes/taskpanes';
 import { classNames } from '../../utils/classNames';
 import Input from '../elements/Input';
 import { focusGrid } from './focusUtils';
-import { getColumnHeaderParts, getDisplayColumnHeader, isPrimitiveColumnHeader, rowIndexToColumnHeaderLevel } from '../../utils/columnHeaders';
+import { getColumnHeaderParts, getDisplayColumnHeader } from '../../utils/columnHeaders';
 import { DEFAULT_HEIGHT } from './EndoGrid';
-import { ControlPanelTab } from '../taskpanes/ControlPanel/ControlPanelTaskpane';
+import { ControlPanelTab } from '../taskpanes/ControlPanel/ControlPanelTaskpane'
+import { submitRenameColumnHeader } from './columnHeaderUtils';
 
 
 /* 
@@ -93,36 +94,14 @@ const ColumnHeader = (props: {
         />
     )
 
-    const submitRenameColumnHeader = async (e?: React.FormEvent<HTMLFormElement>) => {
+    const _submitRenameColumnHeader = async (e?: React.FormEvent<HTMLFormElement>) => {
         if (e) {
             e.preventDefault();
         }
 
-        // Only submit the formula if it actually has changed
-        const newColumnHeader = props.editorState?.formula || getDisplayColumnHeader(finalColumnHeader);
-        const oldColumnHeader = getDisplayColumnHeader(finalColumnHeader);
-        if (newColumnHeader !== oldColumnHeader) {
-            const levelIndex = isPrimitiveColumnHeader(columnHeader) ? undefined : rowIndexToColumnHeaderLevel(columnHeader, -1);
-            void props.mitoAPI.editRenameColumn(
-                props.gridState.sheetIndex,
-                columnID,
-                newColumnHeader,
-                levelIndex
-            )
+        // Send the rename and update Mito state
+        submitRenameColumnHeader(columnHeader, finalColumnHeader, columnID, props.gridState.sheetIndex, props.editorState, props.setUIState, props.mitoAPI)
 
-            // Close the taskpane if you do a rename, so that we don't get errors
-            // with live updating (e.g. editing a pivot, do a rename, try to edit
-            // the same pivot).
-            props.setUIState(prevUIState => {
-                if (prevUIState.currOpenTaskpane.type !== TaskpaneType.CONTROL_PANEL) {
-                    return {
-                        ...prevUIState,
-                        currOpenTaskpane: { type: TaskpaneType.NONE }
-                    }
-                }
-                return prevUIState;
-            })
-        }
         closeColumnHeaderEditor()
     }
 
@@ -341,7 +320,7 @@ const ColumnHeader = (props: {
                 {editingFinalColumnHeader &&
                     <form
                         className='element-width-block'
-                        onSubmit={submitRenameColumnHeader}
+                        onSubmit={_submitRenameColumnHeader}
                     >
                         <Input
                             value={props.editorState?.formula || ''}
@@ -363,7 +342,7 @@ const ColumnHeader = (props: {
                             }}
                             // We submit the column header if the user focuses outside the input
                             onBlur={() => {
-                                void submitRenameColumnHeader();
+                                void _submitRenameColumnHeader();
                             }}
                             autoFocus
                             width='block'

@@ -10,8 +10,8 @@ import { firstNonNullOrUndefined, getCellDataFromCellIndexes } from '../utils';
 import { classNames } from '../../../utils/classNames';
 import { ensureCellVisible } from '../visibilityUtils';
 import LoadingDots from '../../elements/LoadingDots';
-import { getColumnHeaderParts, getDisplayColumnHeader, isPrimitiveColumnHeader, rowIndexToColumnHeaderLevel } from '../../../utils/columnHeaders';
-import { TaskpaneType } from '../../taskpanes/taskpanes';
+import { getColumnHeaderParts, getDisplayColumnHeader} from '../../../utils/columnHeaders';
+import { submitRenameColumnHeader } from '../columnHeaderUtils';
 
 const MAX_SUGGESTIONS = 4;
 // NOTE: we just set the width to 250 pixels
@@ -378,6 +378,7 @@ const CellEditor = (props: {
         // Make sure to send the write type of message, depending on the editor
         if (rowIndex >= 0) {
             if (isFormulaColumn) {
+                // Change of formula
                 errorMessage = await props.mitoAPI.editSetColumnFormula(
                     props.sheetIndex,
                     columnID,
@@ -385,6 +386,7 @@ const CellEditor = (props: {
                     props.editorState.editorLocation
                 )
             } else {
+                // Change of data
                 errorMessage = await props.mitoAPI.editSetCellValue(
                     props.sheetIndex,
                     columnID,
@@ -394,32 +396,9 @@ const CellEditor = (props: {
                 )
             } 
         } else {
-            // Only submit the formula if it actually has changed
+            // Change of column header
             const finalColumnHeader = getColumnHeaderParts(columnHeader).finalColumnHeader;
-            const newColumnHeader = props.editorState?.formula || getDisplayColumnHeader(finalColumnHeader);
-            const oldColumnHeader = getDisplayColumnHeader(finalColumnHeader);
-            if (newColumnHeader !== oldColumnHeader) {
-                const levelIndex = isPrimitiveColumnHeader(columnHeader) ? undefined : rowIndexToColumnHeaderLevel(columnHeader, -1);
-                void props.mitoAPI.editRenameColumn(
-                    props.gridState.sheetIndex,
-                    columnID,
-                    newColumnHeader,
-                    levelIndex
-                )
-
-                // Close the taskpane if you do a rename, so that we don't get errors
-                // with live updating (e.g. editing a pivot, do a rename, try to edit
-                // the same pivot).
-                props.setUIState(prevUIState => {
-                    if (prevUIState.currOpenTaskpane.type !== TaskpaneType.CONTROL_PANEL) {
-                        return {
-                            ...prevUIState,
-                            currOpenTaskpane: { type: TaskpaneType.NONE }
-                        }
-                    }
-                    return prevUIState;
-                })
-            }
+            submitRenameColumnHeader(columnHeader, finalColumnHeader, columnID, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI)
         }
         
         setLoading(false);
