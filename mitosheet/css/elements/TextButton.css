@@ -28,6 +28,11 @@
     cursor: default;
 }
 
+.text-button:focus-visible {
+    /* We clear the outline and border, which is set on JNotebooks for some reason on focus*/
+    outline: unset; 
+}
+
 /* 
     Remove the default border applied to buttons.
 */
