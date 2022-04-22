@@ -34,11 +34,13 @@ export enum TaskpaneType {
     PIVOT = 'pivot',    
     SEARCH = 'search',
     STEPS = 'steps',
+    UPGRADE_TO_PRO = 'upgrade_to_pro',
     IMPORT_FIRST = 'import_first', // when you want to tell the user to import first
 }
 
 export type TaskpaneInfo = 
     | {type: TaskpaneType.CONTROL_PANEL}
+    | {type: TaskpaneType.UPGRADE_TO_PRO}
     | {type: TaskpaneType.DOWNLOAD}
     | {type: TaskpaneType.DROP_DUPLICATES}
     | {

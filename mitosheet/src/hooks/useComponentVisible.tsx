@@ -11,6 +11,7 @@ import { useEffect, useRef } from "react";
 export function useComponentVisible(onExternalClick: () => void): {ref: React.MutableRefObject<HTMLDivElement | null>} {
     const ref = useRef<null | HTMLDivElement>(null);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleClickOutside = (event: any) => {
         // We check if the current click is outside the element, and call close if so
         if (ref.current && !ref.current.contains(event.target)) {

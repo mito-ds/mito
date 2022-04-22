@@ -5,7 +5,7 @@ import { classNames } from '../../../utils/classNames';
 import { UIState } from '../../../types';
 
 import { ControlPanelTab } from './ControlPanelTaskpane';
-import MitoAPI from '../../../api';
+import MitoAPI from '../../../jupyter/api';
 
 /* 
     The tabs at the bottom of the column control panel that allows users to switch

@@ -100,6 +100,7 @@ export function Filter(
                     value={props.filter.condition}
                     onChange={(newFilterCondition: string) => {
                         props.setFilter({
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             condition: newFilterCondition as any,
                             value: props.filter.value
                         })
@@ -112,12 +113,13 @@ export function Filter(
             </Col>
             <Col span={9}>
                 <input 
-                    className='input element-width-block'
+                    className='mito-input element-width-block'
                     style={inputStyle}
                     type={isDatetimeDtype(props.columnDtype) ? 'date' : 'text'}
                     value={props.filter.value} 
                     onChange={e => {
                         props.setFilter({
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             condition: props.filter.condition as any,
                             value: e.target.value
                         })

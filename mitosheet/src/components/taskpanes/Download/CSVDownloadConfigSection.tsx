@@ -1,5 +1,5 @@
 import React from "react";
-import MitoAPI from "../../../api";
+import MitoAPI from "../../../jupyter/api";
 import { UIState } from "../../../types";
 import DropdownItem from "../../elements/DropdownItem";
 import Select from "../../elements/Select";

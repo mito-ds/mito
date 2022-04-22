@@ -1,5 +1,5 @@
 ---
-description: How to get a Mito sheet rendering on your own JupyterLab
+description: How to install the mitosheet package for Jupyter
 ---
 
 # Installing Mito
@@ -30,7 +30,7 @@ Then, run the installer. This command may take a few moments to run:
 python -m mitoinstaller install
 ```
 
-If you have a currently running JupyterLab process, then restart your kernel, and refresh your page to complete installation.
+By default, the installer installs Mito for classic Jupyter Notebook as well as JupyterLab. It will automatically launch JupyterLab, but you can also use the Mitosheet package in a Jupyter Notebook.
 
 {% hint style="warning" %}
 If you run into errors during installation, check our [common installation errors](common-install-errors.md) to resolve them.

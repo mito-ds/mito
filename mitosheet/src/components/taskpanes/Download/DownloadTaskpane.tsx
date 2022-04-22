@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
-import MitoAPI from '../../../api';
+import MitoAPI from '../../../jupyter/api';
 
 // Import 
 import TextButton from '../../elements/TextButton';

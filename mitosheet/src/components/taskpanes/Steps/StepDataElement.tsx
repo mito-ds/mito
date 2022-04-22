@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { StepSummary, StepType } from '../../../types';
-import MitoAPI from '../../../api';
+import MitoAPI from '../../../jupyter/api';
 
 // Icons
 import ImportIcon from '../../icons/ImportIcon';

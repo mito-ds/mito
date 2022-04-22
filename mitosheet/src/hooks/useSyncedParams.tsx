@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import MitoAPI from "../api";
+import MitoAPI from "../jupyter/api";
 import { AnalysisData } from "../types";
 import { useDebouncedEffect } from "./useDebouncedEffect";
 import { useEffectOnUpdateEvent } from "./useEffectOnUpdateEvent";
@@ -60,6 +60,7 @@ function useSyncedParams<T>(
     // they don't have to remember to increment a setUpdateNumber state variable
     // by one every time they change the params
     const setParams: React.Dispatch<React.SetStateAction<T>> = useCallback(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (args: any) => {
             _setParams(args);
             setUpdateNumber(old => old + 1)

@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
+import MitoAPI from '../../../../jupyter/api';
 import React from 'react';
-import MitoAPI from '../../../../api';
 import { classNames } from '../../../../utils/classNames';
 import Col from '../../../spacing/Col';
 import Row from '../../../spacing/Row';

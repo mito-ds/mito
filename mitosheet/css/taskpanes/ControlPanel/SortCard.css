@@ -10,8 +10,6 @@
     border-radius: 3px;
     border-style: solid; /* Get rid of the shadow around button */
     box-sizing: border-box;
-
-    padding: 6px;
 }
 
 .sort-button:hover {

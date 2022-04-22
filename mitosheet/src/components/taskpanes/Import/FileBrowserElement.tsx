@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 import React, { useEffect, useRef } from 'react';
-import MitoAPI from '../../../api';
+import MitoAPI from '../../../jupyter/api';
 import { getLastModifiedString } from '../../../utils/time';
 import { ensureInView } from '../../elements/Dropdown';
 import CSVFileIcon from '../../icons/CSVFileIcon';
@@ -8,9 +8,11 @@ import DirectoryIcon from '../../icons/DirectoryIcon';
 import FileIcon from '../../icons/FileIcon';
 import Col from '../../spacing/Col';
 import Row from '../../spacing/Row';
-import { 
-    FileElement, ImportTaskpaneState } from './ImportTaskpane';
+import {
+    FileElement, ImportTaskpaneState
+} from './ImportTaskpane';
 import { getInvalidFileError } from './importUtils';
+
 
 interface FileBrowserElementProps {
     mitoAPI: MitoAPI,

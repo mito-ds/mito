@@ -8,27 +8,31 @@ import time
 import analytics
 from mitoinstaller.create_startup_file import create_startup_file
 from mitoinstaller.installer_steps.installer_step import InstallerStep
+from mitoinstaller.jupyter_utils import get_prefered_jupyter_env_variable
 from mitoinstaller.log_utils import log
 from mitoinstaller.starter_notebook import (MITO_STARTER_NOTEBOOK_PATH,
                                             try_create_starter_notebook)
 from mitoinstaller.user_install import is_running_test
 from termcolor import colored  # type: ignore
 
-
-def replace_process_with_jupyter_lab():
+def replace_process_with_jupyter():
     """
-    Switch the currently running process with a running JupyterLab instance.
+    Switch the currently running process with a running lab or notebook
+    instance, depending on which we think the user would prefer.
 
     If we are running tests, then we do not launch JLab. 
     # TODO: we don't want to launch this if we're inside a Docker script?
     """
     if is_running_test():
         return
+    # Get the prefered jupyter to launch, which we saved before
+    prefered_jupyter = get_prefered_jupyter_env_variable()
 
     # Flush analytics before we terminate the process, as it's our last chance
     analytics.flush()
-    
-    os.execl(sys.executable, 'python', '-m', 'jupyter', 'lab', MITO_STARTER_NOTEBOOK_PATH)
+
+    os.execl(sys.executable, 'python', '-m', 'jupyter', prefered_jupyter, MITO_STARTER_NOTEBOOK_PATH)
+
 
 
 def print_success_message():
@@ -55,8 +59,8 @@ FINAL_INSTALLER_STEPS = [
         try_create_starter_notebook
     ),
     InstallerStep(
-        'Start JupyterLab',
-        replace_process_with_jupyter_lab,
+        'Start Jupyter',
+        replace_process_with_jupyter,
         optional=True
     ),
     # We do out best to replace the running process with JupyterLab, but 
