@@ -9,7 +9,6 @@ import analytics
 from mitoinstaller.create_startup_file import create_startup_file
 from mitoinstaller.installer_steps.installer_step import InstallerStep
 from mitoinstaller.jupyter_utils import get_prefered_jupyter_env_variable
-from mitoinstaller.log_utils import log
 from mitoinstaller.starter_notebook import (MITO_STARTER_NOTEBOOK_PATH,
                                             try_create_starter_notebook)
 from mitoinstaller.user_install import is_running_test
