@@ -26,7 +26,7 @@ try:
 \t\texcept:
 \t\t\tmax_rows = 10
 \t\t\tmax_cols = 20
-\t\treturn f'<div><div id={button_uuid} style="display:none; background-color:#9D6CFF; color:white; width:200px; height:30px; padding-left:5px; border-radius:4px; flex-direction:row; justify-content:space-around; align-items:center;" onmouseover="this.style.backgroundColor=\\'#BA9BF8\\'" onmouseout="this.style.backgroundColor=\\'#9D6CFF\\'" onclick="window.commands?.execute(\\'create-mitosheet-from-dataframe-output\\');">See Full Dataframe in Mito</div> <script> if (window.commands.hasCommand(\\'create-mitosheet-from-dataframe-output\\')) document.getElementById(\\'{button_uuid}\\').style.display = \\'flex\\' </script> {obj.to_html(max_rows=max_rows, max_cols=max_cols)}</div>'
+\t\treturn f'<div><div id={button_uuid} style="display:none; background-color:#9D6CFF; color:white; width:200px; height:30px; padding-left:5px; border-radius:4px; flex-direction:row; justify-content:space-around; align-items:center;" onmouseover="this.style.backgroundColor=\\'#BA9BF8\\'" onmouseout="this.style.backgroundColor=\\'#9D6CFF\\'" onclick="window.commands?.execute(\\'create-mitosheet-from-dataframe-output\\');">See Full Dataframe in Mito</div> <script> if (window.commands?.hasCommand(\\'create-mitosheet-from-dataframe-output\\')) document.getElementById(\\'{button_uuid}\\').style.display = \\'flex\\' </script> {obj.to_html(max_rows=max_rows, max_cols=max_cols)}</div>'
 
 \thtml_formatter = get_ipython().display_formatter.formatters['text/html']
 \thtml_formatter.for_type(pd.DataFrame, add_mito_button_to_df_output)
