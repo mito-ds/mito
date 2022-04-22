@@ -52,10 +52,10 @@ def set_prefered_jupyter_env_variable():
         # notebooks. Otherwise, we default to lab
         if is_jupyter_notebook_running():
             prefered_jupyter = JUPYTER_NOTEBOOK
-            reason = 'both installed and notebook running'
+            reason = 'both notebook and lab installed and notebook running'
         else:
             prefered_jupyter = JUPYTER_LAB
-            reason = 'both installed and notebook not running'
+            reason = 'both notebook and lab installed and notebook not running'
 
     os.environ[PREFERED_JUPYTER_ENV_VARIABLE_NAME] = prefered_jupyter
     
