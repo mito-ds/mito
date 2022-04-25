@@ -13,6 +13,7 @@ import Row from '../spacing/Row';
 import MitoAPI from '../../jupyter/api';
 import { calculateCurrentSheetView } from './sheetViewUtils';
 import CellEditor from './celleditor/CellEditor';
+import { getDisplayColumnHeader } from '../../utils/columnHeaders';
 
 const FormulaBar = (props: {
     sheetData: SheetData,
@@ -39,7 +40,7 @@ const FormulaBar = (props: {
     // If the formula bar is a cell, display the cell value. If it is a column header, display the column header
     let formulaBarValue = '' 
     if (rowIndex == -1 && columnHeader !== undefined) {
-        formulaBarValue = String(columnHeader)
+        formulaBarValue = getDisplayColumnHeader(columnHeader)
     } else {
         formulaBarValue = props.editorState === undefined ? originalFormulaBarValue : getFullFormula(props.editorState.formula, formulaBarColumnHeader || '', props.editorState.pendingSelectedColumns);
     }
@@ -81,11 +82,11 @@ const FormulaBar = (props: {
                         currentSheetView={currentSheetView}
                     />
                 } 
-
-                {(props.editorState === undefined || props.editorState.editorLocation === 'cell') &&
+                {props.editorState?.editorLocation !== 'formula bar' &&
                     <div 
                         className="formula-bar-formula text-header-3 text-overflow-hide element-width-block" 
                         onDoubleClick={() => {
+                            console.log('setting the row index to: ', rowIndex)
                             props.setEditorState({
                                 rowIndex: rowIndex,
                                 columnIndex: colIndex,

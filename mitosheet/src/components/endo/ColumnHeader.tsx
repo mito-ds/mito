@@ -94,17 +94,6 @@ const ColumnHeader = (props: {
         />
     )
 
-    const _submitRenameColumnHeader = async (e?: React.FormEvent<HTMLFormElement>) => {
-        if (e) {
-            e.preventDefault();
-        }
-
-        // Send the rename and update Mito state
-        submitRenameColumnHeader(columnHeader, finalColumnHeader, columnID, props.gridState.sheetIndex, props.editorState, props.setUIState, props.mitoAPI)
-
-        closeColumnHeaderEditor()
-    }
-
     return (
         <div
             className={classNames(
@@ -320,7 +309,10 @@ const ColumnHeader = (props: {
                 {editingFinalColumnHeader &&
                     <form
                         className='element-width-block'
-                        onSubmit={_submitRenameColumnHeader}
+                        onSubmit={() => {
+                            submitRenameColumnHeader(columnHeader, finalColumnHeader, columnID, props.gridState.sheetIndex, props.editorState, props.setUIState, props.mitoAPI)
+                            closeColumnHeaderEditor()
+                        }}
                     >
                         <Input
                             value={props.editorState?.formula || ''}
@@ -342,7 +334,8 @@ const ColumnHeader = (props: {
                             }}
                             // We submit the column header if the user focuses outside the input
                             onBlur={() => {
-                                void _submitRenameColumnHeader();
+                                void submitRenameColumnHeader(columnHeader, finalColumnHeader, columnID, props.gridState.sheetIndex, props.editorState, props.setUIState, props.mitoAPI);
+                                closeColumnHeaderEditor()
                             }}
                             autoFocus
                             width='block'

@@ -370,7 +370,6 @@ const CellEditor = (props: {
 
         const columnID = props.sheetData.data[props.editorState.columnIndex].columnID;
         const columnHeader = props.sheetData.data[props.editorState.columnIndex].columnHeader;
-        const rowIndex = props.sheetData.index[props.editorState.rowIndex];
         const formula = getFullFormula(props.editorState.formula, columnHeader, props.editorState.pendingSelectedColumns)
 
         // Mark this as loading
@@ -378,8 +377,14 @@ const CellEditor = (props: {
         
         let errorMessage: MitoError | undefined = undefined;
 
+
         // Make sure to send the write type of message, depending on the editor
-        if (rowIndex >= 0) {
+        if (props.editorState.rowIndex == -1) {
+            // Change of column header
+            console.log("hererere")
+            const finalColumnHeader = getColumnHeaderParts(columnHeader).finalColumnHeader;
+            submitRenameColumnHeader(columnHeader, finalColumnHeader, columnID, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI)
+        } else {
             if (isFormulaColumn) {
                 // Change of formula
                 errorMessage = await props.mitoAPI.editSetColumnFormula(
@@ -390,6 +395,9 @@ const CellEditor = (props: {
                 )
             } else {
                 // Change of data
+                // Get the index of the edited row in the dataframe. This isn't the same as the editorState.rowIndex
+                // because the editorState.rowIndex is simply the row number in the Mito Spreadsheet which is affected by sorts, etc.
+                const rowIndex = props.sheetData.index[props.editorState.rowIndex];
                 errorMessage = await props.mitoAPI.editSetCellValue(
                     props.sheetIndex,
                     columnID,
@@ -398,10 +406,6 @@ const CellEditor = (props: {
                     props.editorState.editorLocation
                 )
             } 
-        } else {
-            // Change of column header
-            const finalColumnHeader = getColumnHeaderParts(columnHeader).finalColumnHeader;
-            submitRenameColumnHeader(columnHeader, finalColumnHeader, columnID, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI)
         }
         
         setLoading(false);
