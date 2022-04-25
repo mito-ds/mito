@@ -40,7 +40,7 @@ def test_create_startup_file(venv: VirtualEnvironment):
     venv.run_python_module_command(['pip', 'install', '-r', 'requirements.txt'])
     venv.run_python_module_command(['pip', 'install', 'jupyterlab==3.0'])
     
-    venv.run_python_module_command(['mitoinstaller', 'install', '--test-pypi'])
+    out = venv.run_python_module_command(['mitoinstaller', 'install', '--test-pypi'])
 
     IMPORT_MITOSHEET_FILE_PATH = os.path.join(os.path.expanduser("~"), '.ipython', 'profile_default', 'startup', 'import_mitosheet.py')
     

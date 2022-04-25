@@ -7,7 +7,7 @@ const CTAButtons = (): JSX.Element => {
     return (
         <div className={styles.cta_buttons_container}> 
             <TextButton 
-                text='Install Mito on JupyterLab'
+                text='Install Mito for Jupyter'
                 href='https://docs.trymito.io/getting-started/installing-mito'
             />
             <p className={styles.cta_subbutton}>

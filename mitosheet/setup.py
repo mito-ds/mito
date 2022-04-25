@@ -154,6 +154,7 @@ elif name == 'mitosheet' or name == 'mitosheet3' or name == 'mitosheet-private':
     # Representative files that should exist after a successful build
     jstargets = [
         str(lab_path / "package.json"),
+        str(notebook_path / "index.js"),
     ]
 
     package_data_spec = {
@@ -164,7 +165,7 @@ elif name == 'mitosheet' or name == 'mitosheet3' or name == 'mitosheet-private':
 
     data_files_spec = [
         # Notebook extension data files
-        ('share/jupyter/nbextensions/mitosheet', notebook_path, '*.*'),
+        ('share/jupyter/nbextensions/mitosheet', notebook_path, '**'),
         ('etc/jupyter/nbconfig/notebook.d', '.', 'mitosheet.json'),
 
         # Lab extension data files

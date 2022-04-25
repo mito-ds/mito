@@ -7,12 +7,12 @@ description: This documentation will teach you how to create your first Mitoshee
 {% embed url="https://youtu.be/URM6kGfOJuM" %}
 
 {% hint style="warning" %}
-Before rendering a Mitosheet, make sure [you've installed Mito correctly. ](../../getting-started/installing-mito/)If you just installed mito, **make sure to refresh your JupyterLab notebook.**
+Before rendering a Mitosheet, make sure [you've installed Mito correctly. ](../../getting-started/installing-mito/)If you just installed mito, **make sure to refresh your Jupyter notebook.**
 {% endhint %}
 
-To create a Mitosheet, open a new or existing JupyterLab notebook. The common command to start JupyterLab is `python -m jupyter lab`. If you don't know how to create a JupyterLab notebook, you can watch this [8 second video.](https://www.youtube.com/watch?v=QL0IxDAOEc0)
+To create a new mitsoheet, open a new or existing Jupyter notebook. For classic Notebook users, you can launch Jupyter with `python -m jupyter notebook`. For JupyterLab users, you can launch Jupyter with `python -m jupyter lab`.
 
-Once you've created a notebook, copy and paste the code below into a Jupyter code cell.
+Once you've created a new notebook, copy and paste the code below into a Jupyter code cell.
 
 ```python
 import mitosheet
