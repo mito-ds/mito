@@ -15,7 +15,7 @@ import sys
 from typing import Optional
 
 import pandas as pd
-from mitosheet._version import __version__
+from mitosheet._version import __version__, package_name
 from mitosheet.user.db import get_user_field
 from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_UPGRADED_DATE,
                                     UJ_MITOSHEET_PRO)
@@ -64,13 +64,18 @@ def should_upgrade_mitosheet() -> bool:
     checking if the user has upgraded in the past 21 days (3 weeks), since this is
     about how often we release big features.
 
-    Always returns false if it is not a local installation, for obvious reasons.
+    Always returns false if:
+    - it is not a local installation, for obvious reasons.
+    - the package is mitosheet-private, because it is managed by an account admin
 
     NOTE: if the user clicks the upgrade button in the app, then we change the upgraded 
     date to this date, so that the user doesn't get a bunch of annoying popups. This just
     pushes back when they are annoyed to upgrade!
     """
     if not is_local_deployment():
+        return False
+
+    if package_name == 'mitosheet-private':
         return False
 
     last_upgraded_date_stored = get_user_field(UJ_MITOSHEET_LAST_UPGRADED_DATE)
