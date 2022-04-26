@@ -1,6 +1,10 @@
 name: Deploy mitosheet-private
-on: workflow_dispatch
-
+on: 
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Package version to deploy to"
+        required: true
 
 jobs:
   deploy-mitosheet-private:
@@ -43,7 +47,7 @@ jobs:
           python3 -m venv venv
           source venv/bin/activate
           python switch.py mitosheet-private
-          python ../deployment/bump_version.py mitosheet-private ${{ steps.extract_branch.outputs.branch }}
+          python ../deployment/bump_version.py mitosheet-private ${{ steps.extract_branch.outputs.branch }} ${{ github.event.inputs.version }}
           python -m pip install -e ".[test, deploy]"          
       - name: Deploy mitosheet
         run: |

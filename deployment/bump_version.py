@@ -80,11 +80,6 @@ def bump_version(package, deploy_location: str, new_version: Tuple[int, int, int
         bump_version_mitoinstaller(on_dev)
         return
 
-    if package == 'mitosheet-private':
-        # When performing a mitosheet-private release, we need to manually add the new version since we 
-        # remove the pypi package after each release. 
-        new_version = version_string_to_tuple('0.1.2')
-
     if new_version is None:
         new_version = get_next_version(package, on_dev)
 
