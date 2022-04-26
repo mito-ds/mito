@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Package version to deploy to"
+        description: "Package version to deploy to. Go to pypi and add 1 to the previous version of mitosheet-private"
         required: true
 
 jobs:
