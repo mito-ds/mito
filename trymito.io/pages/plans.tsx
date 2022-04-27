@@ -12,7 +12,7 @@ import TranslucentButton from '../components/TranslucentButton/TranslucentButton
 import DropdownItem from '../components/DropdownItem/DropdownItem';
 import Dropdown from '../components/Dropdown/Dropdown';
 import FAQCard from '../components/FAQCard/FAQCard'
-import CTACard from '../components/CTACard/CTACard'
+import DownloadCTACard from '../components/CTACards/DownloadCTACard'
 import TextButton from '../components/TextButton/TextButton'
 import FeatureSection from '../components/FeatureSection/FeatureSection'
 
@@ -583,7 +583,7 @@ const Plans: NextPage = () => {
             </section>
 
             <section className={pageStyles.background_card}>
-              <CTACard />
+              <DownloadCTACard />
             </section>              
             
         </main>
