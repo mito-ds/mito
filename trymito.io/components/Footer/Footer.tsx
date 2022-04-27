@@ -44,6 +44,9 @@ const Footer = (): JSX.Element => {
                         <Link href='/security'>Security</Link>
                     </li>
                     <li className='text-nav'>
+                        <Link href='/mito_pro_roadmap'>Roadmap</Link>
+                    </li>
+                    <li className='text-nav'>
                         <a href='https://discord.gg/XdJSZyejJU' target="_blank" rel="noreferrer">Support</a>
                     </li>
                 </div>
