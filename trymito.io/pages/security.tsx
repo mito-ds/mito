@@ -15,8 +15,8 @@ import TelemetryIcon from '../public/icon-squares/TelemetryIcon.svg'
 import CCPAIcon from '../public/icon-squares/CCPAIcon.svg'
 import UpgradesIcon from '../public/icon-squares/UpgradesIcon.svg'
 import SecurityIcon from '../public/icon-squares/SecurityIcon.svg'
-import CTACard from '../components/CTACard/CTACard';
 import { MITO_GITHUB_LINK } from '../components/GithubButton/GithubButton';
+import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 
 const Security: NextPage = () => {
 
@@ -131,7 +131,7 @@ const Security: NextPage = () => {
           </section>
 
           <section className={pageStyles.background_card}>
-            <CTACard />
+            <DownloadCTACard />
           </section>
         </main>
         <Footer />

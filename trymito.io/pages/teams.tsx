@@ -8,14 +8,15 @@ import securityStyles from '../styles/Security.module.css'
 import pageStyles from '../styles/Page.module.css'
 import titleStyles from '../styles/Title.module.css'
 import homeStyles from '../styles/Home.module.css'
+import teamsStyles from '../styles/Teams.module.css'
 
 // Import Icons & Background Grid
 import JupyterIcon from '../public/icon-squares/JupyterIcon.svg'
 import SupportIcon from '../public/icon-squares/SupportIcon.svg'
 import DocsIcon from '../public/icon-squares/DocsIcon.svg'
 import PrivateIcon from '../public/icon-squares/PrivateIcon.svg'
-import CTACard from '../components/CTACard/CTACard';
 import CTAButtons from '../components/CTAButtons/CTAButtons';
+import ContactCTACard from '../components/CTACards/ContactCTACard';
 
 const Teams: NextPage = () => {
 
@@ -34,7 +35,7 @@ const Teams: NextPage = () => {
 
             <section className={titleStyles.title_card + ' ' + titleStyles.grid_card}>
                 <h1 className={titleStyles.title}>
-                    Proliferate Python by leveraging your team’s Excel mastery
+                    Embrace Python by leveraging your team’s Excel mastery
                 </h1>
                 <p className={titleStyles.description}>
                     Onboard your team to Mito in minutes
@@ -47,11 +48,11 @@ const Teams: NextPage = () => {
                 <div className={pageStyles.subsection}>
                     <div className={homeStyles.functionality_text}>
                         <p>
-                            Spreadsheet based teams use Mito to transition to Python while preserving 
-                            the spreadsheet interface that we all know and love.
+                            <b className='text-primary'>Spreadsheet-first teams </b> use Mito to transition to Python while preserving 
+                            the spreadsheet interface that we all know and love. 
                         </p>
                         <p> 
-                            Python based teams use Mito to write code faster without spending time searching Google or Stack Overflow.
+                            <b className='text-primary'>Python-first teams </b> use Mito to write code faster without spending time searching Google or Stack Overflow.
                         </p>
                         <a href="mailto:founders@sagacollab.com" className={pageStyles.link_with_p_tag_margins}>
                             Contact the Mito team →
@@ -130,54 +131,89 @@ const Teams: NextPage = () => {
                 </div>
                 <div className={pageStyles.subsection + ' flex-row-desktop-only'}>
                     <div className='flex-column'>
-                        <h1>
+                        <h2>
                             Before Adopting Mito
-                        </h1>
-                        <p>
+                        </h2>
+                        <p className={teamsStyles.handwritten_font}>
                             Monday Morning
                         </p>
                         <p>
                             Used template SQL queries to create Pandas dataframes.
                         </p>
-                        <p>
+                        <p className={teamsStyles.handwritten_font}>
                             Monday Afternoon
                         </p>
                         <p>
                             After a morning of attempting to merge the dataframes together, scheduled time on supporting data scientist’s calendar for help. 
                         </p>
-                        <p>
-                            Wednesday Afternnon
+                        <p className={teamsStyles.handwritten_font}>
+                            Wednesday Afternoon
                         </p>
                         <p>
-                            Got stuck creating a pivot table in Pandas. Gave up and created the analysis in Excel.
+                            Got stuck creating a pivot table in Pandas. <b className='text-primary'>Gave up and reverted to Excel</b>.
                         </p>
                         <p>
                             Sent the Excel file to manager for her review. Don’t ever want to write Python code again. 
                         </p>
                     </div>
-                    <div className='flex-column margin-top-30px-mobile-only'>
-                        <h1>
+                    <div className='flex-column margin-top-2rem-mobile-only'>
+                        <h2>
                             After Adopting Mito
-                        </h1>
-                        <p>
+                        </h2>
+                        <p className={teamsStyles.handwritten_font}>
                             Monday Morning
                         </p>
                         <p>
                             Used template SQL queries to create Pandas dataframes. 
                         </p>
                         <p>
-                            Used Mito’s intuitive point and click interface to merge the dataframes together and create a pivot table. It was just like Excel!
+                            Used <b className='text-primary'>Mito’s intuitive point and click interface</b> to merge the dataframes together and create a pivot table. It was just like Excel!
                         </p>
                         <p>
                             Downloaded the Mito Spreadsheet as an Excel file and sent to manager for her reivew.
                         </p>
                     </div>
                 </div>
+            </section>
 
+            <section>
+                <div className={pageStyles.subsection + ' ' + pageStyles.subsection_column + ' center'}>
+                    <h1>
+                        Use Mito to clean, analyze, and chart data
+                    </h1>
+                    <p className='display-desktop-only-inline-block'>
+                        Join other Fortune 500 companies that are writing production-ready Python code with Mito.
+                    </p>
+                </div>
+                <div className={pageStyles.subsection + ' flex-row-desktop-only'}>
+                    <div>
+                        <div>
+                            <Image src={'/cleanCode.png'} alt='Explore your data with Mito' width={500} height={250} layout='responsive'/>
+                        </div>
+                        <div className='margin-top-2rem'>
+                            <h1>Write cleaner code <br /> <span className='text-highlight'> faster </span></h1>
+                        </div>
+                        <p>
+                            Mito generates clean, auto-documented Python code for each edit. No more untangling Excel sheets or wading through sh**y code.
+                        </p>
+                    </div>
+                    <div className='margin-top-2rem-mobile-only'>
+                        <div>
+                            <Image src={'/presentationReadyGraphs.png'} alt='Explore your data with Mito' width={500} height={250} layout='responsive'/>
+                        </div>
+                        <div className='margin-top-2rem'>
+                            <h1>Create <span className='text-highlight'>presentation ready</span> charts</h1>
+                        </div>
+                        <p>
+                            Mito creates beautiful, interactive Plotly charts that are ready to be shared with colleagues and clients. And of course, Mito generates the Plotly code so you have full customizability.
+                        </p>
+                    </div>
+                    
+                </div>
             </section>
 
           <section className={pageStyles.background_card}>
-            <CTACard />
+            <ContactCTACard />
           </section>
         </main>
         <Footer />

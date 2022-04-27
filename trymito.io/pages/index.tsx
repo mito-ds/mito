@@ -1,7 +1,6 @@
 import type { NextPage } from 'next'
 import Image from 'next/image'
 import Head from 'next/head'
-import CTACard from '../components/CTACard/CTACard';
 import Footer from '../components/Footer/Footer';
 import Header from '../components/Header/Header';
 import Tweets from '../components/Tweets/Tweets';
@@ -10,6 +9,7 @@ import pageStyles from '../styles/Page.module.css'
 import titleStyles from '../styles/Title.module.css'
 import CTAButtons from '../components/CTAButtons/CTAButtons';
 import GithubButton from '../components/GithubButton/GithubButton';
+import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 
 const Home: NextPage = () => {
 
@@ -186,7 +186,7 @@ const Home: NextPage = () => {
           </section>
 
           <section className={pageStyles.background_card}>
-            <CTACard />
+            <DownloadCTACard />
           </section>
         </main>
         <Footer />
