@@ -29,10 +29,10 @@ const Header = (): JSX.Element => {
                   <Link href='/plans'>Plans</Link>
                 </li>
                 <li className='text-nav'>
-                  <Link href='/security'>Security</Link>
+                  <Link href='/teams'>Teams</Link>
                 </li>
                 <li className='text-nav'>
-                  <a href='https://trymito.notion.site/Jobs-Mito-f7becf2466044c6199866addfbf45cba' target="_blank" rel="noreferrer">Jobs</a>
+                  <Link href='/security'>Security</Link>
                 </li>
                 <li className='text-nav'>
                   <a href='https://docs.trymito.io' target="_blank" rel="noreferrer">Docs</a>
@@ -84,10 +84,10 @@ const Header = (): JSX.Element => {
                   <Link href='/plans'>Plans</Link>
                 </li>
                 <li className='text-nav'>
-                  <Link href='/security'>Security</Link>
+                  <Link href='/teams'>Teams</Link>
                 </li>
                 <li className='text-nav'>
-                  <a href='https://trymito.notion.site/Jobs-Mito-f7becf2466044c6199866addfbf45cba' target="_blank" rel="noreferrer">Jobs</a>
+                  <Link href='/security'>Security</Link>
                 </li>
                 <li className='text-nav'>
                   <a href='https://docs.trymito.io' target="_blank" rel="noreferrer">Docs</a>
