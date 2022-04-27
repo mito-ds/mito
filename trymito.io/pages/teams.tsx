@@ -1,7 +1,6 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
-import Link from 'next/link';
 import Footer from '../components/Footer/Footer';
 import Header from '../components/Header/Header';
 import securityStyles from '../styles/Security.module.css'
@@ -9,14 +8,15 @@ import pageStyles from '../styles/Page.module.css'
 import titleStyles from '../styles/Title.module.css'
 import homeStyles from '../styles/Home.module.css'
 import teamsStyles from '../styles/Teams.module.css'
+import CTAButtons from '../components/CTAButtons/CTAButtons';
+import ContactCTACard from '../components/CTACards/ContactCTACard';
 
-// Import Icons & Background Grid
+// Import Icons
 import JupyterIcon from '../public/icon-squares/JupyterIcon.svg'
 import SupportIcon from '../public/icon-squares/SupportIcon.svg'
 import DocsIcon from '../public/icon-squares/DocsIcon.svg'
 import PrivateIcon from '../public/icon-squares/PrivateIcon.svg'
-import CTAButtons from '../components/CTAButtons/CTAButtons';
-import ContactCTACard from '../components/CTACards/ContactCTACard';
+
 
 const Teams: NextPage = () => {
 
@@ -141,10 +141,10 @@ const Teams: NextPage = () => {
                             Used template SQL queries to create Pandas dataframes.
                         </p>
                         <p className={teamsStyles.handwritten_font}>
-                            Monday Afternoon
+                            Tuesday Afternoon
                         </p>
                         <p>
-                            After a morning of attempting to merge the dataframes together, scheduled time on supporting data scientist’s calendar for help. 
+                            After failing to merge the dataframes together, got help from supporting data scientist. 
                         </p>
                         <p className={teamsStyles.handwritten_font}>
                             Wednesday Afternoon
@@ -156,7 +156,7 @@ const Teams: NextPage = () => {
                             Sent the Excel file to manager for her review. Don’t ever want to write Python code again. 
                         </p>
                     </div>
-                    <div className='flex-column margin-top-2rem-mobile-only'>
+                    <div className='flex-column margin-top-3rem-mobile-only'>
                         <h2>
                             After Adopting Mito
                         </h2>
@@ -190,22 +190,22 @@ const Teams: NextPage = () => {
                         <div>
                             <Image src={'/cleanCode.png'} alt='Explore your data with Mito' width={500} height={250} layout='responsive'/>
                         </div>
-                        <div className='margin-top-2rem'>
+                        <div className='margin-top-3rem'>
                             <h1>Write cleaner code <br /> <span className='text-highlight'> faster </span></h1>
                         </div>
                         <p>
                             Mito generates clean, auto-documented Python code for each edit. No more untangling Excel sheets or wading through sh**y code.
                         </p>
                     </div>
-                    <div className='margin-top-2rem-mobile-only'>
+                    <div className='margin-top-3rem-mobile-only'>
                         <div>
                             <Image src={'/presentationReadyGraphs.png'} alt='Explore your data with Mito' width={500} height={250} layout='responsive'/>
                         </div>
-                        <div className='margin-top-2rem'>
+                        <div className='margin-top-3rem'>
                             <h1>Create <span className='text-highlight'>presentation ready</span> charts</h1>
                         </div>
                         <p>
-                            Mito creates beautiful, interactive Plotly charts that are ready to be shared with colleagues and clients. And of course, Mito generates the Plotly code so you have full customizability.
+                            Mito creates beautiful, interactive Plotly charts that are ready to be shared with colleagues and clients.
                         </p>
                     </div>
                     

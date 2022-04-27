@@ -162,7 +162,7 @@ const Home: NextPage = () => {
                 Used, known, and loved by hobbyists, researchers and Fortune 500 companies.
               </p>
               <GithubButton 
-                variant='Discussion'
+                variant='Issue'
                 text='Join the discussion on Github'
               />
             </div>
