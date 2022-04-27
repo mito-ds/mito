@@ -15,6 +15,7 @@ import FAQCard from '../components/FAQCard/FAQCard'
 import DownloadCTACard from '../components/CTACards/DownloadCTACard'
 import TextButton from '../components/TextButton/TextButton'
 import FeatureSection from '../components/FeatureSection/FeatureSection'
+import Link from 'next/link'
 
 /* 
   Labels used to scroll to specific location of the page
@@ -569,7 +570,14 @@ const Plans: NextPage = () => {
               <FAQCard title='Where is Mito installable?'>
                 <div>
                   <p>
-                    Mito is installable in Jupyter Lab 2.0 and Jupyter Lab 3.0. Mito does not work in VSCode, Google Collab, Streamlit or any other IDE&apos;s. 
+                    Mito is installable in Jupyter Lab 2.0, Jupyter Lab 3.0 and Jupyter Notebooks. Mito does not work in VSCode, Google Collab, Streamlit or any other IDE&apos;s. 
+                  </p>
+                </div>
+              </FAQCard>
+              <FAQCard title='What new features are planned for Mito Pro?'>
+                <div>
+                  <p>
+                    Checkout the Mito Pro roadmap, <Link href='/mito_pro_roadmap'><a className='text-highlight' > here! </a></Link>
                   </p>
                 </div>
               </FAQCard>

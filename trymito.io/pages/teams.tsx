@@ -16,6 +16,7 @@ import JupyterIcon from '../public/icon-squares/JupyterIcon.svg'
 import SupportIcon from '../public/icon-squares/SupportIcon.svg'
 import DocsIcon from '../public/icon-squares/DocsIcon.svg'
 import PrivateIcon from '../public/icon-squares/PrivateIcon.svg'
+import Link from 'next/link';
 
 
 const Teams: NextPage = () => {
@@ -208,7 +209,13 @@ const Teams: NextPage = () => {
                             Mito creates beautiful, interactive Plotly charts that are ready to be shared with colleagues and clients.
                         </p>
                     </div>
-                    
+                </div>
+                <div className={pageStyles.subsection + ' center'}>
+                    <Link href='/mito_pro_roadmap'>
+                        <a className={pageStyles.link_with_p_tag_margins}>
+                            Checkout the Mito Pro Roadmap to see what&apos;s coming next →
+                        </a>
+                    </Link>
                 </div>
             </section>
 
