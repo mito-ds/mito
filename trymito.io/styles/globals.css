@@ -184,8 +184,8 @@ a {
   flex-direction: column;
 }
 
-.margin-top-2rem-mobile-only {
-  margin-top: 2rem;
+.margin-top-3rem-mobile-only {
+  margin-top: 3rem;
 }
 
 @media only screen and (min-width: 50em) {
@@ -232,7 +232,7 @@ a {
     flex-direction: row;
   }
 
-  .margin-top-2rem-mobile-only {
+  .margin-top-3rem-mobile-only {
     margin-top: 0px;
   }
 
@@ -284,6 +284,6 @@ a {
   Margins
 */
 
-.margin-top-2rem {
-  margin-top: 2rem;
+.margin-top-3rem {
+  margin-top: 3rem;
 }
