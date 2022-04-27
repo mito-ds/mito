@@ -37,7 +37,7 @@ const Home: NextPage = () => {
               </p>
             
               <div className={homeStyles.cta_button_and_video_spacer}>
-                <CTAButtons />
+                <CTAButtons variant='download'/>
               </div>
               
             <div id='video'>
