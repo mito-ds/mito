@@ -10,7 +10,7 @@ const CTACard = (): JSX.Element => {
                 Want to save time on your Python data analysis?
             </h1>
             <div className='center'>
-                <CTAButtons />
+                <CTAButtons variant='download' />
             </div>  
         </div>
     )

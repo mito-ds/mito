@@ -7,16 +7,15 @@ import Header from '../components/Header/Header';
 import securityStyles from '../styles/Security.module.css'
 import pageStyles from '../styles/Page.module.css'
 import titleStyles from '../styles/Title.module.css'
+import homeStyles from '../styles/Home.module.css'
 
 // Import Icons & Background Grid
-import ComputerIcon from '../public/security/ComputerIcon.svg'
-import OpenSourceIcon from '../public/security/OpenSourceIcon.svg'
-import TelemetryIcon from '../public/security/TelemetryIcon.svg'
-import CCPAIcon from '../public/security/CCPAIcon.svg'
-import UpgradesIcon from '../public/security/UpgradesIcon.svg'
-import SecurityIcon from '../public/security/SecurityIcon.svg'
+import JupyterIcon from '../public/icon-squares/JupyterIcon.svg'
+import SupportIcon from '../public/icon-squares/SupportIcon.svg'
+import DocsIcon from '../public/icon-squares/DocsIcon.svg'
+import PrivateIcon from '../public/icon-squares/PrivateIcon.svg'
 import CTACard from '../components/CTACard/CTACard';
-import { MITO_GITHUB_LINK } from '../components/GithubButton/GithubButton';
+import CTAButtons from '../components/CTAButtons/CTAButtons';
 
 const Teams: NextPage = () => {
 
@@ -33,102 +32,149 @@ const Teams: NextPage = () => {
 
         <main className={pageStyles.main}>
 
-          <section className={titleStyles.title_card + ' ' + titleStyles.grid_card}>
-            <h1 className={titleStyles.title}>
-              Your data never leaves your computer, ever.
-            </h1>
-            <p className={titleStyles.description}>
-              You don’t have to worry about our data storage practices, because we never see a drop of your data.
-            </p>
-          </section>
-          <section className={securityStyles.gradient_card}>
-            <div className={pageStyles.subsection}>
-              <div className={securityStyles.security_bullet_container}>
-                <div className={securityStyles.icon}>
-                  <Image className={securityStyles.icon} src={ComputerIcon} alt='icon'></Image>
-                </div>
-                <h1>
-                  All on your computer, never ours
+            <section className={titleStyles.title_card + ' ' + titleStyles.grid_card}>
+                <h1 className={titleStyles.title}>
+                    Proliferate Python by leveraging your team’s Excel mastery
                 </h1>
-                <p>
-                  Mito runs on your computer, not the cloud. None of your data ever touches our servers, so you don’t have to worry about us loosing it. 
+                <p className={titleStyles.description}>
+                    Onboard your team to Mito in minutes
                 </p>
-              </div>
-              <div className={securityStyles.security_bullet_container + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
-                <div className={securityStyles.icon}>
-                  <Image className={securityStyles.icon} src={OpenSourceIcon} alt='icon'></Image>
+                <div className={homeStyles.cta_button_and_video_spacer}>
+                    <CTAButtons variant='contact' />
                 </div>
-                <h1>
-                  Open source and auditable
-                </h1>
-                <p>
-                  If you want to see the code that’s running on your computer, you can. Mito is dedicated to building in public. 
-                </p>
-                <a className={pageStyles.link_with_p_tag_margins} href={MITO_GITHUB_LINK} rel="noreferrer" target='_blank'>
-                  See our Github →
-                </a>
-              </div>
-            </div>
-            <div className={pageStyles.subsection}>
-              <div className={securityStyles.security_bullet_container}>
-                <div className={securityStyles.icon}>
-                  <Image  src={TelemetryIcon} alt='icon'></Image>
+            </section>
+            <section>
+                <div className={pageStyles.subsection}>
+                    <div className={homeStyles.functionality_text}>
+                        <p>
+                            Spreadsheet based teams use Mito to transition to Python while preserving 
+                            the spreadsheet interface that we all know and love.
+                        </p>
+                        <p> 
+                            Python based teams use Mito to write code faster without spending time searching Google or Stack Overflow.
+                        </p>
+                        <a href="mailto:founders@sagacollab.com" className={pageStyles.link_with_p_tag_margins}>
+                            Contact the Mito team →
+                        </a>
+                    </div>
+                    <div className={homeStyles.functionality_media}>
+                        <Image src={'/explore.png'} alt='Explore your data with Mito' width={500} height={250} layout='responsive'/>
+                    </div>
                 </div>
-                <h1>
-                  Private telemetry you can turn off
-                </h1>
-                <p>
-                  We don’t see any of your data or metadata. Mito collects basic telemetry to improve our functionality.
-                </p>
-                <Link href='/plans#private-telemetry-faq'>
-                  <a className={pageStyles.link_with_p_tag_margins}>
-                    Learn about our private telemetry → 
-                  </a>
-                </Link>
-              </div>
-              <div className={securityStyles.security_bullet_container + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
-                <div className={securityStyles.icon}>
-                  <Image className={securityStyles.icon} src={CCPAIcon} alt='icon'></Image>
+            </section>
+            <section>
+                <div className={pageStyles.subsection + ' center'}>
+                    <h1>
+                        Deploy Mito in Jupyter in minutes
+                    </h1>
                 </div>
-                <h1>
-                  CCPA compliance keeps you in control
-                </h1>
-                <p>
-                  We don’t want any data you don’t want us to have. CCPA compliance means you stay in control of everything. 
-                </p>
-                <a className={pageStyles.link_with_p_tag_margins} href='https://privacy.trymito.io/privacy-policy' rel="noreferrer" target='_blank'>
-                  See our Privacy Policy → 
-                </a>
-              </div>
-            </div>
-            <div className={pageStyles.subsection}>
-              <div className={securityStyles.security_bullet_container}>
-                <div className={securityStyles.icon}>
-                  <Image className={securityStyles.icon} src={UpgradesIcon} alt='icon'></Image>
+                <div className={pageStyles.subsection}>
+                    <div className={securityStyles.security_bullet_container}>
+                        <div className={securityStyles.icon}>
+                            <Image className={securityStyles.icon} src={JupyterIcon} alt='icon'></Image>
+                        </div>
+                        <h1>
+                            Jupyter <br/> Compatible
+                        </h1>
+                        <p>
+                            Mito is compatible with Jupyter Hub, Jupyter Lab, and Jupyter Notebooks, so you don’t need to manage any new infrastructure.  
+                        </p>
+                    </div>
+                    <div className={securityStyles.security_bullet_container + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
+                        <div className={securityStyles.icon}>
+                            <Image className={securityStyles.icon} src={PrivateIcon} alt='icon'></Image>
+                        </div>
+                        <h1>
+                            Completely <br/> Private
+                        </h1>
+                        <p>
+                            With the Mito Pro and Enterprise plans, not a single message is sent back to Mito. Mito is designed from the ground up with security at its core. 
+                        </p>
+                    </div>
                 </div>
-                <h1>
-                  Opt-in upgrades and changes
-                </h1>
-                <p>
-                  Once you have Mito installed, you’re in total control of which version you run. Upgrade when you want to.
-                </p>
-                <a className={pageStyles.link_with_p_tag_margins} href='https://docs.trymito.io/misc/release-notes' rel="noreferrer" target='_blank'>
-                  See our recent updates → 
-                </a>
-              </div>
-              <div className={securityStyles.security_bullet_container + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
-                <div className={securityStyles.icon}>
-                  <Image className={securityStyles.icon} src={SecurityIcon} alt='icon'></Image>
+                <div className={pageStyles.subsection}>
+                    <div className={securityStyles.security_bullet_container}>
+                        <div className={securityStyles.icon}>
+                            <Image className={securityStyles.icon} src={DocsIcon} alt='icon'></Image>
+                        </div>
+                        <h1>
+                            Practical <br/> Documentation
+                        </h1>
+                        <p>
+                            Great documentation is a must even for the most intutive tools. Mito’s docs are easily consumable, so your users can get started without any training.  
+                        </p>
+                    </div>
+                    <div className={securityStyles.security_bullet_container + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
+                        <div className={securityStyles.icon}>
+                            <Image className={securityStyles.icon} src={SupportIcon} alt='icon'></Image>
+                        </div>
+                        <h1>
+                            Personal <br/> Support
+                        </h1>
+                        <p>
+                            The founders of Mito are around to help train, debug, or ideate on new features 24/7. 
+                        </p>
+                    </div>
                 </div>
-                <h1>
-                  Top-of-the-line operational security
-                </h1>
-                <p>
-                  Mulitple rounds of code-review and automatic and manual tests make sure that insecure code doesn’t make it deployment.
-                </p>
-              </div>
-            </div>
-          </section>
+            </section>
+
+            <section>
+                <div className={pageStyles.subsection + ' ' + pageStyles.subsection_column + ' center'}>
+                    <h1>
+                        Make your team Python Self-Sufficient
+                    </h1>
+                    <p className='display-desktop-only-inline-block'>
+                        Leverage your team’s Excel expertise to make them Python self-sufficient. <br /> 
+                        Don’t throw away years of Excel skill building.
+                    </p>
+                </div>
+                <div className={pageStyles.subsection + ' flex-row-desktop-only'}>
+                    <div className='flex-column'>
+                        <h1>
+                            Before Adopting Mito
+                        </h1>
+                        <p>
+                            Monday Morning
+                        </p>
+                        <p>
+                            Used template SQL queries to create Pandas dataframes.
+                        </p>
+                        <p>
+                            Monday Afternoon
+                        </p>
+                        <p>
+                            After a morning of attempting to merge the dataframes together, scheduled time on supporting data scientist’s calendar for help. 
+                        </p>
+                        <p>
+                            Wednesday Afternnon
+                        </p>
+                        <p>
+                            Got stuck creating a pivot table in Pandas. Gave up and created the analysis in Excel.
+                        </p>
+                        <p>
+                            Sent the Excel file to manager for her review. Don’t ever want to write Python code again. 
+                        </p>
+                    </div>
+                    <div className='flex-column margin-top-30px-mobile-only'>
+                        <h1>
+                            After Adopting Mito
+                        </h1>
+                        <p>
+                            Monday Morning
+                        </p>
+                        <p>
+                            Used template SQL queries to create Pandas dataframes. 
+                        </p>
+                        <p>
+                            Used Mito’s intuitive point and click interface to merge the dataframes together and create a pivot table. It was just like Excel!
+                        </p>
+                        <p>
+                            Downloaded the Mito Spreadsheet as an Excel file and sent to manager for her reivew.
+                        </p>
+                    </div>
+                </div>
+
+            </section>
 
           <section className={pageStyles.background_card}>
             <CTACard />
