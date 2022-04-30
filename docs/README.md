@@ -8,7 +8,7 @@ Welcome to the Mito Docs -- your one-stop shop for everything related to Mito. G
 
 {% embed url="https://www.trymito.io/demo.mp4" %}
 
-### Doc Organization
+### Docs Organization
 
 Helps you set up Mito on your system and do a basic operation:
 
@@ -22,7 +22,7 @@ Explains all the features that Mito offers:
 [Broken link](broken-reference)
 {% endcontent-ref %}
 
-Walk through specific tasks in detail:
+Walks through specific tasks in detail:
 
 {% content-ref url="broken-reference" %}
 [Broken link](broken-reference)
