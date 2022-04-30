@@ -15,4 +15,4 @@ To configure the pivot table:
 * Finally,  use the values section to decide how to aggregate the data within those buckets. You can switch aggregation methods using the dropdown that defaults to the 'count' aggregation.
 * To edit a pivot table you have configured, click the pivot button again and the menu will reappear.&#x20;
 
-![](<../.gitbook/assets/final pivot.png>)
+![](<../.gitbook/assets/final pivot (1).png>)

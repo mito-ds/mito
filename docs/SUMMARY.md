@@ -1,6 +1,6 @@
 # Table of contents
 
-* [Mito Documentation](README.md)
+* [Mito Docs](README.md)
 
 ## Getting Started
 
