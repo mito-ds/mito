@@ -381,7 +381,6 @@ const CellEditor = (props: {
         // Make sure to send the write type of message, depending on the editor
         if (props.editorState.rowIndex == -1) {
             // Change of column header
-            console.log("hererere")
             const finalColumnHeader = getColumnHeaderParts(columnHeader).finalColumnHeader;
             submitRenameColumnHeader(columnHeader, finalColumnHeader, columnID, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI)
         } else {
