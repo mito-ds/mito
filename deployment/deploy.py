@@ -12,7 +12,7 @@ import subprocess
 import sys
 
 
-def deploy_current_mito_version_to_pypi(on_dev: bool):
+def deploy_current_mito_version_to_pypi(on_dev: bool) -> None:
     """
     Deploys the current local version of Mito to PyPi.
     """
@@ -32,7 +32,7 @@ def deploy_current_mito_version_to_pypi(on_dev: bool):
         raise Exception("Failed to deploy to PyPi with output:", deploy_results.stdout, deploy_results.stderr)
 
 
-def main():
+def main() -> None:
     """
     Deploy to PyPi with `python3 deploy.py [dev | main]`.
 

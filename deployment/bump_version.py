@@ -10,11 +10,12 @@ all the files where it needs to be bumped.
 """
 
 import json
+from sys import argv
 from typing import Tuple, Union
 import urllib.request
 
 
-def get_pypi_version(package_name: str, on_dev: bool=None) -> Union[None, str]:
+def get_pypi_version(package_name: str, on_dev: bool=None) -> str:
     """
     Utilities for getting the most recently deployed
     version of a Python package on a specific PyPi index.
@@ -45,14 +46,14 @@ def get_pypi_version(package_name: str, on_dev: bool=None) -> Union[None, str]:
         return '0.1.0'
 
 def version_string_to_tuple(version_string: str) -> Tuple[int, int, int]:
-    return tuple(map(int, version_string.split('.')))
+    return tuple(map(int, version_string.split('.'))) # type: ignore
 
 def get_next_version(package: str, on_dev: bool) -> Tuple[int, int, int]:
     last_pypi_version = get_pypi_version(package, on_dev=on_dev)
     (x, y, z) = version_string_to_tuple(last_pypi_version)
     return (x, y, z + 1)
 
-def bump_version_mitoinstaller(on_dev: bool):
+def bump_version_mitoinstaller(on_dev: bool) -> None:
     with open('mitoinstaller/__init__.py', 'r+') as f:
         current_version_string = get_pypi_version('mitoinstaller', on_dev)
     (x, y, z) = version_string_to_tuple(current_version_string)
@@ -60,7 +61,7 @@ def bump_version_mitoinstaller(on_dev: bool):
     with open('mitoinstaller/__init__.py', 'w+') as f:
         f.write(f'__version__ = \'{".".join(map(str, new_version))}\'')
 
-def bump_version(package, deploy_location: str, new_version: Tuple[int, int, int]=None):
+def bump_version(package: str, deploy_location: str, new_version: Tuple[int, int, int]=None) -> None:
     """
     Bumps the version of the Mito project to the next minor logical version. Must pass
     the package as `mitosheet`, `mitosheet2`, or `mitosheet3`, so we know which version to bump.
@@ -98,4 +99,5 @@ def bump_version(package, deploy_location: str, new_version: Tuple[int, int, int
 
 if __name__ == '__main__':
     import sys
-    bump_version(sys.argv[1], sys.argv[2])
+    new_version = version_string_to_tuple(sys.argv[3]) if len(sys.argv) >= 4 else None
+    bump_version(sys.argv[1], sys.argv[2], new_version)
