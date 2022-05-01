@@ -36,3 +36,4 @@ jobs:
       run: |
         mypy mitosheet/mitosheet/ --ignore-missing-imports --disallow-untyped-calls --disallow-incomplete-defs
         mypy mitoinstaller/mitoinstaller/ --ignore-missing-imports --disallow-untyped-calls --disallow-incomplete-defs
+        mypy deployment/bump_version.py deployment/deploy.py  --ignore-missing-imports --disallow-untyped-calls --disallow-incomplete-defs
