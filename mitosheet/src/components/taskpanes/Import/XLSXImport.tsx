@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 
 // Import 
-import MitoAPI from '../../../api';
+import MitoAPI from '../../../jupyter/api';
 import Input from '../../elements/Input';
 import MultiToggleBox from '../../elements/MultiToggleBox';
 import MultiToggleItem from '../../elements/MultiToggleItem';

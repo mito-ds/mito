@@ -1,13 +1,13 @@
 // Copyright (c) Mito
 
-import { SortDirection } from "./components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
-import { GraphObject } from "./components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
-import { UniqueValueCount, UniqueValueSortType } from "./components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
-import { FileElement } from "./components/taskpanes/Import/ImportTaskpane";
-import { valuesArrayToRecord } from "./components/taskpanes/PivotTable/pivotUtils";
-import { BackendPivotParams, FrontendPivotParams } from "./types";
-import { ColumnID, ExcelFileMetadata, FeedbackID, FilterGroupType, FilterType, FormatTypeObj, GraphID, MitoError, SearchMatches, SheetData, GraphParams } from "./types";
-import { getDeduplicatedArray } from "./utils/arrays";
+import { SortDirection } from "../components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
+import { GraphObject } from "../components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
+import { UniqueValueCount, UniqueValueSortType } from "../components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
+import { FileElement } from "../components/taskpanes/Import/ImportTaskpane";
+import { valuesArrayToRecord } from "../components/taskpanes/PivotTable/pivotUtils";
+import { BackendPivotParams, FrontendPivotParams } from "../types";
+import { ColumnID, ExcelFileMetadata, FeedbackID, FilterGroupType, FilterType, FormatTypeObj, GraphID, MitoError, SearchMatches, SheetData, GraphParams } from "../types";
+import { getDeduplicatedArray } from "../utils/arrays";
 
 
 /*

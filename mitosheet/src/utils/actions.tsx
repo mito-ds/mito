@@ -1,5 +1,5 @@
 import fscreen from "fscreen";
-import MitoAPI, { getRandomId } from "../api";
+import MitoAPI, { getRandomId } from "../jupyter/api";
 import { getStartingFormula } from "../components/endo/cellEditorUtils";
 import { getColumnIndexesInSelections, getSelectedNumberSeriesColumnIDs, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
 import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes } from "../components/endo/utils";
@@ -815,6 +815,26 @@ export const createActions = (
             },
             searchTerms: ['unique values', 'values', 'toggle', 'filter'],
             tooltip: "See a list of unique values in the column, and toggle to filter them."
+        },
+        [ActionEnum.Upgrade_To_Pro]: {
+            type: ActionEnum.Upgrade_To_Pro,
+            shortTitle: 'Upgrade to Pro',
+            longTitle: 'Upgrade to Mito Pro',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenTaskpane: {type: TaskpaneType.UPGRADE_TO_PRO},
+                        selectedTabType: 'data'
+                    }
+                })
+            },
+            isDisabled: () => {return undefined},
+            searchTerms: ['pro', 'upgrade', 'mito pro', 'open source'],
+            tooltip: "Upgrade to a Mito Pro account and get access to all of Mito Pro's functionality."
         },
 
         /*

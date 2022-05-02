@@ -23,7 +23,7 @@ python3 -m venv venv;
 source venv/bin/activate;
 ```
 
-On Windows:
+On Windows (in command prompt, not powershell):
 ```
 rmdir /s venv
 python3 -m venv venv
@@ -44,7 +44,6 @@ jupyter lab
 ```
 If the `pip install -e ".test, deploy]"` fails and the folder `pip-wheel-metadata` exists in your Mito folder, delete it. 
 
-
 In a seperate terminal, to recompile the front-end, run the following commands (`npm install` only needs to be run the first time).
 ```
 npm install
@@ -53,7 +52,19 @@ jlpm run watch
 
 NOTE: On Windows, this seperate terminal _must_ be a Adminstrator terminal. To launch an admin terminal, search for Command Prompt, and then right click on the app and click Run as adminstrator. Then navigate to the virtual enviornment, start it, and then run `jlpm run watch`. 
 
-Furthermore, if the final `jlpm run watch` command fails, you may need to run `export NODE_OPTIONS=--openssl-legacy-provider`. 
+Furthermore, if the final `jlpm run watch` or `npm install` command fails, you may need to run `export NODE_OPTIONS=--openssl-legacy-provider`. 
+
+### Developing on Jupyter Notebook
+
+If you are developing on the `mitosheet` package, you can also develop in a Jupyter Notebook. Simply run the comands:
+
+```
+jupyter nbextension uninstall mitosheet # NOTE: not sure why this first is needed. Somehow, it gets installed in the setup.py...
+jupyter nbextension install --py --symlink --sys-prefix mitosheet
+jupyter nbextension enable --py --sys-prefix mitosheet           
+```
+
+Then, seperate terminal run `npm run watch:all` and (again in a new terminal) `jupyter notebook`.
 
 ### One Liner Command for Mac
 ```bash
@@ -71,7 +82,7 @@ python3 -m venv venv;
 source venv/bin/activate;
 ```
 
-On Windows:
+On Windows (in command prompt, not powershell):
 ```
 rmdir /s venv
 python3 -m venv venv
@@ -152,13 +163,23 @@ Run the fuzzer with
 
 ## How the Build Works
 
-### For JLab 2
+This represents my best understanding of how the packaging process works. There might be slight misunderstandings here, so don't take this as gospel, but rather as the general shape of things.
+
+### For JupyterLab 3
+
+1. First, the TypeScript is compiled to JS, and placed in the `./lib` folder.
+2. Then, the `./lib` and `./css` folder (specified in files) are build by the command `jupyter labextension watch .` into the `mitosheet/labextension` folder.
+3. Note that `jupyter labextension watch .` figures out the source and destination locations through the `jupyterlab` information in the `package.json`. 
+
+### For JupyterLab 2
 
 1. First, the TypeScript is compiled to JS, and placed in the `./lib` folder
-2. Then, the `./lib` and `./css` folder (specified in files) are "packed" into the `./mitosheet` folder in `./mitosheet/labextension`.
+2. Then, the `./lib` and `./css` folder (specified in files) are "packed" into the `./mitosheet` folder in `./mitosheet/labextension` - which functionally they are zipped into a single file.
 3. The `mitosheet` package (including this JS and CSS) is then placed in the jupyter/share folder, whereever Jupyter is installed.
 4. Then, JupyterLab is rebuilt, and the rebuild includes this new `mitosheet` package, including the JS + CSS it contains.
 
-### For JLab 3
+### For Jupyter Notebooks
 
-I am not totally sure yet! TODO.
+1. First, the TypeScript is compiled to JS, and placed in the `./lib` folder.
+2. Then, the entry points `extension.js` and `index.js` are built by the `webpack.config.js` into `mitosheet/nbextension`. 
+3. On load of the notebook, the `extension.js` file runs. And `index.js` is used when the widget is actually called - specifically, it gets the widgets it needs.

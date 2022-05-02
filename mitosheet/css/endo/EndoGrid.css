@@ -20,6 +20,9 @@
     background-color: white;
     
     font-family: "Roboto Condensed";
+
+    /* Clear the outline to avoid weird outlines from JNotebooks focus */
+    outline: unset;
 }
 
 .endo-scroller-and-renderer-container {

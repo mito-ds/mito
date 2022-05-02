@@ -26,9 +26,9 @@ const GridData = (props: {
                 const rowIndex = currentSheetView.startingRowIndex + _rowIndex;
                 const columnIDs = getColumnIDsArrayFromSheetDataArray([sheetData])[0]
 
-                const rowClassNames = classNames('row', {
-                    'row-even': rowIndex % 2 === 0,
-                    'row-odd': rowIndex % 2 !== 0
+                const rowClassNames = classNames('mito-grid-row', {
+                    'mito-grid-row-even': rowIndex % 2 === 0,
+                    'mito-grid-row-odd': rowIndex % 2 !== 0
                 }) 
 
                 return (
@@ -44,10 +44,10 @@ const GridData = (props: {
                                 return null;
                             }
 
-                            const className = classNames('cell', {
-                                'cell-selected': getIsCellSelected(props.gridState.selections, rowIndex, columnIndex),
-                                'cell-hidden': props.editorState !== undefined && props.editorState.rowIndex === rowIndex && props.editorState.columnIndex === columnIndex,
-                                'cell-searched': cellInSearch(cellData, props.gridState.searchString) && props.uiState.currOpenTaskpane.type === TaskpaneType.SEARCH,
+                            const className = classNames('mito-grid-cell', {
+                                'mito-grid-cell-selected': getIsCellSelected(props.gridState.selections, rowIndex, columnIndex),
+                                'mito-grid-cell-hidden': props.editorState !== undefined && props.editorState.rowIndex === rowIndex && props.editorState.columnIndex === columnIndex,
+                                'mito-grid-cell-searched': cellInSearch(cellData, props.gridState.searchString) && props.uiState.currOpenTaskpane.type === TaskpaneType.SEARCH,
                                 'right-align-number-series': isNumberDtype(columnDtype)
                             });
 

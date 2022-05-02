@@ -33,7 +33,7 @@ const Home: NextPage = () => {
 
               <p className={titleStyles.description}>
                 If you can edit an Excel file, you can now write code. <br/>
-                Join thousands using Mito in JupyterLab.
+                Join thousands using Mito in Jupyter.
               </p>
             
               <div className={homeStyles.cta_button_and_video_spacer}>

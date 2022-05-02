@@ -2,7 +2,7 @@
 
 import React from 'react';
 import PivotInvalidSelectedColumnsError from './PivotInvalidSelectedColumnsError';
-import MitoAPI from '../../../api';
+import MitoAPI from '../../../jupyter/api';
 import DropdownButton from '../../elements/DropdownButton';
 import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';

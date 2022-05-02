@@ -1,13 +1,13 @@
-.row {
+.spacing-row {
     display: flex;
     width: 100%;
     box-sizing: border-box;    
 }
 
-.row-no-top-bottom-margin {
+.spacing-row-no-top-bottom-margin {
     margin: 0px;
 }
 
-.row-top-bottom-margin {
+.spacing-row-top-bottom-margin {
     margin: 4px 0px;
 }

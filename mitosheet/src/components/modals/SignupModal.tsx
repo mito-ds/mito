@@ -2,7 +2,7 @@
 
 import React, { FormEvent, useState } from 'react';
 import { ModalEnum } from './modals';
-import MitoAPI from '../../api';
+import MitoAPI from '../../jupyter/api';
 import BlueMitoFolk from '../icons/mitofolks/BlueMitoFolk';
 import PinkMitoFolk from '../icons/mitofolks/PinkMitoFolk';
 import YellowMitoFolk from '../icons/mitofolks/YellowMitoFolk';
@@ -11,14 +11,13 @@ import '../../../css/signup-modal.css';
 import TextButton from '../elements/TextButton';
 import Input from '../elements/Input';
 import { FeedbackID, UIState } from '../../types';
+import { checkProAccessCode } from '../../utils/pro';
 
 /* 
     This file contains all the screens used in the signup modal. As these
     are only used in this one file, we keep them together for cleanlyness.
 */
 
-// If the user signs up for pro, this is the access code they must put in
-const ACCESS_CODE = 'mito-pro-access-code-UEKXPTTQECAULCMW';
 
 // The first question we ask on the signup page
 const FirstQuestion = 'Your Company/Organization';
@@ -44,7 +43,7 @@ const StepOne = (
     return (
         <div className='signup-modal-left-column'>
             <div>
-                <h1 className='mt-0'>
+                <h1 className='mt-0 mb-0 text-header-1'>
                     Sign Up for Mito
                 </h1>
                 <p className='signup-modal-text'>
@@ -52,7 +51,7 @@ const StepOne = (
                 </p>
             </div>
             <form className='signup-modal-email-form' onSubmit={onSubmit}>
-                <h3 className='mb-5px'>
+                <h3 className='mb-0 text-header-2'>
                     Your Email
                 </h3>
                 <Input
@@ -65,7 +64,7 @@ const StepOne = (
                     autoFocus
                 />
                 <label>
-                    <h3 className='mt-10px mb-5px'>
+                    <h3 className='mt-10px mb-0 text-header-2'>
                         {FirstQuestion}
                     </h3>
                 </label>
@@ -115,7 +114,7 @@ const StepTwo = (
     const [invalidAccessCode, setInvalidAccessCode] = useState(false);
 
     const attemptSubmitAccessCode = () => {
-        if (accessCode !== ACCESS_CODE) {
+        if (!checkProAccessCode(accessCode)) {
             setInvalidAccessCode(true)
             return;
         }
@@ -125,7 +124,7 @@ const StepTwo = (
         setIsPro(true);
 
         // We log this before going pro so that this is the last thing to appear in the logs
-        void props.mitoAPI.log('signup_completed_pro')
+        void props.mitoAPI.log('signup_completed_pro', {'location': 'signup'})
         void props.mitoAPI.updateGoPro();
 
         // Then, we go to the final page
@@ -137,7 +136,7 @@ const StepTwo = (
             {!enteringProAccessCode &&
                 <div className='signup-modal-left-column'>
                     <div>
-                        <h1 className='mt-0'>
+                        <h1 className='mt-0 mb-0 text-header-1'>
                             {isPro 
                                 ? "You've Signed up for Mito Pro!" 
                                 : "Want More Power? Consider Mito Pro"
@@ -206,14 +205,14 @@ const StepTwo = (
             {enteringProAccessCode &&
                 <div className='signup-modal-left-column'>
                     <div>
-                        <h1 className='mt-0'>
-                            Complete Pro Signup
+                        <h1 className='mt-0 mb-0 text-header-1'>
+                            Acces Pro
                         </h1>
                         <p className='signup-modal-text'>
                             Complete the checkout flow. In the Pro documentation, click <b>Get Access Code</b> and enter it here.
                         </p>
                         <label>
-                            <h3 className='mt-5px mb-10px'>
+                            <h3 className='mt-5px mb-0 text-header-2'>
                                 Access Code:
                             </h3>
                         </label>
@@ -282,7 +281,7 @@ const StepThree = (
     return (
         <div className='signup-modal-left-column'>
             <div>
-                <h1 className='mt-0'>
+                <h1 className='mt-0 mb-0 text-header-1'>
                     {props.isPro && `Mito Pro is Totally Private`}
                     {!props.isPro && `Mito is Built for Privacy`}
                 </h1>

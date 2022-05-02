@@ -44,18 +44,18 @@ const DefaultModal = (
 
         /*
             If the modal should be displayed above the overlay, then we add the overlay css class to the
-            highest div we're creating. And then set the modal-container as the next div. Otherwise, we set 
-            the modal-container as the highest div. 
+            highest div we're creating. And then set the mito-modal-container as the next div. Otherwise, we set 
+            the mito-modal-container as the highest div. 
 
             Applying the overlay: We make sure that when we apply the overlay, it has
-            access to the entire height and width of Mito, without the constriction of the modal-container. 
+            access to the entire height and width of Mito, without the constriction of the mito-modal-container. 
 
             Not applying an overlay: We need the highest div to have its placement and z-index set so that 
-            we can position the modal above Mito. Thus, we make the modal-container, the highest div
+            we can position the modal above Mito. Thus, we make the mito-modal-container, the highest div
         */
-        <div className={classNames({'modal-container': !displayOverlay}, {'overlay': displayOverlay})}>
-            <div className={classNames({'modal-container': displayOverlay})}>
-                <div className={classNames('modal', {'modal-wide': props.wide})}>
+        <div className={classNames({'mito-modal-container': !displayOverlay}, {'overlay': displayOverlay})}>
+            <div className={classNames({'mito-modal-container': displayOverlay})}>
+                <div className={classNames('mito-modal', {'modal-wide': props.wide})}>
                     {props.setUIState !== undefined && 
                         <Row justify='end'>
                             <Col offsetRight={.25}>
@@ -79,16 +79,16 @@ const DefaultModal = (
                             </Col>
                         </Row>
                     }
-                    <div className={classNames('modal-header-text-div', {'mt-25px': props.setUIState === undefined})} style={{color: headerColor}}>
+                    <div className={classNames('mito-modal-header-text-div', {'mt-25px': props.setUIState === undefined})} style={{color: headerColor}}>
                         <p>{props.header}</p>
                     </div>
                     {props.viewComponent &&
-                        <div className="modal-message">
+                        <div className="mito-modal-message">
                             {props.viewComponent}
                         </div>
                     }
                     
-                    <div className="modal-buttons">
+                    <div className="mito-modal-buttons">
                         {props.buttons}       
                     </div>
                 </div> 

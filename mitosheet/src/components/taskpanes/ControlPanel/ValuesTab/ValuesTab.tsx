@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React, { Fragment, useRef, useState } from 'react';
-import MitoAPI from '../../../../api';
+import MitoAPI from '../../../../jupyter/api';
 import MultiToggleBox from '../../../elements/MultiToggleBox';
 import Select from '../../../elements/Select';
 import { FilterType, FilterGroupType, ColumnID, FormatTypeObj } from '../../../../types';

@@ -1,4 +1,4 @@
-.dropdown-button {
+.mito-dropdown-button {
     display: flex;
     flex-direction: row;
 
@@ -12,7 +12,7 @@
     background-color: var(--mito-very-light-gray);
 }
 
-.dropdown-button-text {
+.mito-dropdown-button-text {
     display: flex;
     align-items: center;
 
@@ -26,7 +26,7 @@
     overflow-x: hidden;
 }
 
-.dropdown-button-icon-container {
+.mito-dropdown-button-icon-container {
     display: flex;
     flex-direction: row;
     justify-content: space-around;
@@ -42,25 +42,25 @@
 /* 
     Classes for when the dropdown button is enabled
 */
-.dropdown-button-enabled {
+.mito-dropdown-button-enabled {
     border: 1px solid var(--mito-purple);
 }
-.dropdown-button-enabled:hover {
+.mito-dropdown-button-enabled:hover {
     border: 1px solid var(--mito-medium-purple);
 }
-.dropdown-button-enabled > .dropdown-button-text {
+.mito-dropdown-button-enabled > .mito-dropdown-button-text {
     color: var(--mito-purple) !important;
 }
-.dropdown-button-enabled:hover > .dropdown-button-text {
+.mito-dropdown-button-enabled:hover > .mito-dropdown-button-text {
     color: var(--mito-medium-purple) !important;
 }
 
 /* 
     Classes for when the dropdown button is disabled
 */
-.dropdown-button-disabled {
+.mito-dropdown-button-disabled {
     border: 1px solid var(--mito-medium-gray);
 }
-.dropdown-button-disabled > .dropdown-button-text {
+.mito-dropdown-button-disabled > .mito-dropdown-button-text {
     color: var(--mito-medium-gray) !important;
 }

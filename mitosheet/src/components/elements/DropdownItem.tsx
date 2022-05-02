@@ -69,12 +69,12 @@ const DropdownItem = (props: DropdownItemProps): JSX.Element => {
     
     return (
         <div 
-            className={classNames('dropdown-item', {[DROPDOWN_IGNORE_CLICK_CLASS]: disabled}, props.className)}
+            className={classNames('mito-dropdown-item', {[DROPDOWN_IGNORE_CLICK_CLASS]: disabled}, props.className)}
             onClick={!disabled ? props.onClick : undefined} 
         > 
-            <div className={classNames('dropdown-item-icon-and-title-container')}>
+            <div className={classNames('mito-dropdown-item-icon-and-title-container')}>
                 
-                <div className={classNames('dropdown-item-icon-container')}>
+                <div className={classNames('mito-dropdown-item-icon-container')}>
                     {props.icon}
                 </div>
                 {/* 
@@ -82,7 +82,7 @@ const DropdownItem = (props: DropdownItemProps): JSX.Element => {
                     title, in case it is cut off
                 */}
                 <span title={props.title}>
-                    <p className={classNames('text-body-2', 'text-overflow-hide', {'dropdown-item-title-disabled': disabled})}>
+                    <p className={classNames('text-body-2', 'text-overflow-hide', {'mito-dropdown-item-title-disabled': disabled})}>
                         {props.title}
                     </p>
                 </span>
@@ -93,10 +93,10 @@ const DropdownItem = (props: DropdownItemProps): JSX.Element => {
                     DropdownItem is hovered over
                 */
                 <div className={classNames(
-                    'dropdown-item-subtext-container', 
+                    'mito-dropdown-item-subtext-container', 
                     'text-subtext-1', 
-                    {'dropdown-item-subtext-disabled': disabled},
-                    {'dropdown-item-display-subtext-on-hover': hideSubtext && displaySubtextOnHover}
+                    {'mito-dropdown-item-subtext-disabled': disabled},
+                    {'mito-dropdown-item-display-subtext-on-hover': hideSubtext && displaySubtextOnHover}
                 )}>
                     {props.subtext}
                 </div>

@@ -50,11 +50,11 @@ const DropdownButton = (props: DropdownButtonProps): JSX.Element => {
     const width = props.width || 'block'
 
     const widthClass = `element-width-${width}`
-    const disabledClass = props.disabled ? 'dropdown-button-disabled' : 'dropdown-button-enabled';
+    const disabledClass = props.disabled ? 'mito-dropdown-button-disabled' : 'mito-dropdown-button-enabled';
 
     return (
         <div 
-            className={classNames('dropdown-button', 'text-header-4', widthClass, disabledClass)}
+            className={classNames('mito-dropdown-button', 'text-header-4', widthClass, disabledClass)}
             onClick={() => {
                 setDisplayDropdown((prevDisplayDropdown) => {
                     /* 
@@ -69,10 +69,10 @@ const DropdownButton = (props: DropdownButtonProps): JSX.Element => {
                 })
             }}
         >
-            <p className='dropdown-button-text'>
+            <p className='mito-dropdown-button-text'>
                 {props.text}
             </p>
-            <div className='dropdown-button-icon-container'>
+            <div className='mito-dropdown-button-icon-container'>
                 <SelectDropdownIcon purpleOrDarkOrWhite={props.disabled ? 'dark' : 'purple'}/>
             </div>
             {displayDropdown && 

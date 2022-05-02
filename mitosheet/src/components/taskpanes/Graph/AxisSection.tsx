@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import MitoAPI from '../../../api';
+import MitoAPI from '../../../jupyter/api';
 import { GraphType } from './GraphSidebar';
 import DropdownButton from '../../elements/DropdownButton';
 import Row from '../../spacing/Row';

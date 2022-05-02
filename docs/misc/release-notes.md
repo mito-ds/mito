@@ -2,9 +2,27 @@
 description: Want to see what is new in the Mitosheet? Check it out below.
 ---
 
+
 # Release Notes
 
-## 2022-4-11 <a href="#2022-4-5" id="2022-4-5"></a>
+## 2022-4-21 <a href="#2022-4-21" id="2022-4-21"></a>
+
+New Features:
+* **Mito is now available in Jupyter Notebooks**. To use Mito in a Jupyter Notebook, follow the [upgrade instructions here.](../how-to/upgrading-mito.md#upgrading-to-mitosheet-on-jupyterlab-3-0). Then, launch `jupyter notebook` to and render a mitosheet as you normally would.
+
+## 2022-4-19 <a href="#2022-4-19" id="2022-4-19"></a>
+
+New Features:
+* More Code optimization for Mito Pro users. When the user deletes a dataframe, Mito now deletes all of the code that was used to create that dataframe, in most cases. 
+* The file browser now works with arrow keys! Woo for efficiency.
+
+Bug Fixes:
+* Fixes issues with scrollbars overlapping text, making the text hard to read
+* Undo and redo now work with filter and sort
+* The rename input field now submits on blur and doesn't add navigation keys like pageup and pagedown to the column name.
+* Handles 'yes' and 'no' properly in string to bool conversion
+
+## 2022-4-11 <a href="#2022-4-11" id="2022-4-11"></a>
 
 New Features:
 * Code optimization for Mito Pro users. Common scripts now will be 1/3 the size of previous scripts, as Mito automatically generates optimized code as you edit. 
@@ -13,22 +31,13 @@ New Features:
 Bug Fixes:
 * Drop duplicates now opens with no column selected, to allow users to opt into changing the data if they are just exploring.
 
-
-Bug Fixes:
-* Make sheets with massive numbers of columns work with Mito better, by only displaying the first 1500 columns.
-* Add a warning to pivot tables letting users know that adding a `column` key with a large number of unique values will cause performance problems.
-* Make analysis replaying much more robust by adding an `analysis_to_replay` parameter to the `mitosheet.sheet()` call. This will stop Mito generated code from getting deleted from the sheet, as it did in the past!
-
-
 ## 2022-4-5 <a href="#2022-4-5" id="2022-4-5"></a>
 
-
 Bug Fixes:
+
 * Make sheets with massive numbers of columns work with Mito better, by only displaying the first 1500 columns.
 * Add a warning to pivot tables letting users know that adding a `column` key with a large number of unique values will cause performance problems.
 * Make analysis replaying much more robust by adding an `analysis_to_replay` parameter to the `mitosheet.sheet()` call. This will stop Mito generated code from getting deleted from the sheet, as it did in the past!
-
-
 
 ## 2022-3-29 <a href="#2022-3-29" id="2022-3-29"></a>
 
@@ -40,6 +49,7 @@ New Features:
 * Shrunk the size of the toolbar buttons, to let us give users all the actions they want at their fingertips :-)
 
 Bug Fixes:
+
 * Make Merge and Deduplicate work with Undo and Redo, for better usability.
 * Fix a variety of sheet crashing bugs in the graphing taskpane.
 * Cleanup and modernize the merge and pivot taskpanes, for ease of development.
@@ -52,23 +62,23 @@ New Features:
 * Format data in the Unique Values and Summary Statistics tab of the column control panel with whatever formatting is applied to the column.
 
 Bug fixes:
+
 * Both undo and redo work with pivot and graphing. No longer will redoing edits lead to parameters getting out of date with the sheet.
 * Don't overwrite written code if the user is replaying an analysis that they do not have on their local machine.
-
 
 ## 2022-3-10 <a href="#2022-3-10" id="2022-3-10"></a>
 
 New Features:
 
 * New graph types: Line, Violin, Strip, Density Heatmap, Density Contour, ECDF
-* Move graphs to a step performer in order to make them work with Undo, Redo, and Clear.&#x20;
+* Move graphs to a step performer in order to make them work with Undo, Redo, and Clear.
 * New Filter conditions: `Starts With` and `Ends With.`
 
 Bug fixes:
 
-* Fix bug where Mito didn't generate code if there was not a code cell below the Mito spreadsheet.&#x20;
+* Fix bug where Mito didn't generate code if there was not a code cell below the Mito spreadsheet.
 * Improved error messages when a user attempts to install Mito in VSCode or Google Collab
-* Better logging for when race conditions prevent Mito from reading in the name of the passed dataframe arugments correctly.&#x20;
+* Better logging for when race conditions prevent Mito from reading in the name of the passed dataframe arugments correctly.
 
 ## 2022-2-28 <a href="#2022-2-28" id="2022-2-28"></a>
 
