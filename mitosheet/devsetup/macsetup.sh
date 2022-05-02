@@ -5,13 +5,14 @@ rm -rf venv/
 python3 -m venv venv
 source venv/bin/activate
 
-# Switch to the mitosheet package
+# Switch to the mitosheet package, which we develop on by default
 python switch.py mitosheet
 
 # Install Python dependencies
 pip install -e ".[test, deploy]"
 
-# Make sure the node options are set properly, or this fails
+# Make sure the Node options are set properly, or later build commands fail
+# with versions of Node > 16
 export NODE_OPTIONS=--openssl-legacy-provider
 
 # Install the npm dependences
