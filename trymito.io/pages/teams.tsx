@@ -36,7 +36,7 @@ const Teams: NextPage = () => {
 
             <section className={titleStyles.title_card + ' ' + titleStyles.grid_card}>
                 <h1 className={titleStyles.title}>
-                    Embrace Python by leveraging your team’s Excel mastery
+                    Transition to Python by leveraging your team's spreadsheet mastery
                 </h1>
                 <p className={titleStyles.description}>
                     Onboard your team to Mito in minutes
@@ -49,8 +49,7 @@ const Teams: NextPage = () => {
                 <div className={pageStyles.subsection}>
                     <div className={homeStyles.functionality_text}>
                         <p>
-                            <b className='text-primary'>Spreadsheet-first teams </b> use Mito to transition to Python while preserving 
-                            the spreadsheet interface that we all know and love. 
+                            <b className='text-primary'>Spreadsheet-first teams </b> use Mito to write Python from the spreadsheet interface they know and love.
                         </p>
                         <p> 
                             <b className='text-primary'>Python-first teams </b> use Mito to write code faster without spending time searching Google or Stack Overflow.
@@ -79,7 +78,7 @@ const Teams: NextPage = () => {
                             Jupyter <br/> Compatible
                         </h1>
                         <p>
-                            Mito is compatible with Jupyter Hub, Jupyter Lab, and Jupyter Notebooks, so you don’t need to manage any new infrastructure.  
+                            Mito is compatible with JupyterHub, JupyterLab, and Jupyter Notebooks, so you don’t need to manage any new infrastructure.  
                         </p>
                     </div>
                     <div className={securityStyles.security_bullet_container + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
@@ -90,7 +89,7 @@ const Teams: NextPage = () => {
                             Completely <br/> Private
                         </h1>
                         <p>
-                            With the Mito Pro and Enterprise plans, not a single message is sent back to Mito. Mito is designed from the ground up with security at its core. 
+                            The Mito Pro and Enterprise plans are totally local. No data leaves your computer, ever. Mito is designed for your security first. 
                         </p>
                     </div>
                 </div>
@@ -103,7 +102,7 @@ const Teams: NextPage = () => {
                             Practical <br/> Documentation
                         </h1>
                         <p>
-                            Great documentation is a must even for the most intutive tools. Mito’s docs are easily consumable, so your users can get started without any training.  
+                            Our documentation is best-in-class, so you can get started without complex trainings.
                         </p>
                     </div>
                     <div className={securityStyles.security_bullet_container + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
@@ -114,7 +113,7 @@ const Teams: NextPage = () => {
                             Personal <br/> Support
                         </h1>
                         <p>
-                            The founders of Mito are around to help train, debug, or ideate on new features 24/7. 
+                            The Mito team is around to help train, debug, or ideate on new features. 
                         </p>
                     </div>
                 </div>
@@ -180,7 +179,7 @@ const Teams: NextPage = () => {
             <section>
                 <div className={pageStyles.subsection + ' ' + pageStyles.subsection_column + ' center'}>
                     <h1>
-                        Use Mito to clean, analyze, and chart data
+                        Use Mito to clean, analyze, and graph data
                     </h1>
                     <p className='display-desktop-only-inline-block'>
                         Join other Fortune 500 companies that are writing production-ready Python code with Mito.
@@ -203,7 +202,7 @@ const Teams: NextPage = () => {
                             <Image src={'/presentationReadyGraphs.png'} alt='Explore your data with Mito' width={500} height={250} layout='responsive'/>
                         </div>
                         <div className='margin-top-3rem'>
-                            <h1>Create <span className='text-highlight'>presentation ready</span> charts</h1>
+                            <h1>Create <span className='text-highlight'>presentation ready</span> graphs</h1>
                         </div>
                         <p>
                             Mito creates beautiful, interactive Plotly charts that are ready to be shared with colleagues and clients.
