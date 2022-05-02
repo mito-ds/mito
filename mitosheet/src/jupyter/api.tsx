@@ -883,6 +883,7 @@ export default class MitoAPI {
         sheetIndex: number,
         columnID: ColumnID,
         newFormula: string,
+        cell_editor_location: string
     ): Promise<MitoError | undefined> {
         const stepID = getRandomId();
 
@@ -893,7 +894,8 @@ export default class MitoAPI {
             'params': {
                 'sheet_index': sheetIndex,
                 'column_id': columnID,
-                'new_formula': newFormula
+                'new_formula': newFormula,
+                'cell_editor_location': cell_editor_location // Just for logging purposes
             }
         }, {});
     }
@@ -906,6 +908,7 @@ export default class MitoAPI {
         columnID: ColumnID,
         dataframeRowIndex: number | string,
         newValue: string,
+        cell_editor_location: string
     ): Promise<MitoError | undefined> {
         const stepID = getRandomId();
 
@@ -917,7 +920,8 @@ export default class MitoAPI {
                 'sheet_index': sheetIndex,
                 'column_id': columnID,
                 'row_index': dataframeRowIndex,
-                'new_value': newValue
+                'new_value': newValue,
+                'cell_editor_location': cell_editor_location // Just for logging purposes
             }
         }, {});
     }

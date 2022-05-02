@@ -5,8 +5,7 @@ import MitoAPI from "../../jupyter/api";
 import { EditorState, Dimension, GridState, RendererTranslate, SheetData, SheetView, UIState } from "../../types";
 import FormulaBar from "./FormulaBar";
 import { TaskpaneType } from "../taskpanes/taskpanes";
-import CellEditor from "./CellEditor";
-import { getCellEditorInputCurrentSelection, getStartingFormula } from "./cellEditorUtils";
+import { getCellEditorInputCurrentSelection, getStartingFormula } from "./celleditor/cellEditorUtils";
 import ColumnHeaders from "./ColumnHeaders";
 import EmptyGridMessages from "./EmptyGridMessages";
 import { focusGrid } from "./focusUtils";
@@ -17,6 +16,7 @@ import { calculateCurrentSheetView, calculateNewScrollPosition, calculateTransla
 import { firstNonNullOrUndefined, getColumnIDsArrayFromSheetDataArray } from "./utils";
 import { ensureCellVisible } from "./visibilityUtils";
 import { reconciliateWidthDataArray } from "./widthUtils";
+import FloatingCellEditor from "./celleditor/FloatingCellEditor";
 
 // NOTE: these should match the css
 export const DEFAULT_WIDTH = 123;
@@ -79,6 +79,7 @@ function EndoGrid(props: {
     */
     editorState: EditorState | undefined,
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>
+    mitoContainerRef: React.RefObject<HTMLDivElement>
 }): JSX.Element {
 
     // The container for the entire EndoGrid
@@ -206,9 +207,10 @@ function EndoGrid(props: {
 
                 // Get the column that was clicked, and then find the current selection
                 // within the cell editor, so that we can place the column header correctly
-                const {selectionStart, selectionEnd} = getCellEditorInputCurrentSelection(containerRef.current);
-
-
+                // If the cell cellEditor is open, then look inside the EndoGrid, otherwise look inside the mitoContainer
+                const cellEditorContainer = editorState.editorLocation === 'cell' ? containerRef.current : props.mitoContainerRef.current
+                const {selectionStart, selectionEnd} = getCellEditorInputCurrentSelection(cellEditorContainer);
+            
                 // If there is already some suggested column headers, we do not change this selection, 
                 // as we want any future expanded selection of column headers to overwrite the same 
                 // region. So default to pendingSelectedColumns?.selectionStart, but if this does not
@@ -481,7 +483,8 @@ function EndoGrid(props: {
             formula: startingFormula,
             // As in google sheets, if the starting formula is non empty, we default to the 
             // arrow keys scrolling in the editor
-            arrowKeysScrollInFormula: startingFormula.length > 0
+            arrowKeysScrollInFormula: startingFormula.length > 0,
+            editorLocation: 'cell'
         })
     }
     
@@ -537,7 +540,8 @@ function EndoGrid(props: {
                         formula: startingFormula,
                         // As in google sheets, if the starting formula is non empty, we default to the 
                         // arrow keys scrolling in the editor
-                        arrowKeysScrollInFormula: startingFormula.length > 0
+                        arrowKeysScrollInFormula: startingFormula.length > 0,
+                        editorLocation: 'cell'
                     });
 
                     e.preventDefault();
@@ -589,7 +593,15 @@ function EndoGrid(props: {
             <FormulaBar
                 sheetData={sheetData}
                 selection={gridState.selections[gridState.selections.length - 1]}
+                sheetIndex={props.sheetIndex}
                 editorState={editorState}
+                setEditorState={props.setEditorState}
+                gridState={props.gridState}
+                setGridState={props.setGridState}
+                setUIState={props.setUIState}
+                scrollAndRenderedContainerRef={scrollAndRenderedContainerRef}
+                containerRef={containerRef}
+                mitoAPI={props.mitoAPI}
             />
             <div 
                 className='endo-grid-container' 
@@ -661,14 +673,15 @@ function EndoGrid(props: {
                         />
                     </div>
                 </div>
-                {sheetData !== undefined && editorState !== undefined && editorState.rowIndex > -1 &&
-                    <CellEditor
+                {sheetData !== undefined && editorState !== undefined && editorState.editorLocation === 'cell' && editorState.rowIndex > -1 &&
+                    <FloatingCellEditor
                         sheetData={sheetData}
                         sheetIndex={sheetIndex}
                         gridState={gridState}
                         editorState={editorState}
                         setGridState={setGridState}
                         setEditorState={setEditorState}
+                        setUIState={setUIState}
                         scrollAndRenderedContainerRef={scrollAndRenderedContainerRef}
                         containerRef={containerRef}
                         mitoAPI={mitoAPI}

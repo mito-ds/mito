@@ -1,6 +1,6 @@
 import fscreen from "fscreen";
 import MitoAPI, { getRandomId } from "../jupyter/api";
-import { getStartingFormula } from "../components/endo/cellEditorUtils";
+import { getStartingFormula } from "../components/endo/celleditor/cellEditorUtils";
 import { getColumnIndexesInSelections, getSelectedNumberSeriesColumnIDs, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
 import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes } from "../components/endo/utils";
 import { ModalEnum } from "../components/modals/modals";
@@ -594,6 +594,7 @@ export const createActions = (
                     rowIndex: -1,
                     columnIndex: startingColumnIndex,
                     formula: getDisplayColumnHeader(finalColumnHeader),
+                    editorLocation: 'cell'
                 })
 
             },
@@ -684,7 +685,8 @@ export const createActions = (
                     columnIndex: startingColumnIndex,
                     formula: startingFormula,
                     // Since you can't reference other cells in a data column, we default to scrolling in the formula
-                    arrowKeysScrollInFormula: true
+                    arrowKeysScrollInFormula: true,
+                    editorLocation: 'cell'
                 })
             },
             isDisabled: () => {
@@ -716,7 +718,8 @@ export const createActions = (
                     formula: columnFormula !== undefined ? columnFormula : '',
                     // As in google sheets, if the starting formula is non empty, we default to the 
                     // arrow keys scrolling in the editor
-                    arrowKeysScrollInFormula: columnFormula !== undefined && columnFormula.length > 0
+                    arrowKeysScrollInFormula: columnFormula !== undefined && columnFormula.length > 0,
+                    editorLocation: 'cell'
                 })
             },
             isDisabled: () => {
@@ -1158,7 +1161,8 @@ export const getSpreadsheetFormulaAction = (
                 rowIndex: rowIndex,
                 columnIndex: columnIndex,
                 formula: "=" + spreadsheetAction?.function + "(",
-                arrowKeysScrollInFormula: false
+                arrowKeysScrollInFormula: false,
+                editorLocation: 'cell'
             })
         },
         isDisabled: () => {

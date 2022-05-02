@@ -407,6 +407,7 @@ export interface ScrollPosition {
  * @param formula - The current formula. This might not be what is displayed to the user, if they have pendingSelectedColumns
  * @param pendingSelectedColumns - A list of columns that the user has selected through the arrow keys or clicking on columns. Also stores _where_ in the formula these columns should be inserted
  * @param arrowKeysScrollInFormula - The user can click on the editor to make the arrow keys scroll in the editor rather than in the sheet
+ * @param editorLocation -- The location of the cell editor, either a cell or formula bar
  */
 export type EditorState = {
     rowIndex: number;
@@ -424,6 +425,7 @@ export type EditorState = {
         types something. 
     */
     arrowKeysScrollInFormula?: boolean;
+    editorLocation: 'cell' | 'formula bar'
 };
 
 /**
