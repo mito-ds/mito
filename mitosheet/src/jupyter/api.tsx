@@ -1,5 +1,6 @@
 // Copyright (c) Mito
 
+import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
 import { SortDirection } from "../components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
 import { GraphObject } from "../components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
 import { UniqueValueCount, UniqueValueSortType } from "../components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
@@ -780,7 +781,7 @@ export default class MitoAPI {
         columnID: ColumnID,
         filters: (FilterType | FilterGroupType)[],
         operator: 'And' | 'Or',
-        filterLocation: string,
+        filterLocation: ControlPanelTab,
         stepID?: string,
     ): Promise<string> {
         // Create a new id, if we need it!
