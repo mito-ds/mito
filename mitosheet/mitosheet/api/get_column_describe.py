@@ -11,14 +11,14 @@ from mitosheet.sheet_functions.types.utils import is_number_dtype
 from mitosheet.types import StepsManagerType
 
 
-def get_column_describe(event: Dict[str, Any], steps_manager: StepsManagerType) -> str:
+def get_column_describe(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
     """
     Sends back a string that can be parsed to a JSON object that
     contains _all_ the results from the series .describe function
     for the series at column_header in the df at sheet_index.
     """
-    sheet_index = event['sheet_index']
-    column_id = event['column_id']
+    sheet_index = params['sheet_index']
+    column_id = params['column_id']
     column_header = steps_manager.curr_step.get_column_header_by_id(sheet_index, column_id)
     
     series: pd.Series = steps_manager.dfs[sheet_index][column_header]

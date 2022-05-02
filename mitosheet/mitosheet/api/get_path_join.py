@@ -6,7 +6,7 @@
 import os
 from typing import Any, Dict
 
-def get_path_join(event: Dict[str, Any]) -> str:
+def get_path_join(params: Dict[str, Any]) -> str:
     """
     Takes an event with path parts in a list, turns them into
     an actual path, normalizes it, and sends it back.
@@ -16,7 +16,7 @@ def get_path_join(event: Dict[str, Any]) -> str:
     but instead of adding another dependency that might be incompatible, we just
     use the Python code on the backend.
     """ 
-    path_parts = event['path_parts']
+    path_parts = params['path_parts']
 
     # Join the path and normalize it
     path = os.path.join(*path_parts)

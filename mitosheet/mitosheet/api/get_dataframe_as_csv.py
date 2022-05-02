@@ -7,11 +7,11 @@ from typing import Any, Dict
 from mitosheet.types import StepsManagerType
 
 
-def get_dataframe_as_csv(event: Dict[str, Any], steps_manager: StepsManagerType) -> str:
+def get_dataframe_as_csv(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
     """
     Sends a dataframe as a CSV string
     """
-    sheet_index = event['sheet_index']
+    sheet_index = params['sheet_index']
     df = steps_manager.dfs[sheet_index]
 
     return df.to_csv(index=False)

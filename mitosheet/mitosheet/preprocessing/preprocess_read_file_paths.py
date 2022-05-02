@@ -9,7 +9,7 @@ from typing import (Any, Collection, Dict, List, Optional,
 import pandas as pd
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import generate_read_csv_code
 from mitosheet.errors import get_recent_traceback_as_list
-from mitosheet.mito_analytics import log
+from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.preprocessing.preprocess_step_performer import \
     PreprocessStepPerformer
 from mitosheet.step_performers.import_steps.simple_import import (
@@ -58,11 +58,11 @@ class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
                     # If this pd.read_csv fails, then we report this error to the user
                     # as a failed mitosheet call
                     error_message = f'Invalid argument passed to sheet: {arg}. This path could not be read with a pd.read_csv call. Please pass in the parsed dataframe directly.'
-                    log('mitosheet_sheet_call_failed', {'error': error_message, 'error_traceback': get_recent_traceback_as_list()})
+                    log('mitosheet_sheet_call_failed', failed=True)
                     raise ValueError(error_message)
             else:
                 error_message = f'Invalid argument passed to sheet: {arg}. Please pass all dataframes or paths to CSV files.'
-                log('mitosheet_sheet_call_failed', {'error': error_message})
+                log('mitosheet_sheet_call_failed', {'error': error_message}, failed=True)
                 raise ValueError(error_message)
                 
         return df_args, {

@@ -10,7 +10,7 @@ for adding to lists in the user.json.
 
 from typing import Any
 
-from mitosheet.mito_analytics import identify
+from mitosheet.telemetry.telemetry_utils import identify
 from mitosheet.types import StepsManagerType
 from mitosheet.user import get_user_field, set_user_field
 

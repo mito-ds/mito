@@ -6,7 +6,7 @@
 from datetime import datetime
 from typing import Any, Dict
 
-from mitosheet.mito_analytics import identify
+from mitosheet.telemetry.telemetry_utils import identify
 from mitosheet.types import StepsManagerType
 from mitosheet.user import get_user_field, set_user_field
 from mitosheet.user.schemas import UJ_FEEDBACKS_V2
