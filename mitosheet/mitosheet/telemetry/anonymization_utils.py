@@ -9,23 +9,22 @@ This file contains utilities for anonyimizing data. See the README.md in
 this folder for more details on our approach to private telemetry.
 """
 
-# When we anonymize, we use some combination of these words
-# to construct new private words
 from typing import Any, Dict
 from mitosheet.parser import parse_formula
-from mitosheet.telemetry.private_params_map import LOG_PARAMS_FORMULAS, LOG_PARAMS_TO_ANONYIMIZE, LOG_PARAMS_TO_LINEARIZE, LOG_PARAMS_PUBLIC
+from mitosheet.telemetry.private_params_map import LOG_PARAMS_FORMULAS, LOG_PARAMS_TO_LINEARIZE, LOG_PARAMS_PUBLIC
 from mitosheet.types import StepsManagerType
 from mitosheet.user.db import get_user_field
 from mitosheet.user.schemas import UJ_USER_SALT
 
-
+# When we anonymize, we use some combination of these words
+# to construct new private words
 valid_words = ['cat', 'dog', 'hat', 'time', 'person', 'year', 'way', 'thing', 'man', 'world', 'life', 'born', 'part', 'child', 'eye', 'woman', 'place', 'work', 'fall', 'case', 'point', 'company', 'number', 'group', 'problem', 'fact']
 
 # We use the same salt to anonymize_words, and we read
 # this salt in once the function is called for the first
 # time, to make sure it's initialized properly
 salt = None
-def anonymize_word(word: Any) -> str:
+def anonymize_as_string(word: Any) -> str:
     """
     Helper function that turns any specific value into
     a totally anonymous version of the value, consistently.
@@ -56,7 +55,7 @@ def anonymize_formula(formula: str, sheet_index: int, steps_manager: StepsManage
     make sure that no private data is included in it.
     """
     if steps_manager is None:
-        return anonymize_word(formula)
+        return anonymize_as_string(formula)
 
     # We just input a random address, as we don't use it
     _, _, dependencies = parse_formula(
@@ -67,21 +66,21 @@ def anonymize_formula(formula: str, sheet_index: int, steps_manager: StepsManage
     )
     
     for dependency in dependencies:
-        formula = formula.replace(str(dependency), anonymize_word(dependency))
+        formula = formula.replace(str(dependency), anonymize_as_string(dependency))
     
     return formula
 
 def anonyimize_object(obj: Any) -> Any:
     """
-    Anoymizes anything object it is given, handling any different
+    Anoymizes any object it is given, handling any different
     type of object that it might be given.
     """
     if isinstance(obj, list):
-        return [anonymize_word(v) for v in obj]
+        return [anonymize_as_string(v) for v in obj]
     elif isinstance(obj, dict):
-        return {key: anonymize_word(v) for key, v in obj.items()}
+        return {key: anonymize_as_string(v) for key, v in obj.items()}
     
-    return anonymize_word(obj)
+    return anonymize_as_string(obj)
 
 def get_final_private_params_for_single_kv(key: str, value: Any, params: Dict[str, Any], steps_manager: StepsManagerType=None) -> Dict[str, Any]:
     """
@@ -105,11 +104,9 @@ def get_final_private_params_for_single_kv(key: str, value: Any, params: Dict[st
 
     if key in LOG_PARAMS_PUBLIC:
         private_params[key] = value
-    elif key in LOG_PARAMS_TO_ANONYIMIZE:
-        private_params[key] = anonyimize_object(value)
     elif key in LOG_PARAMS_FORMULAS:
         private_params[key] = anonymize_formula(value, params['sheet_index'], steps_manager)
     else:
-        raise Exception('key, value not in any log set', key, value)
+        private_params[key] = anonyimize_object(value)
     
     return private_params

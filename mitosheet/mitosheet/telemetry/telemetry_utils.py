@@ -18,7 +18,7 @@ from typing import Any, Dict
 
 from mitosheet.errors import MitoError, get_recent_traceback_as_list
 from mitosheet.telemetry.anonymization_utils import anonyimize_object, get_final_private_params_for_single_kv
-from mitosheet.telemetry.private_params_map import LOG_EXECUTION_DATA_ANONYIMIZE, LOG_EXECUTION_DATA_PUBLIC
+from mitosheet.telemetry.private_params_map import LOG_EXECUTION_DATA_PUBLIC
 from mitosheet.types import StepsManagerType
 from mitosheet.user.location import get_location, is_docker
 from mitosheet.user.schemas import UJ_FEEDBACKS, UJ_FEEDBACKS_V2, UJ_INTENDED_BEHAVIOR, UJ_MITOSHEET_TELEMETRY, UJ_USER_EMAIL
@@ -41,7 +41,7 @@ PRINT_LOGS = False
 
 def telemetry_turned_on() -> bool:
     """
-    Helper function that tells if you if logging is turned on or
+    Helper function that tells you if logging is turned on or
     turned off on the entire Mito instance
     """
     # If the current package is mitosheet-private, then we don't log anything,
@@ -87,11 +87,9 @@ def _get_execution_data_log_params(steps_manager: StepsManagerType=None) -> Dict
             if key in LOG_EXECUTION_DATA_PUBLIC:
                 execution_data_params['execution_data_' + key] = value
             # And make the rest private
-            elif key in LOG_EXECUTION_DATA_ANONYIMIZE:
-                execution_data_params['execution_data_' + key] = anonyimize_object(value)
             else:
-                raise Exception('key, value in execution data not in valid set', key, value)
-        
+                execution_data_params['execution_data_' + key] = anonyimize_object(value)
+
     return execution_data_params
 
 def _get_wsc_log_params(steps_manager: StepsManagerType=None) -> Dict[str, Any]:
@@ -151,7 +149,7 @@ def _get_processing_time_log_params(steps_manager: StepsManagerType=None, start_
         processing_time_params['processing_time_seconds_hundred'] = int(round(processing_time, -2))
 
         # If we just did an update, and this update has a pandas processing time, then we can calculate the
-        # time that we spent as mito overhead vs. just 
+        # time that we spent as mito overhead vs. just executing pandas code
         if steps_manager and steps_manager.curr_step.execution_data and 'pandas_processing_time' in steps_manager.curr_step.execution_data:
             pandas_processing_time = steps_manager.curr_step.execution_data['pandas_processing_time']
             processing_time_params['processing_time_pandas'] = round(pandas_processing_time, 1)
@@ -218,7 +216,6 @@ def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, 
     # We choose to log the event type, as it is the best high-level item for our logs
     # and we append a _failed if the event failed in doing this.
     log_event: str = event['type'] + ('_failed' if failed else '')
-
     params_for_final_log = {
         # NOTE: We make a copy here so we don't modify the actual params
         # dict, which we don't want to do as it's used elsewhere!

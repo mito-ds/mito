@@ -2,7 +2,7 @@
 
 We take privacy very seriously. 
 
-As such, we never don't log any of your private data. We only collect telemetry information about button clicks, where Mito is loaded from, various Python configuration settings, and other general interactions with the app.
+As such, we never log any of your private data. We only collect telemetry information about button clicks, where Mito is loaded from, various Python configuration settings, and other general interactions with the app.
 
 If you want to turn off telemetry, you can purchase a Pro account on our [plans page](https://trymito.io/plans). This will also get you access to a variety of other pro features like graph styling, generated code optimization, export formating, and many more coming soon!
 
