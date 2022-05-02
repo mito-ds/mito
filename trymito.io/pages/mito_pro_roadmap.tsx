@@ -66,7 +66,7 @@ const Mito_Pro_Roadmap: NextPage = () => {
                             <Image className={securityStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
                         <h1>
-                            Custom steps and functions
+                            Custom <br /> Transformations
                         </h1>
                         <p>
                             Import custom python snippets to use within the Mito Spreadsheet and add completely new step types to the Mito Toolbar.  
@@ -90,7 +90,7 @@ const Mito_Pro_Roadmap: NextPage = () => {
                             <Image className={securityStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
                         <h1>
-                        Connect to any data source
+                            Connect to more data sources
                         </h1>
                         <p>
                             Connect to databases and remote file systems so users can import any data set  without having to write custom pandas code.   
@@ -104,7 +104,7 @@ const Mito_Pro_Roadmap: NextPage = () => {
                             Feature <br/> settings
                         </h1>
                         <p>
-                            Customize Mito by turning on/off code optimization, code documentation, seleting between light and dark mode, and more. 
+                            Customize Mito by turning toggling code optimization, auto-documentation, seleting between light and dark mode, and more. 
                         </p>
                     </div>
                 </div>
@@ -128,7 +128,7 @@ const Mito_Pro_Roadmap: NextPage = () => {
                             Keyboard <br/> shortcuts
                         </h1>
                         <p>
-                            Navigate Mito without ever using your 🐁. 
+                            Navigate Mito without ever using your mouse. 🐁 
                         </p>
                     </div>
                 </div>
