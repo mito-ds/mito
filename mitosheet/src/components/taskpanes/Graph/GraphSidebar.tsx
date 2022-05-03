@@ -96,7 +96,7 @@ const GraphSidebar = (props: {
     // We log if plotly is not defined
     useEffect(() => {
         if (!(window as any).Plotly) {
-            props.mitoAPI.log('plotly_define_failed');
+            void props.mitoAPI.log('plotly_define_failed');
         }
     }, [])
 
