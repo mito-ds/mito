@@ -46,7 +46,7 @@ const ActionSearchBar = (props: {
         // Log that the userSearchTerm is being updated
         if (searchString !== '') {
             void props.mitoAPI.log('searched_action_search_bar', {
-                user_serch_term: searchString
+                user_search_term: searchString
             });
         }
     }, [searchString], 150)
