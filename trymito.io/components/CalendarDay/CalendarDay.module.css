@@ -7,10 +7,19 @@
     flex-basis: 1;
 }
 
+.calendar_day_card > h2 {
+    color: var(--color-text-secondary)
+}
+
 @media only screen and (min-width: 50em) {
+    .calendar_day_card {
+        border-radius: 10px;
+    }
+
     /* When the cards are dispalyed in a row, overwrite the default left-margin */
     .calendar_day_card + .calendar_day_card {
         margin-left: 1rem;
     }
+
 }
 

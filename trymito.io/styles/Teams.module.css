@@ -1,12 +1,3 @@
-.handwritten_font {
-    font-family: GloriaHallelujah;
-    font-size: 3rem;
-    color: #FFFFFF;
-}
-
-@media only screen and (min-width: 50em) {
-    .handwritten_font {
-        font-size: 1.75rem;
-    }
-
+.calendar_section {
+    max-width: 62rem;
 }
