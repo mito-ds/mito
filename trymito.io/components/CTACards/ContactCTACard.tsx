@@ -5,7 +5,7 @@ import CTAButtons from '../CTAButtons/CTAButtons';
 const DownloadCTACard = (): JSX.Element => {
 
     return (
-        <div className={ctaCardStyles.cta_card}> 
+        <div> 
             <h1 className={titleStyles.title}>
                 Ready to make your team Python independent?
             </h1>
