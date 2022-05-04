@@ -64,12 +64,6 @@ interface DropdownProps {
         * @param [width] - The width of the dropdown that gets created
      */
     width?: 'small' | 'medium' | 'large';
-
-    /**
-     * @param [selectedIndexState] - Pass the selectedIndex and setSelectedIndex if you want a 
-     * parent component of the Dropdown to handle the selectedIndex state
-     */
-    selectedIndexState?: {selectedIndex: number, setSelectedIndex: React.Dispatch<React.SetStateAction<number>>}
 }
 
 // Where to place the dropdown
@@ -194,9 +188,10 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
     
     const [searchString, setSearchString] = useState('');
     // If the selected index is -1, then nothing is selected
-    const [newSelectedIndex, newSetSelectedIndex] = useState(-1);
-    const selectedIndex = props.selectedIndexState == undefined ? newSelectedIndex : props.selectedIndexState.selectedIndex
-    const setSelectedIndex = props.selectedIndexState == undefined ? newSetSelectedIndex : props.selectedIndexState?.setSelectedIndex
+    const [selectedIndex, setSelectedIndex] = useState(-1);
+
+    // TODO: this PR seems to have broken scrolling inside of dropdowns! Fix this!
+    // At least, it is broken on safari
     
     /* Close the dropdown anytime anyone clicks anywhere unless they click on:
         1. the dropdown's search field

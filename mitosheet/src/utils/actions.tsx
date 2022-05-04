@@ -22,6 +22,7 @@ export const createActions = (
     dfSources: DFSource[],
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void,
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>,
+    uiState: UIState,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>,
     setGridState: React.Dispatch<React.SetStateAction<GridState>>,
     mitoAPI: MitoAPI,
@@ -48,7 +49,7 @@ export const createActions = (
         [ActionEnum.Add_Column]: {
             type: ActionEnum.Add_Column,
             shortTitle: 'Add Col',
-            longTitle: 'Add a column',
+            longTitle: 'Add column',
             actionFunction: () => {
                 if (sheetDataArray.length === 0) {
                     return;
@@ -166,7 +167,7 @@ export const createActions = (
         [ActionEnum.Delete_Column]: {
             type: ActionEnum.Delete_Column,
             shortTitle: 'Del Col',
-            longTitle: 'Delete selected columns',
+            longTitle: 'Delete columns',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
@@ -200,8 +201,8 @@ export const createActions = (
             searchTerms: ['delete column', 'delete col', 'del col', 'del column', 'remove column', 'remove col'],
             tooltip: "Delete all of the selected columns from the sheet."
         },
-        [ActionEnum.Delete_Sheet]: {
-            type: ActionEnum.Delete_Sheet,
+        [ActionEnum.Delete_Dataframe]: {
+            type: ActionEnum.Delete_Dataframe,
             shortTitle: 'Delete Sheet',
             longTitle: 'Delete sheet',
             actionFunction: async () => {
@@ -226,6 +227,21 @@ export const createActions = (
             },
             searchTerms: ['delete', 'delete dataframe', 'delete sheet', 'del', 'del dataframe', 'del sheet', 'remove', 'remove dataframe', 'remove sheet'],
             tooltip: "Delete the selected sheet."
+        },
+        [ActionEnum.Delete_Graph]: {
+            type: ActionEnum.Delete_Graph,
+            shortTitle: 'Delete Graph',
+            longTitle: 'Delete graph',
+            actionFunction: async () => {
+                if (uiState.selectedGraphID) {
+                    await mitoAPI.editGraphDelete(uiState.selectedGraphID);
+                }
+            },
+            isDisabled: () => {
+                return uiState.selectedGraphID ? undefined : "There is no selected graph to delete."
+            },
+            searchTerms: ['delete', 'delete graph', 'delete chart', 'del', 'del chart', 'del chart', 'remove', 'remove chart', 'remove graph'],
+            tooltip: "Delete the selected graph."
         },
         [ActionEnum.Docs]: {
             type: ActionEnum.Docs,
@@ -270,8 +286,8 @@ export const createActions = (
             searchTerms: ['dedup', 'deduplicate', 'same', 'remove', 'drop duplicates', 'duplicates'],
             tooltip: "Remove duplicated rows from your dataframe."
         },
-        [ActionEnum.Duplicate_Sheet]: {
-            type: ActionEnum.Duplicate_Sheet,
+        [ActionEnum.Duplicate_Dataframe]: {
+            type: ActionEnum.Duplicate_Dataframe,
             shortTitle: 'Duplicate Sheet',
             longTitle: 'Duplicate selected sheet',
             actionFunction: async () => {
@@ -285,6 +301,25 @@ export const createActions = (
             },
             searchTerms: ['duplicate', 'copy'],
             tooltip: "Make a copy of the selected sheet."
+        },
+        [ActionEnum.Duplicate_Graph]: {
+            type: ActionEnum.Duplicate_Graph,
+            shortTitle: 'Duplicate Graph',
+            longTitle: 'Duplicate selected graph',
+            actionFunction: async () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+                
+                if (uiState.selectedGraphID) {
+                    const newGraphID = getRandomId()
+                    await mitoAPI.editGraphDuplicate(uiState.selectedGraphID, newGraphID)
+                }
+            },
+            isDisabled: () => {
+                return uiState.selectedGraphID ? undefined : 'No graph is selected. Select a graph tab before duplicating it.'
+            },
+            searchTerms: ['duplicate', 'copy', 'graph'],
+            tooltip: "Make a copy of the selected graph."
         },
         [ActionEnum.Export]: {
             type: ActionEnum.Export,
@@ -382,7 +417,7 @@ export const createActions = (
         [ActionEnum.Graph]: {
             type: ActionEnum.Graph,
             shortTitle: 'Graph',
-            longTitle: 'Graph',
+            longTitle: 'Create new graph',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
@@ -458,7 +493,7 @@ export const createActions = (
         [ActionEnum.Merge]: {
             type: ActionEnum.Merge,
             shortTitle: 'Merge',
-            longTitle: 'Merge sheets together',
+            longTitle: 'Merge dataframes',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
@@ -480,7 +515,7 @@ export const createActions = (
         [ActionEnum.Concat_Sheets]: {
             type: ActionEnum.Concat_Sheets,
             shortTitle: 'Concat',
-            longTitle: 'Concatenate two or more sheets together',
+            longTitle: 'Concatenate dataframes',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
@@ -581,7 +616,7 @@ export const createActions = (
         [ActionEnum.Rename_Column]: {
             type: ActionEnum.Rename_Column,
             shortTitle: 'Rename Column',
-            longTitle: 'Rename selected column',
+            longTitle: 'Rename column',
             actionFunction: () => {
                 const columnHeader = getCellDataFromCellIndexes(sheetData, -1, startingColumnIndex).columnHeader;
 
@@ -604,8 +639,8 @@ export const createActions = (
             searchTerms: ['rename', 'name', 'header'],
             tooltip: "Rename the selected column."
         },
-        [ActionEnum.Rename_Sheet]: {
-            type: ActionEnum.Rename_Sheet,
+        [ActionEnum.Rename_Dataframe]: {
+            type: ActionEnum.Rename_Dataframe,
             shortTitle: 'Rename Sheet',
             longTitle: 'Rename sheet',
             actionFunction: () => {
@@ -627,6 +662,28 @@ export const createActions = (
             },
             searchTerms: ['rename', 'name'],
             tooltip: "Rename the selected sheet."
+        },
+        [ActionEnum.Rename_Graph]: {
+            type: ActionEnum.Rename_Graph,
+            shortTitle: 'Rename Graph',
+            longTitle: 'Rename graph',
+            actionFunction: () => {
+                // Use a query selector to get the div and then double click on it
+                const selectedSheetTab = document.querySelector('.tab-selected') as HTMLDivElement | null;
+                if (selectedSheetTab) {
+                    const event = new MouseEvent('dblclick', {
+                        'view': window,
+                        'bubbles': true,
+                        'cancelable': true
+                    });
+                    selectedSheetTab.dispatchEvent(event);
+                }
+            },
+            isDisabled: () => {
+                return uiState.selectedGraphID ? undefined : 'There is not selected graph to rename. Double click to rename a graph.'
+            },
+            searchTerms: ['rename', 'name', 'graph'],
+            tooltip: "Rename the selected graph."
         },
         [ActionEnum.See_All_Functionality]: {
             type: ActionEnum.See_All_Functionality,
@@ -1146,7 +1203,8 @@ export const getSpreadsheetFormulaAction = (
 ): Action => {
     const action: Action = {
         type: type,
-        shortTitle: spreadsheetAction?.function ? spreadsheetAction.function : '',
+        shortTitle: spreadsheetAction?.function || '',
+        longTitle: spreadsheetAction?.function || '',
         actionFunction: () => {
             const columnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex
             let rowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex
@@ -1233,7 +1291,9 @@ export const getActionsToDisplay = (userSearchTerm: string, actions: Record<Acti
     4. The Search action
     4. The See_All_Functionality action
 */
-export const getSortedActions = (userSearchTerm: string, actionsArray: Action[], actionsObj: Record<ActionEnum, Action>): Action[] => {
+export const getSortedActions = (actions: Record<ActionEnum, Action>): Action[] => {
+
+    const actionsArray = Object.values(actions);
 
     actionsArray.sort(function(actionOne, actionTwo) {
         const titleOne = actionOne.longTitle ? actionOne.longTitle : actionOne.shortTitle
@@ -1258,17 +1318,6 @@ export const getSortedActions = (userSearchTerm: string, actionsArray: Action[],
         return 0;
     });
 
-    // If the search term matches the title of an action, make sure that action is displayed first!
-    const ustLowercase = userSearchTerm.toLowerCase()
-    const exactMatchIndex = actionsArray.findIndex(action => {
-        // Note: We don't use fuzzyMatch here, because fuzzy match only returns 0 or 1. There is no way to tell if its an exact match!
-        return action.shortTitle.toLowerCase() === ustLowercase || (action.longTitle !== undefined && action.longTitle.toLowerCase() === ustLowercase)
-    })
-    if (exactMatchIndex !== -1) {
-        const exactMatchAction = actionsArray.splice(exactMatchIndex)
-        actionsArray.splice(0, 0, exactMatchAction[0]);
-    }
-
     // Make sure the last two actions are Search (depreciated for now), See_All_Functionality, reguardless of the search term
     const actionEnumsToPutAtBottom: ActionEnum[] = [ActionEnum.See_All_Functionality]
     actionEnumsToPutAtBottom.forEach(actionEnum => {
@@ -1276,18 +1325,10 @@ export const getSortedActions = (userSearchTerm: string, actionsArray: Action[],
         if (actionIndex !== -1) {
             actionsArray.splice(actionIndex, 1)
         }
-        actionsArray.push(actionsObj[actionEnum])
+        actionsArray.push(actions[actionEnum])
     })
 
-    return actionsArray
-}
-
-/* 
-    Given a userSearchTerm and a record of actions, returns a sorted list of actions 
-*/
-export const getSortedActionsToDisplay = (userSearchTerm: string, actions: Record<ActionEnum, Action>): Action[] => {
-    const actionsToDisplay = getActionsToDisplay(userSearchTerm, actions)
-    return getSortedActions(userSearchTerm, actionsToDisplay, actions)  
+    return actionsArray;
 }
 
 /*

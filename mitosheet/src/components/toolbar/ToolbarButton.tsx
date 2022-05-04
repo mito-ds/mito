@@ -52,7 +52,6 @@ const ToolbarButton = (
     }): JSX.Element => {
 
     const highlightToobarItemClass = props.highlightToolbarButton === true ? 'toolbar-button-draw-attention' : ''
-    const icons = getToolbarItemIcon(props.toolbarButtonType);
 
     return (
         <div 
@@ -73,12 +72,7 @@ const ToolbarButton = (
                 */}
                 <span title={props.buttonSubtext}>
                     <div className='toolbar-button-icon-container'>
-                        <div className='toolbar-button-icon-dark'>
-                            {icons.darkIcon}
-                        </div>
-                        <div className='toolbar-button-icon-light'>
-                            {icons.lightIcon}
-                        </div>
+                        {getToolbarItemIcon(props.toolbarButtonType)}
                     </div>
                     <p className='toolbar-button-label'> 
                         {props.buttonTitle}

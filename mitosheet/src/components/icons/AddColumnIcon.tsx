@@ -1,27 +1,14 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { IconVariant } from '../toolbar/utils';
 
 
-const AddColumnIcon = (props: {variant?: IconVariant}): JSX.Element => {
-    if (props.variant === 'light') {
-        return (
-            <svg width="11" height="15" viewBox="0 0 11 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M7.44262 12.3405V13.6421C7.44262 14.0366 7.12049 14.3587 6.72604 14.3587H1.71657C1.32213 14.3587 1 14.0366 1 13.6421V2.04543C1 1.65099 1.32213 1.32886 1.71657 1.32886H6.72604C7.12049 1.32886 7.44262 1.65099 7.44262 2.04543V3.20905" stroke="white" strokeMiterlimit="10" strokeLinecap="round"/>
-                <path d="M7.44141 5.37842V10.309" stroke="white" strokeMiterlimit="10" strokeLinecap="round"/>
-                <path d="M9.91371 7.84375H4.97656" stroke="white" strokeMiterlimit="10" strokeLinecap="round"/>
-            </svg>
-        )
-    } else {
-        return (
-            <svg width="11" height="15" viewBox="0 0 11 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M7.44262 12.3725V13.6741C7.44262 14.0686 7.12049 14.3907 6.72604 14.3907H1.71657C1.32213 14.3907 1 14.0686 1 13.6741V2.07742C1 1.68297 1.32213 1.36084 1.71657 1.36084H6.72604C7.12049 1.36084 7.44262 1.68297 7.44262 2.07742V3.24103" stroke="#343434" strokeMiterlimit="10" strokeLinecap="round"/>
-                <path d="M7.44141 5.41052V10.3411" stroke="#343434" strokeMiterlimit="10" strokeLinecap="round"/>
-                <path d="M9.91371 7.87573H4.97656" stroke="#343434" strokeMiterlimit="10" strokeLinecap="round"/>
-            </svg>
-        )
-    }
+const AddColumnIcon = (): JSX.Element => {
+    return (
+        <svg width="8" height="10" viewBox="0 0 8 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5.19159 7.60837V8.38954C5.19159 8.62626 4.99827 8.81958 4.76155 8.81958H1.75523C1.51851 8.81958 1.3252 8.62626 1.3252 8.38954V1.43004C1.3252 1.19332 1.51851 1 1.75523 1H4.76155C4.99827 1 5.19159 1.19332 5.19159 1.43004V2.12836M5.19062 3.43033V6.3893M6.67445 4.90977H3.71153" stroke="#494650" strokeMiterlimit="10" strokeLinecap="round"/>
+        </svg>
+    )
 }
 
 export default AddColumnIcon;

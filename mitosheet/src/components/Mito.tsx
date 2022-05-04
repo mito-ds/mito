@@ -102,6 +102,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         selectedSheetIndex: 0,
         selectedGraphID: Object.keys(props.analysisData.graphDataDict || {}).length === 0 ? undefined : Object.keys(props.analysisData.graphDataDict)[0],
         selectedTabType: 'data',
+        currOpenToolbarDropdown: undefined,
         displayFormatToolbarDropdown: false,
         exportConfiguration: {exportType: 'csv'}
     })
@@ -669,6 +670,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         dfSources, 
         closeOpenEditingPopups, 
         setEditorState, 
+        uiState,
         setUIState, 
         setGridState,
         props.mitoAPI, 

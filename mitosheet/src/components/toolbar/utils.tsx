@@ -8,7 +8,6 @@ import MergeIcon from '../icons/MergeIcon';
 import PivotIcon from '../icons/PivotIcon';
 import DeleteColumnIcon from '../icons/DeleteColumnIcon';
 import AddColumnIcon from '../icons/AddColumnIcon';
-import DocumentationIcon from '../icons/DocumentationIcon';
 import { CloseFullscreenIcon, OpenFullscreenIcon } from '../icons/FullscreenIcons';
 import StepsIcon from '../icons/StepsIcon';
 import CatchUpIcon from '../icons/CatchUpIcon';
@@ -51,7 +50,6 @@ export enum ToolbarButtonType {
     FORMAT = "FORMAT",
     CATCH_UP = "CATCH UP",
     STEPS = "STEPS",
-    DOCS = "DOCS",
     OPEN_FULLSCREEN = "OPEN FULLSCREEN",
     CLOSE_FULLSCREEN = "CLOSE FULLSCREEN"
 }
@@ -60,79 +58,25 @@ export enum ToolbarButtonType {
     Helper function for getting the light and dark version of each 
     toolbar icon. 
 */
-export const getToolbarItemIcon = (toolbarButtonType: ToolbarButtonType): {darkIcon: JSX.Element, lightIcon: JSX.Element} => {
+export const getToolbarItemIcon = (toolbarButtonType: ToolbarButtonType): JSX.Element => {
     switch (toolbarButtonType) {
-        case ToolbarButtonType.UNDO: return {
-            darkIcon: <UndoIcon />,
-            lightIcon: <UndoIcon variant='light' />
-        }
-        case ToolbarButtonType.REDO: return {
-            darkIcon: <RedoIcon />,
-            lightIcon: <RedoIcon variant='light' />
-        }
-        case ToolbarButtonType.CLEAR: return {
-            darkIcon: <ClearIcon />,
-            lightIcon: <ClearIcon variant='light' />
-        }
-        case ToolbarButtonType.IMPORT: return {
-            darkIcon: <ImportIcon />,
-            lightIcon: <ImportIcon variant='light' />
-        }
-        case ToolbarButtonType.EXPORT: return {
-            darkIcon: <ExportIcon />,
-            lightIcon: <ExportIcon variant='light' />
-        }
-        case ToolbarButtonType.ADD_COL: return {
-            darkIcon: <AddColumnIcon />,
-            lightIcon: <AddColumnIcon variant='light' />
-        }
-        case ToolbarButtonType.DEL_COL: return {
-            darkIcon: <DeleteColumnIcon />,
-            lightIcon: <DeleteColumnIcon variant='light' />
-        }
-        case ToolbarButtonType.PIVOT: return {
-            darkIcon: <PivotIcon />,
-            lightIcon: <PivotIcon variant='light' />
-        }
-        case ToolbarButtonType.MERGE: return {
-            darkIcon: <MergeIcon />,
-            lightIcon: <MergeIcon variant='light' />
-        }
-        case ToolbarButtonType.CONCAT: return {
-            darkIcon: <ConcatIcon />,
-            lightIcon: <ConcatIcon variant='light' />
-        }
-        case ToolbarButtonType.DROP_DUPLICATES: return {
-            darkIcon: <DropDuplicatesIcon />,
-            lightIcon: <DropDuplicatesIcon variant='light' />
-        }
-        case ToolbarButtonType.GRAPH: return {
-            darkIcon: <GraphIcon />,
-            lightIcon: <GraphIcon variant='light' />
-        }
-        case ToolbarButtonType.FORMAT: return {
-            darkIcon: <FormatIcon />,
-            lightIcon: <FormatIcon variant='light' />
-        }
-        case ToolbarButtonType.CATCH_UP: return {
-            darkIcon: <CatchUpIcon />,
-            lightIcon: <CatchUpIcon variant='light' />
-        }
-        case ToolbarButtonType.STEPS: return {
-            darkIcon: <StepsIcon />,
-            lightIcon: <StepsIcon variant='light' />
-        }
-        case ToolbarButtonType.DOCS: return {
-            darkIcon: <DocumentationIcon />,
-            lightIcon: <DocumentationIcon variant='light' />
-        }
-        case ToolbarButtonType.OPEN_FULLSCREEN: return {
-            darkIcon: <OpenFullscreenIcon />,
-            lightIcon: <OpenFullscreenIcon variant='light' />
-        }
-        case ToolbarButtonType.CLOSE_FULLSCREEN: return {
-            darkIcon: <CloseFullscreenIcon />,
-            lightIcon: <CloseFullscreenIcon variant='light' />
-        }
+        case ToolbarButtonType.UNDO: {return <UndoIcon />};
+        case ToolbarButtonType.REDO: {return <RedoIcon />};
+        case ToolbarButtonType.CLEAR: {return <ClearIcon />};
+        case ToolbarButtonType.IMPORT: {return <ImportIcon />};
+        case ToolbarButtonType.EXPORT: {return <ExportIcon />};
+        case ToolbarButtonType.ADD_COL: {return <AddColumnIcon />};
+        case ToolbarButtonType.DEL_COL: {return <DeleteColumnIcon />};
+        case ToolbarButtonType.PIVOT: {return <PivotIcon />};
+        case ToolbarButtonType.MERGE: {return <MergeIcon />};
+        case ToolbarButtonType.CONCAT: {return <ConcatIcon />};
+        case ToolbarButtonType.DROP_DUPLICATES: {return <DropDuplicatesIcon />};
+        case ToolbarButtonType.GRAPH: {return <GraphIcon />};
+        case ToolbarButtonType.FORMAT: {return <FormatIcon />};
+        case ToolbarButtonType.CATCH_UP: {return <CatchUpIcon />};
+        case ToolbarButtonType.STEPS: {return <StepsIcon />};
+        case ToolbarButtonType.OPEN_FULLSCREEN: {return <OpenFullscreenIcon />};
+        case ToolbarButtonType.CLOSE_FULLSCREEN: {return <CloseFullscreenIcon />};
+        case ToolbarButtonType.CLOSE_FULLSCREEN: {return <CloseFullscreenIcon />};
     }
 }
