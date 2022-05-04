@@ -17,6 +17,8 @@ import SupportIcon from '../public/icon-squares/SupportIcon.svg'
 import DocsIcon from '../public/icon-squares/DocsIcon.svg'
 import PrivateIcon from '../public/icon-squares/PrivateIcon.svg'
 import Link from 'next/link';
+import CalendarDay from '../components/CalendarDay/CalendarDay';
+import calendarDayStyles from '../components/CalendarDay/CalendarDay.module.css';
 
 
 const Teams: NextPage = () => {
@@ -129,51 +131,39 @@ const Teams: NextPage = () => {
                         Don’t throw away years of Excel skill building.
                     </p>
                 </div>
+                <h2 className='margin-top-3rem margin-bottom-3rem'>
+                    Python Before Mito
+                </h2>
                 <div className={pageStyles.subsection + ' flex-row-desktop-only'}>
-                    <div className='flex-column'>
-                        <h2>
-                            Before Adopting Mito
-                        </h2>
-                        <p className={teamsStyles.handwritten_font}>
-                            Monday Morning
-                        </p>
-                        <p>
-                            Used template SQL queries to create Pandas dataframes.
-                        </p>
-                        <p className={teamsStyles.handwritten_font}>
-                            Tuesday Afternoon
-                        </p>
-                        <p>
-                            After failing to merge the dataframes together, got help from supporting data scientist. 
-                        </p>
-                        <p className={teamsStyles.handwritten_font}>
-                            Wednesday Afternoon
-                        </p>
-                        <p>
-                            Got stuck creating a pivot table in Pandas. <b className='text-primary'>Gave up and reverted to Excel</b>.
-                        </p>
-                        <p>
-                            Sent the Excel file to manager for her review. Don’t ever want to write Python code again. 
-                        </p>
-                    </div>
-                    <div className='flex-column margin-top-3rem-mobile-only'>
-                        <h2>
-                            After Adopting Mito
-                        </h2>
-                        <p className={teamsStyles.handwritten_font}>
-                            Monday Morning
-                        </p>
-                        <p>
-                            Used template SQL queries to create Pandas dataframes. 
-                        </p>
-                        <p>
-                            Used <b className='text-primary'>Mito’s intuitive point and click interface</b> to merge the dataframes together and create a pivot table. It was just like Excel!
-                        </p>
-                        <p>
-                            Downloaded the Mito Spreadsheet as an Excel file and sent to manager for her reivew.
-                        </p>
-                    </div>
+                    <CalendarDay> 
+                        <div>
+                            <h2>Mon</h2>
+                        </div>
+                        <p> Searched StackOverflow for code to read and pivot data. </p>
+                    </CalendarDay>
+                    <CalendarDay> 
+                        <h2>Tue</h2>
+                        <p> Booked time with supporting data scientist to get help. </p>
+                    </CalendarDay>
+                    <CalendarDay> 
+                        <h2>Wed</h2>
+                        <p> Worked with data scientist to write pivot table in pandas. </p>
+                    </CalendarDay>
+                    <CalendarDay> 
+                        <h2>Thur</h2>
+                        <p> Got stuck creating graphs. Gave up and made report in Excel. </p>
+                    </CalendarDay>
                 </div>
+                <h2 className='margin-top-3rem margin-bottom-3rem'>
+                    Python After Mito
+                </h2>
+                <div className={pageStyles.subsection + ' flex-row-desktop-only'}>
+                    <CalendarDay> 
+                        <h2>Mon</h2>
+                        <p> Imported files with a click. Pivoted and graphed my data in the Mito spreadsheet. </p>
+                    </CalendarDay>
+                </div>
+
             </section>
 
             <section>
