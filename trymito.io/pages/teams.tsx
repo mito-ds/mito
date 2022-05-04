@@ -38,7 +38,7 @@ const Teams: NextPage = () => {
 
             <section className={titleStyles.title_card + ' ' + titleStyles.grid_card}>
                 <h1 className={titleStyles.title}>
-                    Transition to Python by leveraging your team's spreadsheet mastery
+                    Transition to Python by leveraging your team&apos;s spreadsheet mastery
                 </h1>
                 <p className={titleStyles.description}>
                     Onboard your team to Mito in minutes
