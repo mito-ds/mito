@@ -186,7 +186,7 @@ const Toolbar = (
                     <div className="toolbar-vertical-line"></div>
 
                     <ToolbarButton
-                        toolbarButtonType={!!fscreen.fullscreenElement ? ToolbarButtonType.CLOSE_FULLSCREEN : ToolbarButtonType.OPEN_FULLSCREEN}
+                        toolbarButtonType={fscreen.fullscreenElement ? ToolbarButtonType.CLOSE_FULLSCREEN : ToolbarButtonType.OPEN_FULLSCREEN}
                         action={props.actions[ActionEnum.Fullscreen]}
                     />
                 </div>

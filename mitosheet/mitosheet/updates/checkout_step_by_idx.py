@@ -22,6 +22,7 @@ def execute_checkout_step_by_idx_update(
     """
     Checks out a specific step by index
     """
+    # If the new step index is -1, go to the end of the list!
     if step_idx == -1:
         step_idx = len(steps_manager.steps) - 1
 

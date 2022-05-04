@@ -26,21 +26,22 @@
   flex-direction: row;
 }
 
-.toolbar-top-menu-selector {
+.toolbar-dropdown-selector {
   margin-right: 5px;
   padding: 2px 3px;
   border-radius: 3px;
   font-family: Roboto;
 }
 
-.toolbar-top-menu-selector-selected {
+.toolbar-dropdown-selector-selected {
   background: var(--mito-light-purple);
 }
 
-.toolbar-top-menu-selector:hover {
+.toolbar-dropdown-selector:hover {
   background: var(--mito-light-purple);
 }
 
+/* A line that seperates the top and bottom vertically */
 .toolbar-top-bottom-seperator {
   width: 100%;
   color: grey;
@@ -146,6 +147,7 @@
 	animation: pulse 2s infinite;
 }
 
+/* The button in the toolbar that lets hte user upgrade or tells them they are pro */
 .plan-button {
   border-radius: 3px;
   background-color: var(--mito-purple);

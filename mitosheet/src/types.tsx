@@ -665,7 +665,7 @@ export enum ActionEnum {
     Help = 'help',
     Import = 'import',
     Merge = 'merge',
-    Concat_Sheets = 'concat_sheets', // Note the unfortunate overlap with concat
+    Concat_Dataframes = 'concat_dataframes', // Note the unfortunate overlap with concat
     Pivot = 'pivot',
     Redo = 'redo',
     Rename_Column = 'rename column',

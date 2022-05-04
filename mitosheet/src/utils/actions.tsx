@@ -2,7 +2,7 @@ import fscreen from "fscreen";
 import MitoAPI, { getRandomId } from "../jupyter/api";
 import { getStartingFormula } from "../components/endo/celleditor/cellEditorUtils";
 import { getColumnIndexesInSelections, getSelectedNumberSeriesColumnIDs, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
-import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes, getGraphIsSelected } from "../components/endo/utils";
+import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes, getDataframeIsSelected, getGraphIsSelected } from "../components/endo/utils";
 import { ModalEnum } from "../components/modals/modals";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
 import { getDefaultGraphParams } from "../components/taskpanes/Graph/graphUtils";
@@ -10,10 +10,8 @@ import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/t
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../data/function_documentation";
 import { Action, ActionEnum, DFSource, EditorState, GridState, SheetData, UIState } from "../types"
-import { getDeduplicatedArray } from "./arrays";
 import { getColumnHeaderParts, getDisplayColumnHeader } from "./columnHeaders";
 import { FORMAT_DISABLED_MESSAGE } from "./formatColumns";
-import { fuzzyMatch } from "./strings";
 
 
 export const createActions = (
@@ -81,7 +79,7 @@ export const createActions = (
                     newColumnHeaderIndex
                 );
             },
-            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'Create a sheet by importing data before adding a column.'},
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'Create a dataframe by importing data before adding a column.'},
             searchTerms: ['add column', 'add col', 'new column', 'new col', 'insert column', 'insert col'],
             tooltip: "Add a new formula column to the right of your selection."
         },
@@ -208,7 +206,7 @@ export const createActions = (
                         return "The selection contains individual cells. Click on column headers to select entire columns only."
                     }
                 } else {
-                    return "There are no columns in the sheet to delete. Add data to the sheet."
+                    return "There are no columns in the dataframe to delete. Add data to the sheet."
                 }
             },
             searchTerms: ['delete column', 'delete col', 'del col', 'del column', 'remove column', 'remove col'],
@@ -236,7 +234,7 @@ export const createActions = (
 
             },
             isDisabled: () => {
-                return doesAnySheetExist(sheetDataArray) ? undefined : "There are no sheets to delete."
+                return getDataframeIsSelected(uiState, sheetDataArray) ? undefined : "There is no selected dataframe to delete."
             },
             searchTerms: ['delete', 'delete dataframe', 'delete sheet', 'del', 'del dataframe', 'del sheet', 'remove', 'remove dataframe', 'remove sheet'],
             tooltip: "Delete the selected sheet."
@@ -294,7 +292,7 @@ export const createActions = (
                 })
             },
             isDisabled: () => {
-                return doesAnySheetExist(sheetDataArray) ? undefined : "There are no sheets to operate on. Import data."
+                return doesAnySheetExist(sheetDataArray) ? undefined : "There are no dataframes to operate on. Import data."
             },
             searchTerms: ['dedup', 'deduplicate', 'same', 'remove', 'drop duplicates', 'duplicates'],
             tooltip: "Remove duplicated rows from your dataframe."
@@ -310,7 +308,7 @@ export const createActions = (
                 await mitoAPI.editDataframeDuplicate(sheetIndex)
             },
             isDisabled: () => {
-                return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no sheets to duplicate. Import data.'
+                return getDataframeIsSelected(uiState, sheetDataArray) ? undefined : 'There is no selected dataframe to duplicate.'
             },
             searchTerms: ['duplicate', 'copy'],
             tooltip: "Make a copy of the selected sheet."
@@ -329,7 +327,7 @@ export const createActions = (
                 }
             },
             isDisabled: () => {
-                return getGraphIsSelected(uiState) ? undefined : 'No graph is selected. Select a graph tab before duplicating it.'
+                return getGraphIsSelected(uiState) ? undefined : 'There is no selected graph to duplicate.'
             },
             searchTerms: ['duplicate', 'copy', 'graph'],
             tooltip: "Make a copy of the selected graph."
@@ -355,10 +353,10 @@ export const createActions = (
                 })
             },
             isDisabled: () => {
-                return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no sheets to export.'
+                return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no dataframes to export.'
             },
             searchTerms: ['export', 'download', 'excel', 'csv'],
-            tooltip: "Download the current Mito sheet as a .csv or .xlsx file."
+            tooltip: "Download dataframes as a .csv or .xlsx file."
         },
         [ActionEnum.Filter]: {
             type: ActionEnum.Filter,
@@ -381,7 +379,7 @@ export const createActions = (
                 return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? undefined : 'There are no columns to filter in the selected sheet. Add data to the sheet.'
             },
             searchTerms: ['filter', 'remove', 'delete'],
-            tooltip: "Filter this sheet based on the data in a column."
+            tooltip: "Filter this dataframe based on the data in a column."
         },
         [ActionEnum.Format]: {
             type: ActionEnum.Format,
@@ -470,7 +468,7 @@ export const createActions = (
                     undefined, 
                 );
             },
-            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no sheets to graph. Import data.'},
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
             tooltip: "Create an interactive graph. Pick from bar charts, histograms, scatter plots, etc."
         },
@@ -510,7 +508,7 @@ export const createActions = (
                 })
             },
             isDisabled: () => {return undefined},
-            searchTerms: ['import', 'upload', 'new', 'excel', 'csv'],
+            searchTerms: ['import', 'upload', 'new', 'excel', 'csv', 'add'],
             tooltip: "Import any .csv or well-formatted .xlsx file as a new sheet."
         },
         [ActionEnum.Merge]: {
@@ -531,12 +529,12 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return sheetDataArray.length >= 2 ? undefined : 'There are no sheets to merge together. Import data.'},
+            isDisabled: () => {return sheetDataArray.length >= 2 ? undefined : 'You need to import at least two dataframes before you can merge them.'},
             searchTerms: ['merge', 'join', 'vlookup', 'lookup', 'anti', 'diff', 'difference', 'unique'],
-            tooltip: "Merge two sheets together using a lookup, left, right, inner, or outer join. Or find the differences between two sheets."
+            tooltip: "Merge two dataframes together using a lookup, left, right, inner, or outer join. Or find the differences between two dataframes."
         },
-        [ActionEnum.Concat_Sheets]: {
-            type: ActionEnum.Concat_Sheets,
+        [ActionEnum.Concat_Dataframes]: {
+            type: ActionEnum.Concat_Dataframes,
             shortTitle: 'Concat',
             longTitle: 'Concatenate dataframes',
             actionFunction: async () => {
@@ -553,9 +551,9 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return sheetDataArray.length >= 2 ? undefined : 'There are no sheets to concat together. Import data.'},
+            isDisabled: () => {return sheetDataArray.length >= 2 ? undefined : 'You need to import at least two dataframes before you can concatenate them.'},
             searchTerms: ['stack', 'merge', 'join', 'concat', 'concatenate', 'append'],
-            tooltip: "Concatenate two or more sheets by stacking them vertically on top of eachother."
+            tooltip: "Concatenate two or more dataframes by stacking them vertically on top of eachother."
         },
         [ActionEnum.Pivot]: {
             type: ActionEnum.Pivot,
@@ -657,14 +655,14 @@ export const createActions = (
 
             },
             isDisabled: () => {
-                return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? undefined : 'There are no columns in the sheet to rename. Add data to the sheet.'
+                return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? undefined : 'There are no columns in the dataframe to rename. Add data to the dataframe.'
             },
             searchTerms: ['rename', 'name', 'header'],
             tooltip: "Rename the selected column."
         },
         [ActionEnum.Rename_Dataframe]: {
             type: ActionEnum.Rename_Dataframe,
-            shortTitle: 'Rename Sheet',
+            shortTitle: 'Rename dataframe',
             longTitle: 'Rename dataframe',
             actionFunction: () => {
                 // Use a query selector to get the div and then double click on it
@@ -681,7 +679,7 @@ export const createActions = (
             isDisabled: () => {
                 // We check if any sheet exists, instead of the specific sheet because this event is often accessed
                 // very closely in time with switching the sheet indexes via double clicking. 
-                return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no sheets to rename. Import data.'
+                return getDataframeIsSelected(uiState, sheetDataArray) ? undefined : 'There is no selected dataframe to rename.'
             },
             searchTerms: ['rename', 'name'],
             tooltip: "Rename the selected sheet."
@@ -703,7 +701,7 @@ export const createActions = (
                 }
             },
             isDisabled: () => {
-                return getGraphIsSelected(uiState) ? undefined : 'There is not selected graph to rename. Double click to rename a graph.'
+                return getGraphIsSelected(uiState) ? undefined : 'There is not selected graph to rename.'
             },
             searchTerms: ['rename', 'name', 'graph'],
             tooltip: "Rename the selected graph."
@@ -771,7 +769,7 @@ export const createActions = (
             },
             isDisabled: () => {
                 if (!doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) || !doesSheetContainData(sheetIndex, sheetDataArray)) {
-                    return 'There are no cells in the sheet to set the value of. Add data to the sheet.'
+                    return 'There are no cells in the dataframe to set the value of. Add data to the sheet.'
                 } 
 
                 if (columnFormula !== undefined && columnFormula.length > 0) {
@@ -805,7 +803,7 @@ export const createActions = (
             isDisabled: () => {
                 if (!doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) || !doesSheetContainData(sheetIndex, sheetDataArray)) {
                     // If there is no data in the sheet, then there is no cell editor to open!
-                    return 'There are no cells in the sheet to set the formula of. Add data to the sheet.'
+                    return 'There are no cells in the dataframe to set the formula of. Add data to the sheet.'
                 } 
 
                 if (columnFormula === undefined || columnFormula.length == 0) {
@@ -1253,7 +1251,7 @@ export const getSpreadsheetFormulaAction = (
 
             if (!doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) || !doesSheetContainData(sheetIndex, sheetDataArray)) {
                 // If there is no data in the sheet, then there is no cell editor to open!
-                return 'There are no cells in the sheet to set the formula of. Add data to the sheet.'
+                return 'There are no cells in the dataframe to set the formula of. Add data to the sheet.'
             } 
 
             const columnFormula = getCellDataFromCellIndexes(sheetDataArray[sheetIndex], 0, startingColumnIndex).columnFormula
@@ -1270,39 +1268,6 @@ export const getSpreadsheetFormulaAction = (
     }
 
     return action
-}
-
-/*
-    Given a search term and a dict of actions, returns a list of actions that the search term represents
-*/
-export const getActionsToDisplay = (userSearchTerm: string, actions: Record<ActionEnum, Action>): Action[]  => {
-
-    let displayedActions: Action[] = []
-    if (userSearchTerm === '') {
-        // If there is no search term, then display every action except the spreadsheet formulas as to not overwhelm
-        displayedActions = Object.values(actions).filter(action => {
-            return action.category !== 'spreadsheet formula'
-        })
-
-    } else {
-        let displayedActionEnums: ActionEnum[] = []
-        const searchTermToActionEnumMapping = getSearchTermToActionEnumMapping(actions)
-        Object.keys(searchTermToActionEnumMapping).forEach(searchTerm => {
-            const inSearch = fuzzyMatch(searchTerm, userSearchTerm) > .8 || fuzzyMatch(userSearchTerm, searchTerm) > .8;
-
-            // If the searchTerm matches the userSearchTerm, then include all of the actions
-            // that the searchTerm represents.
-            if (inSearch) {
-                displayedActionEnums = displayedActionEnums.concat(searchTermToActionEnumMapping[searchTerm])
-            }
-        });
-
-        displayedActions = displayedActionEnums.map(actionEnum => {
-            return actions[actionEnum]
-        });
-    }
-
-    return getDeduplicatedArray(displayedActions)
 }
 
 

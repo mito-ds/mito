@@ -27,7 +27,7 @@ const ToolbarHelpDropdown = (props: ToolbarHelpDropdownProps): JSX.Element => {
                 <Dropdown 
                     searchable
                     closeDropdown={() => props.setUIState((prevUIState) => {
-                        // TODO: explain how this avoids race conditions
+                        // Only close this dropdown if it's actually the one that is open, to avoid race conditions
                         if (prevUIState.currOpenToolbarDropdown === 'Help') {
                             return {
                                 ...prevUIState,

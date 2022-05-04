@@ -156,9 +156,16 @@ export const doesSheetContainData = (sheetIndex: number, sheetDataArray: SheetDa
 }
 
 /* 
-    Determines if the sheet contains data
+    Determines if a graphing tab is selected in the sheet
 */
 export const getGraphIsSelected = (uiState: UIState): boolean => {
     return uiState.selectedTabType === 'graph' && uiState.selectedGraphID !== undefined;
+}
+
+/* 
+    Determines if a data tab is selected in the sheet
+*/
+export const getDataframeIsSelected = (uiState: UIState, sheetDataArray: SheetData[]): boolean => {
+    return uiState.selectedTabType === 'data' && sheetDataArray.length !== 0;
 }
 

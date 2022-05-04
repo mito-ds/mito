@@ -23,7 +23,7 @@ const ToolbarDataframesDropdown = (props: ToolbarDataframesDropdownProps): JSX.E
             {props.uiState.currOpenToolbarDropdown === 'Dataframes' &&
                 <Dropdown 
                     closeDropdown={() => props.setUIState((prevUIState) => {
-                        // TODO: explain how this avoids race conditions
+                        // Only close this dropdown if it's actually the one that is open, to avoid race conditions
                         if (prevUIState.currOpenToolbarDropdown === 'Dataframes') {
                             return {
                                 ...prevUIState,
@@ -41,10 +41,10 @@ const ToolbarDataframesDropdown = (props: ToolbarDataframesDropdownProps): JSX.E
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Rename_Dataframe])}
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Delete_Dataframe])}
                     <DropdownSectionSeperator isDropdownSectionSeperator/>
-                    {makeToolbarDropdownItem(props.actions[ActionEnum.Drop_Duplicates])}
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Pivot])}
+                    {makeToolbarDropdownItem(props.actions[ActionEnum.Drop_Duplicates])}
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Merge])}
-                    {makeToolbarDropdownItem(props.actions[ActionEnum.Concat_Sheets])}
+                    {makeToolbarDropdownItem(props.actions[ActionEnum.Concat_Dataframes])}
                 </Dropdown>
             }
         </>

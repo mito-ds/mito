@@ -151,7 +151,7 @@ export const handleKeyboardInDropdown = (
         // After a little timeout (e.g. the above executes), we scroll
         // to make sure that this newly selected element is visible
         setTimeout(() => {
-            const dropdownDiv = document.querySelector('.mito-dropdown') as HTMLDivElement | null;
+            const dropdownDiv = document.querySelector('.mito-dropdown-items-container') as HTMLDivElement | null;
             const selectedItemDiv = document.querySelector('.mito-dropdown-item-selected') as HTMLDivElement | null;
             if (dropdownDiv !== null && selectedItemDiv !== null) {
                 ensureInView(dropdownDiv, selectedItemDiv, 50);
@@ -189,9 +189,6 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
     const [searchString, setSearchString] = useState('');
     // If the selected index is -1, then nothing is selected
     const [selectedIndex, setSelectedIndex] = useState(-1);
-
-    // TODO: this PR seems to have broken scrolling inside of dropdowns! Fix this!
-    // At least, it is broken on safari
     
     /* Close the dropdown anytime anyone clicks anywhere unless they click on:
         1. the dropdown's search field

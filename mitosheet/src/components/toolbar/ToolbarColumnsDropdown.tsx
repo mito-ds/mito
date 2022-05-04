@@ -23,7 +23,7 @@ const ToolbarColumnsDropdown = (props: ToolbarColumnsDropdownProps): JSX.Element
             {props.uiState.currOpenToolbarDropdown === 'Columns' &&
                 <Dropdown 
                     closeDropdown={() => props.setUIState((prevUIState) => {
-                        // TODO: explain how this avoids race conditions
+                        // Only close this dropdown if it's actually the one that is open, to avoid race conditions
                         if (prevUIState.currOpenToolbarDropdown === 'Columns') {
                             return {
                                 ...prevUIState,
