@@ -566,7 +566,7 @@ const Plans: NextPage = () => {
                             Shareable <br/> notebooks
                         </h1>
                         <p>
-                            Share notebooks with Mito embedded in them and let colleagues use the Mito Spreadsheet too.  
+                          Share notebooks with Mito embedded in them so colleagues can use the Mito spreadsheet also.  
                         </p>
                     </div>
                     <div className={iconAndTextCardStyles.icon_and_text_card + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
@@ -625,7 +625,7 @@ const Plans: NextPage = () => {
                             Feature <br/> settings
                         </h1>
                         <p>
-                            Customize Mito by turning toggling code optimization, auto-documentation, seleting between light and dark mode, and more. 
+                            Customize Mito by toggling code optimization, auto-documentation, seleting between light and dark mode, and more. 
                         </p>
                     </div>
                 </div>
@@ -638,7 +638,7 @@ const Plans: NextPage = () => {
                             Advanced <br/> formatting
                         </h1>
                         <p>
-                            Utilize Excel-like formatting and conditional formatting your analysis stand out.
+                            Utilize Excel-like formatting and conditional formatting to make your analysis stand out.
                         </p>
                     </div>
                     <div className={iconAndTextCardStyles.icon_and_text_card + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
