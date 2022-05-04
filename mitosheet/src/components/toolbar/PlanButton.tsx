@@ -10,9 +10,8 @@ interface PlanButtonProps {
     mitoAPI: MitoAPI
 }
 
-// TODO: this needs a better name
+// The component in the toolbar that either tells you are pro or asks you to upgrade
 const PlanButton = (props: PlanButtonProps): JSX.Element => {
-
 
     return (
         <div 

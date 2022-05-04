@@ -13,7 +13,7 @@ import { getColumnFormatDropdownItemsUsingSelections } from '../../utils/formatC
 import "../../../css/toolbar.css"
 import ToolbarEditDropdown from './ToolbarEditDropdown';
 import ToolbarDataframesDropdown from './ToolbarDataframesDropdown';
-import ToolbarMenu from './ToolbarMenu';
+import ToolbarMenu from './ToolbarDropdownSelector';
 import ToolbarColumnsDropdown from './ToolbarColumnsDropdown';
 import ToolbarGraphsDropdown from './ToolbarGraphsDropdown';
 import ToolbarViewDropdown from './ToolbarViewDropdown';

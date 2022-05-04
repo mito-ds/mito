@@ -4,7 +4,7 @@ import React from 'react';
 import { Action, ActionEnum, UIState } from '../../types';
 import { getSortedActions } from '../../utils/actions';
 import Dropdown from '../elements/Dropdown';
-import { makeToolbarDropdownItem } from './ToolbarDropdownItem';
+import { makeToolbarDropdownItem } from './utils';
 
 
 interface ToolbarHelpDropdownProps {
@@ -14,7 +14,8 @@ interface ToolbarHelpDropdownProps {
 }
 
 /**
- * TODO
+ * Dropdown that displays the help dropdown, which contains a searchable
+ * list of all the functionality that Mito supports
  */ 
 const ToolbarHelpDropdown = (props: ToolbarHelpDropdownProps): JSX.Element => {
 

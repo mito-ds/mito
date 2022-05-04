@@ -3,7 +3,7 @@
 import React from 'react';
 import { Action, ActionEnum, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
-import { makeToolbarDropdownItem } from './ToolbarDropdownItem';
+import { makeToolbarDropdownItem } from './utils';
 
 
 interface ToolbarViewDropdownProps {
@@ -13,7 +13,8 @@ interface ToolbarViewDropdownProps {
 }
 
 /**
- * TODO
+ * Dropdown that displays the view options, which right now are just fullscreen
+ * mode (but in the future might contain other options).
  */ 
 const ToolbarViewDropdown = (props: ToolbarViewDropdownProps): JSX.Element => {
 

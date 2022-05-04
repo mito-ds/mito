@@ -3,7 +3,7 @@
 import React from 'react';
 import { Action, ActionEnum, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
-import { makeToolbarDropdownItem } from './ToolbarDropdownItem';
+import { makeToolbarDropdownItem } from './utils';
 
 
 interface ToolbarEditDropdownProps {
@@ -13,8 +13,8 @@ interface ToolbarEditDropdownProps {
 }
 
 /**
- * The ToolbarButton component is used to create each
- * button in the Toolbar. 
+ * Dropdown that displays all the actions that are available for general update
+ * events, like undo and redo
  */ 
 const ToolbarEditDropdown = (props: ToolbarEditDropdownProps): JSX.Element => {
 

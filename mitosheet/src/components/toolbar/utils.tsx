@@ -15,6 +15,8 @@ import RedoIcon from '../icons/RedoIcon';
 import ClearIcon from '../icons/ClearIcon';
 import FormatIcon from '../icons/FormatIcon';
 import DtypeIcon from '../icons/DtypeIcon';
+import DropdownItem from '../elements/DropdownItem';
+import { Action } from '../../types';
 
 /* 
     Each toolbar button icon has both a light and dark option. 
@@ -79,4 +81,20 @@ export const getToolbarItemIcon = (toolbarButtonType: ToolbarButtonType): JSX.El
         case ToolbarButtonType.OPEN_FULLSCREEN: {return <OpenFullscreenIcon />};
         case ToolbarButtonType.CLOSE_FULLSCREEN: {return <CloseFullscreenIcon />};
     }
+}
+
+/**
+ * A helper function that makes dropdown items for the toolbar menus. This is
+ * a function and not a component itself because the dropdown _expects_ to get
+ * a DropdownItem as it's child, so we cannot wrap this in another component
+ */
+export const makeToolbarDropdownItem = (action: Action): JSX.Element => {
+    return (
+        <DropdownItem 
+            title={action.longTitle}
+            onClick={action.actionFunction}
+            disabled={action.isDisabled() !== undefined}                   
+            tooltip={action.isDisabled()}                   
+        />
+    )
 }

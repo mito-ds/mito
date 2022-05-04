@@ -4,7 +4,7 @@ import React from 'react';
 import { Action, ActionEnum, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
-import {makeToolbarDropdownItem} from './ToolbarDropdownItem';
+import { makeToolbarDropdownItem } from './utils';
 
 
 interface ToolbarGraphsDropdownProps {
@@ -14,7 +14,7 @@ interface ToolbarGraphsDropdownProps {
 }
 
 /**
- * TODO
+ * Dropdown that displays all the actions that are available for editing graphs
  */ 
 const ToolbarGraphsDropdown = (props: ToolbarGraphsDropdownProps): JSX.Element => {
 
