@@ -3,6 +3,7 @@
 import React from 'react';
 import { Action, ActionEnum, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
+import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { makeToolbarDropdownItem } from './ToolbarDropdownItem';
 
 
@@ -35,11 +36,11 @@ const ToolbarDataframesDropdown = (props: ToolbarDataframesDropdownProps): JSX.E
                 >
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Import])}
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Export])}
-                    {/* TODO: add a line here */}
-                    {makeToolbarDropdownItem(props.actions[ActionEnum.Delete_Dataframe])}
+                    <DropdownSectionSeperator isDropdownSectionSeperator/>
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Duplicate_Dataframe])}
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Rename_Dataframe])}
-                    {/* TODO: add a line here */}
+                    {makeToolbarDropdownItem(props.actions[ActionEnum.Delete_Dataframe])}
+                    <DropdownSectionSeperator isDropdownSectionSeperator/>
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Drop_Duplicates])}
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Pivot])}
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Merge])}

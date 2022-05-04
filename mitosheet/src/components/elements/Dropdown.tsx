@@ -356,8 +356,14 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
     
     let found = 0; // keep track of how many matching items we found to the search
     const childrenToDisplay = React.Children.map(props.children, (child) => {
+        // First, we check to see if this is a seperator, and include it in
+        // the final children without counting it if so
+        if (child.props.isDropdownSectionSeperator) {
+            return child;
+        }
+
         const title: string | undefined = child.props.title;
-        const inSearch = title !== undefined && fuzzyMatch(title,searchString.toLowerCase()) > .8;
+        const inSearch = title !== undefined && fuzzyMatch(title, searchString.toLowerCase()) > .8;
 
         if (inSearch) {
             // If the element is selected, then add the selected class to it

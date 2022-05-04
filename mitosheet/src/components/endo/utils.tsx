@@ -1,5 +1,5 @@
 import React from "react";
-import { ColumnFilters, ColumnHeader, ColumnID, FormatTypeObj, GridState, SheetData } from "../../types";
+import { ColumnFilters, ColumnHeader, ColumnID, FormatTypeObj, GridState, SheetData, UIState } from "../../types";
 import { classNames } from "../../utils/classNames";
 import { isBoolDtype, isDatetimeDtype, isFloatDtype, isIntDtype, isTimedeltaDtype } from "../../utils/dtypes";
 import { getWidthData } from "./widthUtils";
@@ -153,5 +153,12 @@ export const doesColumnExist = (columnID: ColumnID | undefined, sheetIndex: numb
 export const doesSheetContainData = (sheetIndex: number, sheetDataArray: SheetData[]): boolean => {
     const sheetData = sheetDataArray[sheetIndex]
     return sheetData !== undefined && sheetData.numRows > 0 && sheetData.numColumns > 0
+}
+
+/* 
+    Determines if the sheet contains data
+*/
+export const getGraphIsSelected = (uiState: UIState): boolean => {
+    return uiState.selectedTabType === 'graph' && uiState.selectedGraphID !== undefined;
 }
 

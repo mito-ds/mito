@@ -646,6 +646,7 @@ export const enum FeedbackID {
 */
 export enum ActionEnum {
     Add_Column = 'add column',
+    Catch_Up = 'catch up',
     Clear = 'clear',
     Change_Dtype = 'change dtype',
     Column_Summary = 'column summary',

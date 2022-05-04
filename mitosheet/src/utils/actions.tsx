@@ -2,7 +2,7 @@ import fscreen from "fscreen";
 import MitoAPI, { getRandomId } from "../jupyter/api";
 import { getStartingFormula } from "../components/endo/celleditor/cellEditorUtils";
 import { getColumnIndexesInSelections, getSelectedNumberSeriesColumnIDs, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
-import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes } from "../components/endo/utils";
+import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes, getGraphIsSelected } from "../components/endo/utils";
 import { ModalEnum } from "../components/modals/modals";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
 import { getDefaultGraphParams } from "../components/taskpanes/Graph/graphUtils";
@@ -85,9 +85,22 @@ export const createActions = (
             searchTerms: ['add column', 'add col', 'new column', 'new col', 'insert column', 'insert col'],
             tooltip: "Add a new formula column to the right of your selection."
         },
+        [ActionEnum.Catch_Up]: {
+            type: ActionEnum.Catch_Up,
+            shortTitle: 'Catch Up',
+            longTitle: 'Catch up',
+            actionFunction: () => {
+                // Fast forwards to the most recent step, allowing editing
+                void mitoAPI.log('click_catch_up')
+                void mitoAPI.updateCheckoutStepByIndex(-1); // TODO: Check that -1 works! And below
+            },
+            isDisabled: () => {return undefined},
+            searchTerms: ['fast forward', 'catch up'],
+            tooltip: "Go to the current state of the analysis."
+        },
         [ActionEnum.Change_Dtype]: {
             type: ActionEnum.Change_Dtype,
-            shortTitle: 'Change Dtype',
+            shortTitle: 'Dtype',
             longTitle: 'Change dtype of column',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -144,7 +157,7 @@ export const createActions = (
         [ActionEnum.Column_Summary]: {
             type: ActionEnum.Column_Summary,
             shortTitle: 'Column Summary',
-            longTitle: 'Column summary statistics and graph',
+            longTitle: 'View column summary statistics ',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
@@ -203,8 +216,8 @@ export const createActions = (
         },
         [ActionEnum.Delete_Dataframe]: {
             type: ActionEnum.Delete_Dataframe,
-            shortTitle: 'Delete Sheet',
-            longTitle: 'Delete sheet',
+            shortTitle: 'Delete dataframe',
+            longTitle: 'Delete dataframe',
             actionFunction: async () => {
                 // If the sheetIndex is not 0, decrement it.
                 if (sheetIndex !== 0) {
@@ -238,7 +251,7 @@ export const createActions = (
                 }
             },
             isDisabled: () => {
-                return uiState.selectedGraphID ? undefined : "There is no selected graph to delete."
+                return getGraphIsSelected(uiState) ? undefined : "There is no selected graph to delete."
             },
             searchTerms: ['delete', 'delete graph', 'delete chart', 'del', 'del chart', 'del chart', 'remove', 'remove chart', 'remove graph'],
             tooltip: "Delete the selected graph."
@@ -265,7 +278,7 @@ export const createActions = (
         [ActionEnum.Drop_Duplicates]: {
             type: ActionEnum.Drop_Duplicates,
             shortTitle: 'Dedup',
-            longTitle: 'Deduplicate data',
+            longTitle: 'Deduplicate dataframe',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
@@ -288,8 +301,8 @@ export const createActions = (
         },
         [ActionEnum.Duplicate_Dataframe]: {
             type: ActionEnum.Duplicate_Dataframe,
-            shortTitle: 'Duplicate Sheet',
-            longTitle: 'Duplicate selected sheet',
+            shortTitle: 'Duplicate Dataframe',
+            longTitle: 'Duplicate dataframe',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
@@ -316,7 +329,7 @@ export const createActions = (
                 }
             },
             isDisabled: () => {
-                return uiState.selectedGraphID ? undefined : 'No graph is selected. Select a graph tab before duplicating it.'
+                return getGraphIsSelected(uiState) ? undefined : 'No graph is selected. Select a graph tab before duplicating it.'
             },
             searchTerms: ['duplicate', 'copy', 'graph'],
             tooltip: "Make a copy of the selected graph."
@@ -324,7 +337,7 @@ export const createActions = (
         [ActionEnum.Export]: {
             type: ActionEnum.Export,
             shortTitle: 'Export',
-            longTitle: 'Export to .csv or .xlsx',
+            longTitle: 'Export to file',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
@@ -398,7 +411,7 @@ export const createActions = (
         [ActionEnum.Fullscreen]: {
             type: ActionEnum.Fullscreen,
             shortTitle: 'Fullscreen',
-            longTitle: 'Fullscreen mode',
+            longTitle: 'Toggle fullscreen',
             actionFunction: () => {
                 // We toggle to the opposite of whatever the fullscreen actually is (as detected by the
                 // fscreen library), and then we set the fullscreen state variable to that state (in the callback
@@ -409,6 +422,16 @@ export const createActions = (
                 } else {
                     fscreen.exitFullscreen();
                 }
+
+                void mitoAPI.log(
+                    'button_toggle_fullscreen',
+                    {
+                        // Note that this is true when _end_ in fullscreen mode, and 
+                        // false when we _end_ not in fullscreen mode, which is much
+                        // more natural than the alternative
+                        fullscreen: !!fscreen.fullscreenElement
+                    }
+                )
             },
             isDisabled: () => {return undefined},
             searchTerms: ['fullscreen', 'zoom'],
@@ -469,7 +492,7 @@ export const createActions = (
         [ActionEnum.Import]: {
             type: ActionEnum.Import,
             shortTitle: 'Import',
-            longTitle: 'Import .csv or .xlsx files',
+            longTitle: 'Import files',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
@@ -508,7 +531,7 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no sheets to merge together. Import data.'},
+            isDisabled: () => {return sheetDataArray.length >= 2 ? undefined : 'There are no sheets to merge together. Import data.'},
             searchTerms: ['merge', 'join', 'vlookup', 'lookup', 'anti', 'diff', 'difference', 'unique'],
             tooltip: "Merge two sheets together using a lookup, left, right, inner, or outer join. Or find the differences between two sheets."
         },
@@ -530,14 +553,14 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no sheets to concat together. Import data.'},
+            isDisabled: () => {return sheetDataArray.length >= 2 ? undefined : 'There are no sheets to concat together. Import data.'},
             searchTerms: ['stack', 'merge', 'join', 'concat', 'concatenate', 'append'],
             tooltip: "Concatenate two or more sheets by stacking them vertically on top of eachother."
         },
         [ActionEnum.Pivot]: {
             type: ActionEnum.Pivot,
             shortTitle: 'Pivot',
-            longTitle: 'Pivot Table',
+            longTitle: 'Create pivot table',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
@@ -642,7 +665,7 @@ export const createActions = (
         [ActionEnum.Rename_Dataframe]: {
             type: ActionEnum.Rename_Dataframe,
             shortTitle: 'Rename Sheet',
-            longTitle: 'Rename sheet',
+            longTitle: 'Rename dataframe',
             actionFunction: () => {
                 // Use a query selector to get the div and then double click on it
                 const selectedSheetTab = document.querySelector('.tab-selected') as HTMLDivElement | null;
@@ -680,7 +703,7 @@ export const createActions = (
                 }
             },
             isDisabled: () => {
-                return uiState.selectedGraphID ? undefined : 'There is not selected graph to rename. Double click to rename a graph.'
+                return getGraphIsSelected(uiState) ? undefined : 'There is not selected graph to rename. Double click to rename a graph.'
             },
             searchTerms: ['rename', 'name', 'graph'],
             tooltip: "Rename the selected graph."
@@ -856,7 +879,7 @@ export const createActions = (
         [ActionEnum.Unique_Values]: {
             type: ActionEnum.Unique_Values,
             shortTitle: 'Unique Vals',
-            longTitle: 'Unique Values',
+            longTitle: 'View unique values',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);

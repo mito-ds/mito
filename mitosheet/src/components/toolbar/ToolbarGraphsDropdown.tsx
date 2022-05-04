@@ -3,6 +3,7 @@
 import React from 'react';
 import { Action, ActionEnum, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
+import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import {makeToolbarDropdownItem} from './ToolbarDropdownItem';
 
 
@@ -34,9 +35,10 @@ const ToolbarGraphsDropdown = (props: ToolbarGraphsDropdownProps): JSX.Element =
                     width='medium'
                 >
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Graph])}
-                    {makeToolbarDropdownItem(props.actions[ActionEnum.Delete_Graph])}
-                    {makeToolbarDropdownItem(props.actions[ActionEnum.Rename_Graph])}
+                    <DropdownSectionSeperator isDropdownSectionSeperator/>
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Duplicate_Graph])}
+                    {makeToolbarDropdownItem(props.actions[ActionEnum.Rename_Graph])}
+                    {makeToolbarDropdownItem(props.actions[ActionEnum.Delete_Graph])}
                 </Dropdown>
             }
         </>

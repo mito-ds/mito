@@ -3,6 +3,7 @@
 import React from 'react';
 import { Action, ActionEnum, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
+import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { makeToolbarDropdownItem } from './ToolbarDropdownItem';
 
 
@@ -36,14 +37,15 @@ const ToolbarColumnsDropdown = (props: ToolbarColumnsDropdownProps): JSX.Element
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Add_Column])}
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Rename_Column])}
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Delete_Column])}
+                    <DropdownSectionSeperator isDropdownSectionSeperator/>
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Set_Column_Formula])}
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Set_Cell_Value])}
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Format])}
-                    {/* TODO: add a line here */}
+                    <DropdownSectionSeperator isDropdownSectionSeperator/>
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Filter])}
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Sort])}
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Change_Dtype])}
-                    {/* TODO: add a line here */}
+                    <DropdownSectionSeperator isDropdownSectionSeperator/>
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Unique_Values])}
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Column_Summary])}
                 </Dropdown>
