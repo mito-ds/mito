@@ -1,9 +1,11 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import titleStyles from '../styles/Title.module.css'
 import pageStyles from '../styles/Page.module.css'
 import plansStyles from '../styles/Plans.module.css'
+import iconAndTextCardStyles from '../styles/IconAndTextCard.module.css'
 
 import Header from '../components/Header/Header';
 import Footer from '../components/Footer/Footer';
@@ -15,7 +17,9 @@ import FAQCard from '../components/FAQCard/FAQCard'
 import DownloadCTACard from '../components/CTACards/DownloadCTACard'
 import TextButton from '../components/TextButton/TextButton'
 import FeatureSection from '../components/FeatureSection/FeatureSection'
-import Link from 'next/link'
+import GithubButton from '../components/GithubButton/GithubButton'
+import FlagIcon from '../public/icon-squares/FlagIcon.svg'
+
 
 /* 
   Labels used to scroll to specific location of the page
@@ -546,6 +550,121 @@ const Plans: NextPage = () => {
                 features={SUPPORT_FEATURES}
               />
             </section>
+
+            <section id='mito_pro_roadmap'>
+                <h1 className={titleStyles.title}>
+                    Mito Pro & Enterprise Roadmap 
+                </h1>
+            </section>
+            <section>
+                <div className={pageStyles.subsection}>
+                    <div className={iconAndTextCardStyles.icon_and_text_card}>
+                        <div className={iconAndTextCardStyles.icon}>
+                            <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
+                        </div>
+                        <h1>
+                            Shareable <br/> notebooks
+                        </h1>
+                        <p>
+                            Share notebooks with Mito embedded in them and let colleagues use the Mito Spreadsheet too.  
+                        </p>
+                    </div>
+                    <div className={iconAndTextCardStyles.icon_and_text_card + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
+                        <div className={iconAndTextCardStyles.icon}>
+                            <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
+                        </div>
+                        <h1>
+                            Advanced <br/> analysis
+                        </h1>
+                        <p>
+                            Go beyond basic data cleaning and analysis features with support for regressions, fuzzy matching and clustering. 
+                        </p>
+                    </div>
+                </div>
+                <div className={pageStyles.subsection}>
+                    <div className={iconAndTextCardStyles.icon_and_text_card}>
+                        <div className={iconAndTextCardStyles.icon}>
+                            <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
+                        </div>
+                        <h1>
+                            Custom <br /> transformations
+                        </h1>
+                        <p>
+                            Import custom python snippets to use within the Mito Spreadsheet and add completely new step types to the Mito Toolbar.  
+                        </p>
+                    </div>
+                    <div className={iconAndTextCardStyles.icon_and_text_card + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
+                        <div className={iconAndTextCardStyles.icon}>
+                            <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
+                        </div>
+                        <h1>
+                            Graph <br/> styling
+                        </h1>
+                        <p>
+                            Create presentation-ready graphs with full control of colors, ability to save graph templates, and more. 
+                        </p>
+                    </div>
+                </div>
+                <div className={pageStyles.subsection}>
+                    <div className={iconAndTextCardStyles.icon_and_text_card}>
+                        <div className={iconAndTextCardStyles.icon}>
+                            <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
+                        </div>
+                        <h1>
+                            Connect to more data sources
+                        </h1>
+                        <p>
+                            Connect to databases and remote file systems so users can import any data set  without having to write custom pandas code.   
+                        </p>
+                    </div>
+                    <div className={iconAndTextCardStyles.icon_and_text_card + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
+                        <div className={iconAndTextCardStyles.icon}>
+                            <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
+                        </div>
+                        <h1>
+                            Feature <br/> settings
+                        </h1>
+                        <p>
+                            Customize Mito by turning toggling code optimization, auto-documentation, seleting between light and dark mode, and more. 
+                        </p>
+                    </div>
+                </div>
+                <div className={pageStyles.subsection}>
+                    <div className={iconAndTextCardStyles.icon_and_text_card}>
+                        <div className={iconAndTextCardStyles.icon}>
+                            <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
+                        </div>
+                        <h1>
+                            Advanced <br/> formatting
+                        </h1>
+                        <p>
+                            Utilize Excel-like formatting and conditional formatting your analysis stand out.
+                        </p>
+                    </div>
+                    <div className={iconAndTextCardStyles.icon_and_text_card + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
+                        <div className={iconAndTextCardStyles.icon}>
+                            <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
+                        </div>
+                        <h1>
+                            Keyboard <br/> shortcuts
+                        </h1>
+                        <p>
+                            Navigate Mito without ever using your mouse. 🐁 
+                        </p>
+                    </div>
+                </div>
+            </section>
+            <section className='center'>
+                <h2>
+                    Have a new feature idea? 💡
+                </h2>
+                <p>
+                    Prioritizing your feedback is the best way we can help you speed up your analysis.
+                </p>
+                <div className='margin-top-3rem'>
+                    <GithubButton variant='Issue' text='Open a GitHub issue'/>
+                </div>
+            </section>
               
             <section>
               <h1>
@@ -571,13 +690,6 @@ const Plans: NextPage = () => {
                 <div>
                   <p>
                     Mito is installable in Jupyter Lab 2.0, Jupyter Lab 3.0 and Jupyter Notebooks. Mito does not work in VSCode, Google Collab, Streamlit or any other IDE&apos;s. 
-                  </p>
-                </div>
-              </FAQCard>
-              <FAQCard title='What new features are planned for Mito Pro?'>
-                <div>
-                  <p>
-                    Checkout the Mito Pro roadmap, <Link href='/mito_pro_roadmap'><a className='text-highlight' > here! </a></Link>
                   </p>
                 </div>
               </FAQCard>
