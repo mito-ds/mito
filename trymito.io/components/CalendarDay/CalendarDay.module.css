@@ -8,7 +8,12 @@
 }
 
 .calendar_day_card > h2 {
-    color: var(--color-text-secondary)
+    color: var(--color-text-secondary);
+    margin-top: 1.5rem;
+}
+
+.calendar_day_card > p {
+    margin-top: .5rem;
 }
 
 @media only screen and (min-width: 50em) {

@@ -51,7 +51,7 @@ const Teams: NextPage = () => {
                 <div className={pageStyles.subsection}>
                     <div className={homeStyles.functionality_text}>
                         <p>
-                            <b className='text-primary'>Spreadsheet-first teams </b> use Mito to write Python from the spreadsheet interface they know and love.
+                            <b className='text-primary'>Spreadsheet-first teams </b> use Mito to write Python code using the spreadsheet interface they know and love.
                         </p>
                         <p> 
                             <b className='text-primary'>Python-first teams </b> use Mito to write code faster without spending time searching Google or Stack Overflow.
@@ -137,7 +137,7 @@ const Teams: NextPage = () => {
                 <div className={pageStyles.subsection + ' ' + teamsStyles.calendar_section + ' flex-row-desktop-only'}>
                     <CalendarDay> 
                         <h2>Mon</h2>
-                        <p> Searched StackOverflow for code to read and pivot data. </p>
+                        <p> Searched StackOverflow for code to read in and pivot data. </p>
                     </CalendarDay>
                     <CalendarDay> 
                         <h2>Wed</h2>
