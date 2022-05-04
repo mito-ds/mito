@@ -131,36 +131,30 @@ const Teams: NextPage = () => {
                         Don’t throw away years of Excel skill building.
                     </p>
                 </div>
-                <h2 className='margin-top-3rem margin-bottom-3rem'>
+                <h2 className='margin-top-4rem margin-bottom-2rem'>
                     Python Before Mito
                 </h2>
-                <div className={pageStyles.subsection + ' flex-row-desktop-only'}>
+                <div className={pageStyles.subsection + ' ' + teamsStyles.calendar_section + ' flex-row-desktop-only'}>
                     <CalendarDay> 
-                        <div>
-                            <h2>Mon</h2>
-                        </div>
+                        <h2>Mon</h2>
                         <p> Searched StackOverflow for code to read and pivot data. </p>
                     </CalendarDay>
                     <CalendarDay> 
-                        <h2>Tue</h2>
-                        <p> Booked time with supporting data scientist to get help. </p>
-                    </CalendarDay>
-                    <CalendarDay> 
                         <h2>Wed</h2>
-                        <p> Worked with data scientist to write pivot table in pandas. </p>
+                        <p> Worked with supporting data scientist to write pivot table in pandas. </p>
                     </CalendarDay>
                     <CalendarDay> 
                         <h2>Thur</h2>
-                        <p> Got stuck creating graphs. Gave up and made report in Excel. </p>
+                        <p> Got stuck creating graphs. Gave up and made report in Excel.</p>
                     </CalendarDay>
                 </div>
-                <h2 className='margin-top-3rem margin-bottom-3rem'>
+                <h2 className='margin-top-4rem margin-bottom-2rem'>
                     Python After Mito
                 </h2>
                 <div className={pageStyles.subsection + ' flex-row-desktop-only'}>
                     <CalendarDay> 
                         <h2>Mon</h2>
-                        <p> Imported files with a click. Pivoted and graphed my data in the Mito spreadsheet. </p>
+                        <p> Imported, pivoted and graphed my data in a few clicks. </p>
                     </CalendarDay>
                 </div>
 
