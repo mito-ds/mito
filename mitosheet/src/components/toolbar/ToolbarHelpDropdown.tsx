@@ -38,7 +38,7 @@ const ToolbarHelpDropdown = (props: ToolbarHelpDropdownProps): JSX.Element => {
                     })}
                     width='large'
                 >
-                    {allActions.map((action, idx) => {
+                    {allActions.map((action) => {
                         return makeToolbarDropdownItem(action)
                     })}
                 </Dropdown>

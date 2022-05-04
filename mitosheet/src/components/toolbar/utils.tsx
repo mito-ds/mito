@@ -61,25 +61,25 @@ export enum ToolbarButtonType {
 */
 export const getToolbarItemIcon = (toolbarButtonType: ToolbarButtonType): JSX.Element => {
     switch (toolbarButtonType) {
-        case ToolbarButtonType.UNDO: {return <UndoIcon />};
-        case ToolbarButtonType.REDO: {return <RedoIcon />};
-        case ToolbarButtonType.CLEAR: {return <ClearIcon />};
+        case ToolbarButtonType.UNDO: {return <UndoIcon />}
+        case ToolbarButtonType.REDO: {return <RedoIcon />}
+        case ToolbarButtonType.CLEAR: {return <ClearIcon />}
 
-        case ToolbarButtonType.IMPORT: {return <ImportIcon />};
-        case ToolbarButtonType.EXPORT: {return <ExportIcon />};
+        case ToolbarButtonType.IMPORT: {return <ImportIcon />}
+        case ToolbarButtonType.EXPORT: {return <ExportIcon />}
 
-        case ToolbarButtonType.ADD_COL: {return <AddColumnIcon />};
-        case ToolbarButtonType.DEL_COL: {return <DeleteColumnIcon />};
-        case ToolbarButtonType.DTYPE: {return <DtypeIcon />};
-        case ToolbarButtonType.FORMAT: {return <FormatIcon />};
+        case ToolbarButtonType.ADD_COL: {return <AddColumnIcon />}
+        case ToolbarButtonType.DEL_COL: {return <DeleteColumnIcon />}
+        case ToolbarButtonType.DTYPE: {return <DtypeIcon />}
+        case ToolbarButtonType.FORMAT: {return <FormatIcon />}
 
-        case ToolbarButtonType.PIVOT: {return <PivotIcon />};
-        case ToolbarButtonType.GRAPH: {return <GraphIcon />};
+        case ToolbarButtonType.PIVOT: {return <PivotIcon />}
+        case ToolbarButtonType.GRAPH: {return <GraphIcon />}
 
-        case ToolbarButtonType.CATCH_UP: {return <CatchUpIcon />};
-        case ToolbarButtonType.STEPS: {return <StepsIcon />};
-        case ToolbarButtonType.OPEN_FULLSCREEN: {return <OpenFullscreenIcon />};
-        case ToolbarButtonType.CLOSE_FULLSCREEN: {return <CloseFullscreenIcon />};
+        case ToolbarButtonType.CATCH_UP: {return <CatchUpIcon />}
+        case ToolbarButtonType.STEPS: {return <StepsIcon />}
+        case ToolbarButtonType.OPEN_FULLSCREEN: {return <OpenFullscreenIcon />}
+        case ToolbarButtonType.CLOSE_FULLSCREEN: {return <CloseFullscreenIcon />}
     }
 }
 
