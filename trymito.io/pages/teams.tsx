@@ -3,7 +3,7 @@ import Head from 'next/head'
 import Image from 'next/image'
 import Footer from '../components/Footer/Footer';
 import Header from '../components/Header/Header';
-import securityStyles from '../styles/Security.module.css'
+import iconAndTextCardStyles from '../styles/IconAndTextCard.module.css'
 import pageStyles from '../styles/Page.module.css'
 import titleStyles from '../styles/Title.module.css'
 import homeStyles from '../styles/Home.module.css'
@@ -47,7 +47,7 @@ const Teams: NextPage = () => {
                     <CTAButtons variant='contact' />
                 </div>
             </section>
-            <section>
+            <section style={{marginTop: '4rem'}}>
                 <div className={pageStyles.subsection}>
                     <div className={homeStyles.functionality_text}>
                         <p>
@@ -72,9 +72,9 @@ const Teams: NextPage = () => {
                     </h1>
                 </div>
                 <div className={pageStyles.subsection}>
-                    <div className={securityStyles.security_bullet_container}>
-                        <div className={securityStyles.icon}>
-                            <Image className={securityStyles.icon} src={JupyterIcon} alt='icon'></Image>
+                    <div className={iconAndTextCardStyles.icon_and_text_card}>
+                        <div className={iconAndTextCardStyles.icon}>
+                            <Image className={iconAndTextCardStyles.icon} src={JupyterIcon} alt='icon'></Image>
                         </div>
                         <h1>
                             Jupyter <br/> Compatible
@@ -83,9 +83,9 @@ const Teams: NextPage = () => {
                             Mito is compatible with JupyterHub, JupyterLab, and Jupyter Notebooks, so you don’t need to manage any new infrastructure.  
                         </p>
                     </div>
-                    <div className={securityStyles.security_bullet_container + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
-                        <div className={securityStyles.icon}>
-                            <Image className={securityStyles.icon} src={PrivateIcon} alt='icon'></Image>
+                    <div className={iconAndTextCardStyles.icon_and_text_card + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
+                        <div className={iconAndTextCardStyles.icon}>
+                            <Image className={iconAndTextCardStyles.icon} src={PrivateIcon} alt='icon'></Image>
                         </div>
                         <h1>
                             Completely <br/> Private
@@ -96,9 +96,9 @@ const Teams: NextPage = () => {
                     </div>
                 </div>
                 <div className={pageStyles.subsection}>
-                    <div className={securityStyles.security_bullet_container}>
-                        <div className={securityStyles.icon}>
-                            <Image className={securityStyles.icon} src={DocsIcon} alt='icon'></Image>
+                    <div className={iconAndTextCardStyles.icon_and_text_card}>
+                        <div className={iconAndTextCardStyles.icon}>
+                            <Image className={iconAndTextCardStyles.icon} src={DocsIcon} alt='icon'></Image>
                         </div>
                         <h1>
                             Practical <br/> Documentation
@@ -107,9 +107,9 @@ const Teams: NextPage = () => {
                             Our documentation is best-in-class, so you can get started without complex trainings.
                         </p>
                     </div>
-                    <div className={securityStyles.security_bullet_container + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
-                        <div className={securityStyles.icon}>
-                            <Image className={securityStyles.icon} src={SupportIcon} alt='icon'></Image>
+                    <div className={iconAndTextCardStyles.icon_and_text_card + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
+                        <div className={iconAndTextCardStyles.icon}>
+                            <Image className={iconAndTextCardStyles.icon} src={SupportIcon} alt='icon'></Image>
                         </div>
                         <h1>
                             Personal <br/> Support
