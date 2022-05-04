@@ -200,9 +200,9 @@ const Teams: NextPage = () => {
                     </div>
                 </div>
                 <div className={pageStyles.subsection + ' center'}>
-                    <Link href='/mito_pro_roadmap'>
+                    <Link href='/plans#mito_pro_roadmap'>
                         <a className={pageStyles.link_with_p_tag_margins}>
-                            Checkout the Mito Pro Roadmap to see what&apos;s coming next →
+                            Checkout the Mito Pro roadmap →
                         </a>
                     </Link>
                 </div>

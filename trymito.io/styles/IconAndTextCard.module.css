@@ -1,0 +1,22 @@
+.icon {
+    margin-bottom: 3rem;
+}
+
+.icon_and_text_card {
+    padding-left: 3rem;
+    padding-right: 3rem;
+}
+
+
+@media only screen and (min-width: 50em) {
+    .icon {
+        margin-bottom: 2rem;
+    }
+
+    .icon_and_text_card {
+        padding-left: 0;
+        padding-right: 0;
+        max-width: 30rem;
+    }
+}
+

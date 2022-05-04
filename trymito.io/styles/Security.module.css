@@ -4,15 +4,6 @@
     padding: 7rem 0;
 }
 
-.icon {
-    margin-bottom: 3rem;
-}
-
-.security_bullet_container {
-    padding-left: 3rem;
-    padding-right: 3rem;
-}
-
 @media only screen and (min-width: 50em) {
     .icon {
         margin-bottom: 2rem;
@@ -20,11 +11,5 @@
 
     .gradient_card h1 {
         font-size: 2.5rem;
-    }
-
-    .security_bullet_container {
-        padding-left: 0;
-        padding-right: 0;
-        max-width: 30rem;
     }
 }
