@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Install node
-apt install nodejs
-
 # We install the development version of Mito
 cd mitosheet/
 
