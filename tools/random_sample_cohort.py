@@ -44,12 +44,11 @@ def main():
     print(f"Building cohort for {first_day} to {final_day}")
 
     # As some users start trying to use Mito _way_ before they finish sign up, we then go through 
-    # and take all users that fall into the bucket and just put them in the first day. We also print
-    # out how many users fall into this category (so if it's big, we can adjust it differently).
-    print(f'There are {(full_cohort[HEADER_FIRST_SEEN] < first_day).sum()} users who started signup before the first day')
+    # and take all users that fall into the bucket and just filter them out
+    print(f'There are {(full_cohort[HEADER_FIRST_SEEN] < first_day).sum()} users who started signup before the first day. Filtering them out.')
 
-    # Then, we clip to the max and minumum values
-    full_cohort[HEADER_FIRST_SEEN] = full_cohort[HEADER_FIRST_SEEN].clip(first_day, final_day)
+    # Then, we cut out any users who were before the first day
+    full_cohort = full_cohort[full_cohort[HEADER_FIRST_SEEN] >= first_day]
     assert (full_cohort[HEADER_FIRST_SEEN] < first_day).sum() == 0
     assert (full_cohort[HEADER_FIRST_SEEN] > final_day).sum() == 0
 
