@@ -661,8 +661,8 @@ const Plans: NextPage = () => {
                 </div>
             </section>
               
-            <section>
-              <h1>
+            <section >
+              <h1 className='center'>
                 Frequently Asked Questions
               </h1>
               <FAQCard title='What telemetry do we collect?' id={PRIVATE_TELEMTRY_FAQ_ID}>
