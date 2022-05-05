@@ -1,4 +1,24 @@
 #!/bin/bash
 
 # We install the development version of Mito
-python -m pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ mitosheet
+cd mitosheet/
+
+# Switch to the mitosheet package, which we develop on by default
+python switch.py mitosheet
+
+# Install Python dependencies
+pip install -e ".[test, deploy]"
+
+# Install the npm dependences
+npm install
+
+# Setup JupyterLab development
+jupyter labextension develop . --overwrite
+
+# Setup Jupyter Notebook development
+jupyter nbextension uninstall mitosheet # NOTE: not sure why this first is needed. Somehow, it gets installed in the setup.py...
+jupyter nbextension install --py --symlink --sys-prefix mitosheet
+jupyter nbextension enable --py --sys-prefix mitosheet
+
+# Finially, start watching the javascript
+jlpm run build
