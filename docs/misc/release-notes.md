@@ -2,21 +2,31 @@
 description: Want to see what is new in the Mitosheet? Check it out below.
 ---
 
-
 # Release Notes
+
+## 2022-5-5 <a href="#2022-4-21" id="2022-4-21"></a>
+
+Bug fixes:
+
+* Better right click tracking so Mito can better prioritize context menus.
+* Fix minor bug where analysis id was not written to mitosheet.sheet call in rare circumstances.
+* Better tracking when Plotly fails to define.
 
 ## 2022-4-21 <a href="#2022-4-21" id="2022-4-21"></a>
 
 New Features:
+
 * **Mito is now available in Jupyter Notebooks**. To use Mito in a Jupyter Notebook, follow the [upgrade instructions here.](../how-to/upgrading-mito.md#upgrading-to-mitosheet-on-jupyterlab-3-0). Then, launch `jupyter notebook` to and render a mitosheet as you normally would.
 
 ## 2022-4-19 <a href="#2022-4-19" id="2022-4-19"></a>
 
 New Features:
-* More Code optimization for Mito Pro users. When the user deletes a dataframe, Mito now deletes all of the code that was used to create that dataframe, in most cases. 
+
+* More Code optimization for Mito Pro users. When the user deletes a dataframe, Mito now deletes all of the code that was used to create that dataframe, in most cases.
 * The file browser now works with arrow keys! Woo for efficiency.
 
 Bug Fixes:
+
 * Fixes issues with scrollbars overlapping text, making the text hard to read
 * Undo and redo now work with filter and sort
 * The rename input field now submits on blur and doesn't add navigation keys like pageup and pagedown to the column name.
@@ -25,10 +35,12 @@ Bug Fixes:
 ## 2022-4-11 <a href="#2022-4-11" id="2022-4-11"></a>
 
 New Features:
-* Code optimization for Mito Pro users. Common scripts now will be 1/3 the size of previous scripts, as Mito automatically generates optimized code as you edit. 
+
+* Code optimization for Mito Pro users. Common scripts now will be 1/3 the size of previous scripts, as Mito automatically generates optimized code as you edit.
 * Filter and concatenate operations now display text telling you the result of the operation - how many rows were removed and how many columns were included respectively - making it easier to figure out the effect of these operations.
 
 Bug Fixes:
+
 * Drop duplicates now opens with no column selected, to allow users to opt into changing the data if they are just exploring.
 
 ## 2022-4-5 <a href="#2022-4-5" id="2022-4-5"></a>
