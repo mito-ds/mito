@@ -74,7 +74,7 @@ def main():
     print(f"The minimum number new users in a day is {min(map(len, days_to_users_map.values()))}")
     print(f"The maximum number new users in a day is {max(map(len, days_to_users_map.values()))}")
 
-    cohort_name = f"Cohort {first_day.strftime('%Y-%m-%d')} to {final_day.strftime('%Y-%m-%d')}"
+    cohort_name = f"{first_day.strftime('%B %-d')} - {final_day.strftime('%B %-d')} ({final_day.strftime('%Y')}) (Retention Subset)"
 
     # Construct the random sample of users, and build a dictonary
     random_sample = {HEADER_DISTINCT_ID: [], HEADER_COHORT: []}
