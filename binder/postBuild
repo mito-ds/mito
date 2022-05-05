@@ -1,3 +1,4 @@
 #!/bin/bash
 
-python -m pip install mitosheet
+# We install the development version of Mito
+python -m pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ mitosheet
