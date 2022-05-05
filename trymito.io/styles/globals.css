@@ -50,16 +50,6 @@
   font-weight: 500;
   font-display: swap;
 }
-/*
-  Import Gloria Hallelujah font
-*/
-@font-face {
-  font-family: "GloriaHallelujah";
-  src: url("/fonts/GloriaHallelujah/GloriaHallelujah-Regular.ttf");
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-}
 
 
 html,
@@ -283,6 +273,10 @@ a {
 /* 
   Margins
 */
+
+.margin-top-2rem {
+  margin-top: 2rem;
+}
 
 .margin-top-3rem {
   margin-top: 3rem;
