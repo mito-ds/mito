@@ -149,6 +149,10 @@ const ColumnHeader = (props: {
             // so that you can click within the input to move around. This is a FF bug
             // see here: https://newbedev.com/prevent-drag-event-to-interfere-with-input-elements-in-firefox-using-html5-drag-drop
             draggable={!editingColumnHeader ? 'true' : 'false'}
+            onContextMenu={() => {
+                // We also log if the user tries to right click on the column header
+                void props.mitoAPI.log('right_clicked_on_column_header');
+            }}
         >
             {lowerLevelColumnHeaders.map((lowerLevelColumnHeader, levelIndex) => {
                 // For each lower-level column header, we display them with a row index

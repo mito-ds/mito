@@ -153,7 +153,12 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                     }
                 })
             }} 
-            onDoubleClick={() => {setIsRename(true)}} >
+            onDoubleClick={() => {setIsRename(true)}} 
+            onContextMenu={() => {
+                // We also log if the user tries to right click on the sheet tab
+                void props.mitoAPI.log('right_clicked_on_sheet_tab');
+            }}
+        >
             <div className='tab-content'>
                 {props.tabIDObj.tabType === 'graph' &&
                     /* Put it inside a div so everything is spaced correctly */
