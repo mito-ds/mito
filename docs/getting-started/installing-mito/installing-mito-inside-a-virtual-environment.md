@@ -40,7 +40,7 @@ python -m mitoinstaller install
 {% endtab %}
 
 {% tab title="Conda Virtual Environment" %}
-## Installing Mito in a Conda virtual environment <a href="#installing-mito-in-a-conda-virtual-environment" id="installing-mito-in-a-conda-virtual-environment"></a>
+### Installing Mito in a Conda virtual environment <a href="#installing-mito-in-a-conda-virtual-environment" id="installing-mito-in-a-conda-virtual-environment"></a>
 
 First, create a new conda environment:
 

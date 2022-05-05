@@ -93,6 +93,13 @@ const GraphSidebar = (props: {
     */
     const [graphUpdatedNumber, setGraphUpdatedNumber] = useState(0)
 
+    // We log if plotly is not defined
+    useEffect(() => {
+        if (!(window as any).Plotly) {
+            void props.mitoAPI.log('plotly_define_failed');
+        }
+    }, [])
+
     // Whenever the graph is resized, we update it (so it resizes as well)
     useEffectOnResizeElement(() => {
         setGraphUpdatedNumber(old => old + 1)

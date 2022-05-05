@@ -116,6 +116,7 @@ export function getAnalysisNameFromOldGeneratedCode(codeString: string): string 
     }    
 }
 
+// Returns the last line with any non-whitespace character
 export function getLastNonEmptyLine(codeText: string): string | undefined {
     const filteredActiveText = codeText.split(/\r?\n/).filter(line => line.trim().length > 0)
     return filteredActiveText.length > 0 ? filteredActiveText.pop() : undefined
@@ -149,13 +150,11 @@ export const getArgsFromMitosheetCallCode = (codeText: string): string[] => {
 // Returns true iff a the given cell ends with a mitosheet.sheet call
 export function isMitosheetCallCode(codeText: string): boolean {
 
-    // Take all the non-empty lines from the cell
-    const lines = codeText.split('\n').filter(line => {return line.length > 0});
-    if (lines.length == 0) {
+    // Get the last non-empty line from the cell
+    const lastLine = getLastNonEmptyLine(codeText);
+    if (lastLine === undefined) {
         return false;
     }
-
-    const lastLine = lines[lines.length - 1];
     /* 
         We check if the last line contains a mitosheet.sheet call, which can happen in a few ways
         
