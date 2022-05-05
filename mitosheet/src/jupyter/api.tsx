@@ -1208,14 +1208,19 @@ export default class MitoAPI {
         params?: Record<string, unknown>
     ): Promise<void> {
 
-        let message: Record<string, unknown> = {};
-        // Copy the params, so we don't accidently modify anything
-        if (params !== undefined) {
-            message = Object.assign({}, params);
+        const message: Record<string, unknown> = {};
+
+        const defaultParams = {
+            // Get the browser information, so we can make sure Mito works for all Mito users
+            'user_agent': window.navigator.userAgent,
         }
 
-        // Get the browser information, so we can make sure Mito works for all Mito users
-        message['user_agent'] = window.navigator.userAgent
+        // Copy the params, so we don't accidently modify anything
+        if (params !== undefined) {
+            message['params'] = Object.assign(defaultParams, params);
+        } else {
+            message['params'] = defaultParams
+        }
 
         // Save the type of event, as well as what is being logged
         message['event'] = 'log_event';
