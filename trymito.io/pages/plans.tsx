@@ -128,14 +128,6 @@ const PRESENTATION_FEATURES: Feature[] = [
       'Enterprise': true 
     }
   },
-  {
-    feature: 'Share Mito Analyses',
-    planSupport: {
-      'Open Source': false,
-      'Pro': 'Coming soon!',
-      'Enterprise': 'Coming soon!' 
-    }
-  },
 ]
 
 const TRANSFORMATION_FEATURES: Feature[] = [
@@ -553,8 +545,11 @@ const Plans: NextPage = () => {
 
             <section id='mito_pro_roadmap'>
                 <h1 className={titleStyles.title}>
-                    Mito Pro & Enterprise Roadmap 
+                    Mito Pro & Enterprise Roadmap
                 </h1>
+                <p>
+                  Coming soon!
+                </p>
             </section>
             <section>
                 <div className={pageStyles.subsection}>
@@ -566,7 +561,7 @@ const Plans: NextPage = () => {
                             Shareable <br/> notebooks
                         </h1>
                         <p>
-                          Share notebooks with Mito embedded in them so colleagues can use the Mito spreadsheet also.  
+                          Share notebooks with Mito embedded in them so colleagues can continue the analysis in Mito.  
                         </p>
                     </div>
                     <div className={iconAndTextCardStyles.icon_and_text_card + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
@@ -574,10 +569,10 @@ const Plans: NextPage = () => {
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
                         <h1>
-                            Advanced <br/> analysis
+                          Advanced <br/> analysis
                         </h1>
                         <p>
-                            Go beyond basic data cleaning and analysis features with support for regressions, fuzzy matching and clustering. 
+                          Go beyond basic data cleaning and analysis features with support for regressions, fuzzy matching and clustering. 
                         </p>
                     </div>
                 </div>
@@ -587,10 +582,10 @@ const Plans: NextPage = () => {
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
                         <h1>
-                            Custom <br /> transformations
+                          Custom <br /> transformations
                         </h1>
                         <p>
-                            Import custom python snippets to use within the Mito Spreadsheet and add completely new step types to the Mito Toolbar.  
+                          Import custom Python snippets to use within the Mito Spreadsheet. Add completely new transformations directly into the Mitosheet.  
                         </p>
                     </div>
                     <div className={iconAndTextCardStyles.icon_and_text_card + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
@@ -611,10 +606,10 @@ const Plans: NextPage = () => {
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
                         <h1>
-                            Connect to more data sources
+                          Connect to more data sources
                         </h1>
                         <p>
-                            Connect to databases and remote file systems so users can import any data set  without having to write custom pandas code.   
+                          Connect to databases and remote file systems so users can import any data set  without having to write custom pandas code.   
                         </p>
                     </div>
                     <div className={iconAndTextCardStyles.icon_and_text_card + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
@@ -622,10 +617,10 @@ const Plans: NextPage = () => {
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
                         <h1>
-                            Feature <br/> settings
+                          Feature <br/> settings
                         </h1>
                         <p>
-                            Customize Mito by toggling code optimization, auto-documentation, seleting between light and dark mode, and more. 
+                          Customize Mito by toggling code optimization, auto-documentation, seleting between light and dark mode, and more. 
                         </p>
                     </div>
                 </div>
@@ -635,10 +630,10 @@ const Plans: NextPage = () => {
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
                         <h1>
-                            Advanced <br/> formatting
+                          Advanced <br/> formatting
                         </h1>
                         <p>
-                            Utilize Excel-like formatting and conditional formatting to make your analysis stand out.
+                          Utilize Excel-like formatting and conditional formatting to make your analysis stand out.
                         </p>
                     </div>
                     <div className={iconAndTextCardStyles.icon_and_text_card + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
@@ -646,20 +641,20 @@ const Plans: NextPage = () => {
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
                         <h1>
-                            Keyboard <br/> shortcuts
+                          Keyboard <br/> shortcuts
                         </h1>
                         <p>
-                            Navigate Mito without ever using your mouse. 🐁 
+                          Navigate Mito without ever using your mouse. 🐁 
                         </p>
                     </div>
                 </div>
             </section>
             <section className='center'>
                 <h2>
-                    Have a new feature idea? 💡
+                  Have a new feature idea? 💡
                 </h2>
                 <p>
-                    Prioritizing your feedback is the best way we can help you speed up your analysis.
+                  Prioritizing your feedback is the best way we can help you speed up your analysis.
                 </p>
                 <div className='margin-top-3rem'>
                     <GithubButton variant='Issue' text='Open a GitHub issue'/>

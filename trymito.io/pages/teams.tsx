@@ -18,7 +18,6 @@ import DocsIcon from '../public/icon-squares/DocsIcon.svg'
 import PrivateIcon from '../public/icon-squares/PrivateIcon.svg'
 import Link from 'next/link';
 import CalendarDay from '../components/CalendarDay/CalendarDay';
-import calendarDayStyles from '../components/CalendarDay/CalendarDay.module.css';
 
 
 const Teams: NextPage = () => {
@@ -124,7 +123,7 @@ const Teams: NextPage = () => {
             <section>
                 <div className={pageStyles.subsection + ' ' + pageStyles.subsection_column + ' center'}>
                     <h1>
-                        Make your team Python Self-Sufficient
+                        Make your team Python self-sufficient
                     </h1>
                     <p className='display-desktop-only-inline-block'>
                         Leverage your team’s Excel expertise to make them Python self-sufficient. <br /> 
@@ -137,15 +136,19 @@ const Teams: NextPage = () => {
                 <div className={pageStyles.subsection + ' ' + teamsStyles.calendar_section + ' flex-row-desktop-only'}>
                     <CalendarDay> 
                         <h2>Mon</h2>
-                        <p> Searched StackOverflow for code to read in and pivot data. </p>
+                        <p> Searched StackOverflow for Python code to read in Excel file and pivot data. </p>
                     </CalendarDay>
                     <CalendarDay> 
-                        <h2>Wed</h2>
+                        <h2>Tues</h2>
                         <p> Worked with supporting data scientist to write pivot table in pandas. </p>
                     </CalendarDay>
                     <CalendarDay> 
+                        <h2>Wed</h2>
+                        <p> Tried to make a graph. Got lost in the Matplotlib documentation. </p>
+                    </CalendarDay>
+                    <CalendarDay> 
                         <h2>Thur</h2>
-                        <p> Got stuck creating graphs. Gave up and made report in Excel.</p>
+                        <p> Gave up on Python. Went back to Excel.</p>
                     </CalendarDay>
                 </div>
                 <h2 className='margin-top-4rem margin-bottom-2rem'>
@@ -154,7 +157,7 @@ const Teams: NextPage = () => {
                 <div className={pageStyles.subsection + ' flex-row-desktop-only'}>
                     <CalendarDay> 
                         <h2>Mon</h2>
-                        <p> Imported, pivoted and graphed my data in a few clicks. </p>
+                        <p> Used Mito to import, pivot and graph data in a few clicks. </p>
                     </CalendarDay>
                 </div>
 
@@ -178,7 +181,7 @@ const Teams: NextPage = () => {
                             <h1>Write cleaner code <br /> <span className='text-highlight'> faster </span></h1>
                         </div>
                         <p>
-                            Mito generates clean, auto-documented Python code for each edit. No more untangling Excel sheets or wading through sh**y code.
+                            Mito generates clean, auto-documented Python code for each edit. No more untangling Excel sheets or wading through spaghetti code.
                         </p>
                     </div>
                     <div className='margin-top-3rem-mobile-only'>
@@ -193,7 +196,7 @@ const Teams: NextPage = () => {
                         </p>
                     </div>
                 </div>
-                <div className={pageStyles.subsection + ' center'}>
+                <div className={pageStyles.subsection + ' center'} style={{marginTop: '2rem'}}>
                     <Link href='/plans#mito_pro_roadmap'>
                         <a className={pageStyles.link_with_p_tag_margins}>
                             Checkout the Mito Pro roadmap →
