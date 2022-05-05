@@ -13,15 +13,16 @@ RANDOM_SAMPLE_PER_DAY_SIZE = 20
 def main():
     """
     How to use this script:
-    0. Create a venv. Install pandas
-    1. Create the cohort on Mixpanel for the date range you want (e.g. finished signup, first time filter)
-    2. Download the file from Mixpanel (MAKE SURE TO ADD THE FIRST SEEN COLUMN). 
-    3. Copy it into this folder.
-    4. Run this script with `python3 random_sample_cohort.py <path_to_csv>
-    5. Take the results csv, and upload it to Mixpanel
+    - Create a venv. Activate it. Install pandas in this. 
+    - Create the cohort on Mixpanel for the date range you want. This cohort should be finished signup with a first time filter.
+    - Add the first seen column to the visible columns.
+    - Download the file from Mixpanel.
+    - Copy it into this folder.
+    - Run this script with `python3 random_sample_cohort.py <path_to_csv>
+    - Take the results csv for this cohort
     """ 
     # Do a sanity check on arguments
-    assert len(sys.argv) == 3
+    assert len(sys.argv) == 2
     path = sys.argv[1]
 
     # Read in the cohort
@@ -74,7 +75,7 @@ def main():
     print(f"The minimum number new users in a day is {min(map(len, days_to_users_map.values()))}")
     print(f"The maximum number new users in a day is {max(map(len, days_to_users_map.values()))}")
 
-    cohort_name = f"Cohort {first_day}-{final_day}"
+    cohort_name = f"Cohort {first_day.strftime('%Y-%m-%d')} to {final_day.strftime('%Y-%m-%d')}"
 
     # Construct the random sample of users, and build a dictonary
     random_sample = {HEADER_DISTINCT_ID: [], HEADER_COHORT: []}
@@ -93,9 +94,6 @@ def main():
     final_cohort.to_csv(f"{cohort_name}.csv", index=False)
 
     print(f"Wrote cohort {cohort_name} to {cohort_name}.csv")
-
-
-
 
 
 if  __name__ == "__main__":
