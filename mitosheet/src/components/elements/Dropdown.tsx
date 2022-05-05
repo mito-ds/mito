@@ -355,6 +355,10 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
     const childrenToDisplay = React.Children.map(props.children, (child) => {
         // First, we check to see if this is a seperator, and include it in
         // the final children without counting it if so
+        // TODO:
+        // 1. a separator should never be the first element in the dropdown
+        // 2. a separtor should never be the last element in the dropdown
+        // 3. there should never be consecutive separators
         if (child.props.isDropdownSectionSeperator) {
             return child;
         }

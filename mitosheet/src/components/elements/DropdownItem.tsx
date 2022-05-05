@@ -90,7 +90,7 @@ const DropdownItem = (props: DropdownItemProps): JSX.Element => {
                     title, in case it is cut off
                 */}
                 <span title={props.tooltip || props.title}>
-                    <p className={classNames('text-body-2', 'text-overflow-hide', {'mito-dropdown-item-title-disabled': disabled})}>
+                    <p className={classNames('text-body-2', 'text-overflow-hide', 'cursor-default', {'mito-dropdown-item-title-disabled': disabled})}>
                         {props.title}
                     </p>
                 </span>

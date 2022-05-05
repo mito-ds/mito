@@ -20,7 +20,7 @@ const DropdownSectionSeperator = (props: DropdownSectionSeperatorProps): JSX.Ele
     props.isDropdownSectionSeperator; // This is just so linting passes. See comment above about why we need this
 
     return (
-        <div style={{width: '100%', borderTop: '1px solid var(--mito-light-gray)', paddingBottom: '3px', marginTop: '3px'}}/>
+        <div style={{width: '100%', borderTop: '1px solid #dadce0', paddingBottom: '3px', marginTop: '3px'}}/>
     )
 }
 

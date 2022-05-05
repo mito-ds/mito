@@ -13,6 +13,9 @@
   box-sizing: border-box; 
   -moz-box-sizing: border-box; /* Firefox */
   -webkit-box-sizing: border-box; /* Older Webkit browsers */
+
+  /* We use this for seperating sections in the toolbar*/
+  --toolbar-seperator-color: #D0D2DF;
 }
 
 .toolbar-top {
@@ -44,13 +47,12 @@
 /* A line that seperates the top and bottom vertically */
 .toolbar-top-bottom-seperator {
   width: 100%;
-  color: grey;
-  border-top: 1px solid #D0D2DF;
+  border-top: 1px solid var(--toolbar-seperator-color);
   height: 100%;
 
 
   margin-top: 1px; /* Beacuse this is a top border, we need margin on top */
-  padding-bottom: 5px;
+  padding-bottom: 4px;
 }
 
 .toolbar-bottom {
@@ -133,7 +135,7 @@
 }
 
 .toolbar-vertical-line {
-  border-left: 1px solid #D0D2DF;
+  border-left: 1px solid var(--toolbar-seperator-color);
   height: 100%;
   margin-right: 2px;
   padding-right: 2px;
@@ -147,7 +149,7 @@
 	animation: pulse 2s infinite;
 }
 
-/* The button in the toolbar that lets hte user upgrade or tells them they are pro */
+/* The button in the toolbar that lets the user upgrade or tells them they are pro */
 .plan-button {
   border-radius: 3px;
   background-color: var(--mito-purple);
@@ -157,4 +159,5 @@
   display: flex;
   flex-direction: column;
   padding: 0px 5px;
+  color: var(--mito-white);
 }

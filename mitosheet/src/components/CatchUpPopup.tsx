@@ -26,7 +26,7 @@ const FastForwardPopup = (props: {fastForward: () => void}): JSX.Element => {
             </Row>
             <Row>
                 <Col>
-                    <CatchUpIcon/>
+                    <CatchUpIcon variant='light'/>
                 </Col>
                 <Col offset={1}>
                     <p>

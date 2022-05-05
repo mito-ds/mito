@@ -99,7 +99,7 @@ export const createActions = (
         [ActionEnum.Change_Dtype]: {
             type: ActionEnum.Change_Dtype,
             shortTitle: 'Dtype',
-            longTitle: 'Change dtype of column',
+            longTitle: 'Change column dtype',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
@@ -361,7 +361,7 @@ export const createActions = (
         [ActionEnum.Filter]: {
             type: ActionEnum.Filter,
             shortTitle: 'Filter',
-            longTitle: 'Filter selected column',
+            longTitle: 'Filter column',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
@@ -384,7 +384,7 @@ export const createActions = (
         [ActionEnum.Format]: {
             type: ActionEnum.Format,
             shortTitle: 'Format',
-            longTitle: 'Format selected number columns',
+            longTitle: 'Format number columns',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
@@ -558,7 +558,7 @@ export const createActions = (
         [ActionEnum.Pivot]: {
             type: ActionEnum.Pivot,
             shortTitle: 'Pivot',
-            longTitle: 'Create pivot table',
+            longTitle: 'Pivot table',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
@@ -818,7 +818,7 @@ export const createActions = (
         [ActionEnum.Sort]: {
             type: ActionEnum.Sort,
             shortTitle: 'Sort',
-            longTitle: 'Sort selected column',
+            longTitle: 'Sort column',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);

@@ -11,6 +11,7 @@ import '../../css/sitewide/all-modals.css';
 import '../../css/sitewide/animations.css';
 import '../../css/sitewide/borders.css';
 import '../../css/sitewide/colors.css';
+import '../../css/sitewide/cursor.css';
 import '../../css/sitewide/element-sizes.css';
 import '../../css/sitewide/flexbox.css';
 import '../../css/sitewide/fonts.css';
