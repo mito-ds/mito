@@ -9,7 +9,7 @@ This file contains helpful functions and classes for testing operations.
 
 import json
 from functools import wraps
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Union
 from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
 from mitosheet.step_performers.graph_steps.plotly_express_graphs import DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT, DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT, DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT
 from numpy import number
@@ -624,7 +624,8 @@ class MitoWidgetTestWrapper:
             {
                 'event': 'update_event',
                 'id': get_new_id(),
-                'type': 'undo'
+                'type': 'undo',
+                'params': {},
             }
         )
 
@@ -635,7 +636,8 @@ class MitoWidgetTestWrapper:
             {
                 'event': 'update_event',
                 'id': get_new_id(),
-                'type': 'redo'
+                'type': 'redo',
+                'params': {},
             }
         )
 
@@ -646,7 +648,8 @@ class MitoWidgetTestWrapper:
             {
                 'event': 'update_event',
                 'id': get_new_id(),
-                'type': 'clear'
+                'type': 'clear',
+                'params': {},
             }
         )
     
@@ -658,7 +661,9 @@ class MitoWidgetTestWrapper:
                 'event': 'update_event',
                 'id': get_new_id(),
                 'type': 'save_analysis_update',
-                'analysis_name': analysis_name
+                'params': {
+                    'analysis_name': analysis_name
+                },
             }
         )
 
@@ -740,7 +745,9 @@ class MitoWidgetTestWrapper:
                 'event': 'update_event',
                 'id': get_new_id(),
                 'type': 'replay_analysis_update',
-                'analysis_name': analysis_name,
+                'params': {
+                    'analysis_name': analysis_name,
+                },
             }
         )
 
@@ -752,7 +759,9 @@ class MitoWidgetTestWrapper:
                 'event': 'update_event',
                 'id': get_new_id(),
                 'type': 'checkout_step_by_idx_update',
-                'step_idx': index,
+                'params': {
+                    'step_idx': index,
+                },
             }
         )
 

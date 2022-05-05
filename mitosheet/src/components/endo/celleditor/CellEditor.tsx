@@ -1,43 +1,31 @@
-import React, { useEffect, useRef, useState } from 'react';
-import '../../../css/endo/CellEditor.css';
-import MitoAPI from '../../jupyter/api';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import '../../../../css/endo/CellEditor.css';
+import MitoAPI from '../../../jupyter/api';
 import { formulaEndsInColumnHeader, getFullFormula, getSuggestedColumnHeaders, getDocumentationFunction, getSuggestedFunctions } from './cellEditorUtils';
-import { KEYS_TO_IGNORE_IF_PRESSED_ALONE } from './EndoGrid';
-import { focusGrid } from './focusUtils';
-import { getColumnHeadersInSelection, getNewSelectionAfterKeyPress, isNavigationKeyPressed } from './selectionUtils';
-import { calculateCurrentSheetView, getCellInColumn, getCellInRow } from './sheetViewUtils';
-import { EditorState, GridState, MitoError, SheetData } from '../../types';
-import { firstNonNullOrUndefined, getCellDataFromCellIndexes } from './utils';
-import { classNames } from '../../utils/classNames';
-import fscreen from 'fscreen';
-import { ensureCellVisible } from './visibilityUtils';
-import LoadingDots from '../elements/LoadingDots';
-import { getDisplayColumnHeader, isPrimitiveColumnHeader } from '../../utils/columnHeaders';
+import { KEYS_TO_IGNORE_IF_PRESSED_ALONE } from '../EndoGrid';
+import { focusGrid } from '../focusUtils';
+import { getColumnHeadersInSelection, getNewSelectionAfterKeyPress, isNavigationKeyPressed } from '../selectionUtils';
+import { EditorState, GridState, MitoError, SheetData, SheetView, UIState } from '../../../types';
+import { firstNonNullOrUndefined, getCellDataFromCellIndexes } from '../utils';
+import { classNames } from '../../../utils/classNames';
+import { ensureCellVisible } from '../visibilityUtils';
+import LoadingDots from '../../elements/LoadingDots';
+import { getColumnHeaderParts, getDisplayColumnHeader} from '../../../utils/columnHeaders';
+import { submitRenameColumnHeader } from '../columnHeaderUtils';
 
-// NOTE: we just set the width to 250 pixels
-const CELL_EDITOR_WIDTH = 250;
 const MAX_SUGGESTIONS = 4;
+// NOTE: we just set the width to 250 pixels
+export const CELL_EDITOR_WIDTH = 250;
 
 /* 
-    The cell editor is a popup that appears on top of the sheet, and displays
-    a user an input that allows them to edit a formula. 
+    A CellEditor allows the user to edit the formula or value of a cell.
+    
+    The main complexity is allowing the user to select column headers by 
+    clicking or using the arrow keys. It is handled inside this component, 
+    by overwriting the cell navigation logic and updating the selection here. 
+    Clicking on columns is handled inside the EndoGrid itself.
 
-    The two seperate complexities with the cell editor are making sure that
-    the cell editor is visible in the right location, and allowing users to
-    select column headers by clicking or using the arrow keys.
-
-    To make sure the editor is in the right location, we just have an effect
-    that runs when the props change, and effectively make sure the editor is
-    in the correct location. 
-
-    Allowing users to select column headers by using the arrow keys is handeled
-    inside this component, by overwriting the cell navigation logic and updating 
-    the selection here. Clicking on columns is handeled inside the EndoGrid 
-    itself.
-
-    NOTE: for now, we ignore single cell editing. In the future, we'll just
-    check the column type (formula vs constant), and do different things in
-    either cases! We leave this to integration ;-)
+    The CellEditor takes up the entire parent component. 
 */
 const CellEditor = (props: {
     sheetData: SheetData,
@@ -46,105 +34,33 @@ const CellEditor = (props: {
     editorState: EditorState,
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>,
     setGridState: React.Dispatch<React.SetStateAction<GridState>>,
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>,
     scrollAndRenderedContainerRef: React.RefObject<HTMLDivElement>,
     containerRef: React.RefObject<HTMLDivElement>,
     mitoAPI: MitoAPI,
+    currentSheetView: SheetView
 }): JSX.Element => {
 
-    const cellEditorInputRef = useRef<HTMLInputElement>(null);
+    const cellEditorInputRef = useRef<HTMLInputElement | null>(null);
 
-    const [editorStyle, setEditorStyle] = useState<{top?: number, left?: number, bottom?: number, right?: number, display?: string}>({
-        top: 0,
-        left: 0,
-        display: 'none'
-    })
     const [selectedSuggestionIndex, setSavedSelectedSuggestionIndex] = useState(-1);
     const [loading, setLoading] = useState(false);
     const [cellEditorError, setCellEditorError] = useState<string | undefined>(undefined);
-
-    const currentSheetView = calculateCurrentSheetView(props.gridState);
-
     const {columnID, columnHeader} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
 
-    // Ensures that the cell editor is in the right location, when initially placed.
-    // We don't move it, as it doesn't really make things better, as GSheets does not
-    // and it really don't effect the experience of using the cell editor at all!
-    // If you want to make the editor refresh it's location, just make it subscribe to 
-    // grid state changes
-    useEffect(() => {        
-        const updateCellEditorPosition = () => {
-    
-            const scrollAndRenderedContainerRect = props.scrollAndRenderedContainerRef.current?.getBoundingClientRect();
-            if (scrollAndRenderedContainerRect === undefined) {
-                return;
-            }
-    
-            const cellInRow = getCellInRow(props.scrollAndRenderedContainerRef.current, props.editorState.rowIndex);
-            const cellInRowRect = cellInRow?.getBoundingClientRect();
-            const cellInColumn = getCellInColumn(props.scrollAndRenderedContainerRef.current, props.editorState.columnIndex);
-            const cellInColumnRect = cellInColumn?.getBoundingClientRect();
-            
-            /* 
-                Generally, the max is the stop it from going below 0, 
-                and the min is to stop it from going farther
-                than the height/width of the viewport. 
+    // When we first render the cell editor input, make sure to save it and focus on it
+    const setRef = useCallback((unsavedInputAnchor: HTMLInputElement) => {
+        if (unsavedInputAnchor !== null) {
+            // Save this node, so that we can update 
+            cellEditorInputRef.current = unsavedInputAnchor;
 
-                The default{Top/Left} makes sure that the max and min work out
-                correctly, in the case of out of bounds above and below.
-            */
-
-            let top: number | undefined = undefined;
-            let left: number | undefined = undefined;
-            let bottom: number | undefined = undefined;
-            let right: number | undefined = undefined;
-
-            // 45 is the height of a single column header, and then each lower level element is
-            // 25 px tall, so we calculate the total height to use in the placement of the 
-            // cell editor
-            const columnHeadersHeight = columnHeader === undefined || isPrimitiveColumnHeader(columnHeader) ? 45 : (45 + ((columnHeader.length - 1) * 25))
-            const defaultTop = cellInRowRect ? cellInRowRect.y : (props.editorState.rowIndex < currentSheetView.startingRowIndex ? 0 : scrollAndRenderedContainerRect.y * 100) // 100 is a random large number to make the mins and maxs work out
-            top = Math.min(Math.max(0, defaultTop - scrollAndRenderedContainerRect.y) + columnHeadersHeight, scrollAndRenderedContainerRect.height);
-            // If we're too close to the bottom, just snap ot the bottom
-            if (top >= scrollAndRenderedContainerRect.height - 50) {
-                top = undefined;
-                bottom = 0;
-            }
-
-            const defaultLeft = cellInColumnRect ? cellInColumnRect.x : (props.editorState.columnIndex < currentSheetView.startingColumnIndex ? 0 : scrollAndRenderedContainerRect.x * 100) // 100 is a random large number to make the mins and maxs work out
-            // 80 is the width of the index. If you change the css, then change here
-            left = Math.min(Math.max(0, defaultLeft - scrollAndRenderedContainerRect.x) + 80, scrollAndRenderedContainerRect.width);
-            // If we're too close to the right, just snap to the right
-            if (left + CELL_EDITOR_WIDTH >= scrollAndRenderedContainerRect.width) {
-                left = undefined;
-                right = 0;
-            }
-
-            // Don't update if we don't need to, and note that is required to avoid entering
-            // a loop that makes the cell editor not work
-            if (top === editorStyle.top && left === editorStyle.left && bottom === editorStyle.bottom && right === editorStyle.right) {
-                return;
-            }
-    
-            setEditorStyle({
-                top: top,
-                left: left,
-                bottom: bottom,
-                right: right,
-                display: undefined
-            });
+            // Focus on the input after a tiny delay. I'm not sure why we need this delay, 
+            // it is only requred when the cell editor is in the grid, not in the formula bar.
+            setTimeout(() => {
+                cellEditorInputRef.current?.focus()
+            }, 50);
         }
-
-        // Make it so the setting of the cell editor positon just runs after the
-        // current execution context finishes, to make sure everything is placed
-        // properly.
-        setTimeout(updateCellEditorPosition)
-
-        // We reposition the cell editor when you enter or leave fullscreen mode, to make
-        // sure that it stays visible
-        fscreen.addEventListener('fullscreenchange', updateCellEditorPosition);
-        return () => fscreen.removeEventListener('fullscreenchange', updateCellEditorPosition);
-    }, [])
-
+    },[]);
 
     /* 
         This effect makes sure that when the pending selected columns change,
@@ -211,7 +127,7 @@ const CellEditor = (props: {
         
         ensureCellVisible(
             props.containerRef.current, props.scrollAndRenderedContainerRef.current,
-            currentSheetView, props.gridState,
+            props.currentSheetView, props.gridState,
             props.editorState.rowIndex, props.editorState.columnIndex
         );
         
@@ -256,7 +172,7 @@ const CellEditor = (props: {
             ...props.editorState,
             formula: fullFormula,
             pendingSelectedColumns: undefined,
-            arrowKeysScrollInFormula: false
+            arrowKeysScrollInFormula: props.editorState.editorLocation === 'formula bar' ? true : false
         })
 
         // Make sure we jump to the end of the input, as we took the suggestion
@@ -376,7 +292,7 @@ const CellEditor = (props: {
 
                     ensureCellVisible(
                         props.containerRef.current, props.scrollAndRenderedContainerRef.current,
-                        currentSheetView, props.gridState,
+                        props.currentSheetView, props.gridState,
                         newSelection.endingRowIndex, newSelection.endingColumnIndex
                     );
 
@@ -415,7 +331,7 @@ const CellEditor = (props: {
 
             ensureCellVisible(
                 props.containerRef.current, props.scrollAndRenderedContainerRef.current,
-                currentSheetView, props.gridState,
+                props.currentSheetView, props.gridState,
                 props.editorState.rowIndex, props.editorState.columnIndex
             );
 
@@ -454,28 +370,43 @@ const CellEditor = (props: {
 
         const columnID = props.sheetData.data[props.editorState.columnIndex].columnID;
         const columnHeader = props.sheetData.data[props.editorState.columnIndex].columnHeader;
-        const index = props.sheetData.index[props.editorState.rowIndex];
         const formula = getFullFormula(props.editorState.formula, columnHeader, props.editorState.pendingSelectedColumns)
 
         // Mark this as loading
         setLoading(true);
         
         let errorMessage: MitoError | undefined = undefined;
+
+
         // Make sure to send the write type of message, depending on the editor
-        if (isFormulaColumn) {
-            errorMessage = await props.mitoAPI.editSetColumnFormula(
-                props.sheetIndex,
-                columnID,
-                formula
-            )
+        if (props.editorState.rowIndex == -1) {
+            // Change of column header
+            const finalColumnHeader = getColumnHeaderParts(columnHeader).finalColumnHeader;
+            submitRenameColumnHeader(columnHeader, finalColumnHeader, columnID, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI)
         } else {
-            errorMessage = await props.mitoAPI.editSetCellValue(
-                props.sheetIndex,
-                columnID,
-                index,
-                formula
-            )
-        } 
+            if (isFormulaColumn) {
+                // Change of formula
+                errorMessage = await props.mitoAPI.editSetColumnFormula(
+                    props.sheetIndex,
+                    columnID,
+                    formula,
+                    props.editorState.editorLocation
+                )
+            } else {
+                // Change of data
+                // Get the index of the edited row in the dataframe. This isn't the same as the editorState.rowIndex
+                // because the editorState.rowIndex is simply the row number in the Mito Spreadsheet which is affected by sorts, etc.
+                const rowIndex = props.sheetData.index[props.editorState.rowIndex];
+                errorMessage = await props.mitoAPI.editSetCellValue(
+                    props.sheetIndex,
+                    columnID,
+                    rowIndex,
+                    formula,
+                    props.editorState.editorLocation
+                )
+            } 
+        }
+        
         setLoading(false);
 
         // Don't let the user close the editor if this is an invalid formula
@@ -488,19 +419,15 @@ const CellEditor = (props: {
     }
 
     return (
-        <div 
-            className='cell-editor' 
-            style={{
-                ...editorStyle,
-                width: `${CELL_EDITOR_WIDTH}px`
-            }}
-        >
+        <div className='cell-editor'>
             <form
                 className='cell-editor-form'
                 onSubmit={onSubmit}
+                autoComplete='off' // Turn off autocomplete so the html suggestion box doesn't cover Mito's suggestion box.
             >
                 <input
-                    ref={cellEditorInputRef}
+                    ref={setRef}
+                    id='cell-editor-input'
                     className='cell-editor-input'
                     onClick={() => {
                         // As in Excel or Google Sheets, if you click the input, then
@@ -522,15 +449,18 @@ const CellEditor = (props: {
                             '-', '+', '*', '/'
                         ]
 
-                        // If we are typing at the end of the formula, and we type a CHARS_TO_REMOVE_SCROLL_IN_FORMULA,
-                        // then we reset the arrowKeysScrollInFormula to false. Furtherrmore, if the formula is empty, 
-                        // we reset the arrow keys to scroll in the sheet. Otherwise, we keep it as is.
-                        // This attempts to match what Excel and Google Sheets do
-                        const atEndOfFormula = (e.target.selectionStart || 0) >= e.target.value.length;
-                        const finalChar = e.target.value.substring(e.target.value.length - 1);
-                        const endsInResetCharacter = atEndOfFormula && CHARS_TO_REMOVE_SCROLL_IN_FORMULA.includes(finalChar)
-                        const isEmpty = e.target.value.length === 0;
-                        const arrowKeysScrollInFormula = props.editorState.arrowKeysScrollInFormula && !endsInResetCharacter && !isEmpty; 
+                        let arrowKeysScrollInFormula = true
+                        if (props.editorState.editorLocation === 'cell') {
+                            // If we are typing at the end of the formula, and we type a CHARS_TO_REMOVE_SCROLL_IN_FORMULA,
+                            // then we reset the arrowKeysScrollInFormula to false. Furtherrmore, if the formula is empty, 
+                            // we reset the arrow keys to scroll in the sheet. Otherwise, we keep it as is.
+                            // This attempts to match what Excel and Google Sheets do
+                            const atEndOfFormula = (e.target.selectionStart || 0) >= e.target.value.length;
+                            const finalChar = e.target.value.substring(e.target.value.length - 1);
+                            const endsInResetCharacter = atEndOfFormula && CHARS_TO_REMOVE_SCROLL_IN_FORMULA.includes(finalChar)
+                            const isEmpty = e.target.value.length === 0;
+                            arrowKeysScrollInFormula = props.editorState.arrowKeysScrollInFormula !== undefined && !endsInResetCharacter && !isEmpty; 
+                        }
                         
                         props.setEditorState({
                             ...props.editorState,
@@ -538,22 +468,22 @@ const CellEditor = (props: {
                             arrowKeysScrollInFormula: arrowKeysScrollInFormula
                         })}
                     }
-                    autoFocus
                 />
             </form>
             {/* 
                 In the dropdown box, we either show an error, a loading message, suggestions
                 or the documentation for the last function, depending on the cases below
             */}
-            <div className='cell-editor-dropdown-box'>
+            <div className='cell-editor-dropdown-box' style={{width: props.editorState.editorLocation === 'cell' ? `${CELL_EDITOR_WIDTH}px` : '300px'}}>
                 {cellEditorError === undefined && 
-                    <p className={classNames('cell-editor-label', 'text-subtext-1', 'ml-5px')}>
-                        {isFormulaColumn ? "You're setting the formula of this column" : "You're changing the value of this cell"}
+                    <p className={classNames('cell-editor-label', 'text-subtext-1', 'pl-5px')}>
+                        {props.editorState.rowIndex < 0 ? "You're renaming a column header" : 
+                            isFormulaColumn ? "You're setting the formula of this column" : "You're changing the value of this cell"}
                     </p>
                 }
                 {/* Show an error if there is currently an error */}
                 {cellEditorError !== undefined &&
-                    <div className='pl-10px pr-5px pt-5px pb-5px'>
+                    <div className='cell-editor-error-container pl-10px pr-5px pt-5px pb-5px'>
                         <p className='text-body-1 text-color-error'>
                             {cellEditorError}
                         </p>
@@ -581,7 +511,6 @@ const CellEditor = (props: {
                             const suggestionClassNames = classNames('cell-editor-suggestion', 'text-body-2', {
                                 'cell-editor-suggestion-selected': selected
                             });
-                            const subtextClassNames = classNames('cell-editor-suggestion-subtext', 'text-subtext-1');
                             
                             return (
                                 <div 
@@ -599,7 +528,7 @@ const CellEditor = (props: {
                                         {suggestion}
                                     </span>
                                     {selected &&
-                                        <div className={subtextClassNames}>
+                                        <div className={classNames('cell-editor-suggestion-subtext', 'text-subtext-1')}>
                                             {subtext}
                                         </div>
                                     }

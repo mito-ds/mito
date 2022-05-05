@@ -20,7 +20,7 @@ def get_filenames_with_suffix(*suffixes: str) -> List[str]:
     return [str(filename) for filename in filenames if filename.suffix in suffixes]
 
 
-def get_datafiles(event: Dict[str, Any]) -> List[str]:
+def get_datafiles(params: Dict[str, Any]) -> List[str]:
     """
     Handles a `datafiles` api call, and returns all the csv files
     in the current folder.

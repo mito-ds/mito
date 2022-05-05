@@ -42,9 +42,11 @@ def test_double_set_does_not_error():
         'id': get_new_id(),
         'type': 'set_column_formula_edit',
         'step_id': get_new_id(),
-        'sheet_index': 0,
-        'column_header': 'B',
-        'new_formula': '=A'
+        'params': {
+            'sheet_index': 0,
+            'column_header': 'B',
+            'new_formula': '=A'
+        }
     })
 
     assert 'B' in mito.dfs[0]

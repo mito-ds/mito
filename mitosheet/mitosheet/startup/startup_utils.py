@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 import os
-from mitosheet.mito_analytics import log
+from mitosheet.telemetry.telemetry_utils import log
 
 IPYTHON_STARTUP_FOLDER = os.path.join(os.path.expanduser("~"), '.ipython', 'profile_default', 'startup')
 IMPORT_MITOSHEET_FILE_PATH = os.path.join(IPYTHON_STARTUP_FOLDER, 'import_mitosheet.py')

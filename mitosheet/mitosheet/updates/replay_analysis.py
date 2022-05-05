@@ -9,7 +9,7 @@ Replays an existing analysis
 
 from mitosheet.errors import make_no_analysis_error
 
-from mitosheet.mito_analytics import log
+from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.saved_analyses import read_and_upgrade_analysis
 from mitosheet.types import StepsManagerType
 

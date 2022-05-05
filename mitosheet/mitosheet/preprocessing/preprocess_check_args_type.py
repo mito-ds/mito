@@ -5,7 +5,7 @@
 # Distributed under the terms of the Modified BSD License.
 from typing import Any, Dict, Collection, List, Optional, Tuple
 import pandas as pd
-from mitosheet.mito_analytics import log
+from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.preprocessing.preprocess_step_performer import \
     PreprocessStepPerformer
 from mitosheet.types import StepsManagerType
@@ -37,7 +37,7 @@ class CheckArgsTypePreprocessStepPerformer(PreprocessStepPerformer):
         for arg in args:
             if not isinstance(arg, pd.DataFrame) and not isinstance(arg, str) and not arg is None:
                 error_message = f'Invalid argument passed to sheet: {arg}. Please pass all dataframes or paths to CSV files.'
-                log('mitosheet_sheet_call_failed', {'error': error_message})
+                log('mitosheet_sheet_call_failed', {'error': error_message}, failed=True)
                 raise ValueError(error_message)
         
         # We do filter out all the None arguments

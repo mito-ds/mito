@@ -151,8 +151,8 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
             columnID,
             filtersToApply,
             operator,
-            stepID,
-            props.tab
+            props.tab,
+            stepID
         )
 
         setEditedFilter(true) 

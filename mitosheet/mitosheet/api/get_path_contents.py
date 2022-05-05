@@ -36,13 +36,13 @@ def get_path_parts(path: str) -> List[str]:
     return [drive] + folders + [file]
 
 
-def get_path_contents(event: Dict[str, Any]) -> str:
+def get_path_contents(params: Dict[str, Any]) -> str:
     """
     Takes an event with path parts in a list, turns them into
     an actual path, and then sends an API response with those 
     path parts
     """ 
-    path_parts = event['path_parts']
+    path_parts = params['path_parts']
 
     # Join the path and normalize it (note this should be OS independent)
     path = os.path.join(*path_parts)

@@ -70,7 +70,6 @@ def test_pivot_transpiles_pivot_by_mulitple_columns_post_1():
         0, [], ['First_Name', 'Last_Name'], {'Height': ['sum']}
     )   
 
-    print(mito.dfs[1])
     assert mito.dfs[1].equals(
         pd.DataFrame(data={
             'level_0': ['Height'],
@@ -103,7 +102,6 @@ def test_pivot_transpiles_pivot_mulitple_columns_non_strings_pre_1():
         0, [], ['First_Name', 'Last_Name'], {'Height': ['sum']}
     )   
 
-    print(mito.dfs[1])
     assert mito.dfs[1].equals(
         pd.DataFrame(data={
             'level_0': ['Height', 'Height'],
@@ -122,7 +120,6 @@ def test_pivot_transpiles_pivot_mulitple_columns_non_strings_post_1():
         0, [], ['First_Name', 'Last_Name'], {'Height': ['sum']}
     )   
 
-    print(mito.dfs[1])
     assert mito.dfs[1].equals(
         pd.DataFrame(data={
             'level_0': ['Height'],
