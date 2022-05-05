@@ -136,7 +136,7 @@ const Teams: NextPage = () => {
                 <div className={pageStyles.subsection + ' ' + teamsStyles.calendar_section + ' flex-row-desktop-only'}>
                     <CalendarDay> 
                         <h2>Mon</h2>
-                        <p> Searched StackOverflow for Python code to read in Excel file and pivot data. </p>
+                        <p> Searched Stack Overflow for Python code to read in Excel file and create pivot table. </p>
                     </CalendarDay>
                     <CalendarDay> 
                         <h2>Tues</h2>
