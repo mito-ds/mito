@@ -14,7 +14,7 @@ from mitosheet.utils import df_to_json_dumpsable
 # See comments in function description below.
 MAX_UNIQUE_VALUES = 1_000
 
-def get_unique_value_counts(event: Dict[str, Any], steps_manager: StepsManagerType) -> str:
+def get_unique_value_counts(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
     """
     Sends back a string that can be parsed to a JSON object that
     contains the normalized value counts for the series at column_id 
@@ -28,10 +28,10 @@ def get_unique_value_counts(event: Dict[str, Any], steps_manager: StepsManagerTy
     the case that there are more than MAX_UNIQUE_VALUES so we 
     don't crash the front-end with too much data.
     """
-    sheet_index = event['sheet_index']
-    column_id = event['column_id']
-    search_string = event['search_string']
-    sort = event['sort']
+    sheet_index = params['sheet_index']
+    column_id = params['column_id']
+    search_string = params['search_string']
+    sort = params['sort']
 
     column_header = steps_manager.curr_step.column_ids.get_column_header_by_id(sheet_index, column_id)
     

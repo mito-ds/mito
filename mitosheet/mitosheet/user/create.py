@@ -86,7 +86,7 @@ def initialize_user(call_identify: bool=True) -> None:
     # get upgraded on our infrastructure anyways
     mitosheet_current_version = get_user_field(UJ_MITOSHEET_CURRENT_VERSION)
     if mitosheet_current_version != __version__ and is_local_deployment():
-        from mitosheet.mito_analytics import log
+        from mitosheet.telemetry.telemetry_utils import log
         set_user_field(UJ_MITOSHEET_CURRENT_VERSION, __version__)
         set_user_field(UJ_MITOSHEET_LAST_UPGRADED_DATE, datetime.today().strftime('%Y-%m-%d'))
         # Log the upgrade. Note that this runs when the user _actually_ changes
@@ -113,5 +113,5 @@ def initialize_user(call_identify: bool=True) -> None:
     # Reidentify the user, just in case things have changed
     # but only if we were told to identify
     if call_identify:
-        from mitosheet.mito_analytics import identify
+        from mitosheet.telemetry.telemetry_utils import identify
         identify()

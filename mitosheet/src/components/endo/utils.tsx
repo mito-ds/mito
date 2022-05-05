@@ -1,5 +1,5 @@
 import React from "react";
-import { ColumnFilters, ColumnHeader, ColumnID, FormatTypeObj, GridState, SheetData } from "../../types";
+import { ColumnFilters, ColumnHeader, ColumnID, FormatTypeObj, GridState, SheetData, UIState } from "../../types";
 import { classNames } from "../../utils/classNames";
 import { isBoolDtype, isDatetimeDtype, isFloatDtype, isIntDtype, isTimedeltaDtype } from "../../utils/dtypes";
 import { getWidthData } from "./widthUtils";
@@ -53,7 +53,6 @@ export const getDefaultGridState = (sheetDataArray: SheetData[], selectedSheetIn
         // indexing into undefined variables across the codebase.
         widthDataArray: (sheetDataArray.length === 0) ? [getWidthData(undefined)] : sheetDataArray.map(sheetData => getWidthData(sheetData)),
         columnIDsArray: getColumnIDsArrayFromSheetDataArray(sheetDataArray),
-        searchString: ''
     }
 }
 
@@ -153,5 +152,19 @@ export const doesColumnExist = (columnID: ColumnID | undefined, sheetIndex: numb
 export const doesSheetContainData = (sheetIndex: number, sheetDataArray: SheetData[]): boolean => {
     const sheetData = sheetDataArray[sheetIndex]
     return sheetData !== undefined && sheetData.numRows > 0 && sheetData.numColumns > 0
+}
+
+/* 
+    Determines if a graphing tab is selected in the sheet
+*/
+export const getGraphIsSelected = (uiState: UIState): boolean => {
+    return uiState.selectedTabType === 'graph' && uiState.selectedGraphID !== undefined;
+}
+
+/* 
+    Determines if a data tab is selected in the sheet
+*/
+export const getDataframeIsSelected = (uiState: UIState, sheetDataArray: SheetData[]): boolean => {
+    return uiState.selectedTabType === 'data' && sheetDataArray.length !== 0;
 }
 

@@ -163,7 +163,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                 {props.tabIDObj.tabType === 'graph' &&
                     /* Put it inside a div so everything is spaced correctly */
                     <div>
-                        <GraphIcon variant={props.isSelectedTab ? 'light' : 'dark'}/>
+                        <GraphIcon variant={props.isSelectedTab ? 'light' : undefined}/>
                     </div>
                 }
                 {isRename && 

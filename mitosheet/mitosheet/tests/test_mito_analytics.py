@@ -8,7 +8,7 @@ Contains tests to make sure that the mito analytics test is
 performing correctly
 """
 
-from mitosheet.mito_analytics import PRINT_LOGS
+from mitosheet.telemetry.telemetry_utils import PRINT_LOGS
 
 
 def test_not_printing_logs():

@@ -1,6 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
+import { Action } from '../../types';
 import { classNames } from '../../utils/classNames';
 import { getToolbarItemIcon, ToolbarButtonType } from './utils';
 
@@ -20,19 +21,9 @@ const ToolbarButton = (
         toolbarButtonType: ToolbarButtonType;
 
         /** 
-        * @param buttonTitle - The text to display underneath the icon. 
+        * @param action - The action to run when the toolbar button is clicked
         */
-        buttonTitle: string;
-
-        /** 
-        * @param buttonSubtext - The text to display when you hover over the button for a moment, as an added description.
-        */
-        buttonSubtext: string;
-
-        /** 
-        * @param onClick - The function to be called when the toolbar item is clicked
-        */
-        onClick: () => void;
+        action: Action;
         
         /**
         * @param [highlightToolbarButton] - Used to draw attention to the toolbar item. Defaults to False. 
@@ -52,13 +43,12 @@ const ToolbarButton = (
     }): JSX.Element => {
 
     const highlightToobarItemClass = props.highlightToolbarButton === true ? 'toolbar-button-draw-attention' : ''
-    const icons = getToolbarItemIcon(props.toolbarButtonType);
 
     return (
         <div 
             className='toolbar-button-container' 
             id={props.id}
-            onClick={props.onClick}
+            onClick={props.action.actionFunction}
         >
             <button 
                 className={classNames('toolbar-button', 'vertical-align-content', highlightToobarItemClass)} 
@@ -71,17 +61,12 @@ const ToolbarButton = (
                     
                     If the icons have different heights, the text won't line up. 
                 */}
-                <span title={props.buttonSubtext}>
+                <span title={props.action.tooltip}>
                     <div className='toolbar-button-icon-container'>
-                        <div className='toolbar-button-icon-dark'>
-                            {icons.darkIcon}
-                        </div>
-                        <div className='toolbar-button-icon-light'>
-                            {icons.lightIcon}
-                        </div>
+                        {getToolbarItemIcon(props.toolbarButtonType)}
                     </div>
                     <p className='toolbar-button-label'> 
-                        {props.buttonTitle}
+                        {props.action.shortTitle}
                     </p>
                 </span>
             </button>

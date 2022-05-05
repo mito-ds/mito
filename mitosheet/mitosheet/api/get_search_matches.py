@@ -32,7 +32,7 @@ def get_search_cell_indexes(df: pd.DataFrame, search_string: str) -> List[Tuple[
     return cell_indexes
 
 
-def get_search_matches(event: Dict[str, Any], steps_manager: StepsManagerType) -> str:
+def get_search_matches(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
     """
     Returns the cell indexes of the cells / headers that match the passed
     search string, only searching at most 2k cells at once. Use pagination 
@@ -44,9 +44,9 @@ def get_search_matches(event: Dict[str, Any], steps_manager: StepsManagerType) -
     -   starting_row_index: number - where to actually start the search from, as
         this only searches 2k columns at once
     """
-    sheet_index = event['sheet_index']
-    search_string = event['search_string']
-    starting_row_index = event['starting_row_index']
+    sheet_index = params['sheet_index']
+    search_string = params['search_string']
+    starting_row_index = params['starting_row_index']
 
     df: pd.DataFrame = steps_manager.dfs[sheet_index]
     df = df.iloc[starting_row_index:].head(n=2000) # Take only 2k rows from the starting location

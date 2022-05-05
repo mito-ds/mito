@@ -11,6 +11,7 @@ import '../../css/sitewide/all-modals.css';
 import '../../css/sitewide/animations.css';
 import '../../css/sitewide/borders.css';
 import '../../css/sitewide/colors.css';
+import '../../css/sitewide/cursor.css';
 import '../../css/sitewide/element-sizes.css';
 import '../../css/sitewide/flexbox.css';
 import '../../css/sitewide/fonts.css';
@@ -51,7 +52,6 @@ import GraphSidebar from './taskpanes/Graph/GraphSidebar';
 import ImportTaskpane from './taskpanes/Import/ImportTaskpane';
 import MergeTaskpane from './taskpanes/Merge/MergeTaskpane';
 import PivotTaskpane from './taskpanes/PivotTable/PivotTaskpane';
-import SearchTaskpane from './taskpanes/Search/SearchTaskpane';
 import StepsTaskpane from './taskpanes/Steps/StepsTaskpane';
 import { EDITING_TASKPANES, TaskpaneType } from './taskpanes/taskpanes';
 import UpgradeToProTaskpane from './taskpanes/UpgradeToPro/UpgradeToProTaskpane';
@@ -85,6 +85,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const [analysisData, setAnalysisData] = useState<AnalysisData>(props.analysisData);
     const [userProfile, setUserProfile] = useState<UserProfile>(props.userProfile);
 
+
     // TODO: can we delete the above 3 props keys, so we cannot use them (as type checked by compiler)?
     // These props are always out of date, and we should only use the state variables.
 
@@ -102,6 +103,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         selectedSheetIndex: 0,
         selectedGraphID: Object.keys(props.analysisData.graphDataDict || {}).length === 0 ? undefined : Object.keys(props.analysisData.graphDataDict)[0],
         selectedTabType: 'data',
+        currOpenToolbarDropdown: undefined,
         displayFormatToolbarDropdown: false,
         exportConfiguration: {exportType: 'csv'}
     })
@@ -527,7 +529,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     <ControlPanelTaskpane 
                         // Set the columnHeader, sheet index as the key so that the taskpane updates when it is switched
                         // TODO: figure out why we need this, if the other variables update?
-                        key={'' + columnID + uiState.selectedSheetIndex} 
+                        key={'' + columnID + uiState.selectedSheetIndex + uiState.selectedColumnControlPanelTab} 
                         selectedSheetIndex={uiState.selectedSheetIndex}
                         sheetData={sheetDataArray[uiState.selectedSheetIndex]}
                         columnIDsMapArray={columnIDsMapArray}
@@ -631,17 +633,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     existingPivotParams={uiState.currOpenTaskpane.existingPivotParams}
                 />
             )
-            case TaskpaneType.SEARCH: return (
-                <SearchTaskpane
-                    mitoAPI={props.mitoAPI}
-                    sheetData={sheetDataArray[gridState.sheetIndex]}
-                    gridState={gridState}
-                    setGridState={setGridState}
-                    mitoContainerRef={mitoContainerRef}
-                    uiState={uiState}
-                    setUIState={setUIState}
-                />
-            )
             case TaskpaneType.STEPS: return (
                 <StepsTaskpane
                     stepSummaryList={analysisData.stepSummaryList}
@@ -669,6 +660,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         dfSources, 
         closeOpenEditingPopups, 
         setEditorState, 
+        uiState,
         setUIState, 
         setGridState,
         props.mitoAPI, 
@@ -746,6 +738,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     uiState={uiState}
                     setUIState={setUIState}
                     sheetData={sheetDataArray[uiState.selectedSheetIndex]}
+                    userProfile={userProfile}
                 />
                 <div className="mito-main-sheet-div" id="mito-main-sheet-div"> 
                     <div className={formulaBarAndSheetClassNames}>
@@ -759,6 +752,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             setGridState={setGridState}
                             editorState={editorState}
                             setEditorState={setEditorState}
+                            mitoContainerRef={mitoContainerRef}
                         />
                     </div>
                     {uiState.currOpenTaskpane.type !== TaskpaneType.NONE && 
