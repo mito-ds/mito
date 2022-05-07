@@ -1,11 +1,11 @@
 .toolbar-container {
   width: 100%;
-  height: 47px;
+  height:70px;
+  padding: 4px;
 
   /* We make the toolbar a flexbox, for the toolbar icons/actions */
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  flex-direction: column;
 
   background-color: var(--mito-light-blue);
 
@@ -13,9 +13,54 @@
   box-sizing: border-box; 
   -moz-box-sizing: border-box; /* Firefox */
   -webkit-box-sizing: border-box; /* Older Webkit browsers */
+
+  /* We use this for seperating sections in the toolbar*/
+  --toolbar-seperator-color: #D0D2DF;
 }
 
-.toolbar-left-half {
+.toolbar-top {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.toolbar-top-left {
+  display: flex;
+  flex-direction: row;
+}
+
+.toolbar-dropdown-selector {
+  margin-right: 5px;
+  padding: 2px 3px;
+  border-radius: 3px;
+  font-family: Roboto;
+}
+
+.toolbar-dropdown-selector-selected {
+  background: var(--mito-light-purple);
+}
+
+.toolbar-dropdown-selector:hover {
+  background: var(--mito-light-purple);
+}
+
+/* A line that seperates the top and bottom vertically */
+.toolbar-top-bottom-seperator {
+  width: 100%;
+  border-top: 1px solid var(--toolbar-seperator-color);
+  height: 100%;
+
+
+  margin-top: 1px; /* Beacuse this is a top border, we need margin on top */
+  padding-bottom: 4px;
+}
+
+.toolbar-bottom {
+  display: flex;
+  flex-direction: row;
+}
+
+.toolbar-bottom-left-half {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -26,7 +71,7 @@
   flex: 3; 
 }
 
-.toolbar-right-half {
+.toolbar-bottom-right-half {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
@@ -39,6 +84,10 @@
   max-width: 45px;
   min-width: max-content;
   width: 100%;
+
+  margin: 0px 1px;
+
+  border-radius: 3px;
 
   align-items: center;
   justify-content: center;
@@ -55,18 +104,15 @@
   flex-direction: column;
   justify-content: space-between;
 
-  padding-top: 9px;
-  padding-bottom: 6px;
   box-sizing: border-box;
-  height: 100%;
+  padding: 2px 0px;
+  margin: 0px;
   width: 100%;
   
   /* Put items in middle of div */ 
   align-items: center;
 
-  /* Make input blend in with formula bar */
   background-color: inherit;
-  border-radius: 0;
   border-style: none;
   outline: none;
 
@@ -77,45 +123,22 @@
 }
 
 .toolbar-button-container:hover {
-  background-color: var(--mito-purple);
-  color: var(--mito-white);
-}
-
-/* 
-  At rest, we show a dark icon in the toolbar. But when the 
-  toolbar item is hovered over, we change the background color
-  to purple and display a light color icon. This css swaps 
-  the visibility of the light and dark colored icons on hover.
-*/
-.toolbar-button-container .toolbar-button-icon-light {
-  display: none;
-}
-.toolbar-button-container:hover .toolbar-button-icon-dark {
-  display: none;
-}
-/* 
-  When we hover over the toolbar item, we set the 
-  light icon display to in-line block so it is visible. 
-  We don't need a similar class for the dark icon because
-  it is visible by default. The light icon starts as display none.
-*/
-.toolbar-button-container:hover .toolbar-button-icon-light {
-  display: inline-block;
+  background-color: var(--mito-light-purple);
 }
 
 .toolbar-button-icon-container {
-  height: 20px;
-  width: 30px;
   margin: auto;
 }
 
 .toolbar-button-label {
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .toolbar-vertical-line {
-  border-left: 1px solid var(--mito-white);
+  border-left: 1px solid var(--toolbar-seperator-color);
   height: 100%;
+  margin-right: 2px;
+  padding-right: 2px;
 }
 
 .toolbar-button-draw-attention {
@@ -124,4 +147,17 @@
   box-shadow: 0 0 0 0 rgba(0, 0, 0, 1);
 	transform: scale(1);
 	animation: pulse 2s infinite;
+}
+
+/* The button in the toolbar that lets the user upgrade or tells them they are pro */
+.plan-button {
+  border-radius: 3px;
+  background-color: var(--mito-purple);
+  font-size: 12px;
+  text-align: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  padding: 0px 5px;
+  color: var(--mito-white);
 }
