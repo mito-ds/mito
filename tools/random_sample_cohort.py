@@ -78,15 +78,21 @@ def main():
 
     # Construct the random sample of users, and build a dictonary
     random_sample = {HEADER_DISTINCT_ID: [], HEADER_COHORT: []}
+    total_missing_users = 0 
     for day, users_on_day in days_to_users_map.items():
-        random_set_of_user_ids_for_day = sample(users_on_day, RANDOM_SAMPLE_PER_DAY_SIZE)
+        if len(users_on_day) < RANDOM_SAMPLE_PER_DAY_SIZE:
+            print(f"{day} has only {len(users_on_day)}, taking all of them")
+            random_set_of_user_ids_for_day = users_on_day
+            total_missing_users += RANDOM_SAMPLE_PER_DAY_SIZE - len(users_on_day)
+        else:
+            random_set_of_user_ids_for_day = sample(users_on_day, RANDOM_SAMPLE_PER_DAY_SIZE)
         for id in random_set_of_user_ids_for_day:
             random_sample[HEADER_DISTINCT_ID].append(id)
             random_sample[HEADER_COHORT].append(cohort_name)
 
     # Check we selected the right number of users
-    assert len(set(random_sample[HEADER_DISTINCT_ID])) == RANDOM_SAMPLE_PER_DAY_SIZE * 28
-    assert len(random_sample[HEADER_COHORT]) == RANDOM_SAMPLE_PER_DAY_SIZE * 28
+    assert len(set(random_sample[HEADER_DISTINCT_ID])) == RANDOM_SAMPLE_PER_DAY_SIZE * 28 - total_missing_users
+    assert len(random_sample[HEADER_COHORT]) == RANDOM_SAMPLE_PER_DAY_SIZE * 28 - total_missing_users
 
     # Then, write this to the output
     final_cohort = pd.DataFrame(random_sample)
