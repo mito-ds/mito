@@ -7,6 +7,7 @@ import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import { ModalEnum } from '../modals/modals';
 import { getDefaultGraphParams } from '../taskpanes/Graph/graphUtils';
+import { TaskpaneType } from '../taskpanes/taskpanes';
 
 /*
     Helper function for finding all of the graph tab names
@@ -109,6 +110,16 @@ export default function SheetTabActions(props: {
         );
     }
 
+    const openDownloadTaskpane = async (): Promise<void> => {
+        props.setUIState(prevUIState => {
+            return {
+                ...prevUIState,
+                currOpenTaskpane: {type: TaskpaneType.DOWNLOAD},
+                currOpenModal: {type: ModalEnum.None},
+            }
+        })
+    }
+
     return (
         <Dropdown
             closeDropdown={() => props.setDisplayActions(false)}
@@ -123,6 +134,10 @@ export default function SheetTabActions(props: {
                     e?.stopPropagation()
                     void graphData()
                 }}
+            />
+            <DropdownItem 
+                title='Download'
+                onClick={openDownloadTaskpane}
             />
             <DropdownItem 
                 title='Delete'
