@@ -32,7 +32,7 @@ export default function ColumnHeaderDropdown(props: {
             <DropdownItem 
                 title='Delete Column'
                 onClick={() => {
-                    props.mitoAPI.editDeleteColumn(props.sheetIndex, [props.columnID]);
+                    void props.mitoAPI.editDeleteColumn(props.sheetIndex, [props.columnID]);
                 }}
             />
             <DropdownItem 
