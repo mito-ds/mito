@@ -54,7 +54,7 @@ const ColumnHeader = (props: {
     mitoAPI: MitoAPI;
 }): JSX.Element => {
 
-    const [showDropdown, setShowDropdown] = useState(false);
+    const [openColumnHeaderDropdown, setOpenColumnHeaderDropdown] = useState(false);
 
     const selected = getIsCellSelected(props.gridState.selections, -1, props.columnIndex);
     const width = props.gridState.widthDataArray[props.gridState.sheetIndex].widthArray[props.columnIndex];
@@ -132,7 +132,7 @@ const ColumnHeader = (props: {
             draggable={!editingColumnHeader ? 'true' : 'false'}
             onContextMenu={(e) => {
                 e.preventDefault()
-                setShowDropdown(true);
+                setOpenColumnHeaderDropdown(true);
             }}
         >
             {lowerLevelColumnHeaders.map((lowerLevelColumnHeader, levelIndex) => {
@@ -360,10 +360,10 @@ const ColumnHeader = (props: {
                     </form>
                 }
             </div>
-            {showDropdown && 
+            {openColumnHeaderDropdown && 
                 <ColumnHeaderDropdown
                     mitoAPI={props.mitoAPI}
-                    setDisplayDropdown={setShowDropdown}
+                    setOpenColumnHeaderDropdown={setOpenColumnHeaderDropdown}
                     setUIState={props.setUIState}
                     openColumnHeaderEditor={openColumnHeaderEditor}
                     sheetIndex={props.gridState.sheetIndex}

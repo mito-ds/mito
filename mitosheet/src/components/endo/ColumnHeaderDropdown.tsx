@@ -6,6 +6,7 @@ import { ColumnID, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
+import { ControlPanelTab } from '../taskpanes/ControlPanel/ControlPanelTaskpane';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 
 /*
@@ -47,7 +48,8 @@ export default function ColumnHeaderDropdown(props: {
                     props.setUIState(prevUIState => {
                         return {
                             ...prevUIState,
-                            currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL}
+                            currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
+                            selectedColumnControlPanelTab: ControlPanelTab.FilterSort
                         }
                     })
                 }}
@@ -59,7 +61,8 @@ export default function ColumnHeaderDropdown(props: {
                     props.setUIState(prevUIState => {
                         return {
                             ...prevUIState,
-                            currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL}
+                            currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
+                            selectedColumnControlPanelTab: ControlPanelTab.FilterSort
                         }
                     })
                 }}
@@ -70,12 +73,41 @@ export default function ColumnHeaderDropdown(props: {
                     props.setUIState(prevUIState => {
                         return {
                             ...prevUIState,
-                            currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL}
+                            currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
+                            selectedColumnControlPanelTab: ControlPanelTab.FilterSort
                         }
                     })
                 }}
             />
-            
+            <DropdownSectionSeperator isDropdownSectionSeperator/>
+            <DropdownItem 
+                title='View Unique Values'
+                onClick={() => {
+                    props.setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            currOpenTaskpane: {
+                                type: TaskpaneType.CONTROL_PANEL,
+                            },
+                            selectedColumnControlPanelTab: ControlPanelTab.UniqueValues
+                        }
+                    })
+                }}
+            />
+            <DropdownItem 
+                title='View Summary Stats'
+                onClick={() => {
+                    props.setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            currOpenTaskpane: {
+                                type: TaskpaneType.CONTROL_PANEL,
+                            },
+                            selectedColumnControlPanelTab: ControlPanelTab.SummaryStats
+                        }
+                    })
+                }}
+            />
         </Dropdown>
     )
 }
