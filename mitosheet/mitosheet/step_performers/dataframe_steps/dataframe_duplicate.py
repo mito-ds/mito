@@ -12,6 +12,7 @@ from mitosheet.column_headers import get_column_header_id
 
 from mitosheet.state import DATAFRAME_SOURCE_DUPLICATED, State
 from mitosheet.step_performers.step_performer import StepPerformer
+from mitosheet.step_performers.utils import get_param
 from mitosheet.utils import get_first_unused_dataframe_name
 
 
@@ -33,12 +34,9 @@ class DataframeDuplicateStepPerformer(StepPerformer):
         return params
 
     @classmethod
-    def execute( # type: ignore
-        cls,
-        prev_state: State,
-        sheet_index: int,
-        **params
-    ) -> Tuple[State, Optional[Dict[str, Any]]]:
+    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+        sheet_index: int = get_param(params, 'sheet_index')
+
         post_state = prev_state.copy()
 
         # Execute the step

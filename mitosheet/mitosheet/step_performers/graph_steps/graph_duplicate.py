@@ -11,6 +11,7 @@ from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
+from mitosheet.step_performers.utils import get_param
 from mitosheet.types import GraphID
 
 
@@ -32,13 +33,10 @@ class GraphDuplicateStepPerformer(StepPerformer):
         return params
 
     @classmethod
-    def execute( # type: ignore
-        cls,
-        prev_state: State,
-        old_graph_id: GraphID,
-        new_graph_id: GraphID,
-        **params
-    ) -> Tuple[State, Optional[Dict[str, Any]]]:
+    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+        old_graph_id: GraphID = get_param(params, 'old_graph_id')
+        new_graph_id: GraphID = get_param(params, 'new_graph_id')
+
         post_state = prev_state.copy()
 
         # Execute the step

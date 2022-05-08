@@ -9,6 +9,7 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
+from mitosheet.step_performers.utils import get_param
 from mitosheet.types import ColumnID
 
 class ChangeColumnFormatStepPerformer(StepPerformer):
@@ -29,14 +30,10 @@ class ChangeColumnFormatStepPerformer(StepPerformer):
         return params
 
     @classmethod
-    def execute( # type: ignore
-        cls,
-        prev_state: State,
-        sheet_index: int,
-        column_ids: List[ColumnID],
-        format_type: Dict[str, Any],
-        **params
-    ) -> Tuple[State, Optional[Dict[str, Any]]]:
+    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+        sheet_index: int = get_param(params, 'sheet_index')
+        column_ids: List[ColumnID] = get_param(params, 'column_ids')
+        format_type: Dict[str, Any] = get_param(params, 'format_type')
 
         # Make a post state, that is a deep copy
         post_state = prev_state.copy()
