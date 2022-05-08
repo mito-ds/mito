@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FilterIcon } from '../icons/FilterIcons';
 import '../../../css/endo/ColumnHeaders.css';
 import { DEFAULT_BORDER_STYLE, getBorderStyle, getIsCellSelected } from './selectionUtils';
@@ -13,6 +13,7 @@ import { getColumnHeaderParts, getDisplayColumnHeader } from '../../utils/column
 import { DEFAULT_HEIGHT } from './EndoGrid';
 import { ControlPanelTab } from '../taskpanes/ControlPanel/ControlPanelTaskpane'
 import { submitRenameColumnHeader } from './columnHeaderUtils';
+import ColumnHeaderDropdown from './ColumnHeaderDropdown';
 
 
 /* 
@@ -53,6 +54,8 @@ const ColumnHeader = (props: {
     mitoAPI: MitoAPI;
 }): JSX.Element => {
 
+    const [showDropdown, setShowDropdown] = useState(false);
+
     const selected = getIsCellSelected(props.gridState.selections, -1, props.columnIndex);
     const width = props.gridState.widthDataArray[props.gridState.sheetIndex].widthArray[props.columnIndex];
     const { columnID, columnFilters, columnHeader, columnDtype } = getCellDataFromCellIndexes(props.sheetData, -1, props.columnIndex);
@@ -66,16 +69,26 @@ const ColumnHeader = (props: {
     const editingFinalColumnHeader = props.editorState !== undefined && props.editorState.editorLocation === 'cell' && props.editorState.rowIndex === -1 && props.editorState.columnIndex === props.columnIndex;
 
 
+    // Get the pieces of the column header. If the column header is not a MultiIndex header, then
+    // lowerLevelColumnHeaders will be an empty array
+    const { lowerLevelColumnHeaders, finalColumnHeader } = getColumnHeaderParts(columnHeader);
+    const borderStyle = getBorderStyle(props.gridState.selections, -1, props.columnIndex, props.sheetData.numRows);
+
+
+    const openColumnHeaderEditor = () => {
+        props.setEditorState({
+            rowIndex: -1,
+            columnIndex: props.columnIndex,
+            formula: getDisplayColumnHeader(finalColumnHeader),
+            editorLocation: 'cell'
+        })
+    }
+
     const closeColumnHeaderEditor = () => {
         props.setEditorState(undefined);
         // We then focus on the grid, as we are no longer focused on the editor
         setTimeout(() => focusGrid(props.containerRef.current), 100);
     }
-
-    // Get the pieces of the column header. If the column header is not a MultiIndex header, then
-    // lowerLevelColumnHeaders will be an empty array
-    const { lowerLevelColumnHeaders, finalColumnHeader } = getColumnHeaderParts(columnHeader);
-    const borderStyle = getBorderStyle(props.gridState.selections, -1, props.columnIndex, props.sheetData.numRows);
 
     const ColumnHeaderResizer = (
         <div
@@ -117,9 +130,9 @@ const ColumnHeader = (props: {
             // so that you can click within the input to move around. This is a FF bug
             // see here: https://newbedev.com/prevent-drag-event-to-interfere-with-input-elements-in-firefox-using-html5-drag-drop
             draggable={!editingColumnHeader ? 'true' : 'false'}
-            onContextMenu={() => {
-                // We also log if the user tries to right click on the column header
-                void props.mitoAPI.log('right_clicked_on_column_header');
+            onContextMenu={(e) => {
+                e.preventDefault()
+                setShowDropdown(true);
             }}
         >
             {lowerLevelColumnHeaders.map((lowerLevelColumnHeader, levelIndex) => {
@@ -347,6 +360,16 @@ const ColumnHeader = (props: {
                     </form>
                 }
             </div>
+            {showDropdown && 
+                <ColumnHeaderDropdown
+                    mitoAPI={props.mitoAPI}
+                    setDisplayDropdown={setShowDropdown}
+                    setUIState={props.setUIState}
+                    openColumnHeaderEditor={openColumnHeaderEditor}
+                    sheetIndex={props.gridState.sheetIndex}
+                    columnID={columnID}
+                />
+            }
         </div>
     )
 }
