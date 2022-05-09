@@ -4,6 +4,12 @@ description: Want to see what is new in the Mitosheet? Check it out below.
 
 # Release Notes
 
+## 2022-5-9 <a href="#2022-4-21" id="2022-4-21"></a>
+
+Bug fixes:
+
+* Fix a bug where not code was written and graphs were not generated under certain URL conditions.
+
 ## 2022-5-5 <a href="#2022-4-21" id="2022-4-21"></a>
 
 Bug fixes:
