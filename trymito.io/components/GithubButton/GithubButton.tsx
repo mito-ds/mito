@@ -2,9 +2,9 @@ import Image from 'next/image'
 import { useState } from 'react'
 import stylesGithubButton from './GithubButton.module.css'
 
-type GithubButtonVariant = 'Star' | 'Discussion'
+type GithubButtonVariant = 'Star' | 'Issue'
 export const MITO_GITHUB_LINK = 'https://github.com/mito-ds/monorepo'
-export const MTIO_GITHUB_DISCUSSION_LINK = 'https://github.com/mito-ds/monorepo/discussions'
+export const MTIO_GITHUB_DISCUSSION_LINK = 'https://github.com/mito-ds/monorepo/issues'
 
 const GithubButton = (props: {variant: GithubButtonVariant, text: string}): JSX.Element => {
 
