@@ -26,7 +26,8 @@ import { notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, note
  * isInJupyterLab MUST return true. We check a variety of these conditions
  * to see if this works (including in cases when mito is remote). 
  * 
- * If you change this code, MAKE SURE TO TEST IT WITH REMOTE SERVERS!
+ * If you change this code, make sure to test it with remove servers that 
+ * have non-standard URL schemes.
  */
 
 export const isInJupyterLab = (): boolean => {
