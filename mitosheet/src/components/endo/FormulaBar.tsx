@@ -37,14 +37,19 @@ const FormulaBar = (props: {
     const cellEditingCellData = props.editorState === undefined ? undefined : getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
     const formulaBarColumnHeader = props.editorState === undefined ? columnHeader : cellEditingCellData?.columnHeader;
 
-    // If the formula bar is a cell, display the cell value. If it is a column header, display the column header
     let formulaBarValue = '' 
-    if (rowIndex == -1 && columnHeader !== undefined) {
-        formulaBarValue = getDisplayColumnHeader(columnHeader)
+    if (props.editorState === undefined) {
+        // If the formula bar is a cell, display the cell value. If it is a column header, display the column header
+        if (rowIndex == -1 && columnHeader !== undefined) {
+            formulaBarValue = getDisplayColumnHeader(columnHeader)
+        } else {
+            formulaBarValue = originalFormulaBarValue;
+        }
     } else {
-        formulaBarValue = props.editorState === undefined ? originalFormulaBarValue : getFullFormula(props.editorState.formula, formulaBarColumnHeader || '', props.editorState.pendingSelectedColumns);
+        // If we're editing, display the formula
+        formulaBarValue = getFullFormula(props.editorState.formula, formulaBarColumnHeader || '', props.editorState.pendingSelectedColumns);
     }
-    
+
     const currentSheetView = calculateCurrentSheetView(props.gridState);
 
     return(
