@@ -1,0 +1,31 @@
+.calendar_day_card {
+    background-color: var(--color-light-background);
+    padding: 1rem;
+    text-align: center;
+
+    max-width: 275px;
+    flex-basis: 1;
+}
+
+.calendar_day_card > h2 {
+    color: var(--color-text-secondary);
+    margin-top: 1.5rem;
+}
+
+.calendar_day_card > p {
+    margin-top: .5rem;
+    margin-bottom: 1.5rem;
+}
+
+@media only screen and (min-width: 50em) {
+    .calendar_day_card {
+        border-radius: 10px;
+    }
+
+    /* When the cards are dispalyed in a row, overwrite the default left-margin */
+    .calendar_day_card + .calendar_day_card {
+        margin-left: 1rem;
+    }
+
+}
+

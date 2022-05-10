@@ -9,14 +9,14 @@ import pageStyles from '../styles/Page.module.css'
 import titleStyles from '../styles/Title.module.css'
 
 // Import Icons & Background Grid
-import ComputerIcon from '../public/security/ComputerIcon.svg'
-import OpenSourceIcon from '../public/security/OpenSourceIcon.svg'
-import TelemetryIcon from '../public/security/TelemetryIcon.svg'
-import CCPAIcon from '../public/security/CCPAIcon.svg'
-import UpgradesIcon from '../public/security/UpgradesIcon.svg'
-import SecurityIcon from '../public/security/SecurityIcon.svg'
-import CTACard from '../components/CTACard/CTACard';
+import ComputerIcon from '../public/icon-squares/ComputerIcon.svg'
+import OpenSourceIcon from '../public/icon-squares/OpenSourceIcon.svg'
+import TelemetryIcon from '../public/icon-squares/TelemetryIcon.svg'
+import CCPAIcon from '../public/icon-squares/CCPAIcon.svg'
+import UpgradesIcon from '../public/icon-squares/UpgradesIcon.svg'
+import SecurityIcon from '../public/icon-squares/SecurityIcon.svg'
 import { MITO_GITHUB_LINK } from '../components/GithubButton/GithubButton';
+import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 
 const Security: NextPage = () => {
 
@@ -131,7 +131,7 @@ const Security: NextPage = () => {
           </section>
 
           <section className={pageStyles.background_card}>
-            <CTACard />
+            <DownloadCTACard />
           </section>
         </main>
         <Footer />

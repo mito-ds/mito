@@ -26,7 +26,7 @@
 }
 
 /* 
-  Import Graphik Font
+  Import Graphik font
 */
 
 @font-face {
@@ -128,6 +128,13 @@ h1 {
   font-style: semibold;
 }
 
+h2 {
+  color: var(--color-text-primary);
+  font-size: 3rem;
+  font-family: Graphik;
+  font-style: semibold;
+}
+
 p, a {
   font-size: 2rem;
   line-height: 1.5;
@@ -167,6 +174,10 @@ a {
   flex-direction: column;
 }
 
+.margin-top-3rem-mobile-only {
+  margin-top: 3rem;
+}
+
 @media only screen and (min-width: 50em) {
   html,body {
     font-size: 16px;
@@ -174,6 +185,10 @@ a {
 
   h1 {
     font-size: 3rem;
+  }
+
+  h2 {
+    font-size: 2.5rem;
   }
 
   p, a {
@@ -200,6 +215,15 @@ a {
   .display-mobile-only,
   .display-mobile-only-block {
     display: none !important;
+  }
+
+  .flex-row-desktop-only {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .margin-top-3rem-mobile-only {
+    margin-top: 0px;
   }
 
 }
@@ -246,4 +270,27 @@ a {
   color: var(--color-twitter-blue)
 }
 
+/* 
+  Margins
+*/
+
+.margin-top-2rem {
+  margin-top: 2rem;
+}
+
+.margin-top-3rem {
+  margin-top: 3rem;
+}
+
+.margin-top-4rem {
+  margin-top: 4rem;
+}
+
+.margin-bottom-2rem {
+  margin-bottom: 2rem;
+}
+
+.margin-bottom-3rem {
+  margin-bottom: 3rem;
+}
 

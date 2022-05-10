@@ -1,4 +1,22 @@
-import { isInJupyterLab } from "../jupyter/jupyterUtils";
+
+const loadPlotlyWithScriptElement = () => {
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://cdn.plot.ly/plotly-latest.min.js';
+    document.head.appendChild(script);
+}
+
+const loadPlotlyWithRequireJS = () => {
+    const requirejs = (window as any).requirejs;
+    if (requirejs) {
+        requirejs(['https://cdn.plot.ly/plotly-latest.min.js'],
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            function   (p: any) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (window as any).Plotly = p
+            });
+    }
+}
 
 /**
  * This is the function that makes sure that Plotly is loaded in a global
@@ -20,30 +38,15 @@ import { isInJupyterLab } from "../jupyter/jupyterUtils";
  */
 const loadPlotly = (): void => {
     if (!('Plotly' in window)) {
-        if (isInJupyterLab()) {
-            const script = document.createElement('script');
-            script.async = true;
-            script.src = 'https://cdn.plot.ly/plotly-latest.min.js';
-
-            document.head.appendChild(script);
+        const requirejs = (window as any).requirejs;
+        if (requirejs) {
+            // if there is any requirejs, we load using it
+            loadPlotlyWithRequireJS();
         } else {
-            // TODO: in the future, we should just check if we're an AMD context, which
-            // I am sure there is easy code for
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const requirejs = (window as any).requirejs;
-            if (requirejs) {
-                requirejs(['https://cdn.plot.ly/plotly-latest.min.js'],
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    function   (p: any) {
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        (window as any).Plotly = p
-                    });
-            }
-        }
-
-        
+            // otherwise, we load using a script element
+            loadPlotlyWithScriptElement();
+        }    
     }
-   
 }
 
 export default loadPlotly;

@@ -64,6 +64,10 @@
         justify-content: space-evenly;
         width: 90vw;
     }
+
+    .subsection_column {
+        flex-direction: column;
+    }
       
     .subsection > * {
         width: 100%;
