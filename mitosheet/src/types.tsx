@@ -407,6 +407,7 @@ export interface ScrollPosition {
  * @param formula - The current formula. This might not be what is displayed to the user, if they have pendingSelectedColumns
  * @param pendingSelectedColumns - A list of columns that the user has selected through the arrow keys or clicking on columns. Also stores _where_ in the formula these columns should be inserted
  * @param arrowKeysScrollInFormula - The user can click on the editor to make the arrow keys scroll in the editor rather than in the sheet
+ * @param editorLocation -- The location of the cell editor, either a cell or formula bar
  */
 export type EditorState = {
     rowIndex: number;
@@ -424,6 +425,7 @@ export type EditorState = {
         types something. 
     */
     arrowKeysScrollInFormula?: boolean;
+    editorLocation: 'cell' | 'formula bar'
 };
 
 /**
@@ -596,6 +598,8 @@ export interface MitoStateUpdaters {
 export interface CSVExportState { exportType: 'csv' }
 export interface ExcelExportState { exportType: 'excel', sheetIndexes: number[] }
 
+export type ToolbarDropdowns = 'Edit' | 'Dataframes' | 'Columns' | 'Graphs' | 'View' | 'Help'
+
 /**
  * State of the UI, all in one place for ease.
  */
@@ -612,6 +616,7 @@ export interface UIState {
     selectedSheetIndex: number;
     selectedGraphID: GraphID | undefined;
     selectedTabType: 'data' | 'graph';
+    currOpenToolbarDropdown: undefined | ToolbarDropdowns;
     displayFormatToolbarDropdown: boolean;
 }
 
@@ -641,13 +646,16 @@ export const enum FeedbackID {
 */
 export enum ActionEnum {
     Add_Column = 'add column',
+    Catch_Up = 'catch up',
     Clear = 'clear',
     Change_Dtype = 'change dtype',
     Column_Summary = 'column summary',
     Delete_Column = 'delete column',
-    Delete_Sheet = 'delete sheet',
+    Delete_Dataframe = 'delete dataframe',
+    Delete_Graph = 'delete graph',
     Drop_Duplicates = 'drop duplicates',
-    Duplicate_Sheet = 'duplicate sheet',
+    Duplicate_Dataframe = 'duplicate dataframe',
+    Duplicate_Graph = 'duplicate graph',
     Docs = 'docs',
     Export = 'export',
     Filter = 'filter',
@@ -657,11 +665,12 @@ export enum ActionEnum {
     Help = 'help',
     Import = 'import',
     Merge = 'merge',
-    Concat_Sheets = 'concat_sheets', // Note the unfortunate overlap with concat
+    Concat_Dataframes = 'concat_dataframes', // Note the unfortunate overlap with concat
     Pivot = 'pivot',
     Redo = 'redo',
     Rename_Column = 'rename column',
-    Rename_Sheet = 'rename sheet',
+    Rename_Dataframe = 'rename dataframe',
+    Rename_Graph = 'rename graph',
     See_All_Functionality = 'see all functionality',
     //Search = 'search',
     Set_Cell_Value = 'set cell value',
@@ -738,7 +747,7 @@ export interface Action {
     shortTitle: string
 
     // The optional long title for the action.
-    longTitle?: string
+    longTitle: string
 
     /* 
         The function to call if the action is taken by the user. This should

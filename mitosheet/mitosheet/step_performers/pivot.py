@@ -13,7 +13,7 @@ from mitosheet.code_chunks.step_performers.pivot_code_chunk import PivotCodeChun
 from mitosheet.column_headers import flatten_column_header
 from mitosheet.errors import (make_invalid_aggregation_error,
                               make_invalid_pivot_error, make_no_column_error)
-from mitosheet.mito_analytics import log
+from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.state import DATAFRAME_SOURCE_PIVOTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from pandas.core.base import DataError

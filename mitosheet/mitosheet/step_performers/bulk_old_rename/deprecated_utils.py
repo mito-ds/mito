@@ -12,7 +12,7 @@ THAT CANNOT CHANGE AND SO SHOULD NEVER BE CHANGED.
 import numbers
 import re
 from typing import Any, Callable, Dict, List
-from mitosheet.mito_analytics import log
+from mitosheet.telemetry.telemetry_utils import log
 
 import pandas as pd
 

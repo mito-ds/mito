@@ -64,12 +64,6 @@ interface DropdownProps {
         * @param [width] - The width of the dropdown that gets created
      */
     width?: 'small' | 'medium' | 'large';
-
-    /**
-     * @param [selectedIndexState] - Pass the selectedIndex and setSelectedIndex if you want a 
-     * parent component of the Dropdown to handle the selectedIndex state
-     */
-    selectedIndexState?: {selectedIndex: number, setSelectedIndex: React.Dispatch<React.SetStateAction<number>>}
 }
 
 // Where to place the dropdown
@@ -157,7 +151,7 @@ export const handleKeyboardInDropdown = (
         // After a little timeout (e.g. the above executes), we scroll
         // to make sure that this newly selected element is visible
         setTimeout(() => {
-            const dropdownDiv = document.querySelector('.mito-dropdown') as HTMLDivElement | null;
+            const dropdownDiv = document.querySelector('.mito-dropdown-items-container') as HTMLDivElement | null;
             const selectedItemDiv = document.querySelector('.mito-dropdown-item-selected') as HTMLDivElement | null;
             if (dropdownDiv !== null && selectedItemDiv !== null) {
                 ensureInView(dropdownDiv, selectedItemDiv, 50);
@@ -194,9 +188,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
     
     const [searchString, setSearchString] = useState('');
     // If the selected index is -1, then nothing is selected
-    const [newSelectedIndex, newSetSelectedIndex] = useState(-1);
-    const selectedIndex = props.selectedIndexState == undefined ? newSelectedIndex : props.selectedIndexState.selectedIndex
-    const setSelectedIndex = props.selectedIndexState == undefined ? newSetSelectedIndex : props.selectedIndexState?.setSelectedIndex
+    const [selectedIndex, setSelectedIndex] = useState(-1);
     
     /* Close the dropdown anytime anyone clicks anywhere unless they click on:
         1. the dropdown's search field
@@ -361,8 +353,18 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
     
     let found = 0; // keep track of how many matching items we found to the search
     const childrenToDisplay = React.Children.map(props.children, (child) => {
+        // First, we check to see if this is a seperator, and include it in
+        // the final children without counting it if so
+        // TODO:
+        // 1. a separator should never be the first element in the dropdown
+        // 2. a separtor should never be the last element in the dropdown
+        // 3. there should never be consecutive separators
+        if (child.props.isDropdownSectionSeperator) {
+            return child;
+        }
+
         const title: string | undefined = child.props.title;
-        const inSearch = title !== undefined && fuzzyMatch(title,searchString.toLowerCase()) > .8;
+        const inSearch = title !== undefined && fuzzyMatch(title, searchString.toLowerCase()) > .8;
 
         if (inSearch) {
             // If the element is selected, then add the selected class to it

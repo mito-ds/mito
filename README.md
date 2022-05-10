@@ -1,5 +1,7 @@
 # ![Mito Logo](https://www.trymito.io/_next/image?url=%2FMito.svg&w=128&q=75) Mito Monorepo 
 
+[![Deploy mitosheet and mitoinstaller](https://github.com/mito-ds/monorepo/actions/workflows/deploy-mitosheet-mitoinstaller.yml/badge.svg)](https://github.com/mito-ds/monorepo/actions/workflows/deploy-mitosheet-mitoinstaller.yml) ![PyPI - Downloads](https://img.shields.io/pypi/dm/mitosheet)
+
 Mito is a spreadsheet that lives inside your JupyterLab notebooks. It allows you to edit Pandas dataframes like an Excel file, and generates Python code that corresponds to each of your edits. 
 
 <p align="center">

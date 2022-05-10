@@ -8,7 +8,7 @@ Changes a specific field in the user.json file
 """
 
 from typing import Any
-from mitosheet.mito_analytics import identify
+from mitosheet.telemetry.telemetry_utils import identify
 from mitosheet.types import StepsManagerType
 from mitosheet.user import set_user_field
 

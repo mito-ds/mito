@@ -20,6 +20,13 @@ interface DropdownItemProps {
     title: string;
 
     /** 
+        * @param [tooltip] - Optional tooltips to display (if you don't want subtext). NOTE: if this is passed
+        * then the title will not be displayed as a tooltip (and so overflowing text will be invisible in this
+        * case).
+    */
+    tooltip?: string;
+
+    /** 
         * @param [subtext] - Additional text to display in the DropdownItem
     */
     subtext?: string;
@@ -71,6 +78,7 @@ const DropdownItem = (props: DropdownItemProps): JSX.Element => {
         <div 
             className={classNames('mito-dropdown-item', {[DROPDOWN_IGNORE_CLICK_CLASS]: disabled}, props.className)}
             onClick={!disabled ? props.onClick : undefined} 
+            title={props.tooltip}
         > 
             <div className={classNames('mito-dropdown-item-icon-and-title-container')}>
                 
@@ -81,8 +89,8 @@ const DropdownItem = (props: DropdownItemProps): JSX.Element => {
                     Wrap in a span so that hovering over the HTML element shows the entire 
                     title, in case it is cut off
                 */}
-                <span title={props.title}>
-                    <p className={classNames('text-body-2', 'text-overflow-hide', {'mito-dropdown-item-title-disabled': disabled})}>
+                <span title={props.tooltip || props.title}>
+                    <p className={classNames('text-body-2', 'text-overflow-hide', 'cursor-default', {'mito-dropdown-item-title-disabled': disabled})}>
                         {props.title}
                     </p>
                 </span>
