@@ -48,10 +48,6 @@
     visibility: hidden;
 }
 
-.mito-grid-cell-searched {
-    background-color: rgba(153, 102, 255, 0.2);
-}
-
 .right-align-number-series {
     /* Right align number series */
     text-align: right;

@@ -10,6 +10,7 @@ from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
+from mitosheet.step_performers.utils import get_param
 from mitosheet.types import GraphID
 
 
@@ -34,14 +35,11 @@ class GraphRenameStepPerformer(StepPerformer):
         return params
 
     @classmethod
-    def execute( # type: ignore
-        cls,
-        prev_state: State,
-        graph_id: GraphID,
-        old_graph_tab_name: str,
-        new_graph_tab_name: str,
-        **params
-    ) -> Tuple[State, Optional[Dict[str, Any]]]:
+    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+        graph_id: GraphID = get_param(params, 'graph_id')
+        old_graph_tab_name: str = get_param(params, 'old_graph_tab_name')
+        new_graph_tab_name: str = get_param(params, 'new_graph_tab_name')
+
         # Bail early, if there is no change or the new name is empty
         if old_graph_tab_name == new_graph_tab_name or new_graph_tab_name == '' :
             return prev_state, None

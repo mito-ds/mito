@@ -53,7 +53,6 @@ export const getDefaultGridState = (sheetDataArray: SheetData[], selectedSheetIn
         // indexing into undefined variables across the codebase.
         widthDataArray: (sheetDataArray.length === 0) ? [getWidthData(undefined)] : sheetDataArray.map(sheetData => getWidthData(sheetData)),
         columnIDsArray: getColumnIDsArrayFromSheetDataArray(sheetDataArray),
-        searchString: ''
     }
 }
 

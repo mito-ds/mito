@@ -471,7 +471,6 @@ export interface GridState {
     selections: MitoSelection[];
     columnIDsArray: ColumnID[][];
     widthDataArray: WidthData[];
-    searchString: string;
 }
 
 /**

@@ -163,7 +163,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                 />
             </div>
             <div className='file-browser-element-list'>
-                {elementsToDisplay?.map((element, i) => {
+                {!props.importState.loadingFolder && elementsToDisplay?.map((element, i) => {
                     return (
                         <FileBrowserElement
                             key={i}
@@ -178,6 +178,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                         />
                     )
                 })}
+                {props.importState.loadingFolder && <p>Loading folder contents...</p>}
             </div>
         </div>
     )

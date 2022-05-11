@@ -13,6 +13,7 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.concat_code_chunk import ConcatCodeChunk
 from mitosheet.state import DATAFRAME_SOURCE_CONCAT, State
 from mitosheet.step_performers.step_performer import StepPerformer
+from mitosheet.step_performers.utils import get_param
 
 
 class ConcatStepPerformer(StepPerformer):
@@ -33,14 +34,11 @@ class ConcatStepPerformer(StepPerformer):
         return params
 
     @classmethod
-    def execute( # type: ignore
-        cls,
-        prev_state: State,
-        join: str, # inner | outter
-        ignore_index: bool,
-        sheet_indexes: List[int],
-        **params
-    ) -> Tuple[State, Optional[Dict[str, Any]]]:
+    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+
+        join = get_param(params, 'join') # inner | outter
+        ignore_index = get_param(params, 'ignore_index') # inner | outter
+        sheet_indexes = get_param(params, 'sheet_indexes') # inner | outter
 
         post_state = prev_state.copy()
 

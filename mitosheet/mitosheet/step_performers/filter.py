@@ -13,6 +13,7 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.state import State
+from mitosheet.step_performers.utils import get_param
 from mitosheet.types import ColumnHeader, ColumnID
 
 # The constants used in the filter step itself as filter conditions
@@ -81,15 +82,11 @@ class FilterStepPerformer(StepPerformer):
         return params
 
     @classmethod
-    def execute(  # type: ignore
-        cls,
-        prev_state: State,
-        sheet_index: int,
-        column_id: ColumnID,
-        operator: str,
-        filters,
-        **params,
-    ) -> Tuple[State, Optional[Dict[str, Any]]]:
+    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+        sheet_index: int = get_param(params, 'sheet_index')
+        column_id: ColumnID = get_param(params, 'column_id')
+        operator: str = get_param(params, 'operator')
+        filters: Any = get_param(params, 'filters')
 
         # Get the correct column_header
         column_header = prev_state.column_ids.get_column_header_by_id(

@@ -19,6 +19,7 @@ from mitosheet.sheet_functions import FUNCTIONS
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.evaluation_graph_utils import (create_column_evaluation_graph, creates_circularity, topological_sort_dependent_columns)
+from mitosheet.step_performers.utils import get_param
 from mitosheet.types import ColumnHeader, ColumnID
 
 
@@ -60,15 +61,12 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         return params
 
     @classmethod
-    def execute( # type: ignore
-        cls,
-        prev_state: State,
-        sheet_index: int,
-        column_id: ColumnID,
-        old_formula: str,
-        new_formula: str,
-        **params
-    ) -> Tuple[State, Optional[Dict[str, Any]]]:
+    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+        sheet_index: int = get_param(params, 'sheet_index')
+        column_id: ColumnID = get_param(params, 'column_id')
+        old_formula: str = get_param(params, 'old_formula')
+        new_formula: str = get_param(params, 'new_formula')
+
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
 
         # If nothings changed, there's no work to do

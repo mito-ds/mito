@@ -38,16 +38,16 @@ class MitoWidget(DOMWidget):
         The MitoWidget holds all of the backend state for the Mito extension, and syncs
         the state with the frontend widget. 
     """
-    _model_name = t.Unicode('ExampleModel').tag(sync=True)
-    _model_module = t.Unicode(module_name).tag(sync=True)
-    _model_module_version = t.Unicode(module_version).tag(sync=True)
-    _view_name = t.Unicode('ExampleView').tag(sync=True)
-    _view_module = t.Unicode(module_name).tag(sync=True)
-    _view_module_version = t.Unicode(module_version).tag(sync=True)
+    _model_name = t.Unicode('ExampleModel').tag(sync=True) # type: ignore
+    _model_module = t.Unicode(module_name).tag(sync=True) # type: ignore
+    _model_module_version = t.Unicode(module_version).tag(sync=True) # type: ignore
+    _view_name = t.Unicode('ExampleView').tag(sync=True) # type: ignore
+    _view_module = t.Unicode(module_name).tag(sync=True) # type: ignore
+    _view_module_version = t.Unicode(module_version).tag(sync=True) # type: ignore
 
-    sheet_data_json = t.Unicode('').tag(sync=True)
-    analysis_data_json = t.Unicode('').tag(sync=True)
-    user_profile_json = t.Unicode('').tag(sync=True)
+    sheet_data_json = t.Unicode('').tag(sync=True) # type: ignore
+    analysis_data_json = t.Unicode('').tag(sync=True) # type: ignore
+    user_profile_json = t.Unicode('').tag(sync=True) # type: ignore
     
     def __init__(self, *args: List[Union[pd.DataFrame, str]], analysis_to_replay: str=None):
         """

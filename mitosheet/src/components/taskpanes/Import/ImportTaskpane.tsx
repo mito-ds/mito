@@ -32,6 +32,7 @@ export interface ImportTaskpaneState {
     sort: FileSort,
     searchString: string,
     selectedElementIndex: number,
+    loadingFolder: boolean,
     loadingImport: boolean
 }
 
@@ -54,6 +55,7 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
         sort: 'last_modified_descending',
         searchString: '',
         selectedElementIndex: -1,
+        loadingFolder: false,
         loadingImport: false
     })
 
@@ -114,12 +116,26 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
 
     // Loads the path data from the API and sets it for the file browser
     async function loadPathContents(currPathParts: string[]) {
+        setImportState(prevImportState => {
+            return {
+                ...prevImportState,
+                loadingFolder: true
+            }
+        })
         const _pathContents = await props.mitoAPI.getPathContents(currPathParts);
         if (_pathContents) {
             setImportState(prevImportState => {
                 return {
                     ...prevImportState,
-                    pathContents: _pathContents
+                    pathContents: _pathContents,
+                    loadingFolder: false
+                }
+            })
+        } else {
+            setImportState(prevImportState => {
+                return {
+                    ...prevImportState,
+                    loadingFolder: false
                 }
             })
         }
