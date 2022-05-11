@@ -79,6 +79,18 @@ export default function ColumnHeaderDropdown(props: {
                     })
                 }}
             />
+            <DropdownItem 
+                title='Format'
+                onClick={() => {
+                    props.setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
+                            selectedColumnControlPanelTab: ControlPanelTab.FilterSort
+                        }
+                    })
+                }}
+            />
             <DropdownSectionSeperator isDropdownSectionSeperator/>
             <DropdownItem 
                 title='View Unique Values'
