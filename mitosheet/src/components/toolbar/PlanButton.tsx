@@ -1,6 +1,7 @@
 import React from 'react'
 import MitoAPI from '../../jupyter/api';
 import { UIState, UserProfile } from '../../types';
+import { classNames } from '../../utils/classNames';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 
 
@@ -15,7 +16,7 @@ const PlanButton = (props: PlanButtonProps): JSX.Element => {
 
     return (
         <div 
-            className='plan-button'
+            className={classNames('text-button', 'text-button-variant-dark', 'plan-button')}
             onClick={() => {
 
                 if (!props.userProfile.isPro) {

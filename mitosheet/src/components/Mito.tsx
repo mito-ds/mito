@@ -52,7 +52,6 @@ import GraphSidebar from './taskpanes/Graph/GraphSidebar';
 import ImportTaskpane from './taskpanes/Import/ImportTaskpane';
 import MergeTaskpane from './taskpanes/Merge/MergeTaskpane';
 import PivotTaskpane from './taskpanes/PivotTable/PivotTaskpane';
-import SearchTaskpane from './taskpanes/Search/SearchTaskpane';
 import StepsTaskpane from './taskpanes/Steps/StepsTaskpane';
 import { EDITING_TASKPANES, TaskpaneType } from './taskpanes/taskpanes';
 import UpgradeToProTaskpane from './taskpanes/UpgradeToPro/UpgradeToProTaskpane';
@@ -85,6 +84,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const [sheetDataArray, setSheetDataArray] = useState<SheetData[]>(props.sheetDataArray);
     const [analysisData, setAnalysisData] = useState<AnalysisData>(props.analysisData);
     const [userProfile, setUserProfile] = useState<UserProfile>(props.userProfile);
+
 
     // TODO: can we delete the above 3 props keys, so we cannot use them (as type checked by compiler)?
     // These props are always out of date, and we should only use the state variables.
@@ -631,17 +631,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     destinationSheetIndex={uiState.currOpenTaskpane.destinationSheetIndex}
                     existingPivotParams={uiState.currOpenTaskpane.existingPivotParams}
-                />
-            )
-            case TaskpaneType.SEARCH: return (
-                <SearchTaskpane
-                    mitoAPI={props.mitoAPI}
-                    sheetData={sheetDataArray[gridState.sheetIndex]}
-                    gridState={gridState}
-                    setGridState={setGridState}
-                    mitoContainerRef={mitoContainerRef}
-                    uiState={uiState}
-                    setUIState={setUIState}
                 />
             )
             case TaskpaneType.STEPS: return (

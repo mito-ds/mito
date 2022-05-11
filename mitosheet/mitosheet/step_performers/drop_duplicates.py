@@ -5,12 +5,13 @@
 # Distributed under the terms of the GPL License.
 from copy import deepcopy
 from time import perf_counter
-from typing import Any, Dict, List, Optional, Set, Union
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.drop_duplicates_code_chunk import DropDuplicatesCodeChunk
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
+from mitosheet.step_performers.utils import get_param
 from mitosheet.transpiler.transpile_utils import (
     column_header_list_to_transpiled_code, column_header_to_transpiled_code)
 from mitosheet.types import ColumnID
@@ -33,14 +34,11 @@ class DropDuplicatesStepPerformer(StepPerformer):
         return params
 
     @classmethod
-    def execute( # type: ignore
-        cls,
-        prev_state: State,
-        sheet_index: int,
-        column_ids: List[ColumnID],
-        keep: Union[str, bool],
-        **params
-    ):
+    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+        sheet_index = get_param(params, 'sheet_index')
+        column_ids = get_param(params, 'column_ids')
+        keep = get_param(params, 'keep')
+
         column_headers = [
             prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
             for column_id in column_ids
@@ -49,7 +47,7 @@ class DropDuplicatesStepPerformer(StepPerformer):
         # If the subset is none, then we don't actually do the drop, as there are no
         # duplicates between 0 columns
         if len(column_headers) == 0:
-            return None
+            return prev_state, {}
 
         # We make a new state to modify it
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])

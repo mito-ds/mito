@@ -13,6 +13,7 @@ from mitosheet.errors import make_invalid_column_delete_error
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.evaluation_graph_utils import create_column_evaluation_graph, topological_sort_columns
+from mitosheet.step_performers.utils import get_param
 from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code
 from mitosheet.types import ColumnID
 
@@ -35,13 +36,9 @@ class DeleteColumnStepPerformer(StepPerformer):
         return params
 
     @classmethod
-    def execute( # type: ignore
-        cls,
-        prev_state: State,
-        sheet_index: int,
-        column_ids: List[ColumnID],
-        **params
-    ) -> Tuple[State, Optional[Dict[str, Any]]]:
+    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+        sheet_index: int = get_param(params, 'sheet_index')
+        column_ids: List[ColumnID] = get_param(params, 'column_ids')
 
         # Make a post state, that is a deep copy
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])

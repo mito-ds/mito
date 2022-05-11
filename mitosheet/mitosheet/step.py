@@ -143,7 +143,7 @@ class Step:
         params = self.step_performer.saturate(new_prev_state, self.params)
 
         # Actually execute the data transformation
-        post_state_and_execution_data = self.step_performer.execute(new_prev_state, **params)
+        post_state_and_execution_data = self.step_performer.execute(new_prev_state, params)
 
         if post_state_and_execution_data is not None:
             # If we don't get anything new back, then we just make this

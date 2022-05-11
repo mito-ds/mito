@@ -51,6 +51,7 @@ def main() -> None:
             print("Turning on Mitosheet pro", sys.argv[-1])
             if check_pro_acccess_code(sys.argv[-1].strip()):
                 set_user_field(UJ_MITOSHEET_PRO, True)
+                set_user_field(UJ_MITOSHEET_TELEMETRY, False)
                 print("Mitosheet Pro is now active!")
             else:
                 print("Invalid access code...")

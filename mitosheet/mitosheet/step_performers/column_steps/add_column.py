@@ -12,6 +12,7 @@ from mitosheet.code_chunks.step_performers.column_steps.add_column_code_chunk im
 from mitosheet.errors import make_column_exists_error, make_no_sheet_error
 from mitosheet.state import FORMAT_DEFAULT, State
 from mitosheet.step_performers.step_performer import StepPerformer
+from mitosheet.step_performers.utils import get_param
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
 
 
@@ -34,14 +35,10 @@ class AddColumnStepPerformer(StepPerformer):
         return params
 
     @classmethod
-    def execute( # type: ignore
-        cls,
-        prev_state: State,
-        sheet_index: int,
-        column_header: str,
-        column_header_index: int,
-        **params
-    ) -> Tuple[State, Optional[Dict[str, Any]]]:
+    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+        sheet_index: int = get_param(params, 'sheet_index')
+        column_header: str = get_param(params, 'column_header')
+        column_header_index: int = get_param(params, 'column_header_index')
             
         # if the sheet doesn't exist, throw an error
         if not prev_state.does_sheet_index_exist_within_state(sheet_index):

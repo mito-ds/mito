@@ -24,7 +24,7 @@ const ToolbarDropdownSelector = (props: ToolbarDropdownSelectorProps): JSX.Eleme
     return (
         <div>
             <p 
-                className={classNames('toolbar-dropdown-selector', {'toolbar-dropdown-selector-selected': selected})}
+                className={classNames('toolbar-dropdown-selector', 'text-unselectable', {'toolbar-dropdown-selector-selected': selected})}
                 onClick={() => {
                     props.setUIState(prevUIState => {
                         return {...prevUIState, currOpenToolbarDropdown: props.type}
