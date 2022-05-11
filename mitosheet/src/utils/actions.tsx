@@ -725,29 +725,6 @@ export const createActions = (
             searchTerms: ['docs', 'documentation', 'help', 'support'],
             tooltip: "Documentation, tutorials, and how-tos on all functionality in Mito."
         },
-        /* Search action is depreciated for now, until we add lazy loading or find and replace
-        [ActionEnum.Search]: {
-            type: ActionEnum.Search,
-            shortTitle: 'Search',
-            longTitle: 'Search values in sheet',
-            actionFunction: () => {
-                // We turn off editing mode, if it is on
-                setEditorState(undefined);
-
-                setUIState(prevUIState => {
-                    return {
-                        ...prevUIState,
-                        currOpenModal: {type: ModalEnum.None},
-                        currOpenTaskpane: {
-                            type: TaskpaneType.SEARCH,
-                        },
-                    }
-                })
-            },
-            isDisabled: () => {return undefined},
-            searchTerms: ['search', 'find and replace', 'find'],
-            tooltip: "Search for a value in the sheet."
-        }, */
         [ActionEnum.Set_Cell_Value]: {
             type: ActionEnum.Set_Cell_Value,
             shortTitle: 'Set Cell Value',

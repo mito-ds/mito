@@ -32,7 +32,6 @@ export enum TaskpaneType {
     CONCAT = 'concat',
     NONE = 'none',
     PIVOT = 'pivot',    
-    SEARCH = 'search',
     STEPS = 'steps',
     UPGRADE_TO_PRO = 'upgrade_to_pro',
     IMPORT_FIRST = 'import_first', // when you want to tell the user to import first
@@ -58,7 +57,6 @@ export type TaskpaneInfo =
         destinationSheetIndex?: number;
         existingPivotParams?: BackendPivotParams, 
     } 
-    | {type: TaskpaneType.SEARCH}
     | {type: TaskpaneType.STEPS}
     | {
         type: TaskpaneType.IMPORT_FIRST,
