@@ -4,6 +4,18 @@ description: Want to see what is new in the Mitosheet? Check it out below.
 
 # Release Notes
 
+## 2022-5-11
+
+New Features:
+
+* Improved toolbar to allow users to better find all of Mito's functionality.
+* New formula bar allows users to edit formulas with much more space.
+* Right click on column headers to see a context menu of options
+
+Bug fixes:
+
+* Adds a loading message for opening a folder
+
 ## 2022-5-9 <a href="#2022-4-21" id="2022-4-21"></a>
 
 Bug fixes:

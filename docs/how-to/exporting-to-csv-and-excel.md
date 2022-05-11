@@ -16,7 +16,7 @@ To export your data, click the `export` button in the Mito toolbar, and then use
 
 ![](<../.gitbook/assets/Screen Shot 2022-01-30 at 7.05.28 PM.png>)
 
-## Export with Formatting <img src="../.gitbook/assets/Pro Logo(1) (1) (1).png" alt="" data-size="line">
+## Export with Formatting <img src="../.gitbook/assets/Pro Logo(1) (1) (1) (1).png" alt="" data-size="line">
 
 With [Mito Pro](https://www.trymito.io/plans), you can preserve the formatting of your data in your Excel exports. Exporting with formatting allows you to create presentation-ready Excel reports all through Mito and Python.
 
