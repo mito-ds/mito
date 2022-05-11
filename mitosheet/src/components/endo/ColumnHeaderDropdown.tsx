@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react';
 import MitoAPI from '../../jupyter/api';
 import { ColumnID, UIState } from '../../types';
+import { isNumberDtype } from '../../utils/dtypes';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
@@ -19,6 +20,7 @@ export default function ColumnHeaderDropdown(props: {
     openColumnHeaderEditor: () => void;
     sheetIndex: number;
     columnID: ColumnID;
+    columnDtype: string;
 }): JSX.Element {
 
     // Log opening this dropdown
@@ -90,6 +92,8 @@ export default function ColumnHeaderDropdown(props: {
                         }
                     })
                 }}
+                disabled={!isNumberDtype(props.columnDtype)}
+                tooltip={!isNumberDtype(props.columnDtype) ? "Only number columns can be formatted currently" : undefined}
             />
             <DropdownSectionSeperator isDropdownSectionSeperator/>
             <DropdownItem 

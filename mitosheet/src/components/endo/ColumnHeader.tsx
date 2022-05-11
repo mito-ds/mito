@@ -368,6 +368,7 @@ const ColumnHeader = (props: {
                     openColumnHeaderEditor={openColumnHeaderEditor}
                     sheetIndex={props.gridState.sheetIndex}
                     columnID={columnID}
+                    columnDtype={columnDtype}
                 />
             }
         </div>
