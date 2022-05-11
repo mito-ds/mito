@@ -14,14 +14,24 @@ As there are mulitple platforms to develop on, we highly reccomend developing on
 
 ## Mitosheet with JupyterLab 3.0
 
-First, delete any existing virtual enviornment that you have in this folder, and create a new virtual enviornment. 
+### For Mac
 
-On Mac:
+We have a setup script for Mac. Just run
 ```
-rm -rf venv;
-python3 -m venv venv;
-source venv/bin/activate;
+bash devsetup/macsetup.sh
 ```
+
+Then, in a seperate terminal, run
+```
+source venv/bin/activate
+jupyter lab
+```
+(note that the second command can be `jupyter notebook` if you want to develop here).
+
+
+### For Windows
+
+First, delete any existing virtual enviornment that you have in this folder, and create a new virtual enviornment. 
 
 On Windows (in command prompt, not powershell):
 ```
