@@ -16,6 +16,7 @@ from mitosheet.evaluation_graph_utils import create_column_evaluation_graph
 from mitosheet.parser import safe_replace
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
+from mitosheet.step_performers.utils import get_param
 from mitosheet.types import ColumnHeader, ColumnID
 
 
@@ -41,15 +42,12 @@ class RenameColumnStepPerformer(StepPerformer):
         return params
 
     @classmethod
-    def execute( # type: ignore
-        cls,
-        prev_state: State,
-        sheet_index: int,
-        column_id: ColumnID,
-        new_column_header: str,
-        level=None,
-        **params
-    ) -> Tuple[State, Optional[Dict[str, Any]]]:
+    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+        sheet_index: int = get_param(params, 'sheet_index')
+        column_id: ColumnID = get_param(params, 'column_id')
+        new_column_header: str = get_param(params, 'new_column_header')
+        level: int = get_param(params, 'new_column_header')
+
         if new_column_header in prev_state.dfs[sheet_index].keys():
             raise make_column_exists_error(new_column_header)
 

@@ -3,7 +3,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from copy import deepcopy
+
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
@@ -14,6 +14,7 @@ from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.errors import (
     make_invalid_sort_error
 )
+from mitosheet.step_performers.utils import get_param
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
 from mitosheet.types import ColumnID
 
@@ -41,19 +42,10 @@ class SortStepPerformer(StepPerformer):
         return params
 
     @classmethod
-    def execute( # type: ignore
-        cls,
-        prev_state: State,
-        sheet_index: int,
-        column_id: ColumnID,
-        sort_direction: str,
-        **params
-    ) -> Tuple[State, Optional[Dict[str, Any]]]:
-        """
-        Returns the new new post state after sorting the sheet
-        at `sheet_index` by the passed `column_id` in the given
-        `sort_direction`
-        """
+    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+        sheet_index: int = get_param(params, 'sheet_index')
+        column_id: ColumnID = get_param(params, 'column_id')
+        sort_direction: str = get_param(params, 'sort_direction')
 
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
 

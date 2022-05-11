@@ -15,6 +15,7 @@ from mitosheet.errors import (make_incompatible_merge_headers_error,
                               make_incompatible_merge_key_error)
 from mitosheet.state import DATAFRAME_SOURCE_MERGED, State
 from mitosheet.step_performers.step_performer import StepPerformer
+from mitosheet.step_performers.utils import get_param
 from mitosheet.transpiler.transpile_utils import (
     column_header_list_to_transpiled_code, column_header_to_transpiled_code)
 from mitosheet.types import ColumnHeader, ColumnID
@@ -41,18 +42,14 @@ class MergeStepPerformer(StepPerformer):
         return params
 
     @classmethod
-    def execute( # type: ignore
-        cls,
-        prev_state: State,
-        how: str,
-        sheet_index_one: int,
-        merge_key_column_id_one: ColumnID,
-        selected_column_ids_one: List[ColumnID],
-        sheet_index_two: int,
-        merge_key_column_id_two: ColumnID,
-        selected_column_ids_two: List[ColumnID],
-        **params
-    ) -> Tuple[State, Optional[Dict[str, Any]]]:
+    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+        how = get_param(params, 'how')
+        sheet_index_one = get_param(params, 'sheet_index_one')
+        merge_key_column_id_one = get_param(params, 'merge_key_column_id_one')
+        selected_column_ids_one = get_param(params, 'selected_column_ids_one')
+        sheet_index_two = get_param(params, 'sheet_index_two')
+        merge_key_column_id_two = get_param(params, 'merge_key_column_id_two')
+        selected_column_ids_two = get_param(params, 'selected_column_ids_two')
 
         merge_key_one = prev_state.column_ids.get_column_header_by_id(sheet_index_one, merge_key_column_id_one)
         merge_key_two = prev_state.column_ids.get_column_header_by_id(sheet_index_two, merge_key_column_id_two)

@@ -16,6 +16,7 @@ from mitosheet.step_performers.bulk_old_rename.deprecated_utils import \
 from mitosheet.step_performers.column_steps.rename_column import \
     rename_column_headers_in_state
 from mitosheet.step_performers.step_performer import StepPerformer
+from mitosheet.step_performers.utils import get_param
 
 
 class BulkOldRenameStepPerformer(StepPerformer):
@@ -46,12 +47,7 @@ class BulkOldRenameStepPerformer(StepPerformer):
         return params
 
     @classmethod
-    def execute( # type: ignore
-        cls,
-        prev_state: State,
-        move_to_deprecated_id_algorithm: bool=False,
-        **params: Any
-    ) -> Tuple[State, Optional[Dict[str, Any]]]:
+    def execute(cls,prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         """
         If move_to_deprecated_id_algorithm, then this step is being
         used at the start of a replayed analysis to stand in for
@@ -62,6 +58,7 @@ class BulkOldRenameStepPerformer(StepPerformer):
         make sure that users who pass dataframes into Mito directly
         do not have their analysis break when they upgrade.
         """
+        move_to_deprecated_id_algorithm: bool = get_param(params, 'move_to_deprecated_id_algorithm') if get_param(params, 'move_to_deprecated_id_algorithm') else False 
 
         post_state = prev_state.copy(deep_sheet_indexes=list(range(len(prev_state.dfs))))
 

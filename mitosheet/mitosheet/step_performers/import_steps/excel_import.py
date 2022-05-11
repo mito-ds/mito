@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.import_steps.excel_import_code_chunk import ExcelImportCodeChunk
+from mitosheet.step_performers.utils import get_param
 
 from mitosheet.utils import get_valid_dataframe_name
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
@@ -34,16 +35,12 @@ class ExcelImportStepPerformer(StepPerformer):
         return params
 
     @classmethod
-    def execute( # type: ignore
-        cls,
-        prev_state: State,
-        file_name: str,
-        sheet_names: List[str],
-        has_headers: bool,
-        skiprows: int,
-        **params
-    ) -> Tuple[State, Optional[Dict[str, Any]]]:
-        # Create a new step
+    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+        file_name: str = get_param(params, 'file_name')
+        sheet_names: List[str] = get_param(params, 'sheet_names')
+        has_headers: bool = get_param(params, 'has_headers')
+        skiprows: int = get_param(params, 'skiprows')
+
         post_state = prev_state.copy()
 
         read_excel_params = {

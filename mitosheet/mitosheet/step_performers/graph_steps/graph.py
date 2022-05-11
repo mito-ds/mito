@@ -18,6 +18,7 @@ from mitosheet.step_performers.graph_steps.plotly_express_graphs import (
     get_plotly_express_graph_code,
 )
 from mitosheet.step_performers.step_performer import StepPerformer
+from mitosheet.step_performers.utils import get_param
 from mitosheet.types import GraphID
 
 
@@ -75,19 +76,15 @@ class GraphStepPerformer(StepPerformer):
         return params
 
     @classmethod
-    def execute(  # type: ignore
-        cls,
-        prev_state: State,
-        graph_id: GraphID,
-        graph_preprocessing: Dict[str, Any],
-        graph_creation: Dict[str, Any],
-        graph_styling: Dict[str, Any],
-        graph_rendering: Dict[str, Any],
-        **params,
-    ) -> Tuple[State, Optional[Dict[str, Any]]]:
+    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         """
         Returns the new post state with the updated graph_data_dict
         """
+        graph_id: GraphID = get_param(params, 'graph_id')
+        graph_preprocessing: Dict[str, Any] = get_param(params, 'graph_preprocessing')
+        graph_creation: Dict[str, Any] = get_param(params, 'graph_creation')
+        graph_styling: Dict[str, Any] = get_param(params, 'graph_styling')
+        graph_rendering: Dict[str, Any] = get_param(params, 'graph_rendering')
 
         # We make a new state to modify it
         post_state = prev_state.copy()
