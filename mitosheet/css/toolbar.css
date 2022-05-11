@@ -36,6 +36,7 @@
   border-radius: 3px;
   font-family: Roboto;
   box-sizing: border-box;
+  color: var(--mito-legacy-gray);
 }
 
 .toolbar-dropdown-selector-selected {
