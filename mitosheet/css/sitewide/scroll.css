@@ -10,3 +10,7 @@
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
   }
+
+  .scrollbar-gutter {
+    scrollbar-gutter: stable;
+  }
