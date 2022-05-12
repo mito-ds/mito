@@ -96,7 +96,7 @@ MITOSHEET_TWO_PACKAGE_JSON = """{
     "ipywidgets"
   ],
   "devDependencies": {
-    "@jupyterlab/builder": "^3.0.0",
+    "@jupyterlab/builder": "^3.4.1",
     "@types/expect.js": "^0.3.29",
     "@types/mocha": "^9.0.0",
     "@types/node": "^16.10.2",
@@ -201,7 +201,7 @@ MITOSHEET_PACKAGE_JSON = """{
     "ipywidgets"
   ],
   "devDependencies": {
-    "@jupyterlab/builder": "^3.0.0",
+    "@jupyterlab/builder": "^3.4.1",
     "@types/expect.js": "^0.3.29",
     "@types/node": "^16.10.2",
     "@types/react": "^17.0.26",
