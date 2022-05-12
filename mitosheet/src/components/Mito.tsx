@@ -522,6 +522,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
     }
 
     const getCurrOpenTaskpane = (): JSX.Element => {
+        console.log('getting curr open taskpane')
+        console.log(uiState.currOpenTaskpane)
 
         switch(uiState.currOpenTaskpane.type) {
             case TaskpaneType.CONTROL_PANEL: 
@@ -573,22 +575,22 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     analysisData={analysisData}
                 />
             )
-            case TaskpaneType.GRAPH:
-                return (
-                    <GraphSidebar 
-                        graphID={uiState.currOpenTaskpane.graphID}
-                        dfNames={dfNames}
-                        columnIDsMapArray={columnIDsMapArray}
-                        sheetDataArray={sheetDataArray}
-                        mitoAPI={props.mitoAPI}
-                        setUIState={setUIState} 
-                        uiState={uiState}
-                        graphDataDict={analysisData.graphDataDict}
-                        analysisData={analysisData}
-                        mitoContainerRef={mitoContainerRef}
-                        userProfile={userProfile}
-                    />
-                )
+            case TaskpaneType.GRAPH: return (
+                <GraphSidebar 
+                    graphID={uiState.currOpenTaskpane.graphID}
+                    graphSidebarTab={uiState.currOpenTaskpane.graphSidebarTab}
+                    dfNames={dfNames}
+                    columnIDsMapArray={columnIDsMapArray}
+                    sheetDataArray={sheetDataArray}
+                    mitoAPI={props.mitoAPI}
+                    setUIState={setUIState} 
+                    uiState={uiState}
+                    graphDataDict={analysisData.graphDataDict}
+                    analysisData={analysisData}
+                    mitoContainerRef={mitoContainerRef}
+                    userProfile={userProfile}
+                />
+            )
             case TaskpaneType.IMPORT: return (
                 <ImportTaskpane
                     setUIState={setUIState}

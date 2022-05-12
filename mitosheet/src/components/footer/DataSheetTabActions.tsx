@@ -136,7 +136,7 @@ export default function SheetTabActions(props: {
                 }}
             />
             <DropdownItem 
-                title='Download'
+                title='Export'
                 onClick={openDownloadTaskpane}
             />
             <DropdownItem 

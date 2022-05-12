@@ -2,9 +2,10 @@
 
 import React, { useEffect } from 'react';
 import MitoAPI, { getRandomId } from '../../jupyter/api';
-import { GraphDataDict, GraphID, UIState } from '../../types';
+import { GraphDataDict, GraphID, GraphSidebarTab, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
+import { TaskpaneType } from '../taskpanes/taskpanes';
 
 /*
     Displays a set of actions one can perform on a graph sheet tab, including
@@ -50,6 +51,21 @@ export default function GraphSheetTabActions(props: {
     const onRename = (): void => {
         props.setIsRename(true);
     }
+
+    const openExportGraphTaskpaneTab = async (): Promise<void> => {
+        console.log('asdfasdfasdfasd')
+
+        props.setUIState(prevUIState => {
+            return {
+                ...prevUIState,
+                currOpenTaskpane: {
+                    type: TaskpaneType.GRAPH, 
+                    graphID: props.graphID, 
+                    graphSidebarTab: GraphSidebarTab.Export
+                },
+            }
+        })
+    }
     
     return (
         <Dropdown
@@ -64,6 +80,10 @@ export default function GraphSheetTabActions(props: {
                     e?.stopPropagation()
                     void onDelete()
                 }}
+            />
+            <DropdownItem
+                title='Export'
+                onClick={openExportGraphTaskpaneTab}
             />
             <DropdownItem 
                 title='Duplicate'

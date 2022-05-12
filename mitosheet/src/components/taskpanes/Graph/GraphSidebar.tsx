@@ -55,7 +55,7 @@ const GraphSidebar = (props: {
     analysisData: AnalysisData
     mitoContainerRef: React.RefObject<HTMLDivElement>,
     userProfile: UserProfile
-
+    graphSidebarTab?: GraphSidebarTab
 }): JSX.Element => {
 
     /*
@@ -82,7 +82,11 @@ const GraphSidebar = (props: {
     const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
     const graphOutput = props.graphDataDict[graphID]?.graphOutput
     const [loading, setLoading] = useState<boolean>(false)
-    const [selectedGraphSidebarTab, setSelectedGraphSidebarTab] = useState<GraphSidebarTab>(GraphSidebarTab.Setup)
+    const [selectedGraphSidebarTab, setSelectedGraphSidebarTab] = useState<GraphSidebarTab>(props.graphSidebarTab || GraphSidebarTab.Setup)
+
+    useEffect(() => {
+        console.log(props.graphSidebarTab)
+    }, [props.graphSidebarTab])
 
     /* 
         When graphUpdatedNumber is updated, we send a new getGraphMessage with the current graphParams
