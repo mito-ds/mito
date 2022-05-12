@@ -23,6 +23,7 @@ from mitosheet.state import State
 from mitosheet.step_performers.column_steps.set_column_formula import \
     refresh_dependant_columns
 from mitosheet.step_performers.step_performer import StepPerformer
+from mitosheet.step_performers.utils import get_param
 from mitosheet.transpiler.transpile_utils import \
     column_header_to_transpiled_code
 from mitosheet.types import ColumnID
@@ -60,16 +61,13 @@ class SetCellValueStepPerformer(StepPerformer):
         return params
 
     @classmethod
-    def execute( # type: ignore
-        cls,
-        prev_state: State,
-        sheet_index: int,
-        column_id: ColumnID,
-        row_index: int,
-        old_value: str,
-        new_value: Union[str, None],
-        **params
-    ) -> Tuple[State, Optional[Dict[str, Any]]]:
+    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+        sheet_index: int = get_param(params, 'sheet_index')
+        column_id: ColumnID = get_param(params, 'column_id')
+        row_index: int = get_param(params, 'row_index')
+        old_value: str = get_param(params, 'old_value')
+        new_value: Union[str, None] = get_param(params, 'new_value')
+        
         if column_id not in prev_state.column_spreadsheet_code[sheet_index]:
             raise make_no_column_error({column_id}, error_modal=False)
 

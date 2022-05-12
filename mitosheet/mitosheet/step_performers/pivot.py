@@ -13,6 +13,7 @@ from mitosheet.code_chunks.step_performers.pivot_code_chunk import PivotCodeChun
 from mitosheet.column_headers import flatten_column_header
 from mitosheet.errors import (make_invalid_aggregation_error,
                               make_invalid_pivot_error, make_no_column_error)
+from mitosheet.step_performers.utils import get_param
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.state import DATAFRAME_SOURCE_PIVOTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
@@ -75,18 +76,14 @@ class PivotStepPerformer(StepPerformer):
         return params
 
     @classmethod
-    def execute( # type: ignore
-        cls,
-        prev_state: State,
-        sheet_index: int,
-        pivot_rows_column_ids: List[ColumnID],
-        pivot_columns_column_ids: List[ColumnID],
-        values_column_ids_map: Dict[ColumnID, Collection[str]],
-        flatten_column_headers: bool,
-        destination_sheet_index: int=None,
-        use_deprecated_id_algorithm: bool=False,
-        **params
-    ) -> Tuple[State, Optional[Dict[str, Any]]]:
+    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+        sheet_index: int = get_param(params, 'sheet_index')
+        pivot_rows_column_ids: List[ColumnID] = get_param(params, 'pivot_rows_column_ids')
+        pivot_columns_column_ids: List[ColumnID] = get_param(params, 'pivot_columns_column_ids')
+        values_column_ids_map: Dict[ColumnID, Collection[str]] = get_param(params, 'values_column_ids_map')
+        flatten_column_headers: bool = get_param(params, 'flatten_column_headers')
+        destination_sheet_index: int = get_param(params, 'destination_sheet_index')
+        use_deprecated_id_algorithm: bool = get_param(params, 'use_deprecated_id_algorithm') if get_param(params, 'use_deprecated_id_algorithm') else False
 
         pivot_rows = prev_state.column_ids.get_column_headers_by_ids(sheet_index, pivot_rows_column_ids)
         pivot_columns = prev_state.column_ids.get_column_headers_by_ids(sheet_index, pivot_columns_column_ids)

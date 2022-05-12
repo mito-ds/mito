@@ -20,12 +20,24 @@ import MitoAPI from "./api"
 import { notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteGeneratedCodeToCell } from "./notebook/pluginUtils"
 
 
-export const isInJupyterLab = (): boolean => {
-    return window.location.pathname.startsWith('/lab')
-}
+/**
+ * NOTE: the next two functions are key to the proper functioning of Mito in
+ * these two environments. As such, anytime we are in JupyterLab, the 
+ * isInJupyterLab MUST return true. We check a variety of these conditions
+ * to see if this works (including in cases when mito is remote). 
+ * 
+ * If you change this code, make sure to test it with remove servers that 
+ * have non-standard URL schemes.
+ */
 
+export const isInJupyterLab = (): boolean => {
+    return window.location.pathname.startsWith('/lab') ||
+        window.commands !== undefined ||
+        (window as any)._JUPYTERLAB !== undefined
+}
 export const isInJupyterNotebook = (): boolean => {
-    return window.location.pathname.startsWith('/notebooks')
+    return window.location.pathname.startsWith('/notebooks') ||
+        (window as any).Jupyter !== undefined
 }
 
 export const writeAnalysisToReplayToMitosheetCall = (analysisName: string, mitoAPI: MitoAPI): void => {
@@ -36,6 +48,8 @@ export const writeAnalysisToReplayToMitosheetCall = (analysisName: string, mitoA
         });
     } else if (isInJupyterNotebook()) {
         notebookWriteAnalysisToReplayToMitosheetCall(analysisName, mitoAPI);
+    } else {
+        console.error("Not detected as in Jupyter Notebook or JupyterLab")
     }
 }
 export const overwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName: string, newAnalysisName: string, mitoAPI: MitoAPI): void => {
@@ -47,6 +61,8 @@ export const overwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName: string
         });
     } else if (isInJupyterNotebook()) {
         notebookOverwriteAnalysisToReplayToMitosheetCall(oldAnalysisName, newAnalysisName, mitoAPI);
+    } else {
+        console.error("Not detected as in Jupyter Notebook or JupyterLab")
     }
 }
 
@@ -60,6 +76,8 @@ export const writeGeneratedCodeToCell = (analysisName: string, code: string[], t
         });
     } else if (isInJupyterNotebook()) {
         notebookWriteGeneratedCodeToCell(analysisName, code, telemetryEnabled);
+    } else {
+        console.error("Not detected as in Jupyter Notebook or JupyterLab")
     }
 }
 
@@ -73,6 +91,8 @@ export const getArgs = (analysisToReplayName: string | undefined): Promise<strin
             return;
         } else if (isInJupyterNotebook()) {
             return resolve(notebookGetArgs(analysisToReplayName));
+        } else {
+            console.error("Not detected as in Jupyter Notebook or JupyterLab")
         }
         return resolve([]);
     })

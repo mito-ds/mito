@@ -10,6 +10,7 @@ from mitosheet.code_chunks.step_performers.dataframe_steps.dataframe_delete_code
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
+from mitosheet.step_performers.utils import get_param
 
 
 class DataframeDeleteStepPerformer(StepPerformer):
@@ -33,14 +34,9 @@ class DataframeDeleteStepPerformer(StepPerformer):
         return params
 
     @classmethod
-    def execute( # type: ignore
-        cls,
-        prev_state: State,
-        sheet_index: int,
-        old_dataframe_name: str,
-        **params
-    ) -> Tuple[State, Optional[Dict[str, Any]]]:
-        # Create a new step and save the parameters
+    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+        sheet_index: int = get_param(params, 'sheet_index')
+        
         post_state = prev_state.copy()
 
         # Execute the delete

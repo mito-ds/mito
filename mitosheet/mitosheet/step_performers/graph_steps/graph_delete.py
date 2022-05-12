@@ -10,6 +10,7 @@ from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
+from mitosheet.step_performers.utils import get_param
 from mitosheet.types import GraphID
 
 
@@ -31,12 +32,8 @@ class GraphDeleteStepPerformer(StepPerformer):
         return params
 
     @classmethod
-    def execute( # type: ignore
-        cls,
-        prev_state: State,
-        graph_id: GraphID,
-        **params
-    ) -> Tuple[State, Optional[Dict[str, Any]]]:
+    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+        graph_id: GraphID = get_param(params, 'graph_id')
 
         # Create a new step and save the parameters
         post_state = prev_state.copy()

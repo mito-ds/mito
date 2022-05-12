@@ -2,18 +2,18 @@ import titleStyles from '../../styles/Title.module.css'
 import ctaCardStyles from './CTACard.module.css'
 import CTAButtons from '../CTAButtons/CTAButtons';
 
-const CTACard = (): JSX.Element => {
+const DownloadCTACard = (): JSX.Element => {
 
     return (
-        <div className={ctaCardStyles.cta_card}> 
+        <div> 
             <h1 className={titleStyles.title}>
-                Want to save time on your Python data analysis?
+                Ready to make your team Python independent?
             </h1>
             <div className='center'>
-                <CTAButtons />
+                <CTAButtons variant='contact' />
             </div>  
         </div>
     )
 }
 
-export default CTACard; 
+export default DownloadCTACard; 

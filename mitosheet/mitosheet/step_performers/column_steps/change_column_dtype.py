@@ -28,6 +28,7 @@ from mitosheet.state import FORMAT_DEFAULT, State
 from mitosheet.step_performers.column_steps.set_column_formula import (
     refresh_dependant_columns)
 from mitosheet.step_performers.step_performer import StepPerformer
+from mitosheet.step_performers.utils import get_param
 from mitosheet.types import ColumnID
 
 
@@ -56,16 +57,12 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
         return params
 
     @classmethod
-    def execute( # type: ignore
-        cls,
-        prev_state: State,
-        sheet_index: int,
-        column_id: ColumnID,
-        old_dtype: str,
-        new_dtype: str,
-        **params
-    ) -> Tuple[State, Optional[Dict[str, Any]]]:
-        # Create the post state
+    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+        sheet_index: int = get_param(params, 'sheet_index')
+        column_id: ColumnID = get_param(params, 'column_id')
+        old_dtype: str = get_param(params, 'old_dtype')
+        new_dtype: str = get_param(params, 'new_dtype')
+
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)

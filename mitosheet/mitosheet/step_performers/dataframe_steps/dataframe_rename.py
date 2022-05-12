@@ -10,6 +10,7 @@ from mitosheet.code_chunks.step_performers.dataframe_steps.dataframe_rename_code
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
+from mitosheet.step_performers.utils import get_param
 from mitosheet.utils import get_valid_dataframe_name
 
 
@@ -35,14 +36,11 @@ class DataframeRenameStepPerformer(StepPerformer):
         return params
 
     @classmethod
-    def execute( # type: ignore
-        cls,
-        prev_state: State,
-        sheet_index: int,
-        old_dataframe_name: str,
-        new_dataframe_name: str,
-        **params
-    ) -> Tuple[State, Optional[Dict[str, Any]]]:
+    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+        sheet_index: int = get_param(params, 'sheet_index')
+        old_dataframe_name: str = get_param(params, 'old_dataframe_name')
+        new_dataframe_name: str = get_param(params, 'new_dataframe_name')
+
         # Bail early, if there is no change
         if old_dataframe_name == new_dataframe_name:
             return prev_state, None

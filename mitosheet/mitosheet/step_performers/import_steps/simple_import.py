@@ -14,6 +14,7 @@ import chardet
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import SimpleImportCodeChunk
+from mitosheet.step_performers.utils import get_param
 
 from mitosheet.utils import get_valid_dataframe_names
 from mitosheet.errors import make_is_directory_error
@@ -41,13 +42,10 @@ class SimpleImportStepPerformer(StepPerformer):
         return params
 
     @classmethod
-    def execute( # type: ignore
-        cls,
-        prev_state: State,
-        file_names: List[str],
-        use_deprecated_id_algorithm: bool=False,
-        **params
-    ) -> Tuple[State, Optional[Dict[str, Any]]]:
+    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+        file_names: List[str] = get_param(params, 'file_names')
+        use_deprecated_id_algorithm: bool = get_param(params, 'use_deprecated_id_algorithm') if get_param(params, 'use_deprecated_id_algorithm') else False
+
         # If any of the files are directories, we throw an error to let
         # the user know
         for file_name in file_names:

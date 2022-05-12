@@ -65,10 +65,10 @@ const introTourSteps: TourStep[] = [
     {
         tourName: TourName.INTRO,
         stepNumber: 2,
-        stepHeader: 'Search for functionality',
+        stepHeader: 'Find functionality',
         stepHeaderBackgroundColor: '#DDA1A1',
-        stepText: <div> If you&apos;re not sure how to do something in Mito, search for it! Try typing something in the search bar above. </div>,
-        location: TourPopupLocation.TOP_RIGHT,
+        stepText: <div> All functionality can be found through the toolbar. Explore the toolbar to see what is possible. </div>,
+        location: TourPopupLocation.TOP_LEFT,
         advanceButtonText: "Continue",
         displayBackButton: true,
         hideXIcon: true
