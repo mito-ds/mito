@@ -38,13 +38,21 @@
 }
 
 .footer-tab-bar {
-    /* Deal with the overflow */
-    overflow: auto;
+    /* In order for the scrollbar-gutter css property to work, overflow must be set to auto. */
+    overflow-x: auto;
     overflow-y: clip;
 
     white-space: nowrap;
     flex: auto;
+
+    /* Set the height to min-content so there is space for the tab + scrollbar */
     height: min-content;
+
+    /* 
+        Set a minimum height so that even if there are no tabs, the footer has correct height.
+        Should be the same height as the tab
+    */
+    min-height: 32px; 
 
 }
 
@@ -80,6 +88,7 @@
     border-right: 1px solid var(--mito-border);
     box-sizing: border-box;
 
+    /* Should be the same height as the min-height of the footer-tab-bar */
     height: 32px;
     padding-left: 10px;
     padding-right: 10px;
