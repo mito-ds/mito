@@ -21,11 +21,14 @@
 }
 
 .footer-add-button {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+
     background-color: var(--mito-light-purple);
 
     padding-left: 10px;
     padding-right: 10px;
-    padding-top: 7.5px;
 
     border-right: 1px solid var(--mito-border);
 }
@@ -36,7 +39,7 @@
 
 .footer-tab-bar {
     /* Deal with the overflow */
-    overflow: scroll;
+    overflow: auto;
     overflow-y: clip;
 
     white-space: nowrap;
@@ -77,7 +80,7 @@
     border-right: 1px solid var(--mito-border);
     box-sizing: border-box;
 
-    height: 26px;
+    height: 32px;
     padding-left: 10px;
     padding-right: 10px;
 
