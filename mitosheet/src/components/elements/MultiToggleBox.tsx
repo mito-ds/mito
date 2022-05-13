@@ -138,9 +138,13 @@ const MultiToggleBox = (props: {
     // information about how many children are passed and displayed
     const childrenToDisplay = React.Children.map((props.children), (child) => {
         const title: null | undefined | string | number = child.props.title;
+        const rightText: null | undefined | string | number = child.props.rightText;
 
-        // Don't display if it doesn't match
-        if (title === null || title === undefined || fuzzyMatch(title + '', searchString) < .8) {
+        const noTitleMatch = title === null || title === undefined || fuzzyMatch(title + '', searchString) < .8;
+        const noRightTextMatch = title === null || title === undefined || fuzzyMatch(rightText + '', searchString) < .8;
+
+        // Don't display if it doesn't match either of the title or the right text
+        if (noTitleMatch && noRightTextMatch) {
             return null;
         }
 

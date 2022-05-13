@@ -35,6 +35,7 @@ export enum TaskpaneType {
     STEPS = 'steps',
     UPGRADE_TO_PRO = 'upgrade_to_pro',
     IMPORT_FIRST = 'import_first', // when you want to tell the user to import first
+    FILL_NA = 'fill_na', // when you want to tell the user to import first
 }
 
 export type TaskpaneInfo = 
@@ -58,6 +59,7 @@ export type TaskpaneInfo =
         existingPivotParams?: BackendPivotParams, 
     } 
     | {type: TaskpaneType.STEPS}
+    | {type: TaskpaneType.FILL_NA}
     | {
         type: TaskpaneType.IMPORT_FIRST,
         message: string

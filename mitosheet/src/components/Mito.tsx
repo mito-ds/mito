@@ -48,6 +48,7 @@ import ControlPanelTaskpane, { ControlPanelTab } from './taskpanes/ControlPanel/
 import DefaultEmptyTaskpane from './taskpanes/DefaultTaskpane/DefaultEmptyTaskpane';
 import DownloadTaskpane from './taskpanes/Download/DownloadTaskpane';
 import DropDuplicatesTaskpane from './taskpanes/DropDuplicates/DropDuplicates';
+import FillNaTaskpane from './taskpanes/FillNa/FillNaTaskpane';
 import GraphSidebar from './taskpanes/Graph/GraphSidebar';
 import ImportTaskpane from './taskpanes/Import/ImportTaskpane';
 import MergeTaskpane from './taskpanes/Merge/MergeTaskpane';
@@ -645,6 +646,16 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 <DefaultEmptyTaskpane
                     setUIState={setUIState}
                     message={uiState.currOpenTaskpane.message}
+                />
+            )
+            case TaskpaneType.FILL_NA: return (
+                <FillNaTaskpane
+                    setUIState={setUIState} 
+                    uiState={uiState} 
+                    mitoAPI={props.mitoAPI} 
+                    selectedSheetIndex={uiState.selectedSheetIndex} 
+                    sheetDataArray={sheetDataArray}   
+                    analysisData={analysisData}             
                 />
             )
         }

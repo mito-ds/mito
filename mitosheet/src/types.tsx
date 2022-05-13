@@ -14,6 +14,7 @@ export enum StepType {
     DeleteColumn = "delete_column",
     RenameColumn = "rename_column",
     ReorderColumn = "reorder_column",
+    FillNa = 'fill_na',
     FilterColumn = 'filter_column',
     SetColumnFormula = "set_column_formula",
     DataframeDelete = 'dataframe_delete',
@@ -265,6 +266,18 @@ export interface ConcatParams {
     join: 'inner' | 'outer',
     ignore_index: boolean,
     sheet_indexes: number[]
+}
+
+export type FillMethod = {'type': 'value', 'value': string | boolean | number} 
+    | {'type': 'ffill'}
+    | {'type': 'bfill'}
+    | {'type': 'mean'}
+    | {'type': 'median'}
+
+export interface FillNaParams {
+    sheet_index: number,
+    column_ids: ColumnID[],
+    fill_method: FillMethod
 }
 
 // NOTE: these aggregation functions need to be supported
@@ -657,6 +670,7 @@ export enum ActionEnum {
     Duplicate_Graph = 'duplicate graph',
     Docs = 'docs',
     Export = 'export',
+    Fill_Na = 'fill na',
     Filter = 'filter',
     Format = 'format',
     Fullscreen = 'fullscreen',
