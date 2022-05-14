@@ -30,10 +30,6 @@ class ConcatStepPerformer(StepPerformer):
         return 'concat'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
-        return params
-
-    @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
 
         join = get_param(params, 'join') # inner | outter

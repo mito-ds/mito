@@ -30,10 +30,6 @@ class DropDuplicatesStepPerformer(StepPerformer):
         return 'drop_duplicates'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
-        return params
-
-    @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         sheet_index = get_param(params, 'sheet_index')
         column_ids = get_param(params, 'column_ids')

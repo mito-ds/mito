@@ -38,10 +38,6 @@ class RenameColumnStepPerformer(StepPerformer):
         return 'rename_column' 
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
-        return params
-
-    @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')

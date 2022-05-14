@@ -38,10 +38,6 @@ class MergeStepPerformer(StepPerformer):
         return 'merge'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
-        return params
-
-    @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         how = get_param(params, 'how')
         sheet_index_one = get_param(params, 'sheet_index_one')

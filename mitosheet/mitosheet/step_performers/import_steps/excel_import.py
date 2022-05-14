@@ -31,10 +31,6 @@ class ExcelImportStepPerformer(StepPerformer):
         return 'excel_import'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
-        return params
-
-    @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         file_name: str = get_param(params, 'file_name')
         sheet_names: List[str] = get_param(params, 'sheet_names')
