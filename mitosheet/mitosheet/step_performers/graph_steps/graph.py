@@ -205,5 +205,5 @@ class GraphStepPerformer(StepPerformer):
         ]
 
     @classmethod
-    def get_modified_dataframe_indexes(cls, graph_creation, **params) -> Set[int]:
+    def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
         return {-1}
