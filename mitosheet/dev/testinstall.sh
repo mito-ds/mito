@@ -19,18 +19,6 @@ then
     rm -rf ~/.mito/user.json
 fi
 
-# Make sure that on exit we can delete the folder so we don't make a bunch of trash 
-trap ctrl_c INT
-function ctrl_c() {
-    read -p "Do you want to delete the folder ${FOLDER_NAME}? " -n 1 -r
-    echo    # move to a new line
-    if [[ $REPLY =~ ^[Yy]$ ]]
-    then
-        rm -rf "${FOLDER_NAME}"
-    fi
-    exit 0
-}
-
 cd "${FOLDER_NAME}"
 
 python3 -m venv venv
