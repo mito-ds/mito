@@ -22,9 +22,10 @@ import '../../css/sitewide/paddings.css';
 import '../../css/sitewide/scroll.css';
 import '../../css/sitewide/text.css';
 import '../../css/sitewide/widths.css';
+import { useDebouncedEffect } from '../hooks/useDebouncedEffect';
 import MitoAPI from '../jupyter/api';
 import { getArgs, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell } from '../jupyter/jupyterUtils';
-import { AnalysisData, DataTypeInMito, DFSource, EditorState, GridState, SheetData, UIState, UserProfile } from '../types';
+import { ActionEnum, AnalysisData, DataTypeInMito, DFSource, EditorState, GridState, SheetData, UIState, UserProfile } from '../types';
 import { createActions } from '../utils/actions';
 import { classNames } from '../utils/classNames';
 import loadPlotly from '../utils/plotly';
@@ -422,6 +423,22 @@ export const Mito = (props: MitoProps): JSX.Element => {
         prevOpenTaskpaneRef.current = uiState.currOpenTaskpane.type;
 
     }, [uiState])
+
+    // This is the effect that waits for copy and pastes within Mito, and then copies!
+    // TODO: explain why we debounce it for performance
+    useDebouncedEffect(() => {
+        const checkCopy = (e: KeyboardEvent) => {
+             // Then, we check the user is doing a copy
+             if (e.key !== 'c' || (!e.ctrlKey && !e.metaKey)){
+                return;
+            }
+
+            actions[ActionEnum.Copy].actionFunction();
+        }
+        document.addEventListener('keydown', checkCopy)
+
+        return () => {document.removeEventListener('keydown', checkCopy)}
+    }, [gridState, sheetDataArray], 50)
 
 
     const dfNames = sheetDataArray.map(sheetData => sheetData.dfName);

@@ -12,6 +12,7 @@ import { FunctionDocumentationObject, functionDocumentationObjects } from "../da
 import { Action, ActionEnum, DFSource, EditorState, GridState, SheetData, UIState } from "../types"
 import { getColumnHeaderParts, getDisplayColumnHeader } from "./columnHeaders";
 import { FORMAT_DISABLED_MESSAGE } from "./formatColumns";
+import { getStringForClipboard } from "./copy";
 
 
 export const createActions = (
@@ -174,6 +175,46 @@ export const createActions = (
             },
             searchTerms: ['column summary', 'describe', 'stats'],
             tooltip: "Learn about the distribution of the data in the selected column."
+        },
+        [ActionEnum.Copy]: {
+            type: ActionEnum.Copy,
+            shortTitle: 'Copy Data',
+            longTitle: 'Copy data to the clipboard',
+            actionFunction: () => {
+
+                // First, we check if we're inside this current mitosheet
+                // as we don't want to copy from everywhere
+                if (!mitoContainerRef.current?.contains(document.activeElement)) {
+                    return;
+                }
+                
+                // TODO: check a sheet tab is selected
+
+
+                const stringToCopy = getStringForClipboard(
+                    sheetData,
+                    gridState.selections
+                );
+
+                console.log(stringToCopy);
+
+                if (stringToCopy === undefined) {
+                    return;
+                }
+                
+                navigator.clipboard.writeText(stringToCopy).then(function() {
+                    /* clipboard successfully set */
+                    // TODO: do we want to do some reporting to the user here?
+                }, function() {
+                    /* clipboard write failed */
+                });
+            },
+            isDisabled: () => {
+                // TODO: make this do better
+                return undefined;
+            },
+            searchTerms: ['copy', 'paste', 'export'],
+            tooltip: "Copy the currently selection to the clipboard."
         },
         [ActionEnum.Delete_Column]: {
             type: ActionEnum.Delete_Column,

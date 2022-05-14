@@ -649,6 +649,7 @@ export enum ActionEnum {
     Clear = 'clear',
     Change_Dtype = 'change dtype',
     Column_Summary = 'column summary',
+    Copy = 'copy',
     Delete_Column = 'delete column',
     Delete_Dataframe = 'delete dataframe',
     Delete_Graph = 'delete graph',
