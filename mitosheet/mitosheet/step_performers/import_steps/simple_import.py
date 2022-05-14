@@ -99,13 +99,8 @@ class SimpleImportStepPerformer(StepPerformer):
         ]
     
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
-        cls, 
-        file_names: List[str],
-        use_deprecated_id_algorithm: bool=False,
-        **params
-    ) -> Set[int]:
-        return {-1} # changes the new dataframe(s - there might be multiple made in this step)
+    def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
+        return {-1}
 
 
 def read_csv_get_delimeter_and_encoding(file_name: str) -> Tuple[pd.DataFrame, str, str]:

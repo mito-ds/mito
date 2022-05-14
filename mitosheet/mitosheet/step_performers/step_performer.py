@@ -79,7 +79,7 @@ class StepPerformer(ABC, object):
 
     @classmethod
     @abstractmethod
-    def get_modified_dataframe_indexes(cls, **params: Any) -> Set[int]:
+    def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
         """
         Returns a set of all the sheet indexes that were modified
         by this step.

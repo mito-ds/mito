@@ -65,13 +65,8 @@ class DeleteColumnStepPerformer(StepPerformer):
         ]
 
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
-        cls, 
-        sheet_index: int,
-        column_ids: List[ColumnID],
-        **params
-    ) -> Set[int]:
-        return {sheet_index}
+    def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
+        return {get_param(params, 'sheet_index')}
 
 def delete_column_ids(
     state: State,

@@ -94,16 +94,7 @@ class MergeStepPerformer(StepPerformer):
         ]
     
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
-        cls, 
-        how: str,
-        sheet_index_one: int,
-        merge_key_column_id_one: ColumnID,
-        selected_column_ids_one: List[ColumnID],
-        sheet_index_two: int,
-        merge_key_column_id_two: ColumnID,
-        selected_column_ids_two: List[ColumnID],
-    ) -> Set[int]:
+    def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
         return {-1}
 
 def _execute_merge(

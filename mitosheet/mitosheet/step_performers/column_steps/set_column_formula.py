@@ -147,16 +147,8 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         ]
 
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
-        cls, 
-        sheet_index: int,
-        column_id: ColumnID,
-        old_formula: str,
-        new_formula: str,
-        **params
-    ) -> Set[int]:
-        return {sheet_index}
-
+    def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
+        return {get_param(params, 'sheet_index')}
 
 
 def _get_fixed_invalid_formula(

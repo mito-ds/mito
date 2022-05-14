@@ -104,15 +104,8 @@ class RenameColumnStepPerformer(StepPerformer):
         ]
     
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
-        cls, 
-        sheet_index: int,
-        column_id: ColumnID,
-        new_column_header: str,
-        level=None,
-        **params
-    ) -> Set[int]:
-        return {sheet_index}
+    def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
+        return {get_param(params, 'sheet_index')}
 
 
 def rename_column_headers_in_state(

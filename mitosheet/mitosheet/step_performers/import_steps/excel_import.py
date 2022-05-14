@@ -80,12 +80,5 @@ class ExcelImportStepPerformer(StepPerformer):
         ]
 
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
-        cls, 
-        file_name: str,
-        sheet_names: List[str],
-        has_headers: bool,
-        use_deprecated_id_algorithm: bool=False,
-        **params
-    ) -> Set[int]:
-        return {-1} # changes the new dataframe(s - there might be multiple made in this step)
+    def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
+        return {-1}
