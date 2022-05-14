@@ -74,7 +74,7 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
 
     const columnIDsMap = props.sheetDataArray[params.sheet_index]?.columnIDsMap || {};
     const columnDtypeMap = props.sheetDataArray[params.sheet_index]?.columnDtypeMap || {};
-    const nonNumberColumnSelected = params.column_ids
+    const nonNumberColumnSelected = params.column_ids.length > 0 && params.column_ids
         .map(columnID => columnDtypeMap[columnID])
         .map(columnDtype => isNumberDtype(columnDtype))
         .reduce((prevValue, currValue) => !prevValue || !currValue, true) 
