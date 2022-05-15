@@ -196,8 +196,6 @@ export const createActions = (
                     gridState.selections
                 );
 
-                console.log(stringToCopy);
-
                 if (stringToCopy === undefined) {
                     return;
                 }
@@ -207,6 +205,10 @@ export const createActions = (
                     // TODO: do we want to do some reporting to the user here?
                 }, function() {
                     /* clipboard write failed */
+                });
+
+                void mitoAPI.log('copied_data', {
+                    'num_selections': gridState.selections.length
                 });
             },
             isDisabled: () => {

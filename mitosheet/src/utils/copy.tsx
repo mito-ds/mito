@@ -1,12 +1,11 @@
 import { MitoSelection, SheetData } from "../types";
 
-const copy_stringValueToString = (value: string): string => {
-    // If there is no white space, we don't need to do anything
-    if (value.includes('\t')) {
-        return `\"${value}\"`
-    }
-    return value;
 
+// TODO: actually create a well-researched specification about how things should work (potentially argue for simplicity)
+// TODO: fix the focus issue on Notebooks
+
+const copy_stringValueToString = (value: string): string => {
+    return value;
 }
 
 const copy_valueToString = (value: string | number | boolean): string => {
