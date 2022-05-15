@@ -178,18 +178,9 @@ export const createActions = (
         },
         [ActionEnum.Copy]: {
             type: ActionEnum.Copy,
-            shortTitle: 'Copy Data',
-            longTitle: 'Copy data to the clipboard',
+            shortTitle: 'Copy',
+            longTitle: 'Copy',
             actionFunction: () => {
-
-                // First, we check if we're inside this current mitosheet
-                // as we don't want to copy from everywhere
-                if (!mitoContainerRef.current?.contains(document.activeElement)) {
-                    return;
-                }
-                
-                // TODO: check a sheet tab is selected
-
 
                 const stringToCopy = getStringForClipboard(
                     sheetData,
@@ -212,8 +203,7 @@ export const createActions = (
                 });
             },
             isDisabled: () => {
-                // TODO: make this do better
-                return undefined;
+                return getDataframeIsSelected(uiState, sheetDataArray) ? undefined : "There is no selected data to copy."
             },
             searchTerms: ['copy', 'paste', 'export'],
             tooltip: "Copy the currently selection to the clipboard."

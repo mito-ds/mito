@@ -3,6 +3,7 @@
 import React from 'react';
 import { Action, ActionEnum, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
+import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { makeToolbarDropdownItem } from './utils';
 
 
@@ -36,6 +37,8 @@ const ToolbarEditDropdown = (props: ToolbarEditDropdownProps): JSX.Element => {
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Undo])}
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Redo])}
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Clear])}
+                    <DropdownSectionSeperator isDropdownSectionSeperator/>
+                    {makeToolbarDropdownItem(props.actions[ActionEnum.Copy])}
                 </Dropdown>
             }
         </>

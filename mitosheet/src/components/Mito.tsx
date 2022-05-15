@@ -425,11 +425,17 @@ export const Mito = (props: MitoProps): JSX.Element => {
     }, [uiState])
 
     // This is the effect that waits for copy and pastes within Mito, and then copies!
-    // TODO: explain why we debounce it for performance
+    // NOTE: this effect must be debounced so that we're not reregistering these event
+    // listeners 100 times during every single scroll. In practice, this works perf!
     useDebouncedEffect(() => {
         const checkCopy = (e: KeyboardEvent) => {
-             // Then, we check the user is doing a copy
-             if (e.key !== 'c' || (!e.ctrlKey && !e.metaKey)){
+            // First, check that this was actually done by a focus on this mitosheet
+            if (!mitoContainerRef.current?.contains(document.activeElement)) {
+                return;
+            }
+
+            // Then, we check the user is doing a copy
+            if (e.key !== 'c' || (!e.ctrlKey && !e.metaKey)){
                 return;
             }
 
