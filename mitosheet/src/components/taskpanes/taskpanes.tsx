@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import { GraphID } from "../../types"
+import { GraphID, GraphSidebarTab } from "../../types"
 import { BackendPivotParams } from "../../types"
 
 /* 
@@ -45,6 +45,7 @@ export type TaskpaneInfo =
     | {
         type: TaskpaneType.GRAPH,
         graphID: GraphID,
+        graphSidebarTab?: GraphSidebarTab
     }    
     | {type: TaskpaneType.IMPORT}
     | {type: TaskpaneType.MERGE}

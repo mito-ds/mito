@@ -4,6 +4,13 @@ description: Want to see what is new in the Mitosheet? Check it out below.
 
 # Release Notes
 
+## 2022-5-16 <a href="#2022-5-16" id="2022-4-21"></a>
+
+Bug fixes:
+
+* Fixes a bug where sheet tabs were not scrollable.
+* Adds Export to the tab actions, and allow you to right click on them.
+
 ## 2022-5-11
 
 New Features:
@@ -16,7 +23,7 @@ Bug fixes:
 
 * Adds a loading message for opening a folder
 
-## 2022-5-9 <a href="#2022-4-21" id="2022-4-21"></a>
+## 2022-5-9 <a href="#2022-5-9" id="2022-5-9"></a>
 
 Bug fixes:
 
