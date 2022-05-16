@@ -6,19 +6,19 @@ Make sure that dtpye of your time series data is properly recognized as `datetim
 
 If the dtype indicator does not say "date", see our [reference guide](../how-to/type-changes.md) for converting the dtype of a column and convert the column to a `datetime`.&#x20;
 
-![Checking the dtype of a graph](<../.gitbook/assets/Screen Shot 2022-03-23 at 3.31.08 PM (1).png>)
+![Checking the dtype of a graph](<../.gitbook/assets/Screen Shot 2022-03-23 at 3.31.08 PM.png>)
 
 #### Step 2: Create a new graph
 
 To create a new graph, click on the `Graph` button in the Mito toolbar.&#x20;
 
-![Creating a new graph](<../.gitbook/assets/Screen Shot 2022-03-23 at 3.32.15 PM (1).png>)
+![Creating a new graph](<../.gitbook/assets/Screen Shot 2022-03-23 at 3.32.15 PM.png>)
 
 #### Step 3: Select the correct data
 
 Set the sheet you want to graph as the graph's `Data Source`.
 
-![Select the data source](<../.gitbook/assets/Screen Shot 2022-03-23 at 3.34.39 PM (1).png>)
+![Select the data source](<../.gitbook/assets/Screen Shot 2022-03-23 at 3.34.39 PM.png>)
 
 #### Step 4: Select the line chart&#x20;
 
