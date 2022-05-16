@@ -70,7 +70,7 @@ def anonymize_formula(formula: str, sheet_index: int, steps_manager: StepsManage
     
     return formula
 
-def anonymize_object(obj: Any, anonymize_key=False) -> Any:
+def anonymize_object(obj: Any, anonymize_key: bool=False) -> Any:
     """
     Anoymizes any object it is given, handling any different
     type of object that it might be given.
