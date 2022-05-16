@@ -59,5 +59,7 @@ export const getStringForClipboard = (sheetData: SheetData | undefined, selectio
         return copy_getStringForSelection(sheetData, selections[0]);
     }
 
+    // TODO: if the user has a column header selected, we have to copy the full column!
+
     return "More than one selection..."
 }

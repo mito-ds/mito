@@ -10,7 +10,7 @@ import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { Application, IPlugin } from 'application';
 import { Widget } from 'widgets';
 import MitoAPI from './jupyter/api';
-import { getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell } from './jupyter/lab/pluginUtils';
+import { getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell } from './jupyter/lab/pluginUtils';
 import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, getAnalysisNameFromOldGeneratedCode, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine, isMitosheetCallCode } from './utils/code';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 import * as widgetExports from './jupyter/widget';
@@ -263,87 +263,18 @@ function activateWidgetExtension(
         }
     });
 
-    /* 
-        To make Command + F focus on search, we add these commands as a key-binding
-        that specifically is captured inside the mito-container.
+    // When in Mito, we capture any keyboard commands and do nothing with them. Within Mito.tsx,
+    // we have event listeners that handle these keyboard shortcuts, but JupyterLab gets involved
+    // unless we tell it not to
+    //app.commands.addKeyBinding({command: 'do-nothing', args: {}, keys: ['Accel Z'], selector: '.mito-container'});
+    //app.commands.addKeyBinding({command: 'do-nothing', args: {}, keys: ['Accel Y'], selector: '.mito-container'});
+    //app.commands.addKeyBinding({command: 'do-nothing', args: {}, keys: ['Accel C'], selector: '.mito-container'});
+    app.commands.addKeyBinding({command: 'do-nothing', args: {}, keys: ['Shift Enter'], selector: '.mito-container'});
 
-        If Command + F is pressed in this context, we go and get the search input, and
-        focus on it, so the user can just starting typing in it!
-    */
-    app.commands.addKeyBinding({
-        command: 'focus-on-search',
-        args: {},
-        keys: ['Accel F'],
-        selector: '.mito-container'
-    });
-    app.commands.addCommand('focus-on-search', {
-        label: 'Focuses on search of the currently selected mito notebook',
-        execute: async (): Promise<void> => {
-            // First, get the mito container that this element is a part of
-            const mitoContainer = getParentMitoContainer();
-
-            // Get the search input, and click + focus on it
-            const searchInput = mitoContainer?.querySelector('#action-search-bar-id') as HTMLInputElement | null;
-
-            // Focusing on the searchInput so that we begin typing there
-            searchInput?.focus();
-        }
-    });
-
-    app.commands.addKeyBinding({
-        command: 'mito-undo',
-        args: {},
-        keys: ['Accel Z'],
-        selector: '.mito-container'
-    });
-    app.commands.addCommand('mito-undo', {
-        label: 'Clicks the undo button once',
-        execute: async (): Promise<void> => {
-            // First, get the mito container that this element is a part of
-            const mitoContainer = getParentMitoContainer();
-
-            // Get the undo button, and click it
-            const undoButton = mitoContainer?.querySelector('#mito-undo-button') as HTMLDivElement | null;
-            undoButton?.click()
-        }
-    });
-
-    app.commands.addKeyBinding({
-        command: 'mito-redo',
-        args: {},
-        keys: ['Accel Y'],
-        selector: '.mito-container'
-    });
-    app.commands.addCommand('mito-redo', {
-        label: 'Clicks the redo button once',
-        execute: async (): Promise<void> => {
-            // First, get the mito container that this element is a part of
-            const mitoContainer = getParentMitoContainer();
-
-            // Get the undo button, and click it
-            const redoButton = mitoContainer?.querySelector('#mito-redo-button') as HTMLDivElement | null;
-            redoButton?.click()
-        }
-    });
-
-
-    /* 
-        Since Shift + Enter reruns the cell, we don't want this to happen
-        when the user has Mito selected. So we supress this.
-
-        TODO: there is a bug where maybe this is contributing to the fact
-        that I cannot detect Shift + Enter in inputs within Mito.. it's really
-        annoying.
-    */
-    app.commands.addKeyBinding({
-        command: 'do-nothing',
-        args: {},
-        keys: ['Shift Enter'],
-        selector: '.mito-container'
-    });
     app.commands.addCommand('do-nothing', {
         label: 'Does nothing',
         execute: async (): Promise<void> => {
+            console.log("DOING NOTHING");
             // Do nothing, doh
         }
     });

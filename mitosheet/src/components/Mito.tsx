@@ -424,26 +424,30 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     }, [uiState])
 
-    // This is the effect that waits for copy and pastes within Mito, and then copies!
+    // This is the effect that waits for keyboard shortcuts within Mito, and then copies!
     // NOTE: this effect must be debounced so that we're not reregistering these event
     // listeners 100 times during every single scroll. In practice, this works perf!
     useDebouncedEffect(() => {
-        const checkCopy = (e: KeyboardEvent) => {
+        const checkKeyboardShortcut = (e: KeyboardEvent) => {
+            console.log(e.key, )
             // First, check that this was actually done by a focus on this mitosheet
             if (!mitoContainerRef.current?.contains(document.activeElement)) {
                 return;
             }
 
+
             // Then, we check the user is doing a copy
-            if (e.key !== 'c' || (!e.ctrlKey && !e.metaKey)){
-                return;
+            if (e.key === 'c' && (e.ctrlKey || e.metaKey)){
+                actions[ActionEnum.Copy].actionFunction();
+            } else if (e.key === 'z' && (e.ctrlKey || e.metaKey)){
+                actions[ActionEnum.Undo].actionFunction();
+            } else if (e.key === 'y' && (e.ctrlKey || e.metaKey)){
+                actions[ActionEnum.Redo].actionFunction();
             }
-
-            actions[ActionEnum.Copy].actionFunction();
         }
-        document.addEventListener('keydown', checkCopy)
+        document.addEventListener('keydown', checkKeyboardShortcut)
 
-        return () => {document.removeEventListener('keydown', checkCopy)}
+        return () => {document.removeEventListener('keydown', checkKeyboardShortcut)}
     }, [gridState, sheetDataArray], 50)
 
 
@@ -746,7 +750,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     })
 
     return (
-        <div className="mito-container" data-jp-suppress-context-menu ref={mitoContainerRef}>
+        <div tabIndex={0} className="mito-container" data-jp-suppress-context-menu ref={mitoContainerRef}>
             <ErrorBoundary mitoAPI={props.mitoAPI}>
                 <Toolbar 
                     mitoAPI={props.mitoAPI}
