@@ -75,13 +75,16 @@ def anonymize_object(obj: Any, anonymize_key=False) -> Any:
     Anoymizes any object it is given, handling any different
     type of object that it might be given.
 
-    If obj is an object and you want to anonymize the key too, 
+    If obj is a dict and you want to anonymize the key instead of the value, 
     set anonymize_key=True
     """
     if isinstance(obj, list):
         return [anonymize_as_string(v) for v in obj]
     elif isinstance(obj, dict):
-        return {anonymize_as_string(key) if anonymize_key else key: anonymize_as_string(v) for key, v in obj.items()}
+        if anonymize_key:
+            return {anonymize_as_string(key) if anonymize_key else key: v for key, v in obj.items()}
+        else: 
+            return {key: anonymize_as_string(v) for key, v in obj.items()}
     
     return anonymize_as_string(obj)
 
@@ -111,6 +114,8 @@ def get_final_private_params_for_single_kv(key: str, value: Any, params: Dict[st
         private_params[key] = anonymize_formula(value, params['sheet_index'], steps_manager)
     else:
         if key == 'values_column_ids_map':
+            # The key of the values_column_ids_map is a column_id, so 
+            # we need to anonymize the key, instead of the value
             private_params[key] = anonymize_object(value, anonymize_key=True)
         else: 
             private_params[key] = anonymize_object(value)
