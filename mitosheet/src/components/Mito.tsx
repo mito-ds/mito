@@ -522,9 +522,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
     }
 
     const getCurrOpenTaskpane = (): JSX.Element => {
-        console.log('getting curr open taskpane')
-        console.log(uiState.currOpenTaskpane)
-
         switch(uiState.currOpenTaskpane.type) {
             case TaskpaneType.CONTROL_PANEL: 
                 return (

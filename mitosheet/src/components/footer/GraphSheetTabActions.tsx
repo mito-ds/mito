@@ -7,6 +7,7 @@ import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 
+
 /*
     Displays a set of actions one can perform on a graph sheet tab, including
     deleting, duplicating, or renaming.
@@ -53,8 +54,6 @@ export default function GraphSheetTabActions(props: {
     }
 
     const openExportGraphTaskpaneTab = async (): Promise<void> => {
-        console.log('asdfasdfasdfasd')
-
         props.setUIState(prevUIState => {
             return {
                 ...prevUIState,
@@ -83,7 +82,12 @@ export default function GraphSheetTabActions(props: {
             />
             <DropdownItem
                 title='Export'
-                onClick={openExportGraphTaskpaneTab}
+                onClick={(e) => {
+                    // Stop propogation so that the onClick of the sheet tab div
+                    // doesn't compete setting the currOpenTaskpane
+                    e?.stopPropagation()
+                    void openExportGraphTaskpaneTab()
+                }}
             />
             <DropdownItem 
                 title='Duplicate'
