@@ -5,6 +5,7 @@ import MitoAPI, { getRandomId } from '../../jupyter/api';
 import { GraphDataDict, GraphID, SheetData, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
+import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { ModalEnum } from '../modals/modals';
 import { getDefaultGraphParams } from '../taskpanes/Graph/graphUtils';
 import { TaskpaneType } from '../taskpanes/taskpanes';
@@ -139,6 +140,15 @@ export default function SheetTabActions(props: {
                 title='Export'
                 onClick={openDownloadTaskpane}
             />
+            <DropdownSectionSeperator isDropdownSectionSeperator={true} />
+            <DropdownItem 
+                title='Duplicate'
+                onClick={onDuplicate}
+            />
+            <DropdownItem 
+                title='Rename'
+                onClick={onRename}
+            />
             <DropdownItem 
                 title='Delete'
                 onClick={(e) => {
@@ -147,14 +157,6 @@ export default function SheetTabActions(props: {
                     e?.stopPropagation()
                     void onDelete()
                 }}
-            />
-            <DropdownItem 
-                title='Duplicate'
-                onClick={onDuplicate}
-            />
-            <DropdownItem 
-                title='Rename'
-                onClick={onRename}
             />
         </Dropdown>
     )

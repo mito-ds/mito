@@ -5,6 +5,7 @@ import MitoAPI, { getRandomId } from '../../jupyter/api';
 import { GraphDataDict, GraphID, GraphSidebarTab, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
+import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 
 
@@ -71,15 +72,6 @@ export default function GraphSheetTabActions(props: {
             closeDropdown={() => props.setDisplayActions(false)}
             width='small'
         >
-            <DropdownItem 
-                title='Delete'
-                onClick={(e) => {
-                    // Stop propogation so that the onClick of the sheet tab div
-                    // doesn't compete updating the uiState to the graphID that is getting deleted
-                    e?.stopPropagation()
-                    void onDelete()
-                }}
-            />
             <DropdownItem
                 title='Export'
                 onClick={(e) => {
@@ -89,6 +81,7 @@ export default function GraphSheetTabActions(props: {
                     void openExportGraphTaskpaneTab()
                 }}
             />
+            <DropdownSectionSeperator isDropdownSectionSeperator={true} />
             <DropdownItem 
                 title='Duplicate'
                 onClick={onDuplicate}
@@ -96,6 +89,15 @@ export default function GraphSheetTabActions(props: {
             <DropdownItem 
                 title='Rename'
                 onClick={onRename}
+            />
+            <DropdownItem 
+                title='Delete'
+                onClick={(e) => {
+                    // Stop propogation so that the onClick of the sheet tab div
+                    // doesn't compete updating the uiState to the graphID that is getting deleted
+                    e?.stopPropagation()
+                    void onDelete()
+                }}
             />
         </Dropdown>
     )
