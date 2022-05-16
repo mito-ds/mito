@@ -1,5 +1,5 @@
 .footer {
-    height: 32px;
+    height: min-content;
     display: flex;
     justify-content: space-between;
 
@@ -21,11 +21,14 @@
 }
 
 .footer-add-button {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+
     background-color: var(--mito-light-purple);
 
     padding-left: 10px;
     padding-right: 10px;
-    padding-top: 7.5px;
 
     border-right: 1px solid var(--mito-border);
 }
@@ -35,11 +38,22 @@
 }
 
 .footer-tab-bar {
-    /* Deal with the overflow */
+    /* In order for the scrollbar-gutter css property to work, overflow must be set to auto. */
     overflow-x: auto;
     overflow-y: clip;
+
     white-space: nowrap;
     flex: auto;
+
+    /* Set the height to min-content so there is space for the tab + scrollbar */
+    height: min-content;
+
+    /* 
+        Set a minimum height so that even if there are no tabs, the footer has correct height.
+        Should be the same height as the tab
+    */
+    min-height: 32px; 
+
 }
 
 .footer-right-side {
@@ -74,7 +88,8 @@
     border-right: 1px solid var(--mito-border);
     box-sizing: border-box;
 
-    height: 100%;
+    /* Should be the same height as the min-height of the footer-tab-bar */
+    height: 32px;
     padding-left: 10px;
     padding-right: 10px;
 
