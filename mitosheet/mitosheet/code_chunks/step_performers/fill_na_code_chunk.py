@@ -67,7 +67,6 @@ class FillNaCodeChunk(CodeChunk):
                 return [f"{df_name}.fillna({df_name}.mean(), inplace=True)"]
             else:
                 column_headers_list_str = column_header_list_to_transpiled_code(column_headers)
-                # TODO: in all of these, maybe I should save a temp variable... I think yes!
                 return [
                     f"columns_to_fill_nan = {column_headers_list_str}",
                     f"{df_name}[columns_to_fill_nan] = {df_name}[columns_to_fill_nan].fillna({df_name}[columns_to_fill_nan].mean())"
