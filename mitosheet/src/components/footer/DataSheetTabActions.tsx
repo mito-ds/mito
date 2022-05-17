@@ -5,8 +5,10 @@ import MitoAPI, { getRandomId } from '../../jupyter/api';
 import { GraphDataDict, GraphID, SheetData, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
+import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { ModalEnum } from '../modals/modals';
 import { getDefaultGraphParams } from '../taskpanes/Graph/graphUtils';
+import { TaskpaneType } from '../taskpanes/taskpanes';
 
 /*
     Helper function for finding all of the graph tab names
@@ -109,6 +111,16 @@ export default function SheetTabActions(props: {
         );
     }
 
+    const openDownloadTaskpane = async (): Promise<void> => {
+        props.setUIState(prevUIState => {
+            return {
+                ...prevUIState,
+                currOpenTaskpane: {type: TaskpaneType.DOWNLOAD},
+                currOpenModal: {type: ModalEnum.None},
+            }
+        })
+    }
+
     return (
         <Dropdown
             closeDropdown={() => props.setDisplayActions(false)}
@@ -125,14 +137,10 @@ export default function SheetTabActions(props: {
                 }}
             />
             <DropdownItem 
-                title='Delete'
-                onClick={(e) => {
-                    // Stop propogation so that the onClick of the sheet tab div
-                    // doesn't compete updating the uiState to the graphID that is gettind deleted
-                    e?.stopPropagation()
-                    void onDelete()
-                }}
+                title='Export'
+                onClick={openDownloadTaskpane}
             />
+            <DropdownSectionSeperator isDropdownSectionSeperator={true} />
             <DropdownItem 
                 title='Duplicate'
                 onClick={onDuplicate}
@@ -140,6 +148,15 @@ export default function SheetTabActions(props: {
             <DropdownItem 
                 title='Rename'
                 onClick={onRename}
+            />
+            <DropdownItem 
+                title='Delete'
+                onClick={(e) => {
+                    // Stop propogation so that the onClick of the sheet tab div
+                    // doesn't compete updating the uiState to the graphID that is gettind deleted
+                    e?.stopPropagation()
+                    void onDelete()
+                }}
             />
         </Dropdown>
     )
