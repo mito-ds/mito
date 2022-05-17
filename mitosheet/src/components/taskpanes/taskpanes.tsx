@@ -67,7 +67,7 @@ export type TaskpaneInfo =
     
 
 /*
-    EDITING_TASKPANES are taskpanes that live update the sheet using overwriting 
+    EDITING_TASKPANES are taskpanes that update the sheet using overwriting 
     and therefore should be closed when the user begins editing the sheet 
     through some other method. 
 */ 
@@ -78,6 +78,7 @@ export const EDITING_TASKPANES: TaskpaneType[] = [
     TaskpaneType.DROP_DUPLICATES,
     TaskpaneType.IMPORT,
     TaskpaneType.DOWNLOAD,
+    TaskpaneType.FILL_NA
 ]
 
 /**
@@ -93,5 +94,6 @@ export const ALLOW_UNDO_REDO_EDITING_TASKPANES = [
     TaskpaneType.CONCAT,
     TaskpaneType.DROP_DUPLICATES,
     TaskpaneType.IMPORT, 
+    TaskpaneType.FILL_NA
 ]
     

@@ -24,9 +24,9 @@ function useSendEditOnClick<ParamType, ResultType>(
         setParams: React.Dispatch<React.SetStateAction<ParamType>>, 
         error: string | undefined,
         loading: boolean // This loading indicator is for if the edit message is processing
-        edit: () => void;
-        editApplied: boolean;
-        result: ResultType | undefined;
+        edit: () => void; // Actually applies the edit
+        editApplied: boolean; // True if any edit is applied
+        result: ResultType | undefined; // The result of this edit. Undefined if no edit is applied (or if the step has no result)
     } {
 
     const [params, _setParams] = useState(defaultParams);
@@ -36,7 +36,10 @@ function useSendEditOnClick<ParamType, ResultType>(
     // We store a list of all the step IDs that have been applied or
     // are sitting inside of the redo buffer waiting to reapplied. We
     // also store the current index that we're at in these step ids
-    const [stepIDData, setStepIDData] = useState<{stepIDs: string[], currStepIDIndex: number}>({stepIDs: [], currStepIDIndex: 0});
+    const [stepIDData, setStepIDData] = useState<{stepIDs: string[], currStepIDIndex: number}>({
+        stepIDs: [], 
+        currStepIDIndex: 0
+    });
     const [paramsNotApplied, setParamsNotApplied] = useState(true);
 
     useEffectOnUndo(() => {
@@ -50,12 +53,8 @@ function useSendEditOnClick<ParamType, ResultType>(
     // NOTE: all edit events are the name of the step + _edit
     const editEvent = stepType + '_edit';
 
-    // We wrap the _setParams call we use internally, so that when the consumer
-    // of the setParams function outside of this hook calls it, we automatically
-    // update the updateNumber by one, which allows a message to get sent to the
-    // backend. This makes life very plesant for the consumer of this hook, as 
-    // they don't have to remember to increment a setUpdateNumber state variable
-    // by one every time they change the params
+    // We wrap the _setParams call so that we can track when the params have not
+    // yet been sent to the backend
     const setParams: React.Dispatch<React.SetStateAction<ParamType>> = useCallback(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (args: any) => {
@@ -65,7 +64,8 @@ function useSendEditOnClick<ParamType, ResultType>(
         [],
     );
 
-    const edit = async (): Promise<ResultType | undefined> => {
+    // This function actually sends the edit message to the backend
+    const edit = async () => {
         // Do not send an edit message if the params are undefined
         // or if we have already sent a message for these params
         if (params === undefined || !paramsNotApplied) {
@@ -73,35 +73,36 @@ function useSendEditOnClick<ParamType, ResultType>(
         }
 
         setLoading(true);
-        const newStepID = getRandomId();
-        const resultOrError = await mitoAPI._edit<ParamType, ResultType>(editEvent, params, newStepID);
+        const newStepID = getRandomId(); // always use a new step id
+        const possibleError = await mitoAPI._edit<ParamType>(editEvent, params, newStepID);
         setLoading(false);
 
         // Handle if we return an error
-        if (isMitoError(resultOrError)) {
-            setError(resultOrError.to_fix);
+        if (isMitoError(possibleError)) {
+            setError(possibleError.to_fix);
         } else {
-            // Clear any step IDs we no longer need, and use this new step ID
+            // Update our step id tracking
             setStepIDData(prevStepIDData => {
                 const newStepIDData = {stepIDs: [...prevStepIDData.stepIDs], currStepIDIndex: prevStepIDData.currStepIDIndex};
-                // Clear the old ones
+                // If we edit, then the redo buffer is cleared, so we can clear all _later_ step ids
                 newStepIDData.stepIDs.splice(newStepIDData.currStepIDIndex + 1, newStepIDData.stepIDs.length);
-                // Add the new one
+                // Then, we add the new step id that we created
                 newStepIDData.stepIDs.push(newStepID);
-                // Update the index!
+                // And mark this as the current index we're on
                 newStepIDData.currStepIDIndex = newStepIDData.stepIDs.length - 1;
                 
                 return newStepIDData;
             })
 
+            // Clear the error and mark the params as having been applied
             setError(undefined)
             setParamsNotApplied(false);
-            // TODO: change the type here
-            return resultOrError;
         }
     }
 
 
+    // On an undo, we need to decrease the step id index, and also refresh the params from
+    // the backend
     const refreshOnUndo = async () => {
         
         // Get the step id
@@ -123,13 +124,12 @@ function useSendEditOnClick<ParamType, ResultType>(
             setParamsNotApplied(true);
         }
 
-        // If we undo or redo, we know we are going to a valid configuration, in which
-        // case we clear the error. Note that errors do play a little wacky with undo/redo,
-        // as the parameters for errored configurations are _not_ saved (as they don't 
-        // lead to valid steps). But it's fine!
+        // We also clear the error in this case, as this clearly was effectively applied
         setError(undefined);
     }
 
+    // Like undo, we also have to refresh on redo. Here, we bump the step id we're trying
+    // to get the params for, and also get the new params that were applied
     const refreshOnRedo = async () => {
         
         // Get the step id
@@ -142,8 +142,6 @@ function useSendEditOnClick<ParamType, ResultType>(
             return newStepIDData;
         })
 
-        console.log("Refreshing on redo with step id", stepID)
-
         const newParams = await mitoAPI.getParams<typeof defaultParams>(stepType, stepID, {});
         if (newParams !== undefined) {
             _setParams(newParams);
@@ -152,11 +150,15 @@ function useSendEditOnClick<ParamType, ResultType>(
             setParamsNotApplied(false);
         }
 
-        // If we undo or redo, we know we are going to a valid configuration, in which
-        // case we clear the error. Note that errors do play a little wacky with undo/redo,
-        // as the parameters for errored configurations are _not_ saved (as they don't 
-        // lead to valid steps). But it's fine!
+        // Also clear the error
         setError(undefined);        
+    }
+
+    let result: ResultType | undefined = undefined;
+    // If the params were applied, and the last step is actually this type of step.
+    // then we might hav a result to apply to the user
+    if (!paramsNotApplied && analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1].step_type === stepType) {
+        result = analysisData.lastResult as ResultType
     }
 
     return {
@@ -166,8 +168,7 @@ function useSendEditOnClick<ParamType, ResultType>(
         loading: loading,
         edit: edit,
         editApplied: !paramsNotApplied,
-        result: paramsNotApplied ? undefined : (analysisData.lastResult as ResultType) 
-        // TODO: make this sure this is the right step by checking the step type... this makes sense!
+        result: result
     }
 }
 

@@ -268,18 +268,6 @@ export interface ConcatParams {
     sheet_indexes: number[]
 }
 
-export type FillMethod = {'type': 'value', 'value': string | boolean | number} 
-| {'type': 'ffill'}
-| {'type': 'bfill'}
-| {'type': 'mean'}
-| {'type': 'median'}
-
-export interface FillNaParams {
-    sheet_index: number,
-    column_ids: ColumnID[],
-    fill_method: FillMethod
-}
-
 // NOTE: these aggregation functions need to be supported
 // in mitosheet/steps/pivot.py as well
 export enum AggregationType {
@@ -554,7 +542,8 @@ export type FormatTypeObj =
  * @param renderCount - the number of times this sheet has rendered. Note that this is per instance of the backend object, 
  *        so it increments by one when the page the sheet is rendered on is refreshed, but resets to zero if a new
  *        mitosheet.sheet() call is made (even if it replays the analysis), as this is a new backend object.
- * @param lastResult - TODO!
+ * @param lastResult - This is the result of the last step that was applied. This might be undefined if the 
+ *        step does not return a result
  */
 export interface AnalysisData {
     analysisName: string,

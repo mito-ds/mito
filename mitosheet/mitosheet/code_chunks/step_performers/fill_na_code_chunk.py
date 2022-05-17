@@ -47,14 +47,20 @@ class FillNaCodeChunk(CodeChunk):
                 return [f"{df_name}.fillna(method='ffill', inplace=True)"]
             else:
                 column_headers_list_str = column_header_list_to_transpiled_code(column_headers)
-                return [f"{df_name}[{column_headers_list_str}] = {df_name}[{column_headers_list_str}].fillna(method='ffill')"]
+                return [
+                    f"columns_to_fill_nan = {column_headers_list_str}",
+                    f"{df_name}[columns_to_fill_nan] = {df_name}[columns_to_fill_nan].fillna(method='ffill')"
+                ]
 
         elif fill_method_type == 'bfill':
             if full_dataframe:
                 return [f"{df_name}.fillna(method='bfill', inplace=True)"]
             else:
                 column_headers_list_str = column_header_list_to_transpiled_code(column_headers)
-                return [f"{df_name}[{column_headers_list_str}] = {df_name}[{column_headers_list_str}].fillna(method='bfill')"]
+                return [
+                    f"columns_to_fill_nan = {column_headers_list_str}",
+                    f"{df_name}[columns_to_fill_nan] = {df_name}[columns_to_fill_nan].fillna(method='bfill')"
+                ]
 
         elif fill_method_type == 'mean':
             if full_dataframe:
@@ -62,14 +68,20 @@ class FillNaCodeChunk(CodeChunk):
             else:
                 column_headers_list_str = column_header_list_to_transpiled_code(column_headers)
                 # TODO: in all of these, maybe I should save a temp variable... I think yes!
-                return [f"{df_name}[{column_headers_list_str}] = {df_name}[{column_headers_list_str}].fillna({df_name}[{column_headers_list_str}].mean())"]
+                return [
+                    f"columns_to_fill_nan = {column_headers_list_str}",
+                    f"{df_name}[columns_to_fill_nan] = {df_name}[columns_to_fill_nan].fillna({df_name}[columns_to_fill_nan].mean())"
+                ]
 
         elif fill_method_type == 'median':
             if full_dataframe:
                 return [f"{df_name}.fillna({df_name}.median(), inplace=True)"]
             else:
                 column_headers_list_str = column_header_list_to_transpiled_code(column_headers)
-                return [f"{df_name}[{column_headers_list_str}] = {df_name}[{column_headers_list_str}].fillna({df_name}[{column_headers_list_str}].median())"]
+                return [
+                    f"columns_to_fill_nan = {column_headers_list_str}",
+                    f"{df_name}[columns_to_fill_nan] = {df_name}[columns_to_fill_nan].fillna({df_name}[columns_to_fill_nan].median())"
+                ]
 
         return []
 

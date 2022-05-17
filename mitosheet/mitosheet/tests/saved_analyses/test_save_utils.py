@@ -69,7 +69,6 @@ def test_persist_analysis_multi_sheet(b_value, b_formula):
 
     new_mito = create_mito_wrapper_dfs(df1, df2)
     new_mito.replay_analysis(analysis_name)
-    print(new_mito.steps)
 
     curr_step = new_mito.curr_step
 
@@ -80,7 +79,6 @@ def test_persist_analysis_multi_sheet(b_value, b_formula):
     assert new_mito.dfs[1]['B'].tolist() == [b_value]
     
     assert json.dumps(new_mito.curr_step.column_spreadsheet_code) == json.dumps(curr_step.column_spreadsheet_code)
-    print("STEPS", [step.step_type for step in new_mito.steps])
     assert json.loads(new_mito.mito_widget.analysis_data_json)['code'] == json.loads(mito.mito_widget.analysis_data_json)['code']
 
 

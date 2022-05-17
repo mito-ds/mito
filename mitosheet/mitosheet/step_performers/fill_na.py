@@ -43,8 +43,6 @@ class FillNaStepPerformer(StepPerformer):
         fill_method = get_param(params, 'fill_method')
         fill_method_type = fill_method['type']
 
-        print(fill_method)
-
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
         df = post_state.dfs[sheet_index]
@@ -53,10 +51,8 @@ class FillNaStepPerformer(StepPerformer):
         pandas_start_time = perf_counter()
 
         if fill_method_type == 'value':
-            print("TYPEs")
             values = {column_header: fill_method['value'] for column_header in column_headers}
             df.fillna(values, inplace=True)
-            print("HERE")
         elif fill_method_type == 'ffill':
             df[column_headers] = df[column_headers].fillna(method='ffill')
         elif fill_method_type == 'bfill':

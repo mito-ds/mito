@@ -377,7 +377,8 @@ export const createActions = (
             isDisabled: () => {
                 return doesAnySheetExist(sheetDataArray) ? undefined : 'There is no dataframe to fill nan values within.'
             },
-            searchTerms: ['fill nan', 'nan', 'find', 'replace', ],
+            searchTerms: ['fill nan', 'nan', 'find', 'replace', 'null', 'undefined', 'fill null', 'fill undefined', 'empty'],
+            // TODO: @aaron can you think of other ones above?
             tooltip: "Fill all NaN values with a dataframe or list of columns."
         },
         [ActionEnum.Filter]: {

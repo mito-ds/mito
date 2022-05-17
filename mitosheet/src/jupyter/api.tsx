@@ -539,12 +539,12 @@ export default class MitoAPI {
      * @param stepID the step id to overwrite (or undefined if not overwriting a step)
      * @returns the stepID that was sent to the backend
      */
-    async _edit<T, R>(
+    async _edit<ParamType>(
         edit_event_type: string,
-        params: T,
+        params: ParamType,
         stepID: string
-    ): Promise<R | MitoError | undefined> {
-        const result: R | MitoError | undefined = await this.send({
+    ): Promise<MitoError | undefined> {
+        const result: MitoError | undefined = await this.send({
             'event': 'edit_event',
             'type': edit_event_type,
             'step_id': stepID,

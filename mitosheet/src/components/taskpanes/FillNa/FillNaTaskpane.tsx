@@ -6,7 +6,7 @@ import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import MitoAPI from '../../../jupyter/api';
 
 // Import 
-import { AnalysisData, FillMethod, FillNaParams, SheetData, StepType, UIState } from '../../../types';
+import { AnalysisData, ColumnID, SheetData, StepType, UIState } from '../../../types';
 
 import '../../../../css/taskpanes/Download/DownloadTaskpane.css'
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
@@ -26,6 +26,7 @@ import Input from '../../elements/Input';
 import { isNumberDtype } from '../../../utils/dtypes';
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import TextButton from '../../elements/TextButton';
+import { endsInZeroDecimals } from '../../../utils/numbers';
 
 
 interface FillNaTaskpaneProps {
@@ -35,6 +36,19 @@ interface FillNaTaskpaneProps {
     selectedSheetIndex: number,
     sheetDataArray: SheetData[],
     analysisData: AnalysisData
+}
+
+
+type FillMethod = {'type': 'value', 'value': string | boolean | number} 
+| {'type': 'ffill'}
+| {'type': 'bfill'}
+| {'type': 'mean'}
+| {'type': 'median'}
+
+interface FillNaParams {
+    sheet_index: number,
+    column_ids: ColumnID[],
+    fill_method: FillMethod
 }
 
 // If the user inputs these, we cast them as booleans
@@ -74,10 +88,10 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
 
     const columnIDsMap = props.sheetDataArray[params.sheet_index]?.columnIDsMap || {};
     const columnDtypeMap = props.sheetDataArray[params.sheet_index]?.columnDtypeMap || {};
-    const nonNumberColumnSelected = params.column_ids.length > 0 && params.column_ids
+    const onlyNumberColumnSelected = params.column_ids.length === 0 || params.column_ids
         .map(columnID => columnDtypeMap[columnID])
         .map(columnDtype => isNumberDtype(columnDtype))
-        .reduce((prevValue, currValue) => !prevValue || !currValue, true) 
+        .every(isNumber => isNumber === true)
 
     const toggleIndexes = (indexes: number[], newToggle: boolean): void => {
         const columnIds = Object.keys(props.sheetDataArray[params.sheet_index]?.columnIDsMap) || [];
@@ -225,21 +239,21 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                                 id='mean'
                                 title="Column Mean"
                                 subtext={
-                                    nonNumberColumnSelected 
+                                    !onlyNumberColumnSelected 
                                         ? "Select only number columns to fill them with the average of those columns."
                                         : "Replaces NaN values in number columns with the average of the column."
                                 }
-                                disabled={nonNumberColumnSelected}
+                                disabled={!onlyNumberColumnSelected}
                             />
                             <DropdownItem
                                 id='median'
                                 title="Column Median"
                                 subtext={
-                                    nonNumberColumnSelected 
+                                    !onlyNumberColumnSelected 
                                         ? "Select only number columns to fill them with the median of those columns."
                                         : "Replaces NaN values in number columns with the median of the column."
                                 }
-                                disabled={nonNumberColumnSelected}
+                                disabled={!onlyNumberColumnSelected}
                             />
                         </Select>
                     </Col>
@@ -261,12 +275,15 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
 
                                     if (BOOLEAN_STRINGS.includes(newValue)) {
                                         finalValue = newValue.toLowerCase().startsWith('t') ? true : false;
-                                    } else if (newValue !== '' && !isNaN(parseFloat(newValue))) {
+                                    } else if (newValue !== '' && !isNaN(parseFloat(newValue)) && !endsInZeroDecimals(newValue)) {
                                         finalValue = parseFloat(newValue);
                                     }
-
-                                    console.log(newValue, finalValue, typeof finalValue)
-
+                                    // TODO: there is a bug in the above logic, where we do not always turn number values
+                                    // to numbers. Specifically, if a user enters a number editing in a "." as they are typing
+                                    // a decimal, then we keep this as a string. This allows them to keep entering a decimal,
+                                    // which is most likely what they want. However, if they apply the fill nan with this 
+                                    // decimal point at the end, it might fill with a string, which is not what they want
+                                    
                                     setParams(prevParams => {
                                         return {
                                             ...prevParams,
@@ -276,10 +293,6 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                                             }
                                         }
                                     })
-
-                                    
-
-
                                 }}
                             />
                         </Col>

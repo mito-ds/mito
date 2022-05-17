@@ -415,7 +415,6 @@ const CellEditor = (props: {
         if (isMitoError(errorMessage)) {
             setCellEditorError(errorMessage.to_fix);
         } else {
-            console.log("Closing cell editor");
             closeCellEditor();
         }
     }

@@ -77,12 +77,12 @@ function useSyncedParams<ParamType>(
 
         setLoading(true);
         const stepIDToSend = stepID || getRandomId();
-        const resultOrError = await mitoAPI._edit<ParamType, undefined>(editEvent, params, stepIDToSend);
+        const possibleError = await mitoAPI._edit<ParamType>(editEvent, params, stepIDToSend);
         setLoading(false);
 
         // Handle if we return an error
-        if (isMitoError(resultOrError)) {
-            setError(resultOrError.to_fix);
+        if (isMitoError(possibleError)) {
+            setError(possibleError.to_fix);
             // Note: we do not clear the stepID in this case, it is still applied
             // and valid
         } else {

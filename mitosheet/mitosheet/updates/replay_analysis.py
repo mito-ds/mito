@@ -49,7 +49,6 @@ def execute_replay_analysis_update(
     # to be played
     steps_manager.analysis_name = analysis_name
 
-    print("REPLAYED!", analysis_name, steps_manager.steps)
 
 REPLAY_ANALYSIS_UPDATE = {
     'event_type': REPLAY_ANALYSIS_UPDATE_EVENT,
