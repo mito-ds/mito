@@ -33,6 +33,7 @@ export enum TaskpaneType {
     NONE = 'none',
     PIVOT = 'pivot',    
     STEPS = 'steps',
+    SPLIT_TEXT_TO_COLUMNS = 'split_text_to_columns',
     UPGRADE_TO_PRO = 'upgrade_to_pro',
     IMPORT_FIRST = 'import_first', // when you want to tell the user to import first
 }
@@ -62,7 +63,8 @@ export type TaskpaneInfo =
     | {
         type: TaskpaneType.IMPORT_FIRST,
         message: string
-    }
+    } 
+    | {type: TaskpaneType.SPLIT_TEXT_TO_COLUMNS}
     
 
 /*
@@ -77,6 +79,7 @@ export const EDITING_TASKPANES: TaskpaneType[] = [
     TaskpaneType.DROP_DUPLICATES,
     TaskpaneType.IMPORT,
     TaskpaneType.DOWNLOAD,
+    TaskpaneType.SPLIT_TEXT_TO_COLUMNS
 ]
 
 /**
@@ -92,5 +95,6 @@ export const ALLOW_UNDO_REDO_EDITING_TASKPANES = [
     TaskpaneType.CONCAT,
     TaskpaneType.DROP_DUPLICATES,
     TaskpaneType.IMPORT, 
+    TaskpaneType.SPLIT_TEXT_TO_COLUMNS
 ]
     

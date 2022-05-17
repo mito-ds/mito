@@ -52,6 +52,7 @@ import GraphSidebar from './taskpanes/Graph/GraphSidebar';
 import ImportTaskpane from './taskpanes/Import/ImportTaskpane';
 import MergeTaskpane from './taskpanes/Merge/MergeTaskpane';
 import PivotTaskpane from './taskpanes/PivotTable/PivotTaskpane';
+import SplitTextToColumnsTaskpane from './taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane';
 import StepsTaskpane from './taskpanes/Steps/StepsTaskpane';
 import { EDITING_TASKPANES, TaskpaneType } from './taskpanes/taskpanes';
 import UpgradeToProTaskpane from './taskpanes/UpgradeToPro/UpgradeToProTaskpane';
@@ -630,6 +631,15 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     destinationSheetIndex={uiState.currOpenTaskpane.destinationSheetIndex}
                     existingPivotParams={uiState.currOpenTaskpane.existingPivotParams}
+                />
+            )
+            case TaskpaneType.SPLIT_TEXT_TO_COLUMNS: return (
+                <SplitTextToColumnsTaskpane
+                    mitoAPI={props.mitoAPI}
+                    analysisData={analysisData}
+                    sheetDataArray={sheetDataArray}
+                    gridState={gridState}
+                    setUIState={setUIState}
                 />
             )
             case TaskpaneType.STEPS: return (

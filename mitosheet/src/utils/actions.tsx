@@ -9,7 +9,7 @@ import { getDefaultGraphParams } from "../components/taskpanes/Graph/graphUtils"
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../data/function_documentation";
-import { Action, ActionEnum, DFSource, EditorState, GridState, SheetData, UIState } from "../types"
+import { Action, DFSource, EditorState, GridState, SheetData, UIState, ActionEnum } from "../types"
 import { getColumnHeaderParts, getDisplayColumnHeader } from "./columnHeaders";
 import { FORMAT_DISABLED_MESSAGE } from "./formatColumns";
 
@@ -814,6 +814,23 @@ export const createActions = (
             },
             searchTerms: ['sort', 'ascending', 'descending', 'arrange'],
             tooltip: "Sort a column in ascending or descending order."
+        },
+        [ActionEnum.Split_Text_To_Column]: {
+            type: ActionEnum.Split_Text_To_Column,
+            shortTitle: 'Split',
+            longTitle: 'Split text to columns',
+            actionFunction: () => {
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenModal: {type: ModalEnum.None},
+                        currOpenTaskpane: {type: TaskpaneType.SPLIT_TEXT_TO_COLUMNS}
+                    }
+                })
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no columns to split. Import data.'},
+            searchTerms: ['split', 'extract', 'parse', 'column', 'splice', 'text'],
+            tooltip: "Split a column on a delimiter to break it into multiple columns."
         },
         [ActionEnum.Steps]: {
             type: ActionEnum.Steps,

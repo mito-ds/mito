@@ -33,7 +33,8 @@ export enum StepType {
     Graph = 'graph',
     GraphDuplicate = 'graph_duplicate',
     GraphDelete = 'graph_delete',
-    GraphRename = 'graph_rename'
+    GraphRename = 'graph_rename',
+    SplitTextToColumn = 'split_text_to_column'
 }
 
 /**
@@ -265,6 +266,12 @@ export interface ConcatParams {
     join: 'inner' | 'outer',
     ignore_index: boolean,
     sheet_indexes: number[]
+}
+
+export interface SplitTextToColumnsParams {
+    sheet_index: number,
+    column_id: ColumnID,
+    delimeters: string[]
 }
 
 // NOTE: these aggregation functions need to be supported
@@ -675,6 +682,7 @@ export enum ActionEnum {
     Set_Cell_Value = 'set cell value',
     Set_Column_Formula = 'set column formula',
     Sort = 'sort',
+    Split_Text_To_Column = 'split text to column',
     Steps = 'steps',
     Undo = 'undo',
     Unique_Values = 'unique values',
