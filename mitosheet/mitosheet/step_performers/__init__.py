@@ -34,6 +34,7 @@ from mitosheet.step_performers.graph_steps.graph import GraphStepPerformer
 from mitosheet.step_performers.graph_steps.graph_delete import GraphDeleteStepPerformer
 from mitosheet.step_performers.graph_steps.graph_duplicate import GraphDuplicateStepPerformer
 from mitosheet.step_performers.graph_steps.graph_rename import GraphRenameStepPerformer
+from mitosheet.step_performers.column_steps.split_text_to_columns import SplitTextToColumnsStepPerformer
 
 
 # All steps must be listed in this variable. Note the Type annotation allows for
@@ -62,7 +63,8 @@ STEP_PERFORMERS: List[Type[StepPerformer]] = [
     GraphStepPerformer,
     GraphDeleteStepPerformer,
     GraphDuplicateStepPerformer,
-    GraphRenameStepPerformer
+    GraphRenameStepPerformer,
+    SplitTextToColumnsStepPerformer
 ]
 
 # A helpful mapping for looking up steps based on the incoming events

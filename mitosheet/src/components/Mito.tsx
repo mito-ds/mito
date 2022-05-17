@@ -640,6 +640,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     sheetDataArray={sheetDataArray}
                     gridState={gridState}
                     setUIState={setUIState}
+                    dfNames={dfNames}
                 />
             )
             case TaskpaneType.STEPS: return (

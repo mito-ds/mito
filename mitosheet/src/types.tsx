@@ -34,7 +34,7 @@ export enum StepType {
     GraphDuplicate = 'graph_duplicate',
     GraphDelete = 'graph_delete',
     GraphRename = 'graph_rename',
-    SplitTextToColumn = 'split_text_to_column'
+    SplitTextToColumns = 'split_text_to_columns'
 }
 
 /**
