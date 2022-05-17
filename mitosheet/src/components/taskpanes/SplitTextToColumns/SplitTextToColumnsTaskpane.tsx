@@ -11,6 +11,7 @@ import Col from "../../spacing/Col";
 import Select from "../../elements/Select";
 import DropdownItem from "../../elements/DropdownItem";
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders";
+import MultiSelectButtons from "../../elements/MultiSelectButtons";
 
 
 
@@ -36,7 +37,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
         {
             sheet_index: props.gridState.sheetIndex,
             column_id: props.sheetDataArray[props.gridState.sheetIndex].data[startingColumnIndex].columnID,
-            delimeters: ['']
+            delimiters: ['']
         },
         StepType.SplitTextToColumns, 
         props.mitoAPI,
@@ -117,6 +118,35 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                                 )
                             })}
                         </Select>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
+                        <p className='text-header-3'>
+                            Delimiters
+                        </p>
+                    </Col>
+                    <Col>
+                        <MultiSelectButtons
+                            values={['comma', 'dash']} 
+                            selectedValues={['']}
+                            onChange={(toggledDelimiter) => {
+                                setParams(prevParams => {
+                                    const selectedDelimiters = [...prevParams.delimiters]
+                                    if (selectedDelimiters.includes(toggledDelimiter)) {
+                                        // If the delimiter is already in the list, remove it
+                                        selectedDelimiters.splice(selectedDelimiters.indexOf(toggledDelimiter), 1)
+                                    } else {
+                                        // If the delimiter is not in the list, add it
+                                        selectedDelimiters.push(toggledDelimiter)
+                                    }
+                                    return {
+                                        ...prevParams,
+                                        delimeters: selectedDelimiters
+                                    }
+                                })
+                            }}
+                        />
                     </Col>
                 </Row>
             </DefaultTaskpaneBody>

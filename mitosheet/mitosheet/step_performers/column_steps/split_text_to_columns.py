@@ -9,8 +9,9 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.reorder_column_code_chunk import ReorderColumnCodeChunk
-from mitosheet.state import State
+from mitosheet.state import FORMAT_DEFAULT, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
 from mitosheet.transpiler.transpile_utils import \
@@ -52,10 +53,23 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
 
         # Actually execute the column reordering
         pandas_start_time = perf_counter() 
-        final_df[sheet_index] = final_df[column_id].str.split(delimiter_string, -1, expand=True)
-        #final_df.columns = final_df.columns[:column_id_index].tolist() + {new_column_headers} + final_df.columns[{column_id_index}:{-{len(new_columns)}].tolist()
-
+        # Create the dataframe of new columns. We do this first, so that we know how many columns get created.
+        new_columns_df = final_df[column_id].str.split(delimiter_string, -1, expand=True)
+        # Create the new column headers
+        new_column_headers = [f'split_{idx}_of_{column_header}' for column, idx in enumerate(new_columns_df)]
+        # Add the new columns to the end of the dataframe
+        final_df[new_column_headers] = new_columns_df
+        # Set the columns in the correct order
+        final_df = final_df[final_df.columns[:column_id_index + 1].tolist() + new_column_headers + final_df.columns[column_id_index + 1:-len(new_column_headers)].tolist()]
         pandas_processing_time = perf_counter() - pandas_start_time
+
+
+        # Update state variables
+        for column_header in new_column_headers:
+            column_id = post_state.column_ids.add_column_header(sheet_index, column_header)
+            post_state.column_spreadsheet_code[sheet_index][column_id] = ''
+            post_state.column_filters[sheet_index][column_id] = {'operator': 'And', 'filters': []}
+            post_state.column_format_types[sheet_index][column_id] = {'type': FORMAT_DEFAULT}
 
         post_state.dfs[sheet_index] = final_df
 
@@ -71,14 +85,22 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
-        return []
+        return [
+            EmptyCodeChunk(
+                prev_state, 
+                post_state, 
+                {
+                    'display_name': 'Split Text to Columns',
+                    'description_comment': 'Sp;it',
+                }, 
+                execution_data
+            )
+        ]
     
     @classmethod
     def get_modified_dataframe_indexes( # type: ignore
         cls, 
         sheet_index: int,
-        column_id: ColumnID,
-        new_column_index: int,
         **params
     ) -> Set[int]:
         return {sheet_index}
