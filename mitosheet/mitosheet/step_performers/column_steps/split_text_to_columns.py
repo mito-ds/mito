@@ -11,6 +11,7 @@ import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.reorder_column_code_chunk import ReorderColumnCodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.split_text_to_columns_code_chunk import SplitTextToColumnsCodeChunk
 from mitosheet.state import FORMAT_DEFAULT, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
@@ -74,7 +75,8 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
         post_state.dfs[sheet_index] = final_df
 
         return post_state, {
-            'pandas_processing_time': pandas_processing_time
+            'pandas_processing_time': pandas_processing_time,
+            'new_column_headers': new_column_headers
         }
 
     @classmethod
@@ -86,13 +88,10 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            EmptyCodeChunk(
+            SplitTextToColumnsCodeChunk(
                 prev_state, 
                 post_state, 
-                {
-                    'display_name': 'Split Text to Columns',
-                    'description_comment': 'Sp;it',
-                }, 
+                params,
                 execution_data
             )
         ]
