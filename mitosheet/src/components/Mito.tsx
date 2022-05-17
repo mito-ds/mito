@@ -27,6 +27,7 @@ import { getArgs, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell
 import { AnalysisData, DataTypeInMito, DFSource, EditorState, GridState, SheetData, UIState, UserProfile } from '../types';
 import { createActions } from '../utils/actions';
 import { classNames } from '../utils/classNames';
+import { isMitoError } from '../utils/errors';
 import loadPlotly from '../utils/plotly';
 import CatchUpPopup from './CatchUpPopup';
 import ErrorBoundary from './elements/ErrorBoundary';
@@ -199,7 +200,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 // Then, we replay the analysis to replay!
                 const error = await props.mitoAPI.updateReplayAnalysis(analysisToReplayName);
                 
-                if (error !== undefined) {
+                if (isMitoError(error)) {
                     /**
                      * If the replayed analysis fails, the first thing that we need to do is to
                      * report this to the user by displaying a modal that tells them as much

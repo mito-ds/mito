@@ -203,7 +203,7 @@ export default class MitoAPI {
         Returns undefined if it does not get a response within the set timeframe
         for retries.
     */
-    getResponseData<Type>(id: string, maxRetries = MAX_RETRIES): Promise<Type | undefined> {
+        getResponseData<Type>(id: string, maxRetries = MAX_RETRIES): Promise<Type | undefined> {
 
         return new Promise((resolve) => {
             let tries = 0;
@@ -539,24 +539,19 @@ export default class MitoAPI {
      * @param stepID the step id to overwrite (or undefined if not overwriting a step)
      * @returns the stepID that was sent to the backend
      */
-    async _edit<T>(
+    async _edit<T, R>(
         edit_event_type: string,
         params: T,
-        stepID?: string
-    ): Promise<string | MitoError> {
-        // If we aren't overwritting a step, return the step id
-        if (stepID === undefined || stepID == '') {
-            stepID = getRandomId();
-        }
-
-        const error: MitoError | undefined = await this.send({
+        stepID: string
+    ): Promise<R | MitoError | undefined> {
+        const result: R | MitoError | undefined = await this.send({
             'event': 'edit_event',
             'type': edit_event_type,
             'step_id': stepID,
             'params': params
-        }, {})
+        }, {});
 
-        return error != undefined ? error : stepID
+        return result;
     }
 
     async editGraph(

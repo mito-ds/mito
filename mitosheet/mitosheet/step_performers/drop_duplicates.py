@@ -59,10 +59,17 @@ class DropDuplicatesStepPerformer(StepPerformer):
         )
         pandas_processing_time = perf_counter() - pandas_start_time
 
+
         post_state.dfs[sheet_index] = final_df
 
+        # We calculate the number of rows dropped, so we can return this to the frontend
+        num_rows_dropped = len(prev_state.dfs[sheet_index].index) - len(post_state.dfs[sheet_index].index)
+
         return post_state, {
-            'pandas_processing_time': pandas_processing_time
+            'pandas_processing_time': pandas_processing_time,
+            'result': {
+                'num_rows_dropped': num_rows_dropped
+            }
         }
 
     @classmethod

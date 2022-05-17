@@ -554,6 +554,7 @@ export type FormatTypeObj =
  * @param renderCount - the number of times this sheet has rendered. Note that this is per instance of the backend object, 
  *        so it increments by one when the page the sheet is rendered on is refreshed, but resets to zero if a new
  *        mitosheet.sheet() call is made (even if it replays the analysis), as this is a new backend object.
+ * @param lastResult - TODO!
  */
 export interface AnalysisData {
     analysisName: string,
@@ -568,6 +569,7 @@ export interface AnalysisData {
     graphDataDict: GraphDataDict;
     updateEventCount: number;
     renderCount: number;
+    lastResult: any;
 }
 
 /**

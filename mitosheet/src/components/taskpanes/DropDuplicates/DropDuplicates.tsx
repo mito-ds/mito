@@ -1,29 +1,24 @@
 // Copyright (c) Mito
 // Distributed under the terms of the Modified BSD License.
 
-import React, { useState } from 'react';
+import React from 'react';
+import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import MitoAPI from '../../../jupyter/api';
-import useSyncedParams from '../../../hooks/useSyncedParams';
 import { AnalysisData, ColumnHeader, ColumnID, SheetData, StepType, UIState } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import DropdownItem from '../../elements/DropdownItem';
-import LoadingDots from '../../elements/LoadingDots';
 import MultiToggleBox from '../../elements/MultiToggleBox';
 import MultiToggleItem from '../../elements/MultiToggleItem';
 import Select from '../../elements/Select';
+import TextButton from '../../elements/TextButton';
 import Col from '../../spacing/Col';
 import Row from '../../spacing/Row';
+import Spacer from '../../spacing/Spacer';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import { TaskpaneType } from '../taskpanes';
-
-
-// Millisecond delay between changing params, so that
-// we don't load send too many drop duplicate messages when the user
-// is just configuring. 
-const SEND_MESSAGE_DELAY = 250;
 
 
 interface DropDuplicatesProps {
@@ -39,6 +34,10 @@ interface DropDuplicatesParams {
     sheet_index: number,
     column_ids: ColumnID[],
     keep: 'first' | 'last' | false
+}
+
+interface DropDuplicateResults {
+    num_rows_dropped: number;
 }
 
 export const getDefaultParams = (selectedSheetIndex: number, sheetDataArray: SheetData[]): DropDuplicatesParams | undefined => {
@@ -59,13 +58,11 @@ export const getDefaultParams = (selectedSheetIndex: number, sheetDataArray: She
 */
 const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
 
-    const {params, setParams, loading} = useSyncedParams<DropDuplicatesParams>(
+    const {params, setParams, loading, edit, editApplied, result} = useSendEditOnClick<DropDuplicatesParams, DropDuplicateResults>(
         getDefaultParams(props.selectedSheetIndex, props.sheetDataArray),
         StepType.DropDuplicates,
         props.mitoAPI, props.analysisData,
-        SEND_MESSAGE_DELAY
     )
-    const [originalNumRows, setOriginalNumRows] = useState(props.sheetDataArray[props.selectedSheetIndex]?.numRows || 0);
 
     if (props.sheetDataArray.length === 0 || params === undefined) {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
@@ -118,8 +115,6 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
                                         column_ids: props.sheetDataArray[newSheetIndex].data.map(c => c.columnID),
                                     }
                                 })
-
-                                setOriginalNumRows(props.sheetDataArray[newSheetIndex].numRows);
 
                                 props.setUIState(prevUIState => {
                                     return {
@@ -235,21 +230,21 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
                         ) 
                     })}
                 </MultiToggleBox>
-                {loading &&
-                    <Row className='mt-5'>
-                        <p className='text-subtext-1'>
-                            Deduplicating {<LoadingDots/>}
-                        </p>
-                    </Row>
-                }
-                {!loading &&
-                    <Row className='mt-5'>
-                        <p className='text-subtext-1'>
-                            Removed {originalNumRows - props.sheetDataArray[params.sheet_index].numRows} rows
-                        </p>
-                    </Row>
-                }
-                
+                <Spacer px={25}/>
+                <TextButton
+                    variant='dark'
+                    width='block'
+                    onClick={edit}
+                    disabled={false}
+                >
+                    {!editApplied 
+                        ? `Drop duplicates across ${params.column_ids.length} columns` 
+                        : (loading 
+                            ? 'Dropping...' 
+                            : `Removed ${result?.num_rows_dropped || 0} rows`
+                        )
+                    }
+                </TextButton>
             </DefaultTaskpaneBody>
         </DefaultTaskpane>   
     )

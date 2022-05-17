@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from "react";
-import MitoAPI from "../jupyter/api";
+import MitoAPI, { getRandomId } from "../jupyter/api";
 import { AnalysisData } from "../types";
+import { isMitoError } from "../utils/errors";
 import { useDebouncedEffect } from "./useDebouncedEffect";
 import { useEffectOnUpdateEvent } from "./useEffectOnUpdateEvent";
 
@@ -23,15 +24,15 @@ import { useEffectOnUpdateEvent } from "./useEffectOnUpdateEvent";
     the parameters to the user and allow them to edit them. This is really
     sweet, and we'll continue to migrate to this hook over time. Woo!
 */
-function useSyncedParams<T>(
-    defaultParams: T | undefined,
+function useSyncedParams<ParamType>(
+    defaultParams: ParamType | undefined,
     stepType: string,
     mitoAPI: MitoAPI,
     analysisData: AnalysisData,
     debounceDelay: number
 ): {
-        params: T | undefined, // If this is undefined, no messages will be send to the backend
-        setParams: React.Dispatch<React.SetStateAction<T>>, 
+        params: ParamType | undefined, // If this is undefined, no messages will be send to the backend
+        setParams: React.Dispatch<React.SetStateAction<ParamType>>, 
         error: string | undefined,
         loading: boolean // This loading indicator is for if the edit message is processing
     } {
@@ -59,7 +60,7 @@ function useSyncedParams<T>(
     // backend. This makes life very plesant for the consumer of this hook, as 
     // they don't have to remember to increment a setUpdateNumber state variable
     // by one every time they change the params
-    const setParams: React.Dispatch<React.SetStateAction<T>> = useCallback(
+    const setParams: React.Dispatch<React.SetStateAction<ParamType>> = useCallback(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (args: any) => {
             _setParams(args);
@@ -75,17 +76,18 @@ function useSyncedParams<T>(
         }
 
         setLoading(true);
-        const _stepIDOrError = await mitoAPI._edit(editEvent, params, stepID);
+        const stepIDToSend = stepID || getRandomId();
+        const resultOrError = await mitoAPI._edit<ParamType, undefined>(editEvent, params, stepIDToSend);
         setLoading(false);
 
-        // Handle if we return a valid step id or an error!
-        if (typeof _stepIDOrError === 'string') {
-            setStepID(_stepIDOrError);
-            setError(undefined)
-        } else {
-            setError(_stepIDOrError.to_fix);
+        // Handle if we return an error
+        if (isMitoError(resultOrError)) {
+            setError(resultOrError.to_fix);
             // Note: we do not clear the stepID in this case, it is still applied
             // and valid
+        } else {
+            setStepID(stepIDToSend);
+            setError(undefined)
         }
     }
 
