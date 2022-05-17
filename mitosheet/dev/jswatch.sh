@@ -1,5 +1,8 @@
 #!/bin/bash -eu
 
+# checktestpypi.sh: this script should be run in the monorepo/mitosheet folder
+# and will just run the javascript watch command
+
 # Activate the enviornment
 source venv/bin/activate
 
