@@ -14,7 +14,6 @@ import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
 import Select from '../../elements/Select';
-import useSyncedParams from '../../../hooks/useSyncedParams';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import DropdownItem from '../../elements/DropdownItem';
 import MultiToggleBox from '../../elements/MultiToggleBox';
@@ -25,6 +24,8 @@ import { addIfAbsent, removeIfPresent } from '../../../utils/arrays';
 import Spacer from '../../spacing/Spacer';
 import Input from '../../elements/Input';
 import { isNumberDtype } from '../../../utils/dtypes';
+import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
+import TextButton from '../../elements/TextButton';
 
 
 interface FillNaTaskpaneProps {
@@ -60,12 +61,11 @@ const getDefaultParams = (sheetDataArray: SheetData[], selectedSheetIndex: numbe
 */
 const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
 
-    const {params, setParams} = useSyncedParams<FillNaParams>(
+    const {params, setParams, loading, edit, editApplied} = useSendEditOnClick<FillNaParams, undefined>(
         getDefaultParams(props.sheetDataArray, props.selectedSheetIndex),
         StepType.FillNa, 
         props.mitoAPI,
         props.analysisData,
-        50 // 50 ms debounce delay
     )
 
     if (params === undefined) {
@@ -284,9 +284,21 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                             />
                         </Col>
                     </Row>
-                
-                
                 }
+                <TextButton
+                    variant='dark'
+                    width='block'
+                    onClick={edit}
+                    disabled={false}
+                >
+                    {!editApplied 
+                        ? `Fill NaN values in ${params.column_ids.length} columns` 
+                        : (loading 
+                            ? 'Filling NaN values...' 
+                            : `Filled NaN values`
+                        )
+                    }
+                </TextButton>
             </DefaultTaskpaneBody>
 
         </DefaultTaskpane>
