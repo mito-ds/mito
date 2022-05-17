@@ -289,7 +289,6 @@ class StepsManager:
 
     @property
     def analysis_data_json(self):
-        print(self.curr_step.execution_data['result'] if 'result' in self.curr_step.execution_data else None)
         return json.dumps(
             {
                 "analysisName": self.analysis_name,

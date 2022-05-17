@@ -187,7 +187,7 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                         </p>
                     </Col>
                     <Col>
-                    <Select 
+                        <Select 
                             value={params.fill_method.type}
                             onChange={(newFillMethodType: string) => {
                                 setParams(prevConcatParams => {

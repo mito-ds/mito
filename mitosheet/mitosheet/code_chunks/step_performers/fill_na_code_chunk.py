@@ -71,5 +71,7 @@ class FillNaCodeChunk(CodeChunk):
                 column_headers_list_str = column_header_list_to_transpiled_code(column_headers)
                 return [f"{df_name}[{column_headers_list_str}] = {df_name}[{column_headers_list_str}].fillna({df_name}[{column_headers_list_str}].median())"]
 
+        return []
+
     def get_edited_sheet_indexes(self) -> List[int]:
         return [self.get_param('sheet_index')]

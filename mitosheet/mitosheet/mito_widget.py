@@ -124,16 +124,12 @@ class MitoWidget(DOMWidget):
         # Also, write the analysis to a file!
         write_analysis(self.steps_manager)
 
-        # Get the result from the most recently executed step, which might not exist
-        result = self.steps_manager.curr_step.execution_data['result'] if 'result' in self.steps_manager.curr_step.execution_data else None
-
         # Tell the front-end to render the new sheet and new code with an empty
         # response. NOTE: in the future, we can actually send back some data
         # with the response (like an error), to get this response in-place!        
         self.send({
             'event': 'response',
-            'id': event['id'],
-            'data': result
+            'id': event['id']
         })
 
 
@@ -164,16 +160,12 @@ class MitoWidget(DOMWidget):
         # Also, write the analysis to a file!
         write_analysis(self.steps_manager)
 
-        # Get the result from the most recently executed step, which might not exist
-        result = self.steps_manager.curr_step.execution_data['result'] if 'result' in self.steps_manager.curr_step.execution_data else None
-
         # Tell the front-end to render the new sheet and new code with an empty
         # response. NOTE: in the future, we can actually send back some data
         # with the response (like an error), to get this response in-place!
         self.send({
             'event': 'response',
             'id': event['id'],
-            'data': result
         })
 
     def receive_message(self, widget: Any, content: Dict[str, Any], buffers: Any=None) -> bool:

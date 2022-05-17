@@ -203,7 +203,7 @@ export default class MitoAPI {
         Returns undefined if it does not get a response within the set timeframe
         for retries.
     */
-        getResponseData<Type>(id: string, maxRetries = MAX_RETRIES): Promise<Type | undefined> {
+    getResponseData<Type>(id: string, maxRetries = MAX_RETRIES): Promise<Type | undefined> {
 
         return new Promise((resolve) => {
             let tries = 0;

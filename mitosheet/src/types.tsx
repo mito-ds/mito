@@ -269,10 +269,10 @@ export interface ConcatParams {
 }
 
 export type FillMethod = {'type': 'value', 'value': string | boolean | number} 
-    | {'type': 'ffill'}
-    | {'type': 'bfill'}
-    | {'type': 'mean'}
-    | {'type': 'median'}
+| {'type': 'ffill'}
+| {'type': 'bfill'}
+| {'type': 'mean'}
+| {'type': 'median'}
 
 export interface FillNaParams {
     sheet_index: number,
