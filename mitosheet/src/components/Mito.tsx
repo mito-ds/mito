@@ -746,7 +746,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     })
 
     return (
-        <div className="mito-container" data-jp-suppress-context-menu ref={mitoContainerRef}>
+        <div className="mito-container" data-jp-suppress-context-menu ref={mitoContainerRef} tabIndex={0}>
             <ErrorBoundary mitoAPI={props.mitoAPI}>
                 <Toolbar 
                     mitoAPI={props.mitoAPI}

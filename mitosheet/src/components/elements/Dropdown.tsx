@@ -194,7 +194,16 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
         1. the dropdown's search field
         2. a disabled dropdown item
     */
-    useCallOnAnyClick(props.closeDropdown, DROPDOWN_IGNORE_CLICK_CLASS)
+    useCallOnAnyClick(() => {
+        // Close the dropdown
+        props.closeDropdown();
+
+        // Refocus on the div that is the parent of the dropdown
+        // so that users are focused where they expect
+        dropdownAnchor.current?.focus();
+        console.log("FOCUSING ON", dropdownAnchor.current)
+
+    }, DROPDOWN_IGNORE_CLICK_CLASS)
 
     const [boundingRect, setBoundingRect] = useState<BoundingRect>({
         top: undefined,
@@ -383,7 +392,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
     });
     
     return (
-        <div ref={setRef}>
+        <div ref={setRef} tabIndex={0}>
             {/* 
                 To see more about ReactDOM.createPortal, read the documentation here:
                 https://reactjs.org/docs/portals.html
