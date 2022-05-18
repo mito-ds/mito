@@ -34,8 +34,8 @@ const getCopyStringForRow = (sheetData: SheetData, rowIndex: number, lowColIndex
 }
 
 const getSelectionsToCopy = (selections: MitoSelection[]): MitoSelection[] => {
-    let lowRowIndex = Math.min(selections[0].startingRowIndex, selections[0].endingRowIndex);
-    let highRowIndex = Math.max(selections[0].startingRowIndex, selections[0].endingRowIndex);
+    const lowRowIndex = Math.min(selections[0].startingRowIndex, selections[0].endingRowIndex);
+    const highRowIndex = Math.max(selections[0].startingRowIndex, selections[0].endingRowIndex);
 
     const finalSelections = [selections[0]]
 
@@ -45,8 +45,8 @@ const getSelectionsToCopy = (selections: MitoSelection[]): MitoSelection[] => {
     // So, this is a fine solution and likely something very rare anyways.
     for (let i = 1; i < selections.length; i++) {
         const selection = selections[i];
-        let selectionLowRowIndex = Math.min(selection.startingRowIndex, selection.endingRowIndex);
-        let selectionHighRowIndex = Math.max(selection.startingRowIndex, selection.endingRowIndex);
+        const selectionLowRowIndex = Math.min(selection.startingRowIndex, selection.endingRowIndex);
+        const selectionHighRowIndex = Math.max(selection.startingRowIndex, selection.endingRowIndex);
 
         if (selectionLowRowIndex === lowRowIndex && selectionHighRowIndex === highRowIndex) {
             finalSelections.push(selection);
@@ -70,7 +70,7 @@ const getCopyStringForSelections = (sheetData: SheetData, selections: MitoSelect
     // Get the selections to copy
     selections = getSelectionsToCopy(selections);
 
-    let lowRowIndex = Math.min(selections[0].startingRowIndex, selections[0].endingRowIndex);
+    const lowRowIndex = Math.min(selections[0].startingRowIndex, selections[0].endingRowIndex);
     let highRowIndex = Math.max(selections[0].startingRowIndex, selections[0].endingRowIndex);
     
     // If we only have column headers selected, then we actually want to take the entire column

@@ -191,12 +191,7 @@ export const createActions = (
                     return;
                 }
                 
-                navigator.clipboard.writeText(stringToCopy).then(function() {
-                    /* clipboard successfully set */
-                    // TODO: do we want to do some reporting to the user here?
-                }, function() {
-                    /* clipboard write failed */
-                });
+                void navigator.clipboard.writeText(stringToCopy);
 
                 void mitoAPI.log('copied_data', {
                     'num_selections': gridState.selections.length
@@ -207,7 +202,7 @@ export const createActions = (
             },
             searchTerms: ['copy', 'paste', 'export'],
             tooltip: "Copy the currently selection to the clipboard.",
-            keyboardShortcuts: {
+            displayKeyboardShortcuts: {
                 mac: 'Cmd+C',
                 windows: 'Ctrl+C'
             }
@@ -670,7 +665,7 @@ export const createActions = (
             isDisabled: () => {return undefined},
             searchTerms: ['redo', 'undo'],
             tooltip: "Reapplies the last step that you undid, as long as you haven't made any edits since the undo.",
-            keyboardShortcuts: {
+            displayKeyboardShortcuts: {
                 mac: 'Cmd+Y',
                 windows: 'Ctrl+Y'
             }
@@ -891,7 +886,7 @@ export const createActions = (
             isDisabled: () => {return undefined},
             searchTerms: ['undo', 'go back', 'redo'],
             tooltip: 'Undo the most recent edit.',
-            keyboardShortcuts: {
+            displayKeyboardShortcuts: {
                 mac: 'Cmd+Z',
                 windows: 'Ctrl+Z'
             }

@@ -97,8 +97,8 @@ export const makeToolbarDropdownItem = (action: Action): JSX.Element => {
             tooltip={action.isDisabled()}     
             rightText={
                 window.navigator.userAgent.toUpperCase().includes('MAC')
-                    ? action.keyboardShortcuts?.mac
-                    : action.keyboardShortcuts?.windows
+                    ? action.displayKeyboardShortcuts?.mac
+                    : action.displayKeyboardShortcuts?.windows
             }    
         />
     )

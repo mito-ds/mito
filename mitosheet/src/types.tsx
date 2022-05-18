@@ -782,8 +782,8 @@ export interface Action {
     // Optionally categorize the action, so it can easily be sorted later
     category?: 'spreadsheet formula'
 
-    // Optionally give the action a keyboard shortcut to display with it
-    keyboardShortcuts?: {
+    // If this action has a keyboard shortcut, then you can display this by setting these values
+    displayKeyboardShortcuts?: {
         mac: string,
         windows: string
     }

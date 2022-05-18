@@ -8,8 +8,8 @@ export const useDebouncedEffect = (
     delay: number,
 ): void => {
     useEffect(() => {
-        // Cleanup defaults to a noop, but you can also return a function 
-        // from the effect to have it run on cleanup
+        // Just like useEffect, you can return a result function that runs on
+        // cleanup. We just default here to a noop.
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         let cleanup = () => {}
         const handler = setTimeout(() => {

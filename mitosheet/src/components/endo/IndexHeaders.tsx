@@ -33,7 +33,7 @@ const IndexHeaders = (props: {
                                 rowIndex,
                                 -1
                             );
-                            const className = classNames('index-header-container', 'text-overflow-hide', {'index-header-selected': selected});
+                            const className = classNames('index-header-container', 'text-overflow-hide', 'text-unselectable', {'index-header-selected': selected});
                             const indexHeader = rowIndex >= props.sheetData.numRows ? '' : props.sheetData.index[rowIndex];
 
                             return (

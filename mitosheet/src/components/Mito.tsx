@@ -445,6 +445,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 return;
             }
 
+            // Because JupyterLab has some other event listeners that do weird things with
+            // key presses, we stop this from going elsewhere
             e.stopImmediatePropagation();
             e.stopPropagation();
             e.preventDefault();
