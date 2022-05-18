@@ -13,8 +13,7 @@ import { getDisplayColumnHeader } from "../../../utils/columnHeaders";
 import MultiSelectButtons from "../../elements/MultiSelectButtons";
 import useSendEditOnClick from "../../../hooks/useSendEditOnClick";
 import TextButton from "../../elements/TextButton";
-
-
+import Input from "../../elements/Input";
 
 interface SplitTextToColumnsTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -41,6 +40,16 @@ const delimterCharacterToName: Record<string, string> = {
     ' ': 'Space'
 }
 
+/*
+    TODO: Refactor the delimiters to be a dictionary of all the delimiters with an other record too. 
+    And then just turn them on and off easily without having to look for whether they are included in the 
+    dictionary, which is complicated.
+    
+    The only tricky thing here is that we would prefer to not send it to the backend as a dictionary. Instead, 
+    we just want a list of the delimiters that are included, so instead of setting the params directly, we need to set something else, 
+    then watch for the that to change, and turn the dict into a list of only the included ones for the params delimiters. 
+*/
+
 /* 
     This taskpane allows users to split a column into multiple columns 
     by separating on a delimeter
@@ -60,6 +69,10 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
         props.mitoAPI,
         props.analysisData,
     )
+
+    const getOtherDelimiter = (): string => {
+        return params?.delimiters.filter(x => !Object.keys(delimiterNameToCharacter).includes(x))[0] || '';
+    }
     
     if (params === undefined) {
         return (<DefaultEmptyTaskpane setUIState={props.setUIState}/>)
@@ -160,6 +173,31 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                                     }
                                 })
                             }}
+                        />
+                        <Input 
+                            value={getOtherDelimiter()}
+                            width='small'
+                            placeholder="Custom Delimiter"
+                            onChange={(e) => {
+                                const newDelimiter = e.target.value
+                                setParams(prevParams => {
+                                    const selectedDelimiters = [...prevParams.delimiters]
+                                    // Remove the 'other' delimiter if it exists
+                                    const otherDelimiter = getOtherDelimiter()
+                                    if (otherDelimiter !== '') {
+                                        selectedDelimiters.splice(selectedDelimiters.indexOf(otherDelimiter), 1)
+                                    }
+                                    // Add the new 'other' delimiter 
+                                    if (newDelimiter !== '') {
+                                        selectedDelimiters.push(newDelimiter)
+                                    }
+                                    return {
+                                        ...prevParams,
+                                        delimiters: selectedDelimiters
+                                    }
+                                })
+                            }}
+                        
                         />
                     </Col>
                 </Row>
