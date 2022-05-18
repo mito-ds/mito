@@ -146,7 +146,7 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                                 }
 
                             }}
-                            width='small'
+                            width='medium'
                         >
                             {props.sheetDataArray.map(sheetData => {
                                 return (
@@ -194,10 +194,10 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                     })}
                 </MultiToggleBox>
                 <Spacer px={15}/>
-                <Row justify='space-between' align='center' title='Select the dataframe to fill nan values in.'>
+                <Row justify='space-between' align='center' title='Select the method for filling nan values'>
                     <Col>
                         <p className='text-header-3'>
-                            Columns to Fill NaN Values In
+                            Fill Method
                         </p>
                     </Col>
                     <Col>
@@ -268,6 +268,7 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                         <Col>
                             <Input
                                 autoFocus
+                                width='medium'
                                 value={'' + params.fill_method.value}
                                 onChange={(e) => {
                                     const newValue = e.target.value;
