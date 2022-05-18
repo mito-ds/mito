@@ -14,6 +14,7 @@ export enum StepType {
     DeleteColumn = "delete_column",
     RenameColumn = "rename_column",
     ReorderColumn = "reorder_column",
+    FillNa = 'fill_na',
     FilterColumn = 'filter_column',
     SetColumnFormula = "set_column_formula",
     DataframeDelete = 'dataframe_delete',
@@ -548,6 +549,8 @@ export type FormatTypeObj =
  * @param renderCount - the number of times this sheet has rendered. Note that this is per instance of the backend object, 
  *        so it increments by one when the page the sheet is rendered on is refreshed, but resets to zero if a new
  *        mitosheet.sheet() call is made (even if it replays the analysis), as this is a new backend object.
+ * @param lastResult - This is the result of the last step that was applied. This might be undefined if the 
+ *        step does not return a result
  */
 export interface AnalysisData {
     analysisName: string,
@@ -562,6 +565,7 @@ export interface AnalysisData {
     graphDataDict: GraphDataDict;
     updateEventCount: number;
     renderCount: number;
+    lastResult: any;
 }
 
 /**
@@ -664,6 +668,7 @@ export enum ActionEnum {
     Duplicate_Graph = 'duplicate graph',
     Docs = 'docs',
     Export = 'export',
+    Fill_Na = 'fill na',
     Filter = 'filter',
     Format = 'format',
     Fullscreen = 'fullscreen',

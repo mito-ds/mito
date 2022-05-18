@@ -36,6 +36,7 @@ export enum TaskpaneType {
     SPLIT_TEXT_TO_COLUMNS = 'split_text_to_columns',
     UPGRADE_TO_PRO = 'upgrade_to_pro',
     IMPORT_FIRST = 'import_first', // when you want to tell the user to import first
+    FILL_NA = 'fill_na', // when you want to tell the user to import first
 }
 
 export type TaskpaneInfo = 
@@ -60,6 +61,7 @@ export type TaskpaneInfo =
         existingPivotParams?: BackendPivotParams, 
     } 
     | {type: TaskpaneType.STEPS}
+    | {type: TaskpaneType.FILL_NA}
     | {
         type: TaskpaneType.IMPORT_FIRST,
         message: string
@@ -68,7 +70,7 @@ export type TaskpaneInfo =
     
 
 /*
-    EDITING_TASKPANES are taskpanes that live update the sheet using overwriting 
+    EDITING_TASKPANES are taskpanes that update the sheet using overwriting 
     and therefore should be closed when the user begins editing the sheet 
     through some other method. 
 */ 
@@ -79,7 +81,11 @@ export const EDITING_TASKPANES: TaskpaneType[] = [
     TaskpaneType.DROP_DUPLICATES,
     TaskpaneType.IMPORT,
     TaskpaneType.DOWNLOAD,
+<<<<<<< HEAD
     TaskpaneType.SPLIT_TEXT_TO_COLUMNS
+=======
+    TaskpaneType.FILL_NA
+>>>>>>> fill-nan
 ]
 
 /**
@@ -95,6 +101,10 @@ export const ALLOW_UNDO_REDO_EDITING_TASKPANES = [
     TaskpaneType.CONCAT,
     TaskpaneType.DROP_DUPLICATES,
     TaskpaneType.IMPORT, 
+<<<<<<< HEAD
     TaskpaneType.SPLIT_TEXT_TO_COLUMNS
+=======
+    TaskpaneType.FILL_NA
+>>>>>>> fill-nan
 ]
     

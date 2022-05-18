@@ -35,7 +35,7 @@ from mitosheet.step_performers.graph_steps.graph_delete import GraphDeleteStepPe
 from mitosheet.step_performers.graph_steps.graph_duplicate import GraphDuplicateStepPerformer
 from mitosheet.step_performers.graph_steps.graph_rename import GraphRenameStepPerformer
 from mitosheet.step_performers.column_steps.split_text_to_columns import SplitTextToColumnsStepPerformer
-
+from mitosheet.step_performers.fill_na import FillNaStepPerformer
 
 # All steps must be listed in this variable. Note the Type annotation allows for
 # subtypes of the step performer to be passed
@@ -51,6 +51,7 @@ STEP_PERFORMERS: List[Type[StepPerformer]] = [
     ChangeColumnFormatStepPerformer,
     MergeStepPerformer,
     ConcatStepPerformer,
+    FillNaStepPerformer,
     DeleteColumnStepPerformer,
     RenameColumnStepPerformer,
     SimpleImportStepPerformer,

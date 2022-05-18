@@ -12,6 +12,7 @@ import { ensureCellVisible } from '../visibilityUtils';
 import LoadingDots from '../../elements/LoadingDots';
 import { getColumnHeaderParts, getDisplayColumnHeader} from '../../../utils/columnHeaders';
 import { submitRenameColumnHeader } from '../columnHeaderUtils';
+import { isMitoError } from '../../../utils/errors';
 
 const MAX_SUGGESTIONS = 4;
 // NOTE: we just set the width to 250 pixels
@@ -411,10 +412,10 @@ const CellEditor = (props: {
 
         // Don't let the user close the editor if this is an invalid formula
         // TODO: do we want a loading message?
-        if (errorMessage === undefined) {
-            closeCellEditor()
-        } else {
+        if (isMitoError(errorMessage)) {
             setCellEditorError(errorMessage.to_fix);
+        } else {
+            closeCellEditor();
         }
     }
 
