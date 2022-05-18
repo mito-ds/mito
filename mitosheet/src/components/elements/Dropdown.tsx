@@ -53,6 +53,12 @@ interface DropdownProps {
     */
     children: JSX.Element | JSX.Element[];
     /** 
+        * @param display - if the dropdown should be displayed. We always render the container
+        * node from the dropdown, so that we can handle focus properly in more cases. This 
+        * requires doing the casing on displaying the dropdown within this file
+    */
+    display: boolean;
+    /** 
         * @param closeDropdown - The function to used to close the dropdown when the user clicks
     */
     closeDropdown: () => void;
@@ -195,6 +201,10 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
         2. a disabled dropdown item
     */
     useCallOnAnyClick(() => {
+        if (!props.display) {
+            return;
+        }
+
         // Close the dropdown
         props.closeDropdown();
 
@@ -400,7 +410,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                 TLDR: they allow us to escape the z-index stack that we're currently in,
                 and place the dropdown on top of everything!
             */}
-            {ReactDOM.createPortal(
+            {props.display && ReactDOM.createPortal(
                 <div 
                     className={dropdownClassNames} 
                     style={{

@@ -439,6 +439,16 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 return;
             }
 
+            // Then, we check if the user is actually focused on some input in Mito,
+            // as in this case we don't want to copy from the sheet
+            if (document.activeElement?.tagName.toLowerCase() === 'input') {
+                return;
+            }
+
+            e.stopImmediatePropagation();
+            e.stopPropagation();
+            e.preventDefault();
+
             actions[ActionEnum.Copy].actionFunction();
         }
         document.addEventListener('keydown', checkCopy)

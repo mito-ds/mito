@@ -360,17 +360,16 @@ const ColumnHeader = (props: {
                     </form>
                 }
             </div>
-            {openColumnHeaderDropdown && 
-                <ColumnHeaderDropdown
-                    mitoAPI={props.mitoAPI}
-                    setOpenColumnHeaderDropdown={setOpenColumnHeaderDropdown}
-                    setUIState={props.setUIState}
-                    openColumnHeaderEditor={openColumnHeaderEditor}
-                    sheetIndex={props.gridState.sheetIndex}
-                    columnID={columnID}
-                    columnDtype={columnDtype}
-                />
-            }
+            <ColumnHeaderDropdown
+                mitoAPI={props.mitoAPI}
+                setOpenColumnHeaderDropdown={setOpenColumnHeaderDropdown}
+                setUIState={props.setUIState}
+                openColumnHeaderEditor={openColumnHeaderEditor}
+                sheetIndex={props.gridState.sheetIndex}
+                columnID={columnID}
+                columnDtype={columnDtype}
+                display={openColumnHeaderDropdown}
+            />
         </div>
     )
 }

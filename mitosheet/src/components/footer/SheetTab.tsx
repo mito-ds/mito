@@ -188,7 +188,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                     {props.isSelectedTab ? <SelectedSheetTabDropdownIcon /> : <UnselectedSheetTabDropdownIcon />}
                 </div>
             </div>
-            {displayActions && props.tabIDObj.tabType === 'data' &&
+            {props.tabIDObj.tabType === 'data' &&
                 <DataSheetTabActions 
                     setDisplayActions={setDisplayActions}
                     setUIState={props.setUIState}
@@ -198,9 +198,10 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                     mitoAPI={props.mitoAPI}
                     graphDataDict={props.graphDataDict}
                     sheetDataArray={props.sheetDataArray}
+                    display={displayActions && props.tabIDObj.tabType === 'data'}
                 />
             }
-            {displayActions && props.tabIDObj.tabType === 'graph' &&
+            {props.tabIDObj.tabType === 'graph' &&
                 <GraphSheetTabActions 
                     setDisplayActions={setDisplayActions}
                     setUIState={props.setUIState}
@@ -209,6 +210,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                     graphID={props.tabIDObj.graphID}
                     mitoAPI={props.mitoAPI}
                     graphDataDict={props.graphDataDict}
+                    display={displayActions && props.tabIDObj.tabType === 'graph'}
                 />
             }
         </div>

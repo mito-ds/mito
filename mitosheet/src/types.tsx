@@ -187,6 +187,7 @@ export type SheetData = {
         columnHeader: ColumnHeader;
         columnDtype: string;
         columnData: (string | number | boolean)[];
+        columnFormatTypeObj: FormatTypeObj;
     }[];
     columnIDsMap: ColumnIDsMap;
     columnSpreadsheetCodeMap: Record<ColumnID, string>;
