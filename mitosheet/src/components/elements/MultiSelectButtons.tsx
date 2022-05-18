@@ -21,10 +21,12 @@ const MultiSelectButtons = (props: MultiSelectButtonsProps): JSX.Element => {
         >
             {props.values.map((value, idx) => {
                 const checked = props.selectedValues.includes(value);
+                console.log(props.selectedValues, value, checked)
 
                 return (
                     <div key={value} 
                         onClick={() => {
+                            console.log('changing: ', value)
                             props.onChange(value);
                         }}
                         className={classNames({'mt-5px': idx !== 0})}

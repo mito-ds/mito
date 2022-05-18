@@ -37,7 +37,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
         {
             sheet_index: props.gridState.sheetIndex,
             column_id: props.sheetDataArray[props.gridState.sheetIndex].data[startingColumnIndex].columnID,
-            delimiters: ['']
+            delimiters: [',']
         },
         StepType.SplitTextToColumns, 
         props.mitoAPI,
@@ -48,8 +48,6 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
     if (params === undefined) {
         return (<DefaultEmptyTaskpane setUIState={props.setUIState}/>)
     }
-
-    console.log(setParams)
 
     return (
         <DefaultTaskpane>
@@ -128,8 +126,8 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                     </Col>
                     <Col>
                         <MultiSelectButtons
-                            values={['comma', 'dash']} 
-                            selectedValues={['']}
+                            values={['Comma', 'Dash', 'Slash', 'Tab', 'Space']} 
+                            selectedValues={params.delimiters}
                             onChange={(toggledDelimiter) => {
                                 setParams(prevParams => {
                                     const selectedDelimiters = [...prevParams.delimiters]
@@ -140,6 +138,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                                         // If the delimiter is not in the list, add it
                                         selectedDelimiters.push(toggledDelimiter)
                                     }
+                                    console.log('selected delimiters: ', selectedDelimiters)
                                     return {
                                         ...prevParams,
                                         delimeters: selectedDelimiters

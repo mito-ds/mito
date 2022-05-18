@@ -42,7 +42,7 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')
-        delimiters: int = get_param(params, 'delimiters')
+        delimiters: List[str] = get_param(params, 'delimiters')
 
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
         column_id_index = prev_state.column_ids.get_column_ids(sheet_index).index(column_id)
@@ -64,7 +64,6 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
         final_df = final_df[final_df.columns[:column_id_index + 1].tolist() + new_column_headers + final_df.columns[column_id_index + 1:-len(new_column_headers)].tolist()]
         pandas_processing_time = perf_counter() - pandas_start_time
 
-
         # Update state variables
         for column_header in new_column_headers:
             column_id = post_state.column_ids.add_column_header(sheet_index, column_header)
@@ -76,6 +75,7 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
+            # Save the new_column_headers so that the code chunk doesn't need to call .split to figure out how many columns were created
             'new_column_headers': new_column_headers
         }
 

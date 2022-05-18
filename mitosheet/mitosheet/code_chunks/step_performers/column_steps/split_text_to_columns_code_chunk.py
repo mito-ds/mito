@@ -27,15 +27,17 @@ class SplitTextToColumnsCodeChunk(CodeChunk):
         sheet_index = self.get_param('sheet_index')
         column_id = self.get_param('column_id')
         delimiters = self.get_param('delimiters')
+        print(delimiters)
         new_column_headers = self.execution_data['new_column_headers']
 
+        delimiter_string = '|'.join(delimiters)
         column_header = self.prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
         transpiled_column_header = column_header_to_transpiled_code(column_header)
         column_id_index = self.prev_state.column_ids.get_column_ids(sheet_index).index(column_id)
         df_name = self.post_state.df_names[sheet_index]
 
         # Split column
-        split_column_line = f'{df_name}[{new_column_headers}] = {df_name}[{transpiled_column_header}].str.split('', -1, expand=True)'
+        split_column_line = f'{df_name}[{new_column_headers}] = {df_name}[{transpiled_column_header}].str.split({delimiter_string}, -1, expand=True)'
 
         # Reorder columns 
         reorder_columns_line = f'{df_name}.columns = {df_name}.columns[:{column_id_index + 1}].tolist() + {new_column_headers} + {df_name}.columns[{column_id_index + 1}:-{len(new_column_headers)}].tolist()'
