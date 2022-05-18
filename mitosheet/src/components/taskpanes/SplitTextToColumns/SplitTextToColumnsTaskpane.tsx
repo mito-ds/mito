@@ -26,19 +26,19 @@ interface SplitTextToColumnsTaskpaneProps {
 }
 
 const delimiterNameToCharacter: Record<string, string> = {
-    'Comma': "','",
-    'Dash' : "'-'",
-    'Slash': "'/'", 
-    'Tab': "'\t'",
-    'Space': "' '"
+    'Comma': ',',
+    'Dash' : '-',
+    'Slash': '/', 
+    'Tab': '\t',
+    'Space': ' '
 }
 
 const delimterCharacterToName: Record<string, string> = {
-    "','": 'Comma',
-    "'-'": 'Dash',
-    "'/'": 'Slash',
-    "'\t'": 'Tab',
-    "' '": 'Space'
+    ',': 'Comma',
+    '-': 'Dash',
+    '/': 'Slash',
+    '\t': 'Tab',
+    ' ': 'Space'
 }
 
 /* 

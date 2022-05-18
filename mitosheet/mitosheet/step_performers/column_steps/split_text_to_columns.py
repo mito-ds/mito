@@ -45,7 +45,6 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')
         delimiters: List[str] = get_param(params, 'delimiters')
-        print('delimiters: ', delimiters)
 
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
         column_id_index = prev_state.column_ids.get_column_ids(sheet_index).index(column_id)
@@ -59,7 +58,7 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
         # TODO: Where should I put the pandas_start_time and end time?
         pandas_start_time = perf_counter() 
         # Create the dataframe of new columns. We do this first, so that we know how many columns get created.
-        new_columns_df = final_df[column_id].str.split(delimiter_string, -1, expand=True)
+        new_columns_df = final_df[column_id].astype('str').str.split(delimiter_string, -1, expand=True)
         # Create the new column headers and ensure they are unique
         new_column_headers = [f'split_{idx}_of_{column_header}_{get_new_colum_header_unique_component()}' for column, idx in enumerate(new_columns_df)]
         # Add the new columns to the end of the dataframe
