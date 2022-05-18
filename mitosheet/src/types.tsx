@@ -781,6 +781,12 @@ export interface Action {
 
     // Optionally categorize the action, so it can easily be sorted later
     category?: 'spreadsheet formula'
+
+    // Optionally give the action a keyboard shortcut to display with it
+    keyboardShortcuts?: {
+        mac: string,
+        windows: string
+    }
 }
 
 export interface ExcelFileMetadata {

@@ -12,7 +12,7 @@ import { FunctionDocumentationObject, functionDocumentationObjects } from "../da
 import { Action, ActionEnum, DFSource, EditorState, GridState, SheetData, UIState } from "../types"
 import { getColumnHeaderParts, getDisplayColumnHeader } from "./columnHeaders";
 import { FORMAT_DISABLED_MESSAGE } from "./formatColumns";
-import { getStringForClipboard } from "./copy";
+import { getCopyStringForClipboard } from "./copy";
 
 
 export const createActions = (
@@ -182,7 +182,7 @@ export const createActions = (
             longTitle: 'Copy',
             actionFunction: () => {
 
-                const stringToCopy = getStringForClipboard(
+                const stringToCopy = getCopyStringForClipboard(
                     sheetData,
                     gridState.selections
                 );
@@ -206,7 +206,11 @@ export const createActions = (
                 return getDataframeIsSelected(uiState, sheetDataArray) ? undefined : "There is no selected data to copy."
             },
             searchTerms: ['copy', 'paste', 'export'],
-            tooltip: "Copy the currently selection to the clipboard."
+            tooltip: "Copy the currently selection to the clipboard.",
+            keyboardShortcuts: {
+                mac: 'Cmd+C',
+                windows: 'Ctrl+C'
+            }
         },
         [ActionEnum.Delete_Column]: {
             type: ActionEnum.Delete_Column,
@@ -665,7 +669,11 @@ export const createActions = (
             },
             isDisabled: () => {return undefined},
             searchTerms: ['redo', 'undo'],
-            tooltip: "Reapplies the last step that you undid, as long as you haven't made any edits since the undo."
+            tooltip: "Reapplies the last step that you undid, as long as you haven't made any edits since the undo.",
+            keyboardShortcuts: {
+                mac: 'Cmd+Y',
+                windows: 'Ctrl+Y'
+            }
         },
         [ActionEnum.Rename_Column]: {
             type: ActionEnum.Rename_Column,
@@ -882,7 +890,11 @@ export const createActions = (
             },
             isDisabled: () => {return undefined},
             searchTerms: ['undo', 'go back', 'redo'],
-            tooltip: 'Undo the most recent edit.'
+            tooltip: 'Undo the most recent edit.',
+            keyboardShortcuts: {
+                mac: 'Cmd+Z',
+                windows: 'Ctrl+Z'
+            }
         },
         [ActionEnum.Unique_Values]: {
             type: ActionEnum.Unique_Values,

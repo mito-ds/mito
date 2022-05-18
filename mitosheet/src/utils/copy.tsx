@@ -3,11 +3,7 @@ import { getDisplayColumnHeader } from "./columnHeaders";
 import { formatCellData } from "./formatColumns";
 
 
-// TODO: actually create a well-researched specification about how things should work (potentially argue for simplicity)
-// TODO: fix the focus issue on Notebooks
-
-
-const copy_valueToString = (value: string | number | boolean, columnDtype: string, columnFormatType: FormatTypeObj): string => {
+const getCopyStringForValue = (value: string | number | boolean, columnDtype: string, columnFormatType: FormatTypeObj): string => {
     const formattedValue = formatCellData(value, columnDtype, columnFormatType);
 
     // TODO: handle the case where this is a string with tabs in it!
@@ -15,15 +11,14 @@ const copy_valueToString = (value: string | number | boolean, columnDtype: strin
     return formattedValue;
 }
 
-
-const copy_getStringForRow = (sheetData: SheetData, rowIndex: number, lowColIndex: number, highColIndex: number): string => {
+const getCopyStringForRow = (sheetData: SheetData, rowIndex: number, lowColIndex: number, highColIndex: number): string => {
     let copyString = '';
 
     for (let columnIndex = lowColIndex; columnIndex <= highColIndex; columnIndex++) {
         if (rowIndex === -1) {
             copyString += getDisplayColumnHeader(sheetData.data[columnIndex].columnHeader)
         } else {
-            copyString += copy_valueToString(
+            copyString += getCopyStringForValue(
                 sheetData.data[columnIndex].columnData[rowIndex],
                 sheetData.data[columnIndex].columnDtype,
                 sheetData.data[columnIndex].columnFormatTypeObj,
@@ -67,12 +62,10 @@ const getSelectionsToCopy = (selections: MitoSelection[]): MitoSelection[] => {
         return selectionOne.startingColumnIndex - selectionTwo.startingColumnIndex 
     })
 
-
     return finalSelections;
 }
 
-
-const copy_getStringForSelections = (sheetData: SheetData, selections: MitoSelection[]): string => {
+const getCopyStringForSelections = (sheetData: SheetData, selections: MitoSelection[]): string => {
     
     // Get the selections to copy
     selections = getSelectionsToCopy(selections);
@@ -90,7 +83,7 @@ const copy_getStringForSelections = (sheetData: SheetData, selections: MitoSelec
         selections.forEach((selection, selectionIndex) => {
             const lowColIndex = Math.min(selection.startingColumnIndex, selection.endingColumnIndex);
             const highColIndex = Math.max(selection.startingColumnIndex, selection.endingColumnIndex);
-            copyString += copy_getStringForRow(sheetData, rowIndex, lowColIndex, highColIndex);
+            copyString += getCopyStringForRow(sheetData, rowIndex, lowColIndex, highColIndex);
             if (selectionIndex !== selections.length - 1) {
                 copyString += '\t';
             }
@@ -103,11 +96,10 @@ const copy_getStringForSelections = (sheetData: SheetData, selections: MitoSelec
     return copyString;
 }
 
-
-export const getStringForClipboard = (sheetData: SheetData | undefined, selections: MitoSelection[]): string | undefined => {
+export const getCopyStringForClipboard = (sheetData: SheetData | undefined, selections: MitoSelection[]): string | undefined => {
     if (sheetData === undefined || selections.length === 0) {
         return undefined;
     }
 
-    return copy_getStringForSelections(sheetData, selections);
+    return getCopyStringForSelections(sheetData, selections);
 }
