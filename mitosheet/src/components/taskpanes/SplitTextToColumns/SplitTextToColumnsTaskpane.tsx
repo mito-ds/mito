@@ -1,6 +1,5 @@
 import React from "react";
 import MitoAPI from "../../../jupyter/api";
-import useSyncedParams from "../../../hooks/useSyncedParams";
 import { AnalysisData, GridState, SheetData, SplitTextToColumnsParams, StepType, UIState } from "../../../types"
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
@@ -12,6 +11,8 @@ import Select from "../../elements/Select";
 import DropdownItem from "../../elements/DropdownItem";
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders";
 import MultiSelectButtons from "../../elements/MultiSelectButtons";
+import useSendEditOnClick from "../../../hooks/useSendEditOnClick";
+import TextButton from "../../elements/TextButton";
 
 
 
@@ -24,7 +25,7 @@ interface SplitTextToColumnsTaskpaneProps {
     dfNames: string[]
 }
 
-const delimterNameToCharacter: Record<string, string> = {
+const delimiterNameToCharacter: Record<string, string> = {
     'Comma': "','",
     'Dash' : "'-'",
     'Slash': "'/'", 
@@ -49,7 +50,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
     // Use the selected column, unless its the index column, then just use the first column
     const startingColumnIndex = props.gridState.selections[0].startingColumnIndex >= 0 ? props.gridState.selections[0].startingColumnIndex : 0
  
-    const {params, setParams} = useSyncedParams<SplitTextToColumnsParams>(
+    const {params, setParams, loading, edit, editApplied} = useSendEditOnClick<SplitTextToColumnsParams, undefined>(
         {
             sheet_index: props.gridState.sheetIndex,
             column_id: props.sheetDataArray[props.gridState.sheetIndex].data[startingColumnIndex].columnID,
@@ -58,7 +59,6 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
         StepType.SplitTextToColumns, 
         props.mitoAPI,
         props.analysisData,
-        50 // 50 ms debounce delay
     )
     
     if (params === undefined) {
@@ -142,17 +142,17 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                     </Col>
                     <Col>
                         <MultiSelectButtons
-                            values={Object.keys(delimterNameToCharacter)} 
+                            values={Object.keys(delimiterNameToCharacter)} 
                             selectedValues={params.delimiters.map(delimiter => delimterCharacterToName[delimiter])}
                             onChange={(toggledDelimiter) => {
                                 setParams(prevParams => {
                                     const selectedDelimiters = [...prevParams.delimiters]
-                                    if (selectedDelimiters.includes(toggledDelimiter)) {
+                                    if (selectedDelimiters.includes(delimiterNameToCharacter[toggledDelimiter])) {
                                         // If the delimiter is already in the list, remove it
-                                        selectedDelimiters.splice(selectedDelimiters.indexOf(toggledDelimiter), 1)
+                                        selectedDelimiters.splice(selectedDelimiters.indexOf(delimiterNameToCharacter[toggledDelimiter]), 1)
                                     } else {
                                         // If the delimiter is not in the list, add it
-                                        selectedDelimiters.push(delimterNameToCharacter[toggledDelimiter])
+                                        selectedDelimiters.push(delimiterNameToCharacter[toggledDelimiter])
                                     }
                                     return {
                                         ...prevParams,
@@ -163,6 +163,20 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                         />
                     </Col>
                 </Row>
+                <TextButton
+                    variant='dark'
+                    width='block'
+                    onClick={edit}
+                    disabled={false}
+                >
+                    {!editApplied 
+                        ? 'Split on delimiter'
+                        : (loading 
+                            ? 'Splitting column ...' 
+                            : `Spit on delimiter`
+                        )
+                    }
+                </TextButton>
             </DefaultTaskpaneBody>
 
         </DefaultTaskpane>

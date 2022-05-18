@@ -81,11 +81,8 @@ export const EDITING_TASKPANES: TaskpaneType[] = [
     TaskpaneType.DROP_DUPLICATES,
     TaskpaneType.IMPORT,
     TaskpaneType.DOWNLOAD,
-<<<<<<< HEAD
-    TaskpaneType.SPLIT_TEXT_TO_COLUMNS
-=======
+    TaskpaneType.SPLIT_TEXT_TO_COLUMNS,
     TaskpaneType.FILL_NA
->>>>>>> fill-nan
 ]
 
 /**
@@ -101,10 +98,7 @@ export const ALLOW_UNDO_REDO_EDITING_TASKPANES = [
     TaskpaneType.CONCAT,
     TaskpaneType.DROP_DUPLICATES,
     TaskpaneType.IMPORT, 
-<<<<<<< HEAD
-    TaskpaneType.SPLIT_TEXT_TO_COLUMNS
-=======
+    TaskpaneType.SPLIT_TEXT_TO_COLUMNS,
     TaskpaneType.FILL_NA
->>>>>>> fill-nan
 ]
     

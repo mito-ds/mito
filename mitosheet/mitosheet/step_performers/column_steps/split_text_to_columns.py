@@ -4,20 +4,22 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from copy import deepcopy
+import random
+import string
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
+import uuid
 
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
-from mitosheet.code_chunks.step_performers.column_steps.reorder_column_code_chunk import ReorderColumnCodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.split_text_to_columns_code_chunk import SplitTextToColumnsCodeChunk
 from mitosheet.state import FORMAT_DEFAULT, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
-from mitosheet.transpiler.transpile_utils import \
-    column_header_to_transpiled_code
-from mitosheet.types import ColumnHeader, ColumnID
+from mitosheet.types import ColumnID
+
+def get_new_colum_header_unique_component() -> str:
+    return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(4))
 
 
 class SplitTextToColumnsStepPerformer(StepPerformer):
@@ -54,16 +56,16 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
         delimiter_string = '|'.join(delimiters)
 
         # Actually execute the column reordering
+        # TODO: Where should I put the pandas_start_time and end time?
         pandas_start_time = perf_counter() 
         # Create the dataframe of new columns. We do this first, so that we know how many columns get created.
         new_columns_df = final_df[column_id].str.split(delimiter_string, -1, expand=True)
-        # Create the new column headers
-        new_column_headers = [f'split_{idx}_of_{column_header}' for column, idx in enumerate(new_columns_df)]
+        # Create the new column headers and ensure they are unique
+        new_column_headers = [f'split_{idx}_of_{column_header}_{get_new_colum_header_unique_component()}' for column, idx in enumerate(new_columns_df)]
         # Add the new columns to the end of the dataframe
         final_df[new_column_headers] = new_columns_df
         # Set the columns in the correct order
         final_df = final_df[final_df.columns[:column_id_index + 1].tolist() + new_column_headers + final_df.columns[column_id_index + 1:-len(new_column_headers)].tolist()]
-        print(final_df.head(5))
         pandas_processing_time = perf_counter() - pandas_start_time
 
         # Update state variables
