@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 import React from 'react';
 import { classNames } from '../../utils/classNames';
-
+import '../../../css/elements/MultiSelectButtons.css'
 
 interface MultiSelectButtonsProps {
     values: string[];
@@ -21,15 +21,13 @@ const MultiSelectButtons = (props: MultiSelectButtonsProps): JSX.Element => {
         >
             {props.values.map((value, idx) => {
                 const checked = props.selectedValues.includes(value);
-                console.log(props.selectedValues, value, checked)
 
                 return (
                     <div key={value} 
                         onClick={() => {
-                            console.log('changing: ', value)
                             props.onChange(value);
                         }}
-                        className={classNames({'mt-5px': idx !== 0})}
+                        className={classNames('multi-select-button', {'mt-5px': idx !== 0})}
                     >
                         <input type='checkbox' name={value} value={value} checked={checked}/>
                         <label htmlFor={value}>{value}</label>

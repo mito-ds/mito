@@ -43,6 +43,7 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')
         delimiters: List[str] = get_param(params, 'delimiters')
+        print('delimiters: ', delimiters)
 
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
         column_id_index = prev_state.column_ids.get_column_ids(sheet_index).index(column_id)
@@ -62,6 +63,7 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
         final_df[new_column_headers] = new_columns_df
         # Set the columns in the correct order
         final_df = final_df[final_df.columns[:column_id_index + 1].tolist() + new_column_headers + final_df.columns[column_id_index + 1:-len(new_column_headers)].tolist()]
+        print(final_df.head(5))
         pandas_processing_time = perf_counter() - pandas_start_time
 
         # Update state variables

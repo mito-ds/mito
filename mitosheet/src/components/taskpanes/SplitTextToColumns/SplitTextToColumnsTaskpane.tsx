@@ -24,6 +24,22 @@ interface SplitTextToColumnsTaskpaneProps {
     dfNames: string[]
 }
 
+const delimterNameToCharacter: Record<string, string> = {
+    'Comma': "','",
+    'Dash' : "'-'",
+    'Slash': "'/'", 
+    'Tab': "'\t'",
+    'Space': "' '"
+}
+
+const delimterCharacterToName: Record<string, string> = {
+    "','": 'Comma',
+    "'-'": 'Dash',
+    "'/'": 'Slash',
+    "'\t'": 'Tab',
+    "' '": 'Space'
+}
+
 /* 
     This taskpane allows users to split a column into multiple columns 
     by separating on a delimeter
@@ -37,7 +53,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
         {
             sheet_index: props.gridState.sheetIndex,
             column_id: props.sheetDataArray[props.gridState.sheetIndex].data[startingColumnIndex].columnID,
-            delimiters: [',']
+            delimiters: []
         },
         StepType.SplitTextToColumns, 
         props.mitoAPI,
@@ -126,8 +142,8 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                     </Col>
                     <Col>
                         <MultiSelectButtons
-                            values={['Comma', 'Dash', 'Slash', 'Tab', 'Space']} 
-                            selectedValues={params.delimiters}
+                            values={Object.keys(delimterNameToCharacter)} 
+                            selectedValues={params.delimiters.map(delimiter => delimterCharacterToName[delimiter])}
                             onChange={(toggledDelimiter) => {
                                 setParams(prevParams => {
                                     const selectedDelimiters = [...prevParams.delimiters]
@@ -136,12 +152,11 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                                         selectedDelimiters.splice(selectedDelimiters.indexOf(toggledDelimiter), 1)
                                     } else {
                                         // If the delimiter is not in the list, add it
-                                        selectedDelimiters.push(toggledDelimiter)
+                                        selectedDelimiters.push(delimterNameToCharacter[toggledDelimiter])
                                     }
-                                    console.log('selected delimiters: ', selectedDelimiters)
                                     return {
                                         ...prevParams,
-                                        delimeters: selectedDelimiters
+                                        delimiters: selectedDelimiters
                                     }
                                 })
                             }}
