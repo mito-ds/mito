@@ -39,6 +39,12 @@ export const KEYS_TO_IGNORE_IF_PRESSED_ALONE = [
     'Unidentified' // If you press the fn key on windows, this is the key
 ]
 
+export const KEYBOARD_SHORTCUTS_TO_IGNORE_WITH_CONTROL = [
+    'c',
+    'z',
+    'y'
+]
+
 function EndoGrid(props: {
     sheetDataArray: SheetData[],
     sheetIndex: number,
@@ -500,6 +506,9 @@ function EndoGrid(props: {
             }
             
             if (KEYS_TO_IGNORE_IF_PRESSED_ALONE.includes(e.key)) {
+                return;
+            }
+            if (KEYBOARD_SHORTCUTS_TO_IGNORE_WITH_CONTROL.includes(e.key) || (e.ctrlKey)) {
                 return;
             }
 
