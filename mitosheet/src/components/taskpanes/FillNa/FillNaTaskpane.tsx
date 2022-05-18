@@ -83,7 +83,7 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
     )
 
     if (params === undefined) {
-        return (<DefaultEmptyTaskpane setUIState={props.setUIState} message="Import a dataset datasets before filling NaN values."/>)
+        return (<DefaultEmptyTaskpane setUIState={props.setUIState} message="Import a dataset before filling NaN values."/>)
     }
 
     const columnIDsMap = props.sheetDataArray[params.sheet_index]?.columnIDsMap || {};
@@ -228,12 +228,12 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                             <DropdownItem
                                 id='ffill'
                                 title="Forward Fill"
-                                subtext="Replaces NaN values with the value in the row above."
+                                subtext="Replaces NaN values with the value above in the dataframe."
                             />
                             <DropdownItem
                                 id='bfill'
                                 title="Back Fill"
-                                subtext="Replaces NaN values with the value in the row below."
+                                subtext="Replaces NaN values with the value below in the dataframe."
                             />
                             <DropdownItem
                                 id='mean'
@@ -280,7 +280,7 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                                         finalValue = parseFloat(newValue);
                                     }
                                     // TODO: there is a bug in the above logic, where we do not always turn number values
-                                    // to numbers. Specifically, if a user enters a number editing in a "." as they are typing
+                                    // to numbers. Specifically, if a user enters a number ending in a "." as they are typing
                                     // a decimal, then we keep this as a string. This allows them to keep entering a decimal,
                                     // which is most likely what they want. However, if they apply the fill nan with this 
                                     // decimal point at the end, it might fill with a string, which is not what they want

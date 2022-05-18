@@ -12,8 +12,6 @@ from mitosheet.code_chunks.step_performers.drop_duplicates_code_chunk import Dro
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
-from mitosheet.transpiler.transpile_utils import (
-    column_header_list_to_transpiled_code, column_header_to_transpiled_code)
 from mitosheet.types import ColumnID
 
 class DropDuplicatesStepPerformer(StepPerformer):

@@ -377,9 +377,8 @@ export const createActions = (
             isDisabled: () => {
                 return doesAnySheetExist(sheetDataArray) ? undefined : 'There is no dataframe to fill nan values within.'
             },
-            searchTerms: ['fill nan', 'nan', 'find', 'replace', 'null', 'undefined', 'fill null', 'fill undefined', 'empty'],
-            // TODO: @aaron can you think of other ones above?
-            tooltip: "Fill all NaN values with a dataframe or list of columns."
+            searchTerms: ['fill nan', 'nan', 'find', 'replace', 'null', 'undefined', 'fill null', 'fill undefined', 'empty', 'none', 'blank'],
+            tooltip: "Fill all NaN values within a dataframe or list of columns."
         },
         [ActionEnum.Filter]: {
             type: ActionEnum.Filter,
@@ -756,6 +755,9 @@ export const createActions = (
                 if (startingColumnID === undefined) {
                     return 
                 }
+
+                closeOpenEditingPopups();
+
                 const startingFormula = getStartingFormula(sheetData, startingRowIndex, startingColumnIndex);
 
                 setEditorState({
@@ -789,7 +791,10 @@ export const createActions = (
             type: ActionEnum.Set_Column_Formula,
             shortTitle: 'Set Column Formula',
             longTitle: 'Set column formula',
-            actionFunction: async () => {            
+            actionFunction: async () => {  
+                
+                closeOpenEditingPopups();
+
                 setEditorState({
                     rowIndex: startingRowIndex !== -1 ? startingRowIndex : 0,
                     columnIndex: startingColumnIndex,

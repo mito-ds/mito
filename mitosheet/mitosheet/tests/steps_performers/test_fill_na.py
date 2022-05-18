@@ -202,6 +202,54 @@ FILL_NA_TESTS = [
         {'type': 'median'},
         pd.DataFrame({'A': [1.0, 3.0, 3.0, 3.0, 3.0], 'B': [1.0, 2.0, 2.0, 2.0, 2.0]})
     ),
+    # Test all NaN
+    (
+        [
+            pd.DataFrame({'A': [None, None, None], 'B': [None, None, None]}),
+        ],
+        0, 
+        ['A'],
+        {'type': 'value', 'value': 0},
+        pd.DataFrame({'A': [0, 0, 0], 'B': [None, None, None]})
+    ),
+    # Test datetime
+    (
+        [
+            pd.DataFrame({'A': pd.to_datetime(['12-22-1997', None]), 'B': [None, None]}),
+        ],
+        0, 
+        ['A'],
+        {'type': 'value', 'value': 0},
+        pd.DataFrame({'A': [pd.to_datetime('12-22-1997'), 0], 'B': [None, None]})
+    ),
+    (
+        [
+            pd.DataFrame({'A': pd.to_datetime(['12-22-1997', None]), 'B': [None, None]}),
+        ],
+        0, 
+        ['A'],
+        {'type': 'value', 'value': '12-22-1997'},
+        pd.DataFrame({'A': [pd.to_datetime('12-22-1997'), pd.to_datetime('12-22-1997')], 'B': [None, None]})
+    ),
+    # Test timedelta
+    (
+        [
+            pd.DataFrame({'A': pd.to_timedelta(['1 days 06:05:01.00003', None]), 'B': [None, None]}),
+        ],
+        0, 
+        ['A'],
+        {'type': 'value', 'value': 0},
+        pd.DataFrame({'A': [pd.to_timedelta('1 days 06:05:01.00003'), pd.NaT], 'B': [None, None]})
+    ),
+    (
+        [
+            pd.DataFrame({'A': pd.to_timedelta(['1 days 06:05:01.00003', None]), 'B': [None, None]}),
+        ],
+        0, 
+        ['A'],
+        {'type': 'value', 'value': '1 days 06:05:01.00003'},
+        pd.DataFrame({'A': [pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003')], 'B': [None, None]})
+    ),
 ]
 @pytest.mark.parametrize("input_dfs, sheet_index, column_headers, fill_method, output_df", FILL_NA_TESTS)
 def test_fill_na(input_dfs, sheet_index, column_headers, fill_method, output_df):
@@ -213,6 +261,7 @@ def test_fill_na(input_dfs, sheet_index, column_headers, fill_method, output_df)
         fill_method
     )
 
+    print(mito.dfs[sheet_index])
     assert mito.dfs[sheet_index].equals(output_df)
 
 def test_step_after_fill_nan():

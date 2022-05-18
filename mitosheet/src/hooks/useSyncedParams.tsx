@@ -31,7 +31,7 @@ function useSyncedParams<ParamType>(
     analysisData: AnalysisData,
     debounceDelay: number
 ): {
-        params: ParamType | undefined, // If this is undefined, no messages will be send to the backend
+        params: ParamType | undefined, // If this is undefined, no messages will be sent to the backend
         setParams: React.Dispatch<React.SetStateAction<ParamType>>, 
         error: string | undefined,
         loading: boolean // This loading indicator is for if the edit message is processing

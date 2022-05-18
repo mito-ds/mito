@@ -63,7 +63,7 @@ class StepPerformer(ABC, object):
 
         If the exectution_data includes the key `result`, than this result can be
         accessed in the frontend to display some results to the user. See the 
-        FillNaStepPerformer and the FilleNaTaskpane for an example of this usage.
+        DropDuplicatesStepPerformer and the DropDuplicatesCodeChunk for an example of this usage.
         """
         pass
 

@@ -129,8 +129,9 @@ const MultiToggleBox = (props: {
     const heightClass = `element-height-${height}`
     const widthClass = `element-width-${width}`
 
-    let displayedAllToggled = true;
-    const displayedIndexes: number[] = [];
+    let displayedNonDisabledAllToggled = true;
+    const nonDisabledDisplayedIndexes: number[] = [];
+
     let numDisplayed = 0;
     let maxDisplayed = false;
     
@@ -156,13 +157,16 @@ const MultiToggleBox = (props: {
 
         numDisplayed++;
 
-        displayedAllToggled = displayedAllToggled && child.props.toggled; 
-        displayedIndexes.push(child.props.index);
+        
+        // Make sure that if multi-select is disabled entirely, each element is disabled
+        const itemDisabled = child.props.disabled || props.disabled;
+        if (!itemDisabled) {
+            nonDisabledDisplayedIndexes.push(child.props.index);
+            displayedNonDisabledAllToggled = displayedNonDisabledAllToggled && child.props.toggled; 
+        }
 
-        // Clone the child and make sure that if the multi-select is disabled entirely, 
-        // each element is disabled
         return React.cloneElement(child, {
-            disabled: child.props.disabled || props.disabled
+            disabled: itemDisabled
         });
         
     })
@@ -198,19 +202,19 @@ const MultiToggleBox = (props: {
                 {toggleAllIndexes !== undefined && numDisplayed > 0 &&
                     <div 
                         key='Toggle All' 
-                        className={classNames('multi-toggle-box-row', {'multi-toggle-box-row-selected': displayedAllToggled})}
+                        className={classNames('multi-toggle-box-row', {'multi-toggle-box-row-selected': displayedNonDisabledAllToggled})}
                         onClick={() => {
                             if (props.disabled) {
                                 return;
                             }
-                            toggleAllIndexes(displayedIndexes, !displayedAllToggled)
+                            toggleAllIndexes(nonDisabledDisplayedIndexes, !displayedNonDisabledAllToggled)
                         }}
                     >
                         <input
                             key={'Toggle All'}
                             type="checkbox"
                             name={'Toggle All'}
-                            checked={displayedAllToggled}
+                            checked={displayedNonDisabledAllToggled}
                         />
                         Toggle All {searchString !== '' && " Matching"}
                     </div>

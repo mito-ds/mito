@@ -7,7 +7,7 @@
 from typing import List
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_map_to_string
+from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_map_to_string, column_header_to_transpiled_code
 
 
 class FillNaCodeChunk(CodeChunk):
@@ -32,55 +32,41 @@ class FillNaCodeChunk(CodeChunk):
         column_headers = self.post_state.column_ids.get_column_headers_by_ids(sheet_index, column_ids)
         # If the user is filling NaN values across the entire dataframe, we generate nice code
         # that does this specifically, rather than just doing the columns they picked
-        full_dataframe = len(df.columns) == column_headers
+        full_dataframe = len(df.columns) == len(column_headers)
 
         if fill_method_type == 'value':
             if full_dataframe:
-                return [f"{df_name}.fillna({fill_method['value']}, inplace=True)"]
+                
+                return [f"{df_name}.fillna({column_header_to_transpiled_code(fill_method['value'])}, inplace=True)"]
             else:
                 values = {column_header: fill_method['value'] for column_header in column_headers}
                 values_string = column_header_map_to_string(values) # this function is misnamed, but works for us
                 return [f"{df_name}.fillna({values_string}, inplace=True)"]
+        else:
+            if fill_method_type == 'ffill':
+                param_string = "method='ffill'"
+            elif fill_method_type == 'bfill':
+                param_string = "method='bfill'"
+            elif fill_method_type == 'mean':
+                if full_dataframe:
+                    param_string = f"{df_name}.mean()"
+                else:
+                    param_string = f"{df_name}[columns_to_fill_nan].mean()"
+            elif fill_method_type == 'median':
+                if full_dataframe:
+                    param_string = f"{df_name}.median()"
+                else:
+                    param_string = f"{df_name}[columns_to_fill_nan].median()"
 
-        elif fill_method_type == 'ffill':
             if full_dataframe:
-                return [f"{df_name}.fillna(method='ffill', inplace=True)"]
+                return [f"{df_name}.fillna({param_string}, inplace=True)"]
             else:
                 column_headers_list_str = column_header_list_to_transpiled_code(column_headers)
                 return [
                     f"columns_to_fill_nan = {column_headers_list_str}",
-                    f"{df_name}[columns_to_fill_nan] = {df_name}[columns_to_fill_nan].fillna(method='ffill')"
+                    f"{df_name}[columns_to_fill_nan] = {df_name}[columns_to_fill_nan].fillna({param_string})"
                 ]
 
-        elif fill_method_type == 'bfill':
-            if full_dataframe:
-                return [f"{df_name}.fillna(method='bfill', inplace=True)"]
-            else:
-                column_headers_list_str = column_header_list_to_transpiled_code(column_headers)
-                return [
-                    f"columns_to_fill_nan = {column_headers_list_str}",
-                    f"{df_name}[columns_to_fill_nan] = {df_name}[columns_to_fill_nan].fillna(method='bfill')"
-                ]
-
-        elif fill_method_type == 'mean':
-            if full_dataframe:
-                return [f"{df_name}.fillna({df_name}.mean(), inplace=True)"]
-            else:
-                column_headers_list_str = column_header_list_to_transpiled_code(column_headers)
-                return [
-                    f"columns_to_fill_nan = {column_headers_list_str}",
-                    f"{df_name}[columns_to_fill_nan] = {df_name}[columns_to_fill_nan].fillna({df_name}[columns_to_fill_nan].mean())"
-                ]
-
-        elif fill_method_type == 'median':
-            if full_dataframe:
-                return [f"{df_name}.fillna({df_name}.median(), inplace=True)"]
-            else:
-                column_headers_list_str = column_header_list_to_transpiled_code(column_headers)
-                return [
-                    f"columns_to_fill_nan = {column_headers_list_str}",
-                    f"{df_name}[columns_to_fill_nan] = {df_name}[columns_to_fill_nan].fillna({df_name}[columns_to_fill_nan].median())"
-                ]
 
         return []
 

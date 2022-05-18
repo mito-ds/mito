@@ -21,6 +21,7 @@ export default function ColumnHeaderDropdown(props: {
     sheetIndex: number;
     columnID: ColumnID;
     columnDtype: string;
+    closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
 }): JSX.Element {
 
     // Log opening this dropdown
@@ -34,6 +35,7 @@ export default function ColumnHeaderDropdown(props: {
             <DropdownItem 
                 title='Delete Column'
                 onClick={() => {
+                    props.closeOpenEditingPopups();
                     void props.mitoAPI.editDeleteColumn(props.sheetIndex, [props.columnID]);
                 }}
             />
