@@ -299,6 +299,7 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                         </Col>
                     </Row>
                 }
+                <Spacer px={20 + (params.fill_method.type === 'value' ? 0 : 38)}/>
                 <TextButton
                     variant='dark'
                     width='block'
