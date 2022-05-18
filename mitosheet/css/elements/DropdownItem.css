@@ -69,5 +69,11 @@
     display: inline-block;
 }
 
+.mito-dropdown-item-right-text {
+    position: absolute;
+    right: 10px;
+    color: var(--mito-light-gray) !important;
+}
+
 
 
