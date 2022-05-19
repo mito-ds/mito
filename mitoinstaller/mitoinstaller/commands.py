@@ -104,6 +104,10 @@ def install_pip_packages(*packages: str, test_pypi: bool=False) -> None:
     if test_pypi:
         sys_call.extend(['--index-url', 'https://test.pypi.org/simple/', '--extra-index-url', 'https://pypi.org/simple/'])
 
+    # Pass through no cache dir if it is there
+    if '--no-cache-dir' in sys.argv:
+        sys_call.append('--no-cache-dir')
+
     for package in packages:
         sys_call.append(package)
     sys_call.append('--upgrade')
