@@ -85,19 +85,18 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
             setLoadingPreview(true);
 
             const _splitTextToColumnsPreviewArray = await props.mitoAPI.getSplitTextToColumnsPreview(params.sheet_index, params.column_id, params.delimiters)
-
             if (_splitTextToColumnsPreviewArray !== undefined) {
                 setPreview(_splitTextToColumnsPreviewArray)
             } else {
                 setPreview(undefined)
             }
-            setLoadingPreview(false);
 
+            setLoadingPreview(false);
         } else {
             setPreview(undefined)
         }
     }
-
+    
     console.log(preview)
     console.log(loadingPreview)
 
@@ -237,7 +236,23 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                         </p>
                     </Row>
                     <Row suppressTopBottomMargin>
-                        
+                        {preview !== undefined &&
+                            <table>
+                                <tbody>
+                                    {preview.map((rowData, idx) => {
+                                        return (
+                                            <tr key={idx}>
+                                                {rowData.map((cellData, idx) => {
+                                                    return (
+                                                        <td key={idx}>{'' + cellData}</td>
+                                                    )
+                                                })}
+                                            </tr>
+                                        )
+                                    })}
+                                </tbody>
+                            </table>
+                        }
                     </Row>
                 </div>
                 <TextButton
