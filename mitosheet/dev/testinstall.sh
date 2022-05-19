@@ -12,7 +12,7 @@ echo "Making ${FOLDER_NAME}"
 mkdir "${FOLDER_NAME}"
 
 # Ask the user if they want to clear the user.json
-read -p "Reset user.json? " -n 1 -r
+read -p "Reset user.json? [y/n] " -n 1 -r
 echo    # move to a new line
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
