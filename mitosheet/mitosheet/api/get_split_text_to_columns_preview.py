@@ -30,12 +30,9 @@ def get_split_text_to_columns_preview(params: Dict[str, Any], steps_manager: Ste
     delimiter_string = '|'.join(delimiters)
 
     df_preview = df_head[column_id].astype('str').str.split(delimiter_string, -1, expand=True)
-    print(df_preview)
 
     df_preview_column_headers_to_column_ids = {df_preview.columns[i]: df_preview.columns[i] for i in range(len(df_preview.columns))}
-    print(df_preview_column_headers_to_column_ids)
-    
-    print(1)
+
     return json.dumps({
         'dfPreviewSheetData': df_to_json_dumpsable(
             df_preview, 
