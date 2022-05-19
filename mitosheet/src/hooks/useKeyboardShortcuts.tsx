@@ -9,10 +9,15 @@ const KEYBOARD_SHORTCUTS: Record<string, ActionEnum> = {
     'y': ActionEnum.Redo,
 }
 
-const LAB_SHORTCUTS_DEFINED_ELSEWHERE = ['z', 'y'];
+// See comment in plugin.tsx. Because of some JupyterLab plugin issues
+// we cannot detect some key press events, and thus we ignore
+// some keypresses on JLab to be explicit about where things run.
+// NOTE: ignoring these is not actually required, as we don't get
+// these keydown events anyways, but I want to be explicit here!
+const JUPYTER_LAB_SHORTCUTS_DEFINED_ELSEWHERE = ['z', 'y'];
 
 /* 
-    
+    This effect actually does keyboard shortcuts.
 */
 export const useKeyboardShortcuts = (mitoContainerRef: React.RefObject<HTMLDivElement>, actions: Record<ActionEnum, Action>): void => {
     // NOTE: this effect must be debounced so that we're not reregistering these event
@@ -31,7 +36,7 @@ export const useKeyboardShortcuts = (mitoContainerRef: React.RefObject<HTMLDivEl
             }
 
             // We check if the user is doing a shortcut that need not be defined on lab
-            if (LAB_SHORTCUTS_DEFINED_ELSEWHERE.includes(e.key) && isInJupyterLab()) {
+            if (JUPYTER_LAB_SHORTCUTS_DEFINED_ELSEWHERE.includes(e.key) && isInJupyterLab()) {
                 return;
             }
 
