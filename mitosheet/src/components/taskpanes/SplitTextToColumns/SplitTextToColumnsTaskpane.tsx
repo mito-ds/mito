@@ -16,6 +16,7 @@ import TextButton from "../../elements/TextButton";
 import Input from "../../elements/Input";
 import { useDebouncedEffect } from "../../../hooks/useDebouncedEffect";
 import '../../../../css/taskpanes/SplitTextToColumns/SplitTextToColumns.css'
+import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 
 interface SplitTextToColumnsTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -39,10 +40,6 @@ const defaultDelimitersObj: Record<string, DelimiterObj> = {
     'Dash': {
         included: false,
         delimiter: '-'
-    },
-    'Slash': {
-        included: false,
-        delimiter: '/'
     },
     'Tab': {
         included: false,
@@ -196,12 +193,12 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                     </Col>
                 </Row>
                 <Row>
-                    <Col>
+                    <Col span={6}>
                         <p className='text-header-3'>
                             Delimiters
                         </p>
                     </Col>
-                    <Col>
+                    <Col className="split-text-to-column-delimiters-container">
                         <MultiSelectButtons
                             values={Object.keys(delimiterObjs).filter(delimiterName => delimiterName !== 'Other')} 
                             selectedValues={Object.keys(delimiterObjs).filter(delimiterName => delimiterObjs[delimiterName].included)}
@@ -238,7 +235,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                     </Row>
                     <Row style={{width: '100%', overflowX: 'auto'}}suppressTopBottomMargin>
                         {preview !== undefined &&
-                            <table className="no-spacing" cellSpacing="0">
+                            <table className="preview-table" cellSpacing="0">
                                 <tbody>
                                     {preview.map((rowData, idx) => {
                                         return (
@@ -256,11 +253,13 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                         }
                     </Row>
                 </div>
+                
+            </DefaultTaskpaneBody>
+            <DefaultTaskpaneFooter>
                 <TextButton
                     variant='dark'
                     width='block'
                     onClick={edit}
-                    disabled={false}
                 >
                     {!editApplied 
                         ? 'Split on delimiter'
@@ -270,8 +269,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                         )
                     }
                 </TextButton>
-            </DefaultTaskpaneBody>
-
+            </DefaultTaskpaneFooter>
         </DefaultTaskpane>
     )
 }
