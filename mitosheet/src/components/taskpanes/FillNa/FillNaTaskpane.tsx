@@ -23,10 +23,10 @@ import { getDtypeValue } from '../ControlPanel/FilterAndSortTab/DtypeCard';
 import { addIfAbsent, removeIfPresent } from '../../../utils/arrays';
 import Spacer from '../../spacing/Spacer';
 import Input from '../../elements/Input';
-import { isNumberDtype } from '../../../utils/dtypes';
+import { isDatetimeDtype, isNumberDtype, isTimedeltaDtype } from '../../../utils/dtypes';
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import TextButton from '../../elements/TextButton';
-import { endsInZeroDecimals, isOnlyNumberString } from '../../../utils/numbers';
+import { isOnlyNumberString } from '../../../utils/numbers';
 
 
 interface FillNaTaskpaneProps {
@@ -103,11 +103,11 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
     const sheetData: SheetData | undefined = props.sheetDataArray[params.sheet_index];
     const columnIDsMap = sheetData?.columnIDsMap || {};
     const columnDtypeMap = sheetData?.columnDtypeMap || {};
-    const onlyNumberColumnSelected = params.column_ids.length === 0 || params.column_ids
+    const onlyMeanAndMedianColumnSelected = params.column_ids.length === 0 || params.column_ids
         .map(columnID => columnDtypeMap[columnID])
         .filter(columnDtype => columnDtype !== undefined)
-        .map(columnDtype => isNumberDtype(columnDtype))
-        .every(isNumber => isNumber === true)
+        .map(columnDtype => isNumberDtype(columnDtype) || isDatetimeDtype(columnDtype) || isTimedeltaDtype(columnDtype))
+        .every(hasDefinedMeanAndMedian => hasDefinedMeanAndMedian === true)
 
     const toggleIndexes = (indexes: number[], newToggle: boolean): void => {
         const columnIds = Object.keys(props.sheetDataArray[params.sheet_index]?.columnIDsMap) || [];
@@ -192,7 +192,7 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                         const columnHeader = columnIDsMap[columnID];
                         const toggle = params.column_ids.includes(columnID);
                         const disabled = (params.fill_method.type === 'mean' || params.fill_method.type === 'median') && 
-                            (!isNumberDtype(columnDtype));
+                            !(isNumberDtype(columnDtype) || isTimedeltaDtype(columnDtype) || isDatetimeDtype(columnDtype));
 
                         return (
                             <MultiToggleItem
@@ -255,21 +255,21 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                                 id='mean'
                                 title="Column Mean"
                                 subtext={
-                                    !onlyNumberColumnSelected 
-                                        ? "Select only number columns to fill them with the average of those columns."
+                                    !onlyMeanAndMedianColumnSelected 
+                                        ? "Only number, datetime, and timedetla columns support fill with mean."
                                         : "Replaces NaN values in number columns with the average of the column."
                                 }
-                                disabled={!onlyNumberColumnSelected}
+                                disabled={!onlyMeanAndMedianColumnSelected}
                             />
                             <DropdownItem
                                 id='median'
                                 title="Column Median"
                                 subtext={
-                                    !onlyNumberColumnSelected 
-                                        ? "Select only number columns to fill them with the median of those columns."
+                                    !onlyMeanAndMedianColumnSelected 
+                                        ? "Only number, datetime, and timedetla columns support fill with median."
                                         : "Replaces NaN values in number columns with the median of the column."
                                 }
-                                disabled={!onlyNumberColumnSelected}
+                                disabled={!onlyMeanAndMedianColumnSelected}
                             />
                         </Select>
                     </Col>
@@ -288,25 +288,13 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                                 value={'' + params.fill_method.value}
                                 onChange={(e) => {
                                     const newValue = e.target.value;
-                                    let finalValue: string | boolean | number = newValue;
-
-                                    if (BOOLEAN_STRINGS.includes(newValue)) {
-                                        finalValue = newValue.toLowerCase().startsWith('t') ? true : false;
-                                    } else if (newValue !== '' && isOnlyNumberString(newValue) && !endsInZeroDecimals(newValue)) {
-                                        finalValue = parseFloat(newValue);
-                                    }
-                                    // TODO: there is a bug in the above logic, where we do not always turn number values
-                                    // to numbers. Specifically, if a user enters a number ending in a "." as they are typing
-                                    // a decimal, then we keep this as a string. This allows them to keep entering a decimal,
-                                    // which is most likely what they want. However, if they apply the fill nan with this 
-                                    // decimal point at the end, it might fill with a string, which is not what they want
                                     
                                     setParams(prevParams => {
                                         return {
                                             ...prevParams,
                                             fill_method: {
                                                 type: 'value',
-                                                value: finalValue
+                                                value: newValue
                                             }
                                         }
                                     })

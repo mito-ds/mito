@@ -49,14 +49,14 @@ class FillNaCodeChunk(CodeChunk):
                 param_string = "method='bfill'"
             elif fill_method_type == 'mean':
                 if full_dataframe:
-                    param_string = f"{df_name}.mean()"
+                    param_string = f"{df_name}.mean(numeric_only=False)"
                 else:
-                    param_string = f"{df_name}[columns_to_fill_nan].mean()"
+                    param_string = f"{df_name}[columns_to_fill_nan].mean(numeric_only=False)"
             elif fill_method_type == 'median':
                 if full_dataframe:
-                    param_string = f"{df_name}.median()"
+                    param_string = f"{df_name}.median(numeric_only=False)"
                 else:
-                    param_string = f"{df_name}[columns_to_fill_nan].median()"
+                    param_string = f"{df_name}[columns_to_fill_nan].median(numeric_only=False)"
 
             if full_dataframe:
                 return [f"{df_name}.fillna({param_string}, inplace=True)"]

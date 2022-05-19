@@ -231,6 +231,24 @@ FILL_NA_TESTS = [
         {'type': 'value', 'value': '12-22-1997'},
         pd.DataFrame({'A': [pd.to_datetime('12-22-1997'), pd.to_datetime('12-22-1997')], 'B': [None, None]})
     ),
+    (
+        [
+            pd.DataFrame({'A': pd.to_datetime(['12-22-1997', None, '12-22-1997']), 'B': [None, None, None]}),
+        ],
+        0, 
+        ['A'],
+        {'type': 'mean'},
+        pd.DataFrame({'A': [pd.to_datetime('12-22-1997'), pd.to_datetime('12-22-1997'), pd.to_datetime('12-22-1997')], 'B': [None, None, None]})
+    ),
+    (
+        [
+            pd.DataFrame({'A': pd.to_datetime(['12-22-1997', None, '12-22-1998', '12-22-1998']), 'B': [None, None, None, None]}),
+        ],
+        0, 
+        ['A'],
+        {'type': 'median'},
+        pd.DataFrame({'A': [pd.to_datetime('12-22-1997'), pd.to_datetime('12-22-1998'), pd.to_datetime('12-22-1998'), pd.to_datetime('12-22-1998')], 'B': [None, None, None, None]})
+    ),
     # Test timedelta
     (
         [
@@ -249,6 +267,24 @@ FILL_NA_TESTS = [
         ['A'],
         {'type': 'value', 'value': '1 days 06:05:01.00003'},
         pd.DataFrame({'A': [pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003')], 'B': [None, None]})
+    ),
+    (
+        [
+            pd.DataFrame({'A': pd.to_timedelta(['1 days', None, pd.to_timedelta('3 days')]), 'B': [None, None, None]}),
+        ],
+        0, 
+        ['A'],
+        {'type': 'mean'},
+        pd.DataFrame({'A': [pd.to_timedelta('1 days'), pd.to_timedelta('2 days'), pd.to_timedelta('3 days')], 'B': [None, None, None]})
+    ),
+    (
+        [
+            pd.DataFrame({'A': pd.to_timedelta(['1 days', None, pd.to_timedelta('3 days'), pd.to_timedelta('3 days')]), 'B': [None, None, None, None]}),
+        ],
+        0, 
+        ['A'],
+        {'type': 'median'},
+        pd.DataFrame({'A': [pd.to_timedelta('1 days'), pd.to_timedelta('3 days'), pd.to_timedelta('3 days'), pd.to_timedelta('3 days')], 'B': [None, None, None, None]})
     ),
 ]
 @pytest.mark.parametrize("input_dfs, sheet_index, column_headers, fill_method, output_df", FILL_NA_TESTS)

@@ -57,9 +57,9 @@ class FillNaStepPerformer(StepPerformer):
         elif fill_method_type == 'bfill':
             df[column_headers] = df[column_headers].fillna(method='bfill')
         elif fill_method_type == 'mean':
-            df[column_headers] = df[column_headers].fillna(df[column_headers].mean())
+            df[column_headers] = df[column_headers].fillna(df[column_headers].mean(numeric_only=False))
         elif fill_method_type == 'median':
-            df[column_headers] = df[column_headers].fillna(df[column_headers].median())
+            df[column_headers] = df[column_headers].fillna(df[column_headers].median(numeric_only=False))
         else:
             raise Exception(f"Invalid fill method {fill_method}")
 
