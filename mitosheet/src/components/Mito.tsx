@@ -22,10 +22,10 @@ import '../../css/sitewide/paddings.css';
 import '../../css/sitewide/scroll.css';
 import '../../css/sitewide/text.css';
 import '../../css/sitewide/widths.css';
-import { useDebouncedEffect } from '../hooks/useDebouncedEffect';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import MitoAPI from '../jupyter/api';
 import { getArgs, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell } from '../jupyter/jupyterUtils';
-import { ActionEnum, AnalysisData, DataTypeInMito, DFSource, EditorState, GridState, SheetData, UIState, UserProfile } from '../types';
+import { AnalysisData, DataTypeInMito, DFSource, EditorState, GridState, SheetData, UIState, UserProfile } from '../types';
 import { createActions } from '../utils/actions';
 import { classNames } from '../utils/classNames';
 import loadPlotly from '../utils/plotly';
@@ -424,41 +424,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     }, [uiState])
 
-    // This is the effect that waits for copy and pastes within Mito, and then copies!
-    // NOTE: this effect must be debounced so that we're not reregistering these event
-    // listeners 100 times during every single scroll. In practice, this works perf!
-    useDebouncedEffect(() => {
-        const checkCopy = (e: KeyboardEvent) => {
-            // First, check that this was actually done by a focus on this mitosheet
-            if (!mitoContainerRef.current?.contains(document.activeElement)) {
-                return;
-            }
-
-            // Then, we check the user is doing a copy
-            if (e.key !== 'c' || (!e.ctrlKey && !e.metaKey)){
-                return;
-            }
-
-            // Then, we check if the user is actually focused on some input in Mito,
-            // as in this case we don't want to copy from the sheet
-            if (document.activeElement?.tagName.toLowerCase() === 'input') {
-                return;
-            }
-
-            // Because JupyterLab has some other event listeners that do weird things with
-            // key presses, we stop this from going elsewhere
-            e.stopImmediatePropagation();
-            e.stopPropagation();
-            e.preventDefault();
-
-            actions[ActionEnum.Copy].actionFunction();
-        }
-        document.addEventListener('keydown', checkCopy)
-
-        return () => {document.removeEventListener('keydown', checkCopy)}
-    }, [gridState, sheetDataArray], 50)
-
-
     const dfNames = sheetDataArray.map(sheetData => sheetData.dfName);
     const dfSources = sheetDataArray.map(sheetData => sheetData.dfSource);
     const columnIDsMapArray = sheetDataArray.map(sheetData => sheetData.columnIDsMap);
@@ -701,6 +666,12 @@ export const Mito = (props: MitoProps): JSX.Element => {
         props.mitoAPI, 
         mitoContainerRef
     )
+
+
+    // Hook for using keyboard shortcuts. NOTE: do not return before this hook, it will cause
+    // issues.
+    useKeyboardShortcuts(mitoContainerRef, actions);
+
 
     /* 
         We currrently send all users through the intro tour.

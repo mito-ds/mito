@@ -665,6 +665,10 @@ export const createActions = (
             isDisabled: () => {return undefined},
             searchTerms: ['redo', 'undo'],
             tooltip: "Reapplies the last step that you undid, as long as you haven't made any edits since the undo.",
+            displayKeyboardShortcuts: {
+                mac: 'Cmd+Y',
+                windows: 'Ctrl+Y'
+            }
         },
         [ActionEnum.Rename_Column]: {
             type: ActionEnum.Rename_Column,
@@ -882,6 +886,10 @@ export const createActions = (
             isDisabled: () => {return undefined},
             searchTerms: ['undo', 'go back', 'redo'],
             tooltip: 'Undo the most recent edit.',
+            displayKeyboardShortcuts: {
+                mac: 'Cmd+Z',
+                windows: 'Ctrl+Z'
+            }
         },
         [ActionEnum.Unique_Values]: {
             type: ActionEnum.Unique_Values,
