@@ -271,7 +271,7 @@ export interface ConcatParams {
 
 export interface SplitTextToColumnsParams {
     sheet_index: number,
-    column_id: ColumnID,
+    column_id: ColumnID | undefined,
     delimiters: string[]
 }
 
