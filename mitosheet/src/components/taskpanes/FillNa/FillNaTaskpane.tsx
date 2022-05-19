@@ -6,7 +6,7 @@ import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import MitoAPI from '../../../jupyter/api';
 
 // Import 
-import { AnalysisData, ColumnID, SheetData, StepType, UIState } from '../../../types';
+import { AnalysisData, ColumnHeader, ColumnID, SheetData, StepType, UIState } from '../../../types';
 
 import '../../../../css/taskpanes/Download/DownloadTaskpane.css'
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
@@ -18,7 +18,7 @@ import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import DropdownItem from '../../elements/DropdownItem';
 import MultiToggleBox from '../../elements/MultiToggleBox';
 import MultiToggleItem from '../../elements/MultiToggleItem';
-import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
+import { getDisplayColumnHeader, getFirstCharactersOfColumnHeaders } from '../../../utils/columnHeaders';
 import { getDtypeValue } from '../ControlPanel/FilterAndSortTab/DtypeCard';
 import { addIfAbsent, removeIfPresent } from '../../../utils/arrays';
 import Spacer from '../../spacing/Spacer';
@@ -67,7 +67,21 @@ const getDefaultParams = (sheetDataArray: SheetData[], selectedSheetIndex: numbe
         column_ids: Object.keys(sheetData.columnIDsMap),
         fill_method: {type: 'value', 'value': 0}
     }
+}
 
+/* 
+    Constructs a message in the case an edit is applied telling users 
+    fill na was successful on some columns
+*/
+const getSuccessMessage = (sheetData: SheetData | undefined, columnIDs: ColumnID[]): JSX.Element => {
+    const columnHeaders: ColumnHeader[] = columnIDs.map(columnID => sheetData?.columnIDsMap[columnID]).filter(columnHeader => columnHeader !== undefined) as ColumnHeader[];
+    const [columnHeadersString, numOtherColumnHeaders] = getFirstCharactersOfColumnHeaders(columnHeaders, 25)
+    
+    if (numOtherColumnHeaders === 0) {
+        return (<p>Filled NaNs in <span className='text-color-gray-important'>{columnHeadersString}</span>.</p>)
+    } else {
+        return (<p>Filled NaNs in <span className='text-color-gray-important'>{columnHeadersString}</span> and <span className='text-color-gray-important'>{numOtherColumnHeaders}</span> other columns.</p>)
+    }
 }
 
 /*
@@ -86,8 +100,9 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
         return (<DefaultEmptyTaskpane setUIState={props.setUIState} message="Import a dataset before filling NaN values."/>)
     }
 
-    const columnIDsMap = props.sheetDataArray[params.sheet_index]?.columnIDsMap || {};
-    const columnDtypeMap = props.sheetDataArray[params.sheet_index]?.columnDtypeMap || {};
+    const sheetData: SheetData | undefined = props.sheetDataArray[params.sheet_index];
+    const columnIDsMap = sheetData?.columnIDsMap || {};
+    const columnDtypeMap = sheetData?.columnDtypeMap || {};
     const onlyNumberColumnSelected = params.column_ids.length === 0 || params.column_ids
         .map(columnID => columnDtypeMap[columnID])
         .filter(columnDtype => columnDtype !== undefined)
@@ -300,7 +315,7 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                         </Col>
                     </Row>
                 }
-                <Spacer px={20 + (params.fill_method.type === 'value' ? 0 : 38)}/>
+                <Spacer px={10 + (params.fill_method.type === 'value' ? 0 : 38)}/>
                 <TextButton
                     variant='dark'
                     width='block'
@@ -328,14 +343,18 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                     }}
                     disabled={false}
                 >
-                    {!editApplied 
-                        ? `Fill NaN values in ${params.column_ids.length} columns` 
-                        : (loading 
-                            ? 'Filling NaN values...' 
-                            : `Filled NaN values`
-                        )
+                    {!loading 
+                        ? `Fill NaN values in ${params.column_ids.length} columns`
+                        : 'Filling NaN values...' 
                     }
                 </TextButton>
+                {editApplied && !loading &&
+                     <Row className='mt-5'>
+                         <p className='text-subtext-1'>
+                            {getSuccessMessage(sheetData, params.column_ids)} 
+                        </p>
+                    </Row>
+                }
             </DefaultTaskpaneBody>
 
         </DefaultTaskpane>
