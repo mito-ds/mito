@@ -10,6 +10,7 @@ Contains tests for filling nan values
 import pandas as pd
 import pytest
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.decorators import pandas_post_1_2_only
 
 FILL_NA_TESTS = [
     (
@@ -224,15 +225,6 @@ FILL_NA_TESTS = [
     ),
     (
         [
-            pd.DataFrame({'A': pd.to_datetime(['12-22-1997', None]), 'B': [None, None]}),
-        ],
-        0, 
-        ['A'],
-        {'type': 'value', 'value': '12-22-1997'},
-        pd.DataFrame({'A': [pd.to_datetime('12-22-1997'), pd.to_datetime('12-22-1997')], 'B': [None, None]})
-    ),
-    (
-        [
             pd.DataFrame({'A': pd.to_datetime(['12-22-1997', None, '12-22-1997']), 'B': [None, None, None]}),
         ],
         0, 
@@ -258,15 +250,6 @@ FILL_NA_TESTS = [
         ['A'],
         {'type': 'value', 'value': 0},
         pd.DataFrame({'A': [pd.to_timedelta('1 days 06:05:01.00003'), pd.NaT], 'B': [None, None]})
-    ),
-    (
-        [
-            pd.DataFrame({'A': pd.to_timedelta(['1 days 06:05:01.00003', None]), 'B': [None, None]}),
-        ],
-        0, 
-        ['A'],
-        {'type': 'value', 'value': '1 days 06:05:01.00003'},
-        pd.DataFrame({'A': [pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003')], 'B': [None, None]})
     ),
     (
         [
@@ -297,8 +280,46 @@ def test_fill_na(input_dfs, sheet_index, column_headers, fill_method, output_df)
         fill_method
     )
 
-    print(mito.dfs[sheet_index])
     assert mito.dfs[sheet_index].equals(output_df)
+
+
+
+DATETIME_TIMEDELTA_FILL_NA_TESTS = [
+    # Test datetime
+    (
+        [
+            pd.DataFrame({'A': pd.to_datetime(['12-22-1997', None]), 'B': [None, None]}),
+        ],
+        0, 
+        ['A'],
+        {'type': 'value', 'value': '12-22-1997'},
+        pd.DataFrame({'A': [pd.to_datetime('12-22-1997'), pd.to_datetime('12-22-1997')], 'B': [None, None]})
+    ),
+    # Test timedelta
+    (
+        [
+            pd.DataFrame({'A': pd.to_timedelta(['1 days 06:05:01.00003', None]), 'B': [None, None]}),
+        ],
+        0, 
+        ['A'],
+        {'type': 'value', 'value': '1 days 06:05:01.00003'},
+        pd.DataFrame({'A': [pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003')], 'B': [None, None]})
+    ),
+]
+@pandas_post_1_2_only
+@pytest.mark.parametrize("input_dfs, sheet_index, column_headers, fill_method, output_df", DATETIME_TIMEDELTA_FILL_NA_TESTS)
+def test_fill_na_datetime_and_timedelta(input_dfs, sheet_index, column_headers, fill_method, output_df):
+    mito = create_mito_wrapper_dfs(*input_dfs)
+
+    mito.fill_na(
+        sheet_index,
+        column_headers,
+        fill_method
+    )
+
+    assert mito.dfs[sheet_index].equals(output_df)
+
+
 
 def test_step_after_fill_nan():
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1.0, None, 3.0, 3.0, 3.0], 'B': [1.0, None, 2.0,  2.0, 2.0]}))
