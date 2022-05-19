@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import MitoAPI from "../../../jupyter/api";
 import { AnalysisData, GridState, SheetData, SplitTextToColumnsParams, StepType, UIState } from "../../../types"
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
@@ -14,6 +14,7 @@ import MultiSelectButtons from "../../elements/MultiSelectButtons";
 import useSendEditOnClick from "../../../hooks/useSendEditOnClick";
 import TextButton from "../../elements/TextButton";
 import Input from "../../elements/Input";
+import { useDebouncedEffect } from "../../../hooks/useDebouncedEffect";
 
 interface SplitTextToColumnsTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -76,12 +77,36 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
         props.analysisData,
     )
 
+    const [preview, setPreview] = useState<(string | number | boolean)[][] | undefined>(undefined)
+    const [loadingPreview, setLoadingPreview] = useState<boolean>(false)
+
+    async function loadSplitTextToColumnsPreview() {
+        if (params !== undefined) {
+            setLoadingPreview(true);
+
+            const _splitTextToColumnsPreviewArray = await props.mitoAPI.getSplitTextToColumnsPreview(params.sheet_index, params.column_id, params.delimiters)
+
+            if (_splitTextToColumnsPreviewArray !== undefined) {
+                setPreview(_splitTextToColumnsPreviewArray)
+            } else {
+                setPreview(undefined)
+            }
+            setLoadingPreview(false);
+
+        } else {
+            setPreview(undefined)
+        }
+    }
+
+    console.log(preview)
+    console.log(loadingPreview)
+
     // Keep track of the delimiters in this object so we don't need to messily convert back and forth between 
     // delimiter name and character. 
     const [delimiterObjs, setDelimiterObjs] = useState<Record<string, DelimiterObj>>(defaultDelimitersObj)
 
     // When the delimitersObj changes, update the delimiter param
-    useEffect(() => {
+    useDebouncedEffect(() => {
         const includedDelimiters = Object.values(delimiterObjs).filter(delimiterObj => delimiterObj.included).map((delimiterObj) => delimiterObj.delimiter)
         setParams(prevParams => {
             return {
@@ -89,7 +114,13 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                 delimiters: includedDelimiters
             }
         })
-    }, [delimiterObjs])
+    }, [delimiterObjs], 500)
+
+    useDebouncedEffect(() => {
+        if (params !== undefined) {
+            void loadSplitTextToColumnsPreview()
+        }
+    }, [params], 500)
     
     if (params === undefined) {
         return (<DefaultEmptyTaskpane setUIState={props.setUIState}/>)
@@ -185,7 +216,8 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                         <Input 
                             value={delimiterObjs['Other'].delimiter}
                             width='small'
-                            placeholder="Custom Delimiter"
+                            placeholder="Custom"
+                            className='mt-5px'
                             onChange={(e) => {
                                 const newOtherDelimiter = e.target.value
                                 setDelimiterObjs(prevDelimiterObjs => {
@@ -198,6 +230,16 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                         />
                     </Col>
                 </Row>
+                <div>
+                    <Row>
+                        <p className='text-header-3'>
+                            Column Preview
+                        </p>
+                    </Row>
+                    <Row suppressTopBottomMargin>
+                        
+                    </Row>
+                </div>
                 <TextButton
                     variant='dark'
                     width='block'

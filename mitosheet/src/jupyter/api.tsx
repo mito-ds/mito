@@ -504,6 +504,42 @@ export default class MitoAPI {
     }
 
     /*
+        Gets a preview of the split text to columns step
+    */
+    async getSplitTextToColumnsPreview(
+        sheetIndex: number,
+        columnID: ColumnID,
+        delimiters: string[],
+    ): Promise<(string | number | boolean)[][] | undefined> {
+
+        const dfPreviewString = await this.send<string>({
+            'event': 'api_call',
+            'type': 'get_split_text_to_columns_preview',
+            'params': {
+                'sheet_index': sheetIndex,
+                'column_id': columnID,
+                'delimiters': delimiters,
+            },
+        }, {})
+
+        if (dfPreviewString !== undefined && dfPreviewString !== '') {
+            const dfPreviewSheetData: SheetData = JSON.parse(dfPreviewString)['dfPreviewSheetData'];
+
+            const dfPreviewArray: (string | number | boolean)[][] = []
+            for (let i = 0; i < dfPreviewSheetData.numRows; i++ ) {
+                for (let j = 0; j < dfPreviewSheetData.numColumns; j++) {
+                    if (dfPreviewArray[i] === undefined) {
+                        dfPreviewArray[i] = []
+                    }
+                    dfPreviewArray[i][j] = dfPreviewSheetData.data[j].columnData[i]
+                }
+            }
+            return dfPreviewArray
+        }
+        return undefined;
+    }
+
+    /*
         Gets the search matches for the dataframe headers and 
         and 2k rows starting at the startingRowIndex
     */

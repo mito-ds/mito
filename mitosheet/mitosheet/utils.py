@@ -201,6 +201,7 @@ def df_to_json_dumpsable(
         if isinstance(column_header, list):
             column_header = tuple(column_header)
 
+        
         column_id = column_headers_to_column_ids[column_header]
 
         column_final_data = {
