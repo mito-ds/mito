@@ -234,7 +234,7 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
                 <TextButton
                     variant='dark'
                     width='block'
-                    onClick={edit}
+                    onClick={() => edit()}
                     disabled={false}
                 >
                     {!editApplied 

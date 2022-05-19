@@ -26,7 +26,7 @@ import Input from '../../elements/Input';
 import { isNumberDtype } from '../../../utils/dtypes';
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import TextButton from '../../elements/TextButton';
-import { endsInZeroDecimals } from '../../../utils/numbers';
+import { endsInZeroDecimals, isOnlyNumberString } from '../../../utils/numbers';
 
 
 interface FillNaTaskpaneProps {
@@ -90,6 +90,7 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
     const columnDtypeMap = props.sheetDataArray[params.sheet_index]?.columnDtypeMap || {};
     const onlyNumberColumnSelected = params.column_ids.length === 0 || params.column_ids
         .map(columnID => columnDtypeMap[columnID])
+        .filter(columnDtype => columnDtype !== undefined)
         .map(columnDtype => isNumberDtype(columnDtype))
         .every(isNumber => isNumber === true)
 
@@ -276,7 +277,7 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
 
                                     if (BOOLEAN_STRINGS.includes(newValue)) {
                                         finalValue = newValue.toLowerCase().startsWith('t') ? true : false;
-                                    } else if (newValue !== '' && !isNaN(parseFloat(newValue)) && !endsInZeroDecimals(newValue)) {
+                                    } else if (newValue !== '' && isOnlyNumberString(newValue) && !endsInZeroDecimals(newValue)) {
                                         finalValue = parseFloat(newValue);
                                     }
                                     // TODO: there is a bug in the above logic, where we do not always turn number values
@@ -303,7 +304,28 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                 <TextButton
                     variant='dark'
                     width='block'
-                    onClick={edit}
+                    onClick={() => {
+                        // We check if the params have a string stored in them that could be a number,
+                        // and if so we parse it to a number. This is a final tranform before the edit
+                        edit((prevParams) => {
+                            if (prevParams.fill_method.type === 'value' && typeof prevParams.fill_method.value === 'string') {
+                                let finalValue: string | boolean | number = prevParams.fill_method.value;
+
+                                if (BOOLEAN_STRINGS.includes(finalValue)) {
+                                    finalValue = finalValue.toLowerCase().startsWith('t') ? true : false;
+                                } else if (isOnlyNumberString(prevParams.fill_method.value)) {
+                                    finalValue = parseFloat(prevParams.fill_method.value);
+                                }
+
+                                return {
+                                    ...prevParams,
+                                    fill_method: {type: 'value', value: finalValue}
+                                }
+                            }
+                            return prevParams
+                        });
+
+                    }}
                     disabled={false}
                 >
                     {!editApplied 

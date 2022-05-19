@@ -24,7 +24,7 @@ function useSendEditOnClick<ParamType, ResultType>(
         setParams: React.Dispatch<React.SetStateAction<ParamType>>, 
         error: string | undefined,
         loading: boolean // This loading indicator is for if the edit message is processing
-        edit: () => void; // Actually applies the edit
+        edit: (finalTransform?: (params: ParamType) => ParamType) => void; // Actually applies the edit. You can optionally pass a function that does one final transformation on the params
         editApplied: boolean; // True if any edit is applied. E.g. the user has clicked a button, created a step, and not undone it.
         result: ResultType | undefined; // The result of this edit. Undefined if no edit is applied (or if the step has no result)
     } {
@@ -68,16 +68,21 @@ function useSendEditOnClick<ParamType, ResultType>(
     );
 
     // This function actually sends the edit message to the backend
-    const edit = async () => {
+    const edit = async (finalTransform?: (params: ParamType) => ParamType) => {
         // Do not send an edit message if the params are undefined
         // or if we have already sent a message for these params
         if (params === undefined || paramsApplied) {
             return undefined;
         }
 
+        // If the consumer passes a final transform function, then we do this final
+        // transformation before we actually send the edit
+        const finalParams = finalTransform ? finalTransform(params) : params;
+
         setLoading(true);
         const newStepID = getRandomId(); // always use a new step id
-        const possibleError = await mitoAPI._edit<ParamType>(editEvent, params, newStepID);
+
+        const possibleError = await mitoAPI._edit<ParamType>(editEvent, finalParams, newStepID);
         setLoading(false);
 
         // Handle if we return an error
