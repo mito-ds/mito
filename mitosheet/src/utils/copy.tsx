@@ -1,14 +1,14 @@
+import { isValueNone } from "../components/taskpanes/ControlPanel/FilterAndSortTab/filter/utils";
 import { FormatTypeObj, MitoSelection, SheetData } from "../types";
 import { getDisplayColumnHeader } from "./columnHeaders";
 import { formatCellData } from "./formatColumns";
 
 
 const getCopyStringForValue = (value: string | number | boolean, columnDtype: string, columnFormatType: FormatTypeObj): string => {
-    const formattedValue = formatCellData(value, columnDtype, columnFormatType);
-
-    // TODO: handle the case where this is a string with tabs in it!
-
-    return formattedValue;
+    if (isValueNone(value)) {
+        return '';
+    }
+    return formatCellData(value, columnDtype, columnFormatType);
 }
 
 const getCopyStringForRow = (sheetData: SheetData, rowIndex: number, lowColIndex: number, highColIndex: number): string => {

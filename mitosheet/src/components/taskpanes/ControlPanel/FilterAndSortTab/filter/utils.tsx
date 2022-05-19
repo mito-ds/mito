@@ -200,6 +200,6 @@ export const areFiltersEqual = (filterOne: FilterType, filterTwo: FilterType): b
     Because values gets casted all over the codebase, its important that we are able to 
     to detect when values are None so we can treat them the same. 
 */
-const isValueNone = (value: string | number | boolean): boolean => {
+export const isValueNone = (value: string | number | boolean): boolean => {
     return value === 'NaN' || value === 'nan' || value === 'NaT' || value === 'nat' || value === null || value === undefined
 }
