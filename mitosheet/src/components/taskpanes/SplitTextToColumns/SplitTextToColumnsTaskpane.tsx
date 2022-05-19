@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import MitoAPI from "../../../jupyter/api";
 import { AnalysisData, GridState, SheetData, SplitTextToColumnsParams, StepType, UIState } from "../../../types"
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
@@ -24,31 +24,37 @@ interface SplitTextToColumnsTaskpaneProps {
     dfNames: string[]
 }
 
-const delimiterNameToCharacter: Record<string, string> = {
-    'Comma': ',',
-    'Dash' : '-',
-    'Slash': '/', 
-    'Tab': '\t',
-    'Space': ' '
+type DelimiterObj = {
+    included: boolean,
+    delimiter: string
 }
 
-const delimterCharacterToName: Record<string, string> = {
-    ',': 'Comma',
-    '-': 'Dash',
-    '/': 'Slash',
-    '\t': 'Tab',
-    ' ': 'Space'
+const defaultDelimitersObj: Record<string, DelimiterObj> = {
+    'Comma': {
+        included: false,
+        delimiter: ','
+    },
+    'Dash': {
+        included: false,
+        delimiter: '-'
+    },
+    'Slash': {
+        included: false,
+        delimiter: '/'
+    },
+    'Tab': {
+        included: false,
+        delimiter: '\t'
+    },
+    'Space': {
+        included: false,
+        delimiter: ' '
+    },
+    'Other': {
+        included: false,
+        delimiter: ''
+    }
 }
-
-/*
-    TODO: Refactor the delimiters to be a dictionary of all the delimiters with an other record too. 
-    And then just turn them on and off easily without having to look for whether they are included in the 
-    dictionary, which is complicated.
-    
-    The only tricky thing here is that we would prefer to not send it to the backend as a dictionary. Instead, 
-    we just want a list of the delimiters that are included, so instead of setting the params directly, we need to set something else, 
-    then watch for the that to change, and turn the dict into a list of only the included ones for the params delimiters. 
-*/
 
 /* 
     This taskpane allows users to split a column into multiple columns 
@@ -63,16 +69,27 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
         {
             sheet_index: props.gridState.sheetIndex,
             column_id: props.sheetDataArray[props.gridState.sheetIndex].data[startingColumnIndex].columnID,
-            delimiters: []
+            delimiters: [] // List of the delimiter characters
         },
         StepType.SplitTextToColumns, 
         props.mitoAPI,
         props.analysisData,
     )
 
-    const getOtherDelimiter = (): string => {
-        return params?.delimiters.filter(x => !Object.keys(delimiterNameToCharacter).includes(x))[0] || '';
-    }
+    // Keep track of the delimiters in this object so we don't need to messily convert back and forth between 
+    // delimiter name and character. 
+    const [delimiterObjs, setDelimiterObjs] = useState<Record<string, DelimiterObj>>(defaultDelimitersObj)
+
+    // When the delimitersObj changes, update the delimiter param
+    useEffect(() => {
+        const includedDelimiters = Object.values(delimiterObjs).filter(delimiterObj => delimiterObj.included).map((delimiterObj) => delimiterObj.delimiter)
+        setParams(prevParams => {
+            return {
+                ...prevParams,
+                delimiters: includedDelimiters
+            }
+        })
+    }, [delimiterObjs])
     
     if (params === undefined) {
         return (<DefaultEmptyTaskpane setUIState={props.setUIState}/>)
@@ -155,49 +172,29 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                     </Col>
                     <Col>
                         <MultiSelectButtons
-                            values={Object.keys(delimiterNameToCharacter)} 
-                            selectedValues={params.delimiters.map(delimiter => delimterCharacterToName[delimiter])}
+                            values={Object.keys(delimiterObjs).filter(delimiterName => delimiterName !== 'Other')} 
+                            selectedValues={Object.keys(delimiterObjs).filter(delimiterName => delimiterObjs[delimiterName].included)}
                             onChange={(toggledDelimiter) => {
-                                setParams(prevParams => {
-                                    const selectedDelimiters = [...prevParams.delimiters]
-                                    if (selectedDelimiters.includes(delimiterNameToCharacter[toggledDelimiter])) {
-                                        // If the delimiter is already in the list, remove it
-                                        selectedDelimiters.splice(selectedDelimiters.indexOf(delimiterNameToCharacter[toggledDelimiter]), 1)
-                                    } else {
-                                        // If the delimiter is not in the list, add it
-                                        selectedDelimiters.push(delimiterNameToCharacter[toggledDelimiter])
-                                    }
-                                    return {
-                                        ...prevParams,
-                                        delimiters: selectedDelimiters
-                                    }
+                                setDelimiterObjs(prevDelimiterObjs => {
+                                    const newDelimiterObjs = {...prevDelimiterObjs}
+                                    newDelimiterObjs[toggledDelimiter].included = !newDelimiterObjs[toggledDelimiter].included
+                                    return newDelimiterObjs
                                 })
                             }}
                         />
                         <Input 
-                            value={getOtherDelimiter()}
+                            value={delimiterObjs['Other'].delimiter}
                             width='small'
                             placeholder="Custom Delimiter"
                             onChange={(e) => {
-                                const newDelimiter = e.target.value
-                                setParams(prevParams => {
-                                    const selectedDelimiters = [...prevParams.delimiters]
-                                    // Remove the 'other' delimiter if it exists
-                                    const otherDelimiter = getOtherDelimiter()
-                                    if (otherDelimiter !== '') {
-                                        selectedDelimiters.splice(selectedDelimiters.indexOf(otherDelimiter), 1)
-                                    }
-                                    // Add the new 'other' delimiter 
-                                    if (newDelimiter !== '') {
-                                        selectedDelimiters.push(newDelimiter)
-                                    }
-                                    return {
-                                        ...prevParams,
-                                        delimiters: selectedDelimiters
-                                    }
+                                const newOtherDelimiter = e.target.value
+                                setDelimiterObjs(prevDelimiterObjs => {
+                                    const newDelimiters = {...prevDelimiterObjs}
+                                    newDelimiters['Other'].included = !newDelimiters['Other'].included
+                                    newDelimiters['Other'].delimiter = newOtherDelimiter
+                                    return newDelimiters
                                 })
                             }}
-                        
                         />
                     </Col>
                 </Row>
