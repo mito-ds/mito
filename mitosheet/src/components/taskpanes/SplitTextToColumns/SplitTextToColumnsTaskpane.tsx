@@ -15,6 +15,7 @@ import useSendEditOnClick from "../../../hooks/useSendEditOnClick";
 import TextButton from "../../elements/TextButton";
 import Input from "../../elements/Input";
 import { useDebouncedEffect } from "../../../hooks/useDebouncedEffect";
+import '../../../../css/taskpanes/SplitTextToColumns/SplitTextToColumns.css'
 
 interface SplitTextToColumnsTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -96,7 +97,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
             setPreview(undefined)
         }
     }
-    
+
     console.log(preview)
     console.log(loadingPreview)
 
@@ -235,9 +236,9 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                             Column Preview
                         </p>
                     </Row>
-                    <Row suppressTopBottomMargin>
+                    <Row style={{width: '100%', overflowX: 'auto'}}suppressTopBottomMargin>
                         {preview !== undefined &&
-                            <table>
+                            <table className="no-spacing" cellSpacing="0">
                                 <tbody>
                                     {preview.map((rowData, idx) => {
                                         return (
