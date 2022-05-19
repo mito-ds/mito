@@ -47,7 +47,7 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
         delimiters: List[str] = get_param(params, 'delimiters')
 
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-        column_id_index = prev_state.column_ids.get_column_ids(sheet_index).index(column_id)
+        column_id_index = prev_state.dfs[sheet_index].columns.tolist().index(column_id)
             
         # Create a new post state
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
