@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import MitoAPI from "../../../jupyter/api";
-import { AnalysisData, GridState, SheetData, SplitTextToColumnsParams, StepType, UIState } from "../../../types"
+import { AnalysisData, ColumnID, GridState, SheetData, SplitTextToColumnsParams, StepType, UIState } from "../../../types"
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
@@ -24,7 +24,8 @@ interface SplitTextToColumnsTaskpaneProps {
     sheetDataArray: SheetData[];
     gridState: GridState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
-    dfNames: string[]
+    dfNames: string[];
+    startingColumnID?: ColumnID
 }
 
 type DelimiterObj = {
@@ -65,12 +66,20 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
     const startingColumnIndex = props.gridState.selections[0].startingColumnIndex >= 0 ? props.gridState.selections[0].startingColumnIndex : 0
 
     // Make sure that there is data in the sheet before trying to access the column_id, so we don't crash the sheet
-    const isSheetEmpty = props.sheetDataArray[props.gridState.sheetIndex] !== undefined && props.sheetDataArray[props.gridState.sheetIndex].data[startingColumnIndex] !== undefined
+    const isSheetEmpty = props.sheetDataArray[props.gridState.sheetIndex] === undefined || props.sheetDataArray[props.gridState.sheetIndex].data[startingColumnIndex] === undefined
  
+    // Get the starting column id
+    let startingColumnID = undefined
+    if (props.startingColumnID !== undefined) {
+        startingColumnID = props.startingColumnID
+    } else if (!isSheetEmpty) {
+        startingColumnID = props.sheetDataArray[props.gridState.sheetIndex].data[startingColumnIndex].columnID
+    } 
+
     const {params, setParams, loading, edit, editApplied} = useSendEditOnClick<SplitTextToColumnsParams, undefined>(
         {
             sheet_index: props.gridState.sheetIndex,
-            column_id: !isSheetEmpty ? props.sheetDataArray[props.gridState.sheetIndex].data[startingColumnIndex].columnID : undefined,
+            column_id: startingColumnID,
             delimiters: [] // List of the delimiter characters
         },
         StepType.SplitTextToColumns, 
@@ -229,7 +238,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                                 const newOtherDelimiter = e.target.value
                                 setDelimiterObjs(prevDelimiterObjs => {
                                     const newDelimiters = {...prevDelimiterObjs}
-                                    newDelimiters['Other'].included = !newDelimiters['Other'].included
+                                    newDelimiters['Other'].included = newOtherDelimiter !== ''
                                     newDelimiters['Other'].delimiter = newOtherDelimiter
                                     return newDelimiters
                                 })
@@ -243,8 +252,8 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                             Column Preview
                         </p>
                     </Row>
-                    <Row style={{width: '100%', overflowX: 'auto'}} justify='center' suppressTopBottomMargin>
-                        {preview !== undefined &&
+                    {preview !== undefined &&
+                        <Row style={{width: '100%', overflowX: 'auto'}} suppressTopBottomMargin>
                             <table className="preview-table" cellSpacing="0">
                                 <tbody>
                                     {preview.map((rowData, idx) => {
@@ -260,13 +269,15 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                                     })}
                                 </tbody>
                             </table>
-                        }
-                        {preview === undefined && 
+                        </Row>
+                    }
+                    {preview === undefined && 
+                        <Row style={{width: '100%'}} justify='center'>
                             <p className='mt-10px'>
                                 Select a delimiter to preview the split
                             </p>
-                        }
-                    </Row>
+                        </Row>
+                    }
                 </div>
             </DefaultTaskpaneBody>
             <DefaultTaskpaneFooter>

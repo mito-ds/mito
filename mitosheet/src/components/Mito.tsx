@@ -643,6 +643,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     gridState={gridState}
                     setUIState={setUIState}
                     dfNames={dfNames}
+                    startingColumnID={uiState.currOpenTaskpane.startingColumnID}
                 />
             )
             case TaskpaneType.STEPS: return (

@@ -367,6 +367,8 @@ const ColumnHeader = (props: {
                     setUIState={props.setUIState}
                     openColumnHeaderEditor={openColumnHeaderEditor}
                     sheetIndex={props.gridState.sheetIndex}
+                    setEditorState={props.setEditorState}
+                    sheetData={props.sheetData}
                     columnID={columnID}
                     columnDtype={columnDtype}
                 />

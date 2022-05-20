@@ -2,13 +2,14 @@
 
 import React, { useEffect } from 'react';
 import MitoAPI from '../../jupyter/api';
-import { ColumnID, UIState } from '../../types';
+import { ColumnID, EditorState, SheetData, UIState } from '../../types';
 import { isNumberDtype } from '../../utils/dtypes';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { ControlPanelTab } from '../taskpanes/ControlPanel/ControlPanelTaskpane';
 import { TaskpaneType } from '../taskpanes/taskpanes';
+import { getCellDataFromCellIndexes } from './utils';
 
 /*
     Displays a set of actions one can perform on a column header
@@ -18,13 +19,19 @@ export default function ColumnHeaderDropdown(props: {
     setOpenColumnHeaderDropdown: React.Dispatch<React.SetStateAction<boolean>>,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     openColumnHeaderEditor: () => void;
+    setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
     sheetIndex: number;
     columnID: ColumnID;
+    sheetData: SheetData
     columnDtype: string;
 }): JSX.Element {
 
     // Log opening this dropdown
     useEffect(() => {void props.mitoAPI.log('opened_column_header_dropdown')}, [])
+
+    const rowIndex = 0
+    const columnIndex = Object.keys(props.sheetData.columnIDsMap).indexOf(props.columnID)
+    const columnFormula = getCellDataFromCellIndexes(props.sheetData, rowIndex, columnIndex).columnFormula;
 
     return (
         <Dropdown
@@ -94,6 +101,36 @@ export default function ColumnHeaderDropdown(props: {
                 }}
                 disabled={!isNumberDtype(props.columnDtype)}
                 tooltip={!isNumberDtype(props.columnDtype) ? "Only number columns can be formatted currently" : undefined}
+            />
+            <DropdownSectionSeperator isDropdownSectionSeperator/>
+            <DropdownItem 
+                title='Set Column Formula'
+                onClick={() => {
+                    const columnFormula = getCellDataFromCellIndexes(props.sheetData, rowIndex, columnIndex).columnFormula;
+
+                    props.setEditorState({
+                        rowIndex: 0,
+                        columnIndex: columnIndex,
+                        formula: columnFormula !== undefined ? columnFormula : '',
+                        // As in google sheets, if the starting formula is non empty, we default to the 
+                        // arrow keys scrolling in the editor
+                        arrowKeysScrollInFormula: columnFormula !== undefined && columnFormula.length > 0,
+                        editorLocation: 'cell'
+                    })
+                }}
+                disabled={columnFormula === undefined || columnFormula.length == 0}
+                tooltip={!isNumberDtype(props.columnDtype) ? "Data columns don't support formulas" : undefined}
+            />
+            <DropdownItem 
+                title='Split Text to Columns '
+                onClick={() => {
+                    props.setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            currOpenTaskpane: {type: TaskpaneType.SPLIT_TEXT_TO_COLUMNS, startingColumnID: props.columnID},
+                        }
+                    })
+                }}
             />
             <DropdownSectionSeperator isDropdownSectionSeperator/>
             <DropdownItem 
