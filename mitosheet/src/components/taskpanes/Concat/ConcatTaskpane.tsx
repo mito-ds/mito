@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import MitoAPI from "../../../jupyter/api";
-import useSyncedParams from "../../../hooks/useSyncedParams";
+import useLiveUpdatingParams from "../../../hooks/useLiveUpdatingParams";
 import { AnalysisData, ColumnHeader, ConcatParams, SheetData, StepType, UIState } from "../../../types"
 import DropdownButton from "../../elements/DropdownButton";
 import DropdownItem from "../../elements/DropdownItem";
@@ -48,7 +48,7 @@ const getColumnHeadersIncludedMessage = (notIncludedColumnsArray: ColumnHeader[]
 */
 const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
 
-    const {params, setParams} = useSyncedParams<ConcatParams>(
+    const {params, setParams} = useLiveUpdatingParams<ConcatParams>(
         {
             join: 'inner',
             ignore_index: true,

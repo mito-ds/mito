@@ -67,7 +67,7 @@ function useSendEditOnClick<ParamType, ResultType>(
         (args: any) => {
             _setParams(args); // update the params
             setParamsApplied(false); // mark them as not applied
-            setAttemptedEditWithTheseParamsMultipleTimes(false); // mark the user as not having to apply the edit multiple times
+            setAttemptedEditWithTheseParamsMultipleTimes(false); // mark the user as not having applied the edit multiple times
         },
         [],
     );

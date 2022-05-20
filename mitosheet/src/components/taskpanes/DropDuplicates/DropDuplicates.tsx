@@ -72,7 +72,7 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
         If the sheetDataArray doesn't contain params.sheet_index,
         just close the taskpane to avoid a sheet crashing bug.
         
-        TODO: We should handle this in useSyncedParams to so we can move
+        TODO: We should handle this in useLiveUpdatingParams to so we can move
         closer to not having to write any custom code for this step.
     */
     if (props.sheetDataArray[params.sheet_index] === undefined) {

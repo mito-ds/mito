@@ -24,7 +24,7 @@ import { useEffectOnUpdateEvent } from "./useEffectOnUpdateEvent";
     the parameters to the user and allow them to edit them. This is really
     sweet, and we'll continue to migrate to this hook over time. Woo!
 */
-function useSyncedParams<ParamType>(
+function useLiveUpdatingParams<ParamType>(
     defaultParams: ParamType | undefined,
     stepType: string,
     mitoAPI: MitoAPI,
@@ -118,4 +118,4 @@ function useSyncedParams<ParamType>(
     }
 }
 
-export default useSyncedParams;
+export default useLiveUpdatingParams;

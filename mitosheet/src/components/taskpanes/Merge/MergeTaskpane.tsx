@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import MitoAPI from '../../../jupyter/api';
-import useSyncedParams from '../../../hooks/useSyncedParams';
+import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
 import { AnalysisData, ColumnID, ColumnIDsMap, SheetData, StepType, UIState } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import DropdownItem from '../../elements/DropdownItem';
@@ -104,7 +104,7 @@ const getDefaultMergeParams = (sheetDataArray: SheetData[], selectedSheetIndex: 
 
 const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
 
-    const {params, setParams, error} = useSyncedParams(
+    const {params, setParams, error} = useLiveUpdatingParams(
         getDefaultMergeParams(props.sheetDataArray, props.selectedSheetIndex),
         StepType.Merge,
         props.mitoAPI,

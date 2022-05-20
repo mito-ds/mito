@@ -55,17 +55,30 @@ interface FillNaParams {
 const BOOLEAN_STRINGS = ['True', 'true', 'False', 'false'];
 
 
-const getDefaultParams = (sheetDataArray: SheetData[], selectedSheetIndex: number): FillNaParams | undefined => {
-    if (sheetDataArray.length === 0 || sheetDataArray[selectedSheetIndex] === undefined) {
+const getDefaultParams = (sheetDataArray: SheetData[], sheetIndex: number, defaultFillMethod?: FillMethod): FillNaParams | undefined => {
+    if (sheetDataArray.length === 0 || sheetDataArray[sheetIndex] === undefined) {
         return undefined;
     }
 
-    const sheetData = sheetDataArray[selectedSheetIndex];
+    const sheetData = sheetDataArray[sheetIndex];
+
+    let finalFillMethod: FillMethod = defaultFillMethod || {type: 'value', 'value': 0};
+    // We make sure that the default fill method is not invalid for the new dataframe we're selecting
+    // which is only an issue if these are mean or median values
+    if (finalFillMethod.type === 'mean' || finalFillMethod.type === 'median') {
+        const onlyMeanAndMedianColumnSelected = Object.values(sheetData.columnDtypeMap)
+            .map(columnDtype => isNumberDtype(columnDtype) || isDatetimeDtype(columnDtype) || isTimedeltaDtype(columnDtype))
+            .every(hasDefinedMeanAndMedian => hasDefinedMeanAndMedian === true)
+        
+        if (!onlyMeanAndMedianColumnSelected) {
+            finalFillMethod = {type: 'value', 'value': 0};
+        }
+    }
 
     return {
-        sheet_index: selectedSheetIndex,
+        sheet_index: sheetIndex,
         column_ids: Object.keys(sheetData.columnIDsMap),
-        fill_method: {type: 'value', 'value': 0}
+        fill_method: finalFillMethod
     }
 }
 
@@ -152,15 +165,16 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                                     return sheetData.dfName == newDfName;
                                 })
                                 
-                                if (newSheetIndex >= 0) {
-                                    setParams(prevParams => {
-                                        return {
-                                            ...prevParams,
-                                            sheet_index: newSheetIndex
-                                        }
-                                    })
-                                }
-
+                                setParams(prevParams => {
+                                    const newParams = getDefaultParams(props.sheetDataArray, newSheetIndex, prevParams.fill_method);
+                                    if (newParams) {
+                                        return newParams;
+                                    }
+                                    return {
+                                        ...prevParams,
+                                        sheet_index: newSheetIndex
+                                    }
+                                });
                             }}
                             width='medium'
                         >
@@ -244,12 +258,12 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                             <DropdownItem
                                 id='ffill'
                                 title="Forward Fill"
-                                subtext="Replaces NaN values with the value above in the dataframe."
+                                subtext="Replaces NaNs in the column with the value in the row before."
                             />
                             <DropdownItem
                                 id='bfill'
                                 title="Back Fill"
-                                subtext="Replaces NaN values with the value below in the dataframe."
+                                subtext="Replaces NaNs in the column with the value in the row after."
                             />
                             <DropdownItem
                                 id='mean'
@@ -329,11 +343,13 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                         });
 
                     }}
-                    disabled={false}
+                    disabled={params.column_ids.length === 0}
                 >
-                    {!loading 
-                        ? `Fill NaN values in ${params.column_ids.length} columns`
-                        : 'Filling NaN values...' 
+                    {params.column_ids.length === 0 
+                        ? "Select columns to fill NaN values"
+                        : !loading 
+                            ? `Fill NaN values in ${params.column_ids.length} columns`
+                            : 'Filling NaN values...' 
                     }
                 </TextButton>
                 {editApplied && !loading &&
