@@ -27,6 +27,7 @@ import { getArgs, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell
 import { AnalysisData, DataTypeInMito, DFSource, EditorState, GridState, SheetData, UIState, UserProfile } from '../types';
 import { createActions } from '../utils/actions';
 import { classNames } from '../utils/classNames';
+import { isMitoError } from '../utils/errors';
 import loadPlotly from '../utils/plotly';
 import CatchUpPopup from './CatchUpPopup';
 import ErrorBoundary from './elements/ErrorBoundary';
@@ -48,6 +49,7 @@ import ControlPanelTaskpane, { ControlPanelTab } from './taskpanes/ControlPanel/
 import DefaultEmptyTaskpane from './taskpanes/DefaultTaskpane/DefaultEmptyTaskpane';
 import DownloadTaskpane from './taskpanes/Download/DownloadTaskpane';
 import DropDuplicatesTaskpane from './taskpanes/DropDuplicates/DropDuplicates';
+import FillNaTaskpane from './taskpanes/FillNa/FillNaTaskpane';
 import GraphSidebar from './taskpanes/Graph/GraphSidebar';
 import ImportTaskpane from './taskpanes/Import/ImportTaskpane';
 import MergeTaskpane from './taskpanes/Merge/MergeTaskpane';
@@ -198,7 +200,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 // Then, we replay the analysis to replay!
                 const error = await props.mitoAPI.updateReplayAnalysis(analysisToReplayName);
                 
-                if (error !== undefined) {
+                if (isMitoError(error)) {
                     /**
                      * If the replayed analysis fails, the first thing that we need to do is to
                      * report this to the user by displaying a modal that tells them as much
@@ -646,6 +648,16 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     message={uiState.currOpenTaskpane.message}
                 />
             )
+            case TaskpaneType.FILL_NA: return (
+                <FillNaTaskpane
+                    setUIState={setUIState} 
+                    uiState={uiState} 
+                    mitoAPI={props.mitoAPI} 
+                    selectedSheetIndex={uiState.selectedSheetIndex} 
+                    sheetDataArray={sheetDataArray}   
+                    analysisData={analysisData}             
+                />
+            )
         }
     }
 
@@ -752,6 +764,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             editorState={editorState}
                             setEditorState={setEditorState}
                             mitoContainerRef={mitoContainerRef}
+                            closeOpenEditingPopups={closeOpenEditingPopups}
                         />
                     </div>
                     {uiState.currOpenTaskpane.type !== TaskpaneType.NONE && 

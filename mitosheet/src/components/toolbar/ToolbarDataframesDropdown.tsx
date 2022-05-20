@@ -45,6 +45,7 @@ const ToolbarDataframesDropdown = (props: ToolbarDataframesDropdownProps): JSX.E
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Drop_Duplicates])}
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Merge])}
                     {makeToolbarDropdownItem(props.actions[ActionEnum.Concat_Dataframes])}
+                    {makeToolbarDropdownItem(props.actions[ActionEnum.Fill_Na])}
                 </Dropdown>
             }
         </>

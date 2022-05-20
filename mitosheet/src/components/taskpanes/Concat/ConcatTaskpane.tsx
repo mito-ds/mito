@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import MitoAPI from "../../../jupyter/api";
-import useSyncedParams from "../../../hooks/useSyncedParams";
+import useLiveUpdatingParams from "../../../hooks/useLiveUpdatingParams";
 import { AnalysisData, ColumnHeader, ConcatParams, SheetData, StepType, UIState } from "../../../types"
 import DropdownButton from "../../elements/DropdownButton";
 import DropdownItem from "../../elements/DropdownItem";
@@ -14,6 +14,7 @@ import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
+import { getFirstCharactersOfColumnHeaders } from "../../../utils/columnHeaders";
 
 
 
@@ -22,28 +23,6 @@ interface ConcatTaskpaneProps {
     analysisData: AnalysisData;
     sheetDataArray: SheetData[];
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
-}
-
-/* 
-    Given a list of column headers, returns a formatted string with the first num characters in the column headers
-    and the number of column headers that didn't have any character in the first num characters of the list
-*/
-const getFirstCharactersOfColumnHeaders = (columnHeaders: ColumnHeader[], num: number): [string, number] => {
-    const columnHeadersCopy = [...columnHeaders]
-    let charsRemaining = num
-    const columnHeadersToDisplay = []
-    while (columnHeadersCopy.length > 0 && charsRemaining > 0) {
-        const nextFullString = (columnHeadersCopy.shift() as string)
-        let nextPartialString = ''
-        for (let i = 0; i < nextFullString.length; i++) {
-            if (charsRemaining > 0) {
-                nextPartialString += nextFullString[i];
-                charsRemaining--;
-            }
-        }
-        columnHeadersToDisplay.push(nextPartialString)
-    }
-    return [columnHeadersToDisplay.join(', '), columnHeadersCopy.length]
 }
 
 /* 
@@ -69,7 +48,7 @@ const getColumnHeadersIncludedMessage = (notIncludedColumnsArray: ColumnHeader[]
 */
 const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
 
-    const {params, setParams} = useSyncedParams<ConcatParams>(
+    const {params, setParams} = useLiveUpdatingParams<ConcatParams>(
         {
             join: 'inner',
             ignore_index: true,

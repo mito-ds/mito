@@ -33,6 +33,7 @@ from mitosheet.step_performers import (
     GraphStepPerformer,
     ConcatStepPerformer
 )
+from mitosheet.step_performers.fill_na import FillNaStepPerformer
 from mitosheet.step_performers.graph_steps.graph_delete import GraphDeleteStepPerformer
 from mitosheet.step_performers.graph_steps.graph_duplicate import GraphDuplicateStepPerformer
 from mitosheet.step_performers.graph_steps.graph_rename import GraphRenameStepPerformer
@@ -216,7 +217,13 @@ def test_params_static():
         'concat'
     )
 
-    assert len(STEP_PERFORMERS) == 24
+    check_step(
+        FillNaStepPerformer,
+        1,
+        'fill_na'
+    )
+
+    assert len(STEP_PERFORMERS) == 25
 
 
 def get_fake_param(param_name):
