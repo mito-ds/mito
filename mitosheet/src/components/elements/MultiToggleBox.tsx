@@ -131,6 +131,8 @@ const MultiToggleBox = (props: {
 
     let displayedNonDisabledAllToggled = true;
     const nonDisabledDisplayedIndexes: number[] = [];
+    
+    let numToggledButNotDisplayed = 0;
 
     let numDisplayed = 0;
     let maxDisplayed = false;
@@ -140,12 +142,17 @@ const MultiToggleBox = (props: {
     const childrenToDisplay = React.Children.map((props.children), (child) => {
         const title: null | undefined | string | number = child.props.title;
         const rightText: null | undefined | string | number = child.props.rightText;
+        const toggled: null | undefined | boolean = child.props.toggled;
 
         const noTitleMatch = title === null || title === undefined || fuzzyMatch(title + '', searchString) < .8;
         const noRightTextMatch = title === null || title === undefined || fuzzyMatch(rightText + '', searchString) < .8;
 
         // Don't display if it doesn't match either of the title or the right text
         if (noTitleMatch && noRightTextMatch) {
+            if (toggled) {
+                numToggledButNotDisplayed++;
+            }
+
             return null;
         }
 
@@ -216,7 +223,11 @@ const MultiToggleBox = (props: {
                             name={'Toggle All'}
                             checked={displayedNonDisabledAllToggled}
                         />
-                        Toggle All {searchString !== '' && " Matching"}
+                            Toggle All {searchString !== '' && " Matching "}
+                            {numToggledButNotDisplayed > 0 
+                                ? <span className='text-color-medium-gray-important'>&nbsp;({numToggledButNotDisplayed} selected but not displayed)</span>
+                                : null
+                            }
                     </div>
                 }
                 {childrenToDisplay}
