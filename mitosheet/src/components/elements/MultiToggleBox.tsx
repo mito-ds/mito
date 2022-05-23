@@ -58,9 +58,9 @@ const MultiToggleBoxMessage = (props: {loading?: boolean, maxDisplayed: boolean,
 const MultiToggleSelectedMessage = (props: {searchString: string, numToggled: number, numToggledButNotDisplayed: number}): JSX.Element => {
     let text = `${props.numToggled} selected`;
     if (props.numToggled > 0 && props.numToggled === props.numToggledButNotDisplayed) {
-        text = `${props.numToggled} selected but not displayed`
+        text = `${props.numToggled} selected and not displayed`
     } else if (props.numToggledButNotDisplayed > 0) {
-        text = `${props.numToggled} selected. ${props.numToggledButNotDisplayed} selected but not displayed`
+        text = `${props.numToggled} selected, of which ${props.numToggledButNotDisplayed} not displayed`
     }
     
     return (
@@ -158,6 +158,7 @@ const MultiToggleBox = (props: {
     // Only display the options that we're searching for, and also collect
     // information about how many children are passed and displayed
     const childrenToDisplay = React.Children.map((props.children), (child) => {
+
         const title: null | undefined | string | number = child.props.title;
         const rightText: null | undefined | string | number = child.props.rightText;
         const toggled: null | undefined | boolean = child.props.toggled;
@@ -194,9 +195,14 @@ const MultiToggleBox = (props: {
             displayedNonDisabledAllToggled = displayedNonDisabledAllToggled && child.props.toggled; 
         }
 
-        return React.cloneElement(child, {
+        const copiedChild = React.cloneElement(child, {
             disabled: itemDisabled
         });
+
+        
+
+
+        return copiedChild;
     });
 
 
