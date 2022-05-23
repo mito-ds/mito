@@ -655,7 +655,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     mitoAPI={props.mitoAPI} 
                     selectedSheetIndex={uiState.selectedSheetIndex} 
                     sheetDataArray={sheetDataArray}   
-                    analysisData={analysisData}             
+                    analysisData={analysisData}    
+                    startingColumnIDs={uiState.currOpenTaskpane.startingColumnIDs}         
                 />
             )
         }

@@ -1,7 +1,7 @@
 import fscreen from "fscreen";
 import MitoAPI, { getRandomId } from "../jupyter/api";
 import { getStartingFormula } from "../components/endo/celleditor/cellEditorUtils";
-import { getColumnIndexesInSelections, getSelectedNumberSeriesColumnIDs, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
+import { getColumnIndexesInSelections, getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
 import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes, getDataframeIsSelected, getGraphIsSelected } from "../components/endo/utils";
 import { ModalEnum } from "../components/modals/modals";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
@@ -366,10 +366,16 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
 
+                const selectedColumnIDs = getSelectedColumnIDsWithEntireSelectedColumn(gridState.selections, sheetData);
+                console.log("Selecting columnids", selectedColumnIDs);
+                
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        currOpenTaskpane: {type: TaskpaneType.FILL_NA},
+                        currOpenTaskpane: {
+                            type: TaskpaneType.FILL_NA,
+                            startingColumnIDs: selectedColumnIDs
+                        },
                         selectedTabType: 'data'
                     }
                 })
