@@ -55,6 +55,22 @@ const MultiToggleBoxMessage = (props: {loading?: boolean, maxDisplayed: boolean,
     return (<></>)
 }
 
+const MultiToggleSelectedMessage = (props: {searchString: string, numToggled: number, numToggledButNotDisplayed: number}): JSX.Element => {
+    let text = `${props.numToggled} selected`;
+    if (props.numToggled > 0 && props.numToggled === props.numToggledButNotDisplayed) {
+        text = `${props.numToggled} selected but not displayed`
+    } else if (props.numToggledButNotDisplayed > 0) {
+        text = `${props.numToggled} selected. ${props.numToggledButNotDisplayed} selected but not displayed`
+    }
+    
+    return (
+        <>
+            Toggle {props.searchString !== '' ? "Displayed" : "All"}
+            <span className='text-color-medium-gray-important'>&nbsp;({text})</span>
+        </>
+    )
+}
+
 
 /* 
   A box that contains a variety of options that can be toggled on and off indivigually.
@@ -132,10 +148,12 @@ const MultiToggleBox = (props: {
     let displayedNonDisabledAllToggled = true;
     const nonDisabledDisplayedIndexes: number[] = [];
     
+    let numToggled = 0;
     let numToggledButNotDisplayed = 0;
 
     let numDisplayed = 0;
     let maxDisplayed = false;
+    
     
     // Only display the options that we're searching for, and also collect
     // information about how many children are passed and displayed
@@ -143,6 +161,10 @@ const MultiToggleBox = (props: {
         const title: null | undefined | string | number = child.props.title;
         const rightText: null | undefined | string | number = child.props.rightText;
         const toggled: null | undefined | boolean = child.props.toggled;
+
+        if (toggled) {
+            numToggled++;
+        }
 
         const noTitleMatch = title === null || title === undefined || fuzzyMatch(title + '', searchString) < .8;
         const noRightTextMatch = title === null || title === undefined || fuzzyMatch(rightText + '', searchString) < .8;
@@ -175,8 +197,8 @@ const MultiToggleBox = (props: {
         return React.cloneElement(child, {
             disabled: itemDisabled
         });
-        
-    })
+    });
+
 
     const { toggleAllIndexes } = props;
 
@@ -223,11 +245,11 @@ const MultiToggleBox = (props: {
                             name={'Toggle All'}
                             checked={displayedNonDisabledAllToggled}
                         />
-                            Toggle All {searchString !== '' && " Matching "}
-                            {numToggledButNotDisplayed > 0 
-                                ? <span className='text-color-medium-gray-important'>&nbsp;({numToggledButNotDisplayed} selected but not displayed)</span>
-                                : null
-                            }
+                            <MultiToggleSelectedMessage
+                                searchString={searchString}
+                                numToggled={numToggled}
+                                numToggledButNotDisplayed={numToggledButNotDisplayed}
+                            />
                     </div>
                 }
                 {childrenToDisplay}
