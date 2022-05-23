@@ -20,7 +20,7 @@ LOG_PARAMS_FORMULAS = {'new_formula', 'old_formula'}
 # with other titles elsewhere in different log events, we do not insist these are unique. 
 # Rather, we simply only attempt to linearize them when they are actually dictonaries aka
 # we can recurse on them
-LOG_PARAMS_TO_LINEARIZE = {'graph_creation', 'graph_preprocessing', 'graph_rendering', 'graph_styling', 'rangeslider', 'title', 'xaxis', 'yaxis'}
+LOG_PARAMS_TO_LINEARIZE = {'fill_method', 'graph_creation', 'graph_preprocessing', 'graph_rendering', 'graph_styling', 'rangeslider', 'title', 'xaxis', 'yaxis'}
 
 # We do sanity checks to make sure that there is no overlap between these sets
 assert len(LOG_PARAMS_PUBLIC.intersection(LOG_PARAMS_FORMULAS)) == 0

@@ -93,6 +93,25 @@ const getDefaultParams = (
     Constructs a message in the case an edit is applied telling users 
     fill na was successful on some columns
 */
+const getButtonMessage = (sheetData: SheetData | undefined, columnIDs: ColumnID[]): string => {
+    if (columnIDs.length === 0) {
+        return 'Select columns to fill NaN values';
+    }
+
+    const columnHeaders: ColumnHeader[] = columnIDs.map(columnID => sheetData?.columnIDsMap[columnID]).filter(columnHeader => columnHeader !== undefined) as ColumnHeader[];
+    const [columnHeadersString, numOtherColumnHeaders] = getFirstCharactersOfColumnHeaders(columnHeaders, 25)
+    
+    if (numOtherColumnHeaders === 0) {
+        return `Fill NaNs in ${columnHeadersString}`
+    } else {
+        return `Fill NaNs in ${columnHeadersString} and ${numOtherColumnHeaders} others`
+    }
+}
+
+/* 
+    Constructs a message in the case an edit is applied telling users 
+    fill na was successful on some columns
+*/
 const getSuccessMessage = (sheetData: SheetData | undefined, columnIDs: ColumnID[]): JSX.Element => {
     const columnHeaders: ColumnHeader[] = columnIDs.map(columnID => sheetData?.columnIDsMap[columnID]).filter(columnHeader => columnHeader !== undefined) as ColumnHeader[];
     const [columnHeadersString, numOtherColumnHeaders] = getFirstCharactersOfColumnHeaders(columnHeaders, 25)
@@ -352,12 +371,7 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                     }}
                     disabled={params.column_ids.length === 0}
                 >
-                    {params.column_ids.length === 0 
-                        ? "Select columns to fill NaN values"
-                        : !loading 
-                            ? `Fill NaN values in ${params.column_ids.length} columns`
-                            : 'Filling NaN values...' 
-                    }
+                    {getButtonMessage(sheetData, params.column_ids)}
                 </TextButton>
                 {editApplied && !loading &&
                      <Row className='mt-5'>
