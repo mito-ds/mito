@@ -22,6 +22,10 @@ LOG_PARAMS_FORMULAS = {'new_formula', 'old_formula'}
 # we can recurse on them
 LOG_PARAMS_TO_LINEARIZE = {'graph_creation', 'graph_preprocessing', 'graph_rendering', 'graph_styling', 'rangeslider', 'title', 'xaxis', 'yaxis'}
 
+# Almost always we keep the keys for graphs public. In some cases, we need to keep them 
+# private, which we do here
+LOG_PARAMS_MAP_KEYS_TO_MAKE_PRIVATE = {'values_column_ids_map'}
+
 # We do sanity checks to make sure that there is no overlap between these sets
 assert len(LOG_PARAMS_PUBLIC.intersection(LOG_PARAMS_FORMULAS)) == 0
 
