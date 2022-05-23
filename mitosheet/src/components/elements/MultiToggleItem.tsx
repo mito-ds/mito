@@ -14,7 +14,7 @@ const MultiToggleItem = (props: {
     /** 
         * @param title - The title on the right side of this multi toggle item
     */
-    title: string | number | boolean,
+    title: React.ReactNode,
     /** 
         * @param toggled - The state of the toggle for this item
     */
@@ -68,7 +68,7 @@ const MultiToggleItem = (props: {
                     />
                 </Col>
                 <Col span={14}>
-                    <span title={props.title.toString()}>
+                    <span title={props.title?.toString()}>
                         {props.title}
                     </span>
                 </Col>

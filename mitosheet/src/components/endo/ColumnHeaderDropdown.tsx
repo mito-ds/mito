@@ -84,6 +84,18 @@ export default function ColumnHeaderDropdown(props: {
                 }}
             />
             <DropdownItem 
+                title='Fill NaN Values'
+                onClick={() => {
+                    props.setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            currOpenTaskpane: {type: TaskpaneType.FILL_NA, startingColumnIDs: [props.columnID]},
+                        }
+                    })
+                }}
+            />
+            <DropdownSectionSeperator isDropdownSectionSeperator/>
+            <DropdownItem 
                 title='Format'
                 onClick={() => {
                     props.setUIState(prevUIState => {

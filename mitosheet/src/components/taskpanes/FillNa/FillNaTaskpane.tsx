@@ -20,7 +20,7 @@ import MultiToggleBox from '../../elements/MultiToggleBox';
 import MultiToggleItem from '../../elements/MultiToggleItem';
 import { getDisplayColumnHeader, getFirstCharactersOfColumnHeaders } from '../../../utils/columnHeaders';
 import { getDtypeValue } from '../ControlPanel/FilterAndSortTab/DtypeCard';
-import { addIfAbsent, removeIfPresent } from '../../../utils/arrays';
+import { addIfAbsent, intersection, removeIfPresent } from '../../../utils/arrays';
 import Spacer from '../../spacing/Spacer';
 import Input from '../../elements/Input';
 import { isDatetimeDtype, isNumberDtype, isTimedeltaDtype } from '../../../utils/dtypes';
@@ -35,7 +35,8 @@ interface FillNaTaskpaneProps {
     mitoAPI: MitoAPI,
     selectedSheetIndex: number,
     sheetDataArray: SheetData[],
-    analysisData: AnalysisData
+    analysisData: AnalysisData;
+    startingColumnIDs?: ColumnID[];
 }
 
 
@@ -55,7 +56,11 @@ interface FillNaParams {
 const BOOLEAN_STRINGS = ['True', 'true', 'False', 'false'];
 
 
-const getDefaultParams = (sheetDataArray: SheetData[], sheetIndex: number, defaultFillMethod?: FillMethod): FillNaParams | undefined => {
+const getDefaultParams = (
+        sheetDataArray: SheetData[], 
+        sheetIndex: number, defaultFillMethod?: FillMethod,
+        startingColumnIDs?: ColumnID[]
+    ): FillNaParams | undefined => {
     if (sheetDataArray.length === 0 || sheetDataArray[sheetIndex] === undefined) {
         return undefined;
     }
@@ -75,9 +80,12 @@ const getDefaultParams = (sheetDataArray: SheetData[], sheetIndex: number, defau
         }
     }
 
+    const columnIDs = startingColumnIDs === undefined ? Object.keys(sheetData.columnIDsMap) : intersection(Object.keys(sheetData.columnIDsMap), startingColumnIDs);
+    console.log(startingColumnIDs)
+
     return {
         sheet_index: sheetIndex,
-        column_ids: Object.keys(sheetData.columnIDsMap),
+        column_ids: columnIDs,
         fill_method: finalFillMethod
     }
 }
@@ -103,7 +111,7 @@ const getSuccessMessage = (sheetData: SheetData | undefined, columnIDs: ColumnID
 const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
 
     const {params, setParams, loading, edit, editApplied} = useSendEditOnClick<FillNaParams, undefined>(
-        getDefaultParams(props.sheetDataArray, props.selectedSheetIndex),
+        getDefaultParams(props.sheetDataArray, props.selectedSheetIndex, undefined, props.startingColumnIDs),
         StepType.FillNa, 
         props.mitoAPI,
         props.analysisData,
