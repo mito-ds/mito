@@ -539,24 +539,19 @@ export default class MitoAPI {
      * @param stepID the step id to overwrite (or undefined if not overwriting a step)
      * @returns the stepID that was sent to the backend
      */
-    async _edit<T>(
+    async _edit<ParamType>(
         edit_event_type: string,
-        params: T,
-        stepID?: string
-    ): Promise<string | MitoError> {
-        // If we aren't overwritting a step, return the step id
-        if (stepID === undefined || stepID == '') {
-            stepID = getRandomId();
-        }
-
-        const error: MitoError | undefined = await this.send({
+        params: ParamType,
+        stepID: string
+    ): Promise<MitoError | undefined> {
+        const result: MitoError | undefined = await this.send({
             'event': 'edit_event',
             'type': edit_event_type,
             'step_id': stepID,
             'params': params
-        }, {})
+        }, {});
 
-        return error != undefined ? error : stepID
+        return result;
     }
 
     async editGraph(

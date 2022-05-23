@@ -281,6 +281,34 @@ class MitoWidgetTestWrapper:
                 }
             }
         )
+    
+    @check_transpiled_code_after_call
+    def fill_na(
+            self, 
+            sheet_index: int,
+            column_headers: List[ColumnHeader],
+            fill_method: Any
+        ) -> bool:
+
+        column_ids = [
+            self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index, column_header)
+            for column_header in column_headers
+        ]
+
+        return self.mito_widget.receive_message(
+            self.mito_widget,
+            {
+                'event': 'edit_event',
+                'id': get_new_id(),
+                'type': 'fill_na_edit',
+                'step_id': get_new_id(),
+                'params': {
+                    'sheet_index': sheet_index,
+                    'column_ids': column_ids,
+                    'fill_method': fill_method
+                }
+            }
+        )
 
     @check_transpiled_code_after_call
     def drop_duplicates(

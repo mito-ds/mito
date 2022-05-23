@@ -7,6 +7,7 @@ import CellEditor, { CELL_EDITOR_WIDTH } from './CellEditor';
 import { calculateCurrentSheetView, getCellInColumn, getCellInRow } from '../sheetViewUtils';
 import { getCellDataFromCellIndexes } from '../utils';
 import '../../../../css/endo/CellEditor.css';
+import { TaskpaneType } from '../../taskpanes/taskpanes';
 
 // Style that we apply to the cell editor in order to place it
 interface EditorStyle {top?: number, left?: number, bottom?: number, right?: number, display?: string}
@@ -29,6 +30,7 @@ const FloatingCellEditor = (props: {
     scrollAndRenderedContainerRef: React.RefObject<HTMLDivElement>,
     containerRef: React.RefObject<HTMLDivElement>,
     mitoAPI: MitoAPI,
+    closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
 }): JSX.Element => {
 
     const [editorStyle, setEditorStyle] = useState<EditorStyle>({
@@ -144,6 +146,7 @@ const FloatingCellEditor = (props: {
                 containerRef={props.containerRef}
                 mitoAPI={props.mitoAPI}
                 currentSheetView={currentSheetView}
+                closeOpenEditingPopups={props.closeOpenEditingPopups}
             />
         </div>
     )

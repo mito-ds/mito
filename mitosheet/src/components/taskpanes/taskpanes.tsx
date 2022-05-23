@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import { GraphID } from "../../types"
+import { GraphID, GraphSidebarTab } from "../../types"
 import { BackendPivotParams } from "../../types"
 
 /* 
@@ -35,6 +35,7 @@ export enum TaskpaneType {
     STEPS = 'steps',
     UPGRADE_TO_PRO = 'upgrade_to_pro',
     IMPORT_FIRST = 'import_first', // when you want to tell the user to import first
+    FILL_NA = 'fill_na', // when you want to tell the user to import first
 }
 
 export type TaskpaneInfo = 
@@ -45,6 +46,7 @@ export type TaskpaneInfo =
     | {
         type: TaskpaneType.GRAPH,
         graphID: GraphID,
+        graphSidebarTab?: GraphSidebarTab
     }    
     | {type: TaskpaneType.IMPORT}
     | {type: TaskpaneType.MERGE}
@@ -58,6 +60,7 @@ export type TaskpaneInfo =
         existingPivotParams?: BackendPivotParams, 
     } 
     | {type: TaskpaneType.STEPS}
+    | {type: TaskpaneType.FILL_NA}
     | {
         type: TaskpaneType.IMPORT_FIRST,
         message: string
@@ -65,7 +68,7 @@ export type TaskpaneInfo =
     
 
 /*
-    EDITING_TASKPANES are taskpanes that live update the sheet using overwriting 
+    EDITING_TASKPANES are taskpanes that update the sheet using overwriting 
     and therefore should be closed when the user begins editing the sheet 
     through some other method. 
 */ 
@@ -76,6 +79,7 @@ export const EDITING_TASKPANES: TaskpaneType[] = [
     TaskpaneType.DROP_DUPLICATES,
     TaskpaneType.IMPORT,
     TaskpaneType.DOWNLOAD,
+    TaskpaneType.FILL_NA
 ]
 
 /**
@@ -91,5 +95,6 @@ export const ALLOW_UNDO_REDO_EDITING_TASKPANES = [
     TaskpaneType.CONCAT,
     TaskpaneType.DROP_DUPLICATES,
     TaskpaneType.IMPORT, 
+    TaskpaneType.FILL_NA
 ]
     

@@ -10,9 +10,8 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.concat_code_chunk import ConcatCodeChunk
 from mitosheet.code_chunks.step_performers.fill_na_code_chunk import FillNaCodeChunk
-from mitosheet.state import DATAFRAME_SOURCE_CONCAT, State
+from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
 from mitosheet.types import ColumnID
@@ -39,8 +38,6 @@ class FillNaStepPerformer(StepPerformer):
         fill_method = get_param(params, 'fill_method')
         fill_method_type = fill_method['type']
 
-        print(fill_method)
-
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
         df = post_state.dfs[sheet_index]
@@ -49,18 +46,16 @@ class FillNaStepPerformer(StepPerformer):
         pandas_start_time = perf_counter()
 
         if fill_method_type == 'value':
-            print("TYPEs")
             values = {column_header: fill_method['value'] for column_header in column_headers}
             df.fillna(values, inplace=True)
-            print("HERE")
         elif fill_method_type == 'ffill':
             df[column_headers] = df[column_headers].fillna(method='ffill')
         elif fill_method_type == 'bfill':
             df[column_headers] = df[column_headers].fillna(method='bfill')
         elif fill_method_type == 'mean':
-            df[column_headers] = df[column_headers].fillna(df[column_headers].mean())
+            df[column_headers] = df[column_headers].fillna(df[column_headers].mean(numeric_only=False))
         elif fill_method_type == 'median':
-            df[column_headers] = df[column_headers].fillna(df[column_headers].median())
+            df[column_headers] = df[column_headers].fillna(df[column_headers].median(numeric_only=False))
         else:
             raise Exception(f"Invalid fill method {fill_method}")
 

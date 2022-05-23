@@ -4,8 +4,6 @@ description: This documentation will teach you how to create pivot tables in Mit
 
 # Pivot Tables
 
-{% embed url="https://youtu.be/71ZePOAIhzc" %}
-
 To create a pivot table, click on the **pivot table** icon in the Mito toolbar and then use the task pane to configure it.&#x20;
 
 To configure the pivot table:
