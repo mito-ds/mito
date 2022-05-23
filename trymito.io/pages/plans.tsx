@@ -513,9 +513,9 @@ const Plans: NextPage = () => {
               />
             </section>
             <section className={pageStyles.suppress_section_margin_top + ' ' + plansStyles.plan_feature_grid_container + ' display-desktop-only-inline-block'}>
-            <FeatureSection
-                sectionTitle='Integration'
-                features={INTEGRATION_FEATURES}
+              <FeatureSection
+                  sectionTitle='Integration'
+                  features={INTEGRATION_FEATURES}
               />
               <FeatureSection
                 sectionTitle='Exploration'
