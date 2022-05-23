@@ -81,7 +81,6 @@ const getDefaultParams = (
     }
 
     const columnIDs = startingColumnIDs === undefined ? Object.keys(sheetData.columnIDsMap) : intersection(Object.keys(sheetData.columnIDsMap), startingColumnIDs);
-    console.log(startingColumnIDs)
 
     return {
         sheet_index: sheetIndex,
