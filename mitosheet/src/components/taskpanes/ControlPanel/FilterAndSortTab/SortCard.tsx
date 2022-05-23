@@ -8,7 +8,7 @@ import Row from '../../../spacing/Row';
 
 import '../../../../../css/taskpanes/ControlPanel/SortCard.css';
 import { AnalysisData, ColumnID } from '../../../../types';
-import useSyncedParams from '../../../../hooks/useSyncedParams';
+import useLiveUpdatingParams from '../../../../hooks/useLiveUpdatingParams';
 
 export enum SortDirection {
     ASCENDING = 'ascending',
@@ -34,7 +34,7 @@ type SortCardProps = {
 */
 
 const SortCard = (props: SortCardProps): JSX.Element => {
-    const {params, setParams} = useSyncedParams<SortParams>(undefined, 'sort', props.mitoAPI, props.analysisData, 0);
+    const {params, setParams} = useLiveUpdatingParams<SortParams>(undefined, 'sort', props.mitoAPI, props.analysisData, 0);
 
     const updateSortDirection = (newSortDirection: SortDirection): void => {
         setParams(prevSortParams => {

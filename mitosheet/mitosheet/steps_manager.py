@@ -302,7 +302,8 @@ class StepsManager:
                 "dataTypeInTool": self.data_type_in_mito.value,
                 "graphDataDict": self.curr_step.graph_data_dict,
                 'updateEventCount': self.update_event_count,
-                'renderCount': self.render_count
+                'renderCount': self.render_count,
+                'lastResult': self.curr_step.execution_data['result'] if 'result' in self.curr_step.execution_data else None
             }
         )
 

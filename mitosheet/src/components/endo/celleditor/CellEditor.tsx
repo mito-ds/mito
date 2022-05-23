@@ -12,6 +12,8 @@ import { ensureCellVisible } from '../visibilityUtils';
 import LoadingDots from '../../elements/LoadingDots';
 import { getColumnHeaderParts, getDisplayColumnHeader} from '../../../utils/columnHeaders';
 import { submitRenameColumnHeader } from '../columnHeaderUtils';
+import { isMitoError } from '../../../utils/errors';
+import { TaskpaneType } from '../../taskpanes/taskpanes';
 
 const MAX_SUGGESTIONS = 4;
 // NOTE: we just set the width to 250 pixels
@@ -39,6 +41,7 @@ const CellEditor = (props: {
     containerRef: React.RefObject<HTMLDivElement>,
     mitoAPI: MitoAPI,
     currentSheetView: SheetView
+    closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
 }): JSX.Element => {
 
     const cellEditorInputRef = useRef<HTMLInputElement | null>(null);
@@ -341,7 +344,7 @@ const CellEditor = (props: {
                 columnHeader,
                 props.editorState.pendingSelectedColumns
             );
-
+                
             props.setEditorState({
                 ...props.editorState,
                 formula: fullFormula,
@@ -377,7 +380,6 @@ const CellEditor = (props: {
         
         let errorMessage: MitoError | undefined = undefined;
 
-
         // Make sure to send the write type of message, depending on the editor
         if (props.editorState.rowIndex == -1) {
             // Change of column header
@@ -411,10 +413,11 @@ const CellEditor = (props: {
 
         // Don't let the user close the editor if this is an invalid formula
         // TODO: do we want a loading message?
-        if (errorMessage === undefined) {
-            closeCellEditor()
-        } else {
+        if (isMitoError(errorMessage)) {
             setCellEditorError(errorMessage.to_fix);
+        } else {
+            closeCellEditor();
+            props.closeOpenEditingPopups();
         }
     }
 

@@ -27,6 +27,7 @@ const ColumnHeaders = (props: {
     setGridState: React.Dispatch<React.SetStateAction<GridState>>;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI;
+    closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
 }): JSX.Element => {
         
     // The div that stores all the column headers
@@ -202,6 +203,7 @@ const ColumnHeaders = (props: {
                                     setColumnHeaderOperation={setColumnHeaderOperation}
                                     setUIState={props.setUIState}
                                     mitoAPI={props.mitoAPI}
+                                    closeOpenEditingPopups={props.closeOpenEditingPopups}
                                 />
                             )
                         })}

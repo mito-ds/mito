@@ -358,6 +358,28 @@ export const createActions = (
             searchTerms: ['export', 'download', 'excel', 'csv'],
             tooltip: "Download dataframes as a .csv or .xlsx file."
         },
+        [ActionEnum.Fill_Na]: {
+            type: ActionEnum.Fill_Na,
+            shortTitle: 'Fill NaN',
+            longTitle: 'Fill NaN Values',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenTaskpane: {type: TaskpaneType.FILL_NA},
+                        selectedTabType: 'data'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? undefined : 'There is no dataframe to fill nan values within.'
+            },
+            searchTerms: ['fill nan', 'nan', 'find', 'replace', 'null', 'undefined', 'fill null', 'fill undefined', 'empty', 'none', 'blank'],
+            tooltip: "Fill all NaN values within a dataframe or list of columns."
+        },
         [ActionEnum.Filter]: {
             type: ActionEnum.Filter,
             shortTitle: 'Filter',
@@ -733,6 +755,9 @@ export const createActions = (
                 if (startingColumnID === undefined) {
                     return 
                 }
+
+                closeOpenEditingPopups();
+
                 const startingFormula = getStartingFormula(sheetData, startingRowIndex, startingColumnIndex);
 
                 setEditorState({
@@ -766,7 +791,10 @@ export const createActions = (
             type: ActionEnum.Set_Column_Formula,
             shortTitle: 'Set Column Formula',
             longTitle: 'Set column formula',
-            actionFunction: async () => {            
+            actionFunction: async () => {  
+                
+                closeOpenEditingPopups();
+
                 setEditorState({
                     rowIndex: startingRowIndex !== -1 ? startingRowIndex : 0,
                     columnIndex: startingColumnIndex,
