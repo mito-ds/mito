@@ -9,7 +9,7 @@
 .preview-table {
     width: 100%;
     border-spacing: 0; /* Removes the cell spacing via CSS */
-    border-collapse: collapse;  /* Optional - if you don't want to have double border where cells touch */
+    border-collapse: collapse;  /* If you don't want to have double border where cells touch */
 }
 
 td {

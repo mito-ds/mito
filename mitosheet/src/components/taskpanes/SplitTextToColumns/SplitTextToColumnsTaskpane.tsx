@@ -33,6 +33,10 @@ type DelimiterObj = {
     delimiter: string
 }
 
+interface SplitTextToColumnsResult {
+    num_cols_created: number;
+}
+
 const defaultDelimitersObj: Record<string, DelimiterObj> = {
     'Comma': {
         included: false,
@@ -76,7 +80,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
         startingColumnID = props.sheetDataArray[props.gridState.sheetIndex].data[startingColumnIndex].columnID
     } 
 
-    const {params, setParams, loading, edit, editApplied} = useSendEditOnClick<SplitTextToColumnsParams, undefined>(
+    const {params, setParams, loading, edit, editApplied, result} = useSendEditOnClick<SplitTextToColumnsParams, SplitTextToColumnsResult>(
         {
             sheet_index: props.gridState.sheetIndex,
             column_id: startingColumnID,
@@ -294,6 +298,16 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                         )
                     }
                 </TextButton>
+                {editApplied && 
+                    <p>
+                        Created {result?.num_cols_created} new columns
+                    </p>
+                } 
+                {!editApplied && 
+                    <p>
+                        Select delimiters to split the column on
+                    </p>
+                } 
             </DefaultTaskpaneFooter>
         </DefaultTaskpane>
     )

@@ -56,14 +56,13 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
         delimiter_string = '|'.join(delimiters)
 
         # Actually execute the column reordering
-        # TODO: Where should I put the pandas_start_time and end time?
         pandas_start_time = perf_counter() 
         # Create the dataframe of new columns. We do this first, so that we know how many columns get created.
         new_columns_df = final_df[column_id].astype('str').str.split(delimiter_string, -1, expand=True)
         # Create the new column headers and ensure they are unique
         new_column_headers = [f'split-{idx}-of-{column_header}-{get_new_colum_header_unique_component()}' for column, idx in enumerate(new_columns_df)]
         # Make sure the new column headers are valid before adding them to the dataframe
-        new_column_headers = [try_make_new_header_valid_if_multi_index_headers(list(prev_state.column_ids.column_id_to_column_header[sheet_index].values()), column_header) for column_header in new_column_headers]
+        new_column_headers = [try_make_new_header_valid_if_multi_index_headers(list(prev_state.column_ids.get_column_headers(sheet_index)), column_header) for column_header in new_column_headers]
         # Add the new columns to the end of the dataframe
         final_df[new_column_headers] = new_columns_df
         # Set the columns in the correct order
@@ -82,7 +81,10 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
             # Save the new_column_headers so that the code chunk doesn't need to call .split to figure out how many columns were created
-            'new_column_headers': new_column_headers
+            'new_column_headers': new_column_headers,
+            'result': {
+                'num_cols_created': len(new_column_headers)
+            }
         }
 
     @classmethod
