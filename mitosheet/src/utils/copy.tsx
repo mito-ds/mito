@@ -97,6 +97,22 @@ const getCopyStringForSelections = (sheetData: SheetData, selections: MitoSelect
     return copyString;
 }
 
+/**
+ * A few notes on our copy and paste implementation:
+ * 1.   This is V1. There are instances of data that get copied with messed up formatting, or
+ *      in non-ideal ways. We can evolve this as we run into them.
+ * 2.   This implementation is optimized for simplicity above anything else. As such, we choose
+ *      tabs as delimiters simply because we observed gsheets doing the same, and we don't know
+ *      enough to make a different choice.
+ * 3.   Similarly to above, we choose not to escape internal tab characters because: we don't know
+ *      how to, or how common they are, etc. 
+ * 
+ * The goal with this implementation is the simpliest thing that will work well 100% of the time 
+ * for 90% of our users. While it may break in some cases, our lack of knowledge means a more 
+ * complicated approach to copying almost certainly will lead to more issues.
+ * 
+ * 
+ */
 export const getCopyStringForClipboard = (sheetData: SheetData | undefined, selections: MitoSelection[]): [string, MitoSelection[]] | undefined => {
     if (sheetData === undefined || selections.length === 0) {
         return undefined;
