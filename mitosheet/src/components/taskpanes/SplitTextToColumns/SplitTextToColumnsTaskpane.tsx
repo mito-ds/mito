@@ -276,7 +276,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                 <TextButton
                     variant='dark'
                     width='block'
-                    onClick={edit}
+                    onClick={() => edit()}
                 >
                     {!editApplied 
                         ? 'Split on delimiter'
