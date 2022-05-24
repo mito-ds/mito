@@ -136,7 +136,7 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
     )
 
     // If we change the starting column ids from outside the taskpane, then we 
-    // update the 
+    // update which columns are selected to fill nan in
     useEffect(() => {
         setParams(prevParams => {
             const newParams = getDefaultParams(props.sheetDataArray, props.selectedSheetIndex, prevParams.fill_method, props.startingColumnIDs);
