@@ -9,7 +9,7 @@ from typing import Any, Dict
 import pandas as pd
 from mitosheet.sheet_functions.types.utils import is_datetime_dtype
 from mitosheet.types import StepsManagerType
-from mitosheet.utils import df_to_json_dumpsable
+from mitosheet.utils import get_row_data_array
 
 # The maximum number of values the front-end sends to the backend
 # See comments in function description below.
@@ -32,25 +32,13 @@ def get_split_text_to_columns_preview(params: Dict[str, Any], steps_manager: Ste
     df_head = steps_manager.curr_step.dfs[sheet_index].head(3)
     delimiter_string = '|'.join(delimiters)
 
-
     # Create the dataframe of new columns. We do this first, so that we know how many columns get created.
     if is_datetime_dtype(str(df_head[column_header].dtype)):
         df_preview = df_head[column_header].dt.strftime('%Y-%m-%d %X').str.split(delimiter_string, -1, expand=True)
     else:
         df_preview = df_head[column_header].astype('str').str.split(delimiter_string, -1, expand=True)
 
-    df_preview_column_headers_to_column_ids = {df_preview.columns[i]: df_preview.columns[i] for i in range(len(df_preview.columns))}
-
     return json.dumps({
-        'dfPreviewSheetData': df_to_json_dumpsable(
-            df_preview, 
-            'value counts',
-            'imported',
-            {},
-            {},
-            df_preview_column_headers_to_column_ids,
-            {},
-            max_length=None
-        ),
+        'dfPreviewRowDataArray': get_row_data_array(df_preview),
     })
 
