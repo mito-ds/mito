@@ -10,13 +10,13 @@ import Col from "../../spacing/Col";
 import Select from "../../elements/Select";
 import DropdownItem from "../../elements/DropdownItem";
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders";
-import MultiSelectButtons from "../../elements/MultiSelectButtons";
 import useSendEditOnClick from "../../../hooks/useSendEditOnClick";
 import TextButton from "../../elements/TextButton";
 import Input from "../../elements/Input";
-import { useDebouncedEffect } from "../../../hooks/useDebouncedEffect";
 import '../../../../css/taskpanes/SplitTextToColumns/SplitTextToColumns.css'
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
+import MultiSelectButtonItem from "../../elements/MulitSelectButtonItem";
+import { toggleInArray } from "../../../utils/arrays";
 
 interface SplitTextToColumnsTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -28,37 +28,11 @@ interface SplitTextToColumnsTaskpaneProps {
     startingColumnID: ColumnID | undefined
 }
 
-type DelimiterObj = {
-    included: boolean,
-    delimiter: string
-}
-
 interface SplitTextToColumnsResult {
     num_cols_created: number;
 }
 
-const defaultDelimitersObj: Record<string, DelimiterObj> = {
-    'Comma': {
-        included: false,
-        delimiter: ','
-    },
-    'Dash': {
-        included: false,
-        delimiter: '-'
-    },
-    'Tab': {
-        included: false,
-        delimiter: '\t'
-    },
-    'Space': {
-        included: false,
-        delimiter: ' '
-    },
-    'Other': {
-        included: false,
-        delimiter: ''
-    }
-}
+const delimiters = {',': 'Comma', '-': 'Dash', '\t': 'Tab', ' ': 'Space'}
 
 /* 
     This taskpane allows users to split a column into multiple columns 
@@ -100,20 +74,6 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
         }
     }
 
-    // Keep track of the delimiters in this object so we don't need to messily convert back and forth between 
-    // delimiter name and character. 
-    const [delimiterObjs, setDelimiterObjs] = useState<Record<string, DelimiterObj>>(defaultDelimitersObj)
-
-    // When the delimitersObj changes, update the delimiter param
-    useDebouncedEffect(() => {
-        setParams(prevParams => {
-            return {
-                ...prevParams,
-                delimiters: getIncludedDelimiters()
-            }
-        })
-    }, [delimiterObjs], 500)
-
     useEffect(() => {
         if (params !== undefined && params.delimiters.length > 0) {
             // If there is at least one delimiter, load the preview
@@ -122,11 +82,6 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
             setPreview(undefined)
         }
     }, [params])
-
-    // Returns a list of delimiter characters from the delimiter object
-    const getIncludedDelimiters = (): string[] => {
-        return Object.values(delimiterObjs).filter(delimiterObj => delimiterObj.included).map((delimiterObj) => delimiterObj.delimiter)
-    }
     
     if (params === undefined || params.column_id === undefined) {
         return (<DefaultEmptyTaskpane setUIState={props.setUIState}/>)
@@ -183,6 +138,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                         <Select
                             width='medium'
                             value={getDisplayColumnHeader(props.sheetDataArray[params.sheet_index].columnIDsMap[params.column_id])}
+                            searchable
                         >
                             {Object.entries(props.sheetDataArray[params.sheet_index].columnIDsMap).map(([columnID, columnHeader]) => {
                                 return (
@@ -210,29 +166,41 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                         </p>
                     </Col>
                     <Col className="split-text-to-column-delimiters-container">
-                        <MultiSelectButtons
-                            values={Object.keys(delimiterObjs).filter(delimiterName => delimiterName !== 'Other')} 
-                            selectedValues={Object.keys(delimiterObjs).filter(delimiterName => delimiterObjs[delimiterName].included)}
-                            onChange={(toggledDelimiter) => {
-                                setDelimiterObjs(prevDelimiterObjs => {
-                                    const newDelimiterObjs = {...prevDelimiterObjs}
-                                    newDelimiterObjs[toggledDelimiter].included = !newDelimiterObjs[toggledDelimiter].included
-                                    return newDelimiterObjs
-                                })
-                            }}
-                        />
+                        {Object.entries(delimiters).map(([delimiter, delimiterTitle]) => {
+                            return (
+                                <MultiSelectButtonItem
+                                    key={delimiterTitle}
+                                    id={delimiter}
+                                    title={delimiterTitle}
+                                    checked={params.delimiters.includes(delimiter)}
+                                    onToggle={(delimiter: string) => {
+                                        setParams(prevParams => {
+                                            const newDelimiters = [...prevParams.delimiters]
+                                            toggleInArray(newDelimiters, delimiter)
+                                            return {
+                                                ...prevParams,
+                                                delimiters: newDelimiters
+                                            }
+                                        })
+                                    }}
+                                />
+                            )
+                        })}
                         <Input 
-                            value={delimiterObjs['Other'].delimiter}
-                            width='small'
-                            placeholder="Custom"
+                            value={params.delimiters.filter(params_delimiter => !Object.keys(delimiters).includes(params_delimiter))[0]}
+                            placeholder="other" 
                             className='mt-5px'
                             onChange={(e) => {
-                                const newOtherDelimiter = e.target.value
-                                setDelimiterObjs(prevDelimiterObjs => {
-                                    const newDelimiters = {...prevDelimiterObjs}
-                                    newDelimiters['Other'].included = newOtherDelimiter !== ''
-                                    newDelimiters['Other'].delimiter = newOtherDelimiter
-                                    return newDelimiters
+                                const newValue = e.target.value;
+                                setParams(prevParams => {
+                                    const newDelimiters = [...prevParams.delimiters].filter(delimiter => Object.keys(delimiters).includes(delimiter));
+                                    if (newValue !== '') {
+                                        newDelimiters.push(newValue);
+                                    }
+                                    return {
+                                        ...prevParams,
+                                        delimiters: newDelimiters
+                                    }
                                 })
                             }}
                         />
