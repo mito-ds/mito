@@ -6,9 +6,8 @@
 
 from typing import List
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.sheet_functions.types.utils import is_string_dtype
-from mitosheet.transpiler.transpile_utils import \
-    column_header_to_transpiled_code
+from mitosheet.sheet_functions.types.utils import is_datetime_dtype, is_string_dtype
+from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_to_transpiled_code
 
 
 class SplitTextToColumnsCodeChunk(CodeChunk):
@@ -33,15 +32,23 @@ class SplitTextToColumnsCodeChunk(CodeChunk):
         delimiter_string = "'" + '|'.join(delimiters) + "'"
         column_header = self.prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
         transpiled_column_header = column_header_to_transpiled_code(column_header)
-        column_id_index = self.prev_state.column_ids.get_column_ids(sheet_index).index(column_id)
+        new_transpiled_column_headers = column_header_list_to_transpiled_code(new_column_headers)
+        column_idx = self.prev_state.column_ids.get_column_ids(sheet_index).index(column_id)
         df_name = self.post_state.df_names[sheet_index]
 
         # Split column
-        string_conversion = "" if is_string_dtype(str(self.prev_state.dfs[sheet_index][column_header].dtype)) else ".astype('str')"
-        split_column_line = f'{df_name}[{new_column_headers}] = {df_name}[{transpiled_column_header}]{string_conversion}.str.split({delimiter_string}, -1, expand=True)'
+        dtype_string = str(self.prev_state.dfs[sheet_index][column_header].dtype)
+        if is_string_dtype(dtype_string):
+            string_conversion = ''
+        elif is_datetime_dtype(dtype_string):
+            string_conversion = ".dt.strftime('%Y-%m-%d %X')"
+        else:
+            string_conversion = ".astype('str')"
+
+        split_column_line = f'{df_name}[{new_transpiled_column_headers}] = {df_name}[{transpiled_column_header}]{string_conversion}.str.split({delimiter_string}, -1, expand=True)'
 
         # Reorder columns 
-        reorder_columns_line = f'{df_name}.columns = {df_name}.columns[:{column_id_index + 1}].tolist() + {new_column_headers} + {df_name}.columns[{column_id_index + 1}:-{len(new_column_headers)}].tolist()'
+        reorder_columns_line = f'{df_name}.columns = {df_name}.columns[:{column_idx + 1}].tolist() + {new_transpiled_column_headers} + {df_name}.columns[{column_idx + 1}:-{len(new_column_headers)}].tolist()'
 
         return [split_column_line, reorder_columns_line]
 

@@ -66,7 +66,7 @@ export type TaskpaneInfo =
         type: TaskpaneType.IMPORT_FIRST,
         message: string
     } 
-    | {type: TaskpaneType.SPLIT_TEXT_TO_COLUMNS, startingColumnID?: ColumnID}
+    | {type: TaskpaneType.SPLIT_TEXT_TO_COLUMNS, startingColumnID: ColumnID | undefined}
     
 
 /*

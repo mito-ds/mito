@@ -433,11 +433,12 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
 
-    // Get the column id of the currently selected column
+    // Get the column id of the currently selected column. We always default to the 
+    // top left corner of the last selection
     const {columnID} = getCellDataFromCellIndexes(
         sheetDataArray[uiState.selectedSheetIndex], 
-        gridState.selections[gridState.selections.length - 1].endingRowIndex, 
-        gridState.selections[gridState.selections.length - 1].endingColumnIndex
+        gridState.selections[gridState.selections.length - 1].startingRowIndex, 
+        gridState.selections[gridState.selections.length - 1].startingColumnIndex
     );
 
     /* 

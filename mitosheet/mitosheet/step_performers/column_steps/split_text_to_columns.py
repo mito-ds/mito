@@ -14,6 +14,7 @@ import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.split_text_to_columns_code_chunk import SplitTextToColumnsCodeChunk
 from mitosheet.column_headers import try_make_new_header_valid_if_multi_index_headers
+from mitosheet.sheet_functions.types.utils import is_datetime_dtype
 from mitosheet.state import FORMAT_DEFAULT, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
@@ -48,7 +49,7 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
         delimiters: List[str] = get_param(params, 'delimiters')
 
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-        column_id_index = prev_state.dfs[sheet_index].columns.tolist().index(column_id)
+        column_idx = prev_state.dfs[sheet_index].columns.tolist().index(column_header)
             
         # Create a new post state
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
@@ -58,7 +59,12 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
         # Actually execute the column reordering
         pandas_start_time = perf_counter() 
         # Create the dataframe of new columns. We do this first, so that we know how many columns get created.
-        new_columns_df = final_df[column_id].astype('str').str.split(delimiter_string, -1, expand=True)
+        if is_datetime_dtype(str(post_state.dfs[sheet_index][column_header].dtype)):
+            print('is datetime ')
+            new_columns_df = final_df[column_header].dt.strftime('%Y-%m-%d %X').str.split(delimiter_string, -1, expand=True)
+        else:
+            new_columns_df = final_df[column_header].astype('str').str.split(delimiter_string, -1, expand=True)
+
         # Create the new column headers and ensure they are unique
         new_column_headers = [f'split-{idx}-of-{column_header}-{get_new_colum_header_unique_component()}' for column, idx in enumerate(new_columns_df)]
         # Make sure the new column headers are valid before adding them to the dataframe
@@ -66,7 +72,7 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
         # Add the new columns to the end of the dataframe
         final_df[new_column_headers] = new_columns_df
         # Set the columns in the correct order
-        final_df = final_df[final_df.columns[:column_id_index + 1].tolist() + new_column_headers + final_df.columns[column_id_index + 1:-len(new_column_headers)].tolist()]
+        final_df = final_df[final_df.columns[:column_idx + 1].tolist() + new_column_headers + final_df.columns[column_idx + 1:-len(new_column_headers)].tolist()]
         pandas_processing_time = perf_counter() - pandas_start_time
 
         # Update column state variables

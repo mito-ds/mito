@@ -29,7 +29,9 @@ export default function ColumnHeaderDropdown(props: {
     // Log opening this dropdown
     useEffect(() => {void props.mitoAPI.log('opened_column_header_dropdown')}, [])
 
-    const rowIndex = 0
+    // If the user interacts with the column header dropdown, we always default to 
+    // selecting the first row for any action, like setting the column formula. 
+    const rowIndex = 0 
     const columnIndex = Object.keys(props.sheetData.columnIDsMap).indexOf(props.columnID)
     const columnFormula = getCellDataFromCellIndexes(props.sheetData, rowIndex, columnIndex).columnFormula;
 
@@ -119,7 +121,7 @@ export default function ColumnHeaderDropdown(props: {
                     })
                 }}
                 disabled={columnFormula === undefined || columnFormula.length == 0}
-                tooltip={!isNumberDtype(props.columnDtype) ? "Data columns don't support formulas" : undefined}
+                tooltip={columnFormula === undefined || columnFormula.length == 0 ? "Data columns don't support formulas" : undefined}
             />
             <DropdownItem 
                 title='Split Text to Columns '

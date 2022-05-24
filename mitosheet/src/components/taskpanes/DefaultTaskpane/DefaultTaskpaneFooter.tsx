@@ -10,7 +10,7 @@ import "../../../../css/taskpanes/DefaultTaskpane.css"
 const DefaultTaskpaneFooter = (
     props: {
         /** 
-            * @param children - The actual content to display in the body
+            * @param children - The actual content to display in the footer
         */
         children: ReactNode
     }): JSX.Element => {

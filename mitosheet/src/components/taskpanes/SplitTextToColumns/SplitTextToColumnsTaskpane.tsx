@@ -25,7 +25,7 @@ interface SplitTextToColumnsTaskpaneProps {
     gridState: GridState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     dfNames: string[];
-    startingColumnID?: ColumnID
+    startingColumnID: ColumnID | undefined
 }
 
 type DelimiterObj = {
@@ -66,24 +66,10 @@ const defaultDelimitersObj: Record<string, DelimiterObj> = {
 */
 const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX.Element => {
 
-    // Use the selected column, unless its the index column, then just use the first column
-    const startingColumnIndex = props.gridState.selections[0].startingColumnIndex >= 0 ? props.gridState.selections[0].startingColumnIndex : 0
-
-    // Make sure that there is data in the sheet before trying to access the column_id, so we don't crash the sheet
-    const isSheetEmpty = props.sheetDataArray[props.gridState.sheetIndex] === undefined || props.sheetDataArray[props.gridState.sheetIndex].data[startingColumnIndex] === undefined
- 
-    // Get the starting column id
-    let startingColumnID = undefined
-    if (props.startingColumnID !== undefined) {
-        startingColumnID = props.startingColumnID
-    } else if (!isSheetEmpty) {
-        startingColumnID = props.sheetDataArray[props.gridState.sheetIndex].data[startingColumnIndex].columnID
-    } 
-
     const {params, setParams, loading, edit, editApplied, result} = useSendEditOnClick<SplitTextToColumnsParams, SplitTextToColumnsResult>(
         {
             sheet_index: props.gridState.sheetIndex,
-            column_id: startingColumnID,
+            column_id: props.startingColumnID !== undefined ? props.startingColumnID : props.sheetDataArray[props.gridState.sheetIndex].data[0].columnID,
             delimiters: [] // List of the delimiter characters
         },
         StepType.SplitTextToColumns, 
@@ -149,7 +135,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
-                header="Split Text to Column"
+                header="Split Text to Columns"
                 setUIState={props.setUIState}            
             />
             <DefaultTaskpaneBody>
@@ -169,7 +155,9 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                                     const newSheetIndex = props.dfNames.indexOf(newSheet)
                                     return {
                                         ...prevParams,
-                                        sheet_index: newSheetIndex
+                                        sheet_index: newSheetIndex,
+                                        // Default to the first column in the new sheet
+                                        column_id: Object.keys(props.sheetDataArray[newSheetIndex].columnIDsMap)[0]
                                     }
                                 })
                             }}
@@ -194,7 +182,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                     <Col>
                         <Select
                             width='medium'
-                            value={getDisplayColumnHeader(params.column_id)}
+                            value={getDisplayColumnHeader(props.sheetDataArray[params.sheet_index].columnIDsMap[params.column_id])}
                         >
                             {Object.entries(props.sheetDataArray[params.sheet_index].columnIDsMap).map(([columnID, columnHeader]) => {
                                 return (
@@ -305,7 +293,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                 } 
                 {!editApplied && 
                     <p>
-                        Select delimiters to split the column on
+                        Select delimiters and press &apos;Split on delimiter&apos; to apply changes
                     </p>
                 } 
             </DefaultTaskpaneFooter>

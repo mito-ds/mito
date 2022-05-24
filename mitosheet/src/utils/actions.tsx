@@ -847,7 +847,7 @@ export const createActions = (
                     return {
                         ...prevUIState,
                         currOpenModal: {type: ModalEnum.None},
-                        currOpenTaskpane: {type: TaskpaneType.SPLIT_TEXT_TO_COLUMNS}
+                        currOpenTaskpane: {type: TaskpaneType.SPLIT_TEXT_TO_COLUMNS, startingColumnID: startingColumnID}
                     }
                 })
             },
