@@ -1,7 +1,7 @@
 import fscreen from "fscreen";
 import MitoAPI, { getRandomId } from "../jupyter/api";
 import { getStartingFormula } from "../components/endo/celleditor/cellEditorUtils";
-import { getColumnIndexesInSelections, getSelectedNumberSeriesColumnIDs, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
+import { getColumnIndexesInSelections, getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
 import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes, getDataframeIsSelected, getGraphIsSelected } from "../components/endo/utils";
 import { ModalEnum } from "../components/modals/modals";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
@@ -357,6 +357,34 @@ export const createActions = (
             },
             searchTerms: ['export', 'download', 'excel', 'csv'],
             tooltip: "Download dataframes as a .csv or .xlsx file."
+        },
+        [ActionEnum.Fill_Na]: {
+            type: ActionEnum.Fill_Na,
+            shortTitle: 'Fill NaN',
+            longTitle: 'Fill NaN Values',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                const selectedColumnIDs = getSelectedColumnIDsWithEntireSelectedColumn(gridState.selections, sheetData);
+                console.log("Selecting columnids", selectedColumnIDs);
+                
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenTaskpane: {
+                            type: TaskpaneType.FILL_NA,
+                            startingColumnIDs: selectedColumnIDs
+                        },
+                        selectedTabType: 'data'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? undefined : 'There is no dataframe to fill nan values within.'
+            },
+            searchTerms: ['fill nan', 'nan', 'find', 'replace', 'null', 'undefined', 'fill null', 'fill undefined', 'empty', 'none', 'blank'],
+            tooltip: "Fill all NaN values within a dataframe or list of columns."
         },
         [ActionEnum.Filter]: {
             type: ActionEnum.Filter,
@@ -733,6 +761,9 @@ export const createActions = (
                 if (startingColumnID === undefined) {
                     return 
                 }
+
+                closeOpenEditingPopups();
+
                 const startingFormula = getStartingFormula(sheetData, startingRowIndex, startingColumnIndex);
 
                 setEditorState({
@@ -766,7 +797,10 @@ export const createActions = (
             type: ActionEnum.Set_Column_Formula,
             shortTitle: 'Set Column Formula',
             longTitle: 'Set column formula',
-            actionFunction: async () => {            
+            actionFunction: async () => {  
+                
+                closeOpenEditingPopups();
+
                 setEditorState({
                     rowIndex: startingRowIndex !== -1 ? startingRowIndex : 0,
                     columnIndex: startingColumnIndex,

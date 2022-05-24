@@ -60,6 +60,10 @@ class StepPerformer(ABC, object):
         If the execution_data also includes the key `pandas_processing_time`, this 
         will allow the logging infrastructure to determine how much overhead Mito
         adds to executing this event.
+
+        If the exectution_data includes the key `result`, than this result can be
+        accessed in the frontend to display some results to the user. See the 
+        DropDuplicatesStepPerformer and the DropDuplicatesCodeChunk for an example of this usage.
         """
         pass
 
@@ -79,7 +83,7 @@ class StepPerformer(ABC, object):
 
     @classmethod
     @abstractmethod
-    def get_modified_dataframe_indexes(cls, **params: Any) -> Set[int]:
+    def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
         """
         Returns a set of all the sheet indexes that were modified
         by this step.

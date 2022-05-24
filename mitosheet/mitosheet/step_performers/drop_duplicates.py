@@ -12,8 +12,6 @@ from mitosheet.code_chunks.step_performers.drop_duplicates_code_chunk import Dro
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
-from mitosheet.transpiler.transpile_utils import (
-    column_header_list_to_transpiled_code, column_header_to_transpiled_code)
 from mitosheet.types import ColumnID
 
 class DropDuplicatesStepPerformer(StepPerformer):
@@ -28,10 +26,6 @@ class DropDuplicatesStepPerformer(StepPerformer):
     @classmethod
     def step_type(cls) -> str:
         return 'drop_duplicates'
-
-    @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
-        return params
 
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
@@ -59,10 +53,17 @@ class DropDuplicatesStepPerformer(StepPerformer):
         )
         pandas_processing_time = perf_counter() - pandas_start_time
 
+
         post_state.dfs[sheet_index] = final_df
 
+        # We calculate the number of rows dropped, so we can return this to the frontend
+        num_rows_dropped = len(prev_state.dfs[sheet_index].index) - len(post_state.dfs[sheet_index].index)
+
         return post_state, {
-            'pandas_processing_time': pandas_processing_time
+            'pandas_processing_time': pandas_processing_time,
+            'result': {
+                'num_rows_dropped': num_rows_dropped
+            }
         }
 
     @classmethod
@@ -78,11 +79,5 @@ class DropDuplicatesStepPerformer(StepPerformer):
         ]
 
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
-        cls, 
-        sheet_index: int,
-        column_ids: List[ColumnID],
-        keep: str,
-        **params
-    ) -> Set[int]:
-        return {sheet_index}
+    def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
+        return {get_param(params, 'sheet_index')}

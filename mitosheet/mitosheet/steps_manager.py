@@ -106,9 +106,7 @@ def get_modified_sheet_indexes(
     # otherwise we just say all of them (undo, replay might interact weird)
     if starting_step_index == ending_step_index - 1:
         step = steps[ending_step_index]
-        modified_indexes = step.step_performer.get_modified_dataframe_indexes(
-            **step.params
-        )
+        modified_indexes = step.step_performer.get_modified_dataframe_indexes(step.params)
 
         # If the set is empty, then we modified everything
         if len(modified_indexes) == 0:
@@ -302,7 +300,8 @@ class StepsManager:
                 "dataTypeInTool": self.data_type_in_mito.value,
                 "graphDataDict": self.curr_step.graph_data_dict,
                 'updateEventCount': self.update_event_count,
-                'renderCount': self.render_count
+                'renderCount': self.render_count,
+                'lastResult': self.curr_step.execution_data['result'] if 'result' in self.curr_step.execution_data else None
             }
         )
 

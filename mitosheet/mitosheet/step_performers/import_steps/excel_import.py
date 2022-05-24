@@ -31,10 +31,6 @@ class ExcelImportStepPerformer(StepPerformer):
         return 'excel_import'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
-        return params
-
-    @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         file_name: str = get_param(params, 'file_name')
         sheet_names: List[str] = get_param(params, 'sheet_names')
@@ -80,12 +76,5 @@ class ExcelImportStepPerformer(StepPerformer):
         ]
 
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
-        cls, 
-        file_name: str,
-        sheet_names: List[str],
-        has_headers: bool,
-        use_deprecated_id_algorithm: bool=False,
-        **params
-    ) -> Set[int]:
-        return {-1} # changes the new dataframe(s - there might be multiple made in this step)
+    def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
+        return {-1}

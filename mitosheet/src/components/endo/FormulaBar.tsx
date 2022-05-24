@@ -14,6 +14,7 @@ import MitoAPI from '../../jupyter/api';
 import { calculateCurrentSheetView } from './sheetViewUtils';
 import CellEditor from './celleditor/CellEditor';
 import { getDisplayColumnHeader } from '../../utils/columnHeaders';
+import { TaskpaneType } from '../taskpanes/taskpanes';
 
 const FormulaBar = (props: {
     sheetData: SheetData,
@@ -27,6 +28,7 @@ const FormulaBar = (props: {
     containerRef: React.RefObject<HTMLDivElement>,
     mitoAPI: MitoAPI,
     selection: MitoSelection,
+    closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
 }): JSX.Element => {
 
     const rowIndex = props.selection.startingRowIndex
@@ -85,6 +87,7 @@ const FormulaBar = (props: {
                         containerRef={props.containerRef}
                         mitoAPI={props.mitoAPI}
                         currentSheetView={currentSheetView}
+                        closeOpenEditingPopups={props.closeOpenEditingPopups}
                     />
                 } 
                 {props.editorState?.editorLocation !== 'formula bar' &&

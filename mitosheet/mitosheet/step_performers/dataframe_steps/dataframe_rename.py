@@ -67,11 +67,5 @@ class DataframeRenameStepPerformer(StepPerformer):
         ]
 
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
-        cls, 
-        sheet_index: int,
-        old_dataframe_name: str,
-        new_dataframe_name: str,
-        **params
-    ) -> Set[int]:
-        return {sheet_index}
+    def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
+        return {get_param(params, 'sheet_index')} # This should be none, but we don't have a way to return that

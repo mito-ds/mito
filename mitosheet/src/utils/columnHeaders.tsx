@@ -88,3 +88,26 @@ export const rowIndexToColumnHeaderLevel = (columnHeader: MultiIndexColumnHeader
     return columnHeader.length - (rowIndex * -1)
 }
 
+
+
+/* 
+    Given a list of column headers, returns a formatted string with the first num characters in the column headers
+    and the number of column headers that didn't have any character in the first num characters of the list
+*/
+export const getFirstCharactersOfColumnHeaders = (columnHeaders: ColumnHeader[], num: number): [string, number] => {
+    const columnHeadersCopy = [...columnHeaders]
+    let charsRemaining = num
+    const columnHeadersToDisplay = []
+    while (columnHeadersCopy.length > 0 && charsRemaining > 0) {
+        const nextFullString = getDisplayColumnHeader(columnHeadersCopy.shift() || '')
+        let nextPartialString = ''
+        for (let i = 0; i < nextFullString.length; i++) {
+            if (charsRemaining > 0) {
+                nextPartialString += nextFullString[i];
+                charsRemaining--;
+            }
+        }
+        columnHeadersToDisplay.push(nextPartialString)
+    }
+    return [columnHeadersToDisplay.join(', '), columnHeadersCopy.length]
+}

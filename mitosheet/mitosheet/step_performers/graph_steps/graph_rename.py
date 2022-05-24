@@ -76,11 +76,5 @@ class GraphRenameStepPerformer(StepPerformer):
         ]
     
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
-        cls, 
-        graph_id: GraphID,
-        old_graph_tab_name: str,
-        new_graph_tab_name: str,
-        **params
-    ) -> Set[int]:
+    def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
         return {-1}

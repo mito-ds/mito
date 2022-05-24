@@ -16,8 +16,7 @@ from mitosheet.saved_analyses import SAVED_ANALYSIS_FOLDER, write_analysis
 from mitosheet.saved_analyses.save_utils import read_and_upgrade_analysis
 from mitosheet.step_performers.filter import FC_NUMBER_EXACTLY
 from mitosheet.tests.test_utils import (create_mito_wrapper,
-                                        create_mito_wrapper_dfs,
-                                        make_multi_index_header_df)
+                                        create_mito_wrapper_dfs)
 
 # We assume only column A exists
 PERSIST_ANALYSIS_TESTS = [

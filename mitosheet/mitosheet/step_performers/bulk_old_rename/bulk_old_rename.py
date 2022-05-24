@@ -43,10 +43,6 @@ class BulkOldRenameStepPerformer(StepPerformer):
         return 'old_rename_only_use_this_in_testing'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
-        return params
-
-    @classmethod
     def execute(cls,prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         """
         If move_to_deprecated_id_algorithm, then this step is being
@@ -99,8 +95,5 @@ class BulkOldRenameStepPerformer(StepPerformer):
         ]
 
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
-        cls, 
-        **params
-    ) -> Set[int]:
+    def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
         return set() # changes all dataframes

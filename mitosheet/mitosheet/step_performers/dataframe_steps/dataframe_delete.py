@@ -75,10 +75,5 @@ class DataframeDeleteStepPerformer(StepPerformer):
         ]
     
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
-        cls, 
-        sheet_index: int,
-        old_dataframe_name: str,
-        **params
-    ) -> Set[int]:
+    def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
         return set() # Redo all of them, as order shifts

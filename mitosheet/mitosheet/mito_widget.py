@@ -165,7 +165,7 @@ class MitoWidget(DOMWidget):
         # with the response (like an error), to get this response in-place!
         self.send({
             'event': 'response',
-            'id': event['id']
+            'id': event['id'],
         })
 
     def receive_message(self, widget: Any, content: Dict[str, Any], buffers: Any=None) -> bool:

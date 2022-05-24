@@ -82,10 +82,16 @@ type BoundingRect = {
     this function to work properly, otherwise scrolling will look all
     screwed up and you'll be confused for a while.
 
+    NOTE: Seriously. Before trying to debug this function, go set relative
+    positioning on the container element. You'll save yourself a lot of
+    debugging time. Lol...
+
     The topAdjustment is the amount of space you can leave at the top of 
     the container, in case there is something (like a search) fixed up there.
 */
 export const ensureInView = (container: HTMLDivElement, element: HTMLDivElement, topAdjustment: number): void => {
+    // NOTE: if you're trying to use this function, check the
+    // comment above to make sure you've set relative positioning on the container
 
     // Determine container top and bottom
     const containerTop = container.scrollTop;

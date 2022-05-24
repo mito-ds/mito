@@ -71,6 +71,22 @@ export function toggleInArray<T>(array: T[], value: T): T[] {
 }
 
 /**
+ * If the value is not in the array, adds it
+ * @param array The array to modify in place
+ * @param value The value to add if it is not present
+ * @returns the array, modified in place
+ */
+export function addIfAbsent<T>(array: T[], value: T): T[] {
+    const index = array.indexOf(value);
+
+    if (index === -1) {
+        array.push(value);
+    }
+
+    return array;
+}
+
+/**
  * If the value is in the array, removes it
  * @param array The array to modify in place
  * @param value The value to remove if present
