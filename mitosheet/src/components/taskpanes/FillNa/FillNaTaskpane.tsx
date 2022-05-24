@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 // Distributed under the terms of the Modified BSD License.
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import MitoAPI from '../../../jupyter/api';
 
@@ -134,6 +134,18 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
         props.mitoAPI,
         props.analysisData,
     )
+
+    // If we change the starting column ids from outside the taskpane, then we 
+    // update the 
+    useEffect(() => {
+        setParams(prevParams => {
+            const newParams = getDefaultParams(props.sheetDataArray, props.selectedSheetIndex, prevParams.fill_method, props.startingColumnIDs);
+            if (newParams) {
+                return newParams;
+            }
+            return prevParams;
+        });
+    }, [props.startingColumnIDs])
 
     if (params === undefined) {
         return (<DefaultEmptyTaskpane setUIState={props.setUIState} message="Import a dataset before filling NaN values."/>)
