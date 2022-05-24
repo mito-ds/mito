@@ -1,11 +1,12 @@
 // Copyright (c) Mito
 
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import '../../../css/elements/MultiToggleBox.css'
 import { classNames } from '../../utils/classNames';
 import { fuzzyMatch } from '../../utils/strings';
 import Row from '../spacing/Row';
+import { ensureInView } from './Dropdown';
 import Input from './Input';
 import LoadingDots from './LoadingDots';
 import { Height, Width } from './sizes.d';
@@ -53,6 +54,22 @@ const MultiToggleBoxMessage = (props: {loading?: boolean, maxDisplayed: boolean,
     }
 
     return (<></>)
+}
+
+const MultiToggleSelectedMessage = (props: {searchString: string, numToggled: number, numToggledButNotDisplayed: number}): JSX.Element => {
+    let text = `${props.numToggled} selected`;
+    if (props.numToggled > 0 && props.numToggled === props.numToggledButNotDisplayed) {
+        text = `${props.numToggled} selected and not displayed`
+    } else if (props.numToggledButNotDisplayed > 0) {
+        text = `${props.numToggled} selected, of which ${props.numToggledButNotDisplayed} not displayed`
+    }
+    
+    return (
+        <>
+            Toggle {props.searchString !== '' ? "Displayed" : "All"}
+            <span className='text-color-medium-gray-important'>&nbsp;({text})</span>
+        </>
+    )
 }
 
 
@@ -124,6 +141,18 @@ const MultiToggleBox = (props: {
     const searchString = props.searchState !== undefined? props.searchState.searchString : _searchString;
     const setSearchString = props.searchState !== undefined? props.searchState.setSearchString : _setSearchString;
 
+    // This hook runs when the multi toggle box renders, and makes sure that the first selected
+    // element is visible in the toggle box. This is necessary to make sure that users aren't confused
+    // by where their selection is.
+    const setRef = useCallback((unsavedDropdownAnchor: HTMLDivElement) => {
+        if (unsavedDropdownAnchor !== null) {
+            const firstSelectedChild = unsavedDropdownAnchor.querySelector<HTMLDivElement>('.multi-toggle-box-row-selected');
+            if (firstSelectedChild !== null) {
+                ensureInView(unsavedDropdownAnchor, firstSelectedChild, 0)
+            }            
+        }
+    },[]);
+
     const height = props.height || 'block'
     const width = props.width || 'block'
     const heightClass = `element-height-${height}`
@@ -131,21 +160,35 @@ const MultiToggleBox = (props: {
 
     let displayedNonDisabledAllToggled = true;
     const nonDisabledDisplayedIndexes: number[] = [];
+    
+    let numToggled = 0;
+    let numToggledButNotDisplayed = 0;
 
     let numDisplayed = 0;
     let maxDisplayed = false;
     
+    
     // Only display the options that we're searching for, and also collect
     // information about how many children are passed and displayed
     const childrenToDisplay = React.Children.map((props.children), (child) => {
+
         const title: null | undefined | string | number = child.props.title;
         const rightText: null | undefined | string | number = child.props.rightText;
+        const toggled: null | undefined | boolean = child.props.toggled;
+
+        if (toggled) {
+            numToggled++;
+        }
 
         const noTitleMatch = title === null || title === undefined || fuzzyMatch(title + '', searchString) < .8;
         const noRightTextMatch = title === null || title === undefined || fuzzyMatch(rightText + '', searchString) < .8;
 
         // Don't display if it doesn't match either of the title or the right text
         if (noTitleMatch && noRightTextMatch) {
+            if (toggled) {
+                numToggledButNotDisplayed++;
+            }
+
             return null;
         }
 
@@ -165,11 +208,13 @@ const MultiToggleBox = (props: {
             displayedNonDisabledAllToggled = displayedNonDisabledAllToggled && child.props.toggled; 
         }
 
-        return React.cloneElement(child, {
+        const copiedChild = React.cloneElement(child, {
             disabled: itemDisabled
         });
-        
-    })
+
+        return copiedChild;
+    });
+
 
     const { toggleAllIndexes } = props;
 
@@ -191,6 +236,7 @@ const MultiToggleBox = (props: {
                 // It's hard to get the box to fill the rest of the container,
                 // so we do a calculation if the search box is displayed
                 style={{height: props.searchable ? 'calc(100% - 30px)' : '100%'}}
+                ref={setRef}
             >
                 {<MultiToggleBoxMessage
                     loading={props.loading}
@@ -216,7 +262,11 @@ const MultiToggleBox = (props: {
                             name={'Toggle All'}
                             checked={displayedNonDisabledAllToggled}
                         />
-                        Toggle All {searchString !== '' && " Matching"}
+                            <MultiToggleSelectedMessage
+                                searchString={searchString}
+                                numToggled={numToggled}
+                                numToggledButNotDisplayed={numToggledButNotDisplayed}
+                            />
                     </div>
                 }
                 {childrenToDisplay}

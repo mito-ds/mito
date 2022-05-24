@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import { GraphID, GraphSidebarTab } from "../../types"
+import { ColumnID, GraphID, GraphSidebarTab } from "../../types"
 import { BackendPivotParams } from "../../types"
 
 /* 
@@ -60,7 +60,10 @@ export type TaskpaneInfo =
         existingPivotParams?: BackendPivotParams, 
     } 
     | {type: TaskpaneType.STEPS}
-    | {type: TaskpaneType.FILL_NA}
+    | {
+        type: TaskpaneType.FILL_NA,
+        startingColumnIDs?: ColumnID[];
+    }
     | {
         type: TaskpaneType.IMPORT_FIRST,
         message: string

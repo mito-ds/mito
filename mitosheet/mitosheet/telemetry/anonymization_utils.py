@@ -11,7 +11,7 @@ this folder for more details on our approach to private telemetry.
 
 from typing import Any, Dict
 from mitosheet.parser import parse_formula
-from mitosheet.telemetry.private_params_map import LOG_PARAMS_FORMULAS, LOG_PARAMS_TO_LINEARIZE, LOG_PARAMS_PUBLIC
+from mitosheet.telemetry.private_params_map import LOG_PARAMS_FORMULAS, LOG_PARAMS_MAP_KEYS_TO_MAKE_PRIVATE, LOG_PARAMS_TO_LINEARIZE, LOG_PARAMS_PUBLIC
 from mitosheet.types import StepsManagerType
 from mitosheet.user.db import get_user_field
 from mitosheet.user.schemas import UJ_USER_SALT
@@ -70,15 +70,21 @@ def anonymize_formula(formula: str, sheet_index: int, steps_manager: StepsManage
     
     return formula
 
-def anonyimize_object(obj: Any) -> Any:
+def anonymize_object(obj: Any, anonymize_key: bool=False) -> Any:
     """
     Anoymizes any object it is given, handling any different
     type of object that it might be given.
+
+    If obj is a dict and you want to anonymize the key instead of the value, 
+    set anonymize_key=True
     """
     if isinstance(obj, list):
         return [anonymize_as_string(v) for v in obj]
     elif isinstance(obj, dict):
-        return {key: anonymize_as_string(v) for key, v in obj.items()}
+        if anonymize_key:
+            return {anonymize_as_string(key) if anonymize_key else key: v for key, v in obj.items()}
+        else: 
+            return {key: anonymize_as_string(v) for key, v in obj.items()}
     
     return anonymize_as_string(obj)
 
@@ -107,6 +113,6 @@ def get_final_private_params_for_single_kv(key: str, value: Any, params: Dict[st
     elif key in LOG_PARAMS_FORMULAS:
         private_params[key] = anonymize_formula(value, params['sheet_index'], steps_manager)
     else:
-        private_params[key] = anonyimize_object(value)
-    
+        private_params[key] = anonymize_object(value, anonymize_key=key in LOG_PARAMS_MAP_KEYS_TO_MAKE_PRIVATE)
+
     return private_params

@@ -4,7 +4,18 @@ description: Want to see what is new in the Mitosheet? Check it out below.
 
 # Release Notes
 
-## 2022-5-16 <a href="#2022-5-16" id="2022-4-21"></a>
+
+## 2022-5-24 <a href="#2022-5-24" id="2022-4-24"></a>
+
+New Features:
+* Add the ability to fill nan values within columns with a variety of fill techniques. Right click on a column header, and then select Fill NaN values to fill values within that column.
+
+Bug fixes:
+
+* Improve private telemetry.
+* Improve the generated code for pivot tables.
+
+## 2022-5-16 <a href="#2022-5-16" id="2022-5-16"></a>
 
 Bug fixes:
 

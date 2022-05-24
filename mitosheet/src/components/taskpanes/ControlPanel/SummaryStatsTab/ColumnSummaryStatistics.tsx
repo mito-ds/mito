@@ -1,10 +1,11 @@
 // Copyright (c) Mito
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import "../../../../../css/taskpanes/ControlPanel/ColumnSummaryStatistics.css";
 import MitoAPI from '../../../../jupyter/api';
-import "../../../../../css/taskpanes/ControlPanel/ColumnSummaryStatistics.css"
-import { ColumnID, FormatTypeObj } from '../../../../types';
+import { ColumnID, FormatTypeObj, UIState } from '../../../../types';
 import { formatCellData } from '../../../../utils/formatColumns';
+import OpenFillNaN from '../../FillNa/OpenFillNaN';
 
 
 type ColumnDescribeChartProps = {
@@ -13,6 +14,7 @@ type ColumnDescribeChartProps = {
     mitoAPI: MitoAPI;
     columnFormatType: FormatTypeObj;
     columnDtype: string;
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>;
 }
 
 const KEY_TO_FORMAT_WITH_COLUMN_FORMAT = [
@@ -73,7 +75,13 @@ function ColumnSummaryStatistics(props: ColumnDescribeChartProps): JSX.Element {
                             return (
                                 <tr className='column-describe-table-row' key={key}>
                                     <th>
-                                        {key}
+                                        {key} 
+                                        {key === 'count: NaN' && valueToDisplay !== "0" && 
+                                            <OpenFillNaN
+                                                setUIState={props.setUIState}
+                                                columnID={props.columnID}
+                                            />
+                                        }
                                     </th>
                                     <th>
                                         {valueToDisplay}
