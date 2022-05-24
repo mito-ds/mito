@@ -1,11 +1,12 @@
 // Copyright (c) Mito
 
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import '../../../css/elements/MultiToggleBox.css'
 import { classNames } from '../../utils/classNames';
 import { fuzzyMatch } from '../../utils/strings';
 import Row from '../spacing/Row';
+import { ensureInView } from './Dropdown';
 import Input from './Input';
 import LoadingDots from './LoadingDots';
 import { Height, Width } from './sizes.d';
@@ -140,6 +141,18 @@ const MultiToggleBox = (props: {
     const searchString = props.searchState !== undefined? props.searchState.searchString : _searchString;
     const setSearchString = props.searchState !== undefined? props.searchState.setSearchString : _setSearchString;
 
+    // This hook runs when the multi toggle box renders, and makes sure that the first selected
+    // element is visible in the toggle box. This is necessary to make sure that users aren't confused
+    // by where their selection is.
+    const setRef = useCallback((unsavedDropdownAnchor: HTMLDivElement) => {
+        if (unsavedDropdownAnchor !== null) {
+            const firstSelectedChild = unsavedDropdownAnchor.querySelector<HTMLDivElement>('.multi-toggle-box-row-selected');
+            if (firstSelectedChild !== null) {
+                ensureInView(unsavedDropdownAnchor, firstSelectedChild, 0)
+            }            
+        }
+    },[]);
+
     const height = props.height || 'block'
     const width = props.width || 'block'
     const heightClass = `element-height-${height}`
@@ -199,9 +212,6 @@ const MultiToggleBox = (props: {
             disabled: itemDisabled
         });
 
-        
-
-
         return copiedChild;
     });
 
@@ -226,6 +236,7 @@ const MultiToggleBox = (props: {
                 // It's hard to get the box to fill the rest of the container,
                 // so we do a calculation if the search box is displayed
                 style={{height: props.searchable ? 'calc(100% - 30px)' : '100%'}}
+                ref={setRef}
             >
                 {<MultiToggleBoxMessage
                     loading={props.loading}
