@@ -24,6 +24,7 @@ export default function ColumnHeaderDropdown(props: {
     columnID: ColumnID;
     sheetData: SheetData
     columnDtype: string;
+    closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
 }): JSX.Element {
 
     // Log opening this dropdown
@@ -43,6 +44,7 @@ export default function ColumnHeaderDropdown(props: {
             <DropdownItem 
                 title='Delete Column'
                 onClick={() => {
+                    props.closeOpenEditingPopups();
                     void props.mitoAPI.editDeleteColumn(props.sheetIndex, [props.columnID]);
                 }}
             />
@@ -90,6 +92,18 @@ export default function ColumnHeaderDropdown(props: {
                     })
                 }}
             />
+            <DropdownItem 
+                title='Fill NaN Values'
+                onClick={() => {
+                    props.setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            currOpenTaskpane: {type: TaskpaneType.FILL_NA, startingColumnIDs: [props.columnID]},
+                        }
+                    })
+                }}
+            />
+            <DropdownSectionSeperator isDropdownSectionSeperator/>
             <DropdownItem 
                 title='Format'
                 onClick={() => {

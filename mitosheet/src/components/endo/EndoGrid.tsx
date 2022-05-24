@@ -80,6 +80,7 @@ function EndoGrid(props: {
     editorState: EditorState | undefined,
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>
     mitoContainerRef: React.RefObject<HTMLDivElement>
+    closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
 }): JSX.Element {
 
     // The container for the entire EndoGrid
@@ -519,6 +520,7 @@ function EndoGrid(props: {
                     const columnIDsToDelete = columnIndexesSelected.map(colIdx => sheetData?.data[colIdx]?.columnID)
 
                     if (columnIDsToDelete !== undefined) {
+                        props.closeOpenEditingPopups();
                         void mitoAPI.editDeleteColumn(
                             sheetIndex,
                             columnIDsToDelete
@@ -602,6 +604,7 @@ function EndoGrid(props: {
                 scrollAndRenderedContainerRef={scrollAndRenderedContainerRef}
                 containerRef={containerRef}
                 mitoAPI={props.mitoAPI}
+                closeOpenEditingPopups={props.closeOpenEditingPopups}
             />
             <div 
                 className='endo-grid-container' 
@@ -625,6 +628,7 @@ function EndoGrid(props: {
                             gridState={gridState}
                             setGridState={setGridState}
                             mitoAPI={mitoAPI}
+                            closeOpenEditingPopups={props.closeOpenEditingPopups}
                         />
                         <IndexHeaders
                             sheetData={sheetData}
@@ -689,6 +693,7 @@ function EndoGrid(props: {
                         scrollAndRenderedContainerRef={scrollAndRenderedContainerRef}
                         containerRef={containerRef}
                         mitoAPI={mitoAPI}
+                        closeOpenEditingPopups={props.closeOpenEditingPopups}
                     />
                 }
             </div>

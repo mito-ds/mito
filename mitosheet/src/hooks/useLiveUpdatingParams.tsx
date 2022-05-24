@@ -24,14 +24,14 @@ import { useEffectOnUpdateEvent } from "./useEffectOnUpdateEvent";
     the parameters to the user and allow them to edit them. This is really
     sweet, and we'll continue to migrate to this hook over time. Woo!
 */
-function useSyncedParams<ParamType>(
+function useLiveUpdatingParams<ParamType>(
     defaultParams: ParamType | undefined,
     stepType: string,
     mitoAPI: MitoAPI,
     analysisData: AnalysisData,
     debounceDelay: number
 ): {
-        params: ParamType | undefined, // If this is undefined, no messages will be send to the backend
+        params: ParamType | undefined, // If this is undefined, no messages will be sent to the backend
         setParams: React.Dispatch<React.SetStateAction<ParamType>>, 
         error: string | undefined,
         loading: boolean // This loading indicator is for if the edit message is processing
@@ -118,4 +118,4 @@ function useSyncedParams<ParamType>(
     }
 }
 
-export default useSyncedParams;
+export default useLiveUpdatingParams;

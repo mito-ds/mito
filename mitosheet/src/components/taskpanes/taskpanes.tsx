@@ -61,7 +61,10 @@ export type TaskpaneInfo =
         existingPivotParams?: BackendPivotParams, 
     } 
     | {type: TaskpaneType.STEPS}
-    | {type: TaskpaneType.FILL_NA}
+    | {
+        type: TaskpaneType.FILL_NA,
+        startingColumnIDs?: ColumnID[];
+    }
     | {
         type: TaskpaneType.IMPORT_FIRST,
         message: string

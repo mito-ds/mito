@@ -30,10 +30,6 @@ class ConcatStepPerformer(StepPerformer):
         return 'concat'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
-        return params
-
-    @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
 
         join = get_param(params, 'join') # inner | outter
@@ -72,10 +68,5 @@ class ConcatStepPerformer(StepPerformer):
         ]
     
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
-        cls, 
-        join: str, # inner | outter
-        ignore_index: bool,
-        sheet_indexes: List[int],
-    ) -> Set[int]:
+    def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
         return {-1}

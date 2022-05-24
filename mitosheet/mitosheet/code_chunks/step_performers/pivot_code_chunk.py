@@ -7,7 +7,7 @@
 from typing import Collection, Dict, List, Optional, Union
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.transpiler.transpile_utils import NEWLINE_TAB
+from mitosheet.transpiler.transpile_utils import NEWLINE_TAB, column_header_list_to_transpiled_code
 from mitosheet.types import ColumnHeader
 
 # Helpful constants for code formatting
@@ -93,8 +93,8 @@ class PivotCodeChunk(CodeChunk):
 
         # Drop any columns we don't need, to avoid issues where pandas freaks out
         # and says there is a non-1-dimensional grouper
-        transpiled_code.append(f'unused_columns = {old_df_name}.columns.difference(set({pivot_rows}).union(set({pivot_columns})).union(set({set(values.keys())})))')
-        transpiled_code.append(f'tmp_df = {old_df_name}.drop(unused_columns, axis=1)')
+        column_headers_list = column_header_list_to_transpiled_code(list(set(pivot_rows + pivot_columns + list(values.keys()))))
+        transpiled_code.append(f'tmp_df = {old_df_name}[{column_headers_list}]')
 
         # Do the actual pivot
         pivot_table_args = build_args_code(pivot_rows, pivot_columns, values)

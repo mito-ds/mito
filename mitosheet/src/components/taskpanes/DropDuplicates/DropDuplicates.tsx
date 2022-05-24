@@ -47,7 +47,7 @@ export const getDefaultParams = (selectedSheetIndex: number, sheetDataArray: She
 
     return {
         sheet_index: selectedSheetIndex,
-        column_ids: [],
+        column_ids: Object.keys(sheetDataArray[selectedSheetIndex]?.columnIDsMap),
         keep: 'first',
     }
 }
@@ -58,7 +58,7 @@ export const getDefaultParams = (selectedSheetIndex: number, sheetDataArray: She
 */
 const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
 
-    const {params, setParams, loading, edit, editApplied, result} = useSendEditOnClick<DropDuplicatesParams, DropDuplicateResults>(
+    const {params, setParams, loading, edit, editApplied, attemptedEditWithTheseParamsMultipleTimes, result} = useSendEditOnClick<DropDuplicatesParams, DropDuplicateResults>(
         getDefaultParams(props.selectedSheetIndex, props.sheetDataArray),
         StepType.DropDuplicates,
         props.mitoAPI, props.analysisData,
@@ -72,7 +72,7 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
         If the sheetDataArray doesn't contain params.sheet_index,
         just close the taskpane to avoid a sheet crashing bug.
         
-        TODO: We should handle this in useSyncedParams to so we can move
+        TODO: We should handle this in useLiveUpdatingParams to so we can move
         closer to not having to write any custom code for this step.
     */
     if (props.sheetDataArray[params.sheet_index] === undefined) {
@@ -234,17 +234,21 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
                 <TextButton
                     variant='dark'
                     width='block'
-                    onClick={edit}
+                    onClick={() => edit()}
                     disabled={false}
                 >
-                    {!editApplied 
-                        ? `Drop duplicates across ${params.column_ids.length} columns` 
-                        : (loading 
-                            ? 'Dropping...' 
-                            : `Removed ${result?.num_rows_dropped || 0} rows`
-                        )
+                    {!loading 
+                        ? `Drop duplicates in ${params.column_ids.length} columns`
+                        : 'Dropping duplicates...' 
                     }
                 </TextButton>
+                {editApplied && !loading &&
+                    <Row className='mt-5'>
+                        <p className='text-subtext-1'>
+                            Removed <span className='text-color-gray-important'>{!attemptedEditWithTheseParamsMultipleTimes ? result?.num_rows_dropped || 0 : 0}</span> rows.
+                        </p>
+                    </Row>
+                }
             </DefaultTaskpaneBody>
         </DefaultTaskpane>   
     )

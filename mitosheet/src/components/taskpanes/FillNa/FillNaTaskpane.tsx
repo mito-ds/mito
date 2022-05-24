@@ -1,12 +1,13 @@
 // Copyright (c) Mito
 // Distributed under the terms of the Modified BSD License.
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import MitoAPI from '../../../jupyter/api';
 
 // Import 
-import { AnalysisData, ColumnID, SheetData, StepType, UIState } from '../../../types';
+import { AnalysisData, ColumnHeader, ColumnID, SheetData, StepType, UIState } from '../../../types';
+import '../../../../css/taskpanes/Download/DownloadTaskpane.css'
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import Row from '../../spacing/Row';
@@ -16,15 +17,15 @@ import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import DropdownItem from '../../elements/DropdownItem';
 import MultiToggleBox from '../../elements/MultiToggleBox';
 import MultiToggleItem from '../../elements/MultiToggleItem';
-import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
+import { getDisplayColumnHeader, getFirstCharactersOfColumnHeaders } from '../../../utils/columnHeaders';
 import { getDtypeValue } from '../ControlPanel/FilterAndSortTab/DtypeCard';
-import { addIfAbsent, removeIfPresent } from '../../../utils/arrays';
+import { addIfAbsent, intersection, removeIfPresent } from '../../../utils/arrays';
 import Spacer from '../../spacing/Spacer';
 import Input from '../../elements/Input';
-import { isNumberDtype } from '../../../utils/dtypes';
+import { isDatetimeDtype, isNumberDtype, isTimedeltaDtype } from '../../../utils/dtypes';
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import TextButton from '../../elements/TextButton';
-import { endsInZeroDecimals } from '../../../utils/numbers';
+import { isOnlyNumberString } from '../../../utils/numbers';
 
 
 interface FillNaTaskpaneProps {
@@ -33,7 +34,8 @@ interface FillNaTaskpaneProps {
     mitoAPI: MitoAPI,
     selectedSheetIndex: number,
     sheetDataArray: SheetData[],
-    analysisData: AnalysisData
+    analysisData: AnalysisData;
+    startingColumnIDs?: ColumnID[];
 }
 
 
@@ -53,19 +55,71 @@ interface FillNaParams {
 const BOOLEAN_STRINGS = ['True', 'true', 'False', 'false'];
 
 
-const getDefaultParams = (sheetDataArray: SheetData[], selectedSheetIndex: number): FillNaParams | undefined => {
-    if (sheetDataArray.length === 0 || sheetDataArray[selectedSheetIndex] === undefined) {
+const getDefaultParams = (
+        sheetDataArray: SheetData[], 
+        sheetIndex: number, defaultFillMethod?: FillMethod,
+        startingColumnIDs?: ColumnID[]
+    ): FillNaParams | undefined => {
+    if (sheetDataArray.length === 0 || sheetDataArray[sheetIndex] === undefined) {
         return undefined;
     }
 
-    const sheetData = sheetDataArray[selectedSheetIndex];
+    const sheetData = sheetDataArray[sheetIndex];
 
-    return {
-        sheet_index: selectedSheetIndex,
-        column_ids: Object.keys(sheetData.columnIDsMap),
-        fill_method: {type: 'value', 'value': 0}
+    let finalFillMethod: FillMethod = defaultFillMethod || {type: 'value', 'value': 0};
+    // We make sure that the default fill method is not invalid for the new dataframe we're selecting
+    // which is only an issue if these are mean or median values
+    if (finalFillMethod.type === 'mean' || finalFillMethod.type === 'median') {
+        const onlyMeanAndMedianColumnSelected = Object.values(sheetData.columnDtypeMap)
+            .map(columnDtype => isNumberDtype(columnDtype) || isDatetimeDtype(columnDtype) || isTimedeltaDtype(columnDtype))
+            .every(hasDefinedMeanAndMedian => hasDefinedMeanAndMedian === true)
+        
+        if (!onlyMeanAndMedianColumnSelected) {
+            finalFillMethod = {type: 'value', 'value': 0};
+        }
     }
 
+    const columnIDs = startingColumnIDs === undefined ? Object.keys(sheetData.columnIDsMap) : intersection(Object.keys(sheetData.columnIDsMap), startingColumnIDs);
+
+    return {
+        sheet_index: sheetIndex,
+        column_ids: columnIDs,
+        fill_method: finalFillMethod
+    }
+}
+
+/* 
+    Constructs a message in the case an edit is applied telling users 
+    fill na was successful on some columns
+*/
+const getButtonMessage = (sheetData: SheetData | undefined, columnIDs: ColumnID[]): string => {
+    if (columnIDs.length === 0) {
+        return 'Select columns to fill NaN values';
+    }
+
+    const columnHeaders: ColumnHeader[] = columnIDs.map(columnID => sheetData?.columnIDsMap[columnID]).filter(columnHeader => columnHeader !== undefined) as ColumnHeader[];
+    const [columnHeadersString, numOtherColumnHeaders] = getFirstCharactersOfColumnHeaders(columnHeaders, 25)
+    
+    if (numOtherColumnHeaders === 0) {
+        return `Fill NaNs in ${columnHeadersString}`
+    } else {
+        return `Fill NaNs in ${columnHeadersString} and ${numOtherColumnHeaders} others`
+    }
+}
+
+/* 
+    Constructs a message in the case an edit is applied telling users 
+    fill na was successful on some columns
+*/
+const getSuccessMessage = (sheetData: SheetData | undefined, columnIDs: ColumnID[]): JSX.Element => {
+    const columnHeaders: ColumnHeader[] = columnIDs.map(columnID => sheetData?.columnIDsMap[columnID]).filter(columnHeader => columnHeader !== undefined) as ColumnHeader[];
+    const [columnHeadersString, numOtherColumnHeaders] = getFirstCharactersOfColumnHeaders(columnHeaders, 25)
+    
+    if (numOtherColumnHeaders === 0) {
+        return (<p>Filled NaNs in <span className='text-color-gray-important'>{columnHeadersString}</span>.</p>)
+    } else {
+        return (<p>Filled NaNs in <span className='text-color-gray-important'>{columnHeadersString}</span> and <span className='text-color-gray-important'>{numOtherColumnHeaders}</span> other columns.</p>)
+    }
 }
 
 /*
@@ -74,22 +128,36 @@ const getDefaultParams = (sheetDataArray: SheetData[], selectedSheetIndex: numbe
 const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
 
     const {params, setParams, loading, edit, editApplied} = useSendEditOnClick<FillNaParams, undefined>(
-        getDefaultParams(props.sheetDataArray, props.selectedSheetIndex),
+        getDefaultParams(props.sheetDataArray, props.selectedSheetIndex, undefined, props.startingColumnIDs),
         StepType.FillNa, 
         props.mitoAPI,
         props.analysisData,
     )
 
+    // If we change the starting column ids from outside the taskpane, then we 
+    // update which columns are selected to fill nan in
+    useEffect(() => {
+        setParams(prevParams => {
+            const newParams = getDefaultParams(props.sheetDataArray, props.selectedSheetIndex, prevParams.fill_method, props.startingColumnIDs);
+            if (newParams) {
+                return newParams;
+            }
+            return prevParams;
+        });
+    }, [props.startingColumnIDs])
+
     if (params === undefined) {
-        return (<DefaultEmptyTaskpane setUIState={props.setUIState} message="Import a dataset datasets before filling NaN values."/>)
+        return (<DefaultEmptyTaskpane setUIState={props.setUIState} message="Import a dataset before filling NaN values."/>)
     }
 
-    const columnIDsMap = props.sheetDataArray[params.sheet_index]?.columnIDsMap || {};
-    const columnDtypeMap = props.sheetDataArray[params.sheet_index]?.columnDtypeMap || {};
-    const onlyNumberColumnSelected = params.column_ids.length === 0 || params.column_ids
+    const sheetData: SheetData | undefined = props.sheetDataArray[params.sheet_index];
+    const columnIDsMap = sheetData?.columnIDsMap || {};
+    const columnDtypeMap = sheetData?.columnDtypeMap || {};
+    const onlyMeanAndMedianColumnSelected = params.column_ids.length === 0 || params.column_ids
         .map(columnID => columnDtypeMap[columnID])
-        .map(columnDtype => isNumberDtype(columnDtype))
-        .every(isNumber => isNumber === true)
+        .filter(columnDtype => columnDtype !== undefined)
+        .map(columnDtype => isNumberDtype(columnDtype) || isDatetimeDtype(columnDtype) || isTimedeltaDtype(columnDtype))
+        .every(hasDefinedMeanAndMedian => hasDefinedMeanAndMedian === true)
 
     const toggleIndexes = (indexes: number[], newToggle: boolean): void => {
         const columnIds = Object.keys(props.sheetDataArray[params.sheet_index]?.columnIDsMap) || [];
@@ -134,15 +202,16 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                                     return sheetData.dfName == newDfName;
                                 })
                                 
-                                if (newSheetIndex >= 0) {
-                                    setParams(prevParams => {
-                                        return {
-                                            ...prevParams,
-                                            sheet_index: newSheetIndex
-                                        }
-                                    })
-                                }
-
+                                setParams(prevParams => {
+                                    const newParams = getDefaultParams(props.sheetDataArray, newSheetIndex, prevParams.fill_method);
+                                    if (newParams) {
+                                        return newParams;
+                                    }
+                                    return {
+                                        ...prevParams,
+                                        sheet_index: newSheetIndex
+                                    }
+                                });
                             }}
                             width='medium'
                         >
@@ -174,7 +243,7 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                         const columnHeader = columnIDsMap[columnID];
                         const toggle = params.column_ids.includes(columnID);
                         const disabled = (params.fill_method.type === 'mean' || params.fill_method.type === 'median') && 
-                            (!isNumberDtype(columnDtype));
+                            !(isNumberDtype(columnDtype) || isTimedeltaDtype(columnDtype) || isDatetimeDtype(columnDtype));
 
                         return (
                             <MultiToggleItem
@@ -226,32 +295,32 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                             <DropdownItem
                                 id='ffill'
                                 title="Forward Fill"
-                                subtext="Replaces NaN values with the value in the row above."
+                                subtext="Replaces NaNs in the column with the value in the row before."
                             />
                             <DropdownItem
                                 id='bfill'
                                 title="Back Fill"
-                                subtext="Replaces NaN values with the value in the row below."
+                                subtext="Replaces NaNs in the column with the value in the row after."
                             />
                             <DropdownItem
                                 id='mean'
                                 title="Column Mean"
                                 subtext={
-                                    !onlyNumberColumnSelected 
-                                        ? "Select only number columns to fill them with the average of those columns."
+                                    !onlyMeanAndMedianColumnSelected 
+                                        ? "Only number, datetime, and timedetla columns support fill with mean."
                                         : "Replaces NaN values in number columns with the average of the column."
                                 }
-                                disabled={!onlyNumberColumnSelected}
+                                disabled={!onlyMeanAndMedianColumnSelected}
                             />
                             <DropdownItem
                                 id='median'
                                 title="Column Median"
                                 subtext={
-                                    !onlyNumberColumnSelected 
-                                        ? "Select only number columns to fill them with the median of those columns."
+                                    !onlyMeanAndMedianColumnSelected 
+                                        ? "Only number, datetime, and timedetla columns support fill with median."
                                         : "Replaces NaN values in number columns with the median of the column."
                                 }
-                                disabled={!onlyNumberColumnSelected}
+                                disabled={!onlyMeanAndMedianColumnSelected}
                             />
                         </Select>
                     </Col>
@@ -270,25 +339,13 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                                 value={'' + params.fill_method.value}
                                 onChange={(e) => {
                                     const newValue = e.target.value;
-                                    let finalValue: string | boolean | number = newValue;
-
-                                    if (BOOLEAN_STRINGS.includes(newValue)) {
-                                        finalValue = newValue.toLowerCase().startsWith('t') ? true : false;
-                                    } else if (newValue !== '' && !isNaN(parseFloat(newValue)) && !endsInZeroDecimals(newValue)) {
-                                        finalValue = parseFloat(newValue);
-                                    }
-                                    // TODO: there is a bug in the above logic, where we do not always turn number values
-                                    // to numbers. Specifically, if a user enters a number editing in a "." as they are typing
-                                    // a decimal, then we keep this as a string. This allows them to keep entering a decimal,
-                                    // which is most likely what they want. However, if they apply the fill nan with this 
-                                    // decimal point at the end, it might fill with a string, which is not what they want
                                     
                                     setParams(prevParams => {
                                         return {
                                             ...prevParams,
                                             fill_method: {
                                                 type: 'value',
-                                                value: finalValue
+                                                value: newValue
                                             }
                                         }
                                     })
@@ -297,21 +354,43 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                         </Col>
                     </Row>
                 }
-                <Spacer px={20 + (params.fill_method.type === 'value' ? 0 : 38)}/>
+                <Spacer px={10 + (params.fill_method.type === 'value' ? 0 : 38)}/>
                 <TextButton
                     variant='dark'
                     width='block'
-                    onClick={edit}
-                    disabled={false}
+                    onClick={() => {
+                        // We check if the params have a string stored in them that could be a number,
+                        // and if so we parse it to a number. This is a final tranform before the edit
+                        edit((prevParams) => {
+                            if (prevParams.fill_method.type === 'value' && typeof prevParams.fill_method.value === 'string') {
+                                let finalValue: string | boolean | number = prevParams.fill_method.value;
+
+                                if (BOOLEAN_STRINGS.includes(finalValue)) {
+                                    finalValue = finalValue.toLowerCase().startsWith('t') ? true : false;
+                                } else if (isOnlyNumberString(prevParams.fill_method.value)) {
+                                    finalValue = parseFloat(prevParams.fill_method.value);
+                                }
+
+                                return {
+                                    ...prevParams,
+                                    fill_method: {type: 'value', value: finalValue}
+                                }
+                            }
+                            return prevParams
+                        });
+
+                    }}
+                    disabled={params.column_ids.length === 0}
                 >
-                    {!editApplied 
-                        ? `Fill NaN values in ${params.column_ids.length} columns` 
-                        : (loading 
-                            ? 'Filling NaN values...' 
-                            : `Filled NaN values`
-                        )
-                    }
+                    {getButtonMessage(sheetData, params.column_ids)}
                 </TextButton>
+                {editApplied && !loading &&
+                     <Row className='mt-5'>
+                         <p className='text-subtext-1'>
+                             {getSuccessMessage(sheetData, params.column_ids)} 
+                         </p>
+                     </Row>
+                }
             </DefaultTaskpaneBody>
 
         </DefaultTaskpane>

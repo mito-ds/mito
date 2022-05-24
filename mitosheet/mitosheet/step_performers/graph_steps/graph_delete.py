@@ -28,10 +28,6 @@ class GraphDeleteStepPerformer(StepPerformer):
         return 'graph_delete'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
-        return params
-
-    @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         graph_id: GraphID = get_param(params, 'graph_id')
 
@@ -68,9 +64,5 @@ class GraphDeleteStepPerformer(StepPerformer):
         ]
     
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
-        cls, 
-        graph_id: GraphID,
-        **params
-    ) -> Set[int]:
+    def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
         return {-1}

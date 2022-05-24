@@ -10,7 +10,7 @@ import { useEffectOnUndo } from "./useEffectOnUndo";
     which makes it easy to do the following:
 
     If an edit event edits an existing sheet:
-    1. It should be *opt in* when a user opens a taskpane. It should not automatically is applied. 
+    1. It should be *opt in* when a user opens a taskpane. It should not automatically be applied. 
     2. If you perform an action, you can press undo to undo it. 
     3. If you perform a new action, **it does not overwrite the previous action.**
 */
@@ -20,12 +20,13 @@ function useSendEditOnClick<ParamType, ResultType>(
     mitoAPI: MitoAPI,
     analysisData: AnalysisData,
 ): {
-        params: ParamType | undefined, // If this is undefined, no messages will be send to the backend
+        params: ParamType | undefined, // If this is undefined, no messages will be sent to the backend
         setParams: React.Dispatch<React.SetStateAction<ParamType>>, 
         error: string | undefined,
         loading: boolean // This loading indicator is for if the edit message is processing
-        edit: () => void; // Actually applies the edit
-        editApplied: boolean; // True if any edit is applied
+        edit: (finalTransform?: (params: ParamType) => ParamType) => void; // Actually applies the edit. You can optionally pass a function that does one final transformation on the params
+        editApplied: boolean; // True if any edit is applied. E.g. the user has clicked a button, created a step, and not undone it.
+        attemptedEditWithTheseParamsMultipleTimes: boolean; // True if the user applies the edit, and then clicks the edit button again without changing the params
         result: ResultType | undefined; // The result of this edit. Undefined if no edit is applied (or if the step has no result)
     } {
 
@@ -40,7 +41,13 @@ function useSendEditOnClick<ParamType, ResultType>(
         stepIDs: [], 
         currStepIDIndex: 0
     });
-    const [paramsNotApplied, setParamsNotApplied] = useState(true);
+    // We need to store if the params have been applied in a step so that
+    // we can detect if users are pressing a button for a second time without 
+    // changing the params
+    const [paramsApplied, setParamsApplied] = useState(false);
+    // We also store if the user clicks the button to apply the same edit multiple
+    // times, so that we can tell them they have done this
+    const [attemptedEditWithTheseParamsMultipleTimes, setAttemptedEditWithTheseParamsMultipleTimes] = useState(false);
 
     useEffectOnUndo(() => {
         void refreshOnUndo()
@@ -59,22 +66,31 @@ function useSendEditOnClick<ParamType, ResultType>(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (args: any) => {
             _setParams(args); // update the params
-            setParamsNotApplied(true); // mark them as not applied
+            setParamsApplied(false); // mark them as not applied
+            setAttemptedEditWithTheseParamsMultipleTimes(false); // mark the user as not having applied the edit multiple times
         },
         [],
     );
 
     // This function actually sends the edit message to the backend
-    const edit = async () => {
+    const edit = async (finalTransform?: (params: ParamType) => ParamType) => {
         // Do not send an edit message if the params are undefined
         // or if we have already sent a message for these params
-        if (params === undefined || !paramsNotApplied) {
-            return undefined;
+        if (params === undefined) {
+            return;
+        } else if (paramsApplied) {
+            setAttemptedEditWithTheseParamsMultipleTimes(true);
+            return;
         }
+
+        // If the consumer passes a final transform function, then we do this final
+        // transformation before we actually send the edit
+        const finalParams = finalTransform ? finalTransform(params) : params;
 
         setLoading(true);
         const newStepID = getRandomId(); // always use a new step id
-        const possibleError = await mitoAPI._edit<ParamType>(editEvent, params, newStepID);
+
+        const possibleError = await mitoAPI._edit<ParamType>(editEvent, finalParams, newStepID);
         setLoading(false);
 
         // Handle if we return an error
@@ -96,7 +112,7 @@ function useSendEditOnClick<ParamType, ResultType>(
 
             // Clear the error and mark the params as having been applied
             setError(undefined)
-            setParamsNotApplied(false);
+            setParamsApplied(true);
         }
     }
 
@@ -121,7 +137,7 @@ function useSendEditOnClick<ParamType, ResultType>(
             _setParams(newParams);
         } else {
             _setParams(defaultParams);
-            setParamsNotApplied(true);
+            setParamsApplied(false);
         }
 
         // We also clear the error in this case, as this clearly was effectively applied
@@ -147,7 +163,7 @@ function useSendEditOnClick<ParamType, ResultType>(
             _setParams(newParams);
             // If we redo successfully, we also need to mark this as _nothing new_ so that
             // clicking the button does not reapply again
-            setParamsNotApplied(false);
+            setParamsApplied(true);
         }
 
         // Also clear the error
@@ -156,8 +172,8 @@ function useSendEditOnClick<ParamType, ResultType>(
 
     let result: ResultType | undefined = undefined;
     // If the params were applied, and the last step is actually this type of step.
-    // then we might hav a result to apply to the user
-    if (!paramsNotApplied && analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1].step_type === stepType) {
+    // then we might have a result to apply to the user
+    if (paramsApplied && analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1].step_type === stepType) {
         result = analysisData.lastResult as ResultType
     }
 
@@ -167,7 +183,8 @@ function useSendEditOnClick<ParamType, ResultType>(
         error: error,
         loading: loading,
         edit: edit,
-        editApplied: !paramsNotApplied,
+        editApplied: paramsApplied,
+        attemptedEditWithTheseParamsMultipleTimes: attemptedEditWithTheseParamsMultipleTimes,
         result: result
     }
 }

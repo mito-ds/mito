@@ -668,7 +668,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     mitoAPI={props.mitoAPI} 
                     selectedSheetIndex={uiState.selectedSheetIndex} 
                     sheetDataArray={sheetDataArray}   
-                    analysisData={analysisData}             
+                    analysisData={analysisData}    
+                    startingColumnIDs={uiState.currOpenTaskpane.startingColumnIDs}         
                 />
             )
         }
@@ -777,6 +778,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             editorState={editorState}
                             setEditorState={setEditorState}
                             mitoContainerRef={mitoContainerRef}
+                            closeOpenEditingPopups={closeOpenEditingPopups}
                         />
                     </div>
                     {uiState.currOpenTaskpane.type !== TaskpaneType.NONE && 

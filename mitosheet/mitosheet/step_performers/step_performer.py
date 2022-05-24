@@ -63,7 +63,7 @@ class StepPerformer(ABC, object):
 
         If the exectution_data includes the key `result`, than this result can be
         accessed in the frontend to display some results to the user. See the 
-        FillNaStepPerformer and the FilleNaTaskpane for an example of this usage.
+        DropDuplicatesStepPerformer and the DropDuplicatesCodeChunk for an example of this usage.
         """
         pass
 
@@ -83,7 +83,7 @@ class StepPerformer(ABC, object):
 
     @classmethod
     @abstractmethod
-    def get_modified_dataframe_indexes(cls, **params: Any) -> Set[int]:
+    def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
         """
         Returns a set of all the sheet indexes that were modified
         by this step.

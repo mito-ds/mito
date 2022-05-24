@@ -221,6 +221,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                                 mitoAPI={props.mitoAPI}
                                 columnDtype={columnDtype}
                                 columnFormatType={columnFormatType}
+                                setUIState={props.setUIState}
                             />
                         </React.Fragment>
                     }
@@ -237,6 +238,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                                 mitoAPI={props.mitoAPI}
                                 columnDtype={columnDtype}
                                 columnFormatType={columnFormatType}
+                                setUIState={props.setUIState}
                             />
                         </React.Fragment>
                     }

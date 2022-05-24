@@ -10,9 +10,8 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.concat_code_chunk import ConcatCodeChunk
 from mitosheet.code_chunks.step_performers.fill_na_code_chunk import FillNaCodeChunk
-from mitosheet.state import DATAFRAME_SOURCE_CONCAT, State
+from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
 from mitosheet.types import ColumnID
@@ -30,10 +29,6 @@ class FillNaStepPerformer(StepPerformer):
     @classmethod
     def step_type(cls) -> str:
         return 'fill_na'
-
-    @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
-        return params
 
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
@@ -58,9 +53,9 @@ class FillNaStepPerformer(StepPerformer):
         elif fill_method_type == 'bfill':
             df[column_headers] = df[column_headers].fillna(method='bfill')
         elif fill_method_type == 'mean':
-            df[column_headers] = df[column_headers].fillna(df[column_headers].mean())
+            df[column_headers] = df[column_headers].fillna(df[column_headers].mean(numeric_only=False))
         elif fill_method_type == 'median':
-            df[column_headers] = df[column_headers].fillna(df[column_headers].median())
+            df[column_headers] = df[column_headers].fillna(df[column_headers].median(numeric_only=False))
         else:
             raise Exception(f"Invalid fill method {fill_method}")
 
@@ -83,10 +78,5 @@ class FillNaStepPerformer(StepPerformer):
         ]
     
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
-        cls, 
-        sheet_index: int,
-        column_ids: List[ColumnID],
-        fill_method: Any
-    ) -> Set[int]:
-        return {sheet_index}
+    def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
+        return {get_param(params, 'sheet_index')}
