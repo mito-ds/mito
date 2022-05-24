@@ -29,7 +29,8 @@ class SplitTextToColumnsCodeChunk(CodeChunk):
         delimiters = self.get_param('delimiters')
         new_column_headers = self.execution_data['new_column_headers']
 
-        delimiter_string = "'" + '|'.join(delimiters) + "'"
+        delimiter_string = repr('|'.join(delimiters))
+        
         column_header = self.prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
         transpiled_column_header = column_header_to_transpiled_code(column_header)
         new_transpiled_column_headers = column_header_list_to_transpiled_code(new_column_headers)

@@ -311,6 +311,31 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
+    def split_text_to_columns(
+            self, 
+            sheet_index: int,
+            column_header: ColumnHeader,
+            delimiters: List[str]
+        ) -> bool:
+
+        column_id = self.mito_widget.steps_manager.curr_step.get_column_header_by_id(sheet_index, column_header)
+
+        return self.mito_widget.receive_message(
+            self.mito_widget,
+            {
+                'event': 'edit_event',
+                'id': get_new_id(),
+                'type': 'split_text_to_columns_edit',
+                'step_id': get_new_id(),
+                'params': {
+                    'sheet_index': sheet_index,
+                    'column_id': column_id,
+                    'delimiters': delimiters
+                }
+            }
+        )
+
+    @check_transpiled_code_after_call
     def drop_duplicates(
             self, 
             sheet_index: int, 
@@ -1078,3 +1103,15 @@ def make_multi_index_header_df(data: Dict[Union[str, int], List[Any]], column_he
     if index is not None:
         df.index = index
     return df
+
+def are_dfs_equal_ignoring_column_headers(df1: pd.DataFrame, df2: pd.DataFrame) -> bool:
+    """
+    Checks if two dataframes are equal, ignoring the column headers
+    """
+    df1_column_headers = [f'{idx}' for idx in range(len(list(df1.columns)))]
+    df1.columns = df1_column_headers
+
+    df2_column_headers = [f'{idx}' for idx in range(len(list(df2.columns)))]
+    df2.columns = df2_column_headers
+
+    return df1.equals(df2)

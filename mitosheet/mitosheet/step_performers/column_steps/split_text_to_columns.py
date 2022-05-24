@@ -60,7 +60,6 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
         pandas_start_time = perf_counter() 
         # Create the dataframe of new columns. We do this first, so that we know how many columns get created.
         if is_datetime_dtype(str(post_state.dfs[sheet_index][column_header].dtype)):
-            print('is datetime ')
             new_columns_df = final_df[column_header].dt.strftime('%Y-%m-%d %X').str.split(delimiter_string, -1, expand=True)
         else:
             new_columns_df = final_df[column_header].astype('str').str.split(delimiter_string, -1, expand=True)
