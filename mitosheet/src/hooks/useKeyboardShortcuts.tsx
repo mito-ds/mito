@@ -1,5 +1,6 @@
+import React from "react";
 import { isInJupyterLab } from "../jupyter/jupyterUtils";
-import { Action, ActionEnum } from "../types";
+import { Action, ActionEnum, GridState } from "../types";
 import { useDebouncedEffect } from "./useDebouncedEffect";
 
 
@@ -19,19 +20,31 @@ const JUPYTER_LAB_SHORTCUTS_DEFINED_ELSEWHERE = ['z', 'y'];
 /* 
     This effect actually does keyboard shortcuts.
 */
-export const useKeyboardShortcuts = (mitoContainerRef: React.RefObject<HTMLDivElement>, actions: Record<ActionEnum, Action>): void => {
+export const useKeyboardShortcuts = (mitoContainerRef: React.RefObject<HTMLDivElement>, actions: Record<ActionEnum, Action>, setGridState: React.Dispatch<React.SetStateAction<GridState>>): void => {
     // NOTE: this effect must be debounced so that we're not reregistering these event
     // listeners 100 times during every single scroll. In practice, this works perf!
     useDebouncedEffect(() => {
         const checkKeyboardShortCut = (e: KeyboardEvent) => {
 
-            // First, check that this was actually done by a focus on this mitosheet
-            if (!mitoContainerRef.current?.contains(document.activeElement)) {
+            // First, we check the user is doing a keyboard shortcut
+            if (!Object.keys(KEYBOARD_SHORTCUTS).includes(e.key) || (!e.ctrlKey && !e.metaKey)){
                 return;
             }
 
-            // Then, we check the user is doing a keyboard shortcut
-            if (!Object.keys(KEYBOARD_SHORTCUTS).includes(e.key) || (!e.ctrlKey && !e.metaKey)){
+            // We have a special case here if the user is doing a copy, where we need to clear
+            // the previously copied values. This should always run, even if we're not in this
+            // specific mito instance, because this clears the copy anyways
+            if (e.key === 'c') {
+                setGridState(prevGridState => {
+                    return {
+                        ...prevGridState,
+                        copiedSelections: []
+                    }
+                })
+            }
+
+            // Then, check that this was actually done by a focus on this mitosheet
+            if (!mitoContainerRef.current?.contains(document.activeElement)) {
                 return;
             }
 

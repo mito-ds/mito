@@ -17,6 +17,10 @@ const getCopyStringForRow = (sheetData: SheetData, rowIndex: number, lowColIndex
     for (let columnIndex = lowColIndex; columnIndex <= highColIndex; columnIndex++) {
         if (rowIndex === -1) {
             copyString += getDisplayColumnHeader(sheetData.data[columnIndex].columnHeader)
+        } else if (columnIndex === -1) {
+            // Currently, we allow users to copy index headers as they sometimes
+            // contain data that is useful
+            copyString += sheetData.index[rowIndex];
         } else {
             copyString += getCopyStringForValue(
                 sheetData.data[columnIndex].columnData[rowIndex],
@@ -66,9 +70,6 @@ const getSelectionsToCopy = (selections: MitoSelection[]): MitoSelection[] => {
 }
 
 const getCopyStringForSelections = (sheetData: SheetData, selections: MitoSelection[]): string => {
-    
-    // Get the selections to copy
-    selections = getSelectionsToCopy(selections);
 
     const lowRowIndex = Math.min(selections[0].startingRowIndex, selections[0].endingRowIndex);
     let highRowIndex = Math.max(selections[0].startingRowIndex, selections[0].endingRowIndex);
@@ -96,10 +97,12 @@ const getCopyStringForSelections = (sheetData: SheetData, selections: MitoSelect
     return copyString;
 }
 
-export const getCopyStringForClipboard = (sheetData: SheetData | undefined, selections: MitoSelection[]): string | undefined => {
+export const getCopyStringForClipboard = (sheetData: SheetData | undefined, selections: MitoSelection[]): [string, MitoSelection[]] | undefined => {
     if (sheetData === undefined || selections.length === 0) {
         return undefined;
     }
 
-    return getCopyStringForSelections(sheetData, selections);
+    const selectionsToCopy = getSelectionsToCopy(selections);
+
+    return [getCopyStringForSelections(sheetData, selectionsToCopy), selectionsToCopy];
 }

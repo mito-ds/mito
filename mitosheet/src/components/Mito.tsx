@@ -670,8 +670,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     // Hook for using keyboard shortcuts. NOTE: do not return before this hook, it will cause
     // issues.
-    useKeyboardShortcuts(mitoContainerRef, actions);
-
+    useKeyboardShortcuts(mitoContainerRef, actions, setGridState);
 
     /* 
         We currrently send all users through the intro tour.

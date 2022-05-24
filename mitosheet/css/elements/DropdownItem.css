@@ -71,7 +71,7 @@
 
 .mito-dropdown-item-right-text {
     position: absolute;
-    right: 10px;
+    right: 15px;
     color: var(--mito-light-gray) !important;
 }
 

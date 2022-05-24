@@ -462,6 +462,7 @@ export interface WidthData {
  * @param viewport - The size of the viewport
  * @param scrollPosition - Scroll position in the grid
  * @param selections - Selected ranges
+ * @param copiedSelections - The ranges that currently have been copied
  * @param columnIDsArray - A mapping from sheetIndex -> columnIndex -> columnID
  * @param widthDataArray - A list of width data for each sheet
  */
@@ -470,6 +471,7 @@ export interface GridState {
     viewport: Dimension;
     scrollPosition: ScrollPosition;
     selections: MitoSelection[];
+    copiedSelections: MitoSelection[];
     columnIDsArray: ColumnID[][];
     widthDataArray: WidthData[];
 }

@@ -182,16 +182,25 @@ export const createActions = (
             longTitle: 'Copy',
             actionFunction: () => {
 
-                const stringToCopy = getCopyStringForClipboard(
+                const copyStringAndSelections = getCopyStringForClipboard(
                     sheetData,
                     gridState.selections
                 );
 
-                if (stringToCopy === undefined) {
+                if (copyStringAndSelections === undefined) {
                     return;
                 }
+
+                const [stringToCopy, copiedSelections] = copyStringAndSelections;
                 
                 void navigator.clipboard.writeText(stringToCopy);
+
+                setGridState(prevGridState => {
+                    return {
+                        ...prevGridState,
+                        copiedSelections: copiedSelections
+                    }
+                })
 
                 void mitoAPI.log('copied_data', {
                     'num_selections': gridState.selections.length
@@ -201,7 +210,7 @@ export const createActions = (
                 return getDataframeIsSelected(uiState, sheetDataArray) ? undefined : "There is no selected data to copy."
             },
             searchTerms: ['copy', 'paste', 'export'],
-            tooltip: "Copy the currently selection to the clipboard.",
+            tooltip: "Copy the current selection to the clipboard.",
             displayKeyboardShortcuts: {
                 mac: 'Cmd+C',
                 windows: 'Ctrl+C'

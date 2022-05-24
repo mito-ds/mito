@@ -354,6 +354,7 @@ export const isSelectionsOnlyColumnHeaders = (selections: MitoSelection[]): bool
 }
 
 
+const COPIED_BORDER_STYLE = '1px dashed black';
 const SELECTED_BORDER_STYLE = '1px solid var(--mito-purple)';
 export const DEFAULT_BORDER_STYLE = '.5px solid var(--mito-light-gray)';
 
@@ -362,11 +363,23 @@ export const DEFAULT_BORDER_STYLE = '.5px solid var(--mito-light-gray)';
  * which allows us to put a bounding box around the
  * cells that highlights the selected range
  */
-export const getBorderStyle = (selections: MitoSelection[], rowIndex: number, columnIndex: number, numRows: number): BorderStyle => {
+export const getBorderStyle = (selections: MitoSelection[], copiedSelections: MitoSelection[], rowIndex: number, columnIndex: number, numRows: number): BorderStyle => {
     const borderStyle: BorderStyle = {}
 
+    // First, calculate the border based on the selections
     selections.forEach(selection => {
-        const newBorderStyle = _getBorderStyle(selection, rowIndex, columnIndex, numRows)
+        const newBorderStyle = _getBorderStyle(selection, rowIndex, columnIndex, numRows, SELECTED_BORDER_STYLE)
+
+        // Reconcile the border based on the other selections
+        borderStyle.borderRight = combineBorderStyles(borderStyle.borderRight, newBorderStyle.borderRight) 
+        borderStyle.borderLeft = combineBorderStyles(borderStyle.borderLeft, newBorderStyle.borderLeft) 
+        borderStyle.borderTop = combineBorderStyles(borderStyle.borderTop, newBorderStyle.borderTop) 
+        borderStyle.borderBottom = combineBorderStyles(borderStyle.borderBottom, newBorderStyle.borderBottom) 
+    })
+
+    // Then, calculate the border based on the copied selections (if there are any)
+    copiedSelections.forEach(selection => {
+        const newBorderStyle = _getBorderStyle(selection, rowIndex, columnIndex, numRows, COPIED_BORDER_STYLE)
 
         // Reconcile the border based on the other selections
         borderStyle.borderRight = combineBorderStyles(borderStyle.borderRight, newBorderStyle.borderRight) 
@@ -383,7 +396,7 @@ export const getBorderStyle = (selections: MitoSelection[], rowIndex: number, co
  * due to the specific selection, which allows us 
  * to put a bounding box around the cells that highlights the selected range
  */
-export const _getBorderStyle = (selection: MitoSelection, rowIndex: number, columnIndex: number, numRows: number): BorderStyle => {
+export const _getBorderStyle = (selection: MitoSelection, rowIndex: number, columnIndex: number, numRows: number, inSelectionBorderStyle: string): BorderStyle => {
 
     // If not selected, just keep the default style
     if (!getIsCellSelected([selection], rowIndex, columnIndex)) {
@@ -401,17 +414,17 @@ export const _getBorderStyle = (selection: MitoSelection, rowIndex: number, colu
     const higherColumnIndex = selection.startingColumnIndex > selection.endingColumnIndex ? selection.startingColumnIndex : selection.endingColumnIndex;
 
     // Put a border on the edge if the selection ends on that edge
-    const borderTop = lowerRowIndex === rowIndex ? SELECTED_BORDER_STYLE : undefined;
+    const borderTop = lowerRowIndex === rowIndex ? inSelectionBorderStyle : undefined;
     // Note: also highlight the bottom in the case that is the last element, and the whole column is selected
-    const borderBottom = (higherRowIndex === rowIndex || (higherRowIndex <= -1 && rowIndex === numRows - 1)) ? SELECTED_BORDER_STYLE : undefined;
-    const borderLeft = lowerColumnIndex === columnIndex ? SELECTED_BORDER_STYLE : undefined;
-    const borderRight = higherColumnIndex === columnIndex ? SELECTED_BORDER_STYLE : undefined;
+    const borderBottom = (higherRowIndex === rowIndex || (higherRowIndex <= -1 && rowIndex === numRows - 1)) ? inSelectionBorderStyle : undefined;
+    const borderLeft = lowerColumnIndex === columnIndex ? inSelectionBorderStyle : undefined;
+    const borderRight = higherColumnIndex === columnIndex ? inSelectionBorderStyle : undefined;
 
     if (lowerRowIndex <= -1 && higherRowIndex <= -1) {
         // If only the column header is selected, then we select the entire column
         if (rowIndex <= -1) {
             return {
-                borderTop: SELECTED_BORDER_STYLE,
+                borderTop: inSelectionBorderStyle,
                 borderLeft: borderLeft || DEFAULT_BORDER_STYLE,
                 borderRight: borderRight || DEFAULT_BORDER_STYLE,
             };
@@ -431,7 +444,7 @@ export const _getBorderStyle = (selection: MitoSelection, rowIndex: number, colu
             return {
                 borderTop: borderTop,
                 borderBottom: borderBottom,
-                borderLeft: SELECTED_BORDER_STYLE,
+                borderLeft: inSelectionBorderStyle,
                 borderRight: DEFAULT_BORDER_STYLE,
             };
         } else {
@@ -456,18 +469,22 @@ export const _getBorderStyle = (selection: MitoSelection, rowIndex: number, colu
 /**
  * Helper function for determining the correct border style to apply, 
  * which is useful because cells might be in different selections and so get assigned different border styles.
- * Gives preference in the order: SELECTED_BORDER_STYLE -> DEFAULT_BORDER_STYLE -> undefined
+ * Gives preference in the order: COPIED_BORDER_STYLE -> SELECTED_BORDER_STYLE -> DEFAULT_BORDER_STYLE -> undefined
  */
-const combineBorderStyles = (borderStyleOne?: string, borderStyleTwo?: string): string | undefined => {
-    if (borderStyleOne === SELECTED_BORDER_STYLE || borderStyleTwo === SELECTED_BORDER_STYLE) {
+const combineBorderStyles = (oldBorderStyle?: string, newBorderStyle?: string): string | undefined => {
+    if (oldBorderStyle === COPIED_BORDER_STYLE || newBorderStyle === COPIED_BORDER_STYLE) {
+        return COPIED_BORDER_STYLE
+    }
+
+    if (oldBorderStyle === SELECTED_BORDER_STYLE || newBorderStyle === SELECTED_BORDER_STYLE) {
         return SELECTED_BORDER_STYLE
     }
 
-    if (borderStyleOne === DEFAULT_BORDER_STYLE || borderStyleTwo === DEFAULT_BORDER_STYLE) {
+    if (oldBorderStyle === DEFAULT_BORDER_STYLE || newBorderStyle === DEFAULT_BORDER_STYLE) {
         return DEFAULT_BORDER_STYLE
     }
 
-    return borderStyleOne
+    return oldBorderStyle
 }
 
 export const equalSelections = (selectionOne: MitoSelection, selectionTwo: MitoSelection): boolean => {

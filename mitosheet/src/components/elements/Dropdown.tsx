@@ -211,7 +211,6 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
         // Refocus on the div that is the parent of the dropdown
         // so that users are focused where they expect
         dropdownAnchor.current?.focus();
-        console.log("FOCUSING ON", dropdownAnchor.current)
 
     }, DROPDOWN_IGNORE_CLICK_CLASS)
 

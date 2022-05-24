@@ -45,7 +45,7 @@ const IndexHeaders = (props: {
                                     mito-row-index={rowIndex}
                                     mito-col-index={-1}
                                     style={{
-                                        ...getBorderStyle(props.gridState.selections, rowIndex, -1, props.sheetData.numRows)
+                                        ...getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, rowIndex, -1, props.sheetData.numRows)
                                     }}
                                 >
                                     {indexHeader}
