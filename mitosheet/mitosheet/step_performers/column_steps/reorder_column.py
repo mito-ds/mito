@@ -44,10 +44,6 @@ class ReorderColumnStepPerformer(StepPerformer):
         return 'reorder_column'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
-        return params
-
-    @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')
@@ -88,14 +84,8 @@ class ReorderColumnStepPerformer(StepPerformer):
         ]
     
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
-        cls, 
-        sheet_index: int,
-        column_id: ColumnID,
-        new_column_index: int,
-        **params
-    ) -> Set[int]:
-        return {sheet_index}
+    def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
+        return {get_param(params, 'sheet_index')}
 
 
 def _execute_reorder_column(df: pd.DataFrame, column_header: ColumnHeader, new_column_index: int) -> pd.DataFrame:

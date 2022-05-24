@@ -29,10 +29,6 @@ class GraphDuplicateStepPerformer(StepPerformer):
         return 'graph_duplicate'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
-        return params
-
-    @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         old_graph_id: GraphID = get_param(params, 'old_graph_id')
         new_graph_id: GraphID = get_param(params, 'new_graph_id')
@@ -75,10 +71,5 @@ class GraphDuplicateStepPerformer(StepPerformer):
         ]
     
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
-        cls, 
-        old_graph_id: GraphID,
-        new_graph_id: GraphID,
-        **params
-    ) -> Set[int]:
+    def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
         return {-1}
