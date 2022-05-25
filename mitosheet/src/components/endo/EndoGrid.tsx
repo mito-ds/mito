@@ -135,7 +135,9 @@ function EndoGrid(props: {
                 selections: reconciliateSelections(gridState.sheetIndex, sheetIndex, gridState.selections, gridState.columnIDsArray[gridState.sheetIndex], sheetData),
                 widthDataArray: reconciliateWidthDataArray(gridState.widthDataArray, gridState.columnIDsArray, sheetDataArray),
                 columnIDsArray: getColumnIDsArrayFromSheetDataArray(sheetDataArray),
-                sheetIndex: sheetIndex
+                sheetIndex: sheetIndex,
+                // We always clear the copied selections if the sheet data changes, or the selected sheet changes
+                copiedSelections: []
             }
         })
     }, [sheetData, setGridState, sheetIndex])
