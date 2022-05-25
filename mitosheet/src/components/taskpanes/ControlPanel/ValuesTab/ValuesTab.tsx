@@ -232,6 +232,18 @@ export function ValuesTab(
                     isSubset={!isAllData}
                     message={disabledMessage}
                     disabled={disabledMessage !== undefined}
+                    toggleAllIndexes={(indexesToToggle: number[], newValue: boolean) => {
+                        const uniqueValueCountIndexes = indexesToToggle.map(index => getUniqueValueCountIndexFromSortedIndex(index));
+                        setUniqueValueCounts(oldUniqueValueCounts => {
+                            const newUniqueValueCounts = oldUniqueValueCounts.slice();
+                            uniqueValueCountIndexes.forEach(index => {
+                                newUniqueValueCounts[index].isNotFiltered = newValue;
+                            })
+                            return newUniqueValueCounts;
+                        })
+
+                        toggleExclusiveFilters(uniqueValueCountIndexes.map(index => sortedUniqueValueCounts[index].value))
+                    }}
                 >
                     {sortedUniqueValueCounts.map((uniqueValueCount, index) => {
                         const valueToDisplay = formatCellData(uniqueValueCount.value, props.columnDtype, props.columnFormatType);
