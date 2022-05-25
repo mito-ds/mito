@@ -18,10 +18,15 @@ from mitosheet.sheet_functions.types.utils import is_datetime_dtype
 from mitosheet.state import FORMAT_DEFAULT, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
-from mitosheet.types import ColumnID
+from mitosheet.types import ColumnHeader, ColumnID
 
-def get_new_colum_header_unique_component() -> str:
-    return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(4))
+def get_next_available_split_column_header_idx(column_headers: List[ColumnHeader], column_ids: List[ColumnID], split_column_header: ColumnHeader, _idx=None) -> str:
+    idx = _idx if _idx is None else 1
+    new_column_header = f'split_{idx}_of_{split_column_header}'
+    if new_column_header in column_headers or new_column_header in column_ids:
+        return get_next_available_split_column_header_idx(column_headers, column_ids, split_column_header, idx + 1)
+    else:
+        return new_column_header
 
 
 class SplitTextToColumnsStepPerformer(StepPerformer):
@@ -65,8 +70,10 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
             new_columns_df = final_df[column_header].astype('str').str.split(delimiter_string, -1, expand=True)
 
         # Create the new column headers and ensure they are unique
-        new_column_headers = [f'split-{idx}-of-{column_header}-{get_new_colum_header_unique_component()}' for column, idx in enumerate(new_columns_df)]
-        # Make sure the new column headers are valid before adding them to the dataframe
+        new_column_headers = [get_next_available_split_column_header_idx(column_headers=, ) for column, idx in enumerate(new_columns_df)]
+
+
+        # Make sure the new column headers are valid if they are multi index column headers before adding them to the dataframe
         new_column_headers = [try_make_new_header_valid_if_multi_index_headers(list(prev_state.column_ids.get_column_headers(sheet_index)), column_header) for column_header in new_column_headers]
         # Add the new columns to the end of the dataframe
         final_df[new_column_headers] = new_columns_df

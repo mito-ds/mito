@@ -390,7 +390,6 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                      </Row>
                 }
             </DefaultTaskpaneBody>
-
         </DefaultTaskpane>
     )
 };
