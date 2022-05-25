@@ -144,6 +144,7 @@ def df_to_json_dumpsable(
             columnHeader: (string | number);
             columnDtype: string;
             columnData: (string | number)[];
+            columnFormatTypeObj: FormatTypeObj;
         }[];
         columnIDsMap: ColumnIDsMap;
         columnSpreadsheetCodeMap: Record<string, string>;
@@ -182,7 +183,8 @@ def df_to_json_dumpsable(
             'columnID': column_id,
             'columnHeader': column_header,
             'columnDtype': str(original_df[column_header].dtype),
-            'columnData': []
+            'columnData': [],
+            'columnFormatTypeObj': column_format_types[column_id],
         }
         column_dtype_map[column_id] = str(original_df[column_header].dtype)
         for row in json_obj['data']:

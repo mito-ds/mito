@@ -123,15 +123,14 @@ const Select = (props: SelectProps): JSX.Element => {
             <div className='select-dropdown-icon-container'>
                 <SelectDropdownIcon purpleOrDarkOrWhite='white'/>
             </div>
-            {displayDropdown && 
-                <Dropdown
-                    closeDropdown={() => setDisplayDropdown(false)}
-                    searchable={props.searchable}
-                    width={props.dropdownWidth}
-                >
-                    {children}
-                </Dropdown>
-            }
+            <Dropdown
+                display={displayDropdown}
+                closeDropdown={() => setDisplayDropdown(false)}
+                searchable={props.searchable}
+                width={props.dropdownWidth}
+            >
+                {children}
+            </Dropdown>
         </div>
     )
 } 

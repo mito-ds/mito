@@ -7,6 +7,7 @@ import json
 from typing import Any, Dict
 
 import pandas as pd
+from mitosheet.state import FORMAT_DEFAULT
 from mitosheet.types import StepsManagerType
 from mitosheet.utils import df_to_json_dumpsable, get_row_data_array
 

@@ -12,6 +12,7 @@ import { FunctionDocumentationObject, functionDocumentationObjects } from "../da
 import { Action, DFSource, EditorState, GridState, SheetData, UIState, ActionEnum } from "../types"
 import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { FORMAT_DISABLED_MESSAGE } from "./formatColumns";
+import { getCopyStringForClipboard } from "./copy";
 
 
 export const createActions = (
@@ -164,6 +165,46 @@ export const createActions = (
             },
             searchTerms: ['column summary', 'describe', 'stats'],
             tooltip: "Learn about the distribution of the data in the selected column."
+        },
+        [ActionEnum.Copy]: {
+            type: ActionEnum.Copy,
+            shortTitle: 'Copy',
+            longTitle: 'Copy',
+            actionFunction: () => {
+
+                const copyStringAndSelections = getCopyStringForClipboard(
+                    sheetData,
+                    gridState.selections
+                );
+
+                if (copyStringAndSelections === undefined) {
+                    return;
+                }
+
+                const [stringToCopy, copiedSelections] = copyStringAndSelections;
+                
+                void navigator.clipboard.writeText(stringToCopy);
+
+                setGridState(prevGridState => {
+                    return {
+                        ...prevGridState,
+                        copiedSelections: copiedSelections
+                    }
+                })
+
+                void mitoAPI.log('copied_data', {
+                    'num_selections': gridState.selections.length
+                });
+            },
+            isDisabled: () => {
+                return getDataframeIsSelected(uiState, sheetDataArray) ? undefined : "There is no selected data to copy."
+            },
+            searchTerms: ['copy', 'paste', 'export'],
+            tooltip: "Copy the current selection to the clipboard.",
+            displayKeyboardShortcuts: {
+                mac: 'Cmd+C',
+                windows: 'Ctrl+C'
+            }
         },
         [ActionEnum.Delete_Column]: {
             type: ActionEnum.Delete_Column,
@@ -650,7 +691,11 @@ export const createActions = (
             },
             isDisabled: () => {return undefined},
             searchTerms: ['redo', 'undo'],
-            tooltip: "Reapplies the last step that you undid, as long as you haven't made any edits since the undo."
+            tooltip: "Reapplies the last step that you undid, as long as you haven't made any edits since the undo.",
+            displayKeyboardShortcuts: {
+                mac: 'Cmd+Y',
+                windows: 'Ctrl+Y'
+            }
         },
         [ActionEnum.Rename_Column]: {
             type: ActionEnum.Rename_Column,
@@ -890,7 +935,11 @@ export const createActions = (
             },
             isDisabled: () => {return undefined},
             searchTerms: ['undo', 'go back', 'redo'],
-            tooltip: 'Undo the most recent edit.'
+            tooltip: 'Undo the most recent edit.',
+            displayKeyboardShortcuts: {
+                mac: 'Cmd+Z',
+                windows: 'Ctrl+Z'
+            }
         },
         [ActionEnum.Unique_Values]: {
             type: ActionEnum.Unique_Values,

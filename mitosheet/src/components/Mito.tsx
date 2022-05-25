@@ -22,6 +22,7 @@ import '../../css/sitewide/paddings.css';
 import '../../css/sitewide/scroll.css';
 import '../../css/sitewide/text.css';
 import '../../css/sitewide/widths.css';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import MitoAPI from '../jupyter/api';
 import { getArgs, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell } from '../jupyter/jupyterUtils';
 import { AnalysisData, DataTypeInMito, DFSource, EditorState, GridState, SheetData, UIState, UserProfile } from '../types';
@@ -426,7 +427,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     }, [uiState])
 
-
     const dfNames = sheetDataArray.map(sheetData => sheetData.dfName);
     const dfSources = sheetDataArray.map(sheetData => sheetData.dfSource);
     const columnIDsMapArray = sheetDataArray.map(sheetData => sheetData.columnIDsMap);
@@ -692,6 +692,11 @@ export const Mito = (props: MitoProps): JSX.Element => {
         mitoContainerRef
     )
 
+
+    // Hook for using keyboard shortcuts. NOTE: do not return before this hook, it will cause
+    // issues.
+    useKeyboardShortcuts(mitoContainerRef, actions, setGridState);
+
     /* 
         We currrently send all users through the intro tour.
 
@@ -748,7 +753,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     })
 
     return (
-        <div className="mito-container" data-jp-suppress-context-menu ref={mitoContainerRef}>
+        <div className="mito-container" data-jp-suppress-context-menu ref={mitoContainerRef} tabIndex={0}>
             <ErrorBoundary mitoAPI={props.mitoAPI}>
                 <Toolbar 
                     mitoAPI={props.mitoAPI}

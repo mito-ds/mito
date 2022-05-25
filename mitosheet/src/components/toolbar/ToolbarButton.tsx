@@ -35,11 +35,6 @@ const ToolbarButton = (
         */
         children?: JSX.Element
 
-        /**
-        * @param [displayChildren] - If true, display the children prop, otherwise don't.
-        */
-        displayChildren?: boolean
-
     }): JSX.Element => {
 
     const highlightToobarItemClass = props.highlightToolbarButton === true ? 'toolbar-button-draw-attention' : ''
@@ -70,7 +65,7 @@ const ToolbarButton = (
                     </p>
                 </span>
             </button>
-            {props.displayChildren && props.children !== undefined && props.children}
+            {props.children !== undefined && props.children}
         </div>
     );
 }

@@ -112,7 +112,7 @@ if name == 'mitosheet2':
             # is stabilized and mature
             'analytics-python',
             # Graphing libraries
-            'plotly==5.3.0',
+            'plotly>=4.14.3',
             'chardet>=3.0.4',
             # For XLSX, reading - we don't fix so works on all python versions
             'openpyxl',
@@ -222,7 +222,7 @@ elif name == 'mitosheet' or name == 'mitosheet3' or name == 'mitosheet-private':
             'pandas>=0.24.2',
             'analytics-python',
             # Graphing libraries
-            'plotly==5.3.0',
+            'plotly>=4.14.3',
             'chardet>=3.0.4',
             # For XLSX, reading - we don't fix so works on all python versions
             'openpyxl',
