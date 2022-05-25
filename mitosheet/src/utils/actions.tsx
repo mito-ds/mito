@@ -10,7 +10,7 @@ import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/t
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../data/function_documentation";
 import { Action, DFSource, EditorState, GridState, SheetData, UIState, ActionEnum } from "../types"
-import { getColumnHeaderParts, getDisplayColumnHeader } from "./columnHeaders";
+import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { FORMAT_DISABLED_MESSAGE } from "./formatColumns";
 
 
@@ -58,16 +58,6 @@ export const createActions = (
 
                 // we close the editing taskpane if its open
                 closeOpenEditingPopups();
-
-                const getNewColumnHeader = (): string => {
-                    let result = '';
-                    const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
-                    const charactersLength = characters.length;
-                    for (let i = 0; i < 4; i++) {
-                        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-                    }
-                    return result;
-                }
 
                 const newColumnHeader = 'new-column-' + getNewColumnHeader()
                 // The new column should be placed 1 position to the right of the last selected column

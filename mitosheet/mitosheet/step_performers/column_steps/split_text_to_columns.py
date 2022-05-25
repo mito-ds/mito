@@ -18,15 +18,10 @@ from mitosheet.sheet_functions.types.utils import is_datetime_dtype
 from mitosheet.state import FORMAT_DEFAULT, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
-from mitosheet.types import ColumnHeader, ColumnID
+from mitosheet.types import ColumnID
 
-def get_next_available_split_column_header_idx(column_headers: List[ColumnHeader], column_ids: List[ColumnID], split_column_header: ColumnHeader, _idx=None) -> str:
-    idx = _idx if _idx is None else 1
-    new_column_header = f'split_{idx}_of_{split_column_header}'
-    if new_column_header in column_headers or new_column_header in column_ids:
-        return get_next_available_split_column_header_idx(column_headers, column_ids, split_column_header, idx + 1)
-    else:
-        return new_column_header
+def get_new_colum_header_unique_component() -> str:
+    return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(4))
 
 
 class SplitTextToColumnsStepPerformer(StepPerformer):
@@ -52,6 +47,7 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')
         delimiters: List[str] = get_param(params, 'delimiters')
+        new_column_header_suffix: str = get_param(params, 'new_column_header_suffix')
 
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
         column_idx = prev_state.dfs[sheet_index].columns.tolist().index(column_header)
@@ -60,7 +56,6 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
         final_df = post_state.dfs[sheet_index]
         delimiter_string = '|'.join(delimiters)
-
         # Actually execute the column reordering
         pandas_start_time = perf_counter() 
         # Create the dataframe of new columns. We do this first, so that we know how many columns get created.
@@ -70,17 +65,16 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
             new_columns_df = final_df[column_header].astype('str').str.split(delimiter_string, -1, expand=True)
 
         # Create the new column headers and ensure they are unique
-        new_column_headers = [get_next_available_split_column_header_idx(column_headers=, ) for column, idx in enumerate(new_columns_df)]
-
-
-        # Make sure the new column headers are valid if they are multi index column headers before adding them to the dataframe
+        # Note: We create the new_column_header_suffix on the frontend so that it is saved in the step parameters, which allows us
+        # to replay the analysis and generate the same columns. 
+        new_column_headers = [f'split-{idx}-of-{column_header}-{new_column_header_suffix}' for column, idx in enumerate(new_columns_df)]
+        # Make sure the new column headers are valid before adding them to the dataframe
         new_column_headers = [try_make_new_header_valid_if_multi_index_headers(list(prev_state.column_ids.get_column_headers(sheet_index)), column_header) for column_header in new_column_headers]
         # Add the new columns to the end of the dataframe
         final_df[new_column_headers] = new_columns_df
         # Set the columns in the correct order
         final_df = final_df[final_df.columns[:column_idx + 1].tolist() + new_column_headers + final_df.columns[column_idx + 1:-len(new_column_headers)].tolist()]
         pandas_processing_time = perf_counter() - pandas_start_time
-
         # Update column state variables
         for column_header in new_column_headers:
             column_id = post_state.column_ids.add_column_header(sheet_index, column_header)
@@ -99,6 +93,7 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
             }
         }
 
+        
     @classmethod
     def transpile(
         cls,

@@ -9,7 +9,7 @@ import Row from "../../spacing/Row";
 import Col from "../../spacing/Col";
 import Select from "../../elements/Select";
 import DropdownItem from "../../elements/DropdownItem";
-import { getDisplayColumnHeader } from "../../../utils/columnHeaders";
+import { getDisplayColumnHeader, getNewColumnHeader } from "../../../utils/columnHeaders";
 import useSendEditOnClick from "../../../hooks/useSendEditOnClick";
 import TextButton from "../../elements/TextButton";
 import Input from "../../elements/Input";
@@ -45,7 +45,8 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
         {
             sheet_index: props.gridState.sheetIndex,
             column_id: props.startingColumnID !== undefined ? props.startingColumnID : props.sheetDataArray[props.gridState.sheetIndex].data[0].columnID,
-            delimiters: [] // List of the delimiter characters
+            delimiters: [], 
+            new_column_header_suffix: getNewColumnHeader()
         },
         StepType.SplitTextToColumns, 
         props.mitoAPI,
@@ -53,7 +54,6 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
     )
 
     const [preview, setPreview] = useState<(string | number | boolean)[][] | undefined>([])
-
 
     async function loadSplitTextToColumnsPreview() {
 
@@ -241,7 +241,17 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                 <TextButton
                     variant='dark'
                     width='block'
-                    onClick={() => edit()}
+                    onClick={() => {
+                        edit()
+                        setParams(prevParams => {
+                            return {
+                                ...prevParams, 
+                                // Prepare for the user splitting again by creating a new column suffix,
+                                // so that the column headers don't overlap
+                                new_column_header_suffix: getNewColumnHeader()
+                            }
+                        })
+                    }}
                     disabled={params.delimiters.length === 0}
                     disabledTooltip="Select at least one delimiter"
                 >

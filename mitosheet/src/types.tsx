@@ -272,7 +272,10 @@ export interface ConcatParams {
 export interface SplitTextToColumnsParams {
     sheet_index: number,
     column_id: ColumnID | undefined,
-    delimiters: string[]
+    delimiters: string[],
+    // Note: We create the new_column_header_suffix on the frontend so that it is saved in the step parameters, 
+    // which allows us to replay the analysis and generate the same columns. 
+    new_column_header_suffix: string 
 }
 
 // NOTE: these aggregation functions need to be supported
