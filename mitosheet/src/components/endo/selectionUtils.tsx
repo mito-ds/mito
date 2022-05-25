@@ -688,6 +688,26 @@ export const removeColumnFromSelections = (selections: MitoSelection[], columnIn
     return newSelections
 }
 
+export const getSelectedColumnIDsWithEntireSelectedColumn = (selections: MitoSelection[], sheetData: SheetData | undefined ): ColumnID[] => {
+    if (sheetData === undefined) {
+        return []
+    }
+
+    let columnIndexes: number[] = []
+    selections.forEach(selection => {
+        if (selection.startingRowIndex === -1 && selection.endingRowIndex === -1) {
+            columnIndexes = columnIndexes.concat(getColumnIndexesInSingleSelection(selection))
+        }
+    })
+    // Deduplicate the list
+    columnIndexes = [...new Set(columnIndexes)];
+
+    return columnIndexes
+        .filter(colIdx => sheetData.data.length > colIdx)
+        .map(colIdx => sheetData.data[colIdx]?.columnID)
+
+}
+
 
 // Returns a list of column IDs of all of the selected columns that have number dtypes
 export const getSelectedNumberSeriesColumnIDs = (selections: MitoSelection[], sheetData: SheetData | undefined ): ColumnID[] => {

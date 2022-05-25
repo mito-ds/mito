@@ -52,6 +52,7 @@ const ColumnHeader = (props: {
     setColumnHeaderOperation: React.Dispatch<React.SetStateAction<'reorder' | 'resize' | undefined>>;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI;
+    closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
 }): JSX.Element => {
 
     const [openColumnHeaderDropdown, setOpenColumnHeaderDropdown] = useState(false);
@@ -369,6 +370,7 @@ const ColumnHeader = (props: {
                 columnID={columnID}
                 columnDtype={columnDtype}
                 display={openColumnHeaderDropdown}
+                closeOpenEditingPopups={props.closeOpenEditingPopups}
             />
         </div>
     )

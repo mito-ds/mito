@@ -62,7 +62,7 @@ class Step:
         # execution_data is data from the execution of the data transformation that
         # is useful for the transpiler - that means the transpiler can do way less
         # work if it has already been done. See simple_import for an example
-        self.execution_data = execution_data
+        self.execution_data = execution_data if execution_data is not None else {}
 
     @property
     def dfs(self):
@@ -158,7 +158,7 @@ class Step:
         # Update the relevant state variables
         self.prev_state = new_prev_state
         self.post_state = new_post_state
-        self.execution_data = execution_data
+        self.execution_data = execution_data if execution_data is not None else {}
         self.params = params
     
 

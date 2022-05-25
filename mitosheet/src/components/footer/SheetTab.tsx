@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import MitoAPI from '../../jupyter/api';
 import { classNames } from '../../utils/classNames';
 import Input from '../elements/Input';
@@ -90,6 +90,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
 
     
     // We only set this as open if it the currOpenSheetTabActions
+    const openDropdownDivRef = useRef<HTMLDivElement>(null);
     const [displayActions, setDisplayActions] = useState(false);
     const [isRename, setIsRename] = useState<boolean>(false);
     const [newTabName, setNewTabName] = useState<string>(props.tabName);
@@ -154,9 +155,10 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                 })
             }} 
             onDoubleClick={() => {setIsRename(true)}} 
-            onContextMenu={() => {
-                // We also log if the user tries to right click on the sheet tab
-                void props.mitoAPI.log('right_clicked_on_sheet_tab');
+            onContextMenu={(e) => {
+                // If the user right clicks, show the dropdown for the sheet tabs
+                e.preventDefault();
+                openDropdownDivRef.current?.click();
             }}
         >
             <div className='tab-content'>
@@ -184,7 +186,11 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                     </p>
                 }
                 {/* Display the dropdown that allows a user to perform some action */}
-                <div className='sheet-tab-dropdown-button-div' onClick={() => {setDisplayActions(true)}}>
+                <div 
+                    ref={openDropdownDivRef}
+                    className='sheet-tab-dropdown-button-div' 
+                    onClick={() => {setDisplayActions(true)}}
+                >
                     {props.isSelectedTab ? <SelectedSheetTabDropdownIcon /> : <UnselectedSheetTabDropdownIcon />}
                 </div>
             </div>

@@ -17,7 +17,7 @@ from copy import copy
 from typing import Any, Dict
 
 from mitosheet.errors import MitoError, get_recent_traceback_as_list
-from mitosheet.telemetry.anonymization_utils import anonyimize_object, get_final_private_params_for_single_kv
+from mitosheet.telemetry.anonymization_utils import anonymize_object, get_final_private_params_for_single_kv
 from mitosheet.telemetry.private_params_map import LOG_EXECUTION_DATA_PUBLIC
 from mitosheet.types import StepsManagerType
 from mitosheet.user.location import get_location, is_docker
@@ -88,7 +88,7 @@ def _get_execution_data_log_params(steps_manager: StepsManagerType=None) -> Dict
                 execution_data_params['execution_data_' + key] = value
             # And make the rest private
             else:
-                execution_data_params['execution_data_' + key] = anonyimize_object(value)
+                execution_data_params['execution_data_' + key] = anonymize_object(value)
 
     return execution_data_params
 

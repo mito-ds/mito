@@ -2,9 +2,12 @@
 
 import React, { useEffect } from 'react';
 import MitoAPI, { getRandomId } from '../../jupyter/api';
-import { GraphDataDict, GraphID, UIState } from '../../types';
+import { GraphDataDict, GraphID, GraphSidebarTab, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
+import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
+import { TaskpaneType } from '../taskpanes/taskpanes';
+
 
 /*
     Displays a set of actions one can perform on a graph sheet tab, including
@@ -51,6 +54,19 @@ export default function GraphSheetTabActions(props: {
     const onRename = (): void => {
         props.setIsRename(true);
     }
+
+    const openExportGraphTaskpaneTab = async (): Promise<void> => {
+        props.setUIState(prevUIState => {
+            return {
+                ...prevUIState,
+                currOpenTaskpane: {
+                    type: TaskpaneType.GRAPH, 
+                    graphID: props.graphID, 
+                    graphSidebarTab: GraphSidebarTab.Export
+                },
+            }
+        })
+    }
     
     return (
         <Dropdown
@@ -58,6 +74,24 @@ export default function GraphSheetTabActions(props: {
             closeDropdown={() => props.setDisplayActions(false)}
             width='small'
         >
+            <DropdownItem
+                title='Export'
+                onClick={(e) => {
+                    // Stop propogation so that the onClick of the sheet tab div
+                    // doesn't compete setting the currOpenTaskpane
+                    e?.stopPropagation()
+                    void openExportGraphTaskpaneTab()
+                }}
+            />
+            <DropdownSectionSeperator isDropdownSectionSeperator={true} />
+            <DropdownItem 
+                title='Duplicate'
+                onClick={onDuplicate}
+            />
+            <DropdownItem 
+                title='Rename'
+                onClick={onRename}
+            />
             <DropdownItem 
                 title='Delete'
                 onClick={(e) => {
@@ -66,14 +100,6 @@ export default function GraphSheetTabActions(props: {
                     e?.stopPropagation()
                     void onDelete()
                 }}
-            />
-            <DropdownItem 
-                title='Duplicate'
-                onClick={onDuplicate}
-            />
-            <DropdownItem 
-                title='Rename'
-                onClick={onRename}
             />
         </Dropdown>
     )

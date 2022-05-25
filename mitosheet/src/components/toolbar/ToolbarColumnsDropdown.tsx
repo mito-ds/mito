@@ -45,6 +45,7 @@ const ToolbarColumnsDropdown = (props: ToolbarColumnsDropdownProps): JSX.Element
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Filter])}
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Sort])}
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Change_Dtype])}
+                {makeToolbarDropdownItem(props.actions[ActionEnum.Fill_Na])}
                 <DropdownSectionSeperator isDropdownSectionSeperator/>
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Unique_Values])}
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Column_Summary])}

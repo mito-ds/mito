@@ -127,16 +127,8 @@ class SetCellValueStepPerformer(StepPerformer):
 
 
     @classmethod
-    def get_modified_dataframe_indexes( # type: ignore
-        cls, 
-        sheet_index: int,
-        column_id: ColumnID,
-        row_index: int,
-        old_value: str,
-        new_value: Union[str, None],
-        **params
-    ) -> Set[int]:
-        return {sheet_index}
+    def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
+        return {get_param(params, 'sheet_index')}
 
 
 def cast_value_to_type(value: Union[str, None], column_dtype: str) -> Optional[Any]:
