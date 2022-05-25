@@ -786,11 +786,6 @@ export interface Action {
     category?: 'spreadsheet formula'
 }
 
-export interface ExcelFileMetadata {
-    sheet_names: string[]
-    size: number
-}
-
 export enum GraphSidebarTab {
     Setup = 'setup',
     Style = 'style',

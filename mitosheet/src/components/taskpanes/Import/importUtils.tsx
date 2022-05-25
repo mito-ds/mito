@@ -100,16 +100,6 @@ export const getImportButtonStatus = (selectedElement: FileElement | undefined, 
     };
 }
 
-
-export const getXLSXImportButtonText = (stepID: string | undefined, numSelectedSheets: number, loadingImport: boolean): string => {
-    if (loadingImport) {
-        return "Importing..."
-    }
-    return stepID === undefined 
-        ? `Import ${numSelectedSheets} Selected Sheet${numSelectedSheets === 1 ? '' : 's'}` 
-        : `Reimport ${numSelectedSheets} Selected Sheet${numSelectedSheets === 1 ? '' : 's'}`
-}
-
 export const getElementsToDisplay = (importState: ImportTaskpaneState): FileElement[] => {
     return importState.pathContents.elements?.filter(element => {
         return fuzzyMatch(element.name, importState.searchString) > .8;

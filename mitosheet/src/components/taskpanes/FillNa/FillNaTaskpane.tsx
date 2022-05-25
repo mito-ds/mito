@@ -129,7 +129,7 @@ const getSuccessMessage = (sheetData: SheetData | undefined, columnIDs: ColumnID
 const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
 
     const {params, setParams, loading, edit, editApplied} = useSendEditOnClick<FillNaParams, undefined>(
-        getDefaultParams(props.sheetDataArray, props.selectedSheetIndex, undefined, props.startingColumnIDs),
+        () => getDefaultParams(props.sheetDataArray, props.selectedSheetIndex, undefined, props.startingColumnIDs),
         StepType.FillNa, 
         props.mitoAPI,
         props.analysisData,

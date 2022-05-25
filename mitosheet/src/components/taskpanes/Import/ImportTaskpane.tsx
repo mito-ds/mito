@@ -8,7 +8,7 @@ import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import { PathContents } from '../../../jupyter/api';
 import FileBrowser from './FileBrowser';
 import TextButton from '../../elements/TextButton';
-import { UIState, UserProfile } from '../../../types';
+import { AnalysisData, UIState, UserProfile } from '../../../types';
 import XLSXImport from './XLSXImport';
 
 // CSS
@@ -23,6 +23,7 @@ interface ImportTaskpaneProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     currPathParts: string[];
     setCurrPathParts: (newCurrPathParts: string[]) => void;
+    analysisData: AnalysisData;
 }
 
 type FileSort = 'name_ascending' | 'name_descending' | 'last_modified_ascending' | 'last_modified_descending';
@@ -33,7 +34,7 @@ export interface ImportTaskpaneState {
     searchString: string,
     selectedElementIndex: number,
     loadingFolder: boolean,
-    loadingImport: boolean
+    loadingImport: boolean,
 }
 
 // When storing what is selected, we store if it is a file 
@@ -62,6 +63,23 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
     // If the file being imported is an XLSX, we need additional configuration
     // and so we use an import wizard for help
     const [fileForImportWizard, setFileForImportWizard] = useState<string | undefined>(undefined);
+    // It is very convenient to have the full joined path for the file, so this state and the 
+    // effect below it make it possible to access this easily
+    const [fullFileNameForImportWizard, setFullFileNameForImportWizard] = useState<string | undefined>(undefined)
+
+    useEffect(() => {
+        const getFullFileNameForImportWizard = async (fileForImportWizard: string): Promise<void> => {
+            const finalPath = [...props.currPathParts];
+            finalPath.push(fileForImportWizard);
+            const fullFileName = await props.mitoAPI.getPathJoined(finalPath);
+            setFullFileNameForImportWizard(fullFileName);
+        }
+        if (fileForImportWizard !== undefined) {
+            void getFullFileNameForImportWizard(fileForImportWizard);
+        } else {
+            setFullFileNameForImportWizard(undefined);
+        }
+    }, [fileForImportWizard])
 
     // We make sure to get the elements that are displayed and use the index on that to get the correct element
     const selectedElement: FileElement | undefined = getElementsToDisplay(importState)[importState.selectedElementIndex];
@@ -213,12 +231,14 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                             </div>
                         </>
                     }
-                    {fileForImportWizard !== undefined &&
+                    {fullFileNameForImportWizard !== undefined &&
                         <XLSXImport
                             mitoAPI={props.mitoAPI}
-                            pathParts={[...props.currPathParts, fileForImportWizard]}
+                            fileName={fullFileNameForImportWizard}
                             importState={importState}
                             setImportState={setImportState}
+                            setUIState={props.setUIState}
+                            analysisData={props.analysisData}
                         />
                     }
                 </div>
