@@ -375,6 +375,10 @@ def main() -> None:
     write_testing_file(original_step_name, params)
     print("Wrote testing file")
 
+    # TODO:
+    # 1. Add a new step type in Types.tsx
+    # 2. Auto generate the api files
+
 
 
 if __name__ == "__main__":
