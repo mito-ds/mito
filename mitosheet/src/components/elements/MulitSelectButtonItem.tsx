@@ -6,7 +6,7 @@ interface MultiSelectButtonItem {
     /** 
         * @param id - If you want to display something other than what you actually store 
         * (e.g. display a columnHeader but store a columnID), then set the ID equal to the value 
-        * that you want to store, and it will be used for the onChange value in the MultiSelectButtons.
+        * that you want to store, and it will be used for the onToggle value.
     */
     id?: string;
 

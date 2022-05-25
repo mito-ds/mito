@@ -6,12 +6,11 @@
 """
 Contains helpful utility functions
 """
-from ctypes import Union
 import json
 import numbers
 import re
 import uuid
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 from mitosheet.types import ColumnHeader, ColumnID
 
 import numpy as np

@@ -495,7 +495,6 @@ export default class MitoAPI {
                 })
             }
 
-            console.log(uniqueValueCounts)
             return {
                 uniqueValueCounts: uniqueValueCounts,
                 isAllData: uniqueValueCountsObj.isAllData

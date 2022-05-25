@@ -17,6 +17,7 @@ import '../../../../css/taskpanes/SplitTextToColumns/SplitTextToColumns.css'
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import MultiSelectButtonItem from "../../elements/MulitSelectButtonItem";
 import { toggleInArray } from "../../../utils/arrays";
+import Spacer from "../../spacing/Spacer";
 
 interface SplitTextToColumnsTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -52,14 +53,11 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
     )
 
     const [preview, setPreview] = useState<(string | number | boolean)[][] | undefined>([])
-    const [loadingPreview, setLoadingPreview] = useState<boolean>(false)
 
-    console.log(loadingPreview)
 
     async function loadSplitTextToColumnsPreview() {
 
         if (params !== undefined && params.column_id !== undefined) {
-            setLoadingPreview(true);
 
             const _splitTextToColumnsPreviewArray = await props.mitoAPI.getSplitTextToColumnsPreview(params.sheet_index, params.column_id, params.delimiters)
             if (_splitTextToColumnsPreviewArray !== undefined) {
@@ -68,7 +66,6 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                 setPreview(undefined)
             }
 
-            setLoadingPreview(false);
         } else {
             setPreview(undefined)
         }
@@ -245,6 +242,8 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                     variant='dark'
                     width='block'
                     onClick={() => edit()}
+                    disabled={params.delimiters.length === 0}
+                    disabledTooltip="Select at least one delimiter"
                 >
                     {!editApplied 
                         ? 'Split on delimiter'
@@ -260,9 +259,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                     </p>
                 } 
                 {!editApplied && 
-                    <p>
-                        Select delimiters and press &apos;Split on delimiter&apos; to apply changes
-                    </p>
+                    <Spacer px={18}/>
                 } 
             </DefaultTaskpaneFooter>
         </DefaultTaskpane>

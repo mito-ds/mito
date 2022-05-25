@@ -378,6 +378,7 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
 
                     }}
                     disabled={params.column_ids.length === 0}
+                    disabledTooltip={"Select at least one column to fill NaN values in"}
                 >
                     {getButtonMessage(sheetData, params.column_ids)}
                 </TextButton>
