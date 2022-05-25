@@ -7,6 +7,7 @@ import json
 from typing import Any, Dict
 
 import pandas as pd
+from mitosheet.state import FORMAT_DEFAULT
 from mitosheet.types import StepsManagerType
 from mitosheet.utils import df_to_json_dumpsable
 
@@ -96,7 +97,7 @@ def get_unique_value_counts(params: Dict[str, Any], steps_manager: StepsManagerT
             {},
             {},
             {'values': 'values', 'percents': 'percents', 'counts': 'counts'},
-            {},
+            {'values': {'type': FORMAT_DEFAULT}, 'percents': {'type': FORMAT_DEFAULT}, 'counts': {'type': FORMAT_DEFAULT}},
             max_length=None
         ),
         'isAllData': is_all_data

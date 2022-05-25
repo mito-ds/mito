@@ -139,9 +139,9 @@ const Toolbar = (
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.FORMAT}
                         action={props.actions[ActionEnum.Format]}
-                        displayChildren={props.uiState.displayFormatToolbarDropdown}
                     >
                         <Dropdown
+                            display={props.uiState.displayFormatToolbarDropdown}
                             closeDropdown={() => 
                                 props.setUIState(prevUIState => {
                                     return {

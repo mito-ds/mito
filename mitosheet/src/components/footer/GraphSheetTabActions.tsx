@@ -20,7 +20,8 @@ export default function GraphSheetTabActions(props: {
     closeOpenEditingPopups: () => void;
     mitoAPI: MitoAPI,
     graphID: GraphID,
-    graphDataDict: GraphDataDict
+    graphDataDict: GraphDataDict;
+    display: boolean;
 }): JSX.Element {
 
     // Log opening the graph sheet tab actions
@@ -69,6 +70,7 @@ export default function GraphSheetTabActions(props: {
     
     return (
         <Dropdown
+            display={props.display}
             closeDropdown={() => props.setDisplayActions(false)}
             width='small'
         >

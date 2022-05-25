@@ -20,23 +20,22 @@ const ToolbarViewDropdown = (props: ToolbarViewDropdownProps): JSX.Element => {
 
     return (
         <>
-            {props.uiState.currOpenToolbarDropdown === 'View' &&
-                <Dropdown 
-                    closeDropdown={() => props.setUIState((prevUIState) => {
-                        // Only close this dropdown if it's actually the one that is open, to avoid race conditions
-                        if (prevUIState.currOpenToolbarDropdown === 'View') {
-                            return {
-                                ...prevUIState,
-                                currOpenToolbarDropdown: undefined
-                            }
+            <Dropdown 
+                display={props.uiState.currOpenToolbarDropdown === 'View'}
+                closeDropdown={() => props.setUIState((prevUIState) => {
+                    // Only close this dropdown if it's actually the one that is open, to avoid race conditions
+                    if (prevUIState.currOpenToolbarDropdown === 'View') {
+                        return {
+                            ...prevUIState,
+                            currOpenToolbarDropdown: undefined
                         }
-                        return prevUIState;
-                    })}
-                    width='medium'
-                >
-                    {makeToolbarDropdownItem(props.actions[ActionEnum.Fullscreen])}
-                </Dropdown>
-            }
+                    }
+                    return prevUIState;
+                })}
+                width='medium'
+            >
+                {makeToolbarDropdownItem(props.actions[ActionEnum.Fullscreen])}
+            </Dropdown>
         </>
     );
 }
