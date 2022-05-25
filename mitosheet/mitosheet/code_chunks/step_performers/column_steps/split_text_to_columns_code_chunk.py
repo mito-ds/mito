@@ -49,7 +49,7 @@ class SplitTextToColumnsCodeChunk(CodeChunk):
         split_column_line = f'{df_name}[{new_transpiled_column_headers}] = {df_name}[{transpiled_column_header}]{string_conversion}.str.split({delimiter_string}, -1, expand=True)'
 
         # Reorder columns 
-        reorder_columns_line = f'{df_name}.columns = {df_name}.columns[:{column_idx + 1}].tolist() + {new_transpiled_column_headers} + {df_name}.columns[{column_idx + 1}:-{len(new_column_headers)}].tolist()'
+        reorder_columns_line = f'{df_name} = {df_name}[{df_name}.columns[:{column_idx + 1}].tolist() + {new_transpiled_column_headers} + {df_name}.columns[{column_idx + 1}:-{len(new_column_headers)}].tolist()]'
 
         return [split_column_line, reorder_columns_line]
 
