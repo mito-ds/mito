@@ -263,6 +263,18 @@ function activateWidgetExtension(
         }
     });
 
+
+    /**
+     * Keyboard shortcuts defined below.
+     * 
+     * For some reason, some keyboard shortcuts can be defined in Mito.tsx and others
+     * cannot be. If we try and detect Command + Z in the Mito.tsx file with an event
+     * listener, it does not appear. 
+     * 
+     * Thus, for now, we split up our keyboard shortcut handling across multiple places.
+     * We will address this in the future, when we can figure out why it is occuring!
+     */
+
     /* 
         To make Command + F focus on search, we add these commands as a key-binding
         that specifically is captured inside the mito-container.

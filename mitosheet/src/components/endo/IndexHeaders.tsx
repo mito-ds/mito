@@ -33,7 +33,7 @@ const IndexHeaders = (props: {
                                 rowIndex,
                                 -1
                             );
-                            const className = classNames('index-header-container', 'text-overflow-hide', {'index-header-selected': selected});
+                            const className = classNames('index-header-container', 'text-overflow-hide', 'text-unselectable', {'index-header-selected': selected});
                             const indexHeader = rowIndex >= props.sheetData.numRows ? '' : props.sheetData.index[rowIndex];
 
                             return (
@@ -45,7 +45,7 @@ const IndexHeaders = (props: {
                                     mito-row-index={rowIndex}
                                     mito-col-index={-1}
                                     style={{
-                                        ...getBorderStyle(props.gridState.selections, rowIndex, -1, props.sheetData.numRows)
+                                        ...getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, rowIndex, -1, props.sheetData.numRows)
                                     }}
                                 >
                                     {indexHeader}
