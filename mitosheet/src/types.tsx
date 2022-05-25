@@ -35,7 +35,8 @@ export enum StepType {
     GraphDuplicate = 'graph_duplicate',
     GraphDelete = 'graph_delete',
     GraphRename = 'graph_rename',
-    DeleteRow = 'delete_row'
+    DeleteRow = 'delete_row',
+    PromoteRowToHeader = 'promote_row_to_header',
 }
 
 /**

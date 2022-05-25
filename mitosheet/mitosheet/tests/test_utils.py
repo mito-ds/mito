@@ -19,7 +19,7 @@ from mitosheet.mito_widget import MitoWidget, sheet
 from mitosheet.parser import parse_formula
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.types import ColumnHeader, ColumnID, GraphID, MultiLevelColumnHeader
-from mitosheet.utils import dfs_to_array_for_json, get_new_id
+from mitosheet.utils import dfs_to_array_for_json, get_new_id, json_dumps
 
 
 def decorate_all_functions(function_decorator):
@@ -97,7 +97,7 @@ def check_dataframes_equal(test_wrapper):
 
     # We then check that the sheet data json that is saved by the widget, which 
     # notably uses caching, does not get incorrectly cached and is written correctly
-    assert test_wrapper.mito_widget.sheet_data_json == json.dumps(dfs_to_array_for_json(
+    assert test_wrapper.mito_widget.sheet_data_json == json_dumps(dfs_to_array_for_json(
         set(i for i in range(len(test_wrapper.mito_widget.steps_manager.curr_step.dfs))),
         [],
         test_wrapper.mito_widget.steps_manager.curr_step.dfs,
@@ -327,6 +327,32 @@ class MitoWidgetTestWrapper:
                 'event': 'edit_event',
                 'id': get_new_id(),
                 'type': 'delete_row_edit',
+                'step_id': get_new_id(),
+                'params': {
+                    'sheet_index': sheet_index,
+                    'row_index': row_index,
+                    
+                }
+            }
+        )
+    
+
+    @check_transpiled_code_after_call
+    def promote_row_to_header(
+            self, 
+            sheet_index: int,
+            row_index: int,
+        ) -> bool:
+
+        # TODO: Handle parsing of the column ids here, if you need to (and change above params!)
+        
+
+        return self.mito_widget.receive_message(
+            self.mito_widget,
+            {
+                'event': 'edit_event',
+                'id': get_new_id(),
+                'type': 'promote_row_to_header_edit',
                 'step_id': get_new_id(),
                 'params': {
                     'sheet_index': sheet_index,

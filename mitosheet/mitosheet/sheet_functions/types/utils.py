@@ -51,6 +51,7 @@ def is_none_type(value: Union[str, None]) -> bool:
 def get_float_dt_td_columns(df: pd.DataFrame) -> Tuple[List[Any], List[Any], List[Any]]:
     float_columns, date_columns, timedelta_columns = [], [], []
     for column_header in df.columns:
+        print(df.info(), column_header)
         dtype = str(df[column_header].dtype)
         # NOTE: these functions are called frequently, so we put them in 
         # the order they are most likely to be true in, so we can short out

@@ -38,6 +38,7 @@ from mitosheet.step_performers.fill_na import FillNaStepPerformer
 from mitosheet.step_performers.graph_steps.graph_delete import GraphDeleteStepPerformer
 from mitosheet.step_performers.graph_steps.graph_duplicate import GraphDuplicateStepPerformer
 from mitosheet.step_performers.graph_steps.graph_rename import GraphRenameStepPerformer
+from mitosheet.step_performers.promote_row_to_header import PromoteRowToHeaderStepPerformer
 
 def check_step(
         step_performer: StepPerformer, 
@@ -230,7 +231,13 @@ def test_params_static():
         'delete_row'
     )
 
-    assert len(STEP_PERFORMERS) == 26
+    check_step(
+        PromoteRowToHeaderStepPerformer,
+        1,
+        'promote_row_to_header'
+    )
+
+    assert len(STEP_PERFORMERS) == 27
 
 
 def get_fake_param(param_name):

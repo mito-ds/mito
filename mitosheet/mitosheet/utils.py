@@ -10,13 +10,13 @@ import json
 import re
 import uuid
 from typing import Any, Dict, List, Optional, Set, Tuple
-from mitosheet.types import ColumnHeader, ColumnID
 
 import numpy as np
 import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap
 from mitosheet.sheet_functions.types.utils import get_float_dt_td_columns
+from mitosheet.types import ColumnHeader, ColumnID
 
 # We only send the first 1500 rows of a dataframe; note that this
 # must match this variable defined on the front-end
@@ -270,4 +270,19 @@ def run_command(command_array: List[str]) -> Tuple[str, str]:
     stderr = completed_process.stderr if isinstance(completed_process.stderr, str) else ''
     return stdout, stderr
 
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        if isinstance(obj, np.bool_):
+            return bool(obj)
+        return super(NpEncoder, self).default(obj)
+
+def json_dumps(obj: Any):
+    # See here: https://stackoverflow.com/questions/50916422/python-typeerror-object-of-type-int64-is-not-json-serializable
+    return json.dumps(obj, cls=NpEncoder)
 

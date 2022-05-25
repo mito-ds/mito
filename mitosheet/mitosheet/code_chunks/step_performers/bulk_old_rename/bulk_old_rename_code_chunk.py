@@ -8,6 +8,7 @@ import json
 from typing import List
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.utils import json_dumps
 
 
 class BulkOldRenameCodeChunk(CodeChunk):
@@ -28,7 +29,7 @@ class BulkOldRenameCodeChunk(CodeChunk):
                 continue
 
             code.append(
-                f'{df_name}.rename(columns={json.dumps(renames)}, inplace=True)'
+                f'{df_name}.rename(columns={json_dumps(renames)}, inplace=True)'
             )
 
         if len(code) > 0:

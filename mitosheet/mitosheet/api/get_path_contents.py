@@ -7,6 +7,8 @@ import json
 import os
 from typing import Any, Dict, List
 
+from mitosheet.utils import json_dumps
+
 
 def get_path_parts(path: str) -> List[str]:
     """
@@ -76,7 +78,7 @@ def get_path_contents(params: Dict[str, Any]) -> str:
     # Windows == "$"
     dirnames = [d for d in dirnames if (not d.startswith('.') and not d.startswith('$'))]
 
-    return json.dumps({
+    return json_dumps({
         'path': path,
         'path_parts': get_path_parts(path),
         # For each element, record if it's a directory, and the time it was last modified
