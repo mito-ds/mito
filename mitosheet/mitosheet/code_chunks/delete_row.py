@@ -7,6 +7,7 @@
 from typing import List
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.types import ColumnID
+from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
 
 class DeleteRowCodeChunk(CodeChunk):
 
@@ -28,7 +29,7 @@ class DeleteRowCodeChunk(CodeChunk):
         df_name = self.post_state.df_names[sheet_index]
 
         return [
-            f'{df_name}.drop({row_index}, axis=0, inplace=True)'
+            f'{df_name}.drop({column_header_to_transpiled_code(row_index)}, inplace=True)'
         ]
 
     

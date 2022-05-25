@@ -315,7 +315,7 @@ class MitoWidgetTestWrapper:
     def delete_row(
             self, 
             sheet_index: int,
-            row_index: int,
+            index: int,
         ) -> bool:
 
         # TODO: Handle parsing of the column ids here, if you need to (and change above params!)
@@ -330,8 +330,7 @@ class MitoWidgetTestWrapper:
                 'step_id': get_new_id(),
                 'params': {
                     'sheet_index': sheet_index,
-                    'row_index': row_index,
-                    
+                    'index': index,
                 }
             }
         )

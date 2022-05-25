@@ -44,6 +44,16 @@ DELETE_ROW_TESTS = [
             pd.DataFrame({'A': [2, 3]}, index=[1, 2])
         ]
     ),
+    (
+        [
+            pd.DataFrame({'A': [1, 2, 3]}, index=["A", "B", "C"])
+        ],
+        0, 
+        "A", 
+        [
+            pd.DataFrame({'A': [2, 3]}, index=["B", "C"])
+        ]
+    ),
 ]
 @pytest.mark.parametrize("input_dfs, sheet_index, row_index, output_dfs", DELETE_ROW_TESTS)
 def test_fill_na(input_dfs, sheet_index, row_index, output_dfs):

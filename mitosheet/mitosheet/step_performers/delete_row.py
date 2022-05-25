@@ -38,7 +38,8 @@ class DeleteRowStepPerformer(StepPerformer):
 
         pandas_start_time = perf_counter()
 
-        post_state.dfs[sheet_index].drop(row_index, axis=0, inplace=True)
+        print(row_index)
+        post_state.dfs[sheet_index].drop(row_index, inplace=True)
 
         pandas_processing_time = perf_counter() - pandas_start_time
 
