@@ -53,6 +53,7 @@ PROMOTE_ROW_TO_HEADER_TESTS = [
         ]
     ),
 ]
+@pytest.mark.skip(reason="Step not implemented yet")
 @pytest.mark.parametrize("input_dfs, sheet_index, row_index, output_dfs", PROMOTE_ROW_TO_HEADER_TESTS)
 def test_fill_na(input_dfs, sheet_index, row_index, output_dfs):
     mito = create_mito_wrapper_dfs(*input_dfs)
@@ -79,7 +80,7 @@ PROMOTE_ROW_TO_HEADER_FAILING_TESTS = [
         0,
     ),
 ]
-
+@pytest.mark.skip(reason="Step not implemented yet")
 @pytest.mark.parametrize("input_dfs, sheet_index, row_index", PROMOTE_ROW_TO_HEADER_FAILING_TESTS)
 def test_fill_na_failing(input_dfs, sheet_index, row_index):
     mito = create_mito_wrapper_dfs(*input_dfs)

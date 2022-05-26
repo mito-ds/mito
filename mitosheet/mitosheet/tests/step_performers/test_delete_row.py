@@ -55,6 +55,7 @@ DELETE_ROW_TESTS = [
         ]
     ),
 ]
+@pytest.mark.skip(reason="Non-functioning step for now")
 @pytest.mark.parametrize("input_dfs, sheet_index, row_index, output_dfs", DELETE_ROW_TESTS)
 def test_fill_na(input_dfs, sheet_index, row_index, output_dfs):
     mito = create_mito_wrapper_dfs(*input_dfs) # TODO
