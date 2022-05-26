@@ -35,6 +35,16 @@ interface SplitTextToColumnsResult {
 
 const delimiters = {',': 'Comma', '-': 'Dash', '\t': 'Tab', ' ': 'Space'}
 
+const getColumnID = (startingColumnID: ColumnID | undefined, sheetDataArray: SheetData[], sheetIndex: number): ColumnID | undefined => {
+    // If the startingColumnID exists in the sheet, then use it. 
+    if (startingColumnID !== undefined && Object.keys(sheetDataArray[sheetIndex]?.columnIDsMap).includes(startingColumnID)) {
+        return startingColumnID
+    } 
+
+    // Otherwise use the first column if there is a column. Otherwise, undefined
+    return Object.keys(sheetDataArray[sheetIndex]?.columnIDsMap || {})[0]
+}
+
 /* 
     This taskpane allows users to split a column into multiple columns 
     by separating on a delimeter
@@ -44,7 +54,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
     const {params, setParams, loading, edit, editApplied, result} = useSendEditOnClick<SplitTextToColumnsParams, SplitTextToColumnsResult>(
         {
             sheet_index: props.gridState.sheetIndex,
-            column_id: props.startingColumnID !== undefined ? props.startingColumnID : props.sheetDataArray[props.gridState.sheetIndex].data[0].columnID,
+            column_id: getColumnID(props.startingColumnID, props.sheetDataArray, props.gridState.sheetIndex),
             delimiters: [], 
             new_column_header_suffix: getNewColumnHeader()
         },
@@ -60,7 +70,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
         setParams(prevParams => {
             return {
                 ...prevParams,
-                column_id: props.startingColumnID !== undefined ? props.startingColumnID : props.sheetDataArray[props.gridState.sheetIndex].data[0].columnID,
+                column_id: getColumnID(props.startingColumnID, props.sheetDataArray, props.gridState.sheetIndex),
                 sheet_index: props.gridState.sheetIndex
             }
         });
@@ -70,7 +80,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
 
         if (params !== undefined && params.column_id !== undefined) {
 
-            const _splitTextToColumnsPreviewArray = await props.mitoAPI.getSplitTextToColumnsPreview(params.sheet_index, params.column_id, params.delimiters)
+            const _splitTextToColumnsPreviewArray = await props.mitoAPI.getSplitTextToColumnsPreview(params)
             if (_splitTextToColumnsPreviewArray !== undefined) {
                 setPreview(_splitTextToColumnsPreviewArray)
             } else {
@@ -105,12 +115,12 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                 <Row justify='space-between' align='center'>
                     <Col>
                         <p className='text-header-3'>
-                            Sheet
+                            Dataframe
                         </p>
                     </Col>
                     <Col>
                         <Select
-                            width='medium'
+                            width='medium-large'
                             value={props.dfNames[params.sheet_index]}
                             // Safe to cast as dfNames are strings
                             onChange={(newSheet: string) => {
@@ -120,7 +130,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                                         ...prevParams,
                                         sheet_index: newSheetIndex,
                                         // Default to the first column in the new sheet
-                                        column_id: Object.keys(props.sheetDataArray[newSheetIndex].columnIDsMap)[0]
+                                        column_id: getColumnID(undefined, props.sheetDataArray, newSheetIndex)
                                     }
                                 })
                             }}
@@ -144,7 +154,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                     </Col>
                     <Col>
                         <Select
-                            width='medium'
+                            width='medium-large'
                             value={getDisplayColumnHeader(props.sheetDataArray[params.sheet_index].columnIDsMap[params.column_id])}
                             searchable
                         >
@@ -167,13 +177,13 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                         </Select>
                     </Col>
                 </Row>
-                <Row>
+                <Row justify="space-between">
                     <Col span={6}>
                         <p className='text-header-3'>
                             Delimiters
                         </p>
                     </Col>
-                    <Col className="split-text-to-column-delimiters-container">
+                    <Col className="split-text-to-column-delimiters-container element-width-medium-large">
                         {Object.entries(delimiters).map(([delimiter, delimiterTitle]) => {
                             return (
                                 <MultiSelectButtonItem
@@ -196,7 +206,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                         })}
                         <Input 
                             value={params.delimiters.filter(params_delimiter => !Object.keys(delimiters).includes(params_delimiter))[0]}
-                            placeholder="other" 
+                            placeholder="Custom Delimiter" 
                             className='mt-5px'
                             onChange={(e) => {
                                 const newValue = e.target.value;
@@ -226,10 +236,10 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                                 <tbody>
                                     {preview.map((rowData, idx) => {
                                         return (
-                                            <tr key={idx}>
+                                            <tr className='preview-table-table-row' key={idx}>
                                                 {rowData.map((cellData, idx) => {
                                                     return (
-                                                        <td key={idx}>{'' + cellData}</td>
+                                                        <td className='preview-table-table-data' key={idx}>{'' + cellData}</td>
                                                     )
                                                 })}
                                             </tr>

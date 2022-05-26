@@ -6,8 +6,9 @@
 
 from typing import List
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.sheet_functions.types.utils import is_datetime_dtype, is_string_dtype
+from mitosheet.sheet_functions.types.utils import is_datetime_dtype, is_string_dtype, is_timedelta_dtype
 from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_to_transpiled_code
+from mitosheet.types import ColumnHeader, ColumnID
 
 
 class SplitTextToColumnsCodeChunk(CodeChunk):
@@ -16,21 +17,18 @@ class SplitTextToColumnsCodeChunk(CodeChunk):
         return 'Split text to columns'
     
     def get_description_comment(self) -> str:
-        sheet_index = self.get_param('sheet_index')
-        column_id = self.get_param('column_id')
-        delimiters = self.get_param('delimiters')
+        sheet_index: int = self.get_param('sheet_index')
+        column_id: ColumnID = self.get_param('column_id')
+        delimiters: List[str] = self.get_param('delimiters')
         column_header = self.post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
         delimiters_string = (' ,').join(delimiters)
         return f'Split {column_header} on {delimiters_string}'
 
     def get_code(self) -> List[str]:
-        sheet_index = self.get_param('sheet_index')
-        column_id = self.get_param('column_id')
-        delimiters = self.get_param('delimiters')
-
-        # The type system says that execution_data can be None, so we need to appease it
-        # TODO: Update the type system so that the execution data is not None when we know it is defined for a step
-        new_column_headers = self.execution_data['new_column_headers'] if self.execution_data is not None else '1' 
+        sheet_index: int = self.get_param('sheet_index')
+        column_id: ColumnID = self.get_param('column_id')
+        delimiters: List[str] = self.get_param('delimiters')
+        new_column_headers: List[ColumnHeader] = self.get_execution_data('new_column_headers')
 
         delimiter_string = repr('|'.join(delimiters))
         
@@ -46,6 +44,8 @@ class SplitTextToColumnsCodeChunk(CodeChunk):
             string_conversion = ''
         elif is_datetime_dtype(dtype_string):
             string_conversion = ".dt.strftime('%Y-%m-%d %X')"
+        elif is_timedelta_dtype(dtype_string):
+            string_conversion = ".apply(lambda x: str(x))"
         else:
             string_conversion = ".astype('str')"
 

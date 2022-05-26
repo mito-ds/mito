@@ -53,7 +53,7 @@ type ControlPanelTaskpaneProps = {
 
 export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Element => {
     
-    // Get the values for the last cell that was selected
+    // Get the values for the first cell that was selected, in accordance with our standard
     const {columnHeader, columnID, columnFormula, columnFilters, columnDtype, columnFormatType} = getCellDataFromCellIndexes(props.sheetData, props.selection.startingRowIndex, props.selection.startingColumnIndex);
 
     const [filters, _setFilters] = useState(columnFilters !== undefined ? columnFilters.filters : []);

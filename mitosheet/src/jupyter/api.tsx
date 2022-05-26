@@ -6,7 +6,7 @@ import { GraphObject } from "../components/taskpanes/ControlPanel/SummaryStatsTa
 import { UniqueValueCount, UniqueValueSortType } from "../components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
 import { FileElement } from "../components/taskpanes/Import/ImportTaskpane";
 import { valuesArrayToRecord } from "../components/taskpanes/PivotTable/pivotUtils";
-import { BackendPivotParams, FrontendPivotParams } from "../types";
+import { BackendPivotParams, FrontendPivotParams, SplitTextToColumnsParams } from "../types";
 import { ColumnID, ExcelFileMetadata, FeedbackID, FilterGroupType, FilterType, FormatTypeObj, GraphID, MitoError, SearchMatches, GraphParams } from "../types";
 import { getDeduplicatedArray } from "../utils/arrays";
 
@@ -506,20 +506,12 @@ export default class MitoAPI {
     /*
         Gets a preview of the split text to columns step
     */
-    async getSplitTextToColumnsPreview(
-        sheetIndex: number,
-        columnID: ColumnID,
-        delimiters: string[],
-    ): Promise<(string | number | boolean)[][] | undefined> {
+    async getSplitTextToColumnsPreview(params: SplitTextToColumnsParams): Promise<(string | number | boolean)[][] | undefined> {
 
         const dfPreviewString = await this.send<string>({
             'event': 'api_call',
             'type': 'get_split_text_to_columns_preview',
-            'params': {
-                'sheet_index': sheetIndex,
-                'column_id': columnID,
-                'delimiters': delimiters,
-            },
+            'params': params
         }, {})
 
         if (dfPreviewString !== undefined && dfPreviewString !== '') {

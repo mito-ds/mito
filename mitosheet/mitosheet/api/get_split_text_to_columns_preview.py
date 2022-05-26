@@ -7,7 +7,7 @@ import json
 from typing import Any, Dict
 
 import pandas as pd
-from mitosheet.sheet_functions.types.utils import is_datetime_dtype
+from mitosheet.sheet_functions.types.utils import is_datetime_dtype, is_timedelta_dtype
 from mitosheet.types import StepsManagerType
 from mitosheet.utils import get_row_data_array
 
@@ -35,6 +35,8 @@ def get_split_text_to_columns_preview(params: Dict[str, Any], steps_manager: Ste
     # Create the dataframe of new columns. We do this first, so that we know how many columns get created.
     if is_datetime_dtype(str(df_head[column_header].dtype)):
         df_preview = df_head[column_header].dt.strftime('%Y-%m-%d %X').str.split(delimiter_string, -1, expand=True)
+    elif is_timedelta_dtype(str(df_head[column_header].dtype)):
+        df_preview = df_head[column_header].apply(lambda x: str(x)).str.split(delimiter_string, -1, expand=True)
     else:
         df_preview = df_head[column_header].astype('str').str.split(delimiter_string, -1, expand=True)
 

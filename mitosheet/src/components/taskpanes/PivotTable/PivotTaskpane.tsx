@@ -223,7 +223,7 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
                 <Row justify='space-between' align='center'>
                     <Col>
                         <p className='text-header-3'>
-                            Data Source
+                            Dataframe
                         </p>
                     </Col>
                     <Col>

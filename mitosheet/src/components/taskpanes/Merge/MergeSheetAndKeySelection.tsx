@@ -31,7 +31,7 @@ const MergeSheetAndKeySelection = (props: {
         <div className='merge-sheet-and-key mt-15px'>
             <div>
                 <p className='text-header-3'>
-                    {sheetNumStr} Sheet
+                    {sheetNumStr} Dataframe
                 </p>
                 <Select
                     value={props.dfNames[props.sheetIndex]}

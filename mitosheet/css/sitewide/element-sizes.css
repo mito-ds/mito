@@ -8,6 +8,10 @@
     width: 170px;
 }
 
+.element-width-medium-large {
+    width: 250px;
+}
+
 .element-width-large {
     width: 345px;
 }

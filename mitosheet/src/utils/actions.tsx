@@ -897,8 +897,8 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no columns to split. Import data.'},
-            searchTerms: ['split', 'extract', 'parse', 'column', 'splice', 'text'],
+            isDisabled: () => {return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? undefined : 'There are no columns in the selected sheet. Add data to the sheet.'},
+            searchTerms: ['split', 'extract', 'parse', 'column', 'splice', 'text', 'delimiter', 'comma', 'space', 'tab', 'dash'],
             tooltip: "Split a column on a delimiter to break it into multiple columns."
         },
         [ActionEnum.Steps]: {

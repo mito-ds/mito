@@ -166,7 +166,7 @@ def df_to_json_dumpsable(
     # we only show the first max_columns columns!
     df = df.iloc[: , :max_columns]
 
-    json_obj = convert_df_to_json(df)
+    json_obj = convert_df_to_parsed_json(df)
 
     final_data = []
     column_dtype_map = {}
@@ -216,10 +216,10 @@ def get_row_data_array(df: pd.DataFrame) -> List[Any]:
     """
     Returns just the data of a dataframe in the 2d array format of [row idx][col idx]
     """
-    json_obj = convert_df_to_json(df)
+    json_obj = convert_df_to_parsed_json(df)
     return json_obj['data']
 
-def convert_df_to_json(df: pd.DataFrame) -> Dict[str, Any]:
+def convert_df_to_parsed_json(df: pd.DataFrame) -> Dict[str, Any]:
     """
     Returns a dataframe as a json object with the correct formatting
     """
