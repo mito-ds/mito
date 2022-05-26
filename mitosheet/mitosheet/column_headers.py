@@ -219,7 +219,7 @@ class ColumnIDMap():
             raise make_no_column_error(column_headers)
 
     def get_column_headers(self, sheet_index: int) -> List[ColumnHeader]:
-        return self.column_id_to_column_header[sheet_index].values()
+        return list(self.column_id_to_column_header[sheet_index].values())
 
     def get_column_ids_map(self, sheet_index: int) -> Dict[str, ColumnHeader]:
         return self.column_id_to_column_header[sheet_index]

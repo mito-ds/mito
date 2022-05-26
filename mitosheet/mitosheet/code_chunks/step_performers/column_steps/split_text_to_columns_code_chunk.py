@@ -27,7 +27,10 @@ class SplitTextToColumnsCodeChunk(CodeChunk):
         sheet_index = self.get_param('sheet_index')
         column_id = self.get_param('column_id')
         delimiters = self.get_param('delimiters')
-        new_column_headers = self.execution_data['new_column_headers']
+
+        # The type system says that execution_data can be None, so we need to appease it
+        # TODO: Update the type system so that the execution data is not None when we know it is defined for a step
+        new_column_headers = self.execution_data['new_column_headers'] if self.execution_data is not None else '1' 
 
         delimiter_string = repr('|'.join(delimiters))
         

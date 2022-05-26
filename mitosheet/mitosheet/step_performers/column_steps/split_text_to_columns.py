@@ -18,7 +18,7 @@ from mitosheet.sheet_functions.types.utils import is_datetime_dtype
 from mitosheet.state import FORMAT_DEFAULT, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
-from mitosheet.types import ColumnID
+from mitosheet.types import ColumnHeader, ColumnID
 
 def get_new_colum_header_unique_component() -> str:
     return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(4))
@@ -67,9 +67,10 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
         # Create the new column headers and ensure they are unique
         # Note: We create the new_column_header_suffix on the frontend so that it is saved in the step parameters, which allows us
         # to replay the analysis and generate the same columns. 
-        new_column_headers = [f'split-{idx}-of-{column_header}-{new_column_header_suffix}' for column, idx in enumerate(new_columns_df)]
+        new_column_headers: List[ColumnHeader] = [f'split-{idx}-of-{column_header}-{new_column_header_suffix}' for column, idx in enumerate(new_columns_df)]
         # Make sure the new column headers are valid before adding them to the dataframe
-        new_column_headers = [try_make_new_header_valid_if_multi_index_headers(list(prev_state.column_ids.get_column_headers(sheet_index)), column_header) for column_header in new_column_headers]
+        df_column_headers = prev_state.column_ids.get_column_headers(sheet_index)
+        new_column_headers = [try_make_new_header_valid_if_multi_index_headers(df_column_headers, column_header) for column_header in new_column_headers]
         # Add the new columns to the end of the dataframe
         final_df[new_column_headers] = new_columns_df
         # Set the columns in the correct order

@@ -212,14 +212,14 @@ def df_to_json_dumpsable(
     }
 
 
-def get_row_data_array(df: pd.DataFrame):
+def get_row_data_array(df: pd.DataFrame) -> List[Any]:
     """
     Returns just the data of a dataframe in the 2d array format of [row idx][col idx]
     """
     json_obj = convert_df_to_json(df)
     return json_obj['data']
 
-def convert_df_to_json(df: pd.DataFrame):
+def convert_df_to_json(df: pd.DataFrame) -> Dict[str, Any]:
     """
     Returns a dataframe as a json object with the correct formatting
     """

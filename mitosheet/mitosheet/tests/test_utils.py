@@ -319,7 +319,7 @@ class MitoWidgetTestWrapper:
             new_column_header_suffix: str
         ) -> bool:
 
-        column_id = self.mito_widget.steps_manager.curr_step.get_column_header_by_id(sheet_index, column_header)
+        column_id = self.mito_widget.steps_manager.curr_step.get_column_id_by_header(sheet_index, column_header)
 
         return self.mito_widget.receive_message(
             self.mito_widget,
