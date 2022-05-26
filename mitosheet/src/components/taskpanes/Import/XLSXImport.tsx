@@ -181,7 +181,7 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
                     value={"" + params.skiprows}
                     type='number'
                     onChange={(e) => {
-                        let newValue = e.target.value;
+                        const newValue = e.target.value;
 
                         setParams(prevParams => {
                             return {
