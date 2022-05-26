@@ -33,6 +33,7 @@ from mitosheet.step_performers import (
     GraphStepPerformer,
     ConcatStepPerformer
 )
+from mitosheet.step_performers.column_steps.split_text_to_columns import SplitTextToColumnsStepPerformer
 from mitosheet.step_performers.fill_na import FillNaStepPerformer
 from mitosheet.step_performers.graph_steps.graph_delete import GraphDeleteStepPerformer
 from mitosheet.step_performers.graph_steps.graph_duplicate import GraphDuplicateStepPerformer
@@ -223,7 +224,13 @@ def test_params_static():
         'fill_na'
     )
 
-    assert len(STEP_PERFORMERS) == 25
+    check_step(
+        SplitTextToColumnsStepPerformer,
+        1,
+        'split_text_to_columns'
+    )
+
+    assert len(STEP_PERFORMERS) == 26
 
 
 def get_fake_param(param_name):

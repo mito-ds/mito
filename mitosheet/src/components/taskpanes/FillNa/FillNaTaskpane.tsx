@@ -4,11 +4,7 @@
 import React, { useEffect } from 'react';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import MitoAPI from '../../../jupyter/api';
-
-// Import 
 import { AnalysisData, ColumnHeader, ColumnID, SheetData, StepType, UIState } from '../../../types';
-
-import '../../../../css/taskpanes/Download/DownloadTaskpane.css'
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import Row from '../../spacing/Row';
@@ -382,6 +378,7 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
 
                     }}
                     disabled={params.column_ids.length === 0}
+                    disabledTooltip={"Select at least one column to fill NaN values in"}
                 >
                     {getButtonMessage(sheetData, params.column_ids)}
                 </TextButton>
@@ -393,7 +390,6 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                      </Row>
                 }
             </DefaultTaskpaneBody>
-
         </DefaultTaskpane>
     )
 };

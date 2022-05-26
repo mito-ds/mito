@@ -18,6 +18,13 @@ export function intersection<T>(array1: T[], array2: T[]): T[] {
     return finalArray;
 }   
 
+/*
+    Returns if both arrays contains all of the same values, ignoring order
+*/
+export function arraysContainSameValues<T>(array1: T[], array2: T[]): boolean {
+    return (intersection(array1, array2).length === array1.length) && (array1.length === array2.length)
+}
+
 
 function onlyUnique<T>(value: T, index: number, self: T[]): boolean {
     return self.indexOf(value) === index;

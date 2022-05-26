@@ -111,3 +111,16 @@ export const getFirstCharactersOfColumnHeaders = (columnHeaders: ColumnHeader[],
     }
     return [columnHeadersToDisplay.join(', '), columnHeadersCopy.length]
 }
+
+/* 
+    Returns a random string of 4 characters used to make new column headers not overlap
+*/
+export const getNewColumnHeader = (): string => {
+    let result = '';
+    const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    for (let i = 0; i < 4; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}

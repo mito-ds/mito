@@ -11,13 +11,14 @@ import Select from '../../elements/Select';
 import TextButton from '../../elements/TextButton';
 import DropdownItem from '../../elements/DropdownItem';
 import { AnalysisData, StepType, UIState } from '../../../types';
-
-// CSS
-import '../../../../css/taskpanes/Import/ImportTaskpane.css'
 import { ImportTaskpaneState } from './ImportTaskpane';
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import { toggleInArray } from '../../../utils/arrays';
-import Row from '../../spacing/Row';
+import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
+import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
+import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
+import DefaultTaskpaneFooter from '../DefaultTaskpane/DefaultTaskpaneFooter';
+import Spacer from '../../spacing/Spacer';
 
 
 interface XLSXImportProps {
@@ -27,6 +28,8 @@ interface XLSXImportProps {
     importState: ImportTaskpaneState;
     setImportState: React.Dispatch<React.SetStateAction<ImportTaskpaneState>>;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
+    fileForImportWizard: string | undefined,
+    setFileForImportWizard: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
 export interface ExcelFileMetadata {
@@ -112,102 +115,109 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
     const numSelectedSheets = params?.sheet_names.length;
     
     return (
-        <>
-            <div> 
-                <MultiToggleBox
-                    loading={fileMetadata.loading}
-                    searchable
-                    height='medium'
-                    toggleAllIndexes={(indexesToToggle) => {
-                        setParams(prevParams => {
-                            const newSheetNames = [...prevParams.sheet_names];
-                            const sheetsToToggle = indexesToToggle.map(index => fileMetadata.sheet_names[index]);
-                            sheetsToToggle.forEach(sheetName => {
-                                toggleInArray(newSheetNames, sheetName);
+        <DefaultTaskpane>
+            <DefaultTaskpaneHeader
+                header={`Import ${props.fileForImportWizard}`}
+                setUIState={props.setUIState}
+                backCallback={() => props.setFileForImportWizard(undefined)}
+            />
+            <DefaultTaskpaneBody noScroll>
+                <div> 
+                    <MultiToggleBox
+                        loading={fileMetadata.loading}
+                        searchable
+                        height='medium'
+                        toggleAllIndexes={(indexesToToggle) => {
+                            setParams(prevParams => {
+                                const newSheetNames = [...prevParams.sheet_names];
+                                const sheetsToToggle = indexesToToggle.map(index => fileMetadata.sheet_names[index]);
+                                sheetsToToggle.forEach(sheetName => {
+                                    toggleInArray(newSheetNames, sheetName);
+                                })
+
+                                return {
+                                    ...prevParams,
+                                    sheet_names: newSheetNames
+                                }
                             })
+                        }}
+                    >
+                        {fileMetadata.sheet_names.map((sheetName, idx) => {
+                            return (
+                                <MultiToggleItem
+                                    key={idx}
+                                    title={sheetName}
+                                    toggled={params.sheet_names.includes(sheetName)}
+                                    onToggle={() => {
+                                        setParams(prevParams => {
+                                            const newSheetNames = [...prevParams.sheet_names];
+                                            toggleInArray(newSheetNames, sheetName);
 
+                                            return {
+                                                ...prevParams,
+                                                sheet_names: newSheetNames
+                                            }
+                                        })
+                                    }}
+                                    index={idx}
+                                />
+                            )
+                        })}
+                    </MultiToggleBox>
+                    <p className='text-body-1 mt-20px'>
+                        Has Header Row
+                    </p>
+                    <Select
+                        value={params.has_headers ? 'Yes' : 'No'}
+                        onChange={(newValue: string) => setParams(prevParams => {
                             return {
                                 ...prevParams,
-                                sheet_names: newSheetNames
+                                has_headers: newValue === 'Yes'
                             }
-                        })
-                    }}
-                >
-                    {fileMetadata.sheet_names.map((sheetName, idx) => {
-                        return (
-                            <MultiToggleItem
-                                key={idx}
-                                title={sheetName}
-                                toggled={params.sheet_names.includes(sheetName)}
-                                onToggle={() => {
-                                    setParams(prevParams => {
-                                        const newSheetNames = [...prevParams.sheet_names];
-                                        toggleInArray(newSheetNames, sheetName);
-
-                                        return {
-                                            ...prevParams,
-                                            sheet_names: newSheetNames
-                                        }
-                                    })
-                                }}
-                                index={idx}
-                            />
-                        )
-                    })}
-                </MultiToggleBox>
-                <p className='text-body-1 mt-20px'>
-                    Has Header Row
-                </p>
-                <Select
-                    value={params.has_headers ? 'Yes' : 'No'}
-                    onChange={(newValue: string) => setParams(prevParams => {
-                        return {
-                            ...prevParams,
-                            has_headers: newValue === 'Yes'
-                        }
-                    })}
-                >
-                    <DropdownItem
-                        title='Yes'
-                    />
-                    <DropdownItem
-                        title='No'
-                    />
-                </Select>
-                <p className='text-body-1 mt-20px'>
-                    Number of Rows to Skip
-                </p>
-                <Input
-                    value={"" + params.skiprows}
-                    type='number'
-                    onChange={(e) => {
-                        const newValue = e.target.value;
-
-                        setParams(prevParams => {
-                            return {
-                                ...prevParams,
-                                skiprows: newValue
-                            }
-                        })
-                    }}
-                />
-                {/* 
-                    We note that we might have to adjust these size checks, depending
-                    on feedback from users going forward.
-                */}
-                {fileMetadata.size >= 100_000 && fileMetadata.size < 10_000_000 &&
-                    <p className="text-body-2 mt-20px">
-                        Due to Python limitations, large Excel files take minutes to import. 
+                        })}
+                    >
+                        <DropdownItem
+                            title='Yes'
+                        />
+                        <DropdownItem
+                            title='No'
+                        />
+                    </Select>
+                    <p className='text-body-1 mt-20px'>
+                        Number of Rows to Skip
                     </p>
-                }
-                {fileMetadata.size >= 10_000_000 &&
-                    <p className="text-body-2 mt-20px">
-                        Due to Python limitations, massive Excel files take many minutes to import. If possible, save the Excel file as a CSV before importing.
-                    </p>
-                }
-                
-            </div>
-            <div className='import-taskpane-import-button-container'>
+                    <Input
+                        value={"" + params.skiprows}
+                        type='number'
+                        onChange={(e) => {
+                            const newValue = e.target.value;
+
+                            setParams(prevParams => {
+                                return {
+                                    ...prevParams,
+                                    skiprows: newValue
+                                }
+                            })
+                        }}
+                    />
+                    {/* 
+                        We note that we might have to adjust these size checks, depending
+                        on feedback from users going forward.
+                    */}
+                    {fileMetadata.size >= 100_000 && fileMetadata.size < 10_000_000 &&
+                        <p className="text-body-2 mt-20px">
+                            Due to Python limitations, large Excel files take minutes to import. 
+                        </p>
+                    }
+                    {fileMetadata.size >= 10_000_000 &&
+                        <p className="text-body-2 mt-20px">
+                            Due to Python limitations, massive Excel files take many minutes to import. If possible, save the Excel file as a CSV before importing.
+                        </p>
+                    }
+                    
+                </div>
+            </DefaultTaskpaneBody>
+            <DefaultTaskpaneFooter>
                 <TextButton
                     variant='dark'
                     width='block'
@@ -225,15 +235,16 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
                 >
                     {getButtonMessage(params, loading)}
                 </TextButton>
-            </div>
-            {editApplied && !loading &&
-                <Row>
-                    <p className='text-subtext-1'>
+                {editApplied && !loading &&
+                    <p>
                         {getSuccessMessage(params)} 
                     </p>
-                </Row>
-            }
-        </>
+                } 
+                {!editApplied && 
+                    <Spacer px={18}/>
+                }
+            </DefaultTaskpaneFooter>
+        </DefaultTaskpane>
     )
 }
 

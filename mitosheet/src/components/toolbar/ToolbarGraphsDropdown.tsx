@@ -20,27 +20,26 @@ const ToolbarGraphsDropdown = (props: ToolbarGraphsDropdownProps): JSX.Element =
 
     return (
         <>
-            {props.uiState.currOpenToolbarDropdown === 'Graphs' &&
-                <Dropdown 
-                    closeDropdown={() => props.setUIState((prevUIState) => {
-                        // Only close this dropdown if it's actually the one that is open, to avoid race conditions
-                        if (prevUIState.currOpenToolbarDropdown === 'Graphs') {
-                            return {
-                                ...prevUIState,
-                                currOpenToolbarDropdown: undefined
-                            }
+            <Dropdown 
+                display={props.uiState.currOpenToolbarDropdown === 'Graphs'}
+                closeDropdown={() => props.setUIState((prevUIState) => {
+                    // Only close this dropdown if it's actually the one that is open, to avoid race conditions
+                    if (prevUIState.currOpenToolbarDropdown === 'Graphs') {
+                        return {
+                            ...prevUIState,
+                            currOpenToolbarDropdown: undefined
                         }
-                        return prevUIState;
-                    })}
-                    width='medium'
-                >
-                    {makeToolbarDropdownItem(props.actions[ActionEnum.Graph])}
-                    <DropdownSectionSeperator isDropdownSectionSeperator/>
-                    {makeToolbarDropdownItem(props.actions[ActionEnum.Duplicate_Graph])}
-                    {makeToolbarDropdownItem(props.actions[ActionEnum.Rename_Graph])}
-                    {makeToolbarDropdownItem(props.actions[ActionEnum.Delete_Graph])}
-                </Dropdown>
-            }
+                    }
+                    return prevUIState;
+                })}
+                width='medium'
+            >
+                {makeToolbarDropdownItem(props.actions[ActionEnum.Graph])}
+                <DropdownSectionSeperator isDropdownSectionSeperator/>
+                {makeToolbarDropdownItem(props.actions[ActionEnum.Duplicate_Graph])}
+                {makeToolbarDropdownItem(props.actions[ActionEnum.Rename_Graph])}
+                {makeToolbarDropdownItem(props.actions[ActionEnum.Delete_Graph])}
+            </Dropdown>
         </>
     );
 }

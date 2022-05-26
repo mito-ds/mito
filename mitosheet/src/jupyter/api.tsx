@@ -8,7 +8,7 @@ import { FileElement } from "../components/taskpanes/Import/ImportTaskpane";
 import { ExcelFileMetadata } from "../components/taskpanes/Import/XLSXImport";
 import { valuesArrayToRecord } from "../components/taskpanes/PivotTable/pivotUtils";
 import { BackendPivotParams, FrontendPivotParams } from "../types";
-import { ColumnID, FeedbackID, FilterGroupType, FilterType, FormatTypeObj, GraphID, MitoError, SearchMatches, SheetData, GraphParams } from "../types";
+import { ColumnID, FeedbackID, FilterGroupType, FilterType, FormatTypeObj, GraphID, MitoError, SearchMatches, GraphParams } from "../types";
 import { getDeduplicatedArray } from "../utils/arrays";
 
 
@@ -485,13 +485,13 @@ export default class MitoAPI {
         }, {})
 
         if (uniqueValueCountsString !== undefined && uniqueValueCountsString !== '') {
-            const uniqueValueCountsObj: { uniqueValueCountsSheetData: SheetData, isAllData: boolean } = JSON.parse(uniqueValueCountsString);
+            const uniqueValueCountsObj: { uniqueValueRowDataArray: (string | number | boolean)[][], isAllData: boolean } = JSON.parse(uniqueValueCountsString);
             const uniqueValueCounts: UniqueValueCount[] = [];
-            for (let i = 0; i < uniqueValueCountsObj.uniqueValueCountsSheetData.numRows; i++) {
+            for (let i = 0; i < uniqueValueCountsObj.uniqueValueRowDataArray.length; i++) {
                 uniqueValueCounts.push({
-                    value: uniqueValueCountsObj.uniqueValueCountsSheetData.data[0].columnData[i],
-                    percentOccurence: (uniqueValueCountsObj.uniqueValueCountsSheetData.data[1].columnData[i] as number) * 100,
-                    countOccurence: (uniqueValueCountsObj.uniqueValueCountsSheetData.data[2].columnData[i] as number),
+                    value: uniqueValueCountsObj.uniqueValueRowDataArray[i][0],
+                    percentOccurence: (uniqueValueCountsObj.uniqueValueRowDataArray[i][1] as number) * 100,
+                    countOccurence: (uniqueValueCountsObj.uniqueValueRowDataArray[i][2] as number),
                     isNotFiltered: true
                 })
             }
@@ -500,6 +500,31 @@ export default class MitoAPI {
                 uniqueValueCounts: uniqueValueCounts,
                 isAllData: uniqueValueCountsObj.isAllData
             }
+        }
+        return undefined;
+    }
+
+    /*
+        Gets a preview of the split text to columns step
+    */
+    async getSplitTextToColumnsPreview(
+        sheetIndex: number,
+        columnID: ColumnID,
+        delimiters: string[],
+    ): Promise<(string | number | boolean)[][] | undefined> {
+
+        const dfPreviewString = await this.send<string>({
+            'event': 'api_call',
+            'type': 'get_split_text_to_columns_preview',
+            'params': {
+                'sheet_index': sheetIndex,
+                'column_id': columnID,
+                'delimiters': delimiters,
+            },
+        }, {})
+
+        if (dfPreviewString !== undefined && dfPreviewString !== '') {
+            return JSON.parse(dfPreviewString)['dfPreviewRowDataArray'];
         }
         return undefined;
     }

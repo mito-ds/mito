@@ -1,21 +1,19 @@
 // Copyright (c) Mito
 
 import React, { useEffect, useState } from 'react';
-
 // Import 
-import MitoAPI from '../../../jupyter/api';
-import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
-import { PathContents } from '../../../jupyter/api';
-import FileBrowser from './FileBrowser';
-import TextButton from '../../elements/TextButton';
+import MitoAPI, { PathContents } from '../../../jupyter/api';
 import { AnalysisData, UIState, UserProfile } from '../../../types';
+import TextButton from '../../elements/TextButton';
+import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
+import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
+import DefaultTaskpaneFooter from '../DefaultTaskpane/DefaultTaskpaneFooter';
+import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
+import FileBrowser from './FileBrowser';
+import { getElementsToDisplay, getFileEnding, getImportButtonStatus } from './importUtils';
 import XLSXImport from './XLSXImport';
 
-// CSS
-import '../../../../css/taskpanes/Import/ImportTaskpane.css'
-import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
-import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
-import { getElementsToDisplay, getFileEnding, getImportButtonStatus } from './importUtils';
+
 
 interface ImportTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -199,23 +197,16 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
     
     if (fullFileNameForImportWizard !== undefined) {
         return (
-            <DefaultTaskpane>
-            <DefaultTaskpaneHeader
-                header={`Import ${fileForImportWizard}`}
-                setUIState={props.setUIState}
-                backCallback={() => setFileForImportWizard(undefined)}
+            <XLSXImport
+                mitoAPI={props.mitoAPI}
+                analysisData={props.analysisData}
+                fileName={fullFileNameForImportWizard}
+                fileForImportWizard={fileForImportWizard}
+                setFileForImportWizard={setFileForImportWizard}
+                setImportState={setImportState}
+                setUIState={props.setUIState} 
+                importState={importState}
             />
-            <DefaultTaskpaneBody noScroll>
-                <XLSXImport
-                    mitoAPI={props.mitoAPI}
-                    fileName={fullFileNameForImportWizard}
-                    importState={importState}
-                    setImportState={setImportState}
-                    setUIState={props.setUIState}
-                    analysisData={props.analysisData}
-                />
-            </DefaultTaskpaneBody>
-        </DefaultTaskpane>
         )
     }
     
@@ -227,30 +218,27 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                 setUIState={props.setUIState}
             />
             <DefaultTaskpaneBody noScroll>
-                <div className='import-taskpane flexbox-column flexbox-space-between'>
-
-                    <FileBrowser
-                        mitoAPI={props.mitoAPI}
-                        setCurrPathParts={props.setCurrPathParts}
-                        importState={importState}
-                        setImportState={setImportState}
-                        importElement={importElement}
-                        userProfile={props.userProfile}
-                    />
-                    <div className='import-taskpane-import-button-container' >
-                        <TextButton
-                            variant='dark'
-                            width='block'
-                            onClick={() => {
-                                void importElement(selectedElement);
-                            }}
-                            disabled={importButtonStatus.disabled}
-                        >
-                            {importButtonStatus.buttonText}
-                        </TextButton>
-                    </div>
-                </div>
+                <FileBrowser
+                    mitoAPI={props.mitoAPI}
+                    setCurrPathParts={props.setCurrPathParts}
+                    importState={importState}
+                    setImportState={setImportState}
+                    importElement={importElement}
+                    userProfile={props.userProfile}
+                />
             </DefaultTaskpaneBody>
+            <DefaultTaskpaneFooter>
+                <TextButton
+                    variant='dark'
+                    width='block'
+                    onClick={() => {
+                        void importElement(selectedElement);
+                    }}
+                    disabled={importButtonStatus.disabled}
+                >
+                    {importButtonStatus.buttonText}
+                </TextButton>
+            </DefaultTaskpaneFooter>
         </DefaultTaskpane>            
     )
 }

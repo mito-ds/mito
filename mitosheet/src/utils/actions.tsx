@@ -9,9 +9,10 @@ import { getDefaultGraphParams } from "../components/taskpanes/Graph/graphUtils"
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../data/function_documentation";
-import { Action, ActionEnum, DFSource, EditorState, GridState, SheetData, UIState } from "../types"
-import { getColumnHeaderParts, getDisplayColumnHeader } from "./columnHeaders";
+import { Action, DFSource, EditorState, GridState, SheetData, UIState, ActionEnum } from "../types"
+import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { FORMAT_DISABLED_MESSAGE } from "./formatColumns";
+import { getCopyStringForClipboard } from "./copy";
 
 
 export const createActions = (
@@ -58,16 +59,6 @@ export const createActions = (
 
                 // we close the editing taskpane if its open
                 closeOpenEditingPopups();
-
-                const getNewColumnHeader = (): string => {
-                    let result = '';
-                    const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
-                    const charactersLength = characters.length;
-                    for (let i = 0; i < 4; i++) {
-                        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-                    }
-                    return result;
-                }
 
                 const newColumnHeader = 'new-column-' + getNewColumnHeader()
                 // The new column should be placed 1 position to the right of the last selected column
@@ -174,6 +165,46 @@ export const createActions = (
             },
             searchTerms: ['column summary', 'describe', 'stats'],
             tooltip: "Learn about the distribution of the data in the selected column."
+        },
+        [ActionEnum.Copy]: {
+            type: ActionEnum.Copy,
+            shortTitle: 'Copy',
+            longTitle: 'Copy',
+            actionFunction: () => {
+
+                const copyStringAndSelections = getCopyStringForClipboard(
+                    sheetData,
+                    gridState.selections
+                );
+
+                if (copyStringAndSelections === undefined) {
+                    return;
+                }
+
+                const [stringToCopy, copiedSelections] = copyStringAndSelections;
+                
+                void navigator.clipboard.writeText(stringToCopy);
+
+                setGridState(prevGridState => {
+                    return {
+                        ...prevGridState,
+                        copiedSelections: copiedSelections
+                    }
+                })
+
+                void mitoAPI.log('copied_data', {
+                    'num_selections': gridState.selections.length
+                });
+            },
+            isDisabled: () => {
+                return getDataframeIsSelected(uiState, sheetDataArray) ? undefined : "There is no selected data to copy."
+            },
+            searchTerms: ['copy', 'paste', 'export'],
+            tooltip: "Copy the current selection to the clipboard.",
+            displayKeyboardShortcuts: {
+                mac: 'Cmd+C',
+                windows: 'Ctrl+C'
+            }
         },
         [ActionEnum.Delete_Column]: {
             type: ActionEnum.Delete_Column,
@@ -660,7 +691,11 @@ export const createActions = (
             },
             isDisabled: () => {return undefined},
             searchTerms: ['redo', 'undo'],
-            tooltip: "Reapplies the last step that you undid, as long as you haven't made any edits since the undo."
+            tooltip: "Reapplies the last step that you undid, as long as you haven't made any edits since the undo.",
+            displayKeyboardShortcuts: {
+                mac: 'Cmd+Y',
+                windows: 'Ctrl+Y'
+            }
         },
         [ActionEnum.Rename_Column]: {
             type: ActionEnum.Rename_Column,
@@ -849,6 +884,23 @@ export const createActions = (
             searchTerms: ['sort', 'ascending', 'descending', 'arrange'],
             tooltip: "Sort a column in ascending or descending order."
         },
+        [ActionEnum.Split_Text_To_Column]: {
+            type: ActionEnum.Split_Text_To_Column,
+            shortTitle: 'Split',
+            longTitle: 'Split text to columns',
+            actionFunction: () => {
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenModal: {type: ModalEnum.None},
+                        currOpenTaskpane: {type: TaskpaneType.SPLIT_TEXT_TO_COLUMNS, startingColumnID: startingColumnID}
+                    }
+                })
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no columns to split. Import data.'},
+            searchTerms: ['split', 'extract', 'parse', 'column', 'splice', 'text'],
+            tooltip: "Split a column on a delimiter to break it into multiple columns."
+        },
         [ActionEnum.Steps]: {
             type: ActionEnum.Steps,
             shortTitle: 'Steps',
@@ -883,7 +935,11 @@ export const createActions = (
             },
             isDisabled: () => {return undefined},
             searchTerms: ['undo', 'go back', 'redo'],
-            tooltip: 'Undo the most recent edit.'
+            tooltip: 'Undo the most recent edit.',
+            displayKeyboardShortcuts: {
+                mac: 'Cmd+Z',
+                windows: 'Ctrl+Z'
+            }
         },
         [ActionEnum.Unique_Values]: {
             type: ActionEnum.Unique_Values,

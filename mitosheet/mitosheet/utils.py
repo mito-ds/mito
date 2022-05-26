@@ -7,9 +7,10 @@
 Contains helpful utility functions
 """
 import json
+import numbers
 import re
 import uuid
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 from mitosheet.types import ColumnHeader, ColumnID
 
 import numpy as np
@@ -129,7 +130,7 @@ def df_to_json_dumpsable(
         max_columns: int=MAX_COLUMNS # How many columns you want to display. Unlike max_length, this is always defined
     ) -> Dict[str, Any]:
     """
-    Returns a dataframe represented in a way that can be turned into a 
+    Returns a dataframe and other metadata represented in a way that can be turned into a 
     JSON object with json.dumps.
 
     Should follow the format:
@@ -143,6 +144,7 @@ def df_to_json_dumpsable(
             columnHeader: (string | number);
             columnDtype: string;
             columnData: (string | number)[];
+            columnFormatTypeObj: FormatTypeObj;
         }[];
         columnIDsMap: ColumnIDsMap;
         columnSpreadsheetCodeMap: Record<string, string>;
@@ -163,6 +165,64 @@ def df_to_json_dumpsable(
 
     # we only show the first max_columns columns!
     df = df.iloc[: , :max_columns]
+
+    json_obj = convert_df_to_json(df)
+
+    final_data = []
+    column_dtype_map = {}
+    for column_index, column_header in enumerate(json_obj['columns']):
+        # Because turning the headers to json takes multi-index columns and converts
+        # them into lists, we need to turn them back to tuples so we can index into the
+        # mappings appropriately
+        if isinstance(column_header, list):
+            column_header = tuple(column_header)
+
+        column_id = column_headers_to_column_ids[column_header]
+
+        column_final_data = {
+            'columnID': column_id,
+            'columnHeader': column_header,
+            'columnDtype': str(original_df[column_header].dtype),
+            'columnData': [],
+            'columnFormatTypeObj': column_format_types[column_id],
+        }
+        column_dtype_map[column_id] = str(original_df[column_header].dtype)
+        for row in json_obj['data']:
+            column_final_data['columnData'].append(row[column_index])
+        
+        final_data.append(column_final_data)     
+    
+    return {
+        "dfName": df_name,
+        "dfSource": df_source,
+        'numRows': num_rows,
+        'numColumns': num_columns,
+        'data': final_data,
+        # NOTE: We make sure that all the maps are in the correct order, so things are easy on the
+        # front-end and we don't have to worry about sorting
+        'columnIDsMap': {
+            column_headers_to_column_ids[column_header]: column_header
+            for column_header in df.keys()
+        },
+        'columnSpreadsheetCodeMap': column_spreadsheet_code,
+        'columnFiltersMap': column_filters,
+        'columnDtypeMap': column_dtype_map,
+        'index': json_obj['index'],
+        'columnFormatTypeObjMap': column_format_types
+    }
+
+
+def get_row_data_array(df: pd.DataFrame) -> List[Any]:
+    """
+    Returns just the data of a dataframe in the 2d array format of [row idx][col idx]
+    """
+    json_obj = convert_df_to_json(df)
+    return json_obj['data']
+
+def convert_df_to_json(df: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Returns a dataframe as a json object with the correct formatting
+    """
 
     float_columns, date_columns, timedelta_columns = get_float_dt_td_columns(df)
     # Second, we figure out which of the columns contain dates, and we
@@ -192,47 +252,7 @@ def df_to_json_dumpsable(
             if e is None:
                 d[idx] = 'NaN'
 
-    final_data = []
-    column_dtype_map = {}
-    for column_index, column_header in enumerate(json_obj['columns']):
-        # Because turning the headers to json takes multi-index columns and converts
-        # them into lists, we need to turn them back to tuples so we can index into the
-        # mappings appropriately
-        if isinstance(column_header, list):
-            column_header = tuple(column_header)
-
-        column_id = column_headers_to_column_ids[column_header]
-
-        column_final_data = {
-            'columnID': column_id,
-            'columnHeader': column_header,
-            'columnDtype': str(original_df[column_header].dtype),
-            'columnData': []
-        }
-        column_dtype_map[column_id] = str(original_df[column_header].dtype)
-        for row in json_obj['data']:
-            column_final_data['columnData'].append(row[column_index])
-        
-        final_data.append(column_final_data)     
-    
-    return {
-        "dfName": df_name,
-        "dfSource": df_source,
-        'numRows': num_rows,
-        'numColumns': num_columns,
-        'data': final_data,
-        # NOTE: We make sure that all the maps are in the correct order, so things are easy on the
-        # front-end and we don't have to worry about sorting
-        'columnIDsMap': {
-            column_headers_to_column_ids[column_header]: column_header
-            for column_header in df.keys()
-        },
-        'columnSpreadsheetCodeMap': column_spreadsheet_code,
-        'columnFiltersMap': column_filters,
-        'columnDtypeMap': column_dtype_map,
-        'index': json_obj['index'],
-        'columnFormatTypeObjMap': column_format_types
-    }
+    return json_obj
 
 
 def get_random_id() -> str:
