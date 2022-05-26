@@ -55,6 +55,17 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
 
     const [preview, setPreview] = useState<(string | number | boolean)[][] | undefined>([])
 
+    // When the startingColumnID is updated outside of the taskpane, set it as the column getting split
+    useEffect(() => {
+        setParams(prevParams => {
+            return {
+                ...prevParams,
+                column_id: props.startingColumnID !== undefined ? props.startingColumnID : props.sheetDataArray[props.gridState.sheetIndex].data[0].columnID,
+                sheet_index: props.gridState.sheetIndex
+            }
+        });
+    }, [props.startingColumnID])
+
     async function loadSplitTextToColumnsPreview() {
 
         if (params !== undefined && params.column_id !== undefined) {
