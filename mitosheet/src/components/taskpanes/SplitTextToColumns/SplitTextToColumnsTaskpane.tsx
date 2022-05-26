@@ -113,16 +113,6 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
         return (<DefaultEmptyTaskpane setUIState={props.setUIState}/>)
     }
 
-    if (props.sheetDataArray[params.sheet_index] !== undefined && props.sheetDataArray[params.sheet_index].columnIDsMap[params.column_id] === undefined){
-        setParams(prevParams => {
-            const newParams = getDefaultParams(props.startingColumnID, props.sheetDataArray, props.selectedSheetIndex);
-            if (newParams) {
-                return newParams;
-            }
-            return prevParams;
-        })
-    }
-
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
@@ -175,10 +165,13 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                     <Col>
                         <Select
                             width='medium-large'
-                            value={getDisplayColumnHeader(props.sheetDataArray[params.sheet_index].columnIDsMap[params.column_id])}
+                            // When undoing right after adding a column, the params.column_id has not yet updated yet, but the sheetData has updated,
+                            // so we add a placeholder that is displayed for the fraction of a second before the column_id updates. This avoids a 
+                            // sheet crashing bug!
+                            value={getDisplayColumnHeader(props.sheetDataArray[params.sheet_index]?.columnIDsMap[params.column_id] || 'select a column')}
                             searchable
                         >
-                            {Object.entries(props.sheetDataArray[params.sheet_index].columnIDsMap).map(([columnID, columnHeader]) => {
+                            {Object.entries(props.sheetDataArray[params.sheet_index]?.columnIDsMap || {}).map(([columnID, columnHeader]) => {
                                 return (
                                     <DropdownItem
                                         key={columnID}
