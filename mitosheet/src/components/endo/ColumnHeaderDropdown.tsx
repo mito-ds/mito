@@ -26,7 +26,12 @@ export default function ColumnHeaderDropdown(props: {
 }): JSX.Element {
 
     // Log opening this dropdown
-    useEffect(() => {void props.mitoAPI.log('opened_column_header_dropdown')}, [])
+    useEffect(() => {
+        if (props.display) {
+            void props.mitoAPI.log('opened_column_header_dropdown')
+        }
+    }, [props.display])
+        
 
     return (
         <Dropdown
