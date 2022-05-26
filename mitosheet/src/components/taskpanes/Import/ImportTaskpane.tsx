@@ -196,51 +196,59 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
     }
 
     const importButtonStatus = getImportButtonStatus(selectedElement, props.userProfile.excelImportEnabled, importState.loadingImport);
+    
+    if (fullFileNameForImportWizard !== undefined) {
+        return (
+            <DefaultTaskpane>
+            <DefaultTaskpaneHeader
+                header={`Import ${fileForImportWizard}`}
+                setUIState={props.setUIState}
+                backCallback={() => setFileForImportWizard(undefined)}
+            />
+            <DefaultTaskpaneBody noScroll>
+                <XLSXImport
+                    mitoAPI={props.mitoAPI}
+                    fileName={fullFileNameForImportWizard}
+                    importState={importState}
+                    setImportState={setImportState}
+                    setUIState={props.setUIState}
+                    analysisData={props.analysisData}
+                />
+            </DefaultTaskpaneBody>
+        </DefaultTaskpane>
+        )
+    }
+    
+    
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader
-                header={fileForImportWizard === undefined ? 'Import Files' : `Import ${fileForImportWizard}`}
+                header='Import Files'
                 setUIState={props.setUIState}
-                backCallback={fileForImportWizard === undefined ? undefined : () => {
-                    setFileForImportWizard(undefined);
-                }}
             />
             <DefaultTaskpaneBody noScroll>
                 <div className='import-taskpane flexbox-column flexbox-space-between'>
-                    {fileForImportWizard === undefined &&
-                        <>
-                            <FileBrowser
-                                mitoAPI={props.mitoAPI}
-                                setCurrPathParts={props.setCurrPathParts}
-                                importState={importState}
-                                setImportState={setImportState}
-                                importElement={importElement}
-                                userProfile={props.userProfile}
-                            />
-                            <div className='import-taskpane-import-button-container' >
-                                <TextButton
-                                    variant='dark'
-                                    width='block'
-                                    onClick={() => {
-                                        void importElement(selectedElement);
-                                    }}
-                                    disabled={importButtonStatus.disabled}
-                                >
-                                    {importButtonStatus.buttonText}
-                                </TextButton>
-                            </div>
-                        </>
-                    }
-                    {fullFileNameForImportWizard !== undefined &&
-                        <XLSXImport
-                            mitoAPI={props.mitoAPI}
-                            fileName={fullFileNameForImportWizard}
-                            importState={importState}
-                            setImportState={setImportState}
-                            setUIState={props.setUIState}
-                            analysisData={props.analysisData}
-                        />
-                    }
+
+                    <FileBrowser
+                        mitoAPI={props.mitoAPI}
+                        setCurrPathParts={props.setCurrPathParts}
+                        importState={importState}
+                        setImportState={setImportState}
+                        importElement={importElement}
+                        userProfile={props.userProfile}
+                    />
+                    <div className='import-taskpane-import-button-container' >
+                        <TextButton
+                            variant='dark'
+                            width='block'
+                            onClick={() => {
+                                void importElement(selectedElement);
+                            }}
+                            disabled={importButtonStatus.disabled}
+                        >
+                            {importButtonStatus.buttonText}
+                        </TextButton>
+                    </div>
                 </div>
             </DefaultTaskpaneBody>
         </DefaultTaskpane>            
