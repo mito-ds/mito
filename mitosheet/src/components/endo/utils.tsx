@@ -39,7 +39,7 @@ export const getDefaultGridState = (sheetDataArray: SheetData[], selectedSheetIn
             width: 0,
             height: 0,
         },
-        scrollPositions: sheetDataArray.map(sheetData => {
+        scrollPositions: sheetDataArray.map(() => {
             return {
                 scrollLeft: 0,
                 scrollTop: 0
