@@ -136,6 +136,7 @@ function useSendEditOnClick<ParamType, ResultType>(
         if (newParams !== undefined) {
             _setParams(newParams);
         } else {
+            console.log(defaultParams)
             _setParams(defaultParams);
             setParamsApplied(false);
         }

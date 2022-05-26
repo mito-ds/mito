@@ -641,7 +641,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     mitoAPI={props.mitoAPI}
                     analysisData={analysisData}
                     sheetDataArray={sheetDataArray}
-                    gridState={gridState}
+                    selectedSheetIndex={gridState.sheetIndex}
                     setUIState={setUIState}
                     dfNames={dfNames}
                     startingColumnID={uiState.currOpenTaskpane.startingColumnID}

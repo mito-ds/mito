@@ -398,7 +398,6 @@ export const createActions = (
                 setEditorState(undefined);
 
                 const selectedColumnIDs = getSelectedColumnIDsWithEntireSelectedColumn(gridState.selections, sheetData);
-                console.log("Selecting columnids", selectedColumnIDs);
                 
                 setUIState(prevUIState => {
                     return {

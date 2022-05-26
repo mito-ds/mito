@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import MitoAPI from "../../../jupyter/api";
-import { AnalysisData, ColumnID, GridState, SheetData, SplitTextToColumnsParams, StepType, UIState } from "../../../types"
+import { AnalysisData, ColumnID, SheetData, SplitTextToColumnsParams, StepType, UIState } from "../../../types"
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
@@ -23,7 +23,7 @@ interface SplitTextToColumnsTaskpaneProps {
     mitoAPI: MitoAPI;
     analysisData: AnalysisData;
     sheetDataArray: SheetData[];
-    gridState: GridState;
+    selectedSheetIndex: number;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     dfNames: string[];
     startingColumnID: ColumnID | undefined
@@ -35,14 +35,26 @@ interface SplitTextToColumnsResult {
 
 const delimiters = {',': 'Comma', '-': 'Dash', '\t': 'Tab', ' ': 'Space'}
 
-const getColumnID = (startingColumnID: ColumnID | undefined, sheetDataArray: SheetData[], sheetIndex: number): ColumnID | undefined => {
-    // If the startingColumnID exists in the sheet, then use it. 
-    if (startingColumnID !== undefined && Object.keys(sheetDataArray[sheetIndex]?.columnIDsMap).includes(startingColumnID)) {
-        return startingColumnID
-    } 
+const getDefaultParams  = (startingColumnID: ColumnID | undefined, sheetDataArray: SheetData[], sheetIndex: number): SplitTextToColumnsParams | undefined => {
+    if (sheetDataArray.length === 0 || sheetDataArray[sheetIndex] === undefined) {
+        return undefined;
+    }
 
-    // Otherwise use the first column if there is a column. Otherwise, undefined
-    return Object.keys(sheetDataArray[sheetIndex]?.columnIDsMap || {})[0]
+    let columnID = undefined
+    if (startingColumnID !== undefined && Object.keys(sheetDataArray[sheetIndex].columnIDsMap).includes(startingColumnID)) {
+        // If the startingColumnID exists in the sheet, then use it. 
+        columnID = startingColumnID
+    } else {
+        // Otherwise use the first column if there is a column. Otherwise, undefined
+        columnID = Object.keys(sheetDataArray[sheetIndex]?.columnIDsMap || {})[0]
+    }
+
+    return {
+        sheet_index: sheetIndex,
+        column_id: columnID,
+        delimiters: [], 
+        new_column_header_suffix: getNewColumnHeader()
+    }
 }
 
 /* 
@@ -52,29 +64,34 @@ const getColumnID = (startingColumnID: ColumnID | undefined, sheetDataArray: She
 const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX.Element => {
 
     const {params, setParams, loading, edit, editApplied, result} = useSendEditOnClick<SplitTextToColumnsParams, SplitTextToColumnsResult>(
-        {
-            sheet_index: props.gridState.sheetIndex,
-            column_id: getColumnID(props.startingColumnID, props.sheetDataArray, props.gridState.sheetIndex),
-            delimiters: [], 
-            new_column_header_suffix: getNewColumnHeader()
-        },
+        getDefaultParams(props.startingColumnID, props.sheetDataArray, props.selectedSheetIndex),
         StepType.SplitTextToColumns, 
         props.mitoAPI,
         props.analysisData,
     )
 
     const [preview, setPreview] = useState<(string | number | boolean)[][] | undefined>([])
-
+    
     // When the startingColumnID is updated outside of the taskpane, set it as the column getting split
     useEffect(() => {
         setParams(prevParams => {
-            return {
-                ...prevParams,
-                column_id: getColumnID(props.startingColumnID, props.sheetDataArray, props.gridState.sheetIndex),
-                sheet_index: props.gridState.sheetIndex
+            const newParams = getDefaultParams(props.startingColumnID, props.sheetDataArray, props.selectedSheetIndex);
+            if (newParams) {
+                return newParams;
             }
+            return prevParams;
         });
     }, [props.startingColumnID])
+
+    useEffect(() => {
+        if (params !== undefined && params.delimiters.length > 0) {
+            // If there is at least one delimiter, load the preview
+            void loadSplitTextToColumnsPreview()
+        } else {
+            setPreview(undefined)
+        }
+    }, [params])
+    
 
     async function loadSplitTextToColumnsPreview() {
 
@@ -92,17 +109,18 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
         }
     }
 
-    useEffect(() => {
-        if (params !== undefined && params.delimiters.length > 0) {
-            // If there is at least one delimiter, load the preview
-            void loadSplitTextToColumnsPreview()
-        } else {
-            setPreview(undefined)
-        }
-    }, [params])
-    
     if (params === undefined || params.column_id === undefined) {
         return (<DefaultEmptyTaskpane setUIState={props.setUIState}/>)
+    }
+
+    if (props.sheetDataArray[params.sheet_index] !== undefined && props.sheetDataArray[params.sheet_index].columnIDsMap[params.column_id] === undefined){
+        setParams(prevParams => {
+            const newParams = getDefaultParams(props.startingColumnID, props.sheetDataArray, props.selectedSheetIndex);
+            if (newParams) {
+                return newParams;
+            }
+            return prevParams;
+        })
     }
 
     return (
@@ -126,11 +144,13 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                             onChange={(newSheet: string) => {
                                 setParams(prevParams => {
                                     const newSheetIndex = props.dfNames.indexOf(newSheet)
+                                    const newParams = getDefaultParams(undefined, props.sheetDataArray, newSheetIndex);
+                                    if (newParams) {
+                                        return newParams;
+                                    }
                                     return {
                                         ...prevParams,
-                                        sheet_index: newSheetIndex,
-                                        // Default to the first column in the new sheet
-                                        column_id: getColumnID(undefined, props.sheetDataArray, newSheetIndex)
+                                        sheet_index: newSheetIndex
                                     }
                                 })
                             }}
