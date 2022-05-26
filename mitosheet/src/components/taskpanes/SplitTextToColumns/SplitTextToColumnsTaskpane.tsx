@@ -241,17 +241,14 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                 <TextButton
                     variant='dark'
                     width='block'
-                    onClick={() => {
-                        edit()
-                        setParams(prevParams => {
-                            return {
-                                ...prevParams, 
-                                // Prepare for the user splitting again by creating a new column suffix,
-                                // so that the column headers don't overlap
-                                new_column_header_suffix: getNewColumnHeader()
-                            }
-                        })
-                    }}
+                    onClick={() => edit(prevParams => {
+                        return {
+                            ...prevParams, 
+                            // Prepare for the user splitting again by creating a new column suffix,
+                            // so that the column headers don't overlap
+                            new_column_header_suffix: getNewColumnHeader()
+                        }
+                    })}
                     disabled={params.delimiters.length === 0}
                     disabledTooltip="Select at least one delimiter"
                 >

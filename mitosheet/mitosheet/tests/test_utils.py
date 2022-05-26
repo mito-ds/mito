@@ -315,7 +315,8 @@ class MitoWidgetTestWrapper:
             self, 
             sheet_index: int,
             column_header: ColumnHeader,
-            delimiters: List[str]
+            delimiters: List[str],
+            new_column_header_suffix: str
         ) -> bool:
 
         column_id = self.mito_widget.steps_manager.curr_step.get_column_header_by_id(sheet_index, column_header)
@@ -330,7 +331,8 @@ class MitoWidgetTestWrapper:
                 'params': {
                     'sheet_index': sheet_index,
                     'column_id': column_id,
-                    'delimiters': delimiters
+                    'delimiters': delimiters,
+                    'new_column_header_suffix': new_column_header_suffix
                 }
             }
         )
@@ -1103,15 +1105,3 @@ def make_multi_index_header_df(data: Dict[Union[str, int], List[Any]], column_he
     if index is not None:
         df.index = index
     return df
-
-def are_dfs_equal_ignoring_column_headers(df1: pd.DataFrame, df2: pd.DataFrame) -> bool:
-    """
-    Checks if two dataframes are equal, ignoring the column headers
-    """
-    df1_column_headers = [f'{idx}' for idx in range(len(list(df1.columns)))]
-    df1.columns = df1_column_headers
-
-    df2_column_headers = [f'{idx}' for idx in range(len(list(df2.columns)))]
-    df2.columns = df2_column_headers
-
-    return df1.equals(df2)
