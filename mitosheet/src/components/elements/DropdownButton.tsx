@@ -75,15 +75,14 @@ const DropdownButton = (props: DropdownButtonProps): JSX.Element => {
             <div className='mito-dropdown-button-icon-container'>
                 <SelectDropdownIcon purpleOrDarkOrWhite={props.disabled ? 'dark' : 'purple'}/>
             </div>
-            {displayDropdown && 
-                <Dropdown
-                    closeDropdown={() => setDisplayDropdown(false)}
-                    searchable={props.searchable}
-                    width={props.dropdownWidth}
-                >
-                    {props.children}
-                </Dropdown>
-            }
+            <Dropdown
+                display={displayDropdown}
+                closeDropdown={() => setDisplayDropdown(false)}
+                searchable={props.searchable}
+                width={props.dropdownWidth}
+            >
+                {props.children}
+            </Dropdown>
         </div>
 
     )

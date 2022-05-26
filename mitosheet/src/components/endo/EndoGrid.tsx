@@ -39,6 +39,12 @@ export const KEYS_TO_IGNORE_IF_PRESSED_ALONE = [
     'Unidentified' // If you press the fn key on windows, this is the key
 ]
 
+export const KEYBOARD_SHORTCUTS_TO_IGNORE_WITH_CONTROL = [
+    'c',
+    'z',
+    'y'
+]
+
 function EndoGrid(props: {
     sheetDataArray: SheetData[],
     sheetIndex: number,
@@ -129,7 +135,9 @@ function EndoGrid(props: {
                 selections: reconciliateSelections(gridState.sheetIndex, sheetIndex, gridState.selections, gridState.columnIDsArray[gridState.sheetIndex], sheetData),
                 widthDataArray: reconciliateWidthDataArray(gridState.widthDataArray, gridState.columnIDsArray, sheetDataArray),
                 columnIDsArray: getColumnIDsArrayFromSheetDataArray(sheetDataArray),
-                sheetIndex: sheetIndex
+                sheetIndex: sheetIndex,
+                // We always clear the copied selections if the sheet data changes, or the selected sheet changes
+                copiedSelections: []
             }
         })
     }, [sheetData, setGridState, sheetIndex])
@@ -503,6 +511,9 @@ function EndoGrid(props: {
             if (KEYS_TO_IGNORE_IF_PRESSED_ALONE.includes(e.key)) {
                 return;
             }
+            if (KEYBOARD_SHORTCUTS_TO_IGNORE_WITH_CONTROL.includes(e.key) || (e.ctrlKey)) {
+                return;
+            }
 
             if (!isNavigationKeyPressed(e.key)) {
                 
@@ -631,10 +642,6 @@ function EndoGrid(props: {
                             closeOpenEditingPopups={props.closeOpenEditingPopups}
                         />
                         <IndexHeaders
-                            mitoAPI={props.mitoAPI}
-                            setUIState={props.setUIState}
-                            sheetIndex={props.sheetIndex}
-                            closeOpenEditingPopups={props.closeOpenEditingPopups}
                             sheetData={sheetData}
                             gridState={gridState}
                         />
