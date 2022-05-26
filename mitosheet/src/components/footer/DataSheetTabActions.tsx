@@ -38,6 +38,7 @@ export default function SheetTabActions(props: {
     sheetIndex: number
     graphDataDict: GraphDataDict
     sheetDataArray: SheetData[]
+    display: boolean
 }): JSX.Element {
 
     // Log opening the data sheet tab actions
@@ -123,6 +124,7 @@ export default function SheetTabActions(props: {
 
     return (
         <Dropdown
+            display={props.display}
             closeDropdown={() => props.setDisplayActions(false)}
             width='small'
         >

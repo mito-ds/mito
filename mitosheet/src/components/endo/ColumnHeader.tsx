@@ -73,7 +73,7 @@ const ColumnHeader = (props: {
     // Get the pieces of the column header. If the column header is not a MultiIndex header, then
     // lowerLevelColumnHeaders will be an empty array
     const { lowerLevelColumnHeaders, finalColumnHeader } = getColumnHeaderParts(columnHeader);
-    const borderStyle = getBorderStyle(props.gridState.selections, -1, props.columnIndex, props.sheetData.numRows);
+    const borderStyle = getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, -1, props.columnIndex, props.sheetData.numRows);
 
 
     const openColumnHeaderEditor = () => {
@@ -361,18 +361,17 @@ const ColumnHeader = (props: {
                     </form>
                 }
             </div>
-            {openColumnHeaderDropdown && 
-                <ColumnHeaderDropdown
-                    mitoAPI={props.mitoAPI}
-                    setOpenColumnHeaderDropdown={setOpenColumnHeaderDropdown}
-                    setUIState={props.setUIState}
-                    openColumnHeaderEditor={openColumnHeaderEditor}
-                    sheetIndex={props.gridState.sheetIndex}
-                    columnID={columnID}
-                    columnDtype={columnDtype}
-                    closeOpenEditingPopups={props.closeOpenEditingPopups}
-                />
-            }
+            <ColumnHeaderDropdown
+                mitoAPI={props.mitoAPI}
+                setOpenColumnHeaderDropdown={setOpenColumnHeaderDropdown}
+                setUIState={props.setUIState}
+                openColumnHeaderEditor={openColumnHeaderEditor}
+                sheetIndex={props.gridState.sheetIndex}
+                columnID={columnID}
+                columnDtype={columnDtype}
+                display={openColumnHeaderDropdown}
+                closeOpenEditingPopups={props.closeOpenEditingPopups}
+            />
         </div>
     )
 }

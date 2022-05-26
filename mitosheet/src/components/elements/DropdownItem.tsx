@@ -20,6 +20,11 @@ interface DropdownItemProps {
     title: string;
 
     /** 
+        * @param rightText - Optional, grey right text to be displayed in the dropdown
+    */
+    rightText?: string;
+
+    /** 
         * @param [tooltip] - Optional tooltips to display (if you don't want subtext). NOTE: if this is passed
         * then the title will not be displayed as a tooltip (and so overflowing text will be invisible in this
         * case).
@@ -94,6 +99,11 @@ const DropdownItem = (props: DropdownItemProps): JSX.Element => {
                         {props.title}
                     </p>
                 </span>
+                {props.rightText &&
+                    <span className={classNames('mito-dropdown-item-right-text', 'text-body-2')}>
+                        {props.rightText}
+                    </span>
+                }
             </div>
             {props.subtext &&
                 /* 

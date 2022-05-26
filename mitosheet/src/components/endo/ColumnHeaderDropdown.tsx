@@ -21,6 +21,7 @@ export default function ColumnHeaderDropdown(props: {
     sheetIndex: number;
     columnID: ColumnID;
     columnDtype: string;
+    display: boolean;
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
 }): JSX.Element {
 
@@ -29,6 +30,7 @@ export default function ColumnHeaderDropdown(props: {
 
     return (
         <Dropdown
+            display={props.display}
             closeDropdown={() => props.setOpenColumnHeaderDropdown(false)}
             width='medium'
         >
