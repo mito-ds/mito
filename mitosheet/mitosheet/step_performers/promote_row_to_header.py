@@ -37,7 +37,7 @@ class PromoteRowToHeaderStepPerformer(StepPerformer):
         # We make a new state to modify it
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
-        pandas_processing_time = 0
+        pandas_processing_time = 0.0
 
         # TODO: do we want to reset the index in this step too?
 

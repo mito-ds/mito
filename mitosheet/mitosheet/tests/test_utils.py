@@ -19,7 +19,7 @@ from mitosheet.mito_widget import MitoWidget, sheet
 from mitosheet.parser import parse_formula
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.types import ColumnHeader, ColumnID, GraphID, MultiLevelColumnHeader
-from mitosheet.utils import dfs_to_array_for_json, get_new_id, json_dumps
+from mitosheet.utils import dfs_to_array_for_json, get_new_id
 
 
 def decorate_all_functions(function_decorator):
@@ -97,7 +97,7 @@ def check_dataframes_equal(test_wrapper):
 
     # We then check that the sheet data json that is saved by the widget, which 
     # notably uses caching, does not get incorrectly cached and is written correctly
-    assert test_wrapper.mito_widget.sheet_data_json == json_dumps(dfs_to_array_for_json(
+    assert test_wrapper.mito_widget.sheet_data_json == json.dumps(dfs_to_array_for_json(
         set(i for i in range(len(test_wrapper.mito_widget.steps_manager.curr_step.dfs))),
         [],
         test_wrapper.mito_widget.steps_manager.curr_step.dfs,
@@ -315,11 +315,8 @@ class MitoWidgetTestWrapper:
     def delete_row(
             self, 
             sheet_index: int,
-            index: int,
-        ) -> bool:
-
-        # TODO: Handle parsing of the column ids here, if you need to (and change above params!)
-        
+            index: Union[int, str],
+        ) -> bool:        
 
         return self.mito_widget.receive_message(
             self.mito_widget,
@@ -342,8 +339,6 @@ class MitoWidgetTestWrapper:
             sheet_index: int,
             row_index: int,
         ) -> bool:
-
-        # TODO: Handle parsing of the column ids here, if you need to (and change above params!)
         
 
         return self.mito_widget.receive_message(

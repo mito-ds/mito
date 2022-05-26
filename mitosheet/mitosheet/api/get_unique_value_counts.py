@@ -8,7 +8,7 @@ from typing import Any, Dict
 
 import pandas as pd
 from mitosheet.types import StepsManagerType
-from mitosheet.utils import df_to_json_dumpsable, json_dumps
+from mitosheet.utils import df_to_json_dumpsable
 
 # The maximum number of values the front-end sends to the backend
 # See comments in function description below.
@@ -88,7 +88,7 @@ def get_unique_value_counts(params: Dict[str, Any], steps_manager: StepsManagerT
     else:
         is_all_data = True
     
-    return json_dumps({
+    return json.dumps({
         'uniqueValueCountsSheetData': df_to_json_dumpsable(
             unique_value_counts_df, 
             'value counts',

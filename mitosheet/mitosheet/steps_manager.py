@@ -28,7 +28,7 @@ from mitosheet.transpiler.transpile import transpile
 from mitosheet.updates import UPDATES
 from mitosheet.user.utils import is_pro, is_running_test
 from mitosheet.utils import (dfs_to_array_for_json, get_new_id,
-                             is_default_df_names, json_dumps)
+                             is_default_df_names)
 
 
 def get_step_indexes_to_skip(step_list: List[Step]) -> Set[int]:
@@ -283,11 +283,11 @@ class StepsManager:
         self.saved_sheet_data = array
         self.last_step_index_we_wrote_sheet_json_on = self.curr_step_idx
 
-        return json_dumps(array)
+        return json.dumps(array)
 
     @property
     def analysis_data_json(self):
-        return json_dumps(
+        return json.dumps(
             {
                 "analysisName": self.analysis_name,
                 "analysisToReplay": {
