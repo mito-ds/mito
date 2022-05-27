@@ -65,7 +65,7 @@ const getDefaultParams = (
     const sheetData = sheetDataArray[sheetIndex];
 
     let finalFillMethod: FillMethod = defaultFillMethod || {type: 'value', 'value': 0};
-    // We make sure that the default fill method is not invalid for the new dataframe we're selecting
+    // We make sure that the default fill method is valid for the new dataframe we're selecting
     // which is only an issue if these are mean or median values
     if (finalFillMethod.type === 'mean' || finalFillMethod.type === 'median') {
         const onlyMeanAndMedianColumnSelected = Object.values(sheetData.columnDtypeMap)

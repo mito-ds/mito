@@ -36,7 +36,7 @@ interface SplitTextToColumnsResult {
 const delimiters = {',': 'Comma', '-': 'Dash', '\t': 'Tab', ' ': 'Space'}
 
 const getDefaultParams  = (startingColumnID: ColumnID | undefined, sheetDataArray: SheetData[], sheetIndex: number): SplitTextToColumnsParams | undefined => {
-    if (sheetDataArray.length === 0 || sheetDataArray[sheetIndex] === undefined) {
+    if (sheetDataArray.length === 0 || sheetDataArray[sheetIndex] === undefined && sheetIndex > 0) {
         return undefined;
     }
 
@@ -110,6 +110,11 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
     }
 
     if (params === undefined || params.column_id === undefined) {
+        if (params !== undefined) {
+            console.log('column_id: ', params.column_id)
+        } else {
+            console.log('params undefined')
+        }
         return (<DefaultEmptyTaskpane setUIState={props.setUIState}/>)
     }
 

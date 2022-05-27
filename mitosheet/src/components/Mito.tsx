@@ -63,9 +63,6 @@ import Toolbar from './toolbar/Toolbar';
 import Tour from './tour/Tour';
 import { TourName } from './tour/Tours';
 
-
-
-
 export type MitoProps = {
     model_id: string;
     mitoAPI: MitoAPI;
@@ -145,11 +142,12 @@ export const Mito = (props: MitoProps): JSX.Element => {
         void props.mitoAPI.log('mitosheet_rendered');
 
         return () => {
+            // TODO: Cleanup
             /*
             if (window.setMitoStateMap) {
                 window.setMitoStateMap.delete(props.model_id);
             }
-             */
+            */
         }
     }, [])
 
@@ -641,7 +639,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     mitoAPI={props.mitoAPI}
                     analysisData={analysisData}
                     sheetDataArray={sheetDataArray}
-                    selectedSheetIndex={gridState.sheetIndex}
+                    selectedSheetIndex={uiState.selectedSheetIndex}
                     setUIState={setUIState}
                     dfNames={dfNames}
                     startingColumnID={uiState.currOpenTaskpane.startingColumnID}
