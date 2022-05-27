@@ -384,11 +384,11 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                     {getButtonMessage(sheetData, params.column_ids)}
                 </TextButton>
                 {editApplied && !loading &&
-                     <Row className='mt-5'>
-                         <p className='text-subtext-1'>
-                             {getSuccessMessage(sheetData, params.column_ids)} 
-                         </p>
-                     </Row>
+                    <Row className='mt-5'>
+                        <p className='text-subtext-1'>
+                            {getSuccessMessage(sheetData, params.column_ids)} 
+                        </p>
+                    </Row>
                 }
             </DefaultTaskpaneBody>
         </DefaultTaskpane>

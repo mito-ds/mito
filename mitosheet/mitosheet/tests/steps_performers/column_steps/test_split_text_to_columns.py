@@ -86,6 +86,7 @@ SPLIT_TEXT_TO_COLUMNS_TESTS = [
         pd.DataFrame({'A': pd.to_datetime(['1/2/22', '4/06/99']), 'A-split-0-1': ['2022', '1999'], 'A-split-1-1': ['01', '04'], 'A-split-2-1': ['02', '06'], 'A-split-3-1': ['00:00:00', '00:00:00']})
     ),
     (
+        # Create a timedelta by subtracting two dates
         pd.DataFrame({'A': [pd.to_datetime('3/07/21') - pd.to_datetime('1/12/22')]}),
         'A',
         [' '],

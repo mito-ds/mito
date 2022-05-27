@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import MitoAPI from "../../../jupyter/api";
-import { AnalysisData, ColumnID, SheetData, SplitTextToColumnsParams, StepType, UIState } from "../../../types"
+import { AnalysisData, ColumnID, SheetData, StepType, UIState } from "../../../types"
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
@@ -29,6 +29,15 @@ interface SplitTextToColumnsTaskpaneProps {
     startingColumnID: ColumnID | undefined
 }
 
+export interface SplitTextToColumnsParams {
+    sheet_index: number,
+    column_id: ColumnID | undefined,
+    delimiters: string[],
+    // Note: We create the new_column_header_suffix on the frontend so that it is saved in the step parameters, 
+    // which allows us to replay the analysis and generate the same columns. 
+    new_column_header_suffix: string 
+}
+
 interface SplitTextToColumnsResult {
     num_cols_created: number;
 }
@@ -36,7 +45,7 @@ interface SplitTextToColumnsResult {
 const delimiters = {',': 'Comma', '-': 'Dash', '\t': 'Tab', ' ': 'Space'}
 
 const getDefaultParams  = (startingColumnID: ColumnID | undefined, sheetDataArray: SheetData[], sheetIndex: number): SplitTextToColumnsParams | undefined => {
-    if (sheetDataArray.length === 0 || sheetDataArray[sheetIndex] === undefined && sheetIndex > 0) {
+    if (sheetDataArray.length === 0 || sheetDataArray[sheetIndex] === undefined) {
         return undefined;
     }
 
@@ -70,7 +79,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
         props.analysisData,
     )
 
-    const [preview, setPreview] = useState<(string | number | boolean)[][] | undefined>([])
+    const [preview, setPreview] = useState<(string | number | boolean)[][]>([])
     
     // When the startingColumnID is updated outside of the taskpane, set it as the column getting split
     useEffect(() => {
@@ -84,37 +93,25 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
     }, [props.startingColumnID])
 
     useEffect(() => {
-        if (params !== undefined && params.delimiters.length > 0) {
-            // If there is at least one delimiter, load the preview
-            void loadSplitTextToColumnsPreview()
-        } else {
-            setPreview(undefined)
-        }
+        void loadSplitTextToColumnsPreview()
     }, [params])
     
 
     async function loadSplitTextToColumnsPreview() {
 
-        if (params !== undefined && params.column_id !== undefined) {
-
+        if (params !== undefined && params.column_id !== undefined && params.delimiters.length > 0) {
             const _splitTextToColumnsPreviewArray = await props.mitoAPI.getSplitTextToColumnsPreview(params)
             if (_splitTextToColumnsPreviewArray !== undefined) {
                 setPreview(_splitTextToColumnsPreviewArray)
             } else {
-                setPreview(undefined)
+                setPreview([])
             }
-
         } else {
-            setPreview(undefined)
+            setPreview([])
         }
     }
 
     if (params === undefined || params.column_id === undefined) {
-        if (params !== undefined) {
-            console.log('column_id: ', params.column_id)
-        } else {
-            console.log('params undefined')
-        }
         return (<DefaultEmptyTaskpane setUIState={props.setUIState}/>)
     }
 
@@ -248,7 +245,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                             Columns Preview
                         </p>
                     </Row>
-                    {preview !== undefined &&
+                    {preview.length > 0 &&
                         <Row style={{width: '100%', overflowX: 'auto'}} suppressTopBottomMargin>
                             <table className="preview-table" cellSpacing="0">
                                 <tbody>
@@ -267,7 +264,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                             </table>
                         </Row>
                     }
-                    {preview === undefined && 
+                    {preview.length === 0 && 
                         <Row style={{width: '100%'}} justify='center'>
                             <p className='mt-10px'>
                                 Select a delimiter to preview the split
@@ -292,10 +289,10 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                     disabledTooltip="Select at least one delimiter"
                 >
                     {!editApplied 
-                        ? 'Split on delimiter'
+                        ? `Split on delimiter${params.delimiters.length > 1 ? 's' : ''}`
                         : (loading 
                             ? 'Splitting column ...' 
-                            : `Spit on delimiter`
+                            : `Split on delimiter${params.delimiters.length > 1 ? 's' : ''}`
                         )
                     }
                 </TextButton>
