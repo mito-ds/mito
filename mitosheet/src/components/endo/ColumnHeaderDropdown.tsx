@@ -29,7 +29,12 @@ export default function ColumnHeaderDropdown(props: {
 }): JSX.Element {
 
     // Log opening this dropdown
-    useEffect(() => {void props.mitoAPI.log('opened_column_header_dropdown')}, [])
+    useEffect(() => {
+        if (props.display) {
+            void props.mitoAPI.log('opened_column_header_dropdown')
+        }
+    }, [props.display])
+        
 
     // If the user interacts with the column header dropdown, we always default to 
     // selecting the first row for any action, like setting the column formula. 
