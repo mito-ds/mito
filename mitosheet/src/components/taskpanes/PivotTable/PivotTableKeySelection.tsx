@@ -61,9 +61,7 @@ const PivotTableKeySelection = (props: {
                                     title={getDisplayColumnHeader(columnHeader)}
                                     onClick={() => {
                                         props.addKey(columnID)
-
                                     }}
-
                                 />
                             )
                         })}

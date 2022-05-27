@@ -21,7 +21,7 @@ const ExcelDownloadConfigSection = (props: {
     return (
         <>
             <p className='text-header-3'>
-                Sheets to Export
+                Dataframes to Export
             </p> 
             <MultiToggleBox
                 width='block'

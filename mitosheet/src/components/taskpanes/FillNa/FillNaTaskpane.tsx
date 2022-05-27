@@ -4,11 +4,7 @@
 import React, { useEffect } from 'react';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import MitoAPI from '../../../jupyter/api';
-
-// Import 
 import { AnalysisData, ColumnHeader, ColumnID, SheetData, StepType, UIState } from '../../../types';
-
-import '../../../../css/taskpanes/Download/DownloadTaskpane.css'
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import Row from '../../spacing/Row';
@@ -61,6 +57,7 @@ const getDefaultParams = (
         sheetIndex: number, defaultFillMethod?: FillMethod,
         startingColumnIDs?: ColumnID[]
     ): FillNaParams | undefined => {
+
     if (sheetDataArray.length === 0 || sheetDataArray[sheetIndex] === undefined) {
         return undefined;
     }
@@ -68,7 +65,7 @@ const getDefaultParams = (
     const sheetData = sheetDataArray[sheetIndex];
 
     let finalFillMethod: FillMethod = defaultFillMethod || {type: 'value', 'value': 0};
-    // We make sure that the default fill method is not invalid for the new dataframe we're selecting
+    // We make sure that the default fill method is valid for the new dataframe we're selecting
     // which is only an issue if these are mean or median values
     if (finalFillMethod.type === 'mean' || finalFillMethod.type === 'median') {
         const onlyMeanAndMedianColumnSelected = Object.values(sheetData.columnDtypeMap)
@@ -382,18 +379,18 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
 
                     }}
                     disabled={params.column_ids.length === 0}
+                    disabledTooltip={"Select at least one column to fill NaN values in"}
                 >
                     {getButtonMessage(sheetData, params.column_ids)}
                 </TextButton>
                 {editApplied && !loading &&
-                     <Row className='mt-5'>
-                         <p className='text-subtext-1'>
-                             {getSuccessMessage(sheetData, params.column_ids)} 
-                         </p>
-                     </Row>
+                    <Row className='mt-5'>
+                        <p className='text-subtext-1'>
+                            {getSuccessMessage(sheetData, params.column_ids)} 
+                        </p>
+                    </Row>
                 }
             </DefaultTaskpaneBody>
-
         </DefaultTaskpane>
     )
 };

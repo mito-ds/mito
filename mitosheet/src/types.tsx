@@ -34,7 +34,8 @@ export enum StepType {
     Graph = 'graph',
     GraphDuplicate = 'graph_duplicate',
     GraphDelete = 'graph_delete',
-    GraphRename = 'graph_rename'
+    GraphRename = 'graph_rename',
+    SplitTextToColumns = 'split_text_to_columns'
 }
 
 /**
@@ -684,6 +685,7 @@ export enum ActionEnum {
     Set_Cell_Value = 'set cell value',
     Set_Column_Formula = 'set column formula',
     Sort = 'sort',
+    Split_Text_To_Column = 'split text to column',
     Steps = 'steps',
     Undo = 'undo',
     Unique_Values = 'unique values',

@@ -55,15 +55,13 @@ import GraphSidebar from './taskpanes/Graph/GraphSidebar';
 import ImportTaskpane from './taskpanes/Import/ImportTaskpane';
 import MergeTaskpane from './taskpanes/Merge/MergeTaskpane';
 import PivotTaskpane from './taskpanes/PivotTable/PivotTaskpane';
+import SplitTextToColumnsTaskpane from './taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane';
 import StepsTaskpane from './taskpanes/Steps/StepsTaskpane';
 import { EDITING_TASKPANES, TaskpaneType } from './taskpanes/taskpanes';
 import UpgradeToProTaskpane from './taskpanes/UpgradeToPro/UpgradeToProTaskpane';
 import Toolbar from './toolbar/Toolbar';
 import Tour from './tour/Tour';
 import { TourName } from './tour/Tours';
-
-
-
 
 export type MitoProps = {
     model_id: string;
@@ -144,11 +142,12 @@ export const Mito = (props: MitoProps): JSX.Element => {
         void props.mitoAPI.log('mitosheet_rendered');
 
         return () => {
+            // TODO: Cleanup
             /*
             if (window.setMitoStateMap) {
                 window.setMitoStateMap.delete(props.model_id);
             }
-             */
+            */
         }
     }, [])
 
@@ -432,11 +431,12 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
 
-    // Get the column id of the currently selected column
+    // Get the column id of the currently selected column. We always default to the 
+    // top left corner of the last selection
     const {columnID} = getCellDataFromCellIndexes(
         sheetDataArray[uiState.selectedSheetIndex], 
-        gridState.selections[gridState.selections.length - 1].endingRowIndex, 
-        gridState.selections[gridState.selections.length - 1].endingColumnIndex
+        gridState.selections[gridState.selections.length - 1].startingRowIndex, 
+        gridState.selections[gridState.selections.length - 1].startingColumnIndex
     );
 
     /* 
@@ -632,6 +632,17 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     destinationSheetIndex={uiState.currOpenTaskpane.destinationSheetIndex}
                     existingPivotParams={uiState.currOpenTaskpane.existingPivotParams}
+                />
+            )
+            case TaskpaneType.SPLIT_TEXT_TO_COLUMNS: return (
+                <SplitTextToColumnsTaskpane
+                    mitoAPI={props.mitoAPI}
+                    analysisData={analysisData}
+                    sheetDataArray={sheetDataArray}
+                    selectedSheetIndex={uiState.selectedSheetIndex}
+                    setUIState={setUIState}
+                    dfNames={dfNames}
+                    startingColumnID={uiState.currOpenTaskpane.startingColumnID}
                 />
             )
             case TaskpaneType.STEPS: return (

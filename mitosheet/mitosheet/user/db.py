@@ -7,10 +7,9 @@
 """
 Helpers for accessing the user.json file
 """
-from ctypes import Union
 import os
 import json
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 # Where all global .mito files are stored
 MITO_FOLDER = os.path.join(os.path.expanduser("~"), '.mito')

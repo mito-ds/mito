@@ -98,7 +98,7 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
                 <Row justify='space-between' align='center'>
                     <Col>
                         <p className='text-header-3'>
-                            Sheet to Deduplicate
+                            Dataframe
                         </p>
                     </Col>
                     <Col>
