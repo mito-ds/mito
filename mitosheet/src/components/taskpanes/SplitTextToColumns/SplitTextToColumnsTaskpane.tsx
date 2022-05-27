@@ -240,7 +240,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                 <div>
                     <Row>
                         <p className='text-header-3'>
-                            Column Preview
+                            Columns Preview
                         </p>
                     </Row>
                     {preview !== undefined &&
