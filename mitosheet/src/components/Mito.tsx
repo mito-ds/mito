@@ -62,9 +62,6 @@ import Toolbar from './toolbar/Toolbar';
 import Tour from './tour/Tour';
 import { TourName } from './tour/Tours';
 
-
-
-
 export type MitoProps = {
     model_id: string;
     mitoAPI: MitoAPI;
@@ -791,6 +788,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     uiState={uiState}
                     setUIState={setUIState}
                     mitoContainerRef={mitoContainerRef}
+                    setEditorState={setEditorState}
                 />
                 {getCurrentModalComponent()}
                 {uiState.loading > 0 && <LoadingIndicator/>}      
