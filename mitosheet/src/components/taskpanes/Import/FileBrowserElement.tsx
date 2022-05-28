@@ -23,6 +23,7 @@ interface FileBrowserElementProps {
     setImportState: React.Dispatch<React.SetStateAction<ImportTaskpaneState>>;
     importElement: (element: FileElement | undefined) => Promise<void>;
     excelImportEnabled: boolean;
+    isParentFolder?: boolean;
 }
 
 /* 
@@ -82,7 +83,11 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
                 }
             }}
             onDoubleClick={() => {
-                if (props.element.isDirectory) {
+                if (props.isParentFolder) {
+                    const newPathParts = [...props.importState.pathContents.path_parts];
+                    newPathParts.pop()
+                    props.setCurrPathParts(newPathParts);
+                } else if (props.element.isDirectory) {
                     const newPathParts = props.importState.pathContents.path_parts || [];
                     newPathParts.push(props.element.name);
                     props.setCurrPathParts(newPathParts);
@@ -107,7 +112,7 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
                 </Col>
                 <Col span={6}>
                     <p className='text-align-right'>
-                        {getLastModifiedString(props.element.lastModified)}
+                        {props.element.lastModified !== 0 && getLastModifiedString(props.element.lastModified)}
                     </p>
                 </Col>
             </Row>

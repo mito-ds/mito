@@ -12,7 +12,7 @@ import Col from '../../spacing/Col';
 import SortArrowIcon from '../../icons/SortArrowIcon';
 import { UserProfile } from '../../../types';
 import { classNames } from '../../../utils/classNames';
-import { getElementsToDisplay } from './importUtils';
+import { getElementsToDisplay, inRootFolder } from './importUtils';
 
 interface FileBrowserProps {
     mitoAPI: MitoAPI;
@@ -163,12 +163,29 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                 />
             </div>
             <div className='file-browser-element-list'>
+                {!inRootFolder(props.importState.pathContents.path_parts) &&
+                    <FileBrowserElement
+                        mitoAPI={props.mitoAPI}
+                        index={0}
+                        isParentFolder
+                        element={{
+                            isDirectory: true,
+                            name: 'Parent Folder',
+                            lastModified: 0
+                        }}
+                        importState={props.importState}
+                        setImportState={props.setImportState}
+                        importElement={props.importElement}
+                        setCurrPathParts={props.setCurrPathParts}
+                        excelImportEnabled={props.userProfile.excelImportEnabled}
+                    />
+                }
                 {!props.importState.loadingFolder && elementsToDisplay?.map((element, i) => {
                     return (
                         <FileBrowserElement
                             key={i}
                             mitoAPI={props.mitoAPI}
-                            index={i}
+                            index={i + 1}
                             element={element}
                             importState={props.importState}
                             setImportState={props.setImportState}

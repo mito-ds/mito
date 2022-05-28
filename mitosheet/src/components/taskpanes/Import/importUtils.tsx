@@ -125,3 +125,14 @@ export const getElementsToDisplay = (importState: ImportTaskpaneState): FileElem
         }
     })
 }
+
+export const inRootFolder = (pathParts: string[]): boolean => {
+    let folderCount = 0;
+    pathParts.forEach(pathPart => {
+        if (pathPart === '/' || pathPart === '' || pathPart == 'C:' || pathPart === 'D:') {
+            return;
+        }
+        folderCount++;
+    })
+    return folderCount < 2;
+}
