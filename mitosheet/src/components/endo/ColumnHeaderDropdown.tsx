@@ -47,6 +47,7 @@ export default function ColumnHeaderDropdown(props: {
             display={props.display}
             closeDropdown={() => props.setOpenColumnHeaderDropdown(false)}
             width='medium'
+            supressFocusSettingOnClose={true}
         >
             <DropdownItem 
                 title='Delete Column'
