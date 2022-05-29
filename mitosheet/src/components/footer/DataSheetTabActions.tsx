@@ -147,9 +147,7 @@ export default function SheetTabActions(props: {
             />
             <DropdownItem 
                 title='Rename'
-                onClick={() => {
-                    void onRename()
-                }}
+                onClick={onRename}
             />
             <DropdownItem 
                 title='Delete'

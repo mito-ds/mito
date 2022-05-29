@@ -71,6 +71,9 @@ interface DropdownProps {
      */
     width?: 'small' | 'medium' | 'large';
 
+    /**
+        * @param [supressFocusSettingOnClose] - When True, the dropdown does not set the focus on the parent div
+     */
     supressFocusSettingOnClose?: boolean
 }
 
