@@ -221,8 +221,6 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
         // Close the dropdown
         props.closeDropdown();
 
-        // Refocus on the div that is the parent of the dropdown
-        // so that users are focused where they expect
         if (!props.supressFocusSettingOnClose) {
             // Refocus on the div that is the parent of the dropdown
             // so that users are focused where they expect
