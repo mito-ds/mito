@@ -70,6 +70,8 @@ interface DropdownProps {
         * @param [width] - The width of the dropdown that gets created
      */
     width?: 'small' | 'medium' | 'large';
+
+    supressFocusSettingOnClose?: boolean
 }
 
 // Where to place the dropdown
@@ -214,10 +216,12 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
         // Close the dropdown
         props.closeDropdown();
 
-        // Refocus on the div that is the parent of the dropdown
-        // so that users are focused where they expect
-        dropdownAnchor.current?.focus();
-
+        if (!props.supressFocusSettingOnClose) {
+            // Refocus on the div that is the parent of the dropdown
+            // so that users are focused where they expect
+            dropdownAnchor.current?.focus();
+        }
+        
     }, DROPDOWN_IGNORE_CLICK_CLASS)
 
     const [boundingRect, setBoundingRect] = useState<BoundingRect>({
