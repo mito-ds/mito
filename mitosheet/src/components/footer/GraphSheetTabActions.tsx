@@ -73,7 +73,6 @@ export default function GraphSheetTabActions(props: {
             display={props.display}
             closeDropdown={() => props.setDisplayActions(false)}
             width='small'
-            supressFocusSettingOnClose={true}
         >
             <DropdownItem
                 title='Export'

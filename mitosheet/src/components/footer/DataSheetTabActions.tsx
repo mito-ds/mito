@@ -80,6 +80,9 @@ export default function SheetTabActions(props: {
 
             await props.mitoAPI.editDataframeDelete(props.sheetIndex)
         }
+
+
+        
     }
 
     const onDuplicate = async (): Promise<void> => {
@@ -124,7 +127,6 @@ export default function SheetTabActions(props: {
             display={props.display}
             closeDropdown={() => props.setDisplayActions(false)}
             width='small'
-            supressFocusSettingOnClose={true}
         >
             <DropdownItem
                 title='Create graph'
