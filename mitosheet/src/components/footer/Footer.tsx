@@ -8,7 +8,7 @@ import "../../../css/footer.css"
 import MitoAPI from '../../jupyter/api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import PlusIcon from '../icons/PlusIcon';
-import { GraphDataDict, GridState, SheetData, UIState } from '../../types';
+import { EditorState, GraphDataDict, GridState, SheetData, UIState } from '../../types';
 
 type FooterProps = {
     sheetDataArray: SheetData[];
@@ -20,6 +20,7 @@ type FooterProps = {
     uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoContainerRef: React.RefObject<HTMLDivElement>;
+    setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>
 };
 
 /*
@@ -68,6 +69,7 @@ function Footer(props: FooterProps): JSX.Element {
                             mitoContainerRef={props.mitoContainerRef}
                             graphDataDict={props.graphDataDict}
                             sheetDataArray={props.sheetDataArray}
+                            setEditorState={props.setEditorState}
                         />
                     )
                 })}
@@ -84,6 +86,7 @@ function Footer(props: FooterProps): JSX.Element {
                             mitoContainerRef={props.mitoContainerRef}
                             graphDataDict={props.graphDataDict}
                             sheetDataArray={props.sheetDataArray}
+                            setEditorState={props.setEditorState}
                         />
                     )
                 })}
