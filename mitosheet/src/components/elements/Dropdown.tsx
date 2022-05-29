@@ -73,6 +73,8 @@ interface DropdownProps {
 
     /**
         * @param [supressFocusSettingOnClose] - When True, the dropdown does not set the focus on the parent div
+        * when it is closed. This is useful for some dropdowns that open in the endo grid, and we want to keep them
+        * focused on the endo grid so that navigation works properly.
      */
     supressFocusSettingOnClose?: boolean
 }
