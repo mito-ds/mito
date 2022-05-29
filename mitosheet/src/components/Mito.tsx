@@ -803,6 +803,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     uiState={uiState}
                     setUIState={setUIState}
                     mitoContainerRef={mitoContainerRef}
+                    setEditorState={setEditorState}
                 />
                 {getCurrentModalComponent()}
                 {uiState.loading > 0 && <LoadingIndicator/>}      
