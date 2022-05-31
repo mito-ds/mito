@@ -54,8 +54,27 @@ DELETE_ROW_TESTS = [
             pd.DataFrame({'A': [2, 3]}, index=["B", "C"])
         ]
     ),
+    (
+        [
+            pd.DataFrame({'A': [1, 2]}, index=[True, False])
+        ],
+        0, 
+        True, 
+        [
+            pd.DataFrame({'A': [2]}, index=[False])
+        ]
+    ),
+    (
+        [
+            pd.DataFrame({'A': [1, 2]}, index=pd.to_datetime(['12-22-1997', '12-23-1997']))
+        ],
+        0, 
+        '12-22-1997', 
+        [
+            pd.DataFrame({'A': [2]}, index=pd.to_datetime(['12-23-1997']))
+        ]
+    ),
 ]
-@pytest.mark.skip(reason="Non-functioning step for now")
 @pytest.mark.parametrize("input_dfs, sheet_index, row_index, output_dfs", DELETE_ROW_TESTS)
 def test_fill_na(input_dfs, sheet_index, row_index, output_dfs):
     mito = create_mito_wrapper_dfs(*input_dfs) # TODO

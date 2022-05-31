@@ -16,7 +16,7 @@ class DeleteRowCodeChunk(CodeChunk):
     
     def get_description_comment(self) -> str:
         sheet_index: int = self.get_param('sheet_index')
-        row_index: int = self.get_param('row_index')
+        index: int = self.get_param('index')
 
         df_name = self.post_state.df_names[sheet_index]
 
@@ -24,12 +24,12 @@ class DeleteRowCodeChunk(CodeChunk):
         
     def get_code(self) -> List[str]:
         sheet_index: int = self.get_param('sheet_index')
-        row_index: int = self.get_param('row_index')
+        index: int = self.get_param('index')
         
         df_name = self.post_state.df_names[sheet_index]
 
         return [
-            f'{df_name}.drop({column_header_to_transpiled_code(row_index)}, inplace=True)'
+            f'{df_name}.drop(labels=[{column_header_to_transpiled_code(index)}], inplace=True)'
         ]
 
     
