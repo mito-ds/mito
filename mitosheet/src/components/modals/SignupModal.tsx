@@ -10,8 +10,9 @@ import YellowMitoFolk from '../icons/mitofolks/YellowMitoFolk';
 import '../../../css/signup-modal.css';
 import TextButton from '../elements/TextButton';
 import Input from '../elements/Input';
-import { FeedbackID, UIState } from '../../types';
+import { FeedbackID, SheetData, UIState } from '../../types';
 import { checkProAccessCode } from '../../utils/pro';
+import { TaskpaneType } from '../taskpanes/taskpanes';
 
 /* 
     This file contains all the screens used in the signup modal. As these
@@ -323,6 +324,7 @@ const SignupModal = (
         mitoAPI: MitoAPI;
         numUsages: number;
         isPro: boolean;
+        sheetDataArray: SheetData[]
     }): JSX.Element => {
     const [step, setStep] = useState(1);
     const [email, setEmail] = useState('');
@@ -337,7 +339,8 @@ const SignupModal = (
             props.setUIState((prevUIState) => {
                 return {
                     ...prevUIState,
-                    currOpenModal: {type: ModalEnum.None}
+                    currOpenModal: {type: ModalEnum.None},
+                    currOpenTaskpane: props.sheetDataArray.length === 0 ? {type: TaskpaneType.IMPORT} : prevUIState.currOpenTaskpane
                 }
             })
             void props.mitoAPI.log('finished_signup');

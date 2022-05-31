@@ -7,9 +7,10 @@
 Contains helpful utility functions
 """
 import json
+import numbers
 import re
 import uuid
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 from mitosheet.types import ColumnHeader, ColumnID
 
 import numpy as np
@@ -129,7 +130,7 @@ def df_to_json_dumpsable(
         max_columns: int=MAX_COLUMNS # How many columns you want to display. Unlike max_length, this is always defined
     ) -> Dict[str, Any]:
     """
-    Returns a dataframe represented in a way that can be turned into a 
+    Returns a dataframe and other metadata represented in a way that can be turned into a 
     JSON object with json.dumps.
 
     Should follow the format:
@@ -165,33 +166,7 @@ def df_to_json_dumpsable(
     # we only show the first max_columns columns!
     df = df.iloc[: , :max_columns]
 
-    float_columns, date_columns, timedelta_columns = get_float_dt_td_columns(df)
-    # Second, we figure out which of the columns contain dates, and we
-    # convert them to string columns (for formatting reasons).
-    # NOTE: we don't use date_format='iso' in df.to_json call as it appends seconds to the object, 
-    # see here: https://stackoverflow.com/questions/52730953/pandas-to-json-output-date-format-in-specific-form
-    for column_header in date_columns:
-        df[column_header] = df[column_header].dt.strftime('%Y-%m-%d %X')
-
-    # Third, we figure out which of the columns contain timedeltas, and 
-    # we format the timedeltas as strings to make them readable
-    for column_header in timedelta_columns:
-        df[column_header] = df[column_header].apply(lambda x: str(x))
-
-    # Then, we get all the float columns and actually make them 
-    # look like floating point values, by converting them to strings
-    for column_header in float_columns:
-        # Convert the value to a string if it is a number, but leave it alone if its a NaN 
-        # as to preserve the formatting of NaN values. 
-        df[column_header] = df[column_header].apply(lambda x: x if np.isnan(x) else str(x))
-
-    json_obj = json.loads(df.to_json(orient="split"))
-    # Then, we go through and find all the null values (which are infinities),
-    # and set them to 'NaN' for display in the frontend.
-    for d in json_obj['data']:
-        for idx, e in enumerate(d):
-            if e is None:
-                d[idx] = 'NaN'
+    json_obj = convert_df_to_parsed_json(df)
 
     final_data = []
     column_dtype_map = {}
@@ -235,6 +210,49 @@ def df_to_json_dumpsable(
         'index': json_obj['index'],
         'columnFormatTypeObjMap': column_format_types
     }
+
+
+def get_row_data_array(df: pd.DataFrame) -> List[Any]:
+    """
+    Returns just the data of a dataframe in the 2d array format of [row idx][col idx]
+    """
+    json_obj = convert_df_to_parsed_json(df)
+    return json_obj['data']
+
+def convert_df_to_parsed_json(df: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Returns a dataframe as a json object with the correct formatting
+    """
+
+    float_columns, date_columns, timedelta_columns = get_float_dt_td_columns(df)
+    # Second, we figure out which of the columns contain dates, and we
+    # convert them to string columns (for formatting reasons).
+    # NOTE: we don't use date_format='iso' in df.to_json call as it appends seconds to the object, 
+    # see here: https://stackoverflow.com/questions/52730953/pandas-to-json-output-date-format-in-specific-form
+    for column_header in date_columns:
+        df[column_header] = df[column_header].dt.strftime('%Y-%m-%d %X')
+
+    # Third, we figure out which of the columns contain timedeltas, and 
+    # we format the timedeltas as strings to make them readable
+    for column_header in timedelta_columns:
+        df[column_header] = df[column_header].apply(lambda x: str(x))
+
+    # Then, we get all the float columns and actually make them 
+    # look like floating point values, by converting them to strings
+    for column_header in float_columns:
+        # Convert the value to a string if it is a number, but leave it alone if its a NaN 
+        # as to preserve the formatting of NaN values. 
+        df[column_header] = df[column_header].apply(lambda x: x if np.isnan(x) else str(x))
+
+    json_obj = json.loads(df.to_json(orient="split"))
+    # Then, we go through and find all the null values (which are infinities),
+    # and set them to 'NaN' for display in the frontend.
+    for d in json_obj['data']:
+        for idx, e in enumerate(d):
+            if e is None:
+                d[idx] = 'NaN'
+
+    return json_obj
 
 
 def get_random_id() -> str:

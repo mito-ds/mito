@@ -61,6 +61,11 @@ interface TextButtonProps {
         * @param [className] - Additional class to apply to the TextButton 
     */
     className?: string
+
+    /**
+        * @param [disabledTooltip] -- Messaage to display as tooltip when button is disabled 
+    */
+    disabledTooltip?: string
 }
 
 /**
@@ -95,6 +100,7 @@ const TextButton = (props: TextButtonProps): JSX.Element => {
                 download={disabled ? undefined : props.download}
                 onClick={disabled ? () => {return} : props.onClick}
                 target={props.target}
+                title={props.disabled && props.disabledTooltip ? props.disabledTooltip : undefined}
             >
                 {props.children}
             </a>
@@ -107,6 +113,7 @@ const TextButton = (props: TextButtonProps): JSX.Element => {
                 type={props.type}
                 disabled={props.disabled}
                 autoFocus={props.autoFocus}
+                title={props.disabled && props.disabledTooltip ? props.disabledTooltip : undefined}
             >
                 {props.children}
             </button>

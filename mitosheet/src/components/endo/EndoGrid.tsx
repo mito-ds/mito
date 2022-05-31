@@ -667,6 +667,7 @@ function EndoGrid(props: {
                         if a user renders an empty sheet, then adds data to it.
                     */}
                     <EmptyGridMessages
+                        setUIState={props.setUIState}
                         sheetData={sheetData}
                     />
                     {/* 

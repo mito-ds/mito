@@ -17,5 +17,4 @@ export const useEffectOnUndo = (effect: () => void, analysisData: AnalysisData):
             effect();
         }        
     }, [analysisData.stepSummaryList.length])
-
 }

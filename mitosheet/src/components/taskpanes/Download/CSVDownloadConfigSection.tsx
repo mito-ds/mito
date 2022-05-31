@@ -17,7 +17,7 @@ const CSVDownloadConfigSection = (props: {
         <>
             <Row justify='space-between' align='center'>
                 <p className='text-header-3'>
-                    Sheet to Export
+                    Dataframe to Export
                 </p>
                 <Select 
                     width='medium'

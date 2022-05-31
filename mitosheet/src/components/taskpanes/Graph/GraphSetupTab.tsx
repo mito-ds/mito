@@ -167,7 +167,7 @@ function GraphSetupTab(
                 >
                     <Col>
                         <p className='text-header-3'>
-                            Data Source
+                            Dataframe
                         </p>
                     </Col>
                     <Col>
