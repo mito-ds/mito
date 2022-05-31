@@ -1,6 +1,7 @@
 import { fuzzyMatch } from "../../../utils/strings";
 import { FileElement, ImportTaskpaneState } from "./ImportTaskpane";
 
+const PARENT_FOLDER_NAME = 'Parent Folder';
 
 
 /* 
@@ -100,18 +101,47 @@ export const getImportButtonStatus = (selectedElement: FileElement | undefined, 
     };
 }
 
-
-export const getXLSXImportButtonText = (stepID: string | undefined, numSelectedSheets: number, loadingImport: boolean): string => {
-    if (loadingImport) {
-        return "Importing..."
-    }
-    return stepID === undefined 
-        ? `Import ${numSelectedSheets} Selected Sheet${numSelectedSheets === 1 ? '' : 's'}` 
-        : `Reimport ${numSelectedSheets} Selected Sheet${numSelectedSheets === 1 ? '' : 's'}`
-}
-
 export const getElementsToDisplay = (importState: ImportTaskpaneState): FileElement[] => {
-    return importState.pathContents.elements?.filter(element => {
+
+    const allElements: FileElement[] = [...importState.pathContents.elements];
+
+    // If we're not in the top folder, add the parent folder
+    if (!inRootFolder(importState.pathContents.path_parts)) {
+        allElements.push({
+            isDirectory: true,
+            isParentDirectory: true,
+            name: PARENT_FOLDER_NAME,
+            lastModified: 0
+        })
+    }
+
+    // Filter to what is searched for
+    const searchedElements = allElements.filter(element => {
+        return fuzzyMatch(element.name, importState.searchString) > .8;
+    });
+
+    // Sort (making sure to keep the parent folder at the top, no matter what
+    return searchedElements.sort((elementOne, elementTwo) => {
+        if (elementOne.name === PARENT_FOLDER_NAME) {
+            return -1;
+        } else if (elementTwo.name === PARENT_FOLDER_NAME) {
+            return 1;
+        }
+
+        if (importState.sort === 'name_ascending') {
+            return elementOne.name < elementTwo.name ? -1 : 1;
+        } else if (importState.sort === 'name_descending') {
+            return elementOne.name >= elementTwo.name ? -1 : 1;
+        } else if (importState.sort === 'last_modified_ascending') {
+            return elementOne.lastModified < elementTwo.lastModified ? -1 : 1;
+        } else {
+            return elementOne.lastModified >= elementTwo.lastModified ? -1 : 1;
+        }
+    })
+
+
+
+    return allElements.filter(element => {
         return fuzzyMatch(element.name, importState.searchString) > .8;
     }).sort((elementOne, elementTwo) => {
         if (importState.sort === 'name_ascending') {

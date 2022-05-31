@@ -12,7 +12,7 @@ import Col from '../../spacing/Col';
 import SortArrowIcon from '../../icons/SortArrowIcon';
 import { UserProfile } from '../../../types';
 import { classNames } from '../../../utils/classNames';
-import { getElementsToDisplay, inRootFolder } from './importUtils';
+import { getElementsToDisplay } from './importUtils';
 
 interface FileBrowserProps {
     mitoAPI: MitoAPI;
@@ -149,12 +149,20 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                             })
                             e.preventDefault();
                         } else if (e.key === 'Enter') {
-                            if (selectedElement && !selectedElement.isDirectory) {
-                                void props.importElement(selectedElement)
-                            } else if (selectedElement && selectedElement.isDirectory) {
+                            if (!selectedElement) {
+                                return;
+                            }
+
+                            if (selectedElement.isParentDirectory) {
+                                const newPathParts = [...props.importState.pathContents.path_parts];
+                                newPathParts.pop()
+                                props.setCurrPathParts(newPathParts);
+                            } else if (selectedElement.isDirectory) {
                                 const newPathParts = props.importState.pathContents.path_parts || [];
                                 newPathParts.push(selectedElement.name);
                                 props.setCurrPathParts(newPathParts);
+                            } else {
+                                void props.importElement(selectedElement);
                             }
                         }
                     }}
@@ -163,29 +171,12 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                 />
             </div>
             <div className='file-browser-element-list'>
-                {!inRootFolder(props.importState.pathContents.path_parts) &&
-                    <FileBrowserElement
-                        mitoAPI={props.mitoAPI}
-                        index={0}
-                        isParentFolder
-                        element={{
-                            isDirectory: true,
-                            name: 'Parent Folder',
-                            lastModified: 0
-                        }}
-                        importState={props.importState}
-                        setImportState={props.setImportState}
-                        importElement={props.importElement}
-                        setCurrPathParts={props.setCurrPathParts}
-                        excelImportEnabled={props.userProfile.excelImportEnabled}
-                    />
-                }
                 {!props.importState.loadingFolder && elementsToDisplay?.map((element, i) => {
                     return (
                         <FileBrowserElement
                             key={i}
                             mitoAPI={props.mitoAPI}
-                            index={i + 1}
+                            index={i}
                             element={element}
                             importState={props.importState}
                             setImportState={props.setImportState}

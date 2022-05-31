@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import MitoAPI from '../../../jupyter/api';
 import { getLastModifiedString } from '../../../utils/time';
 import { ensureInView } from '../../elements/Dropdown';
+import BackArrowIcon from '../../icons/BackArrowIcon';
 import CSVFileIcon from '../../icons/CSVFileIcon';
 import DirectoryIcon from '../../icons/DirectoryIcon';
 import FileIcon from '../../icons/FileIcon';
@@ -83,7 +84,7 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
                 }
             }}
             onDoubleClick={() => {
-                if (props.isParentFolder) {
+                if (props.element.isParentDirectory) {
                     const newPathParts = [...props.importState.pathContents.path_parts];
                     newPathParts.pop()
                     props.setCurrPathParts(newPathParts);
@@ -101,7 +102,8 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
                     <div className='flexbox-row'>
                         <div className='mr-5px mt-2px'>
                             {/* Display a different icon depending on if it's a directory, or if we can import it*/}
-                            {props.element.isDirectory && <DirectoryIcon/>}
+                            {props.element.isDirectory && props.element.isParentDirectory && <BackArrowIcon width='14px'/>}
+                            {props.element.isDirectory && !props.element.isParentDirectory &&<DirectoryIcon/>}
                             {!props.element.isDirectory && invalidFileError === undefined && <CSVFileIcon/>}
                             {!props.element.isDirectory &&  invalidFileError !== undefined && <FileIcon/>}
                         </div>
