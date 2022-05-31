@@ -16,7 +16,12 @@ const getCopyStringForRow = (sheetData: SheetData, rowIndex: number, lowColIndex
     
     for (let columnIndex = lowColIndex; columnIndex <= highColIndex; columnIndex++) {
         if (rowIndex === -1) {
-            copyString += getDisplayColumnHeader(sheetData.data[columnIndex].columnHeader)
+            if (columnIndex === -1) {
+                // There is nothing to copy here, so just skip it. We just keep this
+                // case for symmetry
+            } else {
+                copyString += getDisplayColumnHeader(sheetData.data[columnIndex].columnHeader)
+            }
         } else {
             if (columnIndex === -1) {
                 copyString += sheetData.index[rowIndex];
