@@ -13,20 +13,20 @@ const getCopyStringForValue = (value: string | number | boolean, columnDtype: st
 
 const getCopyStringForRow = (sheetData: SheetData, rowIndex: number, lowColIndex: number, highColIndex: number): string => {
     let copyString = '';
-
+    
     for (let columnIndex = lowColIndex; columnIndex <= highColIndex; columnIndex++) {
         if (rowIndex === -1) {
             copyString += getDisplayColumnHeader(sheetData.data[columnIndex].columnHeader)
-        } else if (columnIndex === -1) {
-            // Currently, we allow users to copy index headers as they sometimes
-            // contain data that is useful
-            copyString += sheetData.index[rowIndex];
         } else {
-            copyString += getCopyStringForValue(
-                sheetData.data[columnIndex].columnData[rowIndex],
-                sheetData.data[columnIndex].columnDtype,
-                sheetData.data[columnIndex].columnFormatTypeObj,
-            )
+            if (columnIndex === -1) {
+                copyString += sheetData.index[rowIndex];
+            } else {
+                copyString += getCopyStringForValue(
+                    sheetData.data[columnIndex].columnData[rowIndex],
+                    sheetData.data[columnIndex].columnDtype,
+                    sheetData.data[columnIndex].columnFormatTypeObj,
+                )
+            }
         }
         
         if (columnIndex !== highColIndex) {
@@ -83,7 +83,13 @@ const getCopyStringForSelections = (sheetData: SheetData, selections: MitoSelect
     for (let rowIndex = lowRowIndex; rowIndex <= highRowIndex; rowIndex++) {
         selections.forEach((selection, selectionIndex) => {
             const lowColIndex = Math.min(selection.startingColumnIndex, selection.endingColumnIndex);
-            const highColIndex = Math.max(selection.startingColumnIndex, selection.endingColumnIndex);
+            let highColIndex = Math.max(selection.startingColumnIndex, selection.endingColumnIndex);
+
+            // If the user has selected only the row header, then we make sure they copy the entire row
+            if (lowColIndex === -1 && highColIndex === -1) {
+                highColIndex = sheetData.numColumns - 1;
+            }
+
             copyString += getCopyStringForRow(sheetData, rowIndex, lowColIndex, highColIndex);
             if (selectionIndex !== selections.length - 1) {
                 copyString += '\t';

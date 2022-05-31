@@ -59,7 +59,7 @@ export const getDefaultParams = (selectedSheetIndex: number, sheetDataArray: She
 const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
 
     const {params, setParams, loading, edit, editApplied, attemptedEditWithTheseParamsMultipleTimes, result} = useSendEditOnClick<DropDuplicatesParams, DropDuplicateResults>(
-        getDefaultParams(props.selectedSheetIndex, props.sheetDataArray),
+        () => getDefaultParams(props.selectedSheetIndex, props.sheetDataArray),
         StepType.DropDuplicates,
         props.mitoAPI, props.analysisData,
     )

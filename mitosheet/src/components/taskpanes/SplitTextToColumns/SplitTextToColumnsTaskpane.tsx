@@ -297,7 +297,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                     }
                 </TextButton>
                 {editApplied && 
-                    <p>
+                    <p className='text-subtext-1'>
                         Created {result?.num_cols_created} new columns
                     </p>
                 } 
