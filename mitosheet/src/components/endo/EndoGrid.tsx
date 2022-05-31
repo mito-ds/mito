@@ -14,7 +14,7 @@ import IndexHeaders from "./IndexHeaders";
 import { equalSelections, getColumnIndexesInSelections, getIndexesFromMouseEvent, getIsCellSelected, getIsHeader, getNewSelectionAfterKeyPress, getNewSelectionAfterMouseUp, isNavigationKeyPressed, isSelectionsOnlyColumnHeaders, reconciliateSelections, removeColumnFromSelections } from "./selectionUtils";
 import { calculateCurrentSheetView, calculateNewScrollPosition, calculateTranslate} from "./sheetViewUtils";
 import { firstNonNullOrUndefined, getColumnIDsArrayFromSheetDataArray } from "./utils";
-import { ensureCellVisible } from "./visibilityUtils";
+import { ensureCellVisible, reconciliateScrollPositions, scrollToScrollPosition } from "./visibilityUtils";
 import { reconciliateWidthDataArray } from "./widthUtils";
 import FloatingCellEditor from "./celleditor/FloatingCellEditor";
 
@@ -130,9 +130,15 @@ function EndoGrid(props: {
     */
     useEffect(() => {
         setGridState(gridState => {
+
+            if (sheetIndex !== gridState.sheetIndex) {
+                scrollToScrollPosition(scrollAndRenderedContainerRef.current, gridState.scrollPositions[sheetIndex] || {scrollTop: 0, scrollLeft: 0});
+            }
+
             return {
                 ...gridState,
                 selections: reconciliateSelections(gridState.sheetIndex, sheetIndex, gridState.selections, gridState.columnIDsArray[gridState.sheetIndex], sheetData),
+                scrollPositions: reconciliateScrollPositions(sheetDataArray, gridState.scrollPositions),
                 widthDataArray: reconciliateWidthDataArray(gridState.widthDataArray, gridState.columnIDsArray, sheetDataArray),
                 columnIDsArray: getColumnIDsArrayFromSheetDataArray(sheetDataArray),
                 sheetIndex: sheetIndex,
@@ -190,9 +196,12 @@ function EndoGrid(props: {
 
         if (newScrollPosition !== undefined) {
             setGridState((gridState) => {
+                const newScrollPositions = [...gridState.scrollPositions];
+                newScrollPositions[gridState.sheetIndex] = newScrollPosition;
+
                 return {
                     ...gridState,
-                    scrollPosition: newScrollPosition
+                    scrollPositions: newScrollPositions
                 }
             })
         }
@@ -600,7 +609,6 @@ function EndoGrid(props: {
         return () => containerDiv?.removeEventListener('keydown', onKeyDown)
     }, [editorState, setEditorState, sheetData, currentSheetView, mitoAPI, gridState.selections, sheetIndex, setGridState])
 
-
     return (
         <>
             <FormulaBar
@@ -677,7 +685,7 @@ function EndoGrid(props: {
                     <div 
                         className="renderer" 
                         style={{
-                            transform: `translate(${gridState.scrollPosition.scrollLeft - translate.x}px, ${gridState.scrollPosition.scrollTop - translate.y}px)`,
+                            transform: `translate(${(gridState.scrollPositions[gridState.sheetIndex]?.scrollLeft || 0) - translate.x}px, ${(gridState.scrollPositions[gridState.sheetIndex]?.scrollTop || 0) - translate.y}px)`,
                         }}
                         onContextMenu={() => {
                             // We also log if the user tries to right click on the sheet data

@@ -38,12 +38,12 @@ export const calculateCurrentSheetView = (
     for (let i = 0; i < gridState.widthDataArray[gridState.sheetIndex].widthArray.length; i++) {
         const totalWidth = gridState.widthDataArray[gridState.sheetIndex].widthSumArray[i];
 
-        if (!foundStart && totalWidth > gridState.scrollPosition.scrollLeft) {
+        if (!foundStart && totalWidth > (gridState.scrollPositions[gridState.sheetIndex]?.scrollLeft || 0)) {
             startingColumnIndex = i;
             foundStart = true;
         }
 
-        if (foundStart && totalWidth > (gridState.scrollPosition.scrollLeft + gridState.viewport.width)) {
+        if (foundStart && totalWidth > ((gridState.scrollPositions[gridState.sheetIndex]?.scrollLeft || 0) + gridState.viewport.width)) {
             numColumnsRendered = i - startingColumnIndex + 1;
             break;
         } else if (i === gridState.widthDataArray[gridState.sheetIndex].widthArray.length - 1) {
@@ -54,7 +54,7 @@ export const calculateCurrentSheetView = (
     }
 
     return {
-        startingRowIndex: Math.max(Math.floor(gridState.scrollPosition.scrollTop / DEFAULT_HEIGHT), 0),
+        startingRowIndex: Math.max(Math.floor((gridState.scrollPositions[gridState.sheetIndex]?.scrollTop || 0) / DEFAULT_HEIGHT), 0),
         numRowsRendered: Math.ceil(gridState.viewport.height / DEFAULT_HEIGHT) + 3, // For some reason, we add three. It gets weird with multi-index headers, dk why
         startingColumnIndex: startingColumnIndex,
         numColumnsRendered: numColumnsRendered,
@@ -77,8 +77,8 @@ export const calculateTranslate = (gridState: GridState): RendererTranslate => {
     const currentSheetView = calculateCurrentSheetView(gridState);
 
     return {
-        x: gridState.scrollPosition.scrollLeft - (currentSheetView.startingColumnIndex === 0 ? 0 : gridState.widthDataArray[gridState.sheetIndex].widthSumArray[currentSheetView.startingColumnIndex - 1]),
-        y: gridState.scrollPosition.scrollTop % (DEFAULT_HEIGHT),
+        x: (gridState.scrollPositions[gridState.sheetIndex]?.scrollLeft || 0) - (currentSheetView.startingColumnIndex === 0 ? 0 : gridState.widthDataArray[gridState.sheetIndex].widthSumArray[currentSheetView.startingColumnIndex - 1]),
+        y: (gridState.scrollPositions[gridState.sheetIndex]?.scrollTop || 0) % (DEFAULT_HEIGHT),
     }
 }
 

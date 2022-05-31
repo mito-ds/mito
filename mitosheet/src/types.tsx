@@ -471,7 +471,7 @@ export interface WidthData {
 export interface GridState {
     sheetIndex: number;
     viewport: Dimension;
-    scrollPosition: ScrollPosition;
+    scrollPositions: (ScrollPosition | undefined)[];
     selections: MitoSelection[];
     copiedSelections: MitoSelection[];
     columnIDsArray: ColumnID[][];
