@@ -236,7 +236,7 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
                     {getButtonMessage(params, loading)}
                 </TextButton>
                 {editApplied && !loading &&
-                    <p>
+                    <p className='text-subtext-1'>
                         {getSuccessMessage(params)} 
                     </p>
                 } 
