@@ -1,26 +1,8 @@
-import { GridState, ScrollPosition, SheetData, SheetView } from "../../types";
+import { GridState, SheetView } from "../../types";
 import { DEFAULT_HEIGHT } from "./EndoGrid";
 import { columnIsVisible, rowIsVisible } from "./sheetViewUtils";
 import { isNumberInRangeInclusive } from "./utils";
 
-
-// A utility for scrolling a container div to a specific position
-export const scrollToScrollPosition = (scrollAndRenderedContainerDiv: HTMLDivElement | null, scrollPosition: ScrollPosition): void => {
-    if (scrollAndRenderedContainerDiv) {
-        scrollAndRenderedContainerDiv.scrollTop = scrollPosition.scrollTop;
-        scrollAndRenderedContainerDiv.scrollLeft = scrollPosition.scrollLeft;
-    }
-}
-
-export const reconciliateScrollPositions = (sheetDataArray: SheetData[], scrollPositions: (ScrollPosition | undefined)[]): ScrollPosition[] => {
-    const newScrollPositions: ScrollPosition[] = []
-    for (let i = 0; i < sheetDataArray.length; i++) {
-        const newScrollPosition = scrollPositions[i] || {scrollTop: 0, scrollLeft: 0};
-        newScrollPositions.push(newScrollPosition);
-    }
-
-    return newScrollPositions;
-}
 
 // A helper to scroll a given row into view
 const scrollRowIntoView = (containerDiv: HTMLDivElement | null, scrollAndRenderedContainerDiv: HTMLDivElement | null, currentSheetView: SheetView, rowIndex: number) => {
