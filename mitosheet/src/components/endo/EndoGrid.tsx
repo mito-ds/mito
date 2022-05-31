@@ -275,6 +275,11 @@ function EndoGrid(props: {
                 return;
             }
 
+            // If this is a right click, we handle it special
+            if (e.buttons === 3) {
+                console.log("Right click")
+            }
+
             
 
             if (e.metaKey || e.ctrlKey) {
@@ -644,6 +649,9 @@ function EndoGrid(props: {
                         <IndexHeaders
                             sheetData={sheetData}
                             gridState={gridState}
+                            mitoAPI={mitoAPI}
+                            closeOpenEditingPopups={props.closeOpenEditingPopups}
+                            sheetIndex={sheetIndex}
                         />
                     </>
                 }

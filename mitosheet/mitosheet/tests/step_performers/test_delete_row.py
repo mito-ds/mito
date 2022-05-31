@@ -17,7 +17,7 @@ DELETE_ROW_TESTS = [
             pd.DataFrame({'A': [1, 2, 3]})
         ],
         0, 
-        0, 
+        [0], 
         [
             pd.DataFrame({'A': [2, 3]}, index=[1, 2])
         ]
@@ -27,7 +27,7 @@ DELETE_ROW_TESTS = [
             pd.DataFrame({'A': [1, 2, 3]})
         ],
         0, 
-        1, 
+        [1], 
         [
             pd.DataFrame({'A': [1, 3]}, index=[0, 2])
         ]
@@ -38,7 +38,7 @@ DELETE_ROW_TESTS = [
             pd.DataFrame({'A': [1, 2, 3]})
         ],
         1, 
-        0, 
+        [0], 
         [
             pd.DataFrame({'A': [1, 2, 3]}),
             pd.DataFrame({'A': [2, 3]}, index=[1, 2])
@@ -49,7 +49,7 @@ DELETE_ROW_TESTS = [
             pd.DataFrame({'A': [1, 2, 3]}, index=["A", "B", "C"])
         ],
         0, 
-        "A", 
+        ["A"], 
         [
             pd.DataFrame({'A': [2, 3]}, index=["B", "C"])
         ]
@@ -59,7 +59,7 @@ DELETE_ROW_TESTS = [
             pd.DataFrame({'A': [1, 2]}, index=[True, False])
         ],
         0, 
-        True, 
+        [True], 
         [
             pd.DataFrame({'A': [2]}, index=[False])
         ]
@@ -69,17 +69,17 @@ DELETE_ROW_TESTS = [
             pd.DataFrame({'A': [1, 2]}, index=pd.to_datetime(['12-22-1997', '12-23-1997']))
         ],
         0, 
-        '12-22-1997', 
+        ['12-22-1997'], 
         [
             pd.DataFrame({'A': [2]}, index=pd.to_datetime(['12-23-1997']))
         ]
     ),
 ]
-@pytest.mark.parametrize("input_dfs, sheet_index, row_index, output_dfs", DELETE_ROW_TESTS)
-def test_fill_na(input_dfs, sheet_index, row_index, output_dfs):
+@pytest.mark.parametrize("input_dfs, sheet_index, indexes, output_dfs", DELETE_ROW_TESTS)
+def test_fill_na(input_dfs, sheet_index, indexes, output_dfs):
     mito = create_mito_wrapper_dfs(*input_dfs) # TODO
 
-    mito.delete_row(sheet_index, row_index)
+    mito.delete_row(sheet_index, indexes)
 
     assert len(mito.dfs) == len(output_dfs)
     for actual, expected in zip(mito.dfs, output_dfs):

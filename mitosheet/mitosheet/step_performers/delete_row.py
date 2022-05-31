@@ -31,14 +31,15 @@ class DeleteRowStepPerformer(StepPerformer):
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         sheet_index: int = get_param(params, 'sheet_index')
-        index: Any = get_param(params, 'index')
+        indexes: List[Any] = get_param(params, 'indexes')
         
         # We make a new state to modify it
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
         pandas_start_time = perf_counter()
 
-        post_state.dfs[sheet_index].drop(labels=[index], inplace=True)
+
+        post_state.dfs[sheet_index].drop(labels=indexes, inplace=True)
 
         pandas_processing_time = perf_counter() - pandas_start_time
 

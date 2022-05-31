@@ -315,7 +315,7 @@ class MitoWidgetTestWrapper:
     def delete_row(
             self, 
             sheet_index: int,
-            index: Union[int, str],
+            indexes: List[Union[int, str]],
         ) -> bool:        
 
         return self.mito_widget.receive_message(
@@ -327,7 +327,7 @@ class MitoWidgetTestWrapper:
                 'step_id': get_new_id(),
                 'params': {
                     'sheet_index': sheet_index,
-                    'index': index,
+                    'indexes': indexes,
                 }
             }
         )
