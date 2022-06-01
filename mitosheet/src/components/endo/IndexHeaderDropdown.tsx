@@ -35,9 +35,9 @@ export default function IndexHeaderDropdown(props: {
             width='medium'
         >
             <DropdownItem 
-                title='Delete Row'
+                title='Delete Rows'
                 onClick={() => {
-                    console.log("Delete row", getSelectedRowIndexesWithEntireSelectedRow(props.selections, props.sheetData))
+                    void props.mitoAPI.editDeleteRow(props.sheetIndex, getSelectedRowIndexesWithEntireSelectedRow(props.selections, props.sheetData));
                 }}
             />
         </Dropdown>

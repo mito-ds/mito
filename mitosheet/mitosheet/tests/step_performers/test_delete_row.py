@@ -77,10 +77,38 @@ DELETE_ROW_TESTS = [
 ]
 @pytest.mark.parametrize("input_dfs, sheet_index, indexes, output_dfs", DELETE_ROW_TESTS)
 def test_fill_na(input_dfs, sheet_index, indexes, output_dfs):
-    mito = create_mito_wrapper_dfs(*input_dfs) # TODO
+    mito = create_mito_wrapper_dfs(*input_dfs)
 
     mito.delete_row(sheet_index, indexes)
 
     assert len(mito.dfs) == len(output_dfs)
     for actual, expected in zip(mito.dfs, output_dfs):
         assert actual.equals(expected)
+
+def test_optimizes_delete_row():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+
+    mito.delete_row(0, [0])
+    mito.delete_row(0, [1])
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [3]}, index=[2]))
+    assert len(mito.transpiled_code) == 1
+
+def test_not_optimizes_delete_row_diff_dfs():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}), pd.DataFrame({'A': [1, 2, 3]}))
+
+    mito.delete_row(0, [0])
+    mito.delete_row(1, [1])
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [2, 3]}, index=[1, 2]))
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [2, 3]}, index=[1, 2]))
+    assert len(mito.transpiled_code) == 2
+
+def test_optimizes_delete_dataframe():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+
+    mito.delete_row(0, [0])
+    mito.delete_dataframe(0)
+
+    assert len(mito.dfs) == 0
+    assert mito.transpiled_code == ['del df1']

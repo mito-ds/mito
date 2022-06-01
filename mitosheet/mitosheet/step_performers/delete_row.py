@@ -8,7 +8,7 @@
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.delete_row import DeleteRowCodeChunk
+from mitosheet.code_chunks.delete_row_code_chunk import DeleteRowCodeChunk
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer

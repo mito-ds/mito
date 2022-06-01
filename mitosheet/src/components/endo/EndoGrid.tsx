@@ -275,11 +275,11 @@ function EndoGrid(props: {
                 return;
             }
 
-            // If this is a right click, we handle it special
-            if (e.buttons === 3) {
-                console.log("Right click")
+            // If this is a right click, and we're selecting within a range that is already selected,
+            // then the user is likely trying to open a context menu, so we don't change the selection
+            if (e.button === 2 && getIsCellSelected(gridState.selections, rowIndex, columnIndex)) {
+                return;
             }
-
             
 
             if (e.metaKey || e.ctrlKey) {
@@ -431,6 +431,12 @@ function EndoGrid(props: {
 
         // If the shift key or metaKey is down, then this is handled by the onMouseDown
         if (e.shiftKey || e.metaKey) {
+            return;
+        }
+
+        // If this is a right click, and we're selecting within a range that is already selected,
+        // then the user is likely trying to open a context menu, so we don't change the selection
+        if (e.button === 2 && rowIndex && columnIndex && getIsCellSelected(gridState.selections, rowIndex, columnIndex)) {
             return;
         }
 

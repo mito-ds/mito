@@ -4,7 +4,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from typing import Any, List
+from typing import Any, List, Optional
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code
 
@@ -34,4 +34,28 @@ class DeleteRowCodeChunk(CodeChunk):
     
     def get_edited_sheet_indexes(self) -> List[int]:
         return [self.get_param('sheet_index')]
+
+    def _combine_right_with_delete_row_code_chunk(self, other_code_chunk: "DeleteRowCodeChunk") -> Optional["DeleteRowCodeChunk"]:
+        if not self.params_match(other_code_chunk, ['sheet_index']):
+            return None
+
+        all_indexes = self.get_param('indexes')
+        all_indexes.extend(other_code_chunk.get_param('indexes'))
+        
+
+        return DeleteRowCodeChunk(
+            self.prev_state,
+            other_code_chunk.post_state,
+            {
+                'sheet_index': self.get_param('sheet_index'),
+                'indexes': all_indexes
+            },
+            other_code_chunk.execution_data
+        )
+
+    def combine_right(self, other_code_chunk: CodeChunk) -> Optional[CodeChunk]:
+        if isinstance(other_code_chunk, DeleteRowCodeChunk):
+            return self._combine_right_with_delete_row_code_chunk(other_code_chunk)
+            
+        return None
     
