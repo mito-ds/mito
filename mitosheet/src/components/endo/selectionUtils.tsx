@@ -353,6 +353,16 @@ export const isSelectionsOnlyColumnHeaders = (selections: MitoSelection[]): bool
     return isOnlyColumnHeaders
 }
 
+export const isSelectionsOnlyIndexHeaders = (selections: MitoSelection[]): boolean => {
+    let isOnlyIndexHeaders = true
+    selections.forEach(selection => {
+        if (selection.startingColumnIndex !== -1 || selection.endingColumnIndex !== -1) {
+            isOnlyIndexHeaders = false
+        }
+    });
+    return isOnlyIndexHeaders
+}
+
 
 const COPIED_BORDER_STYLE = '1px dashed black';
 const SELECTED_BORDER_STYLE = '1px solid var(--mito-purple)';
