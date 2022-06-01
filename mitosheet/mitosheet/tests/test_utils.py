@@ -311,6 +311,33 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
+    def split_text_to_columns(
+            self, 
+            sheet_index: int,
+            column_header: ColumnHeader,
+            delimiters: List[str],
+            new_column_header_suffix: str
+        ) -> bool:
+
+        column_id = self.mito_widget.steps_manager.curr_step.get_column_id_by_header(sheet_index, column_header)
+
+        return self.mito_widget.receive_message(
+            self.mito_widget,
+            {
+                'event': 'edit_event',
+                'id': get_new_id(),
+                'type': 'split_text_to_columns_edit',
+                'step_id': get_new_id(),
+                'params': {
+                    'sheet_index': sheet_index,
+                    'column_id': column_id,
+                    'delimiters': delimiters,
+                    'new_column_header_suffix': new_column_header_suffix
+                }
+            }
+        )
+
+    @check_transpiled_code_after_call
     def drop_duplicates(
             self, 
             sheet_index: int, 

@@ -137,7 +137,6 @@ class ColumnIDMap():
         headers, in which case even if the new column header is just a string, the
         the column header that ends up getting created in the dataframe will be a 
         tuple.
-        
         """
         # Make sure the new column header we're setting is in fact valid for this dataframe
         # header format - as it may be a multi-index header
@@ -218,6 +217,9 @@ class ColumnIDMap():
             ]
         except:
             raise make_no_column_error(column_headers)
+
+    def get_column_headers(self, sheet_index: int) -> List[ColumnHeader]:
+        return list(self.column_id_to_column_header[sheet_index].values())
 
     def get_column_ids_map(self, sheet_index: int) -> Dict[str, ColumnHeader]:
         return self.column_id_to_column_header[sheet_index]

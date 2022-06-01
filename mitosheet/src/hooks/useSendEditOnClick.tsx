@@ -15,10 +15,13 @@ import { useEffectOnUndo } from "./useEffectOnUndo";
     3. If you perform a new action, **it does not overwrite the previous action.**
 */
 function useSendEditOnClick<ParamType, ResultType>(
-    defaultParams: ParamType | undefined,
+    defaultParams: ParamType | undefined | (() => ParamType | undefined),
     stepType: string,
     mitoAPI: MitoAPI,
     analysisData: AnalysisData,
+    options?: {
+        allowSameParamsToReapplyTwice: boolean
+    }
 ): {
         params: ParamType | undefined, // If this is undefined, no messages will be sent to the backend
         setParams: React.Dispatch<React.SetStateAction<ParamType>>, 
@@ -78,7 +81,7 @@ function useSendEditOnClick<ParamType, ResultType>(
         // or if we have already sent a message for these params
         if (params === undefined) {
             return;
-        } else if (paramsApplied) {
+        } else if (!options?.allowSameParamsToReapplyTwice && paramsApplied) {
             setAttemptedEditWithTheseParamsMultipleTimes(true);
             return;
         }

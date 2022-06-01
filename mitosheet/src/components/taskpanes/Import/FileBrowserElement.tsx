@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import MitoAPI from '../../../jupyter/api';
 import { getLastModifiedString } from '../../../utils/time';
 import { ensureInView } from '../../elements/Dropdown';
+import BackArrowIcon from '../../icons/BackArrowIcon';
 import CSVFileIcon from '../../icons/CSVFileIcon';
 import DirectoryIcon from '../../icons/DirectoryIcon';
 import FileIcon from '../../icons/FileIcon';
@@ -23,6 +24,7 @@ interface FileBrowserElementProps {
     setImportState: React.Dispatch<React.SetStateAction<ImportTaskpaneState>>;
     importElement: (element: FileElement | undefined) => Promise<void>;
     excelImportEnabled: boolean;
+    isParentFolder?: boolean;
 }
 
 /* 
@@ -82,7 +84,11 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
                 }
             }}
             onDoubleClick={() => {
-                if (props.element.isDirectory) {
+                if (props.element.isParentDirectory) {
+                    const newPathParts = [...props.importState.pathContents.path_parts];
+                    newPathParts.pop()
+                    props.setCurrPathParts(newPathParts);
+                } else if (props.element.isDirectory) {
                     const newPathParts = props.importState.pathContents.path_parts || [];
                     newPathParts.push(props.element.name);
                     props.setCurrPathParts(newPathParts);
@@ -96,7 +102,8 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
                     <div className='flexbox-row'>
                         <div className='mr-5px mt-2px'>
                             {/* Display a different icon depending on if it's a directory, or if we can import it*/}
-                            {props.element.isDirectory && <DirectoryIcon/>}
+                            {props.element.isDirectory && props.element.isParentDirectory && <BackArrowIcon width='14px'/>}
+                            {props.element.isDirectory && !props.element.isParentDirectory &&<DirectoryIcon/>}
                             {!props.element.isDirectory && invalidFileError === undefined && <CSVFileIcon/>}
                             {!props.element.isDirectory &&  invalidFileError !== undefined && <FileIcon/>}
                         </div>
@@ -107,7 +114,7 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
                 </Col>
                 <Col span={6}>
                     <p className='text-align-right'>
-                        {getLastModifiedString(props.element.lastModified)}
+                        {props.element.lastModified !== 0 && getLastModifiedString(props.element.lastModified)}
                     </p>
                 </Col>
             </Row>

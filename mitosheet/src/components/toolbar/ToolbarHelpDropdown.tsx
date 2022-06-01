@@ -23,26 +23,25 @@ const ToolbarHelpDropdown = (props: ToolbarHelpDropdownProps): JSX.Element => {
 
     return (
         <>
-            {props.uiState.currOpenToolbarDropdown === 'Help' &&
-                <Dropdown 
-                    searchable
-                    closeDropdown={() => props.setUIState((prevUIState) => {
-                        // Only close this dropdown if it's actually the one that is open, to avoid race conditions
-                        if (prevUIState.currOpenToolbarDropdown === 'Help') {
-                            return {
-                                ...prevUIState,
-                                currOpenToolbarDropdown: undefined
-                            }
+            <Dropdown 
+                display={props.uiState.currOpenToolbarDropdown === 'Help'}
+                searchable
+                closeDropdown={() => props.setUIState((prevUIState) => {
+                    // Only close this dropdown if it's actually the one that is open, to avoid race conditions
+                    if (prevUIState.currOpenToolbarDropdown === 'Help') {
+                        return {
+                            ...prevUIState,
+                            currOpenToolbarDropdown: undefined
                         }
-                        return prevUIState;
-                    })}
-                    width='large'
-                >
-                    {allActions.map((action) => {
-                        return makeToolbarDropdownItem(action)
-                    })}
-                </Dropdown>
-            }
+                    }
+                    return prevUIState;
+                })}
+                width='large'
+            >
+                {allActions.map((action) => {
+                    return makeToolbarDropdownItem(action)
+                })}
+            </Dropdown>
         </>
     );
 }

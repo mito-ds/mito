@@ -1,5 +1,8 @@
 import React from 'react';
-import { SheetData } from '../../types';
+import MitoAPI from '../../jupyter/api';
+import { SheetData, UIState } from '../../types';
+import TextButton from '../elements/TextButton';
+import { TaskpaneType } from '../taskpanes/taskpanes';
 
 
 /**
@@ -18,17 +21,32 @@ const GridDataEmptyContainer = (props: {children: React.ReactNode}): JSX.Element
     )
 }
 
-const EmptyGridMessages = (props: {sheetData: SheetData | undefined}): JSX.Element => {
+const EmptyGridMessages = (props: {sheetData: SheetData | undefined, setUIState: React.Dispatch<React.SetStateAction<UIState>>, mitoAPI: MitoAPI}): JSX.Element => {
 
     return (
         <>
             {props.sheetData === undefined &&
                 <GridDataEmptyContainer>
-                    <p className='text-body-1'>
-                        You have not imported any data into Mito yet.
-                    </p>
-                    <p className='text-body-1'>
-                        Pass a dataframe to the mitosheet.sheet call, or use the Import button in the toolbar above.
+                    <div>
+                        <TextButton 
+                            variant='dark' 
+                            width='medium'
+                            onClick={() => {
+                                props.setUIState(prevUIState => {
+                                    return {
+                                        ...prevUIState,
+                                        currOpenTaskpane: {type: TaskpaneType.IMPORT}
+                                    }
+                                })
+
+                                void props.mitoAPI.log('clicked_empty_grid_import_button');
+                            }}
+                        >
+                            Import Files
+                        </TextButton>
+                    </div>
+                    <p className='mt-5px text-body-1'>
+                        Or pass dataframes directly into the <code>mitosheet.sheet()</code> call above.
                     </p>
                 </GridDataEmptyContainer>
             }

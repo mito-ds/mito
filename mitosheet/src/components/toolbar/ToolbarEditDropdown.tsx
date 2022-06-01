@@ -3,6 +3,7 @@
 import React from 'react';
 import { Action, ActionEnum, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
+import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { makeToolbarDropdownItem } from './utils';
 
 
@@ -20,24 +21,25 @@ const ToolbarEditDropdown = (props: ToolbarEditDropdownProps): JSX.Element => {
 
     return (
         <>
-            {props.uiState.currOpenToolbarDropdown === 'Edit' &&
-                <Dropdown 
-                    closeDropdown={() => props.setUIState((prevUIState) => {
-                        if (prevUIState.currOpenToolbarDropdown === 'Edit') {
-                            return {
-                                ...prevUIState,
-                                currOpenToolbarDropdown: undefined
-                            }
+            <Dropdown 
+                display={props.uiState.currOpenToolbarDropdown === 'Edit'}
+                closeDropdown={() => props.setUIState((prevUIState) => {
+                    if (prevUIState.currOpenToolbarDropdown === 'Edit') {
+                        return {
+                            ...prevUIState,
+                            currOpenToolbarDropdown: undefined
                         }
-                        return prevUIState;
-                    })}
-                    width='medium'
-                >
-                    {makeToolbarDropdownItem(props.actions[ActionEnum.Undo])}
-                    {makeToolbarDropdownItem(props.actions[ActionEnum.Redo])}
-                    {makeToolbarDropdownItem(props.actions[ActionEnum.Clear])}
-                </Dropdown>
-            }
+                    }
+                    return prevUIState;
+                })}
+                width='medium'
+            >
+                {makeToolbarDropdownItem(props.actions[ActionEnum.Undo])}
+                {makeToolbarDropdownItem(props.actions[ActionEnum.Redo])}
+                {makeToolbarDropdownItem(props.actions[ActionEnum.Clear])}
+                <DropdownSectionSeperator isDropdownSectionSeperator/>
+                {makeToolbarDropdownItem(props.actions[ActionEnum.Copy])}
+            </Dropdown>
         </>
     );
 }

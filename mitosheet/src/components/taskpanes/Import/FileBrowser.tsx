@@ -149,12 +149,20 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                             })
                             e.preventDefault();
                         } else if (e.key === 'Enter') {
-                            if (selectedElement && !selectedElement.isDirectory) {
-                                void props.importElement(selectedElement)
-                            } else if (selectedElement && selectedElement.isDirectory) {
+                            if (!selectedElement) {
+                                return;
+                            }
+
+                            if (selectedElement.isParentDirectory) {
+                                const newPathParts = [...props.importState.pathContents.path_parts];
+                                newPathParts.pop()
+                                props.setCurrPathParts(newPathParts);
+                            } else if (selectedElement.isDirectory) {
                                 const newPathParts = props.importState.pathContents.path_parts || [];
                                 newPathParts.push(selectedElement.name);
                                 props.setCurrPathParts(newPathParts);
+                            } else {
+                                void props.importElement(selectedElement);
                             }
                         }
                     }}

@@ -38,17 +38,20 @@ export default function SheetTabActions(props: {
     sheetIndex: number
     graphDataDict: GraphDataDict
     sheetDataArray: SheetData[]
+    display: boolean
 }): JSX.Element {
 
     // Log opening the data sheet tab actions
     useEffect(() => {
-        void props.mitoAPI.log(
-            'clicked_data_sheet_tab_actions',
-            {
-                sheet_index: props.sheetIndex
-            }
-        )
-    }, [])
+        if (props.display) {
+            void props.mitoAPI.log(
+                'clicked_data_sheet_tab_actions',
+                {
+                    sheet_index: props.sheetIndex
+                }
+            )
+        }
+    }, [props.display])
 
     const onDelete = async (): Promise<void> => {
         const dependantGraphTabNamesAndIDs = getGraphTabNamesAndIDsFromSheetIndex(props.sheetIndex, props.graphDataDict)
@@ -123,8 +126,10 @@ export default function SheetTabActions(props: {
 
     return (
         <Dropdown
+            display={props.display}
             closeDropdown={() => props.setDisplayActions(false)}
             width='small'
+            supressFocusSettingOnClose={true}
         >
             <DropdownItem
                 title='Create graph'

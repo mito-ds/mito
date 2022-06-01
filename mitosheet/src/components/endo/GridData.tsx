@@ -43,7 +43,7 @@ const GridData = (props: {
                                 return null;
                             }
 
-                            const className = classNames('mito-grid-cell', {
+                            const className = classNames('mito-grid-cell', 'text-unselectable', {
                                 'mito-grid-cell-selected': getIsCellSelected(props.gridState.selections, rowIndex, columnIndex),
                                 'mito-grid-cell-hidden': props.editorState !== undefined && props.editorState.rowIndex === rowIndex && props.editorState.columnIndex === columnIndex,
                                 'right-align-number-series': isNumberDtype(columnDtype)
@@ -59,7 +59,7 @@ const GridData = (props: {
                                     className={className} key={columnIndex}
                                     style={{
                                         width: `${cellWidth}px`,
-                                        ...getBorderStyle(props.gridState.selections, rowIndex, columnIndex, sheetData.numRows)
+                                        ...getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, rowIndex, columnIndex, sheetData.numRows)
                                     }}
                                     tabIndex={-1}
                                     mito-col-index={columnIndex}

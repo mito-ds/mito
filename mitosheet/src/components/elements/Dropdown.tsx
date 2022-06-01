@@ -53,6 +53,12 @@ interface DropdownProps {
     */
     children: JSX.Element | JSX.Element[];
     /** 
+        * @param display - if the dropdown should be displayed. We always render the container
+        * node from the dropdown, so that we can handle focus properly in more cases. This 
+        * requires doing the casing on displaying the dropdown within this file
+    */
+    display: boolean;
+    /** 
         * @param closeDropdown - The function to used to close the dropdown when the user clicks
     */
     closeDropdown: () => void;
@@ -64,6 +70,13 @@ interface DropdownProps {
         * @param [width] - The width of the dropdown that gets created
      */
     width?: 'small' | 'medium' | 'large';
+
+    /**
+        * @param [supressFocusSettingOnClose] - When True, the dropdown does not set the focus on the parent div
+        * when it is closed. This is useful for some dropdowns that enter inputs, and so we don't want them to 
+        * cause these inputs to be blured immediately.
+     */
+    supressFocusSettingOnClose?: boolean
 }
 
 // Where to place the dropdown
@@ -200,7 +213,21 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
         1. the dropdown's search field
         2. a disabled dropdown item
     */
-    useCallOnAnyClick(props.closeDropdown, DROPDOWN_IGNORE_CLICK_CLASS)
+    useCallOnAnyClick(() => {
+        if (!props.display) {
+            return;
+        }
+
+        // Close the dropdown
+        props.closeDropdown();
+
+        if (!props.supressFocusSettingOnClose) {
+            // Refocus on the div that is the parent of the dropdown
+            // so that users are focused where they expect
+            dropdownAnchor.current?.focus();
+        }
+
+    }, DROPDOWN_IGNORE_CLICK_CLASS)
 
     const [boundingRect, setBoundingRect] = useState<BoundingRect>({
         top: undefined,
@@ -389,7 +416,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
     });
     
     return (
-        <div ref={setRef}>
+        <div ref={setRef} tabIndex={0}>
             {/* 
                 To see more about ReactDOM.createPortal, read the documentation here:
                 https://reactjs.org/docs/portals.html
@@ -397,7 +424,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                 TLDR: they allow us to escape the z-index stack that we're currently in,
                 and place the dropdown on top of everything!
             */}
-            {ReactDOM.createPortal(
+            {props.display && ReactDOM.createPortal(
                 <div 
                     className={dropdownClassNames} 
                     style={{

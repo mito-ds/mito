@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import MitoAPI from '../../jupyter/api';
 import { classNames } from '../../utils/classNames';
 import Input from '../elements/Input';
-import { GraphDataDict, GraphID, SheetData, UIState } from '../../types';
+import { EditorState, GraphDataDict, GraphID, SheetData, UIState } from '../../types';
 import { focusGrid } from '../endo/focusUtils';
 
 // import icons
@@ -79,6 +79,7 @@ type SheetTabProps = {
     mitoContainerRef: React.RefObject<HTMLDivElement>;
     graphDataDict: GraphDataDict;
     sheetDataArray: SheetData[]
+    setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>
 };
 
 /*
@@ -128,6 +129,12 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
         <div 
             className={classNames('tab', {'tab-graph': props.tabIDObj.tabType === 'graph'}, {'tab-selected': props.isSelectedTab})} 
             onClick={() => {
+
+                if (props.tabIDObj.tabType === 'graph') {
+                    // If opening a graph tab, close the cell editor 
+                    props.setEditorState(undefined)
+                }
+                
                 props.setUIState(prevUIState => {
                     if (props.tabIDObj.tabType === 'data') {
                         // If the user clicks on a data sheet tab, switch to it and make sure the graph taskpane is not open
@@ -194,7 +201,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                     {props.isSelectedTab ? <SelectedSheetTabDropdownIcon /> : <UnselectedSheetTabDropdownIcon />}
                 </div>
             </div>
-            {displayActions && props.tabIDObj.tabType === 'data' &&
+            {props.tabIDObj.tabType === 'data' &&
                 <DataSheetTabActions 
                     setDisplayActions={setDisplayActions}
                     setUIState={props.setUIState}
@@ -204,9 +211,10 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                     mitoAPI={props.mitoAPI}
                     graphDataDict={props.graphDataDict}
                     sheetDataArray={props.sheetDataArray}
+                    display={displayActions && props.tabIDObj.tabType === 'data'}
                 />
             }
-            {displayActions && props.tabIDObj.tabType === 'graph' &&
+            {props.tabIDObj.tabType === 'graph' &&
                 <GraphSheetTabActions 
                     setDisplayActions={setDisplayActions}
                     setUIState={props.setUIState}
@@ -215,6 +223,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                     graphID={props.tabIDObj.graphID}
                     mitoAPI={props.mitoAPI}
                     graphDataDict={props.graphDataDict}
+                    display={displayActions && props.tabIDObj.tabType === 'graph'}
                 />
             }
         </div>

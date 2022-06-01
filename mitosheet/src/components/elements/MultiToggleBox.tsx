@@ -262,11 +262,11 @@ const MultiToggleBox = (props: {
                             name={'Toggle All'}
                             checked={displayedNonDisabledAllToggled}
                         />
-                            <MultiToggleSelectedMessage
-                                searchString={searchString}
-                                numToggled={numToggled}
-                                numToggledButNotDisplayed={numToggledButNotDisplayed}
-                            />
+                        <MultiToggleSelectedMessage
+                            searchString={searchString}
+                            numToggled={numToggled}
+                            numToggledButNotDisplayed={numToggledButNotDisplayed}
+                        />
                     </div>
                 }
                 {childrenToDisplay}

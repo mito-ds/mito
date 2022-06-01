@@ -34,7 +34,8 @@ export enum StepType {
     Graph = 'graph',
     GraphDuplicate = 'graph_duplicate',
     GraphDelete = 'graph_delete',
-    GraphRename = 'graph_rename'
+    GraphRename = 'graph_rename',
+    SplitTextToColumns = 'split_text_to_columns'
 }
 
 /**
@@ -188,6 +189,7 @@ export type SheetData = {
         columnHeader: ColumnHeader;
         columnDtype: string;
         columnData: (string | number | boolean)[];
+        columnFormatTypeObj: FormatTypeObj;
     }[];
     columnIDsMap: ColumnIDsMap;
     columnSpreadsheetCodeMap: Record<ColumnID, string>;
@@ -462,6 +464,7 @@ export interface WidthData {
  * @param viewport - The size of the viewport
  * @param scrollPosition - Scroll position in the grid
  * @param selections - Selected ranges
+ * @param copiedSelections - The ranges that currently have been copied
  * @param columnIDsArray - A mapping from sheetIndex -> columnIndex -> columnID
  * @param widthDataArray - A list of width data for each sheet
  */
@@ -470,6 +473,7 @@ export interface GridState {
     viewport: Dimension;
     scrollPosition: ScrollPosition;
     selections: MitoSelection[];
+    copiedSelections: MitoSelection[];
     columnIDsArray: ColumnID[][];
     widthDataArray: WidthData[];
 }
@@ -653,6 +657,7 @@ export enum ActionEnum {
     Clear = 'clear',
     Change_Dtype = 'change dtype',
     Column_Summary = 'column summary',
+    Copy = 'copy',
     Delete_Column = 'delete column',
     Delete_Dataframe = 'delete dataframe',
     Delete_Graph = 'delete graph',
@@ -680,6 +685,7 @@ export enum ActionEnum {
     Set_Cell_Value = 'set cell value',
     Set_Column_Formula = 'set column formula',
     Sort = 'sort',
+    Split_Text_To_Column = 'split text to column',
     Steps = 'steps',
     Undo = 'undo',
     Unique_Values = 'unique values',
@@ -784,11 +790,12 @@ export interface Action {
 
     // Optionally categorize the action, so it can easily be sorted later
     category?: 'spreadsheet formula'
-}
 
-export interface ExcelFileMetadata {
-    sheet_names: string[]
-    size: number
+    // If this action has a keyboard shortcut, then you can display this by setting these values
+    displayKeyboardShortcuts?: {
+        mac: string,
+        windows: string
+    }
 }
 
 export enum GraphSidebarTab {

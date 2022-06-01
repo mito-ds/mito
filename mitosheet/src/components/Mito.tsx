@@ -22,6 +22,7 @@ import '../../css/sitewide/paddings.css';
 import '../../css/sitewide/scroll.css';
 import '../../css/sitewide/text.css';
 import '../../css/sitewide/widths.css';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import MitoAPI from '../jupyter/api';
 import { getArgs, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell } from '../jupyter/jupyterUtils';
 import { AnalysisData, DataTypeInMito, DFSource, EditorState, GridState, SheetData, UIState, UserProfile } from '../types';
@@ -54,15 +55,13 @@ import GraphSidebar from './taskpanes/Graph/GraphSidebar';
 import ImportTaskpane from './taskpanes/Import/ImportTaskpane';
 import MergeTaskpane from './taskpanes/Merge/MergeTaskpane';
 import PivotTaskpane from './taskpanes/PivotTable/PivotTaskpane';
+import SplitTextToColumnsTaskpane from './taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane';
 import StepsTaskpane from './taskpanes/Steps/StepsTaskpane';
 import { EDITING_TASKPANES, TaskpaneType } from './taskpanes/taskpanes';
 import UpgradeToProTaskpane from './taskpanes/UpgradeToPro/UpgradeToProTaskpane';
 import Toolbar from './toolbar/Toolbar';
 import Tour from './tour/Tour';
 import { TourName } from './tour/Tours';
-
-
-
 
 export type MitoProps = {
     model_id: string;
@@ -143,11 +142,12 @@ export const Mito = (props: MitoProps): JSX.Element => {
         void props.mitoAPI.log('mitosheet_rendered');
 
         return () => {
+            // TODO: Cleanup
             /*
             if (window.setMitoStateMap) {
                 window.setMitoStateMap.delete(props.model_id);
             }
-             */
+            */
         }
     }, [])
 
@@ -425,18 +425,18 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     }, [uiState])
 
-
     const dfNames = sheetDataArray.map(sheetData => sheetData.dfName);
     const dfSources = sheetDataArray.map(sheetData => sheetData.dfSource);
     const columnIDsMapArray = sheetDataArray.map(sheetData => sheetData.columnIDsMap);
 
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
 
-    // Get the column id of the currently selected column
+    // Get the column id of the currently selected column. We always default to the 
+    // top left corner of the last selection
     const {columnID} = getCellDataFromCellIndexes(
         sheetDataArray[uiState.selectedSheetIndex], 
-        gridState.selections[gridState.selections.length - 1].endingRowIndex, 
-        gridState.selections[gridState.selections.length - 1].endingColumnIndex
+        gridState.selections[gridState.selections.length - 1].startingRowIndex, 
+        gridState.selections[gridState.selections.length - 1].startingColumnIndex
     );
 
     /* 
@@ -492,6 +492,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     numUsages={userProfile.numUsages}
                     mitoAPI={props.mitoAPI}
                     isPro={userProfile.isPro}
+                    sheetDataArray={sheetDataArray}
                 />
             )
             case ModalEnum.Upgrade: return (
@@ -597,6 +598,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     currPathParts={currPathParts}
                     setCurrPathParts={setCurrPathParts}
                     userProfile={userProfile}
+                    analysisData={analysisData}
                 />
             )
             case TaskpaneType.MERGE: return (
@@ -632,6 +634,17 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     destinationSheetIndex={uiState.currOpenTaskpane.destinationSheetIndex}
                     existingPivotParams={uiState.currOpenTaskpane.existingPivotParams}
+                />
+            )
+            case TaskpaneType.SPLIT_TEXT_TO_COLUMNS: return (
+                <SplitTextToColumnsTaskpane
+                    mitoAPI={props.mitoAPI}
+                    analysisData={analysisData}
+                    sheetDataArray={sheetDataArray}
+                    selectedSheetIndex={uiState.selectedSheetIndex}
+                    setUIState={setUIState}
+                    dfNames={dfNames}
+                    startingColumnID={uiState.currOpenTaskpane.startingColumnID}
                 />
             )
             case TaskpaneType.STEPS: return (
@@ -678,6 +691,11 @@ export const Mito = (props: MitoProps): JSX.Element => {
         props.mitoAPI, 
         mitoContainerRef
     )
+
+
+    // Hook for using keyboard shortcuts. NOTE: do not return before this hook, it will cause
+    // issues.
+    useKeyboardShortcuts(mitoContainerRef, actions, setGridState);
 
     /* 
         We currrently send all users through the intro tour.
@@ -735,7 +753,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     })
 
     return (
-        <div className="mito-container" data-jp-suppress-context-menu ref={mitoContainerRef}>
+        <div className="mito-container" data-jp-suppress-context-menu ref={mitoContainerRef} tabIndex={0}>
             <ErrorBoundary mitoAPI={props.mitoAPI}>
                 <Toolbar 
                     mitoAPI={props.mitoAPI}
@@ -786,6 +804,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     uiState={uiState}
                     setUIState={setUIState}
                     mitoContainerRef={mitoContainerRef}
+                    setEditorState={setEditorState}
                 />
                 {getCurrentModalComponent()}
                 {uiState.loading > 0 && <LoadingIndicator/>}      
