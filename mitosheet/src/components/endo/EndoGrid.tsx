@@ -662,6 +662,7 @@ function EndoGrid(props: {
                     <EmptyGridMessages
                         setUIState={props.setUIState}
                         sheetData={sheetData}
+                        mitoAPI={mitoAPI}
                     />
                     {/* 
                         This is the div we actually scroll inside. We make it so it's styled
