@@ -1,6 +1,5 @@
 // Copyright (c) Mito
 import React from 'react';
-import { classNames } from '../../utils/classNames';
 
 interface MultiSelectButtonItem {
     /** 
@@ -34,10 +33,10 @@ const MultiSelectButtonItem = (props: MultiSelectButtonItem): JSX.Element => {
             onClick={() => {
                 props.onToggle(props.id ? props.id : props.title);
             }}
-            className={classNames('multi-select-button', 'text-body-2')}
+            className='text-body-2'
         >
             <input type='checkbox' name={props.title} value={props.id ? props.id : props.title} checked={props.checked}/>
-            <label htmlFor={props.title}>{props.title}</label>
+            <label style={{marginRight: '3px'}} htmlFor={props.title}>{props.title}</label>
         </div>
     )
 } 
