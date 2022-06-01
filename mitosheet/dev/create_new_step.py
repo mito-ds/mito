@@ -369,6 +369,9 @@ def main() -> None:
     # TODO:
     # 1. Add a new step type in Types.tsx
     # 2. Auto generate the api files
+    # 3. Ask about each of the params
+    # 4. Be able to read the params back in correctly (and do some refactoring!)
+    # 5. Be able to do upgrade refactoring automatically - just tell it how to migrate
 
 
 
