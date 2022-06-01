@@ -1,4 +1,5 @@
 import React from 'react';
+import MitoAPI from '../../jupyter/api';
 import { SheetData, UIState } from '../../types';
 import TextButton from '../elements/TextButton';
 import { TaskpaneType } from '../taskpanes/taskpanes';
@@ -20,7 +21,7 @@ const GridDataEmptyContainer = (props: {children: React.ReactNode}): JSX.Element
     )
 }
 
-const EmptyGridMessages = (props: {sheetData: SheetData | undefined, setUIState: React.Dispatch<React.SetStateAction<UIState>>}): JSX.Element => {
+const EmptyGridMessages = (props: {sheetData: SheetData | undefined, setUIState: React.Dispatch<React.SetStateAction<UIState>>, mitoAPI: MitoAPI}): JSX.Element => {
 
     return (
         <>
@@ -30,12 +31,16 @@ const EmptyGridMessages = (props: {sheetData: SheetData | undefined, setUIState:
                         <TextButton 
                             variant='dark' 
                             width='medium'
-                            onClick={() => props.setUIState(prevUIState => {
-                                return {
-                                    ...prevUIState,
-                                    currOpenTaskpane: {type: TaskpaneType.IMPORT}
-                                }
-                            })}
+                            onClick={() => {
+                                props.setUIState(prevUIState => {
+                                    return {
+                                        ...prevUIState,
+                                        currOpenTaskpane: {type: TaskpaneType.IMPORT}
+                                    }
+                                })
+
+                                void props.mitoAPI.log('clicked_empty_grid_import_button');
+                            }}
                         >
                             Import Files
                         </TextButton>

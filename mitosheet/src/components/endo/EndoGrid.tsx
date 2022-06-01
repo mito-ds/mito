@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import '../../../css/endo/EndoGrid.css';
 import '../../../css/sitewide/colors.css';
 import MitoAPI from "../../jupyter/api";
@@ -92,9 +92,13 @@ function EndoGrid(props: {
     // The container for the entire EndoGrid
     const containerRef = useRef<HTMLDivElement>(null);
     // The container for just the empty scroll div, and the rendered grid data
-    const scrollAndRenderedContainerRef = useRef<HTMLDivElement>(null);
+    const scrollAndRenderedContainerRef = useRef<HTMLDivElement | null>(null);
     // Store if the mouse is currently pressed down on the grid
     const [mouseDown, setMouseDown] = useState(false);
+    // Store a resize observer so we can watch for viewport size changes, and size everything correctly off that
+    const [resizeObserver, ] = useState(() => new ResizeObserver(() => {
+        resizeViewport();
+    }))
     
     // Destructure the props, so we access them more directly in the component below
     const {
@@ -142,45 +146,39 @@ function EndoGrid(props: {
         })
     }, [sheetData, setGridState, sheetIndex])
 
-
-    /* 
-        An effect that handles a resizing of the viewport. 
-
-        TODO: move this to the shared hook useEffectOnResizeElement
-    */        
-    useEffect(() => {
-        const resizeViewport = () => {
-            setGridState((gridState) => {
+    // A helper function that should be run when the viewport changes sizes
+    const resizeViewport = () => {
+        setGridState((gridState) => {
+            const scrollAndRenderedContainerDiv = scrollAndRenderedContainerRef?.current;
+            if (scrollAndRenderedContainerDiv) {
+                const newViewport = {
+                    width: scrollAndRenderedContainerDiv.clientWidth,
+                    height: scrollAndRenderedContainerDiv.clientHeight,
+                }
                 return {
                     ...gridState,
-                    viewport: {
-                        width: scrollAndRenderedContainerRef?.current?.clientWidth || 0,
-                        height: scrollAndRenderedContainerRef?.current?.clientHeight || 0,
-                    }
+                    viewport: newViewport
                 }
-            })
-        };
-
-        // Calc the viewport size multiple times, just to make sure it loads properly
-        // even in the case we're replaying an anlaysis and so the headers don't totally
-        // exist yet
-        resizeViewport();
-        setTimeout(() => resizeViewport(), 250)
-        setTimeout(() => resizeViewport(), 10000)
-
-        const resizeObserver = new ResizeObserver(() => {
-            resizeViewport();
+            }
+            return gridState;
         })
+    };
 
-        const containerDiv = containerRef.current; 
-        if (containerDiv) {
-            resizeObserver.observe(containerDiv);
+
+    // This hook is used to set the scrollAndRenderedContainerRef, while also
+    // registering this element with the resize observer, so that we can make sure
+    // to update the viewport size when we need to      
+    const setScrollAndRendererContainerRef = useCallback((unsavedScrollAndRenderedContainerDiv: HTMLDivElement) => {
+        if (unsavedScrollAndRenderedContainerDiv !== null) {
+            scrollAndRenderedContainerRef.current = unsavedScrollAndRenderedContainerDiv;
+            resizeObserver.observe(unsavedScrollAndRenderedContainerDiv)
         }
-        
-        return () => {
-            resizeObserver.disconnect();
-        }
-    }, [setGridState])
+    },[]);
+
+    // An effect that cleans up the resize observer
+    useEffect(() => {
+        return () => {resizeObserver.disconnect();}
+    }, [])
 
     // Handles a scroll inside the grid 
     const onGridScroll = (e: React.UIEvent<HTMLDivElement, UIEvent>) => {
@@ -651,7 +649,7 @@ function EndoGrid(props: {
                     </>
                 }
                 
-                <div className="endo-scroller-and-renderer-container" ref={scrollAndRenderedContainerRef} onScroll={onGridScroll}>
+                <div className="endo-scroller-and-renderer-container" ref={setScrollAndRendererContainerRef} onScroll={onGridScroll}>
                     {/* 
                         We handle the case where this no data in the sheet just by returning an empty
                         container with an optional message of your choosing! 

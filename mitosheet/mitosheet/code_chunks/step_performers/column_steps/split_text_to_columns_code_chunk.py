@@ -21,7 +21,7 @@ class SplitTextToColumnsCodeChunk(CodeChunk):
         column_id: ColumnID = self.get_param('column_id')
         delimiters: List[str] = self.get_param('delimiters')
         column_header = self.post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-        delimiters_string = (' ,').join(map(lambda x: f'"{x}"', delimiters))
+        delimiters_string = (', ').join(map(lambda x: f'"{x}"', delimiters))
         return f'Split {column_header} on {delimiters_string}'
 
     def get_code(self) -> List[str]:
