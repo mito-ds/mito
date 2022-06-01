@@ -196,7 +196,7 @@ def write_step_performer(original_step_name: str, params: Dict[str, str]) -> Non
 
 def write_code_chunk(original_step_name: str, params: Dict[str, str]) -> None:
     step_name = get_step_name(original_step_name)
-    path_to_file = get_code_chunk_folder() / (step_name + '.py') 
+    path_to_file = get_code_chunk_folder() / (step_name + '_code_chunk.py') 
     step_performer_code = get_code_chunk_code(original_step_name, params)
     write_python_code_file(path_to_file, step_performer_code)
 
