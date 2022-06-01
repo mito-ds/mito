@@ -34,6 +34,7 @@ from mitosheet.step_performers import (
     ConcatStepPerformer
 )
 from mitosheet.step_performers.delete_row import DeleteRowStepPerformer
+from mitosheet.step_performers.column_steps.split_text_to_columns import SplitTextToColumnsStepPerformer
 from mitosheet.step_performers.fill_na import FillNaStepPerformer
 from mitosheet.step_performers.graph_steps.graph_delete import GraphDeleteStepPerformer
 from mitosheet.step_performers.graph_steps.graph_duplicate import GraphDuplicateStepPerformer
@@ -237,7 +238,13 @@ def test_params_static():
         'promote_row_to_header'
     )
 
-    assert len(STEP_PERFORMERS) == 27
+    check_step(
+        SplitTextToColumnsStepPerformer,
+        1,
+        'split_text_to_columns'
+    )
+
+    assert len(STEP_PERFORMERS) == 28
 
 
 def get_fake_param(param_name):

@@ -9,8 +9,8 @@ import { getDefaultGraphParams } from "../components/taskpanes/Graph/graphUtils"
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../data/function_documentation";
-import { Action, ActionEnum, DFSource, EditorState, GridState, SheetData, UIState } from "../types"
-import { getColumnHeaderParts, getDisplayColumnHeader } from "./columnHeaders";
+import { Action, DFSource, EditorState, GridState, SheetData, UIState, ActionEnum } from "../types"
+import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { FORMAT_DISABLED_MESSAGE } from "./formatColumns";
 import { getCopyStringForClipboard } from "./copy";
 
@@ -59,16 +59,6 @@ export const createActions = (
 
                 // we close the editing taskpane if its open
                 closeOpenEditingPopups();
-
-                const getNewColumnHeader = (): string => {
-                    let result = '';
-                    const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
-                    const charactersLength = characters.length;
-                    for (let i = 0; i < 4; i++) {
-                        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-                    }
-                    return result;
-                }
 
                 const newColumnHeader = 'new-column-' + getNewColumnHeader()
                 // The new column should be placed 1 position to the right of the last selected column
@@ -408,7 +398,6 @@ export const createActions = (
                 setEditorState(undefined);
 
                 const selectedColumnIDs = getSelectedColumnIDsWithEntireSelectedColumn(gridState.selections, sheetData);
-                console.log("Selecting columnids", selectedColumnIDs);
                 
                 setUIState(prevUIState => {
                     return {
@@ -893,6 +882,23 @@ export const createActions = (
             },
             searchTerms: ['sort', 'ascending', 'descending', 'arrange'],
             tooltip: "Sort a column in ascending or descending order."
+        },
+        [ActionEnum.Split_Text_To_Column]: {
+            type: ActionEnum.Split_Text_To_Column,
+            shortTitle: 'Split',
+            longTitle: 'Split text to columns',
+            actionFunction: () => {
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenModal: {type: ModalEnum.None},
+                        currOpenTaskpane: {type: TaskpaneType.SPLIT_TEXT_TO_COLUMNS, startingColumnID: startingColumnID}
+                    }
+                })
+            },
+            isDisabled: () => {return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? undefined : 'There are no columns in the selected sheet. Add data to the sheet.'},
+            searchTerms: ['split', 'extract', 'parse', 'column', 'splice', 'text', 'delimiter', 'comma', 'space', 'tab', 'dash'],
+            tooltip: "Split a column on a delimiter to break it into multiple columns."
         },
         [ActionEnum.Steps]: {
             type: ActionEnum.Steps,

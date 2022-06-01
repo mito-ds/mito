@@ -34,7 +34,7 @@ class ExcelImportCodeChunk(CodeChunk):
         if not has_headers:
             read_excel_params['header'] = None
 
-        read_excel_line = f'sheet_df_dictonary = pd.read_excel(\'{file_name}\', engine=\'openpyxl\''
+        read_excel_line = f'sheet_df_dictonary = pd.read_excel(r\'{file_name}\', engine=\'openpyxl\''
         for key, value in read_excel_params.items():
             read_excel_line += f', {key}={value}'
         read_excel_line += ')'

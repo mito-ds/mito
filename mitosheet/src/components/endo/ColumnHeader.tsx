@@ -370,7 +370,9 @@ const ColumnHeader = (props: {
                 columnID={columnID}
                 columnDtype={columnDtype}
                 display={openColumnHeaderDropdown}
-                closeOpenEditingPopups={props.closeOpenEditingPopups}
+                closeOpenEditingPopups={props.closeOpenEditingPopups} 
+                setEditorState={props.setEditorState}
+                sheetData={props.sheetData}
             />
         </div>
     )

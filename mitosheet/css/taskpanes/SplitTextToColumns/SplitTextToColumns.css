@@ -1,0 +1,22 @@
+.split-text-to-column-delimiters-container {
+    border-radius: 5px;
+    padding: 10px; 
+    background: var(--mito-very-light-gray);
+    box-sizing: border-box;
+}
+
+.preview-table {
+    width: 100%;
+    border-spacing: 0; /* Removes the cell spacing via CSS */
+    border-collapse: collapse;  /* If you don't want to have double border where cells touch */
+}
+
+.preview-table-table-row:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.preview-table-table-data {
+    border: 1px solid #ddd;
+    border-width: 0 1px 0 1px;
+    padding: 4px;
+}

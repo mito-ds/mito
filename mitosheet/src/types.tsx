@@ -37,6 +37,7 @@ export enum StepType {
     GraphRename = 'graph_rename',
     DeleteRow = 'delete_row',
     PromoteRowToHeader = 'promote_row_to_header',
+    SplitTextToColumns = 'split_text_to_columns'
 }
 
 /**
@@ -472,7 +473,7 @@ export interface WidthData {
 export interface GridState {
     sheetIndex: number;
     viewport: Dimension;
-    scrollPosition: ScrollPosition;
+    scrollPositions: (ScrollPosition | undefined)[];
     selections: MitoSelection[];
     copiedSelections: MitoSelection[];
     columnIDsArray: ColumnID[][];
@@ -686,6 +687,7 @@ export enum ActionEnum {
     Set_Cell_Value = 'set cell value',
     Set_Column_Formula = 'set column formula',
     Sort = 'sort',
+    Split_Text_To_Column = 'split text to column',
     Steps = 'steps',
     Undo = 'undo',
     Unique_Values = 'unique values',
@@ -796,11 +798,6 @@ export interface Action {
         mac: string,
         windows: string
     }
-}
-
-export interface ExcelFileMetadata {
-    sheet_names: string[]
-    size: number
 }
 
 export enum GraphSidebarTab {

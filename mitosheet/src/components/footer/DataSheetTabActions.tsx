@@ -127,6 +127,7 @@ export default function SheetTabActions(props: {
             display={props.display}
             closeDropdown={() => props.setDisplayActions(false)}
             width='small'
+            supressFocusSettingOnClose={true}
         >
             <DropdownItem
                 title='Create graph'

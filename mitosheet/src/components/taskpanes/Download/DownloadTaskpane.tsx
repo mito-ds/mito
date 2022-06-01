@@ -12,14 +12,13 @@ import Row from '../../spacing/Row';
 import Select from '../../elements/Select';
 import DropdownItem from '../../elements/DropdownItem';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
-
-import '../../../../css/taskpanes/Download/DownloadTaskpane.css'
 import LoadingDots from '../../elements/LoadingDots';
 import ExcelDownloadConfigSection from './ExcelDownloadConfigSection';
 import CSVDownloadConfigSection from './CSVDownloadConfigSection';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
+import DefaultTaskpaneFooter from '../DefaultTaskpane/DefaultTaskpaneFooter';
 
 
 interface DownloadTaskpaneProps {
@@ -128,94 +127,93 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                 setUIState={props.setUIState}   
             />
             <DefaultTaskpaneBody>
-                <div className='download-taskpane'>
-                    <div className='download-taskpane-flex-grow-1'>
-                        <Row justify='space-between' align='center'>
-                            <p className='text-header-3'>
-                                Export Type
-                            </p>
-                            <Select
-                                width='medium'
-                                value={props.uiState.exportConfiguration.exportType}
-                                onChange={(newExportType: string) => {
-                                    setExportString('');
+                <div>
+                    <Row justify='space-between' align='center'>
+                        <p className='text-header-3'>
+                            Export Type
+                        </p>
+                        <Select
+                            width='medium'
+                            value={props.uiState.exportConfiguration.exportType}
+                            onChange={(newExportType: string) => {
+                                setExportString('');
 
-                                    props.setUIState(prevUIState => {
-                                        if (newExportType === 'csv') {
-                                            return {
-                                                ...prevUIState,
-                                                exportConfiguration: {exportType: 'csv'}
-                                            }
-                                        } else {
-                                            return {
-                                                ...prevUIState,
-                                                exportConfiguration: {exportType: 'excel', sheetIndexes: [props.selectedSheetIndex]}
-                                            }
+                                props.setUIState(prevUIState => {
+                                    if (newExportType === 'csv') {
+                                        return {
+                                            ...prevUIState,
+                                            exportConfiguration: {exportType: 'csv'}
                                         }
-                                    })
-                                }}
-                            >
-                                <DropdownItem 
-                                    title='csv'
-                                    // subtext={"Exporting as a csv will not preserve any formatting."} Add this back when we let users export with formatting
-                                />
-                                <DropdownItem 
-                                    title='excel'
-                                    subtext={
-                                        numRows > 1_048_576 
-                                            ? `An Excel file holds at most 1,048,576 rows, but there are ${numRows} rows in this dataframe. We'll export the first 1,048,576 rows, but this may take several minutes.`
-                                            : `Due to Python limitations, Excel export can be slower than CSV export.`
+                                    } else {
+                                        return {
+                                            ...prevUIState,
+                                            exportConfiguration: {exportType: 'excel', sheetIndexes: [props.selectedSheetIndex]}
+                                        }
                                     }
-                                />
-                            </Select>
-                        </Row>
-                        {props.uiState.exportConfiguration.exportType === 'excel' && 
-                            <ExcelDownloadConfigSection 
-                                dfNames={props.dfNames}
-                                mitoAPI={props.mitoAPI}
-                                userProfile={props.userProfile}
-                                sheetDataArray={props.sheetDataArray}
-                                exportState={props.uiState.exportConfiguration}
-                                setUIState={props.setUIState}
-                                newlyFormattedColumns={newlyFormattedColumns}
-                                setNewlyFormattedColumns={setNewlyFormattedColumns}
-                            />  
-                        }
-                        {props.uiState.exportConfiguration.exportType === 'csv' && 
-                            <CSVDownloadConfigSection 
-                                dfNames={props.dfNames}
-                                mitoAPI={props.mitoAPI}
-                                selectedSheetIndex={props.selectedSheetIndex}
-                                setUIState={props.setUIState}
-                            /> 
-                        }
-                    </div>
-                    
-                    {/* 
-                        We don't let the user click the Download button if the dataframeCSV did not return any data. 
-                        This is the fix for a bug where the user was able to click download before the dataframeCSV 
-                        data was populated by the API call, resulting in an empty csv file. 
-
-                        Given the dataframe as a string, this encodes this string as a Blob (which
-                        is pretty much a file), then creates a ObjectURL for that Blob. I don't know 
-                        why or how, but this makes it so clicking on this downloads the dataframe.
-
-                        For more information, see the blog post linked at the top of this file.
-                    */}
-                    <TextButton
-                        variant='dark'
-                        width='block'
-                        disabled={exportString === '' }
-                        href={exportHRef} 
-                        download={exportName}
-                        onClick={onDownload}  
-                    >
-                        
-                        {exportString === '' ? (<>Preparing data for download <LoadingDots /></>) : `Download ${props.uiState.exportConfiguration.exportType === 'csv' ? 'CSV file': 'Excel workbook'}`}
-                    </TextButton>
+                                })
+                            }}
+                        >
+                            <DropdownItem 
+                                title='csv'
+                                // subtext={"Exporting as a csv will not preserve any formatting."} Add this back when we let users export with formatting
+                            />
+                            <DropdownItem 
+                                title='excel'
+                                subtext={
+                                    numRows > 1_048_576 
+                                        ? `An Excel file holds at most 1,048,576 rows, but there are ${numRows} rows in this dataframe. We'll export the first 1,048,576 rows, but this may take several minutes.`
+                                        : `Due to Python limitations, Excel export can be slower than CSV export.`
+                                }
+                            />
+                        </Select>
+                    </Row>
+                    {props.uiState.exportConfiguration.exportType === 'excel' && 
+                        <ExcelDownloadConfigSection 
+                            dfNames={props.dfNames}
+                            mitoAPI={props.mitoAPI}
+                            userProfile={props.userProfile}
+                            sheetDataArray={props.sheetDataArray}
+                            exportState={props.uiState.exportConfiguration}
+                            setUIState={props.setUIState}
+                            newlyFormattedColumns={newlyFormattedColumns}
+                            setNewlyFormattedColumns={setNewlyFormattedColumns}
+                        />  
+                    }
+                    {props.uiState.exportConfiguration.exportType === 'csv' && 
+                        <CSVDownloadConfigSection 
+                            dfNames={props.dfNames}
+                            mitoAPI={props.mitoAPI}
+                            selectedSheetIndex={props.selectedSheetIndex}
+                            setUIState={props.setUIState}
+                        /> 
+                    }
                 </div>
+                
             </DefaultTaskpaneBody>
+            <DefaultTaskpaneFooter>
+                {/* 
+                    We don't let the user click the Download button if the dataframeCSV did not return any data. 
+                    This is the fix for a bug where the user was able to click download before the dataframeCSV 
+                    data was populated by the API call, resulting in an empty csv file. 
 
+                    Given the dataframe as a string, this encodes this string as a Blob (which
+                    is pretty much a file), then creates a ObjectURL for that Blob. I don't know 
+                    why or how, but this makes it so clicking on this downloads the dataframe.
+
+                    For more information, see the blog post linked at the top of this file.
+                */}
+                <TextButton
+                    variant='dark'
+                    width='block'
+                    disabled={exportString === '' }
+                    href={exportHRef} 
+                    download={exportName}
+                    onClick={onDownload}  
+                >
+                    
+                    {exportString === '' ? (<>Preparing data for download <LoadingDots /></>) : `Download ${props.uiState.exportConfiguration.exportType === 'csv' ? 'CSV file': 'Excel workbook'}`}
+                </TextButton>
+            </DefaultTaskpaneFooter>
         </DefaultTaskpane>
     )
 };
