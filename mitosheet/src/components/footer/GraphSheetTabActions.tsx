@@ -26,13 +26,15 @@ export default function GraphSheetTabActions(props: {
 
     // Log opening the graph sheet tab actions
     useEffect(() => {
-        void props.mitoAPI.log(
-            'clicked_graph_sheet_tab_actions',
-            {
-                graph_id: props.graphID
-            }
-        )
-    }, [])
+        if (props.display) {
+            void props.mitoAPI.log(
+                'clicked_graph_sheet_tab_actions',
+                {
+                    graph_id: props.graphID
+                }
+            )
+        }
+    }, [props.display])
 
     const onDelete = async (): Promise<void> => {
         // Close 
