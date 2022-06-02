@@ -52,21 +52,28 @@ def get_path_contents(params: Dict[str, Any]) -> str:
     # this with the current directory full path so we can get all
     # the path parts correctly 
     if path == '.':
+        print('path = .')
         path = os.getcwd()
 
     try:
         # This loop defines these variables, but does nothing with them
         # so we can then return them (which is why we break immediately)
         for (dirpath, dirnames, filenames) in os.walk(path):
+            print('broke')
             break
     
         # We sort the files so they are alphabetical (ignoring case)
         dirnames = sorted(dirnames, key=str.lower)
         filenames = sorted(filenames, key=str.lower)
+        print('direnames: ', dirnames)
+        print('filenames: ', filenames)
+
+
     except:
         # If we cannot read the current path, this is a result of the fact
         # that there are permission errors (or something), in which case we
         # just return an empty result
+        print('exception')
         dirnames = []
         filenames = []
     
@@ -74,7 +81,8 @@ def get_path_contents(params: Dict[str, Any]) -> str:
     # to see (as they would otherwise). 
     # Linux, Max == starts with "."
     # Windows == "$"
-    dirnames = [d for d in dirnames if (not d.startswith('.') and not d.startswith('$'))]
+    dirnames = [d for d in dirnames if (not d.startswith('.') and not d.startswith('$') and os.path.exists(os.path.join(path, d)))]
+    filenames = [f for f in filenames if (not f.startswith('.') and not f.startswith('$') and os.path.exists(os.path.join(path, f)))]
 
     return json.dumps({
         'path': path,
