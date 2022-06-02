@@ -15,7 +15,7 @@ class DeleteRowCodeChunk(CodeChunk):
     
     def get_description_comment(self) -> str:
         sheet_index: int = self.get_param('sheet_index')
-        indexes: int = self.get_param('indexes')
+        indexes: List[Any] = self.get_param('indexes')
 
         df_name = self.post_state.df_names[sheet_index]
 

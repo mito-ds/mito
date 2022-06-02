@@ -10,6 +10,7 @@ Contains tests for Delete Row
 import pandas as pd
 import pytest
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.decorators import pandas_post_1_2_only
 
 DELETE_ROW_TESTS = [
     (
@@ -64,16 +65,6 @@ DELETE_ROW_TESTS = [
             pd.DataFrame({'A': [2]}, index=[False])
         ]
     ),
-    (
-        [
-            pd.DataFrame({'A': [1, 2]}, index=pd.to_datetime(['12-22-1997', '12-23-1997']))
-        ],
-        0, 
-        ['12-22-1997'], 
-        [
-            pd.DataFrame({'A': [2]}, index=pd.to_datetime(['12-23-1997']))
-        ]
-    ),
 ]
 @pytest.mark.parametrize("input_dfs, sheet_index, indexes, output_dfs", DELETE_ROW_TESTS)
 def test_fill_na(input_dfs, sheet_index, indexes, output_dfs):
@@ -84,6 +75,16 @@ def test_fill_na(input_dfs, sheet_index, indexes, output_dfs):
     assert len(mito.dfs) == len(output_dfs)
     for actual, expected in zip(mito.dfs, output_dfs):
         assert actual.equals(expected)
+
+@pandas_post_1_2_only
+def test_delete_row_datetime_index():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2]}, index=pd.to_datetime(['12-22-1997', '12-23-1997'])))
+
+    mito.delete_row(0, ['12-22-1997'])
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [3]}, index=[2]))
+    assert len(mito.transpiled_code) == 1
+
 
 def test_optimizes_delete_row():
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
