@@ -290,3 +290,18 @@ def run_command(command_array: List[str]) -> Tuple[str, str]:
     stderr = completed_process.stderr if isinstance(completed_process.stderr, str) else ''
     return stdout, stderr
 
+# When you promote a row to a header, the data it can contain might be 
+# an numpy type, which json.dumps cannot encode by default. Thus, any
+# where we use json.dumps and might have column headers, we need to 
+# pass this as a cls=NpEncoder to the json.dumps function
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.bool_):
+            return bool(obj)
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NpEncoder, self).default(obj)

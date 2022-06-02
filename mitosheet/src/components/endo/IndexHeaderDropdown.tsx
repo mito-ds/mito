@@ -17,6 +17,7 @@ export default function IndexHeaderDropdown(props: {
     sheetIndex: number;
     selections: MitoSelection[];
     display: boolean;
+    index: string | number,
     setOpenIndexHeaderDropdown: React.Dispatch<React.SetStateAction<undefined | string | number>>,
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
 }): JSX.Element {
@@ -38,6 +39,12 @@ export default function IndexHeaderDropdown(props: {
                 title='Delete Rows'
                 onClick={() => {
                     void props.mitoAPI.editDeleteRow(props.sheetIndex, getSelectedRowIndexesWithEntireSelectedRow(props.selections, props.sheetData));
+                }}
+            />
+            <DropdownItem 
+                title='Promote Row to Header'
+                onClick={() => {
+                    void props.mitoAPI.editPromoteRowToHeader(props.sheetIndex, props.index);
                 }}
             />
         </Dropdown>
