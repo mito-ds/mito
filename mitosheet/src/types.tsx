@@ -663,6 +663,7 @@ export enum ActionEnum {
     Delete_Column = 'delete column',
     Delete_Dataframe = 'delete dataframe',
     Delete_Graph = 'delete graph',
+    Delete_Row = 'delete row',
     Drop_Duplicates = 'drop duplicates',
     Duplicate_Dataframe = 'duplicate dataframe',
     Duplicate_Graph = 'duplicate graph',
