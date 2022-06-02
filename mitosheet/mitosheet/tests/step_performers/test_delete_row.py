@@ -10,7 +10,7 @@ Contains tests for Delete Row
 import pandas as pd
 import pytest
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
-from mitosheet.tests.decorators import pandas_post_1_2_only
+from mitosheet.tests.decorators import pandas_post_1_4_only
 
 DELETE_ROW_TESTS = [
     (
@@ -76,7 +76,7 @@ def test_fill_na(input_dfs, sheet_index, indexes, output_dfs):
     for actual, expected in zip(mito.dfs, output_dfs):
         assert actual.equals(expected)
 
-@pandas_post_1_2_only
+@pandas_post_1_4_only
 def test_delete_row_datetime_index():
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2]}, index=pd.to_datetime(['12-22-1997', '12-23-1997'])))
 
