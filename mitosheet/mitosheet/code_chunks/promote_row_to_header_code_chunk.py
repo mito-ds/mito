@@ -4,7 +4,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from typing import List
+from typing import Any, List
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
 from mitosheet.types import ColumnID

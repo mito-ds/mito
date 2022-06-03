@@ -414,9 +414,9 @@ def make_invalid_promote_row_to_header_error(datetime_column_headers: List[Colum
     """
     to_fix = f'Sorry, ' 
     if len(datetime_column_headers):
-        to_fix += f'{", ".join(datetime_column_headers)} {"is a" if len(datetime_column_headers) == 1 else "are"} datetime column{"" if len(datetime_column_headers) == 1 else "s"}, ' 
+        to_fix += f'{", ".join(map(str, datetime_column_headers))} {"is a" if len(datetime_column_headers) == 1 else "are"} datetime column{"" if len(datetime_column_headers) == 1 else "s"}, ' 
     if len(timedelta_column_headers):
-        to_fix += f'{", ".join(timedelta_column_headers)} {"is a" if len(timedelta_column_headers) == 1 else "are"} datetime column{"" if len(timedelta_column_headers) == 1 else "s"}, '
+        to_fix += f'{", ".join(map(str, timedelta_column_headers))} {"is a" if len(timedelta_column_headers) == 1 else "are"} datetime column{"" if len(timedelta_column_headers) == 1 else "s"}, '
     to_fix += 'which cannot be turned into a header. Please convert them to strings first.'
     
     return MitoError(
