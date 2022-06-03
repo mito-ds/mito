@@ -700,6 +700,27 @@ export default class MitoAPI {
             }
         }, {})
     }
+    /*
+        Adds a delete column message with the passed parameters
+    */
+    async editDeleteRow(
+        sheetIndex: number,
+        labels: (string | number)[],
+    ): Promise<void> {
+
+        const stepID = getRandomId();
+        await this.send({
+            'event': 'edit_event',
+            'type': 'delete_row_edit',
+            'step_id': stepID,
+            'params': {
+                'sheet_index': sheetIndex,
+                'labels': labels
+            }
+        }, {})
+    }
+
+
 
     /*
         Does a pivot with the passed parameters, returning the ID of the edit

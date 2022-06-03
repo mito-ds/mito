@@ -35,6 +35,8 @@ export enum StepType {
     GraphDuplicate = 'graph_duplicate',
     GraphDelete = 'graph_delete',
     GraphRename = 'graph_rename',
+    DeleteRow = 'delete_row',
+    PromoteRowToHeader = 'promote_row_to_header',
     SplitTextToColumns = 'split_text_to_columns'
 }
 
@@ -661,6 +663,7 @@ export enum ActionEnum {
     Delete_Column = 'delete column',
     Delete_Dataframe = 'delete dataframe',
     Delete_Graph = 'delete graph',
+    Delete_Row = 'delete row',
     Drop_Duplicates = 'drop duplicates',
     Duplicate_Dataframe = 'duplicate dataframe',
     Duplicate_Graph = 'duplicate graph',

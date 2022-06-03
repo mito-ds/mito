@@ -30,7 +30,7 @@ from mitosheet.user.db import get_user_field
 from mitosheet.user.location import is_in_google_colab, is_in_vs_code
 from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES,
                                     UJ_RECEIVED_TOURS, UJ_USER_EMAIL)
-from mitosheet.user.utils import is_excel_import_enabled, is_pro
+from mitosheet.user.utils import is_excel_import_enabled, is_pro, is_running_test
 
 
 class MitoWidget(DOMWidget):
@@ -206,7 +206,9 @@ class MitoWidget(DOMWidget):
 
             return True
         except MitoError as e:
-            
+            if is_running_test():
+                print(e)
+
             # Log processing this event failed
             log_event_processed(event, self.steps_manager, failed=True, mito_error=e, start_time=start_time)
 
@@ -233,6 +235,8 @@ class MitoWidget(DOMWidget):
             # Report it to the user, and then return
             self.send(response)
         except:
+            if is_running_test():
+                print(get_recent_traceback())
             # We log that processing failed, but have no edit error
             log_event_processed(event, self.steps_manager, failed=True, start_time=start_time)
             # Report it to the user, and then return

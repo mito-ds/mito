@@ -353,6 +353,16 @@ export const isSelectionsOnlyColumnHeaders = (selections: MitoSelection[]): bool
     return isOnlyColumnHeaders
 }
 
+export const isSelectionsOnlyIndexHeaders = (selections: MitoSelection[]): boolean => {
+    let isOnlyIndexHeaders = true
+    selections.forEach(selection => {
+        if (selection.startingColumnIndex !== -1 || selection.endingColumnIndex !== -1) {
+            isOnlyIndexHeaders = false
+        }
+    });
+    return isOnlyIndexHeaders
+}
+
 
 const COPIED_BORDER_STYLE = '1px dashed black';
 const SELECTED_BORDER_STYLE = '1px solid var(--mito-purple)';
@@ -705,6 +715,35 @@ export const getSelectedColumnIDsWithEntireSelectedColumn = (selections: MitoSel
     return columnIndexes
         .filter(colIdx => sheetData.data.length > colIdx)
         .map(colIdx => sheetData.data[colIdx]?.columnID)
+}
+
+
+export const getSelectedRowLabelsInSingleSelection = (selection: MitoSelection, sheetData: SheetData): (string | number)[] => {
+    const min = Math.min(selection.startingRowIndex, selection.endingRowIndex)
+    const max = Math.max(selection.startingRowIndex, selection.endingRowIndex)
+
+    const rowIndexes = [];
+    for (let i = min; i <= max; i++) {
+        rowIndexes.push(sheetData.index[i]);
+    }
+
+    return rowIndexes;
+}
+
+
+export const getSelectedRowLabelsWithEntireSelectedRow = (selections: MitoSelection[], sheetData: SheetData | undefined ): (string | number)[] => {
+    if (sheetData === undefined) {
+        return []
+    }
+
+    let rowIndexes: (string | number)[] = []
+    selections.forEach(selection => {
+        if (selection.startingColumnIndex === -1 && (selection.endingColumnIndex === -1 || selection.endingColumnIndex === sheetData.numColumns)) {
+            rowIndexes = rowIndexes.concat(getSelectedRowLabelsInSingleSelection(selection, sheetData))
+        }
+    })
+    
+    return rowIndexes;
 
 }
 

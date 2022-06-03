@@ -10,14 +10,14 @@ import json
 import numbers
 import re
 import uuid
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
-from mitosheet.types import ColumnHeader, ColumnID
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import numpy as np
 import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap
 from mitosheet.sheet_functions.types.utils import get_float_dt_td_columns
+from mitosheet.types import ColumnHeader, ColumnID
 
 # We only send the first 1500 rows of a dataframe; note that this
 # must match this variable defined on the front-end
@@ -289,5 +289,4 @@ def run_command(command_array: List[str]) -> Tuple[str, str]:
     stdout = completed_process.stdout if isinstance(completed_process.stdout, str) else ''
     stderr = completed_process.stderr if isinstance(completed_process.stderr, str) else ''
     return stdout, stderr
-
 

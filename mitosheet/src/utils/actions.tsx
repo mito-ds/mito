@@ -1,7 +1,7 @@
 import fscreen from "fscreen";
 import MitoAPI, { getRandomId } from "../jupyter/api";
 import { getStartingFormula } from "../components/endo/celleditor/cellEditorUtils";
-import { getColumnIndexesInSelections, getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
+import { getColumnIndexesInSelections, getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs, getSelectedRowLabelsWithEntireSelectedRow, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
 import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes, getDataframeIsSelected, getGraphIsSelected } from "../components/endo/utils";
 import { ModalEnum } from "../components/modals/modals";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
@@ -284,6 +284,27 @@ export const createActions = (
             },
             searchTerms: ['delete', 'delete graph', 'delete chart', 'del', 'del chart', 'del chart', 'remove', 'remove chart', 'remove graph'],
             tooltip: "Delete the selected graph."
+        },
+        [ActionEnum.Delete_Row]: {
+            type: ActionEnum.Delete_Row,
+            shortTitle: 'Delete Row',
+            longTitle: 'Delete row',
+            actionFunction: async () => {
+                const rowsToDelete = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
+                if (rowsToDelete.length > 0) {
+                    void mitoAPI.editDeleteRow(sheetIndex, rowsToDelete);
+                }
+            },
+            isDisabled: () => {
+                const rowsToDelete = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
+                if (rowsToDelete.length > 0) {
+                    return undefined;
+                }
+                return "There are no selected rows to delete."
+            },
+            searchTerms: ['delete', 'delete row', 'filter rows', 'rows', 'remove rows', 'hide rows'],
+            tooltip: "Delete the selected rows."
+            
         },
         [ActionEnum.Docs]: {
             type: ActionEnum.Docs,
