@@ -705,7 +705,7 @@ export default class MitoAPI {
     */
     async editDeleteRow(
         sheetIndex: number,
-        indexes: (string | number)[],
+        labels: (string | number)[],
     ): Promise<void> {
 
         const stepID = getRandomId();
@@ -715,7 +715,7 @@ export default class MitoAPI {
             'step_id': stepID,
             'params': {
                 'sheet_index': sheetIndex,
-                'indexes': indexes
+                'labels': labels
             }
         }, {})
     }

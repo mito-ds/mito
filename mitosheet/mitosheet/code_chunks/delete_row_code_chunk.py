@@ -15,20 +15,20 @@ class DeleteRowCodeChunk(CodeChunk):
     
     def get_description_comment(self) -> str:
         sheet_index: int = self.get_param('sheet_index')
-        indexes: List[Any] = self.get_param('indexes')
+        labels: List[Any] = self.get_param('labels')
 
         df_name = self.post_state.df_names[sheet_index]
 
-        return f'Deleted {len(indexes)} row{"" if len(indexes) == 1 else "s"} in {df_name}'
+        return f'Deleted {len(labels)} row{"" if len(labels) == 1 else "s"} in {df_name}'
         
     def get_code(self) -> List[str]:
         sheet_index: int = self.get_param('sheet_index')
-        indexes: List[Any] = self.get_param('indexes')
+        labels: List[Any] = self.get_param('labels')
         
         df_name = self.post_state.df_names[sheet_index]
 
         return [
-            f'{df_name}.drop(labels={column_header_list_to_transpiled_code(indexes)}, inplace=True)'
+            f'{df_name}.drop(labels={column_header_list_to_transpiled_code(labels)}, inplace=True)'
         ]
 
     
@@ -39,8 +39,8 @@ class DeleteRowCodeChunk(CodeChunk):
         if not self.params_match(other_code_chunk, ['sheet_index']):
             return None
 
-        all_indexes = self.get_param('indexes')
-        all_indexes.extend(other_code_chunk.get_param('indexes'))
+        all_labels = self.get_param('labels')
+        all_labels.extend(other_code_chunk.get_param('labels'))
         
 
         return DeleteRowCodeChunk(
@@ -48,7 +48,7 @@ class DeleteRowCodeChunk(CodeChunk):
             other_code_chunk.post_state,
             {
                 'sheet_index': self.get_param('sheet_index'),
-                'indexes': all_indexes
+                'labels': all_labels
             },
             other_code_chunk.execution_data
         )
