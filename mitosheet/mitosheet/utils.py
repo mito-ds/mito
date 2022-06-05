@@ -15,7 +15,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import numpy as np
 import pandas as pd
 
-from mitosheet.column_headers import ColumnIDMap
+from mitosheet.column_headers import ColumnIDMap, get_column_header_display
 from mitosheet.sheet_functions.types.utils import get_float_dt_td_columns
 from mitosheet.types import ColumnHeader, ColumnID
 
@@ -170,18 +170,13 @@ def df_to_json_dumpsable(
 
     final_data = []
     column_dtype_map = {}
-    for column_index, column_header in enumerate(json_obj['columns']):
-        # Because turning the headers to json takes multi-index columns and converts
-        # them into lists, we need to turn them back to tuples so we can index into the
-        # mappings appropriately
-        if isinstance(column_header, list):
-            column_header = tuple(column_header)
-
+    for column_index, _ in enumerate(json_obj['columns']):
+        column_header = df.columns[column_index]
         column_id = column_headers_to_column_ids[column_header]
 
-        column_final_data = {
+        column_final_data: Dict[str, Any] = {
             'columnID': column_id,
-            'columnHeader': column_header,
+            'columnHeader': get_column_header_display(column_header),
             'columnDtype': str(original_df[column_header].dtype),
             'columnData': [],
             'columnFormatTypeObj': column_format_types[column_id],
@@ -201,7 +196,7 @@ def df_to_json_dumpsable(
         # NOTE: We make sure that all the maps are in the correct order, so things are easy on the
         # front-end and we don't have to worry about sorting
         'columnIDsMap': {
-            column_headers_to_column_ids[column_header]: column_header
+            column_headers_to_column_ids[column_header]: get_column_header_display(column_header)
             for column_header in df.keys()
         },
         'columnSpreadsheetCodeMap': column_spreadsheet_code,
@@ -298,3 +293,18 @@ def run_command(command_array: List[str]) -> Tuple[str, str]:
     stderr = completed_process.stderr if isinstance(completed_process.stderr, str) else ''
     return stdout, stderr
 
+# When you promote a row to a header, the data it can contain might be 
+# an numpy type, which json.dumps cannot encode by default. Thus, any
+# where we use json.dumps and might have column headers, we need to 
+# pass this as a cls=NpEncoder to the json.dumps function
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.bool_):
+            return bool(obj)
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NpEncoder, self).default(obj)

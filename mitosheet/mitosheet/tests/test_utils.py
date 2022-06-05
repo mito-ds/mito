@@ -19,7 +19,7 @@ from mitosheet.mito_widget import MitoWidget, sheet
 from mitosheet.parser import parse_formula
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.types import ColumnHeader, ColumnID, GraphID, MultiLevelColumnHeader
-from mitosheet.utils import dfs_to_array_for_json, get_new_id
+from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id
 
 
 def decorate_all_functions(function_decorator):
@@ -107,7 +107,7 @@ def check_dataframes_equal(test_wrapper):
         test_wrapper.mito_widget.steps_manager.curr_step.column_filters,
         test_wrapper.mito_widget.steps_manager.curr_step.column_ids,
         test_wrapper.mito_widget.steps_manager.curr_step.column_format_types
-    ))
+    ), cls=NpEncoder)
 
 
 class MitoWidgetTestWrapper:
@@ -337,7 +337,7 @@ class MitoWidgetTestWrapper:
     def promote_row_to_header(
             self, 
             sheet_index: int,
-            row_index: int,
+            index: Any,
         ) -> bool:
         
 
@@ -350,7 +350,7 @@ class MitoWidgetTestWrapper:
                 'step_id': get_new_id(),
                 'params': {
                     'sheet_index': sheet_index,
-                    'row_index': row_index,
+                    'index': index,
                     
                 }
             }

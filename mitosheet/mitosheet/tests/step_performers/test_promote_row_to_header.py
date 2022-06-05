@@ -52,25 +52,15 @@ PROMOTE_ROW_TO_HEADER_TESTS = [
             pd.DataFrame({1: [2, 3], False: [False, True]}, index=[1, 2])
         ]
     ),
-]
-@pytest.mark.skip(reason="Step not implemented yet")
-@pytest.mark.parametrize("input_dfs, sheet_index, row_index, output_dfs", PROMOTE_ROW_TO_HEADER_TESTS)
-def test_fill_na(input_dfs, sheet_index, row_index, output_dfs):
-    mito = create_mito_wrapper_dfs(*input_dfs)
-
-    mito.promote_row_to_header(sheet_index, row_index)
-
-    assert len(mito.dfs) == len(output_dfs)
-    for actual, expected in zip(mito.dfs, output_dfs):
-        assert actual.equals(expected)
-
-PROMOTE_ROW_TO_HEADER_FAILING_TESTS = [
     (
         [
             pd.DataFrame({'A': [1, 2, 3], 'B': pd.to_datetime(['12-22-2020', '12-23-2020', '12-24-2020'])})
         ],
         0, 
         0,
+        [
+            pd.DataFrame({1: [2, 3], pd.to_datetime('12-22-2020'): pd.to_datetime(['12-23-2020', '12-24-2020'])}, index=[1, 2])
+        ],
     ),
     (
         [
@@ -78,12 +68,17 @@ PROMOTE_ROW_TO_HEADER_FAILING_TESTS = [
         ],
         0, 
         0,
+        [
+            pd.DataFrame({1: [2, 3], pd.to_timedelta('1 days'): pd.to_timedelta(['2 days', '3 days'])}, index=[1, 2])
+        ],
     ),
 ]
-@pytest.mark.skip(reason="Step not implemented yet")
-@pytest.mark.parametrize("input_dfs, sheet_index, row_index", PROMOTE_ROW_TO_HEADER_FAILING_TESTS)
-def test_promote_row_to_header_failing(input_dfs, sheet_index, row_index):
+@pytest.mark.parametrize("input_dfs, sheet_index, index, output_dfs", PROMOTE_ROW_TO_HEADER_TESTS)
+def test_fill_na(input_dfs, sheet_index, index, output_dfs):
     mito = create_mito_wrapper_dfs(*input_dfs)
 
-    with pytest.raises(Exception):
-        mito.promote_row_to_header(sheet_index, row_index)
+    mito.promote_row_to_header(sheet_index, index)
+
+    assert len(mito.dfs) == len(output_dfs)
+    for actual, expected in zip(mito.dfs, output_dfs):
+        assert actual.equals(expected)

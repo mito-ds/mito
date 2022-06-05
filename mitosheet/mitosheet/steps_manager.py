@@ -27,7 +27,7 @@ from mitosheet.step_performers.import_steps.simple_import import \
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.updates import UPDATES
 from mitosheet.user.utils import is_pro, is_running_test
-from mitosheet.utils import (dfs_to_array_for_json, get_new_id,
+from mitosheet.utils import (NpEncoder, dfs_to_array_for_json, get_new_id,
                              is_default_df_names)
 
 
@@ -283,7 +283,7 @@ class StepsManager:
         self.saved_sheet_data = array
         self.last_step_index_we_wrote_sheet_json_on = self.curr_step_idx
 
-        return json.dumps(array)
+        return json.dumps(array, cls=NpEncoder)
 
     @property
     def analysis_data_json(self):

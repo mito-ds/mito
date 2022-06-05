@@ -405,7 +405,6 @@ def make_no_analysis_error(analysis_id: str, error_modal: bool=True) -> MitoErro
         error_modal=error_modal
     )
 
-
 ARG_FULL_NAME = {
     'int': 'number',
     'float': 'number',

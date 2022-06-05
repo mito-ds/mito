@@ -66,6 +66,7 @@ const IndexHeaders = (props: {
                                         sheetData={props.sheetData}
                                         setOpenIndexHeaderDropdown={setOpenIndexHeaderDropdown}
                                         display={indexHeader === openIndexHeaderDropdown}
+                                        index={indexHeader}
                                         mitoAPI={props.mitoAPI}
                                         sheetIndex={props.sheetIndex}
                                         selections={props.gridState.selections}
