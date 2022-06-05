@@ -405,28 +405,6 @@ def make_no_analysis_error(analysis_id: str, error_modal: bool=True) -> MitoErro
         error_modal=error_modal
     )
 
-def make_invalid_promote_row_to_header_error(datetime_column_headers: List[ColumnHeader], timedelta_column_headers: List[ColumnHeader], error_modal: bool=True) -> MitoError:
-    """
-    Helper function for creating a invalid_promote_row_to_header_error.
-
-    Occurs when a user tries to promote a row to a header that has datetimes or
-    timedetlas
-    """
-    to_fix = f'Sorry, ' 
-    if len(datetime_column_headers):
-        to_fix += f'{", ".join(map(str, datetime_column_headers))} {"is a" if len(datetime_column_headers) == 1 else "are"} datetime column{"" if len(datetime_column_headers) == 1 else "s"}, ' 
-    if len(timedelta_column_headers):
-        to_fix += f'{", ".join(map(str, timedelta_column_headers))} {"is a" if len(timedelta_column_headers) == 1 else "are"} datetime column{"" if len(timedelta_column_headers) == 1 else "s"}, '
-    to_fix += 'which cannot be turned into a header. Please convert them to strings first.'
-    
-    return MitoError(
-        'invalid_promote_row_to_header_error', 
-        "Datetime or Timedelta are Invalid Headers",
-        to_fix,
-        error_modal=error_modal
-    )
-
-
 ARG_FULL_NAME = {
     'int': 'number',
     'float': 'number',

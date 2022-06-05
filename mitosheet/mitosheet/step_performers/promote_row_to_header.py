@@ -9,8 +9,6 @@ from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.promote_row_to_header_code_chunk import PromoteRowToHeaderCodeChunk
-from mitosheet.errors import make_invalid_promote_row_to_header_error
-from mitosheet.sheet_functions.types.utils import get_float_dt_td_columns
 
 from mitosheet.state import State
 from mitosheet.step_performers.column_steps.rename_column import rename_column_headers_in_state
@@ -39,11 +37,6 @@ class PromoteRowToHeaderStepPerformer(StepPerformer):
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
         pandas_processing_time = 0.0
-
-        # Throw a special error if the user is trying to use a row with datetimes or timedeltas
-        _, datetime_column_headers, timedelta_column_headers = get_float_dt_td_columns(post_state.dfs[sheet_index])
-        if len(datetime_column_headers) > 0 or len(timedelta_column_headers) > 0:
-            raise make_invalid_promote_row_to_header_error(datetime_column_headers, timedelta_column_headers)
 
         for old_column_header, new_column_header in zip(post_state.dfs[sheet_index].columns, post_state.dfs[sheet_index].iloc[index]):
 
