@@ -11,7 +11,7 @@ import EmptyGridMessages from "./EmptyGridMessages";
 import { focusGrid } from "./focusUtils";
 import GridData from "./GridData";
 import IndexHeaders from "./IndexHeaders";
-import { equalSelections, getColumnIndexesInSelections, getIndexesFromMouseEvent, getIsCellSelected, getIsHeader, getNewSelectionAfterKeyPress, getNewSelectionAfterMouseUp, getSelectedRowIndexesWithEntireSelectedRow, isNavigationKeyPressed, isSelectionsOnlyColumnHeaders, isSelectionsOnlyIndexHeaders, reconciliateSelections, removeColumnFromSelections } from "./selectionUtils";
+import { equalSelections, getColumnIndexesInSelections, getIndexesFromMouseEvent, getIsCellSelected, getIsHeader, getNewSelectionAfterKeyPress, getNewSelectionAfterMouseUp, getSelectedRowLabelsWithEntireSelectedRow, isNavigationKeyPressed, isSelectionsOnlyColumnHeaders, isSelectionsOnlyIndexHeaders, reconciliateSelections, removeColumnFromSelections } from "./selectionUtils";
 import { calculateCurrentSheetView, calculateNewScrollPosition, calculateTranslate} from "./sheetViewUtils";
 import { firstNonNullOrUndefined, getColumnIDsArrayFromSheetDataArray } from "./utils";
 import { ensureCellVisible } from "./visibilityUtils";
@@ -554,7 +554,7 @@ function EndoGrid(props: {
                         return;
                     } else if (isSelectionsOnlyIndexHeaders(gridState.selections)) {
                         // Similarly, if the user has only index headers selected, we can delete them
-                        void props.mitoAPI.editDeleteRow(props.sheetIndex, getSelectedRowIndexesWithEntireSelectedRow(gridState.selections, sheetData));
+                        void props.mitoAPI.editDeleteRow(props.sheetIndex, getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData));
                         return;
                     }
                     

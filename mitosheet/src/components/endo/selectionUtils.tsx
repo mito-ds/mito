@@ -718,7 +718,7 @@ export const getSelectedColumnIDsWithEntireSelectedColumn = (selections: MitoSel
 }
 
 
-export const getSelectedRowIndexesInSingleSelection = (selection: MitoSelection, sheetData: SheetData): (string | number)[] => {
+export const getSelectedRowLabelsInSingleSelection = (selection: MitoSelection, sheetData: SheetData): (string | number)[] => {
     const min = Math.min(selection.startingRowIndex, selection.endingRowIndex)
     const max = Math.max(selection.startingRowIndex, selection.endingRowIndex)
 
@@ -731,7 +731,7 @@ export const getSelectedRowIndexesInSingleSelection = (selection: MitoSelection,
 }
 
 
-export const getSelectedRowIndexesWithEntireSelectedRow = (selections: MitoSelection[], sheetData: SheetData | undefined ): (string | number)[] => {
+export const getSelectedRowLabelsWithEntireSelectedRow = (selections: MitoSelection[], sheetData: SheetData | undefined ): (string | number)[] => {
     if (sheetData === undefined) {
         return []
     }
@@ -739,7 +739,7 @@ export const getSelectedRowIndexesWithEntireSelectedRow = (selections: MitoSelec
     let rowIndexes: (string | number)[] = []
     selections.forEach(selection => {
         if (selection.startingColumnIndex === -1 && (selection.endingColumnIndex === -1 || selection.endingColumnIndex === sheetData.numColumns)) {
-            rowIndexes = rowIndexes.concat(getSelectedRowIndexesInSingleSelection(selection, sheetData))
+            rowIndexes = rowIndexes.concat(getSelectedRowLabelsInSingleSelection(selection, sheetData))
         }
     })
     

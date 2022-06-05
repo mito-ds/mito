@@ -5,6 +5,9 @@ step code.
 This is useful as there is lots of boilerplate that needs
 to be written, and if we can cut it down to zero, that is
 ideal!
+
+To run this file, simply run python dev/create_new_steps.py
+and follow the prompts.
 """
 
 import os
@@ -52,7 +55,7 @@ def get_code_chunk_name_and_import_statement(original_step_name: str) -> Tuple[s
     code_chunk_name = original_step_name.replace(' ', '') + "CodeChunk"
     return (
         code_chunk_name,
-        f'from mitosheet.code_chunks.{step_name} import {code_chunk_name}'
+        f'from mitosheet.code_chunks.{step_name}_code_chunk import {code_chunk_name}'
     )
 
 def get_params_getter_code(params: Dict[str, str], on_self: bool=False) -> str:
@@ -175,8 +178,8 @@ class {code_chunk_name}(CodeChunk):
         return [] # TODO: return this here!
     """
 
+# This function actually writes the given code to the given file
 def write_python_code_file(path_to_file: Path, code: str) -> None:
-
     if os.path.exists(path_to_file):
         clear = input(f'{path_to_file} already exists, do you want to clear it?: [y/n]').lower().startswith('y')
         if clear:
@@ -316,18 +319,18 @@ from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 {step_name.upper()}_TESTS = [
     (
         [
-            pd.DataFrame({OPEN_BRACKET}'A': [1, 2, 3]{CLOSE_BRACKET})
+            pd.DataFrame({OPEN_BRACKET}'A': [1, 2, 3], 'B': [1.0, 2.0, 3.0], 'C': [True, False, True], 'D': ["string", "with spaces", "and/!other@characters"], 'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 'F': pd.to_timedelta(['1 days', '2 days', '3 days']){CLOSE_BRACKET})
         ],
         "put", 
         "params", 
         "here",
         [
-            pd.DataFrame({OPEN_BRACKET}'A': [1, 2, 3]{CLOSE_BRACKET})
+            pd.DataFrame({OPEN_BRACKET}'A': [1, 2, 3], 'B': [1.0, 2.0, 3.0], 'C': [True, False, True], 'D': ["string", "with spaces", "and/!other@characters"], 'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 'F': pd.to_timedelta(['1 days', '2 days', '3 days']){CLOSE_BRACKET})
         ]
     ),
 ]
 @pytest.mark.parametrize(\"input_dfs, {params_string}, output_dfs\", {step_name.upper()}_TESTS)
-def test_fill_na(input_dfs, {params_string}, output_dfs):
+def test_{step_name}(input_dfs, {params_string}, output_dfs):
     mito = create_mito_wrapper_dfs(*input_dfs)
 
     mito.{step_name}({params_string})
@@ -369,7 +372,7 @@ def main() -> None:
     # TODO:
     # 1. Add a new step type in Types.tsx
     # 2. Auto generate the api files
-    # 3. Ask about each of the params
+    # 3. Be able to specify that we're creating a taskpane and then take the step parameters passed in a particular order and create a UI for them. For example, if sheet_index is the first param provided, then it should create a taskpane with a Dataframe -> DfName seletc.
     # 4. Be able to read the params back in correctly (and do some refactoring!)
     # 5. Be able to do upgrade refactoring automatically - just tell it how to migrate
 

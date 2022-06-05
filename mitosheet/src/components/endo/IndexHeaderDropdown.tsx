@@ -6,7 +6,7 @@ import { MitoSelection, SheetData } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import { TaskpaneType } from '../taskpanes/taskpanes';
-import { getSelectedRowIndexesWithEntireSelectedRow } from './selectionUtils';
+import { getSelectedRowLabelsWithEntireSelectedRow } from './selectionUtils';
 
 /*
     Displays a set of actions one can perform on a row
@@ -38,7 +38,7 @@ export default function IndexHeaderDropdown(props: {
             <DropdownItem 
                 title='Delete Rows'
                 onClick={() => {
-                    void props.mitoAPI.editDeleteRow(props.sheetIndex, getSelectedRowIndexesWithEntireSelectedRow(props.selections, props.sheetData));
+                    void props.mitoAPI.editDeleteRow(props.sheetIndex, getSelectedRowLabelsWithEntireSelectedRow(props.selections, props.sheetData));
                 }}
             />
             <DropdownItem 

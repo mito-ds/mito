@@ -1,7 +1,7 @@
 import fscreen from "fscreen";
 import MitoAPI, { getRandomId } from "../jupyter/api";
 import { getStartingFormula } from "../components/endo/celleditor/cellEditorUtils";
-import { getColumnIndexesInSelections, getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs, getSelectedRowIndexesWithEntireSelectedRow, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
+import { getColumnIndexesInSelections, getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs, getSelectedRowLabelsWithEntireSelectedRow, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
 import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes, getDataframeIsSelected, getGraphIsSelected } from "../components/endo/utils";
 import { ModalEnum } from "../components/modals/modals";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
@@ -290,20 +290,20 @@ export const createActions = (
             shortTitle: 'Delete Row',
             longTitle: 'Delete row',
             actionFunction: async () => {
-                const rowsToDelete = getSelectedRowIndexesWithEntireSelectedRow(gridState.selections, sheetData);
+                const rowsToDelete = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
                 if (rowsToDelete.length > 0) {
                     void mitoAPI.editDeleteRow(sheetIndex, rowsToDelete);
                 }
             },
             isDisabled: () => {
-                const rowsToDelete = getSelectedRowIndexesWithEntireSelectedRow(gridState.selections, sheetData);
+                const rowsToDelete = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
                 if (rowsToDelete.length > 0) {
                     return undefined;
                 }
-                return "There is no selected rows to delete."
+                return "There are no selected rows to delete."
             },
-            searchTerms: ['delete', 'delete row', 'filter rows', 'rows'],
-            tooltip: "Delete the selected rows." 
+            searchTerms: ['delete', 'delete row', 'filter rows', 'rows', 'remove rows', 'hide rows'],
+            tooltip: "Delete the selected rows."
         },
         [ActionEnum.Docs]: {
             type: ActionEnum.Docs,
@@ -700,19 +700,19 @@ export const createActions = (
             shortTitle: 'Promote to Header',
             longTitle: 'Promote Row to header',
             actionFunction: async () => {
-                const rowsToPromote = getSelectedRowIndexesWithEntireSelectedRow(gridState.selections, sheetData);
+                const rowsToPromote = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
                 if (rowsToPromote.length > 0) {
                     void mitoAPI.editPromoteRowToHeader(sheetIndex, rowsToPromote[0]);
                 }
             },
             isDisabled: () => {
-                const rowsToDelete = getSelectedRowIndexesWithEntireSelectedRow(gridState.selections, sheetData);
+                const rowsToDelete = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
                 if (rowsToDelete.length > 0) {
                     return undefined;
                 }
                 return "There is no selected row to promote to header."
             },
-            searchTerms: ['make header', 'row to header', 'rename headers', 'column headers'],
+            searchTerms: ['make header', 'row to header', 'rename headers', 'column headers', 'promote row'],
             tooltip: "Promote the selected row to be the header of the dataframe, and delete it." 
         },
         [ActionEnum.Redo]: {

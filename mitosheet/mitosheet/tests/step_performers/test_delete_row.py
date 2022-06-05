@@ -67,7 +67,7 @@ DELETE_ROW_TESTS = [
     ),
 ]
 @pytest.mark.parametrize("input_dfs, sheet_index, indexes, output_dfs", DELETE_ROW_TESTS)
-def test_fill_na(input_dfs, sheet_index, indexes, output_dfs):
+def test_delete_row(input_dfs, sheet_index, indexes, output_dfs):
     mito = create_mito_wrapper_dfs(*input_dfs)
 
     mito.delete_row(sheet_index, indexes)
