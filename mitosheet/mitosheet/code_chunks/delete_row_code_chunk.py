@@ -4,6 +4,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
+from copy import copy
 from typing import Any, List, Optional
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code
@@ -38,11 +39,10 @@ class DeleteRowCodeChunk(CodeChunk):
     def _combine_right_with_delete_row_code_chunk(self, other_code_chunk: "DeleteRowCodeChunk") -> Optional["DeleteRowCodeChunk"]:
         if not self.params_match(other_code_chunk, ['sheet_index']):
             return None
-
-        all_labels = self.get_param('labels')
+        
+        all_labels = copy(self.get_param('labels')) # Make sure to copy this so we don't get weird bugs w/ duplication
         all_labels.extend(other_code_chunk.get_param('labels'))
         
-
         return DeleteRowCodeChunk(
             self.prev_state,
             other_code_chunk.post_state,
