@@ -225,7 +225,7 @@ def convert_df_to_parsed_json(df: pd.DataFrame) -> Dict[str, Any]:
     """
 
     float_columns, date_columns, timedelta_columns = get_float_dt_td_columns(df)
-    # Second, we figure out which of the columns contain dates, and we
+    # We figure out which of the columns contain dates, and we
     # convert them to string columns (for formatting reasons).
     # NOTE: we don't use date_format='iso' in df.to_json call as it appends seconds to the object, 
     # see here: https://stackoverflow.com/questions/52730953/pandas-to-json-output-date-format-in-specific-form
@@ -244,6 +244,14 @@ def convert_df_to_parsed_json(df: pd.DataFrame) -> Dict[str, Any]:
         # as to preserve the formatting of NaN values. 
         df[column_header] = df[column_header].apply(lambda x: x if np.isnan(x) else str(x))
 
+    # Then, we check the index. If it is a datetime or a timedelta, we have to do
+    # the same conversions that we did above
+    # Then, if we have a datetime index, we update the index to be jsonified better
+    if isinstance(df.index, pd.DatetimeIndex):
+        df.index = df.index.strftime('%Y-%m-%d %X')
+    elif isinstance(df.index, pd.TimedeltaIndex):
+        df.index = df.index.to_series().apply(lambda x: str(x))
+
     json_obj = json.loads(df.to_json(orient="split"))
     # Then, we go through and find all the null values (which are infinities),
     # and set them to 'NaN' for display in the frontend.
@@ -251,6 +259,11 @@ def convert_df_to_parsed_json(df: pd.DataFrame) -> Dict[str, Any]:
         for idx, e in enumerate(d):
             if e is None:
                 d[idx] = 'NaN'
+
+    
+
+
+    # TODO: check timedelta indexes too?
 
     return json_obj
 
