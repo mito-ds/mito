@@ -1,5 +1,17 @@
 #!/bin/bash -eu
 
+echo "Setting up the mitosheet development env"
+echo "This might take a few moments..."
+
+# Make sure the Node options are set properly, or later build commands fail
+# with versions of Node > 16
+read -p "Set legacy open ssl provider on node? You probably want no. [y/n] " -n 1 -r
+echo    # move to a new line
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+    export NODE_OPTIONS=--openssl-legacy-provider
+fi
+
 # Setup a new venv
 rm -rf venv/
 python3 -m venv venv
@@ -10,11 +22,6 @@ python switch.py mitosheet
 
 # Install Python dependencies
 pip install -e ".[test, deploy]"
-
-# Make sure the Node options are set properly, or later build commands fail
-# with versions of Node > 16
-unset NODE_OPTIONS # https://github.com/microsoft/vscode/issues/136599
-export NODE_OPTIONS=--openssl-legacy-provider
 
 # Install the npm dependences
 npm install
