@@ -260,11 +260,6 @@ def convert_df_to_parsed_json(df: pd.DataFrame) -> Dict[str, Any]:
             if e is None:
                 d[idx] = 'NaN'
 
-    
-
-
-    # TODO: check timedelta indexes too?
-
     return json_obj
 
 
