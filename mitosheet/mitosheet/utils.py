@@ -174,7 +174,7 @@ def df_to_json_dumpsable(
         column_header = df.columns[column_index]
         column_id = column_headers_to_column_ids[column_header]
 
-        column_final_data = {
+        column_final_data: Dict[str, Any] = {
             'columnID': column_id,
             'columnHeader': get_column_header_display(column_header),
             'columnDtype': str(original_df[column_header].dtype),
