@@ -20,7 +20,7 @@ class PromoteRowToHeaderCodeChunk(CodeChunk):
 
         df_name = self.post_state.df_names[sheet_index]
 
-        return f"Promoted {index} to header in {df_name}"
+        return f"Promoted row {index} to header in {df_name}"
         
     def get_code(self) -> List[str]:
         sheet_index: int = self.get_param('sheet_index')
