@@ -175,7 +175,7 @@ def df_to_json_dumpsable(
         for row in json_obj['data']:
             # If we're beyond the max columns, we might not have data, and we leave column data empty
             # in this case and don't append anything
-            column_final_data['columnData'].append(row[column_index] if column_index < len(row) else None)
+            column_final_data['columnData'].append(row[column_index] if column_index < MAX_COLUMNS else None)
         
         final_data.append(column_final_data)     
     
