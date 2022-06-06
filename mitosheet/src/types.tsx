@@ -607,7 +607,7 @@ export interface MitoStateUpdaters {
 export interface CSVExportState { exportType: 'csv' }
 export interface ExcelExportState { exportType: 'excel', sheetIndexes: number[] }
 
-export type ToolbarDropdowns = 'Edit' | 'Dataframes' | 'Columns' | 'Graphs' | 'View' | 'Help'
+export type ToolbarDropdowns = 'Edit' | 'Dataframes' | 'Columns' | 'Rows' | 'Graphs' | 'View' | 'Help'
 
 /**
  * State of the UI, all in one place for ease.
