@@ -409,14 +409,14 @@ def make_invalid_promote_row_to_header(error_modal: bool=True) -> MitoError:
     """
     Helper function for creating a invalid_promote_row_to_header.
 
-    Occurs when a user tries to promote a row to header that has row indexes
-    that are the same as this header.
+    Occurs when a user tries to promote a row to header that has duplicated
+    values within it.
     """
-    to_fix = f'This row has values that overlap with row indexes. As such, making this row a header would make column references ambigious, so we cannot make this row the header row' 
+    to_fix = f'This row has duplicated values in it. As such, making this row a header would make column references ambigious, so we cannot make it a header row.' 
     
     return MitoError(
         'no_analysis_error', 
-        "Duplicated Headers and Row Indexes",
+        "Cannot create duplicate headers",
         to_fix,
         error_modal=error_modal
     )

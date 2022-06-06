@@ -60,7 +60,7 @@ class PromoteRowToHeaderStepPerformer(StepPerformer):
         # later while trying to convert to json. We throw an error if this causes
         # errors. See this bug: https://github.com/mito-ds/monorepo/issues/267
         try:
-            convert_df_to_parsed_json(post_state.dfs[sheet_index].head(MAX_ROWS))
+            convert_df_to_parsed_json(post_state.dfs[sheet_index].head(1))
         except:
             raise make_invalid_promote_row_to_header()
 
