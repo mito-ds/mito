@@ -3,13 +3,16 @@
 
 # Copyright (c) Mito.
 # Distributed under the terms of the Modified BSD License.
+import json
 import os
 import pandas as pd
 import pytest
 
 from mitosheet.mito_widget import MitoWidget, sheet
+from mitosheet.tests.test_utils import create_mito_wrapper, create_mito_wrapper_dfs
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.tests.decorators import pandas_post_1_only
+from mitosheet.utils import MAX_COLUMNS
 
 
 def test_example_creation_blank():
@@ -124,3 +127,15 @@ def test_can_call_with_indexes():
 
     multi_index = df.set_index(['B', 'D'])
     sheet(multi_index)
+
+def test_sheet_json_holds_all_columns():
+    df = pd.DataFrame({i: [1, 2, 3] for i in range(MAX_COLUMNS + 100)})
+    mito = create_mito_wrapper_dfs(df)
+    sheet_data = json.loads(mito.mito_widget.sheet_data_json)[0]
+    for i in range(MAX_COLUMNS, MAX_COLUMNS + 100):
+        assert sheet_data['columnIDsMap'][str(i)] is not None
+        assert sheet_data['columnSpreadsheetCodeMap'][str(i)] is not None
+        assert sheet_data['columnFiltersMap'][str(i)] is not None
+        assert sheet_data['columnIDsMap'][str(i)] is not None
+        assert sheet_data['columnDtypeMap'][str(i)] is not None
+        assert sheet_data['columnFormatTypeObjMap'][str(i)] is not None
