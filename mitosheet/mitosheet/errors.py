@@ -405,6 +405,22 @@ def make_no_analysis_error(analysis_id: str, error_modal: bool=True) -> MitoErro
         error_modal=error_modal
     )
 
+def make_invalid_promote_row_to_header(error_modal: bool=True) -> MitoError:
+    """
+    Helper function for creating a invalid_promote_row_to_header.
+
+    Occurs when a user tries to promote a row to header that has row indexes
+    that are the same as this header.
+    """
+    to_fix = f'This row has values that overlap with row indexes. As such, making this row a header would make column references ambigious, so we cannot make this row the header row' 
+    
+    return MitoError(
+        'no_analysis_error', 
+        "Duplicated Headers and Row Indexes",
+        to_fix,
+        error_modal=error_modal
+    )
+
 ARG_FULL_NAME = {
     'int': 'number',
     'float': 'number',
