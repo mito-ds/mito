@@ -109,7 +109,7 @@ def rename_column_headers_in_state(
         sheet_index: int,
         column_id: ColumnID,
         new_column_header: ColumnHeader,
-        level: Union[None, int]
+        level: Optional[int]=None
     ) -> Tuple[Optional[ColumnHeader], float]:
     """
     A helper function for updating a column header in the state, which is useful
@@ -135,7 +135,7 @@ def rename_column_headers_in_state(
             new_column_header,
             original_column_headers
         )
-
+    
     # Update the column header
     pandas_start_time = perf_counter()
     post_state.column_ids.set_column_header(sheet_index, column_id, new_column_header)

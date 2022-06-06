@@ -35,6 +35,8 @@ export enum StepType {
     GraphDuplicate = 'graph_duplicate',
     GraphDelete = 'graph_delete',
     GraphRename = 'graph_rename',
+    DeleteRow = 'delete_row',
+    PromoteRowToHeader = 'promote_row_to_header',
     SplitTextToColumns = 'split_text_to_columns'
 }
 
@@ -605,7 +607,7 @@ export interface MitoStateUpdaters {
 export interface CSVExportState { exportType: 'csv' }
 export interface ExcelExportState { exportType: 'excel', sheetIndexes: number[] }
 
-export type ToolbarDropdowns = 'Edit' | 'Dataframes' | 'Columns' | 'Graphs' | 'View' | 'Help'
+export type ToolbarDropdowns = 'Edit' | 'Dataframes' | 'Columns' | 'Rows' | 'Graphs' | 'View' | 'Help'
 
 /**
  * State of the UI, all in one place for ease.
@@ -661,6 +663,7 @@ export enum ActionEnum {
     Delete_Column = 'delete column',
     Delete_Dataframe = 'delete dataframe',
     Delete_Graph = 'delete graph',
+    Delete_Row = 'delete row',
     Drop_Duplicates = 'drop duplicates',
     Duplicate_Dataframe = 'duplicate dataframe',
     Duplicate_Graph = 'duplicate graph',
@@ -676,6 +679,7 @@ export enum ActionEnum {
     Merge = 'merge',
     Concat_Dataframes = 'concat_dataframes', // Note the unfortunate overlap with concat
     Pivot = 'pivot',
+    Promote_Row_To_Header = 'promote row to header',
     Redo = 'redo',
     Rename_Column = 'rename column',
     Rename_Dataframe = 'rename dataframe',

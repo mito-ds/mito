@@ -11,7 +11,7 @@ import EmptyGridMessages from "./EmptyGridMessages";
 import { focusGrid } from "./focusUtils";
 import GridData from "./GridData";
 import IndexHeaders from "./IndexHeaders";
-import { equalSelections, getColumnIndexesInSelections, getIndexesFromMouseEvent, getIsCellSelected, getIsHeader, getNewSelectionAfterKeyPress, getNewSelectionAfterMouseUp, isNavigationKeyPressed, isSelectionsOnlyColumnHeaders, reconciliateSelections, removeColumnFromSelections } from "./selectionUtils";
+import { equalSelections, getColumnIndexesInSelections, getIndexesFromMouseEvent, getIsCellSelected, getIsHeader, getNewSelectionAfterKeyPress, getNewSelectionAfterMouseUp, getSelectedRowLabelsWithEntireSelectedRow, isNavigationKeyPressed, isSelectionsOnlyColumnHeaders, isSelectionsOnlyIndexHeaders, reconciliateSelections, removeColumnFromSelections } from "./selectionUtils";
 import { calculateCurrentSheetView, calculateNewScrollPosition, calculateTranslate} from "./sheetViewUtils";
 import { firstNonNullOrUndefined, getColumnIDsArrayFromSheetDataArray } from "./utils";
 import { ensureCellVisible } from "./visibilityUtils";
@@ -276,6 +276,11 @@ function EndoGrid(props: {
                 return;
             }
 
+            // If this is a right click, and we're selecting within a range that is already selected,
+            // then the user is likely trying to open a context menu, so we don't change the selection
+            if (e.button === 2 && getIsCellSelected(gridState.selections, rowIndex, columnIndex)) {
+                return;
+            }
             
 
             if (e.metaKey || e.ctrlKey) {
@@ -430,6 +435,12 @@ function EndoGrid(props: {
             return;
         }
 
+        // If this is a right click, and we're selecting within a range that is already selected,
+        // then the user is likely trying to open a context menu, so we don't change the selection
+        if (e.button === 2 && rowIndex && columnIndex && getIsCellSelected(gridState.selections, rowIndex, columnIndex)) {
+            return;
+        }
+
         const newLastSelection = getNewSelectionAfterMouseUp(gridState.selections[gridState.selections.length - 1], rowIndex, columnIndex);
         const newSelections = [...gridState.selections]
         newSelections[newSelections.length - 1] = newLastSelection
@@ -525,21 +536,28 @@ function EndoGrid(props: {
                     return;
                 }
 
-                // If the key pressed backspace or delete key, and the user is selecting some column headers,
-                // then we delete the columns they have selected
-                if ((e.key === 'Backspace' || e.key === 'Delete') && isSelectionsOnlyColumnHeaders(gridState.selections)) {
-                    const columnIndexesSelected = getColumnIndexesInSelections(gridState.selections);
-                    const columnIDsToDelete = columnIndexesSelected.map(colIdx => sheetData?.data[colIdx]?.columnID)
+                if ((e.key === 'Backspace' || e.key === 'Delete')) {
+                    if (isSelectionsOnlyColumnHeaders(gridState.selections)) {
+                        // If the key pressed backspace or delete key, and the user is selecting some column headers,
+                        // then we delete the columns they have selected
+                        const columnIndexesSelected = getColumnIndexesInSelections(gridState.selections);
+                        const columnIDsToDelete = columnIndexesSelected.map(colIdx => sheetData?.data[colIdx]?.columnID)
 
-                    if (columnIDsToDelete !== undefined) {
-                        props.closeOpenEditingPopups();
-                        void mitoAPI.editDeleteColumn(
-                            sheetIndex,
-                            columnIDsToDelete
-                        )
+                        if (columnIDsToDelete !== undefined) {
+                            props.closeOpenEditingPopups();
+                            void mitoAPI.editDeleteColumn(
+                                sheetIndex,
+                                columnIDsToDelete
+                            )
+                        }
+
+                        return;
+                    } else if (isSelectionsOnlyIndexHeaders(gridState.selections)) {
+                        // Similarly, if the user has only index headers selected, we can delete them
+                        void props.mitoAPI.editDeleteRow(props.sheetIndex, getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData));
+                        return;
                     }
-
-                    return;
+                    
                 } 
 
                 // If we press any key that is not a navigation key, then we open the editor
@@ -645,6 +663,9 @@ function EndoGrid(props: {
                         <IndexHeaders
                             sheetData={sheetData}
                             gridState={gridState}
+                            mitoAPI={mitoAPI}
+                            closeOpenEditingPopups={props.closeOpenEditingPopups}
+                            sheetIndex={sheetIndex}
                         />
                     </>
                 }

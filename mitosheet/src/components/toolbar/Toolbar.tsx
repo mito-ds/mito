@@ -19,6 +19,7 @@ import ToolbarGraphsDropdown from './ToolbarGraphsDropdown';
 import ToolbarViewDropdown from './ToolbarViewDropdown';
 import ToolbarHelpDropdown from './ToolbarHelpDropdown';
 import PlanButton from './PlanButton';
+import ToolbarRowsDropdown from './ToolbarRowsDropdown.tsx';
 
 const Toolbar = (
     props: {
@@ -58,6 +59,13 @@ const Toolbar = (
                     </ToolbarMenu>
                     <ToolbarMenu type='Columns' uiState={props.uiState} setUIState={props.setUIState}>
                         <ToolbarColumnsDropdown
+                            actions={props.actions}
+                            uiState={props.uiState}
+                            setUIState={props.setUIState}
+                        />
+                    </ToolbarMenu>
+                    <ToolbarMenu type='Rows' uiState={props.uiState} setUIState={props.setUIState}>
+                        <ToolbarRowsDropdown
                             actions={props.actions}
                             uiState={props.uiState}
                             setUIState={props.setUIState}

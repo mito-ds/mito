@@ -25,6 +25,6 @@ python3 -m venv venv
 source venv/bin/activate
 
 pip install mitoinstaller
-python -m mitoinstaller install --test-pypi
+python -m mitoinstaller install --test-pypi --no-cache-dir
 
 

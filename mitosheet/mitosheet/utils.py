@@ -10,14 +10,14 @@ import json
 import numbers
 import re
 import uuid
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
-from mitosheet.types import ColumnHeader, ColumnID
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import numpy as np
 import pandas as pd
 
-from mitosheet.column_headers import ColumnIDMap
+from mitosheet.column_headers import ColumnIDMap, get_column_header_display
 from mitosheet.sheet_functions.types.utils import get_float_dt_td_columns
+from mitosheet.types import ColumnHeader, ColumnID
 
 # We only send the first 1500 rows of a dataframe; note that this
 # must match this variable defined on the front-end
@@ -108,7 +108,7 @@ def dfs_to_array_for_json(
                     column_ids.column_header_to_column_id[sheet_index],
                     column_format_types[sheet_index],
                     # We only send the first 1500 rows and 1500 columns
-                    max_length=MAX_ROWS,
+                    max_rows=MAX_ROWS,
                     max_columns=MAX_COLUMNS
                 ) 
             )
@@ -126,8 +126,8 @@ def df_to_json_dumpsable(
         column_filters: Dict[ColumnID, Any],
         column_headers_to_column_ids: Dict[ColumnHeader, ColumnID],
         column_format_types: Dict[ColumnID, Dict[ColumnID, str]],
-        max_length: Optional[int]=MAX_ROWS, # How many items you want to display. None when using this function to get unique value counts
-        max_columns: int=MAX_COLUMNS # How many columns you want to display. Unlike max_length, this is always defined
+        max_rows: Optional[int]=MAX_ROWS, # How many items you want to display. None when using this function to get unique value counts
+        max_columns: int=MAX_COLUMNS # How many columns you want to display. Unlike max_rows, this is always defined
     ) -> Dict[str, Any]:
     """
     Returns a dataframe and other metadata represented in a way that can be turned into a 
@@ -157,38 +157,25 @@ def df_to_json_dumpsable(
 
     (num_rows, num_columns) = original_df.shape 
 
-    if max_length is None:
-        df = original_df.copy(deep=True) 
-    else:
-        # we only show the first max_length rows!
-        df = original_df.head(n=max_length if max_length else num_rows).copy(deep=True)
-
-    # we only show the first max_columns columns!
-    df = df.iloc[: , :max_columns]
-
-    json_obj = convert_df_to_parsed_json(df)
+    json_obj = convert_df_to_parsed_json(original_df, max_rows=max_rows, max_columns=max_columns)
 
     final_data = []
     column_dtype_map = {}
-    for column_index, column_header in enumerate(json_obj['columns']):
-        # Because turning the headers to json takes multi-index columns and converts
-        # them into lists, we need to turn them back to tuples so we can index into the
-        # mappings appropriately
-        if isinstance(column_header, list):
-            column_header = tuple(column_header)
-
+    for column_index, column_header in enumerate(original_df.columns):
         column_id = column_headers_to_column_ids[column_header]
 
-        column_final_data = {
+        column_final_data: Dict[str, Any] = {
             'columnID': column_id,
-            'columnHeader': column_header,
+            'columnHeader': get_column_header_display(column_header),
             'columnDtype': str(original_df[column_header].dtype),
             'columnData': [],
             'columnFormatTypeObj': column_format_types[column_id],
         }
         column_dtype_map[column_id] = str(original_df[column_header].dtype)
         for row in json_obj['data']:
-            column_final_data['columnData'].append(row[column_index])
+            # If we're beyond the max columns, we might not have data, and we leave column data empty
+            # in this case and don't append anything
+            column_final_data['columnData'].append(row[column_index] if column_index < MAX_COLUMNS else None)
         
         final_data.append(column_final_data)     
     
@@ -201,8 +188,8 @@ def df_to_json_dumpsable(
         # NOTE: We make sure that all the maps are in the correct order, so things are easy on the
         # front-end and we don't have to worry about sorting
         'columnIDsMap': {
-            column_headers_to_column_ids[column_header]: column_header
-            for column_header in df.keys()
+            column_headers_to_column_ids[column_header]: get_column_header_display(column_header)
+            for column_header in original_df.keys()
         },
         'columnSpreadsheetCodeMap': column_spreadsheet_code,
         'columnFiltersMap': column_filters,
@@ -219,13 +206,21 @@ def get_row_data_array(df: pd.DataFrame) -> List[Any]:
     json_obj = convert_df_to_parsed_json(df)
     return json_obj['data']
 
-def convert_df_to_parsed_json(df: pd.DataFrame) -> Dict[str, Any]:
+def convert_df_to_parsed_json(original_df: pd.DataFrame, max_rows: Optional[int]=MAX_ROWS, max_columns: int=MAX_COLUMNS) -> Dict[str, Any]:
     """
     Returns a dataframe as a json object with the correct formatting
     """
+    if max_rows is None:
+        df = original_df.copy(deep=True) 
+    else:
+        # we only show the first max_rows rows!
+        df = original_df.head(n=max_rows).copy(deep=True)
+
+    # we only show the first max_columns columns!
+    df = df.iloc[: , :max_columns]
 
     float_columns, date_columns, timedelta_columns = get_float_dt_td_columns(df)
-    # Second, we figure out which of the columns contain dates, and we
+    # We figure out which of the columns contain dates, and we
     # convert them to string columns (for formatting reasons).
     # NOTE: we don't use date_format='iso' in df.to_json call as it appends seconds to the object, 
     # see here: https://stackoverflow.com/questions/52730953/pandas-to-json-output-date-format-in-specific-form
@@ -243,6 +238,14 @@ def convert_df_to_parsed_json(df: pd.DataFrame) -> Dict[str, Any]:
         # Convert the value to a string if it is a number, but leave it alone if its a NaN 
         # as to preserve the formatting of NaN values. 
         df[column_header] = df[column_header].apply(lambda x: x if np.isnan(x) else str(x))
+
+    # Then, we check the index. If it is a datetime or a timedelta, we have to do
+    # the same conversions that we did above
+    # Then, if we have a datetime index, we update the index to be jsonified better
+    if isinstance(df.index, pd.DatetimeIndex):
+        df.index = df.index.strftime('%Y-%m-%d %X')
+    elif isinstance(df.index, pd.TimedeltaIndex):
+        df.index = df.index.to_series().apply(lambda x: str(x))
 
     json_obj = json.loads(df.to_json(orient="split"))
     # Then, we go through and find all the null values (which are infinities),
@@ -290,4 +293,18 @@ def run_command(command_array: List[str]) -> Tuple[str, str]:
     stderr = completed_process.stderr if isinstance(completed_process.stderr, str) else ''
     return stdout, stderr
 
-
+# When you promote a row to a header, the data it can contain might be 
+# an numpy type, which json.dumps cannot encode by default. Thus, any
+# where we use json.dumps and might have column headers, we need to 
+# pass this as a cls=NpEncoder to the json.dumps function
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.bool_):
+            return bool(obj)
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NpEncoder, self).default(obj)

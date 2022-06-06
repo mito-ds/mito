@@ -133,7 +133,7 @@ class State:
             deep_sheet_indexes = []
         
         return State(
-            [df.copy(deep=True) if index in deep_sheet_indexes else df.copy(deep=False) for index, df in enumerate(self.dfs)],
+            [df.copy(deep=index in deep_sheet_indexes) for index, df in enumerate(self.dfs)],
             df_names=deepcopy(self.df_names),
             df_sources=deepcopy(self.df_sources),
             column_ids=deepcopy(self.column_ids),

@@ -702,6 +702,28 @@ export default class MitoAPI {
     }
 
     /*
+        Adds a delete column message with the passed parameters
+    */
+    async editDeleteRow(
+        sheetIndex: number,
+        labels: (string | number)[],
+    ): Promise<void> {
+
+        const stepID = getRandomId();
+        await this.send({
+            'event': 'edit_event',
+            'type': 'delete_row_edit',
+            'step_id': stepID,
+            'params': {
+                'sheet_index': sheetIndex,
+                'labels': labels
+            }
+        }, {})
+    }
+
+
+
+    /*
         Does a pivot with the passed parameters, returning the ID of the edit
         event that was generated (in case you want to overwrite it).
     */
@@ -735,6 +757,26 @@ export default class MitoAPI {
         }, {});
 
         return stepID;
+    }
+
+    /*
+        Adds a delete column message with the passed parameters
+    */
+    async editPromoteRowToHeader(
+        sheetIndex: number,
+        index: string | number,
+    ): Promise<void> {
+        const stepID = getRandomId();
+
+        await this.send({
+            'event': 'edit_event',
+            'type': 'promote_row_to_header_edit',
+            'step_id': stepID,
+            'params': {
+                'sheet_index': sheetIndex,
+                'index': index
+            }
+        }, {})
     }
 
     /*
