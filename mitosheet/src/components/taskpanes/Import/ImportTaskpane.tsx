@@ -13,8 +13,6 @@ import FileBrowser from './FileBrowser';
 import { getElementsToDisplay, getFileEnding, getImportButtonStatus } from './importUtils';
 import XLSXImport from './XLSXImport';
 
-
-
 interface ImportTaskpaneProps {
     mitoAPI: MitoAPI;
     userProfile: UserProfile;
@@ -135,7 +133,6 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
 
     // Loads the path data from the API and sets it for the file browser
     async function loadPathContents(currPathParts: string[]) {
-        console.log('curr path parts to load contents of', currPathParts)
         setImportState(prevImportState => {
             return {
                 ...prevImportState,

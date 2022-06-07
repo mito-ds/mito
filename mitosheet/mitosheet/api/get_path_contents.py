@@ -33,7 +33,6 @@ def get_windows_drives() -> List[str]:
     """
     drives = []
 
-    print('getting windows drives')
     # Ctypes only exports windll on windows computers. 
     # Read more here: https://docs.python.org/3/library/ctypes.html#module-ctypes
     if platform.system() == 'Windows':
@@ -68,7 +67,6 @@ def get_path_parts(path: str) -> List[str]:
     # as it breaks when path != ''
     while 1:
         path, folder = os.path.split(path)
-        print(path, folder)
 
         if folder != "":
             folders.append(folder)
@@ -98,6 +96,8 @@ def get_path_contents(params: Dict[str, Any]) -> str:
     # Join the path and normalize it (note this should be OS independent)
     path = os.path.join(*path_parts)
     path = os.path.normpath(path)
+
+    print('path: ', path)
 
     if path == MITO_DRIVE_PLACEHOLDER and platform.system() == 'Windows':
         # If the user is on windows and they are accessing the Mito drive browser, get all of the drives on their computer
