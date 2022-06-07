@@ -10,8 +10,6 @@ const isPathPartWindowsDrive = (path_part: string): boolean => {
     return path_part.length == 2 && path_part[1] === ':'
 }
 
-const MITO_DRIVE_PLACEHOLDER = 'mito_drive_placeholder'
-
 /* 
     At the top of the file browser, users can select
     pieces of the path.
@@ -28,13 +26,8 @@ function FileBrowserPathSelector(props: FileBrowserPathSelectorProps): JSX.Eleme
         if (props.pathParts === undefined) {
             return;
         }
-
-        if (i === -1) {
-            props.setCurrPathParts([MITO_DRIVE_PLACEHOLDER])
-        } else {
-            const subPathParts = props.pathParts.slice(0, i + 1);
-            props.setCurrPathParts(subPathParts);
-        }
+        const subPathParts = props.pathParts.slice(0, i + 1);
+        props.setCurrPathParts(subPathParts);
     }
 
     return (
@@ -50,7 +43,7 @@ function FileBrowserPathSelector(props: FileBrowserPathSelectorProps): JSX.Eleme
                     // We replace the first path item with the drive indicator to let the user switch drives
                     return (
                         <React.Fragment key={i}>
-                            <div className='file-browser-path-part' key={i} onClick={() => {updateSelectedPath(-1)}}>
+                            <div className='file-browser-path-part' key={i} onClick={() => {updateSelectedPath(i)}}>
                                 Drive
                             </div>
                             <div className='file-browser-path-seperator'>

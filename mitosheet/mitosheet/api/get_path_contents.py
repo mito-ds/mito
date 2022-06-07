@@ -12,7 +12,7 @@ import string
 # The Mito drive placeholder is needed so that we can mock a root directory for Windows that 
 # allows the user to select one of their drives to nagivate in. If we were only supporting Mac, 
 # we would not need this becuase the root folder is just /
-MITO_DRIVE_PLACEHOLDER = 'mito_drive_placeholder'
+
 
 def get_path_modified(path: str, f: str) -> Optional[str]:
     """
@@ -53,10 +53,6 @@ def get_path_parts(path: str) -> List[str]:
 
     TODO: test this on Windows
     """
-    # If path is the Mito drive placeholder, just return it
-    if path == MITO_DRIVE_PLACEHOLDER:
-        return [MITO_DRIVE_PLACEHOLDER]
-
     # On Windows, drive will be C: or D:, etc. On Unix, drive will be empty.
     drive, path_and_file = os.path.splitdrive(path)
     path, file = os.path.split(path_and_file)
@@ -76,7 +72,6 @@ def get_path_parts(path: str) -> List[str]:
             break
 
     folders.reverse()
-    print('drive: ', [drive], " folders: ", folders, ' file: ', [file])
     if drive != '':
         # If the drive is '' then we are on a Linux system and the root folder / is contained in the folders.
         # We get rid of the empty path so that we can easily handle windows and linux paths the same.
@@ -92,29 +87,24 @@ def get_path_contents(params: Dict[str, Any]) -> str:
     path parts
     """ 
     path_parts = params['path_parts']
+    path_length = len(path_parts)
 
     # Join the path and normalize it (note this should be OS independent)
     path = os.path.join(*path_parts)
     path = os.path.normpath(path)
 
-    print('path: ', path)
-
-    if path == MITO_DRIVE_PLACEHOLDER and platform.system() == 'Windows':
-        # If the user is on windows and they are accessing the Mito drive browser, get all of the drives on their computer
+    if path_length == 1 and platform.system() == 'Windows':
+        # If the path only has one part, it means they are accessing the root folder. If the user is on
+        # Windows, this folder doesn't exist so we fake one by letting them pick amongst their drives.
         filenames = []
         dirnames = get_windows_drives()
     else:
-        # If the user is on mac and they are accessing the Mito drive browser, send them to the mac root folder
-        if path == MITO_DRIVE_PLACEHOLDER:
-            path = '/'
-
         # We default the path to "." on the frontend, but we replace
         # this with the current directory full path so we can get all
         # the path parts correctly 
         if path == '.':
             path = os.getcwd()
 
-        print('hererer')
         try:
             # This loop defines these variables, but does nothing with them
             # so we can then return them (which is why we break immediately)
@@ -135,8 +125,6 @@ def get_path_contents(params: Dict[str, Any]) -> str:
     # to see (as they would otherwise). 
     # Linux, Max == starts with "."
     # Windows == "$"
-
-    print(dirnames, filenames)
     dirnames = [d for d in dirnames if (not d.startswith('.') and not d.startswith('$'))]
     filenames = [f for f in filenames if (not f.startswith('.') and not f.startswith('$'))]
 
