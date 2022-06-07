@@ -1,5 +1,5 @@
 import React from 'react';
-import { DOCUMENTATION_LINK_TUTORIAL } from '../../data/documentationLinks';
+import { DOCUMENTATION_LINK_SPREADSHEET_FORMULAS, DOCUMENTATION_LINK_TUTORIAL } from '../../data/documentationLinks';
 
 /* 
     To create a new tour:
@@ -122,60 +122,30 @@ const ColumnFormulasTourSteps: TourStep[] = [
     {  
         tourName: TourName.COLUMN_FORMULAS,
         stepNumber: 1,
-        stepHeader: 'Writing Excel formulas',
+        stepHeader: 'Mito Formula are Different',
         stepHeaderBackgroundColor: '#BCDFBC',
-        stepText: <div> Mito supports the most popular Excel functions, making it easy to transform your data with the formulas you’re most comfortable with. <b>Click on the Add Col button</b> to create a new column. </div>,
-        location: TourPopupLocation.BOTTOM_LEFT,
+        stepText: <div> In Mito, you can write formulas in the column that you are referencing. This allows you to easily manipulate columns without creating unnecessary helper columns. </div>,
+        location: TourPopupLocation.BOTTOM_RIGHT,
         advanceButtonText: "Continue",
         displayBackButton: true,
     },
     {
         tourName: TourName.COLUMN_FORMULAS,
         stepNumber: 2,
-        stepHeader: 'Open the cell editor',
+        stepHeader: 'Manually Reapply Formulas',
         stepHeaderBackgroundColor: '#DDA1A1',
-        stepText: <div> <b>Click on any cell in your new column</b> -- it&apos;s to the right of your selected column. <b>Press Enter</b> to open the cell editor. </div>,
-        location: TourPopupLocation.BOTTOM_LEFT,
+        stepText: <div> Mito differs from other spreadsheets because formulas do not automatically update when the input data changes. If you want to update a specific formula, simply resubmit it!  </div>,
+        location: TourPopupLocation.BOTTOM_RIGHT,
         advanceButtonText: "Continue",
         displayBackButton: true
     },
     {
         tourName: TourName.COLUMN_FORMULAS,
         stepNumber: 3,
-        stepHeader: 'Write your first formula',
-        stepHeaderBackgroundColor: '#79C2F8',
-        // eslint-disable-next-line react/display-name
-        stepTextFunction: (columnHeader: string): JSX.Element => {
-            return (<div>
-                <b>Write the formula =LEN({columnHeader}) </b> in the cell editor and <b> press Enter</b>. The LEN formula returns the length of each cell in column {columnHeader}.
-            </div>)
-        },
-        location: TourPopupLocation.BOTTOM_LEFT,
-        advanceButtonText: "Continue",
-        displayBackButton: true
-    },
-    {
-        tourName: TourName.COLUMN_FORMULAS,
-        stepNumber: 4,
-        stepHeader: 'Give your column a name',
-        stepHeaderBackgroundColor: '#79C2F8',
-        // eslint-disable-next-line react/display-name
-        stepTextFunction: (columnHeader: string): JSX.Element => {
-            return (<div>
-                <b>Click on the column&apos;s header </b> to give your column a more meaningful name. At the top of the sidebar that appears, <b>name the column Len_of_{columnHeader} </b>
-            </div>)
-        },
-        location: TourPopupLocation.BOTTOM_LEFT,
-        advanceButtonText: "Continue",
-        displayBackButton: true
-    },
-    {
-        tourName: TourName.COLUMN_FORMULAS,
-        stepNumber: 5,
-        stepHeader: "See all of Mito's formulas",
-        stepHeaderBackgroundColor: '#79C2F8',
-        stepText: <div>Congrats on writing your first formula! To see a full list of Mito’s functions, <b>click on the Docs</b> button in the top right corner of Mito.</div>,
-        location: TourPopupLocation.BOTTOM_LEFT,
+        stepHeader: 'Become a Formula Expert',
+        stepHeaderBackgroundColor: '#DDA1A1',
+        stepText: <div> Want to learn more about how Mito's formulas are different? <a className='text-body-1-link text-color-white-important' href={DOCUMENTATION_LINK_SPREADSHEET_FORMULAS} target="_blank" rel="noreferrer">Check out our detailed formula documentation.</a></div>,
+        location: TourPopupLocation.BOTTOM_RIGHT,
         advanceButtonText: "Continue",
         displayBackButton: true
     },

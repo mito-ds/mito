@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../../../../css/endo/CellEditor.css';
 import MitoAPI from '../../../jupyter/api';
-import { formulaEndsInColumnHeader, getFullFormula, getSuggestedColumnHeaders, getDocumentationFunction, getSuggestedFunctions } from './cellEditorUtils';
+import { formulaEndsInColumnHeader, getFullFormula, getSuggestedColumnHeaders, getDocumentationFunction, getSuggestedFunctions, getStartingFormula } from './cellEditorUtils';
 import { KEYS_TO_IGNORE_IF_PRESSED_ALONE } from '../EndoGrid';
 import { focusGrid } from '../focusUtils';
 import { getColumnHeadersInSelection, getNewSelectionAfterKeyPress, isNavigationKeyPressed } from '../selectionUtils';
@@ -15,6 +15,7 @@ import { submitRenameColumnHeader } from '../columnHeaderUtils';
 import { isMitoError } from '../../../utils/errors';
 import { TaskpaneType } from '../../taskpanes/taskpanes';
 import Toggle from '../../elements/Toggle';
+import Row from '../../spacing/Row';
 
 const MAX_SUGGESTIONS = 4;
 // NOTE: we just set the width to 250 pixels
@@ -96,6 +97,18 @@ const CellEditor = (props: {
         })
     }, [props.editorState.pendingSelectedColumns]);
 
+    useEffect(() => {
+        const startingFormula = getStartingFormula(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex, editingMode);
+        props.setEditorState(prevEditingState => {
+            if (prevEditingState === undefined) {
+                return prevEditingState;
+            }
+            return {
+                ...prevEditingState,
+                formula: startingFormula
+            }
+        })
+    }, [editingMode])
 
     if (columnID === undefined || columnHeader === undefined) {
         return <></>;
@@ -480,10 +493,9 @@ const CellEditor = (props: {
             */}
             <div className='cell-editor-dropdown-box' style={{width: props.editorState.editorLocation === 'cell' ? `${CELL_EDITOR_WIDTH}px` : '300px'}}>
                 {cellEditorError === undefined && 
-                    <>
-                        <p className={classNames('cell-editor-label', 'text-subtext-1', 'pl-5px')}>
-                            {props.editorState.rowIndex < 0 ? "You're renaming a column header" : 
-                                editingMode === 'set_column_formula' ? "You're setting the formula of this column" : "You're changing the value of this cell"}
+                    <Row suppressTopBottomMargin justify='space-between' className='cell-editor-label'>
+                        <p className={classNames('text-subtext-1', 'pl-5px', 'mt-2px')} title={editingMode === 'set_column_formula' ? 'You are currently editing the entire column. Setting a formula will change all values in the column.' : 'You are currently editing a specific cell. Changing this value will only effect this cell.'}>
+                            Edit entire column
                         </p>
                         <Toggle
                             value={editingMode === 'set_column_formula' ? true : false}
@@ -492,8 +504,9 @@ const CellEditor = (props: {
                                     return prevEditingMode === 'set_column_formula' ? 'set_cell_value' : 'set_column_formula'
                                 })
                             }}
+                            height='20px'
                         />
-                    </>
+                    </Row>
                 }
                 {/* Show an error if there is currently an error */}
                 {cellEditorError !== undefined &&

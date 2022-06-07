@@ -56,8 +56,6 @@ const Tour = (props: {
     useEffect(() => {
         if (steps[stepNumber].tourName === TourName.PIVOT && steps[stepNumber].stepNumber === 1) {
             props.setHighlightPivotTableButton(true)
-        } else if (steps[stepNumber].tourName === TourName.COLUMN_FORMULAS && steps[stepNumber].stepNumber === 1) {
-            props.setHighlightAddColButton(true)
         } else {
             props.setHighlightPivotTableButton(false)
             props.setHighlightAddColButton(false)

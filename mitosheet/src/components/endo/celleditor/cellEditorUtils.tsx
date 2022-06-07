@@ -78,7 +78,7 @@ const KEYS_TO_ENTER_CELL_EDITING_MODE_EMPTY = [
  * @param e - optionally, if cell editing mode is being entered into by a keypress, pass the event here
  * @returns the formula or value that the cell editor should default to
  */
-export const getStartingFormula = (sheetData: SheetData | undefined, rowIndex: number, columnIndex: number, e?: KeyboardEvent): string => {
+export const getStartingFormula = (sheetData: SheetData | undefined, rowIndex: number, columnIndex: number, editingMode: 'set_column_formula' | 'set_cell_value', e?: KeyboardEvent): string => {
   
     const {columnFormula, cellValue, columnHeader} = getCellDataFromCellIndexes(sheetData, rowIndex, columnIndex);
 
@@ -92,8 +92,8 @@ export const getStartingFormula = (sheetData: SheetData | undefined, rowIndex: n
         } else {
             originalValue = getDisplayColumnHeader(columnHeader[rowIndexToColumnHeaderLevel(columnHeader, rowIndex)]);
         }
-    } else if (columnFormula !== undefined && columnFormula !== '') {
-        originalValue = columnFormula;
+    } else if (editingMode === 'set_column_formula') {
+        originalValue = columnFormula ? columnFormula : '';
     } else {
         originalValue = cellValue + ''
     }

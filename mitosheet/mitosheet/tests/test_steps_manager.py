@@ -21,7 +21,6 @@ def test_create_steps_manager():
     assert steps_manager.curr_step_idx == 0
     assert steps_manager.curr_step.step_type == 'initialize'
     assert steps_manager.curr_step.column_spreadsheet_code == [{'A': ''}, {'A': ''}]
-    assert steps_manager.curr_step.column_evaluation_graph == [{'A': set()}, {'A': set()}]
     assert steps_manager.curr_step.dfs[0].equals(df1)
     assert steps_manager.curr_step.dfs[1].equals(df2)
 

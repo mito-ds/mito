@@ -11,8 +11,6 @@ from mitosheet.code_chunks.no_op_code_chunk import NoOpCodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.rename_columns_code_chunk import RenameColumnsCodeChunk
 
 from mitosheet.errors import make_column_exists_error
-from mitosheet.evaluation_graph_utils import create_column_evaluation_graph
-from mitosheet.parser import safe_replace
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param

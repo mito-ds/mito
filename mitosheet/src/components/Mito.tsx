@@ -423,7 +423,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
         prevOpenTaskpaneRef.current = uiState.currOpenTaskpane.type;
 
-    }, [uiState])
+    }, [uiState]);
+
+    // If we're opening the 
 
     const dfNames = sheetDataArray.map(sheetData => sheetData.dfName);
     const dfSources = sheetDataArray.map(sheetData => sheetData.dfSource);
@@ -714,6 +716,11 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
         if (!userProfile.receivedTours.includes(TourName.INTRO)) {
             toursToDisplay.push(TourName.INTRO)
+        }
+
+        // If we open the cell editor for the first time, we give the user this tour
+        if (editorState !== undefined && editorState.rowIndex >= 0 && !userProfile.receivedTours.includes(TourName.COLUMN_FORMULAS)) {
+            toursToDisplay.push(TourName.COLUMN_FORMULAS)
         }
 
         return (
