@@ -5,7 +5,18 @@
 # Distributed under the terms of the GPL License.
 import json
 import os
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
+
+def get_path_modified(path: str, f: str) -> Optional[str]:
+    """
+    For a path, returns when it was last modified. If that path is unaccessible, 
+    for example if the path is a disconnected Google Drive that can no longer be read,
+    it returns None
+    """
+    try:
+        return os.path.getmtime(os.path.join(path, f))
+    except:
+        return None
 
 
 def get_path_parts(path: str) -> List[str]:
@@ -70,20 +81,32 @@ def get_path_contents(params: Dict[str, Any]) -> str:
         dirnames = []
         filenames = []
     
-    # We then filter out any hidden folders, which we don't want users to be able
+    # We then filter out any hidden folders and files, which we don't want users to be able
     # to see (as they would otherwise). 
     # Linux, Max == starts with "."
     # Windows == "$"
     dirnames = [d for d in dirnames if (not d.startswith('.') and not d.startswith('$'))]
+    filenames = [f for f in filenames if (not f.startswith('.') and not f.startswith('$'))]
+
+    print(json.dumps({
+        'path': path,
+        'path_parts': get_path_parts(path),
+        # For each element, record if it's a directory, and the time it was last modified
+        'elements': [
+            {'name': f, 'isDirectory': False, 'lastModified': get_path_modified(path, f)} for f in filenames
+        ] + [
+            {'name': d, 'isDirectory': True, 'lastModified': get_path_modified(path, d)} for d in dirnames
+        ]
+    }))
 
     return json.dumps({
         'path': path,
         'path_parts': get_path_parts(path),
         # For each element, record if it's a directory, and the time it was last modified
         'elements': [
-            {'name': f, 'isDirectory': False, 'lastModified': os.path.getmtime(os.path.join(path, f))} for f in filenames
+            {'name': f, 'isDirectory': False, 'lastModified': get_path_modified(path, f)} for f in filenames
         ] + [
-            {'name': d, 'isDirectory': True, 'lastModified': os.path.getmtime(os.path.join(path, d))} for d in dirnames
+            {'name': d, 'isDirectory': True, 'lastModified': get_path_modified(path, d)} for d in dirnames
         ]
     })
     

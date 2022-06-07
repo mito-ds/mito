@@ -10,8 +10,14 @@ const YEAR = 365 * DAY;
 /**
  * Given a timestamp, returns a string that represents how long ago 
  * this was - for displaying to the user.
+ * 
+ * If the timestamp doesn't exist, it just returns '--', like Finder.
  */
 export const getLastModifiedString = (timestamp: number): string => {
+    if (timestamp === null) {
+        return '--'
+    }
+    
     const delta = Math.floor(Date.now() / 1000) - timestamp;
 
     if (delta < HOUR) {
