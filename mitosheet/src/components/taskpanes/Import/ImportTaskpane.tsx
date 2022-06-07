@@ -135,6 +135,7 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
 
     // Loads the path data from the API and sets it for the file browser
     async function loadPathContents(currPathParts: string[]) {
+        console.log('curr path parts to load contents of', currPathParts)
         setImportState(prevImportState => {
             return {
                 ...prevImportState,
