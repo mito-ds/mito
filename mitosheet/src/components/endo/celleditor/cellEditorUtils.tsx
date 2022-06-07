@@ -25,9 +25,6 @@ export const getFullFormula = (
         return formula;
     }
 
-    // Don't suggest the current column
-    pendingSelectedColumns.columnHeaders = pendingSelectedColumns.columnHeaders.filter(ch => ch !== columnHeader);
-
     const columnHeaderString = pendingSelectedColumns.columnHeaders.map(ch => getDisplayColumnHeader(ch)).join(', ');
 
     const beforeSelection = formula.substring(0, pendingSelectedColumns.selectionStart);
@@ -153,11 +150,10 @@ export const formulaEndsInColumnHeader = (formula: string, sheetData: SheetData)
 export const getSuggestedColumnHeaders = (formula: string, columnID: ColumnID, sheetData: SheetData): [number, [string, string][]] => {
     
     const columnHeadersAndIDs: [string, string][] = sheetData.data.map(c => [c.columnID, getDisplayColumnHeader(c.columnHeader)]);
-    const columnHeadersAndIDsWithoutCurrentColumn = columnHeadersAndIDs.filter(([cid,])  => {return cid != columnID});
 
     // Find the max column header length, and look for column headers matched over this,
     // but don't let it be longer than 50, for performance reasons
-    const maxColumnHeaderLength = Math.min(Math.max(...columnHeadersAndIDsWithoutCurrentColumn.map(([, columnHeader]) => columnHeader.length), formula.length), 50);
+    const maxColumnHeaderLength = Math.min(Math.max(...columnHeadersAndIDs.map(([, columnHeader]) => columnHeader.length), formula.length), 50);
     
     /* 
         We get various substrings at the end of the formula, and we check them for
@@ -171,7 +167,7 @@ export const getSuggestedColumnHeaders = (formula: string, columnID: ColumnID, s
         if (substring === '' || (charBeforeSubstringStarts && charBeforeSubstringStarts.match(/^[0-9a-z]+$/i))) {
             continue;
         }
-        const foundColumns = columnHeadersAndIDsWithoutCurrentColumn.filter(([, columnHeader]) => columnHeader.toLowerCase().startsWith(substring));
+        const foundColumns = columnHeadersAndIDs.filter(([, columnHeader]) => columnHeader.toLowerCase().startsWith(substring));
         
         // Actually build the suggestions , with subtext that displays the column type
         const suggestedColumnHeaders: [string, string][] = foundColumns.map(([columnID, columnHeader]) => {

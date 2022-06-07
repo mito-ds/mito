@@ -9,8 +9,6 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import numpy as np
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.column_steps.refresh_dependant_columns_code_chunk import \
-    RefreshDependantColumnsCodeChunk
 from mitosheet.code_chunks.step_performers.set_cell_value_code_chunk import \
     SetCellValueCodeChunk
 from mitosheet.errors import (make_cast_value_to_type_error,
@@ -20,19 +18,15 @@ from mitosheet.sheet_functions.types.utils import (is_int_dtype, is_none_type,
                                                    is_number_dtype,
                                                    is_string_dtype)
 from mitosheet.state import State
-from mitosheet.step_performers.column_steps.set_column_formula import \
-    refresh_dependant_columns
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
-from mitosheet.transpiler.transpile_utils import \
-    column_header_to_transpiled_code
 from mitosheet.types import ColumnID
 
 
 class SetCellValueStepPerformer(StepPerformer):
     """
     A set_cell_value step, allows you to set the value
-    of a given cell in the sheet and then recalculates it's dependents.
+    of a given cell in the sheet.
     """
 
     @classmethod
@@ -93,9 +87,6 @@ class SetCellValueStepPerformer(StepPerformer):
         post_state.dfs[sheet_index].at[row_index, column_header] = type_corrected_new_value
         pandas_processing_time = perf_counter() - pandas_start_time
 
-        # Update the column formula, and then execute the new formula graph
-        refresh_dependant_columns(post_state, post_state.dfs[sheet_index], sheet_index, column_id)
-
         return post_state, {
             'type_corrected_new_value': type_corrected_new_value,
             'pandas_processing_time': pandas_processing_time
@@ -111,18 +102,7 @@ class SetCellValueStepPerformer(StepPerformer):
     ) -> List[CodeChunk]:
 
         return [
-            SetCellValueCodeChunk(prev_state, post_state, params, execution_data),
-            # Note that we also refresh all the dependant columns, starting with the set cell value
-            RefreshDependantColumnsCodeChunk(
-                prev_state, 
-                post_state, 
-                # We construct the params for this CodeChunk as well
-                {
-                    'sheet_index': params['sheet_index'],
-                    'column_id': params['column_id'],
-                }, 
-                None
-            )
+            SetCellValueCodeChunk(prev_state, post_state, params, execution_data)
         ]
 
 

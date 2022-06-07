@@ -54,7 +54,7 @@ type ControlPanelTaskpaneProps = {
 export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Element => {
     
     // Get the values for the first cell that was selected, in accordance with our standard
-    const {columnHeader, columnID, columnFormula, columnFilters, columnDtype, columnFormatType} = getCellDataFromCellIndexes(props.sheetData, props.selection.startingRowIndex, props.selection.startingColumnIndex);
+    const {columnHeader, columnID, columnFilters, columnDtype, columnFormatType} = getCellDataFromCellIndexes(props.sheetData, props.selection.startingRowIndex, props.selection.startingColumnIndex);
 
     const [filters, _setFilters] = useState(columnFilters !== undefined ? columnFilters.filters : []);
     const [operator, setOperator] = useState(columnFilters !== undefined ? columnFilters.operator : 'And');
@@ -91,7 +91,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
     
     // If this is not a valid column, don't render anything, and close the takspane! 
     // We have to do this after the useState calls, to make sure this is valid react
-    if (columnHeader === undefined || columnID === undefined || columnFormula === undefined || columnDtype == undefined || columnFormatType == undefined) {
+    if (columnHeader === undefined || columnID === undefined || columnDtype == undefined || columnFormatType == undefined) {
         props.setUIState((prevUIState) => {
             return {
                 ...prevUIState,
@@ -179,7 +179,6 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                                 selectedSheetIndex={props.selectedSheetIndex}
                                 columnID={columnID}
                                 columnDtype={columnDtype}
-                                columnFormula={columnFormula} 
                                 mitoAPI={props.mitoAPI}
                                 lastStepIndex={props.lastStepIndex}
                                 lastStepType={props.lastStepType}

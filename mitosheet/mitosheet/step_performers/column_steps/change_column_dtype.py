@@ -9,7 +9,6 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.change_column_dtype_code_chunk import ChangeColumnDtypeCodeChunk
-from mitosheet.code_chunks.step_performers.column_steps.refresh_dependant_columns_code_chunk import RefreshDependantColumnsCodeChunk
 
 from mitosheet.errors import get_recent_traceback, make_invalid_column_type_change_error
 from mitosheet.sheet_functions.types import to_int_series
@@ -25,8 +24,6 @@ from mitosheet.sheet_functions.types.utils import (get_datetime_format,
                                                    is_string_dtype,
                                                    is_timedelta_dtype)
 from mitosheet.state import FORMAT_DEFAULT, State
-from mitosheet.step_performers.column_steps.set_column_formula import (
-    refresh_dependant_columns)
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
 from mitosheet.types import ColumnID
@@ -200,8 +197,6 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
             if not ((is_int_dtype(old_dtype) or is_float_dtype(old_dtype)) and (is_int_dtype(new_dtype) or is_float_dtype(new_dtype))):
                 post_state.column_format_types[sheet_index][column_id] = {'type': FORMAT_DEFAULT}
                 
-            refresh_dependant_columns(post_state, post_state.dfs[sheet_index], sheet_index, column_id)
-
             return post_state, {
                 'pandas_processing_time': pandas_processing_time
             }
@@ -223,18 +218,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            ChangeColumnDtypeCodeChunk(prev_state, post_state, params, execution_data),
-            # Note that we also refresh all the dependant columns, starting with the set cell value
-            RefreshDependantColumnsCodeChunk(
-                prev_state, 
-                post_state, 
-                # We construct the params for this CodeChunk as well
-                {
-                    'sheet_index': params['sheet_index'],
-                    'column_id': params['column_id'],
-                }, 
-                None
-            )
+            ChangeColumnDtypeCodeChunk(prev_state, post_state, params, execution_data)
         ]
 
     @classmethod

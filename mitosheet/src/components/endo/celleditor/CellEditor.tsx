@@ -14,6 +14,7 @@ import { getColumnHeaderParts, getDisplayColumnHeader} from '../../../utils/colu
 import { submitRenameColumnHeader } from '../columnHeaderUtils';
 import { isMitoError } from '../../../utils/errors';
 import { TaskpaneType } from '../../taskpanes/taskpanes';
+import Toggle from '../../elements/Toggle';
 
 const MAX_SUGGESTIONS = 4;
 // NOTE: we just set the width to 250 pixels
@@ -49,6 +50,8 @@ const CellEditor = (props: {
     const [selectedSuggestionIndex, setSavedSelectedSuggestionIndex] = useState(-1);
     const [loading, setLoading] = useState(false);
     const [cellEditorError, setCellEditorError] = useState<string | undefined>(undefined);
+    const [editingMode, setEditingMode] = useState<'set_column_formula' | 'set_cell_value'>('set_column_formula');
+
     const {columnID, columnHeader} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
 
     // When we first render the cell editor input, make sure to save it and focus on it
@@ -97,8 +100,6 @@ const CellEditor = (props: {
     if (columnID === undefined || columnHeader === undefined) {
         return <></>;
     }
-
-    const isFormulaColumn = props.sheetData.columnSpreadsheetCodeMap[columnID].length > 0;
 
     const fullFormula = getFullFormula(props.editorState.formula, columnHeader, props.editorState.pendingSelectedColumns);
     const endsInColumnHeader = formulaEndsInColumnHeader(fullFormula, props.sheetData);
@@ -222,7 +223,7 @@ const CellEditor = (props: {
             const arrowUp = e.key === 'Up' || e.key === 'ArrowUp';
             const arrowDown = e.key === 'Down' || e.key === 'ArrowDown';
 
-            if (!endsInColumnHeader && isFormulaColumn && (arrowUp || arrowDown) && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0)) {
+            if (!endsInColumnHeader && editingMode === 'set_column_formula' && (arrowUp || arrowDown) && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0)) {
                 // (A) - They are navigating inside the suggestion box
 
                 // Prevent the default, so we don't move in the input
@@ -386,7 +387,7 @@ const CellEditor = (props: {
             const finalColumnHeader = getColumnHeaderParts(columnHeader).finalColumnHeader;
             submitRenameColumnHeader(columnHeader, finalColumnHeader, columnID, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI)
         } else {
-            if (isFormulaColumn) {
+            if (editingMode === 'set_column_formula') {
                 // Change of formula
                 errorMessage = await props.mitoAPI.editSetColumnFormula(
                     props.sheetIndex,
@@ -479,10 +480,20 @@ const CellEditor = (props: {
             */}
             <div className='cell-editor-dropdown-box' style={{width: props.editorState.editorLocation === 'cell' ? `${CELL_EDITOR_WIDTH}px` : '300px'}}>
                 {cellEditorError === undefined && 
-                    <p className={classNames('cell-editor-label', 'text-subtext-1', 'pl-5px')}>
-                        {props.editorState.rowIndex < 0 ? "You're renaming a column header" : 
-                            isFormulaColumn ? "You're setting the formula of this column" : "You're changing the value of this cell"}
-                    </p>
+                    <>
+                        <p className={classNames('cell-editor-label', 'text-subtext-1', 'pl-5px')}>
+                            {props.editorState.rowIndex < 0 ? "You're renaming a column header" : 
+                                editingMode === 'set_column_formula' ? "You're setting the formula of this column" : "You're changing the value of this cell"}
+                        </p>
+                        <Toggle
+                            value={editingMode === 'set_column_formula' ? true : false}
+                            onChange={() => {
+                                setEditingMode(prevEditingMode => {
+                                    return prevEditingMode === 'set_column_formula' ? 'set_cell_value' : 'set_column_formula'
+                                })
+                            }}
+                        />
+                    </>
                 }
                 {/* Show an error if there is currently an error */}
                 {cellEditorError !== undefined &&
@@ -502,7 +513,7 @@ const CellEditor = (props: {
                     </p>
                 }
                 {/* Show the suggestions */}
-                {cellEditorError === undefined && !loading && !endsInColumnHeader && isFormulaColumn &&
+                {cellEditorError === undefined && !loading && !endsInColumnHeader && editingMode === 'set_column_formula' &&
                     <>
                         {(suggestedColumnHeaders.concat(suggestedFunctions)).map(([suggestion, subtext], idx) => {
                             // We only show at most 4 suggestions
@@ -541,7 +552,7 @@ const CellEditor = (props: {
                     </>
                 }
                 {/* Otherwise, display the documentation function */}
-                {cellEditorError === undefined && !loading && isFormulaColumn && !hasSuggestions && documentationFunction !== undefined &&
+                {cellEditorError === undefined && !loading && editingMode === 'set_column_formula' && !hasSuggestions && documentationFunction !== undefined &&
                     <div>
                         <div className='cell-editor-function-documentation-header pt-5px pb-10px pl-10px pr-10px'>
                             <p className='text-body-2'>

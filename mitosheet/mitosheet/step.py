@@ -5,7 +5,6 @@
 # Distributed under the terms of the GPL License.
 
 from typing import Any, Dict, List, Optional, Set, Type
-from mitosheet.evaluation_graph_utils import create_column_evaluation_graph
 
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.column_steps.set_column_formula import SetColumnFormulaStepPerformer
@@ -83,13 +82,6 @@ class Step:
     @property
     def column_spreadsheet_code(self):
         return self.post_state.column_spreadsheet_code
-
-    @property
-    def column_evaluation_graph(self):
-        return [
-            create_column_evaluation_graph(self.post_state, sheet_index)
-            for sheet_index in range(len(self.dfs))
-        ]
     
     @property
     def column_filters(self):

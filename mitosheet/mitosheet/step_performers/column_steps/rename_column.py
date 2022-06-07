@@ -5,9 +5,8 @@
 # Distributed under the terms of the GPL License.
 
 from time import perf_counter
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Set, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
 from mitosheet.code_chunks.no_op_code_chunk import NoOpCodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.rename_columns_code_chunk import RenameColumnsCodeChunk
 
@@ -117,24 +116,8 @@ def rename_column_headers_in_state(
     """
     old_column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
 
-    # Save original column headers and eval graph, so we can use them below
-    original_column_headers = list(post_state.dfs[sheet_index].keys())
-    column_evaluation_graph = create_column_evaluation_graph(post_state, sheet_index)
-
     # If the level is not set, just do a simple rename
     post_state.dfs[sheet_index].rename(columns={old_column_header: new_column_header}, inplace=True)
-
-    # We also have to go over _all_ the formulas in the sheet that reference this column, and update
-    # their references to the new column. 
-    for other_column_id in column_evaluation_graph[column_id]:
-        old_formula = post_state.column_spreadsheet_code[sheet_index][other_column_id]
-        # Update the formula
-        post_state.column_spreadsheet_code[sheet_index][other_column_id] = safe_replace(
-            old_formula,
-            old_column_header,
-            new_column_header,
-            original_column_headers
-        )
     
     # Update the column header
     pandas_start_time = perf_counter()
