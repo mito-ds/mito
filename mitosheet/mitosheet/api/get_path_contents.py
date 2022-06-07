@@ -26,8 +26,10 @@ def get_path_parts(path: str) -> List[str]:
 
     TODO: test this on Windows
     """
+    # On Windows, drive will be C: or D:, etc. On Unix, drive will be empty.
     drive, path_and_file = os.path.splitdrive(path)
     path, file = os.path.split(path_and_file)
+
 
     folders = []
     # https://stackoverflow.com/questions/3167154/how-to-split-a-dos-path-into-its-components-in-python
@@ -35,6 +37,7 @@ def get_path_parts(path: str) -> List[str]:
     # as it breaks when path != ''
     while 1:
         path, folder = os.path.split(path)
+        print(path, folder)
 
         if folder != "":
             folders.append(folder)
@@ -88,17 +91,6 @@ def get_path_contents(params: Dict[str, Any]) -> str:
     # Windows == "$"
     dirnames = [d for d in dirnames if (not d.startswith('.') and not d.startswith('$'))]
     filenames = [f for f in filenames if (not f.startswith('.') and not f.startswith('$'))]
-
-    print(json.dumps({
-        'path': path,
-        'path_parts': get_path_parts(path),
-        # For each element, record if it's a directory, and the time it was last modified
-        'elements': [
-            {'name': f, 'isDirectory': False, 'lastModified': get_path_modified(path, f)} for f in filenames
-        ] + [
-            {'name': d, 'isDirectory': True, 'lastModified': get_path_modified(path, d)} for d in dirnames
-        ]
-    }))
 
     return json.dumps({
         'path': path,
