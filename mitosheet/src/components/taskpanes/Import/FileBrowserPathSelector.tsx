@@ -40,7 +40,9 @@ function FileBrowserPathSelector(props: FileBrowserPathSelectorProps): JSX.Eleme
                 }
 
                 if (i === 0) {
-                    // We replace the first path item with the drive indicator to let the user switch drives
+                    // We replace the first path item with the drive indicator to let the user switch drives.
+                    // We replace the first one so that in the case of macs, we don't also display / which is the root directory itself. 
+                    // Instead, we want the Mac user to click on the Drive button.
                     return (
                         <React.Fragment key={i}>
                             <div className='file-browser-path-part' key={i} onClick={() => {updateSelectedPath(i)}}>

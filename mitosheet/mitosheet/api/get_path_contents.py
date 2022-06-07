@@ -13,7 +13,6 @@ import string
 # allows the user to select one of their drives to nagivate in. If we were only supporting Mac, 
 # we would not need this becuase the root folder is just /
 
-
 def get_path_modified(path: str, f: str) -> Optional[str]:
     """
     For a path, returns when it was last modified. If that path is unaccessible, 
@@ -40,19 +39,28 @@ def get_windows_drives() -> List[str]:
         bitmask = windll.kernel32.GetLogicalDrives()
         for letter in string.ascii_uppercase:
             if bitmask & 1:
-                drives.append(letter)
+                drives.append(letter + ':') # Add : to the end to complete the drive path
             bitmask >>= 1
 
     return drives
 
+def is_path_windows_drive(path: str) -> bool:
+    return len(path) == 2 and path[1] == ':'
 
 def get_path_parts(path: str) -> List[str]:
     """
     For a path, returns a list of the path broken down into
     pieces.
-
     TODO: test this on Windows
     """
+    print('calling this function')
+    # If the path is just length 1, then its just the drive, not the path
+    if path == '.':
+        print('returning with .')
+        return ['.']
+    if is_path_windows_drive(path):
+        return [path]
+    
     # On Windows, drive will be C: or D:, etc. On Unix, drive will be empty.
     drive, path_and_file = os.path.splitdrive(path)
     path, file = os.path.split(path_and_file)
@@ -62,6 +70,7 @@ def get_path_parts(path: str) -> List[str]:
     # We take the code from here, which apparently avoids entering an infinite loop
     # as it breaks when path != ''
     while 1:
+        print('here')
         path, folder = os.path.split(path)
 
         if folder != "":
@@ -127,6 +136,8 @@ def get_path_contents(params: Dict[str, Any]) -> str:
     # Windows == "$"
     dirnames = [d for d in dirnames if (not d.startswith('.') and not d.startswith('$'))]
     filenames = [f for f in filenames if (not f.startswith('.') and not f.startswith('$'))]
+
+    print('returning: ', path)
 
     return json.dumps({
         'path': path,
