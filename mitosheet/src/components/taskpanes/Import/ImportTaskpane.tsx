@@ -59,6 +59,8 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
         loadingImport: false
     })
 
+    console.log('path parts: ', importState.pathContents.path_parts)
+
     // If the file being imported is an XLSX, we need additional configuration
     // and so we use an import wizard for help
     const [fileForImportWizard, setFileForImportWizard] = useState<string | undefined>(undefined);

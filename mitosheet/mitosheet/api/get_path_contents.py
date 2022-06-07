@@ -44,6 +44,7 @@ def get_path_parts(path: str) -> List[str]:
             break
 
     folders.reverse()
+    print('drive: ', [drive], " folders: ", folders, ' file: ', [file])
     return [drive] + folders + [file]
 
 
