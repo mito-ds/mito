@@ -313,7 +313,10 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
     }, [props.display])
 
     // This effect watches for full screen changes, and moves the dropdown container
-    // in the case that we enter or exit fullscreen
+    // in the case that we enter or exit fullscreen. This is now necessary because we 
+    // always have the same dropdown anchor, whereas before it was redefined when the 
+    // dropdown was opened. We need to keep the dropdown anchor always defined so we 
+    // can find the parent element of it, and so focus on it's parent
     useEffect(() => {
         const handleChange = () => {
             setIsNotFullscreen(!fscreen.fullscreenElement);
