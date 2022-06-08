@@ -144,7 +144,7 @@ const ColumnFormulasTourSteps: TourStep[] = [
         stepNumber: 3,
         stepHeader: 'Become a Formula Expert',
         stepHeaderBackgroundColor: '#DDA1A1',
-        stepText: <div> Want to learn more about how Mito's formulas are different? <a className='text-body-1-link text-color-white-important' href={DOCUMENTATION_LINK_SPREADSHEET_FORMULAS} target="_blank" rel="noreferrer">Check out our detailed formula documentation.</a></div>,
+        stepText: <div> Want to learn more about how Mito&apos;s formulas are different? <a className='text-body-1-link text-color-white-important' href={DOCUMENTATION_LINK_SPREADSHEET_FORMULAS} target="_blank" rel="noreferrer">Check out our detailed formula documentation.</a></div>,
         location: TourPopupLocation.BOTTOM_RIGHT,
         advanceButtonText: "Continue",
         displayBackButton: true

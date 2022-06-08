@@ -25,11 +25,11 @@ def test_delete_cannot_delete_invalid_column():
         pass
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1]}))
 
-def test_delete_cannot_delete_with_references():
+def test_delete_can_delete_with_references():
     mito = create_mito_wrapper([1])
     mito.set_formula('=A + 1', 0, 'B', add_column=True)
     mito.delete_columns(0, ['A'])
-    assert mito.dfs[0].equals(pd.DataFrame({'A': [1], 'B': [2]}))
+    assert mito.dfs[0].equals(pd.DataFrame({'B': [2]}))
 
 def test_delete_multiple_columns():
     mito = create_mito_wrapper([1])
@@ -61,7 +61,7 @@ def test_does_not_delete_if_one_column_has_dependants():
     mito.set_formula('=A + 1', 0, 'B', add_column=True)
     mito.delete_columns(0, ['A', 'C'])
 
-    assert mito.dfs[0].equals(pd.DataFrame({'A': [1], 'C': [0], 'B': [2]}))
+    assert mito.dfs[0].equals(pd.DataFrame({'B': [2]}))
 
 
 def test_create_delete_then_create():

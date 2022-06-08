@@ -33,7 +33,6 @@ CELL_EDIT_ERRORS = [
     ('=C + D', 'no_column_error'),
     ('=ABCDEFG', 'no_column_error'),
     ('=UPPER(C)', 'no_column_error'),
-    ('=B', 'circular_reference_error'),
     ('=UPPER(A, 100)', 'function_error'),
     ('=UPPER(LOWER(A, 100))', 'function_error')
 ]

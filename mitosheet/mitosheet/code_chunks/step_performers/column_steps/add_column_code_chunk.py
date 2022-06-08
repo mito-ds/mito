@@ -12,6 +12,7 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.no_op_code_chunk import NoOpCodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.rename_columns_code_chunk import RenameColumnsCodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnsCodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.set_column_formula_code_chunk import SetColumnFormulaCodeChunk
 from mitosheet.transpiler.transpile_utils import \
     column_header_to_transpiled_code
 
@@ -102,11 +103,35 @@ class AddColumnCodeChunk(CodeChunk):
             # We'd prefer to keep all the renames together in this case, although
             # this will not happen often
             return None
+    
+    def _combine_right_with_set_column_formula_code_chunk(self, other_code_chunk: SetColumnFormulaCodeChunk) -> Optional[CodeChunk]:
+        if not self.params_match(other_code_chunk, ['sheet_index']):
+            return None
+
+        sheet_index = self.get_param('sheet_index')
+        added_column_header = self.get_param('column_header')
+        added_column_id = self.post_state.column_ids.get_column_id_by_header(sheet_index, added_column_header)
+        
+        if added_column_id != other_code_chunk.get_param('column_id'):
+            return None
+
+        return AddColumnSetFormulaCodeChunk(
+            self.prev_state,
+            other_code_chunk.post_state,
+            {
+                'sheet_index': self.get_param('sheet_index'),
+                'column_id': added_column_id,
+                'column_header': self.get_param('column_header')
+            },
+            self.execution_data
+        )
 
     def combine_right(self, other_code_chunk: CodeChunk) -> Optional[CodeChunk]:
         if isinstance(other_code_chunk, DeleteColumnsCodeChunk):
             return self._combine_right_with_delete_column_code_chunk(other_code_chunk)
         elif isinstance(other_code_chunk, RenameColumnsCodeChunk):
             return self._combine_right_with_rename_columns_code_chunk(other_code_chunk)
+        elif isinstance(other_code_chunk, SetColumnFormulaCodeChunk):
+            return self._combine_right_with_set_column_formula_code_chunk(other_code_chunk)
 
         return None

@@ -53,10 +53,10 @@ const BOOLEAN_STRINGS = ['True', 'true', 'False', 'false'];
 
 
 const getDefaultParams = (
-        sheetDataArray: SheetData[], 
-        sheetIndex: number, defaultFillMethod?: FillMethod,
-        startingColumnIDs?: ColumnID[]
-    ): FillNaParams | undefined => {
+    sheetDataArray: SheetData[], 
+    sheetIndex: number, defaultFillMethod?: FillMethod,
+    startingColumnIDs?: ColumnID[]
+): FillNaParams | undefined => {
 
     if (sheetDataArray.length === 0 || sheetDataArray[sheetIndex] === undefined) {
         return undefined;
