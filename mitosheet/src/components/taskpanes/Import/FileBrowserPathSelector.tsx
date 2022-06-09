@@ -6,9 +6,11 @@ interface FileBrowserPathSelectorProps {
     setCurrPathParts: (newPathParts: string[]) => void;
 }
 
+/*
 const isPathPartWindowsDrive = (path_part: string): boolean => {
     return path_part.length == 2 && path_part[1] === ':'
 }
+*/
 
 /* 
     At the top of the file browser, users can select
@@ -16,21 +18,34 @@ const isPathPartWindowsDrive = (path_part: string): boolean => {
 */
 function FileBrowserPathSelector(props: FileBrowserPathSelectorProps): JSX.Element {
 
-    console.log(props.pathParts)
+    console.log('original pathParts: ', props.pathParts)
+    const isWindows = window.navigator.userAgent.toUpperCase().includes('WINDOWS')
+    let pathParts = props.pathParts 
+    if (isWindows && pathParts !== undefined) {
+        pathParts = ['windows_drive'].concat(pathParts)
+    }
+    console.log('created pathParts: ',  pathParts)
 
     /* 
         Updates the selected path to go back up some number
         of folders to a given index.
     */
     const updateSelectedPath = (i: number): void => {
-        if (props.pathParts === undefined) {
+        if (pathParts === undefined) {
             return;
         }
-        const subPathParts = props.pathParts.slice(0, i + 1);
+        const subPathParts = pathParts.slice(0, i + 1);
+        if (isWindows) {
+            subPathParts.splice(0, 1)
+            if (subPathParts.length === 0) {
+                subPathParts.push('.')
+            }
+        }
+        console.log('!!!!!path to backend: ', subPathParts)
         props.setCurrPathParts(subPathParts);
     }
 
-    if (props.pathParts === undefined) {
+    if (pathParts === undefined) {
         return (
             <React.Fragment key={0}>
                 <div className='file-browser-path-part' key={0} onClick={() => {updateSelectedPath(0)}}>
@@ -44,27 +59,33 @@ function FileBrowserPathSelector(props: FileBrowserPathSelectorProps): JSX.Eleme
     } else {
         return (
             <div className='flexbox-row file-browser-path-selector'>
-                {[
-                    <React.Fragment key={0}>
-                        <div className='file-browser-path-part' key={0} onClick={() => {updateSelectedPath(0)}}>
-                            Drive
-                        </div>
-                        <div className='file-browser-path-seperator'>
-                            &gt;
-                        </div>
-                    </React.Fragment>
-                ].concat(props.pathParts?.map((pathPart, i) => {
+                {pathParts?.map((pathPart, i) => {
                     // If the path part is empty, don't display it
-                    if (pathPart === '' || i === 0) {
+                    if (pathPart === '' || pathPart === '.') {
                         return <React.Fragment key={i}></React.Fragment>
                     }
-                        
-                    if (i === 1 && props.pathParts !== undefined && isPathPartWindowsDrive(props.pathParts[0]) && (pathPart === '\\' || pathPart === '/')) {
+
+                    if (i === 0) {
+                        return (
+                            <React.Fragment key={0}>
+                                <div className='file-browser-path-part' key={0} onClick={() => {updateSelectedPath(0)}}>
+                                    Drive
+                                </div>
+                                <div className='file-browser-path-seperator'>
+                                    &gt;
+                                </div>
+                            </React.Fragment>
+                        )
+                    }
+                    
+                    /*
+                    if (i === 1 && pathParts !== undefined && isPathPartWindowsDrive(pathParts[0]) && (pathPart === '\\' || pathPart === '/')) {
                         // Combine the first and second path parths on windows so that we stick to the Windows File Explorer convention.
                         // The first path part should look like C:/
                         // Note: This only effects the path that we display, not the actual path, so that we don't mess with Python's path system.
-                        pathPart = props.pathParts[0] + pathPart
+                        pathPart = pathParts[0] + pathPart
                     }
+                    */
 
                     return (
                         <React.Fragment key={i}>
@@ -76,7 +97,7 @@ function FileBrowserPathSelector(props: FileBrowserPathSelectorProps): JSX.Eleme
                             </div>
                         </React.Fragment>
                     )
-                }))}
+                })}
             </div>
         )
     }
