@@ -364,14 +364,48 @@ def write_to_types_file(original_step_name: str) -> None:
     with open(path_to_types, 'w') as f:
         f.write(code)
 
+def get_typescript_type_for_param(param_name: str, param_type: str) -> str:
+    if param_type == 'int' or param_type == 'float':
+        return 'number'
+    elif param_type == 'str':
+        return 'string'
+    elif param_type == 'bool':
+        return 'boolean'
+    elif param_type == 'ColumnID':
+        return 'ColumnID'
+    elif param_type == 'List[ColumnID]':
+        return 'ColumnID[]'
+    elif param_type == 'Any':
+        return input(f'What is the Typescript type for {param_name}')
+    else:
+        raise Exception(f'{param_name} of type {param_type} is an unsupported type')
+
+def get_api_function_params(params: Dict[str, str]) -> str:
+
+    final_params = ''
+
+    for param_name, param_type in params.items():
+        final_params += f'        {param_name}: {get_typescript_type_for_param(param_name, param_type)},\n'
+    
+    return final_params.strip()
+
+
+def get_api_function_params_for_send(params: Dict[str, str]) -> str:
+    final_params = ''
+
+    for param_name in params.keys():
+        final_params += f'                {param_name}: {param_name},\n'
+    
+    return final_params.strip()
+    
+
 def get_api_function_code(original_step_name: str, params: Dict[str, str]) -> str:
     step_name = get_step_name(original_step_name)
     enum_name = original_step_name.title().replace(' ', '')
 
     return f"""
     async edit{enum_name}(
-        sheetIndex: number,
-        labels: (string | number)[],
+        {get_api_function_params(params)}
     ): Promise<void> {OPEN_BRACKET}
 
         const stepID = getRandomId();
@@ -380,22 +414,19 @@ def get_api_function_code(original_step_name: str, params: Dict[str, str]) -> st
             'type': '{step_name}_edit',
             'step_id': stepID,
             'params': {OPEN_BRACKET}
-                'sheet_index': sheetIndex,
-                'labels': labels
+                {get_api_function_params_for_send(params)}
             {CLOSE_BRACKET}
         {CLOSE_BRACKET}, {OPEN_BRACKET}{CLOSE_BRACKET})
     {CLOSE_BRACKET}
     
     """
 
-
-
 def write_to_api_file(original_step_name: str, params: Dict[str, str]) -> None:
     path_to_api = get_src_folder() / 'jupyter' / 'api.tsx'
 
     with open(path_to_api, 'r') as f:
         code = f.read()
-        code = code.replace(STEPTYPE_MARKER, get_api_function_code(original_step_name, params))
+        code = code.replace(API_MARKER, get_api_function_code(original_step_name, params))
 
     with open(path_to_api, 'w') as f:
         f.write(code)
