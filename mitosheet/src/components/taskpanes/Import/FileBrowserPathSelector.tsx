@@ -30,30 +30,35 @@ function FileBrowserPathSelector(props: FileBrowserPathSelectorProps): JSX.Eleme
         props.setCurrPathParts(subPathParts);
     }
 
-    return (
-        <div className='flexbox-row file-browser-path-selector'>
-            {props.pathParts?.map((pathPart, i) => {
-
-                // If the path part is empty, don't display it
-                if (pathPart === '') {
-                    return <React.Fragment key={i}></React.Fragment>
-                }
-
-                if (i === 0) {
-                    // We replace the first path item with the drive indicator to let the user switch drives.
-                    // We replace the first one so that in the case of macs, we don't also display / which is the root directory itself. 
-                    // Instead, we want the Mac user to click on the Drive button.
-                    return (
-                        <React.Fragment key={i}>
-                            <div className='file-browser-path-part' key={i} onClick={() => {updateSelectedPath(i)}}>
-                                Drive
-                            </div>
-                            <div className='file-browser-path-seperator'>
-                                &gt;
-                            </div>
-                        </React.Fragment>
-                    )
-                } else {
+    if (props.pathParts === undefined) {
+        return (
+            <React.Fragment key={0}>
+                <div className='file-browser-path-part' key={0} onClick={() => {updateSelectedPath(0)}}>
+                    Drive
+                </div>
+                <div className='file-browser-path-seperator'>
+                    &gt;
+                </div>
+            </React.Fragment>
+        )
+    } else {
+        return (
+            <div className='flexbox-row file-browser-path-selector'>
+                {[
+                    <React.Fragment key={0}>
+                        <div className='file-browser-path-part' key={0} onClick={() => {updateSelectedPath(0)}}>
+                            Drive
+                        </div>
+                        <div className='file-browser-path-seperator'>
+                            &gt;
+                        </div>
+                    </React.Fragment>
+                ].concat(props.pathParts?.map((pathPart, i) => {
+                    // If the path part is empty, don't display it
+                    if (pathPart === '' || i === 0) {
+                        return <React.Fragment key={i}></React.Fragment>
+                    }
+                        
                     if (i === 1 && props.pathParts !== undefined && isPathPartWindowsDrive(props.pathParts[0]) && (pathPart === '\\' || pathPart === '/')) {
                         // Combine the first and second path parths on windows so that we stick to the Windows File Explorer convention.
                         // The first path part should look like C:/
@@ -71,10 +76,13 @@ function FileBrowserPathSelector(props: FileBrowserPathSelectorProps): JSX.Eleme
                             </div>
                         </React.Fragment>
                     )
-                }
-            })}
-        </div>
-    )
+                }))}
+            </div>
+        )
+    }
+
+
+    
 }
 
 export default FileBrowserPathSelector;
