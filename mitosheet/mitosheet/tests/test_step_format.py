@@ -40,6 +40,7 @@ from mitosheet.step_performers.graph_steps.graph_delete import GraphDeleteStepPe
 from mitosheet.step_performers.graph_steps.graph_duplicate import GraphDuplicateStepPerformer
 from mitosheet.step_performers.graph_steps.graph_rename import GraphRenameStepPerformer
 from mitosheet.step_performers.promote_row_to_header import PromoteRowToHeaderStepPerformer
+from mitosheet.step_performers.transpose import TransposeStepPerformer
 
 def check_step(
         step_performer: StepPerformer, 
@@ -244,7 +245,13 @@ def test_params_static():
         'split_text_to_columns'
     )
 
-    assert len(STEP_PERFORMERS) == 28
+    check_step(
+        TransposeStepPerformer,
+        1,
+        'transpose'
+    )
+
+    assert len(STEP_PERFORMERS) == 29
 
 
 def get_fake_param(param_name):

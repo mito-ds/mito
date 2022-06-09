@@ -60,6 +60,10 @@ def get_enum_from_ts_file(path, enum_name):
         # Remove trailing commas
         if enum_item_code_line.endswith(","):
             enum_item_code_line = enum_item_code_line[:-1]
+        
+        # If it's a comment, ignore it
+        if enum_item_code_line.startswith('//'):
+            continue
 
         # Split into keys and values
         [name, value] = enum_item_code_line.split(" = ")
