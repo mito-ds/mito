@@ -56,13 +56,13 @@ def main() -> None:
             else:
                 print("Invalid access code...")
         if sys.argv[-1] == 'clearemail':
-            print("Clearing tours")
-            set_user_field(UJ_USER_EMAIL, '')
-            print("Tours cleared")
-        if sys.argv[-1] == 'cleartours':
             print("Clearing email")
-            set_user_field(UJ_RECEIVED_TOURS, [])
+            set_user_field(UJ_USER_EMAIL, '')
             print("Email cleared")
+        if sys.argv[-1] == 'cleartours':
+            print("Clearing tours")
+            set_user_field(UJ_RECEIVED_TOURS, [])
+            print("Tours cleared")
         if sys.argv[-1] == 'turnoffdataframebutton':
             print("Turning off the 'View in Mito' dataframe button")
             remove_startup_file()
