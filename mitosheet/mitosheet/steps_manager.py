@@ -72,10 +72,7 @@ def execute_step_list_from_index(
     new_step_list = step_list[: start_index + 1]
     last_valid_step = step_list[start_index]
 
-    print("Execuing", [step.step_type for step in step_list], "from", start_index)
-
     for partial_index, step in enumerate(step_list[start_index + 1 :]):
-        print("Trying", step.step_type)
         step_index = partial_index + start_index + 1
         # If we're skipping a step, add it to the new step list (since we don't
         # want to lose it), but don't reexecute it
@@ -83,7 +80,6 @@ def execute_step_list_from_index(
             new_step_list.append(step)
             continue
             
-        print("Execing", step.step_type)
         # Create a new step with the same params
         new_step = Step(step.step_type, step.step_id, step.params)
 
