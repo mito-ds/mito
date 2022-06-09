@@ -12,6 +12,8 @@ const isPathPartWindowsDrive = (path_part: string): boolean => {
 }
 */
 
+const WINDOWS_DRIVE_PATH = 'windows_drive_path'
+
 /* 
     At the top of the file browser, users can select
     pieces of the path.
@@ -22,7 +24,7 @@ function FileBrowserPathSelector(props: FileBrowserPathSelectorProps): JSX.Eleme
     const isWindows = window.navigator.userAgent.toUpperCase().includes('WINDOWS')
     let pathParts = props.pathParts 
     if (isWindows && pathParts !== undefined) {
-        pathParts = ['windows_drive'].concat(pathParts)
+        pathParts = [WINDOWS_DRIVE_PATH].concat(pathParts)
     }
     console.log('created pathParts: ',  pathParts)
 
@@ -36,9 +38,11 @@ function FileBrowserPathSelector(props: FileBrowserPathSelectorProps): JSX.Eleme
         }
         const subPathParts = pathParts.slice(0, i + 1);
         if (isWindows) {
+            // Remove the WINDOWS_DRIVE_PATH so its a valid path
             subPathParts.splice(0, 1)
+            // If the path is now empty, then just send the WINDOWS_DRIVE_PATH so we can display the windows drives
             if (subPathParts.length === 0) {
-                subPathParts.push('.')
+                subPathParts.push(WINDOWS_DRIVE_PATH)
             }
         }
         console.log('!!!!!path to backend: ', subPathParts)
