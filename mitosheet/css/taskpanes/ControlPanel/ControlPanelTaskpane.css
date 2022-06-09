@@ -1,19 +1,7 @@
-.control-panel-taskpane-container {
-    overflow-y: hidden;
-    height: 100%;
-
-    color: var(--mito-legacy-gray);
-    background: white;
-}
 
 .control-panel-taskpane-tab-container {
-    /* 
-        We put the tabs at the bottom of the taskpane container,
-        which they are the child of. This way, they are always visible
-    */
-    position: absolute;
-    bottom: 33px;
 
+    width: 100%;
     display: flex;
     justify-content: space-around;
 
