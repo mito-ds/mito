@@ -73,6 +73,7 @@ export enum DFSource {
     Pivoted = 'pivoted',
     Merged = 'merged',
     Duplicated = 'duplicated',
+    Transposed = 'transposed',
 }
 
 /**
