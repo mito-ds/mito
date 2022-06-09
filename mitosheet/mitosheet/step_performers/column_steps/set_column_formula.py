@@ -92,7 +92,6 @@ class SetColumnFormulaStepPerformer(StepPerformer):
             post_state.column_spreadsheet_code[sheet_index][column_id] = new_formula
             pandas_start_time = perf_counter()
             exec_column_formula(post_state, post_state.dfs[sheet_index], sheet_index, column_id, new_formula)
-            print("DONE EXEC!")
             pandas_processing_time = perf_counter() - pandas_start_time
         except MitoError as e:
             # Catch the error and make sure that we don't set the error modal

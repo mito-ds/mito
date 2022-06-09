@@ -60,11 +60,16 @@ def execute_step_list_from_index(
 
     If start_index is not given, will start from the initialize step.
     """
-    if start_index is None or start_index < 0:
-        start_index = 0
-
     # Get the steps to skip, so that we can skip them
     step_indexes_to_skip = get_step_indexes_to_skip(step_list)
+
+    # Make sure the start index is not a step that we want to skip
+    while start_index in step_indexes_to_skip:
+        start_index -= 1
+
+    # Make sure start index is >= 0
+    if start_index is None or start_index < 0:
+        start_index = 0
 
     # Get the steps that are valid, and the last valid step, so we can execute from there
     new_step_list = step_list[: start_index + 1]
@@ -77,7 +82,7 @@ def execute_step_list_from_index(
         if step_index in step_indexes_to_skip:
             new_step_list.append(step)
             continue
-
+    
         # Create a new step with the same params
         new_step = Step(step.step_type, step.step_id, step.params)
 

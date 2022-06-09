@@ -13,8 +13,6 @@ from mitosheet.code_chunks.step_performers.column_steps.reorder_column_code_chun
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
-from mitosheet.transpiler.transpile_utils import \
-    column_header_to_transpiled_code
 from mitosheet.types import ColumnHeader, ColumnID
 
 
