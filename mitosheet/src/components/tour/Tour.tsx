@@ -171,15 +171,21 @@ const Tour = (props: {
                 {finalStepText}
             </div>
             <Row justify='space-between'>
-                <Col>
-                    <TextButton
-                        variant='dark'
-                        width='small'
-                        onClick={() => goToStep(stepNumber - 1)}
-                    >
-                        Back
-                    </TextButton>
-                </Col>
+                {stepNumber - 1 >= 0 &&
+                    <Col>
+                        <TextButton
+                            variant='dark'
+                            width='small'
+                            onClick={() => goToStep(stepNumber - 1)}
+                        >
+                            Back
+                        </TextButton>
+                    </Col>
+                }
+                {stepNumber - 1 <= 0 &&
+                    // Add a space so that the advance button is always in the same place
+                    <Col></Col>
+                }
                 <Col>
                     <TextButton
                         variant='light'
