@@ -241,7 +241,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                         </>
                     }
                 </DefaultTaskpaneBody>
-                <DefaultTaskpaneFooter >
+                <DefaultTaskpaneFooter ignoreTaskpanePadding>
                     <ControlPanelTaskpaneTabs
                         selectedTab={props.tab}
                         setUIState={props.setUIState}
