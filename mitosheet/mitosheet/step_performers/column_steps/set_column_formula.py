@@ -11,7 +11,7 @@ import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.set_column_formula_code_chunk import SetColumnFormulaCodeChunk
 from mitosheet.errors import (MitoError, make_circular_reference_error,
-                              make_execution_error, make_no_column_error,
+                              make_execution_error, make_invalid_formula_after_update_error, make_no_column_error,
                               make_operator_type_error,
                               make_unsupported_function_error)
 from mitosheet.parser import parse_formula
@@ -89,7 +89,6 @@ class SetColumnFormulaStepPerformer(StepPerformer):
 
         # Update the column formula, and then execute the new formula graph
         try:
-            post_state.column_spreadsheet_code[sheet_index][column_id] = new_formula
             pandas_start_time = perf_counter()
             exec_column_formula(post_state, post_state.dfs[sheet_index], sheet_index, column_id, new_formula)
             pandas_processing_time = perf_counter() - pandas_start_time
@@ -227,14 +226,16 @@ def exec_column_formula(post_state: State, df: pd.DataFrame, sheet_index: int, c
         post_state.dfs[sheet_index].keys()
     )
 
-    # Exec the code, where the df is the original dataframe
-    # See explination here: https://www.tutorialspoint.com/exec-in-python
     try:
+        # Exec the code, where the df is the original dataframe
+        # See explination here: https://www.tutorialspoint.com/exec-in-python
         exec(
             python_code,
             {'df': df}, 
             FUNCTIONS
         )
+        # Then, update the column spreadsheet code
+        post_state.column_spreadsheet_code[sheet_index][column_id] = spreadsheet_code
     except TypeError as e:
         # We catch TypeErrors specificially, so that we can case on operator errors, to 
         # give better error messages
@@ -251,3 +252,10 @@ def exec_column_formula(post_state: State, df: pd.DataFrame, sheet_index: int, c
         # throw a name error, in which case we alert the user
         column_header = str(e).split('\'')[1]
         raise make_no_column_error({column_header})
+    except Exception as e:
+        # If this is the same formula as before, then it used to be valid and is not,
+        # and so we let the user know they must have made some other change that made 
+        # in invalid
+        if spreadsheet_code == post_state.column_spreadsheet_code[sheet_index][column_id]:
+            raise make_invalid_formula_after_update_error()
+        raise

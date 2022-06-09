@@ -26,14 +26,6 @@ def test_rename_to_empty_is_no_op():
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1]}))
     assert len(mito.transpiled_code) == 0
 
-@pytest.mark.skip(reason='No longer updating formulas.')
-def test_rename_update_formulas():
-    mito = create_mito_wrapper([1])
-    mito.set_formula('=A + 1', 0, 'B', add_column=True)
-    mito.rename_column(0, 'A', 'C')
-
-    assert mito.curr_step.column_spreadsheet_code[0]['B'] == '=C + 1'
-
 def test_rename_updates_creation_step():
     mito = create_mito_wrapper([1])
     mito.set_formula('=A', 0, 'B', add_column=True)
@@ -49,30 +41,6 @@ def test_cannot_update_to_existing_column():
     mito.rename_column(0, 'A', 'B')
 
     assert mito.curr_step_idx == 2
-
-@pytest.mark.skip(reason='No longer updating formulas.')
-def test_rename_multi_sheet():
-    mito = create_mito_wrapper([1], sheet_two_A_data=[1])
-    mito.set_formula('=A + 1', 0, 'B', add_column=True)
-    mito.set_formula('=A + 2', 1, 'B', add_column=True)
-    mito.rename_column(0, 'A', 'C')
-    mito.rename_column(1, 'A', 'C')
-
-    assert mito.get_formula(0, 'B') == '=C + 1'
-    assert mito.get_formula(1, 'B') == '=C + 2'
-
-@pytest.mark.skip(reason='No longer updating formulas.')
-def test_rename_then_edit_renamed():
-    mito = create_mito_wrapper([1])
-    mito.set_formula('=A', 0, 'B', add_column=True)
-    mito.set_formula('=B', 0, 'C', add_column=True)
-    mito.rename_column(0, 'B', 'RENAME')
-
-    # Make sure the formula updated
-    assert mito.get_formula(0, 'C') == '=RENAME'
-
-    mito.set_formula('=100', 0, 'RENAME')
-    assert mito.get_value(0, 'C', 1) == 100
 
 def test_rename_then_edit_dependent():
     mito = create_mito_wrapper([1])

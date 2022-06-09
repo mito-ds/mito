@@ -101,14 +101,19 @@ const Tour = (props: {
         // Mark that the user skipped the tour so we don't log a finished_tour event
         setSkippedTour(true)
 
-        // Display the final tutorial step
-        setStepNumber(steps.length - 1)
+        if (steps[stepNumber].tourName === TourName.INTRO) {
+            // Display the final tutorial step if this is the intro tour always
+            setStepNumber(steps.length - 1);
+        } else {
+            // Otherwise end the tour
+            closeTour(true);
+        }
     }
 
     // Called if you close the tour on the final step
-    const closeTour = async (): Promise<void> => {
+    const closeTour = async (_skippedTour?: boolean): Promise<void> => {
         // Log finishing the tour, if you didn't skip to the final step
-        if (!skippedTour) {
+        if (!skippedTour && !_skippedTour) {
             void props.mitoAPI.log(
                 'finished_tour', 
                 {

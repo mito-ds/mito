@@ -82,6 +82,10 @@ export const getStartingFormula = (sheetData: SheetData | undefined, rowIndex: n
   
     const {columnFormula, cellValue, columnHeader} = getCellDataFromCellIndexes(sheetData, rowIndex, columnIndex);
 
+    if (columnHeader === undefined) {
+        return '';
+    }
+
     let originalValue = '';
     if (rowIndex <= -1) {
         // If this is a column header, let the user start editing with the value they are seeing
@@ -93,7 +97,11 @@ export const getStartingFormula = (sheetData: SheetData | undefined, rowIndex: n
             originalValue = getDisplayColumnHeader(columnHeader[rowIndexToColumnHeaderLevel(columnHeader, rowIndex)]);
         }
     } else if (editingMode === 'set_column_formula') {
-        originalValue = columnFormula ? columnFormula : '';
+        if (columnFormula === undefined || columnFormula === '') {
+            originalValue = '=' + getDisplayColumnHeader(columnHeader);
+        } else {
+            originalValue = columnFormula;
+        }
     } else {
         originalValue = cellValue + ''
     }

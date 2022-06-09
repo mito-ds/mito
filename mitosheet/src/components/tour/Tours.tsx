@@ -122,9 +122,9 @@ const ColumnFormulasTourSteps: TourStep[] = [
     {  
         tourName: TourName.COLUMN_FORMULAS,
         stepNumber: 1,
-        stepHeader: 'Mito Formula are Different',
+        stepHeader: 'Our Formulas are Different',
         stepHeaderBackgroundColor: '#BCDFBC',
-        stepText: <div> In Mito, you can write formulas in the column that you are referencing. This allows you to easily manipulate columns without creating unnecessary helper columns. </div>,
+        stepText: <div> Edit a column by updating its formula. If you want to uppercase the column <b>Name</b>, set its formula to <b>UPPER(Name)</b>. No extra columns necessary. </div>,
         location: TourPopupLocation.BOTTOM_RIGHT,
         advanceButtonText: "Continue",
         displayBackButton: true,

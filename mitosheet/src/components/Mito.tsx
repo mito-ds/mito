@@ -425,7 +425,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     }, [uiState]);
 
-    // If we're opening the 
 
     const dfNames = sheetDataArray.map(sheetData => sheetData.dfName);
     const dfSources = sheetDataArray.map(sheetData => sheetData.dfSource);
