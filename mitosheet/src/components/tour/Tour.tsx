@@ -106,7 +106,7 @@ const Tour = (props: {
             setStepNumber(steps.length - 1);
         } else {
             // Otherwise end the tour
-            closeTour(true);
+            void closeTour(true);
         }
     }
 
