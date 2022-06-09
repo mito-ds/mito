@@ -1028,7 +1028,7 @@ export const createActions = (
             shortTitle: 'Transpose Dataframe',
             longTitle: 'Transpose dataframe',
             actionFunction: () => {
-                mitoAPI.editTranspose(sheetIndex);
+                void mitoAPI.editTranspose(sheetIndex);
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'Import data before transposing it'},
             searchTerms: ['transpose', 'diagonal', 'rows and columns', 'flip', 'rotate'],

@@ -33,5 +33,5 @@ class TransposeCodeChunk(CodeChunk):
 
     
     def get_created_sheet_indexes(self) -> List[int]:
-        return [self.get_param('sheet_index')]
+        return [len(self.post_state.dfs) - 1]
     

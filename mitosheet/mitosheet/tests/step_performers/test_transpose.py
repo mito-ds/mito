@@ -111,6 +111,11 @@ def test_transpose(input_dfs, sheet_index, output_dfs):
 
     assert len(mito.dfs) == len(output_dfs)
     for actual, expected in zip(mito.dfs, output_dfs):
-        print(actual)
-        print(expected)
         assert actual.equals(expected)
+
+
+def test_transpose_optimized_out():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito.transpose(0)
+    mito.delete_dataframe(1)
+    assert len(mito.transpiled_code) == 0 
