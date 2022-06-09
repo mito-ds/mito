@@ -139,6 +139,18 @@ def test_only_writes_single_code():
         "df1['B'] = 100", 
     ]
 
+def test_inplace_edit_overwrites_properly():
+    df = pd.DataFrame(data={'A': [1]})
+    mito = create_mito_wrapper_dfs(df)
+    mito.set_formula('=A + 1', 0, 'A')
+    mito.set_formula('=A + 2', 0, 'A')
+    mito.set_formula('=A + 3', 0, 'A')
+    mito.undo()
+
+    assert mito.transpiled_code == [
+        "df1['A'] = df1['A'] + 2", 
+    ]
+
 def test_formula_with_letters_df_in_column_header_works():
     df = pd.DataFrame(data={'df': [1]})
     mito = create_mito_wrapper_dfs(df)

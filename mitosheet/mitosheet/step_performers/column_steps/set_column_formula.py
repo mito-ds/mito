@@ -227,8 +227,6 @@ def exec_column_formula(post_state: State, df: pd.DataFrame, sheet_index: int, c
         post_state.dfs[sheet_index].keys()
     )
 
-    print(python_code)
-
     # Exec the code, where the df is the original dataframe
     # See explination here: https://www.tutorialspoint.com/exec-in-python
     try:
@@ -249,7 +247,6 @@ def exec_column_formula(post_state: State, df: pd.DataFrame, sheet_index: int, c
             # If it's not an operator error, we just propagate the error up
             raise e
     except NameError as e:
-        print("HERE", e)
         # If we have a column header that does not exist in the formula, we may
         # throw a name error, in which case we alert the user
         column_header = str(e).split('\'')[1]
