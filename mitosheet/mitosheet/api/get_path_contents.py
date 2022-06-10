@@ -67,6 +67,7 @@ def get_path_parts(path: str) -> List[str]:
             break
 
     folders.reverse()
+
     if drive != '':
         # If the drive is not empty, we are on windows, and we need to do some path hackery to get things to
         # work well. First, we add the \ to the start of the path, and then we make sure the drive has a slash
@@ -74,11 +75,11 @@ def get_path_parts(path: str) -> List[str]:
         if len(folders) > 0 and folders[0] == '\\':
             folders = folders[1:]
 
-        return ['\\', drive + '\\'] + folders + [file]
+        return ['\\', drive + '\\'] + folders + ([file] if file != '' else [])
     else:
         # If the drive is '' then we are on a Linux system and the root folder / is contained in the folders.
         # We get rid of the empty path so that we can easily handle windows and linux paths the same.
-        return folders + [file]
+        return folders + ([file] if file != '' else [])
 
 
 def get_path_contents(params: Dict[str, Any]) -> str:

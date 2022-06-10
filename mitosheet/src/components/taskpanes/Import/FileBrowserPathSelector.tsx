@@ -30,11 +30,6 @@ function FileBrowserPathSelector(props: FileBrowserPathSelectorProps): JSX.Eleme
     return (
         <div className='flexbox-row file-browser-path-selector'>
             {props.pathParts?.map((pathPart, i) => {
-                // If the path part is empty, don't display it
-                if (pathPart === '') {
-                    return <React.Fragment key={i}></React.Fragment>
-                }
-
                 return (
                     <React.Fragment key={i}>
                         <div className='file-browser-path-part' key={i} onClick={() => {updateSelectedPath(i)}}>
