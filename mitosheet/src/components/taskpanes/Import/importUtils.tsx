@@ -144,5 +144,5 @@ export const getElementsToDisplay = (importState: ImportTaskpaneState): FileElem
 
 export const inRootFolder = (pathParts: string[]): boolean => {
     pathParts = pathParts.filter(pathPart => pathPart !== '')
-    return pathParts.length === 1 && pathParts[0] === '/';
+    return pathParts.length === 1 && (pathParts[0] === '/' || pathParts[0] === '\\');
 }

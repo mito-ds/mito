@@ -36,7 +36,7 @@ def get_windows_drives() -> List[str]:
         for letter in string.ascii_uppercase:
             if bitmask & 1:
                 # Add :/ to the end to complete the drive. Not having :/ on the end causes os to fail when reading the drive
-                drives.append(letter + ':/') 
+                drives.append(letter + ':\\') 
             bitmask >>= 1
 
     return drives
@@ -69,12 +69,12 @@ def get_path_parts(path: str) -> List[str]:
     folders.reverse()
     if drive != '':
         # If the drive is not empty, we are on windows, and we need to do some path hackery to get things to
-        # work well. First, we add the / to the start of the path, and then we make sure the drive has a slash
+        # work well. First, we add the \ to the start of the path, and then we make sure the drive has a slash
         # after it. Then, we remove the slash from the folder list if it exists at the start
-        if len(folders) > 0 and folders[0] == '/':
+        if len(folders) > 0 and folders[0] == '\\':
             folders = folders[1:]
 
-        return ["/", drive + '/'] + folders + [file]
+        return ['\\', drive + '\\'] + folders + [file]
     else:
         # If the drive is '' then we are on a Linux system and the root folder / is contained in the folders.
         # We get rid of the empty path so that we can easily handle windows and linux paths the same.
@@ -93,7 +93,10 @@ def get_path_contents(params: Dict[str, Any]) -> str:
     path = os.path.join(*path_parts)
     path = os.path.normpath(path)
 
-    if path == '/' and platform.system() == 'Windows':
+    print("Getting path", path,  path == '\\', platform.system() == 'Windows')
+
+    if path == '\\' and platform.system() == 'Windows':
+        print("HERE!")
         # If the path only has one part, it means they are accessing the root folder. If the user is on
         # Windows, this folder doesn't exist so we fake one by letting them pick amongst their drives.
         filenames = []

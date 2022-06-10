@@ -87,6 +87,7 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
                 if (props.element.isParentDirectory) {
                     const newPathParts = [...props.importState.pathContents.path_parts];
                     newPathParts.pop()
+                    console.log("new path parts", props.importState.pathContents.path_parts, newPathParts)
                     props.setCurrPathParts(newPathParts);
                 } else if (props.element.isDirectory) {
                     const newPathParts = props.importState.pathContents.path_parts || [];
