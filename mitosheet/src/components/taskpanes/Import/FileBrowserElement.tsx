@@ -24,7 +24,6 @@ interface FileBrowserElementProps {
     setImportState: React.Dispatch<React.SetStateAction<ImportTaskpaneState>>;
     importElement: (element: FileElement | undefined) => Promise<void>;
     excelImportEnabled: boolean;
-    isParentFolder?: boolean;
 }
 
 /* 
