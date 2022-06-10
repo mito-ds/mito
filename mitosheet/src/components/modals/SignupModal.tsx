@@ -207,7 +207,7 @@ const StepTwo = (
                 <div className='signup-modal-left-column'>
                     <div>
                         <h1 className='mt-0 mb-0 text-header-1'>
-                            Acces Pro
+                            Access Pro
                         </h1>
                         <p className='signup-modal-text'>
                             Complete the checkout flow. In the Pro documentation, click <b>Get Access Code</b> and enter it here.
