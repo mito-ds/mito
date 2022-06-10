@@ -1,6 +1,6 @@
 """
 The Mito Installer package contains utils for installing
-Mito within your Python enviornment.
+Mito within your Python environment.
 
 Long term, we aim to meet:
 1. This package has minimal dependencies, both for speed of download and the ultimate portability.
