@@ -9,9 +9,10 @@ from typing import Any, Dict, List, Optional
 import platform
 import string
 
-# The Mito drive placeholder is needed so that we can mock a root directory for Windows that 
+# The WINDOWS_DRIVE_PATH is needed so that we can mock a root directory for Windows that 
 # allows the user to select one of their drives to nagivate in. If we were only supporting Mac, 
 # we would not need this becuase the root folder is just /
+WINDOWS_DRIVE_PATH = 'windows_drive_path'
 
 def get_path_modified(path: str, f: str) -> Optional[str]:
     """
@@ -39,62 +40,59 @@ def get_windows_drives() -> List[str]:
         bitmask = windll.kernel32.GetLogicalDrives()
         for letter in string.ascii_uppercase:
             if bitmask & 1:
-                # We need to add :/ to the end of the letter so that the 
-                drives.append(letter + ':/') # Add :/ to the end to complete the drive . We can't do this because it makes the os handle the paths incorrectly
+                # Add :/ to the end to complete the drive. Not having :/ on the end causes os to fail when reading the drive
+                drives.append(letter + ':/') 
             bitmask >>= 1
 
     return drives
 
 def is_path_windows_drive(path: str) -> bool:
+    """
+    Returns true if the path is 3 characters ending with :/
+    """
     return len(path) == 3 and path[1] == ':' and path[2] == '/'
 
 def is_path_windows_drive_missing_slash(path: str) -> bool:
+    """
+    Returns true if the path is 2 characters ending with :
+    """
     return len(path) == 2 and path[1] == ':'
 
 def get_path_parts(path: str) -> List[str]:
     """
     For a path, returns a list of the path broken down into
     pieces.
-    TODO: test this on Windows
     """
-    # If the path is just length 1, then its just the drive, not the path
-    if path == '.':
-        print('1. path parts: [.]')
+    # If the full path is WINDOWS_DRIVE_PATH, then we shouldn't try to 
+    # split it into path parts. Instead, we just return our default path .
+    if path == WINDOWS_DRIVE_PATH:
         return ['.']
-    if is_path_windows_drive(path):
-        print('2. path parts: ', path)
-        return [path]
     
     # On Windows, drive will be C: or D:, etc. On Unix, drive will be empty.
     drive, path_and_file = os.path.splitdrive(path)
-    print('drive: ', drive, ' path and file: ', path_and_file)
     path, file = os.path.split(path_and_file)
-    print('path traversing: ', path)
 
     folders = []
     # https://stackoverflow.com/questions/3167154/how-to-split-a-dos-path-into-its-components-in-python
     # We take the code from here, which apparently avoids entering an infinite loop
     # as it breaks when path != ''
-    # If the path is empty, which means that we're trying to load the windows drives, then don't do anything
-    if path != '':
-        while 1:
-            path, folder = os.path.split(path)
+    while 1:
+        path, folder = os.path.split(path)
 
-            if folder != "":
-                folders.append(folder)
-            elif path != "":
-                folders.append(path)
+        if folder != "":
+            folders.append(folder)
+        elif path != "":
+            folders.append(path)
 
-                break
+            break
 
     folders.reverse()
     if drive != '':
-        print('3. path parts: ', [drive] + folders + [file])
+        # If the drive is not empty, then include it. This occurs when we're on Windows!
         return [drive] + folders + [file]
     else:
         # If the drive is '' then we are on a Linux system and the root folder / is contained in the folders.
         # We get rid of the empty path so that we can easily handle windows and linux paths the same.
-        print('4. path parts: ',  folders + [file])
         return folders + [file]
 
 
@@ -105,38 +103,33 @@ def get_path_contents(params: Dict[str, Any]) -> str:
     path parts
     """ 
     path_parts = params['path_parts']
-    print('received path parts: ', path_parts)
-    path_length = len(path_parts)
 
     # Join the path and normalize it (note this should be OS independent)
     path = os.path.join(*path_parts)
     path = os.path.normpath(path)
 
-    print('received path: ', path)
     if is_path_windows_drive_missing_slash(path):
+        # If the windows drive does not have a trailing slash, eg C:,
+        # then its not a valid path and os.walk will not work properly
         path = path + '/'
 
-    if path == '.' and platform.system() == 'Windows':
+    if path == WINDOWS_DRIVE_PATH and platform.system() == 'Windows':
         # If the path only has one part, it means they are accessing the root folder. If the user is on
         # Windows, this folder doesn't exist so we fake one by letting them pick amongst their drives.
         filenames = []
         dirnames = get_windows_drives()
-        print("in here")
     else:
         # We default the path to "." on the frontend, but we replace
         # this with the current directory full path so we can get all
         # the path parts correctly 
         if path == '.':
-            print('found the path of .')
             path = os.getcwd()
 
         try:
             # This loop defines these variables, but does nothing with them
             # so we can then return them (which is why we break immediately).
-            # If the path is just a windows drive, like C, and there is no : on the end, 
-            # os.walk does not return anything.
-            # If the path is just C:, then it returns the mitosheet directory instead of the contents
-            # of the C drive. 
+            # If the path is just a windows drive that is formatted like C or C:, instead of C:/,
+            # then os.walk does not work properly. 
             for (dirpath, dirnames, filenames) in os.walk(path):
                 break
 
@@ -156,8 +149,6 @@ def get_path_contents(params: Dict[str, Any]) -> str:
     # Windows == "$"
     dirnames = [d for d in dirnames if (not d.startswith('.') and not d.startswith('$'))]
     filenames = [f for f in filenames if (not f.startswith('.') and not f.startswith('$'))]
-
-    print(dirnames, filenames)
 
     return json.dumps({
         'path': path,
