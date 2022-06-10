@@ -1,5 +1,6 @@
 // Copyright (c) Mito
 import React from 'react';
+import DriveIcon from '../../icons/DriveIcon'
 
 interface FileBrowserPathSelectorProps {
     pathParts: string[] | undefined;
@@ -18,13 +19,10 @@ const isPathPartWindowsDrive = (path_part: string): boolean => {
 */
 function FileBrowserPathSelector(props: FileBrowserPathSelectorProps): JSX.Element {
 
-    console.log('original pathParts: ', props.pathParts)
+    // If the user is on Windows, then append windows_drive to the front of the path so that we can 
+    // create a fake root folder to navigate between drives
     const isWindows = window.navigator.userAgent.toUpperCase().includes('WINDOWS')
-    let pathParts = props.pathParts 
-    if (isWindows && pathParts !== undefined) {
-        pathParts = ['windows_drive'].concat(pathParts)
-    }
-    console.log('created pathParts: ',  pathParts)
+    const  pathParts = (isWindows && props.pathParts !== undefined) ? ['windows_drive'].concat(props.pathParts) : props.pathParts 
 
     /* 
         Updates the selected path to go back up some number
@@ -41,69 +39,54 @@ function FileBrowserPathSelector(props: FileBrowserPathSelectorProps): JSX.Eleme
                 subPathParts.push('.')
             }
         }
-        console.log('!!!!!path to backend: ', subPathParts)
         props.setCurrPathParts(subPathParts);
     }
 
-    if (pathParts === undefined) {
-        return (
-            <React.Fragment key={0}>
-                <div className='file-browser-path-part' key={0} onClick={() => {updateSelectedPath(0)}}>
-                    Drive
-                </div>
-                <div className='file-browser-path-seperator'>
-                    &gt;
-                </div>
-            </React.Fragment>
-        )
-    } else {
-        return (
-            <div className='flexbox-row file-browser-path-selector'>
-                {pathParts?.map((pathPart, i) => {
-                    // If the path part is empty, don't display it
-                    if (pathPart === '' || pathPart === '.') {
-                        return <React.Fragment key={i}></React.Fragment>
-                    }
 
-                    if (i === 0) {
-                        return (
-                            <React.Fragment key={0}>
-                                <div className='file-browser-path-part' key={0} onClick={() => {updateSelectedPath(0)}}>
-                                    Drive
-                                </div>
-                                <div className='file-browser-path-seperator'>
-                                    &gt;
-                                </div>
-                            </React.Fragment>
-                        )
-                    }
-                    
-                    /*
-                    if (i === 1 && pathParts !== undefined && isPathPartWindowsDrive(pathParts[0]) && (pathPart === '\\' || pathPart === '/')) {
-                        // Combine the first and second path parths on windows so that we stick to the Windows File Explorer convention.
-                        // The first path part should look like C:/
-                        // Note: This only effects the path that we display, not the actual path, so that we don't mess with Python's path system.
-                        pathPart = pathParts[0] + pathPart
-                    }
-                    */
+    return (
+        <div className='flexbox-row file-browser-path-selector'>
+            {pathParts?.map((pathPart, i) => {
+                // If the path part is empty, don't display it
+                if (pathPart === '' || pathPart === '.') {
+                    return <React.Fragment key={i}></React.Fragment>
+                }
 
+                if (i === 0) {
                     return (
-                        <React.Fragment key={i}>
-                            <div className='file-browser-path-part' key={i} onClick={() => {updateSelectedPath(i)}}>
-                                {pathPart}
+                        <React.Fragment key={0}>
+                            <div className='file-browser-path-part vertical-align-content' key={0} onClick={() => {updateSelectedPath(0)}}>
+                                <DriveIcon />
                             </div>
                             <div className='file-browser-path-seperator'>
                                 &gt;
                             </div>
                         </React.Fragment>
                     )
-                })}
-            </div>
-        )
-    }
+                }
+                
+                /*
+                if (i === 1 && pathParts !== undefined && isPathPartWindowsDrive(pathParts[0]) && (pathPart === '\\' || pathPart === '/')) {
+                    // Combine the first and second path parths on windows so that we stick to the Windows File Explorer convention.
+                    // The first path part should look like C:/
+                    // Note: This only effects the path that we display, not the actual path, so that we don't mess with Python's path system.
+                    pathPart = pathParts[0] + pathPart
+                }
+                */
 
-
-    
+                return (
+                    <React.Fragment key={i}>
+                        <div className='file-browser-path-part' key={i} onClick={() => {updateSelectedPath(i)}}>
+                            {pathPart}
+                        </div>
+                        <div className='file-browser-path-seperator'>
+                            &gt;
+                        </div>
+                    </React.Fragment>
+                )
+            })}
+        </div>
+    )
 }
+
 
 export default FileBrowserPathSelector;
