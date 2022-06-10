@@ -3,6 +3,9 @@ import { FileElement, ImportTaskpaneState } from "./ImportTaskpane";
 
 const PARENT_FOLDER_NAME = 'Parent Folder';
 
+export const isWindows = (): boolean => {
+    return window.navigator.userAgent.toUpperCase().includes('WINDOWS')
+}
 
 /* 
     Helper function that gets an ending of a file, or
@@ -157,12 +160,13 @@ export const getElementsToDisplay = (importState: ImportTaskpaneState): FileElem
 }
 
 export const inRootFolder = (pathParts: string[]): boolean => {
-    let folderCount = 0;
-    pathParts.forEach(pathPart => {
-        if (pathPart === '/' || pathPart === '' || pathPart == 'C:' || pathPart === 'D:') {
-            return;
-        }
-        folderCount++;
-    })
-    return folderCount < 2;
+    pathParts = pathParts.filter(pathPart => pathPart !== '')
+    console.log('in root folder: ', pathParts)
+    if (isWindows()) {
+        // On a Windows, the path is to the root folder when the path has one part and its the default path, .
+        return pathParts.length === 1 && pathParts[0] === '.'
+    } else {
+        // On Mac, the root folder is '/' and its the only path part
+        return pathParts.length === 1 && pathParts[0] === '/'
+    }
 }

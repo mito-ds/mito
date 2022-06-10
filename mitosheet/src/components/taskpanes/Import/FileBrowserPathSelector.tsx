@@ -1,6 +1,7 @@
 // Copyright (c) Mito
 import React from 'react';
 import DriveIcon from '../../icons/DriveIcon'
+import { isWindows } from './importUtils';
 
 interface FileBrowserPathSelectorProps {
     pathParts: string[] | undefined;
@@ -23,8 +24,7 @@ function FileBrowserPathSelector(props: FileBrowserPathSelectorProps): JSX.Eleme
 
     // If the user is on Windows, then append WINDOWS_DRIVE_PATH to the front of the path so that we can 
     // create a fake root folder to navigate between drives
-    const isWindows = window.navigator.userAgent.toUpperCase().includes('WINDOWS')
-    const  pathParts = (isWindows && props.pathParts !== undefined) ? [WINDOWS_DRIVE_PATH].concat(props.pathParts) : props.pathParts 
+    const  pathParts = (isWindows() && props.pathParts !== undefined) ? [WINDOWS_DRIVE_PATH].concat(props.pathParts) : props.pathParts 
 
     /* 
         Updates the selected path to go back up some number
@@ -35,7 +35,7 @@ function FileBrowserPathSelector(props: FileBrowserPathSelectorProps): JSX.Eleme
             return;
         }
         const subPathParts = pathParts.slice(0, i + 1);
-        if (isWindows) {
+        if (isWindows()) {
             // Remove the WINDOWS_DRIVE_PATH so its a valid path
             subPathParts.splice(0, 1)
             // If the path is now empty, then just send the WINDOWS_DRIVE_PATH so we can display the windows drives
