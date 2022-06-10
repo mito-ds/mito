@@ -56,8 +56,6 @@ const Tour = (props: {
     useEffect(() => {
         if (steps[stepNumber].tourName === TourName.PIVOT && steps[stepNumber].stepNumber === 1) {
             props.setHighlightPivotTableButton(true)
-        } else if (steps[stepNumber].tourName === TourName.COLUMN_FORMULAS && steps[stepNumber].stepNumber === 1) {
-            props.setHighlightAddColButton(true)
         } else {
             props.setHighlightPivotTableButton(false)
             props.setHighlightAddColButton(false)
@@ -103,14 +101,19 @@ const Tour = (props: {
         // Mark that the user skipped the tour so we don't log a finished_tour event
         setSkippedTour(true)
 
-        // Display the final tutorial step
-        setStepNumber(steps.length - 1)
+        if (steps[stepNumber].tourName === TourName.INTRO) {
+            // Display the final tutorial step if this is the intro tour always
+            setStepNumber(steps.length - 1);
+        } else {
+            // Otherwise end the tour
+            void closeTour(true);
+        }
     }
 
     // Called if you close the tour on the final step
-    const closeTour = async (): Promise<void> => {
+    const closeTour = async (_skippedTour?: boolean): Promise<void> => {
         // Log finishing the tour, if you didn't skip to the final step
-        if (!skippedTour) {
+        if (!skippedTour && !_skippedTour) {
             void props.mitoAPI.log(
                 'finished_tour', 
                 {
@@ -173,15 +176,21 @@ const Tour = (props: {
                 {finalStepText}
             </div>
             <Row justify='space-between'>
-                <Col>
-                    <TextButton
-                        variant='dark'
-                        width='small'
-                        onClick={() => goToStep(stepNumber - 1)}
-                    >
-                        Back
-                    </TextButton>
-                </Col>
+                {stepNumber - 1 >= 0 &&
+                    <Col>
+                        <TextButton
+                            variant='dark'
+                            width='small'
+                            onClick={() => goToStep(stepNumber - 1)}
+                        >
+                            Back
+                        </TextButton>
+                    </Col>
+                }
+                {stepNumber - 1 <= 0 &&
+                    // Add a space so that the advance button is always in the same place
+                    <Col></Col>
+                }
                 <Col>
                     <TextButton
                         variant='light'

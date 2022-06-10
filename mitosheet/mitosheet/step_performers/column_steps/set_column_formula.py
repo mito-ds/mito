@@ -9,16 +9,15 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.column_steps.refresh_dependant_columns_code_chunk import RefreshDependantColumnsCodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.set_column_formula_code_chunk import SetColumnFormulaCodeChunk
 from mitosheet.errors import (MitoError, make_circular_reference_error,
-                              make_execution_error, make_no_column_error,
+                              make_execution_error, make_invalid_formula_after_update_error, make_no_column_error,
                               make_operator_type_error,
                               make_unsupported_function_error)
 from mitosheet.parser import parse_formula
 from mitosheet.sheet_functions import FUNCTIONS
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.evaluation_graph_utils import (create_column_evaluation_graph, creates_circularity, topological_sort_dependent_columns)
 from mitosheet.step_performers.utils import get_param
 from mitosheet.types import ColumnHeader, ColumnID
 
@@ -42,7 +41,6 @@ class SetColumnFormulaStepPerformer(StepPerformer):
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         sheet_index = params['sheet_index']
         column_id = params['column_id']
-        params['old_formula'] = prev_state.column_spreadsheet_code[sheet_index][column_id]
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
         column_headers = prev_state.dfs[sheet_index].keys()
         
@@ -57,22 +55,15 @@ class SetColumnFormulaStepPerformer(StepPerformer):
             except:
                 params['new_formula'] = _get_fixed_invalid_formula(params['new_formula'], column_header, column_headers)
 
-        # By default, we don't do anything with the saturate
         return params
 
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')
-        old_formula: str = get_param(params, 'old_formula')
         new_formula: str = get_param(params, 'new_formula')
 
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-
-        # If nothings changed, there's no work to do
-        if (old_formula == new_formula):
-            return prev_state, None
-
         column_headers = prev_state.dfs[sheet_index].keys()
 
         # Then we try and parse the formula
@@ -84,7 +75,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         new_dependencies = set(prev_state.column_ids.get_column_ids(sheet_index, new_dependencies_column_headers))
 
         # We check that the formula doesn't reference any columns that don't exist
-        missing_columns = new_dependencies.difference(prev_state.column_spreadsheet_code[sheet_index].keys())
+        missing_columns = new_dependencies.difference(prev_state.column_ids.get_column_ids(sheet_index))
         if any(missing_columns):
             raise make_no_column_error(missing_columns, error_modal=False)
 
@@ -93,32 +84,13 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         if any(missing_functions):
             raise make_unsupported_function_error(missing_functions, error_modal=False)
 
-        # Then, we get the list of old column dependencies and new dependencies
-        # so that we can update the graph
-        _, _, old_dependencies_column_headers = parse_formula(old_formula, column_header, column_headers)
-        old_dependencies = set(prev_state.column_ids.get_column_ids(sheet_index, old_dependencies_column_headers))
-
-        column_evaluation_graph = create_column_evaluation_graph(prev_state, sheet_index)
-
-        # Before changing any variables, we make sure this edit didn't
-        # introduct any circularity
-        circularity = creates_circularity(
-            column_evaluation_graph, 
-            column_id,
-            old_dependencies,
-            new_dependencies
-        )
-        if circularity:
-            raise make_circular_reference_error(error_modal=False)
-
         # We check out a new step
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
         # Update the column formula, and then execute the new formula graph
         try:
-            post_state.column_spreadsheet_code[sheet_index][column_id] = new_formula
             pandas_start_time = perf_counter()
-            refresh_dependant_columns(post_state, post_state.dfs[sheet_index], sheet_index, column_id)
+            exec_column_formula(post_state, post_state.dfs[sheet_index], sheet_index, column_id, new_formula)
             pandas_processing_time = perf_counter() - pandas_start_time
         except MitoError as e:
             # Catch the error and make sure that we don't set the error modal
@@ -143,7 +115,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         Transpiles an set_column_formula step to python code!
         """
         return [
-            RefreshDependantColumnsCodeChunk(prev_state, post_state, params, execution_data)
+            SetColumnFormulaCodeChunk(prev_state, post_state, params, execution_data)
         ]
 
     @classmethod
@@ -239,45 +211,51 @@ def get_details_from_operator_type_error(error: TypeError) -> Optional[Tuple[str
     return None
 
 
-def refresh_dependant_columns(post_state: State, df: pd.DataFrame, sheet_index: int, column_id: ColumnID) -> None:
+def exec_column_formula(post_state: State, df: pd.DataFrame, sheet_index: int, column_id: ColumnID, spreadsheet_code: str) -> None:
     """
-    Helper function for refreshing the columns that are dependant on the column we are changing. 
+    Helper function for refreshing the column when the formula is set
     """
-    topological_sort = topological_sort_dependent_columns(post_state, sheet_index, column_id)
-    column_headers = post_state.dfs[sheet_index].keys()
 
-    for column_id in topological_sort:
-        if post_state.column_spreadsheet_code[sheet_index][column_id] == '':
-            continue
+    if spreadsheet_code == '':
+        return
 
-        column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-        python_code, _, _ = parse_formula(
-            post_state.column_spreadsheet_code[sheet_index][column_id], 
-            column_header,
-            column_headers
-        )
+    column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
+    python_code, _, _ = parse_formula(
+        spreadsheet_code, 
+        column_header,
+        post_state.dfs[sheet_index].keys()
+    )
 
+    try:
         # Exec the code, where the df is the original dataframe
         # See explination here: https://www.tutorialspoint.com/exec-in-python
-        try:
-            exec(
-                python_code,
-                {'df': df}, 
-                FUNCTIONS
-            )
-        except TypeError as e:
-            # We catch TypeErrors specificially, so that we can case on operator errors, to 
-            # give better error messages
-            operator_type_error_details = get_details_from_operator_type_error(e)
-            if operator_type_error_details is not None:
-                # If there is an operator error, we handle it specially, to give the user
-                # more information about how to recover
-                raise make_operator_type_error(*operator_type_error_details)
-            else:
-                # If it's not an operator error, we just propagate the error up
-                raise e
-        except NameError as e:
-            # If we have a column header that does not exist in the formula, we may
-            # throw a name error, in which case we alert the user
-            column_header = str(e).split('\'')[1]
-            raise make_no_column_error({column_header})
+        exec(
+            python_code,
+            {'df': df}, 
+            FUNCTIONS
+        )
+        # Then, update the column spreadsheet code
+        post_state.column_spreadsheet_code[sheet_index][column_id] = spreadsheet_code
+    except TypeError as e:
+        # We catch TypeErrors specificially, so that we can case on operator errors, to 
+        # give better error messages
+        operator_type_error_details = get_details_from_operator_type_error(e)
+        if operator_type_error_details is not None:
+            # If there is an operator error, we handle it specially, to give the user
+            # more information about how to recover
+            raise make_operator_type_error(*operator_type_error_details)
+        else:
+            # If it's not an operator error, we just propagate the error up
+            raise e
+    except NameError as e:
+        # If we have a column header that does not exist in the formula, we may
+        # throw a name error, in which case we alert the user
+        column_header = str(e).split('\'')[1]
+        raise make_no_column_error({column_header})
+    except Exception as e:
+        # If this is the same formula as before, then it used to be valid and is not,
+        # and so we let the user know they must have made some other change that made 
+        # in invalid
+        if spreadsheet_code == post_state.column_spreadsheet_code[sheet_index][column_id]:
+            raise make_invalid_formula_after_update_error()
+        raise

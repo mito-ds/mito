@@ -131,6 +131,22 @@ def make_invalid_formula_error(formula: str, to_fix: str=None, error_modal: bool
         error_modal=error_modal
     )
 
+def make_invalid_formula_after_update_error(error_modal: bool=False) -> MitoError:
+    """
+    Helper function for creating a invalid_formula_after_update_error.
+
+    Occurs when a user edits a user tries to resubmit a formula that used to be
+    valid and is no longer valid - which must mean they changed something they 
+    rely on.
+    """
+  
+    return MitoError(
+        'invalid_formula_after_update_error', 
+        'Formula is Now Invalid',
+        'Renaming or deleting other columns in this dataset has made this formula invalid. Please update this formula.',
+        error_modal=error_modal
+    )
+
 
 def make_cast_value_to_type_error(value: str, column_dtype: str, error_modal: bool=True) -> MitoError:
     """

@@ -12,7 +12,7 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.no_op_code_chunk import NoOpCodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.rename_columns_code_chunk import RenameColumnsCodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnsCodeChunk
-from mitosheet.code_chunks.step_performers.column_steps.refresh_dependant_columns_code_chunk import RefreshDependantColumnsCodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.set_column_formula_code_chunk import SetColumnFormulaCodeChunk
 from mitosheet.transpiler.transpile_utils import \
     column_header_to_transpiled_code
 
@@ -104,7 +104,7 @@ class AddColumnCodeChunk(CodeChunk):
             # this will not happen often
             return None
     
-    def _combine_right_with_refresh_dependant_columns_code_chunk(self, other_code_chunk: RefreshDependantColumnsCodeChunk) -> Optional[CodeChunk]:
+    def _combine_right_with_set_column_formula_code_chunk(self, other_code_chunk: SetColumnFormulaCodeChunk) -> Optional[CodeChunk]:
         if not self.params_match(other_code_chunk, ['sheet_index']):
             return None
 
@@ -131,7 +131,7 @@ class AddColumnCodeChunk(CodeChunk):
             return self._combine_right_with_delete_column_code_chunk(other_code_chunk)
         elif isinstance(other_code_chunk, RenameColumnsCodeChunk):
             return self._combine_right_with_rename_columns_code_chunk(other_code_chunk)
-        elif isinstance(other_code_chunk, RefreshDependantColumnsCodeChunk):
-            return self._combine_right_with_refresh_dependant_columns_code_chunk(other_code_chunk)
+        elif isinstance(other_code_chunk, SetColumnFormulaCodeChunk):
+            return self._combine_right_with_set_column_formula_code_chunk(other_code_chunk)
 
         return None

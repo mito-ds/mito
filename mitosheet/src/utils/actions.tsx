@@ -838,7 +838,7 @@ export const createActions = (
 
                 closeOpenEditingPopups();
 
-                const startingFormula = getStartingFormula(sheetData, startingRowIndex, startingColumnIndex);
+                const startingFormula = getStartingFormula(sheetData, startingRowIndex, startingColumnIndex, 'set_cell_value');
 
                 setEditorState({
                     rowIndex: startingRowIndex,

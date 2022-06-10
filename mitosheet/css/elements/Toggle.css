@@ -1,12 +1,13 @@
 .toggle-label {
     --toggle-label-width: 60px;
+    --toggle-height: 30px;
     --toggle-toggle-width: 24px;
     --toggle-toggle-margin: 1px;
 
     position: relative;
     display: inline-block;
     width: var(--toggle-label-width);
-    height: 30px;
+    height: var(--toggle-height);
 }
 
 /* Don't display the default html input so we can created out own custom styled one */
@@ -38,13 +39,14 @@
 .toggle:before {
     position: absolute;
     content: "";
-    height: var(--toggle-toggle-width);
+    height: var(--toggle-height);
     width: var(--toggle-toggle-width);
     left: var(--toggle-toggle-margin);
     background-color: white;
     -webkit-transition: .2s;
     transition: .2s;
     border-radius: 3px;
+    height: calc(var(--toggle-height) - 7px);
 }
   
 input:checked + .toggle {
@@ -55,6 +57,7 @@ input:checked + .toggle:before {
     -webkit-transform: translateX(calc(var(--toggle-label-width) - var(--toggle-toggle-width) - 4 * var(--toggle-toggle-margin)));
     -ms-transform: translateX(calc(var(--toggle-label-width) - var(--toggle-toggle-width) - 4 * var(--toggle-toggle-margin)));
     transform: translateX(calc(var(--toggle-label-width) - var(--toggle-toggle-width) - 4 * var(--toggle-toggle-margin)));
+    height: calc(var(--toggle-height) - 7px);
 }
  
 /* 

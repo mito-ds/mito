@@ -496,7 +496,7 @@ function EndoGrid(props: {
             return;
         }
 
-        const startingFormula = getStartingFormula(sheetData, rowIndex, columnIndex);
+        const startingFormula = getStartingFormula(sheetData, rowIndex, columnIndex, 'set_column_formula');
 
         setEditorState({
             rowIndex: rowIndex,
@@ -564,7 +564,7 @@ function EndoGrid(props: {
                 setGridState((gridState) => {
                     const lastSelection = gridState.selections[gridState.selections.length - 1]
 
-                    const startingFormula = getStartingFormula(sheetData, lastSelection.startingRowIndex, lastSelection.startingColumnIndex, e);
+                    const startingFormula = getStartingFormula(sheetData, lastSelection.startingRowIndex, lastSelection.startingColumnIndex, 'set_column_formula', e);
                     
                     setEditorState({
                         rowIndex: lastSelection.startingRowIndex,

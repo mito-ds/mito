@@ -20,6 +20,12 @@ interface ToggleProps {
         * @param [disabled] - Disables the toggle button
     */
     disabled?: boolean
+
+    /**
+        * @param [height] - Optionally set a height for the toggle
+    */
+    height?: string
+
 }
 
 /**
@@ -37,7 +43,7 @@ const Toggle = (props: ToggleProps): JSX.Element => {
     const disabled = props.disabled === true
 
     return (
-        <label className="toggle-label">
+        <label className="toggle-label" style={props.height ? { "--toggle-height": props.height } as React.CSSProperties : {}}>
             {/* 
                 Its important that the onClick event handler be on the input instead of the label because
                 when the label is clicked, it also triggers the input's onClick event. If the onClick was registered

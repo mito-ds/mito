@@ -83,13 +83,6 @@ def test_edit_to_same_formula_no_error():
     assert mito.curr_step.column_spreadsheet_code[0]['B'] == '=A'
 
 
-def test_no_circularity_on_simple_circular_message_receive():
-    mito = create_mito_wrapper([123])
-    mito.add_column(0, 'B')
-    mito.set_formula('=B', 0, 'B')
-
-    assert mito.curr_step.column_spreadsheet_code[0]['B'] == '=0'
-
 def test_formulas_fill_missing_parens():
     mito = create_mito_wrapper([123])
     mito.add_column(0, 'B')
@@ -131,7 +124,7 @@ def test_multi_sheet_edits_edit_correct_dfs():
     assert mito.curr_step.column_spreadsheet_code[1]['B'] == '=A + 100'
 
 
-def test_only_writes_downstream_code():
+def test_only_writes_single_code():
     df = pd.DataFrame(data={'A': [1]})
     mito = create_mito_wrapper_dfs(df)
     mito.set_formula('=A', 0, 'B', add_column=True)
@@ -144,7 +137,18 @@ def test_only_writes_downstream_code():
         "df1.insert(2, 'C', df1['B'])", 
         "df1.insert(3, 'D', df1['A'])", 
         "df1['B'] = 100", 
-        "df1['C'] = df1['B']", 
+    ]
+
+def test_inplace_edit_overwrites_properly():
+    df = pd.DataFrame(data={'A': [1]})
+    mito = create_mito_wrapper_dfs(df)
+    mito.set_formula('=A + 1', 0, 'A')
+    mito.set_formula('=A + 2', 0, 'A')
+    mito.set_formula('=A + 3', 0, 'A')
+    mito.undo()
+
+    assert mito.transpiled_code == [
+        "df1['A'] = df1['A'] + 2", 
     ]
 
 def test_formula_with_letters_df_in_column_header_works():
