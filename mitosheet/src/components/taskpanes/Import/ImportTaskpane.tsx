@@ -40,7 +40,7 @@ export interface FileElement {
     isDirectory: boolean,
     isParentDirectory?: boolean,
     name: string,
-    lastModified: number;
+    lastModified?: number;
 }
 
 function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
@@ -56,8 +56,6 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
         loadingFolder: false,
         loadingImport: false
     })
-
-    console.log('path parts: ', importState.pathContents.path_parts)
 
     // If the file being imported is an XLSX, we need additional configuration
     // and so we use an import wizard for help

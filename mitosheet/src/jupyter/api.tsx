@@ -272,7 +272,6 @@ export default class MitoAPI {
             return undefined;
         }
         try {
-            console.log(JSON.parse(pathDataString) as PathContents)
             return JSON.parse(pathDataString) as PathContents;
         } catch (e) {
             return undefined;

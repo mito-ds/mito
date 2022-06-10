@@ -9,11 +9,6 @@ from typing import Any, Dict, List, Optional
 import platform
 import string
 
-# The WINDOWS_DRIVE_PATH is needed so that we can mock a root directory for Windows that 
-# allows the user to select one of their drives to nagivate in. If we were only supporting Mac, 
-# we would not need this becuase the root folder is just /
-WINDOWS_DRIVE_PATH = 'windows_drive_path'
-
 def get_path_modified(path: str, f: str) -> Optional[str]:
     """
     For a path, returns when it was last modified. If that path is unaccessible, 
@@ -46,27 +41,12 @@ def get_windows_drives() -> List[str]:
 
     return drives
 
-def is_path_windows_drive(path: str) -> bool:
-    """
-    Returns true if the path is 3 characters ending with :/
-    """
-    return len(path) == 3 and path[1] == ':' and path[2] == '/'
-
-def is_path_windows_drive_missing_slash(path: str) -> bool:
-    """
-    Returns true if the path is 2 characters ending with :
-    """
-    return len(path) == 2 and path[1] == ':'
 
 def get_path_parts(path: str) -> List[str]:
     """
     For a path, returns a list of the path broken down into
     pieces.
     """
-    # If the full path is WINDOWS_DRIVE_PATH, then we shouldn't try to 
-    # split it into path parts. Instead, we just return our default path .
-    if path == WINDOWS_DRIVE_PATH:
-        return ['.']
     
     # On Windows, drive will be C: or D:, etc. On Unix, drive will be empty.
     drive, path_and_file = os.path.splitdrive(path)
@@ -88,8 +68,13 @@ def get_path_parts(path: str) -> List[str]:
 
     folders.reverse()
     if drive != '':
-        # If the drive is not empty, then include it. This occurs when we're on Windows!
-        return [drive] + folders + [file]
+        # If the drive is not empty, we are on windows, and we need to do some path hackery to get things to
+        # work well. First, we add the / to the start of the path, and then we make sure the drive has a slash
+        # after it. Then, we remove the slash from the folder list if it exists at the start
+        if len(folders) > 0 and folders[0] == '/':
+            folders = folders[1:]
+
+        return ["/", drive + '/'] + folders + [file]
     else:
         # If the drive is '' then we are on a Linux system and the root folder / is contained in the folders.
         # We get rid of the empty path so that we can easily handle windows and linux paths the same.
@@ -108,12 +93,7 @@ def get_path_contents(params: Dict[str, Any]) -> str:
     path = os.path.join(*path_parts)
     path = os.path.normpath(path)
 
-    if is_path_windows_drive_missing_slash(path):
-        # If the windows drive does not have a trailing slash, eg C:,
-        # then its not a valid path and os.walk will not work properly
-        path = path + '/'
-
-    if path == WINDOWS_DRIVE_PATH and platform.system() == 'Windows':
+    if path == '/' and platform.system() == 'Windows':
         # If the path only has one part, it means they are accessing the root folder. If the user is on
         # Windows, this folder doesn't exist so we fake one by letting them pick amongst their drives.
         filenames = []

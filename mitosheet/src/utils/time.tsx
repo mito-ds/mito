@@ -13,9 +13,9 @@ const YEAR = 365 * DAY;
  * 
  * If the timestamp doesn't exist, it just returns '--', like Finder.
  */
-export const getLastModifiedString = (timestamp: number): string => {
-    if (timestamp === null) {
-        return '--'
+export const getLastModifiedString = (timestamp: number | null | undefined): string => {
+    if (timestamp === null || timestamp === undefined) {
+        return '--';
     }
     
     const delta = Math.floor(Date.now() / 1000) - timestamp;

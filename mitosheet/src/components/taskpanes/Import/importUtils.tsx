@@ -132,6 +132,8 @@ export const getElementsToDisplay = (importState: ImportTaskpaneState): FileElem
             return elementOne.name < elementTwo.name ? -1 : 1;
         } else if (importState.sort === 'name_descending') {
             return elementOne.name >= elementTwo.name ? -1 : 1;
+        } else if (typeof elementOne.lastModified !== 'number' || typeof elementTwo.lastModified !== 'number') {
+            return 1;
         } else if (importState.sort === 'last_modified_ascending') {
             return elementOne.lastModified < elementTwo.lastModified ? -1 : 1;
         } else {
@@ -142,20 +144,5 @@ export const getElementsToDisplay = (importState: ImportTaskpaneState): FileElem
 
 export const inRootFolder = (pathParts: string[]): boolean => {
     pathParts = pathParts.filter(pathPart => pathPart !== '')
-    console.log('in root folder: ', pathParts)
-    if (isWindows()) {
-        // On a Windows, the path is to the root folder when the path has one part and its the default path, .
-        return pathParts.length === 1 && pathParts[0] === '.'
-    } else {
-        // On Mac, the root folder is '/' and its the only path part
-        return pathParts.length === 1 && pathParts[0] === '/'
-    }
-}
-
-export const isWindows = (): boolean => {
-    return window.navigator.userAgent.toUpperCase().includes('WINDOWS')
-}
-
-export const isPathPartWindowsDrive = (path_part: string): boolean => {
-    return path_part.length == 2 && path_part[1] === ':'
+    return pathParts.length === 1 && pathParts[0] === '/';
 }

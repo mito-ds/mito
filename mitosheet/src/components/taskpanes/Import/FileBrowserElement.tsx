@@ -12,7 +12,7 @@ import Row from '../../spacing/Row';
 import {
     FileElement, ImportTaskpaneState
 } from './ImportTaskpane';
-import { getInvalidFileError, isPathPartWindowsDrive, isWindows } from './importUtils';
+import { getInvalidFileError } from './importUtils';
 
 
 interface FileBrowserElementProps {
@@ -24,6 +24,7 @@ interface FileBrowserElementProps {
     setImportState: React.Dispatch<React.SetStateAction<ImportTaskpaneState>>;
     importElement: (element: FileElement | undefined) => Promise<void>;
     excelImportEnabled: boolean;
+    isParentFolder?: boolean;
 }
 
 /* 
@@ -84,17 +85,12 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
             }}
             onDoubleClick={() => {
                 if (props.element.isParentDirectory) {
-                    let newPathParts = [...props.importState.pathContents.path_parts];
+                    const newPathParts = [...props.importState.pathContents.path_parts];
                     newPathParts.pop()
-                    if (isWindows() && newPathParts.length === 1 && isPathPartWindowsDrive(newPathParts[0])) {
-                        newPathParts = ['.']
-                    }
-                    console.log('@@@@@@@@@@@: ', newPathParts)
                     props.setCurrPathParts(newPathParts);
                 } else if (props.element.isDirectory) {
                     const newPathParts = props.importState.pathContents.path_parts || [];
                     newPathParts.push(props.element.name);
-                    console.log('@@@@@@@@@@@: ', newPathParts)
                     props.setCurrPathParts(newPathParts);
                 } else {
                     void props.importElement(props.element);
