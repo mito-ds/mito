@@ -8,12 +8,6 @@ interface FileBrowserPathSelectorProps {
     setCurrPathParts: (newPathParts: string[]) => void;
 }
 
-/*
-const isPathPartWindowsDrive = (path_part: string): boolean => {
-    return path_part.length == 2 && path_part[1] === ':'
-}
-*/
-
 const WINDOWS_DRIVE_PATH = 'windows_drive_path'
 
 /* 

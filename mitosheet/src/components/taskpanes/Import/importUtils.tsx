@@ -3,9 +3,6 @@ import { FileElement, ImportTaskpaneState } from "./ImportTaskpane";
 
 const PARENT_FOLDER_NAME = 'Parent Folder';
 
-export const isWindows = (): boolean => {
-    return window.navigator.userAgent.toUpperCase().includes('WINDOWS')
-}
 
 /* 
     Helper function that gets an ending of a file, or
@@ -153,4 +150,12 @@ export const inRootFolder = (pathParts: string[]): boolean => {
         // On Mac, the root folder is '/' and its the only path part
         return pathParts.length === 1 && pathParts[0] === '/'
     }
+}
+
+export const isWindows = (): boolean => {
+    return window.navigator.userAgent.toUpperCase().includes('WINDOWS')
+}
+
+export const isPathPartWindowsDrive = (path_part: string): boolean => {
+    return path_part.length == 2 && path_part[1] === ':'
 }

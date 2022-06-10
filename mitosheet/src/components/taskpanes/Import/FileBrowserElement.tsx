@@ -12,7 +12,7 @@ import Row from '../../spacing/Row';
 import {
     FileElement, ImportTaskpaneState
 } from './ImportTaskpane';
-import { getInvalidFileError } from './importUtils';
+import { getInvalidFileError, isPathPartWindowsDrive, isWindows } from './importUtils';
 
 
 interface FileBrowserElementProps {
@@ -84,8 +84,11 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
             }}
             onDoubleClick={() => {
                 if (props.element.isParentDirectory) {
-                    const newPathParts = [...props.importState.pathContents.path_parts];
+                    let newPathParts = [...props.importState.pathContents.path_parts];
                     newPathParts.pop()
+                    if (isWindows() && newPathParts.length === 1 && isPathPartWindowsDrive(newPathParts[0])) {
+                        newPathParts = ['.']
+                    }
                     console.log('@@@@@@@@@@@: ', newPathParts)
                     props.setCurrPathParts(newPathParts);
                 } else if (props.element.isDirectory) {
