@@ -94,10 +94,7 @@ def get_path_contents(params: Dict[str, Any]) -> str:
     path = os.path.join(*path_parts)
     path = os.path.normpath(path)
 
-    print("Getting path", path,  path == '\\', platform.system() == 'Windows')
-
     if path == '\\' and platform.system() == 'Windows':
-        print("HERE!")
         # If the path only has one part, it means they are accessing the root folder. If the user is on
         # Windows, this folder doesn't exist so we fake one by letting them pick amongst their drives.
         filenames = []
