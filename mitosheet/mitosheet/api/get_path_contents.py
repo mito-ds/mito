@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional
 import platform
 import string
 
-def get_path_modified(path: str, f: str) -> Optional[str]:
+def get_path_modified(path: str, f: str) -> Optional[float]:
     """
     For a path, returns when it was last modified. If that path is unaccessible, 
     for example if the path is a disconnected Google Drive that can no longer be read,
@@ -31,7 +31,7 @@ def get_windows_drives() -> List[str]:
     # Ctypes only exports windll on windows computers. 
     # Read more here: https://docs.python.org/3/library/ctypes.html#module-ctypes
     if platform.system() == 'Windows':
-        from ctypes import windll
+        from ctypes import windll # type: ignore
         bitmask = windll.kernel32.GetLogicalDrives()
         for letter in string.ascii_uppercase:
             if bitmask & 1:
@@ -97,7 +97,7 @@ def get_path_contents(params: Dict[str, Any]) -> str:
     if path == '\\' and platform.system() == 'Windows':
         # If the path only has one part, it means they are accessing the root folder. If the user is on
         # Windows, this folder doesn't exist so we fake one by letting them pick amongst their drives.
-        filenames = []
+        filenames: List[str] = []
         dirnames = get_windows_drives()
     else:
         # We default the path to "." on the frontend, but we replace
