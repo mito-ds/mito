@@ -67,6 +67,14 @@ const INTEGRATION_FEATURES: Feature[] = [
     }
   },
   {
+    feature: 'Remote File Import',
+    planSupport: {
+      'Open Source': false,
+      'Pro': true,
+      'Enterprise': true 
+    }
+  },
+  {
     feature: 'Formatting Export',
     planSupport: {
       'Open Source': false,
@@ -609,7 +617,7 @@ const Plans: NextPage = () => {
                           Connect to more data sources
                         </h1>
                         <p>
-                          Connect to databases and remote file systems so users can import any data set  without having to write custom pandas code.   
+                          Connect to databases so users can import any data set  without having to write custom pandas code.   
                         </p>
                     </div>
                     <div className={iconAndTextCardStyles.icon_and_text_card + ' ' + pageStyles.subsection_second_element_mobile_spacing}>

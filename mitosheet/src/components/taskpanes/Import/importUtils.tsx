@@ -132,22 +132,8 @@ export const getElementsToDisplay = (importState: ImportTaskpaneState): FileElem
             return elementOne.name < elementTwo.name ? -1 : 1;
         } else if (importState.sort === 'name_descending') {
             return elementOne.name >= elementTwo.name ? -1 : 1;
-        } else if (importState.sort === 'last_modified_ascending') {
-            return elementOne.lastModified < elementTwo.lastModified ? -1 : 1;
-        } else {
-            return elementOne.lastModified >= elementTwo.lastModified ? -1 : 1;
-        }
-    })
-
-
-
-    return allElements.filter(element => {
-        return fuzzyMatch(element.name, importState.searchString) > .8;
-    }).sort((elementOne, elementTwo) => {
-        if (importState.sort === 'name_ascending') {
-            return elementOne.name < elementTwo.name ? -1 : 1;
-        } else if (importState.sort === 'name_descending') {
-            return elementOne.name >= elementTwo.name ? -1 : 1;
+        } else if (typeof elementOne.lastModified !== 'number' || typeof elementTwo.lastModified !== 'number') {
+            return 1;
         } else if (importState.sort === 'last_modified_ascending') {
             return elementOne.lastModified < elementTwo.lastModified ? -1 : 1;
         } else {
@@ -157,12 +143,6 @@ export const getElementsToDisplay = (importState: ImportTaskpaneState): FileElem
 }
 
 export const inRootFolder = (pathParts: string[]): boolean => {
-    let folderCount = 0;
-    pathParts.forEach(pathPart => {
-        if (pathPart === '/' || pathPart === '' || pathPart == 'C:' || pathPart === 'D:') {
-            return;
-        }
-        folderCount++;
-    })
-    return folderCount < 2;
+    pathParts = pathParts.filter(pathPart => pathPart !== '')
+    return pathParts.length === 1 && (pathParts[0] === '/' || pathParts[0] === '\\');
 }

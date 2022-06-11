@@ -13,8 +13,6 @@ import FileBrowser from './FileBrowser';
 import { getElementsToDisplay, getFileEnding, getImportButtonStatus } from './importUtils';
 import XLSXImport from './XLSXImport';
 
-
-
 interface ImportTaskpaneProps {
     mitoAPI: MitoAPI;
     userProfile: UserProfile;
@@ -42,7 +40,7 @@ export interface FileElement {
     isDirectory: boolean,
     isParentDirectory?: boolean,
     name: string,
-    lastModified: number;
+    lastModified?: number;
 }
 
 function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {

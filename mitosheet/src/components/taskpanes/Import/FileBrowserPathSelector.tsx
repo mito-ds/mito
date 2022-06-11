@@ -1,10 +1,12 @@
 // Copyright (c) Mito
 import React from 'react';
+import DriveIcon from '../../icons/DriveIcon'
 
 interface FileBrowserPathSelectorProps {
     pathParts: string[] | undefined;
     setCurrPathParts: (newPathParts: string[]) => void;
 }
+
 
 /* 
     At the top of the file browser, users can select
@@ -24,23 +26,17 @@ function FileBrowserPathSelector(props: FileBrowserPathSelectorProps): JSX.Eleme
         props.setCurrPathParts(subPathParts);
     }
 
+
     return (
         <div className='flexbox-row file-browser-path-selector'>
             {props.pathParts?.map((pathPart, i) => {
-
-                // We do not display the leading part of the path that
-                // does not add anything to the users information
-                if (pathPart === '/' || pathPart === '' || pathPart == 'C:' || pathPart === 'D:') {
-                    return <React.Fragment key={i}></React.Fragment>
-                }
-
                 return (
                     <React.Fragment key={i}>
                         <div className='file-browser-path-part' key={i} onClick={() => {updateSelectedPath(i)}}>
-                            {pathPart}
+                            {i === 0 ? <DriveIcon /> : pathPart}
                         </div>
                         <div className='file-browser-path-seperator'>
-                            /
+                            &gt;
                         </div>
                     </React.Fragment>
                 )
@@ -48,5 +44,6 @@ function FileBrowserPathSelector(props: FileBrowserPathSelectorProps): JSX.Eleme
         </div>
     )
 }
+
 
 export default FileBrowserPathSelector;
