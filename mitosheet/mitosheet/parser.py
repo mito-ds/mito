@@ -8,6 +8,7 @@ Exports the evaluate function, which takes a list of edit events
 as well as the original dataframe, and returns the current state 
 of the sheet as a dataframe
 """
+import datetime
 import re
 from typing import Any, Collection, List, Optional, Set, Tuple, Union
 
@@ -308,6 +309,10 @@ def replace_column_headers(
 
         if isinstance(column_header, str):
             replace_string = f'{df_name}[\'{column_header}\']'
+        elif isinstance(column_header, datetime.datetime):
+            replace_string = f'{df_name}[pd.to_datetime(\'{column_header}\')]'
+        elif isinstance(column_header, datetime.timedelta):
+            replace_string = f'{df_name}[pd.to_timedelta(\'{column_header}\')]'
         else:
             replace_string = f'{df_name}[{column_header}]'
 
@@ -333,6 +338,11 @@ def replace_functions(
 
         word: str = match.group()
         end = match.end() # this is +1 after the last char of the string
+
+        # If this is to_datetime or to_timedelta we skip this, as this is us casting to a datetime or 
+        # timedetla for a column header
+        if word == 'to_datetime' or word == 'to_timedelta':
+            return word
 
         # Function
         if not match_covered_by_matches(string_matches, match) and end < len(formula) and formula[end] == '(':

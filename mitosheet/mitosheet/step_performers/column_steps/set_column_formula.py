@@ -96,7 +96,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
             # Catch the error and make sure that we don't set the error modal
             e.error_modal = False
             raise e
-        except:
+        except Exception as e:
             raise make_execution_error(error_modal=False)
 
         return post_state, {
@@ -231,7 +231,7 @@ def exec_column_formula(post_state: State, df: pd.DataFrame, sheet_index: int, c
         # See explination here: https://www.tutorialspoint.com/exec-in-python
         exec(
             python_code,
-            {'df': df}, 
+            {'df': df, 'pd': pd}, 
             FUNCTIONS
         )
         # Then, update the column spreadsheet code
