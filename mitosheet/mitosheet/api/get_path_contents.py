@@ -35,7 +35,7 @@ def get_windows_drives() -> List[str]:
         bitmask = windll.kernel32.GetLogicalDrives()
         for letter in string.ascii_uppercase:
             if bitmask & 1:
-                # Add :/ to the end to complete the drive. Not having :/ on the end causes os to fail when reading the drive
+                # Add :\ to the end to complete the drive. Not having :\ on the end causes os to fail when reading the drive
                 drives.append(letter + ':\\') 
             bitmask >>= 1
 
