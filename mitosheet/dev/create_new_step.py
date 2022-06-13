@@ -803,7 +803,7 @@ def get_new_taskpane_code(original_step_name: str, params: Dict[str, str], is_li
     return f"""import React from "react";
 import MitoAPI from "../../../jupyter/api";
 import {OPEN_BRACKET} AnalysisData, SheetData, StepType, UIState, UserProfile {CLOSE_BRACKET} from "../../../types"
-{get_taskpane_imports(is_live_updating_taskpane, used_elements)}
+{get_taskpane_imports(params, is_live_updating_taskpane, used_elements)}
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
