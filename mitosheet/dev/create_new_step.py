@@ -731,8 +731,8 @@ def get_taskpane_imports(is_live_updating_taskpane: bool, used_elements: List[st
             imports += "import Toggle from '../../elements/Toggle';\n"
         elif element == 'MultiToggleBox':
             imports += "import MultiToggleBox from '../../elements/MultiToggleBox';\n"
-        elif element == 'MultiToggleBoxItem':
-            imports += "import MultiToggleBoxItem from '../../elements/MultiToggleBoxItem';\n"
+        elif element == 'MultiToggleItem':
+            imports += "import MultiToggleItem from '../../elements/MultiToggleItem';\n"
             
         else:
             raise Exception(f'{element} needs to have a import statement defined')
