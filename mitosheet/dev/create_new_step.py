@@ -544,8 +544,8 @@ def get_effect_code(original_step_name: str, params: Dict[str, str], is_live_upd
     step_name_capital = original_step_name.replace(' ', '')
    
     if is_live_updating_taskpane:
-        return f"""const {OPEN_BRACKET}params, setParams{CLOSE_BRACKET} = useLiveUpdatingParams<{step_name_capital}Params>(
-        () => getDefaultParams(props.selectedSheetIndex, props.sheetDataArray),
+        return f"""const {OPEN_BRACKET}params, setParams{CLOSE_BRACKET} = useLiveUpdatingParams(
+        () => getDefaultParams(props.sheetDataArray, props.selectedSheetIndex),
         StepType.{step_name_capital}, 
         props.mitoAPI,
         props.analysisData,
@@ -553,7 +553,7 @@ def get_effect_code(original_step_name: str, params: Dict[str, str], is_live_upd
     )"""
     else:
         return f"""const {OPEN_BRACKET}params, setParams, loading, edit, editApplied{CLOSE_BRACKET} = useSendEditOnClick<{step_name_capital}Params, undefined>(
-            () => getDefaultParams(props.selectedSheetIndex, props.sheetDataArray),
+            () => getDefaultParams(props.sheetDataArray, props.selectedSheetIndex),
             StepType.{step_name_capital}, 
             props.mitoAPI,
             props.analysisData,
