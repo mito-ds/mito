@@ -969,8 +969,9 @@ def main() -> None:
     # Then, we change the frontend files
     write_steptype_to_types_file(original_step_name)
     print("Wrote step type to Types.tsx")
-    write_to_api_file(original_step_name, params)
-    print("Wrote to api.tsx")
+    if not create_taskpane:
+        write_to_api_file(original_step_name, params)
+        print("Wrote to api.tsx")
     write_to_actions_file(original_step_name, params, create_taskpane)
     print("Wrote to actions")
 
