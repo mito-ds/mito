@@ -796,6 +796,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     sheetData={sheetDataArray[uiState.selectedSheetIndex]}
                     userProfile={userProfile}
+                    setEditorState={setEditorState}
                 />
                 <div className="mito-main-sheet-div" id="mito-main-sheet-div"> 
                     <div className={formulaBarAndSheetClassNames}>

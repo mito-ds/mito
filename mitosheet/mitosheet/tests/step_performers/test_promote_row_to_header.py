@@ -34,6 +34,36 @@ PROMOTE_ROW_TO_HEADER_TESTS = [
     ),
     (
         [
+            pd.DataFrame({'A': [1, 2, 3]}, index=['A', 'B', 'C'])
+        ],
+        0, 
+        'A', 
+        [
+            pd.DataFrame({1: [2, 3]}, index=['B', 'C'])
+        ]
+    ),
+    (
+        [
+            pd.DataFrame({'A': [1, 2, 3]}, index=pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']))
+        ],
+        0, 
+        pd.to_datetime('12-22-1997'), 
+        [
+            pd.DataFrame({1: [2, 3]}, index=pd.to_datetime(['12-23-1997', '12-24-1997']))
+        ]
+    ),
+    (
+        [
+            pd.DataFrame({'A': [1, 2, 3]}, index=pd.to_timedelta(['1 days', '2 days', '3 days']))
+        ],
+        0, 
+        pd.to_timedelta('1 days'), 
+        [
+            pd.DataFrame({1: [2, 3]}, index=pd.to_timedelta(['2 days', '3 days']))
+        ]
+    ),
+    (
+        [
             pd.DataFrame({'A': [1, 2, 3], 'B': ["A", "B", "C"]})
         ],
         0, 

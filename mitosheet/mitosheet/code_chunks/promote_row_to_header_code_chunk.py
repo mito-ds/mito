@@ -30,7 +30,7 @@ class PromoteRowToHeaderCodeChunk(CodeChunk):
         transpiled_index = column_header_to_transpiled_code(index)
         
         return [
-            f"{df_name}.columns = {df_name}.iloc[{transpiled_index}]",
+            f"{df_name}.columns = {df_name}.loc[{transpiled_index}]",
             f"{df_name}.drop(labels=[{transpiled_index}], inplace=True)",
         ]
     
