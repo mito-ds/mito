@@ -834,7 +834,7 @@ const {step_name_capital}Taskpane = (props: {step_name_capital}TaskpaneProps): J
     {CLOSE_BRACKET}
 
     {get_toggle_all_code(params)}
-    {get_sheet_data_definiton(params)}
+    {get_sheet_data_definition(params)}
 
     return (
         <DefaultTaskpane>
