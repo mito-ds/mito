@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { Action } from '../../types';
+import { Action, EditorState } from '../../types';
 import { classNames } from '../../utils/classNames';
 import { getToolbarItemIcon, ToolbarButtonType } from './utils';
 
@@ -24,6 +24,11 @@ const ToolbarButton = (
         * @param action - The action to run when the toolbar button is clicked
         */
         action: Action;
+
+        /** 
+        * @param [setEditorState] - pass this if you want to close an open editor
+        */
+        setEditorState?: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
         
         /**
         * @param [highlightToolbarButton] - Used to draw attention to the toolbar item. Defaults to False. 
@@ -43,7 +48,12 @@ const ToolbarButton = (
         <div 
             className='toolbar-button-container' 
             id={props.id}
-            onClick={props.action.actionFunction}
+            onClick={() => {
+                if (props.setEditorState) {
+                    props.setEditorState(undefined);
+                }
+                props.action.actionFunction();
+            }}
         >
             <button 
                 className={classNames('toolbar-button', 'vertical-align-content', highlightToobarItemClass)} 

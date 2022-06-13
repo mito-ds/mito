@@ -37,7 +37,7 @@ const ToolbarColumnsDropdown = (props: ToolbarColumnsDropdownProps): JSX.Element
                 width='large'
             >
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Add_Column])}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Rename_Column])}
+                {makeToolbarDropdownItem(props.actions[ActionEnum.Rename_Column], true)}
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Delete_Column])}
                 <DropdownSectionSeperator isDropdownSectionSeperator/>
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Set_Column_Formula])}

@@ -40,7 +40,7 @@ class PromoteRowToHeaderStepPerformer(StepPerformer):
 
         pandas_processing_time = 0.0
 
-        for old_column_header, new_column_header in zip(post_state.dfs[sheet_index].columns, post_state.dfs[sheet_index].iloc[index]):
+        for old_column_header, new_column_header in zip(post_state.dfs[sheet_index].columns, post_state.dfs[sheet_index].loc[index]):
 
             column_id = post_state.column_ids.get_column_id_by_header(sheet_index, old_column_header)
             _, partial_pandas_processing_time = rename_column_headers_in_state(

@@ -7,7 +7,6 @@
 Contains helpful utility functions
 """
 import json
-import numbers
 import re
 import uuid
 from typing import Any, Dict, List, Optional, Set, Tuple
@@ -307,4 +306,8 @@ class NpEncoder(json.JSONEncoder):
             return float(obj)
         if isinstance(obj, np.ndarray):
             return obj.tolist()
+        if isinstance(obj, pd.Timestamp):
+            return obj.strftime('%Y-%m-%d %X')
+        if isinstance(obj, pd.Timedelta):
+            return str(obj)
         return super(NpEncoder, self).default(obj)

@@ -15,6 +15,7 @@ from typing import Any, Dict, List, Optional
 from mitosheet._version import __version__
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.types import StepsManagerType
+from mitosheet.utils import NpEncoder
 
 
 # Where all global .mito files are stored
@@ -129,7 +130,7 @@ def write_saved_analysis(analysis_path: str, steps_data: List[Dict[str, Any]], v
             'steps_data': steps_data
         }
 
-        f.write(json.dumps(saved_analysis))
+        f.write(json.dumps(saved_analysis, cls=NpEncoder))
 
 
 def make_steps_json_obj(

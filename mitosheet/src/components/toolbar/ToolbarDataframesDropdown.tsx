@@ -38,7 +38,7 @@ const ToolbarDataframesDropdown = (props: ToolbarDataframesDropdownProps): JSX.E
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Export])}
                 <DropdownSectionSeperator isDropdownSectionSeperator/>
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Duplicate_Dataframe])}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Rename_Dataframe])}
+                {makeToolbarDropdownItem(props.actions[ActionEnum.Rename_Dataframe], true)}
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Delete_Dataframe])}
                 <DropdownSectionSeperator isDropdownSectionSeperator/>
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Pivot])}
