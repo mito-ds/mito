@@ -723,12 +723,13 @@ def get_taskpane_imports(params: Dict[str, str], is_live_updating_taskpane: bool
         imports += "import useSendEditOnClick from '../../../hooks/useSendEditOnClick';\n"
 
     # Import for params
-    for param_name, param_type in params.items():
+    for param_type in set(params.items()):
         if param_type == 'ColumnID':
             imports += 'import { ColumnID } from "../../../types"\n'
         if param_type == 'List[ColumnID]':
             imports += 'import { getDtypeValue } from "../ControlPanel/FilterAndSortTab/DtypeCard";\n'
             imports += 'import { getDisplayColumnHeader } from "../../../utils/columnHeaders";\n'
+            imports += 'import { addIfAbsent, removeIfPresent } from "../../../utils/arrays";\n'
 
     # Import for elements
     for element in set(used_elements):
@@ -746,9 +747,6 @@ def get_taskpane_imports(params: Dict[str, str], is_live_updating_taskpane: bool
             imports += "import Toggle from '../../elements/Toggle';\n"
         elif element == 'MultiToggleBox':
             imports += "import MultiToggleBox from '../../elements/MultiToggleBox';\n"
-            # We also need to add some other imports in the case of list imports
-            imports += 'import { getDtypeValue } from "../ControlPanel/FilterAndSortTab/DtypeCard";\n'
-            imports += 'import { getDisplayColumnHeader } from "../../../utils/columnHeaders";;\n'
         elif element == 'MultiToggleItem':
             imports += "import MultiToggleItem from '../../elements/MultiToggleItem';\n"
             
