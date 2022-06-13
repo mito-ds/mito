@@ -669,6 +669,7 @@ import {OPEN_BRACKET} AnalysisData, SheetData, StepType, UIState, UserProfile {C
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
+import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 
 
 interface {step_name_capital}TaskpaneProps {OPEN_BRACKET}
@@ -702,6 +703,10 @@ const getDefaultParams = (
 const {step_name_capital}Taskpane = (props: {step_name_capital}TaskpaneProps): JSX.Element => {OPEN_BRACKET}
 
     {get_effect_code(original_step_name, params, is_live_updating_taskpane)}
+
+    if (params === undefined) {OPEN_BRACKET}
+        return <DefaultEmptyTaskpane setUIState={OPEN_BRACKET}props.setUIState{CLOSE_BRACKET}/>
+    {CLOSE_BRACKET}
 
     return (
         <DefaultTaskpane>
