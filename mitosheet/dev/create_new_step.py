@@ -13,7 +13,7 @@ and follow the prompts.
 import os
 from pathlib import Path
 import shutil
-from typing import Dict, Tuple
+from typing import Dict, List, Tuple
 
 # Constants useful in f strings, since they can't contain brackets
 OPEN_BRACKET = "{"
@@ -535,8 +535,8 @@ def get_params_interface_code(original_step_name: str, params: Dict[str, str]) -
 def get_default_params(params: Dict[str, str]) -> str:
     default_params = "{\n"
     for param_name, param_type in params.items():
-        default_params += f'            {param_name}: {get_default_typescript_value_for_param(param_name, param_type)},\n'
-    default_params += "        }"
+        default_params += f'        {param_name}: {get_default_typescript_value_for_param(param_name, param_type)},\n'
+    default_params += "    }"
     return default_params
 
 
@@ -559,13 +559,13 @@ def get_effect_code(original_step_name: str, params: Dict[str, str], is_live_upd
             props.analysisData,
         )"""
 
-def get_param_user_input_code(param_name: str, param_type: str, is_live_updating_taskpane: bool) -> str:
+def get_param_user_input_code(param_name: str, param_type: str, is_live_updating_taskpane: bool) -> Tuple[str, List[str]]:
 
     # If this is selecting a sheet index, use a sheet index select
     if 'sheet_index' in param_name and param_type == 'int':
 
         # Row, Col, Select, DropdownItem
-        return """<Row justify='space-between' align='center' title='Select a dataframe TODO.'>
+        return ("""<Row justify='space-between' align='center' title='Select a dataframe TODO.'>
                     <Col>
                         <p className='text-header-3'>
                             Dataframe
@@ -602,7 +602,7 @@ def get_param_user_input_code(param_name: str, param_type: str, is_live_updating
                             })}
                         </Select>
                     </Col>
-                </Row>"""
+                </Row>""", ['Row', 'Col', 'Select', 'DropdownItem'])
     if param_type == 'int' or param_type == 'float':
         # TODO: number input
         return '<NumberInput>'
@@ -624,29 +624,48 @@ def get_param_user_input_code(param_name: str, param_type: str, is_live_updating
     else:
         raise Exception(f'{param_name} of type {param_type} is an unsupported type')
 
-def get_taskpane_body_code(params: Dict[str, str], is_live_updating_taskpane: bool) -> str:
+def get_taskpane_body_code(params: Dict[str, str], is_live_updating_taskpane: bool) -> Tuple[str, List[str]]:
     # We just do the params in a linear order
 
     taskpane_body_code = ""
     for param_name, param_type in params.items():
-        taskpane_body_code += f'                {get_param_user_input_code(param_name, param_type, is_live_updating_taskpane)}'
+        (body_code, elements) = get_param_user_input_code(param_name, param_type, is_live_updating_taskpane)
+        taskpane_body_code += f'{body_code}'
     
-    return taskpane_body_code
+    return (taskpane_body_code, elements)
 
-def get_taskpane_imports(is_live_updating_taskpane: bool) -> str:
+def get_taskpane_imports(is_live_updating_taskpane: bool, used_elements: List[str]) -> str:
+    imports = ''
     if is_live_updating_taskpane:
-        return "import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';"
+        imports += "import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';"
     else:
-        return "import useSendEditOnClick from '../../../hooks/useSendEditOnClick';"
+        imports += "import useSendEditOnClick from '../../../hooks/useSendEditOnClick';"
+
+    for element in used_elements:
+        if element == 'Row':
+            imports += "import Row from '../../spacing/Row';\n"
+        elif element == 'Col':
+            imports += "import Col from '../../spacing/Col';\n"
+        elif element == 'Select':
+            imports += "import Select from '../../elements/Select';\n"
+        elif element == 'DropdownItem':
+            imports += "import DropdownItem from '../../elements/DropdownItem';\n"
+            
+        else:
+            raise Exception(f'{element} needs to have a import statement defined')
+        
+    return imports
 
 def get_new_taskpane_code(original_step_name: str, params: Dict[str, str], is_live_updating_taskpane: bool) -> str:
 
     step_name_capital = original_step_name.replace(' ', '')
 
+    (body_code, used_elements) = get_taskpane_body_code(params, is_live_updating_taskpane)
+
     return f"""import React from "react";
 import MitoAPI from "../../../jupyter/api";
 import {OPEN_BRACKET} AnalysisData, SheetData, StepType, UIState, UserProfile {CLOSE_BRACKET} from "../../../types"
-{get_taskpane_imports(is_live_updating_taskpane)}
+{get_taskpane_imports(is_live_updating_taskpane, used_elements)}
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
@@ -677,7 +696,6 @@ const getDefaultParams = (
 {CLOSE_BRACKET}
 
 
-
 /* 
     This taskpane allows you to {original_step_name.lower()}
 */
@@ -692,7 +710,7 @@ const {step_name_capital}Taskpane = (props: {step_name_capital}TaskpaneProps): J
                 setUIState={OPEN_BRACKET}props.setUIState{CLOSE_BRACKET}           
             />
             <DefaultTaskpaneBody>
-                {get_taskpane_body_code(params, is_live_updating_taskpane)}
+                {body_code}
             </DefaultTaskpaneBody>
         </DefaultTaskpane>
     )
