@@ -476,14 +476,14 @@ def get_action_code(original_step_name: str, enum_name: str, create_taskpane: bo
 
     return f"""[ActionEnum.{enum_name}]: {OPEN_BRACKET}
             type: ActionEnum.{enum_name},
-            shortTitle: 'TODO',
-            longTitle: 'TODO',
+            shortTitle: '{original_step_name}',
+            longTitle: '{original_step_name}',
             actionFunction: () => {OPEN_BRACKET}
                 {action_function_code}
             {CLOSE_BRACKET},
             isDisabled: () => {OPEN_BRACKET}return undefined{CLOSE_BRACKET}, // TODO
-            searchTerms: ['TODO'],
-            tooltip: "TODO"
+            searchTerms: ['{original_step_name}'],
+            tooltip: "{original_step_name}"
         {CLOSE_BRACKET},
         {ACTION_MARKER}
     """
@@ -561,9 +561,9 @@ def write_taskpane_types_file(original_step_name: str) -> None:
         code = f.read()
         code = code.replace(TASKPANEINFO_MARKER, f'| {OPEN_BRACKET}type: TaskpaneType.{enum_key}{CLOSE_BRACKET}\n     {TASKPANEINFO_MARKER}')
         if input('Is this a taskpane that should close if a toolbar button is pressed? [y/n]').lower().startswith('y'):
-            code = code.replace(EDITINGTASKPANE_MARKER, f'TaskpaneType.{enum_key}{CLOSE_BRACKET},\n    {EDITINGTASKPANE_MARKER}')
+            code = code.replace(EDITINGTASKPANE_MARKER, f'TaskpaneType.{enum_key},\n    {EDITINGTASKPANE_MARKER}')
         if input('Is this a taskpane that can remain open if undo or redo are pressed? [y/n]').lower().startswith('y'):
-            code = code.replace(ALLOWUNDOREDOEDITINGTASKPANE_MARKER, f'TaskpaneType.{enum_key}{CLOSE_BRACKET},\n    {ALLOWUNDOREDOEDITINGTASKPANE_MARKER}')
+            code = code.replace(ALLOWUNDOREDOEDITINGTASKPANE_MARKER, f'TaskpaneType.{enum_key},\n    {ALLOWUNDOREDOEDITINGTASKPANE_MARKER}')
 
     with open(path_to_taskpanes, 'w') as f:
         f.write(code)
@@ -575,6 +575,7 @@ def get_curr_open_taskpane_code(original_step_name: str) -> None:
     
     return f"""case TaskpaneType.{taskpane_type}: return (
                 <{taskpane_name}
+                    userProfile={OPEN_BRACKET}userProfile{CLOSE_BRACKET}
                     analysisData={OPEN_BRACKET}analysisData{CLOSE_BRACKET}
                     sheetDataArray={OPEN_BRACKET}sheetDataArray{CLOSE_BRACKET}
                     setUIState={OPEN_BRACKET}setUIState{CLOSE_BRACKET}
@@ -589,8 +590,8 @@ def write_to_mito(original_step_name: str) -> None:
 
     with open(path_to_mito, 'r') as f:
         code = f.read()
-        code.replace(MITOIMPORT_MARKER, f'import {step_name_capital}Taskpane from \'./taskpanes/{step_name_capital}/{step_name_capital}Taskpane\';\n{MITOIMPORT_MARKER}')
-        code.replace(GETCURROPENTASKPANE_MARKER, f'{(get_curr_open_taskpane_code(original_step_name))}')
+        code = code.replace(MITOIMPORT_MARKER, f'import {step_name_capital}Taskpane from \'./taskpanes/{step_name_capital}/{step_name_capital}Taskpane\';\n{MITOIMPORT_MARKER}')
+        code = code.replace(GETCURROPENTASKPANE_MARKER, f'{(get_curr_open_taskpane_code(original_step_name))}')
 
     with open(path_to_mito, 'w') as f:
         f.write(code)
