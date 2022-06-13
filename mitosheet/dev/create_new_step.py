@@ -671,10 +671,10 @@ const getDefaultParams = (
 
     if (sheetDataArray.length === 0 || sheetDataArray[sheetIndex] === undefined) {OPEN_BRACKET}
         return undefined;
-    {OPEN_BRACKET}
+    {CLOSE_BRACKET}
 
     return {get_default_params(params)}
-{OPEN_BRACKET}
+{CLOSE_BRACKET}
 
 
 
