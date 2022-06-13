@@ -610,7 +610,7 @@ def get_param_user_input_code(param_name: str, param_type: str, is_live_updating
                 </Row>""", ['Row', 'Col', 'Select', 'DropdownItem'])
     if param_type == 'int' or param_type == 'float':
         # TODO: number input
-        return '<NumberInput>'
+        return ('<NumberInput>', [])
     elif param_type == 'str':
         # TODO: string input
         return (f"""<Row justify='space-between' align='center' title='TODO'>
@@ -661,7 +661,7 @@ def get_param_user_input_code(param_name: str, param_type: str, is_live_updating
                 </Row>""", ['Row', 'Col', 'Toggle'])
     elif param_type == 'ColumnID':
         # TODO: Do a select here
-        return '<Select>'
+        return ('<Select>', [])
     elif param_type == 'List[ColumnID]':
         # TODO: multiselect or the other one
         return (f"""<Row justify='space-between' align='center' title='TODO'>
@@ -699,7 +699,7 @@ def get_param_user_input_code(param_name: str, param_type: str, is_live_updating
                 </MultiToggleBox>""", ['Row', 'Col', 'MultiToggleBox', 'MultiToggleItem'])
     elif param_type == 'Any':
         # TODO: It doesn't do this!
-        return f'{OPEN_BRACKET}/* TODO: add the user input for {param_name} of type {param_type} */{CLOSE_BRACKET}'
+        return (f'{OPEN_BRACKET}/* TODO: add the user input for {param_name} of type {param_type} */{CLOSE_BRACKET}', [])
     else:
         raise Exception(f'{param_name} of type {param_type} is an unsupported type')
 
@@ -891,7 +891,7 @@ def write_taskpane_types_file(original_step_name: str, is_editing_taskpane: bool
         f.write(code)
 
 
-def get_curr_open_taskpane_code(original_step_name: str) -> None:
+def get_curr_open_taskpane_code(original_step_name: str) -> str:
     taskpane_name = original_step_name.replace(' ', '') + 'Taskpane'
     taskpane_type = original_step_name.upper().replace(' ', '_')
     
