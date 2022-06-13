@@ -675,14 +675,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     startingColumnIDs={uiState.currOpenTaskpane.startingColumnIDs}         
                 />
             )
-            case TaskpaneType.CONCAT: return (
-                <ConcatTaskpane
-                    analysisData={analysisData}
-                    sheetDataArray={sheetDataArray}
-                    setUIState={setUIState}
-                    mitoAPI={props.mitoAPI}
-                />
-            )
             case TaskpaneType.MELT: return (
                 <MeltTaskpane
                     userProfile={userProfile}

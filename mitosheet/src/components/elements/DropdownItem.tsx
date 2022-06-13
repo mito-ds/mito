@@ -73,7 +73,7 @@ interface DropdownItemProps {
         * @param [supressFocusSettingOnClose] - When True, the dropdown does not set the focus on the parent div
         * when this is clicked on. Helpful for items that open inputs
      */
-     supressFocusSettingOnClose?: boolean
+    supressFocusSettingOnClose?: boolean
 }
 
 /**

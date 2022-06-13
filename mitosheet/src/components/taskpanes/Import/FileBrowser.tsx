@@ -180,15 +180,15 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                                 Want to import from a different drive? Consider&nbsp;
                                 <a 
                                     onClick={() => void props.mitoAPI.log('clicked_pro_button', 
-                                    {
-                                        'pro_button_location': 'import_taskpane_root_folder_import',
-                                    }
+                                        {
+                                            'pro_button_location': 'import_taskpane_root_folder_import',
+                                        }
                                     )}
                                     className='text-body-1-link' 
                                     href='https://www.trymito.io/plans' 
                                     target='_blank' 
                                     rel="noreferrer"
-                                    >
+                                >
                                     upgrading to Mito Pro
                                 </a> or&nbsp;
                                 <a 
@@ -196,7 +196,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                                         props.setCurrPathParts(['.']);
                                     }}
                                     className='text-body-1-link' 
-                                    >
+                                >
                                     go back to current directory.
                                 </a>
                             </p>
