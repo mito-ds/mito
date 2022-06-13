@@ -111,6 +111,4 @@ def test_fill_na(input_dfs, sheet_index, index, output_dfs):
 
     assert len(mito.dfs) == len(output_dfs)
     for actual, expected in zip(mito.dfs, output_dfs):
-        print(actual)
-        print(expected)
         assert actual.equals(expected)
