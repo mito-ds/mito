@@ -731,6 +731,9 @@ def get_taskpane_imports(is_live_updating_taskpane: bool, used_elements: List[st
             imports += "import Toggle from '../../elements/Toggle';\n"
         elif element == 'MultiToggleBox':
             imports += "import MultiToggleBox from '../../elements/MultiToggleBox';\n"
+            # We also need to add some other imports in the case of list imports
+            imports += 'import { getDtypeValue } from "../ControlPanel/FilterAndSortTab/DtypeCard";\n'
+            imports += 'import { getDisplayColumnHeader } from "../../../utils/columnHeaders";;\n'
         elif element == 'MultiToggleItem':
             imports += "import MultiToggleItem from '../../elements/MultiToggleItem';\n"
             
@@ -749,7 +752,7 @@ def get_toggle_all_code(params: Dict[str, str]) -> str:
 
     param_name_type = '|'.join(map(lambda x: f'\'{x[0]}\'', multi_toggle_box_params))
 
-    return f"""const toggleIndexes = (param_name: param_name_type, indexes: number[], newToggle: boolean): void => {OPEN_BRACKET}
+    return f"""const toggleIndexes = (param_name: {param_name_type}, indexes: number[], newToggle: boolean): void => {OPEN_BRACKET}
         const columnIds = Object.keys(props.sheetDataArray[params.sheet_index]?.columnIDsMap) || [];
         const columnIdsToToggle = indexes.map(index => columnIds[index]);
 
@@ -770,6 +773,13 @@ def get_toggle_all_code(params: Dict[str, str]) -> str:
             {CLOSE_BRACKET}
         {CLOSE_BRACKET})
     {CLOSE_BRACKET}"""
+
+def get_sheet_data_definition(params: Dict[str, str]) -> str:
+    if 'sheet_index' not in params.keys():
+        return ''
+    else:
+        return '    const sheet_data = props.sheetDataArray[params.sheet_index];'
+
 
 def get_new_taskpane_code(original_step_name: str, params: Dict[str, str], is_live_updating_taskpane: bool) -> str:
 
@@ -824,6 +834,7 @@ const {step_name_capital}Taskpane = (props: {step_name_capital}TaskpaneProps): J
     {CLOSE_BRACKET}
 
     {get_toggle_all_code(params)}
+    {get_sheet_data_definiton(params)}
 
     return (
         <DefaultTaskpane>
