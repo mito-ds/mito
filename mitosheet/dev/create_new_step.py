@@ -535,8 +535,8 @@ def get_params_interface_code(original_step_name: str, params: Dict[str, str]) -
 def get_default_params(params: Dict[str, str]) -> str:
     default_params = "{\n"
     for param_name, param_type in params.items():
-        default_params += f'    {param_name}: {get_default_typescript_value_for_param(param_name, param_type)},\n'
-    default_params += "}"
+        default_params += f'            {param_name}: {get_default_typescript_value_for_param(param_name, param_type)},\n'
+    default_params += "        }"
     return default_params
 
 
@@ -601,7 +601,7 @@ def get_new_taskpane_code(original_step_name: str, params: Dict[str, str], is_li
 
     return f"""import React from "react";
 import MitoAPI from "../../../jupyter/api";
-import {OPEN_BRACKET} AnalysisData, SheetData, UIState, UserProfile {CLOSE_BRACKET} from "../../../types"
+import {OPEN_BRACKET} AnalysisData, SheetData, StepType, UIState, UserProfile {CLOSE_BRACKET} from "../../../types"
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
