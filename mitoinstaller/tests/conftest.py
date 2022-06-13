@@ -40,9 +40,9 @@ def venv(tmpdir):
     """
     A fixture that you can use to test
     various parts of the mitoinstaller package
-    in an isolated enviornment.
+    in an isolated environment.
     """
-    # Before running tests, we uninstall all packages from the main virtual enviornment
+    # Before running tests, we uninstall all packages from the main virtual environment
     # that could mess with the running of the tests
     print("Removing packages from venv")
     try:
