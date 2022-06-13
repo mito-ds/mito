@@ -25,7 +25,7 @@ import { useEffectOnUpdateEvent } from "./useEffectOnUpdateEvent";
     sweet, and we'll continue to migrate to this hook over time. Woo!
 */
 function useLiveUpdatingParams<ParamType>(
-    defaultParams: ParamType | undefined,
+    defaultParams: ParamType | undefined | (() => ParamType | undefined),
     stepType: string,
     mitoAPI: MitoAPI,
     analysisData: AnalysisData,
