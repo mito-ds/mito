@@ -535,8 +535,8 @@ def get_params_interface_code(original_step_name: str, params: Dict[str, str]) -
 def get_default_params(params: Dict[str, str]) -> str:
     default_params = "{\n"
     for param_name, param_type in params.items():
-        params_interface += f'    {param_name}: {get_default_typescript_value_for_param(param_name, param_type)},\n'
-    params_interface += "}"
+        default_params += f'    {param_name}: {get_default_typescript_value_for_param(param_name, param_type)},\n'
+    default_params += "}"
     return default_params
 
 
