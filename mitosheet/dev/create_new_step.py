@@ -264,7 +264,7 @@ def get_id_to_header_code(params: Dict[str, str]) -> str:
             id_to_header_code += f"""{param_name} = [
             self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index, column_header)
             for column_header in {param_name.replace('_id', '_header')}
-        ]"""
+        ]\n"""
     return id_to_header_code
 
 def get_test_util_function_code(original_step_name: str, params: Dict[str, str]) -> str:

@@ -32,12 +32,9 @@ class TransposeStepPerformer(StepPerformer):
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         sheet_index: int = get_param(params, 'sheet_index')
-        
 
         # We make a new state to modify it
         post_state = prev_state.copy()
-
-        new_df_name = get_first_unused_dataframe_name(post_state.df_names, f'{post_state.df_names[sheet_index]}_transposed')
 
         pandas_start_time = perf_counter()
         new_df = post_state.dfs[sheet_index].T
@@ -45,8 +42,6 @@ class TransposeStepPerformer(StepPerformer):
 
         new_df_name = get_first_unused_dataframe_name(post_state.df_names, f'{post_state.df_names[sheet_index]}_transposed')
         post_state.add_df_to_state(new_df, DATAFRAME_SOURCE_TRANSPOSED, df_name=new_df_name)
-
-
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
