@@ -446,7 +446,7 @@ def get_action_code(enum_name: str) -> str:
             actionFunction: () => {OPEN_BRACKET}
                 // TODO
             {CLOSE_BRACKET},
-            isDisabled: () => {OPEN_BRACKET}return undefined{CLOSE_BRACKET}, // tODO
+            isDisabled: () => {OPEN_BRACKET}return undefined{CLOSE_BRACKET}, // TODO
             searchTerms: ['TODO'],
             tooltip: "TODO"
         {CLOSE_BRACKET},
