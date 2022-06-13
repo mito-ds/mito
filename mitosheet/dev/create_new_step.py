@@ -418,7 +418,7 @@ def get_default_typescript_value_for_param(param_name: str, param_type: str) -> 
     elif param_type == 'ColumnID':
         return 'TODO'
     elif param_type == 'List[ColumnID]':
-        return 'TODO[]'
+        return '[]'
     elif param_type == 'Any':
         return input(f'What is the default value for {param_name}')
     else:
@@ -611,16 +611,88 @@ def get_param_user_input_code(param_name: str, param_type: str, is_live_updating
         return '<NumberInput>'
     elif param_type == 'str':
         # TODO: string input
-        return '<NumberInput>'
+        return (f"""<Row justify='space-between' align='center' title='TODO'>
+                        <Col>
+                            <p className='text-header-3'>
+                                {param_name}
+                            </p>
+                        </Col>
+                        <Col>
+                            <Input
+                                autoFocus
+                                width='medium'
+                                value={OPEN_BRACKET}'' + params.fill_method.value{CLOSE_BRACKET}
+                                onChange={OPEN_BRACKET}(e) => {OPEN_BRACKET}
+                                    const newValue = e.target.value;
+                                    
+                                    setParams(prevParams => {OPEN_BRACKET}
+                                        return {OPEN_BRACKET}
+                                            ...prevParams,
+                                            {param_name}: newValue
+                                        {CLOSE_BRACKET}
+                                    {CLOSE_BRACKET})
+                                {CLOSE_BRACKET}{CLOSE_BRACKET}
+                            />
+                        </Col>
+                    </Row>""", ['Row', 'Col', 'Input'])
     elif param_type == 'bool':
         # TODO: toggle
-        return '<Toggle>'
+        return (f"""<Row justify='space-between' align='center'>
+                    <Col>
+                            <p className='text-header-3'>
+                                {param_name}
+                            </p>
+                        </Col>
+                    <Col>
+                        <Toggle 
+                            value={OPEN_BRACKET}params.{param_name}{CLOSE_BRACKET}
+                            onChange={OPEN_BRACKET}() => {OPEN_BRACKET}
+                                setParams(prevConcatParams => {OPEN_BRACKET}
+                                    return {OPEN_BRACKET}
+                                        ...prevConcatParams,
+                                        {param_name}: !prevConcatParams.{param_name}
+                                    {CLOSE_BRACKET}
+                                {CLOSE_BRACKET})
+                            {CLOSE_BRACKET}{CLOSE_BRACKET}                      
+                        />
+                    </Col>
+                </Row>""", ['Row', 'Col', 'Toggle'])
     elif param_type == 'ColumnID':
-        # TODO: select
+        # TODO: Do a select here
         return '<Select>'
     elif param_type == 'List[ColumnID]':
         # TODO: multiselect or the other one
-        return '<MultiSelect>'
+        return (f"""<Row justify='space-between' align='center' title='TODO'>
+                    <Col>
+                        <p className='text-header-3'>
+                            {param_name}
+                        </p>
+                    </Col>
+                </Row>
+                <MultiToggleBox
+                    searchable
+                    toggleAllIndexes={OPEN_BRACKET}toggleIndexes{CLOSE_BRACKET}
+                    height='medium'
+                >
+                    {OPEN_BRACKET}Object.entries(sheetData?.columnDtypeMap || {OPEN_BRACKET}{CLOSE_BRACKET}).map(([columnID, columnDtype], index) => {OPEN_BRACKET}
+                        const columnIDsMap = sheetData?.columnIDsMap || {OPEN_BRACKET}{CLOSE_BRACKET}
+                        const columnHeader = columnIDsMap[columnID];
+                        const toggle = params.{param_name}.includes(columnID);
+
+                        return (
+                            <MultiToggleItem
+                                key={OPEN_BRACKET}index{CLOSE_BRACKET}
+                                index={OPEN_BRACKET}index{CLOSE_BRACKET}
+                                title={OPEN_BRACKET}getDisplayColumnHeader(columnHeader){CLOSE_BRACKET}
+                                rightText={OPEN_BRACKET}getDtypeValue(columnDtype){CLOSE_BRACKET}
+                                toggled={OPEN_BRACKET}toggle{CLOSE_BRACKET}
+                                onToggle={OPEN_BRACKET}() => {OPEN_BRACKET}
+                                    toggleIndexes([index], !toggle)
+                                {CLOSE_BRACKET}{CLOSE_BRACKET}
+                            />
+                        ) 
+                    {CLOSE_BRACKET}){CLOSE_BRACKET}
+                </MultiToggleBox>""", ['Row', 'Col', 'MultiToggleBox', 'MultiToggleItem'])
     elif param_type == 'Any':
         # TODO: It doesn't do this!
         return f'{OPEN_BRACKET}/* TODO: add the user input for {param_name} of type {param_type} */{CLOSE_BRACKET}'
@@ -644,7 +716,7 @@ def get_taskpane_imports(is_live_updating_taskpane: bool, used_elements: List[st
     else:
         imports += "import useSendEditOnClick from '../../../hooks/useSendEditOnClick';"
 
-    for element in used_elements:
+    for element in set(used_elements):
         if element == 'Row':
             imports += "import Row from '../../spacing/Row';\n"
         elif element == 'Col':
@@ -653,11 +725,51 @@ def get_taskpane_imports(is_live_updating_taskpane: bool, used_elements: List[st
             imports += "import Select from '../../elements/Select';\n"
         elif element == 'DropdownItem':
             imports += "import DropdownItem from '../../elements/DropdownItem';\n"
+        elif element == 'Input':
+            imports += "import Input from '../../elements/Input';\n"
+        elif element == 'Toggle':
+            imports += "import Toggle from '../../elements/Toggle';\n"
+        elif element == 'MultiToggleBox':
+            imports += "import MultiToggleBox from '../../elements/MultiToggleBox';\n"
+        elif element == 'MultiToggleBoxItem':
+            imports += "import MultiToggleBoxItem from '../../elements/MultiToggleBoxItem';\n"
             
         else:
             raise Exception(f'{element} needs to have a import statement defined')
         
     return imports
+
+def get_toggle_all_code(params: Dict[str, str]) -> str:
+
+    # First, find all the multi-toggle box 
+    multi_toggle_box_params = filter(lambda x: x[1] == 'List[ColumnID]', params.items())
+
+    if len(multi_toggle_box_params) == 0:
+        return ''
+
+    param_name_type = '|'.join(map(lambda x: f'\'{x[0]}\'', multi_toggle_box_params))
+
+    return f"""const toggleIndexes = (param_name: param_name_type, indexes: number[], newToggle: boolean): void => {OPEN_BRACKET}
+        const columnIds = Object.keys(props.sheetDataArray[params.sheet_index]?.columnIDsMap) || [];
+        const columnIdsToToggle = indexes.map(index => columnIds[index]);
+
+        const newColumnIds = [...params[param_name]];
+
+        columnIdsToToggle.forEach(columnID => {OPEN_BRACKET}
+            if (newToggle) {OPEN_BRACKET}
+                addIfAbsent(newColumnIds, columnID);
+            {CLOSE_BRACKET} else {OPEN_BRACKET}
+                removeIfPresent(newColumnIds, columnID);
+            {CLOSE_BRACKET}
+        {CLOSE_BRACKET})
+
+        setParams(prevParams => {OPEN_BRACKET}
+            return {OPEN_BRACKET}
+                ...prevParams,
+                [param_name]: newColumnIds
+            {CLOSE_BRACKET}
+        {CLOSE_BRACKET})
+    {CLOSE_BRACKET}"""
 
 def get_new_taskpane_code(original_step_name: str, params: Dict[str, str], is_live_updating_taskpane: bool) -> str:
 
@@ -710,6 +822,8 @@ const {step_name_capital}Taskpane = (props: {step_name_capital}TaskpaneProps): J
     if (params === undefined) {OPEN_BRACKET}
         return <DefaultEmptyTaskpane setUIState={OPEN_BRACKET}props.setUIState{CLOSE_BRACKET}/>
     {CLOSE_BRACKET}
+
+    {get_toggle_all_code(params)}
 
     return (
         <DefaultTaskpane>
