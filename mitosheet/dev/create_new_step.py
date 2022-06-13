@@ -406,6 +406,9 @@ def get_typescript_type_for_param(param_name: str, param_type: str) -> str:
         raise Exception(f'{param_name} of type {param_type} is an unsupported type')
 
 def get_default_typescript_value_for_param(param_name: str, param_type: str) -> str:
+    if param_name == 'sheet_index':
+        return 'sheetIndex'
+
     if param_type == 'int' or param_type == 'float':
         return '0'
     elif param_type == 'str':
