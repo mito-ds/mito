@@ -5,6 +5,8 @@
 # Distributed under the terms of the GPL License.
 
 from typing import Any, Dict, List, Set, Union
+
+import pandas as pd
 from mitosheet.types import ColumnHeader
 
 TAB = '    '
@@ -41,6 +43,12 @@ def column_header_to_transpiled_code(column_header: ColumnHeader) -> str:
 
     if isinstance(column_header, int) or isinstance(column_header, float) or isinstance(column_header, bool):
         return str(column_header)
+    elif isinstance(column_header, pd.Timestamp):
+        return f'\'{column_header.strftime("%Y-%m-%d %X")}\''
+    elif isinstance(column_header, pd.Timedelta):
+        return f'\'{str(column_header)}\''
+
+
     return repr(column_header)
 
 def list_to_string_without_internal_quotes(list: List[Any]) -> str:

@@ -26,11 +26,13 @@ class PromoteRowToHeaderCodeChunk(CodeChunk):
         sheet_index: int = self.get_param('sheet_index')
         index: int = self.get_param('index')
 
+        print("index", index)
+
         df_name = self.post_state.df_names[sheet_index]
         transpiled_index = column_header_to_transpiled_code(index)
         
         return [
-            f"{df_name}.columns = {df_name}.iloc[{transpiled_index}]",
+            f"{df_name}.columns = {df_name}.loc[{transpiled_index}]",
             f"{df_name}.drop(labels=[{transpiled_index}], inplace=True)",
         ]
     
