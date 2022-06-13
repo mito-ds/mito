@@ -405,6 +405,22 @@ def get_typescript_type_for_param(param_name: str, param_type: str) -> str:
     else:
         raise Exception(f'{param_name} of type {param_type} is an unsupported type')
 
+def get_default_typescript_value_for_param(param_name: str, param_type: str) -> str:
+    if param_type == 'int' or param_type == 'float':
+        return '0'
+    elif param_type == 'str':
+        return 'Random String'
+    elif param_type == 'bool':
+        return 'true'
+    elif param_type == 'ColumnID':
+        return 'TODO'
+    elif param_type == 'List[ColumnID]':
+        return 'TODO[]'
+    elif param_type == 'Any':
+        return input(f'What is the default value for {param_name}')
+    else:
+        raise Exception(f'{param_name} of type {param_type} is an unsupported type')
+
 def get_api_function_params(params: Dict[str, str]) -> str:
 
     final_params = ''
@@ -506,8 +522,80 @@ def write_to_actions_file(original_step_name: str, params: Dict[str, str], creat
     with open(path_to_actions, 'w') as f:
         f.write(code)
 
+def get_params_interface_code(original_step_name: str, params: Dict[str, str]) -> str:
+    step_name_capital = original_step_name.replace(' ', '')
 
-def get_new_taskpane_code(original_step_name: str, params: Dict[str, str]) -> str:
+    params_interface = f"interface {step_name_capital}Params {OPEN_BRACKET}\n"
+    for param_name, param_type in params.items():
+        params_interface += f'    {param_name}: {get_typescript_type_for_param(param_name, param_type)},\n'
+    params_interface += "}"
+
+    return params_interface
+
+def get_default_params(params: Dict[str, str]) -> str:
+    default_params = "{\n"
+    for param_name, param_type in params.items():
+        params_interface += f'    {param_name}: {get_default_typescript_value_for_param(param_name, param_type)},\n'
+    params_interface += "}"
+    return default_params
+
+
+def get_effect_code(original_step_name: str, params: Dict[str, str], is_live_updating_taskpane: bool) -> str:
+    step_name_capital = original_step_name.replace(' ', '')
+   
+    if is_live_updating_taskpane:
+        return f"""const {OPEN_BRACKET}params, setParams{CLOSE_BRACKET} = useLiveUpdatingParams<{step_name_capital}Params>(
+        {get_default_params(params)},
+        StepType.{step_name_capital}, 
+        props.mitoAPI,
+        props.analysisData,
+        50
+    )"""
+    else:
+        return f"""const {OPEN_BRACKET}params, setParams, loading, edit, editApplied{CLOSE_BRACKET} = useSendEditOnClick<{step_name_capital}Params, undefined>(
+            {get_default_params(params)},
+            StepType.{step_name_capital}, 
+            props.mitoAPI,
+            props.analysisData,
+        )"""
+
+def get_param_user_input_code(param_name: str, param_type: str, is_live_updating_taskpane: bool) -> str:
+
+    # If this is selecting a sheet index, use a sheet index select
+    if 'sheet_index' in param_name and param_type == 'int':
+        return "<SheetIndexSelect>"
+
+    if param_type == 'int' or param_type == 'float':
+        # TODO: number input
+        return '<NumberInput>'
+    elif param_type == 'str':
+        # TODO: string input
+        return '<NumberInput>'
+    elif param_type == 'bool':
+        # TODO: toggle
+        return '<Toggle>'
+    elif param_type == 'ColumnID':
+        # TODO: select
+        return '<Select>'
+    elif param_type == 'List[ColumnID]':
+        # TODO: multiselect or the other one
+        return '<MultiSelect>'
+    elif param_type == 'Any':
+        # TODO: It doesn't do this!
+        return f'{OPEN_BRACKET}/* TODO: add the user input for {param_name} of type {param_type} */{CLOSE_BRACKET}'
+    else:
+        raise Exception(f'{param_name} of type {param_type} is an unsupported type')
+
+def get_taskpane_body_code(params: Dict[str, str], is_live_updating_taskpane: bool) -> str:
+    # We just do the params in a linear order
+
+    taskpane_body_code = ""
+    for param_name, param_type in params.items():
+        taskpane_body_code += f'                {get_param_user_input_code(param_name, param_type, is_live_updating_taskpane)}'
+    
+    return taskpane_body_code
+
+def get_new_taskpane_code(original_step_name: str, params: Dict[str, str], is_live_updating_taskpane: bool) -> str:
 
     step_name_capital = original_step_name.replace(' ', '')
 
@@ -518,6 +606,7 @@ import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 
+{get_params_interface_code(original_step_name, params)}
 
 interface {step_name_capital}TaskpaneProps {OPEN_BRACKET}
     mitoAPI: MitoAPI;
@@ -539,7 +628,7 @@ const {step_name_capital}Taskpane = (props: {step_name_capital}TaskpaneProps): J
                 setUIState={OPEN_BRACKET}props.setUIState{CLOSE_BRACKET}           
             />
             <DefaultTaskpaneBody>
-                This is empty
+                {get_taskpane_body_code(params, is_live_updating_taskpane)}
             </DefaultTaskpaneBody>
         </DefaultTaskpane>
     )
@@ -547,7 +636,7 @@ const {step_name_capital}Taskpane = (props: {step_name_capital}TaskpaneProps): J
 
 export default {step_name_capital}Taskpane;"""
 
-def write_taskpane_types_file(original_step_name: str) -> None:
+def write_taskpane_types_file(original_step_name: str, is_editing_taskpane: bool, is_remain_open_undo_redo_taskpane: bool) -> None:
     
     path_to_taskpanes = Path('./src/components/taskpanes/taskpanes.tsx')
     enum_key = original_step_name.upper().replace(' ', '_')
@@ -560,9 +649,9 @@ def write_taskpane_types_file(original_step_name: str) -> None:
     with open(path_to_taskpanes, 'r') as f:
         code = f.read()
         code = code.replace(TASKPANEINFO_MARKER, f'| {OPEN_BRACKET}type: TaskpaneType.{enum_key}{CLOSE_BRACKET}\n     {TASKPANEINFO_MARKER}')
-        if input('Is this a taskpane that should close if a toolbar button is pressed? [y/n]').lower().startswith('y'):
+        if is_editing_taskpane:
             code = code.replace(EDITINGTASKPANE_MARKER, f'TaskpaneType.{enum_key},\n    {EDITINGTASKPANE_MARKER}')
-        if input('Is this a taskpane that can remain open if undo or redo are pressed? [y/n]').lower().startswith('y'):
+        if is_remain_open_undo_redo_taskpane:
             code = code.replace(ALLOWUNDOREDOEDITINGTASKPANE_MARKER, f'TaskpaneType.{enum_key},\n    {ALLOWUNDOREDOEDITINGTASKPANE_MARKER}')
 
     with open(path_to_taskpanes, 'w') as f:
@@ -597,7 +686,7 @@ def write_to_mito(original_step_name: str) -> None:
         f.write(code)
 
 
-def write_new_taskpane(original_step_name: str, params: Dict[str, str]) -> None:
+def write_new_taskpane(original_step_name: str, params: Dict[str, str], is_editing_taskpane: bool, is_live_updating_taskpane: bool, is_remain_open_undo_redo_taskpane: bool) -> None:
     
     step_name_capital = original_step_name.replace(' ', '')
     path_to_folder = Path('./src/components/taskpanes/') / step_name_capital
@@ -607,11 +696,11 @@ def write_new_taskpane(original_step_name: str, params: Dict[str, str]) -> None:
     create_folder(path_to_folder)
 
     # Then, write the taskpane
-    taskpane_code = get_new_taskpane_code(original_step_name, params)
+    taskpane_code = get_new_taskpane_code(original_step_name, params, is_live_updating_taskpane)
     write_python_code_file(path_to_taskpane, taskpane_code)
 
     # Then, update the taskpane types file
-    write_taskpane_types_file(original_step_name)
+    write_taskpane_types_file(original_step_name, is_editing_taskpane, is_remain_open_undo_redo_taskpane)
 
     # Then, update Mito.tsx
     write_to_mito(original_step_name)
@@ -631,6 +720,9 @@ def main() -> None:
     original_step_name = input("Step Name: [Fill NaN, Drop Duplicates] ")
     params = read_params()
     create_taskpane = input("Create a taskpane for this step? [y/n]").lower().startswith('y')
+    is_editing_taskpane = create_taskpane and input('Is this a taskpane that should close if a toolbar button is pressed? [y/n]').lower().startswith('y')
+    is_live_updating_taskpane = create_taskpane and input('Is this a live-updating taskpane? [y/n]').lower().startswith('y')
+    is_remain_open_undo_redo_taskpane = create_taskpane and input('Is this a taskpane that can remain open if undo or redo are pressed? [y/n]').lower().startswith('y')
 
     # First, we change all the Python files
     write_step_performer(original_step_name, params)
@@ -653,7 +745,7 @@ def main() -> None:
     print("Wrote to actions")
 
     if create_taskpane:
-        write_new_taskpane(original_step_name, params)
+        write_new_taskpane(original_step_name, params, is_editing_taskpane, is_live_updating_taskpane, is_remain_open_undo_redo_taskpane)
         print("Wrote new taskpane")
     else:
         print("Not writing taskpane...")
