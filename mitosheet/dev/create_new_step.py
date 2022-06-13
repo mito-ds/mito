@@ -723,9 +723,11 @@ def get_taskpane_imports(params: Dict[str, str], is_live_updating_taskpane: bool
         imports += "import useSendEditOnClick from '../../../hooks/useSendEditOnClick';\n"
 
     # Import for params
+    added_column_id = False
     for param_type in set(params.values()):
-        if param_type == 'ColumnID':
+        if 'ColumnID' in param_type and not added_column_id:
             imports += 'import { ColumnID } from "../../../types"\n'
+            added_column_id = True
         if param_type == 'List[ColumnID]':
             imports += 'import { getDtypeValue } from "../ControlPanel/FilterAndSortTab/DtypeCard";\n'
             imports += 'import { getDisplayColumnHeader } from "../../../utils/columnHeaders";\n'
