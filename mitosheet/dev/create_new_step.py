@@ -723,7 +723,7 @@ def get_taskpane_imports(params: Dict[str, str], is_live_updating_taskpane: bool
         imports += "import useSendEditOnClick from '../../../hooks/useSendEditOnClick';\n"
 
     # Import for params
-    for param_type in set(params.items()):
+    for param_type in set(params.values()):
         if param_type == 'ColumnID':
             imports += 'import { ColumnID } from "../../../types"\n'
         if param_type == 'List[ColumnID]':
