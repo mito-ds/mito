@@ -44,9 +44,9 @@ def column_header_to_transpiled_code(column_header: ColumnHeader) -> str:
     if isinstance(column_header, int) or isinstance(column_header, float) or isinstance(column_header, bool):
         return str(column_header)
     elif isinstance(column_header, pd.Timestamp):
-        return f'\'{column_header.strftime("%Y-%m-%d %X")}\''
+        return f'pd.to_datetime(\'{column_header.strftime("%Y-%m-%d %X")}\')'
     elif isinstance(column_header, pd.Timedelta):
-        return f'\'{str(column_header)}\''
+        return f'pd.to_timedelta(\'{str(column_header)}\')'
 
 
     return repr(column_header)

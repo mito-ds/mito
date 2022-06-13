@@ -154,7 +154,7 @@ def test_step_types_match():
     )
 
 
-def test_df_sources_matche():
+def test_df_sources_match():
     df_sources = get_enum_from_ts_file("./src/types.tsx", "DFSource")
     assert set(df_sources.values()) == set(
         [

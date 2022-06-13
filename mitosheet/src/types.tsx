@@ -75,6 +75,7 @@ export enum DFSource {
     Merged = 'merged',
     Duplicated = 'duplicated',
     Transposed = 'transposed',
+    Melted = 'melted',
 }
 
 /**

@@ -58,7 +58,6 @@ class MeltStepPerformer(StepPerformer):
         new_df_name = get_first_unused_dataframe_name(post_state.df_names, f'{post_state.df_names[sheet_index]}_unpivoted')
         post_state.add_df_to_state(new_df, DATAFRAME_SOURCE_MELTED, df_name=new_df_name)
 
-
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
             'include_value_vars': include_value_vars
@@ -78,5 +77,5 @@ class MeltStepPerformer(StepPerformer):
 
     @classmethod
     def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
-        return {get_param(params, 'sheet_index')}
+        return {-1}
     

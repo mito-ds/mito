@@ -17,6 +17,7 @@ import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
+import Spacer from "../../spacing/Spacer";
 
 
 interface MeltTaskpaneProps {
@@ -47,13 +48,13 @@ const getDefaultParams = (
     return {
         sheet_index: sheetIndex,
         id_var_column_ids: [],
-        value_var_column_ids: [],
+        value_var_column_ids: Object.keys(sheetDataArray[sheetIndex].columnDtypeMap || {}),
     }
 }
 
 
 /* 
-    This taskpane allows you to melt
+    This taskpane allows you to melt or unpivot a dataframe
 */
 const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
 
@@ -140,7 +141,7 @@ const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
                 </Row><Row justify='space-between' align='center' title='TODO'>
                     <Col>
                         <p className='text-header-3'>
-                            id_var_column_ids
+                            ID Variables
                         </p>
                     </Col>
                 </Row>
@@ -169,10 +170,12 @@ const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
                             />
                         ) 
                     })}
-                </MultiToggleBox><Row justify='space-between' align='center' title='TODO'>
+                </MultiToggleBox>
+                <Spacer px={10}/>
+                <Row justify='space-between' align='center' title='TODO'>
                     <Col>
                         <p className='text-header-3'>
-                            value_var_column_ids
+                            Values
                         </p>
                     </Col>
                 </Row>

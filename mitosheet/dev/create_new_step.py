@@ -710,7 +710,7 @@ def get_taskpane_body_code(params: Dict[str, str], is_live_updating_taskpane: bo
     used_elements = []
     for param_name, param_type in params.items():
         (body_code, elements) = get_param_user_input_code(param_name, param_type, is_live_updating_taskpane)
-        taskpane_body_code += f'{body_code}'
+        taskpane_body_code += f'{body_code}\n'
         used_elements += elements
     
     return (taskpane_body_code, used_elements)
