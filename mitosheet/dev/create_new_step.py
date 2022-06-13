@@ -673,7 +673,9 @@ def get_param_user_input_code(param_name: str, param_type: str, is_live_updating
                 </Row>
                 <MultiToggleBox
                     searchable
-                    toggleAllIndexes={OPEN_BRACKET}toggleIndexes{CLOSE_BRACKET}
+                    toggleAllIndexes={OPEN_BRACKET}(indexesToToggle, newValue) => {OPEN_BRACKET}
+                        toggleIndexes('{param_name}', indexesToToggle, newValue)
+                    {CLOSE_BRACKET}{CLOSE_BRACKET}
                     height='medium'
                 >
                     {OPEN_BRACKET}Object.entries(sheetData?.columnDtypeMap || {OPEN_BRACKET}{CLOSE_BRACKET}).map(([columnID, columnDtype], index) => {OPEN_BRACKET}
@@ -689,7 +691,7 @@ def get_param_user_input_code(param_name: str, param_type: str, is_live_updating
                                 rightText={OPEN_BRACKET}getDtypeValue(columnDtype){CLOSE_BRACKET}
                                 toggled={OPEN_BRACKET}toggle{CLOSE_BRACKET}
                                 onToggle={OPEN_BRACKET}() => {OPEN_BRACKET}
-                                    toggleIndexes([index], !toggle)
+                                    toggleIndexes('{param_name}', [index], !toggle)
                                 {CLOSE_BRACKET}{CLOSE_BRACKET}
                             />
                         ) 
