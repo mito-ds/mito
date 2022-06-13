@@ -658,7 +658,7 @@ interface {step_name_capital}TaskpaneProps {OPEN_BRACKET}
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     analysisData: AnalysisData;
     sheetDataArray: SheetData[];
-    selectedSheetIndex: int;
+    selectedSheetIndex: number;
 {CLOSE_BRACKET}
 
 {get_params_interface_code(original_step_name, params)}
@@ -667,7 +667,7 @@ interface {step_name_capital}TaskpaneProps {OPEN_BRACKET}
 const getDefaultParams = (
     sheetDataArray: SheetData[], 
     sheetIndex: number,
-): FillNaParams | undefined => {OPEN_BRACKET}
+): {step_name_capital}Params | undefined => {OPEN_BRACKET}
 
     if (sheetDataArray.length === 0 || sheetDataArray[sheetIndex] === undefined) {OPEN_BRACKET}
         return undefined;
