@@ -37,13 +37,11 @@ class TransposeStepPerformer(StepPerformer):
         # We make a new state to modify it
         post_state = prev_state.copy()
 
-        
         new_df_name = get_first_unused_dataframe_name(post_state.df_names, f'{post_state.df_names[sheet_index]}_transposed')
 
         pandas_start_time = perf_counter()
         new_df = post_state.dfs[sheet_index].T
         pandas_processing_time = perf_counter() - pandas_start_time
-
 
         new_df_name = get_first_unused_dataframe_name(post_state.df_names, f'{post_state.df_names[sheet_index]}_transposed')
         post_state.add_df_to_state(new_df, DATAFRAME_SOURCE_TRANSPOSED, df_name=new_df_name)
