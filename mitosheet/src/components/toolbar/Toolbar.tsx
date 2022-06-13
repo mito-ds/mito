@@ -5,7 +5,7 @@ import fscreen from 'fscreen';
 import MitoAPI from '../../jupyter/api';
 import ToolbarButton from './ToolbarButton';
 import { ToolbarButtonType } from './utils';
-import { Action, ActionEnum, GridState, SheetData, UIState, UserProfile } from '../../types';
+import { Action, ActionEnum, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import { getColumnFormatDropdownItemsUsingSelections } from '../../utils/formatColumns';
 
@@ -36,6 +36,7 @@ const Toolbar = (
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
         sheetData: SheetData;
         userProfile: UserProfile;
+        setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
     }): JSX.Element => {
     
 
@@ -122,10 +123,12 @@ const Toolbar = (
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.IMPORT}
                         action={props.actions[ActionEnum.Import]}
+                        setEditorState={props.setEditorState}
                     />
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.EXPORT}
                         action={props.actions[ActionEnum.Export]}
+                        setEditorState={props.setEditorState}
                     />
 
                     <div className="toolbar-vertical-line"/>
@@ -134,19 +137,23 @@ const Toolbar = (
                         toolbarButtonType={ToolbarButtonType.ADD_COL}
                         action={props.actions[ActionEnum.Add_Column]}
                         highlightToolbarButton={props.highlightAddColButton}
+                        setEditorState={props.setEditorState}
                     />
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.DEL_COL}
                         action={props.actions[ActionEnum.Delete_Column]}
+                        setEditorState={props.setEditorState}
                     />
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.DTYPE}
                         action={props.actions[ActionEnum.Change_Dtype]}
+                        setEditorState={props.setEditorState}
                     />
                     
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.FORMAT}
                         action={props.actions[ActionEnum.Format]}
+                        setEditorState={props.setEditorState}
                     >
                         <Dropdown
                             display={props.uiState.displayFormatToolbarDropdown}
@@ -169,10 +176,12 @@ const Toolbar = (
                         toolbarButtonType={ToolbarButtonType.PIVOT}
                         action={props.actions[ActionEnum.Pivot]}
                         highlightToolbarButton={props.highlightPivotTableButton}
+                        setEditorState={props.setEditorState}
                     />
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.GRAPH}
                         action={props.actions[ActionEnum.Graph]}
+                        setEditorState={props.setEditorState}
                     />
 
                 </div>
