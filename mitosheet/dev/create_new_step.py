@@ -711,21 +711,21 @@ def get_taskpane_body_code(params: Dict[str, str], is_live_updating_taskpane: bo
         taskpane_body_code += f'{body_code}'
         used_elements += elements
     
-    return (taskpane_body_code, elements)
+    return (taskpane_body_code, used_elements)
 
 def get_taskpane_imports(params: Dict[str, str], is_live_updating_taskpane: bool, used_elements: List[str]) -> str:
     imports = ''
 
     # Import for hook
     if is_live_updating_taskpane:
-        imports += "import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';"
+        imports += "import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';\n"
     else:
-        imports += "import useSendEditOnClick from '../../../hooks/useSendEditOnClick';"
+        imports += "import useSendEditOnClick from '../../../hooks/useSendEditOnClick';\n"
 
     # Import for params
     for param_name, param_type in params.items():
         if param_type == 'ColumnID':
-            imports += 'import { ColumnID } from "../../../types"'
+            imports += 'import { ColumnID } from "../../../types"\n'
         if param_type == 'List[ColumnID]':
             imports += 'import { getDtypeValue } from "../ControlPanel/FilterAndSortTab/DtypeCard";\n'
             imports += 'import { getDisplayColumnHeader } from "../../../utils/columnHeaders";\n'
