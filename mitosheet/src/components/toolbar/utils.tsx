@@ -88,7 +88,7 @@ export const getToolbarItemIcon = (toolbarButtonType: ToolbarButtonType): JSX.El
  * a function and not a component itself because the dropdown _expects_ to get
  * a DropdownItem as it's child, so we cannot wrap this in another component
  */
-export const makeToolbarDropdownItem = (action: Action): JSX.Element => {
+export const makeToolbarDropdownItem = (action: Action, supressFocusSettingOnClose?: boolean): JSX.Element => {
     return (
         <DropdownItem 
             title={action.longTitle}
@@ -100,6 +100,7 @@ export const makeToolbarDropdownItem = (action: Action): JSX.Element => {
                     ? action.displayKeyboardShortcuts?.mac
                     : action.displayKeyboardShortcuts?.windows
             }    
+            supressFocusSettingOnClose={supressFocusSettingOnClose}
         />
     )
 }

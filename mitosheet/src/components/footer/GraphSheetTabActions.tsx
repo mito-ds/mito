@@ -75,7 +75,6 @@ export default function GraphSheetTabActions(props: {
             display={props.display}
             closeDropdown={() => props.setDisplayActions(false)}
             width='small'
-            supressFocusSettingOnClose={true}
         >
             <DropdownItem
                 title='Export'
@@ -94,6 +93,7 @@ export default function GraphSheetTabActions(props: {
             <DropdownItem 
                 title='Rename'
                 onClick={onRename}
+                supressFocusSettingOnClose
             />
             <DropdownItem 
                 title='Delete'

@@ -171,6 +171,7 @@ export const createActions = (
             shortTitle: 'Copy',
             longTitle: 'Copy',
             actionFunction: () => {
+                closeOpenEditingPopups();
 
                 const copyStringAndSelections = getCopyStringForClipboard(
                     sheetData,
@@ -928,6 +929,8 @@ export const createActions = (
             shortTitle: 'Split',
             longTitle: 'Split text to columns',
             actionFunction: () => {
+                closeOpenEditingPopups();
+
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
