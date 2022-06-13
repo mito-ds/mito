@@ -15,6 +15,8 @@ from pathlib import Path
 import shutil
 from typing import Dict, List, Tuple
 
+from pytest import param
+
 # Constants useful in f strings, since they can't contain brackets
 OPEN_BRACKET = "{"
 CLOSE_BRACKET = "}"
@@ -709,13 +711,24 @@ def get_taskpane_body_code(params: Dict[str, str], is_live_updating_taskpane: bo
     
     return (taskpane_body_code, elements)
 
-def get_taskpane_imports(is_live_updating_taskpane: bool, used_elements: List[str]) -> str:
+def get_taskpane_imports(params: Dict[str, str], is_live_updating_taskpane: bool, used_elements: List[str]) -> str:
     imports = ''
+
+    # Import for hook
     if is_live_updating_taskpane:
         imports += "import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';"
     else:
         imports += "import useSendEditOnClick from '../../../hooks/useSendEditOnClick';"
 
+    # Import for params
+    for param_name, param_type in params.items():
+        if param_type == 'ColumnID':
+            imports += 'import { ColumnID } from "../../../types"'
+        if param_type == 'List[ColumnID]':
+            imports += 'import { getDtypeValue } from "../ControlPanel/FilterAndSortTab/DtypeCard";\n'
+            imports += 'import { getDisplayColumnHeader } from "../../../utils/columnHeaders";\n'
+
+    # Import for elements
     for element in set(used_elements):
         if element == 'Row':
             imports += "import Row from '../../spacing/Row';\n"
