@@ -139,6 +139,25 @@ def test_only_writes_single_code():
         "df1['B'] = 100", 
     ]
 
+def test_can_set_formula_referencing_datetime():
+    df = pd.DataFrame(data={pd.to_datetime('12-22-1997'): [1]})
+    mito = create_mito_wrapper_dfs(df)
+    mito.set_formula('=1997-12-22 00:00:00', 0, 'B', add_column=True)
+
+    assert mito.dfs[0].equals(
+        pd.DataFrame(data={pd.to_datetime('12-22-1997'): [1], 'B': [1]})
+    )
+
+def test_can_set_formula_referencing_timedelta():
+    df = pd.DataFrame(data={pd.to_timedelta('2 days 00:00:00'): [1]})
+    mito = create_mito_wrapper_dfs(df)
+    mito.set_formula('=2 days 00:00:00', 0, 'B', add_column=True)
+
+    assert mito.dfs[0].equals(
+        pd.DataFrame(data={pd.to_timedelta('2 days 00:00:00'): [1], 'B': [1]})
+    )
+
+
 def test_inplace_edit_overwrites_properly():
     df = pd.DataFrame(data={'A': [1]})
     mito = create_mito_wrapper_dfs(df)
