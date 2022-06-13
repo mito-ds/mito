@@ -545,7 +545,7 @@ def get_effect_code(original_step_name: str, params: Dict[str, str], is_live_upd
    
     if is_live_updating_taskpane:
         return f"""const {OPEN_BRACKET}params, setParams{CLOSE_BRACKET} = useLiveUpdatingParams<{step_name_capital}Params>(
-        {get_default_params(params)},
+        () => getDefaultParams(props.selectedSheetIndex, props.sheetDataArray),
         StepType.{step_name_capital}, 
         props.mitoAPI,
         props.analysisData,
@@ -553,7 +553,7 @@ def get_effect_code(original_step_name: str, params: Dict[str, str], is_live_upd
     )"""
     else:
         return f"""const {OPEN_BRACKET}params, setParams, loading, edit, editApplied{CLOSE_BRACKET} = useSendEditOnClick<{step_name_capital}Params, undefined>(
-            {get_default_params(params)},
+            () => getDefaultParams(props.selectedSheetIndex, props.sheetDataArray),
             StepType.{step_name_capital}, 
             props.mitoAPI,
             props.analysisData,
@@ -563,8 +563,46 @@ def get_param_user_input_code(param_name: str, param_type: str, is_live_updating
 
     # If this is selecting a sheet index, use a sheet index select
     if 'sheet_index' in param_name and param_type == 'int':
-        return "<SheetIndexSelect>"
 
+        # Row, Col, Select, DropdownItem
+        return """<Row justify='space-between' align='center' title='Select a dataframe TODO.'>
+                    <Col>
+                        <p className='text-header-3'>
+                            Dataframe
+                        </p>
+                    </Col>
+                    <Col>
+                        <Select
+                            value={props.sheetDataArray[params.sheet_index]?.dfName}
+                            onChange={(newDfName: string) => {
+                                const newSheetIndex = props.sheetDataArray.findIndex((sheetData) => {
+                                    return sheetData.dfName == newDfName;
+                                })
+                                
+                                setParams(prevParams => {
+                                    const newParams = getDefaultParams(props.sheetDataArray, newSheetIndex);
+                                    if (newParams) {
+                                        return newParams;
+                                    }
+                                    return {
+                                        ...prevParams,
+                                        sheet_index: newSheetIndex
+                                    }
+                                });
+                            }}
+                            width='medium'
+                        >
+                            {props.sheetDataArray.map(sheetData => {
+                                return (
+                                    <DropdownItem
+                                        key={sheetData.dfName}
+                                        title={sheetData.dfName}
+                                    />
+                                )
+                            })}
+                        </Select>
+                    </Col>
+                </Row>"""
     if param_type == 'int' or param_type == 'float':
         # TODO: number input
         return '<NumberInput>'
@@ -595,6 +633,12 @@ def get_taskpane_body_code(params: Dict[str, str], is_live_updating_taskpane: bo
     
     return taskpane_body_code
 
+def get_taskpane_imports(is_live_updating_taskpane: bool) -> str:
+    if is_live_updating_taskpane:
+        return "import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';"
+    else:
+        return "import useSendEditOnClick from '../../../hooks/useSendEditOnClick';"
+
 def get_new_taskpane_code(original_step_name: str, params: Dict[str, str], is_live_updating_taskpane: bool) -> str:
 
     step_name_capital = original_step_name.replace(' ', '')
@@ -602,11 +646,11 @@ def get_new_taskpane_code(original_step_name: str, params: Dict[str, str], is_li
     return f"""import React from "react";
 import MitoAPI from "../../../jupyter/api";
 import {OPEN_BRACKET} AnalysisData, SheetData, StepType, UIState, UserProfile {CLOSE_BRACKET} from "../../../types"
+{get_taskpane_imports(is_live_updating_taskpane)}
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 
-{get_params_interface_code(original_step_name, params)}
 
 interface {step_name_capital}TaskpaneProps {OPEN_BRACKET}
     mitoAPI: MitoAPI;
@@ -614,7 +658,25 @@ interface {step_name_capital}TaskpaneProps {OPEN_BRACKET}
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     analysisData: AnalysisData;
     sheetDataArray: SheetData[];
+    selectedSheetIndex: int;
 {CLOSE_BRACKET}
+
+{get_params_interface_code(original_step_name, params)}
+
+
+const getDefaultParams = (
+    sheetDataArray: SheetData[], 
+    sheetIndex: number,
+): FillNaParams | undefined => {OPEN_BRACKET}
+
+    if (sheetDataArray.length === 0 || sheetDataArray[sheetIndex] === undefined) {OPEN_BRACKET}
+        return undefined;
+    {OPEN_BRACKET}
+
+    return {get_default_params(params)}
+{OPEN_BRACKET}
+
+
 
 /* 
     This taskpane allows you to {original_step_name.lower()}
@@ -671,6 +733,7 @@ def get_curr_open_taskpane_code(original_step_name: str) -> None:
                     sheetDataArray={OPEN_BRACKET}sheetDataArray{CLOSE_BRACKET}
                     setUIState={OPEN_BRACKET}setUIState{CLOSE_BRACKET}
                     mitoAPI={OPEN_BRACKET}props.mitoAPI{CLOSE_BRACKET}
+                    selectedSheetIndex={OPEN_BRACKET}uiState.selectedSheetIndex{CLOSE_BRACKET}
                 />
             )
             {GETCURROPENTASKPANE_MARKER}"""
@@ -706,10 +769,6 @@ def write_new_taskpane(original_step_name: str, params: Dict[str, str], is_editi
 
     # Then, update Mito.tsx
     write_to_mito(original_step_name)
-
-    
-
-
 
 def main() -> None:
     """
