@@ -621,6 +621,8 @@ interface {step_name_capital}TaskpaneProps {OPEN_BRACKET}
 */
 const {step_name_capital}Taskpane = (props: {step_name_capital}TaskpaneProps): JSX.Element => {OPEN_BRACKET}
 
+    {get_effect_code(original_step_name, params, is_live_updating_taskpane)}
+
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
