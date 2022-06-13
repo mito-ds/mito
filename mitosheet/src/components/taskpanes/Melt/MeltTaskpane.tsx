@@ -97,11 +97,11 @@ const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
-                header="Melt"
+                header="Unpivot Dataframe"
                 setUIState={props.setUIState}           
             />
             <DefaultTaskpaneBody>
-                <Row justify='space-between' align='center' title='Select a dataframe TODO.'>
+                <Row justify='space-between' align='center' title='Select a dataframe to unpivot.'>
                     <Col>
                         <p className='text-header-3'>
                             Dataframe
@@ -138,7 +138,8 @@ const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
                             })}
                         </Select>
                     </Col>
-                </Row><Row justify='space-between' align='center' title='TODO'>
+                </Row>
+                <Row justify='space-between' align='center' title='Column to use as identifier variables.'>
                     <Col>
                         <p className='text-header-3'>
                             ID Variables
@@ -172,7 +173,7 @@ const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
                     })}
                 </MultiToggleBox>
                 <Spacer px={10}/>
-                <Row justify='space-between' align='center' title='TODO'>
+                <Row justify='space-between' align='center' title='Columns to unpivot.'>
                     <Col>
                         <p className='text-header-3'>
                             Values
