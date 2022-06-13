@@ -742,7 +742,7 @@ def get_taskpane_imports(is_live_updating_taskpane: bool, used_elements: List[st
 def get_toggle_all_code(params: Dict[str, str]) -> str:
 
     # First, find all the multi-toggle box 
-    multi_toggle_box_params = filter(lambda x: x[1] == 'List[ColumnID]', params.items())
+    multi_toggle_box_params = list(filter(lambda x: x[1] == 'List[ColumnID]', params.items()))
 
     if len(multi_toggle_box_params) == 0:
         return ''
