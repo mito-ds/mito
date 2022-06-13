@@ -705,9 +705,11 @@ def get_taskpane_body_code(params: Dict[str, str], is_live_updating_taskpane: bo
     # We just do the params in a linear order
 
     taskpane_body_code = ""
+    used_elements = []
     for param_name, param_type in params.items():
         (body_code, elements) = get_param_user_input_code(param_name, param_type, is_live_updating_taskpane)
         taskpane_body_code += f'{body_code}'
+        used_elements += elements
     
     return (taskpane_body_code, elements)
 
@@ -791,7 +793,7 @@ def get_sheet_data_definition(params: Dict[str, str]) -> str:
     if 'sheet_index' not in params.keys():
         return ''
     else:
-        return '    const sheet_data = props.sheetDataArray[params.sheet_index];'
+        return 'const sheetData = props.sheetDataArray[params.sheet_index];'
 
 
 def get_new_taskpane_code(original_step_name: str, params: Dict[str, str], is_live_updating_taskpane: bool) -> str:
@@ -846,8 +848,9 @@ const {step_name_capital}Taskpane = (props: {step_name_capital}TaskpaneProps): J
         return <DefaultEmptyTaskpane setUIState={OPEN_BRACKET}props.setUIState{CLOSE_BRACKET}/>
     {CLOSE_BRACKET}
 
-    {get_toggle_all_code(params)}
     {get_sheet_data_definition(params)}
+
+    {get_toggle_all_code(params)}
 
     return (
         <DefaultTaskpane>
