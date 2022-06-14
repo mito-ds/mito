@@ -12,7 +12,7 @@ export const getFirstSuggestedMergeKeys = (sheetDataArray: SheetData[], sheetOne
     
     const sheetOneEntries = Object.entries(sheetDataArray[sheetOneIndex]?.columnIDsMap || {});
     const sheetTwoEntries = Object.entries(sheetDataArray[sheetTwoIndex]?.columnIDsMap || {});
-    let columnIDsWithSharedColumnHeaders: ([ColumnID, ColumnID] | undefined)[] = sheetOneEntries.map(([columnID, columnHeader]) => {
+    const columnIDsWithSharedColumnHeaders: ([ColumnID, ColumnID] | undefined)[] = sheetOneEntries.map(([columnID, columnHeader]) => {
         const matchingIndex = sheetTwoEntries.findIndex(([, otherColumnHeader]) => {return getDisplayColumnHeader(columnHeader) === getDisplayColumnHeader(otherColumnHeader)});
         if (matchingIndex > -1) {
             return [columnID, sheetTwoEntries[matchingIndex][0]];
@@ -35,8 +35,8 @@ export const getFirstSuggestedMergeKeys = (sheetDataArray: SheetData[], sheetOne
             return allSuggestions[0];
         } else {
             const notIncludedSuggestions = allSuggestions.filter(([columnIDOne, columnIDTwo]) => {
-                const columnIDOneUsed = existingMergeKeys.findIndex(([mergeKeyOne, _]) => {return columnIDOne === mergeKeyOne}) !== -1;
-                const columnIDTwoUsed = existingMergeKeys.findIndex(([_, mergeKeyTwo]) => {return columnIDTwo === mergeKeyTwo}) !== -1;
+                const columnIDOneUsed = existingMergeKeys.findIndex(([mergeKeyOne, ]) => {return columnIDOne === mergeKeyOne}) !== -1;
+                const columnIDTwoUsed = existingMergeKeys.findIndex(([, mergeKeyTwo]) => {return columnIDTwo === mergeKeyTwo}) !== -1;
                 return !columnIDOneUsed && !columnIDTwoUsed;
             })
 

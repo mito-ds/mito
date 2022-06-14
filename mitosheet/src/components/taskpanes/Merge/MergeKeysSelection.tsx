@@ -34,7 +34,7 @@ const MergeKeysSelectionSection = (props: {
             </Row>
             {props.params.merge_key_column_ids.map(([mergeKeyColumnIDOne, mergeKeyColumnIDTwo], index) => {
                 return (
-                    <Row justify="space-between" align="center">
+                    <Row key={index} justify="space-between" align="center">
                         <Col>
                             <Select
                                 value={mergeKeyColumnIDOne}

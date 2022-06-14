@@ -70,11 +70,11 @@ export const getDefaultMergeParams = (sheetDataArray: SheetData[], _sheetIndexOn
 
     const sheetIndexOne = _sheetIndexOne;
     const sheetIndexTwo = _sheetIndexTwo !== undefined
-            ? _sheetIndexTwo 
-            : (sheetIndexOne + 1 <= sheetDataArray.length - 1
-                ? sheetIndexOne + 1
-                : (sheetIndexOne - 1 >= 0 ? sheetIndexOne - 1 : sheetIndexOne)
-            )
+        ? _sheetIndexTwo 
+        : (sheetIndexOne + 1 <= sheetDataArray.length - 1
+            ? sheetIndexOne + 1
+            : (sheetIndexOne - 1 >= 0 ? sheetIndexOne - 1 : sheetIndexOne)
+        )
     
     // If we didn't change the sheets, then the default params are just the params we had last
     if (previousParams && previousParams.sheet_index_one == sheetIndexOne && previousParams.sheet_index_two === sheetIndexTwo) {
@@ -100,7 +100,7 @@ export const getDefaultMergeParams = (sheetDataArray: SheetData[], _sheetIndexOn
     }
     
     return {
-        how: 'lookup',
+        how: previousParams ? previousParams.how : 'lookup',
         sheet_index_one: sheetIndexOne,
         sheet_index_two: sheetIndexTwo,
         merge_key_column_ids: suggestedMergeKeys ? [suggestedMergeKeys] : [],
@@ -238,7 +238,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                         {Object.entries(sheetDataOne.columnDtypeMap).map(([columnID, columnDtype], index) => {
                             const columnHeader = sheetDataOne.columnIDsMap[columnID];
                             const toggled = params.selected_column_ids_one.includes(columnID); // TODO: make it true if merge key with OR
-                            const isMergeKey = params.merge_key_column_ids.map(([mergeKeyOne, _]) => {return mergeKeyOne}).includes(columnID);
+                            const isMergeKey = params.merge_key_column_ids.map(([mergeKeyOne, ]) => {return mergeKeyOne}).includes(columnID);
                             return (
                                 <MultiToggleItem
                                     key={index}
@@ -276,28 +276,28 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                             searchable
                             toggleAllIndexes={(indexesToToggle, newToggle) => {
                                 const columnIDs = Object.keys(sheetDataTwo.columnDtypeMap)
-                                .map((columnID) => {return columnID})
-                                .filter((_, index) => {
-                                    return indexesToToggle.includes(index);
-                                });
+                                    .map((columnID) => {return columnID})
+                                    .filter((_, index) => {
+                                        return indexesToToggle.includes(index);
+                                    });
                             
-                            setParams(prevParams => {
-                                const newSelectedColumnIDsTwo = [...params.selected_column_ids_two];
-                                if (newToggle) {
-                                    columnIDs.forEach((columnID) => {
-                                        addIfAbsent(newSelectedColumnIDsTwo, columnID);
-                                    })
-                                } else {
-                                    columnIDs.forEach((columnID) => {
-                                        removeIfPresent(newSelectedColumnIDsTwo, columnID);
-                                    })
-                                }
+                                setParams(prevParams => {
+                                    const newSelectedColumnIDsTwo = [...params.selected_column_ids_two];
+                                    if (newToggle) {
+                                        columnIDs.forEach((columnID) => {
+                                            addIfAbsent(newSelectedColumnIDsTwo, columnID);
+                                        })
+                                    } else {
+                                        columnIDs.forEach((columnID) => {
+                                            removeIfPresent(newSelectedColumnIDsTwo, columnID);
+                                        })
+                                    }
 
-                                return {
-                                    ...prevParams,
-                                    selected_column_ids_two: newSelectedColumnIDsTwo
-                                }
-                            })
+                                    return {
+                                        ...prevParams,
+                                        selected_column_ids_two: newSelectedColumnIDsTwo
+                                    }
+                                })
                             }}
                             height='medium'
                         >
