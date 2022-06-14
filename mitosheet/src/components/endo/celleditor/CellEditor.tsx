@@ -491,7 +491,7 @@ const CellEditor = (props: {
                 or the documentation for the last function, depending on the cases below
             */}
             <div className='cell-editor-dropdown-box' style={{width: props.editorState.editorLocation === 'cell' ? `${CELL_EDITOR_WIDTH}px` : '300px'}}>
-                {cellEditorError === undefined && 
+                {cellEditorError === undefined && props.editorState.rowIndex != -1 &&
                     <Row suppressTopBottomMargin justify='space-between' className='cell-editor-label'>
                         <p className={classNames('text-subtext-1', 'pl-5px', 'mt-2px')} title={props.editorState.editingMode === 'set_column_formula' ? 'You are currently editing the entire column. Setting a formula will change all values in the column.' : 'You are currently editing a specific cell. Changing this value will only effect this cell.'}>
                             Edit entire column
@@ -513,6 +513,11 @@ const CellEditor = (props: {
                             height='20px'
                         />
                     </Row>
+                }
+                {cellEditorError === undefined && props.editorState.rowIndex == -1 &&
+                    <p className={classNames('text-subtext-1', 'pl-5px', 'mt-2px')} title='You are currently editing the column header.'>
+                        Edit column header
+                    </p>
                 }
                 {/* Show an error if there is currently an error */}
                 {cellEditorError !== undefined &&
