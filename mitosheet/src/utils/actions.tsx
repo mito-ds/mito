@@ -749,7 +749,8 @@ export const createActions = (
                     rowIndex: -1,
                     columnIndex: startingColumnIndex,
                     formula: getDisplayColumnHeader(finalColumnHeader),
-                    editorLocation: 'cell'
+                    editorLocation: 'cell',
+                    editingMode: 'set_cell_value'
                 })
 
             },
@@ -843,7 +844,8 @@ export const createActions = (
                     formula: startingFormula,
                     // Since you can't reference other cells while setting the value of a single cell, we default to scrolling in the formula
                     arrowKeysScrollInFormula: true,
-                    editorLocation: 'cell'
+                    editorLocation: 'cell',
+                    editingMode: 'set_cell_value'
                 })
             },
             isDisabled: () => {
@@ -875,7 +877,8 @@ export const createActions = (
                     // As in google sheets, if the starting formula is non empty, we default to the 
                     // arrow keys scrolling in the editor
                     arrowKeysScrollInFormula: columnFormula !== undefined && columnFormula.length > 0,
-                    editorLocation: 'cell'
+                    editorLocation: 'cell',
+                    editingMode: 'set_column_formula'
                 })
             },
             isDisabled: () => {
@@ -1353,7 +1356,8 @@ export const getSpreadsheetFormulaAction = (
                 columnIndex: columnIndex,
                 formula: "=" + spreadsheetAction?.function + "(",
                 arrowKeysScrollInFormula: false,
-                editorLocation: 'cell'
+                editorLocation: 'cell',
+                editingMode: 'set_column_formula'
             })
         },
         isDisabled: () => {

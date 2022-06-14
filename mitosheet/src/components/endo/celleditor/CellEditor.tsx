@@ -51,7 +51,6 @@ const CellEditor = (props: {
     const [selectedSuggestionIndex, setSavedSelectedSuggestionIndex] = useState(-1);
     const [loading, setLoading] = useState(false);
     const [cellEditorError, setCellEditorError] = useState<string | undefined>(undefined);
-    const [editingMode, setEditingMode] = useState<'set_column_formula' | 'set_cell_value'>('set_column_formula');
 
     const {columnID, columnHeader} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
 
@@ -98,7 +97,7 @@ const CellEditor = (props: {
     }, [props.editorState.pendingSelectedColumns]);
 
     useEffect(() => {
-        const startingFormula = getStartingFormula(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex, editingMode);
+        const startingFormula = getStartingFormula(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex, props.editorState.editingMode);
         props.setEditorState(prevEditingState => {
             if (prevEditingState === undefined) {
                 return prevEditingState;
@@ -108,7 +107,7 @@ const CellEditor = (props: {
                 formula: startingFormula
             }
         })
-    }, [editingMode])
+    }, [props.editorState.editingMode])
 
     if (columnID === undefined || columnHeader === undefined) {
         return <></>;
@@ -236,7 +235,7 @@ const CellEditor = (props: {
             const arrowUp = e.key === 'Up' || e.key === 'ArrowUp';
             const arrowDown = e.key === 'Down' || e.key === 'ArrowDown';
 
-            if (!endsInColumnHeader && editingMode === 'set_column_formula' && (arrowUp || arrowDown) && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0)) {
+            if (!endsInColumnHeader && props.editorState.editingMode === 'set_column_formula' && (arrowUp || arrowDown) && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0)) {
                 // (A) - They are navigating inside the suggestion box
 
                 // Prevent the default, so we don't move in the input
@@ -400,7 +399,7 @@ const CellEditor = (props: {
             const finalColumnHeader = getColumnHeaderParts(columnHeader).finalColumnHeader;
             submitRenameColumnHeader(columnHeader, finalColumnHeader, columnID, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI)
         } else {
-            if (editingMode === 'set_column_formula') {
+            if (props.editorState.editingMode === 'set_column_formula') {
                 // Change of formula
                 errorMessage = await props.mitoAPI.editSetColumnFormula(
                     props.sheetIndex,
@@ -494,14 +493,21 @@ const CellEditor = (props: {
             <div className='cell-editor-dropdown-box' style={{width: props.editorState.editorLocation === 'cell' ? `${CELL_EDITOR_WIDTH}px` : '300px'}}>
                 {cellEditorError === undefined && 
                     <Row suppressTopBottomMargin justify='space-between' className='cell-editor-label'>
-                        <p className={classNames('text-subtext-1', 'pl-5px', 'mt-2px')} title={editingMode === 'set_column_formula' ? 'You are currently editing the entire column. Setting a formula will change all values in the column.' : 'You are currently editing a specific cell. Changing this value will only effect this cell.'}>
+                        <p className={classNames('text-subtext-1', 'pl-5px', 'mt-2px')} title={props.editorState.editingMode === 'set_column_formula' ? 'You are currently editing the entire column. Setting a formula will change all values in the column.' : 'You are currently editing a specific cell. Changing this value will only effect this cell.'}>
                             Edit entire column
                         </p>
                         <Toggle
-                            value={editingMode === 'set_column_formula' ? true : false}
+                            value={props.editorState.editingMode === 'set_column_formula' ? true : false}
                             onChange={() => {
-                                setEditingMode(prevEditingMode => {
-                                    return prevEditingMode === 'set_column_formula' ? 'set_cell_value' : 'set_column_formula'
+                                props.setEditorState(prevEditorState => {
+                                    if (prevEditorState === undefined) {
+                                        return undefined
+                                    }
+                                    const prevEditingMode = {...prevEditorState}.editingMode
+                                    return {
+                                        ...prevEditorState,
+                                        editingMode: prevEditingMode === 'set_column_formula' ? 'set_cell_value' : 'set_column_formula'
+                                    }
                                 })
                             }}
                             height='20px'
@@ -526,7 +532,7 @@ const CellEditor = (props: {
                     </p>
                 }
                 {/* Show the suggestions */}
-                {cellEditorError === undefined && !loading && !endsInColumnHeader && editingMode === 'set_column_formula' &&
+                {cellEditorError === undefined && !loading && !endsInColumnHeader && props.editorState.editingMode === 'set_column_formula' &&
                     <>
                         {(suggestedColumnHeaders.concat(suggestedFunctions)).map(([suggestion, subtext], idx) => {
                             // We only show at most 4 suggestions
@@ -565,7 +571,7 @@ const CellEditor = (props: {
                     </>
                 }
                 {/* Otherwise, display the documentation function */}
-                {cellEditorError === undefined && !loading && editingMode === 'set_column_formula' && !hasSuggestions && documentationFunction !== undefined &&
+                {cellEditorError === undefined && !loading && props.editorState.editingMode === 'set_column_formula' && !hasSuggestions && documentationFunction !== undefined &&
                     <div>
                         <div className='cell-editor-function-documentation-header pt-5px pb-10px pl-10px pr-10px'>
                             <p className='text-body-2'>

@@ -138,7 +138,8 @@ export default function ColumnHeaderDropdown(props: {
                         // As in google sheets, if the starting formula is non empty, we default to the 
                         // arrow keys scrolling in the editor
                         arrowKeysScrollInFormula: columnFormula !== undefined && columnFormula.length > 0,
-                        editorLocation: 'cell'
+                        editorLocation: 'cell',
+                        editingMode: 'set_column_formula'
                     })
                 }}
             />
