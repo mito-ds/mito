@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.merge_code_chunk import MergeCodeChunk
-from mitosheet.errors import (make_incompatible_merge_headers_error,
+from mitosheet.errors import (get_recent_traceback, make_incompatible_merge_headers_error,
                               make_incompatible_merge_key_error)
 from mitosheet.state import DATAFRAME_SOURCE_MERGED, State
 from mitosheet.step_performers.step_performer import StepPerformer
@@ -31,7 +31,7 @@ class MergeStepPerformer(StepPerformer):
 
     @classmethod
     def step_version(cls) -> int:
-        return 3
+        return 4
 
     @classmethod
     def step_type(cls) -> str:
@@ -42,7 +42,9 @@ class MergeStepPerformer(StepPerformer):
         how = get_param(params, 'how')
         sheet_index_one = get_param(params, 'sheet_index_one')
         sheet_index_two = get_param(params, 'sheet_index_two')
+        print("HERE")
         merge_key_column_ids = get_param(params, 'merge_key_column_ids')
+        print("HERE1", merge_key_column_ids)
         selected_column_ids_one = get_param(params, 'selected_column_ids_one')
         selected_column_ids_two = get_param(params, 'selected_column_ids_two')
 
@@ -113,6 +115,8 @@ def _execute_merge(
     if dfs[sheet_index_one].columns.nlevels != dfs[sheet_index_two].columns.nlevels:
         raise make_incompatible_merge_headers_error(error_modal=False)
 
+    print(merge_keys_one, merge_keys_two)
+
     # If there's no merge keys, we return an empty dataframe
     if len(merge_keys_one) == 0 and len(merge_keys_two) == 0:
         return pd.DataFrame()
@@ -143,12 +147,20 @@ def _execute_merge(
 
     try:
         if how == UNIQUE_IN_LEFT:
-            return df_one_cleaned.copy(deep=True)[~df_one_cleaned[merge_keys_one].isin(df_two_cleaned[merge_keys_two])]
+            # We need to generate a filter for all of the merge keys
+            df_filter = ~df_one_cleaned[merge_keys_one[0]].isin(df_two_cleaned[merge_keys_two[0]])
+            for merge_key_one, merge_key_two in zip(merge_keys_one[1:], merge_keys_two[1:]):
+                df_filter = df_filter & ~df_one_cleaned[merge_key_one].isin(df_two_cleaned[merge_key_two])
+            return df_one_cleaned.copy(deep=True)[df_filter]
         if how == UNIQUE_IN_RIGHT:
-            return df_two_cleaned.copy(deep=True)[~df_two_cleaned[merge_keys_two].isin(df_one_cleaned[merge_keys_one])]
+            df_filter = ~df_two_cleaned[merge_keys_two[0]].isin(df_one_cleaned[merge_keys_one[0]])
+            for merge_key_one, merge_key_two in zip(merge_keys_one[1:], merge_keys_two[1:]):
+                df_filter = df_filter & ~df_two_cleaned[merge_key_two].isin(df_one_cleaned[merge_key_one])
+
+            return df_two_cleaned.copy(deep=True)[df_filter]
         else:
             return df_one_cleaned.merge(df_two_cleaned, left_on=merge_keys_one, right_on=merge_keys_two, how=how_to_use, suffixes=[f'_{suffix_one}', f'_{suffix_two}'])
-    except ValueError as e:
+    except ValueError:
         # If we get a value error from merging two incompatible columns, we go through and check 
         # to see which of the columns this is, so our error can be maximally informative
         for merge_key_one, merge_key_two in zip(merge_keys_one, merge_keys_two):
@@ -163,7 +175,6 @@ def _execute_merge(
                     merge_key_two_dtype=merge_key_two_dtype,
                     error_modal=False
                 )
-
 
         raise make_incompatible_merge_key_error(error_modal=False)
 

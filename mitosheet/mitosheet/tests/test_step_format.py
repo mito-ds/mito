@@ -107,7 +107,7 @@ def test_params_static():
 
     check_step(
         MergeStepPerformer,
-        3,
+        4,
         'merge'
     )
 

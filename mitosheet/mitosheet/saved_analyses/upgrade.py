@@ -28,7 +28,7 @@ from mitosheet.saved_analyses.step_upgraders.delete_column import (
 from mitosheet.saved_analyses.step_upgraders.filter import (
     update_filter_column_1_to_filter_column_2, upgrade_filter_column_2_to_3, upgrade_filter_column_3_to_4)
 from mitosheet.saved_analyses.step_upgraders.merge import (
-    upgrade_merge_1_to_merge_2, upgrade_merge_2_to_3)
+    upgrade_merge_1_to_merge_2, upgrade_merge_2_to_3, upgrade_merge_3_to_4)
 from mitosheet.saved_analyses.step_upgraders.pivot import (
     upgrade_group_1_to_pivot_2, upgrade_pivot_2_to_pivot_3,
     upgrade_pivot_3_to_4, upgrade_pivot_4_to_5_and_rename, upgrade_pivot_5_to_6)
@@ -80,7 +80,8 @@ STEP_UPGRADES_FUNCTION_MAPPING_NEW_FORMAT = {
     },
     'merge': {
         1: upgrade_merge_1_to_merge_2,
-        2: upgrade_merge_2_to_3
+        2: upgrade_merge_2_to_3,
+        3: upgrade_merge_3_to_4,
     },
     'change_column_dtype': {
         1: upgrade_change_column_dtype_1_to_2

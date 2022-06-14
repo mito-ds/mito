@@ -9,7 +9,7 @@ This file contains helpful functions and classes for testing operations.
 
 import json
 from functools import wraps
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
 from mitosheet.step_performers.graph_steps.plotly_express_graphs import DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT, DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT, DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT
 from numpy import number
@@ -73,6 +73,9 @@ def check_dataframes_equal(test_wrapper):
     # Then, construct code that is just the code we expect, except at the end
     # it compares the dataframe to the final dataframe we expect
     def check_final_dataframe(df_name, df):
+        print("CHECKING")
+        print(final_dfs[df_name])
+        print(df)
         assert final_dfs[df_name].equals(df)
 
     code = "\n".join(
@@ -216,21 +219,17 @@ class MitoWidgetTestWrapper:
             self, 
             how: str,
             sheet_index_one: int, 
-            merge_key_one: ColumnHeader, 
-            selected_columns_one: List[ColumnHeader],
             sheet_index_two: int, 
-            merge_key_two: ColumnHeader,
+            merge_key_columns: List[Tuple[ColumnHeader, ColumnHeader]], 
+            selected_columns_one: List[ColumnHeader],
             selected_columns_two: List[ColumnHeader]
         ) -> bool:
 
-        merge_key_column_id_one = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
-            sheet_index_one,
-            merge_key_one
-        )
-        merge_key_column_id_two = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
-            sheet_index_two,
-            merge_key_two
-        )
+        merge_key_column_ids = list(map(lambda x: [
+            self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index_one, x[0]),
+            self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index_two, x[1]),
+        ], merge_key_columns))
+
         selected_column_ids_one = [
             self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index_one, column_header)
             for column_header in selected_columns_one
@@ -250,10 +249,9 @@ class MitoWidgetTestWrapper:
                 'params': {
                     'how': how,
                     'sheet_index_one': sheet_index_one,
-                    'merge_key_column_id_one': merge_key_column_id_one,
-                    'selected_column_ids_one': selected_column_ids_one,
                     'sheet_index_two': sheet_index_two,
-                    'merge_key_column_id_two': merge_key_column_id_two,
+                    'merge_key_column_ids': merge_key_column_ids,
+                    'selected_column_ids_one': selected_column_ids_one,
                     'selected_column_ids_two': selected_column_ids_two
                 }
             }
