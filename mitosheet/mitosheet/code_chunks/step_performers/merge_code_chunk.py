@@ -10,6 +10,7 @@ from typing import List
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.transpiler.transpile_utils import (
     column_header_list_to_transpiled_code, column_header_to_transpiled_code)
+from mitosheet.types import ColumnID
 
 LOOKUP = 'lookup'
 UNIQUE_IN_LEFT = 'unique in left'
@@ -30,15 +31,15 @@ class MergeCodeChunk(CodeChunk):
         return f'Merged {df_one_name} and {df_two_name} into {df_new_name}'
 
     def get_code(self) -> List[str]:
-        how = self.get_param('how') 
-        sheet_index_one = self.get_param('sheet_index_one') 
-        sheet_index_two = self.get_param('sheet_index_two') 
-        merge_key_column_ids = self.get_param('merge_key_column_ids') 
-        selected_column_ids_one = self.get_param('selected_column_ids_one') 
-        selected_column_ids_two = self.get_param('selected_column_ids_two')
+        how: str = self.get_param('how') 
+        sheet_index_one: int = self.get_param('sheet_index_one') 
+        sheet_index_two: int = self.get_param('sheet_index_two') 
+        merge_key_column_ids: List[List[ColumnID]] = self.get_param('merge_key_column_ids') 
+        selected_column_ids_one: List[ColumnID] = self.get_param('selected_column_ids_one') 
+        selected_column_ids_two: List[ColumnID] = self.get_param('selected_column_ids_two')
 
-        merge_keys_one = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index_one, map(lambda x: x[0], merge_key_column_ids))
-        merge_keys_two = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index_two, map(lambda x: x[1], merge_key_column_ids))
+        merge_keys_one = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index_one, list(map(lambda x: x[0], merge_key_column_ids)))
+        merge_keys_two = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index_two, list(map(lambda x: x[1], merge_key_column_ids)))
 
         selected_columns_one = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index_one, selected_column_ids_one)
         selected_columns_two = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index_two, selected_column_ids_two)
@@ -56,7 +57,7 @@ class MergeCodeChunk(CodeChunk):
         if how == 'lookup':
             # If the mege is a lookup, then we add the drop duplicates code
             temp_df_name = 'temp_df'
-            merge_code.append(f'{temp_df_name} = {df_two_name}.drop_duplicates(subset={column_header_to_transpiled_code(merge_keys_two)}) # Remove duplicates so lookup merge only returns first match')
+            merge_code.append(f'{temp_df_name} = {df_two_name}.drop_duplicates(subset={column_header_list_to_transpiled_code(merge_keys_two)}) # Remove duplicates so lookup merge only returns first match')
             how_to_use = 'left'
         else:
             temp_df_name = df_two_name
@@ -104,7 +105,7 @@ class MergeCodeChunk(CodeChunk):
             )
         else:      
             merge_code.append(
-                f'{df_new_name} = {df_one_to_merge}.merge({df_two_to_merge}, left_on={column_header_to_transpiled_code(merge_keys_one)}, right_on={column_header_to_transpiled_code(merge_keys_two)}, how=\'{how_to_use}\', suffixes=[\'_{suffix_one}\', \'_{suffix_two}\'])'
+                f'{df_new_name} = {df_one_to_merge}.merge({df_two_to_merge}, left_on={column_header_list_to_transpiled_code(merge_keys_one)}, right_on={column_header_list_to_transpiled_code(merge_keys_two)}, how=\'{how_to_use}\', suffixes=[\'_{suffix_one}\', \'_{suffix_two}\'])'
             )
 
         # And then return it

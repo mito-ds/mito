@@ -267,6 +267,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                         Finding the unique values in the second sheet doesn&apos;t keep any columns from the first sheet.
                     </p>
                 }
+                <Spacer px={10}/>
                 <div>
                     <p className='text-header-3'>
                         Columns to Keep in Second Dataframe

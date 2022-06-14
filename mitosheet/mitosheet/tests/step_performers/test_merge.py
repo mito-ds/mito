@@ -138,7 +138,7 @@ def test_merge(input_dfs, how, sheet_index_one, sheet_index_two, merge_key_colum
         assert actual.equals(expected)
 
 
-MERGE_TESTS = [
+OTHER_MERGE_TESTS = [
     (
         'lookup',
         pd.DataFrame({'A': [1]}),
@@ -326,7 +326,7 @@ MERGE_TESTS = [
             }, index=[2, 3])
     ),
 ]
-@pytest.mark.parametrize("how,df_one,key_one,df_two,key_two,merged", MERGE_TESTS)
+@pytest.mark.parametrize("how,df_one,key_one,df_two,key_two,merged", OTHER_MERGE_TESTS)
 def test_merge_all_columns(how, df_one, key_one, df_two, key_two, merged):
     mito = create_mito_wrapper_dfs(df_one, df_two)
     mito.merge_sheets(how, 0, 1, [[key_one, key_two]], list(df_one.keys()), list(df_two.keys()))

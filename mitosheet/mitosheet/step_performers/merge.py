@@ -39,15 +39,15 @@ class MergeStepPerformer(StepPerformer):
 
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
-        how = get_param(params, 'how')
-        sheet_index_one = get_param(params, 'sheet_index_one')
-        sheet_index_two = get_param(params, 'sheet_index_two')
-        merge_key_column_ids = get_param(params, 'merge_key_column_ids')
-        selected_column_ids_one = get_param(params, 'selected_column_ids_one')
-        selected_column_ids_two = get_param(params, 'selected_column_ids_two')
+        how: str = get_param(params, 'how')
+        sheet_index_one: int = get_param(params, 'sheet_index_one')
+        sheet_index_two: int = get_param(params, 'sheet_index_two')
+        merge_key_column_ids: List[List[ColumnID]] = get_param(params, 'merge_key_column_ids')
+        selected_column_ids_one: List[ColumnID] = get_param(params, 'selected_column_ids_one')
+        selected_column_ids_two: List[ColumnID] = get_param(params, 'selected_column_ids_two')
 
-        merge_keys_one = prev_state.column_ids.get_column_headers_by_ids(sheet_index_one, map(lambda x: x[0], merge_key_column_ids))
-        merge_keys_two = prev_state.column_ids.get_column_headers_by_ids(sheet_index_two, map(lambda x: x[1], merge_key_column_ids))
+        merge_keys_one = prev_state.column_ids.get_column_headers_by_ids(sheet_index_one, list(map(lambda x: x[0], merge_key_column_ids)))
+        merge_keys_two = prev_state.column_ids.get_column_headers_by_ids(sheet_index_two, list(map(lambda x: x[1], merge_key_column_ids)))
 
         selected_columns_one = prev_state.column_ids.get_column_headers_by_ids(sheet_index_one, selected_column_ids_one)
         selected_columns_two = prev_state.column_ids.get_column_headers_by_ids(sheet_index_two, selected_column_ids_two)

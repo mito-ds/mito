@@ -68,7 +68,7 @@ def make_incompatible_merge_headers_error(error_modal: bool=True) -> MitoError:
         error_modal=error_modal
     )
 
-def make_incompatible_merge_key_error(merge_key_one: Optional[ColumnHeader], merge_key_one_dtype: Optional[str], merge_key_two: Optional[ColumnHeader], merge_key_two_dtype: Optional[str], error_modal: bool=True) -> MitoError:
+def make_incompatible_merge_key_error(merge_key_one: Optional[ColumnHeader]=None, merge_key_one_dtype: Optional[str]=None, merge_key_two: Optional[ColumnHeader]=None, merge_key_two_dtype: Optional[str]=None, error_modal: bool=True) -> MitoError:
     """
     Helper function for creating a incompatible_merge_key_error
 
@@ -76,7 +76,7 @@ def make_incompatible_merge_key_error(merge_key_one: Optional[ColumnHeader], mer
     """
     from mitosheet.column_headers import get_column_header_display
 
-    if merge_key_one is not None:
+    if merge_key_one is not None and merge_key_two is not None:
         return MitoError(
             'incompatible_merge_key_error', 
             'Incompatible Merge Key Types',
