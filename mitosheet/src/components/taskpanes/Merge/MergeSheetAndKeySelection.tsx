@@ -6,7 +6,7 @@ import React from 'react';
 import '../../../../css/taskpanes/Merge/MergeSheetAndKeySelection.css'
 import { MergeSheet } from './MergeTaskpane';
 import Select from '../../elements/Select';
-import { ColumnID, ColumnIDsMap } from '../../../types';
+import { ColumnID, ColumnIDsMap, SheetData } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 
@@ -21,6 +21,7 @@ const MergeSheetAndKeySelection = (props: {
     mergeKeyColumnID: ColumnID,
     otherSheetIndex: number,
     sheetNum: MergeSheet;
+    sheetDataArray: SheetData[]
     setNewSheetIndex: (newSheetIndex: number) => void,
     setNewMergeKeyColumnID: (newMergeKeyColumnID: ColumnID) => void,
 }): JSX.Element => {
@@ -42,11 +43,17 @@ const MergeSheetAndKeySelection = (props: {
                     }}
                     width='medium'
                 >
-                    {props.dfNames.map(dfName => {
+                    {props.dfNames.map((dfName, index) => {
+                        // Don't let the user select a sheet that has no data in it
+                        const enabled = props.sheetDataArray.length > index && props.sheetDataArray[index].numColumns > 0
                         return (
                             <DropdownItem
                                 key={dfName}
                                 title={dfName}
+                                disabled={enabled ? undefined : true}
+                                displaySubtextOnHover={enabled ? undefined : true}
+                                subtext='This sheet contains no data to merge'
+                                hideSubtext
                             />
                         )
                     })}
