@@ -28,7 +28,6 @@ export const getFirstSuggestedMergeKeys = (sheetDataArray: SheetData[], sheetOne
             return undefined;
         }
 
-        // TODO: This might crash if there are none of these!    
         return [sheetOneEntries[0][0], sheetTwoEntries[0][0]];
     } else {
         // Get the first suggestion that is not included, or just default to the first suggestion

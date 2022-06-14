@@ -115,8 +115,6 @@ def _execute_merge(
     if dfs[sheet_index_one].columns.nlevels != dfs[sheet_index_two].columns.nlevels:
         raise make_incompatible_merge_headers_error(error_modal=False)
 
-    print(merge_keys_one, merge_keys_two)
-
     # If there's no merge keys, we return an empty dataframe
     if len(merge_keys_one) == 0 and len(merge_keys_two) == 0:
         return pd.DataFrame()

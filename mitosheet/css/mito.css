@@ -93,3 +93,10 @@
     flex-direction: column;
     justify-content: center;
 }    
+
+.light-gray-container {
+    border-radius: 5px;
+    padding: 10px; 
+    background: var(--mito-very-light-gray);
+    box-sizing: border-box;
+}
