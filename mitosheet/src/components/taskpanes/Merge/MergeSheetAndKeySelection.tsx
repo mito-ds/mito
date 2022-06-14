@@ -51,9 +51,9 @@ const MergeSheetAndKeySelection = (props: {
                                 key={dfName}
                                 title={dfName}
                                 disabled={enabled ? undefined : true}
-                                displaySubtextOnHover={enabled ? undefined : true}
-                                subtext='This sheet contains no data to merge'
-                                hideSubtext
+                                displaySubtextOnHover={enabled ? false : true}
+                                subtext={enabled ? undefined : 'This sheet contains no data to merge'}
+                                hideSubtext={true}
                             />
                         )
                     })}
