@@ -11,6 +11,7 @@ from mitosheet.state import (
     DATAFRAME_SOURCE_PASSED,
     DATAFRAME_SOURCE_PIVOTED,
     DATAFRAME_SOURCE_TRANSPOSED,
+    DATAFRAME_SOURCE_MELTED,
     FORMAT_ACCOUNTING,
     FORMAT_CURRENCY,
     FORMAT_DEFAULT,
@@ -153,7 +154,7 @@ def test_step_types_match():
     )
 
 
-def test_df_sources_matche():
+def test_df_sources_match():
     df_sources = get_enum_from_ts_file("./src/types.tsx", "DFSource")
     assert set(df_sources.values()) == set(
         [
@@ -162,7 +163,8 @@ def test_df_sources_matche():
             DATAFRAME_SOURCE_PIVOTED,
             DATAFRAME_SOURCE_MERGED,
             DATAFRAME_SOURCE_DUPLICATED,
-            DATAFRAME_SOURCE_TRANSPOSED
+            DATAFRAME_SOURCE_TRANSPOSED,
+            DATAFRAME_SOURCE_MELTED
         ]
     )
 
