@@ -147,15 +147,16 @@ def _execute_merge(
 
     try:
         if how == UNIQUE_IN_LEFT:
-            # We need to generate a filter for all of the merge keys
+            # We need to generate a filter for all of the merge keys - and combine them. This is due
+            # to weirdness in how the isin filter works
             df_filter = ~df_one_cleaned[merge_keys_one[0]].isin(df_two_cleaned[merge_keys_two[0]])
             for merge_key_one, merge_key_two in zip(merge_keys_one[1:], merge_keys_two[1:]):
-                df_filter = df_filter & ~df_one_cleaned[merge_key_one].isin(df_two_cleaned[merge_key_two])
+                df_filter = df_filter | ~df_one_cleaned[merge_key_one].isin(df_two_cleaned[merge_key_two])
             return df_one_cleaned.copy(deep=True)[df_filter]
         if how == UNIQUE_IN_RIGHT:
             df_filter = ~df_two_cleaned[merge_keys_two[0]].isin(df_one_cleaned[merge_keys_one[0]])
             for merge_key_one, merge_key_two in zip(merge_keys_one[1:], merge_keys_two[1:]):
-                df_filter = df_filter & ~df_two_cleaned[merge_key_two].isin(df_one_cleaned[merge_key_one])
+                df_filter = df_filter | ~df_two_cleaned[merge_key_two].isin(df_one_cleaned[merge_key_one])
 
             return df_two_cleaned.copy(deep=True)[df_filter]
         else:

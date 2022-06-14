@@ -87,12 +87,20 @@ class MergeCodeChunk(CodeChunk):
 
         # Finially append the merge
         if how == UNIQUE_IN_LEFT:
+            df_filter = f'~{df_one_to_merge}[{column_header_to_transpiled_code(merge_keys_one[0])}].isin({df_two_to_merge}[{column_header_to_transpiled_code(merge_keys_two[0])}])'
+            for merge_key_one, merge_key_two in zip(merge_keys_one[1:], merge_keys_two[1:]):
+                df_filter = f'{df_filter} | ~{df_one_to_merge}[{column_header_to_transpiled_code(merge_key_one)}].isin({df_two_to_merge}[{column_header_to_transpiled_code(merge_key_two)}])'
+
             merge_code.append(
-                f'{df_new_name} = {df_one_to_merge}.copy(deep=True)[~{df_one_to_merge}{column_header_list_to_transpiled_code(merge_keys_one)}.isin({df_two_to_merge}{column_header_list_to_transpiled_code(merge_keys_two)})]'
+                f'{df_new_name} = {df_one_to_merge}.copy(deep=True)[{df_filter}]'
             )
         elif how == UNIQUE_IN_RIGHT:
+            df_filter = f'~{df_two_to_merge}[{column_header_to_transpiled_code(merge_keys_two[0])}].isin({df_one_to_merge}[{column_header_to_transpiled_code(merge_keys_one[0])}])'
+            for merge_key_one, merge_key_two in zip(merge_keys_one[1:], merge_keys_two[1:]):
+                df_filter = f'{df_filter} | ~{df_two_to_merge}[{column_header_to_transpiled_code(merge_key_two)}].isin({df_one_to_merge}[{column_header_to_transpiled_code(merge_key_one)}])'
+                
             merge_code.append(
-                f'{df_new_name} = {df_two_to_merge}.copy(deep=True)[~{df_two_to_merge}{column_header_list_to_transpiled_code(merge_keys_two)}.isin({df_one_to_merge}{column_header_list_to_transpiled_code(merge_keys_one)})]'
+                f'{df_new_name} = {df_two_to_merge}.copy(deep=True)[{df_filter}]'
             )
         else:      
             merge_code.append(

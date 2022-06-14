@@ -6,6 +6,7 @@
 """
 Contains tests for merging events.
 """
+import numpy as np
 import pytest
 import pandas as pd
 
@@ -24,7 +25,90 @@ MERGE_TESTS = [
             pd.DataFrame({'A': [1], 'B': [2], 'C': [3]})
         ],
     ),
-    
+    (
+        [
+            pd.DataFrame({'A': [1], 'B': [2]}),
+            pd.DataFrame({'A': [1], 'C': [3]})
+        ],
+        'lookup', 0, 1, [['A', 'A'], ['B', 'C']], ['A', 'B'], ['A', 'C'],
+        [
+            pd.DataFrame({'A': [1], 'B': [2]}),
+            pd.DataFrame({'A': [1], 'C': [3]}),
+            pd.DataFrame({'A': [1], 'B': [2], 'C': [np.nan]})
+        ],
+    ),
+    (
+        [
+            pd.DataFrame({'A': [1], 'B': [2]}),
+            pd.DataFrame({'A': [1], 'C': [3]})
+        ],
+        'left', 0, 1, [['A', 'A'], ['B', 'C']], ['A', 'B'], ['A', 'C'],
+        [
+            pd.DataFrame({'A': [1], 'B': [2]}),
+            pd.DataFrame({'A': [1], 'C': [3]}),
+            pd.DataFrame({'A': [1], 'B': [2], 'C': [np.nan]})
+        ],
+    ),
+    (
+        [
+            pd.DataFrame({'A': [1], 'B': [2]}),
+            pd.DataFrame({'A': [1], 'C': [3]})
+        ],
+        'right', 0, 1, [['A', 'A'], ['B', 'C']], ['A', 'B'], ['A', 'C'],
+        [
+            pd.DataFrame({'A': [1], 'B': [2]}),
+            pd.DataFrame({'A': [1], 'C': [3]}),
+            pd.DataFrame({'A': [1], 'B': [np.nan], 'C': [3]})
+        ],
+    ),
+    (
+        [
+            pd.DataFrame({'A': [1], 'B': [2]}),
+            pd.DataFrame({'A': [1], 'C': [3]})
+        ],
+        'inner', 0, 1, [['A', 'A'], ['B', 'C']], ['A', 'B'], ['A', 'C'],
+        [
+            pd.DataFrame({'A': [1], 'B': [2]}),
+            pd.DataFrame({'A': [1], 'C': [3]}),
+            pd.DataFrame({'A': [], 'B': [], 'C': []}, index=pd.Index([], dtype='object'), dtype='int64')
+        ],
+    ),
+    (
+        [
+            pd.DataFrame({'A': [1], 'B': [2]}),
+            pd.DataFrame({'A': [1], 'C': [3]})
+        ],
+        'outer', 0, 1, [['A', 'A'], ['B', 'C']], ['A', 'B'], ['A', 'C'],
+        [
+            pd.DataFrame({'A': [1], 'B': [2]}),
+            pd.DataFrame({'A': [1], 'C': [3]}),
+            pd.DataFrame({'A': [1, 1], 'B': [2.0, np.nan], 'C': [np.nan, 3.0]})
+        ],
+    ),
+    (
+        [
+            pd.DataFrame({'A': [1], 'B': [2]}),
+            pd.DataFrame({'A': [1], 'C': [3]})
+        ],
+        'unique in left', 0, 1, [['A', 'A'], ['B', 'C']], ['A', 'B'], ['A', 'C'],
+        [
+            pd.DataFrame({'A': [1], 'B': [2]}),
+            pd.DataFrame({'A': [1], 'C': [3]}),
+            pd.DataFrame({'A': [1], 'B': [2]})
+        ],
+    ),
+    (
+        [
+            pd.DataFrame({'A': [1], 'B': [2]}),
+            pd.DataFrame({'A': [1], 'C': [3]})
+        ],
+        'unique in right', 0, 1, [['A', 'A'], ['B', 'C']], ['A', 'B'], ['A', 'C'],
+        [
+            pd.DataFrame({'A': [1], 'B': [2]}),
+            pd.DataFrame({'A': [1], 'C': [3]}),
+            pd.DataFrame({'A': [1], 'C': [3]})
+        ],
+    ),
 ]
 @pytest.mark.parametrize("input_dfs, how, sheet_index_one, sheet_index_two, merge_key_columns, selected_columns_one, selected_columns_two, output_dfs", MERGE_TESTS)
 def test_merge(input_dfs, how, sheet_index_one, sheet_index_two, merge_key_columns, selected_columns_one, selected_columns_two, output_dfs):
@@ -36,6 +120,9 @@ def test_merge(input_dfs, how, sheet_index_one, sheet_index_two, merge_key_colum
 
     assert len(mito.dfs) == len(output_dfs)
     for actual, expected in zip(mito.dfs, output_dfs):
+        print("FINAL CHECK")
+        print(actual)
+        print(expected)
         assert actual.equals(expected)
 
 
