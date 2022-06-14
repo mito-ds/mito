@@ -40,7 +40,6 @@ export default function ColumnHeaderDropdown(props: {
     // selecting the first row for any action, like setting the column formula. 
     const rowIndex = 0 
     const columnIndex = Object.keys(props.sheetData.columnIDsMap).indexOf(props.columnID)
-    const columnFormula = getCellDataFromCellIndexes(props.sheetData, rowIndex, columnIndex).columnFormula;
 
     return (
         <Dropdown
@@ -142,8 +141,6 @@ export default function ColumnHeaderDropdown(props: {
                         editorLocation: 'cell'
                     })
                 }}
-                disabled={columnFormula === undefined || columnFormula.length == 0}
-                tooltip={columnFormula === undefined || columnFormula.length == 0 ? "Data columns don't support formulas" : undefined}
             />
             <DropdownItem 
                 title='Split Text to Columns '
