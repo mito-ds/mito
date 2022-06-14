@@ -109,6 +109,18 @@ MERGE_TESTS = [
             pd.DataFrame({'A': [1], 'C': [3]})
         ],
     ),
+    (
+        [
+            pd.DataFrame({'product_id': [1, 2, 3, 4, 5, 6, 7, 8, 9], 'description': ["a cat", "a bat", "a rat", "dont ask", "beer", "other thing", "my smelly shoes", "tickets to basketball games (we love)", "no"], pd.to_datetime('1-1-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-2-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-3-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-4-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-5-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-6-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8]}),
+            pd.DataFrame({'product_id': [1, 2, 3, 4, 5, 6, 7, 8, 9], 'description': ["a cat", "a mat", "a rat", "dont ask", "beer", "other thing", "my smelly shoes", "tickets to basketball games (we love)", "no"], pd.to_datetime('1-1-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-2-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-3-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-4-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-5-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-6-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8]})
+        ],
+        'inner', 0, 1, [['product_id', 'product_id'], ['description', 'description']], ['product_id', 'description', pd.to_datetime('1-1-2020'), pd.to_datetime('1-2-2020'), pd.to_datetime('1-3-2020'), pd.to_datetime('1-4-2020'), pd.to_datetime('1-5-2020'), pd.to_datetime('1-6-2020')], ['product_id', 'description'],
+        [
+            pd.DataFrame({'product_id': [1, 2, 3, 4, 5, 6, 7, 8, 9], 'description': ["a cat", "a bat", "a rat", "dont ask", "beer", "other thing", "my smelly shoes", "tickets to basketball games (we love)", "no"], pd.to_datetime('1-1-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-2-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-3-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-4-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-5-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-6-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8]}),
+            pd.DataFrame({'product_id': [1, 2, 3, 4, 5, 6, 7, 8, 9], 'description': ["a cat", "a mat", "a rat", "dont ask", "beer", "other thing", "my smelly shoes", "tickets to basketball games (we love)", "no"], pd.to_datetime('1-1-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-2-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-3-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-4-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-5-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-6-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8]}),
+            pd.DataFrame({'product_id': [], 'description': [], pd.to_datetime('1-1-2020'): [], pd.to_datetime('1-2-2020'): [], pd.to_datetime('1-3-2020'): [], pd.to_datetime('1-4-2020'): [], pd.to_datetime('1-5-2020'): [], pd.to_datetime('1-6-2020'): []})
+        ],
+    ),
 ]
 @pytest.mark.parametrize("input_dfs, how, sheet_index_one, sheet_index_two, merge_key_columns, selected_columns_one, selected_columns_two, output_dfs", MERGE_TESTS)
 def test_merge(input_dfs, how, sheet_index_one, sheet_index_two, merge_key_columns, selected_columns_one, selected_columns_two, output_dfs):

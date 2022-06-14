@@ -42,9 +42,7 @@ class MergeStepPerformer(StepPerformer):
         how = get_param(params, 'how')
         sheet_index_one = get_param(params, 'sheet_index_one')
         sheet_index_two = get_param(params, 'sheet_index_two')
-        print("HERE")
         merge_key_column_ids = get_param(params, 'merge_key_column_ids')
-        print("HERE1", merge_key_column_ids)
         selected_column_ids_one = get_param(params, 'selected_column_ids_one')
         selected_column_ids_two = get_param(params, 'selected_column_ids_two')
 
