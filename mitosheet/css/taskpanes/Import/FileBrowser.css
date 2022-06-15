@@ -3,6 +3,8 @@
 }
 
 .file-browser-path-selector {
+    display: flex;
+    flex-direction: row;
     padding-bottom: 10px;
     
     /* We make this scrollable sideways, but hide the scrollbar vertically */
@@ -13,6 +15,14 @@
 
 .file-browser-path-seperator {
     padding: 0px 2px;
+}
+
+.file-browser-path-part svg {
+    /* 
+        On Mac, Notebooks the max-width is set to 100%, but the svg doesn't take up any space on its own, 
+        so the width gets scrunched to 0. To combat this, we just set the width to be the size of the svg.
+    */
+    max-width: fit-content !important;
 }
 
 .file-browser-path-part {

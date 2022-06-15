@@ -109,10 +109,6 @@ export const createActions = (
                     return 'There are no columns to change the dtype of. Import data before changing the dtype.';
                 } 
 
-                if (columnFormula !== undefined && columnFormula.length > 0) {
-                    return "To cast the type of a formula column use the spreadsheet functions VALUE, TEXT, BOOL, or DATEVALUE.";
-                }
-
                 return undefined;
             },
             searchTerms: ['change dtype', 'dtype', 'cast', 'boolean', 'string', 'number', 'float', 'int', 'datetime', 'date', 'timedelta'],
@@ -753,7 +749,8 @@ export const createActions = (
                     rowIndex: -1,
                     columnIndex: startingColumnIndex,
                     formula: getDisplayColumnHeader(finalColumnHeader),
-                    editorLocation: 'cell'
+                    editorLocation: 'cell',
+                    editingMode: 'set_cell_value'
                 })
 
             },
@@ -845,19 +842,16 @@ export const createActions = (
                     rowIndex: startingRowIndex,
                     columnIndex: startingColumnIndex,
                     formula: startingFormula,
-                    // Since you can't reference other cells in a data column, we default to scrolling in the formula
+                    // Since you can't reference other cells while setting the value of a single cell, we default to scrolling in the formula
                     arrowKeysScrollInFormula: true,
-                    editorLocation: 'cell'
+                    editorLocation: 'cell',
+                    editingMode: 'set_cell_value'
                 })
             },
             isDisabled: () => {
                 if (!doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) || !doesSheetContainData(sheetIndex, sheetDataArray)) {
                     return 'There are no cells in the dataframe to set the value of. Add data to the sheet.'
                 } 
-
-                if (columnFormula !== undefined && columnFormula.length > 0) {
-                    return "You can't set the value of a formula column. Update the formula instead."
-                }
 
                 if (startingRowIndex === -1) {
                     return "An entire column is selected. Select a single cell to edit."
@@ -883,7 +877,8 @@ export const createActions = (
                     // As in google sheets, if the starting formula is non empty, we default to the 
                     // arrow keys scrolling in the editor
                     arrowKeysScrollInFormula: columnFormula !== undefined && columnFormula.length > 0,
-                    editorLocation: 'cell'
+                    editorLocation: 'cell',
+                    editingMode: 'set_column_formula'
                 })
             },
             isDisabled: () => {
@@ -891,10 +886,6 @@ export const createActions = (
                     // If there is no data in the sheet, then there is no cell editor to open!
                     return 'There are no cells in the dataframe to set the formula of. Add data to the sheet.'
                 } 
-
-                if (columnFormula === undefined || columnFormula.length == 0) {
-                    return "You can't set the formula of a data column. Create a new column and set its formula instead."
-                }
 
                 return undefined
             },
@@ -1365,7 +1356,8 @@ export const getSpreadsheetFormulaAction = (
                 columnIndex: columnIndex,
                 formula: "=" + spreadsheetAction?.function + "(",
                 arrowKeysScrollInFormula: false,
-                editorLocation: 'cell'
+                editorLocation: 'cell',
+                editingMode: 'set_column_formula'
             })
         },
         isDisabled: () => {
@@ -1377,12 +1369,6 @@ export const getSpreadsheetFormulaAction = (
                 // If there is no data in the sheet, then there is no cell editor to open!
                 return 'There are no cells in the dataframe to set the formula of. Add data to the sheet.'
             } 
-
-            const columnFormula = getCellDataFromCellIndexes(sheetDataArray[sheetIndex], 0, startingColumnIndex).columnFormula
-
-            if (columnFormula === undefined || columnFormula.length == 0) {
-                return "You can't set the formula of a data column. Create a new column and set its formula instead."
-            }
 
             return undefined
         },

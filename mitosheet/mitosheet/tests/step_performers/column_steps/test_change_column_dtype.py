@@ -219,8 +219,12 @@ def test_timedelta_to_other_types_post_1_post_3_6(new_dtype, result, code):
     else:
         assert len(mito.transpiled_code) == 0
     
-def test_change_type_on_renamed_column():
+def test_convert_none_to_bool():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': ['none', 'None']}))
+    mito.change_column_dtype(0, 'A', 'bool')
+    assert mito.get_column(0, 'A', as_list=True) == [False, False]
 
+def test_change_type_on_renamed_column():
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1.2, 2.0, 3.0]}))
     mito.rename_column(0, 'A', 'B')
 
