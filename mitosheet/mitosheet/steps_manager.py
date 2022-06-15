@@ -60,7 +60,9 @@ def execute_step_list_from_index(
 
     If start_index is not given, will start from the initialize step.
     """
-    if start_index is None or start_index < 0:
+
+    # Make sure start index is not None
+    if start_index is None:
         start_index = 0
 
     # Get the steps to skip, so that we can skip them
@@ -77,7 +79,7 @@ def execute_step_list_from_index(
         if step_index in step_indexes_to_skip:
             new_step_list.append(step)
             continue
-
+            
         # Create a new step with the same params
         new_step = Step(step.step_type, step.step_id, step.params)
 
@@ -444,9 +446,17 @@ class StepsManager:
 
             # The last valid index is the minimum of the newly skipped things - 1
             # or the last valid step (if nothing is skipped)
-            # TODO: we can improve this in the future to remember what it executed last time
-            # and so do less work!
             last_valid_index = min(newly_skipped_indexes.union({len(self.steps)})) - 1
+
+        # Make sure that this step isn't itself skipped, and decrement until it is not
+        all_skipped_indexes = get_step_indexes_to_skip(new_steps)
+        while last_valid_index in all_skipped_indexes:
+            last_valid_index -= 1
+
+        # Make sure that this index is positive -- it always should be!
+        if last_valid_index < 0:
+            return 0
+
         return last_valid_index
 
     def execute_undo(self):

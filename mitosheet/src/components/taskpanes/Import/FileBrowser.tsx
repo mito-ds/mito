@@ -10,13 +10,15 @@ import MitoAPI from '../../../jupyter/api';
 import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
 import SortArrowIcon from '../../icons/SortArrowIcon';
-import { UserProfile } from '../../../types';
+import { UIState, UserProfile } from '../../../types';
 import { classNames } from '../../../utils/classNames';
-import { getElementsToDisplay } from './importUtils';
+import { getElementsToDisplay, inRootFolder } from './importUtils';
+import { TaskpaneType } from '../taskpanes';
 
 interface FileBrowserProps {
     mitoAPI: MitoAPI;
     userProfile: UserProfile;
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     setCurrPathParts: (newPathParts: string[]) => void;
 
     importState: ImportTaskpaneState;
@@ -57,6 +59,8 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
     useEffect(() => {
         inputRef.current?.focus();
     }, [props.importState.selectedElementIndex, props.importState.sort])
+
+    const displayUpgradeToPro = inRootFolder(props.importState.pathContents.path_parts) && !props.userProfile.isPro;
 
     return (
         <div className='file-browser flexbox-column'>
@@ -171,22 +175,61 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                 />
             </div>
             <div className='file-browser-element-list'>
-                {!props.importState.loadingFolder && elementsToDisplay?.map((element, i) => {
-                    return (
-                        <FileBrowserElement
-                            key={i}
-                            mitoAPI={props.mitoAPI}
-                            index={i}
-                            element={element}
-                            importState={props.importState}
-                            setImportState={props.setImportState}
-                            importElement={props.importElement}
-                            setCurrPathParts={props.setCurrPathParts}
-                            excelImportEnabled={props.userProfile.excelImportEnabled}
-                        />
-                    )
-                })}
-                {props.importState.loadingFolder && <p>Loading folder contents...</p>}
+                {displayUpgradeToPro &&
+                    <>
+                        <Row justify='space-around'>
+                            <p className='ma-25px text-align-center text-body-1'>
+                                Want to import from a different drive? Consider&nbsp;
+                                <a 
+                                    onClick={() => {
+                                        void props.mitoAPI.log('clicked_pro_button', {
+                                            'pro_button_location': 'import_taskpane_root_folder_import',
+                                        })
+
+                                        props.setUIState(prevUIState => {
+                                            return {
+                                                ...prevUIState,
+                                                currOpenTaskpane: {type: TaskpaneType.UPGRADE_TO_PRO},
+                                                selectedTabType: 'data'
+                                            }
+                                        })
+                                    }}
+                                    className='text-body-1-link' 
+                                    >
+                                    upgrading to Mito Pro
+                                </a> or&nbsp;
+                                <a 
+                                    onClick={() => {
+                                        props.setCurrPathParts(['.']);
+                                    }}
+                                    className='text-body-1-link' 
+                                    >
+                                    go back to current directory.
+                                </a>
+                            </p>
+                        </Row>
+                    </>
+                }
+                {!displayUpgradeToPro &&
+                    <>
+                        {!props.importState.loadingFolder && elementsToDisplay?.map((element, i) => {
+                            return (
+                                <FileBrowserElement
+                                    key={i}
+                                    mitoAPI={props.mitoAPI}
+                                    index={i}
+                                    element={element}
+                                    importState={props.importState}
+                                    setImportState={props.setImportState}
+                                    importElement={props.importElement}
+                                    setCurrPathParts={props.setCurrPathParts}
+                                    excelImportEnabled={props.userProfile.excelImportEnabled}
+                                />
+                            )
+                        })}
+                        {props.importState.loadingFolder && <p>Loading folder contents...</p>}
+                    </>
+                }
             </div>
         </div>
     )

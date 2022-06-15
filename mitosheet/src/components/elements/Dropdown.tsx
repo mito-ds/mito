@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 
 import '../../../css/elements/Dropdown.css'
-import { useCallOnAnyClick } from '../../hooks/useCallOnAnyClick';
+import { clickedOnClass, useCallOnAnyClick } from '../../hooks/useCallOnAnyClick';
 import { classNames } from '../../utils/classNames';
 import { fuzzyMatch } from '../../utils/strings';
 import Row from '../spacing/Row';
@@ -46,6 +46,7 @@ const rightInBounds = (right: number, widthPixels: number): boolean => {
     when a dropdown is open, the dropdown will remain open.
 */
 export const DROPDOWN_IGNORE_CLICK_CLASS = 'mito-dropdown-ignore-click';
+export const DROPDOWN_SUPRESS_FOCUS_ON_CLOSE = 'mito-dropdown-suppress-focus-on-close';
 
 interface DropdownProps {
     /** 
@@ -70,13 +71,6 @@ interface DropdownProps {
         * @param [width] - The width of the dropdown that gets created
      */
     width?: 'small' | 'medium' | 'large';
-
-    /**
-        * @param [supressFocusSettingOnClose] - When True, the dropdown does not set the focus on the parent div
-        * when it is closed. This is useful for some dropdowns that enter inputs, and so we don't want them to 
-        * cause these inputs to be blured immediately.
-     */
-    supressFocusSettingOnClose?: boolean
 }
 
 // Where to place the dropdown
@@ -213,7 +207,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
         1. the dropdown's search field
         2. a disabled dropdown item
     */
-    useCallOnAnyClick(() => {
+    useCallOnAnyClick((eventTarget: EventTarget | null | undefined) => {
         if (!props.display) {
             return;
         }
@@ -221,7 +215,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
         // Close the dropdown
         props.closeDropdown();
 
-        if (!props.supressFocusSettingOnClose) {
+        if (!clickedOnClass(eventTarget, DROPDOWN_SUPRESS_FOCUS_ON_CLOSE)) {
             // Refocus on the div that is the parent of the dropdown
             // so that users are focused where they expect
             dropdownAnchor.current?.focus();

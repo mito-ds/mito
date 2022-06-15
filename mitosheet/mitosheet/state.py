@@ -19,6 +19,7 @@ DATAFRAME_SOURCE_PIVOTED = "pivoted"  # created through a pivot
 DATAFRAME_SOURCE_MERGED = "merged"  # created through a merge
 DATAFRAME_SOURCE_CONCAT = "concated"  # created through a concat
 DATAFRAME_SOURCE_DUPLICATED = "duplicated"  # created through a sheet duplication
+DATAFRAME_SOURCE_TRANSPOSED = "transposed"  # created through a dataframe being transposed
 
 # Constants used for formatting. Defined here to avoid circular imports
 FORMAT_DEFAULT = "default"

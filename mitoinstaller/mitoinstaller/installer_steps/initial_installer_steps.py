@@ -29,7 +29,7 @@ def initial_install_step_create_user():
 def initial_install_step_add_env_for_which_jupyter():
     """
     This install steps checks, up front, which very of jupyter we should
-    launch: lab or notebook. It then stores this as an enviornment variable
+    launch: lab or notebook. It then stores this as an environment variable
     so that the final installer steps can launch it. 
 
     We do this up front, so that we can see which packages that user has 
@@ -49,7 +49,7 @@ INITIAL_INSTALLER_STEPS = [
         optional=True
     ),
     InstallerStep(
-        'Setting up enviornment',
+        'Setting up environment',
         initial_install_step_add_env_for_which_jupyter,
     ),
 ]

@@ -7,7 +7,6 @@ import { ColumnIDsMap, FilterGroupType, FilterType, MitoSelection, SheetData, St
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
 import { getCellDataFromCellIndexes } from '../../endo/utils';
 import { TaskpaneType } from '../taskpanes';
-import ColumnNameCard from './ColumnNameCard';
 import ControlPanelTaskpaneTabs from './ControlPanelTaskpaneTabs';
 import DtypeCard from './FilterAndSortTab/DtypeCard';
 import FilterCard from './FilterAndSortTab/filter/FilterCard';
@@ -19,6 +18,11 @@ import ColumnSummaryStatistics from './SummaryStatsTab/ColumnSummaryStatistics';
 import { ValuesTab } from './ValuesTab/ValuesTab';
 import FormatCard from './FilterAndSortTab/FormatCard';
 import { useEffectOnUpdateEvent } from '../../../hooks/useEffectOnUpdateEvent';
+import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
+import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
+import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
+import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
+import DefaultTaskpaneFooter from '../DefaultTaskpane/DefaultTaskpaneFooter';
 
 /* 
     We wait 500ms before sending a filter message to make sure
@@ -54,7 +58,7 @@ type ControlPanelTaskpaneProps = {
 export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Element => {
     
     // Get the values for the first cell that was selected, in accordance with our standard
-    const {columnHeader, columnID, columnFormula, columnFilters, columnDtype, columnFormatType} = getCellDataFromCellIndexes(props.sheetData, props.selection.startingRowIndex, props.selection.startingColumnIndex);
+    const {columnHeader, columnID, columnFilters, columnDtype, columnFormatType} = getCellDataFromCellIndexes(props.sheetData, props.selection.startingRowIndex, props.selection.startingColumnIndex);
 
     const [filters, _setFilters] = useState(columnFilters !== undefined ? columnFilters.filters : []);
     const [operator, setOperator] = useState(columnFilters !== undefined ? columnFilters.operator : 'And');
@@ -91,7 +95,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
     
     // If this is not a valid column, don't render anything, and close the takspane! 
     // We have to do this after the useState calls, to make sure this is valid react
-    if (columnHeader === undefined || columnID === undefined || columnFormula === undefined || columnDtype == undefined || columnFormatType == undefined) {
+    if (columnHeader === undefined || columnID === undefined || columnDtype == undefined || columnFormatType == undefined) {
         props.setUIState((prevUIState) => {
             return {
                 ...prevUIState,
@@ -161,25 +165,18 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
 
     return (
         <React.Fragment>
-            <div className='control-panel-taskpane-container default-taskpane-div'>
-                <ColumnNameCard
-                    columnHeader={columnHeader}
-                    columnIndex={props.selection.endingColumnIndex}
-                    mitoContainerRef={props.mitoContainerRef}
-                    gridState={props.gridState}
-                    setEditorState={props.setEditorState}
-                    mitoAPI={props.mitoAPI}
+            <DefaultTaskpane>
+                <DefaultTaskpaneHeader
+                    header={getDisplayColumnHeader(columnHeader)}
                     setUIState={props.setUIState}
                 />
-                {/* We add an extra margin to the bottom so filter items aren't cut off by the tabs */}
-                <div className='default-taskpane-body-div mb-30px'>
+                <DefaultTaskpaneBody>
                     {props.tab === ControlPanelTab.FilterSort &&
-                        <React.Fragment>
+                        <>
                             <DtypeCard
                                 selectedSheetIndex={props.selectedSheetIndex}
                                 columnID={columnID}
                                 columnDtype={columnDtype}
-                                columnFormula={columnFormula} 
                                 mitoAPI={props.mitoAPI}
                                 lastStepIndex={props.lastStepIndex}
                                 lastStepType={props.lastStepType}
@@ -209,10 +206,10 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                                 rowDifference={originalNumRows - (props.sheetData?.numRows || 0)}
                                 editedFilter={editedFilter}
                             />
-                        </React.Fragment>
+                        </>
                     }
                     {props.tab === ControlPanelTab.UniqueValues && 
-                        <React.Fragment>
+                        <>
                             <ValuesTab
                                 selectedSheetIndex={props.selectedSheetIndex}
                                 columnID={columnID}
@@ -223,10 +220,10 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                                 columnFormatType={columnFormatType}
                                 setUIState={props.setUIState}
                             />
-                        </React.Fragment>
+                        </>
                     }
                     {props.tab === ControlPanelTab.SummaryStats &&
-                        <React.Fragment>
+                        <>
                             <ColumnSummaryGraph
                                 selectedSheetIndex={props.selectedSheetIndex}
                                 columnID={columnID}
@@ -240,19 +237,17 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                                 columnFormatType={columnFormatType}
                                 setUIState={props.setUIState}
                             />
-                        </React.Fragment>
+                        </>
                     }
-                </div>
-            </div> 
-            {/* 
-                We put the tabs outside the taskpane body so they aren't effected by the 
-                margins that are on the taskpane body and can fill the whole container
-            */}
-            <ControlPanelTaskpaneTabs
-                selectedTab={props.tab}
-                setUIState={props.setUIState}
-                mitoAPI={props.mitoAPI}
-            />
+                </DefaultTaskpaneBody>
+                <DefaultTaskpaneFooter ignoreTaskpanePadding>
+                    <ControlPanelTaskpaneTabs
+                        selectedTab={props.tab}
+                        setUIState={props.setUIState}
+                        mitoAPI={props.mitoAPI}
+                    />
+                </DefaultTaskpaneFooter>
+            </DefaultTaskpane>
         </React.Fragment>
     );
 }

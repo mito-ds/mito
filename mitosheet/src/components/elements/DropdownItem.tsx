@@ -3,7 +3,7 @@ import React from 'react';
 
 import '../../../css/elements/DropdownItem.css'
 import { classNames } from '../../utils/classNames';
-import { DROPDOWN_IGNORE_CLICK_CLASS } from './Dropdown';
+import { DROPDOWN_IGNORE_CLICK_CLASS, DROPDOWN_SUPRESS_FOCUS_ON_CLOSE } from './Dropdown';
 
 interface DropdownItemProps {
     /** 
@@ -68,6 +68,12 @@ interface DropdownItemProps {
         * @param className - Optional classes to add to the dropdown
     */
     className?: string;
+
+    /**
+        * @param [supressFocusSettingOnClose] - When True, the dropdown does not set the focus on the parent div
+        * when this is clicked on. Helpful for items that open inputs
+    */
+    supressFocusSettingOnClose?: boolean
 }
 
 /**
@@ -81,7 +87,7 @@ const DropdownItem = (props: DropdownItemProps): JSX.Element => {
     
     return (
         <div 
-            className={classNames('mito-dropdown-item', {[DROPDOWN_IGNORE_CLICK_CLASS]: disabled}, props.className)}
+            className={classNames('mito-dropdown-item', {[DROPDOWN_IGNORE_CLICK_CLASS]: disabled, [DROPDOWN_SUPRESS_FOCUS_ON_CLOSE]: props.supressFocusSettingOnClose}, props.className)}
             onClick={!disabled ? props.onClick : undefined} 
             title={props.tooltip}
         > 

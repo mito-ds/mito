@@ -40,14 +40,12 @@ export default function ColumnHeaderDropdown(props: {
     // selecting the first row for any action, like setting the column formula. 
     const rowIndex = 0 
     const columnIndex = Object.keys(props.sheetData.columnIDsMap).indexOf(props.columnID)
-    const columnFormula = getCellDataFromCellIndexes(props.sheetData, rowIndex, columnIndex).columnFormula;
 
     return (
         <Dropdown
             display={props.display}
             closeDropdown={() => props.setOpenColumnHeaderDropdown(false)}
             width='medium'
-            supressFocusSettingOnClose={true}
         >
             <DropdownItem 
                 title='Delete Column'
@@ -61,6 +59,7 @@ export default function ColumnHeaderDropdown(props: {
                 onClick={() => {
                     props.openColumnHeaderEditor()
                 }}
+                supressFocusSettingOnClose
             />
             <DropdownSectionSeperator isDropdownSectionSeperator/>
             <DropdownItem
@@ -139,11 +138,11 @@ export default function ColumnHeaderDropdown(props: {
                         // As in google sheets, if the starting formula is non empty, we default to the 
                         // arrow keys scrolling in the editor
                         arrowKeysScrollInFormula: columnFormula !== undefined && columnFormula.length > 0,
-                        editorLocation: 'cell'
+                        editorLocation: 'cell',
+                        editingMode: 'set_column_formula'
                     })
                 }}
-                disabled={columnFormula === undefined || columnFormula.length == 0}
-                tooltip={columnFormula === undefined || columnFormula.length == 0 ? "Data columns don't support formulas" : undefined}
+                supressFocusSettingOnClose
             />
             <DropdownItem 
                 title='Split Text to Columns '

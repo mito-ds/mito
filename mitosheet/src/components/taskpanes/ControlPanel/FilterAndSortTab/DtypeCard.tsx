@@ -13,7 +13,6 @@ const DTYPE_DESCRIPTION = 'Changes the dtype of the selected column in the under
 type DtypeCardProps = {
     selectedSheetIndex: number;
     columnID: ColumnID;
-    columnFormula: string;
     columnDtype: string;
     mitoAPI: MitoAPI;
     // NOTE: we added the lastStepIndex as a props so that we know when
@@ -62,9 +61,7 @@ export function getDtypeValue(dtype: string | undefined): ColumnDtypes {
 }
 
 /*
-    A card that allows a user to change the dtype of a column if it
-    is a data column. If it is a formula column, just displays the 
-    dtype.
+    A card that allows a user to change the dtype of a column.
 */
 function DtypeCard(props: DtypeCardProps): JSX.Element {
     const [stepID, setStepID] = useState<string | undefined>(undefined);
@@ -89,53 +86,37 @@ function DtypeCard(props: DtypeCardProps): JSX.Element {
                     </p>
                 </Col>
                 <Col offset={2} flex='1'>
-                    {props.columnFormula === '' &&
-                        <Select
-                            value={getDtypeValue(props.columnDtype)}
-                            onChange={(newDtype: string) => {
-                                void changeColumnDtype(newDtype);
-                            }}
-                            dropdownWidth='medium'
-                        >
-                            <DropdownItem
-                                title={ColumnDtypes.BOOL}
-                            />
-                            <DropdownItem
-                                title={ColumnDtypes.INT}
-                                subtext={'Casting to an int will turn all NaN values to 0.'}
-                                hideSubtext
-                                displaySubtextOnHover
-                            />
-                            <DropdownItem
-                                title={ColumnDtypes.FLOAT}
-                            />
-                            <DropdownItem
-                                title={ColumnDtypes.STRING}
-                            />
-                            <DropdownItem
-                                title={ColumnDtypes.DATETIME}
-                            />
-                            <DropdownItem
-                                title={ColumnDtypes.TIMEDELTA}
-                            />
-                        </Select>
-                    }
-                    {props.columnFormula !== '' &&
-                        <p className='text-header-3 text-align-right'>
-                            {getDtypeValue(props.columnDtype)}
-                        </p>
-                    }
+                    <Select
+                        value={getDtypeValue(props.columnDtype)}
+                        onChange={(newDtype: string) => {
+                            void changeColumnDtype(newDtype);
+                        }}
+                        dropdownWidth='medium'
+                    >
+                        <DropdownItem
+                            title={ColumnDtypes.BOOL}
+                        />
+                        <DropdownItem
+                            title={ColumnDtypes.INT}
+                            subtext={'Casting to an int will turn all NaN values to 0.'}
+                            hideSubtext
+                            displaySubtextOnHover
+                        />
+                        <DropdownItem
+                            title={ColumnDtypes.FLOAT}
+                        />
+                        <DropdownItem
+                            title={ColumnDtypes.STRING}
+                        />
+                        <DropdownItem
+                            title={ColumnDtypes.DATETIME}
+                        />
+                        <DropdownItem
+                            title={ColumnDtypes.TIMEDELTA}
+                        />
+                    </Select>
                 </Col>
             </Row>
-            {props.columnFormula !== '' &&
-                <Row>
-                    <Col>
-                        <p className='text-subtext-1'>
-                            Edit the formula to DATEVALUE, VALUE, or TEXT to change the type.
-                        </p>
-                    </Col>
-                </Row>
-            }
         </>
     );
 }

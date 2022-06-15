@@ -18,7 +18,7 @@ const OpenFillNaN = (props: {setUIState: React.Dispatch<React.SetStateAction<UIS
                     })
                 }}
             >
-                (Fill NaN Values)
+                (or Fill NaN Values)
             </span>
         </>
     )

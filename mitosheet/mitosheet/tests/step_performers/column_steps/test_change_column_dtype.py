@@ -218,19 +218,13 @@ def test_timedelta_to_other_types_post_1_post_3_6(new_dtype, result, code):
         assert len(mito.transpiled_code) > 0
     else:
         assert len(mito.transpiled_code) == 0
-
-
-def test_changing_column_type_refreshed_dependants():
-
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1.2, 2.0, 3.0]}))
-    mito.set_formula('=A', 0, 'B', add_column=True)
-
-    mito.change_column_dtype(0, 'A', 'int')
-    assert mito.get_column(0, 'A', as_list=True) == [1, 2, 3]
-    assert mito.get_column(0, 'B', as_list=True) == [1, 2, 3]
     
-def test_change_type_on_renamed_column():
+def test_convert_none_to_bool():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': ['none', 'None']}))
+    mito.change_column_dtype(0, 'A', 'bool')
+    assert mito.get_column(0, 'A', as_list=True) == [False, False]
 
+def test_change_type_on_renamed_column():
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1.2, 2.0, 3.0]}))
     mito.rename_column(0, 'A', 'B')
 

@@ -66,7 +66,9 @@ def to_boolean_series(
             'N': False,
             'n': False,
             'No': False,
-            'no': False
+            'no': False, 
+            'none': False,
+            'None': False
         }
         # Convert any NaN values to False
         return unknown_object.map(string_to_bool_conversion_dict).fillna(False)

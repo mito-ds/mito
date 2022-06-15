@@ -12,7 +12,7 @@ import sys
 
 from mitosheet.user.db import set_user_field
 from mitosheet.user import initialize_user
-from mitosheet.user.schemas import UJ_MITOSHEET_PRO, UJ_MITOSHEET_TELEMETRY, UJ_USER_EMAIL
+from mitosheet.user.schemas import UJ_MITOSHEET_PRO, UJ_MITOSHEET_TELEMETRY, UJ_RECEIVED_TOURS, UJ_USER_EMAIL
 from mitosheet.startup.startup_utils import create_startup_file, remove_startup_file
 from mitosheet.user.utils import check_pro_acccess_code
 
@@ -59,6 +59,10 @@ def main() -> None:
             print("Clearing email")
             set_user_field(UJ_USER_EMAIL, '')
             print("Email cleared")
+        if sys.argv[-1] == 'cleartours':
+            print("Clearing tours")
+            set_user_field(UJ_RECEIVED_TOURS, [])
+            print("Tours cleared")
         if sys.argv[-1] == 'turnoffdataframebutton':
             print("Turning off the 'View in Mito' dataframe button")
             remove_startup_file()

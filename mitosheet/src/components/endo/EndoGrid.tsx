@@ -496,7 +496,7 @@ function EndoGrid(props: {
             return;
         }
 
-        const startingFormula = getStartingFormula(sheetData, rowIndex, columnIndex);
+        const startingFormula = getStartingFormula(sheetData, rowIndex, columnIndex, 'set_column_formula');
 
         setEditorState({
             rowIndex: rowIndex,
@@ -505,7 +505,8 @@ function EndoGrid(props: {
             // As in google sheets, if the starting formula is non empty, we default to the 
             // arrow keys scrolling in the editor
             arrowKeysScrollInFormula: startingFormula.length > 0,
-            editorLocation: 'cell'
+            editorLocation: 'cell',
+            editingMode: 'set_column_formula'
         })
     }
     
@@ -564,7 +565,7 @@ function EndoGrid(props: {
                 setGridState((gridState) => {
                     const lastSelection = gridState.selections[gridState.selections.length - 1]
 
-                    const startingFormula = getStartingFormula(sheetData, lastSelection.startingRowIndex, lastSelection.startingColumnIndex, e);
+                    const startingFormula = getStartingFormula(sheetData, lastSelection.startingRowIndex, lastSelection.startingColumnIndex, 'set_column_formula', e);
                     
                     setEditorState({
                         rowIndex: lastSelection.startingRowIndex,
@@ -573,7 +574,8 @@ function EndoGrid(props: {
                         // As in google sheets, if the starting formula is non empty, we default to the 
                         // arrow keys scrolling in the editor
                         arrowKeysScrollInFormula: startingFormula.length > 0,
-                        editorLocation: 'cell'
+                        editorLocation: 'cell',
+                        editingMode: 'set_column_formula'
                     });
 
                     e.preventDefault();

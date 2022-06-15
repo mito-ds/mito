@@ -423,7 +423,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
         prevOpenTaskpaneRef.current = uiState.currOpenTaskpane.type;
 
-    }, [uiState])
+    }, [uiState]);
+
 
     const dfNames = sheetDataArray.map(sheetData => sheetData.dfName);
     const dfSources = sheetDataArray.map(sheetData => sheetData.dfSource);
@@ -716,6 +717,11 @@ export const Mito = (props: MitoProps): JSX.Element => {
             toursToDisplay.push(TourName.INTRO)
         }
 
+        // If we open the cell editor for the first time, we give the user this tour
+        if (editorState !== undefined && editorState.rowIndex >= 0 && !userProfile.receivedTours.includes(TourName.COLUMN_FORMULAS)) {
+            toursToDisplay.push(TourName.COLUMN_FORMULAS)
+        }
+
         return (
             <>
                 {toursToDisplay.length !== 0 && uiState.currOpenModal.type !== ModalEnum.SignUp &&
@@ -769,6 +775,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     sheetData={sheetDataArray[uiState.selectedSheetIndex]}
                     userProfile={userProfile}
+                    setEditorState={setEditorState}
                 />
                 <div className="mito-main-sheet-div" id="mito-main-sheet-div"> 
                     <div className={formulaBarAndSheetClassNames}>

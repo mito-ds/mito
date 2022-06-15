@@ -10,6 +10,7 @@ from mitosheet.state import (
     DATAFRAME_SOURCE_MERGED,
     DATAFRAME_SOURCE_PASSED,
     DATAFRAME_SOURCE_PIVOTED,
+    DATAFRAME_SOURCE_TRANSPOSED,
     FORMAT_ACCOUNTING,
     FORMAT_CURRENCY,
     FORMAT_DEFAULT,
@@ -60,6 +61,10 @@ def get_enum_from_ts_file(path, enum_name):
         # Remove trailing commas
         if enum_item_code_line.endswith(","):
             enum_item_code_line = enum_item_code_line[:-1]
+        
+        # If it's a comment, ignore it
+        if enum_item_code_line.startswith('//'):
+            continue
 
         # Split into keys and values
         [name, value] = enum_item_code_line.split(" = ")
@@ -157,6 +162,7 @@ def test_df_sources_matche():
             DATAFRAME_SOURCE_PIVOTED,
             DATAFRAME_SOURCE_MERGED,
             DATAFRAME_SOURCE_DUPLICATED,
+            DATAFRAME_SOURCE_TRANSPOSED
         ]
     )
 
