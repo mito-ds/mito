@@ -220,6 +220,7 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                 <FileBrowser
                     mitoAPI={props.mitoAPI}
                     setCurrPathParts={props.setCurrPathParts}
+                    setUIState={props.setUIState}
                     importState={importState}
                     setImportState={setImportState}
                     importElement={importElement}

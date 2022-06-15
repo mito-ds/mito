@@ -142,6 +142,7 @@ export default function ColumnHeaderDropdown(props: {
                         editingMode: 'set_column_formula'
                     })
                 }}
+                supressFocusSettingOnClose
             />
             <DropdownItem 
                 title='Split Text to Columns '
