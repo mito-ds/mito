@@ -88,7 +88,7 @@ def uninstall_pip_packages(*packages: str) -> None:
     run_command(sys_call)
 
 
-def install_pip_packages(*packages: str, test_pypi: bool=False) -> None:
+def install_pip_packages(*packages: str, test_pypi: bool=False, user_install: bool=False) -> None:
     """
     This function installs the given packages in a single pass
     using pip, through the command line.
@@ -103,6 +103,10 @@ def install_pip_packages(*packages: str, test_pypi: bool=False) -> None:
     # Handle TestPyPi
     if test_pypi:
         sys_call.extend(['--index-url', 'https://test.pypi.org/simple/', '--extra-index-url', 'https://pypi.org/simple/'])
+
+    # Handle user install
+    if user_install:
+        sys_call.append('--user')
 
     # Pass through no cache dir if it is there
     if '--no-cache-dir' in sys.argv:
