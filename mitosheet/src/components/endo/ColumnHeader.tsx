@@ -81,7 +81,8 @@ const ColumnHeader = (props: {
             rowIndex: -1,
             columnIndex: props.columnIndex,
             formula: getDisplayColumnHeader(finalColumnHeader),
-            editorLocation: 'cell'
+            editorLocation: 'cell',
+            editingMode: 'set_cell_value'
         })
     }
 
@@ -170,7 +171,8 @@ const ColumnHeader = (props: {
                                         rowIndex: rowIndex,
                                         columnIndex: props.columnIndex,
                                         formula: getDisplayColumnHeader(lowerLevelColumnHeader),
-                                        editorLocation: 'cell'
+                                        editorLocation: 'cell',
+                                        editingMode: 'set_cell_value'
                                     })
                                 }}
                             >
@@ -283,7 +285,8 @@ const ColumnHeader = (props: {
                                     rowIndex: -1,
                                     columnIndex: props.columnIndex,
                                     formula: getDisplayColumnHeader(finalColumnHeader),
-                                    editorLocation: 'cell'
+                                    editorLocation: 'cell',
+                                    editingMode: 'set_cell_value'
                                 })
                             }}
                             key={props.columnIndex}

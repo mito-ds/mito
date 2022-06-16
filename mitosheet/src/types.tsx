@@ -423,6 +423,7 @@ export type EditorState = {
     rowIndex: number;
     columnIndex: number;
     formula: string;
+    editingMode: 'set_column_formula' | 'set_cell_value';
 
     pendingSelectedColumns?: {
         columnHeaders: (ColumnHeader)[]
@@ -435,7 +436,7 @@ export type EditorState = {
         types something. 
     */
     arrowKeysScrollInFormula?: boolean;
-    editorLocation: 'cell' | 'formula bar'
+    editorLocation: 'cell' | 'formula bar';
 };
 
 /**

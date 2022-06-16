@@ -71,10 +71,10 @@ const getDefaultMergeParams = (sheetDataArray: SheetData[], selectedSheetIndex: 
         
         // We default the merge modal to select the selected sheet index as the first sheet
         const sheetOneIndex = selectedSheetIndex;
-        // The second sheet is either: the sheet to the right, if it exists,
+        // The second sheet is either: the sheet to the right, if it exists and contains columns,
         // or the one to the left, it exists. If neither exist, then it is just
         // the same as sheet one index, as there is only one sheet
-        const sheetTwoIndex = sheetOneIndex + 1 <= sheetDataArray.length - 1
+        const sheetTwoIndex = sheetOneIndex + 1 <= sheetDataArray.length - 1 && sheetDataArray[sheetOneIndex + 1].numColumns > 0
             ? sheetOneIndex + 1
             : (sheetOneIndex - 1 >= 0 ? sheetOneIndex - 1 : sheetOneIndex)
 
@@ -320,12 +320,11 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                 <MergeSheetAndKeySelection
                     dfNames={originalDfNames}
                     columnIDsMap={sheetOneColumnIDsMap}
-                    
                     sheetNum={MergeSheet.First}
                     sheetIndex={params.sheet_index_one}
                     mergeKeyColumnID={params.merge_key_column_id_one}
                     otherSheetIndex={params.sheet_index_two}
-                    
+                    sheetDataArray={props.sheetDataArray}
                     setNewSheetIndex={(newSheetIndex) => {setNewSheetIndex(MergeSheet.First, newSheetIndex)}}
                     setNewMergeKeyColumnID={(newMergeKeyColumnID) => setNewMergeKeyColumnID(MergeSheet.First, newMergeKeyColumnID)}
                 />
@@ -366,12 +365,11 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                 <MergeSheetAndKeySelection
                     dfNames={originalDfNames}
                     columnIDsMap={sheetTwoColumnIDsMap}
-                    
                     sheetNum={MergeSheet.Second}
                     mergeKeyColumnID={params.merge_key_column_id_two}
                     sheetIndex={params.sheet_index_two}
                     otherSheetIndex={params.sheet_index_one}
-
+                    sheetDataArray={props.sheetDataArray}
                     setNewSheetIndex={(newSheetIndex) => {setNewSheetIndex(MergeSheet.Second, newSheetIndex)}}
                     setNewMergeKeyColumnID={(newMergeKeyColumnID) => setNewMergeKeyColumnID(MergeSheet.Second, newMergeKeyColumnID)}
                 />

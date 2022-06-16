@@ -16,6 +16,10 @@ import MitoIcon from '../../icons/MitoIcon';
 import DropDuplicatesIcon from '../../icons/DropDuplicatesIcon';
 import GraphIcon from '../../icons/GraphIcon';
 import UnpivotIcon from '../../icons/UnpivotIcon';
+import DtypeIcon from '../../icons/DtypeIcon';
+import SplitTextToColumnsIcon from '../../icons/SplitTextToColumnsIcon';
+import TransposeIcon from '../../icons/TransposeIcon';
+import PromoteRowToHeaderIcon from '../../icons/PromoteRowToHeaderIcon';
 
 
 export type StepDataElementProps = {
@@ -87,6 +91,21 @@ export function getStepIcon(stepType: StepType): JSX.Element {
         )
         case StepType.Graph: return (
             <GraphIcon/>
+        )
+        case StepType.ChangeColumnDtype: return (
+            <DtypeIcon/>
+        )
+        case StepType.DeleteRow: return (
+            <DeleteColumnIcon/>
+        )
+        case StepType.SplitTextToColumns: return (
+            <SplitTextToColumnsIcon/>
+        )
+        case StepType.Transpose: return (
+            <TransposeIcon/>
+        )
+        case StepType.PromoteRowToHeader: return (
+            <PromoteRowToHeaderIcon />
         )
         // TODO: Add a case here
         default: return (

@@ -61,9 +61,7 @@ export function getDtypeValue(dtype: string | undefined): ColumnDtypes {
 }
 
 /*
-    A card that allows a user to change the dtype of a column if it
-    is a data column. If it is a formula column, just displays the 
-    dtype.
+    A card that allows a user to change the dtype of a column.
 */
 function DtypeCard(props: DtypeCardProps): JSX.Element {
     const [stepID, setStepID] = useState<string | undefined>(undefined);
