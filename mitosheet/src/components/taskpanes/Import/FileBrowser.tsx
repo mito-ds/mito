@@ -10,13 +10,15 @@ import MitoAPI from '../../../jupyter/api';
 import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
 import SortArrowIcon from '../../icons/SortArrowIcon';
-import { UserProfile } from '../../../types';
+import { UIState, UserProfile } from '../../../types';
 import { classNames } from '../../../utils/classNames';
 import { getElementsToDisplay, inRootFolder } from './importUtils';
+import { TaskpaneType } from '../taskpanes';
 
 interface FileBrowserProps {
     mitoAPI: MitoAPI;
     userProfile: UserProfile;
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     setCurrPathParts: (newPathParts: string[]) => void;
 
     importState: ImportTaskpaneState;
@@ -179,16 +181,21 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                             <p className='ma-25px text-align-center text-body-1'>
                                 Want to import from a different drive? Consider&nbsp;
                                 <a 
-                                    onClick={() => void props.mitoAPI.log('clicked_pro_button', 
-                                        {
+                                    onClick={() => {
+                                        void props.mitoAPI.log('clicked_pro_button', {
                                             'pro_button_location': 'import_taskpane_root_folder_import',
-                                        }
-                                    )}
+                                        })
+
+                                        props.setUIState(prevUIState => {
+                                            return {
+                                                ...prevUIState,
+                                                currOpenTaskpane: {type: TaskpaneType.UPGRADE_TO_PRO},
+                                                selectedTabType: 'data'
+                                            }
+                                        })
+                                    }}
                                     className='text-body-1-link' 
-                                    href='https://www.trymito.io/plans' 
-                                    target='_blank' 
-                                    rel="noreferrer"
-                                >
+                                    >
                                     upgrading to Mito Pro
                                 </a> or&nbsp;
                                 <a 

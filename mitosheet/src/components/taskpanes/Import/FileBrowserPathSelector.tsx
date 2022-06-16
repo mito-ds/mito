@@ -26,9 +26,8 @@ function FileBrowserPathSelector(props: FileBrowserPathSelectorProps): JSX.Eleme
         props.setCurrPathParts(subPathParts);
     }
 
-
     return (
-        <div className='flexbox-row file-browser-path-selector'>
+        <div className='file-browser-path-selector'>
             {props.pathParts?.map((pathPart, i) => {
                 return (
                     <React.Fragment key={i}>

@@ -8,6 +8,8 @@
     display: inline-block;
     width: var(--toggle-label-width);
     height: var(--toggle-height);
+    margin-bottom: 0;
+    margin-top: 0;
 }
 
 /* Don't display the default html input so we can created out own custom styled one */
