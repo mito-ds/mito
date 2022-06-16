@@ -353,8 +353,6 @@ def test_merge_all_columns(how, df_one, key_one, df_two, key_two, merged):
     mito = create_mito_wrapper_dfs(df_one, df_two)
     mito.merge_sheets(how, 0, 1, [[key_one, key_two]], list(df_one.keys()), list(df_two.keys()))
 
-    print(mito.dfs[2])
-    print(merged)
     assert mito.dfs[2].equals(merged)
 
 
