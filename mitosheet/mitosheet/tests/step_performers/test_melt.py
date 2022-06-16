@@ -10,7 +10,6 @@ Contains tests for Melt
 import pandas as pd
 import pytest
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
-from mitosheet.tests.decorators import pandas_post_1_2_only
 
 MELT_TESTS = [
     (
@@ -64,44 +63,6 @@ MELT_TESTS = [
 ]
 @pytest.mark.parametrize("input_dfs, sheet_index, id_vars, value_vars, output_dfs", MELT_TESTS)
 def test_melt(input_dfs, sheet_index, id_vars, value_vars, output_dfs):
-    mito = create_mito_wrapper_dfs(*input_dfs)
-
-    mito.melt(sheet_index, id_vars, value_vars)
-
-    assert len(mito.dfs) == len(output_dfs)
-    for actual, expected in zip(mito.dfs, output_dfs):
-        print(actual.dtypes, expected.dtypes)
-        assert actual.equals(expected)
-
-MELT_TESTS_1_2 = [
-    (
-        [
-            pd.DataFrame({'product_id': [1, 2], 'description': ["a cat", "a bat"], pd.to_datetime('1-1-2020'): [0, 1], pd.to_datetime('1-2-2020'): [0, 2]})
-        ],
-        0, 
-        ['product_id', 'description'], 
-        ['product_id', pd.to_datetime('1-1-2020')],
-        [
-            pd.DataFrame({'product_id': [1, 2], 'description': ["a cat", "a bat"], pd.to_datetime('1-1-2020'): [0, 1], pd.to_datetime('1-2-2020'): [0, 2]}),
-            pd.DataFrame({'product_id': [1, 2], 'description': ["a cat", "a bat"], 'variable': pd.to_datetime(['1-1-2020', '1-1-2020']), 'value': [0, 1]})
-        ]
-    ),
-    (
-        [
-            pd.DataFrame({'product_id': [1, None], 'description': ["a cat", "a bat"], pd.to_datetime('1-1-2020'): [0, 1], pd.to_datetime('1-2-2020'): [0, 2]})
-        ],
-        0, 
-        ['product_id', 'description'], 
-        ['product_id', pd.to_datetime('1-1-2020')],
-        [
-            pd.DataFrame({'product_id': [1, None], 'description': ["a cat", "a bat"], pd.to_datetime('1-1-2020'): [0, 1], pd.to_datetime('1-2-2020'): [0, 2]}),
-            pd.DataFrame({'product_id': [1, None], 'description': ["a cat", "a bat"], 'variable': pd.to_datetime(['1-1-2020', '1-1-2020']), 'value': [0, 1]})
-        ]
-    ),
-]
-@pandas_post_1_2_only
-@pytest.mark.parametrize("input_dfs, sheet_index, id_vars, value_vars, output_dfs", MELT_TESTS_1_2)
-def test_melt_after_1_2(input_dfs, sheet_index, id_vars, value_vars, output_dfs):
     mito = create_mito_wrapper_dfs(*input_dfs)
 
     mito.melt(sheet_index, id_vars, value_vars)

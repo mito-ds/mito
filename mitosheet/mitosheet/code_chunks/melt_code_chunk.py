@@ -32,6 +32,8 @@ class MeltCodeChunk(CodeChunk):
         id_vars = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index, id_var_column_ids)
         value_vars = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index, value_var_column_ids)
 
+        value_vars = list(filter(lambda value_var: value_var not in id_vars, value_vars))
+
         include_value_vars: bool = self.get_execution_data('include_value_vars')
 
         df_name = self.post_state.df_names[sheet_index]

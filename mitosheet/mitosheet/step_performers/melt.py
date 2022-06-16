@@ -38,6 +38,10 @@ class MeltStepPerformer(StepPerformer):
         id_vars = prev_state.column_ids.get_column_headers_by_ids(sheet_index, id_var_column_ids)
         value_vars = prev_state.column_ids.get_column_headers_by_ids(sheet_index, value_var_column_ids)
 
+        # We remove all id vars from value vars, as in earlier versions of pandas overlap causes
+        # errors that we don't want
+        value_vars = list(filter(lambda value_var: value_var not in id_vars, value_vars))
+
         # We make a new state to modify it
         post_state = prev_state.copy() 
 
