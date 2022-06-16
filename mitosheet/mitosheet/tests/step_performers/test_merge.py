@@ -146,6 +146,30 @@ MERGE_TESTS = [
             pd.DataFrame({'A': [1,2], 'B': [5,3]}),
         ],
     ),
+    (
+        [
+            pd.DataFrame({'A': [1,2,3], 'B': [4,5,6]}),
+            pd.DataFrame({'C': [1,1,2], 'D': [5,4,3]})
+        ],
+        'unique in left', 0, 1, [['A', 'C'], ['B', 'D']], ['A', 'B'], ['C', 'D'],
+        [
+            pd.DataFrame({'A': [1,2,3], 'B': [4,5,6]}),
+            pd.DataFrame({'C': [1,1,2], 'D': [5,4,3]}),
+            pd.DataFrame({'A': [2,3], 'B': [5,6]}),
+        ],
+    ),
+    (
+        [
+            pd.DataFrame({'A': [1,2,3], 'B': [4,5,6]}),
+            pd.DataFrame({'C': [1,1,2], 'D': [5,4,3]})
+        ],
+        'unique in right', 0, 1, [['A', 'C'], ['B', 'D']], ['A', 'B'], ['C', 'D'],
+        [
+            pd.DataFrame({'A': [1,2,3], 'B': [4,5,6]}),
+            pd.DataFrame({'C': [1,1,2], 'D': [5,4,3]}),
+            pd.DataFrame({'C': [1,2], 'D': [5,3]}),
+        ],
+    ),
 ]
 @pytest.mark.parametrize("input_dfs, how, sheet_index_one, sheet_index_two, merge_key_columns, selected_columns_one, selected_columns_two, output_dfs", MERGE_TESTS)
 def test_merge(input_dfs, how, sheet_index_one, sheet_index_two, merge_key_columns, selected_columns_one, selected_columns_two, output_dfs):
