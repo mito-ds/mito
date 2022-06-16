@@ -60,8 +60,8 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
     // Get the values for the first cell that was selected, in accordance with our standard
     const {columnHeader, columnID, columnFilters, columnDtype, columnFormatType} = getCellDataFromCellIndexes(props.sheetData, props.selection.startingRowIndex, props.selection.startingColumnIndex);
 
-    const [filters, _setFilters] = useState(columnFilters !== undefined ? columnFilters.filters : []);
-    const [operator, setOperator] = useState(columnFilters !== undefined ? columnFilters.operator : 'And');
+    const [filters, _setFilters] = useState(columnFilters !== undefined ? columnFilters.filter_list.filters : []);
+    const [operator, setOperator] = useState(columnFilters !== undefined ? columnFilters.filter_list.operator : 'And');
     const [updateNumber, setUpdateNumber] = useState(0);
     const [stepID, setStepID] = useState('');
 
@@ -90,7 +90,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
 
     // Make sure to refresh the filters when they run
     useEffectOnUpdateEvent(() => {
-        _setFilters(prevFilters => {return columnFilters?.filters || prevFilters})
+        _setFilters(prevFilters => {return columnFilters?.filter_list.filters || prevFilters})
     }, props.analysisData)
     
     // If this is not a valid column, don't render anything, and close the takspane! 

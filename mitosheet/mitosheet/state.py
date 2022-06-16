@@ -32,6 +32,13 @@ FORMAT_ROUND_DECIMALS = "round decimals"
 FORMAT_K_M_B = "k_m_b"
 FORMAT_SCIENTIFIC_NOTATION = "scientific notation"
 
+def get_empty_column_filter() -> Dict[str, Any]:
+    return {
+        "filter_list": {"operator": "And", "filters": []},
+        'bulk_filter': None,
+        'filtered_out_values': None
+    } 
+
 
 class State:
     """
@@ -102,7 +109,7 @@ class State:
             if column_filters is not None
             else [
                 {
-                    column_id: {"operator": "And", "filters": []}
+                    column_id: get_empty_column_filter()
                     for column_id in self.column_ids.get_column_ids(sheet_index)
                 }
                 for sheet_index in range(len(dfs))
@@ -187,7 +194,7 @@ class State:
             )
             self.column_filters.append(
                 {
-                    column_id: {"operator": "And", "filters": []}
+                    column_id: get_empty_column_filter()
                     for column_id in column_ids
                 }
             )
@@ -223,7 +230,7 @@ class State:
                 column_id: "" for column_id in column_ids
             }
             self.column_filters[sheet_index] = {
-                column_id: {"operator": "And", "filters": []}
+                column_id: get_empty_column_filter()
                 for column_id in column_ids
             }
             self.column_format_types[sheet_index] = (

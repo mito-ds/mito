@@ -305,7 +305,7 @@ def test_filter_formula_column():
     mito.set_formula("=A", 0, "B", add_column=True)
     mito.filter(0, "B", "Or", FC_STRING_CONTAINS, "1")
     assert mito.get_column(0, "B", as_list=True) == ["123"]
-    assert mito.curr_step.column_filters[0]["B"]["operator"] == "Or"
+    assert mito.curr_step.column_filters[0]["filter_list"]["B"]["operator"] == "Or"
 
 
 def test_merge_and_then_filter():

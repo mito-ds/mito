@@ -103,8 +103,8 @@ class FilterStepPerformer(StepPerformer):
         post_state.dfs[sheet_index] = final_df
 
         # Keep track of which columns are filtered
-        post_state.column_filters[sheet_index][column_id]["operator"] = operator
-        post_state.column_filters[sheet_index][column_id]["filters"] = filters
+        post_state.column_filters[sheet_index][column_id]['filter_list']["operator"] = operator
+        post_state.column_filters[sheet_index][column_id]['filter_list']["filters"] = filters
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time

@@ -191,7 +191,10 @@ def df_to_json_dumpsable(
             for column_header in original_df.keys()
         },
         'columnSpreadsheetCodeMap': column_spreadsheet_code,
-        'columnFiltersMap': column_filters,
+        'columnFiltersMap': {column_id: {
+            'filter_list': column_filter_data['filter_list'], 
+            'bulk_filter': column_filter_data['bulk_filter']
+        } for column_id, column_filter_data in column_filters.items()},
         'columnDtypeMap': column_dtype_map,
         'index': json_obj['index'],
         'columnFormatTypeObjMap': column_format_types

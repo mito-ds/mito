@@ -10,7 +10,7 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.add_column_code_chunk import AddColumnCodeChunk
 
 from mitosheet.errors import make_column_exists_error, make_no_sheet_error
-from mitosheet.state import FORMAT_DEFAULT, State
+from mitosheet.state import FORMAT_DEFAULT, State, get_empty_column_filter
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
@@ -53,7 +53,7 @@ class AddColumnStepPerformer(StepPerformer):
         # Update the state variables
         column_id = post_state.column_ids.add_column_header(sheet_index, column_header)
         post_state.column_spreadsheet_code[sheet_index][column_id] = '=0'
-        post_state.column_filters[sheet_index][column_id] = {'operator': 'And', 'filters': []}
+        post_state.column_filters[sheet_index][column_id] = get_empty_column_filter()
         post_state.column_format_types[sheet_index][column_id] = {'type': FORMAT_DEFAULT}
             
         # Update the dataframe
