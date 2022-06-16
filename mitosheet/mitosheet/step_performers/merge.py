@@ -117,7 +117,7 @@ def _execute_merge(
     if len(merge_keys_one) == 0 and len(merge_keys_two) == 0:
         return pd.DataFrame()
 
-    if how == 'lookup':
+    if how == LOOKUP:
         # We drop duplicates to avoid pairwise duplication on the merge.
         temp_df = dfs[sheet_index_two].drop_duplicates(subset=merge_keys_two)
         # We overwrite the how variable to 'left' so it can be used in the merge
@@ -143,18 +143,16 @@ def _execute_merge(
 
     try:
         if how == UNIQUE_IN_LEFT:
-            # We need to generate a filter for all of the merge keys - and combine them. This is due
-            # to weirdness in how the isin filter works
-            df_filter = ~df_one_cleaned[merge_keys_one[0]].isin(df_two_cleaned[merge_keys_two[0]])
-            for merge_key_one, merge_key_two in zip(merge_keys_one[1:], merge_keys_two[1:]):
-                df_filter = df_filter | ~df_one_cleaned[merge_key_one].isin(df_two_cleaned[merge_key_two])
-            return df_one_cleaned.copy(deep=True)[df_filter]
+            df_two_cleaned = df_two_cleaned.drop_duplicates(subset=merge_keys_two) # Remove duplicates so lookup merge only returns first match
+            # Create a boolean index array for values only in the left sheet by turning on the indicator=True and then filtering on the result
+            bool_index_array = df_one_cleaned.merge(df_two_cleaned, left_on=merge_keys_one, right_on=merge_keys_two, how='left', indicator=True)['_merge'] == 'left_only'
+            print(df_one_cleaned.copy(deep=True)[bool_index_array][selected_columns_one].reset_index(drop=True))
+            # Get the final result by filtering on the boolean index array and then selecting the columns we want to keep
+            return df_one_cleaned.copy(deep=True)[bool_index_array][selected_columns_one].reset_index(drop=True)
         if how == UNIQUE_IN_RIGHT:
-            df_filter = ~df_two_cleaned[merge_keys_two[0]].isin(df_one_cleaned[merge_keys_one[0]])
-            for merge_key_one, merge_key_two in zip(merge_keys_one[1:], merge_keys_two[1:]):
-                df_filter = df_filter | ~df_two_cleaned[merge_key_two].isin(df_one_cleaned[merge_key_one])
-
-            return df_two_cleaned.copy(deep=True)[df_filter]
+            df_one_cleaned = df_one_cleaned.drop_duplicates(subset=merge_keys_one) # Remove duplicates so lookup merge only returns first match
+            bool_index_array = df_one_cleaned.merge(df_two_cleaned, left_on=merge_keys_one, right_on=merge_keys_two, how='right', indicator=True)['_merge'] == 'right_only'
+            return df_two_cleaned.copy(deep=True)[bool_index_array][selected_columns_two].reset_index(drop=True)
         else:
             return df_one_cleaned.merge(df_two_cleaned, left_on=merge_keys_one, right_on=merge_keys_two, how=how_to_use, suffixes=[f'_{suffix_one}', f'_{suffix_two}'])
     except ValueError:

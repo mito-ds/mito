@@ -75,6 +75,9 @@ def check_dataframes_equal(test_wrapper):
     def check_final_dataframe(df_name, df):
         assert final_dfs[df_name].equals(df)
 
+    def _print(*x):
+        print(*x)
+
     code = "\n".join(
         test_wrapper.transpiled_code +
         [
@@ -87,6 +90,7 @@ def check_dataframes_equal(test_wrapper):
     exec(code, 
         {
             'check_final_dataframe': check_final_dataframe,
+            'print': _print,
             # Make sure all the mitosheet functions are defined, which replaces the
             # `from mitosheet import *` code that is at the top of all
             # transpiled code 

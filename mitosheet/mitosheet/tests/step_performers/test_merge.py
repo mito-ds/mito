@@ -6,6 +6,7 @@
 """
 Contains tests for merging events.
 """
+from cmath import exp
 import numpy as np
 import pytest
 import pandas as pd
@@ -130,7 +131,7 @@ MERGE_TESTS = [
         [
             pd.DataFrame({'A': [1,2,3], 'B': [4,5,6]}),
             pd.DataFrame({'A': [1,1,2], 'B': [5,4,3]}),
-            pd.DataFrame({'A': [1,2,3], 'B': [4,5,6]}),
+            pd.DataFrame({'A': [2,3], 'B': [5,6]}),
         ],
     ),
     (
@@ -142,7 +143,7 @@ MERGE_TESTS = [
         [
             pd.DataFrame({'A': [1,2,3], 'B': [4,5,6]}),
             pd.DataFrame({'A': [1,1,2], 'B': [5,4,3]}),
-            pd.DataFrame({'A': [1,1,2], 'B': [5,4,3]}),
+            pd.DataFrame({'A': [1,2], 'B': [5,3]}),
         ],
     ),
 ]
@@ -333,7 +334,7 @@ OTHER_MERGE_TESTS = [
         pd.DataFrame({
             'Key1': ['B', 'C', 'D'], 
             'value': [2, 3, 4],
-            }, index=[1,2,3])
+        })
     ),
     (
         'unique in right',
@@ -344,7 +345,7 @@ OTHER_MERGE_TESTS = [
         pd.DataFrame({
             'Key2': ['X', 'Y'], 
             'value': [6, 7],
-            }, index=[2, 3])
+        })
     ),
 ]
 @pytest.mark.parametrize("how,df_one,key_one,df_two,key_two,merged", OTHER_MERGE_TESTS)
@@ -352,6 +353,8 @@ def test_merge_all_columns(how, df_one, key_one, df_two, key_two, merged):
     mito = create_mito_wrapper_dfs(df_one, df_two)
     mito.merge_sheets(how, 0, 1, [[key_one, key_two]], list(df_one.keys()), list(df_two.keys()))
 
+    print(mito.dfs[2])
+    print(merged)
     assert mito.dfs[2].equals(merged)
 
 
