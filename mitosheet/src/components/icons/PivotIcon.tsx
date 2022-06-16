@@ -16,4 +16,3 @@ const PivotIcon = (): JSX.Element => {
 }
 
 export default PivotIcon;
-

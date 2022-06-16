@@ -15,6 +15,7 @@ import EditIcon from '../../icons/EditIcon';
 import MitoIcon from '../../icons/MitoIcon';
 import DropDuplicatesIcon from '../../icons/DropDuplicatesIcon';
 import GraphIcon from '../../icons/GraphIcon';
+import UnpivotIcon from '../../icons/UnpivotIcon';
 import DtypeIcon from '../../icons/DtypeIcon';
 import SplitTextToColumnsIcon from '../../icons/SplitTextToColumnsIcon';
 import TransposeIcon from '../../icons/TransposeIcon';
@@ -78,6 +79,9 @@ export function getStepIcon(stepType: StepType): JSX.Element {
         )
         case StepType.Pivot: return (
             <PivotIcon/>
+        )
+        case StepType.Melt: return (
+            <UnpivotIcon/>
         )
         case StepType.Merge: return (
             <MergeIcon/>
