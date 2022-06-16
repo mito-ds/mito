@@ -39,6 +39,7 @@ from mitosheet.step_performers.fill_na import FillNaStepPerformer
 from mitosheet.step_performers.graph_steps.graph_delete import GraphDeleteStepPerformer
 from mitosheet.step_performers.graph_steps.graph_duplicate import GraphDuplicateStepPerformer
 from mitosheet.step_performers.graph_steps.graph_rename import GraphRenameStepPerformer
+from mitosheet.step_performers.melt import MeltStepPerformer
 from mitosheet.step_performers.promote_row_to_header import PromoteRowToHeaderStepPerformer
 from mitosheet.step_performers.transpose import TransposeStepPerformer
 
@@ -251,7 +252,13 @@ def test_params_static():
         'transpose'
     )
 
-    assert len(STEP_PERFORMERS) == 29
+    check_step(
+        MeltStepPerformer,
+        1,
+        'melt'
+    )
+
+    assert len(STEP_PERFORMERS) == 30
 
 
 def get_fake_param(param_name):

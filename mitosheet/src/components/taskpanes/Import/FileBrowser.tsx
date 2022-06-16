@@ -203,7 +203,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                                         props.setCurrPathParts(['.']);
                                     }}
                                     className='text-body-1-link' 
-                                    >
+                                >
                                     go back to current directory.
                                 </a>
                             </p>
