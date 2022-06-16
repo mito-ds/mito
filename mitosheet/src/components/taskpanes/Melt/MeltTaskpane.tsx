@@ -18,6 +18,7 @@ import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 import Spacer from "../../spacing/Spacer";
+import Tooltip from "../../elements/Tooltip";
 
 
 interface MeltTaskpaneProps {
@@ -139,11 +140,14 @@ const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
                         </Select>
                     </Col>
                 </Row>
-                <Row justify='space-between' align='center' title='Column to use as identifier variables.'>
+                <Row justify='start' align='center' title='Column to use as identifier variables.'>
                     <Col>
                         <p className='text-header-3'>
                             ID Variables
                         </p>
+                    </Col>
+                    <Col offset={.5}>
+                            <Tooltip title={"Column to use as identifier variables. These columns will be present in the unpivoted dataframe."}/>
                     </Col>
                 </Row>
                 <MultiToggleBox
@@ -173,11 +177,14 @@ const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
                     })}
                 </MultiToggleBox>
                 <Spacer px={10}/>
-                <Row justify='space-between' align='center' title='Columns to unpivot.'>
+                <Row justify='start' align='center' title='Columns to unpivot.'>
                     <Col>
                         <p className='text-header-3'>
                             Values
                         </p>
+                    </Col>
+                    <Col offset={.5}>
+                            <Tooltip title={"Column to unpivot. Each column header will go in the variables column, and the column values will go in the values column."}/>
                     </Col>
                 </Row>
                 <MultiToggleBox
