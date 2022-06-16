@@ -323,6 +323,15 @@ FUNCTION_TEST_CASES = [
         set(['FUNC']),
         set([('Name', '')])
     ),
+    # Test references a header with characters that make an invalid regex
+    (
+        '=FUNC(C++)',
+        'A',
+        ['A', 'C++'],
+        'df[\'A\'] = FUNC(df[\'C++\'])',
+        set(['FUNC']),
+        set(['C++'])
+    ),
 ]
 
 
