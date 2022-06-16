@@ -23,6 +23,8 @@ const MergeKeysSelectionSection = (props: {
     const sheetDataOne = props.sheetDataArray[props.params.sheet_index_one];
     const sheetDataTwo = props.sheetDataArray[props.params.sheet_index_two];
 
+    const noPossibleMergeKeys = Object.keys(sheetDataOne?.columnDtypeMap || {}).length === 0 || Object.keys(sheetDataTwo?.columnDtypeMap || {}).length === 0;
+
     return (
         <div className="light-gray-container">
             <Row suppressTopBottomMargin>
@@ -51,7 +53,7 @@ const MergeKeysSelectionSection = (props: {
                                 width='medium'
                                 searchable
                             >
-                                {Object.entries(sheetDataOne.columnIDsMap || {}).map(([columnID, columnHeader]) => {
+                                {Object.entries(sheetDataOne?.columnIDsMap || {}).map(([columnID, columnHeader]) => {
                                     return (
                                         <DropdownItem
                                             key={columnID}
@@ -81,7 +83,7 @@ const MergeKeysSelectionSection = (props: {
                                 width='medium'
                                 searchable
                             >
-                                {Object.entries(sheetDataTwo.columnIDsMap || {}).map(([columnID, columnHeader]) => {
+                                {Object.entries(sheetDataTwo?.columnIDsMap || {}).map(([columnID, columnHeader]) => {
                                     return (
                                         <DropdownItem
                                             key={columnID}
@@ -114,8 +116,9 @@ const MergeKeysSelectionSection = (props: {
                     {props.error}
                 </p>    
             }
-            <Spacer px={10}/>
+            <Spacer px={15}/>
             <TextButton 
+                width="medium"
                 variant="dark"
                 onClick={() => {
                     props.setParams(prevParams => {
@@ -132,6 +135,8 @@ const MergeKeysSelectionSection = (props: {
                         };
                     })
                 }}
+                disabled={noPossibleMergeKeys}
+                disabledTooltip={'One of these dataframes has no columns, so no merge keys can be added.'}
             >
                 + Add Merge Keys
             </TextButton>

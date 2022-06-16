@@ -164,7 +164,7 @@ def _execute_merge(
             merge_key_one_dtype = str(dfs[sheet_index_one][merge_key_one].dtype)
             merge_key_two_dtype = str(dfs[sheet_index_two][merge_key_two].dtype)
 
-            if merge_key_one != merge_key_two:
+            if merge_key_one_dtype != merge_key_two_dtype:
                 raise make_incompatible_merge_key_error(
                     merge_key_one=merge_key_one, 
                     merge_key_one_dtype=merge_key_one_dtype,

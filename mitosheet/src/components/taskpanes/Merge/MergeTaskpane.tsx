@@ -127,8 +127,8 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
         return <DefaultEmptyTaskpane setUIState={props.setUIState} message='You need two dataframes before you can merge them.'/>
     }
 
-    const sheetDataOne = props.sheetDataArray[params.sheet_index_one];
-    const sheetDataTwo = props.sheetDataArray[params.sheet_index_two];
+    const sheetDataOne: SheetData = props.sheetDataArray[params.sheet_index_one];
+    const sheetDataTwo: SheetData = props.sheetDataArray[params.sheet_index_two];
 
     return (
         <DefaultTaskpane>
@@ -188,13 +188,13 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                         </Select>
                     </Col>
                 </Row>
-                <Spacer px={10}/>
+                <Spacer px={15}/>
                 <MergeSheetSection
                     params={params}
                     setParams={setParams}
                     sheetDataArray={props.sheetDataArray}
                 />
-                <Spacer px={10}/>
+                <Spacer px={15}/>
                 <MergeKeysSelectionSection
                     params={params}
                     setParams={setParams}
@@ -209,7 +209,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                     <MultiToggleBox
                         searchable
                         toggleAllIndexes={(indexesToToggle, newToggle) => {
-                            const columnIDs = Object.keys(sheetDataOne.columnDtypeMap)
+                            const columnIDs = Object.keys(sheetDataOne?.columnDtypeMap || {})
                                 .map((columnID) => {return columnID})
                                 .filter((_, index) => {
                                     return indexesToToggle.includes(index);
@@ -235,7 +235,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                         }}
                         height='medium'
                     >
-                        {Object.entries(sheetDataOne.columnDtypeMap).map(([columnID, columnDtype], index) => {
+                        {Object.entries(sheetDataOne?.columnDtypeMap || {}).map(([columnID, columnDtype], index) => {
                             const columnHeader = sheetDataOne.columnIDsMap[columnID];
                             const toggled = params.selected_column_ids_one.includes(columnID); // TODO: make it true if merge key with OR
                             const isMergeKey = params.merge_key_column_ids.map(([mergeKeyOne, ]) => {return mergeKeyOne}).includes(columnID);
@@ -267,7 +267,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                         Finding the unique values in the second sheet doesn&apos;t keep any columns from the first sheet.
                     </p>
                 }
-                <Spacer px={10}/>
+                <Spacer px={15}/>
                 <div>
                     <p className='text-header-3'>
                         Columns to Keep in Second Dataframe
@@ -276,7 +276,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                         <MultiToggleBox
                             searchable
                             toggleAllIndexes={(indexesToToggle, newToggle) => {
-                                const columnIDs = Object.keys(sheetDataTwo.columnDtypeMap)
+                                const columnIDs = Object.keys(sheetDataTwo?.columnDtypeMap || {})
                                     .map((columnID) => {return columnID})
                                     .filter((_, index) => {
                                         return indexesToToggle.includes(index);
@@ -302,7 +302,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                             }}
                             height='medium'
                         >
-                            {Object.entries(sheetDataTwo.columnDtypeMap).map(([columnID, columnDtype], index) => {
+                            {Object.entries(sheetDataTwo?.columnDtypeMap || {}).map(([columnID, columnDtype], index) => {
                                 const columnHeader = sheetDataTwo.columnIDsMap[columnID];
                                 const toggled = params.selected_column_ids_two.includes(columnID);
                                 const isMergeKey = params.merge_key_column_ids.map(([, mergeKeyTwo]) => {return mergeKeyTwo}).includes(columnID);
