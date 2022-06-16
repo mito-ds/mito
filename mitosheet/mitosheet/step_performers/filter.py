@@ -97,7 +97,7 @@ class FilterStepPerformer(StepPerformer):
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
         # Execute the filter
-        final_df, pandas_processing_time = _execute_filter(
+        final_df, filtered_out_df, pandas_processing_time = _execute_filter(
             prev_state.dfs[sheet_index], column_header, operator, filters
         )
         post_state.dfs[sheet_index] = final_df
@@ -105,6 +105,13 @@ class FilterStepPerformer(StepPerformer):
         # Keep track of which columns are filtered
         post_state.column_filters[sheet_index][column_id]['filter_list']["operator"] = operator
         post_state.column_filters[sheet_index][column_id]['filter_list']["filters"] = filters
+
+        # Then, go and add all of the filtered out values to the filtered out list
+        for column_header in filtered_out_df.columns:
+            column_id = post_state.column_ids.get_column_header_by_id(sheet_index, column_header)
+            current_series: pd.Series = post_state.column_filters[sheet_index][column_id]['filtered_out_values']
+            new_series: pd.Series = filtered_out_df[column_header]
+            post_state.column_filters[sheet_index][column_id]['filtered_out_values'] = pd.concat(current_series, new_series)
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time
@@ -222,7 +229,7 @@ def _execute_filter(
     column_header: ColumnHeader,
     operator: str,
     filters: List[Dict[str, Any]],
-) -> Tuple[pd.DataFrame, float]:
+) -> Tuple[pd.DataFrame, pd.DataFrame, float]:
     """
     Executes a filter on the given column, filtering by removing any rows who
     don't meet the condition.
@@ -253,10 +260,11 @@ def _execute_filter(
 
     
     if len(applied_filters) > 0:
-        filtered_df = df[combine_filters(operator, applied_filters)]
+        final_filter = combine_filters(operator, applied_filters)
+        final_df, filtered_out_df = df[final_filter], df[~final_filter]
     else:
-        filtered_df = df
+        final_df, filtered_out_df = df, df.iloc[0:0]
 
     pandas_processing_time = perf_counter() - pandas_start_time
 
-    return filtered_df, pandas_processing_time
+    return final_df, filtered_out_df, pandas_processing_time

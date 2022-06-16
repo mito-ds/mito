@@ -36,7 +36,7 @@ def get_empty_column_filter() -> Dict[str, Any]:
     return {
         "filter_list": {"operator": "And", "filters": []},
         'bulk_filter': None,
-        'filtered_out_values': None
+        'filtered_out_values': pd.Series(dtype='object')
     } 
 
 

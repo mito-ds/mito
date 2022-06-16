@@ -305,7 +305,7 @@ def test_filter_formula_column():
     mito.set_formula("=A", 0, "B", add_column=True)
     mito.filter(0, "B", "Or", FC_STRING_CONTAINS, "1")
     assert mito.get_column(0, "B", as_list=True) == ["123"]
-    assert mito.curr_step.column_filters[0]["filter_list"]["B"]["operator"] == "Or"
+    assert mito.curr_step.column_filters[0]["B"]["filter_list"]["operator"] == "Or"
 
 
 def test_merge_and_then_filter():
@@ -1204,3 +1204,17 @@ def test_filter_not_optimizes_out_after_delete_diff_sheet():
 
     assert mito.transpiled_code[-1] == 'del df1_copy'
     assert len(mito.optimized_code_chunks) >= 3
+
+def test_filter_saves_filtered_out_data():
+    df = pd.DataFrame({"A": ["aaron", "jake", "jon"], 'B': [1, 2, 3]})
+    mito = create_mito_wrapper_dfs(df)
+
+    mito.filter(0, "A", "And", FC_STRING_CONTAINS, "a")
+    assert 'jon' in mito.curr_step.column_filters[0]["A"]["filtered_out_values"].unique()
+    assert 3 in mito.curr_step.column_filters[0]["B"]["filtered_out_values"].unique()
+    
+    mito.filter(0, "A", "And", FC_STRING_CONTAINS, "b")
+    assert 'jon' in mito.curr_step.column_filters[0]["A"]["filtered_out_values"].unique()
+    assert 'aaron' in mito.curr_step.column_filters[0]["A"]["filtered_out_values"].unique()
+    assert 1 in mito.curr_step.column_filters[0]["B"]["filtered_out_values"].unique()
+    assert 3 in mito.curr_step.column_filters[0]["B"]["filtered_out_values"].unique()

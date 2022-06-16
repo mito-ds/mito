@@ -33,6 +33,7 @@ from mitosheet.step_performers import (
     GraphStepPerformer,
     ConcatStepPerformer
 )
+from mitosheet.step_performers.bulk_filter import BulkFilterStepPerformer
 from mitosheet.step_performers.delete_row import DeleteRowStepPerformer
 from mitosheet.step_performers.column_steps.split_text_to_columns import SplitTextToColumnsStepPerformer
 from mitosheet.step_performers.fill_na import FillNaStepPerformer
@@ -258,7 +259,13 @@ def test_params_static():
         'melt'
     )
 
-    assert len(STEP_PERFORMERS) == 30
+    check_step(
+        BulkFilterStepPerformer,
+        1,
+        'bulk_filter'
+    )
+
+    assert len(STEP_PERFORMERS) == 31
 
 
 def get_fake_param(param_name):

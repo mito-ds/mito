@@ -101,6 +101,8 @@ def test_split_text_to_columns(input_df, column_header, delimiters, output_df):
 
     mito.split_text_to_columns(0, column_header, delimiters, '1')
 
+    print(mito.dfs[0])
+    print(output_df)
     assert mito.dfs[0].equals(output_df)
     
 

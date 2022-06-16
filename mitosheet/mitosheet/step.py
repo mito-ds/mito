@@ -5,6 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 from typing import Any, Dict, List, Optional, Set, Type
+from mitosheet.step_performers.bulk_filter import BulkFilterStepPerformer
 
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.column_steps.set_column_formula import SetColumnFormulaStepPerformer
@@ -160,7 +161,7 @@ class Step:
         to skip these steps. 
 
         Currently, a step only skips the steps before it if:
-        1. This step is a filter step that is trying to replace an older filter step
+        1. This step is a filter step that is trying to replace an older filter step (either type of filter)
         2. This step has the same id as any step before it (like for pivot tables)
         3. This step is a formula step overwriting the step that came just before it
         """
@@ -169,7 +170,8 @@ class Step:
 
         for step_index, step in enumerate(all_steps_before_this_step):
             # Check (1)
-            if step.step_type == FilterStepPerformer.step_type() and self.step_type == FilterStepPerformer.step_type():
+            if step.step_type == FilterStepPerformer.step_type() and self.step_type == FilterStepPerformer.step_type() \
+                or step.step_type == BulkFilterStepPerformer.step_type() and self.step_type == BulkFilterStepPerformer.step_type():
                 if step.params['sheet_index'] == self.params['sheet_index'] \
                     and step.params['column_id'] == self.params['column_id']:
                    step_indexes_to_skip.add(step_index) 
