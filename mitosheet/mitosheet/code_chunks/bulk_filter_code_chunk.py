@@ -4,8 +4,9 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from typing import List
+from typing import Any, List
 from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.column_headers import get_column_header_display
 from mitosheet.types import ColumnID
 
 class BulkFilterCodeChunk(CodeChunk):
@@ -17,9 +18,12 @@ class BulkFilterCodeChunk(CodeChunk):
         sheet_index: int = self.get_param('sheet_index')
         column_id: ColumnID = self.get_param('column_id')
         toggle_type: Any = self.get_param('toggle_type')
-        
-        return "TODO"
 
+        df_name = self.post_state.df_names[sheet_index]
+        column_header = self.post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
+
+        return f'Filtered values from {get_column_header_display(column_header)} in {df_name}'
+        
     def get_code(self) -> List[str]:
         sheet_index: int = self.get_param('sheet_index')
         column_id: ColumnID = self.get_param('column_id')
