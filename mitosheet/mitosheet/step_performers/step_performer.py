@@ -43,8 +43,11 @@ class StepPerformer(ABC, object):
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Given the parameters of the step, will saturate the event with
-        more parameters based on the passed prev_state. 
+        Given the parameters of the new edit event, will saturate the 
+        params based on the current state _at the time the edit is generated_.
+
+        If you need to access something about the previous state to this step, 
+        just do so in execute.
         """
         # By default, we don't do anything with the saturate
         return params

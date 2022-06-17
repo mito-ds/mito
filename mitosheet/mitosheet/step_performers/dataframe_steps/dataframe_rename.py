@@ -29,21 +29,17 @@ class DataframeRenameStepPerformer(StepPerformer):
         return 'dataframe_rename'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
-        sheet_index = params['sheet_index']
-        old_dataframe_name = prev_state.df_names[sheet_index]
-        params['old_dataframe_name'] = old_dataframe_name
-        return params
-
-    @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         sheet_index: int = get_param(params, 'sheet_index')
-        old_dataframe_name: str = get_param(params, 'old_dataframe_name')
         new_dataframe_name: str = get_param(params, 'new_dataframe_name')
 
         # Bail early, if there is no change
+        old_dataframe_name: str = prev_state.df_names[sheet_index]
         if old_dataframe_name == new_dataframe_name:
-            return prev_state, None
+            return prev_state, {
+                'pandas_processing_time': 0, # No time spent on pandas, only metadata changes
+                'old_dataframe_name': old_dataframe_name
+            }
 
         # Create a new step and save the parameters
         post_state = prev_state.copy()
@@ -51,7 +47,8 @@ class DataframeRenameStepPerformer(StepPerformer):
         post_state.df_names[sheet_index] = get_valid_dataframe_name(post_state.df_names, new_dataframe_name)
 
         return post_state, {
-            'pandas_processing_time': 0 # No time spent on pandas, only metadata changes
+            'pandas_processing_time': 0, # No time spent on pandas, only metadata changes
+            'old_dataframe_name': old_dataframe_name
         }
 
     @classmethod

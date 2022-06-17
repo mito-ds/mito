@@ -38,40 +38,23 @@ class SetCellValueStepPerformer(StepPerformer):
         return 'set_cell_value'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
-        # Mito doesn't allow empty cells, so if the new value is empty, change it to None.
-        if params['new_value'] == '':
-            params['new_value'] = None
-
-        # Get the old value so we can check if the new value is different
-        sheet_index = params['sheet_index']
-        column_id = params['column_id']
-        row_index = params['row_index']
-        column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-
-        # Cast the old value to a string to avoid errors while writing the saved analysis
-        params['old_value'] = str(prev_state.dfs[sheet_index].at[row_index, column_header])
-        
-        return params
-
-    @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')
         row_index: int = get_param(params, 'row_index')
-        old_value: str = get_param(params, 'old_value')
         new_value: Union[str, None] = get_param(params, 'new_value')
-        
-        if column_id not in prev_state.column_spreadsheet_code[sheet_index]:
-            raise make_no_column_error({column_id}, error_modal=False)
+
+        if new_value == '':
+            new_value = None
+
+        column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
 
         # If nothings changed, there's no work to do
-        if old_value == new_value:
+        if str(prev_state.dfs[sheet_index].at[row_index, column_header]) == new_value:
+            print("prev_state.dfs[sheet_index].at[row_index, column_header]", prev_state.dfs[sheet_index].at[row_index, column_header])
             return prev_state, None
 
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
-
-        column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
 
         # Update the value of the cell, we handle it differently depending on the type of the column
         column_dtype = str(post_state.dfs[sheet_index][column_header].dtype)

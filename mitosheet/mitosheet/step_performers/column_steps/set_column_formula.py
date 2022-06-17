@@ -38,26 +38,6 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         return 'set_column_formula'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
-        sheet_index = params['sheet_index']
-        column_id = params['column_id']
-        column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-        column_headers = prev_state.dfs[sheet_index].keys()
-        
-        # If the user submits an empty formula, we just set it equal to zero
-        if params['new_formula'] == '':
-            params['new_formula'] = '=0'
-        else:
-            try:
-                # Try and parse the formula, letting it throw errors if it
-                # is invalid
-                parse_formula(params['new_formula'], column_header, column_headers, throw_errors=True)
-            except:
-                params['new_formula'] = _get_fixed_invalid_formula(params['new_formula'], column_header, column_headers)
-
-        return params
-
-    @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')
@@ -65,6 +45,17 @@ class SetColumnFormulaStepPerformer(StepPerformer):
 
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
         column_headers = prev_state.dfs[sheet_index].keys()
+
+        # If the user submits an empty formula, we just set it equal to zero
+        if new_formula == '':
+            new_formula = '=0'
+        else:
+            try:
+                # Try and parse the formula, letting it throw errors if it
+                # is invalid
+                parse_formula(new_formula, column_header, column_headers, throw_errors=True)
+            except:
+                new_formula = _get_fixed_invalid_formula(new_formula, column_header, column_headers)
 
         # Then we try and parse the formula
         _, new_functions, new_dependencies_column_headers = parse_formula(

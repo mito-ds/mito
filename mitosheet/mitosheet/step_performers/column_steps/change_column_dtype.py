@@ -46,19 +46,13 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
         return 'change_column_dtype'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
-        sheet_index = params['sheet_index']
-        column_id = params['column_id']
-        column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-        params['old_dtype'] = str(prev_state.dfs[sheet_index][column_header].dtype)
-        return params
-
-    @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')
-        old_dtype: str = get_param(params, 'old_dtype')
         new_dtype: str = get_param(params, 'new_dtype')
+
+        column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
+        old_dtype: str = str(prev_state.dfs[sheet_index][column_header].dtype)
 
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 

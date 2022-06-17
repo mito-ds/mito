@@ -36,6 +36,13 @@ PIVOT_AGGREGATION_TYPES = [
     PA_COUNT_UNIQUE
 ]
 
+def get_deduplicated_list(l: List[Any]) -> List[Any]:
+    new_list = []
+    for i in l:
+        if i not in new_list:
+            new_list.append(i)
+    return new_list
+
 class PivotStepPerformer(StepPerformer):
     """
     A pivot, which allows you to pivot data from an existing dataframe 
@@ -51,31 +58,6 @@ class PivotStepPerformer(StepPerformer):
         return 'pivot'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Saturates the pivot table with just a `created_non_empty_dataframe` key, which
-        is useful for logging.
-
-        Furthermore, we filter out any duplicated aggregation keys, as they
-        result in errors without adding any data to the pivot.
-        """
-        # Case 1 - we have at least one row and at least one value
-        created_case_1 = len(params['pivot_rows_column_ids']) > 0 and len(params['values_column_ids_map']) > 0
-        # Case 2 - we have at least one column and at least one value
-        created_case_2 = len(params['pivot_columns_column_ids']) > 0 and len(params['values_column_ids_map']) > 0
-        params['created_non_empty_dataframe'] = created_case_1 or created_case_2
-
-        # Filter out any duplicate aggregation functions
-        for column_id, aggregation_function_names in params['values_column_ids_map'].items():
-            new_aggregation_function_names = []
-            for i in aggregation_function_names:
-                if i not in new_aggregation_function_names:
-                    new_aggregation_function_names.append(i)
-            params['values_column_ids_map'][column_id] = new_aggregation_function_names
-
-        return params
-
-    @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         sheet_index: int = get_param(params, 'sheet_index')
         pivot_rows_column_ids: List[ColumnID] = get_param(params, 'pivot_rows_column_ids')
@@ -88,7 +70,7 @@ class PivotStepPerformer(StepPerformer):
         pivot_rows = prev_state.column_ids.get_column_headers_by_ids(sheet_index, pivot_rows_column_ids)
         pivot_columns = prev_state.column_ids.get_column_headers_by_ids(sheet_index, pivot_columns_column_ids)
         values = {
-            prev_state.column_ids.get_column_header_by_id(sheet_index, column_id): value 
+            prev_state.column_ids.get_column_header_by_id(sheet_index, column_id): get_deduplicated_list(value) 
             for column_id, value in values_column_ids_map.items()
         }
 

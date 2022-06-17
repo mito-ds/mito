@@ -34,11 +34,11 @@ class ChangeColumnDtypeCodeChunk(CodeChunk):
     def get_code(self) -> List[str]:
         sheet_index = self.get_param('sheet_index')
         column_id = self.get_param('column_id')
-        old_dtype = self.get_param('old_dtype')
         new_dtype = self.get_param('new_dtype')
-
+   
         df_name = self.post_state.df_names[sheet_index]
         column_header = self.post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
+        old_dtype: str = str(self.prev_state.dfs[sheet_index][column_header].dtype)
         transpiled_column_header = column_header_to_transpiled_code(column_header)
 
         column = self.prev_state.dfs[sheet_index][column_header]

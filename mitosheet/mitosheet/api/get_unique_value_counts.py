@@ -39,11 +39,14 @@ def get_unique_value_counts(params: Dict[str, Any], steps_manager: StepsManagerT
 
     unique_value_counts_percents_series = series.value_counts(normalize=True, dropna=False)
     unique_value_counts_series = series.value_counts(dropna=False)
-    
+
+    filtered_out_values = steps_manager.curr_step.column_filters[sheet_index][column_id]['filtered_out_values']
+    print(filtered_out_values)
+
     unique_value_counts_df = pd.DataFrame({
-        'values': unique_value_counts_percents_series.index,
-        'percents': unique_value_counts_percents_series, 
-        'counts': unique_value_counts_series
+        'values': filtered_out_values + unique_value_counts_percents_series.index.to_list(),
+        'percents': [0.0 for _ in range(len(filtered_out_values))] + unique_value_counts_percents_series.tolist(), 
+        'counts': [0 for _ in range(len(filtered_out_values))] + unique_value_counts_series.tolist()
     })
 
     if len(unique_value_counts_df) > MAX_UNIQUE_VALUES:

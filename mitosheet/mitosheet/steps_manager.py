@@ -367,6 +367,9 @@ class StepsManager:
 
         step_performer = EVENT_TYPE_TO_STEP_PERFORMER[edit_event["type"]]
 
+        # We saturate the event with data at the time this event is generated
+        edit_event["params"] = step_performer.saturate(self.curr_step.final_defined_state, edit_event["params"])
+
         # First, we make a new step
         new_step = Step(
             step_performer.step_type(), edit_event["step_id"], edit_event["params"]

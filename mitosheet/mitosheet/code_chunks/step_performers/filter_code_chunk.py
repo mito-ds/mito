@@ -378,10 +378,11 @@ def get_filter_code(
     # Then, combine it with the bulk filter
     bulk_filter_code = get_bulk_filter_code(df_name, column_header, bulk_filter)
     if bulk_filter_code is not None:
+        from mitosheet.step_performers.bulk_filter import BULK_FILTER_CONDITION_IS_EXACTLY, BULK_FILTER_CONDITION_IS_NOT_EXACTLY
         if bulk_filter['condition'] == BULK_FILTER_CONDITION_IS_EXACTLY:
-            final_filter = combine_filter_strings('And', [filter_list_string, bulk_filter_code])
-        elif bulk_filter['conditions'] == BULK_FILTER_CONDITION_IS_NOT_EXACTLY:
             final_filter = combine_filter_strings('Or', [filter_list_string, bulk_filter_code])
+        elif bulk_filter['condition'] == BULK_FILTER_CONDITION_IS_NOT_EXACTLY:
+            final_filter = combine_filter_strings('And', [filter_list_string, bulk_filter_code])
     else:
         final_filter = filter_list_string
     

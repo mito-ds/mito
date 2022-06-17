@@ -63,25 +63,6 @@ class FilterStepPerformer(StepPerformer):
         return "filter_column"
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Saturates the filter event with a `has_non_empty_filter` - which is useful
-        for for logging
-        """
-        has_non_empty_filter = False
-        for filter_or_group in params["filters"]:
-            if "filters" in filter_or_group:
-                # If it's a group
-                if len(filter_or_group["filters"]) > 0:
-                    has_non_empty_filter = True
-            else:
-                # If it's a single filter
-                has_non_empty_filter = True
-
-        params["has_non_empty_filter"] = has_non_empty_filter
-        return params
-
-    @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')
@@ -106,7 +87,7 @@ class FilterStepPerformer(StepPerformer):
         bulk_filter = post_state.column_filters[sheet_index][column_id]['bulk_filter']
 
         # Execute the filter
-        pandas_processing_time = _execute_filter(
+        _, _, pandas_processing_time = _execute_filter(
             post_state, sheet_index, column_header, filter_list, bulk_filter
         )
 
@@ -242,7 +223,7 @@ def _execute_filter(
     column_id: ColumnID,
     filter_list: Dict[str, Any],
     bulk_filter: Dict[str, Any]
-) -> float:
+) -> Tuple[pd.DataFrame, pd.DataFrame, float]:
     """
     Executes a filter on the given column, filtering by removing any rows who
     don't meet the condition.
@@ -289,8 +270,6 @@ def _execute_filter(
     
     final_df, filtered_out_df = df[final_filter], df[~final_filter]
 
-    print(filter_list_filter)
-
     pandas_processing_time = perf_counter() - pandas_start_time
 
     post_state.dfs[sheet_index] = final_df
@@ -299,9 +278,4 @@ def _execute_filter(
     post_state.column_filters[sheet_index][column_id]['filter_list'] = filter_list
     post_state.column_filters[sheet_index][column_id]['bulk_filter'] = bulk_filter
 
-    # Then, go and add all of the filtered out values to the filtered out list
-    current_series: pd.Series = post_state.column_filters[sheet_index][column_id]['filtered_out_values']
-    new_series: pd.Series = filtered_out_df[column_header]
-    post_state.column_filters[sheet_index][column_id]['filtered_out_values'] = pd.concat([current_series, new_series])
-
-    return pandas_processing_time
+    return final_df, filtered_out_df, pandas_processing_time

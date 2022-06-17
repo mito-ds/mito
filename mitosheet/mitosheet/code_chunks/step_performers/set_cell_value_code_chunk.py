@@ -32,18 +32,21 @@ class SetCellValueCodeChunk(CodeChunk):
         sheet_index = self.get_param('sheet_index')
         column_id = self.get_param('column_id')
         row_index = self.get_param('row_index')
-        old_value = self.get_param('old_value')
         new_value = self.get_param('new_value')
         type_corrected_new_value = self.get_execution_data('type_corrected_new_value')
 
-        code: List[str] = []
-
-        # If nothings changed, we don't write any code
-        if old_value == new_value:
-            return code
 
         column_header = self.post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
         transpiled_column_header = column_header_to_transpiled_code(column_header)
+
+        # If nothings changed, we don't write any code
+        if str(self.prev_state.dfs[sheet_index].at[row_index, column_header]) == new_value:
+            return []
+
+        if new_value == '':
+            new_value = None
+
+        code: List[str] = []
 
         # If the series is an int, but the new value is a float, convert the series to floats before adding the new value
         column_dtype = str(self.prev_state.dfs[sheet_index][column_header].dtype)

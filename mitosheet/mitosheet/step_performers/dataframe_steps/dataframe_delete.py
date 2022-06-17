@@ -27,13 +27,6 @@ class DataframeDeleteStepPerformer(StepPerformer):
         return 'dataframe_delete'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
-        sheet_index = params['sheet_index']
-        old_dataframe_name = prev_state.df_names[sheet_index]
-        params['old_dataframe_name'] = old_dataframe_name
-        return params
-
-    @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         sheet_index: int = get_param(params, 'sheet_index')
         
@@ -68,7 +61,7 @@ class DataframeDeleteStepPerformer(StepPerformer):
                 # at once, so we turn it into this format
                 {
                     'sheet_indexes': [params['sheet_index']],
-                    'old_dataframe_names': [params['old_dataframe_name']],
+                    'old_dataframe_names': [prev_state.df_names[params['sheet_index']]],
                 }, 
                 execution_data
             )

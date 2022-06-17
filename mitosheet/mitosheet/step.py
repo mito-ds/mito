@@ -132,11 +132,8 @@ class Step:
         NOTE: this is the only function you should use to get a step
         to execute!
         """        
-        # Saturate the event to get up to date parameters
-        params = self.step_performer.saturate(new_prev_state, self.params)
-
         # Actually execute the data transformation
-        post_state_and_execution_data = self.step_performer.execute(new_prev_state, params)
+        post_state_and_execution_data = self.step_performer.execute(new_prev_state, self.params)
 
         if post_state_and_execution_data is not None:
             # If we don't get anything new back, then we just make this
@@ -152,7 +149,6 @@ class Step:
         self.prev_state = new_prev_state
         self.post_state = new_post_state
         self.execution_data = execution_data if execution_data is not None else {}
-        self.params = params
     
 
     def step_indexes_to_skip(self, all_steps_before_this_step: List['Step']) -> Set[int]:
@@ -170,8 +166,8 @@ class Step:
 
         for step_index, step in enumerate(all_steps_before_this_step):
             # Check (1)
-            if step.step_type == FilterStepPerformer.step_type() and self.step_type == FilterStepPerformer.step_type() \
-                or step.step_type == BulkFilterStepPerformer.step_type() and self.step_type == BulkFilterStepPerformer.step_type():
+            if (step.step_type == FilterStepPerformer.step_type() and self.step_type == FilterStepPerformer.step_type()) or \
+                (step.step_type == BulkFilterStepPerformer.step_type() and self.step_type == BulkFilterStepPerformer.step_type()):
                 if step.params['sheet_index'] == self.params['sheet_index'] \
                     and step.params['column_id'] == self.params['column_id']:
                    step_indexes_to_skip.add(step_index) 
