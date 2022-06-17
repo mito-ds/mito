@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import pandas as pd
 from datetime import date
 from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.step_performers.bulk_filter import BULK_FILTER_CONDITION_IS_EXACTLY, BULK_FILTER_CONDITION_IS_NOT_EXACTLY
 
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.state import State
@@ -88,30 +89,27 @@ class FilterStepPerformer(StepPerformer):
         operator: str = get_param(params, 'operator')
         filters: Any = get_param(params, 'filters')
 
+        filter_list = {
+            'operator': operator,
+            'filters': filters
+        }
+
         # Get the correct column_header
         column_header = prev_state.column_ids.get_column_header_by_id(
             sheet_index, column_id
         )
 
-        # If no errors we create a new step for this filter
+        # Create a new step for this filter
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
+        # Get the current bulk filter
+        print(post_state.column_filters[sheet_index])
+        bulk_filter = post_state.column_filters[sheet_index][column_id]['bulk_filter']
+
         # Execute the filter
-        final_df, filtered_out_df, pandas_processing_time = _execute_filter(
-            prev_state.dfs[sheet_index], column_header, operator, filters
+        pandas_processing_time = _execute_filter(
+            post_state, sheet_index, column_header, filter_list, bulk_filter
         )
-        post_state.dfs[sheet_index] = final_df
-
-        # Keep track of which columns are filtered
-        post_state.column_filters[sheet_index][column_id]['filter_list']["operator"] = operator
-        post_state.column_filters[sheet_index][column_id]['filter_list']["filters"] = filters
-
-        # Then, go and add all of the filtered out values to the filtered out list
-        for column_header in filtered_out_df.columns:
-            column_id = post_state.column_ids.get_column_header_by_id(sheet_index, column_header)
-            current_series: pd.Series = post_state.column_filters[sheet_index][column_id]['filtered_out_values']
-            new_series: pd.Series = filtered_out_df[column_header]
-            post_state.column_filters[sheet_index][column_id]['filtered_out_values'] = pd.concat(current_series, new_series)
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time
@@ -207,11 +205,22 @@ def get_applied_filter(
     elif condition == FC_DATETIME_LESS_THAN_OR_EQUAL:
         return df[column_header] <= timestamp
 
+    # Then, we check if these are bulk filter conditions
+    if condition == BULK_FILTER_CONDITION_IS_EXACTLY:
+        return df[column_header].isin(value)
+    elif condition == BULK_FILTER_CONDITION_IS_NOT_EXACTLY:
+        return ~df[column_header].isin(value)
+
     raise Exception(f"Invalid type passed in filter {filter_}")
 
 
-def combine_filters(operator: str, filters: pd.Series) -> pd.Series:
+def combine_filters(operator: str, filters: List[Optional[pd.Series]]) -> Optional[pd.Series]:
     def filter_reducer(filter_one: pd.Series, filter_two: pd.Series) -> pd.Series:
+        if filter_one is None:
+            return filter_two
+        if filter_two is None:
+            return filter_one
+
         # Helper for combining filters based on the operations
         if operator == "Or":
             return (filter_one) | (filter_two)
@@ -220,20 +229,29 @@ def combine_filters(operator: str, filters: pd.Series) -> pd.Series:
         else:
             raise Exception(f"Operator {operator} is unsupported")
 
+    if len(filters) == 0:
+        return None
+
     # Combine all the filters into a single filter
     return functools.reduce(filter_reducer, filters)
 
 
 def _execute_filter(
-    df: pd.DataFrame,
-    column_header: ColumnHeader,
-    operator: str,
-    filters: List[Dict[str, Any]],
-) -> Tuple[pd.DataFrame, pd.DataFrame, float]:
+    post_state: State,
+    sheet_index: int,
+    column_id: ColumnID,
+    filter_list: Dict[str, Any],
+    bulk_filter: Dict[str, Any]
+) -> float:
     """
     Executes a filter on the given column, filtering by removing any rows who
     don't meet the condition.
     """
+
+    operator = filter_list['operator']
+    filters = filter_list['filters']
+    df = post_state.dfs[sheet_index]
+    column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
 
     applied_filters = []
     pandas_start_time = perf_counter()
@@ -258,13 +276,31 @@ def _execute_filter(
                 get_applied_filter(df, column_header, filter_or_group)
             )
 
+    # Get the final filter
+    filter_list_filter = combine_filters(operator, applied_filters)
+
+    # Then, we combine with the bulk filters
+    applied_bulk_filter = get_applied_filter(df, column_header, bulk_filter)
+    if bulk_filter['condition'] == BULK_FILTER_CONDITION_IS_EXACTLY:
+        final_filter = combine_filters('Or', [filter_list_filter, applied_bulk_filter])
+    elif bulk_filter['condition'] == BULK_FILTER_CONDITION_IS_NOT_EXACTLY:
+        final_filter = combine_filters('And', [filter_list_filter, applied_bulk_filter])
     
-    if len(applied_filters) > 0:
-        final_filter = combine_filters(operator, applied_filters)
-        final_df, filtered_out_df = df[final_filter], df[~final_filter]
-    else:
-        final_df, filtered_out_df = df, df.iloc[0:0]
+    final_df, filtered_out_df = df[final_filter], df[~final_filter]
+
+    print(filter_list_filter)
 
     pandas_processing_time = perf_counter() - pandas_start_time
 
-    return final_df, filtered_out_df, pandas_processing_time
+    post_state.dfs[sheet_index] = final_df
+
+    # Keep track of the column_filters of both types
+    post_state.column_filters[sheet_index][column_id]['filter_list'] = filter_list
+    post_state.column_filters[sheet_index][column_id]['bulk_filter'] = bulk_filter
+
+    # Then, go and add all of the filtered out values to the filtered out list
+    current_series: pd.Series = post_state.column_filters[sheet_index][column_id]['filtered_out_values']
+    new_series: pd.Series = filtered_out_df[column_header]
+    post_state.column_filters[sheet_index][column_id]['filtered_out_values'] = pd.concat([current_series, new_series])
+
+    return pandas_processing_time

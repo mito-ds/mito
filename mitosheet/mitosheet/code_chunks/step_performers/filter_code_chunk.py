@@ -5,10 +5,11 @@
 # Distributed under the terms of the GPL License.
 
 
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.sheet_functions.types.utils import is_datetime_dtype
+from mitosheet.step_performers.bulk_filter import BULK_FILTER_CONDITION_IS_EXACTLY, BULK_FILTER_CONDITION_IS_NOT_EXACTLY
 from mitosheet.step_performers.filter import (
     FC_BOOLEAN_IS_FALSE, FC_BOOLEAN_IS_TRUE, FC_DATETIME_EXACTLY,
     FC_DATETIME_GREATER, FC_DATETIME_GREATER_THAN_OR_EQUAL, FC_DATETIME_LESS,
@@ -19,7 +20,7 @@ from mitosheet.step_performers.filter import (
     FC_STRING_DOES_NOT_CONTAIN, FC_STRING_ENDS_WITH, FC_STRING_EXACTLY,
     FC_STRING_NOT_EXACTLY, FC_STRING_STARTS_WITH)
 from mitosheet.transpiler.transpile_utils import (
-    column_header_to_transpiled_code, list_to_string_without_internal_quotes)
+    column_header_list_to_transpiled_code, column_header_to_transpiled_code, list_to_string_without_internal_quotes)
 from mitosheet.types import ColumnHeader
 
 # Dict used when a filter condition is only used by one filter
@@ -210,6 +211,9 @@ def combine_filter_strings(
     NOTE: we choose to keep groups together for readibility, and so do not
     split the lines if we are combing a group.
     """
+    # Filter out any empty strings
+    filter_strings = list(filter(lambda x: len(x) != 0, filter_strings))
+
     if len(filter_strings) == 1:
         return filter_strings[0]
     else:
@@ -274,6 +278,18 @@ def create_filter_string_for_condition(
 
     return ""
 
+def get_bulk_filter_code(
+    df_name: str,
+    column_header: ColumnHeader,
+    bulk_filter: Dict[str, Any]
+) -> Optional[str]:
+    if bulk_filter['condition'] == BULK_FILTER_CONDITION_IS_EXACTLY:
+        return f'{df_name}[{column_header_to_transpiled_code(column_header)}].isin({column_header_list_to_transpiled_code(bulk_filter["value"])})'
+    elif bulk_filter['condition'] == BULK_FILTER_CONDITION_IS_NOT_EXACTLY:
+        if len(bulk_filter["value"]) == 0:
+            return None
+
+        return f'~{df_name}[{column_header_to_transpiled_code(column_header)}].isin({column_header_list_to_transpiled_code(bulk_filter["value"])})'
 
 class FilterCodeChunk(CodeChunk):
 
@@ -308,6 +324,8 @@ class FilterCodeChunk(CodeChunk):
             for filter_or_group in filters
             if "filters" in filter_or_group
         ]
+
+        bulk_filter = self.post_state.column_filters[sheet_index][column_id]['bulk_filter']
 
         filter_strings = []
 
@@ -349,19 +367,32 @@ class FilterCodeChunk(CodeChunk):
                 + combine_filter_strings(filter_group["operator"], group_filter_strings)
                 + ")"
             )
-
+        
+        # Get the filter string for the filter list
         if len(filter_strings) == 0:
-            return []
-        elif len(filter_strings) == 1:
-            return [
-                f"{df_name} = {df_name}[{filter_strings[0]}]",
-            ]
+            filter_list_string = ''
+        if len(filter_strings) == 1:
+            filter_list_string = filter_strings[0]
         else:
-            filter_string = combine_filter_strings(
+            filter_list_string = combine_filter_strings(
                 operator, filter_strings, split_lines=True
             )
+        
+        # Then, combine it with the bulk filter
+        bulk_filter_code = get_bulk_filter_code(df_name, column_header, bulk_filter)
+        if bulk_filter_code is not None:
+            if bulk_filter['condition'] == BULK_FILTER_CONDITION_IS_EXACTLY:
+                final_filter = combine_filter_strings('And', [filter_list_string, bulk_filter_code])
+            elif bulk_filter['conditions'] == BULK_FILTER_CONDITION_IS_NOT_EXACTLY:
+                final_filter = combine_filter_strings('Or', [filter_list_string, bulk_filter_code])
+        else:
+            final_filter = filter_list_string
+        
+        if len(final_filter) == 0:
+            return []
+        else:
             return [
-                f"{df_name} = {df_name}[{filter_string}]",
+                f"{df_name} = {df_name}[{final_filter}]",
             ]
 
     def get_edited_sheet_indexes(self) -> List[int]:

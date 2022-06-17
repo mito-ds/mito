@@ -33,9 +33,11 @@ FORMAT_K_M_B = "k_m_b"
 FORMAT_SCIENTIFIC_NOTATION = "scientific notation"
 
 def get_empty_column_filter() -> Dict[str, Any]:
+    from mitosheet.step_performers.bulk_filter import BULK_FILTER_CONDITION_IS_NOT_EXACTLY
+
     return {
         "filter_list": {"operator": "And", "filters": []},
-        'bulk_filter': None,
+        'bulk_filter': {"condition": BULK_FILTER_CONDITION_IS_NOT_EXACTLY, "value": []}, # type: None | {"condition": "bulk_is_exactly" | "bulk_is_not_exactly", value: any[]}
         'filtered_out_values': pd.Series(dtype='object')
     } 
 

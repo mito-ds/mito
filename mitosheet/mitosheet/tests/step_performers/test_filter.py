@@ -1211,10 +1211,8 @@ def test_filter_saves_filtered_out_data():
 
     mito.filter(0, "A", "And", FC_STRING_CONTAINS, "a")
     assert 'jon' in mito.curr_step.column_filters[0]["A"]["filtered_out_values"].unique()
-    assert 3 in mito.curr_step.column_filters[0]["B"]["filtered_out_values"].unique()
+    assert len(mito.curr_step.column_filters[0]["B"]["filtered_out_values"].unique()) == 0
     
-    mito.filter(0, "A", "And", FC_STRING_CONTAINS, "b")
+    mito.filter(0, "B", "And", FC_NUMBER_EXACTLY, 1)
     assert 'jon' in mito.curr_step.column_filters[0]["A"]["filtered_out_values"].unique()
-    assert 'aaron' in mito.curr_step.column_filters[0]["A"]["filtered_out_values"].unique()
-    assert 1 in mito.curr_step.column_filters[0]["B"]["filtered_out_values"].unique()
-    assert 3 in mito.curr_step.column_filters[0]["B"]["filtered_out_values"].unique()
+    assert 2 in mito.curr_step.column_filters[0]["B"]["filtered_out_values"].unique()

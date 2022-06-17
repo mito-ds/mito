@@ -15,6 +15,10 @@ from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
 from mitosheet.types import ColumnID
 
+BULK_FILTER_TOGGLE_SPECIFIC_VALUE = 'toggle_specific_value'
+BULK_FILTER_CONDITION_IS_EXACTLY = 'bulk_is_exactly'
+BULK_FILTER_CONDITION_IS_NOT_EXACTLY = 'bulk_is_not_exactly'
+
 class BulkFilterStepPerformer(StepPerformer):
     """
     Allows you to bulk filter.
@@ -33,24 +37,41 @@ class BulkFilterStepPerformer(StepPerformer):
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')
         toggle_type: Any = get_param(params, 'toggle_type') # {type: 'toggle_all_matching', toggle_value: boolean, search_string: string} | {type: 'toggle_specific_value', value: specific value}
-        
-        
 
         # We make a new state to modify it
         post_state = prev_state.copy() # TODO: update the deep copies
 
-        pandas_start_time = perf_counter()
-        
-        # TODO: do the operation here
+        column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
+        bulk_filter  = post_state.column_filters[sheet_index][column_id]['bulk_filter']
+        current_values = post_state.dfs[sheet_index][column_header]
+        filtered_out_values = post_state.column_filters['filtered_out_values']
 
-        pandas_processing_time = perf_counter() - pandas_start_time
+        if toggle_type['type'] == BULK_FILTER_TOGGLE_SPECIFIC_VALUE:
+            value = toggle_type['value']
 
+            new_values = [value for value in bulk_filter['value']]
+
+            if value in new_values:
+                new_values.remove(value)
+            else:
+                new_values.append(value)
+
+            bulk_filter['value'] = new_values
+        else:
+            # We are toggling all matching values
+            pass
+
+        from mitosheet.step_performers.filter import _execute_filter
+        pandas_processing_time = _execute_filter(
+            post_state,
+            sheet_index,
+            column_id,
+            post_state.column_filters['filter_list'],
+            bulk_filter
+        )
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
-            'result': {
-                # TODO: fill in the result
-            }
         }
 
     @classmethod
