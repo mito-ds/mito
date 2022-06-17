@@ -493,7 +493,7 @@ export default class MitoAPI {
                     value: uniqueValueCountsObj.uniqueValueRowDataArray[i][0],
                     percentOccurence: (uniqueValueCountsObj.uniqueValueRowDataArray[i][1] as number) * 100,
                     countOccurence: (uniqueValueCountsObj.uniqueValueRowDataArray[i][2] as number),
-                    isNotFiltered: true
+                    isNotFiltered: uniqueValueCountsObj.uniqueValueRowDataArray[i][2] !== 0
                 })
             }
 
@@ -741,7 +741,7 @@ export default class MitoAPI {
     async editBulkFilter(
         sheet_index: number,
         column_id: ColumnID,
-        toggle_type: any,
+        toggle_type: {'type': 'toggle_specific_value', 'value': string | number | boolean, 'remove_from_dataframe': boolean},
     ): Promise<void> {
 
         const stepID = getRandomId();

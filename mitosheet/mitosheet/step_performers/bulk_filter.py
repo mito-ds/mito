@@ -71,14 +71,22 @@ class BulkFilterStepPerformer(StepPerformer):
                     new_filtered_out_values.remove(value)
             elif bulk_filter['condition'] == BULK_FILTER_CONDITION_IS_NOT_EXACTLY:
                 if remove_from_dataframe and value not in new_values:
+                    print("REMOVE FROM DF", value)
                     new_values.append(value)
                     new_filtered_out_values.append(value)
                 elif not remove_from_dataframe and value in new_values:
+                    print("ADD TO DF", value)
                     new_values.remove(value)
                     new_filtered_out_values.remove(value)
             else:
                 raise Exception(f'Invalid bulk filter with condition {bulk_filter["condition"]}')
-            
+
+            print("NEW VALUES", new_values)
+            print("FILTERED OUT", new_filtered_out_values)
+
+            # TODO: fix this weird bug, when we save, it saves the params but does not save the _final_ param, 
+            # namely, the last item that was removed. Specifically, it doesn't add this last
+
             bulk_filter['value'] = new_values
             post_state.column_filters[sheet_index][column_id]['filtered_out_values'] = new_filtered_out_values
 

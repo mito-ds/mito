@@ -1,17 +1,16 @@
 // Copyright (c) Mito
 
-import React, { Fragment, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import MitoAPI from '../../../../jupyter/api';
 import MultiToggleBox from '../../../elements/MultiToggleBox';
 import Select from '../../../elements/Select';
 import { FilterType, FilterGroupType, ColumnID, FormatTypeObj, UIState } from '../../../../types';
 import Col from '../../../spacing/Col';
 import Row from '../../../spacing/Row';
-import { areFiltersEqual, getAllDoesNotContainsFilterValues, getExclusiveFilterData, getFilterDisabledMessage } from '../FilterAndSortTab/filter/utils';
+import { getFilterDisabledMessage } from '../FilterAndSortTab/filter/utils';
 import MultiToggleItem from '../../../elements/MultiToggleItem';
 import DropdownItem from '../../../elements/DropdownItem';
 import { useDebouncedEffect } from '../../../../hooks/useDebouncedEffect';
-import { isFilterGroup } from '../FilterAndSortTab/filter/filterTypes';
 import { formatCellData } from '../../../../utils/formatColumns';
 import OpenFillNaN from '../../FillNa/OpenFillNaN';
 
@@ -24,7 +23,7 @@ import OpenFillNaN from '../../FillNa/OpenFillNaN';
 export interface UniqueValueCount {
     value: string | number | boolean, // the value in the column
     percentOccurence: number, // the percent of rows in the column that are value
-    countOccurence: number
+    countOccurence: number,
     isNotFiltered: boolean, // true if the user has not filtered out the unique value count from their data through the value section
 }
 
@@ -79,7 +78,11 @@ export function ValuesTab(
     const [uniqueValueCounts, setUniqueValueCounts] = useState<UniqueValueCount[]>([])
 
     const [searchString, setSearchString] = useState('');
-    const [sort, setSort] = useState<UniqueValueSortType>(UniqueValueSortType.ASCENDING_ALPHABETICAL)
+    const [sort, setSort] = useState<UniqueValueSortType>(UniqueValueSortType.ASCENDING_ALPHABETICAL);
+
+    // We store the toggled values in the frontend so that we can update their toggle
+    // state immediately, for quick feedback to the user
+    const [toggledValues, setToggledValues] = useState<[number | string | boolean, boolean][]>([])
 
     /**
      * In the past, we used to send all the unique values to the front-end
@@ -110,9 +113,13 @@ export function ValuesTab(
         lastSort.current = sort;
     }, [searchString, sort], 500);
 
+    useEffect(() => {
+
+    }, [sort, searchString])
+
     async function loadUniqueValueCounts() {
         setLoading(true);
-
+        
         const _uniqueValueObj = await props.mitoAPI.getUniqueValueCounts(
             props.selectedSheetIndex,
             props.columnID,
@@ -122,71 +129,13 @@ export function ValuesTab(
 
         if (_uniqueValueObj !== undefined) {
             const _uniqueValueObjs = _uniqueValueObj.uniqueValueCounts
-            /*  
-                Add back all of the values that were filtered out of the column, so the user can toggle
-                them back on. Note that this lets users toggle them back on even if they were removed in a previous step! 
-            */ 
-            const allDoesNotContainsFilters: (string | number | boolean)[] = getAllDoesNotContainsFilterValues(props.filters, props.columnDtype)
-            allDoesNotContainsFilters.forEach(key => {
-                _uniqueValueObjs.push({
-                    value: key,
-                    percentOccurence: 0,
-                    countOccurence: 0,
-                    isNotFiltered: false,
-                })
-            })
-        
             setUniqueValueCounts(_uniqueValueObjs);
             setIsAllData(_uniqueValueObj.isAllData);
+            setToggledValues([]);
         } else {
             setUniqueValueCounts([])
         }
         setLoading(false);
-    }
-
-
-    /* 
-        Helper function for getting the index of the UniqueValueCount in UniqueValueCounts from the index 
-        of the UniqueValueCount in the searchedUniqueValueCounts. It exploits the invariant that
-        these are _unique value_ counts. 
-    */
-    const getUniqueValueCountIndexFromSortedIndex = (index: number): number => {
-        const value = sortedUniqueValueCounts[index].value
-        return uniqueValueCounts.findIndex(uniqueValueCount => {
-            return uniqueValueCount.value === value
-        })
-    }
-
-    /*
-        Toggles the exclusive filter for a specific value. An exclusive filter is the NOT_EXACTLY filter condition
-        for strings, numbers, and dates. For booleans its either the IS_TRUE or IS_FALSE conditions. 
-
-        For a specific value in this column, the toggleExclusiveFilter determines if there is an exclusive filter that is excluding the value.
-        If there is, it removes it. If there's is not, it applies it. 
-    */
-    const toggleExclusiveFilters = (values: (string | number | boolean)[]): void => {
-        // Generate the filter
-        
-        props.setFilters((prevFilters) => {
-            let newFilters = [...prevFilters];
-
-            values.forEach(value => {
-                const exclusiveFilter = getExclusiveFilterData(props.columnDtype, value)
-                const originalFilterLength = newFilters.length
-
-                // Remove the filter if it exists
-                newFilters = newFilters.filter(filter => {
-                    return isFilterGroup(filter) || !areFiltersEqual(filter, exclusiveFilter)
-                })
-
-                // If the filter didn't exist, then add it. 
-                if (newFilters.length === originalFilterLength) {
-                    newFilters.push(exclusiveFilter)
-                }
-            })
-
-            return newFilters;
-        })
     }
 
     const sortedUniqueValueCounts = sortUniqueValueCounts(uniqueValueCounts, sort);
@@ -235,7 +184,8 @@ export function ValuesTab(
                 >
                     {sortedUniqueValueCounts.map((uniqueValueCount, index) => {
                         const valueToDisplay = formatCellData(uniqueValueCount.value, props.columnDtype, props.columnFormatType);
-
+                        const toggledValue = toggledValues.find(([value, toggle]) => value === uniqueValueCount.value);
+                        const toggle = toggledValue !== undefined ? toggledValue[1] : uniqueValueCount.isNotFiltered
                         /**
                          * If this is an NaN value, we display additional text that allows the user to navigate
                          * to the fill NaN taskpane easily
@@ -247,42 +197,35 @@ export function ValuesTab(
                                     <span>{valueToDisplay} <OpenFillNaN setUIState={props.setUIState} columnID={props.columnID}/></span>
                                 }
                                 rightText={uniqueValueCount.countOccurence + ' (' + uniqueValueCount.percentOccurence.toFixed(2).toString() + '%' + ')'}
-                                toggled={uniqueValueCount.isNotFiltered}
+                                toggled={toggle}
                                 index={index}
                                 onToggle={() => {
-
-                                    // Manually change the toggle status so it updates instantaneously
-                                    const uniqueValueCountIndex = getUniqueValueCountIndexFromSortedIndex(index);
-                                    setUniqueValueCounts(oldUniqueValueCounts => {
-                                        const newUniqueValueCounts = oldUniqueValueCounts.slice();
-                                        newUniqueValueCounts[uniqueValueCountIndex].isNotFiltered = !uniqueValueCounts[uniqueValueCountIndex].isNotFiltered
-                                        return newUniqueValueCounts;
-                                    })
-
-                                    toggleExclusiveFilters([uniqueValueCount.value])
+                                    // TODO: handle NaN properly in this function
+                                    props.mitoAPI.editBulkFilter(props.selectedSheetIndex, props.columnID, {type: 'toggle_specific_value', 'value': uniqueValueCount.value, 'remove_from_dataframe': uniqueValueCount.isNotFiltered});
                                 }}
                             />)
                         }
-
 
                         return((
                             <MultiToggleItem
                                 key={index}
                                 title={valueToDisplay}
                                 rightText={uniqueValueCount.countOccurence + ' (' + uniqueValueCount.percentOccurence.toFixed(2).toString() + '%' + ')'}
-                                toggled={uniqueValueCount.isNotFiltered}
+                                toggled={toggle}
                                 index={index}
                                 onToggle={() => {
-
-                                    // Manually change the toggle status so it updates instantaneously
-                                    const uniqueValueCountIndex = getUniqueValueCountIndexFromSortedIndex(index);
-                                    setUniqueValueCounts(oldUniqueValueCounts => {
-                                        const newUniqueValueCounts = oldUniqueValueCounts.slice();
-                                        newUniqueValueCounts[uniqueValueCountIndex].isNotFiltered = !uniqueValueCounts[uniqueValueCountIndex].isNotFiltered
-                                        return newUniqueValueCounts;
+                                    props.mitoAPI.editBulkFilter(props.selectedSheetIndex, props.columnID, {type: 'toggle_specific_value', 'value': uniqueValueCount.value, 'remove_from_dataframe': toggle});
+                                    setToggledValues(prevToggleValueIndexes => {
+                                        const newToggledValues = [...prevToggleValueIndexes]
+                                        const toggledValueIndex = newToggledValues.findIndex(([value, toggle]) => value === uniqueValueCount.value);
+                                        if (toggledValueIndex === -1) {
+                                            newToggledValues.push([uniqueValueCount.value, !toggle])
+                                        } else {
+                                            newToggledValues[toggledValueIndex][1] = !toggle;
+                                            newToggledValues[toggledValueIndex][1] = !toggle;
+                                        }
+                                        return newToggledValues;
                                     })
-
-                                    toggleExclusiveFilters([uniqueValueCount.value])
                                 }}
                             />
                         )) 
