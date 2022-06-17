@@ -10,7 +10,6 @@ from typing import Any, Dict, List, Optional, Union
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.sheet_functions.types.utils import is_datetime_dtype
 from mitosheet.state import State
-from mitosheet.step_performers.bulk_filter import BULK_FILTER_CONDITION_IS_EXACTLY, BULK_FILTER_CONDITION_IS_NOT_EXACTLY
 from mitosheet.step_performers.filter import (
     FC_BOOLEAN_IS_FALSE, FC_BOOLEAN_IS_TRUE, FC_DATETIME_EXACTLY,
     FC_DATETIME_GREATER, FC_DATETIME_GREATER_THAN_OR_EQUAL, FC_DATETIME_LESS,
@@ -284,6 +283,8 @@ def get_bulk_filter_code(
     column_header: ColumnHeader,
     bulk_filter: Dict[str, Any]
 ) -> Optional[str]:
+    from mitosheet.step_performers.bulk_filter import BULK_FILTER_CONDITION_IS_EXACTLY, BULK_FILTER_CONDITION_IS_NOT_EXACTLY
+
     if bulk_filter['condition'] == BULK_FILTER_CONDITION_IS_EXACTLY:
         return f'{df_name}[{column_header_to_transpiled_code(column_header)}].isin({column_header_list_to_transpiled_code(bulk_filter["value"])})'
     elif bulk_filter['condition'] == BULK_FILTER_CONDITION_IS_NOT_EXACTLY:

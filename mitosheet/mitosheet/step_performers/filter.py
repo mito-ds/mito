@@ -10,7 +10,6 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import pandas as pd
 from datetime import date
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.step_performers.bulk_filter import BULK_FILTER_CONDITION_IS_EXACTLY, BULK_FILTER_CONDITION_IS_NOT_EXACTLY
 
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.state import State
@@ -206,6 +205,7 @@ def get_applied_filter(
         return df[column_header] <= timestamp
 
     # Then, we check if these are bulk filter conditions
+    from mitosheet.step_performers.bulk_filter import BULK_FILTER_CONDITION_IS_EXACTLY, BULK_FILTER_CONDITION_IS_NOT_EXACTLY
     if condition == BULK_FILTER_CONDITION_IS_EXACTLY:
         return df[column_header].isin(value)
     elif condition == BULK_FILTER_CONDITION_IS_NOT_EXACTLY:
@@ -281,6 +281,7 @@ def _execute_filter(
 
     # Then, we combine with the bulk filters
     applied_bulk_filter = get_applied_filter(df, column_header, bulk_filter)
+    from mitosheet.step_performers.bulk_filter import BULK_FILTER_CONDITION_IS_EXACTLY, BULK_FILTER_CONDITION_IS_NOT_EXACTLY
     if bulk_filter['condition'] == BULK_FILTER_CONDITION_IS_EXACTLY:
         final_filter = combine_filters('Or', [filter_list_filter, applied_bulk_filter])
     elif bulk_filter['condition'] == BULK_FILTER_CONDITION_IS_NOT_EXACTLY:

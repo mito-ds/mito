@@ -5,10 +5,9 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.bulk_filter_code_chunk import BulkFilterCodeChunk
+from mitosheet.code_chunks.step_performers.filter_code_chunk import FilterCodeChunk
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
@@ -83,7 +82,7 @@ class BulkFilterStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            BulkFilterCodeChunk(prev_state, post_state, params, execution_data)
+            FilterCodeChunk(prev_state, post_state, params, execution_data)
         ]
 
     @classmethod
