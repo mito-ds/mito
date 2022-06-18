@@ -5,7 +5,7 @@ import Select from "../../elements/Select";
 import Col from "../../spacing/Col";
 import Row from "../../spacing/Row";
 import { getDefaultMergeParams, MergeParams } from "./MergeTaskpane";
-
+import '../../../../css/taskpanes/Merge/MergeSheetAndKeySelection.css'
 
 
 const MergeSheetSection = (props: {
@@ -33,7 +33,7 @@ const MergeSheetSection = (props: {
                                 return newParams ? newParams : prevParams;
                             })
                         }}
-                        width='medium'
+                        className='merge-sheet-selection-first-dataframe-select'
                     >
                         {dfNames.map(dfName => {
                             return (
@@ -45,7 +45,7 @@ const MergeSheetSection = (props: {
                         })}
                     </Select>
                 </Col>
-                <Col>
+                <Col offsetRight={2}>
                     <p className='text-header-3'>
                         Second Dataframe
                     </p>

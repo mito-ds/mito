@@ -143,7 +143,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                             Merge Type
                         </p>
                     </Col>
-                    <Col>
+                    <Col offsetRight={2}>
                         <Select 
                             value={params.how}
                             onChange={(mergeType: string) => {
@@ -155,7 +155,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                                     }
                                 })
                             }}
-                            width='medium'
+                            width='medium-large'
                         >
                             <DropdownItem
                                 title={MergeType.LOOKUP}
@@ -188,20 +188,20 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                         </Select>
                     </Col>
                 </Row>
-                <Spacer px={15}/>
+                <Spacer px={20}/>
                 <MergeSheetSection
                     params={params}
                     setParams={setParams}
                     sheetDataArray={props.sheetDataArray}
                 />
-                <Spacer px={15}/>
+                <Spacer px={20}/>
                 <MergeKeysSelectionSection
                     params={params}
                     setParams={setParams}
                     sheetDataArray={props.sheetDataArray}
                     error={error}
                 />
-                <Spacer px={15}/>
+                <Spacer px={20}/>
                 <p className='text-header-3'>
                     Columns to Keep from First Dataframe
                 </p>
@@ -267,7 +267,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                         Finding the unique values in the second sheet doesn&apos;t keep any columns from the first sheet.
                     </p>
                 }
-                <Spacer px={15}/>
+                <Spacer px={20}/>
                 <div>
                     <p className='text-header-3'>
                         Columns to Keep from Second Dataframe
