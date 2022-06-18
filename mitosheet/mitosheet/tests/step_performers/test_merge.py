@@ -89,30 +89,6 @@ MERGE_TESTS = [
     ),
     (
         [
-            pd.DataFrame({'A': [1], 'B': [2]}),
-            pd.DataFrame({'A': [1], 'C': [3]})
-        ],
-        'unique in left', 0, 1, [['A', 'A'], ['B', 'C']], ['A', 'B'], ['A', 'C'],
-        [
-            pd.DataFrame({'A': [1], 'B': [2]}),
-            pd.DataFrame({'A': [1], 'C': [3]}),
-            pd.DataFrame({'A': [1], 'B': [2]})
-        ],
-    ),
-    (
-        [
-            pd.DataFrame({'A': [1], 'B': [2]}),
-            pd.DataFrame({'A': [1], 'C': [3]})
-        ],
-        'unique in right', 0, 1, [['A', 'A'], ['B', 'C']], ['A', 'B'], ['A', 'C'],
-        [
-            pd.DataFrame({'A': [1], 'B': [2]}),
-            pd.DataFrame({'A': [1], 'C': [3]}),
-            pd.DataFrame({'A': [1], 'C': [3]})
-        ],
-    ),
-    (
-        [
             pd.DataFrame({'product_id': [1, 2, 3, 4, 5, 6, 7, 8, 9], 'description': ["a cat", "a bat", "a rat", "dont ask", "beer", "other thing", "my smelly shoes", "tickets to basketball games (we love)", "no"], pd.to_datetime('1-1-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-2-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-3-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-4-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-5-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-6-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8]}),
             pd.DataFrame({'product_id': [1, 2, 3, 4, 5, 6, 7, 8, 9], 'description': ["a cat", "a mat", "a rat", "dont ask", "beer", "other thing", "my smelly shoes", "tickets to basketball games (we love)", "no"], pd.to_datetime('1-1-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-2-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-3-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-4-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-5-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-6-2020'): [0, 0, 1, 1, 3, 5, 6, 7, 8]})
         ],
@@ -137,6 +113,30 @@ def test_merge(input_dfs, how, sheet_index_one, sheet_index_two, merge_key_colum
         assert actual.equals(expected)
 
 MERGE_UNIQUE_TESTS = [
+    (
+        [
+            pd.DataFrame({'A': [1], 'B': [2]}),
+            pd.DataFrame({'A': [1], 'C': [3]})
+        ],
+        'unique in left', 0, 1, [['A', 'A'], ['B', 'C']], ['A', 'B'], ['A', 'C'],
+        [
+            pd.DataFrame({'A': [1], 'B': [2]}),
+            pd.DataFrame({'A': [1], 'C': [3]}),
+            pd.DataFrame({'A': [1], 'B': [2]})
+        ],
+    ),
+    (
+        [
+            pd.DataFrame({'A': [1], 'B': [2]}),
+            pd.DataFrame({'A': [1], 'C': [3]})
+        ],
+        'unique in right', 0, 1, [['A', 'A'], ['B', 'C']], ['A', 'B'], ['A', 'C'],
+        [
+            pd.DataFrame({'A': [1], 'B': [2]}),
+            pd.DataFrame({'A': [1], 'C': [3]}),
+            pd.DataFrame({'A': [1], 'C': [3]})
+        ],
+    ),
     (
         [
             pd.DataFrame({'A': [1,2,3], 'B': [4,5,6]}),
@@ -399,7 +399,7 @@ OTHER_MERGE_UNIQUE_TESTS = [
 ]
 @pandas_post_1_only
 @pytest.mark.parametrize("how,df_one,key_one,df_two,key_two,merged", OTHER_MERGE_TESTS)
-def test_merge_all_columns(how, df_one, key_one, df_two, key_two, merged):
+def test_merge_unique_all_columns(how, df_one, key_one, df_two, key_two, merged):
     mito = create_mito_wrapper_dfs(df_one, df_two)
     mito.merge_sheets(how, 0, 1, [[key_one, key_two]], list(df_one.keys()), list(df_two.keys()))
 
