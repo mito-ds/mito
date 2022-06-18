@@ -270,7 +270,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                 <Spacer px={15}/>
                 <div>
                     <p className='text-header-3'>
-                        Columns to Keep in Second Dataframe
+                        Columns to Keep from Second Dataframe
                     </p>
                     {params.how !== MergeType.UNIQUE_IN_LEFT && 
                         <MultiToggleBox

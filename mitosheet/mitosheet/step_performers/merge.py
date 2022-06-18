@@ -146,7 +146,6 @@ def _execute_merge(
             df_two_cleaned = df_two_cleaned.drop_duplicates(subset=merge_keys_two) # Remove duplicates so lookup merge only returns first match
             # Create a boolean index array for values only in the left sheet by turning on the indicator=True and then filtering on the result
             bool_index_array = df_one_cleaned.merge(df_two_cleaned, left_on=merge_keys_one, right_on=merge_keys_two, how='left', indicator=True)['_merge'] == 'left_only'
-            print(df_one_cleaned.copy(deep=True)[bool_index_array][selected_columns_one].reset_index(drop=True))
             # Get the final result by filtering on the boolean index array and then selecting the columns we want to keep
             return df_one_cleaned.copy(deep=True)[bool_index_array][selected_columns_one].reset_index(drop=True)
         if how == UNIQUE_IN_RIGHT:
