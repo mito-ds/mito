@@ -73,8 +73,6 @@ def check_dataframes_equal(test_wrapper):
     # Then, construct code that is just the code we expect, except at the end
     # it compares the dataframe to the final dataframe we expect
     def check_final_dataframe(df_name, df):
-        print(df)
-        print(final_dfs[df_name])
         assert final_dfs[df_name].equals(df)
 
     code = "\n".join(
@@ -86,7 +84,6 @@ def check_dataframes_equal(test_wrapper):
     )
 
     import mitosheet
-    print(code)
     exec(code, 
         {
             'check_final_dataframe': check_final_dataframe,

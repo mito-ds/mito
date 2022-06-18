@@ -35,7 +35,6 @@ def execute_replay_analysis_update(
 
     # If we're getting an event telling us to update, we read in the steps from the file
     analysis = read_and_upgrade_analysis(analysis_name)
-    print(analysis)
 
     # If there is no analysis with this name, generate an error
     if analysis is None:

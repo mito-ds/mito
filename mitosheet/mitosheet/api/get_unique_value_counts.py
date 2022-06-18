@@ -28,7 +28,6 @@ def get_unique_value_counts(params: Dict[str, Any], steps_manager: StepsManagerT
     the case that there are more than MAX_UNIQUE_VALUES so we 
     don't crash the front-end with too much data.
     """
-    print("Getting unique value counts")
     sheet_index = params['sheet_index']
     column_id = params['column_id']
     search_string = params['search_string']
@@ -42,7 +41,6 @@ def get_unique_value_counts(params: Dict[str, Any], steps_manager: StepsManagerT
     unique_value_counts_series = series.value_counts(dropna=False)
 
     filtered_out_values = steps_manager.curr_step.column_filters[sheet_index][column_id]['filtered_out_values']
-    print(filtered_out_values)
 
     unique_value_counts_df = pd.DataFrame({
         'values': filtered_out_values + unique_value_counts_percents_series.index.to_list(),

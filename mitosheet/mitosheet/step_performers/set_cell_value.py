@@ -51,7 +51,6 @@ class SetCellValueStepPerformer(StepPerformer):
 
         # If nothings changed, there's no work to do
         if str(prev_state.dfs[sheet_index].at[row_index, column_header]) == new_value:
-            print("prev_state.dfs[sheet_index].at[row_index, column_header]", prev_state.dfs[sheet_index].at[row_index, column_header])
             return prev_state, None
 
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])

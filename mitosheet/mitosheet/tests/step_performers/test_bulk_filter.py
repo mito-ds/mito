@@ -127,3 +127,18 @@ def test_bulk_filter_with_normal_filter():
     mito.filter(0, 'A', 'And', FC_NUMBER_GREATER, 5)
     assert mito.dfs[0]['A'].empty
 
+def test_replay_bulk_filters():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3, 4, 5]}))
+    mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 1, 'remove_from_dataframe': True})
+    mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 4, 'remove_from_dataframe': True})
+    mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 4, 'remove_from_dataframe': False})
+    mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 1, 'remove_from_dataframe': False})
+    mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 1, 'remove_from_dataframe': True})
+    mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 4, 'remove_from_dataframe': True})
+    mito.save_analysis('test-123123')
+    
+    new_mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3, 4, 5]}))
+    new_mito.replay_analysis('test-123123')
+
+    assert new_mito.dfs[0].equals(pd.DataFrame({'A': [2, 3, 5]}, index=[1, 2, 4]))
+    assert new_mito.curr_step.column_filters[0]['A']['filtered_out_values'] == [1, 4]

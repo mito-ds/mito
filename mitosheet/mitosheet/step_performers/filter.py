@@ -83,7 +83,6 @@ class FilterStepPerformer(StepPerformer):
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
         # Get the current bulk filter
-        print(post_state.column_filters[sheet_index])
         bulk_filter = post_state.column_filters[sheet_index][column_id]['bulk_filter']
 
         # Execute the filter
