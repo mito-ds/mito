@@ -12,6 +12,7 @@ import pytest
 import pandas as pd
 
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs, make_multi_index_header_df
+from mitosheet.tests.decorators import pandas_post_1_only
 
 MERGE_TESTS = [
     (
@@ -122,6 +123,20 @@ MERGE_TESTS = [
             pd.DataFrame({'product_id': [1, 3, 4, 5, 6, 7, 8, 9], 'description': ["a cat", "a rat", "dont ask", "beer", "other thing", "my smelly shoes", "tickets to basketball games (we love)", "no"], pd.to_datetime('1-1-2020'): [0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-2-2020'): [0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-3-2020'): [0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-4-2020'): [0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-5-2020'): [0, 1, 1, 3, 5, 6, 7, 8], pd.to_datetime('1-6-2020'): [0, 1, 1, 3, 5, 6, 7, 8]}),
         ],
     ),
+]
+@pytest.mark.parametrize("input_dfs, how, sheet_index_one, sheet_index_two, merge_key_columns, selected_columns_one, selected_columns_two, output_dfs", MERGE_TESTS)
+def test_merge(input_dfs, how, sheet_index_one, sheet_index_two, merge_key_columns, selected_columns_one, selected_columns_two, output_dfs):
+    mito = create_mito_wrapper_dfs(*input_dfs)
+
+    mito.merge_sheets(
+        how, sheet_index_one, sheet_index_two, merge_key_columns, selected_columns_one, selected_columns_two
+    )
+
+    assert len(mito.dfs) == len(output_dfs)
+    for actual, expected in zip(mito.dfs, output_dfs):
+        assert actual.equals(expected)
+
+MERGE_UNIQUE_TESTS = [
     (
         [
             pd.DataFrame({'A': [1,2,3], 'B': [4,5,6]}),
@@ -171,8 +186,9 @@ MERGE_TESTS = [
         ],
     ),
 ]
+@pandas_post_1_only
 @pytest.mark.parametrize("input_dfs, how, sheet_index_one, sheet_index_two, merge_key_columns, selected_columns_one, selected_columns_two, output_dfs", MERGE_TESTS)
-def test_merge(input_dfs, how, sheet_index_one, sheet_index_two, merge_key_columns, selected_columns_one, selected_columns_two, output_dfs):
+def test_merge_unique(input_dfs, how, sheet_index_one, sheet_index_two, merge_key_columns, selected_columns_one, selected_columns_two, output_dfs):
     mito = create_mito_wrapper_dfs(*input_dfs)
 
     mito.merge_sheets(
@@ -349,7 +365,16 @@ OTHER_MERGE_TESTS = [
             'value_df2': [5, 1, None, None, None, 6, 7]
             })
     ),
-    (
+]
+@pytest.mark.parametrize("how,df_one,key_one,df_two,key_two,merged", OTHER_MERGE_TESTS)
+def test_merge_all_columns(how, df_one, key_one, df_two, key_two, merged):
+    mito = create_mito_wrapper_dfs(df_one, df_two)
+    mito.merge_sheets(how, 0, 1, [[key_one, key_two]], list(df_one.keys()), list(df_two.keys()))
+
+    assert mito.dfs[2].equals(merged)
+
+OTHER_MERGE_UNIQUE_TESTS = [
+        (
         'unique in left',
         pd.DataFrame({'Key1': ['A', 'B', 'C', 'D'], 'value': [1, 2, 3, 4]}),
         'Key1',
@@ -372,13 +397,13 @@ OTHER_MERGE_TESTS = [
         })
     ),
 ]
+@pandas_post_1_only
 @pytest.mark.parametrize("how,df_one,key_one,df_two,key_two,merged", OTHER_MERGE_TESTS)
 def test_merge_all_columns(how, df_one, key_one, df_two, key_two, merged):
     mito = create_mito_wrapper_dfs(df_one, df_two)
     mito.merge_sheets(how, 0, 1, [[key_one, key_two]], list(df_one.keys()), list(df_two.keys()))
 
     assert mito.dfs[2].equals(merged)
-
 
 
 MERGE_PARTIAL_TESTS = [
