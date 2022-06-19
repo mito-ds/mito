@@ -65,8 +65,6 @@ const ColumnHeader = (props: {
         return <></>
     }
 
-    console.log(columnFilters)
-
     const hasFilters = columnFilters.filter_list.filters.length > 0;
     const editingColumnHeader = props.editorState !== undefined && props.editorState.editorLocation === 'cell' && props.editorState.rowIndex <= -1 && props.editorState.columnIndex === props.columnIndex;
     const editingFinalColumnHeader = props.editorState !== undefined && props.editorState.editorLocation === 'cell' && props.editorState.rowIndex === -1 && props.editorState.columnIndex === props.columnIndex;

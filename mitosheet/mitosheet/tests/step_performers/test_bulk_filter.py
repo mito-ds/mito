@@ -9,7 +9,7 @@ Contains tests for Bulk Filter
 
 import pandas as pd
 import pytest
-from mitosheet.step_performers.bulk_filter import BULK_FILTER_TOGGLE_SPECIFIC_VALUE
+from mitosheet.step_performers.bulk_filter import BULK_FILTER_TOGGLE_ALL_MATCHING, BULK_FILTER_TOGGLE_SPECIFIC_VALUE
 from mitosheet.step_performers.filter import FC_NUMBER_GREATER
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 
@@ -80,6 +80,72 @@ BULK_FILTER_TESTS = [
         {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': pd.to_timedelta('1 days'), 'remove_from_dataframe': True},
         [
             df.iloc[1:]
+        ]
+    ),
+    (
+        [
+            pd.DataFrame({'A': [11, 111, 123]})
+        ],
+        0, 
+        "A", 
+        {'type': BULK_FILTER_TOGGLE_ALL_MATCHING, 'search_string': '11', 'remove_from_dataframe': True},
+        [
+            pd.DataFrame({'A': [123]}, index=[2])
+        ]
+    ),
+    (
+        [
+            df.copy(deep=True)
+        ],
+        0, 
+        "B", 
+        {'type': BULK_FILTER_TOGGLE_ALL_MATCHING, 'search_string': '1', 'remove_from_dataframe': True},
+        [
+            df.iloc[1:]
+        ]
+    ),
+    (
+        [
+            df.copy(deep=True)
+        ],
+        0, 
+        "C", 
+        {'type': BULK_FILTER_TOGGLE_ALL_MATCHING, 'search_string': 'True', 'remove_from_dataframe': True},
+        [
+            df.iloc[1:2]
+        ]
+    ),
+    (
+        [
+            df.copy(deep=True)
+        ],
+        0, 
+        "D", 
+        {'type': BULK_FILTER_TOGGLE_ALL_MATCHING, 'search_string': 's', 'remove_from_dataframe': True},
+        [
+            df.iloc[0:0]
+        ]
+    ),
+    (
+        [
+            df.copy(deep=True)
+        ],
+        0, 
+        "E", 
+        {'type': BULK_FILTER_TOGGLE_ALL_MATCHING, 'search_string': '1997', 'remove_from_dataframe': True},
+        [
+            df.iloc[0:0]
+        ]
+    ),
+    (
+        [
+            df.copy(deep=True)
+        ],
+        0, 
+        "F", 
+        {'type': BULK_FILTER_TOGGLE_ALL_MATCHING, 'search_string': 'days', 'remove_from_dataframe': True},
+        [
+            df.iloc[0:0]
         ]
     ),
 ]

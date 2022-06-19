@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useRef, useState } from 'react';
 import MitoAPI from '../../../../jupyter/api';
 import MultiToggleBox from '../../../elements/MultiToggleBox';
 import Select from '../../../elements/Select';
@@ -113,10 +113,6 @@ export function ValuesTab(
         lastSort.current = sort;
     }, [searchString, sort], 500);
 
-    useEffect(() => {
-
-    }, [sort, searchString])
-
     async function loadUniqueValueCounts() {
         setLoading(true);
         
@@ -181,6 +177,32 @@ export function ValuesTab(
                     isSubset={!isAllData}
                     message={disabledMessage}
                     disabled={disabledMessage !== undefined}
+                    toggleAllIndexes={(_, newValue) => {
+                        console.log({
+                            'type': 'toggle_all_matching',
+                            'search_string': searchString,
+                            'remove_from_dataframe': !newValue
+                        })
+                        props.mitoAPI.editBulkFilter(props.selectedSheetIndex, props.columnID, {
+                            'type': 'toggle_all_matching',
+                            'search_string': searchString,
+                            'remove_from_dataframe': !newValue
+                        })
+                        setToggledValues(prevToggleValueIndexes => {
+                            const newToggledValues = [...prevToggleValueIndexes]
+                            sortedUniqueValueCounts.forEach(uniqueValueCount => {
+                                const toggledValueIndex = newToggledValues.findIndex(([value, toggle]) => value === uniqueValueCount.value);
+                                if (toggledValueIndex === -1) {
+                                    newToggledValues.push([uniqueValueCount.value, newValue])
+                                } else {
+                                    newToggledValues[toggledValueIndex][1] = newValue;
+                                    newToggledValues[toggledValueIndex][1] = newValue;
+                                }
+                            })
+                            return newToggledValues;
+                        })
+
+                    }}
                 >
                     {sortedUniqueValueCounts.map((uniqueValueCount, index) => {
                         const valueToDisplay = formatCellData(uniqueValueCount.value, props.columnDtype, props.columnFormatType);

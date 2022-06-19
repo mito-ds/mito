@@ -741,7 +741,7 @@ export default class MitoAPI {
     async editBulkFilter(
         sheet_index: number,
         column_id: ColumnID,
-        toggle_type: {'type': 'toggle_specific_value', 'value': string | number | boolean, 'remove_from_dataframe': boolean},
+        toggle_type: {'type': 'toggle_specific_value', 'value': string | number | boolean, 'remove_from_dataframe': boolean} | {'type': 'toggle_all_matching', 'search_string': string, 'remove_from_dataframe': boolean},
     ): Promise<void> {
 
         const stepID = getRandomId();
