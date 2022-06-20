@@ -61,6 +61,7 @@ def install_step_mitosheet_install_mitosheet():
         if error_traceback_last_line == 'Consider using the `--user` option or check the permissions.':
             do_user_install = input("The installer hit a permission error while trying to install Mito. Would you like to do a user install? Note that this will not work inside a virtual enviornment. [y/n] ")
             if do_user_install.lower().startswith('y'):
+                print("Doing user install")
                 # Log do user install
                 log('install_mitosheet_user')
                 install_pip_packages('mitosheet', test_pypi='--test-pypi' in sys.argv, user_install=True)
