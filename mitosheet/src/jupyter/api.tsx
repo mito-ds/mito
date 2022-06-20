@@ -160,7 +160,6 @@ export default class MitoAPI {
             stateUpdaters?.setUIState((prevUIState) => {
                 const newLoadingCalls = [...prevUIState.loading];
                 const messageIndex = newLoadingCalls.findIndex((value) => {return value[0] === id})
-                console.log("FOUND", messageIndex)
                 newLoadingCalls.splice(messageIndex, 1);
                 return {
                     ...prevUIState,

@@ -56,13 +56,13 @@ const getDisplayMessageForMessageType = (messageType: StepType | UpdateType): st
             return 'Importing a CSV'
         }
         case StepType.Sort: {
-            return 'Sorting'
+            return 'Sorting a dataframe'
         }
         case StepType.Pivot: {
-            return 'Pivoting'
+            return 'Pivoting a dataframe'
         }
         case StepType.Merge: {
-            return 'Merging'
+            return 'Merging dataframes'
         }
         case StepType.Concat: {
             return 'Concatenating dataframes'
@@ -184,17 +184,20 @@ const getMessageTypesToDisplay  = (loading: [string, string | undefined, string]
 
 
 /*
-    Tells the user what is still loading
+    Gives the user lots of information about what events and updates
+    and loading.
 
     By default, does not displaying anything for the first .5 seconds it
-    is rendered, so that only long running ops actually display a loading
-    bar.
+    is rendered, so that only long running ops actually display anything.
 */
 const LoadingIndicator = (props: {loading: [string, string | undefined, string][]}): JSX.Element => {
     const [display, setDisplay] = useState(false);
+
+    // We store the message at the top of the loading queue, so that we can 
+    // track if it has been running for longer than 10 seconds
     const [currentLoadingMessage, setCurrentLoadingMessage] = useState<undefined | [number, string]>(undefined);
 
-    // Only display this after 500 ms
+    // This makes sure we're only displaying after .5 seconds of loading
     useEffect(() => {
         if (props.loading.length === 0) {
             setDisplay(false);
@@ -206,6 +209,9 @@ const LoadingIndicator = (props: {loading: [string, string | undefined, string][
         }
     }, [props.loading.length]);
 
+    // This effect tracks the top message and when it becomes the top message
+    // so that we can give the user special messages when things have been 
+    // loading for longer than 10 seconds
     useEffect(() => {
         const interval = setInterval(() => {
             const messagesToDisplay = getMessageTypesToDisplay(props.loading);
@@ -220,7 +226,8 @@ const LoadingIndicator = (props: {loading: [string, string | undefined, string][
                     return prevLoadingMessage;
                 })
             }
-            // We always refresh it, though, so that this rerenders
+            // We always refresh this state, though, so that this rerenders 
+            // so that we can refresh the messaging to the user
             setCurrentLoadingMessage(prevCurrentLoadingMessage => {
                 if (prevCurrentLoadingMessage === undefined) return prevCurrentLoadingMessage;
                 return [prevCurrentLoadingMessage[0], prevCurrentLoadingMessage[1]];
