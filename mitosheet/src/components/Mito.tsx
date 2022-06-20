@@ -827,7 +827,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setEditorState={setEditorState}
                 />
                 {getCurrentModalComponent()}
-                {uiState.loading.length > 0 && <LoadingIndicator loading={uiState.loading}/>}      
+                <LoadingIndicator loading={uiState.loading}/>     
                 {/* 
                     If the step index of the last step isn't the current step,
                     then we are out of date, and we tell the user this.

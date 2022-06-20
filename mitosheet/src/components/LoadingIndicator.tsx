@@ -6,6 +6,8 @@ import React, { useEffect, useState } from 'react';
 import "../../css/loading-indicator.css";
 import { StepType, UpdateType } from '../types';
 import { classNames } from '../utils/classNames';
+import LoadingCircle from './icons/LoadingCircle';
+import NonLoadingCircle from './icons/NonLoadingCircle';
 import { getIcon } from './taskpanes/Steps/StepDataElement';
 
 const isStepEvent = (messageType: string): boolean => {
@@ -159,7 +161,7 @@ const getMessageType = (messageType: string): StepType | UpdateType | undefined 
     return undefined;
 }
 
-const getMessageTypesToDisplay  = (loading: [string, string | undefined, string][]): (StepType | UpdateType)[] => {
+const getMessageTypesToDisplay  = (loading: [string, string | undefined, string][]): [(StepType | UpdateType), string][] => {
     const seenStepIds: string[] = []
     return loading.filter((([message_id, step_id, type]) => {
         // We filter out any edits that have duplicated step ids, as users think of 
@@ -173,10 +175,10 @@ const getMessageTypesToDisplay  = (loading: [string, string | undefined, string]
         return true;
 
     })).map((([message_id, step_id, type]) => {
-        return getMessageType(type);
-    })).filter(messageType => {
+        return [getMessageType(type), message_id];
+    })).filter(([messageType, send_time]) => {
         return messageType !== undefined;
-    }) as (StepType | UpdateType)[];
+    }) as [(StepType | UpdateType), string][];
 }
 
 
@@ -190,45 +192,73 @@ const getMessageTypesToDisplay  = (loading: [string, string | undefined, string]
 */
 const LoadingIndicator = (props: {loading: [string, string | undefined, string][]}): JSX.Element => {
     const [display, setDisplay] = useState(false);
+    const [currentLoadingMessage, setCurrentLoadingMessage] = useState<undefined | [number, string]>(undefined);
 
     // Only display this after 500 ms
     useEffect(() => {
-        setTimeout(() => {
-            setDisplay(true);
-        }, 500);
-    }, []);
+        if (props.loading.length === 0) {
+            setDisplay(false);
+        } else if (props.loading.length > 0) {
+            const timeout = setTimeout(() => {
+                setDisplay(true);
+            }, 500);
+            return () => {clearTimeout(timeout)}
+        }
+    }, [props.loading.length]);
 
-    // We start the indicator at -1, so that we don't display anything
-    // for the first half second. This makes us only display the indicator
-    // for actually long running operations.
-    if (!display) {
+    useEffect(() => {
+        const interval = setInterval(() => {
+            const messagesToDisplay = getMessageTypesToDisplay(props.loading);
+            if (messagesToDisplay.length === 0) {
+                setCurrentLoadingMessage(undefined);
+            } else {
+                setCurrentLoadingMessage(prevLoadingMessage => {
+                    const topMessageID = messagesToDisplay[0][1];
+                    if (prevLoadingMessage === undefined || topMessageID !== prevLoadingMessage[1]) {
+                        return [Date.now(), topMessageID];
+                    }
+                    return prevLoadingMessage;
+                })
+            }
+            // We always refresh it, though, so that this rerenders
+            setCurrentLoadingMessage(prevCurrentLoadingMessage => {
+                if (prevCurrentLoadingMessage === undefined) return prevCurrentLoadingMessage;
+                return [prevCurrentLoadingMessage[0], prevCurrentLoadingMessage[1]];
+            })
+        }, 1000)
+        return () => {clearInterval(interval)};
+    }, [props.loading])
+
+
+    const messagesToDisplay = getMessageTypesToDisplay(props.loading);
+
+    if (!display || messagesToDisplay.length === 0) {
         return <React.Fragment/>
     }
 
-    const messageTypesToDisplay = getMessageTypesToDisplay(props.loading);
-
-
     return (
         <div className='loading-indicator-container'>
-            <p className='loading-indicator-header text-header-2 text-color-white-important'>
-                Processing {messageTypesToDisplay.length} edit{messageTypesToDisplay.length <= 1 ? '' : 's'}
+            <p className='loading-indicator-header text-header-3 text-color-white-important'>
+                Processing {messagesToDisplay.length} edit{messagesToDisplay.length <= 1 ? '' : 's'}
             </p>
             <div className='loading-indicator-content'>
-                {messageTypesToDisplay.map(((messageType, index) => {
+                {messagesToDisplay.map((([messageType, message_id], index) => {
+                    const is10SecondsAgo = currentLoadingMessage && message_id === currentLoadingMessage[1] && (currentLoadingMessage[0] <= Date.now() - 10 * 1000);
 
                     return (messageType !== undefined && 
                         <div 
                             key={index} 
-                            className={classNames('loading-indicator-item', 'text-body-1', {'text-color-medium-gray-important': index !== 0})}
+                            className={classNames('loading-indicator-item', 'text-body-1', 'mb-5px', 'mt-5px', {'text-color-medium-gray-important': index !== 0})}
                         >
-                            <div className='loading-indicator-icon'>
+                            <div className='loading-indicator-icon' style={{opacity: index !== 0 ? '50%' : undefined}}>
                                 {getIcon(messageType)}
                             </div>
                             <div className='ml-20px'>
-                                {getDisplayMessageForMessageType(messageType)}
+                                {getDisplayMessageForMessageType(messageType)} {is10SecondsAgo ? '... still working' : ''}
                             </div>
                             <div className='loading-indicator-loader'>
-                                ...
+                                {index === 0 && <LoadingCircle/>}
+                                {index !== 0 && <NonLoadingCircle/>}
                             </div>
                         </div>)
                 }))}

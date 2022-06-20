@@ -46,9 +46,6 @@ def get_unique_value_counts(params: Dict[str, Any], steps_manager: StepsManagerT
         'counts': unique_value_counts_series
     })
 
-    import time
-    time.sleep(10)
-
     if len(unique_value_counts_df) > MAX_UNIQUE_VALUES:
         # First, we turn the series into a string series, so that we can
         # easily filter on it without issues (and sort in some cases)

@@ -362,7 +362,7 @@ class StepsManager:
         function will not create the new invalid step.
         """
         import time
-        time.sleep(10)
+        time.sleep(15)
 
         # NOTE: We ignore any edit if we are in a historical state, for now. This is a result
         # of the fact that we don't allow previous editing currently
