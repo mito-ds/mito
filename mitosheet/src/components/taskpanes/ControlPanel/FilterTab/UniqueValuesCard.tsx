@@ -273,12 +273,12 @@ export function UniqueValuesCard(
                             <DropdownItem
                                 id='bulk_is_not_exactly'
                                 title="Is Not Exactly"
-                                subtext="Includes all columns from all sheets, regardless of if these columns are in the other sheets."
+                                subtext="Mito generates a filter that excludes all those values that are toggled off."
                             />
                             <DropdownItem
                                 id='bulk_is_exactly'
                                 title='Is Exactly'
-                                subtext="Only includes columns that exist in all sheets"
+                                subtext="Mito generates a filter that includes only those values that are toggled on."
                             />
                         </Select>
                     </Col>
