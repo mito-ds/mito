@@ -49,13 +49,13 @@ export function getIcon(stepType: StepType | UpdateType, height?: string, width?
             <DeleteColumnIcon/>
         )
         case StepType.RenameColumn: return (
-            <EditIcon/>
+            <EditIcon height={height} width={width}/>
         )
         case StepType.ReorderColumn: return (
-            <EditIcon/>
+            <EditIcon height={height} width={width}/>
         )
         case StepType.FilterColumn: return (
-            <FilterIcon />
+            <FilterIcon purpleOrDark='dark'/>
         )
         case StepType.SetColumnFormula: return (
             <div className='step-taskpane-missing-icon'>
@@ -66,10 +66,10 @@ export function getIcon(stepType: StepType | UpdateType, height?: string, width?
             <DeleteColumnIcon/>
         )
         case StepType.DataframeDuplicate: return (
-            <EditIcon/>
+            <EditIcon height={height} width={width}/>
         )
         case StepType.DataframeRename: return (
-            <EditIcon/>
+            <EditIcon height={height} width={width}/>
         )
         case StepType.SimpleImport: return (
             <ImportIcon/>
@@ -78,7 +78,7 @@ export function getIcon(stepType: StepType | UpdateType, height?: string, width?
             <ImportIcon/>
         )
         case StepType.Sort: return (
-            <EditIcon/>
+            <EditIcon height={height} width={width}/>
         )
         case StepType.Pivot: return (
             <PivotIcon/>
