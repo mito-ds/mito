@@ -257,7 +257,7 @@ export function UniqueValuesCard(
                 <Row justify='space-between' align='center'>
                     <Col>
                         <p className='text-header-3'>
-                            Join Type
+                            Unique Values Filter Type
                         </p>
                     </Col>
                     <Col>
