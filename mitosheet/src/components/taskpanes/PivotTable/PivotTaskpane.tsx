@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import PivotTableKeySelection from './PivotTableKeySelection';
 import PivotTableValueSelection from './PivotTableValueSelection';
-import MitoAPI from '../../../jupyter/api';
+import MitoAPI, { getRandomId } from '../../../jupyter/api';
 import Select from '../../elements/Select';
 import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
@@ -41,7 +41,7 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
     const [pivotParams, setPivotParams] = useState(() => getDefaultPivotParams(props.sheetDataArray, props.selectedSheetIndex, props.existingPivotParams))
     const [pivotUpdateNumber, setPivotUpdateNumber] = useState(0);
 
-    const [stepID, setStepID] = useState<string|undefined>(undefined);
+    const [stepID] = useState<string>(getRandomId());
 
     // We save the dataframe names upon creation of the pivot table
     // so that the user cannot switch to the pivot table they are editing
@@ -73,12 +73,11 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
 
 
     const sendPivotEdit = async(): Promise<void> => {
-        const _stepID = await props.mitoAPI.editPivot(
+        await props.mitoAPI.editPivot(
             pivotParams,
             props.destinationSheetIndex,
             stepID
         )
-        setStepID(_stepID);
     }
 
 

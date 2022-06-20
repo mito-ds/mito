@@ -11,7 +11,6 @@ from threading import Thread
 from typing import Any, Callable, Dict, List, NoReturn, Union
 from mitosheet.api.get_params import get_params
 from mitosheet.api.get_column_describe import get_column_describe
-from mitosheet.api.get_datafiles import get_datafiles
 from mitosheet.api.get_dataframe_as_csv import get_dataframe_as_csv
 from mitosheet.api.get_dataframe_as_excel import get_dataframe_as_excel
 from mitosheet.api.get_excel_file_metadata import get_excel_file_metadata
@@ -74,7 +73,11 @@ class API:
         """
         if THREADED and "priority" not in event:
             if self.api_queue.full():
-                self.api_queue.get()
+                # If the queue is full, we drop the first event, and just return a None
+                lost_event = self.api_queue.get()
+
+                self.send({"event": "api_response", "id": lost_event["id"], "data": None})
+
             self.api_queue.put(event)
         else:
             handle_api_event(self.send, event, self.steps_manager)
@@ -115,9 +118,7 @@ def handle_api_event(
     """
     result: Union[str, List[str]]
     params = event['params']
-    if event["type"] == "datafiles":
-        result = get_datafiles(params)
-    elif event["type"] == "get_path_contents":
+    if event["type"] == "get_path_contents":
         result = get_path_contents(params)
     elif event["type"] == "get_path_join":
         result = get_path_join(params)

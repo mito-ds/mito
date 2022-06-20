@@ -84,6 +84,8 @@ EVENT_TYPE_TO_STEP_PERFORMER: Dict[str, Type[StepPerformer]] = {
     for step_performer in STEP_PERFORMERS
 }
 
+print(EVENT_TYPE_TO_STEP_PERFORMER.keys())
+
 # We also build a useful lookup mapping for the step type to step object
 STEP_TYPE_TO_STEP_PERFORMER: Dict[str, Type[StepPerformer]] = {
     step_performer.step_type(): step_performer

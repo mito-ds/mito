@@ -6,6 +6,7 @@
 
 import json
 import random
+from re import I
 import string
 import uuid
 from copy import copy, deepcopy
@@ -360,6 +361,9 @@ class StepsManager:
         If there is an error in the creation of the new step, this
         function will not create the new invalid step.
         """
+        import time
+        time.sleep(10)
+
         # NOTE: We ignore any edit if we are in a historical state, for now. This is a result
         # of the fact that we don't allow previous editing currently
         if self.curr_step_idx != len(self.steps) - 1:

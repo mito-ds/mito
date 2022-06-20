@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { StepSummary, StepType } from '../../../types';
+import { StepSummary, StepType, UpdateType } from '../../../types';
 import MitoAPI from '../../../jupyter/api';
 
 // Icons
@@ -20,6 +20,9 @@ import DtypeIcon from '../../icons/DtypeIcon';
 import SplitTextToColumnsIcon from '../../icons/SplitTextToColumnsIcon';
 import TransposeIcon from '../../icons/TransposeIcon';
 import PromoteRowToHeaderIcon from '../../icons/PromoteRowToHeaderIcon';
+import UndoIcon from '../../icons/UndoIcon';
+import RedoIcon from '../../icons/RedoIcon';
+import ClearIcon from '../../icons/ClearIcon';
 
 
 export type StepDataElementProps = {
@@ -34,7 +37,7 @@ export type StepDataElementProps = {
     Gets an icon for a specific step type, to display
     with that step
 */
-export function getStepIcon(stepType: StepType): JSX.Element {
+export function getIcon(stepType: StepType | UpdateType): JSX.Element {
     switch (stepType) {
         case StepType.Initialize: return (
             <MitoIcon/>
@@ -107,6 +110,15 @@ export function getStepIcon(stepType: StepType): JSX.Element {
         case StepType.PromoteRowToHeader: return (
             <PromoteRowToHeaderIcon />
         )
+        case UpdateType.Undo: return (
+            <UndoIcon />
+        )
+        case UpdateType.Redo: return (
+            <RedoIcon />
+        )
+        case UpdateType.Clear: return (
+            <ClearIcon />
+        )
         // TODO: Add a case here
         default: return (
             <EditIcon/>
@@ -139,7 +151,7 @@ function StepDataElement(props: StepDataElementProps): JSX.Element {
             onClick={toggleStepRollBack}
         >
             <div className='step-taskpane-step-icon'>
-                {getStepIcon(props.stepData.step_type)}
+                {getIcon(props.stepData.step_type)}
             </div>
             <div className='element-width-block hide-scrollbar'>
                 <div className='text-header-3'>
