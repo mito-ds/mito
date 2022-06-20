@@ -255,7 +255,7 @@ const ColumnHeader = (props: {
                     props.setUIState(prevUIState => {
                         return {
                             ...prevUIState,
-                            selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
+                            selectedColumnControlPanelTab: ControlPanelTab.SortDtype,
                             currOpenTaskpane: { type: TaskpaneType.CONTROL_PANEL }
                         }
                     })
@@ -298,7 +298,23 @@ const ColumnHeader = (props: {
 
                         <div className='column-header-final-right-side' >
                             <div className='column-header-final-icons' title='Open the column control panel' >
-                                <span title='Edit filters'>
+                                <span 
+                                    title='Edit filters' 
+                                    onClick={() => {
+                                        // Don't open the control panel if we're editing, user is selecting column
+                                        if (editingFinalColumnHeader) {
+                                            return;
+                                        }
+                    
+                                        props.setUIState(prevUIState => {
+                                            return {
+                                                ...prevUIState,
+                                                selectedColumnControlPanelTab: ControlPanelTab.Filter,
+                                                currOpenTaskpane: { type: TaskpaneType.CONTROL_PANEL }
+                                            }
+                                        })
+                                    }}
+                                >
                                     {!hasFilters &&
                                         <div className='icon-color-changer-container'>
                                             <div className='icon-hide-on-hover'>

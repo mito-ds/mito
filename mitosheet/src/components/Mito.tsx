@@ -102,7 +102,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 ? {type: ModalEnum.Upgrade} : {type: ModalEnum.None}
             ),
         currOpenTaskpane: {type: TaskpaneType.NONE},
-        selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
+        selectedColumnControlPanelTab: ControlPanelTab.SortDtype,
         selectedSheetIndex: 0,
         selectedGraphID: Object.keys(props.analysisData.graphDataDict || {}).length === 0 ? undefined : Object.keys(props.analysisData.graphDataDict)[0],
         selectedTabType: 'data',

@@ -9,13 +9,13 @@ import { getCellDataFromCellIndexes } from '../../endo/utils';
 import { TaskpaneType } from '../taskpanes';
 import ControlPanelTaskpaneTabs from './ControlPanelTaskpaneTabs';
 import DtypeCard from './FilterAndSortTab/DtypeCard';
-import FilterCard from './FilterAndSortTab/filter/FilterCard';
-import { isFilterGroup } from './FilterAndSortTab/filter/filterTypes';
-import { isValidFilter, parseFilter } from './FilterAndSortTab/filter/utils';
+import FilterCard from './FilterTab/filter/FilterCard';
+import { isFilterGroup } from './FilterTab/filter/filterTypes';
+import { isValidFilter, parseFilter } from './FilterTab/filter/utils';
 import SortCard from './FilterAndSortTab/SortCard';
 import ColumnSummaryGraph from './SummaryStatsTab/ColumnSummaryGraph';
 import ColumnSummaryStatistics from './SummaryStatsTab/ColumnSummaryStatistics';
-import { ValuesTab } from './ValuesTab/ValuesTab';
+import { UniqueValuesCard } from './FilterTab/UniqueValuesCard';
 import FormatCard from './FilterAndSortTab/FormatCard';
 import { useEffectOnUpdateEvent } from '../../../hooks/useEffectOnUpdateEvent';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
@@ -23,6 +23,7 @@ import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultTaskpaneFooter from '../DefaultTaskpane/DefaultTaskpaneFooter';
+import Spacer from '../../spacing/Spacer';
 
 /* 
     We wait 500ms before sending a filter message to make sure
@@ -32,8 +33,8 @@ import DefaultTaskpaneFooter from '../DefaultTaskpane/DefaultTaskpaneFooter';
 const FILTER_MESSAGE_DELAY = 500;
 
 export enum ControlPanelTab {
-    FilterSort = 'filter_sort',
-    UniqueValues = 'unique_values',
+    SortDtype = 'sort_dtype',
+    Filter = 'filter',
     SummaryStats = 'summary_stats'
 }
 
@@ -95,7 +96,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
     
     // If this is not a valid column, don't render anything, and close the takspane! 
     // We have to do this after the useState calls, to make sure this is valid react
-    if (columnHeader === undefined || columnID === undefined || columnDtype == undefined || columnFormatType == undefined) {
+    if (columnHeader === undefined || columnID === undefined || columnDtype == undefined || columnFormatType == undefined || columnFilters === undefined) {
         props.setUIState((prevUIState) => {
             return {
                 ...prevUIState,
@@ -155,7 +156,6 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
             columnID,
             filtersToApply,
             operator,
-            props.tab,
             stepID
         )
 
@@ -171,7 +171,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                     setUIState={props.setUIState}
                 />
                 <DefaultTaskpaneBody>
-                    {props.tab === ControlPanelTab.FilterSort &&
+                    {props.tab === ControlPanelTab.SortDtype &&
                         <>
                             <DtypeCard
                                 selectedSheetIndex={props.selectedSheetIndex}
@@ -194,6 +194,11 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                                 mitoAPI={props.mitoAPI}
                                 analysisData={props.analysisData}
                             />
+                            
+                        </>
+                    }
+                    {props.tab === ControlPanelTab.Filter && 
+                        <>
                             <FilterCard
                                 selectedSheetIndex={props.selectedSheetIndex}
                                 columnID={columnID}
@@ -206,15 +211,11 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                                 rowDifference={originalNumRows - (props.sheetData?.numRows || 0)}
                                 editedFilter={editedFilter}
                             />
-                        </>
-                    }
-                    {props.tab === ControlPanelTab.UniqueValues && 
-                        <>
-                            <ValuesTab
+                            <Spacer px={15}/>
+                            <UniqueValuesCard
                                 selectedSheetIndex={props.selectedSheetIndex}
+                                bulkFilter={columnFilters.bulk_filter}
                                 columnID={columnID}
-                                filters={filters}
-                                setFilters={setFilters}
                                 mitoAPI={props.mitoAPI}
                                 columnDtype={columnDtype}
                                 columnFormatType={columnFormatType}

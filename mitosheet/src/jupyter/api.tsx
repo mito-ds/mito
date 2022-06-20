@@ -1,9 +1,8 @@
 // Copyright (c) Mito
 
-import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
 import { SortDirection } from "../components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
 import { GraphObject } from "../components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
-import { UniqueValueCount, UniqueValueSortType } from "../components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
+import { UniqueValueCount, UniqueValueSortType } from "../components/taskpanes/ControlPanel/FilterTab/UniqueValuesCard";
 import { FileElement } from "../components/taskpanes/Import/ImportTaskpane";
 import { ExcelFileMetadata } from "../components/taskpanes/Import/XLSXImport";
 import { valuesArrayToRecord } from "../components/taskpanes/PivotTable/pivotUtils";
@@ -741,7 +740,10 @@ export default class MitoAPI {
     async editBulkFilter(
         sheet_index: number,
         column_id: ColumnID,
-        toggle_type: {'type': 'toggle_specific_value', 'value': string | number | boolean, 'remove_from_dataframe': boolean} | {'type': 'toggle_all_matching', 'search_string': string, 'remove_from_dataframe': boolean},
+        toggle_type: 
+            | {'type': 'toggle_specific_value', 'value': string | number | boolean, 'remove_from_dataframe': boolean} 
+            | {'type': 'toggle_all_matching', 'search_string': string, 'remove_from_dataframe': boolean}
+            | {'type': 'toggle_filter_type'}
     ): Promise<void> {
 
         const stepID = getRandomId();
@@ -876,7 +878,6 @@ export default class MitoAPI {
         columnID: ColumnID,
         filters: (FilterType | FilterGroupType)[],
         operator: 'And' | 'Or',
-        filterLocation: ControlPanelTab,
         stepID?: string,
     ): Promise<string> {
         // Create a new id, if we need it!
@@ -893,7 +894,6 @@ export default class MitoAPI {
                 column_id: columnID,
                 operator: operator,
                 filters: filters,
-                filter_location: filterLocation
             }
         }, {});
         return stepID;

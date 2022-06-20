@@ -34,19 +34,19 @@ function ControlPanelTaskpaneTabs(
     return (
         <div className='control-panel-taskpane-tab-container'>
             <div 
-                className={classNames('control-panel-taskpane-tab', props.selectedTab === ControlPanelTab.FilterSort ? 'selected' : 'unselected')} 
-                onClick={() => changeTab(ControlPanelTab.FilterSort)}
+                className={classNames('control-panel-taskpane-tab', props.selectedTab === ControlPanelTab.SortDtype ? 'selected' : 'unselected')} 
+                onClick={() => changeTab(ControlPanelTab.SortDtype)}
             >
                 <p>
-                    Filter/Sort
+                    Sort/Dtype
                 </p>
             </div>
             <div 
-                className={classNames('control-panel-taskpane-tab', props.selectedTab === ControlPanelTab.UniqueValues ? 'selected' : 'unselected')} 
-                onClick={() => changeTab(ControlPanelTab.UniqueValues)}
+                className={classNames('control-panel-taskpane-tab', props.selectedTab === ControlPanelTab.Filter ? 'selected' : 'unselected')} 
+                onClick={() => changeTab(ControlPanelTab.Filter)}
             >
                 <p>
-                    Values
+                    Filter
                 </p>
             </div>
             <div 

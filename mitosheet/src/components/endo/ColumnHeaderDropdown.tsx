@@ -69,7 +69,7 @@ export default function ColumnHeaderDropdown(props: {
                         return {
                             ...prevUIState,
                             currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                            selectedColumnControlPanelTab: ControlPanelTab.FilterSort
+                            selectedColumnControlPanelTab: ControlPanelTab.Filter
                         }
                     })
                 }}
@@ -82,7 +82,7 @@ export default function ColumnHeaderDropdown(props: {
                         return {
                             ...prevUIState,
                             currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                            selectedColumnControlPanelTab: ControlPanelTab.FilterSort
+                            selectedColumnControlPanelTab: ControlPanelTab.SortDtype
                         }
                     })
                 }}
@@ -94,7 +94,7 @@ export default function ColumnHeaderDropdown(props: {
                         return {
                             ...prevUIState,
                             currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                            selectedColumnControlPanelTab: ControlPanelTab.FilterSort
+                            selectedColumnControlPanelTab: ControlPanelTab.SortDtype
                         }
                     })
                 }}
@@ -118,7 +118,7 @@ export default function ColumnHeaderDropdown(props: {
                         return {
                             ...prevUIState,
                             currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                            selectedColumnControlPanelTab: ControlPanelTab.FilterSort
+                            selectedColumnControlPanelTab: ControlPanelTab.SortDtype
                         }
                     })
                 }}
@@ -165,7 +165,7 @@ export default function ColumnHeaderDropdown(props: {
                             currOpenTaskpane: {
                                 type: TaskpaneType.CONTROL_PANEL,
                             },
-                            selectedColumnControlPanelTab: ControlPanelTab.UniqueValues
+                            selectedColumnControlPanelTab: ControlPanelTab.Filter
                         }
                     })
                 }}

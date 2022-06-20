@@ -4,15 +4,16 @@ import React, { Fragment, useRef, useState } from 'react';
 import MitoAPI from '../../../../jupyter/api';
 import MultiToggleBox from '../../../elements/MultiToggleBox';
 import Select from '../../../elements/Select';
-import { FilterType, FilterGroupType, ColumnID, FormatTypeObj, UIState } from '../../../../types';
+import { BulkFilter, ColumnID, FormatTypeObj, UIState } from '../../../../types';
 import Col from '../../../spacing/Col';
 import Row from '../../../spacing/Row';
-import { getFilterDisabledMessage } from '../FilterAndSortTab/filter/utils';
+import { getFilterDisabledMessage } from './filter/utils';
 import MultiToggleItem from '../../../elements/MultiToggleItem';
 import DropdownItem from '../../../elements/DropdownItem';
 import { useDebouncedEffect } from '../../../../hooks/useDebouncedEffect';
 import { formatCellData } from '../../../../utils/formatColumns';
 import OpenFillNaN from '../../FillNa/OpenFillNaN';
+import Spacer from '../../../spacing/Spacer';
 
 /*
     The UniqueValueCount datatype contains all of the necessary data
@@ -60,14 +61,13 @@ const sortUniqueValueCounts = (uniqueValueCounts: UniqueValueCount[], uniqueValu
     }
 }
 
-export function ValuesTab(
+export function UniqueValuesCard(
     props: {
         selectedSheetIndex: number, 
         columnID: ColumnID,
         mitoAPI: MitoAPI;
-        filters: (FilterType | FilterGroupType)[];
-        setFilters: React.Dispatch<React.SetStateAction<(FilterType | FilterGroupType)[]>>;
         columnDtype: string,
+        bulkFilter: BulkFilter,
         columnFormatType: FormatTypeObj
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     }): JSX.Element {
@@ -112,6 +112,7 @@ export function ValuesTab(
         lastSearchTerm.current = searchString;
         lastSort.current = sort;
     }, [searchString, sort], 500);
+
 
     async function loadUniqueValueCounts() {
         setLoading(true);
@@ -253,6 +254,36 @@ export function ValuesTab(
                         )) 
                     })}
                 </MultiToggleBox>
+                <Row justify='space-between' align='center'>
+                    <Col>
+                        <p className='text-header-3'>
+                            Join Type
+                        </p>
+                    </Col>
+                    <Col>
+                        <Select 
+                            value={props.bulkFilter.condition}
+                            onChange={(newCondition: string) => {
+                                if (newCondition !== props.bulkFilter.condition) {
+                                    void props.mitoAPI.editBulkFilter(props.selectedSheetIndex, props.columnID, {'type': 'toggle_filter_type'});
+                                }
+                            }}
+                            width='medium'
+                        >
+                            <DropdownItem
+                                id='bulk_is_not_exactly'
+                                title="Is Not Exactly"
+                                subtext="Includes all columns from all sheets, regardless of if these columns are in the other sheets."
+                            />
+                            <DropdownItem
+                                id='bulk_is_exactly'
+                                title='Is Exactly'
+                                subtext="Only includes columns that exist in all sheets"
+                            />
+                        </Select>
+                    </Col>
+                </Row>
+                <Spacer px={10}/>
             </div>
             
         </Fragment>

@@ -1,4 +1,4 @@
-import { isValueNone } from "../components/taskpanes/ControlPanel/FilterAndSortTab/filter/utils";
+import { isValueNone } from "../components/taskpanes/ControlPanel/FilterTab/filter/utils";
 import { FormatTypeObj, MitoSelection, SheetData } from "../types";
 import { getDisplayColumnHeader } from "./columnHeaders";
 import { formatCellData } from "./formatColumns";

@@ -175,9 +175,29 @@ function FilterCard (props: FilterCardProps): JSX.Element {
 
     return (
         <div>
-            <div className='text-header-3 mt-15px'>
-                <p> Filter </p>
-            </div>
+            <Row justify='space-between'>
+                <Col>
+                    <div className='text-header-2'>
+                        <p> Filter </p>
+                    </div>
+                </Col>
+                <Col>
+                    <DropdownButton
+                        text={ADD_FILTER_SELECT_TITLE}
+                        width='medium'
+                        dropdownWidth='medium'
+                    >
+                        <DropdownItem
+                            title='Add a Filter'
+                            onClick={addFilter}
+                        />
+                        <DropdownItem
+                            title='Add a Group of Filters'
+                            onClick={addFilterGroup}
+                        />
+                    </DropdownButton>
+                </Col>
+            </Row>
             {disabledMessage !== undefined && 
                 <p className='text-subtext-1 mt-5px'>{disabledMessage}</p>
             }
@@ -251,20 +271,6 @@ function FilterCard (props: FilterCardProps): JSX.Element {
                             );
                         }
                     })}
-                    <DropdownButton
-                        text={ADD_FILTER_SELECT_TITLE}
-                        width='medium'
-                        dropdownWidth='medium'
-                    >
-                        <DropdownItem
-                            title='Add a Filter'
-                            onClick={addFilter}
-                        />
-                        <DropdownItem
-                            title='Add a Group of Filters'
-                            onClick={addFilterGroup}
-                        />
-                    </DropdownButton>
                     {props.editedFilter && 
                         <Row className='text-subtext-1'>
                             {props.rowDifference >= 0 ?

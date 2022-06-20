@@ -99,7 +99,7 @@ export const createActions = (
                     return {
                         ...prevUIState,
                         currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                        selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
+                        selectedColumnControlPanelTab: ControlPanelTab.SortDtype,
                         selectedTabType: 'data'
                     }
                 })
@@ -445,7 +445,7 @@ export const createActions = (
                     return {
                         ...prevUIState,
                         currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                        selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
+                        selectedColumnControlPanelTab: ControlPanelTab.Filter,
                         selectedTabType: 'data'
                     }
                 })
@@ -904,7 +904,7 @@ export const createActions = (
                     return {
                         ...prevUIState,
                         currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                        selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
+                        selectedColumnControlPanelTab: ControlPanelTab.SortDtype,
                         selectedTabType: 'data'
                     }
                 })
@@ -986,7 +986,7 @@ export const createActions = (
                     return {
                         ...prevUIState,
                         currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                        selectedColumnControlPanelTab: ControlPanelTab.UniqueValues,
+                        selectedColumnControlPanelTab: ControlPanelTab.Filter,
                         selectedTabType: 'data'
                     }
                 })
