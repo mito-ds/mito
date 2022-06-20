@@ -163,7 +163,7 @@ const getMessageType = (messageType: string): StepType | UpdateType | undefined 
 
 const getMessageTypesToDisplay  = (loading: [string, string | undefined, string][]): [(StepType | UpdateType), string][] => {
     const seenStepIds: string[] = []
-    return loading.filter((([message_id, step_id, type]) => {
+    return loading.filter((([, step_id, ]) => {
         // We filter out any edits that have duplicated step ids, as users think of 
         // these as just a single edit. We only take the first one!
         if (step_id !== undefined) {
@@ -174,9 +174,9 @@ const getMessageTypesToDisplay  = (loading: [string, string | undefined, string]
         }
         return true;
 
-    })).map((([message_id, step_id, type]) => {
+    })).map((([message_id, , type]) => {
         return [getMessageType(type), message_id];
-    })).filter(([messageType, send_time]) => {
+    })).filter(([messageType, ]) => {
         return messageType !== undefined;
     }) as [(StepType | UpdateType), string][];
 }
