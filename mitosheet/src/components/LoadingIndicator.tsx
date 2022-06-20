@@ -258,7 +258,7 @@ const LoadingIndicator = (props: {loading: [string, string | undefined, string][
                             className={classNames('loading-indicator-item', 'text-body-1', 'mb-5px', 'mt-5px', {'text-color-medium-gray-important': index !== 0})}
                         >
                             <div className='loading-indicator-icon' style={{opacity: index !== 0 ? '50%' : undefined}}>
-                                {getIcon(messageType)}
+                                {getIcon(messageType, '15', '15')}
                             </div>
                             <div className='ml-20px'>
                                 {getDisplayMessageForMessageType(messageType)} {is10SecondsAgo ? '... still working' : ''}

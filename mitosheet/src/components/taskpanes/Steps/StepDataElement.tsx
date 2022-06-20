@@ -37,7 +37,7 @@ export type StepDataElementProps = {
     Gets an icon for a specific step type, to display
     with that step
 */
-export function getIcon(stepType: StepType | UpdateType): JSX.Element {
+export function getIcon(stepType: StepType | UpdateType, height?: string, width?: string): JSX.Element {
     switch (stepType) {
         case StepType.Initialize: return (
             <MitoIcon/>
@@ -121,7 +121,7 @@ export function getIcon(stepType: StepType | UpdateType): JSX.Element {
         )
         // TODO: Add a case here
         default: return (
-            <EditIcon/>
+            <EditIcon height={height} width={width}/>
         )
     }
 }
