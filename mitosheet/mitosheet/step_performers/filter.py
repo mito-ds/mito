@@ -262,6 +262,7 @@ def _execute_filter(
     # Then, we combine with the bulk filters
     applied_bulk_filter = get_applied_filter(df, column_header, bulk_filter)
     from mitosheet.step_performers.bulk_filter import BULK_FILTER_CONDITION_IS_EXACTLY, BULK_FILTER_CONDITION_IS_NOT_EXACTLY
+    print(bulk_filter)
     if bulk_filter['condition'] == BULK_FILTER_CONDITION_IS_EXACTLY:
         final_filter = combine_filters('Or', [filter_list_filter, applied_bulk_filter])
     elif bulk_filter['condition'] == BULK_FILTER_CONDITION_IS_NOT_EXACTLY:

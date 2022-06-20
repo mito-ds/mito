@@ -13,6 +13,7 @@ from mitosheet.code_chunks.step_performers.pivot_code_chunk import PivotCodeChun
 from mitosheet.column_headers import flatten_column_header
 from mitosheet.errors import (make_invalid_aggregation_error,
                               make_invalid_pivot_error, make_no_column_error)
+from mitosheet.list_utils import get_deduplicated_list
 from mitosheet.step_performers.utils import get_param
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.state import DATAFRAME_SOURCE_PIVOTED, State
@@ -35,13 +36,6 @@ PIVOT_AGGREGATION_TYPES = [
     'std',
     PA_COUNT_UNIQUE
 ]
-
-def get_deduplicated_list(l: List[Any]) -> List[Any]:
-    new_list = []
-    for i in l:
-        if i not in new_list:
-            new_list.append(i)
-    return new_list
 
 class PivotStepPerformer(StepPerformer):
     """

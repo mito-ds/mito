@@ -13,12 +13,15 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.filter_code_chunk import FilterCodeChunk
 
 from mitosheet.state import State
+from mitosheet.list_utils import get_deduplicated_list, get_list_difference
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
 from mitosheet.types import ColumnID
 
 BULK_FILTER_TOGGLE_SPECIFIC_VALUE = 'toggle_specific_value'
 BULK_FILTER_TOGGLE_ALL_MATCHING = 'toggle_all_matching'
+BULK_FILTER_TOGGLE_FILTER_TYPE = 'toggle_filter_type'
+
 BULK_FILTER_CONDITION_IS_EXACTLY = 'bulk_is_exactly'
 BULK_FILTER_CONDITION_IS_NOT_EXACTLY = 'bulk_is_not_exactly'
 
@@ -56,47 +59,63 @@ class BulkFilterStepPerformer(StepPerformer):
 
         # We make a new state to modify it
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
+        column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
+        filtered_series: pd.Series = post_state.dfs[sheet_index][column_header]
 
-        if toggle_type['type'] == BULK_FILTER_TOGGLE_SPECIFIC_VALUE:
-            values_to_toggle = [toggle_type['value']]
-            remove_from_dataframe = toggle_type['remove_from_dataframe'] # if true, filtering out, and if false, adding back
-        elif toggle_type['type'] == BULK_FILTER_TOGGLE_ALL_MATCHING:
-            values_to_toggle = get_matching_values(post_state, sheet_index, column_id, toggle_type['search_string'])
-            remove_from_dataframe = toggle_type['remove_from_dataframe'] 
+        if toggle_type['type'] == BULK_FILTER_TOGGLE_FILTER_TYPE:
+            
+            if bulk_filter['condition'] == BULK_FILTER_CONDITION_IS_NOT_EXACTLY:
+                new_bulk_filter_condition = BULK_FILTER_CONDITION_IS_EXACTLY
+                new_values = get_list_difference(get_deduplicated_list(filtered_series.to_list()), filtered_out_values)
+                new_filtered_out_values = [value for value in filtered_out_values]
+            
+            elif bulk_filter['condition'] == BULK_FILTER_CONDITION_IS_EXACTLY:
+                new_bulk_filter_condition = BULK_FILTER_CONDITION_IS_NOT_EXACTLY
+                new_values = [value for value in filtered_out_values]
+                new_filtered_out_values = [value for value in filtered_out_values]
+
         else:
-            raise Exception(f"invalid toggle type {toggle_type}")
 
-        new_values = [value for value in bulk_filter['value']]
-        new_filtered_out_values = [value for value in filtered_out_values]
+            if toggle_type['type'] == BULK_FILTER_TOGGLE_SPECIFIC_VALUE:
+                values_to_toggle = [toggle_type['value']]
+                remove_from_dataframe = toggle_type['remove_from_dataframe'] # if true, filtering out, and if false, adding back
+            elif toggle_type['type'] == BULK_FILTER_TOGGLE_ALL_MATCHING:
+                values_to_toggle = get_matching_values(post_state, sheet_index, column_id, toggle_type['search_string'])
+                remove_from_dataframe = toggle_type['remove_from_dataframe']
 
-        if bulk_filter['condition'] == BULK_FILTER_CONDITION_IS_EXACTLY:
-            for value in values_to_toggle:
-                if remove_from_dataframe and value in new_values:
-                    new_values.remove(value)
-                    new_filtered_out_values.append(value)
-                elif not remove_from_dataframe and value not in new_values:
-                    new_values.append(value)
-                    new_filtered_out_values.remove(value)
-        elif bulk_filter['condition'] == BULK_FILTER_CONDITION_IS_NOT_EXACTLY:
-            for value in values_to_toggle:
-                if remove_from_dataframe and value not in new_values:
-                    new_values.append(value)
-                    new_filtered_out_values.append(value)
-                elif not remove_from_dataframe and value in new_values:
-                    new_values.remove(value)
-                    new_filtered_out_values.remove(value)
-        else:
-            raise Exception(f'Invalid bulk filter with condition {bulk_filter["condition"]}')
+            new_bulk_filter_condition = bulk_filter['condition']
+            new_values = [value for value in bulk_filter['value']]
+            new_filtered_out_values = [value for value in filtered_out_values]
+
+            if bulk_filter['condition'] == BULK_FILTER_CONDITION_IS_EXACTLY:
+                for value in values_to_toggle:
+                    if remove_from_dataframe and value in new_values:
+                        new_values.remove(value)
+                        new_filtered_out_values.append(value)
+                    elif not remove_from_dataframe and value not in new_values:
+                        new_values.append(value)
+                        new_filtered_out_values.remove(value)
+            elif bulk_filter['condition'] == BULK_FILTER_CONDITION_IS_NOT_EXACTLY:
+                for value in values_to_toggle:
+                    if remove_from_dataframe and value not in new_values:
+                        new_values.append(value)
+                        new_filtered_out_values.append(value)
+                    elif not remove_from_dataframe and value in new_values:
+                        new_values.remove(value)
+                        new_filtered_out_values.remove(value)
+            else:
+                raise Exception(f'Invalid bulk filter with condition {bulk_filter["condition"]}')
 
         # TODO: fix this weird bug, when we save, it saves the params but does not save the _final_ param, 
         # namely, the last item that was removed. Specifically, it doesn't add this last. Do we need to update
         # the params?
 
+        post_state.column_filters[sheet_index][column_id]['bulk_filter']['condition'] = new_bulk_filter_condition
         post_state.column_filters[sheet_index][column_id]['bulk_filter']['value'] = new_values
         post_state.column_filters[sheet_index][column_id]['filtered_out_values'] = new_filtered_out_values
 
         from mitosheet.step_performers.filter import _execute_filter
-        _, filtered_out_df, pandas_processing_time = _execute_filter(
+        _, _, pandas_processing_time = _execute_filter(
             post_state,
             sheet_index,
             column_id,
