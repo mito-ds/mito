@@ -52,6 +52,19 @@
     margin-top: 10vh;
 }
 
+.mt-10px {
+    margin-top: 10px;
+}
+.mb-10px {
+    margin-bottom: 10px;
+}
+.ml-10px {
+    margin-left: 10px;
+}
+.mr-10px {
+    margin-right: 10px;
+}
+
 .mt-5px {
     margin-top: 5px;
 }
