@@ -197,7 +197,10 @@ const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
                     {Object.entries(sheetData?.columnDtypeMap || {}).map(([columnID, columnDtype], index) => {
                         const columnIDsMap = sheetData?.columnIDsMap || {}
                         const columnHeader = columnIDsMap[columnID];
-                        const toggle = params.value_var_column_ids.includes(columnID);
+                        // We turn off and disable the toggle in the case it is included in the id variables, 
+                        // as pandas automatically filters the id variables out from the value variables
+                        const toggle = params.id_var_column_ids.includes(columnID) ? false : params.value_var_column_ids.includes(columnID);
+                        const disabled = params.id_var_column_ids.includes(columnID);
 
                         return (
                             <MultiToggleItem
@@ -209,6 +212,7 @@ const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
                                 onToggle={() => {
                                     toggleIndexes('value_var_column_ids', [index], !toggle)
                                 }}
+                                disabled={disabled}
                             />
                         ) 
                     })}
