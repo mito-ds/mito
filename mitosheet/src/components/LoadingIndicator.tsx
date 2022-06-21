@@ -182,6 +182,32 @@ const getMessageTypesToDisplay  = (loading: [string, string | undefined, string]
 }
 
 
+const getSlowLoadingMessage = (currentLoadingMessage: [number, string] | undefined, message_id: string): string | undefined => {
+    const is10SecondsAgo = currentLoadingMessage && message_id === currentLoadingMessage[1] && (currentLoadingMessage[0] <= Date.now() - 10 * 1000);
+    const is20SecondsAgo = currentLoadingMessage && message_id === currentLoadingMessage[1] && (currentLoadingMessage[0] <= Date.now() - 20 * 1000);
+    const is30SecondsAgo = currentLoadingMessage && message_id === currentLoadingMessage[1] && (currentLoadingMessage[0] <= Date.now() - 30 * 1000);
+    const is40SecondsAgo = currentLoadingMessage && message_id === currentLoadingMessage[1] && (currentLoadingMessage[0] <= Date.now() - 40 * 1000);
+    const is50SecondsAgo = currentLoadingMessage && message_id === currentLoadingMessage[1] && (currentLoadingMessage[0] <= Date.now() - 40 * 1000);
+    const is60SecondsAgo = currentLoadingMessage && message_id === currentLoadingMessage[1] && (currentLoadingMessage[0] <= Date.now() - 60 * 1000);
+
+    if (is60SecondsAgo) {
+        return "Still executing pandas code";
+    } else if (is50SecondsAgo) {
+        return "Doing the dataframe dance";
+    } else if (is40SecondsAgo) {
+        return "Working hard behind the scenes";
+    } else if (is30SecondsAgo) {
+        return "Still executing pandas code";
+    } else if (is20SecondsAgo) {
+        return "Doing the dataframe dance";
+    } else if (is10SecondsAgo) {
+        return "Still executing pandas code";
+    }
+
+    return undefined;
+} 
+
+
 
 /*
     Gives the user lots of information about what events and updates
@@ -250,7 +276,7 @@ const LoadingIndicator = (props: {loading: [string, string | undefined, string][
             </p>
             <div className='loading-indicator-content'>
                 {messagesToDisplay.map((([messageType, message_id], index) => {
-                    const is10SecondsAgo = currentLoadingMessage && message_id === currentLoadingMessage[1] && (currentLoadingMessage[0] <= Date.now() - 10 * 1000);
+                    const slowLoadingMessage = getSlowLoadingMessage(currentLoadingMessage, message_id);
 
                     return (messageType !== undefined && 
                         <div className={classNames('mb-5px', 'mt-5px', {'text-color-medium-gray-important': index !== 0})}>
@@ -261,13 +287,13 @@ const LoadingIndicator = (props: {loading: [string, string | undefined, string][
                                 <div className='loading-indicator-icon' style={{opacity: index !== 0 ? '50%' : undefined}}>
                                     {getIcon(messageType, '15', '15')}
                                 </div>
-                                <div className='ml-15px'>
+                                <div className='ml-5px'>
                                     <div className='text-body-1'>
                                         {getDisplayMessageForMessageType(messageType)}
                                     </div>
-                                    {is10SecondsAgo &&
+                                    {slowLoadingMessage !== undefined &&
                                         <div className='text-subtext-1'>
-                                            Still executing pandas code
+                                            {slowLoadingMessage}
                                         </div>
                                     }
                                 </div>
