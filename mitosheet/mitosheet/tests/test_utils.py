@@ -59,7 +59,7 @@ def check_dataframes_equal(test_wrapper):
         df_name: df.copy(deep=True) for df, df_name in 
         zip(
             test_wrapper.mito_widget.steps_manager.original_args,
-            test_wrapper.mito_widget.steps_manager.steps[0].df_names
+            test_wrapper.mito_widget.steps_manager.steps_including_skipped[0].df_names
         )
     }
     final_dfs = {
@@ -132,15 +132,15 @@ class MitoWidgetTestWrapper:
     def optimized_code_chunks(self):
         # NOTE: we don't add comments to this testing functionality, so that 
         # we don't have to change tests if we update comments
-        return get_code_chunks(self.mito_widget.steps_manager.steps, optimize=True)
+        return get_code_chunks(self.mito_widget.steps_manager.steps_including_skipped, optimize=True)
 
     @property
     def curr_step_idx(self):
         return self.mito_widget.steps_manager.curr_step_idx
     
     @property
-    def steps(self):
-        return self.mito_widget.steps_manager.steps
+    def steps_including_skipped(self):
+        return self.mito_widget.steps_manager.steps_including_skipped
 
     @property
     def curr_step(self):

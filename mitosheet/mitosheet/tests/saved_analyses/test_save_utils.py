@@ -170,7 +170,7 @@ def test_failed_replay_does_not_add_steps():
     new_mito.replay_analysis(random_name)
 
     # Make sure no step was added
-    assert len(new_mito.mito_widget.steps_manager.steps) == 1
+    assert len(new_mito.mito_widget.steps_manager.steps_including_skipped) == 1
 
 
 
@@ -195,8 +195,8 @@ def test_pivot_by_replays():
 
     # Make sure no step was added
     steps_manager = new_mito.mito_widget.steps_manager
-    assert len(steps_manager.steps) == 2
-    assert steps_manager.steps[1].step_type == 'pivot'
+    assert len(steps_manager.steps_including_skipped) == 2
+    assert steps_manager.steps_including_skipped[1].step_type == 'pivot'
     assert len(steps_manager.curr_step.dfs) == 2
     assert steps_manager.curr_step.dfs[1].equals(
         pd.DataFrame({'Name': ['Nate'], 'Height sum': [9]})
@@ -222,8 +222,8 @@ def test_merge_replays():
     new_mito.replay_analysis(random_name)
 
     steps_manager = new_mito.mito_widget.steps_manager
-    assert len(steps_manager.steps) == 2
-    assert steps_manager.steps[1].step_type == 'merge'
+    assert len(steps_manager.steps_including_skipped) == 2
+    assert steps_manager.steps_including_skipped[1].step_type == 'merge'
     assert len(steps_manager.curr_step.dfs) == 2
     assert steps_manager.curr_step.dfs[1].equals(
         pd.DataFrame(data={'Name': ['Nate', 'Jake'], 'Height_df1': [4, 5], 'Height_df1_2': [4, 5]})
@@ -251,8 +251,8 @@ def test_import_replays():
     os.remove(TEST_FILE_PATH)
 
     # Make sure no step was added
-    assert len(mito.steps) == 2
-    assert mito.steps[1].step_type == 'simple_import'
+    assert len(mito.steps_including_skipped) == 2
+    assert mito.steps_including_skipped[1].step_type == 'simple_import'
     assert len(mito.curr_step.dfs) == 1
     assert mito.curr_step.dfs[0].equals(
         df
@@ -300,7 +300,7 @@ def test_save_analysis_saves_skipped_steps():
     mito.filter(0, 'A', 'And', FC_NUMBER_EXACTLY, 2)
     mito.filter(0, 'A', 'And', FC_NUMBER_EXACTLY, 3)
 
-    assert len(mito.steps) == 3
+    assert len(mito.steps_including_skipped) == 3
 
     random_name = 'UUID-test_save' + str(random.random())
     mito.save_analysis(random_name)

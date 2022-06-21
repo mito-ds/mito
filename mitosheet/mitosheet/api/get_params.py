@@ -17,7 +17,7 @@ def get_params(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
 
     # Loop over the steps backwards, so that we get the most recent one
     found_params: Optional[Dict[str, Any]] = None
-    for step in steps_manager.steps[:steps_manager.curr_step_idx + 1][::-1]:
+    for step in steps_manager.steps_including_skipped[:steps_manager.curr_step_idx + 1][::-1]:
         if step.step_type != step_type:
             continue
 

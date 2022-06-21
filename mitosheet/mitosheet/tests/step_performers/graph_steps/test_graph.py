@@ -21,7 +21,7 @@ def test_create_empty_graph():
     graph_id = '123'
     mito.generate_graph(graph_id, BAR, 0, False, [], [], 400, 400)
 
-    assert len(mito.steps) == 2
+    assert len(mito.steps_including_skipped) == 2
     assert mito.curr_step.step_type == 'graph'
 
     assert mito.get_graph_type(graph_id) == BAR
@@ -47,7 +47,7 @@ def test_create_graph(graph_type):
     graph_id = '123'
     mito.generate_graph(graph_id, graph_type, 0, False, ['A'], ['B'], 400, 400)
 
-    assert len(mito.steps) == 2
+    assert len(mito.steps_including_skipped) == 2
     assert mito.curr_step.step_type == 'graph'
 
     assert mito.get_graph_type(graph_id) == graph_type
@@ -96,7 +96,7 @@ def test_all_styling_options():
         yaxis_title_font_color=yaxis_title_font_color
     )
 
-    assert len(mito.steps) == 2
+    assert len(mito.steps_including_skipped) == 2
     assert mito.curr_step.step_type == 'graph'
 
     assert mito.get_graph_type(graph_id) == BAR

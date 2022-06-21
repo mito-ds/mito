@@ -73,7 +73,7 @@ def test_overwrites_step_valid():
         }
     })
 
-    assert len(mito.steps) == 3
+    assert len(mito.steps_including_skipped) == 3
     assert mito.dfs[0].equals(pd.DataFrame(data={'A': [1, 2, 3], 'C': [0, 0, 0]}))
 
 
@@ -93,7 +93,7 @@ def test_failed_overwrite_rolls_back_to_previous_state():
         }
     })
 
-    assert len(mito.steps) == 2
+    assert len(mito.steps_including_skipped) == 2
     assert mito.dfs[0].equals(pd.DataFrame(data={'A': [1, 2, 3], 'B': [0, 0, 0]}))
 
 
