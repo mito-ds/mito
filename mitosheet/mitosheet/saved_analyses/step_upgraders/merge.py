@@ -95,3 +95,44 @@ def upgrade_merge_2_to_3(step: Dict[str, Any], later_steps: List[Dict[str, Any]]
         "step_type": "merge", 
         "params": params
     }] + later_steps
+
+
+def upgrade_merge_3_to_4(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Support for multiple merge keys.
+
+    OLD: {
+        "step_version": 3, 
+        "step_type": "merge", 
+        "params": {
+            sheet_index_one: 0,
+            merge_key_column_id_one: _ids_,
+            selected_column_ids_one: List[_ids_],
+            sheet_index_two: 1,
+            merge_key_column_id_two: _ids_,
+            selected_column_ids_two: List[_ids_],
+        }
+    }
+
+    NEW: {
+        "step_version": 4, 
+        "step_type": "merge", 
+        "params": {
+            sheet_index_one: 0,
+            sheet_index_two: 1,
+            merge_key_column_ids: [[old.merge_key_column_id_one, old.merge_key_column_id_two]],
+            selected_column_ids_one: List[_ids_],
+            selected_column_ids_two: List[_ids_],
+        }
+    }
+    """
+    params = step['params']
+    params['merge_key_column_ids'] = [[params['merge_key_column_id_one'], params['merge_key_column_id_two']]]
+    del params['merge_key_column_id_one']
+    del params['merge_key_column_id_two']
+
+    return [{
+        "step_version": 4, 
+        "step_type": "merge", 
+        "params": params
+    }] + later_steps

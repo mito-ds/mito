@@ -275,7 +275,7 @@ def get_column_header_match_tuples(
         # First, just find all of the matches, without changing the string, as this shifts indexes
         # NOTE: for booleans, and for multi-index headers, we need to make the same transformation 
         # that we make on the frontend
-        re.sub(get_column_header_display(column_header), find_column_headers, formula)
+        re.sub(re.escape(get_column_header_display(column_header)), find_column_headers, formula)
 
     # Sort the matches from end to start, so that we don't need to shift the indexes
     column_header_match_tuples = sorted(column_header_match_tuples, key=lambda x: x[1].start(), reverse=True)

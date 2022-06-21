@@ -123,14 +123,14 @@ def test_removes_unedited_formulas_for_unedited_sheets():
     mito.set_formula('=C', 0, 'D', add_column=True)
     mito.set_formula('=C', 1, 'D', add_column=True)
 
-    mito.merge_sheets('lookup', 0, 'A', ['A', 'B', 'C', 'D'], 1, 'A', ['A', 'B', 'C', 'D'])
+    mito.merge_sheets('lookup', 0, 1, [['A', 'A']], ['A', 'B', 'C', 'D'], ['A', 'B', 'C', 'D'])
 
     mito.set_formula('=C + 1', 1, 'D', add_column=True)
 
     assert mito.transpiled_code == [
         "df1.insert(3, 'D', df1[\'C\'])", 
         "df2.insert(3, 'D', df2[\'C\'])", 
-        'temp_df = df2.drop_duplicates(subset=\'A\') # Remove duplicates so lookup merge only returns first match', 
+        'temp_df = df2.drop_duplicates(subset=[\'A\']) # Remove duplicates so lookup merge only returns first match', 
         'df3 = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
         'df2[\'D\'] = df2[\'C\'] + 1',
     ]
@@ -140,17 +140,17 @@ def test_mulitple_merges_no_formula_steps():
     df1 = pd.DataFrame(data={'A': [1], 'B': [101], 'C': [11]})
     df2 = pd.DataFrame(data={'A': [1], 'B': [101], 'C': [11]})
     mito = create_mito_wrapper_dfs(df1, df2)
-    mito.merge_sheets('lookup', 0, 'A', ['A', 'B', 'C'], 1, 'A', ['A', 'B', 'C'])
-    mito.merge_sheets('lookup', 0, 'A', ['A', 'B', 'C'], 1, 'A', ['A', 'B', 'C'])
-    mito.merge_sheets('lookup', 0, 'A', ['A', 'B', 'C'], 1, 'A', ['A', 'B', 'C'])
+    mito.merge_sheets('lookup', 0, 1, [['A', 'A']], ['A', 'B', 'C'], ['A', 'B', 'C'])
+    mito.merge_sheets('lookup', 0, 1, [['A', 'A']], ['A', 'B', 'C'], ['A', 'B', 'C'])
+    mito.merge_sheets('lookup', 0, 1, [['A', 'A']], ['A', 'B', 'C'], ['A', 'B', 'C'])
 
 
     assert mito.transpiled_code == [
-        'temp_df = df2.drop_duplicates(subset=\'A\') # Remove duplicates so lookup merge only returns first match', 
+        'temp_df = df2.drop_duplicates(subset=[\'A\']) # Remove duplicates so lookup merge only returns first match', 
         'df3 = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
-        'temp_df = df2.drop_duplicates(subset=\'A\') # Remove duplicates so lookup merge only returns first match', 
+        'temp_df = df2.drop_duplicates(subset=[\'A\']) # Remove duplicates so lookup merge only returns first match', 
         'df4 = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
-        'temp_df = df2.drop_duplicates(subset=\'A\') # Remove duplicates so lookup merge only returns first match', 
+        'temp_df = df2.drop_duplicates(subset=[\'A\']) # Remove duplicates so lookup merge only returns first match', 
         'df5 = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])'
     ]
 
@@ -160,13 +160,13 @@ def test_optimization_with_other_edits():
     mito = create_mito_wrapper_dfs(df1, df2)
     mito.add_column(0, 'D')
     mito.set_formula('=A', 0, 'D')
-    mito.merge_sheets('lookup', 0, 'A', ['A', 'B', 'C', 'D'], 1, 'A', ['A', 'B', 'C'])
+    mito.merge_sheets('lookup', 0, 1, [['A', 'A']], ['A', 'B', 'C', 'D'], ['A', 'B', 'C'])
     mito.add_column(0, 'AAA')
     mito.delete_columns(0, ['AAA'])
 
     assert mito.transpiled_code == [
         "df1.insert(3, 'D', df1[\'A\'])", 
-        'temp_df = df2.drop_duplicates(subset=\'A\') # Remove duplicates so lookup merge only returns first match', 
+        'temp_df = df2.drop_duplicates(subset=[\'A\']) # Remove duplicates so lookup merge only returns first match', 
         'df3 = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
     ]
 
@@ -221,11 +221,11 @@ def test_transpile_merge_then_sort():
     df1 = pd.DataFrame(data={'Name': ["Aaron", "Nate"], 'Number': [123, 1]})
     df2 = pd.DataFrame(data={'Name': ["Aaron", "Nate"], 'Sign': ['Gemini', "Tarus"]})
     mito = create_mito_wrapper_dfs(df1, df2)
-    mito.merge_sheets('lookup', 0, 'Name', list(df1.keys()), 1, 'Name', list(df2.keys()))
+    mito.merge_sheets('lookup', 0, 1, [['Name', 'Name']], list(df1.keys()), list(df2.keys()))
     mito.sort(2, 'Number', 'ascending')
 
     assert mito.transpiled_code == [
-        'temp_df = df2.drop_duplicates(subset=\'Name\') # Remove duplicates so lookup merge only returns first match',
+        'temp_df = df2.drop_duplicates(subset=[\'Name\']) # Remove duplicates so lookup merge only returns first match',
         'df3 = df1.merge(temp_df, left_on=[\'Name\'], right_on=[\'Name\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
         'df3 = df3.sort_values(by=\'Number\', ascending=True, na_position=\'first\')',
     ]

@@ -18,7 +18,7 @@ def test_undo_deletes_df_name():
     mito = create_mito_wrapper_dfs(df1, df2)
 
     # Make a new sheet
-    mito.merge_sheets('lookup', 0, 'A', ['A'], 1, 'A', ['A'])
+    mito.merge_sheets('lookup', 0, 1, [['A', 'A']], ['A'], ['A'])
     mito.undo()
 
     assert mito.df_names == ['df1', 'df2']

@@ -13,7 +13,7 @@ TAB = '    '
 NEWLINE_TAB = f'\n{TAB}'
 
 
-def column_header_list_to_transpiled_code(column_headers: Union[List[Any], Set[Any]]) -> str:
+def column_header_list_to_transpiled_code(column_headers: Union[List[ColumnHeader], Set[ColumnHeader]]) -> str:
     """
     A helper function for turning a list of column headers into a 
     valid list of Python code.
@@ -44,9 +44,9 @@ def column_header_to_transpiled_code(column_header: ColumnHeader) -> str:
     if isinstance(column_header, int) or isinstance(column_header, float) or isinstance(column_header, bool):
         return str(column_header)
     elif isinstance(column_header, pd.Timestamp):
-        return f'\'{column_header.strftime("%Y-%m-%d %X")}\''
+        return f'pd.to_datetime(\'{column_header.strftime("%Y-%m-%d %X")}\')'
     elif isinstance(column_header, pd.Timedelta):
-        return f'\'{str(column_header)}\''
+        return f'pd.to_timedelta(\'{str(column_header)}\')'
 
 
     return repr(column_header)

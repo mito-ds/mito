@@ -1,9 +1,3 @@
-.split-text-to-column-delimiters-container {
-    border-radius: 5px;
-    padding: 10px; 
-    background: var(--mito-very-light-gray);
-    box-sizing: border-box;
-}
 
 .preview-table {
     width: 100%;

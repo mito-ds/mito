@@ -68,14 +68,23 @@ def make_incompatible_merge_headers_error(error_modal: bool=True) -> MitoError:
         error_modal=error_modal
     )
 
-def make_incompatible_merge_key_error(error_modal: bool=True) -> MitoError:
+def make_incompatible_merge_key_error(merge_key_one: Optional[ColumnHeader]=None, merge_key_one_dtype: Optional[str]=None, merge_key_two: Optional[ColumnHeader]=None, merge_key_two_dtype: Optional[str]=None, error_modal: bool=True) -> MitoError:
     """
     Helper function for creating a incompatible_merge_key_error
 
     Occurs when a user merges on two keys that are different types
     """
-    to_fix = f'You cannot merge using keys of different types. Either pick new keys or cast their types.'
+    from mitosheet.column_headers import get_column_header_display
 
+    if merge_key_one is not None and merge_key_two is not None:
+        return MitoError(
+            'incompatible_merge_key_error', 
+            'Incompatible Merge Key Types',
+            f'{get_column_header_display(merge_key_one)} ({merge_key_one_dtype}) and {get_column_header_display(merge_key_two)} ({merge_key_two_dtype}) have different types. Either pick new keys or cast their types.',
+            error_modal=error_modal
+        )
+    
+    to_fix = f'You cannot merge using keys of different types. Either pick new keys or cast their types.'
     return MitoError(
         'incompatible_merge_key_error', 
         'Incompatible Merge Key Types',

@@ -225,7 +225,7 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                     </Col>
                 </Row>
                 <Spacer px={15}/>
-                <Row justify='space-between' align='center' title='Select the dataframe to fill nan values in.'>
+                <Row justify='space-between' align='center' title='Select the columns to fill nan values in.'>
                     <Col>
                         <p className='text-header-3'>
                             Columns to Fill NaN Values In

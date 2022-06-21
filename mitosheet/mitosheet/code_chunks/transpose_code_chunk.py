@@ -31,7 +31,6 @@ class TransposeCodeChunk(CodeChunk):
             f'{transposed_df_name} = {df_name}.T'
         ]
 
-    
     def get_created_sheet_indexes(self) -> List[int]:
         return [len(self.post_state.dfs) - 1]
     
