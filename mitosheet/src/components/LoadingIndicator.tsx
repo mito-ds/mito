@@ -10,7 +10,7 @@ import LoadingCircle from './icons/LoadingCircle';
 import NonLoadingCircle from './icons/NonLoadingCircle';
 import { getIcon } from './taskpanes/Steps/StepDataElement';
 
-const isStepEvent = (messageType: string): boolean => {
+const isEditEvent = (messageType: string): boolean => {
     return messageType.endsWith('_edit')
 }
 const isUpdateEvent = (messageType: string): boolean => {
@@ -74,7 +74,7 @@ const getDisplayMessageForMessageType = (messageType: StepType | UpdateType): st
             return 'Changing a dtype'
         }
         case StepType.ChangeColumnFormat: {
-            return 'Formatting'
+            return 'Formatting columns'
         }
         case StepType.SetCellValue: {
             return 'Setting a cell value'
@@ -83,7 +83,7 @@ const getDisplayMessageForMessageType = (messageType: StepType | UpdateType): st
             return 'Bulk old rename'
         }
         case StepType.ExcelImport: {
-            return 'Import an Excel file'
+            return 'Importing Excel file'
         }
         case StepType.Graph: {
             return 'Creating graph'
@@ -113,25 +113,25 @@ const getDisplayMessageForMessageType = (messageType: StepType | UpdateType): st
             return 'Melting dataframe'
         }
         case UpdateType.Undo: {
-            return 'Undo previous edit'
+            return 'Undoing previous edit'
         }
         case UpdateType.Redo: {
-            return 'Redo previous edit'
+            return 'Redoing previous edit'
         }
         case UpdateType.Clear: {
-            return 'Clear all edits'
+            return 'Clearing all edits'
         }
         case UpdateType.ArgsUpdate: {
             return 'Updating user profile';
         }
         case UpdateType.SaveAnalysisUpdate: {
-            return 'Saving current analysis'
+            return 'Saving analysis'
         }
         case UpdateType.ReplayAnalysisUpdate: {
-            return 'Replaying previous analysis'
+            return 'Replaying analysis'
         }
         case UpdateType.CheckoutStepByIdxUpdate: {
-            return 'Checking out previous step'
+            return 'Checking out step'
         }
         case UpdateType.AppendUserFieldUpdate: {
             return 'Updating user profile'
@@ -152,7 +152,7 @@ const getDisplayMessageForMessageType = (messageType: StepType | UpdateType): st
 }
 
 const getMessageType = (messageType: string): StepType | UpdateType | undefined => {
-    if (isStepEvent(messageType)) {
+    if (isEditEvent(messageType)) {
         return messageType.substring(0, messageType.length - "_edit".length) as StepType;
     } else if  (isUpdateEvent(messageType)) {
         return messageType as UpdateType;
