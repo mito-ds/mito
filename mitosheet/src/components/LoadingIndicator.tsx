@@ -253,21 +253,32 @@ const LoadingIndicator = (props: {loading: [string, string | undefined, string][
                     const is10SecondsAgo = currentLoadingMessage && message_id === currentLoadingMessage[1] && (currentLoadingMessage[0] <= Date.now() - 10 * 1000);
 
                     return (messageType !== undefined && 
-                        <div 
-                            key={index} 
-                            className={classNames('loading-indicator-item', 'text-body-1', 'mb-5px', 'mt-5px', {'text-color-medium-gray-important': index !== 0})}
-                        >
-                            <div className='loading-indicator-icon' style={{opacity: index !== 0 ? '50%' : undefined}}>
-                                {getIcon(messageType, '15', '15')}
+                        <div className={classNames('mb-5px', 'mt-5px', {'text-color-medium-gray-important': index !== 0})}>
+                            <div 
+                                key={index} 
+                                className={classNames('loading-indicator-item')}
+                            >
+                                <div className='loading-indicator-icon' style={{opacity: index !== 0 ? '50%' : undefined}}>
+                                    {getIcon(messageType, '15', '15')}
+                                </div>
+                                <div className='ml-15px'>
+                                    <div className='text-body-1'>
+                                        {getDisplayMessageForMessageType(messageType)}
+                                    </div>
+                                    {is10SecondsAgo &&
+                                        <div className='text-subtext-1'>
+                                            Still executing pandas code
+                                        </div>
+                                    }
+                                </div>
+                                
+                                <div className='loading-indicator-loader'>
+                                    {index === 0 && <LoadingCircle/>}
+                                    {index !== 0 && <NonLoadingCircle/>}
+                                </div>
                             </div>
-                            <div className='ml-20px'>
-                                {getDisplayMessageForMessageType(messageType)} {is10SecondsAgo ? '... still working' : ''}
-                            </div>
-                            <div className='loading-indicator-loader'>
-                                {index === 0 && <LoadingCircle/>}
-                                {index !== 0 && <NonLoadingCircle/>}
-                            </div>
-                        </div>)
+                        </div>    
+                    )
                 }))}
             </div>
         </div>
