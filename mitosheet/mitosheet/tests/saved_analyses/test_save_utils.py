@@ -209,22 +209,18 @@ def test_merge_replays():
     mito = create_mito_wrapper_dfs(df1)
     mito.merge_sheets(
         'lookup',
-        0, 
-        'Name',
+        0, 0,
+        [['Name', 'Name']],
         ['Name', 'Height'],
-        0,
-        'Name',
         ['Name', 'Height']
     )
     
     random_name = 'UUID-test_save' + str(random.random())
     mito.save_analysis(random_name)
 
-    # Try and rerun it on a dataframe it cannot be rerun on
     new_mito = create_mito_wrapper_dfs(df1)
     new_mito.replay_analysis(random_name)
 
-    # Make sure no step was added
     steps_manager = new_mito.mito_widget.steps_manager
     assert len(steps_manager.steps) == 2
     assert steps_manager.steps[1].step_type == 'merge'

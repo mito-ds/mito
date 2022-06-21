@@ -4,20 +4,15 @@ import { ColumnID, SheetData } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 
 
-type SuggestedKeys = {
-    merge_key_column_id_one: ColumnID,
-    merge_key_column_id_two: ColumnID
-}
-
 /*
     Given two sheet indexes, reccomends a key to merge on,
     based on which column headers are displayed the same
 */
-export const getSuggestedKeysColumnID = (sheetDataArray: SheetData[], sheetOneIndex: number, sheetTwoIndex: number): SuggestedKeys | undefined => {
+export const getFirstSuggestedMergeKeys = (sheetDataArray: SheetData[], sheetOneIndex: number, sheetTwoIndex: number, existingMergeKeys?: [ColumnID, ColumnID][]): [ColumnID, ColumnID] | undefined => {
     
     const sheetOneEntries = Object.entries(sheetDataArray[sheetOneIndex]?.columnIDsMap || {});
     const sheetTwoEntries = Object.entries(sheetDataArray[sheetTwoIndex]?.columnIDsMap || {});
-    let columnIDsWithSharedColumnHeaders: ([string, string] | undefined)[] = sheetOneEntries.map(([columnID, columnHeader]) => {
+    const columnIDsWithSharedColumnHeaders: ([ColumnID, ColumnID] | undefined)[] = sheetOneEntries.map(([columnID, columnHeader]) => {
         const matchingIndex = sheetTwoEntries.findIndex(([, otherColumnHeader]) => {return getDisplayColumnHeader(columnHeader) === getDisplayColumnHeader(otherColumnHeader)});
         if (matchingIndex > -1) {
             return [columnID, sheetTwoEntries[matchingIndex][0]];
@@ -26,20 +21,30 @@ export const getSuggestedKeysColumnID = (sheetDataArray: SheetData[], sheetOneIn
         }
     });
 
-    columnIDsWithSharedColumnHeaders = columnIDsWithSharedColumnHeaders.filter(cid => cid !== undefined);
-    
-    // Make sure everything is defined; handles if there are no columns in a sheet
-    const columnIDOne = columnIDsWithSharedColumnHeaders[0] ? columnIDsWithSharedColumnHeaders[0][0] : 
-        (sheetOneEntries[0] ? sheetOneEntries[0][0] : undefined);
-    const columnIDTwo = columnIDsWithSharedColumnHeaders[0] ? columnIDsWithSharedColumnHeaders[0][1] :
-        (sheetTwoEntries[0] ? sheetTwoEntries[0][0] : undefined);
+    const allSuggestions = columnIDsWithSharedColumnHeaders.filter(cid => cid !== undefined) as [ColumnID, ColumnID][];
+    if (allSuggestions.length === 0) {
+        // If there are no column ids, then we just return undefined
+        if (sheetOneEntries[0] === undefined || sheetTwoEntries[0] === undefined) {
+            return undefined;
+        }
 
-    if (columnIDOne === undefined || columnIDTwo === undefined) {
-        return undefined;
-    }
-    
-    return {
-        merge_key_column_id_one: columnIDOne,
-        merge_key_column_id_two: columnIDTwo
+        return [sheetOneEntries[0][0], sheetTwoEntries[0][0]];
+    } else {
+        // Get the first suggestion that is not included, or just default to the first suggestion
+        if (!existingMergeKeys) {
+            return allSuggestions[0];
+        } else {
+            const notIncludedSuggestions = allSuggestions.filter(([columnIDOne, columnIDTwo]) => {
+                const columnIDOneUsed = existingMergeKeys.findIndex(([mergeKeyOne, ]) => {return columnIDOne === mergeKeyOne}) !== -1;
+                const columnIDTwoUsed = existingMergeKeys.findIndex(([, mergeKeyTwo]) => {return columnIDTwo === mergeKeyTwo}) !== -1;
+                return !columnIDOneUsed && !columnIDTwoUsed;
+            })
+
+            if (notIncludedSuggestions.length === 0) {
+                return allSuggestions[0]
+            } else {
+                return notIncludedSuggestions[0]
+            }
+        }
     }
 }

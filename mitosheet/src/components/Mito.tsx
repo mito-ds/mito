@@ -606,8 +606,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
             )
             case TaskpaneType.MERGE: return (
                 <MergeTaskpane
-                    dfNames={dfNames}
-                    columnIDsMapArray={columnIDsMapArray}
                     selectedSheetIndex={uiState.selectedSheetIndex}
                     sheetDataArray={sheetDataArray}
                     setUIState={setUIState}

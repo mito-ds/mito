@@ -198,7 +198,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                             Delimiters
                         </p>
                     </Col>
-                    <Col className="split-text-to-column-delimiters-container element-width-medium-large">
+                    <Col className="light-gray-container element-width-medium-large">
                         {Object.entries(delimiters).map(([delimiter, delimiterTitle]) => {
                             return (
                                 <MultiSelectButtonItem

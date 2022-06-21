@@ -56,7 +56,7 @@ def test_rename_then_merge():
     mito = create_mito_wrapper([1], sheet_two_A_data=[1])
     mito.rename_column(0, 'A', 'KEY')
     mito.rename_column(1, 'A', 'KEY')
-    mito.merge_sheets('lookup', 0, 'KEY', ['KEY'], 1, 'KEY', ['KEY'])
+    mito.merge_sheets('lookup', 0, 1, [['KEY', 'KEY']], ['KEY'], ['KEY'])
 
     assert len(mito.dfs) == 3
     assert mito.dfs[0].equals(pd.DataFrame(data={'KEY': [1]}))

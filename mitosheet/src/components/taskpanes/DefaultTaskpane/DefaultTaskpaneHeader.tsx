@@ -24,10 +24,6 @@ const DefaultTaskpane = (
          */
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
         /** 
-            * @param [headerOutsideRow] - If you want the header to not be put inside the row and possibly wrap
-        */
-        headerOutsideRow?: boolean; 
-        /** 
             * @param [backCallback] - If you want to add a back button to the title of the taskpane, 
             * you can just provide a callback to be called when this is clicked
         */
@@ -46,51 +42,46 @@ const DefaultTaskpane = (
 
     return (
         <div className='default-taskpane-header-div'>
-            {props.headerOutsideRow &&
-                props.header                
-            }
-            {!props.headerOutsideRow &&
-                <Row suppressTopBottomMargin>
-                    <Col span={23}>
-                        {typeof props.header !== 'string' &&
-                            props.header
-                        }
-                        {typeof props.header === 'string' &&
-                            <div className='default-taskpane-header-and-back-button'>
-                                {props.backCallback !== undefined &&
-                                    <div onClick={props.backCallback} className='mt-5px mr-10px'>
-                                        <BackArrowIcon/>
-                                    </div>
+            <Row suppressTopBottomMargin>
+                <Col span={23}>
+                    {typeof props.header !== 'string' &&
+                        props.header
+                    }
+                    {typeof props.header === 'string' &&
+                        <div className='default-taskpane-header-and-back-button'>
+                            {props.backCallback !== undefined &&
+                                <div onClick={props.backCallback} className='mt-5px mr-10px'>
+                                    <BackArrowIcon/>
+                                </div>
+                            }
+                            <p className='text-header-2 text-overflow-hide'>
+                                {props.header}
+                            </p>
+                        </div>
+                    }
+                </Col>
+                <Col span={1}>
+                    {!props.notCloseable &&
+                        <div 
+                            className='default-taskpane-header-exit-button-div' 
+                            onClick={() => {
+                                // Call the on close callback, if it exists
+                                if (props.callbackOnClose) {
+                                    props.callbackOnClose();
                                 }
-                                <p className='text-header-2 text-overflow-hide'>
-                                    {props.header}
-                                </p>
-                            </div>
-                        }
-                    </Col>
-                    <Col span={1}>
-                        {!props.notCloseable &&
-                            <div 
-                                className='default-taskpane-header-exit-button-div' 
-                                onClick={() => {
-                                    // Call the on close callback, if it exists
-                                    if (props.callbackOnClose) {
-                                        props.callbackOnClose();
+                                props.setUIState((prevUIState) => {
+                                    return {
+                                        ...prevUIState,
+                                        currOpenTaskpane: {type: TaskpaneType.NONE}
                                     }
-                                    props.setUIState((prevUIState) => {
-                                        return {
-                                            ...prevUIState,
-                                            currOpenTaskpane: {type: TaskpaneType.NONE}
-                                        }
-                                    })
-                                }}
-                            >
-                                <XIcon/>
-                            </div>
-                        } 
-                    </Col>
-                </Row>
-            }           
+                                })
+                            }}
+                        >
+                            <XIcon/>
+                        </div>
+                    } 
+                </Col>
+            </Row>
         </div>
     )
 };

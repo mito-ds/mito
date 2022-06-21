@@ -13,7 +13,7 @@ TAB = '    '
 NEWLINE_TAB = f'\n{TAB}'
 
 
-def column_header_list_to_transpiled_code(column_headers: Union[List[Any], Set[Any]]) -> str:
+def column_header_list_to_transpiled_code(column_headers: Union[List[ColumnHeader], Set[ColumnHeader]]) -> str:
     """
     A helper function for turning a list of column headers into a 
     valid list of Python code.

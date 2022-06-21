@@ -244,7 +244,7 @@ def test_all_other_steps_after_pivot():
     # Duplicate and merge with the original dataframe
     mito.duplicate_dataframe(1)
     mito.set_cell_value(2, 'Name', 0, 'Nate')
-    mito.merge_sheets('left', 0, 'Name', ['Name'], 2, 'Name', ['Name'])
+    mito.merge_sheets('left', 0, 2, [['Name', 'Name']], ['Name'], ['Name'])
     mito.set_cell_value(3, 'Name', 0, 'Aaron')
 
     # Filter down in the pivot dataframe, and the merged dataframe

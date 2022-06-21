@@ -40,9 +40,14 @@ interface SelectProps {
     */
     searchable?: boolean
     /**
-        * @param [disabled] -- When True, the select is disabled 
+        * @param [disabled] - When True, the select is disabled 
      */
     disabled?: boolean
+
+    /**
+        * @param [className] - Optional classes to apply to select 
+    */
+    className?: string
 }
 
 /**
@@ -56,6 +61,8 @@ const Select = (props: SelectProps): JSX.Element => {
 
     const widthClass = `element-width-${width}`
     const dropdownActiveClass = displayDropdown ? 'select-dropdown-active' : ''
+
+    const providedClasses = props.className || ''
 
     /* 
         To get the value to display, we first see if any of the dropdown items
@@ -99,7 +106,7 @@ const Select = (props: SelectProps): JSX.Element => {
 
     return (
         <div 
-            className={classNames('select-container', 'text-body-2', widthClass, dropdownActiveClass, {'select-disabled': props.disabled})}
+            className={classNames('select-container', 'text-body-2', widthClass, dropdownActiveClass, providedClasses, {'select-disabled': props.disabled})}
             onClick={() => {
                 // If the select is disabled, then don't do anything
                 if (props.disabled) {
