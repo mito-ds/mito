@@ -254,10 +254,12 @@ def _execute_filter(
                 get_applied_filter(df, column_header, filter_or_group)
             )
 
-    # Get the final filter
+    # Get the final filter for the filter list
     filter_list_filter = combine_filters(operator, applied_filters)
 
-    # Then, we combine with the bulk filters
+    # Then, we combine with the bulk filter with the other filters. We always
+    # use an and to combine, as this is what users expect: the filters accept
+    # this data, or they have it toggled
     applied_bulk_filter = get_applied_filter(df, column_header, bulk_filter)
     final_filter = combine_filters('And', [filter_list_filter, applied_bulk_filter])
     

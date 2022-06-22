@@ -222,3 +222,21 @@ def test_defaults_to_inclusive_if_smaller():
     mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 3, 'remove_from_dataframe': True})
     mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 4, 'remove_from_dataframe': True})
     assert '[5]' in mito.transpiled_code[0]
+
+def test_inclusive_and_other_filters():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3, 4, 5]}))
+    mito.filter(0, 'A', 'And', FC_NUMBER_GREATER, 1)
+    mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 2, 'remove_from_dataframe': True})
+    mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 3, 'remove_from_dataframe': True})
+    mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 4, 'remove_from_dataframe': True})
+    assert '[5]' in mito.transpiled_code[1]
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [5]}, index=[4]))
+
+
+def test_edit_between_filter_and_bulk_filter_works():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3, 4, 5]}))
+    mito.filter(0, 'A', 'And', FC_NUMBER_GREATER, 2)
+    mito.add_column(0, 'B')
+    mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 4, 'remove_from_dataframe': True})
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [3, 5], 'B': [0, 0]}, index=[2, 4]))

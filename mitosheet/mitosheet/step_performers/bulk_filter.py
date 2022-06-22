@@ -14,7 +14,6 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.filter_code_chunk import FilterCodeChunk
 
 from mitosheet.state import State
-from mitosheet.list_utils import get_deduplicated_list, get_list_difference
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
 from mitosheet.types import ColumnID
@@ -22,7 +21,6 @@ from mitosheet.types import ColumnID
 BULK_FILTER_TOGGLE_SPECIFIC_VALUE = 'toggle_specific_value'
 BULK_FILTER_TOGGLE_ALL_MATCHING = 'toggle_all_matching'
 
-BULK_FILTER_CONDITION_IS_EXACTLY = 'bulk_is_exactly'
 BULK_FILTER_CONDITION_IS_NOT_EXACTLY = 'bulk_is_not_exactly'
 
 class BulkFilterStepPerformer(StepPerformer):
@@ -40,7 +38,9 @@ class BulkFilterStepPerformer(StepPerformer):
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
-        # We fill this up with the previous values 
+        # We fill this up with the previous values at the time the event is set, 
+        # so that even though that previous bulk filter step is skipped, we still have
+        # access to the previous bulk filter and filtered out values
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')
 
@@ -57,7 +57,6 @@ class BulkFilterStepPerformer(StepPerformer):
         bulk_filter: Any = get_param(params, 'bulk_filter')
         filtered_out_values: Any = get_param(params, 'filtered_out_values')
 
-        # We make a new state to modify it
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
         if toggle_type['type'] == BULK_FILTER_TOGGLE_SPECIFIC_VALUE:
@@ -66,7 +65,6 @@ class BulkFilterStepPerformer(StepPerformer):
         elif toggle_type['type'] == BULK_FILTER_TOGGLE_ALL_MATCHING:
             values_to_toggle = get_matching_values(post_state, sheet_index, column_id, toggle_type['search_string'])
             remove_from_dataframe = toggle_type['remove_from_dataframe']
-
 
         new_values = copy(set(bulk_filter['value']))
         new_filtered_out_values = copy(set(filtered_out_values))
