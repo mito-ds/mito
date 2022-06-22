@@ -64,7 +64,7 @@ class PivotStepPerformer(StepPerformer):
         pivot_rows = prev_state.column_ids.get_column_headers_by_ids(sheet_index, pivot_rows_column_ids)
         pivot_columns = prev_state.column_ids.get_column_headers_by_ids(sheet_index, pivot_columns_column_ids)
         values = {
-            prev_state.column_ids.get_column_header_by_id(sheet_index, column_id): get_deduplicated_list(value) 
+            prev_state.column_ids.get_column_header_by_id(sheet_index, column_id): get_deduplicated_list(value) if isinstance(value, list) else value
             for column_id, value in values_column_ids_map.items()
         }
 

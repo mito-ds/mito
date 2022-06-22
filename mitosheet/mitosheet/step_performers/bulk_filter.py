@@ -84,7 +84,7 @@ class BulkFilterStepPerformer(StepPerformer):
 
         # Then execute the filter
         from mitosheet.step_performers.filter import _execute_filter
-        _, _, pandas_processing_time = _execute_filter(
+        _, pandas_processing_time = _execute_filter(
             post_state,
             sheet_index,
             column_id,

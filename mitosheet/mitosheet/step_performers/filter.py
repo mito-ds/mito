@@ -86,8 +86,8 @@ class FilterStepPerformer(StepPerformer):
         bulk_filter = post_state.column_filters[sheet_index][column_id]['bulk_filter']
 
         # Execute the filter
-        _, _, pandas_processing_time = _execute_filter(
-            post_state, sheet_index, column_header, filter_list, bulk_filter
+        _, pandas_processing_time = _execute_filter(
+            post_state, sheet_index, column_id, filter_list, bulk_filter
         )
 
         return post_state, {
@@ -220,7 +220,7 @@ def _execute_filter(
     column_id: ColumnID,
     filter_list: Dict[str, Any],
     bulk_filter: Dict[str, Any]
-) -> Tuple[pd.DataFrame, pd.DataFrame, float]:
+) -> Tuple[pd.DataFrame, float]:
     """
     Executes a filter on the given column, filtering by removing any rows who
     don't meet the condition.
@@ -263,8 +263,8 @@ def _execute_filter(
     applied_bulk_filter = get_applied_filter(df, column_header, bulk_filter)
     final_filter = combine_filters('And', [filter_list_filter, applied_bulk_filter])
     
-    final_df, filtered_out_df = df[final_filter], df[~final_filter]
-
+    final_df = df[final_filter]
+        
     pandas_processing_time = perf_counter() - pandas_start_time
 
     post_state.dfs[sheet_index] = final_df
@@ -273,4 +273,4 @@ def _execute_filter(
     post_state.column_filters[sheet_index][column_id]['filter_list'] = filter_list
     post_state.column_filters[sheet_index][column_id]['bulk_filter'] = bulk_filter
 
-    return final_df, filtered_out_df, pandas_processing_time
+    return final_df, pandas_processing_time

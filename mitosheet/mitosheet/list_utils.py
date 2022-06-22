@@ -8,7 +8,7 @@
 from typing import Any, List
 
 
-def get_deduplicated_list(l: List[Any], preserve_order=True) -> List[Any]:
+def get_deduplicated_list(l: List[Any], preserve_order: bool=True) -> List[Any]:
 
     if preserve_order:
         new_list = []
