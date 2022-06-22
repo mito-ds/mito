@@ -148,6 +148,9 @@ const getDisplayMessageForMessageType = (messageType: StepType | UpdateType): st
         case UpdateType.RenderCountUpdate: {
             return 'Updating user profile'
         }
+        default: {
+            return "Performing an edit"
+        }
     }
 }
 
