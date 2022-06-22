@@ -7,6 +7,7 @@
 from typing import Collection, Dict, List, Optional, Union
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.list_utils import get_deduplicated_list
 from mitosheet.transpiler.transpile_utils import NEWLINE_TAB, get_transpiled_code_for_object_list
 from mitosheet.types import ColumnHeader
 
@@ -81,7 +82,7 @@ class PivotCodeChunk(CodeChunk):
         pivot_rows = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index, pivot_rows_column_ids)
         pivot_columns = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index, pivot_columns_column_ids)
         values = {
-            self.prev_state.column_ids.get_column_header_by_id(sheet_index, column_id): value 
+            self.prev_state.column_ids.get_column_header_by_id(sheet_index, column_id): get_deduplicated_list(value) if isinstance(value, list) else value 
             for column_id, value in values_column_ids_map.items()
         }
         
