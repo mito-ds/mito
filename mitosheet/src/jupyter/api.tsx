@@ -136,9 +136,11 @@ export default class MitoAPI {
         const timeout: NodeJS.Timeout = setTimeout(() => {
             stateUpdaters?.setUIState((prevUIState) => {
                 loadingUpdated = true;
+                const newLoadingCalls = [...prevUIState.loading];
+                newLoadingCalls.push([id, msg['step_id'] as string | undefined, msg['type'] as string])
                 return {
                     ...prevUIState,
-                    loading: prevUIState.loading + 1
+                    loading: newLoadingCalls
                 }
             });
         }, 500);
@@ -152,12 +154,15 @@ export default class MitoAPI {
         // Stop the loading from being updated if it hasn't already run
         clearTimeout(timeout);
 
-        // If loading has been updated, then we decrease the count of it again
+        // If loading has been updated, then we remove the loading with this value
         if (loadingUpdated) {
             stateUpdaters?.setUIState((prevUIState) => {
+                const newLoadingCalls = [...prevUIState.loading];
+                const messageIndex = newLoadingCalls.findIndex((value) => {return value[0] === id})
+                newLoadingCalls.splice(messageIndex, 1);
                 return {
                     ...prevUIState,
-                    loading: Math.max(prevUIState.loading - 1, 0)
+                    loading: newLoadingCalls
                 }
             });
         }
@@ -236,23 +241,6 @@ export default class MitoAPI {
                 }
             }, RETRY_DELAY);
         })
-    }
-
-    /*
-        Returns all the CSV files in the current folder as the kernel.
-    */
-    async getDataFiles(): Promise<string[]> {
-
-        const dataFiles = await this.send<string[]>({
-            'event': 'api_call',
-            'type': 'datafiles',
-            'params': {},
-        }, {})
-
-        if (dataFiles == undefined) {
-            return []
-        }
-        return dataFiles;
     }
 
     /*

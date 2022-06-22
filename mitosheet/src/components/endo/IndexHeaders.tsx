@@ -20,7 +20,8 @@ const IndexHeaders = (props: {
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
 }): JSX.Element => {
 
-    const [openIndexHeaderDropdown, setOpenIndexHeaderDropdown] = useState<undefined | string | number>(undefined);
+    // NOTE: this is indexed by index in the sheet, not by the label
+    const [openIndexHeaderDropdown, setOpenIndexHeaderDropdown] = useState<number | undefined>(undefined);
 
     const currentSheetView = calculateCurrentSheetView(props.gridState);
     const translate = calculateTranslate(props.gridState);
@@ -58,14 +59,14 @@ const IndexHeaders = (props: {
                                     onContextMenu={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
-                                        setOpenIndexHeaderDropdown(indexHeader);
+                                        setOpenIndexHeaderDropdown(rowIndex);
                                     }}
                                 >
                                     {indexHeader}
                                     <IndexHeaderDropdown
                                         sheetData={props.sheetData}
                                         setOpenIndexHeaderDropdown={setOpenIndexHeaderDropdown}
-                                        display={indexHeader === openIndexHeaderDropdown}
+                                        display={openIndexHeaderDropdown === rowIndex}
                                         index={indexHeader}
                                         mitoAPI={props.mitoAPI}
                                         sheetIndex={props.sheetIndex}

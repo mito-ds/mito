@@ -1,15 +1,14 @@
 // Copyright (c) Mito
 
-import React, { useState } from 'react';
+import React from 'react';
 import MitoAPI from '../../../jupyter/api';
 import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
-import { AnalysisData, ColumnID, ColumnIDsMap, SheetData, StepType, UIState } from '../../../types';
+import { AnalysisData, ColumnID, SheetData, StepType, UIState } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import DropdownItem from '../../elements/DropdownItem';
 import MultiToggleBox from '../../elements/MultiToggleBox';
 import MultiToggleItem from '../../elements/MultiToggleItem';
 import Select from '../../elements/Select';
-import XIcon from '../../icons/XIcon';
 import Col from '../../spacing/Col';
 import Row from '../../spacing/Row';
 import { getDtypeValue } from '../ControlPanel/FilterAndSortTab/DtypeCard';
@@ -17,9 +16,11 @@ import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
-import { TaskpaneType } from '../taskpanes';
-import MergeSheetAndKeySelection from './MergeSheetAndKeySelection';
-import { getSuggestedKeysColumnID } from './mergeUtils';
+import { getFirstSuggestedMergeKeys } from './mergeUtils';
+import MergeSheetSection from './MergeSheetSelection';
+import MergeKeysSelectionSection from './MergeKeysSelection';
+import { addIfAbsent, removeIfPresent, toggleInArray } from '../../../utils/arrays';
+import Spacer from '../../spacing/Spacer';
 
 
 // Enum to allow you to refer to the first or second sheet by name, for clarity
@@ -46,17 +47,14 @@ export enum MergeType {
 export interface MergeParams {
     how: string,
     sheet_index_one: number,
-    merge_key_column_id_one: ColumnID,
-    selected_column_ids_one: ColumnID[],
     sheet_index_two: number,
-    merge_key_column_id_two: ColumnID,
+    merge_key_column_ids: [ColumnID, ColumnID][],
+    selected_column_ids_one: ColumnID[],
     selected_column_ids_two: ColumnID[],
 }
 
 
 export type MergeTaskpaneProps = {
-    dfNames: string[],
-    columnIDsMapArray: ColumnIDsMap[],
     selectedSheetIndex: number,
     sheetDataArray: SheetData[],
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
@@ -64,150 +62,63 @@ export type MergeTaskpaneProps = {
     analysisData: AnalysisData;
 };
 
-const getDefaultMergeParams = (sheetDataArray: SheetData[], selectedSheetIndex: number): MergeParams | undefined => {
+
+export const getDefaultMergeParams = (sheetDataArray: SheetData[], _sheetIndexOne: number, _sheetIndexTwo?: number, previousParams?: MergeParams): MergeParams | undefined => {
     if (sheetDataArray.length < 2) {
         return undefined;
+    }
+
+    const sheetIndexOne = _sheetIndexOne;
+    const sheetIndexTwo = _sheetIndexTwo !== undefined
+        ? _sheetIndexTwo 
+        : (sheetIndexOne + 1 <= sheetDataArray.length - 1
+            ? sheetIndexOne + 1
+            : (sheetIndexOne - 1 >= 0 ? sheetIndexOne - 1 : sheetIndexOne)
+        )
+    
+    // If we didn't change the sheets, then the default params are just the params we had last
+    if (previousParams && previousParams.sheet_index_one == sheetIndexOne && previousParams.sheet_index_two === sheetIndexTwo) {
+        return previousParams;
+    }
+
+    const suggestedMergeKeys = getFirstSuggestedMergeKeys(sheetDataArray, sheetIndexOne, sheetIndexTwo);
+
+    // We default to selecting _all_ columns, if we switched datasets. Otherwise, we keep the selected
+    // params from the previous params
+    let selectedColumnIDsOne: ColumnID[] = [];
+    let selectedColumnIDsTwo: ColumnID[] = [];
+
+    if (previousParams && previousParams.sheet_index_one == sheetIndexOne) {
+        selectedColumnIDsOne = previousParams.selected_column_ids_one;
     } else {
-        
-        // We default the merge modal to select the selected sheet index as the first sheet
-        const sheetOneIndex = selectedSheetIndex;
-        // The second sheet is either: the sheet to the right, if it exists and contains columns,
-        // or the one to the left, it exists. If neither exist, then it is just
-        // the same as sheet one index, as there is only one sheet
-        const sheetTwoIndex = sheetOneIndex + 1 <= sheetDataArray.length - 1 && sheetDataArray[sheetOneIndex + 1].numColumns > 0
-            ? sheetOneIndex + 1
-            : (sheetOneIndex - 1 >= 0 ? sheetOneIndex - 1 : sheetOneIndex)
-
-        const suggestedKeys = getSuggestedKeysColumnID(sheetDataArray, sheetOneIndex, sheetTwoIndex);
-
-        // If there are no suggested keys, then we don't have any columns in one datasets, so we bail with undefined params
-        if (suggestedKeys === undefined) {
-            return undefined;
-        }
-
-        // We default to selecting _all_ columns
-        const selectedColumnIDsOne = [...Object.keys(sheetDataArray[sheetOneIndex]?.columnIDsMap || {})]
-        const selectedColumnIDsTwo = [...Object.keys(sheetDataArray[sheetTwoIndex]?.columnIDsMap || {})]
-        
-        return {
-            how: 'lookup',
-            sheet_index_one: sheetOneIndex,
-            merge_key_column_id_one: suggestedKeys.merge_key_column_id_one,
-            selected_column_ids_one: selectedColumnIDsOne,
-            sheet_index_two: sheetTwoIndex,
-            merge_key_column_id_two: suggestedKeys.merge_key_column_id_two,
-            selected_column_ids_two: selectedColumnIDsTwo,
-        }
+        selectedColumnIDsOne = [...Object.keys(sheetDataArray[sheetIndexOne]?.columnIDsMap || {})]
+    }
+    if (previousParams && previousParams.sheet_index_two == sheetIndexTwo) {
+        selectedColumnIDsTwo = previousParams.selected_column_ids_two;
+    } else {
+        selectedColumnIDsTwo = [...Object.keys(sheetDataArray[sheetIndexTwo]?.columnIDsMap || {})]
+    }
+    
+    return {
+        how: previousParams ? previousParams.how : 'lookup',
+        sheet_index_one: sheetIndexOne,
+        sheet_index_two: sheetIndexTwo,
+        merge_key_column_ids: suggestedMergeKeys ? [suggestedMergeKeys] : [],
+        selected_column_ids_one: selectedColumnIDsOne,
+        selected_column_ids_two: selectedColumnIDsTwo,
     }
 }
 
 
 const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
 
-    const {params, setParams, error} = useLiveUpdatingParams(
-        getDefaultMergeParams(props.sheetDataArray, props.selectedSheetIndex),
+    const {params, setParams, error} = useLiveUpdatingParams<MergeParams>(
+        () => getDefaultMergeParams(props.sheetDataArray, props.selectedSheetIndex),
         StepType.Merge,
         props.mitoAPI,
         props.analysisData,
         50 // 50 ms debounce delay
     )
-    const [originalDfNames] = useState(props.sheetDataArray.map(sheetData => sheetData.dfName))
-
-    /*
-        Helper function for updating the merge type in state and 
-        sending the merge message to the backend. 
-    */
-    const setNewMergeType = (newMergeType: MergeType): void => {
-        setParams(prevParams => {
-            return {
-                ...prevParams,
-                how: newMergeType
-            }
-        })
-    }
-
-    const setNewSheetIndex = (sheetNumber: MergeSheet, newSheetIndex: number): void => {
-        const indexName = sheetNumber == MergeSheet.First ? 'sheet_index_one' : 'sheet_index_two'
-        const selectedColumnsName = sheetNumber == MergeSheet.First ? 'selected_column_ids_one' : 'selected_column_ids_two';
-
-        const newSelectedColumnIDs = props.sheetDataArray[newSheetIndex].data.map(c => c.columnID);
-
-        setParams(prevMergeParams => {
-            // Return if we're not changing anything!
-            if (prevMergeParams[indexName] == newSheetIndex) {
-                return prevMergeParams;
-            }
-            
-            const newSuggestedKeys = getSuggestedKeysColumnID(
-                props.sheetDataArray, 
-                sheetNumber === MergeSheet.First ? newSheetIndex : prevMergeParams.sheet_index_one, 
-                sheetNumber === MergeSheet.Second ? newSheetIndex : prevMergeParams.sheet_index_two
-            );
-
-            if (newSuggestedKeys === undefined) {
-                return prevMergeParams;
-            }
-
-            return {
-                ...prevMergeParams,
-                [indexName]: newSheetIndex,
-                [selectedColumnsName]: newSelectedColumnIDs,
-                merge_key_column_id_one: newSuggestedKeys.merge_key_column_id_one,
-                merge_key_column_id_two: newSuggestedKeys.merge_key_column_id_two
-            }
-        })
-    }
-
-    /*
-        Sets a new merge key for one of the merge sheets
-    */
-    const setNewMergeKeyColumnID = (sheetNumber: MergeSheet, newMergeKeyColumnID: ColumnID): void => {
-        const mergeKeyIDName = sheetNumber === MergeSheet.First ? 'merge_key_column_id_one' : 'merge_key_column_id_two';
-
-        setParams(prevParams => {
-            return {
-                ...prevParams,
-                [mergeKeyIDName]: newMergeKeyColumnID
-            }
-        })
-    }
-
-    /*
-        Toggles if we should keep a specific column from one of the sheets in the new
-        merged sheet.
-    */
-    const toggleKeepColumnIDs = (sheetNumber: MergeSheet, columnIDs: ColumnID[], newToggle: boolean): void => {
-        const selectedColumnIDsName = sheetNumber == MergeSheet.First ? 'selected_column_ids_one' : 'selected_column_ids_two'
-        const mergeKeyIDName = sheetNumber == MergeSheet.First ? 'merge_key_column_id_one' : 'merge_key_column_id_two'
-
-        setParams(prevParams => {
-            const newSelectedColumnIDs = [...prevParams[selectedColumnIDsName]]
-
-            for (let i = 0; i < columnIDs.length; i++) {
-                const columnID = columnIDs[i];
-
-                // We the don't let you toggle the merge key!
-                if (prevParams[mergeKeyIDName] === columnID) {
-                    return prevParams;
-                }
-
-                if (newToggle) {
-                    if (!newSelectedColumnIDs.includes(columnID)) {
-                        newSelectedColumnIDs.push(columnID)
-                    }
-                } else {
-                    if (newSelectedColumnIDs.includes(columnID)) {
-                        newSelectedColumnIDs.splice(newSelectedColumnIDs.indexOf(columnID), 1)
-                    }
-                }
-            }
-            
-            return {
-                ...prevParams,
-                [selectedColumnIDsName]: newSelectedColumnIDs
-            }
-        })
-    }
 
     /*
         If the merge params are undefined, then display this error message.
@@ -216,58 +127,13 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
         return <DefaultEmptyTaskpane setUIState={props.setUIState} message='You need two dataframes before you can merge them.'/>
     }
 
-    /*
-        We don't let you select or unselect the sheet merge key, and note that we must account
-        for the shift in the indexes that this causes when updating if the state of an item is 
-        toggled.
-
-        Thus, we filter out the merge keys from both the list of columns, as well as the 
-        toggles for these columns.
-
-        Furthermore, we keep the dtypes with these column ids, so that we can display them
-        as right text so the user gets more information about the columns that they are 
-        taking.
-    */
-
-    const sheetOneOriginalColumnIDsAndDtypes: [ColumnID, string][] = props.sheetDataArray[params.sheet_index_one] ? props.sheetDataArray[params.sheet_index_one].data.map(c => [c.columnID, c.columnDtype]) : [];
-    const sheetTwoOriginalColumnIDsAndDtypes: [ColumnID, string][] = props.sheetDataArray[params.sheet_index_two] ? props.sheetDataArray[params.sheet_index_two].data.map(c => [c.columnID, c.columnDtype]) : [];
-
-    const sheetOneColumnIDsAndDtypesListWithoutMergeKey = sheetOneOriginalColumnIDsAndDtypes.filter(([columnID, ]) => columnID !== params.merge_key_column_id_one)
-    const sheetTwoColumnIDsAndDtypesListWithoutMergeKey = sheetTwoOriginalColumnIDsAndDtypes.filter(([columnID, ]) => columnID !== params.merge_key_column_id_two)
-
-    const sheetOneToggles = sheetOneColumnIDsAndDtypesListWithoutMergeKey.map(([columnID, ]) => params.selected_column_ids_one.includes(columnID))
-    const sheetTwoToggles = sheetTwoColumnIDsAndDtypesListWithoutMergeKey.map(([columnID, ]) => params.selected_column_ids_two.includes(columnID))
-
-    const sheetOneColumnIDsMap = props.columnIDsMapArray[params.sheet_index_one];
-    const sheetTwoColumnIDsMap = props.columnIDsMapArray[params.sheet_index_two];
-
-    // Display an error in the header, if there is an error
-    const header = (
-        <div className='flexbox-row flexbox-space-between element-width-block'>
-            {error === undefined && 
-                <p className='text-header-2'>
-                    Merge Sheets Together
-                </p>
-            }
-            {error !== undefined && 
-                <p className='text-color-error' style={{width: '85%'}}>
-                    {error}
-                </p>
-            }
-            <XIcon onClick={() => props.setUIState(prevUIState => {
-                return {
-                    ...prevUIState,
-                    currOpenTaskpane: {type: TaskpaneType.NONE} 
-                }
-            })}/>
-        </div>
-    )
+    const sheetDataOne: SheetData = props.sheetDataArray[params.sheet_index_one];
+    const sheetDataTwo: SheetData = props.sheetDataArray[params.sheet_index_two];
 
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader
-                header={header}
-                headerOutsideRow
+                header="Merge Dataframes"
                 setUIState={props.setUIState}
             />
             <DefaultTaskpaneBody>
@@ -277,14 +143,19 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                             Merge Type
                         </p>
                     </Col>
-                    <Col>
+                    <Col offsetRight={2}>
                         <Select 
                             value={params.how}
                             onChange={(mergeType: string) => {
                                 const newMergeTypeEnum = mergeType as MergeType
-                                setNewMergeType(newMergeTypeEnum)
+                                setParams(prevParams => {
+                                    return {
+                                        ...prevParams,
+                                        how: newMergeTypeEnum
+                                    }
+                                })
                             }}
-                            width='medium'
+                            width='medium-large'
                         >
                             <DropdownItem
                                 title={MergeType.LOOKUP}
@@ -317,40 +188,74 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                         </Select>
                     </Col>
                 </Row>
-                <MergeSheetAndKeySelection
-                    dfNames={originalDfNames}
-                    columnIDsMap={sheetOneColumnIDsMap}
-                    sheetNum={MergeSheet.First}
-                    sheetIndex={params.sheet_index_one}
-                    mergeKeyColumnID={params.merge_key_column_id_one}
-                    otherSheetIndex={params.sheet_index_two}
+                <Spacer px={20}/>
+                <MergeSheetSection
+                    params={params}
+                    setParams={setParams}
                     sheetDataArray={props.sheetDataArray}
-                    setNewSheetIndex={(newSheetIndex) => {setNewSheetIndex(MergeSheet.First, newSheetIndex)}}
-                    setNewMergeKeyColumnID={(newMergeKeyColumnID) => setNewMergeKeyColumnID(MergeSheet.First, newMergeKeyColumnID)}
                 />
+                <Spacer px={20}/>
+                <MergeKeysSelectionSection
+                    params={params}
+                    setParams={setParams}
+                    sheetDataArray={props.sheetDataArray}
+                    error={error}
+                />
+                <Spacer px={20}/>
                 <p className='text-header-3'>
-                    Columns to Keep
+                    Columns to Keep from First Dataframe
                 </p>
                 {params.how !== MergeType.UNIQUE_IN_RIGHT &&
                     <MultiToggleBox
                         searchable
                         toggleAllIndexes={(indexesToToggle, newToggle) => {
-                            const columnIDs = indexesToToggle.map(index => sheetOneColumnIDsAndDtypesListWithoutMergeKey[index][0]);
-                            toggleKeepColumnIDs(MergeSheet.First, columnIDs, newToggle);
+                            const columnIDs = Object.keys(sheetDataOne?.columnDtypeMap || {})
+                                .map((columnID) => {return columnID})
+                                .filter((_, index) => {
+                                    return indexesToToggle.includes(index);
+                                });
+                            
+                            setParams(prevParams => {
+                                const newSelectedColumnIDsOne = [...params.selected_column_ids_one];
+                                if (newToggle) {
+                                    columnIDs.forEach((columnID) => {
+                                        addIfAbsent(newSelectedColumnIDsOne, columnID);
+                                    })
+                                } else {
+                                    columnIDs.forEach((columnID) => {
+                                        removeIfPresent(newSelectedColumnIDsOne, columnID);
+                                    })
+                                }
+
+                                return {
+                                    ...prevParams,
+                                    selected_column_ids_one: newSelectedColumnIDsOne
+                                }
+                            })
                         }}
                         height='medium'
                     >
-                        {sheetOneColumnIDsAndDtypesListWithoutMergeKey.map(([columnID, columnDtype], index) => {
-                            const columnHeader = sheetOneColumnIDsMap[columnID];
+                        {Object.entries(sheetDataOne?.columnDtypeMap || {}).map(([columnID, columnDtype], index) => {
+                            const columnHeader = sheetDataOne.columnIDsMap[columnID];
+                            const toggled = params.selected_column_ids_one.includes(columnID); // TODO: make it true if merge key with OR
+                            const isMergeKey = params.merge_key_column_ids.map(([mergeKeyOne, ]) => {return mergeKeyOne}).includes(columnID);
                             return (
                                 <MultiToggleItem
                                     key={index}
                                     title={getDisplayColumnHeader(columnHeader)}
                                     rightText={getDtypeValue(columnDtype)}
-                                    toggled={sheetOneToggles[index]}
+                                    toggled={toggled || isMergeKey}
+                                    disabled={isMergeKey}
                                     index={index}
                                     onToggle={() => {
-                                        toggleKeepColumnIDs(MergeSheet.First, [columnID], !sheetOneToggles[index])
+                                        setParams(prevParams => {
+                                            const newSelectedColumnIDsOne = [...params.selected_column_ids_one];
+                                            toggleInArray(newSelectedColumnIDsOne, columnID);
+                                            return {
+                                                ...prevParams,
+                                                selected_column_ids_one: newSelectedColumnIDsOne
+                                            }
+                                        })
                                     }}
                                 />
                             ) 
@@ -362,41 +267,63 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                         Finding the unique values in the second sheet doesn&apos;t keep any columns from the first sheet.
                     </p>
                 }
-                <MergeSheetAndKeySelection
-                    dfNames={originalDfNames}
-                    columnIDsMap={sheetTwoColumnIDsMap}
-                    sheetNum={MergeSheet.Second}
-                    mergeKeyColumnID={params.merge_key_column_id_two}
-                    sheetIndex={params.sheet_index_two}
-                    otherSheetIndex={params.sheet_index_one}
-                    sheetDataArray={props.sheetDataArray}
-                    setNewSheetIndex={(newSheetIndex) => {setNewSheetIndex(MergeSheet.Second, newSheetIndex)}}
-                    setNewMergeKeyColumnID={(newMergeKeyColumnID) => setNewMergeKeyColumnID(MergeSheet.Second, newMergeKeyColumnID)}
-                />
+                <Spacer px={20}/>
                 <div>
                     <p className='text-header-3'>
-                        Columns to Keep
+                        Columns to Keep from Second Dataframe
                     </p>
                     {params.how !== MergeType.UNIQUE_IN_LEFT && 
                         <MultiToggleBox
                             searchable
                             toggleAllIndexes={(indexesToToggle, newToggle) => {
-                                const columnIDs = indexesToToggle.map(index => sheetTwoColumnIDsAndDtypesListWithoutMergeKey[index][0]);
-                                toggleKeepColumnIDs(MergeSheet.Second, columnIDs, newToggle);
+                                const columnIDs = Object.keys(sheetDataTwo?.columnDtypeMap || {})
+                                    .map((columnID) => {return columnID})
+                                    .filter((_, index) => {
+                                        return indexesToToggle.includes(index);
+                                    });
+                            
+                                setParams(prevParams => {
+                                    const newSelectedColumnIDsTwo = [...params.selected_column_ids_two];
+                                    if (newToggle) {
+                                        columnIDs.forEach((columnID) => {
+                                            addIfAbsent(newSelectedColumnIDsTwo, columnID);
+                                        })
+                                    } else {
+                                        columnIDs.forEach((columnID) => {
+                                            removeIfPresent(newSelectedColumnIDsTwo, columnID);
+                                        })
+                                    }
+
+                                    return {
+                                        ...prevParams,
+                                        selected_column_ids_two: newSelectedColumnIDsTwo
+                                    }
+                                })
                             }}
                             height='medium'
                         >
-                            {sheetTwoColumnIDsAndDtypesListWithoutMergeKey.map(([columnID, columnDtype], index) => {
-                                const columnHeader = sheetTwoColumnIDsMap[columnID];
+                            {Object.entries(sheetDataTwo?.columnDtypeMap || {}).map(([columnID, columnDtype], index) => {
+                                const columnHeader = sheetDataTwo.columnIDsMap[columnID];
+                                const toggled = params.selected_column_ids_two.includes(columnID);
+                                const isMergeKey = params.merge_key_column_ids.map(([, mergeKeyTwo]) => {return mergeKeyTwo}).includes(columnID);
+
                                 return (
                                     <MultiToggleItem
                                         key={index}
                                         title={getDisplayColumnHeader(columnHeader)}
                                         rightText={getDtypeValue(columnDtype)}
-                                        toggled={sheetTwoToggles[index]}
+                                        toggled={toggled || isMergeKey}
+                                        disabled={isMergeKey}
                                         index={index}
                                         onToggle={() => {
-                                            toggleKeepColumnIDs(MergeSheet.Second, [columnID], !sheetTwoToggles[index])
+                                            setParams(prevParams => {
+                                                const newSelectedColumnIDsTwo = [...params.selected_column_ids_two];
+                                                toggleInArray(newSelectedColumnIDsTwo, columnID);
+                                                return {
+                                                    ...prevParams,
+                                                    selected_column_ids_two: newSelectedColumnIDsTwo
+                                                }
+                                            })
                                         }}
                                     />
                                 ) 

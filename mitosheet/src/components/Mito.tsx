@@ -95,7 +95,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const [gridState, setGridState] = useState<GridState>(() => getDefaultGridState(sheetDataArray, 0))
     // Set reasonable default values for the UI state
     const [uiState, setUIState] = useState<UIState>({
-        loading: 0,
+        loading: [],
         currOpenModal: props.userProfile.userEmail == '' && props.userProfile.telemetryEnabled // no signup if no logs
             ? {type: ModalEnum.SignUp} 
             : (props.userProfile.shouldUpgradeMitosheet 
@@ -606,8 +606,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
             )
             case TaskpaneType.MERGE: return (
                 <MergeTaskpane
-                    dfNames={dfNames}
-                    columnIDsMapArray={columnIDsMapArray}
                     selectedSheetIndex={uiState.selectedSheetIndex}
                     sheetDataArray={sheetDataArray}
                     setUIState={setUIState}
@@ -827,7 +825,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setEditorState={setEditorState}
                 />
                 {getCurrentModalComponent()}
-                {uiState.loading > 0 && <LoadingIndicator/>}      
+                <LoadingIndicator loading={uiState.loading}/>     
                 {/* 
                     If the step index of the last step isn't the current step,
                     then we are out of date, and we tell the user this.

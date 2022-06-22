@@ -4,7 +4,7 @@ from mitoinstaller.commands import (get_jupyterlab_metadata,
                                     install_pip_packages, run_command,
                                     uninstall_pip_packages)
 from mitoinstaller.installer_steps.installer_step import InstallerStep
-from mitoinstaller.log_utils import log
+from mitoinstaller.log_utils import get_recent_traceback, log
 
 
 def install_step_mitosheet_check_dependencies():
@@ -52,7 +52,25 @@ def remove_mitosheet_3_if_present():
 
 def install_step_mitosheet_install_mitosheet():
     print("This might take a few moments...")
-    install_pip_packages('mitosheet', test_pypi='--test-pypi' in sys.argv)
+    try:
+        install_pip_packages('mitosheet', test_pypi='--test-pypi' in sys.argv)
+    except:
+        # If the user hits an install error because of permission issues, we ask them if 
+        # they want to try a user install
+        error_traceback_last_line = get_recent_traceback().strip().split('\n')[-1].strip()
+        if error_traceback_last_line == 'Consider using the `--user` option or check the permissions.':
+            do_user_install = input("The installer hit a permission error while trying to install Mito. Would you like to do a user install? Note that this will not work inside a virtual enviornment. [y/n] ")
+            if do_user_install.lower().startswith('y'):
+                print("Doing user install")
+                # Log do user install
+                log('install_mitosheet_user')
+                install_pip_packages('mitosheet', test_pypi='--test-pypi' in sys.argv, user_install=True)
+                return
+        
+        # Otherwise, if it is some other error, we just bubble it up
+        raise
+
+
 
 def install_step_mitosheet_activate_notebook_extension():
     run_command([sys.executable, "-m", 'jupyter', 'nbextension', 'install', '--py', '--user', 'mitosheet'])

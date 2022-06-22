@@ -147,7 +147,7 @@ const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
                         </p>
                     </Col>
                     <Col offset={.5}>
-                            <Tooltip title={"Column to use as identifier variables. These columns will be present in the unpivoted dataframe."}/>
+                        <Tooltip title={"Column to use as identifier variables. These columns will be present in the unpivoted dataframe."}/>
                     </Col>
                 </Row>
                 <MultiToggleBox
@@ -184,7 +184,7 @@ const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
                         </p>
                     </Col>
                     <Col offset={.5}>
-                            <Tooltip title={"Column to unpivot. Each column header will go in the variables column, and the column values will go in the values column."}/>
+                        <Tooltip title={"Column to unpivot. Each column header will go in the variables column, and the column values will go in the values column."}/>
                     </Col>
                 </Row>
                 <MultiToggleBox
@@ -197,7 +197,10 @@ const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
                     {Object.entries(sheetData?.columnDtypeMap || {}).map(([columnID, columnDtype], index) => {
                         const columnIDsMap = sheetData?.columnIDsMap || {}
                         const columnHeader = columnIDsMap[columnID];
-                        const toggle = params.value_var_column_ids.includes(columnID);
+                        // We turn off and disable the toggle in the case it is included in the id variables, 
+                        // as pandas automatically filters the id variables out from the value variables
+                        const toggle = params.id_var_column_ids.includes(columnID) ? false : params.value_var_column_ids.includes(columnID);
+                        const disabled = params.id_var_column_ids.includes(columnID);
 
                         return (
                             <MultiToggleItem
@@ -209,6 +212,7 @@ const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
                                 onToggle={() => {
                                     toggleIndexes('value_var_column_ids', [index], !toggle)
                                 }}
+                                disabled={disabled}
                             />
                         ) 
                     })}

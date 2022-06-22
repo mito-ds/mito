@@ -18,7 +18,7 @@ export default function IndexHeaderDropdown(props: {
     selections: MitoSelection[];
     display: boolean;
     index: string | number,
-    setOpenIndexHeaderDropdown: React.Dispatch<React.SetStateAction<undefined | string | number>>,
+    setOpenIndexHeaderDropdown: React.Dispatch<React.SetStateAction<number | undefined>>,
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
 }): JSX.Element {
 

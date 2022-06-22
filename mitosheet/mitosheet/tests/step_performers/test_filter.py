@@ -310,7 +310,7 @@ def test_filter_formula_column():
 
 def test_merge_and_then_filter():
     mito = create_mito_wrapper(["123", "234"], sheet_two_A_data=["123", "234"])
-    mito.merge_sheets("lookup", 0, "A", ["A"], 1, "A", ["A"])
+    mito.merge_sheets("lookup", 0, 1, [["A", 'A']], ["A"], ["A"])
     mito.filter(2, "A", "And", FC_STRING_CONTAINS, "1")
     assert mito.get_column(2, "A", as_list=True) == ["123"]
 
@@ -319,7 +319,7 @@ def test_filter_and_then_merge_then_filter():
     mito = create_mito_wrapper(["123", "234"], sheet_two_A_data=["123", "234"])
     mito.filter(0, "A", "And", FC_STRING_CONTAINS, "1")
     mito.filter(1, "A", "And", FC_STRING_CONTAINS, "1")
-    mito.merge_sheets("lookup", 0, "A", ["A"], 1, "A", ["A"])
+    mito.merge_sheets("lookup", 0, 1, [["A", "A"]], ["A"], ["A"])
     assert mito.get_column(0, "A", as_list=True) == ["123"]
     mito.filter(2, "A", "And", FC_STRING_CONTAINS, "4")
     assert mito.get_column(2, "A", as_list=True) == []
