@@ -208,7 +208,7 @@ def test_replay_bulk_filters():
     new_mito.replay_analysis('test-123123')
 
     assert new_mito.dfs[0].equals(pd.DataFrame({'A': [2, 3, 5]}, index=[1, 2, 4]))
-    assert new_mito.curr_step.column_filters[0]['A']['filtered_out_values'] == [1, 4]
+    assert new_mito.curr_step.column_filters[0]['A']['filtered_out_values'] == {1, 4}
 
 def test_defaults_to_exclusive_if_smaller():
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3, 4, 5]}))

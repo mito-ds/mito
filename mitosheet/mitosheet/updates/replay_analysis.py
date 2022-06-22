@@ -7,7 +7,7 @@
 Replays an existing analysis
 """
 
-from mitosheet.errors import make_no_analysis_error
+from mitosheet.errors import get_recent_traceback, make_no_analysis_error
 
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.saved_analyses import read_and_upgrade_analysis
@@ -41,7 +41,10 @@ def execute_replay_analysis_update(
         log('replayed_nonexistant_analysis_failed')
         raise make_no_analysis_error(analysis_name, error_modal=False)
 
-    steps_manager.execute_steps_data(new_steps_data=analysis['steps_data'])
+    try:
+        steps_manager.execute_steps_data(new_steps_data=analysis['steps_data'])
+    except:
+        print(get_recent_traceback())
 
     # NOTE: We update the analysis name only if the new steps execute correctly,
     # so that we actually do go about overwriting the saved analysis in this case.

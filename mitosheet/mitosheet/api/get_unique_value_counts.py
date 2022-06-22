@@ -30,7 +30,7 @@ def get_unique_value_count_df(state: State, sheet_index: int, column_id: ColumnI
     filtered_out_values = state.column_filters[sheet_index][column_id]['filtered_out_values']
 
     unique_value_counts_df = pd.DataFrame({
-        'values': filtered_out_values + unique_value_counts_percents_series.index.to_list(),
+        'values': list(filtered_out_values) + unique_value_counts_percents_series.index.to_list(),
         'percents': [0.0 for _ in range(len(filtered_out_values))] + unique_value_counts_percents_series.tolist(), 
         'counts': [0 for _ in range(len(filtered_out_values))] + unique_value_counts_series.tolist()
     })

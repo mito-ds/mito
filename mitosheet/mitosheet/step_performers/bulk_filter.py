@@ -5,6 +5,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
+from copy import copy
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
@@ -58,9 +59,6 @@ class BulkFilterStepPerformer(StepPerformer):
 
         # We make a new state to modify it
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
-        column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-        filtered_series: pd.Series = post_state.dfs[sheet_index][column_header]
-
 
         if toggle_type['type'] == BULK_FILTER_TOGGLE_SPECIFIC_VALUE:
             values_to_toggle = [toggle_type['value']]
@@ -69,24 +67,18 @@ class BulkFilterStepPerformer(StepPerformer):
             values_to_toggle = get_matching_values(post_state, sheet_index, column_id, toggle_type['search_string'])
             remove_from_dataframe = toggle_type['remove_from_dataframe']
 
-        new_bulk_filter_condition = bulk_filter['condition']
-        new_values = [value for value in bulk_filter['value']]
-        new_filtered_out_values = [value for value in filtered_out_values]
 
+        new_values = copy(set(bulk_filter['value']))
+        new_filtered_out_values = copy(set(filtered_out_values))
 
-        for value in values_to_toggle:
-            if remove_from_dataframe and value not in new_values:
-                new_values.append(value)
-                new_filtered_out_values.append(value)
-            elif not remove_from_dataframe and value in new_values:
-                new_values.remove(value)
-                new_filtered_out_values.remove(value)
+        values_to_toggle_set = set(values_to_toggle)
+        if remove_from_dataframe:
+            new_values.update(values_to_toggle_set)
+            new_filtered_out_values.update(values_to_toggle_set)
+        else:
+            new_values = copy(new_values).difference(values_to_toggle_set)
+            new_filtered_out_values = copy(new_filtered_out_values).difference(values_to_toggle_set)
 
-        # TODO: fix this weird bug, when we save, it saves the params but does not save the _final_ param, 
-        # namely, the last item that was removed. Specifically, it doesn't add this last. Do we need to update
-        # the params?
-
-        post_state.column_filters[sheet_index][column_id]['bulk_filter']['condition'] = new_bulk_filter_condition
         post_state.column_filters[sheet_index][column_id]['bulk_filter']['value'] = new_values
         post_state.column_filters[sheet_index][column_id]['filtered_out_values'] = new_filtered_out_values
 

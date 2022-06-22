@@ -24,6 +24,7 @@ import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultTaskpaneFooter from '../DefaultTaskpane/DefaultTaskpaneFooter';
 import Spacer from '../../spacing/Spacer';
+import Row from '../../spacing/Row';
 
 /* 
     We wait 500ms before sending a filter message to make sure
@@ -194,7 +195,13 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                                 mitoAPI={props.mitoAPI}
                                 analysisData={props.analysisData}
                             />
-                            
+                            <Spacer px={15}/>
+                            <Row justify='start'>
+                                <p className='text-body-2 text-color-medium-gray-important'>
+                                    Looking to filter? Check the Filter tab below.
+                                </p>
+
+                            </Row>
                         </>
                     }
                     {props.tab === ControlPanelTab.Filter && 
@@ -214,6 +221,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                             <Spacer px={15}/>
                             <UniqueValuesCard
                                 selectedSheetIndex={props.selectedSheetIndex}
+                                filterUpdateNumber={updateNumber}
                                 bulkFilter={columnFilters.bulk_filter}
                                 columnID={columnID}
                                 mitoAPI={props.mitoAPI}

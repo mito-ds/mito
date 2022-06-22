@@ -298,8 +298,8 @@ def run_command(command_array: List[str]) -> Tuple[str, str]:
 # When you promote a row to a header, the data it can contain might be 
 # an numpy type, which json.dumps cannot encode by default. Thus, any
 # where we use json.dumps and might have column headers, we need to 
-# pass this as a cls=NpEncoder to the json.dumps function
-class NpEncoder(json.JSONEncoder):
+# pass this as a cls=MitoJSONEncoder to the json.dumps function
+class MitoJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, np.bool_):
             return bool(obj)
@@ -313,4 +313,6 @@ class NpEncoder(json.JSONEncoder):
             return obj.strftime('%Y-%m-%d %X')
         if isinstance(obj, pd.Timedelta):
             return str(obj)
-        return super(NpEncoder, self).default(obj)
+        if isinstance(obj, set):
+            return list(obj)
+        return super(MitoJSONEncoder, self).default(obj)

@@ -19,7 +19,7 @@ from mitosheet.mito_widget import MitoWidget, sheet
 from mitosheet.parser import parse_formula
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.types import ColumnHeader, ColumnID, GraphID, MultiLevelColumnHeader
-from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id
+from mitosheet.utils import MitoJSONEncoder, dfs_to_array_for_json, get_new_id
 
 
 def decorate_all_functions(function_decorator):
@@ -84,7 +84,7 @@ def check_dataframes_equal(test_wrapper):
     )
 
     import mitosheet
-    print(code)
+    print("THE CODE", code, "END")
     exec(code, 
         {
             'check_final_dataframe': check_final_dataframe,
@@ -95,6 +95,7 @@ def check_dataframes_equal(test_wrapper):
         }, 
         original_dfs
     )
+    print("AFTER EXEC")
 
     # We then check that the sheet data json that is saved by the widget, which 
     # notably uses caching, does not get incorrectly cached and is written correctly
@@ -108,7 +109,7 @@ def check_dataframes_equal(test_wrapper):
         test_wrapper.mito_widget.steps_manager.curr_step.column_filters,
         test_wrapper.mito_widget.steps_manager.curr_step.column_ids,
         test_wrapper.mito_widget.steps_manager.curr_step.column_format_types
-    ), cls=NpEncoder)
+    ), cls=MitoJSONEncoder)
 
 
 class MitoWidgetTestWrapper:

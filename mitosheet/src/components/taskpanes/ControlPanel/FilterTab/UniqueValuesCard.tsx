@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import React, { Fragment, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import MitoAPI from '../../../../jupyter/api';
 import MultiToggleBox from '../../../elements/MultiToggleBox';
 import Select from '../../../elements/Select';
@@ -14,6 +14,7 @@ import { useDebouncedEffect } from '../../../../hooks/useDebouncedEffect';
 import { formatCellData } from '../../../../utils/formatColumns';
 import OpenFillNaN from '../../FillNa/OpenFillNaN';
 import Spacer from '../../../spacing/Spacer';
+import RedoIcon from '../../../icons/RedoIcon';
 
 /*
     The UniqueValueCount datatype contains all of the necessary data
@@ -64,6 +65,7 @@ const sortUniqueValueCounts = (uniqueValueCounts: UniqueValueCount[], uniqueValu
 export function UniqueValuesCard(
     props: {
         selectedSheetIndex: number, 
+        filterUpdateNumber: number;
         columnID: ColumnID,
         mitoAPI: MitoAPI;
         columnDtype: string,
@@ -83,6 +85,9 @@ export function UniqueValuesCard(
     // We store the toggled values in the frontend so that we can update their toggle
     // state immediately, for quick feedback to the user
     const [toggledValues, setToggledValues] = useState<[number | string | boolean, boolean][]>([])
+
+    // We store if the filters have changed, so we can display a refresh button
+    const [showRefreshButton, setShowRefreshButton] = useState(false);
 
     /**
      * In the past, we used to send all the unique values to the front-end
@@ -113,6 +118,17 @@ export function UniqueValuesCard(
         lastSort.current = sort;
     }, [searchString, sort], 500);
 
+    useEffect(() => {
+        if (props.filterUpdateNumber > 0) {
+            setShowRefreshButton(true);
+        }
+    }, [props.filterUpdateNumber])
+
+    const refreshUniqueValues = async () => {
+        await loadUniqueValueCounts();
+        setShowRefreshButton(false);
+    }
+
 
     async function loadUniqueValueCounts() {
         setLoading(true);
@@ -142,9 +158,20 @@ export function UniqueValuesCard(
         <Fragment>
             <Row justify='space-between'>
                 <Col flex='1' offsetRight={1}>
-                    <p className='text-header-2'> 
-                        Unique Values
-                    </p>
+                    <Row justify='start' align='center' suppressTopBottomMargin>
+                        <Col>
+                            <p className='text-header-2'> 
+                                Unique Values
+                            </p>
+                        </Col>
+                        <Col offset={1} title='Unique values may be out of date due to above filters. Click to refresh them.'>
+                            <div onClick={refreshUniqueValues}>
+                                {showRefreshButton && 
+                                    <RedoIcon/>
+                                }
+                            </div>
+                        </Col>
+                    </Row>
                 </Col>
                 <Col>
                     <Select
@@ -166,6 +193,7 @@ export function UniqueValuesCard(
                     </Select>
                 </Col>
             </Row>
+            
             {/* A little hack to get the multi-toggle box to not be too big */}
             <div style={{height: 'calc(100% - 40px)'}}>
                 <MultiToggleBox 

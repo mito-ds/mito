@@ -291,7 +291,7 @@ def get_bulk_filter_code(
     if len(exclusive_values) == 0:
         return None
 
-    inclusive_values = get_deduplicated_list(post_state.dfs[sheet_index][column_header].to_list())
+    inclusive_values = get_deduplicated_list(post_state.dfs[sheet_index][column_header].to_list(), preserve_order=False)
 
     if len(inclusive_values) < len(exclusive_values):
         return f'{df_name}[{column_header_to_transpiled_code(column_header)}].isin({column_header_list_to_transpiled_code(inclusive_values)})'
@@ -383,11 +383,7 @@ def get_filter_code(
     # Then, combine it with the bulk filter
     bulk_filter_code = get_bulk_filter_code(post_state, sheet_index, df_name, column_header, bulk_filter)
     if bulk_filter_code is not None:
-        from mitosheet.step_performers.bulk_filter import BULK_FILTER_CONDITION_IS_EXACTLY, BULK_FILTER_CONDITION_IS_NOT_EXACTLY
-        if bulk_filter['condition'] == BULK_FILTER_CONDITION_IS_EXACTLY:
-            final_filter = combine_filter_strings('Or', [filter_list_string, bulk_filter_code])
-        elif bulk_filter['condition'] == BULK_FILTER_CONDITION_IS_NOT_EXACTLY:
-            final_filter = combine_filter_strings('And', [filter_list_string, bulk_filter_code])
+        final_filter = combine_filter_strings('And', [filter_list_string, bulk_filter_code])
     else:
         final_filter = filter_list_string
     
