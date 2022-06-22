@@ -300,7 +300,10 @@ const ColumnHeader = (props: {
                             <div className='column-header-final-icons' title='Open the column control panel' >
                                 <span 
                                     title='Edit filters' 
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                        // Stop prop, so we just click this
+                                        e.stopPropagation();
+                                        
                                         // Don't open the control panel if we're editing, user is selecting column
                                         if (editingFinalColumnHeader) {
                                             return;
