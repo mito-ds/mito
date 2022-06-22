@@ -38,7 +38,7 @@ def get_unique_value_count_df(state: State, sheet_index: int, column_id: ColumnI
     # Then, we filter with the string. Note that we always filter on the string representation
     # because the front-end sends a string
     unique_value_counts_df['values_strings'] = unique_value_counts_df['values'].astype('str')
-    unique_value_counts_df = unique_value_counts_df[unique_value_counts_df['values_strings'].str.contains(search_string, na=False, case=False)]
+    unique_value_counts_df = unique_value_counts_df[unique_value_counts_df['values_strings'].str.contains(search_string, na=False, case=False, regex=False)]
 
     return unique_value_counts_df
 
