@@ -9,7 +9,7 @@ Contains tests for Bulk Filter
 
 import pandas as pd
 import pytest
-from mitosheet.step_performers.bulk_filter import BULK_FILTER_TOGGLE_ALL_MATCHING, BULK_FILTER_TOGGLE_FILTER_TYPE, BULK_FILTER_TOGGLE_SPECIFIC_VALUE
+from mitosheet.step_performers.bulk_filter import BULK_FILTER_TOGGLE_ALL_MATCHING, BULK_FILTER_TOGGLE_SPECIFIC_VALUE
 from mitosheet.step_performers.filter import FC_NUMBER_GREATER
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 
@@ -163,17 +163,6 @@ def test_bulk_filter(input_dfs, sheet_index, column_header, toggle_type, output_
     mito.bulk_filter(sheet_index, column_header, toggle_type)
     for actual, expected in zip(mito.dfs, input_dfs):
         assert actual.equals(expected)
-
-    mito.bulk_filter(sheet_index, column_header, {'type': BULK_FILTER_TOGGLE_FILTER_TYPE})
-    for actual, expected in zip(mito.dfs, input_dfs):
-        print(actual)
-        print(expected)
-        assert actual.equals(expected)
-
-    toggle_type['remove_from_dataframe'] = True
-    mito.bulk_filter(sheet_index, column_header, toggle_type)
-    for actual, expected in zip(mito.dfs, output_dfs):
-        assert actual.equals(expected)
     
 
 def test_two_bulk_filters_filters_both():
@@ -221,13 +210,15 @@ def test_replay_bulk_filters():
     assert new_mito.dfs[0].equals(pd.DataFrame({'A': [2, 3, 5]}, index=[1, 2, 4]))
     assert new_mito.curr_step.column_filters[0]['A']['filtered_out_values'] == [1, 4]
 
-def test_defaults_to_exclusive():
+def test_defaults_to_exclusive_if_smaller():
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3, 4, 5]}))
     mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 1, 'remove_from_dataframe': True})
     assert '[1]' in mito.transpiled_code[0]
 
-def test_can_switch_to_inclusive():
+def test_defaults_to_inclusive_if_smaller():
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3, 4, 5]}))
     mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 1, 'remove_from_dataframe': True})
-    mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_FILTER_TYPE})
-    assert '[2, 3, 4, 5]' in mito.transpiled_code[0]
+    mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 2, 'remove_from_dataframe': True})
+    mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 3, 'remove_from_dataframe': True})
+    mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 4, 'remove_from_dataframe': True})
+    assert '[5]' in mito.transpiled_code[0]

@@ -179,11 +179,6 @@ export function UniqueValuesCard(
                     message={disabledMessage}
                     disabled={disabledMessage !== undefined}
                     toggleAllIndexes={(_, newValue) => {
-                        console.log({
-                            'type': 'toggle_all_matching',
-                            'search_string': searchString,
-                            'remove_from_dataframe': !newValue
-                        })
                         props.mitoAPI.editBulkFilter(props.selectedSheetIndex, props.columnID, {
                             'type': 'toggle_all_matching',
                             'search_string': searchString,
@@ -254,35 +249,6 @@ export function UniqueValuesCard(
                         )) 
                     })}
                 </MultiToggleBox>
-                <Row justify='space-between' align='center'>
-                    <Col>
-                        <p className='text-header-3'>
-                            Unique Values Filter Type
-                        </p>
-                    </Col>
-                    <Col>
-                        <Select 
-                            value={props.bulkFilter.condition}
-                            onChange={(newCondition: string) => {
-                                if (newCondition !== props.bulkFilter.condition) {
-                                    void props.mitoAPI.editBulkFilter(props.selectedSheetIndex, props.columnID, {'type': 'toggle_filter_type'});
-                                }
-                            }}
-                            width='medium'
-                        >
-                            <DropdownItem
-                                id='bulk_is_not_exactly'
-                                title="Is Not Exactly"
-                                subtext="Mito generates a filter that excludes all those values that are toggled off."
-                            />
-                            <DropdownItem
-                                id='bulk_is_exactly'
-                                title='Is Exactly'
-                                subtext="Mito generates a filter that includes only those values that are toggled on."
-                            />
-                        </Select>
-                    </Col>
-                </Row>
                 <Spacer px={10}/>
             </div>
             
