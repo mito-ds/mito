@@ -191,7 +191,7 @@ export function UniqueValuesCard(
                     message={disabledMessage}
                     disabled={disabledMessage !== undefined}
                     toggleAllIndexes={(_, newValue) => {
-                        props.mitoAPI.editBulkFilter(props.selectedSheetIndex, props.columnID, {
+                        void props.mitoAPI.editBulkFilter(props.selectedSheetIndex, props.columnID, {
                             'type': 'toggle_all_matching',
                             'search_string': searchString,
                             'remove_from_dataframe': !newValue
@@ -199,7 +199,7 @@ export function UniqueValuesCard(
                         setToggledValues(prevToggleValueIndexes => {
                             const newToggledValues = [...prevToggleValueIndexes]
                             sortedUniqueValueCounts.forEach(uniqueValueCount => {
-                                const toggledValueIndex = newToggledValues.findIndex(([value, toggle]) => value === uniqueValueCount.value);
+                                const toggledValueIndex = newToggledValues.findIndex(([value, ]) => value === uniqueValueCount.value);
                                 if (toggledValueIndex === -1) {
                                     newToggledValues.push([uniqueValueCount.value, newValue])
                                 } else {
@@ -214,7 +214,7 @@ export function UniqueValuesCard(
                 >
                     {sortedUniqueValueCounts.map((uniqueValueCount, index) => {
                         const valueToDisplay = formatCellData(uniqueValueCount.value, props.columnDtype, props.columnFormatType);
-                        const toggledValue = toggledValues.find(([value, toggle]) => value === uniqueValueCount.value);
+                        const toggledValue = toggledValues.find(([value, ]) => value === uniqueValueCount.value);
                         const toggle = toggledValue !== undefined ? toggledValue[1] : uniqueValueCount.isNotFiltered
 
                         return((
@@ -229,11 +229,10 @@ export function UniqueValuesCard(
                                 toggled={toggle}
                                 index={index}
                                 onToggle={() => {
-                                    console.log("Toggling", uniqueValueCount.value)
-                                    props.mitoAPI.editBulkFilter(props.selectedSheetIndex, props.columnID, {type: 'toggle_specific_value', 'value': uniqueValueCount.value, 'remove_from_dataframe': toggle});
+                                    void props.mitoAPI.editBulkFilter(props.selectedSheetIndex, props.columnID, {type: 'toggle_specific_value', 'value': uniqueValueCount.value, 'remove_from_dataframe': toggle});
                                     setToggledValues(prevToggleValueIndexes => {
                                         const newToggledValues = [...prevToggleValueIndexes]
-                                        const toggledValueIndex = newToggledValues.findIndex(([value, toggle]) => value === uniqueValueCount.value);
+                                        const toggledValueIndex = newToggledValues.findIndex(([value, ]) => value === uniqueValueCount.value);
                                         if (toggledValueIndex === -1) {
                                             newToggledValues.push([uniqueValueCount.value, !toggle])
                                         } else {
