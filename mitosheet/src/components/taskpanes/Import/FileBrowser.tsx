@@ -195,7 +195,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                                         })
                                     }}
                                     className='text-body-1-link' 
-                                    >
+                                >
                                     upgrading to Mito Pro
                                 </a> or&nbsp;
                                 <a 

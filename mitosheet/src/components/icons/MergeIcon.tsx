@@ -13,4 +13,3 @@ const MergeIcon = (): JSX.Element => {
 }
 
 export default MergeIcon;
-

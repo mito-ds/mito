@@ -147,7 +147,7 @@ const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
                         </p>
                     </Col>
                     <Col offset={.5}>
-                            <Tooltip title={"Column to use as identifier variables. These columns will be present in the unpivoted dataframe."}/>
+                        <Tooltip title={"Column to use as identifier variables. These columns will be present in the unpivoted dataframe."}/>
                     </Col>
                 </Row>
                 <MultiToggleBox
@@ -184,7 +184,7 @@ const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
                         </p>
                     </Col>
                     <Col offset={.5}>
-                            <Tooltip title={"Column to unpivot. Each column header will go in the variables column, and the column values will go in the values column."}/>
+                        <Tooltip title={"Column to unpivot. Each column header will go in the variables column, and the column values will go in the values column."}/>
                     </Col>
                 </Row>
                 <MultiToggleBox
