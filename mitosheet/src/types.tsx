@@ -129,8 +129,8 @@ export interface FilterGroupType {
 }
 
 export interface BulkFilter {
-    condition: 'bulk_is_exactly' | 'bulk_is_not_exactly',
-    values: (string | number | boolean)[]
+    condition: 'bulk_is_not_exactly',
+    value: (string | number | boolean)[]
 }
 
 export interface ColumnFilters {

@@ -7,6 +7,7 @@
 
 from copy import copy
 from typing import Any, Dict, List, Optional, Set, Tuple
+import numpy as np
 
 import pandas as pd
 from mitosheet.api.get_unique_value_counts import get_matching_values
@@ -54,32 +55,39 @@ class BulkFilterStepPerformer(StepPerformer):
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')
         toggle_type: Any = get_param(params, 'toggle_type') # {type: 'toggle_all_matching', toggle_value: boolean, search_string: string} | {type: 'toggle_specific_value', value: specific value}
+
+        # These two parameters are saturated above
         bulk_filter: Any = get_param(params, 'bulk_filter')
         filtered_out_values: Any = get_param(params, 'filtered_out_values')
 
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
-
         if toggle_type['type'] == BULK_FILTER_TOGGLE_SPECIFIC_VALUE:
-            values_to_toggle = [toggle_type['value']]
+            values_to_toggle = set([toggle_type['value']])
             remove_from_dataframe = toggle_type['remove_from_dataframe'] # if true, filtering out, and if false, adding back
         elif toggle_type['type'] == BULK_FILTER_TOGGLE_ALL_MATCHING:
             values_to_toggle = get_matching_values(post_state, sheet_index, column_id, toggle_type['search_string'])
             remove_from_dataframe = toggle_type['remove_from_dataframe']
 
+        # If the values to toggle include NaN, then we switch this out for NaN proper
+        if 'NaN' in values_to_toggle:
+            values_to_toggle.remove('NaN')
+            values_to_toggle.add(np.NaN)
+        
         new_values = copy(set(bulk_filter['value']))
         new_filtered_out_values = copy(set(filtered_out_values))
 
-        values_to_toggle_set = set(values_to_toggle)
+        # Update the values and filtered out lists
         if remove_from_dataframe:
-            new_values.update(values_to_toggle_set)
-            new_filtered_out_values.update(values_to_toggle_set)
+            new_values.update(values_to_toggle)
+            new_filtered_out_values.update(values_to_toggle)
         else:
-            new_values = copy(new_values).difference(values_to_toggle_set)
-            new_filtered_out_values = copy(new_filtered_out_values).difference(values_to_toggle_set)
+            new_values = copy(new_values).difference(values_to_toggle)
+            new_filtered_out_values = copy(new_filtered_out_values).difference(values_to_toggle)
 
         post_state.column_filters[sheet_index][column_id]['bulk_filter']['value'] = new_values
         post_state.column_filters[sheet_index][column_id]['filtered_out_values'] = new_filtered_out_values
 
+        # Then execute the filter
         from mitosheet.step_performers.filter import _execute_filter
         _, _, pandas_processing_time = _execute_filter(
             post_state,
@@ -88,8 +96,6 @@ class BulkFilterStepPerformer(StepPerformer):
             post_state.column_filters[sheet_index][column_id]['filter_list'],
             post_state.column_filters[sheet_index][column_id]['bulk_filter']
         )
-
-        # Add this to the filtered out values
         
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
@@ -109,5 +115,5 @@ class BulkFilterStepPerformer(StepPerformer):
 
     @classmethod
     def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
-        return {get_param(params, 'sheet_index')} # TODO: add the modified indexes here!
+        return {get_param(params, 'sheet_index')}
     

@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useRef, useState } from 'react';
 import MitoAPI from '../../../../jupyter/api';
 import MultiToggleBox from '../../../elements/MultiToggleBox';
 import Select from '../../../elements/Select';
@@ -86,9 +86,6 @@ export function UniqueValuesCard(
     // state immediately, for quick feedback to the user
     const [toggledValues, setToggledValues] = useState<[number | string | boolean, boolean][]>([])
 
-    // We store if the filters have changed, so we can display a refresh button
-    const [showRefreshButton, setShowRefreshButton] = useState(false);
-
     /**
      * In the past, we used to send all the unique values to the front-end
      * at once, but for large data-sets this pretty much crashed the page. 
@@ -118,17 +115,6 @@ export function UniqueValuesCard(
         lastSort.current = sort;
     }, [searchString, sort], 500);
 
-    useEffect(() => {
-        if (props.filterUpdateNumber > 0) {
-            setShowRefreshButton(true);
-        }
-    }, [props.filterUpdateNumber])
-
-    const refreshUniqueValues = async () => {
-        await loadUniqueValueCounts();
-        setShowRefreshButton(false);
-    }
-
 
     async function loadUniqueValueCounts() {
         setLoading(true);
@@ -142,6 +128,7 @@ export function UniqueValuesCard(
 
         if (_uniqueValueObj !== undefined) {
             const _uniqueValueObjs = _uniqueValueObj.uniqueValueCounts
+            console.log("Got", _uniqueValueObjs)
             setUniqueValueCounts(_uniqueValueObjs);
             setIsAllData(_uniqueValueObj.isAllData);
             setToggledValues([]);
@@ -164,11 +151,9 @@ export function UniqueValuesCard(
                                 Unique Values
                             </p>
                         </Col>
-                        <Col offset={1} title='Unique values may be out of date due to above filters. Click to refresh them.'>
-                            <div onClick={refreshUniqueValues}>
-                                {showRefreshButton && 
-                                    <RedoIcon/>
-                                }
+                        <Col offset={1} title='Click to refresh unique values, in the case they are out of date.'>
+                            <div onClick={loadUniqueValueCounts}>
+                                <RedoIcon/>
                             </div>
                         </Col>
                     </Row>
@@ -232,34 +217,20 @@ export function UniqueValuesCard(
                         const valueToDisplay = formatCellData(uniqueValueCount.value, props.columnDtype, props.columnFormatType);
                         const toggledValue = toggledValues.find(([value, toggle]) => value === uniqueValueCount.value);
                         const toggle = toggledValue !== undefined ? toggledValue[1] : uniqueValueCount.isNotFiltered
-                        /**
-                         * If this is an NaN value, we display additional text that allows the user to navigate
-                         * to the fill NaN taskpane easily
-                         */
-                        if (valueToDisplay === 'NaN') {
-                            return (<MultiToggleItem
-                                key={index}
-                                title={
-                                    <span>{valueToDisplay} <OpenFillNaN setUIState={props.setUIState} columnID={props.columnID}/></span>
-                                }
-                                rightText={uniqueValueCount.countOccurence + ' (' + uniqueValueCount.percentOccurence.toFixed(2).toString() + '%' + ')'}
-                                toggled={toggle}
-                                index={index}
-                                onToggle={() => {
-                                    // TODO: handle NaN properly in this function
-                                    props.mitoAPI.editBulkFilter(props.selectedSheetIndex, props.columnID, {type: 'toggle_specific_value', 'value': uniqueValueCount.value, 'remove_from_dataframe': uniqueValueCount.isNotFiltered});
-                                }}
-                            />)
-                        }
 
                         return((
                             <MultiToggleItem
                                 key={index}
-                                title={valueToDisplay}
+                                /**
+                                 * If this is an NaN value, we display additional text that allows the user to navigate
+                                 * to the fill NaN taskpane easily
+                                 */
+                                title={valueToDisplay !== 'NaN' ? valueToDisplay : <span>{valueToDisplay} <OpenFillNaN setUIState={props.setUIState} columnID={props.columnID}/></span>}
                                 rightText={uniqueValueCount.countOccurence + ' (' + uniqueValueCount.percentOccurence.toFixed(2).toString() + '%' + ')'}
                                 toggled={toggle}
                                 index={index}
                                 onToggle={() => {
+                                    console.log("Toggling", uniqueValueCount.value)
                                     props.mitoAPI.editBulkFilter(props.selectedSheetIndex, props.columnID, {type: 'toggle_specific_value', 'value': uniqueValueCount.value, 'remove_from_dataframe': toggle});
                                     setToggledValues(prevToggleValueIndexes => {
                                         const newToggledValues = [...prevToggleValueIndexes]

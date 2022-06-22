@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 import json
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, Set
 
 import pandas as pd
 from mitosheet.state import State
@@ -15,9 +15,9 @@ from mitosheet.utils import get_row_data_array
 # See comments in function description below.
 MAX_UNIQUE_VALUES = 1_000
 
-def get_matching_values(state: State, sheet_index: int, column_id: ColumnID, search_string: str) -> List[Any]:
+def get_matching_values(state: State, sheet_index: int, column_id: ColumnID, search_string: str) -> Set[Any]:
     unique_value_count_df = get_unique_value_count_df(state, sheet_index, column_id, search_string)
-    return unique_value_count_df['values'].to_list()
+    return set(unique_value_count_df['values'])
 
 def get_unique_value_count_df(state: State, sheet_index: int, column_id: ColumnID, search_string: str) -> pd.DataFrame:
     column_header = state.column_ids.get_column_header_by_id(sheet_index, column_id)
@@ -88,6 +88,8 @@ def get_unique_value_counts(params: Dict[str, Any], steps_manager: StepsManagerT
         is_all_data = False
     else:
         is_all_data = True
+
+    print(get_row_data_array(unique_value_counts_df))
     
     return json.dumps({
         'uniqueValueRowDataArray': get_row_data_array(unique_value_counts_df),

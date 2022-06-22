@@ -743,7 +743,6 @@ export default class MitoAPI {
         toggle_type: 
             | {'type': 'toggle_specific_value', 'value': string | number | boolean, 'remove_from_dataframe': boolean} 
             | {'type': 'toggle_all_matching', 'search_string': string, 'remove_from_dataframe': boolean}
-            | {'type': 'toggle_filter_type'}
     ): Promise<void> {
 
         const stepID = getRandomId();

@@ -229,7 +229,7 @@ def test_inclusive_and_other_filters():
     mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 2, 'remove_from_dataframe': True})
     mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 3, 'remove_from_dataframe': True})
     mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 4, 'remove_from_dataframe': True})
-    assert '[5]' in mito.transpiled_code[1]
+    assert '[5]' in mito.transpiled_code[0]
     assert mito.dfs[0].equals(pd.DataFrame({'A': [5]}, index=[4]))
 
 

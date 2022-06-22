@@ -41,6 +41,9 @@ def column_header_to_transpiled_code(column_header: ColumnHeader) -> str:
         column_header_parts_joined = ', '.join(column_header_parts)
         return f'({column_header_parts_joined})'
 
+    if column_header == 'NaN':
+        return 'np.NaN'
+
     if isinstance(column_header, int) or isinstance(column_header, float) or isinstance(column_header, bool):
         return str(column_header)
     elif isinstance(column_header, pd.Timestamp):

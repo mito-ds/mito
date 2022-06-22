@@ -291,7 +291,7 @@ def get_bulk_filter_code(
     if len(exclusive_values) == 0:
         return None
 
-    inclusive_values = get_deduplicated_list(post_state.dfs[sheet_index][column_header].to_list(), preserve_order=False)
+    inclusive_values = set(post_state.dfs[sheet_index][column_header].unique())
 
     if len(inclusive_values) < len(exclusive_values):
         return f'{df_name}[{column_header_to_transpiled_code(column_header)}].isin({column_header_list_to_transpiled_code(inclusive_values)})'
@@ -386,11 +386,13 @@ def get_filter_code(
         final_filter = combine_filter_strings('And', [filter_list_string, bulk_filter_code])
     else:
         final_filter = filter_list_string
+
+    contains_nan = 'np.NaN' in final_filter
     
     if len(final_filter) == 0:
         return []
     else:
-        return [
+        return ([] if not contains_nan else ['import numpy as np']) + [
             f"{df_name} = {df_name}[{final_filter}]",
         ]
 
@@ -415,8 +417,6 @@ class FilterCodeChunk(CodeChunk):
             sheet_index,
             column_id
         )
-
-        
 
     def get_edited_sheet_indexes(self) -> List[int]:
         return [self.get_param('sheet_index')]
