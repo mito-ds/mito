@@ -7,7 +7,7 @@
 from typing import List
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_map_to_string, column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import get_transpiled_code_for_object_list, column_header_map_to_string, get_transpiled_code_for_object
 
 
 class FillNaCodeChunk(CodeChunk):
@@ -37,7 +37,7 @@ class FillNaCodeChunk(CodeChunk):
         if fill_method_type == 'value':
             if full_dataframe:
                 
-                return [f"{df_name}.fillna({column_header_to_transpiled_code(fill_method['value'])}, inplace=True)"]
+                return [f"{df_name}.fillna({get_transpiled_code_for_object(fill_method['value'])}, inplace=True)"]
             else:
                 values = {column_header: fill_method['value'] for column_header in column_headers}
                 values_string = column_header_map_to_string(values) # this function is misnamed, but works for us
@@ -61,7 +61,7 @@ class FillNaCodeChunk(CodeChunk):
             if full_dataframe:
                 return [f"{df_name}.fillna({param_string}, inplace=True)"]
             else:
-                column_headers_list_str = column_header_list_to_transpiled_code(column_headers)
+                column_headers_list_str = get_transpiled_code_for_object_list(column_headers)
                 return [
                     f"columns_to_fill_nan = {column_headers_list_str}",
                     f"{df_name}[columns_to_fill_nan] = {df_name}[columns_to_fill_nan].fillna({param_string})"

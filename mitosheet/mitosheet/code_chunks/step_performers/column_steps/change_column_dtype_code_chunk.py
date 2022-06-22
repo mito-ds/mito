@@ -15,7 +15,7 @@ from mitosheet.sheet_functions.types.utils import (get_datetime_format,
                                                    is_int_dtype,
                                                    is_string_dtype,
                                                    is_timedelta_dtype)
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import get_transpiled_code_for_object
 
 
 
@@ -39,7 +39,7 @@ class ChangeColumnDtypeCodeChunk(CodeChunk):
         df_name = self.post_state.df_names[sheet_index]
         column_header = self.post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
         old_dtype: str = str(self.prev_state.dfs[sheet_index][column_header].dtype)
-        transpiled_column_header = column_header_to_transpiled_code(column_header)
+        transpiled_column_header = get_transpiled_code_for_object(column_header)
 
         column = self.prev_state.dfs[sheet_index][column_header]
 

@@ -9,7 +9,7 @@ from typing import List, Optional
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.transpiler.transpile_utils import \
-    column_header_list_to_transpiled_code
+    get_transpiled_code_for_object_list
 
 
 class DeleteColumnsCodeChunk(CodeChunk):
@@ -28,7 +28,7 @@ class DeleteColumnsCodeChunk(CodeChunk):
         column_ids = self.get_param('column_ids')
 
         df_name = self.post_state.df_names[sheet_index]
-        column_headers_list_string = column_header_list_to_transpiled_code(
+        column_headers_list_string = get_transpiled_code_for_object_list(
             [self.prev_state.column_ids.get_column_header_by_id(sheet_index, column_id) for column_id in column_ids]
         )
 

@@ -7,7 +7,7 @@ from typing import List
 from mitosheet.code_chunks.code_chunk import CodeChunk
 
 from mitosheet.transpiler.transpile_utils import (
-    column_header_list_to_transpiled_code, column_header_to_transpiled_code)
+    get_transpiled_code_for_object_list, get_transpiled_code_for_object)
 
 class DropDuplicatesCodeChunk(CodeChunk):
 
@@ -37,9 +37,9 @@ class DropDuplicatesCodeChunk(CodeChunk):
         # We leave subset and keep empty if they are not used
         param_string = ''
         if len(column_headers) != len(self.post_state.dfs[sheet_index].keys()):
-            param_string += 'subset=' + column_header_list_to_transpiled_code(column_headers) + ', '
+            param_string += 'subset=' + get_transpiled_code_for_object_list(column_headers) + ', '
         
-        param_string += 'keep=' + column_header_to_transpiled_code(keep) # not a column header, but we can use the same utility
+        param_string += 'keep=' + get_transpiled_code_for_object(keep) # not a column header, but we can use the same utility
 
         df_name = self.post_state.df_names[sheet_index]
 

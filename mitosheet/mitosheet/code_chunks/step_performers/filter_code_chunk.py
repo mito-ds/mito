@@ -21,7 +21,7 @@ from mitosheet.step_performers.filter import (
     FC_STRING_DOES_NOT_CONTAIN, FC_STRING_ENDS_WITH, FC_STRING_EXACTLY,
     FC_STRING_NOT_EXACTLY, FC_STRING_STARTS_WITH)
 from mitosheet.transpiler.transpile_utils import (
-    column_header_list_to_transpiled_code, column_header_to_transpiled_code, list_to_string_without_internal_quotes)
+    get_transpiled_code_for_object_list, get_transpiled_code_for_object, list_to_string_without_internal_quotes)
 from mitosheet.types import ColumnHeader, ColumnID
 
 # Dict used when a filter condition is only used by one filter
@@ -162,7 +162,7 @@ def get_single_filter_string(
     condition = filter_["condition"]
     value = filter_["value"]
 
-    transpiled_column_header = column_header_to_transpiled_code(column_header)
+    transpiled_column_header = get_transpiled_code_for_object(column_header)
 
     return FILTER_FORMAT_STRING_DICT[condition].format(
         df_name=df_name, transpiled_column_header=transpiled_column_header, value=value
@@ -191,7 +191,7 @@ def get_multiple_filter_string(
     else:
         values = [filter["value"] for filter in filters]
 
-    transpiled_column_header = column_header_to_transpiled_code(column_header)
+    transpiled_column_header = get_transpiled_code_for_object(column_header)
 
     return FILTER_FORMAT_STRING_MULTIPLE_VALUES_DICT[condition][
         original_operator
@@ -294,9 +294,9 @@ def get_bulk_filter_code(
     inclusive_values = set(post_state.dfs[sheet_index][column_header].unique())
 
     if len(inclusive_values) < len(exclusive_values):
-        return f'{df_name}[{column_header_to_transpiled_code(column_header)}].isin({column_header_list_to_transpiled_code(inclusive_values)})'
+        return f'{df_name}[{get_transpiled_code_for_object(column_header)}].isin({get_transpiled_code_for_object_list(inclusive_values)})'
     else:
-        return f'~{df_name}[{column_header_to_transpiled_code(column_header)}].isin({column_header_list_to_transpiled_code(exclusive_values)})'
+        return f'~{df_name}[{get_transpiled_code_for_object(column_header)}].isin({get_transpiled_code_for_object_list(exclusive_values)})'
 
 def get_filter_code(
     post_state: State,

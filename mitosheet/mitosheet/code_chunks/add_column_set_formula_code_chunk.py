@@ -13,7 +13,7 @@ from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk
 from mitosheet.code_chunks.step_performers.column_steps.rename_columns_code_chunk import RenameColumnsCodeChunk
 from mitosheet.parser import parse_formula
 from mitosheet.transpiler.transpile_utils import \
-    column_header_to_transpiled_code
+    get_transpiled_code_for_object
 
 
 class AddColumnSetFormulaCodeChunk(CodeChunk):
@@ -41,7 +41,7 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
             include_df_set=False
         )
 
-        transpiled_column_header = column_header_to_transpiled_code(column_header)
+        transpiled_column_header = get_transpiled_code_for_object(column_header)
         column_header_index = column_header_index
         return [
             f'{self.post_state.df_names[sheet_index]}.insert({column_header_index}, {transpiled_column_header}, {python_code})'

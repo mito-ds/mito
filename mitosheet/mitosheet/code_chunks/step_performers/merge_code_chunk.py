@@ -9,7 +9,7 @@ from typing import List
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.transpiler.transpile_utils import (
-    column_header_list_to_transpiled_code, column_header_to_transpiled_code)
+    get_transpiled_code_for_object_list, get_transpiled_code_for_object)
 
 LOOKUP = 'lookup'
 UNIQUE_IN_LEFT = 'unique in left'
@@ -54,7 +54,7 @@ class MergeCodeChunk(CodeChunk):
         if how == 'lookup':
             # If the mege is a lookup, then we add the drop duplicates code
             temp_df_name = 'temp_df'
-            merge_code.append(f'{temp_df_name} = {df_two_name}.drop_duplicates(subset={column_header_to_transpiled_code(merge_key_two)}) # Remove duplicates so lookup merge only returns first match')
+            merge_code.append(f'{temp_df_name} = {df_two_name}.drop_duplicates(subset={get_transpiled_code_for_object(merge_key_two)}) # Remove duplicates so lookup merge only returns first match')
             how_to_use = 'left'
         else:
             temp_df_name = df_two_name
@@ -65,12 +65,12 @@ class MergeCodeChunk(CodeChunk):
         deleted_columns_one = set(self.post_state.dfs[sheet_index_one].keys()).difference(set(selected_columns_one))
         deleted_columns_two = set(self.post_state.dfs[sheet_index_two].keys()).difference(set(selected_columns_two))
         if len(deleted_columns_one) > 0:
-            deleted_transpiled_column_header_one_list = column_header_list_to_transpiled_code(deleted_columns_one)
+            deleted_transpiled_column_header_one_list = get_transpiled_code_for_object_list(deleted_columns_one)
             merge_code.append(
                 f'{df_one_name}_tmp = {df_one_name}.drop({deleted_transpiled_column_header_one_list}, axis=1)'
             )
         if len(deleted_columns_two) > 0:
-            deleted_transpiled_column_header_two_list = column_header_list_to_transpiled_code(deleted_columns_two)
+            deleted_transpiled_column_header_two_list = get_transpiled_code_for_object_list(deleted_columns_two)
             merge_code.append(
                 f'{df_two_name}_tmp = {temp_df_name}.drop({deleted_transpiled_column_header_two_list}, axis=1)'
             )
@@ -94,7 +94,7 @@ class MergeCodeChunk(CodeChunk):
             )
         else:      
             merge_code.append(
-                f'{df_new_name} = {df_one_to_merge}.merge({df_two_to_merge}, left_on=[{column_header_to_transpiled_code(merge_key_one)}], right_on=[{column_header_to_transpiled_code(merge_key_two)}], how=\'{how_to_use}\', suffixes=[\'_{suffix_one}\', \'_{suffix_two}\'])'
+                f'{df_new_name} = {df_one_to_merge}.merge({df_two_to_merge}, left_on=[{get_transpiled_code_for_object(merge_key_one)}], right_on=[{get_transpiled_code_for_object(merge_key_two)}], how=\'{how_to_use}\', suffixes=[\'_{suffix_one}\', \'_{suffix_two}\'])'
             )
 
         # And then return it

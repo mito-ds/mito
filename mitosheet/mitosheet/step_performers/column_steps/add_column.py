@@ -13,7 +13,7 @@ from mitosheet.errors import make_column_exists_error, make_no_sheet_error
 from mitosheet.state import FORMAT_DEFAULT, State, get_empty_column_filter
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import get_transpiled_code_for_object
 
 
 class AddColumnStepPerformer(StepPerformer):

@@ -17,7 +17,7 @@ from mitosheet.state import DATAFRAME_SOURCE_MERGED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
 from mitosheet.transpiler.transpile_utils import (
-    column_header_list_to_transpiled_code, column_header_to_transpiled_code)
+    get_transpiled_code_for_object_list, get_transpiled_code_for_object)
 from mitosheet.types import ColumnHeader, ColumnID
 
 LOOKUP = 'lookup'

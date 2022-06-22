@@ -68,11 +68,8 @@ class BulkFilterStepPerformer(StepPerformer):
 
         # If the values to toggle include NaN, then we switch this out for NaN proper
         if 'NaN' in values_to_toggle:
-            print("It was NaN")
             values_to_toggle.remove('NaN')
             values_to_toggle.add(np.NaN)
-
-        print("values to toggle", values_to_toggle)
         
         new_values = copy(set(bulk_filter['value']))
 

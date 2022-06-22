@@ -88,8 +88,6 @@ def get_unique_value_counts(params: Dict[str, Any], steps_manager: StepsManagerT
         is_all_data = False
     else:
         is_all_data = True
-
-    print(get_row_data_array(unique_value_counts_df))
     
     return json.dumps({
         'uniqueValueRowDataArray': get_row_data_array(unique_value_counts_df),

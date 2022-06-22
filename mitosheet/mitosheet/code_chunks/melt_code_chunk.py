@@ -6,7 +6,7 @@
 # Distributed under the terms of the GPL License.
 from typing import List
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import get_transpiled_code_for_object_list
 from mitosheet.types import ColumnID
 
 class MeltCodeChunk(CodeChunk):
@@ -39,9 +39,9 @@ class MeltCodeChunk(CodeChunk):
         df_name = self.post_state.df_names[sheet_index]
         new_df_name = self.post_state.df_names[-1]
 
-        param_string = f'id_vars={column_header_list_to_transpiled_code(id_vars)}'
+        param_string = f'id_vars={get_transpiled_code_for_object_list(id_vars)}'
         if include_value_vars:
-            param_string += f', value_vars={column_header_list_to_transpiled_code(value_vars)}'
+            param_string += f', value_vars={get_transpiled_code_for_object_list(value_vars)}'
 
         return [f'{new_df_name} = {df_name}.melt({param_string})']
     

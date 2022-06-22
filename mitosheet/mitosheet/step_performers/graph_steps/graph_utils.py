@@ -7,7 +7,7 @@
 from typing import Dict, List, Optional, Any, Union
 import io
 from xmlrpc.client import boolean
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import get_transpiled_code_for_object
 
 from mitosheet.types import ColumnHeader
 import plotly.graph_objects as go
@@ -87,7 +87,7 @@ def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line:
             code_chunk = f"{key} = {param_dict_to_code(value, level=level + 1)}"
         else:
             # We use this slighly misnamed function to make sure values get transpiled right
-            code_chunk = f"{key}={column_header_to_transpiled_code(value)}"
+            code_chunk = f"{key}={get_transpiled_code_for_object(value)}"
         
         # If we're not on the first value in this dict, we need to add a 
         # command new line after the last value

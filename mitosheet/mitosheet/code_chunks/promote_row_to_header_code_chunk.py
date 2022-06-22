@@ -6,7 +6,7 @@
 # Distributed under the terms of the GPL License.
 from typing import Any, List
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import get_transpiled_code_for_object
 from mitosheet.types import ColumnID
 
 class PromoteRowToHeaderCodeChunk(CodeChunk):
@@ -27,7 +27,7 @@ class PromoteRowToHeaderCodeChunk(CodeChunk):
         index: int = self.get_param('index')
 
         df_name = self.post_state.df_names[sheet_index]
-        transpiled_index = column_header_to_transpiled_code(index)
+        transpiled_index = get_transpiled_code_for_object(index)
         
         return [
             f"{df_name}.columns = {df_name}.loc[{transpiled_index}]",

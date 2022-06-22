@@ -84,7 +84,6 @@ def check_dataframes_equal(test_wrapper):
     )
 
     import mitosheet
-    print(code)
     exec(code, 
         {
             'check_final_dataframe': check_final_dataframe,
@@ -95,7 +94,6 @@ def check_dataframes_equal(test_wrapper):
         }, 
         original_dfs
     )
-    print("AFTER EXEC")
 
     # We then check that the sheet data json that is saved by the widget, which 
     # notably uses caching, does not get incorrectly cached and is written correctly

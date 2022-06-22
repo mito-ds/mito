@@ -14,7 +14,7 @@ from typing import Any, Collection, List, Optional, Set, Tuple, Union
 
 from mitosheet.column_headers import get_column_header_display
 from mitosheet.errors import make_invalid_formula_error
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import get_transpiled_code_for_object
 from mitosheet.types import ColumnHeader
 
 def is_quote(char: str) -> bool:
@@ -405,7 +405,7 @@ def parse_formula(
         code_with_column_headers,
     )
 
-    transpiled_column_header = column_header_to_transpiled_code(column_header)
+    transpiled_column_header = get_transpiled_code_for_object(column_header)
 
     if include_df_set:
         final_code = f'{df_name}[{transpiled_column_header}] = {code_with_functions}'

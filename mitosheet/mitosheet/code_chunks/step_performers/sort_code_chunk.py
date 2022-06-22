@@ -7,7 +7,7 @@
 from typing import List, Optional
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import get_transpiled_code_for_object
 
 class SortCodeChunk(CodeChunk):
 
@@ -35,7 +35,7 @@ class SortCodeChunk(CodeChunk):
 
         df_name = self.post_state.df_names[sheet_index]
         column_header = self.post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-        transpiled_column_header = column_header_to_transpiled_code(column_header)
+        transpiled_column_header = get_transpiled_code_for_object(column_header)
         
         na_position_string = 'first' if sort_direction == SORT_DIRECTION_ASCENDING else 'last'
         
