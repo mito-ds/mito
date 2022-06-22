@@ -25,6 +25,16 @@ def test_simple_pivot():
         pd.DataFrame(data={'Name': ['Nate'], 'Height sum': [9], 'B': [4]})
     )
 
+def test_simple_pivot_with_duplication():
+    df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
+    mito = create_mito_wrapper_dfs(df1)
+    mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum', 'sum', 'sum']})
+    mito.set_formula('=LEN(Name)', 1, 'B', add_column=True)
+
+    assert mito.dfs[1].equals(
+        pd.DataFrame(data={'Name': ['Nate'], 'Height sum': [9], 'B': [4]})
+    )
+
 def test_simple_pivot_does_not_let_spaces_stay_in_columns():
     df1 = pd.DataFrame(data={'Name': ['Nate Rush'], 'Height': [4]})
     mito = create_mito_wrapper_dfs(df1)
