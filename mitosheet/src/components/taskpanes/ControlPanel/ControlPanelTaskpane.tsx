@@ -222,7 +222,6 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                             <UniqueValuesCard
                                 selectedSheetIndex={props.selectedSheetIndex}
                                 filterUpdateNumber={updateNumber}
-                                bulkFilter={columnFilters.bulk_filter}
                                 columnID={columnID}
                                 mitoAPI={props.mitoAPI}
                                 columnDtype={columnDtype}

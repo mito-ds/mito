@@ -38,7 +38,6 @@ def get_empty_column_filter() -> Dict[str, Any]:
     return {
         "filter_list": {"operator": "And", "filters": []},
         'bulk_filter': {"condition": BULK_FILTER_CONDITION_IS_NOT_EXACTLY, "value": set()}, # None | {"condition": "bulk_is_exactly" | "bulk_is_not_exactly", value: any[]}
-        'filtered_out_values': set()
     } 
 
 

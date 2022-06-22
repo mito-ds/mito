@@ -21,8 +21,8 @@ def test_sheet_json_displays_floats_correctly():
     mito = create_mito_wrapper_dfs(df)
     
     sheet_data = json.loads(mito.mito_widget.sheet_data_json)[0]
-    assert get_value_helper(sheet_data, 0, 0) == '1.0'
-    assert get_value_helper(sheet_data, 1, 0) == '2.0'
+    assert get_value_helper(sheet_data, 0, 0) == 1.0
+    assert get_value_helper(sheet_data, 1, 0) == 2.0
     assert get_value_helper(sheet_data, 2, 0) == 'NaN'
 
 

@@ -4,7 +4,7 @@ import React, { Fragment, useRef, useState } from 'react';
 import MitoAPI from '../../../../jupyter/api';
 import MultiToggleBox from '../../../elements/MultiToggleBox';
 import Select from '../../../elements/Select';
-import { BulkFilter, ColumnID, FormatTypeObj, UIState } from '../../../../types';
+import { ColumnID, FormatTypeObj, UIState } from '../../../../types';
 import Col from '../../../spacing/Col';
 import Row from '../../../spacing/Row';
 import { getFilterDisabledMessage } from './filter/utils';
@@ -69,7 +69,6 @@ export function UniqueValuesCard(
         columnID: ColumnID,
         mitoAPI: MitoAPI;
         columnDtype: string,
-        bulkFilter: BulkFilter,
         columnFormatType: FormatTypeObj
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     }): JSX.Element {

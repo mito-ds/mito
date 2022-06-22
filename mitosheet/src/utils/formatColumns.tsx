@@ -4,7 +4,7 @@ import DropdownItem from "../components/elements/DropdownItem"
 import { getSelectedNumberSeriesColumnIDs } from "../components/endo/selectionUtils"
 import { ColumnID, FormatType, FormatTypeObj, GridState, MitoSelection, SheetData } from "../types"
 import DropdownCheckmark from '../components/icons/DropdownCheckmark'
-import { isNumberDtype } from "./dtypes"
+import { isIntDtype, isNumberDtype } from "./dtypes"
 
 export const FORMAT_DISABLED_MESSAGE = 'You must have at least one Number column selected to adjust the formatting.'
 
@@ -55,17 +55,12 @@ export const formatCellData = (cellData: boolean | string | number, columnDtype:
         if (displayCellAsNumber(cellData, columnDtype)) {
             switch(columnFormatType.type) {
                 case FormatType.DEFAULT:
-                    if (columnDtype?.includes('int')) {
+                    if (isIntDtype(columnDtype)) {
                         // If the column is an int, default to 0 decimal places
                         return formatCellDataAsStringWithCommas(cellData, 0)
                     } else {
-                        // We show the full number of decimals if it is a float
-                        const cellDataToParse = '' + cellData;
-                        let numDecimals = 0;
-                        if (cellDataToParse.includes('.')) {
-                            numDecimals = cellDataToParse.toString().split(".")[1].length || 0;
-                        }
-                        return formatCellDataAsStringWithCommas(cellData, numDecimals)
+                        // We show the floats with a single decimal by dfault
+                        return formatCellDataAsStringWithCommas(cellData, 1)
                     }
                 case FormatType.PLAIN_TEXT:
                     return '' + cellData

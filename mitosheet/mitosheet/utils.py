@@ -15,6 +15,7 @@ import numpy as np
 import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap, get_column_header_display
+from mitosheet.errors import get_recent_traceback
 from mitosheet.sheet_functions.types.utils import get_float_dt_td_columns
 from mitosheet.types import ColumnHeader, ColumnID
 
@@ -193,7 +194,7 @@ def df_to_json_dumpsable(
         'columnSpreadsheetCodeMap': column_spreadsheet_code,
         'columnFiltersMap': {column_id: {
             'filter_list': column_filter_data['filter_list'], 
-            'bulk_filter': column_filter_data['bulk_filter']
+            'has_bulk_filter_applied': len(column_filter_data['bulk_filter']['value']) > 0
         } for column_id, column_filter_data in column_filters.items()},
         'columnDtypeMap': column_dtype_map,
         'index': json_obj['index'],
@@ -233,13 +234,6 @@ def convert_df_to_parsed_json(original_df: pd.DataFrame, max_rows: Optional[int]
     # we format the timedeltas as strings to make them readable
     for column_header in timedelta_columns:
         df[column_header] = df[column_header].apply(lambda x: str(x))
-
-    # Then, we get all the float columns and actually make them 
-    # look like floating point values, by converting them to strings
-    for column_header in float_columns:
-        # Convert the value to a string if it is a number, but leave it alone if its a NaN 
-        # as to preserve the formatting of NaN values. 
-        df[column_header] = df[column_header].apply(lambda x: x if np.isnan(x) else str(x))
 
     # Then, we check the index. If it is a datetime or a timedelta, we have to do
     # the same conversions that we did above

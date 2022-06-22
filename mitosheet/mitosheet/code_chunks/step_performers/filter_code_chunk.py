@@ -392,6 +392,7 @@ def get_filter_code(
     if len(final_filter) == 0:
         return []
     else:
+        # import numpy if we need to
         return ([] if not contains_nan else ['import numpy as np']) + [
             f"{df_name} = {df_name}[{final_filter}]",
         ]

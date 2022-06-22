@@ -5,6 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 from typing import Any, Dict, List, Set, Union
+import numpy as np
 
 import pandas as pd
 from mitosheet.types import ColumnHeader
@@ -41,7 +42,10 @@ def column_header_to_transpiled_code(column_header: ColumnHeader) -> str:
         column_header_parts_joined = ', '.join(column_header_parts)
         return f'({column_header_parts_joined})'
 
-    if column_header == 'NaN':
+    print("Checking", column_header, type(column_header))
+
+    if column_header == 'NaN' or (isinstance(column_header, float) and np.isnan(column_header)):
+        print("HERE")
         return 'np.NaN'
 
     if isinstance(column_header, int) or isinstance(column_header, float) or isinstance(column_header, bool):

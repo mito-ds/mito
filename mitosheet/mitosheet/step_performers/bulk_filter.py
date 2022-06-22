@@ -46,7 +46,6 @@ class BulkFilterStepPerformer(StepPerformer):
         column_id: ColumnID = get_param(params, 'column_id')
 
         params['bulk_filter'] = prev_state.column_filters[sheet_index][column_id]['bulk_filter']
-        params['filtered_out_values'] = prev_state.column_filters[sheet_index][column_id]['filtered_out_values']
 
         return params
 
@@ -56,9 +55,8 @@ class BulkFilterStepPerformer(StepPerformer):
         column_id: ColumnID = get_param(params, 'column_id')
         toggle_type: Any = get_param(params, 'toggle_type') # {type: 'toggle_all_matching', toggle_value: boolean, search_string: string} | {type: 'toggle_specific_value', value: specific value}
 
-        # These two parameters are saturated above
+        # This parameter is saturated above
         bulk_filter: Any = get_param(params, 'bulk_filter')
-        filtered_out_values: Any = get_param(params, 'filtered_out_values')
 
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
         if toggle_type['type'] == BULK_FILTER_TOGGLE_SPECIFIC_VALUE:
@@ -70,22 +68,22 @@ class BulkFilterStepPerformer(StepPerformer):
 
         # If the values to toggle include NaN, then we switch this out for NaN proper
         if 'NaN' in values_to_toggle:
+            print("It was NaN")
             values_to_toggle.remove('NaN')
             values_to_toggle.add(np.NaN)
+
+        print("values to toggle", values_to_toggle)
         
         new_values = copy(set(bulk_filter['value']))
-        new_filtered_out_values = copy(set(filtered_out_values))
 
         # Update the values and filtered out lists
         if remove_from_dataframe:
             new_values.update(values_to_toggle)
-            new_filtered_out_values.update(values_to_toggle)
         else:
             new_values = copy(new_values).difference(values_to_toggle)
-            new_filtered_out_values = copy(new_filtered_out_values).difference(values_to_toggle)
 
         post_state.column_filters[sheet_index][column_id]['bulk_filter']['value'] = new_values
-        post_state.column_filters[sheet_index][column_id]['filtered_out_values'] = new_filtered_out_values
+
 
         # Then execute the filter
         from mitosheet.step_performers.filter import _execute_filter

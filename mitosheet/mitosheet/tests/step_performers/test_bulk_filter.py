@@ -7,6 +7,7 @@
 Contains tests for Bulk Filter
 """
 
+import numpy as np
 import pandas as pd
 import pytest
 from mitosheet.step_performers.bulk_filter import BULK_FILTER_TOGGLE_ALL_MATCHING, BULK_FILTER_TOGGLE_SPECIFIC_VALUE
@@ -208,7 +209,7 @@ def test_replay_bulk_filters():
     new_mito.replay_analysis('test-123123')
 
     assert new_mito.dfs[0].equals(pd.DataFrame({'A': [2, 3, 5]}, index=[1, 2, 4]))
-    assert new_mito.curr_step.column_filters[0]['A']['filtered_out_values'] == {1, 4}
+    assert new_mito.curr_step.column_filters[0]['A']['bulk_filter']['value'] == {1, 4}
 
 def test_defaults_to_exclusive_if_smaller():
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3, 4, 5]}))
@@ -241,3 +242,8 @@ def test_edit_between_filter_and_bulk_filter_works():
     mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 4, 'remove_from_dataframe': True})
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [3, 5], 'B': [0, 0]}, index=[2, 4]))
+
+def test_toggles_nan():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1.0, 2.0, 3.0, 4.0, None]}))
+    mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': np.NaN, 'remove_from_dataframe': True})
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1.0, 2.0, 3.0, 4.0]}))

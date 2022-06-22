@@ -184,6 +184,7 @@ export default class MitoAPI {
         // as this means there was a successful response
         if (response['event'] == 'response') {
             this.updateMitoState();
+            console.log("updating mito state")
         } else if (response['event'] == 'edit_error') {
             // If the backend sets the data field of the error, then we know
             // that this is an error that we want to only pass through, without 

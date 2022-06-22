@@ -128,17 +128,12 @@ export interface FilterGroupType {
     operator: Operator
 }
 
-export interface BulkFilter {
-    condition: 'bulk_is_not_exactly',
-    value: (string | number | boolean)[]
-}
-
 export interface ColumnFilters {
     'filter_list': {
         operator: 'Or' | 'And',
         filters: (FilterType | FilterGroupType)[]
     },
-    'bulk_filter': BulkFilter
+    'has_bulk_filter_applied': boolean
 }
 
 export interface ColumnFilterMap {
