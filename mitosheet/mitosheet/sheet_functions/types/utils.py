@@ -48,20 +48,18 @@ def is_none_type(value: Union[str, None]) -> bool:
     """
     return True if value is None or str(value).lower() in ['nan', 'nat'] else False
 
-def get_float_dt_td_columns(df: pd.DataFrame) -> Tuple[List[Any], List[Any], List[Any]]:
-    float_columns, date_columns, timedelta_columns = [], [], []
+def get_dt_td_columns(df: pd.DataFrame) -> Tuple[List[Any], List[Any]]:
+    date_columns, timedelta_columns = [], []
     for column_header in df.columns:
         dtype = str(df[column_header].dtype)
         # NOTE: these functions are called frequently, so we put them in 
         # the order they are most likely to be true in, so we can short out
-        if is_float_dtype(dtype):
-            float_columns.append(column_header)
-        elif is_datetime_dtype(dtype):
+        if is_datetime_dtype(dtype):
             date_columns.append(column_header)
         elif is_timedelta_dtype(dtype):
             timedelta_columns.append(column_header)
 
-    return float_columns, date_columns, timedelta_columns
+    return date_columns, timedelta_columns
 
 
 def get_nan_indexes_metadata(*argv: pd.Series) -> Tuple[pd.Index, pd.Index]: 

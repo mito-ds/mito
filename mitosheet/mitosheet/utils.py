@@ -16,7 +16,7 @@ import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap, get_column_header_display
 from mitosheet.errors import get_recent_traceback
-from mitosheet.sheet_functions.types.utils import get_float_dt_td_columns
+from mitosheet.sheet_functions.types.utils import get_dt_td_columns
 from mitosheet.types import ColumnHeader, ColumnID
 
 # We only send the first 1500 rows of a dataframe; note that this
@@ -222,7 +222,7 @@ def convert_df_to_parsed_json(original_df: pd.DataFrame, max_rows: Optional[int]
     # we only show the first max_columns columns!
     df = df.iloc[: , :max_columns]
 
-    float_columns, date_columns, timedelta_columns = get_float_dt_td_columns(df)
+    date_columns, timedelta_columns = get_dt_td_columns(df)
     # We figure out which of the columns contain dates, and we
     # convert them to string columns (for formatting reasons).
     # NOTE: we don't use date_format='iso' in df.to_json call as it appends seconds to the object, 
