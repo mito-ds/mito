@@ -104,6 +104,10 @@ const MultiToggleBox = (props: {
         * @param [searchable] - Add a search field to allow the user to only look at certain values. See searchParams as well.
     */
     searchable?: boolean;
+    /** 
+        * @param [searchRightText] - If you want the right text to also be searchable
+    */
+    searchRightText?: boolean;
 
     /**
      * @param [searchState] You can also pass a search string and a setSearch string if you want to maintain these values outside of of the MultiToggleBox itself, and the input will be diplayed here as well
@@ -181,7 +185,7 @@ const MultiToggleBox = (props: {
         }
 
         const noTitleMatch = title === null || title === undefined || fuzzyMatch(title + '', searchString) < .8;
-        const noRightTextMatch = title === null || title === undefined || fuzzyMatch(rightText + '', searchString) < .8;
+        const noRightTextMatch = props.searchRightText && title === null || title === undefined || fuzzyMatch(rightText + '', searchString) < .8;
 
         // Don't display if it doesn't match either of the title or the right text
         if (noTitleMatch && noRightTextMatch) {

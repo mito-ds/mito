@@ -208,6 +208,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                 {params.how !== MergeType.UNIQUE_IN_RIGHT &&
                     <MultiToggleBox
                         searchable
+                        searchRightText
                         toggleAllIndexes={(indexesToToggle, newToggle) => {
                             const columnIDs = Object.keys(sheetDataOne?.columnDtypeMap || {})
                                 .map((columnID) => {return columnID})
@@ -275,6 +276,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                     {params.how !== MergeType.UNIQUE_IN_LEFT && 
                         <MultiToggleBox
                             searchable
+                            searchRightText
                             toggleAllIndexes={(indexesToToggle, newToggle) => {
                                 const columnIDs = Object.keys(sheetDataTwo?.columnDtypeMap || {})
                                     .map((columnID) => {return columnID})

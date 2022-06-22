@@ -152,6 +152,7 @@ const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
                 </Row>
                 <MultiToggleBox
                     searchable
+                    searchRightText
                     toggleAllIndexes={(indexesToToggle, newValue) => {
                         toggleIndexes('id_var_column_ids', indexesToToggle, newValue)
                     }}
@@ -189,6 +190,7 @@ const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
                 </Row>
                 <MultiToggleBox
                     searchable
+                    searchRightText
                     toggleAllIndexes={(indexesToToggle, newValue) => {
                         toggleIndexes('value_var_column_ids', indexesToToggle, newValue)
                     }}

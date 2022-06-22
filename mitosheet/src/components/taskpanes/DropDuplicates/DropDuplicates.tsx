@@ -179,6 +179,7 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
                 </p>
                 <MultiToggleBox
                     searchable
+                    searchRightText
                     toggleAllIndexes={(indexesToToggle, newToggle) => {
                         const columnIDsToToggle = indexesToToggle.map(index => columnIDsAndHeaders[index][0]);
                         setParams(oldDropDuplicateParams => {

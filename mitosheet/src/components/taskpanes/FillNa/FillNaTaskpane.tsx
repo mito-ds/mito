@@ -234,6 +234,7 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                 </Row>
                 <MultiToggleBox
                     searchable
+                    searchRightText
                     toggleAllIndexes={toggleIndexes}
                     height='medium'
                 >

@@ -183,6 +183,7 @@ export function UniqueValuesCard(
                 <MultiToggleBox 
                     loading={loading}
                     searchable
+                    searchRightText={false}
                     searchState={{
                         searchString: searchString,
                         setSearchString: setSearchString
