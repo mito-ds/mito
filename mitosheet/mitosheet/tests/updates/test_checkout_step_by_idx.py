@@ -82,4 +82,4 @@ def test_does_not_allow_edit_events_when_rolled_back():
         IN_PREVIOUS_STEP_COMMENT
     ]
 
-    assert len(mito.steps) == 2
+    assert len(mito.steps_including_skipped) == 2

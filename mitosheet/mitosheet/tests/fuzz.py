@@ -181,7 +181,7 @@ def TestMito(data):
     for _ in range(NUM_EVENTS):
         send_random_event(mito, fdp)
 
-    print("NUM STEPS:", len(mito.steps))
+    print("NUM STEPS:", len(mito.steps_including_skipped))
 
 
 atheris.Setup(sys.argv, TestMito)

@@ -29,7 +29,7 @@ def test_rolls_back_on_failed_import():
     mito.simple_import([FAKE_FILE_PATHS[0]])
 
     # Make sure a step has been created, and that the dataframe is the correct dataframe
-    assert len(mito.steps) == 1
+    assert len(mito.steps_including_skipped) == 1
     assert len(mito.dfs) == 0
 
 

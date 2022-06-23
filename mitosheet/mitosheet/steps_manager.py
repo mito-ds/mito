@@ -195,7 +195,7 @@ class StepsManager:
             ] = execution_data
 
         # Then we initialize the analysis with just a simple initialize step
-        self.steps: List[Step] = [
+        self.steps_including_skipped: List[Step] = [
             Step("initialize", "initialize", {}, None, State(args), {})
         ]
 
@@ -245,11 +245,11 @@ class StepsManager:
         Returns the current step object as a property of the object,
         so reference it with self.curr_step
         """
-        return self.steps[self.curr_step_idx]
+        return self.steps_including_skipped[self.curr_step_idx]
 
     @property
     def dfs(self) -> List[pd.DataFrame]:
-        return self.steps[self.curr_step_idx].dfs
+        return self.steps_including_skipped[self.curr_step_idx].dfs
 
     @property
     def data_type_in_mito(self) -> DataTypeInMito:
@@ -266,7 +266,7 @@ class StepsManager:
         passed around
         """
         modified_sheet_indexes = get_modified_sheet_indexes(
-            self.steps, self.last_step_index_we_wrote_sheet_json_on, self.curr_step_idx
+            self.steps_including_skipped, self.last_step_index_we_wrote_sheet_json_on, self.curr_step_idx
         )
 
         array = dfs_to_array_for_json(
@@ -313,8 +313,8 @@ class StepsManager:
         the skipped steps
         """
         step_summary_list = []
-        step_indexes_to_skip = get_step_indexes_to_skip(self.steps)
-        for index, step in enumerate(self.steps):
+        step_indexes_to_skip = get_step_indexes_to_skip(self.steps_including_skipped)
+        for index, step in enumerate(self.steps_including_skipped):
             if step.step_type == "initialize":
                 step_summary_list.append(
                     {
@@ -362,7 +362,7 @@ class StepsManager:
 
         # NOTE: We ignore any edit if we are in a historical state, for now. This is a result
         # of the fact that we don't allow previous editing currently
-        if self.curr_step_idx != len(self.steps) - 1:
+        if self.curr_step_idx != len(self.steps_including_skipped) - 1:
             return
 
         step_performer = EVENT_TYPE_TO_STEP_PERFORMER[edit_event["type"]]
@@ -372,7 +372,7 @@ class StepsManager:
             step_performer.step_type(), edit_event["step_id"], edit_event["params"]
         )
 
-        new_steps = self.steps + [new_step]
+        new_steps = self.steps_including_skipped + [new_step]
 
         self.execute_and_update_steps(new_steps)
 
@@ -387,7 +387,7 @@ class StepsManager:
         # (e.g. when there are two steps) - if we still have default dataframe names, this
         # is an error. Note we make this a distinct log from when the args update itself
         # fails so that we can check if we really do get to this state
-        if len(self.steps) == 2 and is_default_df_names(self.curr_step.df_names): # NOTE: two means we have done at least one edit.
+        if len(self.steps_including_skipped) == 2 and is_default_df_names(self.curr_step.df_names): # NOTE: two means we have done at least one edit.
             log('args_update_remains_failed')
 
     def handle_update_event(self, update_event: Dict[str, Any]) -> None:
@@ -418,13 +418,13 @@ class StepsManager:
         """
 
         # Currently, we only remove steps in an undo
-        if len(new_steps) < len(self.steps):
+        if len(new_steps) < len(self.steps_including_skipped):
             # If we are removing steps, then we figure out what skipped steps
             # we are losing, and run from right before where we are no longer
             # skipped steps
             no_longer_skipped_indexes: Set[int] = set()
-            for step_index, removed_step in enumerate(self.steps[len(new_steps) :]):
-                previous_steps = self.steps[: len(new_steps) + step_index]
+            for step_index, removed_step in enumerate(self.steps_including_skipped[len(new_steps) :]):
+                previous_steps = self.steps_including_skipped[: len(new_steps) + step_index]
                 no_longer_skipped_indexes = no_longer_skipped_indexes.union(
                     removed_step.step_indexes_to_skip(previous_steps)
                 )
@@ -438,15 +438,15 @@ class StepsManager:
 
             # Collect anything that is newly skipped
             newly_skipped_indexes: Set[int] = set()
-            for step_index, new_step in enumerate(new_steps[len(self.steps) :]):
-                previous_steps = new_steps[: len(self.steps) + step_index]
+            for step_index, new_step in enumerate(new_steps[len(self.steps_including_skipped) :]):
+                previous_steps = new_steps[: len(self.steps_including_skipped) + step_index]
                 newly_skipped_indexes = newly_skipped_indexes.union(
                     new_step.step_indexes_to_skip(previous_steps)
                 )
 
             # The last valid index is the minimum of the newly skipped things - 1
             # or the last valid step (if nothing is skipped)
-            last_valid_index = min(newly_skipped_indexes.union({len(self.steps)})) - 1
+            last_valid_index = min(newly_skipped_indexes.union({len(self.steps_including_skipped)})) - 1
 
         # Make sure that this step isn't itself skipped, and decrement until it is not
         all_skipped_indexes = get_step_indexes_to_skip(new_steps)
@@ -479,10 +479,10 @@ class StepsManager:
 
         # Otherwise, we just undo the most recent step that the user has created
         # if they have created any steps
-        if len(self.steps) == 1:
+        if len(self.steps_including_skipped) == 1:
             return
 
-        new_steps = copy(self.steps)
+        new_steps = copy(self.steps_including_skipped)
         undone_step = new_steps.pop()
 
         self.execute_and_update_steps(new_steps)
@@ -504,7 +504,7 @@ class StepsManager:
         (undo_or_clear, step_list) = self.undone_step_list_store[-1]
         if undo_or_clear == "undo":
             # If it's an undo, just apply onto the end
-            new_steps = copy(self.steps)
+            new_steps = copy(self.steps_including_skipped)
             new_steps.extend(step_list)
             self.execute_and_update_steps(new_steps)
 
@@ -523,13 +523,13 @@ class StepsManager:
         A clear update, which removes all steps in the analysis
         that are not imports.
         """
-        if len(self.steps) == 1:
+        if len(self.steps_including_skipped) == 1:
             return
 
         # Keep only the initalize step and any import steps
         new_steps = [
             step
-            for step in self.steps
+            for step in self.steps_including_skipped
             if (
                 step.step_type == "initialize"
                 or step.step_type == SimpleImportStepPerformer.step_type()
@@ -537,7 +537,7 @@ class StepsManager:
             )
         ]
 
-        old_steps = copy(self.steps)
+        old_steps = copy(self.steps_including_skipped)
 
         # We need to set the last_valid_index to 0 as we are changing
         # the step order
@@ -568,8 +568,8 @@ class StepsManager:
         final_steps = execute_step_list_from_index(
             new_steps, start_index=last_valid_index
         )
-        self.steps = final_steps
-        self.curr_step_idx = len(self.steps) - 1
+        self.steps_including_skipped = final_steps
+        self.curr_step_idx = len(self.steps_including_skipped) - 1
 
     def execute_steps_data(self, new_steps_data: List[Dict[str, Any]] = None) -> None:
         """
@@ -577,7 +577,7 @@ class StepsManager:
         this data  into steps and try to run them. If any of them
         fail, will take none of the new steps
         """
-        new_steps = copy(self.steps)
+        new_steps = copy(self.steps_including_skipped)
         if new_steps_data:
             for step_data in new_steps_data:
                 new_step = Step(
