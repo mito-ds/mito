@@ -6,6 +6,7 @@ import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import MitoAPI from '../../../jupyter/api';
 import { AnalysisData, ColumnHeader, ColumnID, SheetData, StepType, UIState } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
+import DataframeSelect from '../../elements/DataframeSelect';
 import DropdownItem from '../../elements/DropdownItem';
 import MultiToggleBox from '../../elements/MultiToggleBox';
 import MultiToggleItem from '../../elements/MultiToggleItem';
@@ -95,46 +96,27 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
                 setUIState={props.setUIState}   
             />
             <DefaultTaskpaneBody>
-                <Row justify='space-between' align='center'>
-                    <Col>
-                        <p className='text-header-3'>
-                            Dataframe
-                        </p>
-                    </Col>
-                    <Col>
-                        <Select
-                            width='medium'
-                            value={props.sheetDataArray[params.sheet_index].dfName}
-                            onChange={(newDfName: string) => {
-                                const newSheetIndex = props.dfNames.indexOf(newDfName);
+                <DataframeSelect
+                    title='Dataframe to drop duplicates within.'
+                    sheetDataArray={props.sheetDataArray}
+                    sheetIndex={params.sheet_index}
+                    onChange={(newSheetIndex) => {
+                        setParams(dropDuplicateParams => {
+                            return {
+                                ...dropDuplicateParams,
+                                sheet_index: newSheetIndex,
+                                column_ids: props.sheetDataArray[newSheetIndex].data.map(c => c.columnID),
+                            }
+                        })
 
-                                setParams(dropDuplicateParams => {
-                                    return {
-                                        ...dropDuplicateParams,
-                                        sheet_index: newSheetIndex,
-                                        column_ids: props.sheetDataArray[newSheetIndex].data.map(c => c.columnID),
-                                    }
-                                })
-
-                                props.setUIState(prevUIState => {
-                                    return {
-                                        ...prevUIState,
-                                        selectedSheetIndex: newSheetIndex
-                                    }
-                                });
-                            }}
-                        >
-                            {props.dfNames.map(dfName => {
-                                return (
-                                    <DropdownItem
-                                        key={dfName}
-                                        title={dfName}
-                                    />
-                                )
-                            })}
-                        </Select>
-                    </Col>
-                </Row>
+                        props.setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                selectedSheetIndex: newSheetIndex
+                            }
+                        });
+                    }}
+                />
                 <Row justify='space-between' align='center'>
                     <Col>
                         <p className='text-header-3'>

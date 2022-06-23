@@ -11,7 +11,7 @@ interface ColorInputProps {
     value: string;
 
     /**
-        * @param onChange - Handles actually changing the value of the filter 
+        * @param onChange - Handles actually changing the value of the color
     */
     onChange: (newValue: string) => void;
 }

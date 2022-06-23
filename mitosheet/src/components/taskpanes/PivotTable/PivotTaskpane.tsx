@@ -5,16 +5,13 @@ import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import PivotTableKeySelection from './PivotTableKeySelection';
 import PivotTableValueSelection from './PivotTableValueSelection';
 import MitoAPI, { getRandomId } from '../../../jupyter/api';
-import Select from '../../elements/Select';
-import Row from '../../spacing/Row';
-import Col from '../../spacing/Col';
-import { allDfNamesToSelectableDfNameToSheetIndex, backendParamsToFrontendParams, getDefaultPivotParams } from './pivotUtils';
+import { backendParamsToFrontendParams, getDefaultPivotParams } from './pivotUtils';
 import { AggregationType, AnalysisData, BackendPivotParams, ColumnID, ColumnIDsMap, SheetData, UIState } from '../../../types';
-import DropdownItem from '../../elements/DropdownItem';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import { useEffectOnUpdateEvent } from '../../../hooks/useEffectOnUpdateEvent';
+import DataframeSelect from '../../elements/DataframeSelect';
 
 
 export type PivotTaskpaneProps = {
@@ -37,17 +34,12 @@ export type PivotTaskpaneProps = {
 
 
 const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
+    
 
     const [pivotParams, setPivotParams] = useState(() => getDefaultPivotParams(props.sheetDataArray, props.selectedSheetIndex, props.existingPivotParams))
     const [pivotUpdateNumber, setPivotUpdateNumber] = useState(0);
 
     const [stepID] = useState<string>(getRandomId());
-
-    // We save the dataframe names upon creation of the pivot table
-    // so that the user cannot switch to the pivot table they are editing
-    const [selectableDfNameToSheetIndex] = useState<Record<string, number>>(
-        allDfNamesToSelectableDfNameToSheetIndex(props.dfNames, props.destinationSheetIndex)
-    );
 
     useEffect(() => {
         // We do not send a pivot message if there is no data
@@ -98,22 +90,6 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
     } 
 
 
-    /* 
-        A callback used by the select data source Select Element so that it can 
-        set the state of the Pivot Table Taskpane
-    */ 
-    const setSelectedSheet = (newSheetName: string): void => {
-        const newSelectedSheetIndex = selectableDfNameToSheetIndex[newSheetName]
-
-        // If you didn't select a new sheet, then don't do clear your selections
-        if (newSelectedSheetIndex == pivotParams.selectedSheetIndex) {
-            return;
-        }
-        
-        // Set the selected index, and reset to the default params (taking no existing params)
-        setPivotParams(getDefaultPivotParams(props.sheetDataArray, newSelectedSheetIndex, undefined))
-        setPivotUpdateNumber(old => old + 1);
-    }
 
     const addPivotValueAggregation = (columnID: ColumnID): void => {
         setPivotParams(oldPivotParams => {
@@ -219,63 +195,17 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
                 setUIState={props.setUIState}
             />
             <DefaultTaskpaneBody>
-                <Row justify='space-between' align='center'>
-                    <Col>
-                        <p className='text-header-3'>
-                            Dataframe
-                        </p>
-                    </Col>
-                    <Col>
-                        <Select
-                            width='medium'
-                            value={props.dfNames[pivotParams.selectedSheetIndex]}
-                            // Safe to cast as dfNames are strings
-                            onChange={(newSheet: string) => setSelectedSheet(newSheet)}
-                        >
-                            {Object.keys(selectableDfNameToSheetIndex).map(dfName => {
-                                return (
-                                    <DropdownItem
-                                        key={dfName}
-                                        title={dfName}
-                                    />
-                                )
-                            })}
-                        </Select>
-                    </Col>
-                </Row>
-                {/* TODO: put this back in when you want to not flatten column header*/}
-                {false &&
-                    <Row justify='space-between' align='center'>
-                        <Col>
-                            <p className='text-header-3'>
-                                Flatten Column Headers
-                            </p>
-                        </Col>
-                        <Col>
-                            <Select
-                                width='medium'
-                                value={pivotParams.flattenColumnHeaders ? 'Yes' : 'No'}
-                                // Safe to cast as dfNames are strings
-                                onChange={(newFlatten: string) => {
-                                    setPivotParams(pivotState => {
-                                        return {
-                                            ...pivotState,
-                                            flattenColumnHeaders: newFlatten === 'Yes'
-                                        }
-                                    })
-                                }}
-                            >
-                                <DropdownItem
-                                    title={'No'}
-                                />
-                                <DropdownItem
-                                    title={'Yes'}
-                                />
-                            </Select>
-                        </Col>
-                    </Row>
-                }
-                
+                <DataframeSelect
+                    title='Dataframe to pivot'
+                    sheetDataArray={props.sheetDataArray}
+                    sheetIndex={props.selectedSheetIndex}
+                    onChange={(newSheetIndex) => {
+                        // Set the selected index, and reset to the default params (taking no existing params)
+                        setPivotParams(getDefaultPivotParams(props.sheetDataArray, newSheetIndex, undefined))
+                        setPivotUpdateNumber(old => old + 1);
+                    }}
+                    sheetIndexToIgnore={props.destinationSheetIndex}
+                />
                 <div className = 'default-taskpane-body-section-div'>
                     <PivotTableKeySelection
                         sectionTitle='Rows'

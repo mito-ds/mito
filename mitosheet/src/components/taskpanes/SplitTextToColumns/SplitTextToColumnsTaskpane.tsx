@@ -18,6 +18,7 @@ import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import MultiSelectButtonItem from "../../elements/MulitSelectButtonItem";
 import { toggleInArray } from "../../../utils/arrays";
 import Spacer from "../../spacing/Spacer";
+import DataframeSelect from "../../elements/DataframeSelect";
 
 interface SplitTextToColumnsTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -122,42 +123,23 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                 setUIState={props.setUIState}            
             />
             <DefaultTaskpaneBody>
-                <Row justify='space-between' align='center'>
-                    <Col>
-                        <p className='text-header-3'>
-                            Dataframe
-                        </p>
-                    </Col>
-                    <Col>
-                        <Select
-                            width='medium-large'
-                            value={props.dfNames[params.sheet_index]}
-                            // Safe to cast as dfNames are strings
-                            onChange={(newSheet: string) => {
-                                setParams(prevParams => {
-                                    const newSheetIndex = props.dfNames.indexOf(newSheet)
-                                    const newParams = getDefaultParams(undefined, props.sheetDataArray, newSheetIndex);
-                                    if (newParams) {
-                                        return newParams;
-                                    }
-                                    return {
-                                        ...prevParams,
-                                        sheet_index: newSheetIndex
-                                    }
-                                })
-                            }}
-                        >
-                            {props.dfNames.map(dfName => {
-                                return (
-                                    <DropdownItem
-                                        key={dfName}
-                                        title={dfName}
-                                    />
-                                )
-                            })}
-                        </Select>
-                    </Col>
-                </Row>
+                <DataframeSelect
+                    title='Dataframe to select a column to split text within'
+                    sheetDataArray={props.sheetDataArray}
+                    sheetIndex={params.sheet_index}
+                    onChange={(newSheetIndex) => {
+                        setParams(prevParams => {
+                            const newParams = getDefaultParams(undefined, props.sheetDataArray, newSheetIndex);
+                            if (newParams) {
+                                return newParams;
+                            }
+                            return {
+                                ...prevParams,
+                                sheet_index: newSheetIndex
+                            }
+                        })
+                    }}
+                />
                 <Row justify='space-between' align='center'>
                     <Col>
                         <p className='text-header-3'>

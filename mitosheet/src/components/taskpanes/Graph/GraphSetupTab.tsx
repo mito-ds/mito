@@ -13,6 +13,7 @@ import Toggle from '../../elements/Toggle';
 import { getColorDropdownItems, getDefaultGraphParams, getDefaultSafetyFilter } from './graphUtils';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import Tooltip from '../../elements/Tooltip';
+import DataframeSelect from '../../elements/DataframeSelect';
 
 // Graphing a dataframe with more than this number of rows will
 // give the user the option to apply the safety filter
@@ -160,45 +161,18 @@ function GraphSetupTab(
     return (  
         <Fragment>
             <div className='graph-sidebar-toolbar-content'>
-                <Row 
-                    justify='space-between' 
-                    align='center'
+                <DataframeSelect
                     title='Select the data sheet to graph.'
-                >
-                    <Col>
-                        <p className='text-header-3'>
-                            Dataframe
-                        </p>
-                    </Col>
-                    <Col>
-                        <Select
-                            value={props.dfNames[graphSheetIndex]}
-                            onChange={(newDfName: string) => {
-                                const newIndex = props.dfNames.indexOf(newDfName);
+                    sheetDataArray={props.sheetDataArray}
+                    sheetIndex={graphSheetIndex}
+                    onChange={(newSheetIndex) => {
+                        // Reset the graph params for the new sheet, but keep the graph type!
+                        const newSheetGraphParams = getDefaultGraphParams(props.sheetDataArray, newSheetIndex, props.graphParams.graphCreation.graph_type)
 
-                                if (newIndex == props.graphParams.graphCreation.sheet_index) {
-                                    return;
-                                }
-                                
-                                // Reset the graph params for the new sheet, but keep the graph type!
-                                const newSheetGraphParams = getDefaultGraphParams(props.sheetDataArray, newIndex, props.graphParams.graphCreation.graph_type)
-                                props.setGraphParams(newSheetGraphParams)
-
-                                props.setGraphUpdatedNumber((old) => old + 1);
-                            }}
-                            width='small'
-                        >
-                            {props.dfNames.map(dfName => {
-                                return (
-                                    <DropdownItem
-                                        key={dfName}
-                                        title={dfName}
-                                    />
-                                )
-                            })}
-                        </Select>
-                    </Col>
-                </Row>
+                        props.setGraphParams(newSheetGraphParams)
+                        props.setGraphUpdatedNumber((old) => old + 1);
+                    }}
+                />
                 <Row 
                     justify='space-between' 
                     align='center'
