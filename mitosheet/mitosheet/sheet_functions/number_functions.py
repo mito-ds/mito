@@ -14,7 +14,7 @@ in more detail in docs/README.md.
 NOTE: This file is alphabetical order!
 """
 import functools
-from typing import Tuple
+from typing import Tuple, Union
 import pandas as pd
 import numpy as np
 
@@ -210,6 +210,44 @@ def KURT(series: pd.Series) -> pd.Series:
         [kurtosis] * len(series),
         index=series.index
     )
+
+
+@handle_sheet_function_errors
+@filter_nans
+# NOTE: we set the default to -inf, so that we ignore values that fail to convert
+@convert_arg_to_series_type(
+    0,
+    'float',
+    'error',
+    ('default', np.NaN)
+)
+def LOG(series: pd.Series, base: Union[int, float]=None) -> pd.Series:
+    """
+    {
+        "function": "LOG",
+        "description": "Calculates the logarithm of the passed series with an optional base.",
+        "search_terms": ["log", "logarithm", "natural log"],
+        "examples": [
+            "LOG(e) = 1",
+            "LOG(100, 10) = 2"
+        ],
+        "syntax": "LOG(series, [base])",
+        "syntax_elements": [{
+                "element": "series",
+                "description": "The series to take the logarithm of."
+            },
+            {
+                "element": "base [OPTIONAL]",
+                "description": "The base of the logarithm to use. Defaults to the natural logarithm if no base is passed."
+            }
+        ]
+    }
+    """
+    if base is None:
+        return np.log(series)
+    # See here: https://stackoverflow.com/questions/25169297/numpy-logarithm-with-base-n
+    return np.log(series) / np.log(base)
+
 
 
 @handle_sheet_function_errors
@@ -593,6 +631,7 @@ NUMBER_FUNCTIONS = {
     'INT': INT,
     'EXP': EXP,
     'KURT': KURT,
+    'LOG': LOG,
     'MAX': MAX,
     'MIN': MIN,
     'MULTIPLY': MULTIPLY,
