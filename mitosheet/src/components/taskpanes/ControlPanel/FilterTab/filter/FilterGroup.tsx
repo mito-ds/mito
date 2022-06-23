@@ -20,7 +20,7 @@ export default function FilterGroup(
     }): JSX.Element {
     
     return (
-        <div className="filter-group">
+        <div className="light-gray-container">
             {props.filters.map((filter, index) => {
                 return (
                     <Filter

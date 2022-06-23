@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import React from 'react';
+import React, { useState } from 'react';
 import MitoAPI from '../../../../../jupyter/api';
 import { isFilterGroup } from './filterTypes';
 import { Filter } from './Filter';
@@ -9,40 +9,112 @@ import DropdownButton from '../../../../elements/DropdownButton';
 import Select from '../../../../elements/Select';
 import Row from '../../../../spacing/Row';
 import Col from '../../../../spacing/Col';
-import '../../../../../../css/taskpanes/ControlPanel/FilterCard.css';
-import { FilterType, Operator, FilterGroupType, ColumnID } from '../../../../../types';
+import { FilterType, Operator, FilterGroupType, ColumnID, ColumnFilters, SheetData, AnalysisData, StepType } from '../../../../../types';
 import DropdownItem from '../../../../elements/DropdownItem';
-import { getEmptyFilterData, getFilterDisabledMessage } from './utils';
+import { getEmptyFilterData, getFilterDisabledMessage, isValidFilter, parseFilter } from './utils';
+import useLiveUpdatingParams from '../../../../../hooks/useLiveUpdatingParams';
 
 
 interface FilterCardProps {
-    filters: (FilterType | FilterGroupType)[];
-    operator: Operator;
-    setFilters: React.Dispatch<React.SetStateAction<(FilterType | FilterGroupType)[]>>;
-    setOperator: React.Dispatch<React.SetStateAction<Operator>>;
+    mitoAPI: MitoAPI;
+    sheetData: SheetData;
     selectedSheetIndex: number;
     columnID: ColumnID;
     columnDtype: string;
-    mitoAPI: MitoAPI;
-    rowDifference: number;
-    editedFilter: boolean;
+    columnFilters: ColumnFilters;
+    analysisData: AnalysisData;
 }
 
 export const ADD_FILTER_SELECT_TITLE = '+ Add Filter'
+const FILTER_MESSAGE_DELAY = 500;
+
+export interface FilterParams {
+    sheet_index: number;
+    column_id: string;
+    operator: Operator;
+    filters: (FilterType | FilterGroupType)[];
+}
+
+
+
 
 /* 
     Component that contains all that one needs to filter!
 */
 function FilterCard (props: FilterCardProps): JSX.Element {
 
+    
+    const {params, setParams, editApplied} = useLiveUpdatingParams<FilterParams>(
+        {
+            sheet_index: props.selectedSheetIndex,
+            column_id: props.columnID,
+            filters: props.columnFilters !== undefined ? props.columnFilters.filter_list.filters : [],
+            operator: props.columnFilters !== undefined ? props.columnFilters.filter_list.operator : 'And'
+        },
+        StepType.FilterColumn,
+        props.mitoAPI, props.analysisData, FILTER_MESSAGE_DELAY, 
+        (params) => {
+            // To handle decimals, we allow decimals to be submitted, and then just
+            // parse them before they are sent to the back-end
+            const parsedFilters: (FilterType | FilterGroupType)[] = params.filters.map((filterOrGroup): FilterType | FilterGroupType => {
+                if (isFilterGroup(filterOrGroup)) {
+                    return {
+                        filters: filterOrGroup.filters.map((filter) => {
+                            return parseFilter(filter, props.columnDtype);
+                        }),
+                        operator: filterOrGroup.operator
+                    }
+                } else {
+                    return parseFilter(filterOrGroup, props.columnDtype)
+                }
+            })
+
+            const filtersToApply: (FilterType | FilterGroupType)[] = parsedFilters.map((filterOrGroup): FilterType | FilterGroupType => {
+                // Filter out these incomplete filters from the group
+                if (isFilterGroup(filterOrGroup)) {
+                    return {
+                        filters: filterOrGroup.filters.filter((filter) => {
+                            return isValidFilter(filter, props.columnDtype)
+                        }),
+                        operator: filterOrGroup.operator
+                    }
+                } else {
+                    return filterOrGroup
+                }
+            }).filter((filterOrGroup) => {
+                // Filter out the groups if they have no valid filters in them
+                if (isFilterGroup(filterOrGroup)) {
+                    return filterOrGroup.filters.length > 0;
+                }
+                // And then we filter the non group filters to be non-empty
+                return isValidFilter(filterOrGroup, props.columnDtype)
+            });
+
+            return {
+                ...params,
+                filters: filtersToApply
+            }
+        }
+    )
+
+    if (params === undefined) {
+        return <></>
+    }
+
+    const [originalNumRows, ] = useState(props.sheetData?.numRows || 0)
+
     /* 
         Adds a new, blank filter to the end of the filters list
     */
     const addFilter = (): void => {
-        props.setFilters((prevFilters) => {
-            const newFilters = [...prevFilters];
+        setParams(prevParams => {
+            const newFilters = [...prevParams.filters];
             newFilters.push(getEmptyFilterData(props.columnDtype));
-            return newFilters;
+            
+            return {
+                ...prevParams,
+                filters: newFilters
+            }
         })
     }
 
@@ -51,8 +123,8 @@ function FilterCard (props: FilterCardProps): JSX.Element {
         filter
     */
     const addFilterGroup = (): void => {
-        props.setFilters((prevFilters) => {
-            const newFilters = [...prevFilters];
+        setParams(prevParams => {
+            const newFilters = [...prevParams.filters];
             newFilters.push(
                 {
                     filters: [
@@ -61,7 +133,11 @@ function FilterCard (props: FilterCardProps): JSX.Element {
                     operator: 'And'
                 }
             )
-            return newFilters;
+            
+            return {
+                ...prevParams,
+                filters: newFilters
+            }
         })
     }
 
@@ -69,19 +145,22 @@ function FilterCard (props: FilterCardProps): JSX.Element {
         Adds a blank new filter to the end of a specific group
     */
     const addFilterToGroup = (groupIndex: number): void => {
-        props.setFilters((prevFilters) => {
-            const newFilters = [...prevFilters];
+        setParams(prevParams => {
+            const newFilters = [...prevParams.filters];
             const filterGroup = newFilters[groupIndex];
             if (isFilterGroup(filterGroup)) {
                 // If we do have a filter group at that groupIndex, then we add a new filter to it
                 filterGroup.filters.push(
                     getEmptyFilterData(props.columnDtype)
                 );
-                return newFilters;
+                return {
+                    ...prevParams,
+                    filters: newFilters
+                };
             } else {
                 // We make no changes if this was not a filter group, which should never occur
-                return prevFilters;
-            }
+                return prevParams;
+            }            
         })
     }
 
@@ -91,10 +170,14 @@ function FilterCard (props: FilterCardProps): JSX.Element {
         filter list.
     */
     const deleteFilter = (filterIndex: number): void => {
-        props.setFilters((prevFilters) => {
-            const newFilters = [...prevFilters];
+        setParams(prevParams => {
+            const newFilters = [...prevParams.filters];
             newFilters.splice(filterIndex, 1)
-            return newFilters;
+        
+            return {
+                ...prevParams,
+                filters: newFilters
+            }
         })
     }
 
@@ -103,8 +186,8 @@ function FilterCard (props: FilterCardProps): JSX.Element {
         of a specific filter group
     */
     const deleteFilterFromGroup = (groupIndex: number, filterIndex: number): void => {
-        props.setFilters((prevFilters) => {
-            const newFilters = [...prevFilters];
+        setParams(prevParams => {
+            const newFilters = [...prevParams.filters];
             const filterGroup = newFilters[groupIndex];
             if (isFilterGroup(filterGroup)) {
                 // If we do have a filter group at that groupIndex, then we delete the filter
@@ -116,11 +199,14 @@ function FilterCard (props: FilterCardProps): JSX.Element {
                     newFilters.splice(groupIndex, 1);
                 }
                 
-                return newFilters
+                return {
+                    ...prevParams,
+                    filters: newFilters
+                }
             } else {
                 // We make no changes if this was not a filter group, which should never occur
-                return prevFilters;
-            }
+                return prevParams;
+            }        
         })
     }
 
@@ -128,10 +214,14 @@ function FilterCard (props: FilterCardProps): JSX.Element {
         Sets a filter at the given index to the new filter value
     */
     const setFilter = (filterIndex: number, filter: FilterType): void => {
-        props.setFilters((prevFilters) => {
-            const newFilters = [...prevFilters];
+        setParams(prevParams => {
+            const newFilters = [...prevParams.filters];
             newFilters[filterIndex] = filter;
-            return newFilters
+        
+            return {
+                ...prevParams,
+                filters: newFilters
+            }
         })
     }
 
@@ -140,15 +230,27 @@ function FilterCard (props: FilterCardProps): JSX.Element {
         groupIndex to the new filter value
     */
     const setFilterInGroup = (groupIndex: number, filterIndex: number, filter: FilterType): void => {
-        props.setFilters((prevFilters) => {
-            const newFilters = [...prevFilters];
+        setParams(prevParams => {
+            const newFilters = [...prevParams.filters];
             const filterGroup = newFilters[groupIndex];
             if (isFilterGroup(filterGroup)) {
                 filterGroup.filters[filterIndex] = filter;
-                return newFilters;
+                return {
+                    ...prevParams,
+                    filters: newFilters
+                };
             } else {
                 // We make no changes if this was not a filter group, which should never occur
-                return prevFilters;
+                return prevParams;
+            }        
+        })
+    }
+
+    const setOperator = (newOperator: Operator): void => {
+        setParams(prevParams => {
+            return {
+                ...prevParams,
+                operator: newOperator as Operator
             }
         })
     }
@@ -158,19 +260,22 @@ function FilterCard (props: FilterCardProps): JSX.Element {
         Sets the operator that combines a specific filter group
     */
     const setOperatorInGroup = (groupIndex: number, operator: Operator): void => {
-        props.setFilters((prevFilters) => {
-            const newFilters = [...prevFilters];
-            const filterGroup = newFilters[groupIndex];
+        setParams(prevParams => {
+            const filterGroup = prevParams.filters[groupIndex];
             if (isFilterGroup(filterGroup)) {
                 filterGroup.operator = operator;
-                return newFilters;
+                return {
+                    ...prevParams,
+                    operator: operator
+                };
             } else {
                 // We make no changes if this was not a filter group, which should never occur
-                return prevFilters;
-            }
+                return prevParams;
+            }        
         })
     }
 
+    const rowDifference = originalNumRows - (props.sheetData?.numRows || 0)
     const disabledMessage = getFilterDisabledMessage(props.columnDtype);
 
     return (
@@ -203,7 +308,7 @@ function FilterCard (props: FilterCardProps): JSX.Element {
             }
             {disabledMessage === undefined &&
                 <>
-                    {props.filters.map((filterOrGroup, index) => {
+                    {params.filters.map((filterOrGroup, index) => {
                         if (isFilterGroup(filterOrGroup)) {
                             return (
                                 /* 
@@ -219,8 +324,8 @@ function FilterCard (props: FilterCardProps): JSX.Element {
                                         }
                                         {index !== 0 && 
                                             <Select
-                                                value={props.operator}
-                                                onChange={(newOperator: string) => props.setOperator(newOperator as Operator)}
+                                                value={params.operator}
+                                                onChange={(newOperator: string) => setOperator(newOperator as Operator)}
                                                 dropdownWidth='small'
                                             >
                                                 <DropdownItem
@@ -235,7 +340,7 @@ function FilterCard (props: FilterCardProps): JSX.Element {
                                     <Col span={19}>
                                         <FilterGroup
                                             key={index}
-                                            mainOperator={props.operator}
+                                            mainOperator={params.operator}
                                             filters={filterOrGroup.filters}
                                             groupOperator={filterOrGroup.operator}
                                             setFilter={(filterIndex, newFilter) => {
@@ -259,23 +364,23 @@ function FilterCard (props: FilterCardProps): JSX.Element {
                                     first={index === 0}
                                     key={index}
                                     filter={filterOrGroup}
-                                    operator={props.operator}
+                                    operator={params.operator}
                                     displayOperator
                                     setFilter={(newFilter) => {
                                         setFilter(index, newFilter)
                                     }}
-                                    setOperator={props.setOperator}
+                                    setOperator={setOperator}
                                     deleteFilter={() => {deleteFilter(index)}}
                                     columnDtype={props.columnDtype}
                                 />
                             );
                         }
                     })}
-                    {props.editedFilter && 
+                    {editApplied && 
                         <Row className='text-subtext-1'>
-                            {props.rowDifference >= 0 ?
-                                `Removed an additional ${Math.abs(props.rowDifference)} rows` : 
-                                `Added back ${Math.abs(props.rowDifference)} rows`
+                            {rowDifference >= 0 ?
+                                `Removed an additional ${Math.abs(rowDifference)} rows` : 
+                                `Added back ${Math.abs(rowDifference)} rows`
                             }
                         </Row>
                     }

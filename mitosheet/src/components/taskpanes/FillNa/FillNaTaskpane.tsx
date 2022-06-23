@@ -15,7 +15,7 @@ import DropdownItem from '../../elements/DropdownItem';
 import MultiToggleBox from '../../elements/MultiToggleBox';
 import MultiToggleItem from '../../elements/MultiToggleItem';
 import { getDisplayColumnHeader, getFirstCharactersOfColumnHeaders } from '../../../utils/columnHeaders';
-import { getDtypeValue } from '../ControlPanel/FilterAndSortTab/DtypeCard';
+import { getDtypeValue } from '../ControlPanel/SortDtypeTab/DtypeCard';
 import { addIfAbsent, intersection, removeIfPresent } from '../../../utils/arrays';
 import Spacer from '../../spacing/Spacer';
 import Input from '../../elements/Input';

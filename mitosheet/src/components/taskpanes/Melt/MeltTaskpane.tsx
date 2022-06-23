@@ -3,7 +3,7 @@ import MitoAPI from "../../../jupyter/api";
 import { AnalysisData, SheetData, StepType, UIState, UserProfile } from "../../../types"
 import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
 import { ColumnID } from "../../../types"
-import { getDtypeValue } from "../ControlPanel/FilterAndSortTab/DtypeCard";
+import { getDtypeValue } from "../ControlPanel/SortDtypeTab/DtypeCard";
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders";
 import { addIfAbsent, removeIfPresent } from "../../../utils/arrays";
 import DropdownItem from '../../elements/DropdownItem';

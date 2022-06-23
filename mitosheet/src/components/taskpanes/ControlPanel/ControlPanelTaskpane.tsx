@@ -1,23 +1,19 @@
 // Copyright (c) Mito
 
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import "../../../../css/taskpanes/ControlPanel/ControlPanelTaskpane.css";
 import MitoAPI from '../../../jupyter/api';
-import { ColumnIDsMap, FilterGroupType, FilterType, MitoSelection, SheetData, StepType, UIState, EditorState, GridState, AnalysisData } from '../../../types';
-import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
+import { ColumnIDsMap, MitoSelection, SheetData, StepType, UIState, EditorState, GridState, AnalysisData } from '../../../types';
 import { getCellDataFromCellIndexes } from '../../endo/utils';
 import { TaskpaneType } from '../taskpanes';
 import ControlPanelTaskpaneTabs from './ControlPanelTaskpaneTabs';
-import DtypeCard from './FilterAndSortTab/DtypeCard';
+import DtypeCard from './SortDtypeTab/DtypeCard';
 import FilterCard from './FilterTab/filter/FilterCard';
-import { isFilterGroup } from './FilterTab/filter/filterTypes';
-import { isValidFilter, parseFilter } from './FilterTab/filter/utils';
-import SortCard from './FilterAndSortTab/SortCard';
+import SortCard from './SortDtypeTab/SortCard';
 import ColumnSummaryGraph from './SummaryStatsTab/ColumnSummaryGraph';
 import ColumnSummaryStatistics from './SummaryStatsTab/ColumnSummaryStatistics';
 import { UniqueValuesCard } from './FilterTab/UniqueValuesCard';
-import FormatCard from './FilterAndSortTab/FormatCard';
-import { useEffectOnUpdateEvent } from '../../../hooks/useEffectOnUpdateEvent';
+import FormatCard from './SortDtypeTab/FormatCard';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
@@ -31,7 +27,6 @@ import Row from '../../spacing/Row';
     that as the user is typing key changes, we don't queue up a
     ton of filtering messages.
 */
-const FILTER_MESSAGE_DELAY = 500;
 
 export enum ControlPanelTab {
     SortDtype = 'sort_dtype',
@@ -62,107 +57,16 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
     // Get the values for the first cell that was selected, in accordance with our standard
     const {columnHeader, columnID, columnFilters, columnDtype, columnFormatType} = getCellDataFromCellIndexes(props.sheetData, props.selection.startingRowIndex, props.selection.startingColumnIndex);
 
-    const [filters, _setFilters] = useState(columnFilters !== undefined ? columnFilters.filter_list.filters : []);
-    const [operator, setOperator] = useState(columnFilters !== undefined ? columnFilters.filter_list.operator : 'And');
-    const [updateNumber, setUpdateNumber] = useState(0);
-    const [stepID, setStepID] = useState('');
-
-    // We wrap the _setFilters call we use internally, so that on undo
-    // and redo we can call the internal one, but all other calls will 
-    // automatically trigger a message to be sent
-    const setFilters: React.Dispatch<React.SetStateAction<(FilterType | FilterGroupType)[]>> = useCallback(
-        (args: any) => {
-            _setFilters(args);
-            setUpdateNumber(old => old + 1)
-        },
-        [],
-    );
-
-    const [originalNumRows, ] = useState(props.sheetData?.numRows || 0)
-    const [editedFilter, setEditedFilter] = useState(false)
-
-    // When the filters or operator changes, send a new message, as long as this is not
-    // the first time that this rendered. We use a ref to avoid sending a message the first 
-    // time it renders
-    useDebouncedEffect(() => {
-        if (updateNumber != 0) {
-            void _sendFilterUpdateMessage();
-        }
-    }, [updateNumber], FILTER_MESSAGE_DELAY)
-
-    // Make sure to refresh the filters when they run
-    useEffectOnUpdateEvent(() => {
-        _setFilters(prevFilters => {return columnFilters?.filter_list.filters || prevFilters})
-    }, props.analysisData)
-    
-    // If this is not a valid column, don't render anything, and close the takspane! 
-    // We have to do this after the useState calls, to make sure this is valid react
-    if (columnHeader === undefined || columnID === undefined || columnDtype == undefined || columnFormatType == undefined || columnFilters === undefined) {
+    if (props.sheetData === undefined || columnHeader === undefined || columnID === undefined || columnDtype == undefined || columnFormatType == undefined || columnFilters === undefined) {
         props.setUIState((prevUIState) => {
             return {
                 ...prevUIState,
                 currOpenTaskpane: {type: TaskpaneType.NONE}
             }
         })
-        return <></>
+        return <></>;
     }
 
-    /* 
-        NOTE: only call this through the sendFilterUpdateMessage function, to make sure
-        buffering messages works properly.
-
-        Before sending the displayed filters, we parse all the number filters from strings
-        to numbers, and then filter out all of the invalid filters (as to not cause errors)
-    */
-    const _sendFilterUpdateMessage = async(): Promise<void> => {
-
-        // To handle decimals, we allow decimals to be submitted, and then just
-        // parse them before they are sent to the back-end
-        const parsedFilters: (FilterType | FilterGroupType)[] = filters.map((filterOrGroup): FilterType | FilterGroupType => {
-            if (isFilterGroup(filterOrGroup)) {
-                return {
-                    filters: filterOrGroup.filters.map((filter) => {
-                        return parseFilter(filter, columnDtype);
-                    }),
-                    operator: filterOrGroup.operator
-                }
-            } else {
-                return parseFilter(filterOrGroup, columnDtype)
-            }
-        })
-
-        const filtersToApply: (FilterType | FilterGroupType)[] = parsedFilters.map((filterOrGroup): FilterType | FilterGroupType => {
-            // Filter out these incomplete filters from the group
-            if (isFilterGroup(filterOrGroup)) {
-                return {
-                    filters: filterOrGroup.filters.filter((filter) => {
-                        return isValidFilter(filter, columnDtype)
-                    }),
-                    operator: filterOrGroup.operator
-                }
-            } else {
-                return filterOrGroup
-            }
-        }).filter((filterOrGroup) => {
-            // Filter out the groups if they have no valid filters in them
-            if (isFilterGroup(filterOrGroup)) {
-                return filterOrGroup.filters.length > 0;
-            }
-            // And then we filter the non group filters to be non-empty
-            return isValidFilter(filterOrGroup, columnDtype)
-        });
-        
-        const _stepID = await props.mitoAPI.editFilter(
-            props.selectedSheetIndex,
-            columnID,
-            filtersToApply,
-            operator,
-            stepID
-        )
-
-        setEditedFilter(true) 
-        setStepID(_stepID);    
-    }
 
     return (
         <React.Fragment>
@@ -209,19 +113,15 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                             <FilterCard
                                 selectedSheetIndex={props.selectedSheetIndex}
                                 columnID={columnID}
-                                filters={filters}
-                                setFilters={setFilters}
-                                setOperator={setOperator}
+                                columnFilters={columnFilters}
                                 columnDtype={columnDtype}
-                                operator={operator}
                                 mitoAPI={props.mitoAPI}
-                                rowDifference={originalNumRows - (props.sheetData?.numRows || 0)}
-                                editedFilter={editedFilter}
+                                sheetData={props.sheetData}
+                                analysisData={props.analysisData}
                             />
                             <Spacer px={15}/>
                             <UniqueValuesCard
                                 selectedSheetIndex={props.selectedSheetIndex}
-                                filterUpdateNumber={updateNumber}
                                 columnID={columnID}
                                 mitoAPI={props.mitoAPI}
                                 columnDtype={columnDtype}

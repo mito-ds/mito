@@ -65,7 +65,6 @@ const sortUniqueValueCounts = (uniqueValueCounts: UniqueValueCount[], uniqueValu
 export function UniqueValuesCard(
     props: {
         selectedSheetIndex: number, 
-        filterUpdateNumber: number;
         columnID: ColumnID,
         mitoAPI: MitoAPI;
         columnDtype: string,

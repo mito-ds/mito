@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import { SortDirection } from "../components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
+import { SortDirection } from "../components/taskpanes/ControlPanel/SortDtypeTab/SortCard";
 import { GraphObject } from "../components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
 import { UniqueValueCount, UniqueValueSortType } from "../components/taskpanes/ControlPanel/FilterTab/UniqueValuesCard";
 import { FileElement } from "../components/taskpanes/Import/ImportTaskpane";

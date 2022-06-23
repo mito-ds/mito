@@ -11,7 +11,7 @@ import MultiToggleItem from '../../elements/MultiToggleItem';
 import Select from '../../elements/Select';
 import Col from '../../spacing/Col';
 import Row from '../../spacing/Row';
-import { getDtypeValue } from '../ControlPanel/FilterAndSortTab/DtypeCard';
+import { getDtypeValue } from '../ControlPanel/SortDtypeTab/DtypeCard';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';

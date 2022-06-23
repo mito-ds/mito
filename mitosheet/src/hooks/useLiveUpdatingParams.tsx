@@ -29,12 +29,14 @@ function useLiveUpdatingParams<ParamType>(
     stepType: string,
     mitoAPI: MitoAPI,
     analysisData: AnalysisData,
-    debounceDelay: number
+    debounceDelay: number,
+    finalTransform?: ((params: ParamType) => ParamType)
 ): {
         params: ParamType | undefined, // If this is undefined, no messages will be sent to the backend
         setParams: React.Dispatch<React.SetStateAction<ParamType>>, 
         error: string | undefined,
         loading: boolean // This loading indicator is for if the edit message is processing
+        editApplied: boolean; // True if any edit is applied
     } {
 
     const [params, _setParams] = useState(defaultParams);
@@ -42,6 +44,7 @@ function useLiveUpdatingParams<ParamType>(
     const [stepID, setStepID] = useState<string | undefined>(undefined);
     const [error, setError] = useState<string | undefined>(undefined);
     const [loading, setLoading] = useState(false);
+    const [editApplied, setEditApplied] = useState(false);
 
     useDebouncedEffect(() => {
         void onChange()
@@ -77,7 +80,16 @@ function useLiveUpdatingParams<ParamType>(
 
         setLoading(true);
         const stepIDToSend = stepID || getRandomId();
-        const possibleError = await mitoAPI._edit<ParamType>(editEvent, params, stepIDToSend);
+
+        // If the user passes a final transform function, we run this function
+        // on the params before send them to the backend
+        let finalParams = params;
+        if (finalTransform) {
+            finalParams = finalTransform(params);
+        }
+
+        const possibleError = await mitoAPI._edit<ParamType>(editEvent, finalParams, stepIDToSend);
+        setEditApplied(true);
         setLoading(false);
 
         // Handle if we return an error
@@ -114,7 +126,8 @@ function useLiveUpdatingParams<ParamType>(
         params: params,
         setParams: setParams,
         error: error,
-        loading: loading
+        loading: loading,
+        editApplied: editApplied
     }
 }
 
