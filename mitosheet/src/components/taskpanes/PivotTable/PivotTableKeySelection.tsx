@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import React from 'react';
+import React, { useState } from 'react';
 import PivotInvalidSelectedColumnsError from './PivotInvalidSelectedColumnsError';
 import MitoAPI from '../../../jupyter/api';
 import DropdownButton from '../../elements/DropdownButton';
@@ -23,9 +23,35 @@ const PivotTableKeySelection = (props: {
     selectedColumnIDs: ColumnID[];
     addKey: (columnID: ColumnID) => void;
     removeKey: (keyIndex: number) => void;
+    reorderKey: (keyIndex: number, newKeyIndex: number) => void;
     editKey: (keyIndex: number, newColumnID: ColumnID) => void;
     mitoAPI: MitoAPI;
 }): JSX.Element => {
+
+
+    const [beingDragged, setBeingDragged] = useState<string | undefined>(undefined);
+
+    const onDragStart = (ev: React.MouseEvent) => {
+        const id = ev.currentTarget.id;
+        console.log("on drag start", id)
+        setBeingDragged(id);
+    }
+
+    const onDrop = (ev: React.MouseEvent) => {
+        const droppedOnId = ev.currentTarget.id;
+
+        // We are moving beingDragged to droppedOnID
+        console.log("moving", beingDragged, "to", droppedOnId)
+
+        if (beingDragged) {
+            const keyIndex = props.selectedColumnIDs.indexOf(beingDragged)
+            const newKeyIndex = props.selectedColumnIDs.indexOf(droppedOnId)
+
+            if (keyIndex !== -1 && newKeyIndex !== -1) {
+                props.reorderKey(keyIndex, newKeyIndex);
+            }
+        }
+    }
 
     const pivotTableColumnIDsCards: JSX.Element[] = props.selectedColumnIDs.map((columnID, keyIndex) => {
         return (
@@ -36,6 +62,9 @@ const PivotTableKeySelection = (props: {
                 onChange={(columnID) => props.editKey(keyIndex, columnID)}
                 onDelete={() => props.removeKey(keyIndex)}
                 selectableValues={Object.keys(props.columnIDsMap)}
+                draggable
+                onDrop={onDrop}
+                onDragStart={onDragStart}
             />
         )
     })

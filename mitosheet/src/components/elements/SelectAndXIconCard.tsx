@@ -13,7 +13,11 @@ interface SelectAndXIconProps {
     titleMap: Record<string, string>; // Map from id -> display title
     onChange: (newID: string) => void;
     onDelete: () => void;
-    selectableValues: string[]
+    selectableValues: string[];
+
+    draggable?: boolean;
+    onDragStart?: (e: React.MouseEvent) => void;
+    onDrop?: (e: React.MouseEvent) => void;
 }
 
 
@@ -23,7 +27,15 @@ interface SelectAndXIconProps {
 const SelectAndXIconCard = (props: SelectAndXIconProps): JSX.Element => {
 
     return (
-        <Row key={props.value} justify='space-between' align='center'>
+        <Row 
+            key={props.value} 
+            id={props.value}
+            justify='space-between' 
+            align='center'
+            draggable={props.draggable}
+            onDragStart={props.onDragStart}
+            onDrop={props.onDrop}
+        >
             <Col flex='1'>
                 <Select
                     value={props.value + ''}

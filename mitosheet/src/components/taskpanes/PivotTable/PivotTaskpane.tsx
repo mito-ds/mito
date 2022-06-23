@@ -12,6 +12,8 @@ import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import { useEffectOnUpdateEvent } from '../../../hooks/useEffectOnUpdateEvent';
 import DataframeSelect from '../../elements/DataframeSelect';
+import Spacer from '../../spacing/Spacer';
+import { move } from '../../../utils/arrays';
 
 
 export type PivotTaskpaneProps = {
@@ -174,6 +176,21 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
         setPivotUpdateNumber(old => old + 1);
     }
 
+    const reorderKey = (rowOrColumn: 'row' | 'column', keyIndex: number, newKeyIndex: number): void => {
+        setPivotParams(oldPivotParams => {
+            const newColumnIDs: ColumnID[] = rowOrColumn === 'row' ? [...pivotParams.pivotRowColumnIDs] : [...pivotParams.pivotColumnsColumnIDs];
+            const key = rowOrColumn === 'row' ? 'pivotRowColumnIDs' : 'pivotColumnsColumnIDs';
+
+            move(newColumnIDs, keyIndex, newKeyIndex);
+    
+            return {
+                ...oldPivotParams,
+                [key]: newColumnIDs,
+            }
+        })
+        setPivotUpdateNumber(old => old + 1);
+    }
+
     /*
         If there is no possible Pivot taskpane that can be displayed (e.g. the sheetJSON is empty),
         give an error message indicating so.
@@ -206,42 +223,41 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
                     }}
                     sheetIndexToIgnore={props.destinationSheetIndex}
                 />
-                <div className = 'default-taskpane-body-section-div'>
-                    <PivotTableKeySelection
-                        sectionTitle='Rows'
-                        columnIDsMap={columnIDsMap}
-                        selectedColumnIDs={pivotParams.pivotRowColumnIDs}
-                        addKey={(columnID) => {addKey('row', columnID)}}
-                        removeKey={(keyIndex) => {removeKey('row', keyIndex)}}
-                        editKey={(keyIndex, newColumnID) => {editKey('row', keyIndex, newColumnID)}}
-                        mitoAPI={props.mitoAPI}
-                        rowOrColumn='row'
-                    />
-                </div>
-                <div className = 'default-taskpane-body-section-div'>
-                    <PivotTableKeySelection
-                        sectionTitle='Columns'
-                        sectionSubtext={'For best performance, select columns with a small number of unique values.'}
-                        columnIDsMap={columnIDsMap}
-                        selectedColumnIDs={pivotParams.pivotColumnsColumnIDs}
-                        addKey={(columnID) => {addKey('column', columnID)}}
-                        removeKey={(keyIndex) => {removeKey('column', keyIndex)}}
-                        editKey={(keyIndex, newColumnID) => {editKey('column', keyIndex, newColumnID)}}
-                        mitoAPI={props.mitoAPI}
-                        rowOrColumn='column'
-                    />
-                </div>
-                <div className='default-taskpane-body-section-div'>
-                    <PivotTableValueSelection
-                        sheetData={sheetData}
-                        columnIDsMap={columnIDsMap}
-                        pivotValuesColumnIDsArray={pivotParams.pivotValuesColumnIDsArray}
-                        addPivotValueAggregation={addPivotValueAggregation}
-                        removePivotValueAggregation={removePivotValueAggregation}
-                        editPivotValueAggregation={editPivotValueAggregation}
-                        mitoAPI={props.mitoAPI}
-                    />
-                </div>
+                <Spacer px={10}/>
+                <PivotTableKeySelection
+                    sectionTitle='Rows'
+                    columnIDsMap={columnIDsMap}
+                    selectedColumnIDs={pivotParams.pivotRowColumnIDs}
+                    addKey={(columnID) => {addKey('row', columnID)}}
+                    removeKey={(keyIndex) => {removeKey('row', keyIndex)}}
+                    editKey={(keyIndex, newColumnID) => {editKey('row', keyIndex, newColumnID)}}
+                    reorderKey={(keyIndex, newKeyIndex) => {reorderKey('row', keyIndex, newKeyIndex)}}
+                    mitoAPI={props.mitoAPI}
+                    rowOrColumn='row'
+                />
+                <Spacer px={10}/>
+                <PivotTableKeySelection
+                    sectionTitle='Columns'
+                    sectionSubtext={'For best performance, select columns with a small number of unique values.'}
+                    columnIDsMap={columnIDsMap}
+                    selectedColumnIDs={pivotParams.pivotColumnsColumnIDs}
+                    addKey={(columnID) => {addKey('column', columnID)}}
+                    removeKey={(keyIndex) => {removeKey('column', keyIndex)}}
+                    editKey={(keyIndex, newColumnID) => {editKey('column', keyIndex, newColumnID)}}
+                    reorderKey={(keyIndex, newKeyIndex) => {reorderKey('column', keyIndex, newKeyIndex)}}
+                    mitoAPI={props.mitoAPI}
+                    rowOrColumn='column'
+                />
+                <Spacer px={10}/>
+                <PivotTableValueSelection
+                    sheetData={sheetData}
+                    columnIDsMap={columnIDsMap}
+                    pivotValuesColumnIDsArray={pivotParams.pivotValuesColumnIDsArray}
+                    addPivotValueAggregation={addPivotValueAggregation}
+                    removePivotValueAggregation={removePivotValueAggregation}
+                    editPivotValueAggregation={editPivotValueAggregation}
+                    mitoAPI={props.mitoAPI}
+                />
             </DefaultTaskpaneBody>
         </DefaultTaskpane> 
     ); 

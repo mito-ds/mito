@@ -6,6 +6,10 @@ import { classNames } from '../../utils/classNames';
 
 interface RowProps {
     /** 
+        * @param [id] - Optional id
+    */
+    id?: string,
+    /** 
         * @param [className] - Optional class name to apply to this row
     */
     className?: string,
@@ -37,6 +41,13 @@ interface RowProps {
      */
     title?: string
 
+    /**
+     * @param [draggable] - If the row is draggable
+     */
+    draggable?: boolean
+
+    onDragStart?: (e: React.MouseEvent) => void;
+    onDrop?: (e: React.MouseEvent) => void;
 }
 
 /**
@@ -74,13 +85,20 @@ const Row = (props: RowProps): JSX.Element => {
 
     return (
         <div
+            id={props.id}
             className={classNames('spacing-row', marginClass, props.className)}
             title={props.title}
             style={{
                 ...props.style,
                 justifyContent: props.justify,
                 alignItems: props.align,
-            }}>
+            }}
+            draggable={props.draggable}
+            onDragOver={(e) => e.preventDefault()}
+            onDragStart={props.onDragStart}
+            onDrop={props.onDrop}
+            
+            >
             {props.children}
         </div>
     )

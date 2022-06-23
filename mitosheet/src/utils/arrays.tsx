@@ -108,3 +108,7 @@ export function removeIfPresent<T>(array: T[], value: T): T[] {
 
     return array;
 }
+
+export function move<T>(arr: T[], old_index: number, new_index: number): void {
+    arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+};
