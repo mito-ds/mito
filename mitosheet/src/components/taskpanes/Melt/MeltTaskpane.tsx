@@ -6,10 +6,8 @@ import { ColumnID } from "../../../types"
 import { getDtypeValue } from "../ControlPanel/FilterAndSortTab/DtypeCard";
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders";
 import { addIfAbsent, removeIfPresent } from "../../../utils/arrays";
-import DropdownItem from '../../elements/DropdownItem';
 import Row from '../../spacing/Row';
 import Col from '../../spacing/Col';
-import Select from '../../elements/Select';
 import MultiToggleItem from '../../elements/MultiToggleItem';
 import MultiToggleBox from '../../elements/MultiToggleBox';
 
@@ -19,6 +17,7 @@ import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 import Spacer from "../../spacing/Spacer";
 import Tooltip from "../../elements/Tooltip";
+import DataframeSelect from "../../elements/DataframeSelect";
 
 
 interface MeltTaskpaneProps {
@@ -102,44 +101,23 @@ const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
                 setUIState={props.setUIState}           
             />
             <DefaultTaskpaneBody>
-                <Row justify='space-between' align='center' title='Select a dataframe to unpivot.'>
-                    <Col>
-                        <p className='text-header-3'>
-                            Dataframe
-                        </p>
-                    </Col>
-                    <Col>
-                        <Select
-                            value={props.sheetDataArray[params.sheet_index]?.dfName}
-                            onChange={(newDfName: string) => {
-                                const newSheetIndex = props.sheetDataArray.findIndex((sheetData) => {
-                                    return sheetData.dfName == newDfName;
-                                })
-                                
-                                setParams(prevParams => {
-                                    const newParams = getDefaultParams(props.sheetDataArray, newSheetIndex);
-                                    if (newParams) {
-                                        return newParams;
-                                    }
-                                    return {
-                                        ...prevParams,
-                                        sheet_index: newSheetIndex
-                                    }
-                                });
-                            }}
-                            width='medium'
-                        >
-                            {props.sheetDataArray.map(sheetData => {
-                                return (
-                                    <DropdownItem
-                                        key={sheetData.dfName}
-                                        title={sheetData.dfName}
-                                    />
-                                )
-                            })}
-                        </Select>
-                    </Col>
-                </Row>
+                <DataframeSelect
+                    title='Select a dataframe to unpivot.'
+                    sheetDataArray={props.sheetDataArray}
+                    sheetIndex={params.sheet_index}
+                    onChange={(newSheetIndex) => {
+                        setParams(prevParams => {
+                            const newParams = getDefaultParams(props.sheetDataArray, newSheetIndex);
+                            if (newParams) {
+                                return newParams;
+                            }
+                            return {
+                                ...prevParams,
+                                sheet_index: newSheetIndex
+                            }
+                        });
+                    }}
+                />
                 <Row justify='start' align='center' title='Column to use as identifier variables.'>
                     <Col>
                         <p className='text-header-3'>

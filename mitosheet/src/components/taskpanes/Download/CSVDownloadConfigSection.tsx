@@ -1,13 +1,12 @@
 import React from "react";
 import MitoAPI from "../../../jupyter/api";
-import { UIState } from "../../../types";
-import DropdownItem from "../../elements/DropdownItem";
-import Select from "../../elements/Select";
+import { SheetData, UIState } from "../../../types";
+import DataframeSelect from "../../elements/DataframeSelect";
 import Row from "../../spacing/Row";
 
 
 const CSVDownloadConfigSection = (props: {
-    dfNames: string[]
+    sheetDataArray: SheetData[]
     mitoAPI: MitoAPI
     selectedSheetIndex: number
     setUIState: React.Dispatch<React.SetStateAction<UIState>>
@@ -15,36 +14,20 @@ const CSVDownloadConfigSection = (props: {
 
     return (
         <>
-            <Row justify='space-between' align='center'>
-                <p className='text-header-3'>
-                    Dataframe to Export
-                </p>
-                <Select 
-                    width='medium'
-                    value={props.dfNames[props.selectedSheetIndex]}
-                    onChange={(dfName) => {
-                        // Note: If there are duplicated sheet names, then this only lets you select the first one
-                        // We need to add SheetID
-                        const dfNameIndex = props.dfNames.indexOf(dfName)
-                        props.setUIState(prevUIState => {
-                            return {
-                                ...prevUIState,
-                                selectedSheetIndex: dfNameIndex,
-                                exportConfiguration: {exportType: 'csv'}
-                            }
-                        })
-                    }}
-                >
-                    {...props.dfNames.map((dfName, idx) => {
-                        return (
-                            <DropdownItem 
-                                key={idx}
-                                title={dfName}
-                            />
-                        )
-                    })}
-                </Select>
-            </Row>
+            <DataframeSelect
+                title='Dataframe to Export'
+                sheetDataArray={props.sheetDataArray}
+                sheetIndex={props.selectedSheetIndex}
+                onChange={(newSheetIndex) => {
+                    props.setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            selectedSheetIndex: newSheetIndex,
+                            exportConfiguration: {exportType: 'csv'}
+                        }
+                    })
+                }}
+            />
             <Row justify='space-around'>
                 <p className='ma-25px text-align-center'>
                     CSV exports will not reflect any formatting changes made in Mito.

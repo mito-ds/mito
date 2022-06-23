@@ -23,6 +23,7 @@ import { isDatetimeDtype, isNumberDtype, isTimedeltaDtype } from '../../../utils
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import TextButton from '../../elements/TextButton';
 import { isOnlyNumberString } from '../../../utils/numbers';
+import DataframeSelect from '../../elements/DataframeSelect';
 
 
 interface FillNaTaskpaneProps {
@@ -186,44 +187,23 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                 setUIState={props.setUIState}   
             />
             <DefaultTaskpaneBody>
-                <Row justify='space-between' align='center' title='Select the dataframe to fill nan values in.'>
-                    <Col>
-                        <p className='text-header-3'>
-                            Dataframe
-                        </p>
-                    </Col>
-                    <Col>
-                        <Select
-                            value={props.sheetDataArray[params.sheet_index]?.dfName}
-                            onChange={(newDfName: string) => {
-                                const newSheetIndex = props.sheetDataArray.findIndex((sheetData) => {
-                                    return sheetData.dfName == newDfName;
-                                })
-                                
-                                setParams(prevParams => {
-                                    const newParams = getDefaultParams(props.sheetDataArray, newSheetIndex, prevParams.fill_method);
-                                    if (newParams) {
-                                        return newParams;
-                                    }
-                                    return {
-                                        ...prevParams,
-                                        sheet_index: newSheetIndex
-                                    }
-                                });
-                            }}
-                            width='medium'
-                        >
-                            {props.sheetDataArray.map(sheetData => {
-                                return (
-                                    <DropdownItem
-                                        key={sheetData.dfName}
-                                        title={sheetData.dfName}
-                                    />
-                                )
-                            })}
-                        </Select>
-                    </Col>
-                </Row>
+                <DataframeSelect
+                    title='Select the dataframe to fill nan values in.'
+                    sheetDataArray={props.sheetDataArray}
+                    sheetIndex={params.sheet_index}
+                    onChange={(newSheetIndex: number) => {
+                        setParams(prevParams => {
+                            const newParams = getDefaultParams(props.sheetDataArray, newSheetIndex, prevParams.fill_method);
+                            if (newParams) {
+                                return newParams;
+                            }
+                            return {
+                                ...prevParams,
+                                sheet_index: newSheetIndex
+                            }
+                        });
+                    }}
+                />
                 <Spacer px={15}/>
                 <Row justify='space-between' align='center' title='Select the columns to fill nan values in.'>
                     <Col>
