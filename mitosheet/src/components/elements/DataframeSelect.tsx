@@ -26,7 +26,7 @@ interface DataframeSelectPros {
     */
     title?: string;
     /**
-        * @param [sheetIndexToIgnore] - If there is a sheets you don't want displayed in the dropdown, then pass them here
+        * @param [sheetIndexToIgnore] - If there is a sheets you don't want displayed in the dropdown, then pass it here
     */
     sheetIndexToIgnore?: number;
 }
