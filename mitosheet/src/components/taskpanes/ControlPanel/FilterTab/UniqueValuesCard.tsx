@@ -126,7 +126,6 @@ export function UniqueValuesCard(
 
         if (_uniqueValueObj !== undefined) {
             const _uniqueValueObjs = _uniqueValueObj.uniqueValueCounts
-            console.log("Got", _uniqueValueObjs)
             setUniqueValueCounts(_uniqueValueObjs);
             setIsAllData(_uniqueValueObj.isAllData);
             setToggledValues([]);
@@ -145,7 +144,7 @@ export function UniqueValuesCard(
                 <Col flex='1' offsetRight={1}>
                     <Row justify='start' align='center' suppressTopBottomMargin>
                         <Col>
-                            <p className='text-header-2'> 
+                            <p className='text-header-3'> 
                                 Unique Values
                             </p>
                         </Col>

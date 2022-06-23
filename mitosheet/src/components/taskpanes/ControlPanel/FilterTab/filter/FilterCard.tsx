@@ -53,6 +53,7 @@ function FilterCard (props: FilterCardProps): JSX.Element {
         },
         StepType.FilterColumn,
         props.mitoAPI, props.analysisData, FILTER_MESSAGE_DELAY, 
+        true,
         (params) => {
             // To handle decimals, we allow decimals to be submitted, and then just
             // parse them before they are sent to the back-end
@@ -282,7 +283,7 @@ function FilterCard (props: FilterCardProps): JSX.Element {
         <div>
             <Row justify='space-between'>
                 <Col>
-                    <div className='text-header-2'>
+                    <div className='text-header-3'>
                         <p> Filter </p>
                     </div>
                 </Col>

@@ -30,6 +30,7 @@ function useLiveUpdatingParams<ParamType>(
     mitoAPI: MitoAPI,
     analysisData: AnalysisData,
     debounceDelay: number,
+    doNotSendDefaultParams?: boolean,
     finalTransform?: ((params: ParamType) => ParamType)
 ): {
         params: ParamType | undefined, // If this is undefined, no messages will be sent to the backend
@@ -74,7 +75,7 @@ function useLiveUpdatingParams<ParamType>(
 
     const onChange = async () => {
         // Do not send an edit message if the params are undefined
-        if (params === undefined) {
+        if (params === undefined || (updateNumber === 0 && doNotSendDefaultParams)) {
             return;
         }
 
