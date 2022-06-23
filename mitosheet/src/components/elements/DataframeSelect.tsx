@@ -7,7 +7,7 @@ import Row from '../spacing/Row';
 import DropdownItem from './DropdownItem';
 import Select from './Select';
 
-interface ColorInputProps {
+interface DataframeSelectPros {
     /** 
         * @param sheetDataArray - the sheet data to select from
     */
@@ -36,7 +36,7 @@ interface ColorInputProps {
  * that allows users to select which dataframe they want to operate on. It
  * comes with a label.
  */
-const DataframeSelect = (props: ColorInputProps): JSX.Element => {
+const DataframeSelect = (props: DataframeSelectPros): JSX.Element => {
 
     // We only show the names that were initially used when this element is
     // rendered, as the dataframe selects never want to let users select
