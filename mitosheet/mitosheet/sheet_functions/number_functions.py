@@ -225,7 +225,7 @@ def LOG(series: pd.Series, base: Union[int, float]=None) -> pd.Series:
     """
     {
         "function": "LOG",
-        "description": "Returns the log value among the passed arguments.",
+        "description": "Calculates the logarithm of the passed series with an optional base.",
         "search_terms": ["log", "logarithm", "natural log"],
         "examples": [
             "LOG(e) = 1",
@@ -234,11 +234,11 @@ def LOG(series: pd.Series, base: Union[int, float]=None) -> pd.Series:
         "syntax": "LOG(series, [base])",
         "syntax_elements": [{
                 "element": "series",
-                "description": "The series you want to transform with the log function."
+                "description": "The series to take the logarithm of."
             },
             {
                 "element": "base [OPTIONAL]",
-                "description": "The base of the logarithm to take the values on. Defaults to the natural logarithm if no base is passed"
+                "description": "The base of the logarithm to use. Defaults to the natural logarithm if no base is passed."
             }
         ]
     }
