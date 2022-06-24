@@ -210,7 +210,7 @@ def combine_filter_strings(
     splitting the lines at 120 characters.
 
     NOTE: we choose to keep groups together for readibility, and so do not
-    split the lines if we are combing a group.
+    split the lines if we are combining a group.
     """
     # Filter out any empty strings
     filter_strings = list(filter(lambda x: len(x) != 0, filter_strings))

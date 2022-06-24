@@ -21,5 +21,6 @@ def get_deduplicated_list(l: List[Any], preserve_order: bool=True) -> List[Any]:
 
 
 def get_list_difference(l1: List[Any], l2: List[Any]) -> List[Any]:
+    """Returns the values in l1 that are not in l2"""
     second = set(l2)
     return [item for item in l1 if item not in second]

@@ -59,7 +59,7 @@ export const formatCellData = (cellData: boolean | string | number, columnDtype:
                         // If the column is an int, default to 0 decimal places
                         return formatCellDataAsStringWithCommas(cellData, 0)
                     } else {
-                        // We show the floats with a single decimal by dfault
+                        // We show the floats with a single decimal by default
                         return formatCellDataAsStringWithCommas(cellData, 1)
                     }
                 case FormatType.PLAIN_TEXT:

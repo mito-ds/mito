@@ -140,7 +140,7 @@ export function UniqueValuesCard(
 
     return (
         <Fragment>
-            <Row justify='space-between'>
+            <Row justify='space-between' align='center'>
                 <Col flex='1' offsetRight={1}>
                     <Row justify='start' align='center' suppressTopBottomMargin>
                         <Col>
@@ -148,10 +148,8 @@ export function UniqueValuesCard(
                                 Unique Values
                             </p>
                         </Col>
-                        <Col offset={1} title='Click to refresh unique values, in the case they are out of date.'>
-                            <div onClick={loadUniqueValueCounts}>
-                                <RedoIcon/>
-                            </div>
+                        <Col offset={1} title='Click to refresh unique values, in the case they are out of date.' onClick={loadUniqueValueCounts}>
+                            <RedoIcon strokeWidth='2'/>
                         </Col>
                     </Row>
                 </Col>

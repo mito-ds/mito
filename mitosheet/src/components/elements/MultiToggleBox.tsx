@@ -31,7 +31,7 @@ const MultiToggleBoxMessage = (props: {loading?: boolean, maxDisplayed: boolean,
         return (
             <Row justify='center'>
                 <p className='text-body-1 text-align-center'> 
-                    There are too many items to display. Search to filter down to the items you care about.
+                    Displaying the first {MAX_DISPLAYED} items. Search for items you want.
                 </p>
             </Row>
         )
@@ -176,7 +176,7 @@ const MultiToggleBox = (props: {
     // information about how many children are passed and displayed
     const childrenToDisplay = React.Children.map((props.children), (child) => {
 
-        const title: null | undefined | string | number = child.props.title;
+        const title: null | undefined | string | number | React.ReactNode = child.props.title;
         const rightText: null | undefined | string | number = child.props.rightText;
         const toggled: null | undefined | boolean = child.props.toggled;
 
@@ -184,10 +184,12 @@ const MultiToggleBox = (props: {
             numToggled++;
         }
 
-        const noTitleMatch = title === null || title === undefined || fuzzyMatch(title + '', searchString) < .8;
-        const noRightTextMatch = props.searchRightText && title === null || title === undefined || fuzzyMatch(rightText + '', searchString) < .8;
+        console.log(title?.toString())
 
-        // Don't display if it doesn't match either of the title or the right text
+        const noTitleMatch = title === null || title === undefined || fuzzyMatch(title?.toString(), searchString) < .8;
+        const noRightTextMatch = (!props.searchRightText) || (title === null || title === undefined || fuzzyMatch(rightText + '', searchString) < .8);
+
+        // Don't display if it doesn't match either of the title
         if (noTitleMatch && noRightTextMatch) {
             if (toggled) {
                 numToggledButNotDisplayed++;
@@ -195,6 +197,8 @@ const MultiToggleBox = (props: {
 
             return null;
         }
+
+
 
         // Don't display if we've displayed enough already
         if (numDisplayed > MAX_DISPLAYED) {

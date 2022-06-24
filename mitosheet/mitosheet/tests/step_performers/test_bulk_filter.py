@@ -66,6 +66,17 @@ BULK_FILTER_TESTS = [
             df.copy(deep=True)
         ],
         0, 
+        "D", 
+        {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 'string', 'remove_from_dataframe': False},
+        [
+            df
+        ]
+    ),
+    (
+        [
+            df.copy(deep=True)
+        ],
+        0, 
         "E", 
         {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': pd.to_datetime('12-22-1997'), 'remove_from_dataframe': True},
         [
