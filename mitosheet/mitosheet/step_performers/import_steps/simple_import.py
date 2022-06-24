@@ -17,7 +17,7 @@ from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk
 from mitosheet.step_performers.utils import get_param
 
 from mitosheet.utils import get_valid_dataframe_names
-from mitosheet.errors import make_invalid_promote_row_to_header, make_invalid_simple_import_error, make_is_directory_error
+from mitosheet.errors import get_recent_traceback, make_invalid_promote_row_to_header, make_invalid_simple_import_error, make_is_directory_error
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 
@@ -72,6 +72,7 @@ class SimpleImportStepPerformer(StepPerformer):
                     delimeter = delimeters[index]
                     encoding = encodings[index]
                     error_bad_lines = error_bad_lines[index]
+                    print(get_read_csv_params(delimeter, encoding, error_bad_lines))
                     df = pd.read_csv(file_name, **get_read_csv_params(delimeter, encoding, error_bad_lines))
                     pandas_processing_time += (perf_counter() - partial_pandas_start_time)
                 else:
@@ -79,6 +80,7 @@ class SimpleImportStepPerformer(StepPerformer):
                     error_bad_lines = True
                     pandas_processing_time += (perf_counter() - partial_pandas_start_time)
             except:
+                print(get_recent_traceback())
                 # TODO: check if this works when replaying an analysis. I think it might just _not_ error or something!
                 raise make_invalid_simple_import_error()
 
@@ -93,13 +95,6 @@ class SimpleImportStepPerformer(StepPerformer):
                 df_name=df_name,
                 use_deprecated_id_algorithm=use_deprecated_id_algorithm
             )   
-
-        print( {
-            'file_delimeters': file_delimeters,
-            'file_encodings': file_encodings,
-            'file_error_bad_lines': file_error_bad_lines,
-            'pandas_processing_time': pandas_processing_time
-        })
 
         # Save the renames that have occured in the step, for transpilation reasons
         # and also save the seperator that we used for each file

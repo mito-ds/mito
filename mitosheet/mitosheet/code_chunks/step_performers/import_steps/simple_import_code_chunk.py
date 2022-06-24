@@ -14,8 +14,7 @@ from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_cod
 # We use 'default' instead of None to ensure that we log the encoding even when we don't need to set one.
 DEFAULT_ENCODING = 'default'
 DEFAULT_DELIMETER = ','
-DEFAULT_ERROR_BAD_LINES = ','
-
+DEFAULT_ERROR_BAD_LINES = True
 
 def get_read_csv_params(delimeter: str, encoding: str, error_bad_lines: bool) -> Dict[str, Any]:
     from mitosheet.saved_analyses.schema_utils import is_prev_version
@@ -25,7 +24,7 @@ def get_read_csv_params(delimeter: str, encoding: str, error_bad_lines: bool) ->
         params['encoding'] = encoding
     if delimeter != DEFAULT_DELIMETER:
         params['sep'] = delimeter
-    if delimeter != DEFAULT_ERROR_BAD_LINES:
+    if error_bad_lines != DEFAULT_ERROR_BAD_LINES:
         # See here: https://datascientyst.com/drop-bad-lines-with-read_csv-pandas/
         if is_prev_version(pd.__version__, '1.3.0'):
             params['error_bad_lines'] = error_bad_lines
@@ -58,7 +57,6 @@ class SimpleImportCodeChunk(CodeChunk):
         return f'Imported {", ".join(base_names)}'
 
     def get_code(self) -> List[str]:
-        print(self.execution_data)
         file_names = self.get_param('file_names')
         file_delimeters = self.get_execution_data('file_delimeters')
         file_encodings = self.get_execution_data('file_encodings')

@@ -233,6 +233,7 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                 setUIState={props.setUIState} 
                 importState={importState}
                 error={importError}
+                setError={setImportError}
             />
         )
     }

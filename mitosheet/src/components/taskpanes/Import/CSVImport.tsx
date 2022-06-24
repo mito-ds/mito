@@ -59,9 +59,6 @@ const ENCODINGS = [
     "cp1006",
     "cp1026",
     "cp1125",
-    "",
-    "",
-    "",
     "cp1140",
     "cp1250",
     "cp1251",
@@ -126,9 +123,9 @@ const ENCODINGS = [
     "utf_8_sig"
 ] 
 
-const DELIMETER_TOOLTIP = 'TODO DELIM'
-const ENCODING_TOOLTIP = 'TODO ENCODING'
-const ERROR_BAD_LINES_TOOLTIP = 'TODO Error'
+const DELIMETER_TOOLTIP = 'The text that seperates one column from another.'
+const ENCODING_TOOLTIP = 'Set the encoding used to save this file.' // I can't think of anything better lol
+const ERROR_BAD_LINES_TOOLTIP = 'Turn on to skip any lines that are missing fields.'
 
 
 interface CSVImportProps {
@@ -141,6 +138,7 @@ interface CSVImportProps {
     fileForImportWizard: FileElement | undefined,
     setFileForImportWizard: React.Dispatch<React.SetStateAction<FileElement | undefined>>;
     error: MitoError | undefined;
+    setError: React.Dispatch<React.SetStateAction<MitoError | undefined>>;
 }
 
 // This is our guesses about the metadata of the file
@@ -211,6 +209,12 @@ function CSVImport(props: CSVImportProps): JSX.Element {
 
         void loadMetadata()
     }, []);
+
+    useEffect(() => {
+        if (editApplied) {
+            props.setError(undefined);
+        }
+    }, [editApplied])
 
     const resetParams = () => {
         setParams(prevParams => {
@@ -294,7 +298,7 @@ function CSVImport(props: CSVImportProps): JSX.Element {
                                 })
                             }}>
                             {(ENCODINGS).map((encoding) => {
-                                return <DropdownItem title={encoding}/>
+                                return <DropdownItem key={encoding} title={encoding}/>
                             })}
                         </Select>
                     </Col>
@@ -336,7 +340,7 @@ function CSVImport(props: CSVImportProps): JSX.Element {
             <DefaultTaskpaneFooter>
                 {!isMitoError(props.error) &&
                     <p className='text-body-2 text-color-medium-gray-important mb-5px'>
-                        Mito guesses the above parameters correct above 90% of the time. Try importing Mito's detected configuration. <span className='text-underline' onClick={resetParams}>Reset parameters. </span> 
+                        Mito guesses the above parameters correct above 90% of the time. Try importing Mito&apos;s detected configuration. <span className='text-underline' onClick={resetParams}>Reset parameters. </span> 
                     </p>
                 }
                 <TextButton

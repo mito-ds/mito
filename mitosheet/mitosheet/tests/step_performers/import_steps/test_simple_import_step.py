@@ -9,6 +9,7 @@ Contains tests for simple import steps
 import pytest
 import pandas as pd
 import os
+from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DELIMETER, DEFAULT_ENCODING
 
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 
@@ -426,4 +427,39 @@ def test_multiple_imports_optimize_stopped_by_rename():
     # Remove the test file
     os.remove(TEST_FILE_PATHS[0])
 
-# TODO: test skip invalid lines!
+def test_skip_invalid_lines():
+    df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+    df.to_csv(TEST_FILE_PATHS[0], index=False)
+
+    with open(TEST_FILE_PATHS[0], 'w+') as f:
+        f.write("""FirstName,LastName,Team,Position,JerseyNumber,Salary,Birthdate
+Joe,Pavelski,SJ,C,8,6000000,1984-07-11
+Connor,Mc,David,EDM,C,97,925000,1997-01-13
+Sidney ,Crosby,PIT,C,87,8700000,1987-08-07
+Carey,Price,MTL,G,31,10,500,000,1987-08-16
+Daniel,Sedin,VAN,LW,22,1,1980-09-26
+Henrik,Sedin,VAN,C,33,1,1980-09-26""")
+
+    mito = create_mito_wrapper_dfs()
+    mito.simple_import([TEST_FILE_PATHS[0]], [DEFAULT_DELIMETER], [DEFAULT_ENCODING], [True])
+
+    print(mito.dfs)
+    
+    assert len(mito.dfs) == 0
+
+    mito.simple_import([TEST_FILE_PATHS[0]], [DEFAULT_DELIMETER], [DEFAULT_ENCODING], [False])
+
+
+    from io import StringIO
+
+    TESTDATA = StringIO("""FirstName,LastName,Team,Position,JerseyNumber,Salary,Birthdate
+Joe,Pavelski,SJ,C,8,6000000,1984-07-11
+Connor,Mc,David,EDM,C,97,925000,1997-01-13
+Sidney ,Crosby,PIT,C,87,8700000,1987-08-07
+Carey,Price,MTL,G,31,10,500,000,1987-08-16
+Daniel,Sedin,VAN,LW,22,1,1980-09-26
+Henrik,Sedin,VAN,C,33,1,1980-09-26""")
+
+    df = pd.read_csv(TESTDATA, on_bad_lines='skip')
+    assert mito.dfs[0].equals(df)
+    assert len(mito.dfs[0].index) == 4

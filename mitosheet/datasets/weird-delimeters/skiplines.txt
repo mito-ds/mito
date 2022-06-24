@@ -1,0 +1,7 @@
+FirstName,LastName,Team,Position,JerseyNumber,Salary,Birthdate
+Joe,Pavelski,SJ,C,8,6000000,1984-07-11
+Connor,Mc,David,EDM,C,97,925000,1997-01-13
+Sidney ,Crosby,PIT,C,87,8700000,1987-08-07
+Carey,Price,MTL,G,31,10,500,000,1987-08-16
+Daniel,Sedin,VAN,LW,22,,1980-09-26
+Henrik,Sedin,VAN,C,33,,1980-09-26

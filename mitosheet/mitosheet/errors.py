@@ -452,11 +452,11 @@ def make_invalid_simple_import_error(error_modal: bool=False) -> MitoError:
 
     Occurs when a user tries to simple import and it fails
     """
-    to_fix = f'This row has duplicated values in it. As such, making this row a header would make column references ambigious, so we cannot make it a header row.' 
+    to_fix = f'We were unable to automatically determine a delimeter and encoding. Please select a delemeter and encoding.' 
     
     return MitoError(
         'invalid_simple_import_error', 
-        "Cannot create duplicate headers",
+        "Cannot Determine File Data",
         to_fix,
         error_modal=error_modal
     )
