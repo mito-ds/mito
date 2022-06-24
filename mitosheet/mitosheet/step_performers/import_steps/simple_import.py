@@ -13,11 +13,11 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import chardet
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import SimpleImportCodeChunk
+from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DELIMETER, DEFAULT_ENCODING, SimpleImportCodeChunk, get_read_csv_params
 from mitosheet.step_performers.utils import get_param
 
 from mitosheet.utils import get_valid_dataframe_names
-from mitosheet.errors import make_is_directory_error
+from mitosheet.errors import make_invalid_promote_row_to_header, make_invalid_simple_import_error, make_is_directory_error
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 
@@ -40,6 +40,10 @@ class SimpleImportStepPerformer(StepPerformer):
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         file_names: List[str] = get_param(params, 'file_names')
+        delimeters: Optional[List[str]] = get_param(params, 'delimeters')
+        encodings: Optional[List[str]] = get_param(params, 'encodings')
+        error_bad_lines: Optional[List[str]] = get_param(params, 'error_bad_lines')
+
         use_deprecated_id_algorithm: bool = get_param(params, 'use_deprecated_id_algorithm') if get_param(params, 'use_deprecated_id_algorithm') else False
 
         # If any of the files are directories, we throw an error to let
@@ -53,32 +57,56 @@ class SimpleImportStepPerformer(StepPerformer):
 
         file_delimeters = []
         file_encodings = []
+        file_error_bad_lines = []
 
         just_final_file_names = [basename(normpath(file_name)) for file_name in file_names]
 
         pandas_processing_time = 0.0
-        for file_name, df_name in zip(file_names, get_valid_dataframe_names(post_state.df_names, just_final_file_names)):
+        for index, (file_name, df_name) in enumerate(zip(file_names, get_valid_dataframe_names(post_state.df_names, just_final_file_names))):
             
             partial_pandas_start_time = perf_counter()
-            df, delimeter, encoding = read_csv_get_delimeter_and_encoding(file_name)
-            pandas_processing_time += (perf_counter() - partial_pandas_start_time)
+
+            # NOTE: if you specify one, specify them all!
+            try:
+                if delimeters is not None and encodings is not None and error_bad_lines is not None:
+                    delimeter = delimeters[index]
+                    encoding = encodings[index]
+                    error_bad_lines = error_bad_lines[index]
+                    df = pd.read_csv(file_name, **get_read_csv_params(delimeter, encoding, error_bad_lines))
+                    pandas_processing_time += (perf_counter() - partial_pandas_start_time)
+                else:
+                    df, delimeter, encoding = read_csv_get_delimeter_and_encoding(file_name)
+                    error_bad_lines = True
+                    pandas_processing_time += (perf_counter() - partial_pandas_start_time)
+            except:
+                # TODO: check if this works when replaying an analysis. I think it might just _not_ error or something!
+                raise make_invalid_simple_import_error()
 
             # Save the delimeter and encodings for transpiling
             file_delimeters.append(delimeter)
             file_encodings.append(encoding)
-            
+            file_error_bad_lines.append(error_bad_lines)
+
             post_state.add_df_to_state(
                 df, 
                 DATAFRAME_SOURCE_IMPORTED, 
                 df_name=df_name,
                 use_deprecated_id_algorithm=use_deprecated_id_algorithm
             )   
- 
+
+        print( {
+            'file_delimeters': file_delimeters,
+            'file_encodings': file_encodings,
+            'file_error_bad_lines': file_error_bad_lines,
+            'pandas_processing_time': pandas_processing_time
+        })
+
         # Save the renames that have occured in the step, for transpilation reasons
         # and also save the seperator that we used for each file
         return post_state, {
             'file_delimeters': file_delimeters,
             'file_encodings': file_encodings,
+            'file_error_bad_lines': file_error_bad_lines,
             'pandas_processing_time': pandas_processing_time
         }
 
@@ -99,15 +127,15 @@ class SimpleImportStepPerformer(StepPerformer):
         return {-1}
 
 
+
+
 def read_csv_get_delimeter_and_encoding(file_name: str) -> Tuple[pd.DataFrame, str, str]:
     """
     Given a file_name, will read in the file as a CSV, and
     return the df, delimeter, and encoding of the file
     """
-    # We use 'default' instead of None to ensure that we log the encoding even when we don't need to set one.
-    encoding = 'default'
-    # Also set a default delemeter
-    delimeter = ','
+    encoding = DEFAULT_ENCODING
+    delimeter = DEFAULT_DELIMETER
     try:
         # First attempt to read csv without specifying an encoding, just with a delimeter
         delimeter = guess_delimeter(file_name)

@@ -3,14 +3,18 @@
 import React, { useEffect, useState } from 'react';
 // Import 
 import MitoAPI, { PathContents } from '../../../jupyter/api';
-import { AnalysisData, UIState, UserProfile } from '../../../types';
+import { AnalysisData, MitoError, UIState, UserProfile } from '../../../types';
+import { isMitoError } from '../../../utils/errors';
 import TextButton from '../../elements/TextButton';
+import Col from '../../spacing/Col';
+import Row from '../../spacing/Row';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultTaskpaneFooter from '../DefaultTaskpane/DefaultTaskpaneFooter';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
+import CSVImport from './CSVImport';
 import FileBrowser from './FileBrowser';
-import { getElementsToDisplay, getFileEnding, getImportButtonStatus } from './importUtils';
+import { getElementsToDisplay, getFileEnding, getImportButtonStatus, isExcelFile } from './importUtils';
 import XLSXImport from './XLSXImport';
 
 interface ImportTaskpaneProps {
@@ -59,10 +63,13 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
 
     // If the file being imported is an XLSX, we need additional configuration
     // and so we use an import wizard for help
-    const [fileForImportWizard, setFileForImportWizard] = useState<string | undefined>(undefined);
+    const [fileForImportWizard, setFileForImportWizard] = useState<FileElement | undefined>(undefined);
     // It is very convenient to have the full joined path for the file, so this state and the 
     // effect below it make it possible to access this easily
     const [fullFileNameForImportWizard, setFullFileNameForImportWizard] = useState<string | undefined>(undefined)
+
+    // Track if there has been an error
+    const [importError, setImportError] = useState<MitoError | undefined>(undefined);
 
     useEffect(() => {
         const getFullFileNameForImportWizard = async (fileForImportWizard: string): Promise<void> => {
@@ -72,7 +79,7 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
             setFullFileNameForImportWizard(fullFileName);
         }
         if (fileForImportWizard !== undefined) {
-            void getFullFileNameForImportWizard(fileForImportWizard);
+            void getFullFileNameForImportWizard(fileForImportWizard.name);
         } else {
             setFullFileNameForImportWizard(undefined);
         }
@@ -164,8 +171,8 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
             return;
         }
 
-        if (!element?.isDirectory && element?.name.toLowerCase().endsWith('.xlsx')) {
-            setFileForImportWizard(element.name);
+        if (isExcelFile(element)) {
+            setFileForImportWizard(element);
             return;
         }
 
@@ -183,7 +190,14 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                 loadingImport: true
             }
         })
-        await props.mitoAPI.editSimpleImport([joinedPath])
+        const possibleMitoError = await props.mitoAPI.editSimpleImport([joinedPath])
+        if (isMitoError(possibleMitoError)) {
+            // If this an error, then we open the CSV config 
+            setImportError(possibleMitoError);
+            setFileForImportWizard(element);
+        } 
+
+
         setImportState(prevImportState => {
             return {
                 ...prevImportState,
@@ -194,7 +208,7 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
 
     const importButtonStatus = getImportButtonStatus(selectedElement, props.userProfile.excelImportEnabled, importState.loadingImport);
     
-    if (fullFileNameForImportWizard !== undefined) {
+    if (fullFileNameForImportWizard !== undefined && isExcelFile(fileForImportWizard)) {
         return (
             <XLSXImport
                 mitoAPI={props.mitoAPI}
@@ -205,6 +219,20 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                 setImportState={setImportState}
                 setUIState={props.setUIState} 
                 importState={importState}
+            />
+        )
+    } else if (fullFileNameForImportWizard !== undefined) {
+        return (
+            <CSVImport
+                mitoAPI={props.mitoAPI}
+                analysisData={props.analysisData}
+                fileName={fullFileNameForImportWizard}
+                fileForImportWizard={fileForImportWizard}
+                setFileForImportWizard={setFileForImportWizard}
+                setImportState={setImportState}
+                setUIState={props.setUIState} 
+                importState={importState}
+                error={importError}
             />
         )
     }
@@ -228,16 +256,37 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                 />
             </DefaultTaskpaneBody>
             <DefaultTaskpaneFooter>
-                <TextButton
-                    variant='dark'
-                    width='block'
-                    onClick={() => {
-                        void importElement(selectedElement);
-                    }}
-                    disabled={importButtonStatus.disabled}
-                >
-                    {importButtonStatus.buttonText}
-                </TextButton>
+                <Row justify='space-between'>
+                    {/** TODO: maybe we should make this display on XLSX, and just allow for default import as well on that! */}
+                    {!importButtonStatus.disabled && !isExcelFile(selectedElement) &&
+                        <Col>
+                            <TextButton
+                                variant='light'
+                                width='small'
+                                onClick={() => {
+                                    setImportError(undefined);
+                                    setFileForImportWizard(selectedElement);
+                                }}
+                                disabled={importButtonStatus.disabled}
+                            >
+                                Configure
+                            </TextButton>
+                        </Col>
+                    }
+                    <Col span={!importButtonStatus.disabled && !isExcelFile(selectedElement) ? 18 : 24}>
+                        <TextButton
+                            variant='dark'
+                            width='block'
+                            onClick={() => {
+                                void importElement(selectedElement);
+                            }}
+                            disabled={importButtonStatus.disabled}
+                        >
+                            {importButtonStatus.buttonText}
+                        </TextButton>
+                    </Col>
+                </Row>
+                
             </DefaultTaskpaneFooter>
         </DefaultTaskpane>            
     )

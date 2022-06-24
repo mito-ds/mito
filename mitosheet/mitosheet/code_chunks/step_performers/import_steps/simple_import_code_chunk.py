@@ -5,30 +5,46 @@
 # Distributed under the terms of the GPL License.
 
 import os
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
+import pandas as pd
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+
+# We use 'default' instead of None to ensure that we log the encoding even when we don't need to set one.
+DEFAULT_ENCODING = 'default'
+DEFAULT_DELIMETER = ','
+DEFAULT_ERROR_BAD_LINES = ','
 
 
-def generate_read_csv_code(file_name: str, df_name: str, delimeter: str, encoding: str) -> str:
+def get_read_csv_params(delimeter: str, encoding: str, error_bad_lines: bool) -> Dict[str, Any]:
+    from mitosheet.saved_analyses.schema_utils import is_prev_version
+    params = {}
+
+    if encoding != DEFAULT_ENCODING:
+        params['encoding'] = encoding
+    if delimeter != DEFAULT_DELIMETER:
+        params['sep'] = delimeter
+    if delimeter != DEFAULT_ERROR_BAD_LINES:
+        # See here: https://datascientyst.com/drop-bad-lines-with-read_csv-pandas/
+        if is_prev_version(pd.__version__, '1.3.0'):
+            params['error_bad_lines'] = error_bad_lines
+        else:
+            params['on_bad_lines'] = 'skip'
+    
+    return params
+
+
+def generate_read_csv_code(file_name: str, df_name: str, delimeter: str, encoding: str, error_bad_lines: bool) -> str:
     """
     Helper function for generating minimal read_csv code 
     depending on the delimeter and the encoding of a file
     """
-    if encoding != 'default' and delimeter != ',':
-        # If there is a non comma delimieter and an encoding, we use both.
-        # NOTE: we add a r in front of the string so that it is a raw string
-        # and file slashes are not interpreted as a unicode sequence
-        return f'{df_name} = pd.read_csv(r\'{file_name}\', sep=\'{delimeter}\', encoding=\'{encoding}\')'
-    elif encoding != 'default':
-        # If there is a comma delimieter and an encoding, we set the encoding
-        return f'{df_name} = pd.read_csv(r\'{file_name}\', encoding=\'{encoding}\')'
-    elif delimeter != ',':
-        # If there is a delimeter for this file, we use it
-        return f'{df_name} = pd.read_csv(r\'{file_name}\', sep=\'{delimeter}\')'
-    else:
-        # We don't add or encoding if they are the Default.
-        return f'{df_name} = pd.read_csv(r\'{file_name}\')'
+
+    params = get_read_csv_params(delimeter, encoding, error_bad_lines)
+    params_string = ', '.join(f'{key}={column_header_to_transpiled_code(value)}' for key, value in params.items())
+
+    return f'{df_name} = pd.read_csv(r\'{file_name}\'{", " if len(params_string) > 0 else ""}{params_string})'
 
 
 class SimpleImportCodeChunk(CodeChunk):
@@ -42,9 +58,11 @@ class SimpleImportCodeChunk(CodeChunk):
         return f'Imported {", ".join(base_names)}'
 
     def get_code(self) -> List[str]:
+        print(self.execution_data)
         file_names = self.get_param('file_names')
         file_delimeters = self.get_execution_data('file_delimeters')
         file_encodings = self.get_execution_data('file_encodings')
+        file_error_bad_lines = self.get_execution_data('file_error_bad_lines')
 
         code = ['import pandas as pd']
 
@@ -53,9 +71,11 @@ class SimpleImportCodeChunk(CodeChunk):
 
             delimeter = file_delimeters[index]
             encoding = file_encodings[index]
+            error_bad_lines = file_error_bad_lines[index]
+
 
             code.append(
-                generate_read_csv_code(file_name, df_name, delimeter, encoding)
+                generate_read_csv_code(file_name, df_name, delimeter, encoding, error_bad_lines)
             )
             
             index += 1
@@ -71,6 +91,7 @@ class SimpleImportCodeChunk(CodeChunk):
         file_names = self.get_param('file_names') + other_code_chunk.get_param('file_names')
         new_file_delimeters = self.get_execution_data('file_delimeters') + other_code_chunk.get_execution_data('file_delimeters')
         new_file_encodings = self.get_execution_data('file_encodings') + other_code_chunk.get_execution_data('file_encodings')
+        new_error_bad_lines = self.get_execution_data('file_error_bad_lines') + other_code_chunk.get_execution_data('file_error_bad_lines')
 
         return SimpleImportCodeChunk(
             self.prev_state,
@@ -79,6 +100,7 @@ class SimpleImportCodeChunk(CodeChunk):
             {
                 'file_delimeters': new_file_delimeters,
                 'file_encodings': new_file_encodings,
+                'file_error_bad_lines': new_error_bad_lines
             }
         )
 

@@ -101,6 +101,10 @@ export const getImportButtonStatus = (selectedElement: FileElement | undefined, 
     };
 }
 
+export const isExcelFile = (element: FileElement | undefined): boolean => {
+    return element !== undefined && !element?.isDirectory && element?.name.toLowerCase().endsWith('.xlsx');
+}
+
 export const getElementsToDisplay = (importState: ImportTaskpaneState): FileElement[] => {
 
     const allElements: FileElement[] = [...importState.pathContents.elements];

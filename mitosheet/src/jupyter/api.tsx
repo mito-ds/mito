@@ -4,6 +4,7 @@ import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPan
 import { SortDirection } from "../components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
 import { GraphObject } from "../components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
 import { UniqueValueCount, UniqueValueSortType } from "../components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
+import { CSVFileMetadata } from "../components/taskpanes/Import/CSVImport";
 import { FileElement } from "../components/taskpanes/Import/ImportTaskpane";
 import { ExcelFileMetadata } from "../components/taskpanes/Import/XLSXImport";
 import { valuesArrayToRecord } from "../components/taskpanes/PivotTable/pivotUtils";
@@ -446,6 +447,27 @@ export default class MitoAPI {
 
         if (excelFileMetadataString !== undefined && excelFileMetadataString !== '') {
             return JSON.parse(excelFileMetadataString);
+        }
+        return undefined;
+    }
+
+    /*
+        Gets metadata about an Excel file
+    */
+    async getCSVFileMetadata(
+        fileNames: string[]
+    ): Promise<CSVFileMetadata | undefined> {
+
+        const csvFileMetadataString = await this.send<string>({
+            'event': 'api_call',
+            'type': 'get_csv_file_metadata',
+            'params': {
+                'file_names': fileNames
+            },
+        }, {})
+
+        if (csvFileMetadataString !== undefined && csvFileMetadataString !== '') {
+            return JSON.parse(csvFileMetadataString);
         }
         return undefined;
     }
@@ -1069,14 +1091,11 @@ export default class MitoAPI {
     */
     async editSimpleImport(
         fileNames: string[],
-        stepID?: string,
-    ): Promise<string> {
+    ): Promise<MitoError | undefined> {
 
-        if (stepID === undefined || stepID == '') {
-            stepID = getRandomId();
-        }
+        const stepID = getRandomId();
 
-        await this.send({
+        const result: MitoError | undefined = await this.send({
             'event': 'edit_event',
             'type': 'simple_import_edit',
             'step_id': stepID,
@@ -1085,7 +1104,7 @@ export default class MitoAPI {
             }
         }, {})
 
-        return stepID;
+        return result;
     }
 
     /*

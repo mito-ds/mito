@@ -21,6 +21,35 @@ FAKE_FILE_PATHS = [
     'never_exists.csv'
 ]
 
+SIMPLE_IMPORT_TESTS = [
+    (
+        pd.DataFrame({'A': [1, 2, 3]}),
+        ';', 
+        'utf-8',
+        False
+    ),
+    (
+        pd.DataFrame({'A': [1, 2, 3]}),
+        '|', 
+        'big5',
+        True
+    ),
+]
+@pytest.mark.parametrize("input_df, delimeter, encoding, error_bad_lines", SIMPLE_IMPORT_TESTS)
+def test_simple_import(input_df, delimeter, encoding, error_bad_lines):
+    input_df.to_csv(TEST_FILE_PATHS[0], index=False, sep=delimeter, encoding=encoding)
+
+    # Create with no dataframes
+    mito = create_mito_wrapper_dfs()
+    # And then import just a test file
+    mito.simple_import([TEST_FILE_PATHS[0]], [delimeter], [encoding], [error_bad_lines])
+
+    # Remove the test file
+    os.remove(TEST_FILE_PATHS[0])
+
+    assert len(mito.dfs) == 1
+    assert mito.dfs[0].equals(input_df)
+
 def test_rolls_back_on_failed_import():
 
     # Create with no dataframes
@@ -396,3 +425,5 @@ def test_multiple_imports_optimize_stopped_by_rename():
 
     # Remove the test file
     os.remove(TEST_FILE_PATHS[0])
+
+# TODO: test skip invalid lines!
