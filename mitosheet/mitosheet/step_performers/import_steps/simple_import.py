@@ -42,7 +42,7 @@ class SimpleImportStepPerformer(StepPerformer):
         file_names: List[str] = get_param(params, 'file_names')
         delimeters: Optional[List[str]] = get_param(params, 'delimeters')
         encodings: Optional[List[str]] = get_param(params, 'encodings')
-        error_bad_lines: Optional[List[str]] = get_param(params, 'error_bad_lines')
+        error_bad_lines: Optional[List[bool]] = get_param(params, 'error_bad_liness')
 
         use_deprecated_id_algorithm: bool = get_param(params, 'use_deprecated_id_algorithm') if get_param(params, 'use_deprecated_id_algorithm') else False
 
@@ -71,13 +71,12 @@ class SimpleImportStepPerformer(StepPerformer):
                 if delimeters is not None and encodings is not None and error_bad_lines is not None:
                     delimeter = delimeters[index]
                     encoding = encodings[index]
-                    error_bad_lines = error_bad_lines[index]
-                    print(get_read_csv_params(delimeter, encoding, error_bad_lines))
-                    df = pd.read_csv(file_name, **get_read_csv_params(delimeter, encoding, error_bad_lines))
+                    _error_bad_lines = error_bad_lines[index]
+                    df = pd.read_csv(file_name, **get_read_csv_params(delimeter, encoding, _error_bad_lines))
                     pandas_processing_time += (perf_counter() - partial_pandas_start_time)
                 else:
                     df, delimeter, encoding = read_csv_get_delimeter_and_encoding(file_name)
-                    error_bad_lines = True
+                    _error_bad_lines = True
                     pandas_processing_time += (perf_counter() - partial_pandas_start_time)
             except:
                 print(get_recent_traceback())
@@ -87,7 +86,7 @@ class SimpleImportStepPerformer(StepPerformer):
             # Save the delimeter and encodings for transpiling
             file_delimeters.append(delimeter)
             file_encodings.append(encoding)
-            file_error_bad_lines.append(error_bad_lines)
+            file_error_bad_lines.append(_error_bad_lines)
 
             post_state.add_df_to_state(
                 df, 

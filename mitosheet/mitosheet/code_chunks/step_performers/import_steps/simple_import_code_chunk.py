@@ -18,7 +18,7 @@ DEFAULT_ERROR_BAD_LINES = True
 
 def get_read_csv_params(delimeter: str, encoding: str, error_bad_lines: bool) -> Dict[str, Any]:
     from mitosheet.saved_analyses.schema_utils import is_prev_version
-    params = {}
+    params: Dict[str, Any] = {}
 
     if encoding != DEFAULT_ENCODING:
         params['encoding'] = encoding
