@@ -1101,6 +1101,7 @@ export default class MitoAPI {
             'step_id': stepID,
             'params': {
                 'file_names': fileNames,
+                // NOTE: we do not include the optional params here
             }
         }, {})
 
