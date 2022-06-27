@@ -285,3 +285,21 @@ def test_toggles_nan():
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1.0, 2.0, 3.0, 4.0, None]}))
     mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': np.NaN, 'remove_from_dataframe': True})
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1.0, 2.0, 3.0, 4.0]}))
+
+def test_toggle_nan_and_filter():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1.0, 2.0, 3.0, 4.0, None]}))
+    mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 'NaN', 'remove_from_dataframe': True})
+    mito.filter(0, 'A', 'And', FC_NUMBER_GREATER, 2)
+    mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 'NaN', 'remove_from_dataframe': False})
+    
+    # NaN is filtered out until we remove the filter for greater than 3
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [3.0, 4.0]}, index=[2, 3]))
+
+def test_toggle_nan_and_filter_2():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1.0, 2.0, 3.0, 4.0, None]}))
+    mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 'NaN', 'remove_from_dataframe': True})
+    mito.filter(0, 'A', 'And', FC_NUMBER_GREATER, 2)
+    mito.bulk_filter(0, 'A', {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 'NaN', 'remove_from_dataframe': False})
+    mito.filter(0, 'A', 'And', FC_NUMBER_GREATER, 3)
+    
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [4.0]}, index=[3]))

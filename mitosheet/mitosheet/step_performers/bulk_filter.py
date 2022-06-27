@@ -73,7 +73,6 @@ class BulkFilterStepPerformer(StepPerformer):
         new_values = toggle_values_in_set(new_values, values_to_toggle, remove_from_dataframe)
 
         post_state.column_filters[sheet_index][column_id]['bulk_filter']['value'] = new_values
-        print(post_state.column_filters[sheet_index][column_id]['bulk_filter'])
 
         # Then execute the filter
         from mitosheet.step_performers.filter import _execute_filter

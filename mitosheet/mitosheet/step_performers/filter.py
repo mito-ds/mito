@@ -191,7 +191,6 @@ def get_applied_filter(
     from mitosheet.step_performers.bulk_filter import BULK_FILTER_CONDITION_IS_NOT_EXACTLY
     if condition == BULK_FILTER_CONDITION_IS_NOT_EXACTLY:
         value, includes_nan = get_set_without_nan_values(value)
-        print(value, includes_nan)
         # We need to check if NaN is included, and include it if so
         if includes_nan:
             return ~df[column_header].isin(value) & ~df[column_header].isna()
