@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Set, Union
 import numpy as np
 
 import pandas as pd
+from mitosheet.nan_utils import NAN_STRING
 from mitosheet.types import ColumnHeader
 
 TAB = '    '
@@ -42,7 +43,7 @@ def get_transpiled_code_for_object(obj: Any) -> str:
         column_header_parts_joined = ', '.join(column_header_parts)
         return f'({column_header_parts_joined})'
 
-    if obj == 'NaN' or (isinstance(obj, float) and np.isnan(obj)):
+    if obj == NAN_STRING or (isinstance(obj, float) and np.isnan(obj)):
         return 'np.NaN'
 
     if isinstance(obj, int) or isinstance(obj, float) or isinstance(obj, bool):

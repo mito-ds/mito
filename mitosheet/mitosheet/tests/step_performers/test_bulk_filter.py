@@ -160,6 +160,29 @@ BULK_FILTER_TESTS = [
             df.iloc[0:0]
         ]
     ),
+    # Test with NaN
+    (
+        [
+            pd.DataFrame({'A': [1, 2, None, np.NaN]})
+        ],
+        0, 
+        "A", 
+        {'type': BULK_FILTER_TOGGLE_SPECIFIC_VALUE, 'value': 'NaN', 'remove_from_dataframe': True},
+        [
+            pd.DataFrame({'A': [1.0, 2.0]})
+        ]
+    ),
+    (
+        [
+            pd.DataFrame({'A': [1, 2, None, np.NaN]})
+        ],
+        0, 
+        "A", 
+        {'type': BULK_FILTER_TOGGLE_ALL_MATCHING, 'search_string': 'NaN', 'remove_from_dataframe': True},
+        [
+            pd.DataFrame({'A': [1.0, 2.0]})
+        ]
+    ),
 ]
 @pytest.mark.parametrize("input_dfs, sheet_index, column_header, toggle_type, output_dfs", BULK_FILTER_TESTS)
 def test_bulk_filter(input_dfs, sheet_index, column_header, toggle_type, output_dfs):
@@ -169,11 +192,15 @@ def test_bulk_filter(input_dfs, sheet_index, column_header, toggle_type, output_
 
     assert len(mito.dfs) == len(output_dfs)
     for actual, expected in zip(mito.dfs, output_dfs):
+        print(actual)
+        print(expected)
         assert actual.equals(expected)
     
     toggle_type['remove_from_dataframe'] = False
     mito.bulk_filter(sheet_index, column_header, toggle_type)
     for actual, expected in zip(mito.dfs, input_dfs):
+        print(actual)
+        print(expected)
         assert actual.equals(expected)
     
 

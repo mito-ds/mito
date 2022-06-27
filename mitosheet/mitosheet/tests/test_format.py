@@ -6,6 +6,7 @@
 import pandas as pd
 import pytest
 import json
+from mitosheet.nan_utils import NAN_STRING
 
 from mitosheet.tests.test_utils import create_mito_wrapper, create_mito_wrapper_dfs
 
@@ -23,7 +24,7 @@ def test_sheet_json_displays_floats_correctly():
     sheet_data = json.loads(mito.mito_widget.sheet_data_json)[0]
     assert get_value_helper(sheet_data, 0, 0) == 1.0
     assert get_value_helper(sheet_data, 1, 0) == 2.0
-    assert get_value_helper(sheet_data, 2, 0) == 'NaN'
+    assert get_value_helper(sheet_data, 2, 0) == NAN_STRING
 
 
 def test_sheet_json_displays_dates_correctly():

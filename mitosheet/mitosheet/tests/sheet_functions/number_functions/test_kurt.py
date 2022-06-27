@@ -10,6 +10,7 @@ Contains tests for the KURTOSIS function.
 import pytest
 import pandas as pd
 import numpy as np
+from mitosheet.nan_utils import NAN_STRING
 
 from mitosheet.sheet_functions.number_functions import KURT
 from mitosheet.tests.test_utils import create_mito_wrapper
@@ -28,6 +29,6 @@ def test_KURT_valid_input_direct(series_data, kurtosis_expected):
     series = pd.Series(data=series_data)
 
     kurtosis_actual = KURT(series)
-    kurtosis_actual = kurtosis_actual.fillna('NaN')
+    kurtosis_actual = kurtosis_actual.fillna(NAN_STRING)
 
     assert kurtosis_actual.tolist() == kurtosis_expected

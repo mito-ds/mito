@@ -16,7 +16,8 @@ import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap, get_column_header_display
 from mitosheet.errors import get_recent_traceback
-from mitosheet.sheet_functions.types.utils import get_dt_td_columns
+from mitosheet.nan_utils import NAN_STRING
+from mitosheet.sheet_functions.types.utils import get_dt_td_columns, is_datetime_dtype, is_timedelta_dtype
 from mitosheet.types import ColumnHeader, ColumnID
 
 # We only send the first 1500 rows of a dataframe; note that this
@@ -209,9 +210,28 @@ def get_row_data_array(df: pd.DataFrame) -> List[Any]:
     json_obj = convert_df_to_parsed_json(df)
     return json_obj['data']
 
+def get_string_representation_of_series(series: pd.Series) -> pd.Series:
+    """
+    NOTE: This function must be kept aligned with the function convert_df_to_parsed_json,
+    although it can be less performance oriented.
+    """
+    series = series.fillna(NAN_STRING)
+
+    dtype = str(series.dtype)
+    if is_datetime_dtype(dtype):
+        return series.dt.strftime('%Y-%m-%d %X')
+    elif is_timedelta_dtype(dtype):
+        return series.apply(lambda x: str(x))
+
+    return series.astype('str')
+    
+
 def convert_df_to_parsed_json(original_df: pd.DataFrame, max_rows: Optional[int]=MAX_ROWS, max_columns: int=MAX_COLUMNS) -> Dict[str, Any]:
     """
-    Returns a dataframe as a json object with the correct formatting
+    Returns a dataframe as a json object with the correct formatting.
+
+    We do things in batches to optimize speed of processing, as this function
+    runs once for every edit the user makes.
     """
     if max_rows is None:
         df = original_df.copy(deep=True) 
@@ -245,11 +265,11 @@ def convert_df_to_parsed_json(original_df: pd.DataFrame, max_rows: Optional[int]
 
     json_obj = json.loads(df.to_json(orient="split"))
     # Then, we go through and find all the null values (which are infinities),
-    # and set them to 'NaN' for display in the frontend.
+    # and set them to NAN_STRING for display in the frontend.
     for d in json_obj['data']:
         for idx, e in enumerate(d):
             if e is None:
-                d[idx] = 'NaN'
+                d[idx] = NAN_STRING
 
     return json_obj
 

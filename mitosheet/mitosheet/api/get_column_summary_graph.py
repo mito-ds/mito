@@ -9,6 +9,7 @@ import pandas as pd
 from typing import Any, Dict, List
 import plotly.express as px
 import plotly.graph_objects as go
+from mitosheet.nan_utils import NAN_STRING
 from mitosheet.step_performers.graph_steps.graph_utils import (
     get_html_and_script_from_figure,
 )
@@ -107,8 +108,8 @@ def _get_column_summary_graph(df: pd.DataFrame, column_header: ColumnHeader) -> 
 
             filtered = True
 
-        # Fill NaN values with 'NaN' so they are displayed in the graph.
-        series = series.fillna("NaN")
+        # Fill NaN values with NAN_STRING so they are displayed in the graph.
+        series = series.fillna(NAN_STRING)
 
     labels = {"x": ""}
 

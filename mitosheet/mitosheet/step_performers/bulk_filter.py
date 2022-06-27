@@ -13,6 +13,7 @@ import pandas as pd
 from mitosheet.api.get_unique_value_counts import get_matching_values
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.filter_code_chunk import FilterCodeChunk
+from mitosheet.nan_utils import toggle_values_in_set
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
@@ -65,22 +66,14 @@ class BulkFilterStepPerformer(StepPerformer):
         elif toggle_type['type'] == BULK_FILTER_TOGGLE_ALL_MATCHING:
             values_to_toggle = get_matching_values(post_state, sheet_index, column_id, toggle_type['search_string'])
             remove_from_dataframe = toggle_type['remove_from_dataframe']
-
-        # If the values to toggle include NaN, then we switch this out for NaN proper
-        if 'NaN' in values_to_toggle:
-            values_to_toggle.remove('NaN')
-            values_to_toggle.add(np.NaN)
         
         new_values = copy(set(bulk_filter['value']))
 
-        # Update the values and filtered out lists
-        if remove_from_dataframe:
-            new_values.update(values_to_toggle)
-        else:
-            new_values = copy(new_values).difference(values_to_toggle)
+        # Update the values and filtered out list
+        new_values = toggle_values_in_set(new_values, values_to_toggle, remove_from_dataframe)
 
         post_state.column_filters[sheet_index][column_id]['bulk_filter']['value'] = new_values
-
+        print(post_state.column_filters[sheet_index][column_id]['bulk_filter'])
 
         # Then execute the filter
         from mitosheet.step_performers.filter import _execute_filter

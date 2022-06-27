@@ -9,7 +9,7 @@ from typing import Any, Dict, Set
 import pandas as pd
 from mitosheet.state import State
 from mitosheet.types import ColumnID, StepsManagerType
-from mitosheet.utils import get_row_data_array
+from mitosheet.utils import get_row_data_array, get_string_representation_of_series
 
 # The maximum number of values the front-end sends to the backend
 # See comments in function description below.
@@ -37,7 +37,7 @@ def get_unique_value_count_df(state: State, sheet_index: int, column_id: ColumnI
 
     # Then, we filter with the string. Note that we always filter on the string representation
     # because the front-end sends a string
-    unique_value_counts_df['values_strings'] = unique_value_counts_df['values'].astype('str')
+    unique_value_counts_df['values_strings'] = get_string_representation_of_series(unique_value_counts_df['values'])
     unique_value_counts_df = unique_value_counts_df[unique_value_counts_df['values_strings'].str.contains(search_string, na=False, case=False, regex=False)]
 
     return unique_value_counts_df

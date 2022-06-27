@@ -5,10 +5,14 @@
 # Distributed under the terms of the GPL License.
 
 
+from copy import copy
 from typing import Any, Dict, List, Optional, Union
+
+import numpy as np
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.list_utils import get_deduplicated_list
+from mitosheet.nan_utils import NAN_STRING, get_set_without_nan_values
 from mitosheet.sheet_functions.types.utils import is_datetime_dtype
 from mitosheet.state import State
 from mitosheet.step_performers.filter import (
@@ -296,7 +300,13 @@ def get_bulk_filter_code(
     if len(inclusive_values) < len(exclusive_values):
         return f'{df_name}[{get_transpiled_code_for_object(column_header)}].isin({get_transpiled_code_for_object_list(inclusive_values)})'
     else:
-        return f'~{df_name}[{get_transpiled_code_for_object(column_header)}].isin({get_transpiled_code_for_object_list(exclusive_values)})'
+        transpiled_column_header = get_transpiled_code_for_object(column_header)
+        exclusive_values, includes_nan = get_set_without_nan_values(exclusive_values)
+        # If NaN is included, then we need to generate an NaN filter as well
+        if includes_nan:
+            return f'~{df_name}[{transpiled_column_header}].isin({get_transpiled_code_for_object_list(exclusive_values)}) & ~{df_name}[{transpiled_column_header}].isna()'
+        else:
+            return f'~{df_name}[{transpiled_column_header}].isin({get_transpiled_code_for_object_list(exclusive_values)})'
 
 def get_filter_code(
     post_state: State,

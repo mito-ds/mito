@@ -4,12 +4,15 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
+from copy import copy
 import functools
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
+import numpy as np
 import pandas as pd
 from datetime import date
 from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.nan_utils import NAN_STRING, get_set_without_nan_values
 
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.state import State
@@ -187,7 +190,13 @@ def get_applied_filter(
     # Then, we check if these are bulk filter conditions
     from mitosheet.step_performers.bulk_filter import BULK_FILTER_CONDITION_IS_NOT_EXACTLY
     if condition == BULK_FILTER_CONDITION_IS_NOT_EXACTLY:
-        return ~df[column_header].isin(value)
+        value, includes_nan = get_set_without_nan_values(value)
+        print(value, includes_nan)
+        # We need to check if NaN is included, and include it if so
+        if includes_nan:
+            return ~df[column_header].isin(value) & ~df[column_header].isna()
+        else:
+            return ~df[column_header].isin(value)
 
     raise Exception(f"Invalid type passed in filter {filter_}")
 
