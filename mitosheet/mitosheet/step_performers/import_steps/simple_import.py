@@ -42,7 +42,7 @@ class SimpleImportStepPerformer(StepPerformer):
         file_names: List[str] = get_param(params, 'file_names')
         delimeters: Optional[List[str]] = get_param(params, 'delimeters')
         encodings: Optional[List[str]] = get_param(params, 'encodings')
-        error_bad_lines: Optional[List[bool]] = get_param(params, 'error_bad_liness')
+        error_bad_lines: Optional[List[bool]] = get_param(params, 'error_bad_lines')
 
         use_deprecated_id_algorithm: bool = get_param(params, 'use_deprecated_id_algorithm') if get_param(params, 'use_deprecated_id_algorithm') else False
 
@@ -68,6 +68,7 @@ class SimpleImportStepPerformer(StepPerformer):
 
             # NOTE: if you specify one, specify them all!
             try:
+                print(delimeters, encodings, error_bad_lines)
                 if delimeters is not None and encodings is not None and error_bad_lines is not None:
                     delimeter = delimeters[index]
                     encoding = encodings[index]
