@@ -31,7 +31,7 @@ const MultiToggleBoxMessage = (props: {loading?: boolean, maxDisplayed: boolean,
         return (
             <Row justify='center'>
                 <p className='text-body-1 text-align-center'> 
-                    Displaying the first {MAX_DISPLAYED} items. Search for items you want.
+                    Displaying the first {props.numDisplayed} items. Search for items you want.
                 </p>
             </Row>
         )
@@ -54,22 +54,6 @@ const MultiToggleBoxMessage = (props: {loading?: boolean, maxDisplayed: boolean,
     }
 
     return (<></>)
-}
-
-const MultiToggleSelectedMessage = (props: {searchString: string, numToggled: number, numToggledButNotDisplayed: number}): JSX.Element => {
-    let text = `${props.numToggled} selected`;
-    if (props.numToggled > 0 && props.numToggled === props.numToggledButNotDisplayed) {
-        text = `${props.numToggled} selected and not displayed`
-    } else if (props.numToggledButNotDisplayed > 0) {
-        text = `${props.numToggled} selected, of which ${props.numToggledButNotDisplayed} not displayed`
-    }
-    
-    return (
-        <>
-            Toggle {props.searchString !== '' ? "Displayed" : "All"}
-            <span className='text-color-medium-gray-important'>&nbsp;({text})</span>
-        </>
-    )
 }
 
 
@@ -164,9 +148,6 @@ const MultiToggleBox = (props: {
 
     let displayedNonDisabledAllToggled = true;
     const nonDisabledDisplayedIndexes: number[] = [];
-    
-    let numToggled = 0;
-    let numToggledButNotDisplayed = 0;
 
     let numDisplayed = 0;
     let maxDisplayed = false;
@@ -176,27 +157,16 @@ const MultiToggleBox = (props: {
     // information about how many children are passed and displayed
     const childrenToDisplay = React.Children.map((props.children), (child) => {
 
-        const title: null | undefined | string | number | React.ReactNode = child.props.title;
+        const title: null | undefined | string | number = child.props.title;
         const rightText: null | undefined | string | number = child.props.rightText;
-        const toggled: null | undefined | boolean = child.props.toggled;
 
-        if (toggled) {
-            numToggled++;
-        }
-
-        const noTitleMatch = title === null || title === undefined || fuzzyMatch(title?.toString(), searchString) < .8;
-        const noRightTextMatch = (!props.searchRightText) || (title === null || title === undefined || fuzzyMatch(rightText + '', searchString) < .8);
+        const noTitleMatch = title === null || title === undefined || fuzzyMatch(searchString, title + '') < .8;
+        const noRightTextMatch = (!props.searchRightText) || (title === null || title === undefined || fuzzyMatch(searchString, rightText + '') < .8);
 
         // Don't display if it doesn't match either of the title
         if (noTitleMatch && noRightTextMatch) {
-            if (toggled) {
-                numToggledButNotDisplayed++;
-            }
-
             return null;
         }
-
-
 
         // Don't display if we've displayed enough already
         if (numDisplayed > MAX_DISPLAYED) {
@@ -244,13 +214,6 @@ const MultiToggleBox = (props: {
                 style={{height: props.searchable ? 'calc(100% - 30px)' : '100%'}}
                 ref={setRef}
             >
-                {<MultiToggleBoxMessage
-                    loading={props.loading}
-                    isSubset={props.isSubset}
-                    message={props.message}
-                    maxDisplayed={maxDisplayed}
-                    numDisplayed={numDisplayed}
-                />}
                 {toggleAllIndexes !== undefined && numDisplayed > 0 &&
                     <div 
                         key='Toggle All' 
@@ -268,14 +231,17 @@ const MultiToggleBox = (props: {
                             name={'Toggle All'}
                             checked={displayedNonDisabledAllToggled}
                         />
-                        <MultiToggleSelectedMessage
-                            searchString={searchString}
-                            numToggled={numToggled}
-                            numToggledButNotDisplayed={numToggledButNotDisplayed}
-                        />
+                            Toggle {searchString !== '' ? "Displayed" : "All"}
                     </div>
                 }
                 {childrenToDisplay}
+                {<MultiToggleBoxMessage
+                    loading={props.loading}
+                    isSubset={props.isSubset}
+                    message={props.message}
+                    maxDisplayed={maxDisplayed}
+                    numDisplayed={numDisplayed}
+                />}
             </div>
         </div>
     )

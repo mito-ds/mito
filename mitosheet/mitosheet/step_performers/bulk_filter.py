@@ -72,16 +72,18 @@ class BulkFilterStepPerformer(StepPerformer):
         # Update the values and filtered out list
         new_values = toggle_values_in_set(new_values, values_to_toggle, remove_from_dataframe)
 
-        post_state.column_filters[sheet_index][column_id]['bulk_filter']['value'] = new_values
+        # Create a new bulk filter
+        new_bulk_filter = copy(bulk_filter)
+        new_bulk_filter['value'] = new_values
 
         # Then execute the filter
         from mitosheet.step_performers.filter import _execute_filter
-        _, pandas_processing_time = _execute_filter(
+        pandas_processing_time = _execute_filter(
             post_state,
             sheet_index,
             column_id,
             post_state.column_filters[sheet_index][column_id]['filter_list'],
-            post_state.column_filters[sheet_index][column_id]['bulk_filter']
+            new_bulk_filter
         )
         
         return post_state, {

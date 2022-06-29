@@ -341,8 +341,6 @@ def get_filter_code(
         if "filters" in filter_or_group
     ]
 
-    bulk_filter = post_state.column_filters[sheet_index][column_id]['bulk_filter']
-
     filter_strings = []
 
     # We loop over the filter conditions so we avoid looping over the filters and having to ensure

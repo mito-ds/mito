@@ -188,11 +188,13 @@ export function UniqueValuesCard(
                     message={disabledMessage}
                     disabled={disabledMessage !== undefined}
                     toggleAllIndexes={(_, newValue) => {
+                        // Edit the bulk filter in the backend
                         void props.mitoAPI.editBulkFilter(props.selectedSheetIndex, props.columnID, {
                             'type': 'toggle_all_matching',
                             'search_string': searchString,
                             'remove_from_dataframe': !newValue
                         })
+                        // Update the frontend so that the user can see the change immediately
                         setToggledValues(prevToggleValueIndexes => {
                             const newToggledValues = [...prevToggleValueIndexes]
                             sortedUniqueValueCounts.forEach(uniqueValueCount => {
@@ -217,17 +219,19 @@ export function UniqueValuesCard(
                         return((
                             <MultiToggleItem
                                 key={index}
+                                title={valueToDisplay}
+                                rightText={uniqueValueCount.countOccurence + ' (' + uniqueValueCount.percentOccurence.toFixed(2).toString() + '%' + ')'}
+                                toggled={toggle}
+                                index={index}
                                 /**
                                  * If this is an NaN value, we display additional text that allows the user to navigate
                                  * to the fill NaN taskpane easily
                                  */
-                                title={valueToDisplay}
                                 titleSubtext={valueToDisplay === 'NaN' ? <OpenFillNaN setUIState={props.setUIState} columnID={props.columnID}/> : undefined}
-                                rightText={uniqueValueCount.countOccurence + ' (' + uniqueValueCount.percentOccurence.toFixed(2).toString() + '%' + ')'}
-                                toggled={toggle}
-                                index={index}
                                 onToggle={() => {
+                                    // Toggle the filter in the backend
                                     void props.mitoAPI.editBulkFilter(props.selectedSheetIndex, props.columnID, {type: 'toggle_specific_value', 'value': uniqueValueCount.value, 'remove_from_dataframe': toggle});
+                                    // Update the frontend so that the user can see the change immediately
                                     setToggledValues(prevToggleValueIndexes => {
                                         const newToggledValues = [...prevToggleValueIndexes]
                                         const toggledValueIndex = newToggledValues.findIndex(([value, ]) => value === uniqueValueCount.value);

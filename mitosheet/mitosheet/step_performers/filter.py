@@ -72,15 +72,11 @@ class FilterStepPerformer(StepPerformer):
         operator: str = get_param(params, 'operator')
         filters: Any = get_param(params, 'filters')
 
+        # Construct a filter list we can pass to the filter
         filter_list = {
             'operator': operator,
             'filters': filters
         }
-
-        # Get the correct column_header
-        column_header = prev_state.column_ids.get_column_header_by_id(
-            sheet_index, column_id
-        )
 
         # Create a new step for this filter
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
@@ -89,7 +85,7 @@ class FilterStepPerformer(StepPerformer):
         bulk_filter = post_state.column_filters[sheet_index][column_id]['bulk_filter']
 
         # Execute the filter
-        _, pandas_processing_time = _execute_filter(
+        pandas_processing_time = _execute_filter(
             post_state, sheet_index, column_id, filter_list, bulk_filter
         )
 
@@ -228,7 +224,7 @@ def _execute_filter(
     column_id: ColumnID,
     filter_list: Dict[str, Any],
     bulk_filter: Dict[str, Any]
-) -> Tuple[pd.DataFrame, float]:
+) -> float:
     """
     Executes a filter on the given column, filtering by removing any rows who
     don't meet the condition.
@@ -281,4 +277,4 @@ def _execute_filter(
     post_state.column_filters[sheet_index][column_id]['filter_list'] = filter_list
     post_state.column_filters[sheet_index][column_id]['bulk_filter'] = bulk_filter
 
-    return final_df, pandas_processing_time
+    return pandas_processing_time
