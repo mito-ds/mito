@@ -14,7 +14,11 @@ const MultiToggleItem = (props: {
     /** 
         * @param title - The title on the right side of this multi toggle item
     */
-    title: React.ReactNode,
+    title: string,
+    /** 
+        * @param titleSubtext - Optional text to display to the right of the title
+    */
+    titleSubtext?: React.ReactNode,
     /** 
         * @param toggled - The state of the toggle for this item
     */
@@ -71,6 +75,7 @@ const MultiToggleItem = (props: {
                     <span title={props.title?.toString()}>
                         {props.title}
                     </span>
+                    {props.titleSubtext && <span>{props.titleSubtext}</span>}
                 </Col>
                 {props.rightText && 
                     <Col span={7} offset={1}>

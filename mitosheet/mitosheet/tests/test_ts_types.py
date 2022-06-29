@@ -124,7 +124,7 @@ def test_date_type_in_mito_match():
 
 def test_sort_direction_match():
     sort_direcion = get_enum_from_ts_file(
-        "./src/components/taskpanes/ControlPanel/FilterAndSortTab/SortCard.tsx",
+        "./src/components/taskpanes/ControlPanel/SortDtypeTab/SortCard.tsx",
         "SortDirection",
     )
     # NOTE: the extra element here is no sort (on the frontend)

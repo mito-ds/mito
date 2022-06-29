@@ -184,8 +184,6 @@ const MultiToggleBox = (props: {
             numToggled++;
         }
 
-        console.log(title?.toString())
-
         const noTitleMatch = title === null || title === undefined || fuzzyMatch(title?.toString(), searchString) < .8;
         const noRightTextMatch = (!props.searchRightText) || (title === null || title === undefined || fuzzyMatch(rightText + '', searchString) < .8);
 

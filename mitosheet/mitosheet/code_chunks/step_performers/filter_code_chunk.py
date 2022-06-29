@@ -304,7 +304,11 @@ def get_bulk_filter_code(
         exclusive_values, includes_nan = get_set_without_nan_values(exclusive_values)
         # If NaN is included, then we need to generate an NaN filter as well
         if includes_nan:
-            return f'~{df_name}[{transpiled_column_header}].isin({get_transpiled_code_for_object_list(exclusive_values)}) & ~{df_name}[{transpiled_column_header}].isna()'
+            # Don't generate the filter for the exclusive values if they are empty
+            if len(get_transpiled_code_for_object_list(exclusive_values)) > 0:
+                return f'~{df_name}[{transpiled_column_header}].isin({get_transpiled_code_for_object_list(exclusive_values)}) & ~{df_name}[{transpiled_column_header}].isna()'
+            else:
+                return f'~{df_name}[{transpiled_column_header}].isna()'
         else:
             return f'~{df_name}[{transpiled_column_header}].isin({get_transpiled_code_for_object_list(exclusive_values)})'
 

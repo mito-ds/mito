@@ -175,7 +175,7 @@ export function UniqueValuesCard(
             </Row>
             
             {/* A little hack to get the multi-toggle box to not be too big */}
-            <div style={{height: 'calc(100% - 40px)'}}>
+            <div style={{height: 'calc(100% - 60px)'}}>
                 <MultiToggleBox 
                     loading={loading}
                     searchable
@@ -221,7 +221,8 @@ export function UniqueValuesCard(
                                  * If this is an NaN value, we display additional text that allows the user to navigate
                                  * to the fill NaN taskpane easily
                                  */
-                                title={valueToDisplay !== 'NaN' ? valueToDisplay : <span>{valueToDisplay} <OpenFillNaN setUIState={props.setUIState} columnID={props.columnID}/></span>}
+                                title={valueToDisplay}
+                                titleSubtext={valueToDisplay === 'NaN' ? <OpenFillNaN setUIState={props.setUIState} columnID={props.columnID}/> : undefined}
                                 rightText={uniqueValueCount.countOccurence + ' (' + uniqueValueCount.percentOccurence.toFixed(2).toString() + '%' + ')'}
                                 toggled={toggle}
                                 index={index}
