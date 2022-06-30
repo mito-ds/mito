@@ -2,13 +2,14 @@
 
 import React, { useEffect } from 'react';
 import MitoAPI from '../../jupyter/api';
-import { ColumnID, EditorState, SheetData, UIState } from '../../types';
+import { ColumnID, EditorState, GridState, SheetData, UIState } from '../../types';
 import { isNumberDtype } from '../../utils/dtypes';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { ControlPanelTab } from '../taskpanes/ControlPanel/ControlPanelTaskpane';
 import { TaskpaneType } from '../taskpanes/taskpanes';
+import { getColumnIndexesInSelections } from './selectionUtils';
 import { getCellDataFromCellIndexes } from './utils';
 
 /*
@@ -26,6 +27,7 @@ export default function ColumnHeaderDropdown(props: {
     columnDtype: string;
     display: boolean;
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
+    gridState: GridState;
 }): JSX.Element {
 
     // Log opening this dropdown
@@ -51,7 +53,10 @@ export default function ColumnHeaderDropdown(props: {
                 title='Delete Column'
                 onClick={() => {
                     props.closeOpenEditingPopups();
-                    void props.mitoAPI.editDeleteColumn(props.sheetIndex, [props.columnID]);
+                    const columnIndexesSelected = getColumnIndexesInSelections(props.gridState.selections);
+                    const columnIDsToDelete = columnIndexesSelected.map(colIdx => props.sheetData?.data[colIdx]?.columnID || '').filter(columnID => columnID !== '')
+
+                    void props.mitoAPI.editDeleteColumn(props.sheetIndex, columnIDsToDelete);
                 }}
             />
             <DropdownItem 
