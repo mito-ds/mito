@@ -3,11 +3,19 @@
 import React from 'react';
 import LabelAndColor from '../../../pro/graph/LabelAndColor';
 import { GraphParams, UserProfile } from '../../../types';
+import DropdownItem from '../../elements/DropdownItem';
 import Input from '../../elements/Input';
+import Select from '../../elements/Select';
 import Toggle from '../../elements/Toggle';
 import Col from '../../spacing/Col';
 import Row from '../../spacing/Row';
 
+export enum AxisType {
+    LINEAR = 'linear',
+    LOG = 'log',
+    CATEGORY = 'category',
+    DATE = 'date',
+}
 /* 
     Contains all of the options for styling graphs,
     like setting the title and axis labels
@@ -189,6 +197,51 @@ function GraphStyleTab(props: {
                 <Row justify='space-between' align='center'>
                     <Col>
                         <p>
+                            Type
+                        </p>
+                    </Col>
+                    <Select
+                        value={props.graphParams.graphStyling.xaxis.type || 'default'}
+                        onChange={(xAxisType: string) => {
+                            const newXAxisType = xAxisType !== 'default' ? xAxisType : undefined
+                            props.setGraphParams(prevGraphParams => {
+                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                return {
+                                    ...graphParamsCopy,
+                                    graphStyling: {
+                                        ...graphParamsCopy.graphStyling,
+                                        xaxis: {
+                                            ...graphParamsCopy.graphStyling.xaxis,
+                                            type: newXAxisType
+                                        } 
+                                    } 
+                                }
+                            })
+                            props.setGraphUpdatedNumber(old => old + 1)
+                        }}
+                        width='small'
+                        dropdownWidth='medium'
+                    >
+                        <DropdownItem
+                            title={'default'}
+                        />
+                        <DropdownItem
+                            title={AxisType.LINEAR}
+                        />
+                        <DropdownItem
+                            title={AxisType.LOG}
+                        />
+                        <DropdownItem
+                            title={AxisType.DATE}
+                        />
+                        <DropdownItem
+                            title={AxisType.CATEGORY}
+                        />
+                    </Select>
+                </Row>
+                <Row justify='space-between' align='center'>
+                    <Col>
+                        <p>
                             Display range slider
                         </p>
                     </Col>
@@ -295,6 +348,51 @@ function GraphStyleTab(props: {
                         }}
                     />
                 }
+                <Row justify='space-between' align='center'>
+                    <Col>
+                        <p>
+                            Type
+                        </p>
+                    </Col>
+                    <Select
+                        value={props.graphParams.graphStyling.yaxis.type || 'default'}
+                        onChange={(yAxisType: string | undefined) => {
+                            const newYAxisType = yAxisType !== 'default' ? yAxisType : undefined
+                            props.setGraphParams(prevGraphParams => {
+                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                return {
+                                    ...graphParamsCopy,
+                                    graphStyling: {
+                                        ...graphParamsCopy.graphStyling,
+                                        yaxis: {
+                                            ...graphParamsCopy.graphStyling.yaxis,
+                                            type: newYAxisType
+                                        } 
+                                    } 
+                                }
+                            })
+                            props.setGraphUpdatedNumber(old => old + 1)
+                        }}
+                        width='small'
+                        dropdownWidth='medium'
+                    >
+                        <DropdownItem
+                            title={'default'}
+                        />
+                        <DropdownItem
+                            title={AxisType.LINEAR}
+                        />
+                        <DropdownItem
+                            title={AxisType.LOG}
+                        />
+                        <DropdownItem
+                            title={AxisType.DATE}
+                        />
+                        <DropdownItem
+                            title={AxisType.CATEGORY}
+                        />
+                    </Select>
+                </Row>
             </div>
             <div>
                 <div className='text-header-2'>

@@ -38,6 +38,7 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
                 title: undefined,
                 visible: true,
                 title_font_color: DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT,
+                type: undefined,
                 rangeslider: {
                     visible: true,
                 }
@@ -45,7 +46,8 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
             yaxis: {
                 title: undefined,
                 visible: true,
-                title_font_color: DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT
+                title_font_color: DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT,
+                type: undefined,
             },
             showlegend: true,
             paper_bgcolor: DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT,
