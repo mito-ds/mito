@@ -10,6 +10,7 @@ import pytest
 import pandas as pd
 import os
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DELIMETER, DEFAULT_ENCODING
+from mitosheet.saved_analyses.schema_utils import is_prev_version
 
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 
@@ -460,6 +461,9 @@ Carey,Price,MTL,G,31,10,500,000,1987-08-16
 Daniel,Sedin,VAN,LW,22,1,1980-09-26
 Henrik,Sedin,VAN,C,33,1,1980-09-26""")
 
-    df = pd.read_csv(TESTDATA, on_bad_lines='skip')
+    if is_prev_version(pd.__version__, '1.3.0'):
+        df = pd.read_csv(TESTDATA, error_bad_lines=False)
+    else:
+        df = pd.read_csv(TESTDATA, on_bad_lines='skip')
     assert mito.dfs[0].equals(df)
     assert len(mito.dfs[0].index) == 4
