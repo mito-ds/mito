@@ -649,14 +649,6 @@ export interface UIState {
 }
 
 /**
- * The returned matches when searching a for a value in the sheet
- */
-export interface SearchMatches {
-    columnHeaderIndexes: { rowIndex: number, columnIndex: number }[];
-    cellIndexes: { rowIndex: number, columnIndex: number }[];
-}
-
-/**
  * Used to identify the feedback that the user is prompted for. 
  * When we add new feedback options, add it here!
  */

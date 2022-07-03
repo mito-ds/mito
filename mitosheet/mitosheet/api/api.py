@@ -17,7 +17,6 @@ from mitosheet.api.get_dataframe_as_excel import get_dataframe_as_excel
 from mitosheet.api.get_excel_file_metadata import get_excel_file_metadata
 from mitosheet.api.get_path_contents import get_path_contents
 from mitosheet.api.get_path_join import get_path_join
-from mitosheet.api.get_search_matches import get_search_matches
 from mitosheet.api.get_unique_value_counts import get_unique_value_counts
 from mitosheet.api.get_split_text_to_columns_preview import get_split_text_to_columns_preview
 from mitosheet.api.get_column_summary_graph import get_column_summary_graph
@@ -141,8 +140,6 @@ def handle_api_event(
             result = get_unique_value_counts(params, steps_manager)
         elif event["type"] == "get_split_text_to_columns_preview":
             result = get_split_text_to_columns_preview(params, steps_manager)
-        elif event["type"] == "get_search_matches":
-            result = get_search_matches(params, steps_manager)
         elif event["type"] == "get_dataframe_as_excel":
             result = get_dataframe_as_excel(params, steps_manager)
         else:
