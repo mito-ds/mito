@@ -127,6 +127,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                                 columnDtype={columnDtype}
                                 columnFormatType={columnFormatType}
                                 setUIState={props.setUIState}
+                                analysisData={props.analysisData}
                             />
                         </>
                     }

@@ -4,7 +4,7 @@ import React, { Fragment, useRef, useState } from 'react';
 import MitoAPI from '../../../../jupyter/api';
 import MultiToggleBox from '../../../elements/MultiToggleBox';
 import Select from '../../../elements/Select';
-import { ColumnID, FormatTypeObj, UIState } from '../../../../types';
+import { AnalysisData, ColumnID, FormatTypeObj, UIState } from '../../../../types';
 import Col from '../../../spacing/Col';
 import Row from '../../../spacing/Row';
 import { getFilterDisabledMessage } from './filter/utils';
@@ -15,6 +15,7 @@ import { formatCellData } from '../../../../utils/formatColumns';
 import OpenFillNaN from '../../FillNa/OpenFillNaN';
 import Spacer from '../../../spacing/Spacer';
 import RedoIcon from '../../../icons/RedoIcon';
+import { useEffectOnUpdateEvent } from '../../../../hooks/useEffectOnUpdateEvent';
 
 /*
     The UniqueValueCount datatype contains all of the necessary data
@@ -70,6 +71,7 @@ export function UniqueValuesCard(
         columnDtype: string,
         columnFormatType: FormatTypeObj
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
+        analysisData: AnalysisData
     }): JSX.Element {
 
     const [loading, setLoading] = useState(true);
@@ -112,6 +114,10 @@ export function UniqueValuesCard(
         lastSearchTerm.current = searchString;
         lastSort.current = sort;
     }, [searchString, sort], 500);
+
+    useEffectOnUpdateEvent(() => {
+        void loadUniqueValueCounts();
+    }, props.analysisData)
 
 
     async function loadUniqueValueCounts() {

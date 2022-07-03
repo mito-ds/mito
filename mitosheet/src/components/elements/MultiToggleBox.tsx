@@ -160,8 +160,8 @@ const MultiToggleBox = (props: {
         const title: null | undefined | string | number = child.props.title;
         const rightText: null | undefined | string | number = child.props.rightText;
 
-        const noTitleMatch = title === null || title === undefined || fuzzyMatch(searchString, title + '') < .8;
-        const noRightTextMatch = (!props.searchRightText) || (title === null || title === undefined || fuzzyMatch(searchString, rightText + '') < .8);
+        const noTitleMatch = title === null || title === undefined || fuzzyMatch(title + '', searchString) < .8;
+        const noRightTextMatch = (!props.searchRightText) || (title === null || title === undefined || fuzzyMatch(rightText + '', searchString) < .8);
 
         // Don't display if it doesn't match either of the title
         if (noTitleMatch && noRightTextMatch) {
