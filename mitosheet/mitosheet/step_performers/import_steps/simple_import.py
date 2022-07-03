@@ -68,7 +68,6 @@ class SimpleImportStepPerformer(StepPerformer):
 
             # NOTE: if you specify one, specify them all!
             try:
-                print(delimeters, encodings, error_bad_lines)
                 if delimeters is not None and encodings is not None and error_bad_lines is not None:
                     delimeter = delimeters[index]
                     encoding = encodings[index]
@@ -81,7 +80,6 @@ class SimpleImportStepPerformer(StepPerformer):
                     pandas_processing_time += (perf_counter() - partial_pandas_start_time)
             except:
                 print(get_recent_traceback())
-                # TODO: check if this works when replaying an analysis. I think it might just _not_ error or something!
                 raise make_invalid_simple_import_error()
 
             # Save the delimeter and encodings for transpiling

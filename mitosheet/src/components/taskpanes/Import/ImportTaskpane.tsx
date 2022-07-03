@@ -6,6 +6,7 @@ import MitoAPI, { PathContents } from '../../../jupyter/api';
 import { AnalysisData, MitoError, UIState, UserProfile } from '../../../types';
 import { isMitoError } from '../../../utils/errors';
 import TextButton from '../../elements/TextButton';
+import ConfigureIcon from '../../icons/ConfigureIcon';
 import Col from '../../spacing/Col';
 import Row from '../../spacing/Row';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
@@ -208,7 +209,10 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
 
     const importButtonStatus = getImportButtonStatus(selectedElement, props.userProfile.excelImportEnabled, importState.loadingImport);
     
-    if (fullFileNameForImportWizard !== undefined && isExcelFile(fileForImportWizard)) {
+    // Check both the file and the full file name so that 
+    // the screen does not flash when the back button is pressed
+    // in the import wizard
+    if (fileForImportWizard !== undefined && fullFileNameForImportWizard !== undefined && isExcelFile(fileForImportWizard)) {
         return (
             <XLSXImport
                 mitoAPI={props.mitoAPI}
@@ -221,7 +225,7 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                 importState={importState}
             />
         )
-    } else if (fullFileNameForImportWizard !== undefined) {
+    } else if (fileForImportWizard !== undefined && fullFileNameForImportWizard !== undefined) {
         return (
             <CSVImport
                 mitoAPI={props.mitoAPI}
@@ -270,7 +274,13 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                                 }}
                                 disabled={importButtonStatus.disabled}
                             >
-                                Configure
+                                <Row suppressTopBottomMargin justify='space-between' align='center'>
+                                    <ConfigureIcon/>
+                                    <p className='ml-5px'>
+                                        Configure
+                                    </p>
+                                </Row>
+                                
                             </TextButton>
                         </Col>
                     }

@@ -452,15 +452,15 @@ export default class MitoAPI {
     }
 
     /*
-        Gets metadata about an Excel file
+        Gets metadata about some CSV files
     */
-    async getCSVFileMetadata(
+    async getCSVFilesMetadata(
         fileNames: string[]
     ): Promise<CSVFileMetadata | undefined> {
 
         const csvFileMetadataString = await this.send<string>({
             'event': 'api_call',
-            'type': 'get_csv_file_metadata',
+            'type': 'get_csv_files_metadata',
             'params': {
                 'file_names': fileNames
             },

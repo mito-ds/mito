@@ -21,7 +21,6 @@ import Input from '../../elements/Input';
 import Toggle from '../../elements/Toggle';
 import { isMitoError } from '../../../utils/errors';
 import Tooltip from '../../elements/Tooltip';
-import RedoIcon from '../../icons/RedoIcon';
 
 const ENCODINGS = [
     "utf_8",
@@ -184,7 +183,7 @@ function CSVImport(props: CSVImportProps): JSX.Element {
     // NOTE: this loading state is just for getting the metadata about the sheets
     // and not for importing the file
     const [fileMetadata, setFileMetadata] = useState<CSVFileMetadata | undefined>(undefined);
-    const {params, setParams, loading, edit, editApplied} = useSendEditOnClick(
+    const {params, setParams, loading, edit, editApplied, error} = useSendEditOnClick(
         () => getDefaultParams(props.fileName),
         StepType.SimpleImport,
         props.mitoAPI, props.analysisData,
@@ -194,7 +193,7 @@ function CSVImport(props: CSVImportProps): JSX.Element {
 
     useEffect(() => {
         const loadMetadata = async () => {
-            const loadedFileMetadata = await props.mitoAPI.getCSVFileMetadata(params?.file_names || []);
+            const loadedFileMetadata = await props.mitoAPI.getCSVFilesMetadata(params?.file_names || []);
 
             setFileMetadata(loadedFileMetadata);
 
@@ -247,8 +246,11 @@ function CSVImport(props: CSVImportProps): JSX.Element {
                 backCallback={() => props.setFileForImportWizard(undefined)}
             />
             <DefaultTaskpaneBody noScroll>
-                {isMitoError(props.error) && 
-                    <p className='text-color-error'> We were unable to automatically determine a delimeter and encoding. Please select a delemeter and encoding.</p>
+                {isMitoError(props.error) && error === undefined &&
+                    <p className='text-color-error'> We were unable to automatically determine a delimeter and encoding. Please select a delimeter and encoding.</p>
+                }
+                {error !== undefined &&
+                    <p className='text-color-error'> This import configuration is invalid. Please select a delimeter and encoding, or skip invalid lines.</p>
                 }
                 <Row justify='space-between' align='center' title={DELIMETER_TOOLTIP}>
                     <Col>
@@ -308,13 +310,13 @@ function CSVImport(props: CSVImportProps): JSX.Element {
                         <Row justify='start' align='center' suppressTopBottomMargin>
 
                             <p className='text-header-3'>
-                                Error on Invalid Lines
+                                Skip Invalid Lines
                             </p>
                             <Tooltip title={ERROR_BAD_LINES_TOOLTIP}/>
                         </Row>
                     </Col>
                     <Col>
-                        <Toggle value={currentErrorBadLines} onChange={() => {
+                        <Toggle value={!currentErrorBadLines} onChange={() => {
                             setParams(prevParams => {
                                 return {
                                     ...prevParams,
@@ -324,23 +326,11 @@ function CSVImport(props: CSVImportProps): JSX.Element {
                         }}/>
                     </Col>
                 </Row>
-                <Row justify='start' >
-                    <Col onClick={resetParams}>
-                        <p className='text-underline text-header-3 text-color-medium-gray-important'>
-                            Reset parameters
-                        </p>
-                    </Col>
-                    <Col onClick={resetParams} offset={.5}>
-                        {/** TODO: merge in bulk filter, and use the stroke width! */}
-                        <RedoIcon/>
-                    </Col>
-
-                </Row>
             </DefaultTaskpaneBody>
             <DefaultTaskpaneFooter>
-                {!isMitoError(props.error) &&
+                {!isMitoError(props.error) && !editApplied &&
                     <p className='text-body-2 text-color-medium-gray-important mb-5px'>
-                        Mito guesses the above parameters correct above 90% of the time. Try importing Mito&apos;s detected configuration. <span className='text-underline' onClick={resetParams}>Reset parameters. </span> 
+                        Mito guesses the above parameters correct above 90% of the time. Try importing Mito&apos;s detected configuration. <span className='text-body-2-link' onClick={resetParams}>Reset parameters. </span> 
                     </p>
                 }
                 <TextButton
