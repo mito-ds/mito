@@ -8,6 +8,7 @@ Contains handlers for the Mito API
 """
 from queue import Queue
 from threading import Thread
+from time import perf_counter
 from typing import Any, Callable, Dict, List, NoReturn, Union
 from mitosheet.api.get_params import get_params
 from mitosheet.api.get_column_describe import get_column_describe
@@ -116,31 +117,41 @@ def handle_api_event(
     API must return the same ID that the incoming message contains,
     so that the frontend knows how to match the responses.
     """
-    result: Union[str, List[str]]
+    result: Union[str, List[str]] = ''
     params = event['params']
-    if event["type"] == "get_path_contents":
-        result = get_path_contents(params)
-    elif event["type"] == "get_path_join":
-        result = get_path_join(params)
-    elif event["type"] == "get_dataframe_as_csv":
-        result = get_dataframe_as_csv(params, steps_manager)
-    elif event["type"] == "get_column_summary_graph":
-        result = get_column_summary_graph(params, steps_manager)
-    elif event["type"] == "get_column_describe":
-        result = get_column_describe(params, steps_manager)
-    elif event["type"] == "get_params":
-        result = get_params(params, steps_manager)
-    elif event["type"] == "get_excel_file_metadata":
-        result = get_excel_file_metadata(params, steps_manager)
-    elif event["type"] == "get_unique_value_counts":
-        result = get_unique_value_counts(params, steps_manager)
-    elif event["type"] == "get_split_text_to_columns_preview":
-        result = get_split_text_to_columns_preview(params, steps_manager)
-    elif event["type"] == "get_search_matches":
-        result = get_search_matches(params, steps_manager)
-    elif event["type"] == "get_dataframe_as_excel":
-        result = get_dataframe_as_excel(params, steps_manager)
-    else:
-        raise Exception(f"Event: {event} is not a valid API call")
+    start_time = perf_counter()
+    failed = False
+
+    try:
+        if event["type"] == "get_path_contents":
+            result = get_path_contents(params)
+        elif event["type"] == "get_path_join":
+            result = get_path_join(params)
+        elif event["type"] == "get_dataframe_as_csv":
+            result = get_dataframe_as_csv(params, steps_manager)
+        elif event["type"] == "get_column_summary_graph":
+            result = get_column_summary_graph(params, steps_manager)
+        elif event["type"] == "get_column_describe":
+            result = get_column_describe(params, steps_manager)
+        elif event["type"] == "get_params":
+            result = get_params(params, steps_manager)
+        elif event["type"] == "get_excel_file_metadata":
+            result = get_excel_file_metadata(params, steps_manager)
+        elif event["type"] == "get_unique_value_counts":
+            result = get_unique_value_counts(params, steps_manager)
+        elif event["type"] == "get_split_text_to_columns_preview":
+            result = get_split_text_to_columns_preview(params, steps_manager)
+        elif event["type"] == "get_search_matches":
+            result = get_search_matches(params, steps_manager)
+        elif event["type"] == "get_dataframe_as_excel":
+            result = get_dataframe_as_excel(params, steps_manager)
+        else:
+            raise Exception(f"Event: {event} is not a valid API call")
+
+    except:
+        failed = True
+    
+    # Log processing this event (with potential failure)
+    log_event_processed(event, steps_manager, failed=failed, start_time=start_time)
 
     send({"event": "api_response", "id": event["id"], "data": result})
