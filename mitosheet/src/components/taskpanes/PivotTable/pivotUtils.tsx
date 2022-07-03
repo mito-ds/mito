@@ -1,28 +1,48 @@
 import { AggregationType, BackendPivotParams, FrontendPivotParams, SheetData } from "../../../types";
+import { getDeduplicatedArray } from "../../../utils/arrays";
 
 
-export const getDefaultPivotParams = (sheetDataArray: SheetData[], selectedSheetIndex: number, existingPivotParams: BackendPivotParams | undefined): FrontendPivotParams => {
+export const getDefaultPivotParams = (sheetDataArray: SheetData[], selectedSheetIndex: number, existingPivotParams: BackendPivotParams | undefined): FrontendPivotParams | undefined => {
+    if (sheetDataArray.length === 0) {
+        return undefined;
+    }
+    
     if (existingPivotParams === undefined) {
         return {
             selectedSheetIndex: selectedSheetIndex,
             pivotRowColumnIDs: [],
             pivotColumnsColumnIDs: [],
             pivotValuesColumnIDsArray: [],
-            flattenColumnHeaders: true
+            flattenColumnHeaders: true,
+            destinationSheetIndex: undefined
         }
     } 
 
-    return backendParamsToFrontendParams(existingPivotParams, sheetDataArray);
+    return getPivotBackendParamsFromFrontendParams(existingPivotParams);
 }
 
-export const backendParamsToFrontendParams = (pivotParams: BackendPivotParams, sheetDataArray: SheetData[]): FrontendPivotParams => {
+export const getPivotBackendParamsFromFrontendParams = (pivotParams: BackendPivotParams): FrontendPivotParams => {
     return {
-        selectedSheetIndex: Math.min(pivotParams.sheet_index, sheetDataArray.length - 1),
+        selectedSheetIndex: pivotParams.sheet_index,
         pivotRowColumnIDs: pivotParams.pivot_rows_column_ids,
         pivotColumnsColumnIDs: pivotParams.pivot_columns_column_ids,
         pivotValuesColumnIDsArray: valuesRecordToArray(pivotParams.values_column_ids_map),
-        flattenColumnHeaders: pivotParams.flatten_column_headers
+        flattenColumnHeaders: pivotParams.flatten_column_headers,
+        destinationSheetIndex: pivotParams.destination_sheet_index
     };
+}
+
+export const getPivotFrontendParamsFromBackendParams = (params: FrontendPivotParams): BackendPivotParams => {
+    return {
+        sheet_index: params.selectedSheetIndex,
+        // Deduplicate the rows and columns before sending them to the backend
+        // as otherwise this generates errors if you have duplicated key
+        pivot_rows_column_ids: getDeduplicatedArray(params.pivotRowColumnIDs),
+        pivot_columns_column_ids: getDeduplicatedArray(params.pivotColumnsColumnIDs),
+        values_column_ids_map: valuesArrayToRecord(params.pivotValuesColumnIDsArray),
+        flatten_column_headers: params.flattenColumnHeaders,
+        destination_sheet_index: params.destinationSheetIndex,
+    }
 }
 
 /* 

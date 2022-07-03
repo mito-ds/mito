@@ -112,7 +112,7 @@ export const getDefaultMergeParams = (sheetDataArray: SheetData[], _sheetIndexOn
 
 const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
 
-    const {params, setParams, error} = useLiveUpdatingParams<MergeParams>(
+    const {params, setParams, error} = useLiveUpdatingParams<MergeParams, MergeParams>(
         () => getDefaultMergeParams(props.sheetDataArray, props.selectedSheetIndex),
         StepType.Merge,
         props.mitoAPI,

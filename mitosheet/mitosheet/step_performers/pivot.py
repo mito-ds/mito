@@ -82,7 +82,7 @@ class PivotStepPerformer(StepPerformer):
         pivot_columns_column_ids: List[ColumnID] = get_param(params, 'pivot_columns_column_ids')
         values_column_ids_map: Dict[ColumnID, Collection[str]] = get_param(params, 'values_column_ids_map')
         flatten_column_headers: bool = get_param(params, 'flatten_column_headers')
-        destination_sheet_index: int = get_param(params, 'destination_sheet_index')
+        destination_sheet_index: Optional[int] = get_param(params, 'destination_sheet_index')
         use_deprecated_id_algorithm: bool = get_param(params, 'use_deprecated_id_algorithm') if get_param(params, 'use_deprecated_id_algorithm') else False
 
         pivot_rows = prev_state.column_ids.get_column_headers_by_ids(sheet_index, pivot_rows_column_ids)
