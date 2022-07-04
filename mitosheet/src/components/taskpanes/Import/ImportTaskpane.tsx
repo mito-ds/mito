@@ -276,7 +276,7 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                             >
                                 <Row suppressTopBottomMargin justify='space-between' align='center'>
                                     <ConfigureIcon/>
-                                    <p className='ml-5px'>
+                                    <p className='ml-2px'>
                                         Configure
                                     </p>
                                 </Row>
