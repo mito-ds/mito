@@ -23,6 +23,11 @@ import { useEffectOnUpdateEvent } from "./useEffectOnUpdateEvent";
     take the custom UI code we have to write down to _just_ the code to display
     the parameters to the user and allow them to edit them. This is really
     sweet, and we'll continue to migrate to this hook over time. Woo!
+
+    We allow consumers of this hook to have a different type of frontend
+    params from backend params (as long as they pass functions to convert
+    between them), as in some cases (e.g. pivot), what is useful on the 
+    backend is different than what is useful on the frontend.
 */
 function useLiveUpdatingParams<FrontendParamType, BackendParamType>(
     defaultParams: FrontendParamType | undefined | (() => FrontendParamType | undefined),
@@ -36,7 +41,6 @@ function useLiveUpdatingParams<FrontendParamType, BackendParamType>(
     },
     options?: {
         doNotSendDefaultParams: boolean,
-        executionDataToMatch?: Record<string, string | number>
     }
 ): {
         params: FrontendParamType | undefined, // If this is undefined, no messages will be sent to the backend
@@ -118,7 +122,7 @@ function useLiveUpdatingParams<FrontendParamType, BackendParamType>(
             return;
         }
 
-        const newBackendParams = await mitoAPI.getParams<BackendParamType>(stepType, stepID, options?.executionDataToMatch || {});
+        const newBackendParams = await mitoAPI.getParams<BackendParamType>(stepType, stepID, {});
         if (newBackendParams !== undefined) {
             _setParams(converters.getFrontendFromBackend(newBackendParams));
         } else {

@@ -5,7 +5,7 @@ import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import PivotTableKeySelection from './PivotTableKeySelection';
 import PivotTableValueSelection from './PivotTableValueSelection';
 import MitoAPI from '../../../jupyter/api';
-import { getPivotBackendParamsFromFrontendParams, getPivotFrontendParamsFromBackendParams, getDefaultPivotParams } from './pivotUtils';
+import { getPivotFrontendParamsFromBackendParams, getPivotBackendParamsFromFrontendParams, getDefaultPivotParams } from './pivotUtils';
 import { AggregationType, AnalysisData, BackendPivotParams, ColumnID, ColumnIDsMap, SheetData, StepType, UIState } from '../../../types';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
@@ -40,16 +40,13 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
         StepType.Pivot,
         props.mitoAPI, props.analysisData, 0, 
         {
-            getBackendFromFrontend: getPivotFrontendParamsFromBackendParams,
-            getFrontendFromBackend: getPivotBackendParamsFromFrontendParams
+            getBackendFromFrontend: getPivotBackendParamsFromFrontendParams,
+            getFrontendFromBackend: getPivotFrontendParamsFromBackendParams
         },
         {
             // If we have a destination sheet index, we make sure to not overwrite the pivot
-            // that is there. We also match the destination sheet index
+            // that is there by default
             doNotSendDefaultParams: props.destinationSheetIndex !== undefined,
-            executionDataToMatch: props.destinationSheetIndex !== undefined ? {
-                'destination_sheet_index': props.destinationSheetIndex
-            } : undefined
         }
     )
 

@@ -18,10 +18,10 @@ export const getDefaultPivotParams = (sheetDataArray: SheetData[], selectedSheet
         }
     } 
 
-    return getPivotBackendParamsFromFrontendParams(existingPivotParams);
+    return getPivotFrontendParamsFromBackendParams(existingPivotParams);
 }
 
-export const getPivotBackendParamsFromFrontendParams = (pivotParams: BackendPivotParams): FrontendPivotParams => {
+export const getPivotFrontendParamsFromBackendParams = (pivotParams: BackendPivotParams): FrontendPivotParams => {
     return {
         selectedSheetIndex: pivotParams.sheet_index,
         pivotRowColumnIDs: pivotParams.pivot_rows_column_ids,
@@ -32,7 +32,7 @@ export const getPivotBackendParamsFromFrontendParams = (pivotParams: BackendPivo
     };
 }
 
-export const getPivotFrontendParamsFromBackendParams = (params: FrontendPivotParams): BackendPivotParams => {
+export const getPivotBackendParamsFromFrontendParams = (params: FrontendPivotParams): BackendPivotParams => {
     return {
         sheet_index: params.selectedSheetIndex,
         // Deduplicate the rows and columns before sending them to the backend

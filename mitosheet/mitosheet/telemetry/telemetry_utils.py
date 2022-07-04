@@ -36,7 +36,7 @@ from mitosheet.user import (UJ_STATIC_USER_ID, get_user_field,
                             is_local_deployment, is_running_test)
 
 # If you want, you can optionally choose to print logs
-PRINT_LOGS = True
+PRINT_LOGS = False
 
 
 def telemetry_turned_on() -> bool:
