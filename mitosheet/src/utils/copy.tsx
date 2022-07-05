@@ -1,3 +1,4 @@
+import { MAX_ROWS } from "../components/endo/EndoGrid";
 import { isValueNone } from "../components/taskpanes/ControlPanel/FilterAndSortTab/filter/utils";
 import { FormatTypeObj, MitoSelection, SheetData } from "../types";
 import { getDisplayColumnHeader } from "./columnHeaders";
@@ -80,8 +81,9 @@ const getCopyStringForSelections = (sheetData: SheetData, selections: MitoSelect
     let highRowIndex = Math.max(selections[0].startingRowIndex, selections[0].endingRowIndex);
     
     // If we only have column headers selected, then we actually want to take the entire column
+    // making sure to not take more rows than there are
     if (lowRowIndex === -1 && highRowIndex === -1) {
-        highRowIndex = sheetData.numRows - 1;
+        highRowIndex = Math.min(sheetData.numRows - 1, MAX_ROWS - 1);
     }
 
     let copyString = '';
