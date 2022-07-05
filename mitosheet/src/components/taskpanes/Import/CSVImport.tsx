@@ -328,11 +328,9 @@ function CSVImport(props: CSVImportProps): JSX.Element {
                 </Row>
             </DefaultTaskpaneBody>
             <DefaultTaskpaneFooter>
-                {!isMitoError(props.error) && !editApplied &&
-                    <p className='text-body-2 text-color-medium-gray-important mb-5px'>
-                        Mito guesses the above parameters correct above 90% of the time. Try importing Mito&apos;s detected configuration. <span className='text-body-2-link' onClick={resetParams}>Reset parameters. </span> 
-                    </p>
-                }
+                <p className='text-body-2 text-color-medium-gray-important mb-5px'>
+                    <span className='text-body-2-link' onClick={resetParams}>Reset parameters to automatically detected parameters. </span> 
+                </p>
                 <TextButton
                     variant='dark'
                     width='block'
