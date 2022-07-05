@@ -204,7 +204,7 @@ function GraphStyleTab(props: {
                     <Select
                         value={props.graphParams.graphStyling.xaxis.type || 'default'}
                         onChange={(xAxisType: string) => {
-                            const newXAxisType = xAxisType !== 'default' ? xAxisType : undefined
+                            const newXAxisType = xAxisType !== AxisType.DEFAULT ? xAxisType : undefined
                             props.setGraphParams(prevGraphParams => {
                                 const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
                                 return {
@@ -358,7 +358,7 @@ function GraphStyleTab(props: {
                     <Select
                         value={props.graphParams.graphStyling.yaxis.type || 'default'}
                         onChange={(yAxisType: string) => {
-                            const newYAxisType = yAxisType !== 'default' ? yAxisType : undefined
+                            const newYAxisType = yAxisType !== AxisType.DEFAULT ? yAxisType : undefined
                             props.setGraphParams(prevGraphParams => {
                                 const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
                                 return {
