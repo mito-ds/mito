@@ -9,6 +9,7 @@ Contains handlers for the Mito API
 from queue import Queue
 from threading import Thread
 from typing import Any, Callable, Dict, List, NoReturn, Union
+from mitosheet.api.get_csv_files_metadata import get_csv_files_metadata
 from mitosheet.api.get_params import get_params
 from mitosheet.api.get_column_describe import get_column_describe
 from mitosheet.api.get_dataframe_as_csv import get_dataframe_as_csv
@@ -132,6 +133,8 @@ def handle_api_event(
         result = get_params(params, steps_manager)
     elif event["type"] == "get_excel_file_metadata":
         result = get_excel_file_metadata(params, steps_manager)
+    elif event["type"] == "get_csv_files_metadata":
+        result = get_csv_files_metadata(params, steps_manager)
     elif event["type"] == "get_unique_value_counts":
         result = get_unique_value_counts(params, steps_manager)
     elif event["type"] == "get_split_text_to_columns_preview":
