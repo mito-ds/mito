@@ -133,3 +133,44 @@ export const getCopyStringForClipboard = (sheetData: SheetData | undefined, sele
 
     return [getCopyStringForSelections(sheetData, selectionsToCopy), selectionsToCopy];
 }
+
+/**
+ * A wrapper that makes sure copying to the clipboard works in all contexts, including
+ * insecure contexts where the navigator.clipboard is not defined.
+ * Adapted from: https://stackoverflow.com/questions/51805395/navigator-clipboard-is-undefined
+ * 
+ * @param text - the text to copy to the clipboard
+ * @returns a promise that resolves or rejects depending on success
+ */
+export const writeTextToClipboard = (text: string): Promise<void> => {
+    if (navigator.clipboard && window.isSecureContext) {
+        // Navigator clipboard api needs a secure context (https)
+        return navigator.clipboard.writeText(text);
+    } else {
+        // Text area method
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        // make the textarea not visible
+        textArea.style.position = "absolute"; 
+        textArea.style.opacity = "0";
+        document.body.appendChild(textArea);
+        
+        // Save the previous selected element
+        const currentFocusedElement = document.activeElement;
+
+        // Select the text area
+        textArea.select();
+        return new Promise((res, rej) => {
+            // Actually do the copy
+            document.execCommand('copy') ? res() : rej();
+            textArea.remove();
+
+            // Try to refocus on the element, if it is focusable
+            try {
+                (currentFocusedElement as any)?.focus();
+            } catch (e) {
+                console.log("Error refocusing on element", e);
+            }
+        });
+    }
+}

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { writeTextToClipboard } from "../utils/copy";
 
 /* 
     A hook to allow you to copy code to the users clipboard, 
@@ -14,7 +15,7 @@ export const useCopyToClipboard = (text: string | undefined, resetTimeout = 2500
         if (text == undefined) {
             return
         }
-        navigator.clipboard.writeText(text).then(
+        writeTextToClipboard(text).then(
             () => {setCopyStatus(true)},
             () => {setCopyStatus(false)}
         )
