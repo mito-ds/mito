@@ -11,10 +11,12 @@ import Col from '../../spacing/Col';
 import Row from '../../spacing/Row';
 
 export enum AxisType {
+    DEFAULT = 'default',
     LINEAR = 'linear',
     LOG = 'log',
     CATEGORY = 'category',
     DATE = 'date',
+    MULTICATEGORY = 'multicategory',
 }
 /* 
     Contains all of the options for styling graphs,
@@ -197,7 +199,7 @@ function GraphStyleTab(props: {
                 <Row justify='space-between' align='center'>
                     <Col>
                         <p>
-                            Type
+                            Transform
                         </p>
                     </Col>
                     <Select
@@ -223,7 +225,7 @@ function GraphStyleTab(props: {
                         dropdownWidth='medium'
                     >
                         <DropdownItem
-                            title={'default'}
+                            title={AxisType.DEFAULT}
                         />
                         <DropdownItem
                             title={AxisType.LINEAR}
@@ -236,6 +238,9 @@ function GraphStyleTab(props: {
                         />
                         <DropdownItem
                             title={AxisType.CATEGORY}
+                        />
+                        <DropdownItem
+                            title={AxisType.MULTICATEGORY}
                         />
                     </Select>
                 </Row>
@@ -351,12 +356,12 @@ function GraphStyleTab(props: {
                 <Row justify='space-between' align='center'>
                     <Col>
                         <p>
-                            Type
+                            Transform
                         </p>
                     </Col>
                     <Select
                         value={props.graphParams.graphStyling.yaxis.type || 'default'}
-                        onChange={(yAxisType: string | undefined) => {
+                        onChange={(yAxisType: string) => {
                             const newYAxisType = yAxisType !== 'default' ? yAxisType : undefined
                             props.setGraphParams(prevGraphParams => {
                                 const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
@@ -377,7 +382,7 @@ function GraphStyleTab(props: {
                         dropdownWidth='medium'
                     >
                         <DropdownItem
-                            title={'default'}
+                            title={AxisType.DEFAULT}
                         />
                         <DropdownItem
                             title={AxisType.LINEAR}
@@ -390,6 +395,9 @@ function GraphStyleTab(props: {
                         />
                         <DropdownItem
                             title={AxisType.CATEGORY}
+                        />
+                        <DropdownItem
+                            title={AxisType.MULTICATEGORY}
                         />
                     </Select>
                 </Row>
