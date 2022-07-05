@@ -148,7 +148,7 @@ export const writeTextToClipboard = (text: string): Promise<void> => {
         return navigator.clipboard.writeText(text);
     } else {
         // Text area method
-        let textArea = document.createElement("textarea");
+        const textArea = document.createElement("textarea");
         textArea.value = text;
         // make the textarea not visible
         textArea.style.position = "absolute"; 
