@@ -16,7 +16,6 @@ export enum AxisType {
     LOG = 'log',
     CATEGORY = 'category',
     DATE = 'date',
-    MULTICATEGORY = 'multicategory',
 }
 /* 
     Contains all of the options for styling graphs,
@@ -239,9 +238,6 @@ function GraphStyleTab(props: {
                         <DropdownItem
                             title={AxisType.CATEGORY}
                         />
-                        <DropdownItem
-                            title={AxisType.MULTICATEGORY}
-                        />
                     </Select>
                 </Row>
                 <Row justify='space-between' align='center'>
@@ -395,9 +391,6 @@ function GraphStyleTab(props: {
                         />
                         <DropdownItem
                             title={AxisType.CATEGORY}
-                        />
-                        <DropdownItem
-                            title={AxisType.MULTICATEGORY}
                         />
                     </Select>
                 </Row>
