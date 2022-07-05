@@ -43,7 +43,7 @@ def transpile(
             code.extend(preprocess_code)
 
     # We only transpile up to the currently checked out step
-    all_code_chunks: List[CodeChunk] = get_code_chunks(steps_manager.steps[:steps_manager.curr_step_idx + 1], optimize=optimize)
+    all_code_chunks: List[CodeChunk] = get_code_chunks(steps_manager.steps_including_skipped[:steps_manager.curr_step_idx + 1], optimize=optimize)
     
     for code_chunk in all_code_chunks:
         comment = '# ' + code_chunk.get_description_comment()
@@ -57,7 +57,7 @@ def transpile(
 
     # If we have a historical step checked out, then we add a comment letting
     # the user know this is the case
-    if steps_manager.curr_step_idx != len(steps_manager.steps) - 1:
+    if steps_manager.curr_step_idx != len(steps_manager.steps_including_skipped) - 1:
         code.append(IN_PREVIOUS_STEP_COMMENT)
 
     return code

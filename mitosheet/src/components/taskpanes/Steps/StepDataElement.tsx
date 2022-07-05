@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { StepSummary, StepType } from '../../../types';
+import { StepSummary, StepType, UpdateType } from '../../../types';
 import MitoAPI from '../../../jupyter/api';
 
 // Icons
@@ -20,6 +20,9 @@ import DtypeIcon from '../../icons/DtypeIcon';
 import SplitTextToColumnsIcon from '../../icons/SplitTextToColumnsIcon';
 import TransposeIcon from '../../icons/TransposeIcon';
 import PromoteRowToHeaderIcon from '../../icons/PromoteRowToHeaderIcon';
+import UndoIcon from '../../icons/UndoIcon';
+import RedoIcon from '../../icons/RedoIcon';
+import ClearIcon from '../../icons/ClearIcon';
 
 
 export type StepDataElementProps = {
@@ -34,7 +37,7 @@ export type StepDataElementProps = {
     Gets an icon for a specific step type, to display
     with that step
 */
-export function getStepIcon(stepType: StepType): JSX.Element {
+export function getIcon(stepType: StepType | UpdateType, height?: string, width?: string): JSX.Element {
     switch (stepType) {
         case StepType.Initialize: return (
             <MitoIcon/>
@@ -46,13 +49,13 @@ export function getStepIcon(stepType: StepType): JSX.Element {
             <DeleteColumnIcon/>
         )
         case StepType.RenameColumn: return (
-            <EditIcon/>
+            <EditIcon height={height} width={width}/>
         )
         case StepType.ReorderColumn: return (
-            <EditIcon/>
+            <EditIcon height={height} width={width}/>
         )
         case StepType.FilterColumn: return (
-            <FilterIcon />
+            <FilterIcon purpleOrDark='dark'/>
         )
         case StepType.SetColumnFormula: return (
             <div className='step-taskpane-missing-icon'>
@@ -63,10 +66,10 @@ export function getStepIcon(stepType: StepType): JSX.Element {
             <DeleteColumnIcon/>
         )
         case StepType.DataframeDuplicate: return (
-            <EditIcon/>
+            <EditIcon height={height} width={width}/>
         )
         case StepType.DataframeRename: return (
-            <EditIcon/>
+            <EditIcon height={height} width={width}/>
         )
         case StepType.SimpleImport: return (
             <ImportIcon/>
@@ -75,7 +78,7 @@ export function getStepIcon(stepType: StepType): JSX.Element {
             <ImportIcon/>
         )
         case StepType.Sort: return (
-            <EditIcon/>
+            <EditIcon height={height} width={width}/>
         )
         case StepType.Pivot: return (
             <PivotIcon/>
@@ -107,9 +110,18 @@ export function getStepIcon(stepType: StepType): JSX.Element {
         case StepType.PromoteRowToHeader: return (
             <PromoteRowToHeaderIcon />
         )
+        case UpdateType.Undo: return (
+            <UndoIcon />
+        )
+        case UpdateType.Redo: return (
+            <RedoIcon />
+        )
+        case UpdateType.Clear: return (
+            <ClearIcon />
+        )
         // TODO: Add a case here
         default: return (
-            <EditIcon/>
+            <EditIcon height={height} width={width}/>
         )
     }
 }
@@ -139,7 +151,7 @@ function StepDataElement(props: StepDataElementProps): JSX.Element {
             onClick={toggleStepRollBack}
         >
             <div className='step-taskpane-step-icon'>
-                {getStepIcon(props.stepData.step_type)}
+                {getIcon(props.stepData.step_type)}
             </div>
             <div className='element-width-block hide-scrollbar'>
                 <div className='text-header-3'>

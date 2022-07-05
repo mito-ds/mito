@@ -46,13 +46,15 @@ class GraphStepPerformer(StepPerformer):
             xaxis: {
                 title: string | None,
                 visible: boolean,
+                type: string | None,
                 rangeslider: {
                     visible: boolean
                 }
             },
             yaxis: {
                 title: string | None,
-                visible: boolean
+                visible: boolean,
+                type: string | None
             },
             showlegend: boolean
         },

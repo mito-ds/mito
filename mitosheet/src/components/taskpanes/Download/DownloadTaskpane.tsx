@@ -181,7 +181,7 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                     }
                     {props.uiState.exportConfiguration.exportType === 'csv' && 
                         <CSVDownloadConfigSection 
-                            dfNames={props.dfNames}
+                            sheetDataArray={props.sheetDataArray}
                             mitoAPI={props.mitoAPI}
                             selectedSheetIndex={props.selectedSheetIndex}
                             setUIState={props.setUIState}

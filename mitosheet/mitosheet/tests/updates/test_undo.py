@@ -30,7 +30,7 @@ def test_undo_to_skipped_step_refreshes_step():
     mito.filter(0, 'A', 'And', FC_NUMBER_EXACTLY, 3)
     mito.undo()
 
-    assert len(mito.steps) == 2
+    assert len(mito.steps_including_skipped) == 2
     assert mito.dfs[0].equals(
         pd.DataFrame({'A': [2]}, index=[1])
     )

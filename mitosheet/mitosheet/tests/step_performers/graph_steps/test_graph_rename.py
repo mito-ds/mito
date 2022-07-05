@@ -17,7 +17,7 @@ def test_delete_graph():
     # Then delete the graph
     mito.rename_graph(graph_id, 'aaron graph')
 
-    assert len(mito.steps) == 3
+    assert len(mito.steps_including_skipped) == 3
     assert mito.curr_step.step_type == 'graph_rename'
 
     graph_data = mito.get_graph_data(graph_id)

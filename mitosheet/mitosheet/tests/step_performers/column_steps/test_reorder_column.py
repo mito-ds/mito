@@ -18,7 +18,7 @@ def test_reorder_column_simple():
     mito.reorder_column(0, 'A', 1)
 
 
-    assert len(mito.steps) == 2
+    assert len(mito.steps_including_skipped) == 2
     correct_column_order = ['B', 'A']
 
     # Make sure the columns are ordered properly 
@@ -32,7 +32,7 @@ def test_reorder_column_index_too_large():
 
     mito.reorder_column(0, 'A', 5)
 
-    assert len(mito.steps) == 2
+    assert len(mito.steps_including_skipped) == 2
 
     correct_column_order = ['B', 'A']
 
@@ -46,7 +46,7 @@ def test_reorder_column_index_too_small():
     # Put A in second spot
     mito.reorder_column(0, 'B', -1)
 
-    assert len(mito.steps) == 2
+    assert len(mito.steps_including_skipped) == 2
 
     correct_column_order = ['B', 'A']
 
@@ -61,7 +61,7 @@ def test_reorder_column_twice():
     mito.reorder_column(0, 'A', 1)
     mito.reorder_column(0, 'B', 1)
 
-    assert len(mito.steps) == 3
+    assert len(mito.steps_including_skipped) == 3
 
     correct_column_order = ['A', 'B']
 
@@ -77,7 +77,7 @@ def test_reorder_column_several_columns():
     mito.reorder_column(0, 'D', 1)
     mito.reorder_column(0, 'C', 1)
 
-    assert len(mito.steps) == 3
+    assert len(mito.steps_including_skipped) == 3
 
     correct_column_order = ['A', 'C', 'D', 'B']
 

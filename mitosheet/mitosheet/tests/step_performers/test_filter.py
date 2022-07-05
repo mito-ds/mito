@@ -388,7 +388,7 @@ def test_delete_filter_last_step():
     # reset the filter
     mito.filters(0, "B", "And", [])
 
-    assert len(mito.steps) == 5
+    assert len(mito.steps_including_skipped) == 5
 
     assert mito.dfs[0].equals(
         pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6], "B": [1, 2, 3, 4, 5, 6]})
@@ -410,7 +410,7 @@ def test_delete_filter_no_effect():
     mito.filters(0, "C", "And", [])
 
     # reseting the filter of a column that has no filter, should have no effect
-    assert len(mito.steps) == 7
+    assert len(mito.steps_including_skipped) == 7
     assert mito.dfs[0].equals(
         pd.DataFrame(
             data={"A": [3, 4, 5, 6], "B": [3, 4, 5, 6], "C": [9, 9, 9, 9]},

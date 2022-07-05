@@ -180,7 +180,7 @@ def test_pivot_rows_and_values_overlap():
     mito = create_mito_wrapper_dfs(df1)
     mito.pivot_sheet(0, ['Name'], [], {'Name': ['count']})
 
-    assert len(mito.steps) == 2
+    assert len(mito.steps_including_skipped) == 2
     assert mito.dfs[1].equals(
         pd.DataFrame(data={'Name': ['Aaron', 'Jake', 'Nate'], 'Name count': [1, 2, 2]})
     )
@@ -191,7 +191,7 @@ def test_pivot_rows_and_values_and_columns_overlap():
     mito = create_mito_wrapper_dfs(df1)
     mito.pivot_sheet(0, ['Name'], ['Name'], {'Name': ['count']})
 
-    assert len(mito.steps) == 2
+    assert len(mito.steps_including_skipped) == 2
     assert mito.dfs[1].equals(
         pd.DataFrame(data={
             'Name': ['Aaron', 'Jake', 'Nate'], 
@@ -207,7 +207,7 @@ def test_pivot_by_mulitple_functions():
     mito = create_mito_wrapper_dfs(df1)
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['min', 'max']})
 
-    assert len(mito.steps) == 2
+    assert len(mito.steps_including_skipped) == 2
     assert mito.dfs[1].equals(
         pd.DataFrame(data={'Name': ['Nate'], 'Height max': [5], 'Height min': [4]})
     )

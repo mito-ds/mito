@@ -59,7 +59,7 @@ def check_dataframes_equal(test_wrapper):
         df_name: df.copy(deep=True) for df, df_name in 
         zip(
             test_wrapper.mito_widget.steps_manager.original_args,
-            test_wrapper.mito_widget.steps_manager.steps[0].df_names
+            test_wrapper.mito_widget.steps_manager.steps_including_skipped[0].df_names
         )
     }
     final_dfs = {
@@ -132,15 +132,15 @@ class MitoWidgetTestWrapper:
     def optimized_code_chunks(self):
         # NOTE: we don't add comments to this testing functionality, so that 
         # we don't have to change tests if we update comments
-        return get_code_chunks(self.mito_widget.steps_manager.steps, optimize=True)
+        return get_code_chunks(self.mito_widget.steps_manager.steps_including_skipped, optimize=True)
 
     @property
     def curr_step_idx(self):
         return self.mito_widget.steps_manager.curr_step_idx
     
     @property
-    def steps(self):
-        return self.mito_widget.steps_manager.steps
+    def steps_including_skipped(self):
+        return self.mito_widget.steps_manager.steps_including_skipped
 
     @property
     def curr_step(self):
@@ -937,10 +937,12 @@ class MitoWidgetTestWrapper:
         xaxis_title: Optional[str]=None,
         xaxis_visible: bool=True,
         xaxis_title_font_color: str=DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT,
+        xaxis_type: Optional[str]=None,
         xaxis_rangeslider_visible: bool=True,
         yaxis_title: Optional[str]=None,
         yaxis_visible: bool=True,
         yaxis_title_font_color: str=DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT,
+        yaxis_type: Optional[str]=None,
         showlegend: bool=True,
         step_id: str=None,
         paper_bgcolor: str=DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT,
@@ -974,6 +976,7 @@ class MitoWidgetTestWrapper:
                             'title': xaxis_title,
                             'visible': xaxis_visible,
                             'title_font_color': xaxis_title_font_color,
+                            'type': xaxis_type,
                             'rangeslider': {
                                 'visible': xaxis_rangeslider_visible
                             }
@@ -982,6 +985,7 @@ class MitoWidgetTestWrapper:
                             'title': yaxis_title,
                             'visible': yaxis_visible,
                             'title_font_color': yaxis_title_font_color,
+                            'type': yaxis_type
                         },
                         'showlegend': showlegend,
                         'paper_bgcolor': paper_bgcolor,

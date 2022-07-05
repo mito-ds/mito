@@ -58,23 +58,3 @@ export const valuesArrayToRecord = (valuesArray: [string, AggregationType][]): R
     }
     return valuesRecord;
 }
-
-
-/* 
-    A helper function for making a mapping from dfName -> index of that dataframe,
-    for all the df names we can select. 
-
-    Useful for making sure the user cannot select the pivot table they are currently
-    editing as the source sheet, as this obviously causes errors.
-*/
-export const allDfNamesToSelectableDfNameToSheetIndex = (dfNames: string[], destinationSheetIndex?: number): Record<string, number> => {
-    const selectableDfNamesToSheetIndex: Record<string, number> = {};
-
-    for (let i = 0; i < dfNames.length; i++) {
-        if (i !== destinationSheetIndex) {
-            selectableDfNamesToSheetIndex[dfNames[i]] = i;
-        }
-    }
-
-    return selectableDfNamesToSheetIndex;
-}

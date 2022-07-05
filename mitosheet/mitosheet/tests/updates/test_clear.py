@@ -20,7 +20,7 @@ def test_clear_undoes_mulitple_steps_on_passed_dataframes():
     mito.add_column(0, 'C')
     mito.clear()
 
-    assert len(mito.steps) == 1
+    assert len(mito.steps_including_skipped) == 1
     assert mito.dfs[0].equals(df1)
 
 
@@ -33,7 +33,7 @@ def test_clear_can_be_redone_with_single_redo():
     mito.clear()
     mito.redo()
 
-    assert len(mito.steps) == 3
+    assert len(mito.steps_including_skipped) == 3
     assert mito.dfs[0].equals(pd.DataFrame({
         'A': [1, 2, 3],
         'B': [0, 0, 0],
@@ -51,7 +51,7 @@ def test_clear_then_undo_actually_redoes():
     mito.clear()
     mito.undo()
 
-    assert len(mito.steps) == 3
+    assert len(mito.steps_including_skipped) == 3
     assert mito.dfs[0].equals(pd.DataFrame({
         'A': [1, 2, 3],
         'B': [0, 0, 0],
@@ -76,7 +76,7 @@ def test_clear_keeps_simple_imports_then_resets():
     # Check only simple import remains, and everything else is filtered out 
     # and that no transforms have been applied
     assert mito.curr_step.step_type == 'simple_import'
-    assert len(mito.steps) == 2
+    assert len(mito.steps_including_skipped) == 2
     assert mito.dfs[0].equals(df0)
     assert mito.dfs[1].equals(df1)
 
@@ -118,7 +118,7 @@ def test_clear_resets_excel_imports():
     # Check only simple import remains, and everything else is filtered out 
     # and that no transforms have been applied
     assert mito.curr_step.step_type == 'excel_import'
-    assert len(mito.steps) == 2
+    assert len(mito.steps_including_skipped) == 2
     assert mito.dfs[0].equals(df0)
     assert mito.dfs[1].equals(df1)
 

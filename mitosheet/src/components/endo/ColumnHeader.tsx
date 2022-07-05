@@ -376,6 +376,7 @@ const ColumnHeader = (props: {
                 closeOpenEditingPopups={props.closeOpenEditingPopups} 
                 setEditorState={props.setEditorState}
                 sheetData={props.sheetData}
+                gridState={props.gridState}
             />
         </div>
     )

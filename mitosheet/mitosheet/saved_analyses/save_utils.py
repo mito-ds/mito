@@ -205,7 +205,7 @@ def write_analysis(steps_manager: StepsManagerType, analysis_name: str=None) -> 
         analysis_name = steps_manager.analysis_name
 
     analysis_path = f'{SAVED_ANALYSIS_FOLDER}/{analysis_name}.json'
-    steps = make_steps_json_obj(steps_manager.steps)
+    steps = make_steps_json_obj(steps_manager.steps_including_skipped)
 
     # Actually write the file
     write_saved_analysis(analysis_path, steps)

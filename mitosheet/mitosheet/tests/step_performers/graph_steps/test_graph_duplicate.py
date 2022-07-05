@@ -18,7 +18,7 @@ def test_duplicate_graph():
     new_graph_id = '456'
     mito.duplicate_graph(graph_id, new_graph_id)
 
-    assert len(mito.steps) == 3
+    assert len(mito.steps_including_skipped) == 3
     assert mito.curr_step.step_type == 'graph_duplicate'
 
     assert mito.get_graph_type(graph_id) == 'bar'
