@@ -12,7 +12,7 @@ import { FunctionDocumentationObject, functionDocumentationObjects } from "../da
 import { Action, DFSource, EditorState, GridState, SheetData, UIState, ActionEnum } from "../types"
 import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { FORMAT_DISABLED_MESSAGE } from "./formatColumns";
-import { getCopyStringForClipboard } from "./copy";
+import { writeTextToClipboard, getCopyStringForClipboard } from "./copy";
 
 
 export const createActions = (
@@ -180,7 +180,7 @@ export const createActions = (
 
                 const [stringToCopy, copiedSelections] = copyStringAndSelections;
                 
-                void navigator.clipboard.writeText(stringToCopy);
+                void writeTextToClipboard(stringToCopy);
 
                 setGridState(prevGridState => {
                     return {
