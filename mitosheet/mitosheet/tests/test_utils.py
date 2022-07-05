@@ -937,10 +937,12 @@ class MitoWidgetTestWrapper:
         xaxis_title: Optional[str]=None,
         xaxis_visible: bool=True,
         xaxis_title_font_color: str=DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT,
+        xaxis_type: Optional[str]=None,
         xaxis_rangeslider_visible: bool=True,
         yaxis_title: Optional[str]=None,
         yaxis_visible: bool=True,
         yaxis_title_font_color: str=DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT,
+        yaxis_type: Optional[str]=None,
         showlegend: bool=True,
         step_id: str=None,
         paper_bgcolor: str=DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT,
@@ -974,6 +976,7 @@ class MitoWidgetTestWrapper:
                             'title': xaxis_title,
                             'visible': xaxis_visible,
                             'title_font_color': xaxis_title_font_color,
+                            'type': xaxis_type,
                             'rangeslider': {
                                 'visible': xaxis_rangeslider_visible
                             }
@@ -982,6 +985,7 @@ class MitoWidgetTestWrapper:
                             'title': yaxis_title,
                             'visible': yaxis_visible,
                             'title_font_color': yaxis_title_font_color,
+                            'type': yaxis_type
                         },
                         'showlegend': showlegend,
                         'paper_bgcolor': paper_bgcolor,

@@ -232,6 +232,9 @@ def get_graph_styling_param_dict(graph_type: str, column_headers: List[ColumnHea
         # Plotly makes us explicitly handle setting the xaxis title and yaxis title to None
         all_params['xaxis']['title'] = None
 
+    if 'type' in graph_styling_params['xaxis']:
+        all_params['xaxis']['type'] = graph_styling_params['xaxis']['type']
+
     # Create the range slider param
     if graph_styling_params['xaxis']['rangeslider']['visible']:
         all_params['xaxis']['rangeslider'] = dict(visible=True, thickness=0.05)
@@ -252,6 +255,9 @@ def get_graph_styling_param_dict(graph_type: str, column_headers: List[ColumnHea
     else: 
         # Plotly makes us explicitly handle setting the xaxis_title and yaxis_title to None
         all_params['yaxis']['title'] = None
+
+    if 'type' in graph_styling_params['yaxis']:
+        all_params['yaxis']['type'] = graph_styling_params['yaxis']['type']
 
     # Create the barmode param
     barmode = get_barmode(graph_type)
