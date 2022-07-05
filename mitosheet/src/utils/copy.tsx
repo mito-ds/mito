@@ -133,3 +133,25 @@ export const getCopyStringForClipboard = (sheetData: SheetData | undefined, sele
 
     return [getCopyStringForSelections(sheetData, selectionsToCopy), selectionsToCopy];
 }
+
+export const writeTextToClipboard = (text: string): Promise<void> => {
+    // navigator clipboard api needs a secure context (https)
+    if (navigator.clipboard && window.isSecureContext) {
+        // navigator clipboard api method'
+        return navigator.clipboard.writeText(text);
+    } else {
+        // text area method
+        let textArea = document.createElement("textarea");
+        textArea.value = text;
+        // make the textarea not visible
+        textArea.style.position = "absolute"; 
+        textArea.style.opacity = "0";
+        document.body.appendChild(textArea);
+        textArea.select();
+        return new Promise((res, rej) => {
+            // here the magic happens
+            document.execCommand('copy') ? res() : rej();
+            textArea.remove();
+        });
+    }
+}
