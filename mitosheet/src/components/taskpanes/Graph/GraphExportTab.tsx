@@ -9,15 +9,15 @@ import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
 
 const getStreamlitCode = (analysisCode: string, graphCode: string) => {
     return `import plotly.express as px
-    import streamlit as st
-    import plotly.figure_factory as ff
-    import numpy as np
+import streamlit as st
+import plotly.figure_factory as ff
+import numpy as np
     
     ${analysisCode}
 
     ${graphCode}
     
-    st.plotly_chart(fig, use_container_width=True)`
+st.plotly_chart(fig, use_container_width=True)`
 }
 
 /* 
