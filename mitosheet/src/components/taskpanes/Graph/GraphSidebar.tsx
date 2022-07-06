@@ -274,6 +274,7 @@ const GraphSidebar = (props: {
                                 loading={loading}
                                 graphOutput={graphOutput}
                                 mitoContainerRef={props.mitoContainerRef}
+                                analysisData={props.analysisData}
                             />
                         }
                     </div>
