@@ -72,6 +72,14 @@
     color: var(--mito-gray);
 }
 
+.text-body-2-link {
+    font-size: 13px;
+    font-family: Roboto;
+    font-weight: 400;
+    color: var(--mito-purple);
+    text-decoration: underline;
+}
+
 /* Use for subtext in lists */
 .text-subtext-1 {
     font-size: 12px;

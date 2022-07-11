@@ -98,7 +98,7 @@ class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
                 num_strs += 1
 
                 read_csv_code = generate_read_csv_code(
-                    arg, df_name, delimeters[arg_index], encodings[arg_index]
+                    arg, df_name, delimeters[arg_index], encodings[arg_index], True
                 )
 
                 code.append(

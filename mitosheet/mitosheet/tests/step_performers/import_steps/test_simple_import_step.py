@@ -9,6 +9,8 @@ Contains tests for simple import steps
 import pytest
 import pandas as pd
 import os
+from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DELIMETER, DEFAULT_ENCODING
+from mitosheet.saved_analyses.schema_utils import is_prev_version
 
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 
@@ -20,6 +22,35 @@ TEST_FILE_PATHS = [
 FAKE_FILE_PATHS = [
     'never_exists.csv'
 ]
+
+SIMPLE_IMPORT_TESTS = [
+    (
+        pd.DataFrame({'A': [1, 2, 3]}),
+        ';', 
+        'utf-8',
+        False
+    ),
+    (
+        pd.DataFrame({'A': [1, 2, 3]}),
+        '|', 
+        'big5',
+        True
+    ),
+]
+@pytest.mark.parametrize("input_df, delimeter, encoding, error_bad_lines", SIMPLE_IMPORT_TESTS)
+def test_simple_import(input_df, delimeter, encoding, error_bad_lines):
+    input_df.to_csv(TEST_FILE_PATHS[0], index=False, sep=delimeter, encoding=encoding)
+
+    # Create with no dataframes
+    mito = create_mito_wrapper_dfs()
+    # And then import just a test file
+    mito.simple_import([TEST_FILE_PATHS[0]], [delimeter], [encoding], [error_bad_lines])
+
+    # Remove the test file
+    os.remove(TEST_FILE_PATHS[0])
+
+    assert len(mito.dfs) == 1
+    assert mito.dfs[0].equals(input_df)
 
 def test_rolls_back_on_failed_import():
 
@@ -396,3 +427,43 @@ def test_multiple_imports_optimize_stopped_by_rename():
 
     # Remove the test file
     os.remove(TEST_FILE_PATHS[0])
+
+def test_skip_invalid_lines():
+    df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+    df.to_csv(TEST_FILE_PATHS[0], index=False)
+
+    with open(TEST_FILE_PATHS[0], 'w+') as f:
+        f.write("""FirstName,LastName,Team,Position,JerseyNumber,Salary,Birthdate
+Joe,Pavelski,SJ,C,8,6000000,1984-07-11
+Connor,Mc,David,EDM,C,97,925000,1997-01-13
+Sidney ,Crosby,PIT,C,87,8700000,1987-08-07
+Carey,Price,MTL,G,31,10,500,000,1987-08-16
+Daniel,Sedin,VAN,LW,22,1,1980-09-26
+Henrik,Sedin,VAN,C,33,1,1980-09-26""")
+
+    mito = create_mito_wrapper_dfs()
+    mito.simple_import([TEST_FILE_PATHS[0]], [DEFAULT_DELIMETER], [DEFAULT_ENCODING], [True])
+
+    print(mito.dfs)
+    
+    assert len(mito.dfs) == 0
+
+    mito.simple_import([TEST_FILE_PATHS[0]], [DEFAULT_DELIMETER], [DEFAULT_ENCODING], [False])
+
+
+    from io import StringIO
+
+    TESTDATA = StringIO("""FirstName,LastName,Team,Position,JerseyNumber,Salary,Birthdate
+Joe,Pavelski,SJ,C,8,6000000,1984-07-11
+Connor,Mc,David,EDM,C,97,925000,1997-01-13
+Sidney ,Crosby,PIT,C,87,8700000,1987-08-07
+Carey,Price,MTL,G,31,10,500,000,1987-08-16
+Daniel,Sedin,VAN,LW,22,1,1980-09-26
+Henrik,Sedin,VAN,C,33,1,1980-09-26""")
+
+    if is_prev_version(pd.__version__, '1.3.0'):
+        df = pd.read_csv(TESTDATA, error_bad_lines=False)
+    else:
+        df = pd.read_csv(TESTDATA, on_bad_lines='skip')
+    assert mito.dfs[0].equals(df)
+    assert len(mito.dfs[0].index) == 4

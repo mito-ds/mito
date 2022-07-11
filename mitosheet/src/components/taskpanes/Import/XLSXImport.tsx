@@ -11,7 +11,7 @@ import Select from '../../elements/Select';
 import TextButton from '../../elements/TextButton';
 import DropdownItem from '../../elements/DropdownItem';
 import { AnalysisData, StepType, UIState } from '../../../types';
-import { ImportTaskpaneState } from './ImportTaskpane';
+import { FileElement, ImportTaskpaneState } from './ImportTaskpane';
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import { toggleInArray } from '../../../utils/arrays';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
@@ -28,8 +28,8 @@ interface XLSXImportProps {
     importState: ImportTaskpaneState;
     setImportState: React.Dispatch<React.SetStateAction<ImportTaskpaneState>>;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
-    fileForImportWizard: string | undefined,
-    setFileForImportWizard: React.Dispatch<React.SetStateAction<string | undefined>>;
+    fileForImportWizard: FileElement | undefined,
+    setFileForImportWizard: React.Dispatch<React.SetStateAction<FileElement | undefined>>;
 }
 
 export interface ExcelFileMetadata {
@@ -117,7 +117,7 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader
-                header={`Import ${props.fileForImportWizard}`}
+                header={`Import ${props.fileForImportWizard?.name}`}
                 setUIState={props.setUIState}
                 backCallback={() => props.setFileForImportWizard(undefined)}
             />
