@@ -274,6 +274,18 @@ function CSVImport(props: CSVImportProps): JSX.Element {
                                     }
                                 })
                             }} 
+                            onKeyDown={(e) => {
+                                // If you press tab, we add it to the input, as this is very valid delimeter
+                                if (e.key === 'Tab') {
+                                    e.preventDefault();
+                                    setParams(prevParams => {
+                                        return {
+                                            ...prevParams,
+                                            delimeters: [prevParams.delimeters[0] + '\t']
+                                        }
+                                    })
+                                }
+                            }}
                         />
                     </Col>
                 </Row>
