@@ -496,6 +496,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     mitoAPI={props.mitoAPI}
                     isPro={userProfile.isPro}
                     sheetDataArray={sheetDataArray}
+                    analysisData={analysisData}
                 />
             )
             case ModalEnum.Upgrade: return (

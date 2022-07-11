@@ -9,21 +9,23 @@ Utilities for creating and initializing the user.json
 file with the current schema
 """
 
+import json
+import os
 from datetime import datetime
 from typing import List, Optional
-from mitosheet.user.utils import is_local_deployment
-from mitosheet.utils import get_random_id
-import os
-import json
 
 from mitosheet._version import __version__
-from mitosheet.user.schemas import (
-    UJ_STATIC_USER_ID, UJ_USER_EMAIL, UJ_MITOSHEET_CURRENT_VERSION, 
-    UJ_MITOSHEET_LAST_UPGRADED_DATE, UJ_MITOSHEET_LAST_FIFTY_USAGES
-)
-from mitosheet.user.schemas import GITHUB_ACTION_EMAIL, GITHUB_ACTION_ID, USER_JSON_DEFAULT
+from mitosheet.user.db import (MITO_FOLDER, USER_JSON_PATH, get_user_field,
+                               set_user_field)
+from mitosheet.user.schemas import (GITHUB_ACTION_EMAIL, GITHUB_ACTION_ID,
+                                    UJ_MITOSHEET_CURRENT_VERSION,
+                                    UJ_MITOSHEET_LAST_FIFTY_USAGES,
+                                    UJ_MITOSHEET_LAST_UPGRADED_DATE,
+                                    UJ_STATIC_USER_ID, UJ_USER_EMAIL,
+                                    USER_JSON_DEFAULT)
 from mitosheet.user.upgrade import try_upgrade_user_json_to_current_version
-from mitosheet.user.db import MITO_FOLDER, USER_JSON_PATH, get_user_json_object, set_user_field, get_user_field
+from mitosheet.user.utils import is_local_deployment
+
 
 def is_user_json_exists_and_valid_json() -> bool:
     """

@@ -555,6 +555,13 @@ export type FormatTypeObj =
     }
 
 
+export type ExperimentID = 
+    | 'title_name';
+
+interface Experiment {
+    experiment_id: ExperimentID;
+    variant: "A" | "B";
+}
 
 
 /**
@@ -573,6 +580,7 @@ export type FormatTypeObj =
  *        mitosheet.sheet() call is made (even if it replays the analysis), as this is a new backend object.
  * @param lastResult - This is the result of the last step that was applied. This might be undefined if the 
  *        step does not return a result
+ * @param experiment - The experiment that this user is currently running, which may not be defined
  */
 export interface AnalysisData {
     analysisName: string,
@@ -588,6 +596,7 @@ export interface AnalysisData {
     updateEventCount: number;
     renderCount: number;
     lastResult: any;
+    experiment: Experiment | undefined;
 }
 
 /**
