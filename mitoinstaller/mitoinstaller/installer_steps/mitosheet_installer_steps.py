@@ -89,7 +89,6 @@ MITOSHEET_INSTALLER_STEPS = [
     InstallerStep(
         'Install mitosheet',
         install_step_mitosheet_install_mitosheet,
-        should_log_success=True
     ),
     InstallerStep(
         'Activate extension',
