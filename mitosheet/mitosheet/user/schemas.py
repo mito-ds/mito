@@ -14,7 +14,7 @@ version always.
 """
 
 from datetime import datetime
-from mitosheet.experiments.experiment_utils import get_default_uj_experiments
+from mitosheet.experiments.experiment_utils import get_new_experiment
 from mitosheet.utils import get_random_id
 from mitosheet._version import __version__
 
@@ -40,7 +40,7 @@ UJ_MITOSHEET_LAST_UPGRADED_DATE = 'mitosheet_last_upgraded_date'
 UJ_MITOSHEET_LAST_FIFTY_USAGES = 'mitosheet_last_fifty_usages'
 UJ_MITOSHEET_TELEMETRY = 'mitosheet_telemetry'
 UJ_MITOSHEET_PRO = 'mitosheet_pro'
-UJ_EXPERIMENTS = 'experiments'
+UJ_EXPERIMENT = 'experiment'
 
 
 # This was the final version of the user.json with user_json_version == 1
@@ -215,7 +215,7 @@ USER_JSON_VERSION_6 = {
     UJ_MITOSHEET_LAST_FIFTY_USAGES: [datetime.today().strftime('%Y-%m-%d')],
     UJ_MITOSHEET_TELEMETRY: True,
     UJ_MITOSHEET_PRO: False,
-    UJ_EXPERIMENTS: get_default_uj_experiments(), # TODO: we want this to never change? or should we make it a constant function?
+    UJ_EXPERIMENT: get_new_experiment()
 }
 
 

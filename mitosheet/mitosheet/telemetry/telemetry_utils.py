@@ -21,7 +21,7 @@ from mitosheet.telemetry.anonymization_utils import anonymize_object, get_final_
 from mitosheet.telemetry.private_params_map import LOG_EXECUTION_DATA_PUBLIC
 from mitosheet.types import StepsManagerType
 from mitosheet.user.location import get_location, is_docker
-from mitosheet.user.schemas import UJ_EXPERIMENTS, UJ_FEEDBACKS, UJ_FEEDBACKS_V2, UJ_INTENDED_BEHAVIOR, UJ_MITOSHEET_TELEMETRY, UJ_USER_EMAIL
+from mitosheet.user.schemas import UJ_EXPERIMENT, UJ_FEEDBACKS, UJ_FEEDBACKS_V2, UJ_INTENDED_BEHAVIOR, UJ_MITOSHEET_TELEMETRY, UJ_USER_EMAIL
 from mitosheet.user.utils import is_local_deployment
 
 import analytics
@@ -200,21 +200,24 @@ def _get_enviornment_params() -> Dict[str, Any]:
 
     return enviornment_params
 
-experiments = None
+experiment = None
 def _get_experiment_params() -> Dict[str, Any]:
     """
     Get data relevant for tracking the experiment, so we can 
     see how the experiment is running
     """
-    global experiments
-    if experiments is None:
-        experiments = get_user_field(UJ_EXPERIMENTS)
+    global experiment
+    if experiment is None:
+        experiment = get_user_field(UJ_EXPERIMENT)
 
-    experiment_params = dict()
-    for experiment in experiments:
-        experiment_params[f'experiment_{experiment["experiment_id"]}'] = experiment['variant']
-
-    print("Expriemnt params: ", experiment_params)
+    if experiment is None:
+        experiment_params = {'experiment_id': 'No experiment'}
+    else:
+        experiment_params = {
+            'experiment_id': experiment["experiment_id"],
+            'variant_id': experiment["variant"],
+            f'experiment_{experiment["experiment_id"]}': experiment['variant']
+        }
 
     return experiment_params
 

@@ -31,10 +31,10 @@ the other.
 _Any change the user.json format must be met with a version bump._
 """
 from typing import Any, Dict
-from mitosheet.experiments.experiment_utils import get_default_uj_experiments
+from mitosheet.experiments.experiment_utils import get_new_experiment
 
 from mitosheet.user.db import get_user_json_object, set_user_json_object
-from mitosheet.user.schemas import (UJ_CLOSED_FEEDBACK, UJ_EXPERIMENTS, UJ_FEEDBACKS_V2,
+from mitosheet.user.schemas import (UJ_CLOSED_FEEDBACK, UJ_EXPERIMENT, UJ_FEEDBACKS_V2,
                                     UJ_INTENDED_BEHAVIOR,
                                     UJ_MITOSHEET_LAST_FIFTY_USAGES,
                                     UJ_MITOSHEET_LAST_FIVE_USAGES,
@@ -143,15 +143,15 @@ def upgrade_user_json_version_4_to_5(user_json_version_4: Dict[str, Any]) -> Dic
 
 def upgrade_user_json_version_5_to_6(user_json_version_5: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Just adds the UJ_EXPERIMENTS field, and sets it equal to
+    Just adds the UJ_EXPERIMENT field, and sets it equal to
     the default expirments list
     """
     # First, bump the version number
     user_json_version_5[UJ_USER_JSON_VERSION] = 6
 
     # Then, set new field
-    if UJ_EXPERIMENTS not in user_json_version_5:
-        user_json_version_5[UJ_EXPERIMENTS] = get_default_uj_experiments()
+    if UJ_EXPERIMENT not in user_json_version_5:
+        user_json_version_5[UJ_EXPERIMENT] = get_new_experiment()
 
 def try_upgrade_user_json_to_current_version() -> None:
     user_json_object = get_user_json_object()
