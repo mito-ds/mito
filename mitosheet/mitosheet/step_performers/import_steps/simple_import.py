@@ -79,7 +79,6 @@ class SimpleImportStepPerformer(StepPerformer):
                     _error_bad_lines = True
                     pandas_processing_time += (perf_counter() - partial_pandas_start_time)
             except:
-                print(get_recent_traceback())
                 raise make_invalid_simple_import_error()
 
             # Save the delimeter and encodings for transpiling
