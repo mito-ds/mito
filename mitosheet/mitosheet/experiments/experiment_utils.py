@@ -4,11 +4,24 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
+"""
+Contains utilities for interacting with experiments. If you want to change the currently running
+experiment, do the following:
+
+1. Change the get_new_experiment() function to return the new experiment you want to run.
+2. Change the user.json version to increase by one.
+3. Write an upgrader function that changes the experiment in the user json to the new experiment.
+
+That's it! We can continue to optimize this over time, but that is fine for now.
+
+TODO: we should come back to this once we get the installer involved in this process as 
+well, as this might be a complex interaction... not sure yet.
+"""
+
 
 import json
 import random
-from typing import Dict, List, Optional
-from mitosheet.experiments.experiments import TITLE_NAME_EXPERIMENT_ID
+from typing import Dict, Optional
 
 from mitosheet.user.db import USER_JSON_PATH, get_user_field
 
@@ -18,7 +31,7 @@ def get_random_variant() -> str:
 
 def get_new_experiment() -> Optional[Dict[str, str]]:
     return {
-        'experiment_id': TITLE_NAME_EXPERIMENT_ID,
+        'experiment_id': 'title_name',
         'variant': get_random_variant(),
     }
 
