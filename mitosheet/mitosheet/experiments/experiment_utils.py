@@ -6,15 +6,24 @@
 
 
 import json
+import random
 from typing import Dict, List, Optional
 from mitosheet.experiments.experiments import TITLE_NAME_EXPERIMENT_ID
 
 from mitosheet.user.db import USER_JSON_PATH, get_user_field
 
+def get_random_variant() -> str:
+    """Returns "A" or "B" with 50% probability"""
+    return "A" if random.random() < 0.5 else "B"
+
 
 def get_default_uj_experiments() -> List[Dict[str, str]]:
+
+    variant = get_random_variant()
+
+    # TODO: note that this is append only?
     return [
-        {'experiment_id': TITLE_NAME_EXPERIMENT_ID, 'variant': 'A'}, # Variant should always be A or B
+        {'experiment_id': TITLE_NAME_EXPERIMENT_ID, 'variant': variant}, # Variant should always be A or B
     ]
 
 def get_current_experiment() -> Optional[Dict[str, str]]:
