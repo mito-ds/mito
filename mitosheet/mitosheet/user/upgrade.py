@@ -153,6 +153,8 @@ def upgrade_user_json_version_5_to_6(user_json_version_5: Dict[str, Any]) -> Dic
     if UJ_EXPERIMENT not in user_json_version_5:
         user_json_version_5[UJ_EXPERIMENT] = get_new_experiment()
 
+    return user_json_version_5
+
 def try_upgrade_user_json_to_current_version() -> None:
     user_json_object = get_user_json_object()
 

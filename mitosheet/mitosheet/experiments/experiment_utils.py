@@ -11,6 +11,7 @@ experiment, do the following:
 1. Change the get_new_experiment() function to return the new experiment you want to run.
 2. Change the user.json version to increase by one.
 3. Write an upgrader function that changes the experiment in the user json to the new experiment.
+4. Add this to the experiment tracker in notion so we remember what the experiments are.
 
 That's it! We can continue to optimize this over time, but that is fine for now.
 

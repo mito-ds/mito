@@ -208,14 +208,15 @@ def _get_experiment_params() -> Dict[str, Any]:
     """
     global experiment
     if experiment is None:
-        experiment = get_user_field(UJ_EXPERIMENT)
+        from mitosheet.experiments.experiment_utils import get_current_experiment
+        experiment = get_current_experiment()
 
     if experiment is None:
         experiment_params = {'experiment_id': 'No experiment'}
     else:
         experiment_params = {
             'experiment_id': experiment["experiment_id"],
-            'variant_id': experiment["variant"],
+            'experiment_variant': experiment["variant"],
             f'experiment_{experiment["experiment_id"]}': experiment['variant']
         }
 
