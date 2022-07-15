@@ -58,6 +58,7 @@ export enum UserJsonFields {
     UJ_MITOSHEET_LAST_FIFTY_USAGES = 'mitosheet_last_fifty_usages',
     UJ_MITOSHEET_TELEMETRY = 'mitosheet_telemetry',
     UJ_MITOSHEET_PRO = 'mitosheet_pro',
+    UJ_EXPERIMENT = 'experiment',
 }
 
 /*
