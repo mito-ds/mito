@@ -616,6 +616,22 @@ export default class MitoAPI {
         return stepID
     }
 
+    async editCustomPlugin(
+        pluginName: string,
+        sheetIndex: number
+    ): Promise<void> {
+
+        await this.send<string>({
+            'event': 'edit_event',
+            'type': 'custom_plugin_edit',
+            'step_id': getRandomId(),
+            'params': {
+                'plugin_name': pluginName,
+                'sheet_index': sheetIndex
+            }
+        }, {})
+    }
+
     async editGraphDelete(
         graphID: GraphID,
     ): Promise<void> {

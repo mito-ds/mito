@@ -219,6 +219,9 @@ class State:
             )
 
             # Update all the variables that depend on column_headers
+            # TODO: we can have a reconcilation step here, where we try and 
+            # preserve those state variables that it makes sense to preserve...
+            # do we want to do this?
             self.column_spreadsheet_code[sheet_index] = {
                 column_id: "" for column_id in column_ids
             }

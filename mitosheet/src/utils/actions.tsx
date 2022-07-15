@@ -692,6 +692,29 @@ export const createActions = (
             searchTerms: ['pivot', 'group', 'group by', 'summarize', 'aggregate'],
             tooltip: "Create a Pivot Table to summarise data by breaking the data into groups and calculating statistics about each group."
         },
+        [ActionEnum.Plugin]: {
+            type: ActionEnum.Plugin,
+            shortTitle: 'Plugins',
+            longTitle: 'Custom plugins',
+            actionFunction: async () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+                
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenModal: {type: ModalEnum.None},
+                        currOpenTaskpane: {
+                            type: TaskpaneType.PLUGIN,
+                        },
+                        selectedTabType: 'data'
+                    }
+                })
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no sheets to transform. Import data.'},
+            searchTerms: ['plugin'],
+            tooltip: "Do a custom registered transformation."
+        },
         [ActionEnum.Promote_Row_To_Header]: {
             type: ActionEnum.Promote_Row_To_Header,
             shortTitle: 'Promote to Header',

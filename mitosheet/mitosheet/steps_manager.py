@@ -13,6 +13,7 @@ from typing import Any, Collection, Dict, List, Set, Tuple, Union
 import pandas as pd
 
 from mitosheet.data_in_mito import DataTypeInMito, get_data_type_in_mito
+from mitosheet.plugins import get_plugins_for_analysis_data
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
 from mitosheet.saved_analyses.save_utils import get_analysis_exists
@@ -302,7 +303,8 @@ class StepsManager:
                 "graphDataDict": self.curr_step.graph_data_dict,
                 'updateEventCount': self.update_event_count,
                 'renderCount': self.render_count,
-                'lastResult': self.curr_step.execution_data['result'] if 'result' in self.curr_step.execution_data else None
+                'lastResult': self.curr_step.execution_data['result'] if 'result' in self.curr_step.execution_data else None,
+                'plugins': get_plugins_for_analysis_data()
             }
         )
 

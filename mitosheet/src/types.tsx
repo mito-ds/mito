@@ -554,7 +554,9 @@ export type FormatTypeObj =
         type: FormatType.SCIENTIFIC_NOTATION // Just does scientific notiation
     }
 
-
+export interface Plugin {
+    plugin_name: string
+}
 
 
 /**
@@ -588,6 +590,7 @@ export interface AnalysisData {
     updateEventCount: number;
     renderCount: number;
     lastResult: any;
+    plugins: Plugin[]
 }
 
 /**
@@ -698,6 +701,7 @@ export enum ActionEnum {
     Merge = 'merge',
     Concat_Dataframes = 'concat_dataframes', // Note the unfortunate overlap with concat
     Pivot = 'pivot',
+    Plugin = 'plugin',
     Promote_Row_To_Header = 'promote row to header',
     Redo = 'redo',
     Rename_Column = 'rename column',
