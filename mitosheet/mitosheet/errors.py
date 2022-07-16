@@ -446,6 +446,21 @@ def make_invalid_promote_row_to_header(error_modal: bool=True) -> MitoError:
         error_modal=error_modal
     )
 
+def make_invalid_simple_import_error(error_modal: bool=False) -> MitoError:
+    """
+    Helper function for creating a invalid_simple_import_error.
+
+    Occurs when a user tries to simple import and it fails
+    """
+    to_fix = f'We were unable to automatically determine a delimeter and encoding. Please select a delemeter and encoding.' 
+    
+    return MitoError(
+        'invalid_simple_import_error', 
+        "Cannot Determine File Data",
+        to_fix,
+        error_modal=error_modal
+    )
+
 ARG_FULL_NAME = {
     'int': 'number',
     'float': 'number',

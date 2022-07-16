@@ -725,7 +725,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def simple_import(self, file_names: List[str]) -> bool:
+    def simple_import(self, file_names: List[str], delimeters: Optional[List[str]]=None, encodings: Optional[List[str]]=None, error_bad_lines: Optional[List[bool]]=None) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
             {
@@ -734,7 +734,10 @@ class MitoWidgetTestWrapper:
                 'type': 'simple_import_edit',
                 'step_id': get_new_id(),
                 'params': {
-                    'file_names': file_names
+                    'file_names': file_names,
+                    'delimeters': delimeters,
+                    'encodings': encodings,
+                    'error_bad_lines': error_bad_lines,
                 }
             }
         )
@@ -937,10 +940,12 @@ class MitoWidgetTestWrapper:
         xaxis_title: Optional[str]=None,
         xaxis_visible: bool=True,
         xaxis_title_font_color: str=DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT,
+        xaxis_type: Optional[str]=None,
         xaxis_rangeslider_visible: bool=True,
         yaxis_title: Optional[str]=None,
         yaxis_visible: bool=True,
         yaxis_title_font_color: str=DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT,
+        yaxis_type: Optional[str]=None,
         showlegend: bool=True,
         step_id: str=None,
         paper_bgcolor: str=DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT,
@@ -974,6 +979,7 @@ class MitoWidgetTestWrapper:
                             'title': xaxis_title,
                             'visible': xaxis_visible,
                             'title_font_color': xaxis_title_font_color,
+                            'type': xaxis_type,
                             'rangeslider': {
                                 'visible': xaxis_rangeslider_visible
                             }
@@ -982,6 +988,7 @@ class MitoWidgetTestWrapper:
                             'title': yaxis_title,
                             'visible': yaxis_visible,
                             'title_font_color': yaxis_title_font_color,
+                            'type': yaxis_type
                         },
                         'showlegend': showlegend,
                         'paper_bgcolor': paper_bgcolor,

@@ -49,9 +49,8 @@ def run_installer_steps(installer_steps: List[InstallerStep]) -> None:
             # Execute the step
             installer_step.execute()
 
-            # If we should log success, then log it
-            if installer_step.should_log_success:
-                installer_step.log_success(start_time)
+            # We always log success so we can see how long it took, among other things
+            installer_step.log_success(start_time)
             
         except:
             # Log that we failed on this step
