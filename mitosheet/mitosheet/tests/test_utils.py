@@ -84,6 +84,7 @@ def check_dataframes_equal(test_wrapper):
     )
 
     import mitosheet
+    print(code)
     exec(code, 
         {
             'check_final_dataframe': check_final_dataframe,
@@ -403,6 +404,35 @@ class MitoWidgetTestWrapper:
                     'sheet_index': sheet_index,
                     'id_var_column_ids': id_var_column_ids,
                     'value_var_column_ids': value_var_column_ids,
+                    
+                }
+            }
+        )
+    
+
+    @check_transpiled_code_after_call
+    def one_hot_encoding(
+            self, 
+            sheet_index: int,
+            column_header: ColumnHeader,
+        ) -> bool:
+
+        column_id =self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
+            sheet_index,
+            column_header
+        )
+
+
+        return self.mito_widget.receive_message(
+            self.mito_widget,
+            {
+                'event': 'edit_event',
+                'id': get_new_id(),
+                'type': 'one_hot_encoding_edit',
+                'step_id': get_new_id(),
+                'params': {
+                    'sheet_index': sheet_index,
+                    'column_id': column_id,
                     
                 }
             }

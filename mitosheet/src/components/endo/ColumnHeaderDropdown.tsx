@@ -150,7 +150,7 @@ export default function ColumnHeaderDropdown(props: {
                 supressFocusSettingOnClose
             />
             <DropdownItem 
-                title='Split Text to Columns '
+                title='Split Text to Columns'
                 onClick={() => {
                     props.setUIState(prevUIState => {
                         return {
@@ -158,6 +158,12 @@ export default function ColumnHeaderDropdown(props: {
                             currOpenTaskpane: {type: TaskpaneType.SPLIT_TEXT_TO_COLUMNS, startingColumnID: props.columnID},
                         }
                     })
+                }}
+            />
+            <DropdownItem 
+                title='One Hot Encode Column'
+                onClick={() => {
+                    void props.mitoAPI.editOneHotEncoding(props.sheetIndex, props.columnID)
                 }}
             />
             <DropdownSectionSeperator isDropdownSectionSeperator/>

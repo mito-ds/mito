@@ -112,6 +112,9 @@ const getDisplayMessageForMessageType = (messageType: StepType | UpdateType): st
         case StepType.Melt: {
             return 'Melting dataframe'
         }
+        case StepType.OneHotEncoding: {
+            return 'One hot encoding'
+        }
         case UpdateType.Undo: {
             return 'Undoing previous edit'
         }
