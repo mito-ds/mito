@@ -51,7 +51,13 @@ def main() -> None:
         with open(most_recent_file_path) as f:
             svg_code = f.read()
 
-        with open(f'src/components/icons/{icon_name}Icon.tsx', 'x') as f:
+        icon_path = f'src/components/icons/{icon_name}Icon.tsx'
+        
+        if os.path.exists(icon_path):
+            print("Removing existing icon...")
+            os.remove(icon_path)
+
+        with open(icon_path, 'x') as f:
             f.write(get_icon_tsx_code(icon_name, svg_code))
 
         print(f"Wrote icon {icon_name}")
