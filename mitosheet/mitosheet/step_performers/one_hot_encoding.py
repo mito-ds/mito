@@ -19,7 +19,7 @@ from mitosheet.types import ColumnID
 
 class OneHotEncodingStepPerformer(StepPerformer):
     """
-    Allows you to one hot encoding.
+    Allows you to do a one hot encoding of a column.
     """
 
     @classmethod

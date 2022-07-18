@@ -160,12 +160,6 @@ export default function ColumnHeaderDropdown(props: {
                     })
                 }}
             />
-            <DropdownItem 
-                title='One Hot Encode Column'
-                onClick={() => {
-                    void props.mitoAPI.editOneHotEncoding(props.sheetIndex, props.columnID)
-                }}
-            />
             <DropdownSectionSeperator isDropdownSectionSeperator/>
             <DropdownItem 
                 title='View Unique Values'
