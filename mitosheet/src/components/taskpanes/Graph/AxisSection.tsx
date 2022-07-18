@@ -4,8 +4,8 @@ import React from 'react';
 import MitoAPI from '../../../jupyter/api';
 import { GraphType } from './GraphSidebar';
 import DropdownButton from '../../elements/DropdownButton';
-import Row from '../../spacing/Row';
-import Col from '../../spacing/Col';
+import Row from '../../layout/Row';
+import Col from '../../layout/Col';
 
 import '../../../../css/taskpanes/Graph/AxisSection.css'
 import { ColumnID, ColumnIDsMap } from '../../../types';

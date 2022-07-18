@@ -2,8 +2,8 @@
 
 import React from 'react';
 import "../../css/CatchUpPopup.css";
-import Col from './spacing/Col';
-import Row from './spacing/Row';
+import Col from './layout/Col';
+import Row from './layout/Row';
 import CatchUpIcon from './icons/CatchUpIcon';
 
 /*

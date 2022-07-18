@@ -5,8 +5,8 @@ import { UIState } from '../types';
 import { classNames } from '../utils/classNames';
 import XIcon from './icons/XIcon';
 import { ModalEnum } from './modals/modals';
-import Col from './spacing/Col';
-import Row from './spacing/Row';
+import Col from './layout/Col';
+import Row from './layout/Row';
 
 // import css
 import "../../css/default-modal.css"

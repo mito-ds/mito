@@ -2,7 +2,7 @@ import React from "react";
 import MitoAPI from "../../../jupyter/api";
 import { SheetData, UIState } from "../../../types";
 import DataframeSelect from "../../elements/DataframeSelect";
-import Row from "../../spacing/Row";
+import Row from "../../layout/Row";
 
 
 const CSVDownloadConfigSection = (props: {

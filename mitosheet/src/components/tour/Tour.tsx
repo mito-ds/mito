@@ -7,8 +7,8 @@ import XIcon from '../icons/XIcon';
 import TextButton from '../elements/TextButton';
 import { TourName, TourPopupLocation, tours, TourStep } from './Tours';
 import { classNames } from '../../utils/classNames';
-import Row from '../spacing/Row';
-import Col from '../spacing/Col';
+import Row from '../layout/Row';
+import Col from '../layout/Col';
 import { SheetData } from '../../types';
 
 

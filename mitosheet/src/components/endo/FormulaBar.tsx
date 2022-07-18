@@ -8,8 +8,8 @@ import "../../../css/mito.css"
 import { EditorState, SheetData, MitoSelection, GridState, UIState } from '../../types';
 import { getFullFormula } from './celleditor/cellEditorUtils';
 import { getCellDataFromCellIndexes } from './utils';
-import Col from '../spacing/Col';
-import Row from '../spacing/Row';
+import Col from '../layout/Col';
+import Row from '../layout/Row';
 import MitoAPI from '../../jupyter/api';
 import { calculateCurrentSheetView } from './sheetViewUtils';
 import CellEditor from './celleditor/CellEditor';

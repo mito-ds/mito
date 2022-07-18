@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 import React from 'react';
 
-import '../../../css/spacing/Row.css'
+import '../../../css/layout/Row.css'
 import { classNames } from '../../utils/classNames';
 
 interface RowProps {
@@ -36,7 +36,10 @@ interface RowProps {
      * @param [title] - Tooltip to be displayed when the user's mouse hovers over the row
      */
     title?: string
-
+    /** 
+       * @param [onClick] - A callback for when the row is clicked
+    */
+    onClick?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 }
 
 /**
@@ -76,6 +79,7 @@ const Row = (props: RowProps): JSX.Element => {
         <div
             className={classNames('spacing-row', marginClass, props.className)}
             title={props.title}
+            onClick={props.onClick}
             style={{
                 ...props.style,
                 justifyContent: props.justify,

@@ -3,8 +3,8 @@
 import React from 'react';
 import XIcon from '../icons/XIcon';
 import Select from './Select';
-import Row from '../spacing/Row';
-import Col from '../spacing/Col';
+import Row from '../layout/Row';
+import Col from '../layout/Col';
 import DropdownItem from './DropdownItem';
 
 

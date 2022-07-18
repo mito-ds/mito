@@ -6,8 +6,8 @@ import { UIState } from '../../../types';
 import XIcon from '../../icons/XIcon';
 import { TaskpaneType } from '../taskpanes';
 import BackArrowIcon from '../../icons/BackArrowIcon';
-import Row from '../../spacing/Row';
-import Col from '../../spacing/Col';
+import Row from '../../layout/Row';
+import Col from '../../layout/Col';
 
 /*
     A container for the main header of a taskpane, with some helpful props to 

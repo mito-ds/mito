@@ -15,7 +15,7 @@ import { submitRenameColumnHeader } from '../columnHeaderUtils';
 import { isMitoError } from '../../../utils/errors';
 import { TaskpaneType } from '../../taskpanes/taskpanes';
 import Toggle from '../../elements/Toggle';
-import Row from '../../spacing/Row';
+import Row from '../../layout/Row';
 
 const MAX_SUGGESTIONS = 4;
 // NOTE: we just set the width to 250 pixels

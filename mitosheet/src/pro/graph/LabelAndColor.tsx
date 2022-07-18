@@ -1,7 +1,7 @@
 import React from "react";
 import ColorInput from "../../components/elements/ColorInput";
-import Col from "../../components/spacing/Col";
-import Row from "../../components/spacing/Row";
+import Col from "../../components/layout/Col";
+import Row from "../../components/layout/Row";
 
 interface LabelAndColorProps {
     label: string,
