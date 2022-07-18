@@ -76,6 +76,9 @@ def log_error(event: str, params: Dict[str, Any]=None) -> None:
         params = {}
 
     recent_traceback = get_recent_traceback().strip().split('\n')
+
+    print(recent_traceback, flush=True)
+
     # Then, we log it
     log(
         event,

@@ -225,4 +225,5 @@ def exit_after_error() -> None:
         '\nWe\'re happy to help you fix it ASAP. Just hop on our discord, and and post in the install-help channel. We\'ll get you sorted in a few minutes:\n\n\t https://discord.gg/AAeYm6YV7B\n'
 
     print(colored(full_error, 'red'))
+    # TODO: we need to make this work from within a thread!
     exit(1)

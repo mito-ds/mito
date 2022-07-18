@@ -1,4 +1,6 @@
+import threading
 from time import perf_counter
+import time
 from mitoinstaller.commands import exit_after_error
 from mitoinstaller.log_utils import log_error
 import traceback
@@ -10,7 +12,14 @@ from mitoinstaller.installer_steps.installer_step import InstallerStep
 def run_installer_steps(installer_steps: List[InstallerStep]) -> None:
     """
     A helper function for running a list of InstallerStep. This function
-    handles the running and logging of the steps. 
+    handles the running, communication and logging of the steps. 
+
+    ## On Reporting to the User
+
+    This function runs installer steps in a seperate thread, so that it can 
+    provide continual progress updates to the user about long-running operations.
+
+    ## On Logging
 
     Our logging strategy meets the following form:
     1. If the user is a pro user, we log nothing. Duh. 
@@ -38,30 +47,25 @@ def run_installer_steps(installer_steps: List[InstallerStep]) -> None:
     installer issues easier!
     """
 
-    for installer_step in installer_steps:
-        try:
-            # Print the step name, so the user knows what's going on
-            print(installer_step.installer_step_name)
+    print("Starting install...")
 
-            # Measure the start time so we can see how long this took
-            start_time = perf_counter()
-            
-            # Execute the step
-            installer_step.execute()
+    for index, installer_step in enumerate(installer_steps):
 
-            # We always log success so we can see how long it took, among other things
-            installer_step.log_success(start_time)
-            
-        except:
-            # Log that we failed on this step
-            installer_step.log_failure()
+        # Create a thread to execute the step in, and start it
+        th = threading.Thread(target=installer_step.execute)
+        th.start()
 
-            # If the install step is not optional, log that the install failed and exit
-            # with an error message for the user
-            if not installer_step.optional:
-                # Do one major log if we fail, so that we can easily tell what happened
-                log_error('install_failed', {'installer_step_name': installer_step.installer_step_name})
-                # I think we should prompt users to do this, defaulting to Yes!
-                exit_after_error()
+        # Then, we wait for the execution to finish, checking every second if it has
+        while th.is_alive():
+
+            # TODO: catch KeyboardInterrupt and exit gracefully
+            print(f"Index:\nIndex, {index}", end="\r")
+            print('\r')
+        
+            # We want to print the progress every second, so we the user knows what is going on
+            time.sleep(1)
+
+
+        
 
     

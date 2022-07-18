@@ -1,6 +1,7 @@
 
 from time import perf_counter
 from typing import Callable
+from mitoinstaller.commands import exit_after_error
 
 from mitoinstaller.log_utils import log, log_error
 
@@ -33,7 +34,27 @@ class InstallerStep:
         return self.installer_step_name.replace(' ', '_').lower()
     
     def execute(self) -> None:
-        self.execution_function()
+
+        # Measure the start time so we can see how long this took
+        start_time = perf_counter()
+
+        try:
+            self.execution_function()
+
+            # We always log success so we can see how long it took, among other things
+            self.log_success(start_time)
+        except:
+            # Log that we failed on this step
+            self.log_failure()
+
+            # If the install step is not optional, log that the install failed and exit
+            # with an error message for the user
+            if not self.optional:
+                # Do one major log if we fail, so that we can easily tell what happened
+                log_error('install_failed', {'installer_step_name': self.installer_step_name})
+                # I think we should prompt users to do this, defaulting to Yes!
+                exit_after_error()
+
 
     def log_success(self, start_time: float) -> None:
         processing_time = perf_counter() - start_time

@@ -1,3 +1,4 @@
+from multiprocessing.sharedctypes import Value
 import sys
 from time import perf_counter
 from mitoinstaller.commands import (get_jupyterlab_metadata,
@@ -17,6 +18,8 @@ def install_step_mitosheet_check_dependencies():
     version of JLab they have installed, and if this version of JLab has
     any installed dependencies (that we cannot safely upgrade).
     """
+
+    raise ValueError("This step is not implemented yet")
 
     jupyterlab_version, extension_names = get_jupyterlab_metadata()
 
