@@ -14,6 +14,7 @@ version always.
 """
 
 from datetime import datetime
+from mitosheet.experiments.experiment_utils import get_new_experiment
 from mitosheet.utils import get_random_id
 from mitosheet._version import __version__
 
@@ -39,6 +40,7 @@ UJ_MITOSHEET_LAST_UPGRADED_DATE = 'mitosheet_last_upgraded_date'
 UJ_MITOSHEET_LAST_FIFTY_USAGES = 'mitosheet_last_fifty_usages'
 UJ_MITOSHEET_TELEMETRY = 'mitosheet_telemetry'
 UJ_MITOSHEET_PRO = 'mitosheet_pro'
+UJ_EXPERIMENT = 'experiment'
 
 
 # This was the final version of the user.json with user_json_version == 1
@@ -190,7 +192,33 @@ USER_JSON_VERSION_5 = {
     UJ_MITOSHEET_PRO: False
 }
 
+"""
+Adds UJ_EXPERIMENTS, and sets it equal to an empty list. This is a list of experiments
+that the user has been assigned to. It has the format [{'experiment_id': '<ID>', 'variant': '<VARIANT>'}]
+"""
+USER_JSON_VERSION_6 = {
+    # The new version of the user json object
+    UJ_USER_JSON_VERSION: 6,
+    # The static id of the user
+    UJ_STATIC_USER_ID: get_random_id(),
+    # A random secret that the user can use as salt when hashing things
+    UJ_USER_SALT: get_random_id(),
+    # Email of the user
+    UJ_USER_EMAIL: '',
+    # Tours that the user has received
+    UJ_RECEIVED_TOURS: [],
+    # A list of all the feedback the user has given
+    UJ_FEEDBACKS: [],
+    UJ_FEEDBACKS_V2: {},
+    UJ_MITOSHEET_CURRENT_VERSION: __version__,
+    UJ_MITOSHEET_LAST_UPGRADED_DATE: datetime.today().strftime('%Y-%m-%d'),
+    UJ_MITOSHEET_LAST_FIFTY_USAGES: [datetime.today().strftime('%Y-%m-%d')],
+    UJ_MITOSHEET_TELEMETRY: True,
+    UJ_MITOSHEET_PRO: False,
+    UJ_EXPERIMENT: get_new_experiment()
+}
+
 
 # This is the most up to date user json, and you must update it when
 # you add a new schema
-USER_JSON_DEFAULT = USER_JSON_VERSION_5
+USER_JSON_DEFAULT = USER_JSON_VERSION_6

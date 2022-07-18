@@ -10,9 +10,10 @@ import YellowMitoFolk from '../icons/mitofolks/YellowMitoFolk';
 import '../../../css/signup-modal.css';
 import TextButton from '../elements/TextButton';
 import Input from '../elements/Input';
-import { FeedbackID, SheetData, UIState } from '../../types';
+import { AnalysisData, FeedbackID, SheetData, UIState } from '../../types';
 import { checkProAccessCode } from '../../utils/pro';
 import { TaskpaneType } from '../taskpanes/taskpanes';
+import Experiment from '../elements/Experiment';
 
 /* 
     This file contains all the screens used in the signup modal. As these
@@ -104,6 +105,7 @@ const StepTwo = (
         next: () => void;
         isPro: boolean;
         mitoAPI: MitoAPI;
+        analysisData: AnalysisData
     }): JSX.Element => {
 
     // We cache isPro so that if the user signs up for pro we can
@@ -177,7 +179,7 @@ const StepTwo = (
                                 onClick={props.next}
                                 autoFocus
                             >
-                                No Thanks
+                                <Experiment analysisData={props.analysisData} experimentID='title_name' aElement='No Thanks' bElement='Skip'/>
                             </TextButton>
                         </div> 
                     }
@@ -325,6 +327,7 @@ const SignupModal = (
         numUsages: number;
         isPro: boolean;
         sheetDataArray: SheetData[]
+        analysisData: AnalysisData;
     }): JSX.Element => {
     const [step, setStep] = useState(1);
     const [email, setEmail] = useState('');
@@ -394,6 +397,7 @@ const SignupModal = (
                             back={back}
                             isPro={props.isPro}
                             mitoAPI={props.mitoAPI}
+                            analysisData={props.analysisData}
                         />
                     }
                     {step === 3 &&

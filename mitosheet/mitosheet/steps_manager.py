@@ -13,6 +13,7 @@ from typing import Any, Collection, Dict, List, Set, Tuple, Union
 import pandas as pd
 
 from mitosheet.data_in_mito import DataTypeInMito, get_data_type_in_mito
+from mitosheet.experiments.experiment_utils import get_current_experiment
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
 from mitosheet.saved_analyses.save_utils import get_analysis_exists
@@ -239,6 +240,9 @@ class StepsManager:
         # that corresponds to that backend
         self.render_count = 0
 
+        # We store the experiment that is currently being run for this user
+        self.experiment = get_current_experiment()
+
     @property
     def curr_step(self) -> Step:
         """
@@ -302,7 +306,8 @@ class StepsManager:
                 "graphDataDict": self.curr_step.graph_data_dict,
                 'updateEventCount': self.update_event_count,
                 'renderCount': self.render_count,
-                'lastResult': self.curr_step.execution_data['result'] if 'result' in self.curr_step.execution_data else None
+                'lastResult': self.curr_step.execution_data['result'] if 'result' in self.curr_step.execution_data else None,
+                'experiment': self.experiment,
             }
         )
 

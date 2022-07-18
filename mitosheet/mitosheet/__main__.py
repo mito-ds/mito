@@ -9,6 +9,7 @@ The main entry point for the mitosheet package, this command
 line interface allows you to set some toggles in the user.json
 """
 import sys
+from mitosheet.experiments.experiment_utils import set_experiment
 
 from mitosheet.user.db import set_user_field
 from mitosheet.user import initialize_user
@@ -71,7 +72,11 @@ def main() -> None:
             print("Turning on the 'View in Mito' dataframe button")
             create_startup_file()
             print("Turned on the 'View in Mito' dataframe button\nThe next time you launch Jupyter Lab, the button will be visible")
-
-
+        if len(sys.argv) > 2:
+            if sys.argv[-3] == 'setexperiment':
+                print("Setting experiment", sys.argv[-2], "to variant", sys.argv[-1])
+                set_experiment(sys.argv[-2], sys.argv[-1])
+                print("Experiment set")
+        
 if __name__ == '__main__':
     main()
