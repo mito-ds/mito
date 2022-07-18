@@ -2,8 +2,8 @@ import React, { useState } from "react"
 import { SheetData } from "../../../types";
 import DropdownItem from "../../elements/DropdownItem";
 import Select from "../../elements/Select";
-import Col from "../../spacing/Col";
-import Row from "../../spacing/Row";
+import Col from "../../layout/Col";
+import Row from "../../layout/Row";
 import { getDefaultMergeParams, MergeParams } from "./MergeTaskpane";
 import '../../../../css/taskpanes/Merge/MergeSheetAndKeySelection.css'
 

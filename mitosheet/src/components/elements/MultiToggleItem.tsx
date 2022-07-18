@@ -4,8 +4,8 @@ import React from 'react';
 
 import '../../../css/elements/MultiToggleBox.css'
 import { classNames } from '../../utils/classNames';
-import Col from '../spacing/Col';
-import Row from '../spacing/Row';
+import Col from '../layout/Col';
+import Row from '../layout/Row';
 
 /* 
   A single item that can be toggled 

@@ -8,7 +8,7 @@ import MitoAPI from '../../../jupyter/api';
 // Import 
 import TextButton from '../../elements/TextButton';
 import { ColumnID, SheetData, UIState, UserProfile } from '../../../types';
-import Row from '../../spacing/Row';
+import Row from '../../layout/Row';
 import Select from '../../elements/Select';
 import DropdownItem from '../../elements/DropdownItem';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';

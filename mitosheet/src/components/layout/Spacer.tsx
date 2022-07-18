@@ -1,8 +1,6 @@
 // Copyright (c) Mito
 import React from 'react';
 
-import '../../../css/spacing/Col.css'
-
 interface SpacerProps {
     /** 
         * @param [px] - The number of pixels to space with

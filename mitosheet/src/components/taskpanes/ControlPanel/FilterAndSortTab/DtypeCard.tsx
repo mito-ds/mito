@@ -5,8 +5,8 @@ import MitoAPI from '../../../../jupyter/api';
 import { ColumnID, StepType } from '../../../../types';
 import DropdownItem from '../../../elements/DropdownItem';
 import Select from '../../../elements/Select';
-import Col from '../../../spacing/Col';
-import Row from '../../../spacing/Row';
+import Col from '../../../layout/Col';
+import Row from '../../../layout/Row';
 
 const DTYPE_DESCRIPTION = 'Changes the dtype of the selected column in the underlying dataframe.'
 

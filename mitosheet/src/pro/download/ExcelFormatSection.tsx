@@ -8,8 +8,8 @@ import DropdownButton from "../../components/elements/DropdownButton";
 import DropdownItem from "../../components/elements/DropdownItem";
 import Select from "../../components/elements/Select";
 import XIcon from "../../components/icons/XIcon";
-import Col from "../../components/spacing/Col";
-import Row from "../../components/spacing/Row";
+import Col from "../../components/layout/Col";
+import Row from "../../components/layout/Row";
 import { isNumberDtype } from "../../utils/dtypes";
 
 const ExcelFormatSection = (props: {

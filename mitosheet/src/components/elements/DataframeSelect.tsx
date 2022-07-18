@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 
 import { SheetData } from '../../types';
-import Col from '../spacing/Col';
-import Row from '../spacing/Row';
+import Col from '../layout/Col';
+import Row from '../layout/Row';
 import DropdownItem from './DropdownItem';
 import Select from './Select';
 

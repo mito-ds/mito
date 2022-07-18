@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 import React from 'react';
 import QuestionMarkIcon from '../icons/QuestionMarkIcon';
-import Row from '../spacing/Row';
+import Row from '../layout/Row';
 
 interface TooltipProps {
     /** 

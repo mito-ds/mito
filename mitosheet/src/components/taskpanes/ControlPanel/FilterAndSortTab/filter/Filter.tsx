@@ -2,8 +2,8 @@
 
 import React, { CSSProperties } from 'react';
 import { BOOLEAN_SELECT_OPTIONS, CONDITIONS_WITH_NO_INPUT, DATETIME_SELECT_OPTIONS, NUMBER_SELECT_OPTIONS, STRING_SELECT_OPTIONS } from './filterConditions';
-import Row from '../../../../spacing/Row';
-import Col from '../../../../spacing/Col';
+import Row from '../../../../layout/Row';
+import Col from '../../../../layout/Col';
 import Select from '../../../../elements/Select';
 import XIcon from '../../../../icons/XIcon';
 import { FilterType, Operator } from '../../../../../types';

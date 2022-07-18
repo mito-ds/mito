@@ -7,8 +7,8 @@ import BackArrowIcon from '../../icons/BackArrowIcon';
 import CSVFileIcon from '../../icons/CSVFileIcon';
 import DirectoryIcon from '../../icons/DirectoryIcon';
 import FileIcon from '../../icons/FileIcon';
-import Col from '../../spacing/Col';
-import Row from '../../spacing/Row';
+import Col from '../../layout/Col';
+import Row from '../../layout/Row';
 import {
     FileElement, ImportTaskpaneState
 } from './ImportTaskpane';

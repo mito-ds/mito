@@ -5,9 +5,9 @@ import DropdownItem from "../../elements/DropdownItem";
 import Select from "../../elements/Select";
 import TextButton from "../../elements/TextButton";
 import XIcon from "../../icons/XIcon";
-import Col from "../../spacing/Col";
-import Row from "../../spacing/Row";
-import Spacer from "../../spacing/Spacer";
+import Col from "../../layout/Col";
+import Row from "../../layout/Row";
+import Spacer from "../../layout/Spacer";
 import { MergeParams } from "./MergeTaskpane";
 import { getFirstSuggestedMergeKeys } from "./mergeUtils";
 
