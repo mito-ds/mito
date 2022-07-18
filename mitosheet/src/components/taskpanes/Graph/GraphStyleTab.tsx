@@ -198,28 +198,6 @@ function GraphStyleTab(props: {
                         }}     
                     />
                 </Row>
-                {props.userProfile.isPro && 
-                    <LabelAndColor
-                        label='Title color'
-                        color={graphStylingParams.title.title_font_color}
-                        onChange={(newColor) => {
-                            props.setGraphParams(prevGraphParams => {
-                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
-                                return {
-                                    ...graphParamsCopy,
-                                    graphStyling: {
-                                        ...graphParamsCopy.graphStyling,
-                                        title: {
-                                            ...graphParamsCopy.graphStyling.title,
-                                            title_font_color: newColor
-                                        } 
-                                    } 
-                                }
-                            })
-                            props.setGraphUpdatedNumber(old => old + 1)
-                        }}
-                    />
-                }
             </CollapsibleSection>
             <CollapsibleSection title='Axis Transformations'>
                 <Row justify='space-between' align='center'>
@@ -352,6 +330,26 @@ function GraphStyleTab(props: {
                                         graphStyling: {
                                             ...graphParamsCopy.graphStyling,
                                             paper_bgcolor: newColor
+                                        } 
+                                    }
+                                })
+                                props.setGraphUpdatedNumber(old => old + 1)
+                            }}
+                        />
+                        <LabelAndColor
+                            label='Title color'
+                            color={graphStylingParams.title.title_font_color}
+                            onChange={(newColor) => {
+                                props.setGraphParams(prevGraphParams => {
+                                    const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                    return {
+                                        ...graphParamsCopy,
+                                        graphStyling: {
+                                            ...graphParamsCopy.graphStyling,
+                                            title: {
+                                                ...graphParamsCopy.graphStyling.title,
+                                                title_font_color: newColor
+                                            } 
                                         } 
                                     }
                                 })

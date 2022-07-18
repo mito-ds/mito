@@ -33,7 +33,7 @@ const CollapsibleSection = (props: CollapsibleSectionProps): JSX.Element => {
             >
                 <Row justify='space-between' align='center' onClick={() => {setOpen(false)}}>
                     <Col>
-                        <div className='text-header-2'>
+                        <div className='text-header-3'>
                             {props.title}
                         </div>
                     </Col>
@@ -52,7 +52,7 @@ const CollapsibleSection = (props: CollapsibleSectionProps): JSX.Element => {
             >
                 <Row justify='space-between' align='center'>
                     <Col>
-                        <div className='text-header-2'>
+                        <div className='text-header-3'>
                             {props.title}
                         </div>
                     </Col>
