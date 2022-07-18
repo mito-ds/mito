@@ -10,8 +10,10 @@ Contains tests for One Hot Encoding
 from typing import List
 import pandas as pd
 import pytest
+from mitosheet.errors import MitoError
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 from mitosheet.types import ColumnHeader
+from mitosheet.utils import get_new_id
 
 # We need this help as sometimes we cannot change the dtype in the pd.DataFrame constructor
 # due to weird ways dtype= works
@@ -100,3 +102,22 @@ def test_one_hot_encoding_optimized_by_delete():
     mito.one_hot_encoding(0, 'A')
     mito.delete_dataframe(0)
     assert mito.transpiled_code == ['del df1']
+
+def test_one_hot_encode_twice_error():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito.one_hot_encoding(0, 'A')
+    mito.one_hot_encoding(0, 'A')
+    with pytest.raises(MitoError) as e:
+        mito.mito_widget.handle_edit_event(
+            {
+                'event': 'edit_event',
+                'id': get_new_id(),
+                'type': 'one_hot_encoding_edit',
+                'step_id': get_new_id(),
+                'params': {
+                    'sheet_index': 0,
+                    'column_id': 'A',
+                }
+            }
+        )
+    assert '1, 2, 3 alread exist' in str(e)

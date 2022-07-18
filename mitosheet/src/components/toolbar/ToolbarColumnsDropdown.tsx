@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { Action, ActionEnum, UIState } from '../../types';
+import { Action, ActionEnum, UIState, UserProfile } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { makeToolbarDropdownItem } from './utils';
@@ -10,7 +10,8 @@ import { makeToolbarDropdownItem } from './utils';
 interface ToolbarColumnsDropdownProps {
     actions: Record<ActionEnum, Action>;
     uiState: UIState;
-    setUIState: React.Dispatch<React.SetStateAction<UIState>>
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>,
+    userProfile: UserProfile;
 }
 
 /**
@@ -43,7 +44,10 @@ const ToolbarColumnsDropdown = (props: ToolbarColumnsDropdownProps): JSX.Element
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Set_Column_Formula], true)}
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Set_Cell_Value], true)}
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Split_Text_To_Column])}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.One_Hot_Encoding])}
+                {props.userProfile.isPro ?
+                    makeToolbarDropdownItem(props.actions[ActionEnum.One_Hot_Encoding])
+                    : <></>
+                }
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Format])}
                 <DropdownSectionSeperator isDropdownSectionSeperator/>
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Filter])}

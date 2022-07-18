@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.one_hot_encoding_code_chunk import OneHotEncodingCodeChunk
+from mitosheet.errors import make_column_exists_error, make_columns_exists_error
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
@@ -49,7 +50,11 @@ class OneHotEncodingStepPerformer(StepPerformer):
         # TODO: make sure there isn't overlap here?
         new_column_headers = new_columns.columns.tolist()
 
-        print(new_columns, new_column_headers)
+        # If there is overlap between the new column headers and the existing df, then
+        # we throw an error about this overlap
+        if len(set(new_column_headers) & set(df.columns.tolist())) > 0:
+            raise make_columns_exists_error(set(new_column_headers) & set(df.columns.tolist()))
+            
         final_df = add_columns_to_df(df, new_columns, new_column_headers, column_index)
         post_state.dfs[sheet_index] = final_df
         # Update column state variables
