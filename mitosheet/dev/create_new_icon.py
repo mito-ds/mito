@@ -30,7 +30,7 @@ const {icon_name}Icon = (): JSX.Element => {OPEN_BRACKET}
 export default {icon_name}Icon;"""
 
 
-def main():
+def main() -> None:
     """
     Gets the most recent file from the downloads folder,
     and adds it as an icon if it is an SVG file.
