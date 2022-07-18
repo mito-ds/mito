@@ -15,7 +15,7 @@ interface CollapsibleSectionProps {
     /** 
         * @param [children] - The content that is going inside of this column, to actually be displayed. All overflow will be cut off.
     */
-     children?: React.ReactNode,
+    children?: React.ReactNode,
 }
 
 

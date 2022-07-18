@@ -39,7 +39,7 @@ interface RowProps {
     /** 
        * @param [onClick] - A callback for when the row is clicked
     */
-     onClick?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+    onClick?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 }
 
 /**
