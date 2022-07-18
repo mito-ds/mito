@@ -10,7 +10,7 @@ import { ExcelFileMetadata } from "../components/taskpanes/Import/XLSXImport";
 import { valuesArrayToRecord } from "../components/taskpanes/PivotTable/pivotUtils";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { BackendPivotParams, FrontendPivotParams } from "../types";
-import { ColumnID, FeedbackID, FilterGroupType, FilterType, FormatTypeObj, GraphID, MitoError, SearchMatches, GraphParams } from "../types";
+import { ColumnID, FeedbackID, FilterGroupType, FilterType, FormatTypeObj, GraphID, MitoError, GraphParams } from "../types";
 import { getDeduplicatedArray } from "../utils/arrays";
 
 
@@ -528,32 +528,6 @@ export default class MitoAPI {
 
         if (dfPreviewString !== undefined && dfPreviewString !== '') {
             return JSON.parse(dfPreviewString)['dfPreviewRowDataArray'];
-        }
-        return undefined;
-    }
-
-    /*
-        Gets the search matches for the dataframe headers and 
-        and 2k rows starting at the startingRowIndex
-    */
-    async getSearchMatches(
-        sheetIndex: number,
-        searchString: string,
-        startingRowIndex: number
-    ): Promise<SearchMatches | undefined> {
-
-        const searchMatchesString = await this.send<string>({
-            'event': 'api_call',
-            'type': 'get_search_matches',
-            'params': {
-                'sheet_index': sheetIndex,
-                'search_string': searchString,
-                'starting_row_index': startingRowIndex
-            },
-        }, {})
-
-        if (searchMatchesString !== undefined && searchMatchesString !== '') {
-            return JSON.parse(searchMatchesString);
         }
         return undefined;
     }

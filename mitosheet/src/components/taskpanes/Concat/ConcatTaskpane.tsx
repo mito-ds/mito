@@ -48,7 +48,7 @@ const getColumnHeadersIncludedMessage = (notIncludedColumnsArray: ColumnHeader[]
 */
 const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
 
-    const {params, setParams} = useLiveUpdatingParams<ConcatParams>(
+    const {params, setParams} = useLiveUpdatingParams<ConcatParams, ConcatParams>(
         {
             join: 'inner',
             ignore_index: true,

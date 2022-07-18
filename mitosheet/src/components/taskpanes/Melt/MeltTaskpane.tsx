@@ -58,7 +58,7 @@ const getDefaultParams = (
 */
 const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
 
-    const {params, setParams} = useLiveUpdatingParams(
+    const {params, setParams} = useLiveUpdatingParams<MeltParams, MeltParams>(
         () => getDefaultParams(props.sheetDataArray, props.selectedSheetIndex),
         StepType.Melt, 
         props.mitoAPI,

@@ -199,10 +199,14 @@ class MitoWidget(DOMWidget):
                 # NOTE: since API calls are in a seperate thread, their start time and end
                 # time are not valid, and so we don't even log the start time to not be confusing
                 start_time = None
+
             
-            # NOTE: we don't need to case on log_event above because it always gets
-            # passed to this function, and thus is logged.
-            log_event_processed(event, self.steps_manager, start_time=start_time)
+            if event['event'] != 'api_call':
+                # NOTE: we don't need to case on log_event above because it always gets
+                # passed to this function, and thus is logged. We also don't log in the
+                # case of an API event as that is in a seperate thread and so takes care
+                # of it's logging seperately
+                log_event_processed(event, self.steps_manager, start_time=start_time)
 
             return True
         except MitoError as e:

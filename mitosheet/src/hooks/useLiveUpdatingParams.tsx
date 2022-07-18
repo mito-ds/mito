@@ -23,25 +23,43 @@ import { useEffectOnUpdateEvent } from "./useEffectOnUpdateEvent";
     take the custom UI code we have to write down to _just_ the code to display
     the parameters to the user and allow them to edit them. This is really
     sweet, and we'll continue to migrate to this hook over time. Woo!
+
+    We allow consumers of this hook to have a different type of frontend
+    params from backend params (as long as they pass functions to convert
+    between them), as in some cases (e.g. pivot), what is useful on the 
+    backend is different than what is useful on the frontend.
 */
-function useLiveUpdatingParams<ParamType>(
-    defaultParams: ParamType | undefined | (() => ParamType | undefined),
+function useLiveUpdatingParams<FrontendParamType, BackendParamType>(
+    defaultParams: FrontendParamType | undefined | (() => FrontendParamType | undefined),
     stepType: string,
     mitoAPI: MitoAPI,
     analysisData: AnalysisData,
-    debounceDelay: number
+    debounceDelay: number,
+    frontendToBackendConverters?: {
+        getBackendFromFrontend: (params: FrontendParamType) => BackendParamType,
+        getFrontendFromBackend: (params: BackendParamType) => FrontendParamType,
+    },
+    options?: {
+        doNotSendDefaultParams: boolean,
+    }
 ): {
-        params: ParamType | undefined, // If this is undefined, no messages will be sent to the backend
-        setParams: React.Dispatch<React.SetStateAction<ParamType>>, 
+        params: FrontendParamType | undefined, // If this is undefined, no messages will be sent to the backend
+        setParams: React.Dispatch<React.SetStateAction<FrontendParamType>>, 
         error: string | undefined,
         loading: boolean // This loading indicator is for if the edit message is processing
     } {
 
-    const [params, _setParams] = useState(defaultParams);
+    const [params, _setParams] = useState<FrontendParamType | undefined>(defaultParams);
     const [updateNumber, setUpdateNumber] = useState(0);
     const [stepID, setStepID] = useState<string | undefined>(undefined);
     const [error, setError] = useState<string | undefined>(undefined);
     const [loading, setLoading] = useState(false);
+
+    // TODO: Explain these well
+    const converters = frontendToBackendConverters || {
+        getBackendFromFrontend: (p: FrontendParamType) => {return (p as unknown) as BackendParamType},
+        getFrontendFromBackend: (p: BackendParamType) => {return (p as unknown) as FrontendParamType},
+    }
 
     useDebouncedEffect(() => {
         void onChange()
@@ -60,7 +78,7 @@ function useLiveUpdatingParams<ParamType>(
     // backend. This makes life very plesant for the consumer of this hook, as 
     // they don't have to remember to increment a setUpdateNumber state variable
     // by one every time they change the params
-    const setParams: React.Dispatch<React.SetStateAction<ParamType>> = useCallback(
+    const setParams: React.Dispatch<React.SetStateAction<FrontendParamType>> = useCallback(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (args: any) => {
             _setParams(args);
@@ -74,10 +92,17 @@ function useLiveUpdatingParams<ParamType>(
         if (params === undefined) {
             return;
         }
+        // Do not send the default params if told not to
+        if (options?.doNotSendDefaultParams === true && updateNumber === 0) {
+            return;
+        }
+
+        // Convert the frontend params to the backend params
+        const finalParams = converters.getBackendFromFrontend(params);
 
         setLoading(true);
         const stepIDToSend = stepID || getRandomId();
-        const possibleError = await mitoAPI._edit<ParamType>(editEvent, params, stepIDToSend);
+        const possibleError = await mitoAPI._edit<BackendParamType>(editEvent, finalParams, stepIDToSend);
         setLoading(false);
 
         // Handle if we return an error
@@ -97,9 +122,9 @@ function useLiveUpdatingParams<ParamType>(
             return;
         }
 
-        const newParams = await mitoAPI.getParams<typeof defaultParams>(stepType, stepID, {});
-        if (newParams !== undefined) {
-            _setParams(newParams);
+        const newBackendParams = await mitoAPI.getParams<BackendParamType>(stepType, stepID, {});
+        if (newBackendParams !== undefined) {
+            _setParams(converters.getFrontendFromBackend(newBackendParams));
         } else {
             _setParams(defaultParams);
         }

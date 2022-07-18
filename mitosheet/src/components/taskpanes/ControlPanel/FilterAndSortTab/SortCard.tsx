@@ -34,7 +34,7 @@ type SortCardProps = {
 */
 
 const SortCard = (props: SortCardProps): JSX.Element => {
-    const {params, setParams} = useLiveUpdatingParams<SortParams>(undefined, 'sort', props.mitoAPI, props.analysisData, 0);
+    const {params, setParams} = useLiveUpdatingParams<SortParams, SortParams>(undefined, 'sort', props.mitoAPI, props.analysisData, 0);
 
     const updateSortDirection = (newSortDirection: SortDirection): void => {
         setParams(prevSortParams => {
