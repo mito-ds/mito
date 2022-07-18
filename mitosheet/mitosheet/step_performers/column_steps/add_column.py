@@ -51,10 +51,7 @@ class AddColumnStepPerformer(StepPerformer):
             column_header_index = len(prev_state.dfs[sheet_index].columns)
 
         # Update the state variables
-        column_id = post_state.column_ids.add_column_header(sheet_index, column_header)
-        post_state.column_spreadsheet_code[sheet_index][column_id] = '=0'
-        post_state.column_filters[sheet_index][column_id] = {'operator': 'And', 'filters': []}
-        post_state.column_format_types[sheet_index][column_id] = {'type': FORMAT_DEFAULT}
+        post_state.add_columns_to_state(sheet_index, [column_header])
             
         # Update the dataframe
         pandas_start_time = perf_counter()

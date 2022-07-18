@@ -22,6 +22,9 @@ def get_param(params: Dict[str, Any], key: str) -> Any:
     return None
 
 def add_columns_to_df(df: pd.DataFrame, new_columns_df: pd.DataFrame, new_column_headers: List[ColumnHeader], column_index: int) -> pd.DataFrame:
+    """
+    Adds new_columns_df to df at column_index.
+    """
     # Make sure the new column headers are valid before adding them to the dataframe
     df_column_headers = df.columns
     new_column_headers = [try_make_new_header_valid_if_multi_index_headers(df_column_headers, column_header) for column_header in new_column_headers]

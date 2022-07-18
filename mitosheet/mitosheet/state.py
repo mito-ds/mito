@@ -236,6 +236,10 @@ class State:
             return sheet_index
 
     def add_columns_to_state(self, sheet_index: int, column_headers: List[ColumnHeader]) -> None:
+        """
+        Helper function for adding a new columns to this state, making sure that we 
+        track the relevant metadata variables.
+        """
         # Update column state variables
         for column_header in column_headers:
             column_id = self.column_ids.add_column_header(sheet_index, column_header)

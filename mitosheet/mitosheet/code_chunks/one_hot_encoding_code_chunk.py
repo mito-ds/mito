@@ -20,7 +20,7 @@ class OneHotEncodingCodeChunk(CodeChunk):
 
         column_header = self.post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
 
-        return f'One Hot Encoded {column_header}'
+        return f'One-hot Encoded {column_header}'
         
     def get_code(self) -> List[str]:
         sheet_index: int = self.get_param('sheet_index')
@@ -44,5 +44,5 @@ class OneHotEncodingCodeChunk(CodeChunk):
 
     
     def get_edited_sheet_indexes(self) -> List[int]:
-        return [] # TODO: return this here!
+        return [self.get_param('sheet_index')] # TODO: return this here!
     
