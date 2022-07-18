@@ -195,6 +195,14 @@ const TRANSFORMATION_FEATURES: Feature[] = [
       'Enterprise': true 
     }
   },
+  {
+    feature: 'ML Prep Transforms',
+    planSupport: {
+      'Open Source': false,
+      'Pro': false,
+      'Enterprise': true 
+    }
+  },
 ]
 
 const CODE_GENERATION_FEATURES: Feature[] = [
@@ -414,7 +422,7 @@ const Plans: NextPage = () => {
                   Contact Us
                 </p>
                 <p className={plansStyles.plan_description}>
-                  Advanced support and integrations for teams.
+                  Advanced features, support and integrations for teams.
                 </p>
                 <div className={plansStyles.plan_bullets_container}> 
                   <PlanBullet>
@@ -424,7 +432,7 @@ const Plans: NextPage = () => {
                   </PlanBullet>
                   <PlanBullet>
                     <p>
-                      Customer success manager
+                      ML prep transforms
                     </p>
                   </PlanBullet>
                   <PlanBullet>

@@ -63,6 +63,7 @@ const Toolbar = (
                             actions={props.actions}
                             uiState={props.uiState}
                             setUIState={props.setUIState}
+                            userProfile={props.userProfile}
                         />
                     </ToolbarMenu>
                     <ToolbarMenu type='Rows' uiState={props.uiState} setUIState={props.setUIState}>

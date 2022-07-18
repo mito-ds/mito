@@ -40,6 +40,7 @@ from mitosheet.step_performers.graph_steps.graph_delete import GraphDeleteStepPe
 from mitosheet.step_performers.graph_steps.graph_duplicate import GraphDuplicateStepPerformer
 from mitosheet.step_performers.graph_steps.graph_rename import GraphRenameStepPerformer
 from mitosheet.step_performers.melt import MeltStepPerformer
+from mitosheet.step_performers.one_hot_encoding import OneHotEncodingStepPerformer
 from mitosheet.step_performers.promote_row_to_header import PromoteRowToHeaderStepPerformer
 from mitosheet.step_performers.transpose import TransposeStepPerformer
 
@@ -258,7 +259,13 @@ def test_params_static():
         'melt'
     )
 
-    assert len(STEP_PERFORMERS) == 30
+    check_step(
+        OneHotEncodingStepPerformer,
+        1,
+        'one_hot_encoding'
+    )
+
+    assert len(STEP_PERFORMERS) == 31
 
 
 def get_fake_param(param_name):

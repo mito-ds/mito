@@ -17,7 +17,7 @@ from mitosheet.column_headers import try_make_new_header_valid_if_multi_index_he
 from mitosheet.sheet_functions.types.utils import is_datetime_dtype, is_timedelta_dtype
 from mitosheet.state import FORMAT_DEFAULT, State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils import add_columns_to_df, get_param
 from mitosheet.types import ColumnHeader, ColumnID
 
 class SplitTextToColumnsStepPerformer(StepPerformer):
@@ -62,20 +62,11 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
         # Note: We create the new_column_header_suffix on the frontend so that it is saved in the step parameters, which allows us
         # to replay the analysis and generate the same columns. 
         new_column_headers: List[ColumnHeader] = [f'{column_header}-split-{idx}-{new_column_header_suffix}' for column, idx in enumerate(new_columns_df)]
-        # Make sure the new column headers are valid before adding them to the dataframe
-        df_column_headers = prev_state.column_ids.get_column_headers(sheet_index)
-        new_column_headers = [try_make_new_header_valid_if_multi_index_headers(df_column_headers, column_header) for column_header in new_column_headers]
-        # Add the new columns to the end of the dataframe
-        final_df[new_column_headers] = new_columns_df
-        # Set the columns in the correct order
-        final_df = final_df[final_df.columns[:column_idx + 1].tolist() + new_column_headers + final_df.columns[column_idx + 1:-len(new_column_headers)].tolist()]
+        final_df = add_columns_to_df(final_df, new_columns_df, new_column_headers, column_idx)
         pandas_processing_time = perf_counter() - pandas_start_time
+
         # Update column state variables
-        for column_header in new_column_headers:
-            column_id = post_state.column_ids.add_column_header(sheet_index, column_header)
-            post_state.column_spreadsheet_code[sheet_index][column_id] = ''
-            post_state.column_filters[sheet_index][column_id] = {'operator': 'And', 'filters': []}
-            post_state.column_format_types[sheet_index][column_id] = {'type': FORMAT_DEFAULT}
+        post_state.add_columns_to_state(sheet_index, new_column_headers)
 
         post_state.dfs[sheet_index] = final_df
 
