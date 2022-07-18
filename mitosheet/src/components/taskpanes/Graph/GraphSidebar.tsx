@@ -12,8 +12,8 @@ import { getGraphParams } from './graphUtils';
 // import css
 import '../../../../css/taskpanes/Graph/GraphSidebar.css';
 import '../../../../css/taskpanes/Graph/LoadingSpinner.css';
-import Row from '../../spacing/Row';
-import Col from '../../spacing/Col';
+import Row from '../../layout/Row';
+import Col from '../../layout/Col';
 import XIcon from '../../icons/XIcon';
 import GraphStyleTab from './GraphStyleTab';
 import GraphSetupTab from './GraphSetupTab';

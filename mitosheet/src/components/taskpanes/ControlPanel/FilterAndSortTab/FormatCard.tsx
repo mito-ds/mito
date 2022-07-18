@@ -6,8 +6,8 @@ import { ColumnID, GridState, SheetData } from '../../../../types';
 import { isNumberDtype } from '../../../../utils/dtypes';
 import { getColumnFormatDropdownItemsUsingColumnID, getFormatTitle } from '../../../../utils/formatColumns';
 import Select from '../../../elements/Select';
-import Col from '../../../spacing/Col';
-import Row from '../../../spacing/Row';
+import Col from '../../../layout/Col';
+import Row from '../../../layout/Row';
 
 // Displayed if the user hovers over this section
 const FORMAT_DESCRIPTION = 'Format the selected column as a percent, choose the number of decimals, etc. This only changes the display of the column, and does not effect the underlying dataframe.'
