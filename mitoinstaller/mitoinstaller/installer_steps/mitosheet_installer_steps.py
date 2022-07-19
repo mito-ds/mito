@@ -18,9 +18,6 @@ def install_step_mitosheet_check_dependencies():
     version of JLab they have installed, and if this version of JLab has
     any installed dependencies (that we cannot safely upgrade).
     """
-
-    raise ValueError("This step is not implemented yet")
-
     jupyterlab_version, extension_names = get_jupyterlab_metadata()
 
     # If no JupyterLab is installed, we can continue with install, as
@@ -54,7 +51,6 @@ def remove_mitosheet_3_if_present():
     
 
 def install_step_mitosheet_install_mitosheet():
-    print("This might take a few moments...")
     try:
         install_pip_packages('mitosheet', test_pypi='--test-pypi' in sys.argv)
     except:
@@ -64,7 +60,6 @@ def install_step_mitosheet_install_mitosheet():
         if error_traceback_last_line == 'Consider using the `--user` option or check the permissions.':
             do_user_install = input("The installer hit a permission error while trying to install Mito. Would you like to do a user install? Note that this will not work inside a virtual enviornment. [y/n] ")
             if do_user_install.lower().startswith('y'):
-                print("Doing user install")
                 # Log do user install
                 log('install_mitosheet_user')
                 install_pip_packages('mitosheet', test_pypi='--test-pypi' in sys.argv, user_install=True)

@@ -1,10 +1,11 @@
 import json
 import os
-from typing import Optional
+from typing import Dict, Optional
 import uuid
 from copy import deepcopy
 
 from mitoinstaller import __version__
+from mitoinstaller.experiments.experiment_utils import get_new_experiment
 
 # Where all global .mito files are stored
 MITO_FOLDER = os.path.join(os.path.expanduser("~"), '.mito')
@@ -42,6 +43,7 @@ USER_JSON_DEFAULT = {
     'static_user_id': get_random_id() if not is_running_test() else 'github_action',
     'mitosheet_telemetry': True,
     'mitosheet_pro': False,
+    'experiment': get_new_experiment()
 }
 
 def try_create_user_json_file(is_pro: bool=False) -> None:
@@ -81,6 +83,17 @@ def get_mitosheet_telemetry() -> bool:
             return json.load(f)['mitosheet_telemetry']
     except: 
         return True
+
+
+def get_current_experiment() -> Optional[Dict[str, str]]:
+    """
+    Returns the current experiment object, or None if it does not exist
+    """
+    try:
+        with open(USER_JSON_PATH) as f:
+            return json.load(f)['experiment']
+    except: 
+        return None
 
 def user_json_is_installer_default() -> bool:
     """

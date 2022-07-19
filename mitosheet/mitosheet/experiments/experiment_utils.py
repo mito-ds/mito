@@ -31,6 +31,7 @@ def get_random_variant() -> str:
     return "A" if random.random() < 0.5 else "B"
 
 def get_new_experiment() -> Optional[Dict[str, str]]:
+    # NOTE: this needs to match the installer!
     return {
         'experiment_id': 'title_name',
         'variant': get_random_variant(),
