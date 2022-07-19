@@ -21,13 +21,17 @@ STILL_RUNNING_MESSAGES = [
     'Still running...',
     'This can take a while...',
     'This is taking a while...',
-    'Still running...',
+    'This operation can take a few minutes. Still working...',
     'Working...',
+    'This operation can take a few minutes. Still working...',
     'Still working...',
+    'This operation can take a few minutes. Still working...',
     'Hoping to finish soon...',
+    'This operation can take a few minutes. Still working...',
     'Hopefully finishing soon...',
+    'This operation can take a few minutes. Still working...',
     'Still working...',
-    'Still running...',
+    'This operation can take a few minutes. Still working...',
 ]
 
 
@@ -35,7 +39,7 @@ def print_current_installer_message(installer_steps: List[InstallerStep], finish
 
     # First, build the checklist of the completed steps
 
-    final_string = 'Starting Mito install. This make take a few moments. In the meantime, check out a 2 minute intro to Mito: https://www.youtube.com/watch?v=LFfWfqzdKyE\n\n'
+    final_string = 'Starting Mito install. This make take a few moments.\n\nIn the meantime, check out a 2 minute intro to Mito: https://www.youtube.com/watch?v=LFfWfqzdKyE\n\n'
 
     running_for = time.perf_counter() - start_time
 

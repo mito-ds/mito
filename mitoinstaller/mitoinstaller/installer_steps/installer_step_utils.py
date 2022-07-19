@@ -70,8 +70,8 @@ def run_installer_steps(installer_steps: List[InstallerStep]) -> None:
                 if is_variant_a():
                     print_current_installer_message(installer_steps, index - 1, start_time)
 
-                # We want to print the progress every second, so we the user knows what is going on
-                time.sleep(1)
+                # We want to print the progress every 2 seconds, so we the user knows what is going on
+                time.sleep(2)
     except:
         # Do one major log if we fail, so that we can easily tell what happened
         log_error('install_failed')
