@@ -13,8 +13,7 @@ from mitoinstaller.user_install import (USER_JSON_PATH, go_pro,
 
 def initial_install_step_create_user() -> None:
 
-    if not os.path.exists(USER_JSON_PATH):
-        try_create_user_json_file(is_pro=('--pro' in sys.argv))
+    try_create_user_json_file(is_pro=('--pro' in sys.argv))
 
     if not ('--pro' in sys.argv):
         # Only try and log if we're not pro
