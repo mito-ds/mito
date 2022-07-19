@@ -40,10 +40,6 @@ def initial_install_step_add_env_for_which_jupyter():
 
 INITIAL_INSTALLER_STEPS = [
     InstallerStep(
-        'Create mito user',
-        initial_install_step_create_user
-    ),
-    InstallerStep(
         'Upgrade mitoinstaller',
         upgrade_mito_installer,
         optional=True

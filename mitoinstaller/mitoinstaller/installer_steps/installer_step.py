@@ -52,7 +52,6 @@ class InstallerStep:
             if not self.optional:
                 # Do one major log if we fail, so that we can easily tell what happened
                 log_error('install_failed', {'installer_step_name': self.installer_step_name})
-                # I think we should prompt users to do this, defaulting to Yes!
                 exit_after_error()
 
 

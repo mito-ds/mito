@@ -77,8 +77,6 @@ def log_error(event: str, params: Dict[str, Any]=None) -> None:
 
     recent_traceback = get_recent_traceback().strip().split('\n')
 
-    print(recent_traceback, flush=True)
-
     # Then, we log it
     log(
         event,
@@ -97,7 +95,7 @@ def _get_experiment_params() -> Dict[str, Any]:
     Get data relevant for tracking the experiment, so we can 
     see how the experiment is running
 
-    TODO: this must match the function in mitosheet
+    NOTE: this must match the function in mitosheet
     """
     global experiment
     if experiment is None:

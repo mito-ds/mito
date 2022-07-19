@@ -52,27 +52,30 @@ def run_installer_steps(installer_steps: List[InstallerStep]) -> None:
     if not is_variant_a():
         print('Starting install...')
 
-    for index, installer_step in enumerate(installer_steps):
+    try:
+        for index, installer_step in enumerate(installer_steps):
 
-        if not is_variant_a():
-            print(installer_step.installer_step_name)
+            if not is_variant_a():
+                print(installer_step.installer_step_name)
 
-        # Create a thread to execute the step in, and start it
-        th = threading.Thread(target=installer_step.execute)
-        th.start()
+            # Create a thread to execute the step in, and start it
+            th = threading.Thread(target=installer_step.execute)
+            th.start()
 
-        start_time = perf_counter()
+            start_time = perf_counter()
 
-        # Then, we wait for the execution to finish, checking every second if it has
-        while th.is_alive():
+            # Then, we wait for the execution to finish, checking every second if it has
+            while th.is_alive():
 
-            if is_variant_a():
-                print_current_installer_message(installer_steps, index - 1, start_time)
+                if is_variant_a():
+                    print_current_installer_message(installer_steps, index - 1, start_time)
 
-            # We want to print the progress every second, so we the user knows what is going on
-            time.sleep(1)
-        
-            # TODO: catch KeyboardInterrupt and exit gracefully
+                # We want to print the progress every second, so we the user knows what is going on
+                time.sleep(1)
+    except:
+        # Do one major log if we fail, so that we can easily tell what happened
+        log_error('install_failed')
+        exit_after_error()
 
 
         

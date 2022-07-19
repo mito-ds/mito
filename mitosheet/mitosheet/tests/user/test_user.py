@@ -293,5 +293,10 @@ def test_upgrades_to_new_experiment():
 
     initialize_user()
     check_user_json(user_email='', mitosheet_experiment_id=get_new_experiment()['experiment_id'])
-
     os.remove(USER_JSON_PATH)
+
+def test_experiments_in_sync():
+    import sys
+    sys.path.insert(0, '../mitoinstaller')
+    from mitoinstaller.experiments import get_new_experiment as get_new_experiment_from_mitoinstaller
+    assert get_new_experiment_from_mitoinstaller()['experiment_id'] == get_new_experiment()['experiment_id']
