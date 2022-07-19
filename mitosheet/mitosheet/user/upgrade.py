@@ -184,8 +184,8 @@ def try_upgrade_user_json_to_current_version() -> None:
     # We always make sure that the experiment is the most up to date
     # version of the experiment
     new_experiment = get_new_experiment()
-    if user_json_object[UJ_EXPERIMENT]['experiment_id'] != new_experiment['experiment_id']:
-        user_json_object[UJ_EXPERIMENT] = new_experiment
+    if new_experiment is not None and user_json_object[UJ_EXPERIMENT]['experiment_id'] != new_experiment['experiment_id']:
+            user_json_object[UJ_EXPERIMENT] = new_experiment
 
     set_user_json_object(user_json_object)
 
