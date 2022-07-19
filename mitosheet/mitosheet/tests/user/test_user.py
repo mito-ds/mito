@@ -298,5 +298,5 @@ def test_upgrades_to_new_experiment():
 def test_experiments_in_sync():
     import sys
     sys.path.insert(0, '../mitoinstaller')
-    from mitoinstaller.experiments import get_new_experiment as get_new_experiment_from_mitoinstaller
+    from mitoinstaller.experiments.experiment_utils import get_new_experiment as get_new_experiment_from_mitoinstaller
     assert get_new_experiment_from_mitoinstaller()['experiment_id'] == get_new_experiment()['experiment_id']
