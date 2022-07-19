@@ -11,7 +11,7 @@ from mitoinstaller.user_install import (USER_JSON_PATH, go_pro,
                                         try_create_user_json_file)
 
 
-def initial_install_step_create_user():
+def initial_install_step_create_user() -> None:
 
     if not os.path.exists(USER_JSON_PATH):
         try_create_user_json_file(is_pro=('--pro' in sys.argv))

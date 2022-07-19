@@ -7,10 +7,10 @@ from typing import List
 
 from mitoinstaller.installer_steps.installer_step import InstallerStep
 
-def clear_terminal():
+def clear_terminal() -> None:
     os.system('cls' if os.name == 'nt' else 'clear')
 
-def clear_and_print(message: str):
+def clear_and_print(message: str) -> None:
     clear_terminal()
     print(message)
 
@@ -31,7 +31,7 @@ STILL_RUNNING_MESSAGES = [
 ]
 
 
-def print_current_installer_message(installer_steps: List[InstallerStep], finished_index: int, start_time: float) -> str:
+def print_current_installer_message(installer_steps: List[InstallerStep], finished_index: int, start_time: float) -> None:
 
     # First, build the checklist of the completed steps
 
