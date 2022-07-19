@@ -60,7 +60,7 @@ def install_step_mitosheet_install_mitosheet():
         # TODO: note this is off for now, as it conflicts with the constant print
         # messages that we are getting from the install process.
         error_traceback_last_line = get_recent_traceback().strip().split('\n')[-1].strip()
-        if False or error_traceback_last_line == 'Consider using the `--user` option or check the permissions.':
+        if False and error_traceback_last_line == 'Consider using the `--user` option or check the permissions.':
             do_user_install = input("The installer hit a permission error while trying to install Mito. Would you like to do a user install? Note that this will not work inside a virtual enviornment. [y/n] ")
             if do_user_install.lower().startswith('y'):
                 # Log do user install

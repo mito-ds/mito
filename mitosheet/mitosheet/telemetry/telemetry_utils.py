@@ -206,7 +206,7 @@ def _get_experiment_params() -> Dict[str, Any]:
     Get data relevant for tracking the experiment, so we can 
     see how the experiment is running
 
-    TODO: This must match the function in the installer
+    NOTE: This must match the function in the installer
     """
     global experiment
     if experiment is None:
