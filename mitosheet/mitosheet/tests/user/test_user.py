@@ -10,10 +10,11 @@ and that it can handle the various undefined versions of user.json that exist.
 import os
 from copy import deepcopy
 import subprocess
+from mitosheet.experiments.experiment_utils import get_new_experiment
 
 from mitosheet.utils import get_random_id
 from mitosheet._version import __version__
-from mitosheet.user.schemas import UJ_MITOSHEET_PRO, UJ_MITOSHEET_TELEMETRY, USER_JSON_VERSION_1, USER_JSON_VERSION_2, USER_JSON_VERSION_3
+from mitosheet.user.schemas import UJ_EXPERIMENT, UJ_MITOSHEET_PRO, UJ_MITOSHEET_TELEMETRY, USER_JSON_VERSION_1, USER_JSON_VERSION_2, USER_JSON_VERSION_3
 from mitosheet.user.db import USER_JSON_PATH, get_user_field
 from mitosheet.user import initialize_user
 from mitosheet.tests.user.conftest import check_user_json, write_fake_user_json, today_str
@@ -278,3 +279,19 @@ def test_main_cli_turn_off_logging():
     initialize_user()
     subprocess.run(['python', '-m', 'mitosheet', 'turnofflogging'])
     assert get_user_field(UJ_MITOSHEET_TELEMETRY) == False
+
+def test_upgrades_to_new_experiment():
+    write_fake_user_json({
+        UJ_STATIC_USER_ID: 'github_action',
+        UJ_MITOSHEET_TELEMETRY: True,
+        UJ_MITOSHEET_PRO: False,
+        UJ_EXPERIMENT: {
+            'experiment_id': 'an_old_experiment',
+            'variant': 'A',
+        }
+    })
+
+    initialize_user()
+    check_user_json(user_email='', mitosheet_experiment_id=get_new_experiment()['experiment_id'])
+
+    os.remove(USER_JSON_PATH)

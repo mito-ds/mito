@@ -181,6 +181,12 @@ def try_upgrade_user_json_to_current_version() -> None:
     if user_json_object[UJ_USER_JSON_VERSION] == 5:
         user_json_object = upgrade_user_json_version_5_to_6(user_json_object)
 
+    # We always make sure that the experiment is the most up to date
+    # version of the experiment
+    new_experiment = get_new_experiment()
+    if user_json_object[UJ_EXPERIMENT]['experiment_id'] != new_experiment['experiment_id']:
+        user_json_object[UJ_EXPERIMENT] = new_experiment
+
     set_user_json_object(user_json_object)
 
 
