@@ -8,8 +8,8 @@ import Select from "../../elements/Select";
 import SelectAndXIconCard from "../../elements/SelectAndXIconCard";
 import Toggle from "../../elements/Toggle";
 import Tooltip from "../../elements/Tooltip";
-import Col from "../../spacing/Col";
-import Row from "../../spacing/Row";
+import Col from "../../layout/Col";
+import Row from "../../layout/Row";
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
@@ -48,7 +48,7 @@ const getColumnHeadersIncludedMessage = (notIncludedColumnsArray: ColumnHeader[]
 */
 const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
 
-    const {params, setParams} = useLiveUpdatingParams<ConcatParams>(
+    const {params, setParams} = useLiveUpdatingParams<ConcatParams, ConcatParams>(
         {
             join: 'inner',
             ignore_index: true,

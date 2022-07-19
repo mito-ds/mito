@@ -7,8 +7,8 @@ import { FileElement, ImportTaskpaneState } from './ImportTaskpane';
 import '../../../../css/elements/Input.css'
 import '../../../../css/taskpanes/Import/FileBrowser.css';
 import MitoAPI from '../../../jupyter/api';
-import Row from '../../spacing/Row';
-import Col from '../../spacing/Col';
+import Row from '../../layout/Row';
+import Col from '../../layout/Col';
 import SortArrowIcon from '../../icons/SortArrowIcon';
 import { UIState, UserProfile } from '../../../types';
 import { classNames } from '../../../utils/classNames';

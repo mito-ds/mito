@@ -5,8 +5,8 @@ import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
-import Row from "../../spacing/Row";
-import Col from "../../spacing/Col";
+import Row from "../../layout/Row";
+import Col from "../../layout/Col";
 import Select from "../../elements/Select";
 import DropdownItem from "../../elements/DropdownItem";
 import { getDisplayColumnHeader, getNewColumnHeader } from "../../../utils/columnHeaders";
@@ -17,7 +17,7 @@ import '../../../../css/taskpanes/SplitTextToColumns/SplitTextToColumns.css'
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import MultiSelectButtonItem from "../../elements/MulitSelectButtonItem";
 import { toggleInArray } from "../../../utils/arrays";
-import Spacer from "../../spacing/Spacer";
+import Spacer from "../../layout/Spacer";
 import DataframeSelect from "../../elements/DataframeSelect";
 
 interface SplitTextToColumnsTaskpaneProps {

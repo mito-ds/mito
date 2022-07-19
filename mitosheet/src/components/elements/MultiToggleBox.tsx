@@ -5,7 +5,7 @@ import React, { useCallback, useState } from 'react';
 import '../../../css/elements/MultiToggleBox.css'
 import { classNames } from '../../utils/classNames';
 import { fuzzyMatch } from '../../utils/strings';
-import Row from '../spacing/Row';
+import Row from '../layout/Row';
 import { ensureInView } from './Dropdown';
 import Input from './Input';
 import LoadingDots from './LoadingDots';

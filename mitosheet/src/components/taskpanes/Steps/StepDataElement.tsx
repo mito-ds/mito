@@ -23,6 +23,7 @@ import PromoteRowToHeaderIcon from '../../icons/PromoteRowToHeaderIcon';
 import UndoIcon from '../../icons/UndoIcon';
 import RedoIcon from '../../icons/RedoIcon';
 import ClearIcon from '../../icons/ClearIcon';
+import OneHotEncodingIcon from '../../icons/OneHotEncodingIcon';
 
 
 export type StepDataElementProps = {
@@ -109,6 +110,9 @@ export function getIcon(stepType: StepType | UpdateType, height?: string, width?
         )
         case StepType.PromoteRowToHeader: return (
             <PromoteRowToHeaderIcon />
+        )
+        case StepType.OneHotEncoding: return (
+            <OneHotEncodingIcon />
         )
         case UpdateType.Undo: return (
             <UndoIcon />

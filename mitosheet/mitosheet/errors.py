@@ -15,7 +15,7 @@ https://stackoverflow.com/questions/16138232/is-it-a-good-practice-to-use-try-ex
 """
 import re
 import traceback
-from typing import Any, Collection, Optional, Set, List
+from typing import Any, Collection, Iterable, Optional, Set, List
 
 from mitosheet.types import ColumnHeader
 
@@ -121,6 +121,19 @@ def make_column_exists_error(column_header: ColumnHeader) -> MitoError:
         'column_exists_error', 
         'Column Already Exists',
         f'Sorry, a column already exists with the name {column_header}. Try picking a different name!'
+    )
+
+def make_columns_exists_error(column_headers: Iterable[ColumnHeader]) -> MitoError:
+    """
+    Helper function for creating a column_exists_error.
+
+    Occurs when:
+    -  the user adds a column(s) that already exists in the dataframe.
+    """
+    return MitoError(
+        'columns_exists_error', 
+        'Columns Already Exist',
+        f'{(", ").join(map(str, column_headers))} alread exist. Try renaming these columns!'
     )
 
 def make_invalid_formula_error(formula: str, to_fix: str=None, error_modal: bool=True) -> MitoError:

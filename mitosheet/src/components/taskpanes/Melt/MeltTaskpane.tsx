@@ -6,8 +6,8 @@ import { ColumnID } from "../../../types"
 import { getDtypeValue } from "../ControlPanel/FilterAndSortTab/DtypeCard";
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders";
 import { addIfAbsent, removeIfPresent } from "../../../utils/arrays";
-import Row from '../../spacing/Row';
-import Col from '../../spacing/Col';
+import Row from '../../layout/Row';
+import Col from '../../layout/Col';
 import MultiToggleItem from '../../elements/MultiToggleItem';
 import MultiToggleBox from '../../elements/MultiToggleBox';
 
@@ -15,7 +15,7 @@ import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
-import Spacer from "../../spacing/Spacer";
+import Spacer from "../../layout/Spacer";
 import Tooltip from "../../elements/Tooltip";
 import DataframeSelect from "../../elements/DataframeSelect";
 
@@ -58,7 +58,7 @@ const getDefaultParams = (
 */
 const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
 
-    const {params, setParams} = useLiveUpdatingParams(
+    const {params, setParams} = useLiveUpdatingParams<MeltParams, MeltParams>(
         () => getDefaultParams(props.sheetDataArray, props.selectedSheetIndex),
         StepType.Melt, 
         props.mitoAPI,

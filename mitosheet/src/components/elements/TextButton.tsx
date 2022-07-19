@@ -10,7 +10,7 @@ interface TextButtonProps {
     /** 
         * @param children - Text to be displayed inside the button
     */
-    children: string | JSX.Element;
+    children: string | React.ReactNode;
 
     /** 
         * @param variant - Color style of the button

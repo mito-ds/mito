@@ -9,8 +9,8 @@ import DropdownItem from '../../elements/DropdownItem';
 import MultiToggleBox from '../../elements/MultiToggleBox';
 import MultiToggleItem from '../../elements/MultiToggleItem';
 import Select from '../../elements/Select';
-import Col from '../../spacing/Col';
-import Row from '../../spacing/Row';
+import Col from '../../layout/Col';
+import Row from '../../layout/Row';
 import { getDtypeValue } from '../ControlPanel/FilterAndSortTab/DtypeCard';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
@@ -20,7 +20,7 @@ import { getFirstSuggestedMergeKeys } from './mergeUtils';
 import MergeSheetSection from './MergeSheetSelection';
 import MergeKeysSelectionSection from './MergeKeysSelection';
 import { addIfAbsent, removeIfPresent, toggleInArray } from '../../../utils/arrays';
-import Spacer from '../../spacing/Spacer';
+import Spacer from '../../layout/Spacer';
 
 
 // Enum to allow you to refer to the first or second sheet by name, for clarity
@@ -112,7 +112,7 @@ export const getDefaultMergeParams = (sheetDataArray: SheetData[], _sheetIndexOn
 
 const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
 
-    const {params, setParams, error} = useLiveUpdatingParams<MergeParams>(
+    const {params, setParams, error} = useLiveUpdatingParams<MergeParams, MergeParams>(
         () => getDefaultMergeParams(props.sheetDataArray, props.selectedSheetIndex),
         StepType.Merge,
         props.mitoAPI,

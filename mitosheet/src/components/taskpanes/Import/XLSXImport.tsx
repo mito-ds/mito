@@ -18,7 +18,7 @@ import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultTaskpaneFooter from '../DefaultTaskpane/DefaultTaskpaneFooter';
-import Spacer from '../../spacing/Spacer';
+import Spacer from '../../layout/Spacer';
 
 
 interface XLSXImportProps {

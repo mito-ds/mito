@@ -7,7 +7,7 @@ import '../../../css/elements/Dropdown.css'
 import { clickedOnClass, useCallOnAnyClick } from '../../hooks/useCallOnAnyClick';
 import { classNames } from '../../utils/classNames';
 import { fuzzyMatch } from '../../utils/strings';
-import Row from '../spacing/Row';
+import Row from '../layout/Row';
 import Input from './Input';
 import { WIDTH_MAPPING } from './sizes.d';
 

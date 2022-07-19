@@ -9,7 +9,7 @@ from typing import Any, Collection, List, Dict, Optional, Set
 import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap
-from mitosheet.types import ColumnID
+from mitosheet.types import ColumnHeader, ColumnID
 from mitosheet.utils import get_first_unused_dataframe_name
 
 # Constants for where the dataframe in the state came from
@@ -234,6 +234,18 @@ class State:
 
             # Return the index of this sheet
             return sheet_index
+
+    def add_columns_to_state(self, sheet_index: int, column_headers: List[ColumnHeader]) -> None:
+        """
+        Helper function for adding a new columns to this state, making sure that we 
+        track the relevant metadata variables.
+        """
+        # Update column state variables
+        for column_header in column_headers:
+            column_id = self.column_ids.add_column_header(sheet_index, column_header)
+            self.column_spreadsheet_code[sheet_index][column_id] = ''
+            self.column_filters[sheet_index][column_id] = {'operator': 'And', 'filters': []}
+            self.column_format_types[sheet_index][column_id] = {'type': FORMAT_DEFAULT}
 
     def does_sheet_index_exist_within_state(self, sheet_index: int) -> bool:
         """

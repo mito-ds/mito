@@ -3,8 +3,8 @@
 import MitoAPI from '../../../../jupyter/api';
 import React from 'react';
 import { classNames } from '../../../../utils/classNames';
-import Col from '../../../spacing/Col';
-import Row from '../../../spacing/Row';
+import Col from '../../../layout/Col';
+import Row from '../../../layout/Row';
 
 import '../../../../../css/taskpanes/ControlPanel/SortCard.css';
 import { AnalysisData, ColumnID } from '../../../../types';
@@ -34,7 +34,7 @@ type SortCardProps = {
 */
 
 const SortCard = (props: SortCardProps): JSX.Element => {
-    const {params, setParams} = useLiveUpdatingParams<SortParams>(undefined, 'sort', props.mitoAPI, props.analysisData, 0);
+    const {params, setParams} = useLiveUpdatingParams<SortParams, SortParams>(undefined, 'sort', props.mitoAPI, props.analysisData, 0);
 
     const updateSortDirection = (newSortDirection: SortDirection): void => {
         setParams(prevSortParams => {

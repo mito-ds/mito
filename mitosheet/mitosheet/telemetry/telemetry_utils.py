@@ -21,7 +21,7 @@ from mitosheet.telemetry.anonymization_utils import anonymize_object, get_final_
 from mitosheet.telemetry.private_params_map import LOG_EXECUTION_DATA_PUBLIC
 from mitosheet.types import StepsManagerType
 from mitosheet.user.location import get_location, is_docker
-from mitosheet.user.schemas import UJ_FEEDBACKS, UJ_FEEDBACKS_V2, UJ_INTENDED_BEHAVIOR, UJ_MITOSHEET_TELEMETRY, UJ_USER_EMAIL
+from mitosheet.user.schemas import UJ_EXPERIMENT, UJ_FEEDBACKS, UJ_FEEDBACKS_V2, UJ_INTENDED_BEHAVIOR, UJ_MITOSHEET_TELEMETRY, UJ_USER_EMAIL
 from mitosheet.user.utils import is_local_deployment
 
 import analytics
@@ -200,6 +200,28 @@ def _get_enviornment_params() -> Dict[str, Any]:
 
     return enviornment_params
 
+experiment = None
+def _get_experiment_params() -> Dict[str, Any]:
+    """
+    Get data relevant for tracking the experiment, so we can 
+    see how the experiment is running
+    """
+    global experiment
+    if experiment is None:
+        from mitosheet.experiments.experiment_utils import get_current_experiment
+        experiment = get_current_experiment()
+
+    if experiment is None:
+        experiment_params = {'experiment_id': 'No experiment'}
+    else:
+        experiment_params = {
+            'experiment_id': experiment["experiment_id"],
+            'experiment_variant': experiment["variant"],
+            f'experiment_{experiment["experiment_id"]}': experiment['variant']
+        }
+
+    return experiment_params
+
 def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, failed: bool=False, mito_error: MitoError=None, start_time: float=None) -> None:
     """
     Helper function for logging when an event is processed by the backend,
@@ -319,6 +341,9 @@ def log(log_event: str, params: Dict[str, Any]=None, steps_manager: StepsManager
 
     # Then, get the params for the enviornment 
     final_params = {**final_params, **_get_enviornment_params()}
+
+    # Then, get the params for the all experiments
+    final_params = {**final_params, **_get_experiment_params()}
 
     # Finially, do the acutal logging. We do not log anything when tests are
     # running, or if telemetry is turned off

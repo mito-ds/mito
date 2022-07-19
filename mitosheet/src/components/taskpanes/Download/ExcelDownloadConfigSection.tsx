@@ -5,7 +5,7 @@ import { ExcelExportState, SheetData, UIState, UserProfile } from "../../../type
 import { toggleInArray } from "../../../utils/arrays";
 import MultiToggleBox from "../../elements/MultiToggleBox";
 import MultiToggleItem from "../../elements/MultiToggleItem";
-import Row from "../../spacing/Row";
+import Row from "../../layout/Row";
 
 const ExcelDownloadConfigSection = (props: {
     dfNames: string[]

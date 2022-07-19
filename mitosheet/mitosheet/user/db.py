@@ -9,7 +9,7 @@ Helpers for accessing the user.json file
 """
 import os
 import json
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 
 # Where all global .mito files are stored
 MITO_FOLDER = os.path.join(os.path.expanduser("~"), '.mito')

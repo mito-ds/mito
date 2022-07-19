@@ -150,7 +150,7 @@ export default function ColumnHeaderDropdown(props: {
                 supressFocusSettingOnClose
             />
             <DropdownItem 
-                title='Split Text to Columns '
+                title='Split Text to Columns'
                 onClick={() => {
                     props.setUIState(prevUIState => {
                         return {
