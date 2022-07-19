@@ -9,16 +9,11 @@ Contains utilities for interacting with experiments. If you want to change the c
 experiment, do the following:
 
 1. Change the get_new_experiment() function to return the new experiment you want to run.
-2. Change the user.json version to increase by one.
-3. Write an upgrader function that changes the experiment in the user json to the new experiment.
-4. Add this to the experiment tracker in notion so we remember what the experiments are.
-5. Change the experiment in the installer to use the new experiment as well.
-6. Actually use the new experiment (and remove old experiment code).
+2. Change the get_new_experiment() in the mitoinstaller to use the new experiment id as well.
+3. Add this to the experiment tracker in notion so we remember what the experiments are.
+4. Actually use the new experiment (and remove old experiment code).
 
 That's it! We can continue to optimize this over time, but that is fine for now.
-
-TODO: we should come back to this once we get the installer involved in this process as 
-well, as this might be a complex interaction... not sure yet.
 """
 
 
@@ -35,7 +30,7 @@ def get_random_variant() -> str:
 def get_new_experiment() -> Optional[Dict[str, str]]:
     # NOTE: this needs to match the installer!
     return {
-        'experiment_id': 'title_name',
+        'experiment_id': 'installer_communication_and_time_to_value',
         'variant': get_random_variant(),
     }
 
