@@ -66,9 +66,15 @@ def try_create_user_json_file(is_pro: bool=False) -> None:
             updated_user_json = json.loads(f.read())
             updated_user_json['mitosheet_telemetry'] = not is_pro
             updated_user_json['mitosheet_pro'] = is_pro      
+
+        # And we also make sure that the experiment is updated, if it needs
+        # to be updated
+        new_experiment = get_new_experiment()
+        if new_experiment is not None and updated_user_json['experiment']['experiment_id'] != new_experiment['experiment_id']:
+            updated_user_json['experiment'] = new_experiment
+
         with open(USER_JSON_PATH, 'w') as f:
             f.write(json.dumps(updated_user_json))
-
 
 def get_static_user_id() -> Optional[str]:
     try:
