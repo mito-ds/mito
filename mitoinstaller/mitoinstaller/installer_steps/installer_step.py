@@ -57,7 +57,6 @@ class InstallerStep:
 
 
     def log_success(self, start_time: float) -> None:
-        print("Logging success", flush=True)
         processing_time = perf_counter() - start_time
         log(self.event_name + '_success', {
             'processing_time': round(processing_time, 1),

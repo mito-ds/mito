@@ -16,8 +16,7 @@ def get_new_experiment() -> Optional[Dict[str, str]]:
 def is_variant_a() -> bool:
     from mitoinstaller.user_install import get_current_experiment
     current_experiment = get_current_experiment()
-    print("Current", current_experiment)
-    return current_experiment is None or ['variant'] == 'A'
+    return current_experiment is None or current_experiment['variant'] == 'A'
 
 def is_variant_b() -> bool:
     return not is_variant_a()

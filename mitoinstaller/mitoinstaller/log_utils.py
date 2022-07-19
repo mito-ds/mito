@@ -101,7 +101,6 @@ def _get_experiment_params() -> Dict[str, Any]:
     """
     global experiment
     if experiment is None:
-        from mitoinstaller.experiments import get_current_experiment
         experiment = get_current_experiment()
 
     if experiment is None:

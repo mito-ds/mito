@@ -9,6 +9,7 @@ import analytics
 from mitoinstaller.create_startup_file import create_startup_file
 from mitoinstaller.installer_steps.installer_step import InstallerStep
 from mitoinstaller.jupyter_utils import get_prefered_jupyter_env_variable
+from mitoinstaller.print_utils import clear_terminal
 from mitoinstaller.starter_notebook import (MITO_STARTER_NOTEBOOK_PATH,
                                             try_create_starter_notebook)
 from mitoinstaller.user_install import is_running_test
@@ -29,6 +30,9 @@ def replace_process_with_jupyter():
 
     # Flush analytics before we terminate the process, as it's our last chance
     analytics.flush()
+
+    # Clear the terminal, as we're done installing
+    clear_terminal()
 
     os.execl(sys.executable, 'python', '-m', 'jupyter', prefered_jupyter, MITO_STARTER_NOTEBOOK_PATH)
 
