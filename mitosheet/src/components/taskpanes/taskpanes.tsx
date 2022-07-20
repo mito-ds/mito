@@ -57,6 +57,7 @@ export type TaskpaneInfo =
     | {type: TaskpaneType.NONE}
     | {
         type: TaskpaneType.PIVOT,
+        sourceSheetIndex: number,
         // Optional params only defined if this is a pivot
         // editing a specific existing pivot table
         destinationSheetIndex?: number;

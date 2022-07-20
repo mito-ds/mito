@@ -18,7 +18,7 @@ export type PivotTaskpaneProps = {
     dfNames: string[],
     sheetDataArray: SheetData[],
     columnIDsMapArray: ColumnIDsMap[],
-    selectedSheetIndex: number,
+    sourceSheetIndex: number,
 
     /* 
         These props are only defined if we are editing a pivot table
@@ -36,7 +36,7 @@ export type PivotTaskpaneProps = {
 const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
 
     const {params, setParams} = useLiveUpdatingParams(
-        () => getDefaultPivotParams(props.sheetDataArray, props.selectedSheetIndex, props.existingPivotParams),
+        () => getDefaultPivotParams(props.sheetDataArray, props.sourceSheetIndex, props.existingPivotParams),
         StepType.Pivot,
         props.mitoAPI, props.analysisData, 0, 
         {
@@ -133,10 +133,8 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
         })
     }
 
-    const sheetData: SheetData | undefined = props.sheetDataArray[params.selectedSheetIndex];
-    const columnIDsMap = props.columnIDsMapArray[params.selectedSheetIndex] || {}; // Make sure it's not undefined
-
-    console.log('PivotTaskpane: columnIDsMap', props.columnIDsMapArray, columnIDsMap);
+    const sheetData: SheetData | undefined = props.sheetDataArray[params.sourceSheetIndex];
+    const columnIDsMap = props.columnIDsMapArray[params.sourceSheetIndex] || {}; // Make sure it's not undefined
     
     return (
         <DefaultTaskpane>
@@ -151,7 +149,7 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
                 <DataframeSelect
                     title='Dataframe to pivot'
                     sheetDataArray={props.sheetDataArray}
-                    sheetIndex={props.selectedSheetIndex}
+                    sheetIndex={params.sourceSheetIndex}
                     onChange={(newSheetIndex) => {
                         // Set the selected index, and reset to the default params (taking no existing params)
                         const newParams = getDefaultPivotParams(props.sheetDataArray, newSheetIndex, undefined);
