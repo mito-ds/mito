@@ -135,6 +135,8 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
 
     const sheetData: SheetData | undefined = props.sheetDataArray[params.selectedSheetIndex];
     const columnIDsMap = props.columnIDsMapArray[params.selectedSheetIndex] || {}; // Make sure it's not undefined
+
+    console.log('PivotTaskpane: columnIDsMap', props.columnIDsMapArray, columnIDsMap);
     
     return (
         <DefaultTaskpane>

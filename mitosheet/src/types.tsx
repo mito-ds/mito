@@ -1,4 +1,5 @@
 import React from "react";
+import { ChecklistID } from "./components/checklists/checklistData";
 import { ModalInfo } from "./components/modals/modals";
 import { ControlPanelTab } from "./components/taskpanes/ControlPanel/ControlPanelTaskpane";
 import { GraphType } from "./components/taskpanes/Graph/GraphSidebar";
@@ -618,6 +619,7 @@ export interface AnalysisData {
 export interface UserProfile {
     userEmail: string;
     receivedTours: string[];
+    receivedChecklists: Record<ChecklistID, string[] | undefined>;
 
     isPro: boolean;
     excelImportEnabled: boolean;

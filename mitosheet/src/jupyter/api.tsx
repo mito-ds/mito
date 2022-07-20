@@ -1,5 +1,6 @@
 // Copyright (c) Mito
 
+import { ChecklistID } from "../components/checklists/checklistData";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
 import { SortDirection } from "../components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
 import { GraphObject } from "../components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
@@ -1318,6 +1319,17 @@ export default class MitoAPI {
         })
 
         await this.send(message, {})
+    }
+
+    async updateChecklist(checklistID: ChecklistID, completedItems: string[]): Promise<void> {
+        await this.send({
+            'event': 'update_event',
+            'type': 'checklist_update',
+            'params': {
+                'checklist_id': checklistID,
+                'completed_items': completedItems,
+            }
+        }, {})
     }
 
     /*

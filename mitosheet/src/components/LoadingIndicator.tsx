@@ -220,23 +220,10 @@ const getSlowLoadingMessage = (currentLoadingMessage: [number, string] | undefin
     is rendered, so that only long running ops actually display anything.
 */
 const LoadingIndicator = (props: {loading: [string, string | undefined, string][]}): JSX.Element => {
-    const [display, setDisplay] = useState(false);
 
     // We store the message at the top of the loading queue, so that we can 
     // track if it has been running for longer than 10 seconds
     const [currentLoadingMessage, setCurrentLoadingMessage] = useState<undefined | [number, string]>(undefined);
-
-    // This makes sure we're only displaying after .5 seconds of loading
-    useEffect(() => {
-        if (props.loading.length === 0) {
-            setDisplay(false);
-        } else if (props.loading.length > 0) {
-            const timeout = setTimeout(() => {
-                setDisplay(true);
-            }, 500);
-            return () => {clearTimeout(timeout)}
-        }
-    }, [props.loading.length]);
 
     // This effect tracks the top message and when it becomes the top message
     // so that we can give the user special messages when things have been 
@@ -268,12 +255,12 @@ const LoadingIndicator = (props: {loading: [string, string | undefined, string][
 
     const messagesToDisplay = getMessageTypesToDisplay(props.loading);
 
-    if (!display || messagesToDisplay.length === 0) {
+    if (messagesToDisplay.length === 0) {
         return <React.Fragment/>
     }
 
     return (
-        <div className='loading-indicator-container'>
+        <>
             <p className='loading-indicator-header text-header-3 text-color-white-important'>
                 Processing {messagesToDisplay.length} edit{messagesToDisplay.length <= 1 ? '' : 's'}
             </p>
@@ -310,7 +297,7 @@ const LoadingIndicator = (props: {loading: [string, string | undefined, string][
                     )
                 }))}
             </div>
-        </div>
+        </>
     );
 };
 
