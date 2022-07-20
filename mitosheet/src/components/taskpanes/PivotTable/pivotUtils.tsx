@@ -2,14 +2,14 @@ import { AggregationType, BackendPivotParams, FrontendPivotParams, SheetData } f
 import { getDeduplicatedArray } from "../../../utils/arrays";
 
 
-export const getDefaultPivotParams = (sheetDataArray: SheetData[], selectedSheetIndex: number, existingPivotParams: BackendPivotParams | undefined): FrontendPivotParams | undefined => {
+export const getDefaultPivotParams = (sheetDataArray: SheetData[], sourceSheetIndex: number, existingPivotParams: BackendPivotParams | undefined): FrontendPivotParams | undefined => {
     if (sheetDataArray.length === 0) {
         return undefined;
     }
     
     if (existingPivotParams === undefined) {
         return {
-            selectedSheetIndex: selectedSheetIndex,
+            sourceSheetIndex: sourceSheetIndex,
             pivotRowColumnIDs: [],
             pivotColumnsColumnIDs: [],
             pivotValuesColumnIDsArray: [],
@@ -23,7 +23,7 @@ export const getDefaultPivotParams = (sheetDataArray: SheetData[], selectedSheet
 
 export const getPivotFrontendParamsFromBackendParams = (pivotParams: BackendPivotParams): FrontendPivotParams => {
     return {
-        selectedSheetIndex: pivotParams.sheet_index,
+        sourceSheetIndex: pivotParams.sheet_index,
         pivotRowColumnIDs: pivotParams.pivot_rows_column_ids,
         pivotColumnsColumnIDs: pivotParams.pivot_columns_column_ids,
         pivotValuesColumnIDsArray: valuesRecordToArray(pivotParams.values_column_ids_map),
@@ -34,7 +34,7 @@ export const getPivotFrontendParamsFromBackendParams = (pivotParams: BackendPivo
 
 export const getPivotBackendParamsFromFrontendParams = (params: FrontendPivotParams): BackendPivotParams => {
     return {
-        sheet_index: params.selectedSheetIndex,
+        sheet_index: params.sourceSheetIndex,
         // Deduplicate the rows and columns before sending them to the backend
         // as otherwise this generates errors if you have duplicated key
         pivot_rows_column_ids: getDeduplicatedArray(params.pivotRowColumnIDs),

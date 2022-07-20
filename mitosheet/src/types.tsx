@@ -322,7 +322,7 @@ export interface BackendPivotParams {
 // backend and the frontend, due to it being easier to manipulate as an array on the 
 // frontend while keeping the ordering for values
 export interface FrontendPivotParams {
-    selectedSheetIndex: number,
+    sourceSheetIndex: number,
     pivotRowColumnIDs: ColumnID[],
     pivotColumnsColumnIDs: ColumnID[],
     // NOTE: storing these values as an array makes keeping an order of them

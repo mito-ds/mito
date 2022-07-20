@@ -651,6 +651,7 @@ export const createActions = (
                                 currOpenModal: {type: ModalEnum.None},
                                 currOpenTaskpane: {
                                     type: TaskpaneType.PIVOT,
+                                    sourceSheetIndex: existingPivotParams.sheet_index,
                                     destinationSheetIndex: sheetIndex,
                                     existingPivotParams: existingPivotParams
                                 },
@@ -681,6 +682,7 @@ export const createActions = (
                         currOpenModal: {type: ModalEnum.None},
                         currOpenTaskpane: {
                             type: TaskpaneType.PIVOT,
+                            sourceSheetIndex: sheetIndex,
                             destinationSheetIndex: undefined,
                             existingPivotParams: undefined
                         },

@@ -391,6 +391,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         currOpenModal: {type: ModalEnum.None},
                         currOpenTaskpane: {
                             type: TaskpaneType.PIVOT,
+                            sourceSheetIndex: existingPivotParams.sheet_index,
                             destinationSheetIndex: uiState.selectedSheetIndex,
                             existingPivotParams: existingPivotParams
                         },
@@ -631,7 +632,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     sheetDataArray={sheetDataArray}
                     columnIDsMapArray={columnIDsMapArray}
                     mitoAPI={props.mitoAPI}
-                    selectedSheetIndex={uiState.selectedSheetIndex}
+                    sourceSheetIndex={uiState.currOpenTaskpane.sourceSheetIndex}
                     analysisData={analysisData}
                     setUIState={setUIState}
                     destinationSheetIndex={uiState.currOpenTaskpane.destinationSheetIndex}
