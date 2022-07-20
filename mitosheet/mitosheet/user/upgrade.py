@@ -157,14 +157,18 @@ def upgrade_user_json_version_5_to_6(user_json_version_5: Dict[str, Any]) -> Dic
 
 def upgrade_user_json_version_6_to_7(user_json_version_6: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Just adds the UJ_RECEIVED_CHECKLISTS field, and sets it equal to an empty list
+    Just adds the UJ_RECEIVED_CHECKLISTS field, and sets it equal to the full onboarding
+    checklist. This is because we do not want users to have to go back and do the onboarding
+    checklist if they are already onboarded.
     """
     # First, bump the version number
     user_json_version_6[UJ_USER_JSON_VERSION] = 7
 
     # Then, set new field
     if UJ_RECEIVED_CHECKLISTS not in user_json_version_6:
-        user_json_version_6[UJ_RECEIVED_CHECKLISTS] = {}
+        user_json_version_6[UJ_RECEIVED_CHECKLISTS] = {
+            "onboarding_checklist": ['signup', 'import', 'filter', 'pivot', 'graph', 'finalize']
+        }
 
     return user_json_version_6
 
