@@ -78,7 +78,7 @@ const ChecklistItem = (props: {
         <Row 
             justify='space-between' 
             align='center' 
-            className='text-body-1 text-color-white-important mt-5px'
+            className='text-body-1 text-color-white-important text-underline-on-hover mt-5px'
             onClick={() => {
                 window.open(props.href, '_blank');
             }}
@@ -120,7 +120,7 @@ const NextStepItem = (props: {
             index={props.index}
             text={props.text}
             icon={<RightArrowIcon/>}
-            href={`https://docs.trymito.io/`}
+            href={props.href}
         />
     )
 }
@@ -172,9 +172,7 @@ const Checklist = (props: {
             // behavior if the user doesn't configure the pivot table properly, and then
             // is confused why the checklist is messed up...
             if (
-                props.analysisData.stepSummaryList.filter(stepSummary => stepSummary.step_type === StepType.Pivot).length > 0 &&
-                props.sheetDataArray.length > 0 &&
-                props.sheetDataArray[props.sheetDataArray.length - 1].numColumns > 0
+                props.analysisData.stepSummaryList.filter(stepSummary => stepSummary.step_type === StepType.Pivot).length > 0
             ) {
                 props.mitoAPI.updateChecklist('onboarding_checklist', ['pivot']);
             }
@@ -192,7 +190,7 @@ const Checklist = (props: {
     const ChecklistHeader = (
         <Row justify='space-between' align='center' suppressTopBottomMargin>
             <Col span={18}>
-                <Row justify='start' align='center' suppressTopBottomMargin>
+                <Row justify='start' align='center' suppressTopBottomMargin onClick={() => {setMinimized(!minimized)}}>
                     <Col offsetRight={.5}>
                         {getChecklistIcon(remainingChecklistItems)}
                     </Col>

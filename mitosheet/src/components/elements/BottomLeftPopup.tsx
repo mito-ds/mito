@@ -6,6 +6,8 @@ import LoadingIndicator from '../LoadingIndicator';
 import '../../../css/elements/BottomLeftPopup.css';
 import Checklist, { getRemainingChecklistItems } from '../checklists/Checklist';
 import MitoAPI from '../../jupyter/api';
+import { isVariantA } from '../../utils/experiments';
+import { ModalEnum, ModalInfo } from '../modals/modals';
 
 const BottomLeftPopup = (props: {
     analysisData: AnalysisData
@@ -13,6 +15,7 @@ const BottomLeftPopup = (props: {
     mitoAPI: MitoAPI
     loading: [string, string | undefined, string][],
     sheetDataArray: SheetData[],
+    currOpenModal: ModalInfo
 }): JSX.Element => {
     // We only display the loading indicator after .5 seconds, and we track
     // it in the popup component so that we can display something else if
@@ -31,7 +34,10 @@ const BottomLeftPopup = (props: {
         }
     }, [props.loading.length]);
 
-    const displayChecklist = getRemainingChecklistItems(props.userProfile, props.analysisData).length > 0;
+    // We only display the checklist if we are in variant a
+    const displayChecklist = isVariantA(props.analysisData) 
+        && getRemainingChecklistItems(props.userProfile, props.analysisData).length > 0
+        && props.currOpenModal.type !== ModalEnum.SignUp;
 
     return (
         <>
