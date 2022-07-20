@@ -18,7 +18,7 @@ import UpArrowIcon from '../icons/UpArrowIcon';
 import DownArrowIcon from '../icons/DownArrowIcon';
 
 
-export const getRemainingChecklistItems = (userProfile: UserProfile, analysisData: AnalysisData): string[] => {
+export const getRemainingChecklistItems = (userProfile: UserProfile): string[] => {
     // As of now, we only have a single checklist, so we just check to see how much of this we have done
     const completedItems = userProfile.receivedChecklists['onboarding_checklist'] || [];
     return CHECKLIST_STEPS['onboarding_checklist'].filter(checklistItem => !completedItems.includes(checklistItem))
@@ -136,7 +136,7 @@ const Checklist = (props: {
     const [minimized, setMinimized] = useState(false);
 
     const allChecklistItems = ['signup', 'import', 'filter', 'pivot', 'graph', 'finalize'];
-    const remainingChecklistItems = getRemainingChecklistItems(props.userProfile, props.analysisData);
+    const remainingChecklistItems = getRemainingChecklistItems(props.userProfile);
     const completedChecklistItems = allChecklistItems.filter(checklistItem => !remainingChecklistItems.includes(checklistItem));
 
 
@@ -150,19 +150,19 @@ const Checklist = (props: {
 
         if (remainingChecklistItems.includes('signup')) {
             if (props.userProfile.userEmail !== '') {
-                props.mitoAPI.updateChecklist('onboarding_checklist', ['signup']);
+                void props.mitoAPI.updateChecklist('onboarding_checklist', ['signup']);
             }
         } 
 
         if (remainingChecklistItems.includes('import')) {
             if (props.sheetDataArray.length > 0) {
-                props.mitoAPI.updateChecklist('onboarding_checklist', ['import']);
+                void props.mitoAPI.updateChecklist('onboarding_checklist', ['import']);
             }
         }
 
         if (remainingChecklistItems.includes('filter')) {
             if (props.analysisData.stepSummaryList.filter(stepSummary => stepSummary.step_type === StepType.FilterColumn).length > 0) {
-                props.mitoAPI.updateChecklist('onboarding_checklist', ['filter']);
+                void props.mitoAPI.updateChecklist('onboarding_checklist', ['filter']);
             }
         }
 
@@ -174,7 +174,7 @@ const Checklist = (props: {
             if (
                 props.analysisData.stepSummaryList.filter(stepSummary => stepSummary.step_type === StepType.Pivot).length > 0
             ) {
-                props.mitoAPI.updateChecklist('onboarding_checklist', ['pivot']);
+                void props.mitoAPI.updateChecklist('onboarding_checklist', ['pivot']);
             }
         }
         
@@ -182,7 +182,7 @@ const Checklist = (props: {
             // TODO: do we also want to check if it is configured? See comment above
             // about pivot table
             if (props.analysisData.stepSummaryList.filter(stepSummary => stepSummary.step_type === StepType.Graph).length > 0) {
-                props.mitoAPI.updateChecklist('onboarding_checklist', ['graph']);
+                void props.mitoAPI.updateChecklist('onboarding_checklist', ['graph']);
             }
         }
     }, [props.analysisData.stepSummaryList.length])
@@ -210,7 +210,7 @@ const Checklist = (props: {
                         variant='light'
                         onClick={() => {
                             // If the user closes it, then mark the entire thing as finished
-                            props.mitoAPI.updateChecklist('onboarding_checklist', allChecklistItems);
+                            void props.mitoAPI.updateChecklist('onboarding_checklist', allChecklistItems);
                         }}
                     />
                 </Row>
@@ -250,6 +250,7 @@ const Checklist = (props: {
                                 }
                                 return (
                                     <ChecklistTODOItem
+                                        key={index}
                                         index={index}
                                         item={item}
                                         completed={completedChecklistItems.includes(item)}

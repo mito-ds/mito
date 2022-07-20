@@ -9,7 +9,7 @@ SPLIT_ON = [
 ]
 
 def get_tsx_svg_with_props(svg_code: str) -> str:
-    """Need to move stroke-width to strokeWidth"""
+    """Need to move stroke-width to strokeWidth, etc. Replacing svg with valid react props"""
     current_string = svg_code
     for split in SPLIT_ON:
         split_svg_code = current_string.split(split)

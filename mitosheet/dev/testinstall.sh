@@ -1,6 +1,6 @@
 #!/bin/bash -eu
 
-# checktestpypi.sh: this is a script that you can run from anywhere on your 
+# testinstall.sh: this is a script that you can run from anywhere on your 
 # computer, and it will create a new folder, a clean virtual enviornment,
 # and install the `mitosheet` package from test pypi. 
 

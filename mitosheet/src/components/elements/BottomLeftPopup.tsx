@@ -36,7 +36,7 @@ const BottomLeftPopup = (props: {
 
     // We only display the checklist if we are in variant a
     const displayChecklist = isVariantA(props.analysisData) 
-        && getRemainingChecklistItems(props.userProfile, props.analysisData).length > 0
+        && getRemainingChecklistItems(props.userProfile).length > 0
         && props.currOpenModal.type !== ModalEnum.SignUp;
 
     return (

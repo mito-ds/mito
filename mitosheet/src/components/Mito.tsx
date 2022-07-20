@@ -737,7 +737,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 void props.mitoAPI.updateCloseTour([TourName.INTRO]);
             } else {
                 toursToDisplay.push(TourName.INTRO);
-                if (getRemainingChecklistItems(userProfile, analysisData).length !== 0) {
+                if (getRemainingChecklistItems(userProfile).length !== 0) {
                     void props.mitoAPI.updateChecklist('onboarding_checklist', CHECKLIST_STEPS['onboarding_checklist'])
                 }
             }
