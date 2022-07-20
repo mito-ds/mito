@@ -17,7 +17,7 @@ import analytics
 analytics.write_key = '6I7ptc5wcIGC4WZ0N1t0NXvvAbjRGUgX' 
 
 from mitoinstaller import __version__
-from mitoinstaller.user_install import (get_mitosheet_telemetry,
+from mitoinstaller.user_install import (get_current_experiment, get_mitosheet_telemetry,
                                         get_static_user_id, is_running_test,
                                         user_json_is_installer_default)
 
@@ -76,6 +76,7 @@ def log_error(event: str, params: Dict[str, Any]=None) -> None:
         params = {}
 
     recent_traceback = get_recent_traceback().strip().split('\n')
+
     # Then, we log it
     log(
         event,
@@ -88,6 +89,29 @@ def log_error(event: str, params: Dict[str, Any]=None) -> None:
         }
     )
 
+experiment = None
+def _get_experiment_params() -> Dict[str, Any]:
+    """
+    Get data relevant for tracking the experiment, so we can 
+    see how the experiment is running
+
+    NOTE: this must match the function in mitosheet
+    """
+    global experiment
+    if experiment is None:
+        experiment = get_current_experiment()
+
+    if experiment is None:
+        experiment_params = {'experiment_id': 'No experiment'}
+    else:
+        experiment_params = {
+            'experiment_id': experiment["experiment_id"],
+            'experiment_variant': experiment["variant"],
+            f'experiment_{experiment["experiment_id"]}': experiment['variant']
+        }
+
+    return experiment_params
+
 
 def log(event: str, params: Dict[str, Any]=None) -> None:
     """
@@ -97,6 +121,9 @@ def log(event: str, params: Dict[str, Any]=None) -> None:
 
     if params is None:
         params = {}
+
+    # Add the experiment params to the installer
+    params = {**params, **_get_experiment_params()}
 
     # Don't log if telemetry is turned off
     if not is_running_test() and get_mitosheet_telemetry():
