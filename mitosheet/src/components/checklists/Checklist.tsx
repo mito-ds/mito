@@ -14,8 +14,8 @@ import XIcon from '../icons/XIcon';
 import RightArrowIcon from '../icons/RightArrowIcon';
 import CheckmarkIcon from '../icons/CheckmarkIcon';
 import EmptyCircleIcon from '../icons/EmptyCircleIcon';
-import SmallUpArrowIcon from '../icons/SmallUpArrowIcon';
-import SmallDownArrowIcon from '../icons/SmallDownArrowIcon';
+import UpArrowIcon from '../icons/UpArrowIcon';
+import DownArrowIcon from '../icons/DownArrowIcon';
 
 
 export const getRemainingChecklistItems = (userProfile: UserProfile, analysisData: AnalysisData): string[] => {
@@ -25,13 +25,13 @@ export const getRemainingChecklistItems = (userProfile: UserProfile, analysisDat
 }
 
 const getChecklistIcon = (remainingChecklistItems: string[]): JSX.Element => {
-    if (remainingChecklistItems.length === 0) {
+    if (remainingChecklistItems.length === 1) {
         return (<Checklist5Icon/>)
-    } else if (remainingChecklistItems.length === 1) {
-        return (<Checklist4Icon/>)
     } else if (remainingChecklistItems.length === 2) {
-        return (<Checklist3Icon/>)
+        return (<Checklist4Icon/>)
     } else if (remainingChecklistItems.length === 3) {
+        return (<Checklist3Icon/>)
+    } else if (remainingChecklistItems.length === 4) {
         return (<Checklist2Icon/>)
     } 
     return (<Checklist1Icon/>)
@@ -39,17 +39,32 @@ const getChecklistIcon = (remainingChecklistItems: string[]): JSX.Element => {
 
 const getChecklistItemTitle = (item: string): string => {
     if (item === 'signup') {
-        return 'Sign up'
+        return 'Sign up for Mito'
     } else if (item === 'import') {
         return 'Import data'
     } else if (item === 'filter') {
-        return 'Filter your dataset'
+        return 'Filter your dataframe'
     } else if (item === 'pivot') {
         return 'Generate a pivot table'
     } else if (item === 'graph') {
         return 'Create a graph'
     }
     return 'Continue exploring'
+}
+
+const getChecklistItemLink = (item: string): string => {
+    if (item === 'signup') {
+        return 'https://docs.trymito.io/how-to/creating-a-mitosheet'
+    } else if (item === 'import') {
+        return 'https://docs.trymito.io/how-to/importing-data-to-mito'
+    } else if (item === 'filter') {
+        return 'https://docs.trymito.io/how-to/filter-data'
+    } else if (item === 'pivot') {
+        return 'https://docs.trymito.io/how-to/pivot-tables'
+    } else if (item === 'graph') {
+        return 'https://docs.trymito.io/how-to/graphing'
+    }
+    return 'https://docs.trymito.io/how-to/search-for-functionality'
 }
 
 
@@ -90,7 +105,7 @@ const ChecklistTODOItem = (props: {
             index={props.index}
             text={getChecklistItemTitle(props.item)}
             icon={props.completed ? <CheckmarkIcon/> : <EmptyCircleIcon/>}
-            href={`https://docs.trymito.io/${props.item}`}
+            href={getChecklistItemLink(props.item)}
         />
     )
 }
@@ -152,15 +167,23 @@ const Checklist = (props: {
         }
 
         if (remainingChecklistItems.includes('pivot')) {
-            if (props.analysisData.stepSummaryList.filter(stepSummary => stepSummary.step_type === StepType.Pivot).length > 0) {
-                // TODO: do we also want to check if it is configured
+            // Check that there is a pivot table, and that it has at least one column
+            // TODO: are we sure we want to do this? I think it might just lead to confusing
+            // behavior if the user doesn't configure the pivot table properly, and then
+            // is confused why the checklist is messed up...
+            if (
+                props.analysisData.stepSummaryList.filter(stepSummary => stepSummary.step_type === StepType.Pivot).length > 0 &&
+                props.sheetDataArray.length > 0 &&
+                props.sheetDataArray[props.sheetDataArray.length - 1].numColumns > 0
+            ) {
                 props.mitoAPI.updateChecklist('onboarding_checklist', ['pivot']);
             }
         }
         
         if (remainingChecklistItems.includes('graph')) {
+            // TODO: do we also want to check if it is configured? See comment above
+            // about pivot table
             if (props.analysisData.stepSummaryList.filter(stepSummary => stepSummary.step_type === StepType.Graph).length > 0) {
-                // TODO: do we also want to check if it is configured
                 props.mitoAPI.updateChecklist('onboarding_checklist', ['graph']);
             }
         }
@@ -180,10 +203,10 @@ const Checklist = (props: {
                     </Col>
                 </Row>
             </Col>
-            <Col>
+            <Col span={4.5}>
                 <Row suppressTopBottomMargin>
-                    <Col onClick={() => {setMinimized(!minimized)}} offsetRight={1}>
-                        {minimized ? <SmallUpArrowIcon/> : <SmallDownArrowIcon/>}
+                    <Col onClick={() => {setMinimized(!minimized)}} offsetRight={4}>
+                        {minimized ? <UpArrowIcon variant='light'/> : <DownArrowIcon variant='light'/>}
                     </Col>
                     <XIcon
                         variant='light'
@@ -214,10 +237,10 @@ const Checklist = (props: {
                             <div className='text-body-1 text-color-white-important mt-10px mb-5px'>
                                 <p>Good work getting started 🎉 There’s so much more to explore:</p>
                             </div>
-                            <NextStepItem index={0} text='Merge dataframes together' href='https://docs.trymito.io'/>
-                            <NextStepItem index={1} text='Write a spreadsheet formula' href='https://docs.trymito.io'/>
-                            <NextStepItem index={2} text='Delete unecessary columns' href='https://docs.trymito.io'/>
-                            <NextStepItem index={3} text='Use the generated code' href='https://docs.trymito.io'/>
+                            <NextStepItem index={0} text='Merge dataframes together' href='https://docs.trymito.io/how-to/merging-datasets-together'/>
+                            <NextStepItem index={1} text='Write a spreadsheet formula' href='https://docs.trymito.io/how-to/interacting-with-your-data'/>
+                            <NextStepItem index={2} text='Delete unecessary columns' href='https://docs.trymito.io/how-to/deleting-columns'/>
+                            <NextStepItem index={3} text='Use the generated code' href='https://docs.trymito.io/how-to/using-the-generated-code'/>
                         </>
 
                     } 
