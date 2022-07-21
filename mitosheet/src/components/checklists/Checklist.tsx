@@ -16,6 +16,7 @@ import CheckmarkIcon from '../icons/CheckmarkIcon';
 import EmptyCircleIcon from '../icons/EmptyCircleIcon';
 import UpArrowIcon from '../icons/UpArrowIcon';
 import DownArrowIcon from '../icons/DownArrowIcon';
+import { classNames } from '../../utils/classNames';
 
 
 export const getRemainingChecklistItems = (userProfile: UserProfile): string[] => {
@@ -73,20 +74,18 @@ const ChecklistItem = (props: {
     text: string,
     icon: JSX.Element,
     href: string
+    completed?: boolean
 }): JSX.Element => {
     return (
         <Row 
             justify='space-between' 
             align='center' 
-            className='text-body-1 text-color-white-important text-underline-on-hover mt-5px'
-            onClick={() => {
-                window.open(props.href, '_blank');
-            }}
+            className={classNames('text-body-1', 'checklist-item', {'checklist-item-completed': props.completed})}
         > 
-            <Col>
+            <Col className='mt-5px'>
                 {props.index + 1}. {props.text}
             </Col>
-            <Col>
+            <Col className='mt-5px'>
                 {props.icon}
             </Col>
         </Row>
@@ -106,6 +105,7 @@ const ChecklistTODOItem = (props: {
             text={getChecklistItemTitle(props.item)}
             icon={props.completed ? <CheckmarkIcon/> : <EmptyCircleIcon/>}
             href={getChecklistItemLink(props.item)}
+            completed={props.completed}
         />
     )
 }
