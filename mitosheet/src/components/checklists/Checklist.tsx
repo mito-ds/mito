@@ -81,6 +81,9 @@ const ChecklistItem = (props: {
             justify='space-between' 
             align='center' 
             className={classNames('text-body-1', 'checklist-item', {'checklist-item-completed': props.completed})}
+            onClick={() => {
+                window.open(props.href, '_blank');
+            }}
         > 
             <Col className='mt-5px'>
                 {props.index + 1}. {props.text}

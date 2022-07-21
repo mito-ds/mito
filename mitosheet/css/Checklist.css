@@ -7,13 +7,13 @@
 }
 
 .checklist-item {
-    color: var(--mito-white)
+    color: var(--mito-white);
 }
 
 .checklist-item:hover {
-    color: var(--mito-off-white)
+    color: var(--mito-off-white);
 }
 
 .checklist-item-completed {
-    color: #C1A1FF
+    color: var(--mito-disabled-purple);
 }
