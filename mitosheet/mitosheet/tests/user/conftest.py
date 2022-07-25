@@ -102,7 +102,7 @@ def check_user_json(
     assert get_user_field(UJ_MITOSHEET_TELEMETRY) == mitosheet_telemetry
     assert get_user_field(UJ_MITOSHEET_PRO) == mitosheet_is_pro
     assert get_user_field(UJ_EXPERIMENT) is not None
-    assert get_user_field(UJ_RECEIVED_CHECKLISTS) == received_checklists or (get_user_field(UJ_RECEIVED_CHECKLISTS) == {} and get_current_experiment()['variant'] == 'A')
+    assert get_user_field(UJ_RECEIVED_CHECKLISTS) == received_checklists or (get_user_field(UJ_RECEIVED_CHECKLISTS) == {})
     if mitosheet_experiment_id:
         assert get_user_field(UJ_EXPERIMENT)['experiment_id'] == mitosheet_experiment_id
 
