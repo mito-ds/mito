@@ -1,10 +1,12 @@
+from copy import deepcopy
 import pytest
 import json
 import os
+from mitoinstaller.experiments.experiment_utils import get_new_experiment
 
 from tests.conftest import VirtualEnvironment, clear_user_json
 
-from mitoinstaller.user_install import get_static_user_id, try_create_user_json_file
+from mitoinstaller.user_install import USER_JSON_DEFAULT, get_current_experiment, get_static_user_id, try_create_user_json_file
 from mitoinstaller.user_install import USER_JSON_PATH
 
 
@@ -79,3 +81,30 @@ def test_running_installer_twice_does_not_overwrite_static_user_id(venv: Virtual
     static_user_id_two = get_static_user_id()
 
     assert static_user_id_one == static_user_id_two
+
+def test_generates_experiment(venv: VirtualEnvironment, clear_user_json):
+    venv.run_python_module_command(['pip', 'install', '-r', 'requirements.txt'])    
+    venv.run_python_module_command(['mitoinstaller', 'install'])
+    current_experiment = get_current_experiment()
+    assert current_experiment is not None
+
+def test_overwrites_old_experiment(venv: VirtualEnvironment, clear_user_json):
+    venv.run_python_module_command(['pip', 'install', '-r', 'requirements.txt'])    
+    user_json = deepcopy(USER_JSON_DEFAULT)
+    user_json['experiment'] = {'experiment_id': 'old_experiment_id', 'variant': 'A'}
+    with open(USER_JSON_PATH, 'w+') as f:
+        f.write(json.dumps(user_json))
+
+    venv.run_python_module_command(['mitoinstaller', 'install'])
+    current_experiment = get_current_experiment()
+    assert current_experiment['experiment_id'] != 'old_experiment_id' and current_experiment['experiment_id'] == get_new_experiment()['experiment_id']
+
+def test_experiment_not_overwritten_by_mitosheet_import(venv: VirtualEnvironment, clear_user_json):
+    venv.run_python_module_command(['pip', 'install', '-r', 'requirements.txt'])    
+    venv.run_python_module_command(['mitoinstaller', 'install'])
+    current_experiment = get_current_experiment()
+
+    venv.run_python_script('import mitosheet')
+    current_experiment_new = get_current_experiment()
+    assert current_experiment['experiment_id'] == current_experiment_new['experiment_id']
+    assert current_experiment['variant'] == current_experiment_new['variant']

@@ -77,7 +77,7 @@ def check_user_json(
         mitosheet_last_fifty_usages=[today_str],
         mitosheet_telemetry=True,
         mitosheet_is_pro=False,
-        mitosheet_experiment=True,
+        mitosheet_experiment_id=None,
     ):
     """
     This is the main helper function that does sanity checks about the 
@@ -100,4 +100,7 @@ def check_user_json(
     assert get_user_field(UJ_MITOSHEET_TELEMETRY) == mitosheet_telemetry
     assert get_user_field(UJ_MITOSHEET_PRO) == mitosheet_is_pro
     assert get_user_field(UJ_EXPERIMENT) is not None
+    if mitosheet_experiment_id:
+        assert get_user_field(UJ_EXPERIMENT)['experiment_id'] == mitosheet_experiment_id
+
 

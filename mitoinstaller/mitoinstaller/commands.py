@@ -3,8 +3,10 @@ Contains useful commands for interacting
 with the command line directly
 """
 
+import os
 import sys
 import traceback
+import analytics
 from subprocess import CompletedProcess
 from typing import List, Tuple, Union
 
@@ -217,12 +219,16 @@ def get_jupyterlab_metadata() -> Tuple[Union[str, None], Union[List[str], None]]
 
 def exit_after_error() -> None:
 
+    # Flush the log messages
+    analytics.flush()
+
     # Print the full error so that the user can see it
-    print(traceback.format_exc())
+    print(traceback.format_exc(), flush=True)
 
     # Then, print a final error message
     full_error = '\n\nSorry, looks like we hit a problem.' + \
         '\nWe\'re happy to help you fix it ASAP. Just hop on our discord, and and post in the install-help channel. We\'ll get you sorted in a few minutes:\n\n\t https://discord.gg/AAeYm6YV7B\n'
 
-    print(colored(full_error, 'red'))
-    exit(1)
+    print(colored(full_error, 'red'), flush=True)
+    # We have to use this function as this may run within a thread
+    os._exit(1)
