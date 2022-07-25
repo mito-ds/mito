@@ -67,7 +67,7 @@ def run_installer_steps(installer_steps: List[InstallerStep]) -> None:
             # Then, we wait for the execution to finish, checking every second if it has
             while th.is_alive():
 
-                if is_variant_a():
+                if is_variant_a() and not installer_step.no_print_in_main_loop:
                     print_current_installer_message(installer_steps, index - 1, start_time)
 
                 # We want to print the progress every 2 seconds, so we the user knows what is going on

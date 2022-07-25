@@ -22,12 +22,14 @@ class InstallerStep:
         installer_step_name: str, 
         execution_function: Callable,
         optional: bool=False,
-        should_log_success: bool=False
+        should_log_success: bool=False,
+        no_print_in_main_loop: bool=False, # Set to True if you don't want to print this step in the main loop
     ):
         self.installer_step_name = installer_step_name
         self.execution_function = execution_function
         self.optional = optional
         self.should_log_success = should_log_success
+        self.no_print_in_main_loop = no_print_in_main_loop
         
     @property
     def event_name(self):
