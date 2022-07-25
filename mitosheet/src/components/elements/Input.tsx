@@ -150,6 +150,7 @@ const Input = (props: InputProps): JSX.Element => {
                 autoFocus={props.autoFocus}
                 required={props.required}
                 disabled={props.disabled}
+                type={props.type}
                 ref={ref}
                 onFocus={(e) => {
                     if (props.onFocus !== undefined) {

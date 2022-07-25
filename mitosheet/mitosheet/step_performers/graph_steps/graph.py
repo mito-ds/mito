@@ -106,8 +106,9 @@ class GraphStepPerformer(StepPerformer):
 
         # Validate optional parameters 
         color_column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, graph_creation["color"]) if 'color' in graph_creation.keys() else None
-        facet_column_column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, graph_creation["facet_column"]) if 'facet_column' in graph_creation.keys() else None
+        facet_col_column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, graph_creation["facet_col"]) if 'facet_col' in graph_creation.keys() else None
         facet_row_column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, graph_creation["facet_row"]) if 'facet_row' in graph_creation.keys() else None
+        facet_col_wrap = int(graph_creation['facet_col_wrap']) if 'facet_col_wrap' in graph_creation.keys() else None
 
         # Create a copy of the dataframe, just for safety.
         df: pd.DataFrame = prev_state.dfs[sheet_index].copy()
@@ -139,8 +140,9 @@ class GraphStepPerformer(StepPerformer):
                 x_axis_column_headers,
                 y_axis_column_headers,
                 color_column_header,
-                facet_column_column_header,
+                facet_col_column_header,
                 facet_row_column_header,
+                facet_col_wrap,
                 graph_styling
             )
             pandas_processing_time = perf_counter() - pandas_start_time
@@ -164,8 +166,9 @@ class GraphStepPerformer(StepPerformer):
                 x_axis_column_headers,
                 y_axis_column_headers,
                 color_column_header,
-                facet_column_column_header,
+                facet_col_column_header,
                 facet_row_column_header,
+                facet_col_wrap,
                 graph_styling,
                 df_name,
             )

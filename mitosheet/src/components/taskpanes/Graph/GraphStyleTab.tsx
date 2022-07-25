@@ -29,6 +29,7 @@ function GraphStyleTab(props: {
     userProfile: UserProfile
 }): JSX.Element {
 
+    const graphCreationParams = props.graphParams.graphCreation
     const graphStylingParams = props.graphParams.graphStyling
 
     return ( 
@@ -398,6 +399,36 @@ function GraphStyleTab(props: {
                         />
                     </>
                 }
+            </CollapsibleSection>
+            <CollapsibleSection title='Facet Styling'>
+                <Row justify='space-between' align='center' title='The number of plots to display per row. Has no effect when facet row is used.'>
+                    <Col>
+                        <p>
+                            Facet column wrap
+                        </p>
+                    </Col>
+                    <Input 
+                        value={graphCreationParams.facet_col_wrap ? graphCreationParams.facet_col_wrap.toString() : ''} 
+                        type='number'
+                        width='small'
+                        placeholder='num cols'
+                        onChange={(e) => {
+                            const newNumCols = e.target.value === '' ? undefined : e.target.value
+                            console.log(newNumCols)
+                            props.setGraphParams(prevGraphParams => {
+                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                return {
+                                    ...graphParamsCopy,
+                                    graphCreation: {
+                                        ...graphParamsCopy.graphCreation,
+                                        facet_col_wrap: newNumCols as number | undefined
+                                    } 
+                                }
+                            })
+                            props.setGraphUpdatedNumber(old => old + 1)
+                        }}     
+                    />
+                </Row>
             </CollapsibleSection>
             <CollapsibleSection title='Legend and Zoom'>
                 <Row justify='space-between' align='center'>

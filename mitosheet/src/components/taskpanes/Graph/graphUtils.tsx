@@ -27,8 +27,9 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
             x_axis_column_ids: [],
             y_axis_column_ids: [],
             color: undefined,
-            facet_column: undefined,
-            facet_row: undefined
+            facet_col: undefined,
+            facet_row: undefined,
+            facet_col_wrap: undefined
         },
         graphStyling: {
             title: {
@@ -151,3 +152,5 @@ export const getColorDropdownItems = (
 
     return NoneOption.concat(columnDropdownItems)
 }
+
+

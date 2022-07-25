@@ -288,32 +288,50 @@ function GraphSetupTab(
                         </Col>
                         <Col>
                             <Select 
-                                value={props.graphParams.graphCreation.facet_column ? getDisplayColumnHeader(columnIDsMap[props.graphParams.graphCreation.facet_column]) : 'None'}
+                                value={props.graphParams.graphCreation.facet_col ? getDisplayColumnHeader(columnIDsMap[props.graphParams.graphCreation.facet_col]) : 'None'}
                                 width='small'
                                 searchable
                             >
-                                {(Object.keys(columnIDsMap) || []).map(columnID => {
-                                    const columnHeader = columnIDsMap[columnID];
-                                    return (
-                                        <DropdownItem
-                                            key={columnID}
-                                            title={getDisplayColumnHeader(columnHeader)}
-                                            onClick={() => {
-                                                props.setGraphParams(prevGraphParams => {
-                                                    const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
-                                                    return {
-                                                        ...graphParamsCopy,
-                                                        graphCreation: {
-                                                            ...graphParamsCopy.graphCreation, 
-                                                            facet_column: columnID
+                                {[<DropdownItem
+                                    key='None'
+                                    title='None'
+                                    onClick={() => {
+                                        props.setGraphParams(prevGraphParams => {
+                                            const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                            return {
+                                                ...graphParamsCopy,
+                                                graphCreation: {
+                                                    ...graphParamsCopy.graphCreation, 
+                                                    facet_col: undefined
+                                                }
+                                            }
+                                        })
+                                        props.setGraphUpdatedNumber((old) => old + 1);
+                                    }}
+                                />].concat(
+                                    (Object.keys(columnIDsMap) || []).map(columnID => {
+                                        const columnHeader = columnIDsMap[columnID];
+                                        return (
+                                            <DropdownItem
+                                                key={columnID}
+                                                title={getDisplayColumnHeader(columnHeader)}
+                                                onClick={() => {
+                                                    props.setGraphParams(prevGraphParams => {
+                                                        const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                                        return {
+                                                            ...graphParamsCopy,
+                                                            graphCreation: {
+                                                                ...graphParamsCopy.graphCreation, 
+                                                                facet_col: columnID
+                                                            }
                                                         }
-                                                    }
-                                                })
-                                                props.setGraphUpdatedNumber((old) => old + 1);
-                                            }}
-                                        />
-                                    )
-                                })}
+                                                    })
+                                                    props.setGraphUpdatedNumber((old) => old + 1);
+                                                }}
+                                            />
+                                        )
+                                    })
+                                )}
                             </Select>
                         </Col>
                     </Row>
@@ -339,28 +357,46 @@ function GraphSetupTab(
                                 width='small'
                                 searchable
                             >
-                                {(Object.keys(columnIDsMap) || []).map(columnID => {
-                                    const columnHeader = columnIDsMap[columnID];
-                                    return (
-                                        <DropdownItem
-                                            key={columnID}
-                                            title={getDisplayColumnHeader(columnHeader)}
-                                            onClick={() => {
-                                                props.setGraphParams(prevGraphParams => {
-                                                    const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
-                                                    return {
-                                                        ...graphParamsCopy,
-                                                        graphCreation: {
-                                                            ...graphParamsCopy.graphCreation, 
-                                                            facet_row: columnID
+                                {[<DropdownItem
+                                    key='None'
+                                    title='None'
+                                    onClick={() => {
+                                        props.setGraphParams(prevGraphParams => {
+                                            const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                            return {
+                                                ...graphParamsCopy,
+                                                graphCreation: {
+                                                    ...graphParamsCopy.graphCreation, 
+                                                    facet_row: undefined
+                                                }
+                                            }
+                                        })
+                                        props.setGraphUpdatedNumber((old) => old + 1);
+                                    }}
+                                />].concat(
+                                    (Object.keys(columnIDsMap) || []).map(columnID => {
+                                        const columnHeader = columnIDsMap[columnID];
+                                        return (
+                                            <DropdownItem
+                                                key={columnID}
+                                                title={getDisplayColumnHeader(columnHeader)}
+                                                onClick={() => {
+                                                    props.setGraphParams(prevGraphParams => {
+                                                        const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                                        return {
+                                                            ...graphParamsCopy,
+                                                            graphCreation: {
+                                                                ...graphParamsCopy.graphCreation, 
+                                                                facet_row: columnID
+                                                            }
                                                         }
-                                                    }
-                                                })
-                                                props.setGraphUpdatedNumber((old) => old + 1);
-                                            }}
-                                        />
-                                    )
-                                })}
+                                                    })
+                                                    props.setGraphUpdatedNumber((old) => old + 1);
+                                                }}
+                                            />
+                                        )
+                                    })
+                                )}
                             </Select>
                         </Col>
                     </Row>

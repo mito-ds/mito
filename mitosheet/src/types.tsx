@@ -232,8 +232,9 @@ export type GraphCreationParams = {
     x_axis_column_ids: ColumnID[]
     y_axis_column_ids: ColumnID[]
     color: ColumnID | undefined
-    facet_column: ColumnID | undefined
-    facet_row: ColumnID | undefined
+    facet_col: ColumnID | undefined
+    facet_row: ColumnID | undefined,
+    facet_col_wrap: number | undefined
 }
 export type GraphStylingParams = {
     title: {
