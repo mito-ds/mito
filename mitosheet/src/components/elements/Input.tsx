@@ -95,6 +95,11 @@ interface InputProps {
         * @param [className] - Optional class(es) to apply to this input
     */
     className?: string
+
+    /** 
+        * @param [onEscape] - Function to be called when the escape key is pressed
+    */
+    onEscape?: () => void
 }
 
 /**
@@ -142,7 +147,15 @@ const Input = (props: InputProps): JSX.Element => {
                 style={{paddingRight: paddingRight}}
                 value={props.value}
                 placeholder={props.placeholder}
-                onKeyDown={props.onKeyDown}
+                onKeyDown={(e) => {
+                    if (props.onKeyDown) {
+                        props.onKeyDown(e)
+                    }
+
+                    if (props.onEscape && e.key == 'Escape') {
+                        props.onEscape()
+                    }
+                }}
                 onKeyPress={props.onKeyPress}
                 onChange={props.onChange}
                 onClick={props.onClick}

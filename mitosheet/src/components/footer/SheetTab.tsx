@@ -184,6 +184,10 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                             value={newTabName} 
                             onChange={(e) => {setNewTabName(e.target.value)}}
                             autoFocus
+                            onEscape={() => {
+                                setIsRename(false);
+                                setNewTabName(props.tabName);
+                            }}
                         />
                     </form>
                 }

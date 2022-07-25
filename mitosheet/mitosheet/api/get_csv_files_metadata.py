@@ -8,6 +8,7 @@ import os
 from typing import Any, Dict
 
 import pandas as pd
+from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_ENCODING
 from mitosheet.step_performers.import_steps.simple_import import read_csv_get_delimeter_and_encoding
 from mitosheet.types import StepsManagerType
 
@@ -23,9 +24,14 @@ def get_csv_files_metadata(params: Dict[str, Any], steps_manager: StepsManagerTy
     delimeters = []
     encodings = []
     for file_name in file_names:
-        _, delimiter, encoding = read_csv_get_delimeter_and_encoding(file_name)
-        delimeters.append(delimiter)
-        encodings.append(encoding)
+        try:
+            _, delimiter, encoding = read_csv_get_delimeter_and_encoding(file_name)
+            delimeters.append(delimiter)
+            encodings.append(encoding)
+        except:
+            # The default values displayed in the UI
+            delimeters.append(',')
+            encodings.append('utf-8')
 
     return json.dumps({
         'delimeters': delimeters,

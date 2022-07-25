@@ -30,7 +30,7 @@ def get_dataframe_as_excel(params: Dict[str, Any], steps_manager: StepsManagerTy
             sheet_name = steps_manager.curr_step.df_names[sheet_index]
             df.to_excel(
                 writer, 
-                sheet_name=sheet_name, 
+                sheet_name=sheet_name[:31], # Make sure we don't pass more than 31 characters, it's not a valid sheet name 
                 index=False
             )
 
