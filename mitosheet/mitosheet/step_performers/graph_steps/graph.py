@@ -110,6 +110,8 @@ class GraphStepPerformer(StepPerformer):
         facet_row_column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, graph_creation["facet_row"]) if 'facet_row' in graph_creation.keys() else None
         facet_col_wrap = int(graph_creation['facet_col_wrap']) if 'facet_col_wrap' in graph_creation.keys() else None
         facet_col_spacing = float(graph_creation['facet_col_spacing']) if 'facet_col_spacing' in graph_creation.keys() else None
+        facet_row_spacing = float(graph_creation['facet_row_spacing']) if 'facet_row_spacing' in graph_creation.keys() else None
+
 
 
         # Create a copy of the dataframe, just for safety.
@@ -146,6 +148,7 @@ class GraphStepPerformer(StepPerformer):
                 facet_row_column_header,
                 facet_col_wrap,
                 facet_col_spacing,
+                facet_row_spacing,
                 graph_styling
             )
             pandas_processing_time = perf_counter() - pandas_start_time
@@ -173,6 +176,7 @@ class GraphStepPerformer(StepPerformer):
                 facet_row_column_header,
                 facet_col_wrap,
                 facet_col_spacing,
+                facet_row_spacing,
                 graph_styling,
                 df_name,
             )

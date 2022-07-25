@@ -428,7 +428,7 @@ function GraphStyleTab(props: {
                         }}     
                     />
                 </Row>
-                <Row justify='space-between' align='center' title='The spacing between columns of facet plots'>
+                <Row justify='space-between' align='center' title='The spacing between columns of facet plots. Set as a fraction of plotting area.'>
                     <Col>
                         <p>
                             Facet column spacing
@@ -448,6 +448,33 @@ function GraphStyleTab(props: {
                                     graphCreation: {
                                         ...graphParamsCopy.graphCreation,
                                         facet_col_spacing: newColSpacing as number | undefined
+                                    } 
+                                }
+                            })
+                            props.setGraphUpdatedNumber(old => old + 1)
+                        }}     
+                    />
+                </Row>
+                <Row justify='space-between' align='center' title='The spacing between rows of facet plots. Set as a fraction of plotting area.'>
+                    <Col>
+                        <p>
+                            Facet row spacing
+                        </p>
+                    </Col>
+                    <Input 
+                        value={graphCreationParams.facet_row_spacing ? graphCreationParams.facet_row_spacing.toString() : ''} 
+                        type='number'
+                        width='small'
+                        placeholder='.07'
+                        onChange={(e) => {
+                            const newColSpacing = e.target.value === '' ? undefined : e.target.value
+                            props.setGraphParams(prevGraphParams => {
+                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                return {
+                                    ...graphParamsCopy,
+                                    graphCreation: {
+                                        ...graphParamsCopy.graphCreation,
+                                        facet_row_spacing: newColSpacing as number | undefined
                                     } 
                                 }
                             })
