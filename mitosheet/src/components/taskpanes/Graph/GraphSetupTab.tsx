@@ -288,7 +288,7 @@ function GraphSetupTab(
                         </Col>
                         <Col>
                             <Select 
-                                value={props.graphParams.graphCreation.facet_col ? getDisplayColumnHeader(columnIDsMap[props.graphParams.graphCreation.facet_col]) : 'None'}
+                                value={props.graphParams.graphCreation.facet_col_column_id ? getDisplayColumnHeader(columnIDsMap[props.graphParams.graphCreation.facet_col_column_id]) : 'None'}
                                 width='small'
                                 searchable
                             >
@@ -302,7 +302,7 @@ function GraphSetupTab(
                                                 ...graphParamsCopy,
                                                 graphCreation: {
                                                     ...graphParamsCopy.graphCreation, 
-                                                    facet_col: undefined
+                                                    facet_col_column_id: undefined
                                                 }
                                             }
                                         })
@@ -322,7 +322,7 @@ function GraphSetupTab(
                                                             ...graphParamsCopy,
                                                             graphCreation: {
                                                                 ...graphParamsCopy.graphCreation, 
-                                                                facet_col: columnID
+                                                                facet_col_column_id: columnID
                                                             }
                                                         }
                                                     })
@@ -353,7 +353,7 @@ function GraphSetupTab(
                         </Col>
                         <Col>
                             <Select 
-                                value={props.graphParams.graphCreation.facet_row ? getDisplayColumnHeader(columnIDsMap[props.graphParams.graphCreation.facet_row]) : 'None'}
+                                value={props.graphParams.graphCreation.facet_row_column_id ? getDisplayColumnHeader(columnIDsMap[props.graphParams.graphCreation.facet_row_column_id]) : 'None'}
                                 width='small'
                                 searchable
                             >
@@ -367,7 +367,7 @@ function GraphSetupTab(
                                                 ...graphParamsCopy,
                                                 graphCreation: {
                                                     ...graphParamsCopy.graphCreation, 
-                                                    facet_row: undefined
+                                                    facet_row_column_id: undefined
                                                 }
                                             }
                                         })
@@ -387,7 +387,7 @@ function GraphSetupTab(
                                                             ...graphParamsCopy,
                                                             graphCreation: {
                                                                 ...graphParamsCopy.graphCreation, 
-                                                                facet_row: columnID
+                                                                facet_row_column_id: columnID
                                                             }
                                                         }
                                                     })

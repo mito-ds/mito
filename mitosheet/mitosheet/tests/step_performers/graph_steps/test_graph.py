@@ -61,7 +61,12 @@ def test_all_styling_options():
     df = pd.DataFrame({'A': ['aaron', 'jake', 'nate'], 'B': [1, 2, 3]})
     mito = create_mito_wrapper_dfs(df)
     graph_id = '123'
-
+    color = 'B'
+    facet_col_column_id = 'A'
+    facet_row_column_id = 'B'
+    facet_col_wrap=2
+    facet_col_spacing=.01
+    facet_row_spacing=.01
     title_title='Custom Title'
     title_visible=False
     xaxis_title="Custom X Axis Title"
@@ -83,6 +88,12 @@ def test_all_styling_options():
         False, 
         ['A'], ['B'], 
         400, 400, 
+        color,
+        facet_col_column_id=facet_col_column_id,
+        facet_row_column_id=facet_row_column_id,
+        facet_col_wrap=facet_col_wrap,
+        facet_col_spacing=facet_col_spacing,
+        facet_row_spacing=facet_row_spacing,
         title_title=title_title,
         title_visible=title_visible,
         xaxis_title=xaxis_title,
@@ -107,6 +118,12 @@ def test_all_styling_options():
     assert mito.get_graph_sheet_index(graph_id) == 0
     assert mito.get_graph_axis_column_ids(graph_id, 'x') == ['A']
     assert mito.get_graph_axis_column_ids(graph_id, 'y') == ['B']
+    assert mito.get_graph_color(graph_id) == color
+    assert mito.get_graph_facet_col_column_id(graph_id) == facet_col_column_id
+    assert mito.get_graph_facet_row_column_id(graph_id) == facet_row_column_id
+    assert mito.get_graph_facet_col_wrap(graph_id) == facet_col_wrap
+    assert mito.get_graph_facet_col_spacing(graph_id) == facet_col_spacing
+    assert mito.get_graph_facet_row_spacing(graph_id) == facet_row_spacing
     assert not mito.get_is_graph_output_none(graph_id)
 
     graph_styling_params = mito.get_graph_styling_params(graph_id)

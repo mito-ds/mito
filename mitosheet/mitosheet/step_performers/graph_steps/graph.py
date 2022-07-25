@@ -80,6 +80,9 @@ class GraphStepPerformer(StepPerformer):
         """
         Returns the new post state with the updated graph_data_dict
         """
+
+        print(params)
+
         graph_id: GraphID = get_param(params, 'graph_id')
         graph_preprocessing: Dict[str, Any] = get_param(params, 'graph_preprocessing')
         graph_creation: Dict[str, Any] = get_param(params, 'graph_creation')
@@ -105,14 +108,12 @@ class GraphStepPerformer(StepPerformer):
         y_axis_column_headers = prev_state.column_ids.get_column_headers_by_ids(sheet_index, y_axis_column_ids)
 
         # Validate optional parameters 
-        color_column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, graph_creation["color"]) if 'color' in graph_creation.keys() else None
-        facet_col_column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, graph_creation["facet_col"]) if 'facet_col' in graph_creation.keys() else None
-        facet_row_column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, graph_creation["facet_row"]) if 'facet_row' in graph_creation.keys() else None
+        color_column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, graph_creation["color"]) if 'color' in graph_creation.keys() and graph_creation["color"] in prev_state.column_ids.column_id_to_column_header[sheet_index].keys() else None
+        facet_col_column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, graph_creation["facet_col_column_id"]) if 'facet_col_column_id' in graph_creation.keys() and graph_creation["facet_col_column_id"] in prev_state.column_ids.column_id_to_column_header[sheet_index].keys() else None
+        facet_row_column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, graph_creation["facet_row_column_id"]) if 'facet_row_column_id' in graph_creation.keys() and graph_creation["facet_row_column_id"] in prev_state.column_ids.column_id_to_column_header[sheet_index].keys() else None
         facet_col_wrap = int(graph_creation['facet_col_wrap']) if 'facet_col_wrap' in graph_creation.keys() else None
         facet_col_spacing = float(graph_creation['facet_col_spacing']) if 'facet_col_spacing' in graph_creation.keys() else None
         facet_row_spacing = float(graph_creation['facet_row_spacing']) if 'facet_row_spacing' in graph_creation.keys() else None
-
-
 
         # Create a copy of the dataframe, just for safety.
         df: pd.DataFrame = prev_state.dfs[sheet_index].copy()

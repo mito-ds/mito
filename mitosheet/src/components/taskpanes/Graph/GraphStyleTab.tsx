@@ -401,87 +401,98 @@ function GraphStyleTab(props: {
                 }
             </CollapsibleSection>
             <CollapsibleSection title='Facet Styling'>
-                <Row justify='space-between' align='center' title='The number of plots to display per row. Has no effect when facet row is used.'>
-                    <Col>
-                        <p>
-                            Facet column wrap
-                        </p>
-                    </Col>
-                    <Input 
-                        value={graphCreationParams.facet_col_wrap ? graphCreationParams.facet_col_wrap.toString() : ''} 
-                        type='number'
-                        width='small'
-                        placeholder='num cols'
-                        onChange={(e) => {
-                            const newNumCols = e.target.value === '' ? undefined : e.target.value
-                            props.setGraphParams(prevGraphParams => {
-                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
-                                return {
-                                    ...graphParamsCopy,
-                                    graphCreation: {
-                                        ...graphParamsCopy.graphCreation,
-                                        facet_col_wrap: newNumCols as number | undefined
-                                    } 
-                                }
-                            })
-                            props.setGraphUpdatedNumber(old => old + 1)
-                        }}     
-                    />
-                </Row>
-                <Row justify='space-between' align='center' title='The spacing between columns of facet plots. Set as a fraction of plotting area.'>
-                    <Col>
-                        <p>
-                            Facet column spacing
-                        </p>
-                    </Col>
-                    <Input 
-                        value={graphCreationParams.facet_col_spacing ? graphCreationParams.facet_col_spacing.toString() : ''} 
-                        type='number'
-                        width='small'
-                        placeholder='.03'
-                        onChange={(e) => {
-                            const newColSpacing = e.target.value === '' ? undefined : e.target.value
-                            props.setGraphParams(prevGraphParams => {
-                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
-                                return {
-                                    ...graphParamsCopy,
-                                    graphCreation: {
-                                        ...graphParamsCopy.graphCreation,
-                                        facet_col_spacing: newColSpacing as number | undefined
-                                    } 
-                                }
-                            })
-                            props.setGraphUpdatedNumber(old => old + 1)
-                        }}     
-                    />
-                </Row>
-                <Row justify='space-between' align='center' title='The spacing between rows of facet plots. Set as a fraction of plotting area.'>
-                    <Col>
-                        <p>
-                            Facet row spacing
-                        </p>
-                    </Col>
-                    <Input 
-                        value={graphCreationParams.facet_row_spacing ? graphCreationParams.facet_row_spacing.toString() : ''} 
-                        type='number'
-                        width='small'
-                        placeholder='.07'
-                        onChange={(e) => {
-                            const newColSpacing = e.target.value === '' ? undefined : e.target.value
-                            props.setGraphParams(prevGraphParams => {
-                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
-                                return {
-                                    ...graphParamsCopy,
-                                    graphCreation: {
-                                        ...graphParamsCopy.graphCreation,
-                                        facet_row_spacing: newColSpacing as number | undefined
-                                    } 
-                                }
-                            })
-                            props.setGraphUpdatedNumber(old => old + 1)
-                        }}     
-                    />
-                </Row>
+                {!props.userProfile.isPro &&
+                    <Row justify='space-between' align='center'>
+                        <p className='text-body-1'>
+                            Want to style facet plots? <a href='https://trymito.io/plans' target='_blank' rel="noreferrer"><span className='text-body-1-link'>Upgrade to Mito Pro.</span></a>
+                        </p>  
+                    </Row>
+                }
+                {props.userProfile.isPro &&
+                    <>
+                        <Row justify='space-between' align='center' title='The number of plots to display per row. Has no effect when facet row is used.'>
+                            <Col>
+                                <p>
+                                    Facet column wrap
+                                </p>
+                            </Col>
+                            <Input 
+                                value={graphCreationParams.facet_col_wrap ? graphCreationParams.facet_col_wrap.toString() : ''} 
+                                type='number'
+                                width='small'
+                                placeholder='num cols'
+                                onChange={(e) => {
+                                    const newNumCols = e.target.value === '' ? undefined : e.target.value
+                                    props.setGraphParams(prevGraphParams => {
+                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        return {
+                                            ...graphParamsCopy,
+                                            graphCreation: {
+                                                ...graphParamsCopy.graphCreation,
+                                                facet_col_wrap: newNumCols as number | undefined
+                                            } 
+                                        }
+                                    })
+                                    props.setGraphUpdatedNumber(old => old + 1)
+                                }}     
+                            />
+                        </Row>
+                        <Row justify='space-between' align='center' title='The spacing between columns of facet plots. Set as a fraction of plotting area.'>
+                            <Col>
+                                <p>
+                                    Facet column spacing
+                                </p>
+                            </Col>
+                            <Input 
+                                value={graphCreationParams.facet_col_spacing ? graphCreationParams.facet_col_spacing.toString() : ''} 
+                                type='number'
+                                width='small'
+                                placeholder='.03'
+                                onChange={(e) => {
+                                    const newColSpacing = e.target.value === '' ? undefined : e.target.value
+                                    props.setGraphParams(prevGraphParams => {
+                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        return {
+                                            ...graphParamsCopy,
+                                            graphCreation: {
+                                                ...graphParamsCopy.graphCreation,
+                                                facet_col_spacing: newColSpacing as number | undefined
+                                            } 
+                                        }
+                                    })
+                                    props.setGraphUpdatedNumber(old => old + 1)
+                                }}     
+                            />
+                        </Row>
+                        <Row justify='space-between' align='center' title='The spacing between rows of facet plots. Set as a fraction of plotting area.'>
+                            <Col>
+                                <p>
+                                    Facet row spacing
+                                </p>
+                            </Col>
+                            <Input 
+                                value={graphCreationParams.facet_row_spacing ? graphCreationParams.facet_row_spacing.toString() : ''} 
+                                type='number'
+                                width='small'
+                                placeholder='.07'
+                                onChange={(e) => {
+                                    const newColSpacing = e.target.value === '' ? undefined : e.target.value
+                                    props.setGraphParams(prevGraphParams => {
+                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        return {
+                                            ...graphParamsCopy,
+                                            graphCreation: {
+                                                ...graphParamsCopy.graphCreation,
+                                                facet_row_spacing: newColSpacing as number | undefined
+                                            } 
+                                        }
+                                    })
+                                    props.setGraphUpdatedNumber(old => old + 1)
+                                }}     
+                            />
+                        </Row>
+                    </>
+                }
             </CollapsibleSection>
             <CollapsibleSection title='Legend and Zoom'>
                 <Row justify='space-between' align='center'>
