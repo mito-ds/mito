@@ -12,7 +12,6 @@ import TextButton from '../elements/TextButton';
 import Input from '../elements/Input';
 import { AnalysisData, FeedbackID, SheetData, UIState } from '../../types';
 import { checkProAccessCode } from '../../utils/pro';
-import { TaskpaneType } from '../taskpanes/taskpanes';
 import Experiment from '../elements/Experiment';
 
 /* 
@@ -343,7 +342,6 @@ const SignupModal = (
                 return {
                     ...prevUIState,
                     currOpenModal: {type: ModalEnum.None},
-                    currOpenTaskpane: props.sheetDataArray.length === 0 ? {type: TaskpaneType.IMPORT} : prevUIState.currOpenTaskpane
                 }
             })
             void props.mitoAPI.log('finished_signup');

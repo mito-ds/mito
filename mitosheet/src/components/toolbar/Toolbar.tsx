@@ -130,6 +130,7 @@ const Toolbar = (
                         toolbarButtonType={ToolbarButtonType.EXPORT}
                         action={props.actions[ActionEnum.Export]}
                         setEditorState={props.setEditorState}
+                        disabledTooltip={props.actions[ActionEnum.Export].isDisabled()}
                     />
 
                     <div className="toolbar-vertical-line"/>
@@ -139,22 +140,28 @@ const Toolbar = (
                         action={props.actions[ActionEnum.Add_Column]}
                         highlightToolbarButton={props.highlightAddColButton}
                         setEditorState={props.setEditorState}
+                        disabledTooltip={props.actions[ActionEnum.Add_Column].isDisabled()}
                     />
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.DEL_COL}
                         action={props.actions[ActionEnum.Delete_Column]}
                         setEditorState={props.setEditorState}
+                        disabledTooltip={props.actions[ActionEnum.Delete_Column].isDisabled()}
+
                     />
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.DTYPE}
                         action={props.actions[ActionEnum.Change_Dtype]}
                         setEditorState={props.setEditorState}
+                        disabledTooltip={props.actions[ActionEnum.Change_Dtype].isDisabled()}
+
                     />
                     
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.FORMAT}
                         action={props.actions[ActionEnum.Format]}
                         setEditorState={props.setEditorState}
+                        disabledTooltip={props.actions[ActionEnum.Format].isDisabled()}
                     >
                         <Dropdown
                             display={props.uiState.displayFormatToolbarDropdown}
@@ -178,11 +185,14 @@ const Toolbar = (
                         action={props.actions[ActionEnum.Pivot]}
                         highlightToolbarButton={props.highlightPivotTableButton}
                         setEditorState={props.setEditorState}
+                        disabledTooltip={props.actions[ActionEnum.Pivot].isDisabled()}
                     />
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.GRAPH}
                         action={props.actions[ActionEnum.Graph]}
                         setEditorState={props.setEditorState}
+                        disabledTooltip={props.actions[ActionEnum.Graph].isDisabled()}
+
                     />
 
                 </div>

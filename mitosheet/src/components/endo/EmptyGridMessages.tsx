@@ -46,7 +46,7 @@ const EmptyGridMessages = (props: {sheetData: SheetData | undefined, setUIState:
                         </TextButton>
                     </div>
                     <p className='mt-5px text-body-1'>
-                        Or pass dataframes directly into the <code>mitosheet.sheet()</code> call above.
+                        Or import dataframes using the syntax <code>mitosheet.sheet(df1, df2)</code> in the code above.
                     </p>
                 </GridDataEmptyContainer>
             }

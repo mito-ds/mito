@@ -70,7 +70,7 @@ export const createActions = (
                     newColumnHeaderIndex
                 );
             },
-            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'Create a dataframe by importing data before adding a column.'},
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no dataframes to add columns to. Import data.'},
             searchTerms: ['add column', 'add col', 'new column', 'new col', 'insert column', 'insert col'],
             tooltip: "Add a new formula column to the right of your selection."
         },
@@ -106,7 +106,7 @@ export const createActions = (
             },
             isDisabled: () => {
                 if (!doesAnySheetExist(sheetDataArray)) {
-                    return 'There are no columns to change the dtype of. Import data before changing the dtype.';
+                    return 'There are no columns to change the dtype of. Import data.';
                 } 
 
                 return undefined;
@@ -227,6 +227,10 @@ export const createActions = (
                 } 
             },
             isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to delete. Import data.';
+                }
+
                 if (doesColumnExist(startingColumnID, sheetIndex, sheetDataArray)) {
                     if (isSelectionsOnlyColumnHeaders(gridState.selections)) {
                         return undefined
@@ -401,7 +405,7 @@ export const createActions = (
                 })
             },
             isDisabled: () => {
-                return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no dataframes to export.'
+                return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no dataframes to export. Import data.'
             },
             searchTerms: ['export', 'download', 'excel', 'csv'],
             tooltip: "Download dataframes as a .csv or .xlsx file."
@@ -476,6 +480,10 @@ export const createActions = (
                 })
             },
             isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to format. Import data.'
+                }
+                
                 return getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData).length > 0 ? undefined : FORMAT_DISABLED_MESSAGE
             },
             searchTerms: ['format', 'decimals', 'percent', '%', 'scientific', 'Mill', 'Bill', 'round'],
