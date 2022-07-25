@@ -22,7 +22,7 @@ from mitosheet.telemetry.private_params_map import LOG_EXECUTION_DATA_PUBLIC
 from mitosheet.types import StepsManagerType
 from mitosheet.user.location import get_location, is_docker
 from mitosheet.user.schemas import UJ_EXPERIMENT, UJ_FEEDBACKS, UJ_FEEDBACKS_V2, UJ_INTENDED_BEHAVIOR, UJ_MITOSHEET_TELEMETRY, UJ_USER_EMAIL
-from mitosheet.user.utils import is_local_deployment
+from mitosheet.user.utils import is_local_deployment, is_pro
 
 import analytics
 
@@ -56,8 +56,13 @@ def telemetry_turned_on() -> bool:
     if package_name == 'mitosheet-private':
         return False
 
+    # If private helper is installed, then we don't log anything
     if MITOSHEET_HELPER_PRIVATE:
-        return MITOSHEET_HELPER_PRIVATE
+        return False
+
+    # If Mito Pro is on, then don't log anything
+    if is_pro():
+        return False
 
     telemetry = get_user_field(UJ_MITOSHEET_TELEMETRY) 
     return telemetry if telemetry is not None else False
