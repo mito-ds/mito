@@ -249,6 +249,8 @@ export type GraphStylingParams = {
         visible: boolean;
         title_font_color: string, // defaults to #2f3e5d
         type: string | undefined // when undefined, we use Plotly's default
+        showgrid: boolean,
+        gridwidth: number | undefined
         rangeslider: {
             visible: boolean,
         }
@@ -258,6 +260,8 @@ export type GraphStylingParams = {
         visible: boolean
         title_font_color: string, // defaults to #2f3e5d
         type: string | undefined // when undefined, we use Plotly's default
+        showgrid: boolean 
+        gridwidth: number | undefined
     },
     showlegend: boolean,
     plot_bgcolor: string // The inner part of the plot with data background. Defaults to a blue-ish shade

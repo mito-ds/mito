@@ -292,6 +292,131 @@ function GraphStyleTab(props: {
                     </Select>
                 </Row>
             </CollapsibleSection>
+            <CollapsibleSection title='Grid Lines'>
+                {!props.userProfile.isPro &&
+                    <Row justify='space-between' align='center'>
+                        <p className='text-body-1'>
+                            Want to customize the grid lines? <a href='https://trymito.io/plans' target='_blank' rel="noreferrer"><span className='text-body-1-link'>Upgrade to Mito Pro.</span></a>
+                        </p>  
+                    </Row>
+                }
+                {props.userProfile.isPro &&
+                    <>
+                        <Row justify='space-between' align='center' title='Turn on/off vertical grid lines'>
+                            <Col>
+                                <p>
+                                    Show vertical grid
+                                </p>
+                            </Col>
+                            <Toggle 
+                                value={graphStylingParams.xaxis.showgrid} 
+                                onChange={() => {
+                                    props.setGraphParams(prevGraphParams => {
+                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        return {
+                                            ...graphParamsCopy,
+                                            graphStyling: {
+                                                ...graphParamsCopy.graphStyling,
+                                                xaxis: {
+                                                    ...graphParamsCopy.graphStyling.xaxis,
+                                                    showgrid: !graphParamsCopy.graphStyling.xaxis.showgrid
+                                                }
+                                            } 
+                                        }
+                                    })
+                                    props.setGraphUpdatedNumber(old => old + 1)
+                                }}     
+                            />
+                        </Row>
+                        <Row justify='space-between' align='center' title='Turn on/off horiztonal grid lines'>
+                            <Col>
+                                <p>
+                                    Show horizontal grid
+                                </p>
+                            </Col>
+                            <Toggle 
+                                value={graphStylingParams.yaxis.showgrid} 
+                                onChange={() => {
+                                    props.setGraphParams(prevGraphParams => {
+                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        return {
+                                            ...graphParamsCopy,
+                                            graphStyling: {
+                                                ...graphParamsCopy.graphStyling,
+                                                yaxis: {
+                                                    ...graphParamsCopy.graphStyling.yaxis,
+                                                    showgrid: !graphParamsCopy.graphStyling.yaxis.showgrid
+                                                }
+                                            } 
+                                        }
+                                    })
+                                    props.setGraphUpdatedNumber(old => old + 1)
+                                }}     
+                            />
+                        </Row>
+                        <Row justify='space-between' align='center' title='The width of the vertical grid lines'>
+                            <Col>
+                                <p>
+                                    Vertical grid width
+                                </p>
+                            </Col>
+                            <Input 
+                                value={graphStylingParams.xaxis.gridwidth ? graphStylingParams.xaxis.gridwidth.toString() : ''} 
+                                type='number'
+                                width='small'
+                                placeholder='1'
+                                onChange={(e) => {
+                                    const newHoriztonalGridWidth = e.target.value === '' ? undefined : e.target.value
+                                    props.setGraphParams(prevGraphParams => {
+                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        return {
+                                            ...graphParamsCopy,
+                                            graphStyling: {
+                                                ...graphParamsCopy.graphStyling,
+                                                xaxis: {
+                                                    ...graphParamsCopy.graphStyling.xaxis,
+                                                    gridwidth: (newHoriztonalGridWidth as number | undefined)
+                                                }
+                                            } 
+                                        }
+                                    })
+                                    props.setGraphUpdatedNumber(old => old + 1)
+                                }}     
+                            />
+                        </Row>
+                        <Row justify='space-between' align='center' title='The width of the horizontal grid lines'>
+                            <Col>
+                                <p>
+                                    Horizontal grid width
+                                </p>
+                            </Col>
+                            <Input 
+                                value={graphStylingParams.yaxis.gridwidth ? graphStylingParams.yaxis.gridwidth.toString() : ''} 
+                                type='number'
+                                width='small'
+                                placeholder='1'
+                                onChange={(e) => {
+                                    const newHoriztonalGridWidth = e.target.value === '' ? undefined : e.target.value
+                                    props.setGraphParams(prevGraphParams => {
+                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        return {
+                                            ...graphParamsCopy,
+                                            graphStyling: {
+                                                ...graphParamsCopy.graphStyling,
+                                                yaxis: {
+                                                    ...graphParamsCopy.graphStyling.yaxis,
+                                                    gridwidth: (newHoriztonalGridWidth as number | undefined)
+                                                }
+                                            } 
+                                        }
+                                    })
+                                    props.setGraphUpdatedNumber(old => old + 1)
+                                }}     
+                            />
+                        </Row>
+                    </>
+                }
+            </CollapsibleSection>
             
             <CollapsibleSection title='Colors'>
                 {!props.userProfile.isPro &&

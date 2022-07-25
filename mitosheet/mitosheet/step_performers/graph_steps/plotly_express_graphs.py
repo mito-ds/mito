@@ -281,6 +281,11 @@ def get_graph_styling_param_dict(graph_type: str, column_headers: List[ColumnHea
     if 'type' in graph_styling_params['xaxis']:
         all_params['xaxis']['type'] = graph_styling_params['xaxis']['type']
 
+    all_params['xaxis']['showgrid'] = graph_styling_params['xaxis']['showgrid']
+
+    if 'gridwidth' in graph_styling_params['xaxis']:
+        all_params['xaxis']['gridwidth'] = float(graph_styling_params['xaxis']['gridwidth'])
+
     # Create the range slider param
     if graph_styling_params['xaxis']['rangeslider']['visible']:
         all_params['xaxis']['rangeslider'] = dict(visible=True, thickness=0.05)
@@ -304,6 +309,11 @@ def get_graph_styling_param_dict(graph_type: str, column_headers: List[ColumnHea
 
     if 'type' in graph_styling_params['yaxis']:
         all_params['yaxis']['type'] = graph_styling_params['yaxis']['type']
+
+    all_params['yaxis']['showgrid'] = graph_styling_params['yaxis']['showgrid']
+
+    if 'gridwidth' in graph_styling_params['yaxis']:
+        all_params['yaxis']['gridwidth'] = float(graph_styling_params['yaxis']['gridwidth'])
 
     # Create the barmode param
     barmode = get_barmode(graph_type)
