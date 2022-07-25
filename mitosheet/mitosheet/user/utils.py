@@ -13,6 +13,7 @@ import os
 from datetime import datetime
 import sys
 from typing import Optional
+from mitosheet.telemetry.telemetry_utils import MITOSHEET_HELPER_PRIVATE
 
 import pandas as pd
 from mitosheet._version import __version__, package_name
@@ -77,7 +78,7 @@ def should_upgrade_mitosheet() -> bool:
 
     Always returns false if:
     - it is not a local installation, for obvious reasons.
-    - the package is mitosheet-private, because it is managed by an account admin
+    - if it has an admin package installed, as this is managed by an admin
 
     NOTE: if the user clicks the upgrade button in the app, then we change the upgraded 
     date to this date, so that the user doesn't get a bunch of annoying popups. This just
@@ -85,10 +86,10 @@ def should_upgrade_mitosheet() -> bool:
     """
     if not is_local_deployment():
         return False
-
-    if package_name == 'mitosheet-private':
+    
+    if MITOSHEET_HELPER_PRO or MITOSHEET_HELPER_PRIVATE:
         return False
-
+    
     last_upgraded_date_stored = get_user_field(UJ_MITOSHEET_LAST_UPGRADED_DATE)
     if last_upgraded_date_stored is None:
         return False

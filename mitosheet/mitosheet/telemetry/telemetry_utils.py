@@ -51,10 +51,6 @@ def telemetry_turned_on() -> bool:
     Helper function that tells you if logging is turned on or
     turned off on the entire Mito instance
     """
-    # If the current package is mitosheet-private, then we don't log anything,
-    # ever, under any circumstances - this is a custom distribution for a client
-    if package_name == 'mitosheet-private':
-        return False
 
     # If private helper is installed, then we don't log anything
     if MITOSHEET_HELPER_PRIVATE:
