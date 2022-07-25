@@ -98,6 +98,7 @@ def get_graph_creation_param_dict(
         y_axis_column_headers: List[ColumnHeader],
         color_column_header: Optional[ColumnHeader],
         facet_column_column_header: Optional[ColumnHeader],
+        facet_row_column_header: Optional[ColumnHeader],
     ) -> Dict[str, Any]:
 
     # Create the parameters that we use to construct the graph
@@ -119,10 +120,11 @@ def get_graph_creation_param_dict(
     if graph_type not in GRAPHS_THAT_DONT_SUPPORT_COLOR and color_column_header is not None:
         all_params['color'] = color_column_header
 
-    print(3, facet_column_column_header)
-
     if facet_column_column_header is not None:
         all_params['facet_col'] = facet_column_column_header
+
+    if facet_row_column_header is not None:
+        all_params['facet_row'] = facet_row_column_header
 
     return all_params
 
@@ -132,16 +134,15 @@ def graph_creation(
     x_axis_column_headers: List[ColumnHeader],
     y_axis_column_headers: List[ColumnHeader],
     color_column_header: Optional[ColumnHeader],
-    facet_column_column_header: Optional[ColumnHeader]
+    facet_column_column_header: Optional[ColumnHeader],
+    facet_row_column_header: Optional[ColumnHeader],
 ) -> go.Figure:
     """
     Creates and returns the Plotly express graph figure
     """
 
-    print(2, facet_column_column_header)
-
     param_dict = get_graph_creation_param_dict(
-        graph_type, x_axis_column_headers, y_axis_column_headers, color_column_header, facet_column_column_header
+        graph_type, x_axis_column_headers, y_axis_column_headers, color_column_header, facet_column_column_header, facet_row_column_header
     )
 
     if graph_type == BAR:
@@ -173,13 +174,19 @@ def graph_creation_code(
     y_axis_column_headers: List[ColumnHeader],
     color_column_header: Optional[ColumnHeader],
     facet_column_column_header: Optional[ColumnHeader],
+    facet_row_column_header: Optional[ColumnHeader],
 ) -> str:
     """
     Returns the code for creating the Plotly express graph
     """
 
     param_dict = get_graph_creation_param_dict(
-        graph_type, x_axis_column_headers, y_axis_column_headers, color_column_header, facet_column_column_header
+        graph_type, 
+        x_axis_column_headers, 
+        y_axis_column_headers, 
+        color_column_header, 
+        facet_column_column_header, 
+        facet_row_column_header
     )
     param_code = param_dict_to_code(param_dict, as_single_line=True)
 
@@ -325,6 +332,7 @@ def get_plotly_express_graph(
     y_axis_column_headers: List[ColumnHeader],
     color_column_header: Optional[ColumnHeader],
     facet_column_column_header: Optional[ColumnHeader],
+    facet_row_column_header: Optional[ColumnHeader],
     graph_styling_params: Dict[str, Any],
 ) -> go.Figure:
     """
@@ -342,7 +350,15 @@ def get_plotly_express_graph(
     df = graph_filtering(df, safety_filter_turned_on_by_user)
 
     # Step 2: Graph Creation
-    fig = graph_creation(graph_type, df, x_axis_column_headers, y_axis_column_headers, color_column_header, facet_column_column_header)
+    fig = graph_creation(
+        graph_type, 
+        df, 
+        x_axis_column_headers, 
+        y_axis_column_headers, 
+        color_column_header, 
+        facet_column_column_header, 
+        facet_row_column_header
+    )
 
     # Step 3: Graph Styling
     fig = graph_styling(fig, graph_type, all_column_headers, is_safety_filter_applied, graph_styling_params)
@@ -358,6 +374,7 @@ def get_plotly_express_graph_code(
     y_axis_column_headers: List[ColumnHeader],
     color_column_header: Optional[ColumnHeader],
     facet_column_column_header: Optional[ColumnHeader],
+    facet_row_column_header: Optional[ColumnHeader],
     graph_styling_params: Dict[str, Any],
     df_name: str,
 ) -> str:
@@ -388,7 +405,13 @@ def get_plotly_express_graph_code(
     )
     code.append(
         graph_creation_code(
-            graph_type, df_name, x_axis_column_headers, y_axis_column_headers, color_column_header, facet_column_column_header
+            graph_type, 
+            df_name, 
+            x_axis_column_headers, 
+            y_axis_column_headers, 
+            color_column_header, 
+            facet_column_column_header,
+            facet_row_column_header
         )
     )
 
