@@ -234,7 +234,8 @@ export type GraphCreationParams = {
     color: ColumnID | undefined
     facet_col: ColumnID | undefined
     facet_row: ColumnID | undefined,
-    facet_col_wrap: number | undefined
+    facet_col_wrap: number | undefined,
+    facet_col_spacing: number | undefined
 }
 export type GraphStylingParams = {
     title: {

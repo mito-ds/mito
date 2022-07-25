@@ -99,7 +99,8 @@ def get_graph_creation_param_dict(
         color_column_header: Optional[ColumnHeader],
         facet_col_column_header: Optional[ColumnHeader],
         facet_row_column_header: Optional[ColumnHeader],
-        facet_col_wrap: Optional[int]
+        facet_col_wrap: Optional[int],
+        facet_col_spacing: Optional[int]
     ) -> Dict[str, Any]:
 
     # Create the parameters that we use to construct the graph
@@ -130,6 +131,8 @@ def get_graph_creation_param_dict(
     if facet_col_wrap is not None: 
         all_params['facet_col_wrap'] = facet_col_wrap
 
+    if facet_col_spacing is not None:
+        all_params['facet_col_spacing'] = facet_col_spacing
     return all_params
 
 def graph_creation(
@@ -140,7 +143,8 @@ def graph_creation(
     color_column_header: Optional[ColumnHeader],
     facet_col_column_header: Optional[ColumnHeader],
     facet_row_column_header: Optional[ColumnHeader],
-    facet_col_wrap: Optional[int]
+    facet_col_wrap: Optional[int],
+    facet_col_spacing: Optional[int]
 ) -> go.Figure:
     """
     Creates and returns the Plotly express graph figure
@@ -154,6 +158,7 @@ def graph_creation(
         facet_col_column_header, 
         facet_row_column_header,
         facet_col_wrap,
+        facet_col_spacing
     )
 
     if graph_type == BAR:
@@ -186,7 +191,8 @@ def graph_creation_code(
     color_column_header: Optional[ColumnHeader],
     facet_col_column_header: Optional[ColumnHeader],
     facet_row_column_header: Optional[ColumnHeader],
-    facet_col_wrap: Optional[int]
+    facet_col_wrap: Optional[int],
+    facet_col_spacing: Optional[int]
 ) -> str:
     """
     Returns the code for creating the Plotly express graph
@@ -199,7 +205,8 @@ def graph_creation_code(
         color_column_header, 
         facet_col_column_header, 
         facet_row_column_header,
-        facet_col_wrap
+        facet_col_wrap,
+        facet_col_spacing
     )
     param_code = param_dict_to_code(param_dict, as_single_line=True)
 
@@ -347,6 +354,7 @@ def get_plotly_express_graph(
     facet_col_column_header: Optional[ColumnHeader],
     facet_row_column_header: Optional[ColumnHeader],
     facet_col_wrap: Optional[int],
+    facet_col_spacing: Optional[int],
     graph_styling_params: Dict[str, Any],
 ) -> go.Figure:
     """
@@ -372,7 +380,8 @@ def get_plotly_express_graph(
         color_column_header, 
         facet_col_column_header, 
         facet_row_column_header,
-        facet_col_wrap
+        facet_col_wrap,
+        facet_col_spacing
     )
 
     # Step 3: Graph Styling
@@ -391,6 +400,7 @@ def get_plotly_express_graph_code(
     facet_col_column_header: Optional[ColumnHeader],
     facet_row_column_header: Optional[ColumnHeader],
     facet_col_wrap: Optional[int],
+    facet_col_spacing: Optional[int],
     graph_styling_params: Dict[str, Any],
     df_name: str,
 ) -> str:
@@ -429,6 +439,7 @@ def get_plotly_express_graph_code(
             facet_col_column_header,
             facet_row_column_header,
             facet_col_wrap,
+            facet_col_spacing
         )
     )
 

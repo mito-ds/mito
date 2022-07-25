@@ -29,7 +29,8 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
             color: undefined,
             facet_col: undefined,
             facet_row: undefined,
-            facet_col_wrap: undefined
+            facet_col_wrap: undefined,
+            facet_col_spacing: undefined
         },
         graphStyling: {
             title: {
