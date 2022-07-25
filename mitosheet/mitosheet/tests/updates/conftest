@@ -1,0 +1,30 @@
+
+import json
+import os
+import pytest
+
+from mitosheet.user.db import USER_JSON_PATH
+
+
+@pytest.fixture(scope="module", autouse=True)
+def cleanup_files():
+    """
+    This fixture reads in the original user.json file that exists before these tests are
+    run, deletes it, and then recreates it at the end. This allows us to test what happens 
+    when the user.json file is in various states of out of date and disrepair.
+
+    It also turns off the sending of logging to make sure we don't generate a huge number
+    of new accounts on the frontend.
+
+    It is notably autoused for this module, which means it runs before all users tests, and
+    thus makes sure that running tests do not overwrite the current user.json you have.
+    """
+    with open(USER_JSON_PATH, 'r') as f:
+        user_json = json.loads(f.read())
+
+    os.remove(USER_JSON_PATH)
+
+    yield # All tests in this user module run right here
+
+    with open(USER_JSON_PATH, 'w+') as f:
+        f.write(json.dumps(user_json))
