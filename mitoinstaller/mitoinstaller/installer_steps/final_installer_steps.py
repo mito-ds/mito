@@ -67,7 +67,8 @@ FINAL_INSTALLER_STEPS = [
     InstallerStep(
         'Start Jupyter',
         replace_process_with_jupyter,
-        optional=True
+        optional=True,
+        no_print_in_main_loop=True
     ),
     # We do out best to replace the running process with JupyterLab, but 
     # if this fails, then just print a success message to the user
