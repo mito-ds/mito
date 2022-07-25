@@ -72,10 +72,14 @@ def test_all_styling_options():
     xaxis_title="Custom X Axis Title"
     xaxis_visible=False
     xaxis_type='category'
+    xaxis_showgrid=False
+    xaxis_gridwidth=5
     xaxis_rangeslider_visible=False
     yaxis_title="Custom Y Axis Title"
     yaxis_visible=False
     yaxis_type='linear'
+    yaxis_showgrid=False
+    yaxis_gridwidth=5
     showlegend=False    
     paper_bgcolor='#FFCCDD'    
     plot_bgcolor='#FFCCEE'    
@@ -99,10 +103,14 @@ def test_all_styling_options():
         xaxis_title=xaxis_title,
         xaxis_visible=xaxis_visible,
         xaxis_type=xaxis_type,
+        xaxis_showgrid=xaxis_showgrid,
+        xaxis_gridwidth=xaxis_gridwidth,
         xaxis_rangeslider_visible=xaxis_rangeslider_visible,
         yaxis_title=yaxis_title,
-        yaxis_type=yaxis_type,
         yaxis_visible=yaxis_visible,
+        yaxis_type=yaxis_type,
+        yaxis_showgrid=yaxis_showgrid,
+        yaxis_gridwidth=yaxis_gridwidth,
         showlegend=showlegend,
         paper_bgcolor=paper_bgcolor,
         plot_bgcolor=plot_bgcolor,
@@ -134,11 +142,15 @@ def test_all_styling_options():
     assert graph_styling_params['xaxis']['visible'] == xaxis_visible
     assert graph_styling_params['xaxis']['title_font_color'] == xaxis_title_font_color
     assert graph_styling_params['xaxis']['type'] == xaxis_type
+    assert graph_styling_params['xaxis']['showgrid'] == xaxis_showgrid
+    assert graph_styling_params['xaxis']['gridwidth'] == xaxis_gridwidth
     assert graph_styling_params['xaxis']['rangeslider']['visible'] == xaxis_rangeslider_visible
     assert graph_styling_params['yaxis']['title'] == yaxis_title
     assert graph_styling_params['yaxis']['visible'] == yaxis_visible
     assert graph_styling_params['yaxis']['title_font_color'] == yaxis_title_font_color
     assert graph_styling_params['yaxis']['type'] == yaxis_type
+    assert graph_styling_params['yaxis']['showgrid'] == yaxis_showgrid
+    assert graph_styling_params['yaxis']['gridwidth'] == yaxis_gridwidth
     assert graph_styling_params['showlegend'] == showlegend
     assert graph_styling_params['paper_bgcolor'] == paper_bgcolor
     assert graph_styling_params['plot_bgcolor'] == plot_bgcolor

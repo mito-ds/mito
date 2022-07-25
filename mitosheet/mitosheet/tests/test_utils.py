@@ -977,11 +977,15 @@ class MitoWidgetTestWrapper:
         xaxis_visible: bool=True,
         xaxis_title_font_color: str=DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT,
         xaxis_type: Optional[str]=None,
+        xaxis_showgrid: bool=True,
+        xaxis_gridwidth: Optional[number]=None,
         xaxis_rangeslider_visible: bool=True,
         yaxis_title: Optional[str]=None,
         yaxis_visible: bool=True,
         yaxis_title_font_color: str=DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT,
         yaxis_type: Optional[str]=None,
+        yaxis_showgrid: bool=True,
+        yaxis_gridwidth: Optional[number]=None,
         showlegend: bool=True,
         step_id: str=None,
         paper_bgcolor: str=DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT,
@@ -1013,6 +1017,7 @@ class MitoWidgetTestWrapper:
                     'visible': xaxis_visible,
                     'title_font_color': xaxis_title_font_color,
                     'type': xaxis_type,
+                    'showgrid': xaxis_showgrid,
                     'rangeslider': {
                         'visible': xaxis_rangeslider_visible
                     }
@@ -1021,7 +1026,8 @@ class MitoWidgetTestWrapper:
                     'title': yaxis_title,
                     'visible': yaxis_visible,
                     'title_font_color': yaxis_title_font_color,
-                    'type': yaxis_type
+                    'type': yaxis_type,
+                    'showgrid': yaxis_showgrid,
                 },
                 'showlegend': showlegend,
                 'paper_bgcolor': paper_bgcolor,
@@ -1042,7 +1048,14 @@ class MitoWidgetTestWrapper:
             params['graph_creation']['facet_col_spacing'] = facet_col_spacing
 
         if facet_row_spacing is not None:
-            params['graph_creation']['facet_row_spacing'] = facet_row_spacing                        
+            params['graph_creation']['facet_row_spacing'] = facet_row_spacing   
+
+        if xaxis_gridwidth is not None:
+            params['graph_styling']['xaxis']['gridwidth'] = xaxis_gridwidth  
+
+        if yaxis_gridwidth is not None:
+            params['graph_styling']['yaxis']['gridwidth'] = yaxis_gridwidth 
+                        
 
         return self.mito_widget.receive_message(
             self.mito_widget, 
