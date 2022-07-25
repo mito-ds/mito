@@ -38,7 +38,7 @@ from mitosheet.user.schemas import (UJ_CLOSED_FEEDBACK, UJ_EXPERIMENT, UJ_FEEDBA
                                     UJ_INTENDED_BEHAVIOR,
                                     UJ_MITOSHEET_LAST_FIFTY_USAGES,
                                     UJ_MITOSHEET_LAST_FIVE_USAGES,
-                                    UJ_MITOSHEET_PRO, UJ_MITOSHEET_TELEMETRY,
+                                    UJ_MITOSHEET_PRO, UJ_MITOSHEET_TELEMETRY, UJ_RECEIVED_CHECKLISTS,
                                     UJ_USER_JSON_VERSION, USER_JSON_DEFAULT,
                                     USER_JSON_VERSION_1)
 
@@ -155,6 +155,23 @@ def upgrade_user_json_version_5_to_6(user_json_version_5: Dict[str, Any]) -> Dic
 
     return user_json_version_5
 
+def upgrade_user_json_version_6_to_7(user_json_version_6: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Just adds the UJ_RECEIVED_CHECKLISTS field, and sets it equal to the full onboarding
+    checklist. This is because we do not want users to have to go back and do the onboarding
+    checklist if they are already onboarded.
+    """
+    # First, bump the version number
+    user_json_version_6[UJ_USER_JSON_VERSION] = 7
+
+    # Then, set new field
+    if UJ_RECEIVED_CHECKLISTS not in user_json_version_6:
+        user_json_version_6[UJ_RECEIVED_CHECKLISTS] = {
+            "onboarding_checklist": ['signup', 'import', 'filter', 'pivot', 'graph', 'finalize']
+        }
+
+    return user_json_version_6
+
 def try_upgrade_user_json_to_current_version() -> None:
     user_json_object = get_user_json_object()
 
@@ -180,6 +197,8 @@ def try_upgrade_user_json_to_current_version() -> None:
         user_json_object = upgrade_user_json_version_4_to_5(user_json_object)
     if user_json_object[UJ_USER_JSON_VERSION] == 5:
         user_json_object = upgrade_user_json_version_5_to_6(user_json_object)
+    if user_json_object[UJ_USER_JSON_VERSION] == 6:
+        user_json_object = upgrade_user_json_version_6_to_7(user_json_object)
 
     # We always make sure that the experiment is the most up to date
     # version of the experiment

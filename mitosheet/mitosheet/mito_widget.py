@@ -28,7 +28,7 @@ from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
 from mitosheet.user import is_local_deployment, should_upgrade_mitosheet
 from mitosheet.user.db import get_user_field
 from mitosheet.user.location import is_in_google_colab, is_in_vs_code
-from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES,
+from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES, UJ_RECEIVED_CHECKLISTS,
                                     UJ_RECEIVED_TOURS, UJ_USER_EMAIL)
 from mitosheet.user.utils import is_excel_import_enabled, is_pro, is_running_test
 
@@ -94,6 +94,7 @@ class MitoWidget(DOMWidget):
             # Dynamic, update each time
             'userEmail': get_user_field(UJ_USER_EMAIL),
             'receivedTours': get_user_field(UJ_RECEIVED_TOURS),
+            'receivedChecklists': get_user_field(UJ_RECEIVED_CHECKLISTS),
             'isPro': is_pro(),
             'telemetryEnabled': telemetry_turned_on(),
             # Static over a single analysis

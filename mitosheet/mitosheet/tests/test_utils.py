@@ -951,6 +951,21 @@ class MitoWidgetTestWrapper:
                 },
             }
         )
+    
+    @check_transpiled_code_after_call
+    def checklist_update(self, checklist_id: str, completed_items: List[str]) -> bool:
+        return self.mito_widget.receive_message(
+            self.mito_widget,
+            {
+                'event': 'update_event',
+                'id': get_new_id(),
+                'type': 'checklist_update',
+                'params': {
+                    'checklist_id': checklist_id,
+                    'completed_items': completed_items
+                },
+            }
+        )
 
 
     def generate_graph(
