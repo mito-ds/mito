@@ -205,3 +205,108 @@ def upgrade_graph_2_to_3(step: Dict[str, Any], later_steps: List[Dict[str, Any]]
         "step_type": "graph", 
         "params": params
     }] + later_steps
+
+
+
+def upgrade_graph_3_to_4(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Adds required graph styling params:
+    - xaxis: showgrid
+    - yaxis: showgrid
+
+    OLD: 
+        'step_version': 2,
+        'step_type': 'graph',
+        'params: {
+            graph_id: GraphID
+            graph_preprocessing: {
+                safety_filter_turned_on_by_user: boolean
+            },
+            graph_creation: {
+                graph_type: GraphType,
+                sheet_index: int
+                x_axis_column_ids: ColumnID[],
+                y_axis_column_ids: ColumnID[],
+                color: columnID: columnID
+            },
+            graph_styling: {
+                title: {
+                    title: string | None
+                    visible: boolean
+                },
+                xaxis: {
+                    title: string | None,
+                    visible: boolean,
+                    rangeslider: {
+                        visible: boolean
+                    }
+                },
+                yaxis: {
+                    title: string | None,
+                    visible: boolean
+                },
+                showlegend: boolean
+            },
+            graph_rendering: {
+                height: int representing the div width
+                width: int representing the div width
+            }
+        }
+    }
+
+    NEW: 
+        'step_version': 3,
+        'step_type': 'graph',
+        'params: {
+            graph_id: GraphID
+            graph_preprocessing: {
+                safety_filter_turned_on_by_user: boolean
+            },
+            graph_creation: {
+                graph_type: GraphType,
+                sheet_index: int
+                x_axis_column_ids: ColumnID[],
+                y_axis_column_ids: ColumnID[],
+                color: columnID: columnID
+            },
+            graph_styling: {
+                title: {
+                    title: string | None
+                    visible: boolean,
+                    title_font_color: string
+                },
+                xaxis: {
+                    title: string | None,
+                    visible: boolean,
+                    title_font_color: string
+                    showgrid: boolean
+                    rangeslider: {
+                        visible: boolean
+                    }
+                },
+                yaxis: {
+                    title: string | None,
+                    visible: boolean,
+                    title_font_color: string
+                    showgrid: boolean
+                },
+                showlegend: boolean,
+                paper_bgcolor: string,
+                plot_bgcolor: string
+            },
+            graph_rendering: {
+                height: int representing the div width
+                width: int representing the div width
+            }
+        }
+    }
+    """
+    params = step['params']
+    params['graph_styling']['xaxis']['showgrid'] = True
+    params['graph_styling']['yaxis']['showgrid'] = True
+
+    return [{
+        "step_version": 4, 
+        "step_type": "graph", 
+        "params": params
+    }] + later_steps
