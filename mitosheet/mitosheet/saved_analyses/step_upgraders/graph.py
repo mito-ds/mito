@@ -291,6 +291,9 @@ def upgrade_graph_3_to_4(step: Dict[str, Any], later_steps: List[Dict[str, Any]]
                     showgrid: boolean
                 },
                 showlegend: boolean,
+                legend: {
+                    orientation: 'v' | 'h'
+                }
                 paper_bgcolor: string,
                 plot_bgcolor: string
             },
@@ -304,6 +307,8 @@ def upgrade_graph_3_to_4(step: Dict[str, Any], later_steps: List[Dict[str, Any]]
     params = step['params']
     params['graph_styling']['xaxis']['showgrid'] = True
     params['graph_styling']['yaxis']['showgrid'] = True
+    params['graph_styling']['legend'] = dict()
+    params['graph_styling']['legend']['orientation'] = 'v'
 
     return [{
         "step_version": 4, 

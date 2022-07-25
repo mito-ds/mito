@@ -987,6 +987,10 @@ class MitoWidgetTestWrapper:
         yaxis_showgrid: bool=True,
         yaxis_gridwidth: Optional[number]=None,
         showlegend: bool=True,
+        legend_title_text: Optional[str]=None,
+        legend_orientation: Optional[str]='v',
+        legend_x: Optional[number]=None,
+        legend_y: Optional[number]=None,
         step_id: str=None,
         paper_bgcolor: str=DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT,
         plot_bgcolor: str=DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT,
@@ -1030,6 +1034,12 @@ class MitoWidgetTestWrapper:
                     'showgrid': yaxis_showgrid,
                 },
                 'showlegend': showlegend,
+                'legend': {
+                    'title': {
+                        'text': legend_title_text
+                    },
+                    'orientation': legend_orientation,
+                },
                 'paper_bgcolor': paper_bgcolor,
                 'plot_bgcolor': plot_bgcolor,
             },
@@ -1055,7 +1065,12 @@ class MitoWidgetTestWrapper:
 
         if yaxis_gridwidth is not None:
             params['graph_styling']['yaxis']['gridwidth'] = yaxis_gridwidth 
-                        
+
+        if legend_x is not None:
+            params['graph_styling']['legend']['x'] = legend_x 
+
+        if legend_y is not None:
+            params['graph_styling']['legend']['y'] = legend_y       
 
         return self.mito_widget.receive_message(
             self.mito_widget, 

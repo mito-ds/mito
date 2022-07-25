@@ -81,6 +81,10 @@ def test_all_styling_options():
     yaxis_showgrid=False
     yaxis_gridwidth=5
     showlegend=False    
+    legend_title_text="Custom Legend Title"
+    legend_orientation='v'
+    legend_x=1
+    legend_y=1
     paper_bgcolor='#FFCCDD'    
     plot_bgcolor='#FFCCEE'    
     title_font_color='#CCCCEE'    
@@ -112,6 +116,10 @@ def test_all_styling_options():
         yaxis_showgrid=yaxis_showgrid,
         yaxis_gridwidth=yaxis_gridwidth,
         showlegend=showlegend,
+        legend_title_text=legend_title_text,
+        legend_orientation=legend_orientation,
+        legend_x=legend_x,
+        legend_y=legend_y,
         paper_bgcolor=paper_bgcolor,
         plot_bgcolor=plot_bgcolor,
         title_font_color=title_font_color,
@@ -152,6 +160,10 @@ def test_all_styling_options():
     assert graph_styling_params['yaxis']['showgrid'] == yaxis_showgrid
     assert graph_styling_params['yaxis']['gridwidth'] == yaxis_gridwidth
     assert graph_styling_params['showlegend'] == showlegend
+    assert graph_styling_params['legend']['title']['text'] == legend_title_text
+    assert graph_styling_params['legend']['orientation'] == legend_orientation
+    assert graph_styling_params['legend']['x'] == legend_x
+    assert graph_styling_params['legend']['y'] == legend_y
     assert graph_styling_params['paper_bgcolor'] == paper_bgcolor
     assert graph_styling_params['plot_bgcolor'] == plot_bgcolor
 
