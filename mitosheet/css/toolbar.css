@@ -102,6 +102,7 @@
   color: var(--mito-legacy-gray);
 }
 
+
 .toolbar-button {
   /* Stack icon and label vertically */
   display: flex;
@@ -127,8 +128,12 @@
   font-family: Roboto;
 }
 
-.toolbar-button-container:hover {
+.toolbar-button-container-enabled:hover {
   background-color: var(--mito-light-purple);
+}
+
+.toolbar-button-container-disabled {
+  opacity: 50%;
 }
 
 .toolbar-button-icon-container {
