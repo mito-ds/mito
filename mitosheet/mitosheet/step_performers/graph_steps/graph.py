@@ -36,7 +36,8 @@ class GraphStepPerformer(StepPerformer):
             sheet_index: int
             x_axis_column_ids: ColumnID[],
             y_axis_column_ids: ColumnID[],
-            color: columnID: columnID
+            color: columnID: columnID | None,
+            facet_column: columnID | None
         },
         graph_styling: {
             title: {
@@ -104,6 +105,8 @@ class GraphStepPerformer(StepPerformer):
 
         # Validate optional parameters 
         color_column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, graph_creation["color"]) if 'color' in graph_creation.keys() else None
+        facet_column_column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, graph_creation["facet_column"]) if 'facet_column' in graph_creation.keys() else None
+        print(1, facet_column_column_header)
 
         # Create a copy of the dataframe, just for safety.
         df: pd.DataFrame = prev_state.dfs[sheet_index].copy()
@@ -135,6 +138,7 @@ class GraphStepPerformer(StepPerformer):
                 x_axis_column_headers,
                 y_axis_column_headers,
                 color_column_header,
+                facet_column_column_header,
                 graph_styling
             )
             pandas_processing_time = perf_counter() - pandas_start_time
@@ -158,6 +162,7 @@ class GraphStepPerformer(StepPerformer):
                 x_axis_column_headers,
                 y_axis_column_headers,
                 color_column_header,
+                facet_column_column_header,
                 graph_styling,
                 df_name,
             )

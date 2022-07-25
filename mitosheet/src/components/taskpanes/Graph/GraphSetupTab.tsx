@@ -271,6 +271,53 @@ function GraphSetupTab(
                         </Col>
                     </Row>
                 </div>
+                <div>
+                    <Row 
+                        justify='space-between' 
+                        align='center' 
+                        title={"Create subplots based on this attribute"}
+                        suppressTopBottomMargin
+                    >
+                        <Col>
+                            <Row justify='space-between' align='center' suppressTopBottomMargin>
+                                <div className='text-header-3'>
+                                    Facet Column &nbsp;
+                                </div>
+                                <Tooltip title={"Create subplots based on this attribute"}/>
+                            </Row>
+                        </Col>
+                        <Col>
+                            <Select 
+                                value={props.graphParams.graphCreation.facet_column ? getDisplayColumnHeader(columnIDsMap[props.graphParams.graphCreation.facet_column]) : 'None'}
+                                width='small'
+                                searchable
+                            >
+                                {(Object.keys(columnIDsMap) || []).map(columnID => {
+                                    const columnHeader = columnIDsMap[columnID];
+                                    return (
+                                        <DropdownItem
+                                            key={columnID}
+                                            title={getDisplayColumnHeader(columnHeader)}
+                                            onClick={() => {
+                                                props.setGraphParams(prevGraphParams => {
+                                                    const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                                    return {
+                                                        ...graphParamsCopy,
+                                                        graphCreation: {
+                                                            ...graphParamsCopy.graphCreation, 
+                                                            facet_column: columnID
+                                                        }
+                                                    }
+                                                })
+                                                props.setGraphUpdatedNumber((old) => old + 1);
+                                            }}
+                                        />
+                                    )
+                                })}
+                            </Select>
+                        </Col>
+                    </Row>
+                </div>
                 <Row 
                     justify='space-between' 
                     align='center'

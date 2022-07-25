@@ -26,7 +26,9 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
             sheet_index: sheetIndex,
             x_axis_column_ids: [],
             y_axis_column_ids: [],
-            color: undefined
+            color: undefined,
+            facet_column: undefined,
+            facet_row: undefined
         },
         graphStyling: {
             title: {
