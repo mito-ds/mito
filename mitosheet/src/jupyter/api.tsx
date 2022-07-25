@@ -765,7 +765,7 @@ export default class MitoAPI {
             type: 'pivot_edit',
             'step_id': stepID,
             'params': {
-                sheet_index: pivotParams.selectedSheetIndex,
+                sheet_index: pivotParams.sourceSheetIndex,
                 // Deduplicate the rows and columns before sending them to the backend
                 // as otherwise this generates errors if you have duplicated key
                 pivot_rows_column_ids: getDeduplicatedArray(pivotParams.pivotRowColumnIDs),
