@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import MitoAPI from '../../jupyter/api';
-import { AnalysisData, SheetData, StepType, UserProfile } from '../../types'
+import { AnalysisData, DFSource, SheetData, StepType, UserProfile } from '../../types'
 import '../../../css/Checklist.css'
-import Checklist1Icon from '../icons/checklist/Checklist1Icon';
-import Checklist2Icon from '../icons/checklist/Checklist2Icon';
-import Checklist3Icon from '../icons/checklist/Checklist3Icon';
-import Checklist4Icon from '../icons/checklist/Checklist4Icon';
-import Checklist5Icon from '../icons/checklist/Checklist5Icon';
 import Col from '../layout/Col';
 import Row from '../layout/Row';
 import { CHECKLIST_STEPS } from './checklistData';
@@ -23,19 +18,6 @@ export const getRemainingChecklistItems = (userProfile: UserProfile): string[] =
     // As of now, we only have a single checklist, so we just check to see how much of this we have done
     const completedItems = userProfile.receivedChecklists['onboarding_checklist'] || [];
     return CHECKLIST_STEPS['onboarding_checklist'].filter(checklistItem => !completedItems.includes(checklistItem))
-}
-
-const getChecklistIcon = (remainingChecklistItems: string[]): JSX.Element => {
-    if (remainingChecklistItems.length === 1) {
-        return (<Checklist5Icon/>)
-    } else if (remainingChecklistItems.length === 2) {
-        return (<Checklist4Icon/>)
-    } else if (remainingChecklistItems.length === 3) {
-        return (<Checklist3Icon/>)
-    } else if (remainingChecklistItems.length === 4) {
-        return (<Checklist2Icon/>)
-    } 
-    return (<Checklist1Icon/>)
 }
 
 const getChecklistItemTitle = (item: string): string => {
@@ -133,7 +115,7 @@ const Checklist = (props: {
     userProfile: UserProfile
     analysisData: AnalysisData
     sheetDataArray: SheetData[]
-    mitoAPI: MitoAPI
+    mitoAPI: MitoAPI,
 }): JSX.Element => {
 
     const [minimized, setMinimized] = useState(false);
@@ -170,43 +152,36 @@ const Checklist = (props: {
         }
 
         if (remainingChecklistItems.includes('pivot')) {
-            // Check that there is a pivot table, and that it has at least one column
-            // TODO: are we sure we want to do this? I think it might just lead to confusing
-            // behavior if the user doesn't configure the pivot table properly, and then
-            // is confused why the checklist is messed up...
             if (
-                props.analysisData.stepSummaryList.filter(stepSummary => stepSummary.step_type === StepType.Pivot).length > 0
+                props.sheetDataArray.filter(sheetData => sheetData.dfSource === DFSource.Pivoted && sheetData.numColumns > 0).length > 0 // Check there is a pivoted dataframe with at least one column
             ) {
                 void props.mitoAPI.updateChecklist('onboarding_checklist', ['pivot']);
             }
         }
         
         if (remainingChecklistItems.includes('graph')) {
-            // TODO: do we also want to check if it is configured? See comment above
-            // about pivot table
-            if (props.analysisData.stepSummaryList.filter(stepSummary => stepSummary.step_type === StepType.Graph).length > 0) {
+            if (
+                Object.values(props.analysisData.graphDataDict).filter(graphData => graphData.graphOutput !== undefined).length > 0 // Check there is at least one graph with a defined output
+            ) {
                 void props.mitoAPI.updateChecklist('onboarding_checklist', ['graph']);
             }
         }
-    }, [props.analysisData.stepSummaryList.length])
+    }, [props.analysisData.stepSummaryList])
 
     const ChecklistHeader = (
         <Row justify='space-between' align='center' suppressTopBottomMargin>
-            <Col span={18}>
-                <Row justify='start' align='center' suppressTopBottomMargin onClick={() => {setMinimized(!minimized)}}>
-                    <Col offsetRight={.5}>
-                        {getChecklistIcon(remainingChecklistItems)}
-                    </Col>
-                    <Col>
-                        <div className='text-header-2 text-color-white-important'>
-                            Getting Started
-                        </div>
-                    </Col>
-                </Row>
+            <Col span={18} onClick={() => {setMinimized(!minimized)}}>
+                <div className='text-header-2 text-color-white-important'>
+                    Getting Started
+                </div>
             </Col>
             <Col span={4.5}>
                 <Row suppressTopBottomMargin>
-                    <Col onClick={() => {setMinimized(!minimized)}} offsetRight={4}>
+                    <Col onClick={() => {
+                        const newMinimized = !minimized;
+                        setMinimized(newMinimized)
+                        void props.mitoAPI.log('clicked_minimize_checklist', {minimized: newMinimized});
+                    }} offsetRight={4}>
                         {minimized ? <UpArrowIcon variant='light'/> : <DownArrowIcon variant='light'/>}
                     </Col>
                     <XIcon
@@ -214,6 +189,10 @@ const Checklist = (props: {
                         onClick={() => {
                             // If the user closes it, then mark the entire thing as finished
                             void props.mitoAPI.updateChecklist('onboarding_checklist', allChecklistItems);
+
+                            if (remainingChecklistItems.length > 1) {
+                                void props.mitoAPI.log('clicked_close_checklist_early', {remaining_checklist_items: remainingChecklistItems});
+                            }
                         }}
                     />
                 </Row>

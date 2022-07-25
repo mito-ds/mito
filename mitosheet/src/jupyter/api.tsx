@@ -60,6 +60,7 @@ export enum UserJsonFields {
     UJ_MITOSHEET_TELEMETRY = 'mitosheet_telemetry',
     UJ_MITOSHEET_PRO = 'mitosheet_pro',
     UJ_EXPERIMENT = 'experiment',
+    UJ_RECEIVED_CHECKLISTS = 'received_checklists',
 }
 
 /*

@@ -15,7 +15,7 @@ const BottomLeftPopup = (props: {
     mitoAPI: MitoAPI
     loading: [string, string | undefined, string][],
     sheetDataArray: SheetData[],
-    currOpenModal: ModalInfo
+    currOpenModal: ModalInfo,
 }): JSX.Element => {
     // We only display the loading indicator after .5 seconds, and we track
     // it in the popup component so that we can display something else if
