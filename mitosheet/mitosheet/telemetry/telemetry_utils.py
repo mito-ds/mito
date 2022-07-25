@@ -39,6 +39,13 @@ from mitosheet.user import (UJ_STATIC_USER_ID, get_user_field,
 PRINT_LOGS = False
 
 
+try:
+    import mitosheet_helper_private
+    MITOSHEET_HELPER_PRIVATE = True
+except ImportError:
+    MITOSHEET_HELPER_PRIVATE = False
+
+
 def telemetry_turned_on() -> bool:
     """
     Helper function that tells you if logging is turned on or
@@ -48,6 +55,9 @@ def telemetry_turned_on() -> bool:
     # ever, under any circumstances - this is a custom distribution for a client
     if package_name == 'mitosheet-private':
         return False
+
+    if MITOSHEET_HELPER_PRIVATE:
+        return MITOSHEET_HELPER_PRIVATE
 
     telemetry = get_user_field(UJ_MITOSHEET_TELEMETRY) 
     return telemetry if telemetry is not None else False

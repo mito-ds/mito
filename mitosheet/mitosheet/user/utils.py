@@ -20,6 +20,13 @@ from mitosheet.user.db import get_user_field
 from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_UPGRADED_DATE,
                                     UJ_MITOSHEET_PRO)
 
+try:
+    import mitosheet_helper_pro
+    MITOSHEET_HELPER_PRO = True
+except ImportError:
+    MITOSHEET_HELPER_PRO = False
+
+
 def is_running_test() -> bool:
     """
     A helper function that quickly returns if the current code is running 
@@ -40,13 +47,17 @@ def is_on_kuberentes_mito() -> bool:
     user = getpass.getuser()
     return user == 'jovyan'
 
-
 def is_pro() -> bool:
     """
     Helper function for returning if this is a
     pro deployment of mito
     """
     is_pro = get_user_field(UJ_MITOSHEET_PRO)
+
+    # This package overides the user.json
+    if MITOSHEET_HELPER_PRO:
+        return MITOSHEET_HELPER_PRO
+
     return is_pro if is_pro is not None else False
 
 
