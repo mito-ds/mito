@@ -7,7 +7,7 @@
 Changes a specific field in the user.json file
 """
 
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from mitosheet.types import StepsManagerType
 from mitosheet.user import set_user_field
@@ -23,7 +23,10 @@ def execute_checklist_update(steps_manager: StepsManagerType, checklist_id: str,
     The function responsible for setting the checklist items
     in the user.json
     """
-    received_checklists: Dict[str, List[str]] = get_user_field(UJ_RECEIVED_CHECKLISTS)
+    received_checklists: Optional[Dict[str, List[str]]] = get_user_field(UJ_RECEIVED_CHECKLISTS)
+
+    if received_checklists is None:
+        received_checklists = {}
 
     current_completed_items = received_checklists.get(checklist_id, [])
     for completed_item in completed_items:
