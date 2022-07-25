@@ -7,13 +7,25 @@ import Row from '../../layout/Row';
 import Col from '../../layout/Col';
 import Select from '../../elements/Select';
 import DropdownItem from '../../elements/DropdownItem';
-import { GraphType } from './GraphSidebar';
 import AxisSection, { GraphAxisType } from './AxisSection';
 import Toggle from '../../elements/Toggle';
 import { getColorDropdownItems, getDefaultGraphParams, getDefaultSafetyFilter } from './graphUtils';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import Tooltip from '../../elements/Tooltip';
 import DataframeSelect from '../../elements/DataframeSelect';
+
+export enum GraphType {
+    BAR = 'bar',
+    LINE = 'line',
+    SCATTER = 'scatter',
+    HISTOGRAM = 'histogram',
+    DENSITY_HEATMAP = 'density heatmap',
+    DENSITY_CONTOUR = 'density contour',
+    BOX = 'box',
+    VIOLIN = 'violin',
+    STRIP = 'strip',
+    ECDF = 'ecdf',
+}
 
 // Graphing a dataframe with more than this number of rows will
 // give the user the option to apply the safety filter

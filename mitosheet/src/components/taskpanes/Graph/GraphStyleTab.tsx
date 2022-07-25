@@ -10,6 +10,8 @@ import Toggle from '../../elements/Toggle';
 import Col from '../../layout/Col';
 import CollapsibleSection from '../../layout/CollapsibleSection';
 import Row from '../../layout/Row';
+import { GraphType } from './GraphSetupTab';
+import { getGraphTypeFullName } from './graphUtils';
 
 export enum AxisType {
     DEFAULT = 'default',
@@ -18,6 +20,8 @@ export enum AxisType {
     CATEGORY = 'category',
     DATE = 'date',
 }
+
+export const GRAPHS_THAT_HAVE_BARMODE = [GraphType.BAR, GraphType.HISTOGRAM]
 /* 
     Contains all of the options for styling graphs,
     like setting the title and axis labels
@@ -290,6 +294,48 @@ function GraphStyleTab(props: {
                             title={AxisType.CATEGORY}
                         />
                     </Select>
+                </Row>
+            </CollapsibleSection>
+            <CollapsibleSection title={getGraphTypeFullName(graphCreationParams.graph_type) + ' configuration'}>
+                <Row justify='space-between' align='center'>
+                    <Col>
+                        <p>
+                            Barmode
+                        </p>
+                    </Col>
+                    {GRAPHS_THAT_HAVE_BARMODE.includes(graphCreationParams.graph_type) && 
+                        <Select
+                            value={props.graphParams.graphStyling.barmode || ''}
+                            onChange={(newBarMode: string) => {
+                                props.setGraphParams(prevGraphParams => {
+                                    const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                    return {
+                                        ...graphParamsCopy,
+                                        graphStyling: {
+                                            ...graphParamsCopy.graphStyling,
+                                            barmode: (newBarMode as 'stack' | 'group' | 'overlay' | 'relative')
+                                        } 
+                                    }
+                                })
+                                props.setGraphUpdatedNumber(old => old + 1)
+                            }}
+                            width='small'
+                            dropdownWidth='medium'
+                        >
+                            <DropdownItem
+                                title={'stack'}
+                            />
+                            <DropdownItem
+                                title={'group'}
+                            />
+                            <DropdownItem
+                                title={'overlay'}
+                            />
+                            <DropdownItem
+                                title={'relative'}
+                            />
+                        </Select>
+                    }
                 </Row>
             </CollapsibleSection>
             <CollapsibleSection title='Legend'>

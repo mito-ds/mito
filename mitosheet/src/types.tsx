@@ -1,7 +1,7 @@
 import React from "react";
 import { ModalInfo } from "./components/modals/modals";
 import { ControlPanelTab } from "./components/taskpanes/ControlPanel/ControlPanelTaskpane";
-import { GraphType } from "./components/taskpanes/Graph/GraphSidebar";
+import { GraphType } from "./components/taskpanes/Graph/GraphSetupTab";
 import { TaskpaneInfo } from "./components/taskpanes/taskpanes";
 
 
@@ -227,6 +227,7 @@ export type GraphPreprocessingParams = {
     safety_filter_turned_on_by_user: boolean
 }
 export type GraphCreationParams = {
+    // Available to all graph types
     graph_type: GraphType,
     sheet_index: number,
     x_axis_column_ids: ColumnID[]
@@ -237,6 +238,8 @@ export type GraphCreationParams = {
     facet_col_wrap: number | undefined,
     facet_col_spacing: number | undefined,
     facet_row_spacing: number | undefined,
+    
+    // Only available for some graph types
 }
 export type GraphStylingParams = {
     title: {
@@ -272,6 +275,7 @@ export type GraphStylingParams = {
         x: number | undefined
         y: number | undefined
     }
+    barmode: 'stack' | 'group' | 'overlay' | 'relative' | undefined
     plot_bgcolor: string // The inner part of the plot with data background. Defaults to a blue-ish shade
     paper_bgcolor: string // The outer part of the plot around the data. Defaults to white
 }

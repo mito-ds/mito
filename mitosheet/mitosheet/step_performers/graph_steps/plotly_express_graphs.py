@@ -20,8 +20,6 @@ from mitosheet.step_performers.graph_steps.graph_utils import (
     SCATTER,
     STRIP,
     VIOLIN,
-    create_parameter,
-    get_barmode,
     get_graph_title,
     param_dict_to_code,
 )
@@ -315,11 +313,6 @@ def get_graph_styling_param_dict(graph_type: str, column_headers: List[ColumnHea
     if 'gridwidth' in graph_styling_params['yaxis']:
         all_params['yaxis']['gridwidth'] = float(graph_styling_params['yaxis']['gridwidth'])
 
-    # Create the barmode param
-    barmode = get_barmode(graph_type)
-    if barmode is not None:
-        all_params['barmode'] = get_barmode(graph_type)
-
     # Create the legend params
     if graph_styling_params['showlegend']:
         all_params['legend'] = dict()
@@ -338,6 +331,9 @@ def get_graph_styling_param_dict(graph_type: str, column_headers: List[ColumnHea
         # Only add the graph styling param if it is false, otherwise we rely on Ploty default
         all_params['showlegend'] = graph_styling_params['showlegend']
    
+    # Create the barmode param
+    if 'barmode' in graph_styling_params:
+        all_params['barmode'] = graph_styling_params['barmode']
 
     # Create the background params
     paper_bgcolor = graph_styling_params['paper_bgcolor']

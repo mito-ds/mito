@@ -1,13 +1,12 @@
 // Helper function for creating default graph params. Defaults to a Bar chart, 
-
 import React from "react"
 import { ColumnID, ColumnIDsMap, GraphDataDict, GraphID, GraphParams, SheetData } from "../../../types"
 import { intersection } from "../../../utils/arrays"
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders"
 import { isDatetimeDtype } from "../../../utils/dtypes"
 import DropdownItem from "../../elements/DropdownItem"
-import { GRAPH_SAFETY_FILTER_CUTOFF } from "./GraphSetupTab"
-import { GraphType } from "./GraphSidebar"
+import { GraphType, GRAPH_SAFETY_FILTER_CUTOFF } from "./GraphSetupTab"
+import { GRAPHS_THAT_HAVE_BARMODE } from "./GraphStyleTab"
 
 // Note: these should match the constants in Python as well
 const DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT = '#FFFFFF'
@@ -17,12 +16,13 @@ const DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT = '#2F3E5D'
 // unless a graph type is provided
 export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: number, graphType?: GraphType): GraphParams => {
     const safetyFilter = getDefaultSafetyFilter(sheetDataArray, sheetIndex)
+    graphType = graphType || GraphType.BAR
     return {
         graphPreprocessing: {
             safety_filter_turned_on_by_user: safetyFilter
         },
         graphCreation: {
-            graph_type: graphType || GraphType.BAR,
+            graph_type: graphType,
             sheet_index: sheetIndex,
             x_axis_column_ids: [],
             y_axis_column_ids: [],
@@ -67,6 +67,7 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
                 x: undefined, 
                 y: undefined,
             },
+            barmode: GRAPHS_THAT_HAVE_BARMODE.includes(graphType) ? 'group' : undefined,
             paper_bgcolor: DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT,
             plot_bgcolor: DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT
         }
@@ -167,4 +168,17 @@ export const getColorDropdownItems = (
     return NoneOption.concat(columnDropdownItems)
 }
 
-
+export const getGraphTypeFullName = (graphType: GraphType): string => {
+    switch(graphType) {
+        case GraphType.BAR: return 'Bar chart'
+        case GraphType.BOX: return 'Box plot'
+        case GraphType.DENSITY_CONTOUR: return 'Density contour'
+        case GraphType.DENSITY_HEATMAP: return 'Density heatmap'
+        case GraphType.ECDF: return 'ECDF'
+        case GraphType.HISTOGRAM: return 'Histogram'
+        case GraphType.LINE: return 'Line chart'
+        case GraphType.SCATTER: return 'Scatter plot'
+        case GraphType.STRIP: return 'Strip plot'
+        case GraphType.VIOLIN: return 'Violin plot'
+    }
+}

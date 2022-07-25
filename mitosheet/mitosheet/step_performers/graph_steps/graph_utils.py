@@ -42,22 +42,6 @@ GRAPH_TITLE_LABELS = {
 # Jupyter turns \t into a grey arrow, but converts four spaces into a tab.
 TAB = "    "
 
-
-def get_barmode(graph_type: str) -> Optional[str]:
-    """
-    Helper function for determing the barmode to apply to the graph creation function, depending
-    on the type of graph being created
-    """
-    if graph_type == BOX:
-        return "stack"
-    elif graph_type == HISTOGRAM:
-        return "group"
-    elif graph_type == BAR:
-        return "group"
-    else:
-        return None
-
-
 def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line: boolean=False) -> str:
     """
     Takes a potentially nested params dictonary and turns it into a
@@ -108,16 +92,6 @@ def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line:
         code += f"{NEWLINE_CONSTANT}{TAB_CONSTANT * (level)})"
     
     return code
-
-
-def create_parameter(param_key: str, param_value: Optional[str], format_as_string: bool) -> str:
-    """
-    Returns the params ready to be used in the transpiled code.
-    """
-    if format_as_string:
-        return f"{param_key}='{param_value}'"
-    else:
-        return f"{param_key}={param_value}"
 
 
 def get_graph_title(
