@@ -292,6 +292,166 @@ function GraphStyleTab(props: {
                     </Select>
                 </Row>
             </CollapsibleSection>
+            <CollapsibleSection title='Legend'>
+                {!props.userProfile.isPro &&
+                    <Row justify='space-between' align='center'>
+                        <p className='text-body-1'>
+                            Want to customize the legend? <a href='https://trymito.io/plans' target='_blank' rel="noreferrer"><span className='text-body-1-link'>Upgrade to Mito Pro.</span></a>
+                        </p>  
+                    </Row>
+                }
+                {props.userProfile.isPro &&
+                    <>
+                        <Row justify='space-between' align='center'>
+                            <Col>
+                                <p>
+                                    Display Legend
+                                </p>
+                            </Col>
+                            <Toggle 
+                                value={graphStylingParams.showlegend} 
+                                onChange={() => {
+                                    props.setGraphParams(prevGraphParams => {
+                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        return {
+                                            ...graphParamsCopy,
+                                            graphStyling: {
+                                                ...graphParamsCopy.graphStyling,
+                                                showlegend: !graphParamsCopy.graphStyling.showlegend
+                                            } 
+                                        }
+                                    })
+                                    props.setGraphUpdatedNumber(old => old + 1)
+                                }}     
+                            />
+                        </Row>
+                        <Row justify='space-between' align='center' title='Set the legend vertical or horizontal'>
+                            <Col>
+                                <p>
+                                    Orientation
+                                </p>
+                            </Col>
+                            <Select 
+                                value={graphStylingParams.legend.orientation === 'v' ? 'vertical' : 'horiztonal'} 
+                                width='medium'
+                                onChange={(newOrientation: string) => {
+                                    props.setGraphParams(prevGraphParams => {
+                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        return {
+                                            ...graphParamsCopy,
+                                            graphStyling: {
+                                                ...graphParamsCopy.graphStyling,
+                                                legend: {
+                                                    ...graphParamsCopy.graphStyling.legend,
+                                                    orientation:(newOrientation as 'v' | 'h')
+                                                }
+                                            } 
+                                        }
+                                    })
+                                    props.setGraphUpdatedNumber(old => old + 1)
+                                }}     
+                            >   
+                                <DropdownItem title='vertical' id='v' />
+                                <DropdownItem title='horizontal' id='h' />
+                            </Select>
+                        </Row>
+                        <Row justify='space-between' align='center' title='Title of legend'>
+                            <Col>
+                                <p>
+                                    Legend title
+                                </p>
+                            </Col>
+                            <Input 
+                                value={graphStylingParams.legend.title.text ? graphStylingParams.legend.title.text : ''} 
+                                width='medium'
+                                placeholder='1'
+                                onChange={(e) => {
+                                    const newLegendTitle = e.target.value
+                                    props.setGraphParams(prevGraphParams => {
+                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        return {
+                                            ...graphParamsCopy,
+                                            graphStyling: {
+                                                ...graphParamsCopy.graphStyling,
+                                                legend: {
+                                                    ...graphParamsCopy.graphStyling.legend,
+                                                    title: {
+                                                        ...graphParamsCopy.graphStyling.legend.title,
+                                                        text: newLegendTitle
+                                                    }
+                                                }
+                                            } 
+                                        }
+                                    })
+                                    props.setGraphUpdatedNumber(old => old + 1)
+                                }}     
+                            />
+                        </Row>
+                        <Row justify='space-between' align='center' title='The x position of the legend'>
+                            <Col>
+                                <p>
+                                    X position
+                                </p>
+                            </Col>
+                            <Input 
+                                value={graphStylingParams.legend.x ? graphStylingParams.legend.x.toString() : ''} 
+                                type='number'
+                                width='small'
+                                // Set default according the https://plotly.com/python/reference/layout/#layout-legend-x
+                                placeholder={graphStylingParams.legend.orientation === 'v' ? '1.02' : '0.00'}
+                                onChange={(e) => {
+                                    const newX = e.target.value === '' ? undefined : e.target.value
+                                    props.setGraphParams(prevGraphParams => {
+                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        return {
+                                            ...graphParamsCopy,
+                                            graphStyling: {
+                                                ...graphParamsCopy.graphStyling,
+                                                legend: {
+                                                    ...graphParamsCopy.graphStyling.legend,
+                                                    x: (newX as number | undefined)
+                                                }
+                                            } 
+                                        }
+                                    })
+                                    props.setGraphUpdatedNumber(old => old + 1)
+                                }}     
+                            />
+                        </Row>
+                        <Row justify='space-between' align='center' title='The y position of the legend'>
+                            <Col>
+                                <p>
+                                    Y position
+                                </p>
+                            </Col>
+                            <Input 
+                                value={graphStylingParams.legend.y ? graphStylingParams.legend.y.toString() : ''} 
+                                type='number'
+                                width='small'
+                                // Set default according the https://plotly.com/python/reference/layout/#layout-legend-y
+                                placeholder={graphStylingParams.legend.orientation === 'v' ? '1.00' : graphStylingParams.xaxis.rangeslider.visible ? '1.10' : "-0.10"}
+                                onChange={(e) => {
+                                    const newY = e.target.value === '' ? undefined : e.target.value
+                                    props.setGraphParams(prevGraphParams => {
+                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        return {
+                                            ...graphParamsCopy,
+                                            graphStyling: {
+                                                ...graphParamsCopy.graphStyling,
+                                                legend: {
+                                                    ...graphParamsCopy.graphStyling.legend,
+                                                    y: (newY as number | undefined)
+                                                }
+                                            } 
+                                        }
+                                    })
+                                    props.setGraphUpdatedNumber(old => old + 1)
+                                }}     
+                            />
+                        </Row>
+                    </>
+                }
+            </CollapsibleSection>
             <CollapsibleSection title='Grid Lines'>
                 {!props.userProfile.isPro &&
                     <Row justify='space-between' align='center'>
@@ -620,29 +780,6 @@ function GraphStyleTab(props: {
                 }
             </CollapsibleSection>
             <CollapsibleSection title='Legend and Zoom'>
-                <Row justify='space-between' align='center'>
-                    <Col>
-                        <p>
-                            Display Legend
-                        </p>
-                    </Col>
-                    <Toggle 
-                        value={graphStylingParams.showlegend} 
-                        onChange={() => {
-                            props.setGraphParams(prevGraphParams => {
-                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
-                                return {
-                                    ...graphParamsCopy,
-                                    graphStyling: {
-                                        ...graphParamsCopy.graphStyling,
-                                        showlegend: !graphParamsCopy.graphStyling.showlegend
-                                    } 
-                                }
-                            })
-                            props.setGraphUpdatedNumber(old => old + 1)
-                        }}     
-                    />
-                </Row>
                 <Row justify='space-between' align='center'>
                     <Col>
                         <p>

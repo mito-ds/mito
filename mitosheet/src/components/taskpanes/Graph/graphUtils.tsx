@@ -59,6 +59,14 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
                 gridwidth: undefined,
             },
             showlegend: true,
+            legend: {
+                title: {
+                    text: undefined
+                },
+                orientation: 'v',
+                x: undefined, 
+                y: undefined,
+            },
             paper_bgcolor: DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT,
             plot_bgcolor: DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT
         }

@@ -320,6 +320,25 @@ def get_graph_styling_param_dict(graph_type: str, column_headers: List[ColumnHea
     if barmode is not None:
         all_params['barmode'] = get_barmode(graph_type)
 
+    # Create the legend params
+    if graph_styling_params['showlegend']:
+        all_params['legend'] = dict()
+        all_params['legend']['orientation'] = graph_styling_params['legend']['orientation']
+
+        if 'text' in graph_styling_params['legend']['title']:
+            all_params['legend']['title'] = dict()
+            all_params['legend']['title']['text'] = graph_styling_params['legend']['title']['text']
+        
+        if 'x' in graph_styling_params['legend']:
+            all_params['legend']['x'] = float(graph_styling_params['legend']['x'])
+
+        if 'y' in graph_styling_params['legend']:
+            all_params['legend']['y'] = float(graph_styling_params['legend']['y'])
+    else: 
+        # Only add the graph styling param if it is false, otherwise we rely on Ploty default
+        all_params['showlegend'] = graph_styling_params['showlegend']
+   
+
     # Create the background params
     paper_bgcolor = graph_styling_params['paper_bgcolor']
     if graph_styling_params != DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT: # NOTE: we don't need to set if it's a default
@@ -327,9 +346,6 @@ def get_graph_styling_param_dict(graph_type: str, column_headers: List[ColumnHea
     plot_bgcolor = graph_styling_params['plot_bgcolor']
     if plot_bgcolor != DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT: # NOTE: we don't need to set if it's a default
         all_params['plot_bgcolor'] = plot_bgcolor
-
-    # Create the showlegend param
-    all_params['showlegend'] = graph_styling_params['showlegend']
 
     return all_params
 

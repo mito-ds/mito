@@ -264,6 +264,14 @@ export type GraphStylingParams = {
         gridwidth: number | undefined
     },
     showlegend: boolean,
+    legend: {
+        title: {
+            text: string | undefined
+        }
+        orientation: 'v' | 'h' 
+        x: number | undefined
+        y: number | undefined
+    }
     plot_bgcolor: string // The inner part of the plot with data background. Defaults to a blue-ish shade
     paper_bgcolor: string // The outer part of the plot around the data. Defaults to white
 }
