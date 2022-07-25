@@ -48,7 +48,6 @@ def identify() -> None:
     operating_system = platform.system()
 
     if user_json_is_installer_default() and not is_running_test():
-        return
         analytics.identify(
             static_user_id,
             {
@@ -128,7 +127,6 @@ def log(event: str, params: Dict[str, Any]=None) -> None:
 
     # Don't log if telemetry is turned off
     if not is_running_test() and get_mitosheet_telemetry():
-        return
         analytics.track(
             static_user_id, 
             event, 
