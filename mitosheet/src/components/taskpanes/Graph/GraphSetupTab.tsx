@@ -37,6 +37,8 @@ const SAFETY_FILTER_DISABLED_MESSAGE = `Because you’re graphing less than ${GR
 const SAFETY_FILTER_ENABLED_MESSAGE = `Turning on Filter to Safe Size only graphs the first ${GRAPH_SAFETY_FILTER_CUTOFF} rows of your dataframe, ensuring that your browser tab won’t crash. Turning off Filter to Safe Size graphs the entire dataframe and may slow or crash your browser tab.`
 
 const GRAPHS_THAT_DONT_SUPPORT_COLOR = [GraphType.DENSITY_HEATMAP]
+export const GRAPHS_THAT_HAVE_BARMODE = [GraphType.BAR, GraphType.HISTOGRAM]
+export const GRAPHS_THAT_HAVE_POINTS = [GraphType.BOX, GraphType.VIOLIN]
 
 /* 
     The graph setup tab where the user creates the structure of the graph by 
@@ -131,11 +133,9 @@ function GraphSetupTab(
         const xAxisColumnIDsCopy = [...props.graphParams.graphCreation.x_axis_column_ids]
         const yAxisColumnIDsCopy = [...props.graphParams.graphCreation.y_axis_column_ids]
 
-        // Update the graph type
+        // Update the graph type and reset params that are only available for some graph types
         props.setGraphParams(prevGraphParams => {
             const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
-            // If the new graph type doesn't support the color property, then reset the color to undefined
-            const newColor = GRAPHS_THAT_DONT_SUPPORT_COLOR.includes(graphType) ? undefined : graphParamsCopy.graphCreation.color
             return {
                 ...graphParamsCopy,
                 graphCreation: {
@@ -143,7 +143,13 @@ function GraphSetupTab(
                     graph_type: graphType,
                     x_axis_column_ids: xAxisColumnIDsCopy,
                     y_axis_column_ids: yAxisColumnIDsCopy,
-                    color: newColor
+                    color: GRAPHS_THAT_DONT_SUPPORT_COLOR.includes(graphType) ? undefined : graphParamsCopy.graphCreation.color,
+                    points: GRAPHS_THAT_HAVE_POINTS.includes(graphType) ? 'outliers' : undefined,
+                },
+                graphStyling: {
+                    ...graphParamsCopy.graphStyling,
+                    barmode: GRAPHS_THAT_HAVE_BARMODE.includes(graphType) ? 'group' : undefined,
+
                 }
             }
         })

@@ -107,13 +107,17 @@ class GraphStepPerformer(StepPerformer):
         y_axis_column_ids = graph_creation["y_axis_column_ids"] if graph_creation["y_axis_column_ids"] is not None else []
         y_axis_column_headers = prev_state.column_ids.get_column_headers_by_ids(sheet_index, y_axis_column_ids)
 
-        # Validate optional parameters 
+        # Validate optional parameters that are available for all graph types
         color_column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, graph_creation["color"]) if 'color' in graph_creation.keys() and graph_creation["color"] in prev_state.column_ids.column_id_to_column_header[sheet_index].keys() else None
         facet_col_column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, graph_creation["facet_col_column_id"]) if 'facet_col_column_id' in graph_creation.keys() and graph_creation["facet_col_column_id"] in prev_state.column_ids.column_id_to_column_header[sheet_index].keys() else None
         facet_row_column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, graph_creation["facet_row_column_id"]) if 'facet_row_column_id' in graph_creation.keys() and graph_creation["facet_row_column_id"] in prev_state.column_ids.column_id_to_column_header[sheet_index].keys() else None
         facet_col_wrap = int(graph_creation['facet_col_wrap']) if 'facet_col_wrap' in graph_creation.keys() else None
         facet_col_spacing = float(graph_creation['facet_col_spacing']) if 'facet_col_spacing' in graph_creation.keys() else None
         facet_row_spacing = float(graph_creation['facet_row_spacing']) if 'facet_row_spacing' in graph_creation.keys() else None
+
+        # Validate parameters that are only available for some graph types
+        # Note: We trust the parameters from the frontend, so we don't make sure the params fit the graph type here
+        points = graph_creation['points'] if 'points' in graph_creation.keys() else None
 
         # Create a copy of the dataframe, just for safety.
         df: pd.DataFrame = prev_state.dfs[sheet_index].copy()
@@ -150,6 +154,7 @@ class GraphStepPerformer(StepPerformer):
                 facet_col_wrap,
                 facet_col_spacing,
                 facet_row_spacing,
+                points,
                 graph_styling
             )
             pandas_processing_time = perf_counter() - pandas_start_time
@@ -178,6 +183,7 @@ class GraphStepPerformer(StepPerformer):
                 facet_col_wrap,
                 facet_col_spacing,
                 facet_row_spacing,
+                points,
                 graph_styling,
                 df_name,
             )

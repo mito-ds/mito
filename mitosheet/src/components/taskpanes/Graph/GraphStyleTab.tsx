@@ -10,7 +10,7 @@ import Toggle from '../../elements/Toggle';
 import Col from '../../layout/Col';
 import CollapsibleSection from '../../layout/CollapsibleSection';
 import Row from '../../layout/Row';
-import { GraphType } from './GraphSetupTab';
+import { GRAPHS_THAT_HAVE_BARMODE, GRAPHS_THAT_HAVE_POINTS} from './GraphSetupTab';
 import { getGraphTypeFullName } from './graphUtils';
 
 export enum AxisType {
@@ -21,7 +21,6 @@ export enum AxisType {
     DATE = 'date',
 }
 
-export const GRAPHS_THAT_HAVE_BARMODE = [GraphType.BAR, GraphType.HISTOGRAM]
 /* 
     Contains all of the options for styling graphs,
     like setting the title and axis labels
@@ -297,13 +296,13 @@ function GraphStyleTab(props: {
                 </Row>
             </CollapsibleSection>
             <CollapsibleSection title={getGraphTypeFullName(graphCreationParams.graph_type) + ' configuration'}>
-                <Row justify='space-between' align='center'>
-                    <Col>
-                        <p>
-                            Barmode
-                        </p>
-                    </Col>
-                    {GRAPHS_THAT_HAVE_BARMODE.includes(graphCreationParams.graph_type) && 
+                {GRAPHS_THAT_HAVE_BARMODE.includes(graphCreationParams.graph_type) && 
+                    <Row justify='space-between' align='center'>
+                        <Col>
+                            <p>
+                                Barmode
+                            </p>
+                        </Col>
                         <Select
                             value={props.graphParams.graphStyling.barmode || ''}
                             onChange={(newBarMode: string) => {
@@ -313,7 +312,7 @@ function GraphStyleTab(props: {
                                         ...graphParamsCopy,
                                         graphStyling: {
                                             ...graphParamsCopy.graphStyling,
-                                            barmode: (newBarMode as 'stack' | 'group' | 'overlay' | 'relative')
+                                            barmode: newBarMode
                                         } 
                                     }
                                 })
@@ -335,8 +334,54 @@ function GraphStyleTab(props: {
                                 title={'relative'}
                             />
                         </Select>
-                    }
-                </Row>
+                    </Row>
+                }
+                {GRAPHS_THAT_HAVE_POINTS.includes(graphCreationParams.graph_type) && 
+                    <Row justify='space-between' align='center' title='Decide how to display outlier points'>
+                        <Col>
+                            <p>
+                                Points
+                            </p>
+                        </Col>
+                        <Select
+                            value={props.graphParams.graphCreation.points === false ? 'false' : props.graphParams.graphCreation.points !== undefined ? props.graphParams.graphCreation.points : ''}
+                            onChange={(newPointsString) => {
+                                const newPointsParams = newPointsString === 'false' ? false : newPointsString
+                                props.setGraphParams(prevGraphParams => {
+                                    const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                    return {
+                                        ...graphParamsCopy,
+                                        graphCreation: {
+                                            ...graphParamsCopy.graphCreation,
+                                            points: newPointsParams
+                                        } 
+                                    }
+                                })
+                                props.setGraphUpdatedNumber(old => old + 1)
+                            }}
+                            width='small'
+                            dropdownWidth='medium'
+                        >
+                            <DropdownItem
+                                title={'outliers'}
+                                subtext='only display sample points outside the whiskers'
+                            />
+                            <DropdownItem
+                                title={'supsected outliers'}
+                                id={'suspectedoutliers'}
+                                subtext='display outlier and suspected outlier points'
+                            />
+                            <DropdownItem
+                                title={'all'}
+                                subtext='display all sample points'
+                            />
+                            <DropdownItem
+                                title={'false'}
+                                subtext='display no sample'
+                            />
+                        </Select>
+                    </Row>
+                }
             </CollapsibleSection>
             <CollapsibleSection title='Legend'>
                 {!props.userProfile.isPro &&

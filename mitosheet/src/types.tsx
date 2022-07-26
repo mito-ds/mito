@@ -240,6 +240,7 @@ export type GraphCreationParams = {
     facet_row_spacing: number | undefined,
     
     // Only available for some graph types
+    points: string | false | undefined
 }
 export type GraphStylingParams = {
     title: {
@@ -275,7 +276,7 @@ export type GraphStylingParams = {
         x: number | undefined
         y: number | undefined
     }
-    barmode: 'stack' | 'group' | 'overlay' | 'relative' | undefined
+    barmode: string | undefined
     plot_bgcolor: string // The inner part of the plot with data background. Defaults to a blue-ish shade
     paper_bgcolor: string // The outer part of the plot around the data. Defaults to white
 }
