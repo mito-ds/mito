@@ -1,5 +1,6 @@
 // Copyright (c) Mito
 
+import { ChecklistID } from "../components/checklists/checklistData";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
 import { SortDirection } from "../components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
 import { GraphObject } from "../components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
@@ -59,6 +60,7 @@ export enum UserJsonFields {
     UJ_MITOSHEET_TELEMETRY = 'mitosheet_telemetry',
     UJ_MITOSHEET_PRO = 'mitosheet_pro',
     UJ_EXPERIMENT = 'experiment',
+    UJ_RECEIVED_CHECKLISTS = 'received_checklists',
 }
 
 /*
@@ -765,7 +767,7 @@ export default class MitoAPI {
             type: 'pivot_edit',
             'step_id': stepID,
             'params': {
-                sheet_index: pivotParams.selectedSheetIndex,
+                sheet_index: pivotParams.sourceSheetIndex,
                 // Deduplicate the rows and columns before sending them to the backend
                 // as otherwise this generates errors if you have duplicated key
                 pivot_rows_column_ids: getDeduplicatedArray(pivotParams.pivotRowColumnIDs),
@@ -1318,6 +1320,18 @@ export default class MitoAPI {
         })
 
         await this.send(message, {})
+    }
+
+    async updateChecklist(checklistID: ChecklistID, completedItems: string[], clearOtherItems: boolean): Promise<void> {
+        await this.send({
+            'event': 'update_event',
+            'type': 'checklist_update',
+            'params': {
+                'checklist_id': checklistID,
+                'completed_items': completedItems,
+                'clear_other_items': clearOtherItems
+            }
+        }, {})
     }
 
     /*

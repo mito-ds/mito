@@ -21,7 +21,7 @@ const GridDataEmptyContainer = (props: {children: React.ReactNode}): JSX.Element
     )
 }
 
-const EmptyGridMessages = (props: {sheetData: SheetData | undefined, setUIState: React.Dispatch<React.SetStateAction<UIState>>, mitoAPI: MitoAPI}): JSX.Element => {
+const EmptyGridMessages = (props: {sheetData: SheetData | undefined, setUIState: React.Dispatch<React.SetStateAction<UIState>>, mitoAPI: MitoAPI, uiState: UIState}): JSX.Element => {
 
     return (
         <>
@@ -41,12 +41,13 @@ const EmptyGridMessages = (props: {sheetData: SheetData | undefined, setUIState:
 
                                 void props.mitoAPI.log('clicked_empty_grid_import_button');
                             }}
+                            disabled={props.uiState.currOpenTaskpane.type === TaskpaneType.IMPORT}
                         >
                             Import Files
                         </TextButton>
                     </div>
                     <p className='mt-5px text-body-1'>
-                        Or pass dataframes directly into the <code>mitosheet.sheet()</code> call above.
+                        Or import dataframes using the syntax <code>mitosheet.sheet(df1, df2)</code> in the code above.
                     </p>
                 </GridDataEmptyContainer>
             }

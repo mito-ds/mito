@@ -36,19 +36,29 @@ const ToolbarButton = (
         highlightToolbarButton?: boolean; 
 
         /**
+        * @param [disabledTooltip] - Set to a string if you want the tooltip to display
+        */
+        disabledTooltip?: string | undefined
+
+        /**
         * @param [children] - A dropdown opened by the toolbar button
         */
         children?: JSX.Element
 
     }): JSX.Element => {
 
+    const disabled = props.disabledTooltip !== undefined;
     const highlightToobarItemClass = props.highlightToolbarButton === true ? 'toolbar-button-draw-attention' : ''
 
     return (
         <div 
-            className='toolbar-button-container' 
+            className={classNames('toolbar-button-container', disabled ? 'toolbar-button-container-disabled' : 'toolbar-button-container-enabled')} 
             id={props.id}
             onClick={() => {
+                if (disabled) {
+                    return
+                }
+
                 if (props.setEditorState) {
                     props.setEditorState(undefined);
                 }
@@ -66,7 +76,7 @@ const ToolbarButton = (
                     
                     If the icons have different heights, the text won't line up. 
                 */}
-                <span title={props.action.tooltip}>
+                <span title={props.disabledTooltip || props.action.tooltip}>
                     <div className='toolbar-button-icon-container'>
                         {getToolbarItemIcon(props.toolbarButtonType)}
                     </div>

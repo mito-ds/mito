@@ -7,8 +7,10 @@ import time
 
 import analytics
 from mitoinstaller.create_startup_file import create_startup_file
+from mitoinstaller.experiments.experiment_utils import is_variant_a
 from mitoinstaller.installer_steps.installer_step import InstallerStep
 from mitoinstaller.jupyter_utils import get_prefered_jupyter_env_variable
+from mitoinstaller.print_utils import clear_terminal, print_current_installer_message
 from mitoinstaller.starter_notebook import (MITO_STARTER_NOTEBOOK_PATH,
                                             try_create_starter_notebook)
 from mitoinstaller.user_install import is_running_test
@@ -29,6 +31,11 @@ def replace_process_with_jupyter():
 
     # Flush analytics before we terminate the process, as it's our last chance
     analytics.flush()
+
+    # If we're in variant A, we let the user know that we're done running all the installer steps
+    if is_variant_a():
+        from mitoinstaller.installer_steps import ALL_INSTALLER_STEPS
+        print_current_installer_message(ALL_INSTALLER_STEPS, len(ALL_INSTALLER_STEPS), time.perf_counter())
 
     os.execl(sys.executable, 'python', '-m', 'jupyter', prefered_jupyter, MITO_STARTER_NOTEBOOK_PATH)
 
@@ -60,7 +67,8 @@ FINAL_INSTALLER_STEPS = [
     InstallerStep(
         'Start Jupyter',
         replace_process_with_jupyter,
-        optional=True
+        optional=True,
+        no_print_in_main_loop=True
     ),
     # We do out best to replace the running process with JupyterLab, but 
     # if this fails, then just print a success message to the user

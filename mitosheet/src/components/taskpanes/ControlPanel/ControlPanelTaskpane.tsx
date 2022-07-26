@@ -149,6 +149,14 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
             // And then we filter the non group filters to be non-empty
             return isValidFilter(filterOrGroup, columnDtype)
         });
+
+        // If we're applying 0 filters, and we currently have 0 filters, then
+        // we aren't actually doing anything, so we don't need to send a message
+        // This is necessary so we don't update the onboarding checklist to say
+        // a filter is done when it is not
+        if (filtersToApply.length === 0 && (columnFilters !== undefined && columnFilters.filters.length === 0)) {
+            return;
+        } 
         
         const _stepID = await props.mitoAPI.editFilter(
             props.selectedSheetIndex,

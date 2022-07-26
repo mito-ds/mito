@@ -9,7 +9,7 @@ import { getDefaultGraphParams } from "../components/taskpanes/Graph/graphUtils"
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../data/function_documentation";
-import { Action, DFSource, EditorState, GridState, SheetData, UIState, ActionEnum } from "../types"
+import { Action, DFSource, EditorState, GridState, SheetData, UIState, ActionEnum, AnalysisData } from "../types"
 import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { FORMAT_DISABLED_MESSAGE } from "./formatColumns";
 import { writeTextToClipboard, getCopyStringForClipboard } from "./copy";
@@ -25,7 +25,8 @@ export const createActions = (
     setUIState: React.Dispatch<React.SetStateAction<UIState>>,
     setGridState: React.Dispatch<React.SetStateAction<GridState>>,
     mitoAPI: MitoAPI,
-    mitoContainerRef: React.RefObject<HTMLDivElement>
+    mitoContainerRef: React.RefObject<HTMLDivElement>,
+    analysisData: AnalysisData
 ): Record<ActionEnum, Action> => {
     // Define variables that we use in many actions
     const sheetIndex = gridState.sheetIndex;
@@ -34,6 +35,8 @@ export const createActions = (
     const startingColumnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
     const {columnID, columnFormula} = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
     const startingColumnID = columnID;
+    const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
+
 
     /*
         All of the actions that can be taken from the Action Search Bar. 
@@ -70,7 +73,7 @@ export const createActions = (
                     newColumnHeaderIndex
                 );
             },
-            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'Create a dataframe by importing data before adding a column.'},
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no dataframes to add columns to. Import data.'},
             searchTerms: ['add column', 'add col', 'new column', 'new col', 'insert column', 'insert col'],
             tooltip: "Add a new formula column to the right of your selection."
         },
@@ -83,7 +86,7 @@ export const createActions = (
                 void mitoAPI.log('click_catch_up')
                 void mitoAPI.updateCheckoutStepByIndex(-1); // TODO: Check that -1 works! And below
             },
-            isDisabled: () => {return undefined},
+            isDisabled: () => {return analysisData.currStepIdx === lastStepSummary.step_idx ? 'You are on the most recent step, so there is nothing to catch up on.' : undefined},
             searchTerms: ['fast forward', 'catch up'],
             tooltip: "Go to the current state of the analysis."
         },
@@ -106,7 +109,7 @@ export const createActions = (
             },
             isDisabled: () => {
                 if (!doesAnySheetExist(sheetDataArray)) {
-                    return 'There are no columns to change the dtype of. Import data before changing the dtype.';
+                    return 'There are no columns to change the dtype of. Import data.';
                 } 
 
                 return undefined;
@@ -227,6 +230,10 @@ export const createActions = (
                 } 
             },
             isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to delete. Import data.';
+                }
+
                 if (doesColumnExist(startingColumnID, sheetIndex, sheetDataArray)) {
                     if (isSelectionsOnlyColumnHeaders(gridState.selections)) {
                         return undefined
@@ -401,7 +408,7 @@ export const createActions = (
                 })
             },
             isDisabled: () => {
-                return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no dataframes to export.'
+                return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no dataframes to export. Import data.'
             },
             searchTerms: ['export', 'download', 'excel', 'csv'],
             tooltip: "Download dataframes as a .csv or .xlsx file."
@@ -476,6 +483,10 @@ export const createActions = (
                 })
             },
             isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to format. Import data.'
+                }
+                
                 return getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData).length > 0 ? undefined : FORMAT_DISABLED_MESSAGE
             },
             searchTerms: ['format', 'decimals', 'percent', '%', 'scientific', 'Mill', 'Bill', 'round'],
@@ -651,6 +662,7 @@ export const createActions = (
                                 currOpenModal: {type: ModalEnum.None},
                                 currOpenTaskpane: {
                                     type: TaskpaneType.PIVOT,
+                                    sourceSheetIndex: existingPivotParams.sheet_index,
                                     destinationSheetIndex: sheetIndex,
                                     existingPivotParams: existingPivotParams
                                 },
@@ -681,6 +693,7 @@ export const createActions = (
                         currOpenModal: {type: ModalEnum.None},
                         currOpenTaskpane: {
                             type: TaskpaneType.PIVOT,
+                            sourceSheetIndex: sheetIndex,
                             destinationSheetIndex: undefined,
                             existingPivotParams: undefined
                         },

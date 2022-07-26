@@ -1,4 +1,5 @@
 import React from "react";
+import { ChecklistID } from "./components/checklists/checklistData";
 import { ModalInfo } from "./components/modals/modals";
 import { ControlPanelTab } from "./components/taskpanes/ControlPanel/ControlPanelTaskpane";
 import { GraphType } from "./components/taskpanes/Graph/GraphSidebar";
@@ -322,7 +323,7 @@ export interface BackendPivotParams {
 // backend and the frontend, due to it being easier to manipulate as an array on the 
 // frontend while keeping the ordering for values
 export interface FrontendPivotParams {
-    selectedSheetIndex: number,
+    sourceSheetIndex: number,
     pivotRowColumnIDs: ColumnID[],
     pivotColumnsColumnIDs: ColumnID[],
     // NOTE: storing these values as an array makes keeping an order of them
@@ -618,6 +619,7 @@ export interface AnalysisData {
 export interface UserProfile {
     userEmail: string;
     receivedTours: string[];
+    receivedChecklists: Record<ChecklistID, string[] | undefined>;
 
     isPro: boolean;
     excelImportEnabled: boolean;

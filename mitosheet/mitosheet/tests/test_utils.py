@@ -12,7 +12,7 @@ from functools import wraps
 from typing import Any, Dict, List, Optional, Tuple, Union
 from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
 from mitosheet.step_performers.graph_steps.plotly_express_graphs import DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT, DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT, DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT
-from numpy import number
+from numpy import bool_, number
 
 import pandas as pd
 from mitosheet.mito_widget import MitoWidget, sheet
@@ -948,6 +948,22 @@ class MitoWidgetTestWrapper:
                 'type': 'checkout_step_by_idx_update',
                 'params': {
                     'step_idx': index,
+                },
+            }
+        )
+    
+    @check_transpiled_code_after_call
+    def checklist_update(self, checklist_id: str, completed_items: List[str], clear_other_items: bool) -> bool:
+        return self.mito_widget.receive_message(
+            self.mito_widget,
+            {
+                'event': 'update_event',
+                'id': get_new_id(),
+                'type': 'checklist_update',
+                'params': {
+                    'checklist_id': checklist_id,
+                    'completed_items': completed_items,
+                    'clear_other_items': clear_other_items
                 },
             }
         )

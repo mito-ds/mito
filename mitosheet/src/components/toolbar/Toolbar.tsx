@@ -5,7 +5,7 @@ import fscreen from 'fscreen';
 import MitoAPI from '../../jupyter/api';
 import ToolbarButton from './ToolbarButton';
 import { ToolbarButtonType } from './utils';
-import { Action, ActionEnum, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
+import { Action, ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import { getColumnFormatDropdownItemsUsingSelections } from '../../utils/formatColumns';
 
@@ -20,6 +20,8 @@ import ToolbarViewDropdown from './ToolbarViewDropdown';
 import ToolbarHelpDropdown from './ToolbarHelpDropdown';
 import PlanButton from './PlanButton';
 import ToolbarRowsDropdown from './ToolbarRowsDropdown.tsx';
+import OpenOnboardingChecklist from './OpenChecklistButton';
+import { isVariantB } from '../../utils/experiments';
 
 const Toolbar = (
     props: {
@@ -37,6 +39,7 @@ const Toolbar = (
         sheetData: SheetData;
         userProfile: UserProfile;
         setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
+        analysisData: AnalysisData
     }): JSX.Element => {
     
 
@@ -95,11 +98,19 @@ const Toolbar = (
                         />
                     </ToolbarMenu>
                 </div>
-                <PlanButton
-                    userProfile={props.userProfile}
-                    setUIState={props.setUIState}
-                    mitoAPI={props.mitoAPI}
-                />
+                <div className='flexbox-row' style={{gap: '10px'}}>
+                    <OpenOnboardingChecklist
+                        userProfile={props.userProfile}
+                        setUIState={props.setUIState}
+                        mitoAPI={props.mitoAPI}
+                        analysisData={props.analysisData}
+                    />
+                    <PlanButton
+                        userProfile={props.userProfile}
+                        setUIState={props.setUIState}
+                        mitoAPI={props.mitoAPI}
+                    />
+                </div>
             </div>
             <div className='toolbar-top-bottom-seperator'/>
             <div className='toolbar-bottom'>
@@ -130,6 +141,7 @@ const Toolbar = (
                         toolbarButtonType={ToolbarButtonType.EXPORT}
                         action={props.actions[ActionEnum.Export]}
                         setEditorState={props.setEditorState}
+                        disabledTooltip={isVariantB(props.analysisData) ? undefined : props.actions[ActionEnum.Export].isDisabled()}
                     />
 
                     <div className="toolbar-vertical-line"/>
@@ -139,22 +151,28 @@ const Toolbar = (
                         action={props.actions[ActionEnum.Add_Column]}
                         highlightToolbarButton={props.highlightAddColButton}
                         setEditorState={props.setEditorState}
+                        disabledTooltip={isVariantB(props.analysisData) ? undefined : props.actions[ActionEnum.Add_Column].isDisabled()}
                     />
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.DEL_COL}
                         action={props.actions[ActionEnum.Delete_Column]}
                         setEditorState={props.setEditorState}
+                        disabledTooltip={isVariantB(props.analysisData) ? undefined : props.actions[ActionEnum.Delete_Column].isDisabled()}
+
                     />
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.DTYPE}
                         action={props.actions[ActionEnum.Change_Dtype]}
                         setEditorState={props.setEditorState}
+                        disabledTooltip={isVariantB(props.analysisData) ? undefined : props.actions[ActionEnum.Change_Dtype].isDisabled()}
+
                     />
                     
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.FORMAT}
                         action={props.actions[ActionEnum.Format]}
                         setEditorState={props.setEditorState}
+                        disabledTooltip={isVariantB(props.analysisData) ? undefined : props.actions[ActionEnum.Format].isDisabled()}
                     >
                         <Dropdown
                             display={props.uiState.displayFormatToolbarDropdown}
@@ -178,11 +196,14 @@ const Toolbar = (
                         action={props.actions[ActionEnum.Pivot]}
                         highlightToolbarButton={props.highlightPivotTableButton}
                         setEditorState={props.setEditorState}
+                        disabledTooltip={isVariantB(props.analysisData) ? undefined : props.actions[ActionEnum.Pivot].isDisabled()}
                     />
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.GRAPH}
                         action={props.actions[ActionEnum.Graph]}
                         setEditorState={props.setEditorState}
+                        disabledTooltip={isVariantB(props.analysisData) ? undefined : props.actions[ActionEnum.Graph].isDisabled()}
+
                     />
 
                 </div>

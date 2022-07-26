@@ -7,6 +7,7 @@
     --mito-light-purple: #D0B9FE;
     --mito-very-light-purple: #E9E0FD;
     --mito-lightest-purple: #F0E9FF;
+    --mito-disabled-purple: #C1A1FF;
     
     --mito-gray: #494650;
     --mito-medium-gray: #767180;
@@ -15,6 +16,7 @@
 
     /* Colors used for the sheet */
     --mito-white: #FFFFFF;
+    --mito-off-white: #ECDCDC;
     --mito-light-blue: #E8EBF8;
     --mito-super-light-blue: #F2F4FA;
     --mito-border: #C4C4C4;

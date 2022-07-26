@@ -11,10 +11,9 @@ from mitoinstaller.user_install import (USER_JSON_PATH, go_pro,
                                         try_create_user_json_file)
 
 
-def initial_install_step_create_user():
+def initial_install_step_create_user() -> None:
 
-    if not os.path.exists(USER_JSON_PATH):
-        try_create_user_json_file(is_pro=('--pro' in sys.argv))
+    try_create_user_json_file(is_pro=('--pro' in sys.argv))
 
     if not ('--pro' in sys.argv):
         # Only try and log if we're not pro
@@ -39,10 +38,6 @@ def initial_install_step_add_env_for_which_jupyter():
 
 
 INITIAL_INSTALLER_STEPS = [
-    InstallerStep(
-        'Create mito user',
-        initial_install_step_create_user
-    ),
     InstallerStep(
         'Upgrade mitoinstaller',
         upgrade_mito_installer,

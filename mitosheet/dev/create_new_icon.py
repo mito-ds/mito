@@ -2,17 +2,27 @@
 OPEN_BRACKET = '{'
 CLOSE_BRACKET = '}'
 
+
+SPLIT_ON = [
+    'stroke-',
+    'stop-'
+]
+
 def get_tsx_svg_with_props(svg_code: str) -> str:
-    """Need to move stroke-width to strokeWidth"""
-    split_svg_code = svg_code.split('stroke-')
-    final_string = ''
-    for idx, s in enumerate(split_svg_code):
-        if idx == 0:
-            final_string += s
-        else:
-            cap_s = s[0].upper() + s[1:]
-            final_string += f'stroke{cap_s}'
-    return final_string
+    """Need to move stroke-width to strokeWidth, etc. Replacing svg with valid react props"""
+    current_string = svg_code
+    for split in SPLIT_ON:
+        split_svg_code = current_string.split(split)
+        final_string = ''
+        for idx, s in enumerate(split_svg_code):
+            if idx == 0:
+                final_string += s
+            else:
+                cap_s = s[0].upper() + s[1:]
+                final_string += f'{split[:-1]}{cap_s}'
+        current_string = final_string
+
+    return current_string
     
 
 def get_icon_tsx_code(icon_name: str, svg_code: str) -> str:
