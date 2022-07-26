@@ -170,7 +170,8 @@ def upgrade_user_json_version_6_to_7(user_json_version_6: Dict[str, Any]) -> Dic
 
     # Then, set new field
     if UJ_RECEIVED_CHECKLISTS not in user_json_version_6:
-        if get_current_experiment()['experiment_id'] != 'installer_communication_and_time_to_value':
+        current_experiment = user_json_version_6[UJ_EXPERIMENT]
+        if current_experiment['experiment_id'] != 'installer_communication_and_time_to_value':
             user_json_version_6[UJ_RECEIVED_CHECKLISTS] = {
                 "onboarding_checklist": ['signup', 'import', 'filter', 'pivot', 'graph', 'finalize']
             }
