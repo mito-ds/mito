@@ -333,7 +333,7 @@ function GraphStyleTab(props: {
                             </p>
                         </Col>
                         <Select
-                            value={props.graphParams.graphStyling.barmode || ''}
+                            value={props.graphParams.graphStyling.barmode || 'group'}
                             onChange={(newBarMode: string) => {
                                 props.setGraphParams(prevGraphParams => {
                                     const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
@@ -459,7 +459,7 @@ function GraphStyleTab(props: {
                             </p>
                         </Col>
                         <Select
-                            value={props.graphParams.graphCreation.histfunc || ''}
+                            value={props.graphParams.graphCreation.histfunc || 'count'}
                             onChange={(newHistfunc: string) => {
                                 props.setGraphParams(prevGraphParams => {
                                     const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
@@ -553,7 +553,7 @@ function GraphStyleTab(props: {
                             </p>
                         </Col>
                         <Select
-                            value={props.graphParams.graphCreation.line_shape || ''}
+                            value={props.graphParams.graphCreation.line_shape || 'linear'}
                             onChange={(newLineShape) => {
                                 props.setGraphParams(prevGraphParams => {
                                     const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
