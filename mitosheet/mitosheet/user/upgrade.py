@@ -175,6 +175,9 @@ def upgrade_user_json_version_6_to_7(user_json_version_6: Dict[str, Any]) -> Dic
             user_json_version_6[UJ_RECEIVED_CHECKLISTS] = {
                 "onboarding_checklist": ['signup', 'import', 'filter', 'pivot', 'graph', 'finalize']
             }
+        else:
+            user_json_version_6[UJ_RECEIVED_CHECKLISTS] = {}
+
 
     return user_json_version_6
 
