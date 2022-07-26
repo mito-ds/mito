@@ -277,7 +277,7 @@ export type GraphStylingParams = {
     legend: {
         title: {
             text: string | undefined
-        }
+        } | undefined
         orientation: 'v' | 'h' 
         x: number | undefined
         y: number | undefined

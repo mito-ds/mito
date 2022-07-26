@@ -650,7 +650,7 @@ function GraphStyleTab(props: {
                                 </p>
                             </Col>
                             <Input 
-                                value={graphStylingParams.legend.title.text ? graphStylingParams.legend.title.text : ''} 
+                                value={graphStylingParams.legend.title?.text ? graphStylingParams.legend.title.text : ''} 
                                 width='medium'
                                 placeholder='1'
                                 onChange={(e) => {
