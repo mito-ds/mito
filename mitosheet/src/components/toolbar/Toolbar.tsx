@@ -103,6 +103,7 @@ const Toolbar = (
                         userProfile={props.userProfile}
                         setUIState={props.setUIState}
                         mitoAPI={props.mitoAPI}
+                        analysisData={props.analysisData}
                     />
                     <PlanButton
                         userProfile={props.userProfile}
