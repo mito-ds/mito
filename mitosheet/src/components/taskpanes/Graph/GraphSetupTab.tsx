@@ -37,6 +37,7 @@ const SAFETY_FILTER_DISABLED_MESSAGE = `Because you’re graphing less than ${GR
 const SAFETY_FILTER_ENABLED_MESSAGE = `Turning on Filter to Safe Size only graphs the first ${GRAPH_SAFETY_FILTER_CUTOFF} rows of your dataframe, ensuring that your browser tab won’t crash. Turning off Filter to Safe Size graphs the entire dataframe and may slow or crash your browser tab.`
 
 const GRAPHS_THAT_DONT_SUPPORT_COLOR = [GraphType.DENSITY_HEATMAP]
+export const GRAPHS_THAT_HAVE_NBINS = [GraphType.HISTOGRAM]
 export const GRAPHS_THAT_HAVE_BARMODE = [GraphType.BAR, GraphType.HISTOGRAM]
 export const GRAPHS_THAT_HAVE_BARNORM = [GraphType.BAR, GraphType.HISTOGRAM]
 export const GRAPHS_THAT_HAVE_HISTNORM = [GraphType.HISTOGRAM]
@@ -151,6 +152,7 @@ function GraphSetupTab(
                     color: GRAPHS_THAT_DONT_SUPPORT_COLOR.includes(graphType) ? undefined : graphParamsCopy.graphCreation.color,
                     points: GRAPHS_THAT_HAVE_POINTS.includes(graphType) ? 'outliers' : undefined,
                     line_shape: GRAPHS_THAT_HAVE_LINE_SHAPE.includes(graphType) ? 'linear' : undefined,
+                    nbins: undefined,
                     histnorm: undefined,
                     histfunc: GRAPHS_THAT_HAVE_HISTFUNC.includes(graphType) ? 'count' : undefined
                 },

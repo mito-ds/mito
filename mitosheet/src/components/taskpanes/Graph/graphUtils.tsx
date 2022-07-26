@@ -35,6 +35,7 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
             // Params that are only available to some graph types
             points: GRAPHS_THAT_HAVE_POINTS.includes(graphType) ? 'outliers' : undefined,
             line_shape: GRAPHS_THAT_HAVE_LINE_SHAPE.includes(graphType) ? 'linear' : undefined,
+            nbins: undefined,
             histnorm: undefined,
             histfunc: GRAPHS_THAT_HAVE_HISTFUNC.includes(graphType) ? 'count' : undefined
         },

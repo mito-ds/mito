@@ -10,7 +10,7 @@ import Toggle from '../../elements/Toggle';
 import Col from '../../layout/Col';
 import CollapsibleSection from '../../layout/CollapsibleSection';
 import Row from '../../layout/Row';
-import { GRAPHS_THAT_HAVE_BARMODE, GRAPHS_THAT_HAVE_BARNORM, GRAPHS_THAT_HAVE_HISTFUNC, GRAPHS_THAT_HAVE_HISTNORM, GRAPHS_THAT_HAVE_LINE_SHAPE, GRAPHS_THAT_HAVE_POINTS} from './GraphSetupTab';
+import { GRAPHS_THAT_HAVE_BARMODE, GRAPHS_THAT_HAVE_BARNORM, GRAPHS_THAT_HAVE_HISTFUNC, GRAPHS_THAT_HAVE_HISTNORM, GRAPHS_THAT_HAVE_LINE_SHAPE, GRAPHS_THAT_HAVE_NBINS, GRAPHS_THAT_HAVE_POINTS} from './GraphSetupTab';
 import { getGraphTypeFullName } from './graphUtils';
 
 export enum AxisType {
@@ -296,6 +296,35 @@ function GraphStyleTab(props: {
                 </Row>
             </CollapsibleSection>
             <CollapsibleSection title={getGraphTypeFullName(graphCreationParams.graph_type) + ' configuration'}>
+                {GRAPHS_THAT_HAVE_NBINS.includes(graphCreationParams.graph_type) && 
+                    <Row justify='space-between' align='center' title='Number of bins in histogram'>
+                        <Col>
+                            <p>
+                                Number of bins
+                            </p>
+                        </Col>
+                        <Input
+                            value={props.graphParams.graphCreation.nbins?.toString() || ''}
+                            type='number'
+                            placeholder='5'
+                            onChange={(e) => {
+                                const newNumberBins = e.target.value === '' ? undefined : e.target.value
+                                props.setGraphParams(prevGraphParams => {
+                                    const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                    return {
+                                        ...graphParamsCopy,
+                                        graphCreation: {
+                                            ...graphParamsCopy.graphCreation,
+                                            nbins: newNumberBins as number | undefined
+                                        } 
+                                    }
+                                })
+                                props.setGraphUpdatedNumber(old => old + 1)
+                            }}
+                            width='small'
+                        />
+                    </Row>
+                }
                 {GRAPHS_THAT_HAVE_BARMODE.includes(graphCreationParams.graph_type) && 
                     <Row justify='space-between' align='center'>
                         <Col>

@@ -121,6 +121,7 @@ class GraphStepPerformer(StepPerformer):
         line_shape = graph_creation['line_shape'] if 'line_shape' in graph_creation.keys() else None
         histnorm = graph_creation['histnorm'] if 'histnorm' in graph_creation.keys() else None
         histfunc = graph_creation['histfunc'] if 'histfunc' in graph_creation.keys() else None
+        nbins = int(graph_creation['nbins']) if 'nbins' in graph_creation.keys() else None
 
         # Create a copy of the dataframe, just for safety.
         df: pd.DataFrame = prev_state.dfs[sheet_index].copy()
@@ -161,6 +162,7 @@ class GraphStepPerformer(StepPerformer):
                 line_shape,
                 histnorm,
                 histfunc,
+                nbins,
                 graph_styling
             )
             pandas_processing_time = perf_counter() - pandas_start_time
@@ -193,6 +195,7 @@ class GraphStepPerformer(StepPerformer):
                 line_shape,
                 histnorm,
                 histfunc,
+                nbins,
                 graph_styling,
                 df_name,
             )

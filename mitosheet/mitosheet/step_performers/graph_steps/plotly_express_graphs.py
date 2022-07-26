@@ -104,6 +104,8 @@ def get_graph_creation_param_dict(
         line_shape: Optional[str],
         histnorm: Optional[str],
         histfunc: Optional[str],
+        nbins: Optional[int],
+
 
     ) -> Dict[str, Any]:
 
@@ -147,6 +149,9 @@ def get_graph_creation_param_dict(
     if line_shape is not None:
         all_params['line_shape'] = line_shape
 
+    if nbins is not None: 
+        all_params['nbins'] = nbins
+
     if histnorm is not None:
         all_params['histnorm'] = histnorm
 
@@ -170,6 +175,8 @@ def graph_creation(
     line_shape: Optional[str],
     histnorm: Optional[str],
     histfunc: Optional[str],
+    nbins: Optional[int],
+
 ) -> go.Figure:
     """
     Creates and returns the Plotly express graph figure
@@ -189,6 +196,7 @@ def graph_creation(
         line_shape,
         histnorm,
         histfunc,
+        nbins,
 
     )
 
@@ -229,6 +237,7 @@ def graph_creation_code(
     line_shape: Optional[str],
     histnorm: Optional[str],
     histfunc: Optional[str],
+    nbins: Optional[int],
 
 ) -> str:
     """
@@ -249,6 +258,7 @@ def graph_creation_code(
         line_shape,
         histnorm,
         histfunc,
+        nbins,
     )
     param_code = param_dict_to_code(param_dict, as_single_line=True)
 
@@ -429,6 +439,7 @@ def get_plotly_express_graph(
     line_shape: Optional[str],
     histnorm: Optional[str],
     histfunc: Optional[str],
+    nbins: Optional[int],
     graph_styling_params: Dict[str, Any],
 ) -> go.Figure:
     """
@@ -460,7 +471,8 @@ def get_plotly_express_graph(
         points,
         line_shape,
         histnorm,
-        histfunc
+        histfunc,
+        nbins,
     )
 
     # Step 3: Graph Styling
@@ -485,6 +497,7 @@ def get_plotly_express_graph_code(
     line_shape: Optional[str],
     histnorm: Optional[str],
     histfunc: Optional[str],
+    nbins: Optional[int],
     graph_styling_params: Dict[str, Any],
     df_name: str,
 ) -> str:
@@ -529,6 +542,7 @@ def get_plotly_express_graph_code(
             line_shape,
             histnorm,
             histfunc,
+            nbins,
         )
     )
 
