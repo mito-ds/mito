@@ -81,8 +81,6 @@ class GraphStepPerformer(StepPerformer):
         Returns the new post state with the updated graph_data_dict
         """
 
-        print(params)
-
         graph_id: GraphID = get_param(params, 'graph_id')
         graph_preprocessing: Dict[str, Any] = get_param(params, 'graph_preprocessing')
         graph_creation: Dict[str, Any] = get_param(params, 'graph_creation')

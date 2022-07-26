@@ -326,7 +326,7 @@ function GraphStyleTab(props: {
                     </Row>
                 }
                 {GRAPHS_THAT_HAVE_BARMODE.includes(graphCreationParams.graph_type) && 
-                    <Row justify='space-between' align='center'>
+                    <Row justify='space-between' align='center' title='The relationship between bars in the graph'>
                         <Col>
                             <p>
                                 Barmode
@@ -434,7 +434,7 @@ function GraphStyleTab(props: {
                             />
                             <DropdownItem
                                 title={'probability'}
-                                subtext='fraction occurence w.r.t total number of sample points'
+                                subtext='occurrences in bin divided by total number of sample points'
                             />
                             <DropdownItem
                                 title={'percent'}
@@ -452,7 +452,7 @@ function GraphStyleTab(props: {
                     </Row>
                 }
                 {GRAPHS_THAT_HAVE_HISTFUNC.includes(graphCreationParams.graph_type) && 
-                    <Row justify='space-between' align='center' title='The binning function for the historgram'>
+                    <Row justify='space-between' align='center' title='The metric displayed for each bin of data'>
                         <Col>
                             <p>
                                 Histfunc
@@ -482,7 +482,7 @@ function GraphStyleTab(props: {
                             />
                             <DropdownItem
                                 title={'sum'}
-                                subtext='sum of the values in each bin'
+                                subtext='sum of values in each bin'
                             />
                             <DropdownItem
                                 title={'avg'}
@@ -500,7 +500,7 @@ function GraphStyleTab(props: {
                     </Row>
                 }
                 {GRAPHS_THAT_HAVE_POINTS.includes(graphCreationParams.graph_type) && 
-                    <Row justify='space-between' align='center' title='Decide how to display outlier points'>
+                    <Row justify='space-between' align='center' title='Display outlier points'>
                         <Col>
                             <p>
                                 Points
@@ -540,13 +540,13 @@ function GraphStyleTab(props: {
                             />
                             <DropdownItem
                                 title={'false'}
-                                subtext='display no sample'
+                                subtext='display no individual sample points'
                             />
                         </Select>
                     </Row>
                 }
                 {GRAPHS_THAT_HAVE_LINE_SHAPE.includes(graphCreationParams.graph_type) && 
-                    <Row justify='space-between' align='center' title='Set the shape of the lines in the chart'>
+                    <Row justify='space-between' align='center' title='The shape of the line'>
                         <Col>
                             <p>
                                 Line shape
@@ -590,7 +590,7 @@ function GraphStyleTab(props: {
                 }
                 {props.userProfile.isPro &&
                     <>
-                        <Row justify='space-between' align='center'>
+                        <Row justify='space-between' align='center' title='Title of legend'>
                             <Col>
                                 <p>
                                     Display Legend
@@ -613,7 +613,7 @@ function GraphStyleTab(props: {
                                 }}     
                             />
                         </Row>
-                        <Row justify='space-between' align='center' title='Set the legend vertical or horizontal'>
+                        <Row justify='space-between' align='center' title='Display the legend vertically or horizontally'>
                             <Col>
                                 <p>
                                     Orientation

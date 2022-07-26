@@ -213,9 +213,12 @@ def upgrade_graph_3_to_4(step: Dict[str, Any], later_steps: List[Dict[str, Any]]
     Adds required graph styling params:
     - xaxis: showgrid
     - yaxis: showgrid
+    - legend: {
+            orientation: 'v' | 'h'
+        }
 
     OLD: 
-        'step_version': 2,
+        'step_version': 3,
         'step_type': 'graph',
         'params: {
             graph_id: GraphID
@@ -232,20 +235,25 @@ def upgrade_graph_3_to_4(step: Dict[str, Any], later_steps: List[Dict[str, Any]]
             graph_styling: {
                 title: {
                     title: string | None
-                    visible: boolean
+                    visible: boolean,
+                    title_font_color: string
                 },
                 xaxis: {
                     title: string | None,
                     visible: boolean,
+                    title_font_color: string
                     rangeslider: {
                         visible: boolean
                     }
                 },
                 yaxis: {
                     title: string | None,
-                    visible: boolean
+                    visible: boolean,
+                    title_font_color: string
                 },
-                showlegend: boolean
+                showlegend: boolean,
+                paper_bgcolor: string,
+                plot_bgcolor: string
             },
             graph_rendering: {
                 height: int representing the div width
@@ -255,7 +263,7 @@ def upgrade_graph_3_to_4(step: Dict[str, Any], later_steps: List[Dict[str, Any]]
     }
 
     NEW: 
-        'step_version': 3,
+        'step_version': 4,
         'step_type': 'graph',
         'params: {
             graph_id: GraphID
