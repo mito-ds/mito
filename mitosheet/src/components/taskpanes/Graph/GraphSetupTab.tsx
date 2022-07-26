@@ -40,6 +40,7 @@ const GRAPHS_THAT_DONT_SUPPORT_COLOR = [GraphType.DENSITY_HEATMAP]
 export const GRAPHS_THAT_HAVE_BARMODE = [GraphType.BAR, GraphType.HISTOGRAM]
 export const GRAPHS_THAT_HAVE_BARNORM = [GraphType.BAR, GraphType.HISTOGRAM]
 export const GRAPHS_THAT_HAVE_HISTNORM = [GraphType.HISTOGRAM]
+export const GRAPHS_THAT_HAVE_HISTFUNC = [GraphType.HISTOGRAM]
 export const GRAPHS_THAT_HAVE_POINTS = [GraphType.BOX, GraphType.VIOLIN]
 export const GRAPHS_THAT_HAVE_LINE_SHAPE = [GraphType.LINE]
 
@@ -150,7 +151,8 @@ function GraphSetupTab(
                     color: GRAPHS_THAT_DONT_SUPPORT_COLOR.includes(graphType) ? undefined : graphParamsCopy.graphCreation.color,
                     points: GRAPHS_THAT_HAVE_POINTS.includes(graphType) ? 'outliers' : undefined,
                     line_shape: GRAPHS_THAT_HAVE_LINE_SHAPE.includes(graphType) ? 'linear' : undefined,
-                    histnorm: undefined
+                    histnorm: undefined,
+                    histfunc: GRAPHS_THAT_HAVE_HISTFUNC.includes(graphType) ? 'count' : undefined
                 },
                 graphStyling: {
                     ...graphParamsCopy.graphStyling,

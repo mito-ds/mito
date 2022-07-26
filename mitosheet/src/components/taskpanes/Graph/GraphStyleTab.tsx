@@ -10,7 +10,7 @@ import Toggle from '../../elements/Toggle';
 import Col from '../../layout/Col';
 import CollapsibleSection from '../../layout/CollapsibleSection';
 import Row from '../../layout/Row';
-import { GRAPHS_THAT_HAVE_BARMODE, GRAPHS_THAT_HAVE_BARNORM, GRAPHS_THAT_HAVE_HISTNORM, GRAPHS_THAT_HAVE_LINE_SHAPE, GRAPHS_THAT_HAVE_POINTS} from './GraphSetupTab';
+import { GRAPHS_THAT_HAVE_BARMODE, GRAPHS_THAT_HAVE_BARNORM, GRAPHS_THAT_HAVE_HISTFUNC, GRAPHS_THAT_HAVE_HISTNORM, GRAPHS_THAT_HAVE_LINE_SHAPE, GRAPHS_THAT_HAVE_POINTS} from './GraphSetupTab';
 import { getGraphTypeFullName } from './graphUtils';
 
 export enum AxisType {
@@ -409,7 +409,7 @@ function GraphStyleTab(props: {
                             />
                             <DropdownItem
                                 title={'percent'}
-                                subtext='percent occurence w.r.t total number of sample points'
+                                subtext='probabilty multiplied by 100'
                             />
                             <DropdownItem
                                 title={'density'}
@@ -418,6 +418,54 @@ function GraphStyleTab(props: {
                             <DropdownItem
                                 title={'probability density'}
                                 subtext='probability that a point falls into bin'
+                            />
+                        </Select>
+                    </Row>
+                }
+                {GRAPHS_THAT_HAVE_HISTFUNC.includes(graphCreationParams.graph_type) && 
+                    <Row justify='space-between' align='center' title='The binning function for the historgram'>
+                        <Col>
+                            <p>
+                                Histfunc
+                            </p>
+                        </Col>
+                        <Select
+                            value={props.graphParams.graphCreation.histfunc || ''}
+                            onChange={(newHistfunc: string) => {
+                                props.setGraphParams(prevGraphParams => {
+                                    const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                    return {
+                                        ...graphParamsCopy,
+                                        graphCreation: {
+                                            ...graphParamsCopy.graphCreation,
+                                            histfunc: newHistfunc
+                                        } 
+                                    }
+                                })
+                                props.setGraphUpdatedNumber(old => old + 1)
+                            }}
+                            width='small'
+                            dropdownWidth='medium'
+                        >
+                            <DropdownItem
+                                title={'count'}
+                                subtext='number of values in each bin'
+                            />
+                            <DropdownItem
+                                title={'sum'}
+                                subtext='sum of the values in each bin'
+                            />
+                            <DropdownItem
+                                title={'avg'}
+                                subtext='average value in each bin'
+                            />
+                            <DropdownItem
+                                title={'min'}
+                                subtext='min value in each bin'
+                            />
+                            <DropdownItem
+                                title={'max'}
+                                subtext='max value in each bin'
                             />
                         </Select>
                     </Row>

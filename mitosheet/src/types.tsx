@@ -244,7 +244,8 @@ export type GraphCreationParams = {
     // set the param to undefined for all graph types that don't have the param.
     points: string | false | undefined
     line_shape: string | undefined,
-    histnorm: string | undefined
+    histnorm: string | undefined,
+    histfunc: string | undefined
 }
 export type GraphStylingParams = {
     title: {

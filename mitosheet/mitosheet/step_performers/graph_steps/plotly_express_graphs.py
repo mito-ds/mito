@@ -103,6 +103,8 @@ def get_graph_creation_param_dict(
         points: Optional[Union[str, bool]],
         line_shape: Optional[str],
         histnorm: Optional[str],
+        histfunc: Optional[str],
+
     ) -> Dict[str, Any]:
 
     # Create the parameters that we use to construct the graph
@@ -148,6 +150,9 @@ def get_graph_creation_param_dict(
     if histnorm is not None:
         all_params['histnorm'] = histnorm
 
+    if histfunc is not None:
+        all_params['histfunc'] = histfunc
+
     return all_params
 
 def graph_creation(
@@ -164,7 +169,7 @@ def graph_creation(
     points: Optional[Union[str, bool]],
     line_shape: Optional[str],
     histnorm: Optional[str],
-
+    histfunc: Optional[str],
 ) -> go.Figure:
     """
     Creates and returns the Plotly express graph figure
@@ -183,6 +188,8 @@ def graph_creation(
         points,
         line_shape,
         histnorm,
+        histfunc,
+
     )
 
     if graph_type == BAR:
@@ -221,7 +228,7 @@ def graph_creation_code(
     points: Optional[Union[str, bool]],
     line_shape: Optional[str],
     histnorm: Optional[str],
-
+    histfunc: Optional[str],
 
 ) -> str:
     """
@@ -240,7 +247,8 @@ def graph_creation_code(
         facet_row_spacing,
         points,
         line_shape,
-        histnorm
+        histnorm,
+        histfunc,
     )
     param_code = param_dict_to_code(param_dict, as_single_line=True)
 
@@ -420,6 +428,7 @@ def get_plotly_express_graph(
     points: Optional[Union[str, bool]],
     line_shape: Optional[str],
     histnorm: Optional[str],
+    histfunc: Optional[str],
     graph_styling_params: Dict[str, Any],
 ) -> go.Figure:
     """
@@ -450,7 +459,8 @@ def get_plotly_express_graph(
         facet_row_spacing,
         points,
         line_shape,
-        histnorm
+        histnorm,
+        histfunc
     )
 
     # Step 3: Graph Styling
@@ -474,6 +484,7 @@ def get_plotly_express_graph_code(
     points: Optional[Union[str, bool]],
     line_shape: Optional[str],
     histnorm: Optional[str],
+    histfunc: Optional[str],
     graph_styling_params: Dict[str, Any],
     df_name: str,
 ) -> str:
@@ -517,6 +528,7 @@ def get_plotly_express_graph_code(
             points,
             line_shape,
             histnorm,
+            histfunc,
         )
     )
 
