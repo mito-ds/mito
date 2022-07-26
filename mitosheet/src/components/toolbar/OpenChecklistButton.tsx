@@ -1,14 +1,16 @@
 import React from 'react'
 import MitoAPI from '../../jupyter/api';
-import { UIState, UserProfile } from '../../types';
+import { AnalysisData, UIState, UserProfile } from '../../types';
 import { classNames } from '../../utils/classNames';
+import { isVariantB } from '../../utils/experiments';
 import { getRemainingChecklistItems } from '../checklists/Checklist';
 
 
 interface PlanButtonProps {
     userProfile: UserProfile,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>,
-    mitoAPI: MitoAPI
+    mitoAPI: MitoAPI,
+    analysisData: AnalysisData
 }
 
 /**
@@ -21,7 +23,7 @@ interface PlanButtonProps {
  */
 const OpenOnboardingChecklist = (props: PlanButtonProps): JSX.Element => {
     
-    if (props.userProfile.numUsages !== 1 || getRemainingChecklistItems(props.userProfile).length !== 0) {
+    if (isVariantB(props.analysisData) || props.userProfile.numUsages !== 1 || getRemainingChecklistItems(props.userProfile).length !== 0) {
         return <></>;
     }
 

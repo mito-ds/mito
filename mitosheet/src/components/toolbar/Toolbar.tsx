@@ -5,7 +5,7 @@ import fscreen from 'fscreen';
 import MitoAPI from '../../jupyter/api';
 import ToolbarButton from './ToolbarButton';
 import { ToolbarButtonType } from './utils';
-import { Action, ActionEnum, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
+import { Action, ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import { getColumnFormatDropdownItemsUsingSelections } from '../../utils/formatColumns';
 
@@ -38,6 +38,7 @@ const Toolbar = (
         sheetData: SheetData;
         userProfile: UserProfile;
         setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
+        analysisData: AnalysisData;
     }): JSX.Element => {
     
 
@@ -101,6 +102,7 @@ const Toolbar = (
                         userProfile={props.userProfile}
                         setUIState={props.setUIState}
                         mitoAPI={props.mitoAPI}
+                        analysisData={props.analysisData}
                     />
                     <PlanButton
                         userProfile={props.userProfile}
