@@ -21,7 +21,7 @@ const GridDataEmptyContainer = (props: {children: React.ReactNode}): JSX.Element
     )
 }
 
-const EmptyGridMessages = (props: {sheetData: SheetData | undefined, setUIState: React.Dispatch<React.SetStateAction<UIState>>, mitoAPI: MitoAPI}): JSX.Element => {
+const EmptyGridMessages = (props: {sheetData: SheetData | undefined, setUIState: React.Dispatch<React.SetStateAction<UIState>>, mitoAPI: MitoAPI, uiState: UIState}): JSX.Element => {
 
     return (
         <>
@@ -41,6 +41,7 @@ const EmptyGridMessages = (props: {sheetData: SheetData | undefined, setUIState:
 
                                 void props.mitoAPI.log('clicked_empty_grid_import_button');
                             }}
+                            disabled={props.uiState.currOpenTaskpane.type === TaskpaneType.IMPORT}
                         >
                             Import Files
                         </TextButton>

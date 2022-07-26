@@ -706,7 +706,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
         setUIState, 
         setGridState,
         props.mitoAPI, 
-        mitoContainerRef
+        mitoContainerRef,
+        analysisData
     )
 
 

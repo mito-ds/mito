@@ -9,7 +9,7 @@ import { getDefaultGraphParams } from "../components/taskpanes/Graph/graphUtils"
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../data/function_documentation";
-import { Action, DFSource, EditorState, GridState, SheetData, UIState, ActionEnum } from "../types"
+import { Action, DFSource, EditorState, GridState, SheetData, UIState, ActionEnum, AnalysisData } from "../types"
 import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { FORMAT_DISABLED_MESSAGE } from "./formatColumns";
 import { writeTextToClipboard, getCopyStringForClipboard } from "./copy";
@@ -25,7 +25,8 @@ export const createActions = (
     setUIState: React.Dispatch<React.SetStateAction<UIState>>,
     setGridState: React.Dispatch<React.SetStateAction<GridState>>,
     mitoAPI: MitoAPI,
-    mitoContainerRef: React.RefObject<HTMLDivElement>
+    mitoContainerRef: React.RefObject<HTMLDivElement>,
+    analysisData: AnalysisData
 ): Record<ActionEnum, Action> => {
     // Define variables that we use in many actions
     const sheetIndex = gridState.sheetIndex;
@@ -34,6 +35,8 @@ export const createActions = (
     const startingColumnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
     const {columnID, columnFormula} = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
     const startingColumnID = columnID;
+    const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
+
 
     /*
         All of the actions that can be taken from the Action Search Bar. 
@@ -83,7 +86,7 @@ export const createActions = (
                 void mitoAPI.log('click_catch_up')
                 void mitoAPI.updateCheckoutStepByIndex(-1); // TODO: Check that -1 works! And below
             },
-            isDisabled: () => {return undefined},
+            isDisabled: () => {return analysisData.currStepIdx === lastStepSummary.step_idx ? 'You are on the most recent step, so there is nothing to catch up on.' : undefined},
             searchTerms: ['fast forward', 'catch up'],
             tooltip: "Go to the current state of the analysis."
         },
