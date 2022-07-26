@@ -847,6 +847,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     analysisData={analysisData}
                     mitoAPI={props.mitoAPI}
                     currOpenModal={uiState.currOpenModal}
+                    actions={actions}
                 />
                 {/* 
                     If the step index of the last step isn't the current step,

@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 import React, { useEffect, useState } from 'react';
-import { AnalysisData, SheetData, UserProfile } from '../../types';
+import { Action, ActionEnum, AnalysisData, SheetData, UserProfile } from '../../types';
 
 import LoadingIndicator from '../LoadingIndicator';
 import '../../../css/elements/BottomLeftPopup.css';
@@ -16,6 +16,7 @@ const BottomLeftPopup = (props: {
     loading: [string, string | undefined, string][],
     sheetDataArray: SheetData[],
     currOpenModal: ModalInfo,
+    actions: Record<ActionEnum, Action>
 }): JSX.Element => {
     // We only display the loading indicator after .5 seconds, and we track
     // it in the popup component so that we can display something else if
@@ -53,6 +54,7 @@ const BottomLeftPopup = (props: {
                         sheetDataArray={props.sheetDataArray}
                         userProfile={props.userProfile}
                         analysisData={props.analysisData}
+                        actions={props.actions}
                     />
                 </div>    
             }
