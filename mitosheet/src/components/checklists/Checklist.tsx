@@ -135,19 +135,19 @@ const Checklist = (props: {
 
         if (remainingChecklistItems.includes('signup')) {
             if (props.userProfile.userEmail !== '') {
-                void props.mitoAPI.updateChecklist('onboarding_checklist', ['signup']);
+                void props.mitoAPI.updateChecklist('onboarding_checklist', ['signup'], false);
             }
         } 
 
         if (remainingChecklistItems.includes('import')) {
             if (props.sheetDataArray.length > 0) {
-                void props.mitoAPI.updateChecklist('onboarding_checklist', ['import']);
+                void props.mitoAPI.updateChecklist('onboarding_checklist', ['import'], false);
             }
         }
 
         if (remainingChecklistItems.includes('filter')) {
             if (props.analysisData.stepSummaryList.filter(stepSummary => stepSummary.step_type === StepType.FilterColumn).length > 0) {
-                void props.mitoAPI.updateChecklist('onboarding_checklist', ['filter']);
+                void props.mitoAPI.updateChecklist('onboarding_checklist', ['filter'], false);
             }
         }
 
@@ -155,7 +155,7 @@ const Checklist = (props: {
             if (
                 props.sheetDataArray.filter(sheetData => sheetData.dfSource === DFSource.Pivoted && sheetData.numColumns > 0).length > 0 // Check there is a pivoted dataframe with at least one column
             ) {
-                void props.mitoAPI.updateChecklist('onboarding_checklist', ['pivot']);
+                void props.mitoAPI.updateChecklist('onboarding_checklist', ['pivot'], false);
             }
         }
         
@@ -163,7 +163,7 @@ const Checklist = (props: {
             if (
                 Object.values(props.analysisData.graphDataDict).filter(graphData => graphData.graphOutput !== undefined).length > 0 // Check there is at least one graph with a defined output
             ) {
-                void props.mitoAPI.updateChecklist('onboarding_checklist', ['graph']);
+                void props.mitoAPI.updateChecklist('onboarding_checklist', ['graph'], false);
             }
         }
     }, [props.analysisData.stepSummaryList])
@@ -188,7 +188,7 @@ const Checklist = (props: {
                         variant='light'
                         onClick={() => {
                             // If the user closes it, then mark the entire thing as finished
-                            void props.mitoAPI.updateChecklist('onboarding_checklist', allChecklistItems);
+                            void props.mitoAPI.updateChecklist('onboarding_checklist', allChecklistItems, false);
 
                             if (remainingChecklistItems.length > 1) {
                                 void props.mitoAPI.log('clicked_close_checklist_early', {remaining_checklist_items: remainingChecklistItems});

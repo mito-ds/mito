@@ -1322,13 +1322,14 @@ export default class MitoAPI {
         await this.send(message, {})
     }
 
-    async updateChecklist(checklistID: ChecklistID, completedItems: string[]): Promise<void> {
+    async updateChecklist(checklistID: ChecklistID, completedItems: string[], clearOtherItems: boolean): Promise<void> {
         await this.send({
             'event': 'update_event',
             'type': 'checklist_update',
             'params': {
                 'checklist_id': checklistID,
                 'completed_items': completedItems,
+                'clear_other_items': clearOtherItems
             }
         }, {})
     }
