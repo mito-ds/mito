@@ -12,8 +12,9 @@ import TextButton from '../elements/TextButton';
 import Input from '../elements/Input';
 import { AnalysisData, FeedbackID, SheetData, UIState } from '../../types';
 import { checkProAccessCode } from '../../utils/pro';
-import { TaskpaneType } from '../taskpanes/taskpanes';
 import Experiment from '../elements/Experiment';
+import { TaskpaneType } from '../taskpanes/taskpanes';
+import { isVariantA } from '../../utils/experiments';
 
 /* 
     This file contains all the screens used in the signup modal. As these
@@ -343,7 +344,7 @@ const SignupModal = (
                 return {
                     ...prevUIState,
                     currOpenModal: {type: ModalEnum.None},
-                    currOpenTaskpane: props.sheetDataArray.length === 0 ? {type: TaskpaneType.IMPORT} : prevUIState.currOpenTaskpane
+                    currOpenTaskpanel: {type: isVariantA(props.analysisData) ? TaskpaneType.NONE : TaskpaneType.IMPORT},
                 }
             })
             void props.mitoAPI.log('finished_signup');

@@ -686,6 +686,7 @@ function EndoGrid(props: {
                         setUIState={props.setUIState}
                         sheetData={sheetData}
                         mitoAPI={mitoAPI}
+                        uiState={props.uiState}
                     />
                     {/* 
                         This is the div we actually scroll inside. We make it so it's styled
