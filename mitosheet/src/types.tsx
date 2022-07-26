@@ -243,7 +243,8 @@ export type GraphCreationParams = {
     // To create these parameters, make sure to update the setGraphType and getDefaultGraphParams so that they 
     // set the param to undefined for all graph types that don't have the param.
     points: string | false | undefined
-    line_shape: string | undefined
+    line_shape: string | undefined,
+    histnorm: string | undefined
 }
 export type GraphStylingParams = {
     title: {

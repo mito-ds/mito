@@ -119,7 +119,7 @@ class GraphStepPerformer(StepPerformer):
         # Note: We trust the parameters from the frontend, so we don't make sure the params fit the graph type here
         points = graph_creation['points'] if 'points' in graph_creation.keys() else None
         line_shape = graph_creation['line_shape'] if 'line_shape' in graph_creation.keys() else None
-
+        histnorm = graph_creation['histnorm'] if 'histnorm' in graph_creation.keys() else None
 
         # Create a copy of the dataframe, just for safety.
         df: pd.DataFrame = prev_state.dfs[sheet_index].copy()
@@ -158,6 +158,7 @@ class GraphStepPerformer(StepPerformer):
                 facet_row_spacing,
                 points,
                 line_shape,
+                histnorm,
                 graph_styling
             )
             pandas_processing_time = perf_counter() - pandas_start_time
@@ -188,6 +189,7 @@ class GraphStepPerformer(StepPerformer):
                 facet_row_spacing,
                 points,
                 line_shape,
+                histnorm,
                 graph_styling,
                 df_name,
             )

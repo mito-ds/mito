@@ -10,7 +10,7 @@ import Toggle from '../../elements/Toggle';
 import Col from '../../layout/Col';
 import CollapsibleSection from '../../layout/CollapsibleSection';
 import Row from '../../layout/Row';
-import { GRAPHS_THAT_HAVE_BARMODE, GRAPHS_THAT_HAVE_BARNORM, GRAPHS_THAT_HAVE_LINE_SHAPE, GRAPHS_THAT_HAVE_POINTS} from './GraphSetupTab';
+import { GRAPHS_THAT_HAVE_BARMODE, GRAPHS_THAT_HAVE_BARNORM, GRAPHS_THAT_HAVE_HISTNORM, GRAPHS_THAT_HAVE_LINE_SHAPE, GRAPHS_THAT_HAVE_POINTS} from './GraphSetupTab';
 import { getGraphTypeFullName } from './graphUtils';
 
 export enum AxisType {
@@ -375,6 +375,53 @@ function GraphStyleTab(props: {
                         </Select>
                     </Row>
                 }
+                {GRAPHS_THAT_HAVE_HISTNORM.includes(graphCreationParams.graph_type) && 
+                    <Row justify='space-between' align='center' title='The type of normalization used for this histogram trace'>
+                        <Col>
+                            <p>
+                                Histnorm
+                            </p>
+                        </Col>
+                        <Select
+                            value={props.graphParams.graphCreation.histnorm || 'none'}
+                            onChange={(newHistnorm: string) => {
+                                props.setGraphParams(prevGraphParams => {
+                                    const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                    return {
+                                        ...graphParamsCopy,
+                                        graphCreation: {
+                                            ...graphParamsCopy.graphCreation,
+                                            histnorm: newHistnorm === 'none' ? undefined : newHistnorm
+                                        } 
+                                    }
+                                })
+                                props.setGraphUpdatedNumber(old => old + 1)
+                            }}
+                            width='small'
+                            dropdownWidth='medium'
+                        >
+                            <DropdownItem
+                                title={'none'}
+                            />
+                            <DropdownItem
+                                title={'probability'}
+                                subtext='fraction occurence w.r.t total number of sample points'
+                            />
+                            <DropdownItem
+                                title={'percent'}
+                                subtext='percent occurence w.r.t total number of sample points'
+                            />
+                            <DropdownItem
+                                title={'density'}
+                                subtext='occurences in bin divided by bin interval'
+                            />
+                            <DropdownItem
+                                title={'probability density'}
+                                subtext='probability that a point falls into bin'
+                            />
+                        </Select>
+                    </Row>
+                }
                 {GRAPHS_THAT_HAVE_POINTS.includes(graphCreationParams.graph_type) && 
                     <Row justify='space-between' align='center' title='Decide how to display outlier points'>
                         <Col>
@@ -422,7 +469,7 @@ function GraphStyleTab(props: {
                     </Row>
                 }
                 {GRAPHS_THAT_HAVE_LINE_SHAPE.includes(graphCreationParams.graph_type) && 
-                    <Row justify='space-between' align='center' title='Set the shape of the line either linear or spline'>
+                    <Row justify='space-between' align='center' title='Set the shape of the lines in the chart'>
                         <Col>
                             <p>
                                 Line shape
