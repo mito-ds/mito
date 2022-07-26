@@ -279,9 +279,15 @@ export type GraphStylingParams = {
         x: number | undefined
         y: number | undefined
     }
-    barmode: string | undefined
+    
     plot_bgcolor: string // The inner part of the plot with data background. Defaults to a blue-ish shade
     paper_bgcolor: string // The outer part of the plot around the data. Defaults to white
+
+    // Paramaters that are only available for some graph types. 
+    // To create these parameters, make sure to update the setGraphType and getDefaultGraphParams so that they 
+    // set the param to undefined for all graph types that don't have the param.
+    barmode: string | undefined,
+    barnorm: string | undefined
 }
 
 export type GraphParams = {

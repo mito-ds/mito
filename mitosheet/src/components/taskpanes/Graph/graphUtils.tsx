@@ -31,6 +31,8 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
             facet_col_wrap: undefined,
             facet_col_spacing: undefined,
             facet_row_spacing: undefined,
+
+            // Params that are only available to some graph types
             points: GRAPHS_THAT_HAVE_POINTS.includes(graphType) ? 'outliers' : undefined,
             line_shape: GRAPHS_THAT_HAVE_LINE_SHAPE.includes(graphType) ? 'linear' : undefined
         },
@@ -68,9 +70,12 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
                 x: undefined, 
                 y: undefined,
             },
-            barmode: GRAPHS_THAT_HAVE_BARMODE.includes(graphType) ? 'group' : undefined,
             paper_bgcolor: DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT,
-            plot_bgcolor: DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT
+            plot_bgcolor: DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT,
+
+            // Params that are only available to some graph types
+            barmode: GRAPHS_THAT_HAVE_BARMODE.includes(graphType) ? 'group' : undefined,
+            barnorm: undefined,
         }
     }
 }

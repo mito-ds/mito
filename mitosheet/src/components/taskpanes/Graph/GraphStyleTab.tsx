@@ -10,7 +10,7 @@ import Toggle from '../../elements/Toggle';
 import Col from '../../layout/Col';
 import CollapsibleSection from '../../layout/CollapsibleSection';
 import Row from '../../layout/Row';
-import { GRAPHS_THAT_HAVE_BARMODE, GRAPHS_THAT_HAVE_LINE_SHAPE, GRAPHS_THAT_HAVE_POINTS} from './GraphSetupTab';
+import { GRAPHS_THAT_HAVE_BARMODE, GRAPHS_THAT_HAVE_BARNORM, GRAPHS_THAT_HAVE_LINE_SHAPE, GRAPHS_THAT_HAVE_POINTS} from './GraphSetupTab';
 import { getGraphTypeFullName } from './graphUtils';
 
 export enum AxisType {
@@ -332,6 +332,45 @@ function GraphStyleTab(props: {
                             />
                             <DropdownItem
                                 title={'relative'}
+                            />
+                        </Select>
+                    </Row>
+                }
+                {GRAPHS_THAT_HAVE_BARNORM.includes(graphCreationParams.graph_type) && 
+                    <Row justify='space-between' align='center' title='Normalize bar traces on the graph'>
+                        <Col>
+                            <p>
+                                Barnorm
+                            </p>
+                        </Col>
+                        <Select
+                            value={props.graphParams.graphStyling.barnorm || 'none'}
+                            onChange={(newBarNorm: string) => {
+                                props.setGraphParams(prevGraphParams => {
+                                    const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                    return {
+                                        ...graphParamsCopy,
+                                        graphStyling: {
+                                            ...graphParamsCopy.graphStyling,
+                                            barnorm: newBarNorm === 'none' ? undefined : newBarNorm
+                                        } 
+                                    }
+                                })
+                                props.setGraphUpdatedNumber(old => old + 1)
+                            }}
+                            width='small'
+                            dropdownWidth='medium'
+                        >
+                            <DropdownItem
+                                title={'none'}
+                            />
+                            <DropdownItem
+                                title={'fraction'}
+                                subtext='value of each bar divided by the sum of all values at that location'
+                            />
+                            <DropdownItem
+                                title={'percent'}
+                                subtext='fraction multiplied by 100'
                             />
                         </Select>
                     </Row>

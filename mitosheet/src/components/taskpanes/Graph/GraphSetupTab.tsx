@@ -38,6 +38,7 @@ const SAFETY_FILTER_ENABLED_MESSAGE = `Turning on Filter to Safe Size only graph
 
 const GRAPHS_THAT_DONT_SUPPORT_COLOR = [GraphType.DENSITY_HEATMAP]
 export const GRAPHS_THAT_HAVE_BARMODE = [GraphType.BAR, GraphType.HISTOGRAM]
+export const GRAPHS_THAT_HAVE_BARNORM = [GraphType.BAR, GraphType.HISTOGRAM]
 export const GRAPHS_THAT_HAVE_POINTS = [GraphType.BOX, GraphType.VIOLIN]
 export const GRAPHS_THAT_HAVE_LINE_SHAPE = [GraphType.LINE]
 
@@ -152,7 +153,7 @@ function GraphSetupTab(
                 graphStyling: {
                     ...graphParamsCopy.graphStyling,
                     barmode: GRAPHS_THAT_HAVE_BARMODE.includes(graphType) ? 'group' : undefined,
-
+                    barnorm: undefined 
                 }
             }
         })

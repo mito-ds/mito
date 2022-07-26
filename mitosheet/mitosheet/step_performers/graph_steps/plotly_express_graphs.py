@@ -354,6 +354,9 @@ def get_graph_styling_param_dict(graph_type: str, column_headers: List[ColumnHea
     if 'barmode' in graph_styling_params:
         all_params['barmode'] = graph_styling_params['barmode']
 
+    if 'barnorm' in graph_styling_params:
+        all_params['barnorm'] = graph_styling_params['barnorm']
+
     # Create the background params
     paper_bgcolor = graph_styling_params['paper_bgcolor']
     if graph_styling_params != DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT: # NOTE: we don't need to set if it's a default
