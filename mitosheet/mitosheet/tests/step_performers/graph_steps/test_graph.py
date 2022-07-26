@@ -56,7 +56,7 @@ def test_create_graph(graph_type):
     assert mito.get_graph_axis_column_ids(graph_id, 'y') == ['B']
     assert not mito.get_is_graph_output_none(graph_id)
 
-
+# Tests all styling options that are available to all graphs
 def test_all_styling_options():
     df = pd.DataFrame({'A': ['aaron', 'jake', 'nate'], 'B': [1, 2, 3]})
     mito = create_mito_wrapper_dfs(df)
@@ -168,3 +168,57 @@ def test_all_styling_options():
     assert graph_styling_params['plot_bgcolor'] == plot_bgcolor
 
 
+def test_histogram_configuration():
+    df = pd.DataFrame({'A': ['aaron', 'jake', 'nate'], 'B': [1, 2, 3], 'C': [1, 2, 3]})
+    mito = create_mito_wrapper_dfs(df)
+    graph_id = '123'
+    mito.generate_graph(graph_id, HISTOGRAM, 0, False, ['A'], ['B', 'C'], 400, 400, 
+        nbins=5, 
+        histfunc='count',
+        histnorm='percent', 
+        barnorm='fraction', 
+        barmode='overlay'
+    )
+
+    assert len(mito.steps_including_skipped) == 2
+    assert mito.curr_step.step_type == 'graph'
+
+    assert mito.get_graph_type(graph_id) == HISTOGRAM
+    assert mito.get_graph_sheet_index(graph_id) == 0
+    assert mito.get_graph_axis_column_ids(graph_id, 'x') == ['A']
+    assert mito.get_graph_axis_column_ids(graph_id, 'y') == ['B', 'C']
+    assert not mito.get_is_graph_output_none(graph_id)
+
+def test_line_configuration():
+    df = pd.DataFrame({'A': ['aaron', 'jake', 'nate'], 'B': [1, 2, 3], 'C': [1, 2, 3]})
+    mito = create_mito_wrapper_dfs(df)
+    graph_id = '123'
+    mito.generate_graph(graph_id, LINE, 0, False, ['A'], ['B', 'C'], 400, 400, 
+        line_shape='spline', 
+    )
+
+    assert len(mito.steps_including_skipped) == 2
+    assert mito.curr_step.step_type == 'graph'
+
+    assert mito.get_graph_type(graph_id) == LINE
+    assert mito.get_graph_sheet_index(graph_id) == 0
+    assert mito.get_graph_axis_column_ids(graph_id, 'x') == ['A']
+    assert mito.get_graph_axis_column_ids(graph_id, 'y') == ['B', 'C']
+    assert not mito.get_is_graph_output_none(graph_id)
+
+def test_box_configuration():
+    df = pd.DataFrame({'A': ['aaron', 'jake', 'nate'], 'B': [1, 2, 3], 'C': [1, 2, 3]})
+    mito = create_mito_wrapper_dfs(df)
+    graph_id = '123'
+    mito.generate_graph(graph_id, BOX, 0, False, ['A'], ['B', 'C'], 400, 400, 
+        points='outliers', 
+    )
+
+    assert len(mito.steps_including_skipped) == 2
+    assert mito.curr_step.step_type == 'graph'
+
+    assert mito.get_graph_type(graph_id) == BOX
+    assert mito.get_graph_sheet_index(graph_id) == 0
+    assert mito.get_graph_axis_column_ids(graph_id, 'x') == ['A']
+    assert mito.get_graph_axis_column_ids(graph_id, 'y') == ['B', 'C']
+    assert not mito.get_is_graph_output_none(graph_id)

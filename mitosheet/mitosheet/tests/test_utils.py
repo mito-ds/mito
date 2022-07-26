@@ -994,6 +994,14 @@ class MitoWidgetTestWrapper:
         step_id: str=None,
         paper_bgcolor: str=DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT,
         plot_bgcolor: str=DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT,
+        barmode: Optional[str]=None,
+        barnorm: Optional[str]=None,
+        histnorm: Optional[str]=None,
+        histfunc: Optional[str]=None,
+        nbins: Optional[number]=None,
+        line_shape: Optional[str]=None,
+        points: Optional[str]=None,
+
     ) -> bool:
 
         params = {
@@ -1008,7 +1016,11 @@ class MitoWidgetTestWrapper:
                 'y_axis_column_ids': yAxisColumnIDs,
                 'color': color,
                 'facet_col_column_id': facet_col_column_id,
-                'facet_row_column_id': facet_row_column_id
+                'facet_row_column_id': facet_row_column_id,
+                'histfunc': histfunc,
+                'histnorm': histnorm,
+                'line_shape': line_shape,
+                'points': points
             },
             'graph_styling': {
                 'title': {
@@ -1040,6 +1052,8 @@ class MitoWidgetTestWrapper:
                     },
                     'orientation': legend_orientation,
                 },
+                'barmode': barmode,
+                'barnorm': barnorm,
                 'paper_bgcolor': paper_bgcolor,
                 'plot_bgcolor': plot_bgcolor,
             },
@@ -1049,8 +1063,9 @@ class MitoWidgetTestWrapper:
             }
         }
 
-        # We add these params specially because when they are set to None, they are not included in the graph params.
-        # Instead of handing the None case specifically for the tests, we keep our code simple by mocking the filtering out of None
+        # We add these params because when they the backend castst them to a number. The backend doesn't handle the None case because
+        # none params are filtered out. 
+        # Instead of handing the None case specifically for the tests, we keep our code simple by mocking the filtering out of None.
         if facet_col_wrap is not None:
             params['graph_creation']['facet_col_wrap'] = facet_col_wrap
 
@@ -1070,7 +1085,10 @@ class MitoWidgetTestWrapper:
             params['graph_styling']['legend']['x'] = legend_x 
 
         if legend_y is not None:
-            params['graph_styling']['legend']['y'] = legend_y       
+            params['graph_styling']['legend']['y'] = legend_y      
+
+        if nbins is not None:
+            params['graph_creation']['nbins'] = nbins
 
         return self.mito_widget.receive_message(
             self.mito_widget, 
