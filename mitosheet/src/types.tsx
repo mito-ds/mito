@@ -239,8 +239,11 @@ export type GraphCreationParams = {
     facet_col_spacing: number | undefined,
     facet_row_spacing: number | undefined,
     
-    // Only available for some graph types
+    // Paramaters that are only available for some graph types. 
+    // To create these parameters, make sure to update the setGraphType and getDefaultGraphParams so that they 
+    // set the param to undefined for all graph types that don't have the param.
     points: string | false | undefined
+    line_shape: string | undefined
 }
 export type GraphStylingParams = {
     title: {

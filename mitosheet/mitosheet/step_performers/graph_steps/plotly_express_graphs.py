@@ -101,6 +101,8 @@ def get_graph_creation_param_dict(
         facet_col_spacing: Optional[float],
         facet_row_spacing: Optional[float],
         points: Optional[Union[str, bool]],
+        line_shape: Optional[str],
+
     ) -> Dict[str, Any]:
 
     # Create the parameters that we use to construct the graph
@@ -140,6 +142,9 @@ def get_graph_creation_param_dict(
     if points is not None:
         all_params['points'] = points
 
+    if line_shape is not None:
+        all_params['line_shape'] = line_shape
+
     return all_params
 
 def graph_creation(
@@ -154,6 +159,8 @@ def graph_creation(
     facet_col_spacing: Optional[float],
     facet_row_spacing: Optional[float],
     points: Optional[Union[str, bool]],
+    line_shape: Optional[str],
+
 ) -> go.Figure:
     """
     Creates and returns the Plotly express graph figure
@@ -169,7 +176,8 @@ def graph_creation(
         facet_col_wrap,
         facet_col_spacing,
         facet_row_spacing,
-        points
+        points,
+        line_shape
     )
 
     if graph_type == BAR:
@@ -206,6 +214,8 @@ def graph_creation_code(
     facet_col_spacing: Optional[float],
     facet_row_spacing: Optional[float],
     points: Optional[Union[str, bool]],
+    line_shape: Optional[str],
+
 ) -> str:
     """
     Returns the code for creating the Plotly express graph
@@ -221,7 +231,8 @@ def graph_creation_code(
         facet_col_wrap,
         facet_col_spacing,
         facet_row_spacing,
-        points
+        points,
+        line_shape
     )
     param_code = param_dict_to_code(param_dict, as_single_line=True)
 
@@ -396,6 +407,7 @@ def get_plotly_express_graph(
     facet_col_spacing: Optional[float],
     facet_row_spacing: Optional[float],
     points: Optional[Union[str, bool]],
+    line_shape: Optional[str],
     graph_styling_params: Dict[str, Any],
 ) -> go.Figure:
     """
@@ -424,7 +436,8 @@ def get_plotly_express_graph(
         facet_col_wrap,
         facet_col_spacing,
         facet_row_spacing,
-        points
+        points,
+        line_shape
     )
 
     # Step 3: Graph Styling
@@ -446,6 +459,7 @@ def get_plotly_express_graph_code(
     facet_col_spacing: Optional[float],
     facet_row_spacing: Optional[float],
     points: Optional[Union[str, bool]],
+    line_shape: Optional[str],
     graph_styling_params: Dict[str, Any],
     df_name: str,
 ) -> str:
@@ -486,7 +500,8 @@ def get_plotly_express_graph_code(
             facet_col_wrap,
             facet_col_spacing,
             facet_row_spacing,
-            points
+            points,
+            line_shape
         )
     )
 

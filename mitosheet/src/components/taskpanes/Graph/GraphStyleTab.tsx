@@ -10,7 +10,7 @@ import Toggle from '../../elements/Toggle';
 import Col from '../../layout/Col';
 import CollapsibleSection from '../../layout/CollapsibleSection';
 import Row from '../../layout/Row';
-import { GRAPHS_THAT_HAVE_BARMODE, GRAPHS_THAT_HAVE_POINTS} from './GraphSetupTab';
+import { GRAPHS_THAT_HAVE_BARMODE, GRAPHS_THAT_HAVE_LINE_SHAPE, GRAPHS_THAT_HAVE_POINTS} from './GraphSetupTab';
 import { getGraphTypeFullName } from './graphUtils';
 
 export enum AxisType {
@@ -379,6 +379,40 @@ function GraphStyleTab(props: {
                                 title={'false'}
                                 subtext='display no sample'
                             />
+                        </Select>
+                    </Row>
+                }
+                {GRAPHS_THAT_HAVE_LINE_SHAPE.includes(graphCreationParams.graph_type) && 
+                    <Row justify='space-between' align='center' title='Set the shape of the line either linear or spline'>
+                        <Col>
+                            <p>
+                                Line shape
+                            </p>
+                        </Col>
+                        <Select
+                            value={props.graphParams.graphCreation.line_shape || ''}
+                            onChange={(newLineShape) => {
+                                props.setGraphParams(prevGraphParams => {
+                                    const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                    return {
+                                        ...graphParamsCopy,
+                                        graphCreation: {
+                                            ...graphParamsCopy.graphCreation,
+                                            line_shape: newLineShape
+                                        } 
+                                    }
+                                })
+                                props.setGraphUpdatedNumber(old => old + 1)
+                            }}
+                            width='small'
+                            dropdownWidth='medium'
+                        >
+                            <DropdownItem title={'linear'} />
+                            <DropdownItem title={'spline'} />
+                            <DropdownItem title={'hv'} />
+                            <DropdownItem title={'vh'} />
+                            <DropdownItem title={'hvh'} />
+                            <DropdownItem title={'vhv'} />
                         </Select>
                     </Row>
                 }

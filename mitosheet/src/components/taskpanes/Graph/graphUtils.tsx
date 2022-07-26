@@ -5,7 +5,7 @@ import { intersection } from "../../../utils/arrays"
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders"
 import { isDatetimeDtype } from "../../../utils/dtypes"
 import DropdownItem from "../../elements/DropdownItem"
-import { GRAPHS_THAT_HAVE_BARMODE, GRAPHS_THAT_HAVE_POINTS, GraphType, GRAPH_SAFETY_FILTER_CUTOFF } from "./GraphSetupTab"
+import { GRAPHS_THAT_HAVE_BARMODE, GRAPHS_THAT_HAVE_LINE_SHAPE, GRAPHS_THAT_HAVE_POINTS, GraphType, GRAPH_SAFETY_FILTER_CUTOFF } from "./GraphSetupTab"
 
 // Note: these should match the constants in Python as well
 const DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT = '#FFFFFF'
@@ -32,6 +32,7 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
             facet_col_spacing: undefined,
             facet_row_spacing: undefined,
             points: GRAPHS_THAT_HAVE_POINTS.includes(graphType) ? 'outliers' : undefined,
+            line_shape: GRAPHS_THAT_HAVE_LINE_SHAPE.includes(graphType) ? 'linear' : undefined
         },
         graphStyling: {
             title: {
