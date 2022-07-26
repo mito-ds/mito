@@ -20,6 +20,7 @@ import ToolbarViewDropdown from './ToolbarViewDropdown';
 import ToolbarHelpDropdown from './ToolbarHelpDropdown';
 import PlanButton from './PlanButton';
 import ToolbarRowsDropdown from './ToolbarRowsDropdown.tsx';
+import OpenOnboardingChecklist from './OpenChecklistButton';
 
 const Toolbar = (
     props: {
@@ -95,11 +96,18 @@ const Toolbar = (
                         />
                     </ToolbarMenu>
                 </div>
-                <PlanButton
-                    userProfile={props.userProfile}
-                    setUIState={props.setUIState}
-                    mitoAPI={props.mitoAPI}
-                />
+                <div className='flexbox-row' style={{gap: '10px'}}>
+                    <OpenOnboardingChecklist
+                        userProfile={props.userProfile}
+                        setUIState={props.setUIState}
+                        mitoAPI={props.mitoAPI}
+                    />
+                    <PlanButton
+                        userProfile={props.userProfile}
+                        setUIState={props.setUIState}
+                        mitoAPI={props.mitoAPI}
+                    />
+                </div>
             </div>
             <div className='toolbar-top-bottom-seperator'/>
             <div className='toolbar-bottom'>
