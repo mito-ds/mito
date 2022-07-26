@@ -31,7 +31,7 @@ the other.
 _Any change the user.json format must be met with a version bump._
 """
 from typing import Any, Dict
-from mitosheet.experiments.experiment_utils import get_new_experiment
+from mitosheet.experiments.experiment_utils import get_current_experiment, get_new_experiment
 
 from mitosheet.user.db import get_user_json_object, set_user_json_object
 from mitosheet.user.schemas import (UJ_CLOSED_FEEDBACK, UJ_EXPERIMENT, UJ_FEEDBACKS_V2,
@@ -160,15 +160,20 @@ def upgrade_user_json_version_6_to_7(user_json_version_6: Dict[str, Any]) -> Dic
     Just adds the UJ_RECEIVED_CHECKLISTS field, and sets it equal to the full onboarding
     checklist. This is because we do not want users to have to go back and do the onboarding
     checklist if they are already onboarded.
+
+    We only upgrade them if they are not on the installer_communication_and_time_to_value 
+    experiment, as this means that they have used the installer, and we actually _want_
+    them to go through the onboarding checklist.
     """
     # First, bump the version number
     user_json_version_6[UJ_USER_JSON_VERSION] = 7
 
     # Then, set new field
     if UJ_RECEIVED_CHECKLISTS not in user_json_version_6:
-        user_json_version_6[UJ_RECEIVED_CHECKLISTS] = {
-            "onboarding_checklist": ['signup', 'import', 'filter', 'pivot', 'graph', 'finalize']
-        }
+        if get_current_experiment()['experiment_id'] != 'installer_communication_and_time_to_value':
+            user_json_version_6[UJ_RECEIVED_CHECKLISTS] = {
+                "onboarding_checklist": ['signup', 'import', 'filter', 'pivot', 'graph', 'finalize']
+            }
 
     return user_json_version_6
 
