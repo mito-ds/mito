@@ -13,7 +13,6 @@ import os
 from datetime import datetime
 import sys
 from typing import Optional
-from mitosheet.telemetry.telemetry_utils import MITOSHEET_HELPER_PRIVATE
 
 import pandas as pd
 from mitosheet._version import __version__, package_name
@@ -87,6 +86,7 @@ def should_upgrade_mitosheet() -> bool:
     if not is_local_deployment():
         return False
     
+    from mitosheet.telemetry.telemetry_utils import MITOSHEET_HELPER_PRIVATE
     if MITOSHEET_HELPER_PRO or MITOSHEET_HELPER_PRIVATE:
         return False
     
