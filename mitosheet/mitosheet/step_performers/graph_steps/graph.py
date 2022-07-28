@@ -12,7 +12,7 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
 
 from mitosheet.state import State
-from mitosheet.step_performers.graph_steps.graph_utils import GRAPH_TITLE_LABELS, get_html_and_script_from_figure, get_new_graph_tab_name
+from mitosheet.step_performers.graph_steps.graph_utils import GRAPH_TITLE_LABELS, get_column_header_from_optional_column_id_graph_param, get_html_and_script_from_figure, get_new_graph_tab_name
 from mitosheet.step_performers.graph_steps.plotly_express_graphs import (
     get_plotly_express_graph,
     get_plotly_express_graph_code,
@@ -106,9 +106,10 @@ class GraphStepPerformer(StepPerformer):
         y_axis_column_headers = prev_state.column_ids.get_column_headers_by_ids(sheet_index, y_axis_column_ids)
 
         # Validate optional parameters that are available for all graph types
-        color_column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, graph_creation["color"]) if 'color' in graph_creation.keys() and graph_creation["color"] in prev_state.column_ids.column_id_to_column_header[sheet_index].keys() else None
-        facet_col_column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, graph_creation["facet_col_column_id"]) if 'facet_col_column_id' in graph_creation.keys() and graph_creation["facet_col_column_id"] in prev_state.column_ids.column_id_to_column_header[sheet_index].keys() else None
-        facet_row_column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, graph_creation["facet_row_column_id"]) if 'facet_row_column_id' in graph_creation.keys() and graph_creation["facet_row_column_id"] in prev_state.column_ids.column_id_to_column_header[sheet_index].keys() else None
+        color_column_header = get_column_header_from_optional_column_id_graph_param(prev_state, graph_creation, 'color')
+        facet_col_column_header = get_column_header_from_optional_column_id_graph_param(prev_state, graph_creation, 'facet_col_column_id')
+        facet_row_column_header = get_column_header_from_optional_column_id_graph_param(prev_state, graph_creation, 'facet_row_column_id')
+        
         facet_col_wrap = int(graph_creation['facet_col_wrap']) if 'facet_col_wrap' in graph_creation.keys() else None
         facet_col_spacing = float(graph_creation['facet_col_spacing']) if 'facet_col_spacing' in graph_creation.keys() else None
         facet_row_spacing = float(graph_creation['facet_row_spacing']) if 'facet_row_spacing' in graph_creation.keys() else None

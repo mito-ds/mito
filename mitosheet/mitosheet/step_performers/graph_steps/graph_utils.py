@@ -5,6 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 from typing import Dict, List, Optional, Any, Union
+from mitosheet.state import State
 import io
 from xmlrpc.client import boolean
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
@@ -182,3 +183,13 @@ def get_html_and_script_from_figure(
     script = split_html[1][: -len(script_end)]
 
     return {"html": div, "script": script}
+
+def get_column_header_from_optional_column_id_graph_param(
+    state: State, 
+    graph_creation_params: Dict[str, Any], 
+    param_name: str
+) -> Optional[ColumnHeader]:
+    sheet_index = graph_creation_params['sheet_index']
+    if param_name in graph_creation_params.keys() and graph_creation_params[param_name] in state.column_ids.column_id_to_column_header[sheet_index].keys():
+        return state.column_ids.get_column_header_by_id(sheet_index, graph_creation_params[param_name])
+    else: return None
