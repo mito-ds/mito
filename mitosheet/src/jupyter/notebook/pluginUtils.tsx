@@ -174,6 +174,13 @@ export const notebookGetArgs = (analysisToReplayName: string | undefined): strin
     }
 }
 
+export const saveMetadata = (key: string, value: string): void => {
+    const currentMetadata = (window as any)?.Jupyter.notebook.metadata.mitosheet
+    console.log("prevous metadata", currentMetadata);
+    currentMetadata[key] = value;
+    console.log("Current notebooks metadata", (window as any)?.Jupyter.notebook.metadata.mitosheet);
+}
+
 export const notebookWriteAnalysisToReplayToMitosheetCall = (analysisName: string, mitoAPI: MitoAPI): void => {
     const cellAndIndex = getMostLikelyMitosheetCallingCell(analysisName);
 

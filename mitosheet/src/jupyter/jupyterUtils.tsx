@@ -17,7 +17,7 @@
 
 
 import MitoAPI from "./api"
-import { notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteGeneratedCodeToCell } from "./notebook/pluginUtils"
+import { notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteGeneratedCodeToCell, saveMetadata } from "./notebook/pluginUtils"
 
 
 /**
@@ -38,6 +38,19 @@ export const isInJupyterLab = (): boolean => {
 export const isInJupyterNotebook = (): boolean => {
     return window.location.pathname.startsWith('/notebooks') ||
         (window as any).Jupyter !== undefined
+}
+
+export const saveMetadataInNotebook = (key: string, value: string): void => {
+    if (isInJupyterLab()) {
+        window.commands?.execute('save-metadata', {
+            key: key,
+            value: value
+        });
+    } else if (isInJupyterNotebook()) {
+        saveMetadata(key, value);
+    } else {
+        console.error("Not detected as in Jupyter Notebook or JupyterLab")
+    }
 }
 
 export const writeAnalysisToReplayToMitosheetCall = (analysisName: string, mitoAPI: MitoAPI): void => {

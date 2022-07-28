@@ -44,6 +44,21 @@ function activateWidgetExtension(
     tracker: INotebookTracker
 ): void {
 
+    app.commands.addCommand('save-metadata', {
+        label: 'Save Metadata',
+        execute: (args: any) => {
+            const key = args.key as string;
+            const value = args.value as string;
+            const notebook = tracker.currentWidget?.content;
+            const currentMetadata = notebook?.model?.metadata.get('mitosheet');
+            console.log("prevous metadata", currentMetadata);
+            const objectCurrentMetadata = JSON.parse(JSON.stringify(currentMetadata || {}))
+            notebook?.model?.metadata.set('mitosheet', {...objectCurrentMetadata, [key]: value});
+
+            console.log("Current notebooks metadata", notebook?.model?.metadata.get('mitosheet'));
+        }
+    })
+
     app.commands.addCommand('write-analysis-to-replay-to-mitosheet-call', {
         label: 'Given an analysisName, writes it to the mitosheet.sheet() call that created this mitosheet, if it is not already written to this cell.',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

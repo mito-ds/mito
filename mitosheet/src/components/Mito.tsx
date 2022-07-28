@@ -24,7 +24,7 @@ import '../../css/sitewide/text.css';
 import '../../css/sitewide/widths.css';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import MitoAPI from '../jupyter/api';
-import { getArgs, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell } from '../jupyter/jupyterUtils';
+import { getArgs, saveMetadataInNotebook, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell } from '../jupyter/jupyterUtils';
 import { AnalysisData, DataTypeInMito, DFSource, EditorState, GridState, SheetData, UIState, UserProfile } from '../types';
 import { createActions } from '../utils/actions';
 import { classNames } from '../utils/classNames';
@@ -157,7 +157,13 @@ export const Mito = (props: MitoProps): JSX.Element => {
     }, [])
 
     
+    useEffect(() => {
+        const randKey = (Math.random() + 1).toString(36).substring(7);
+        const randValue = (Math.random() + 1).toString(36).substring(7);
 
+        console.log("saving metadata", randKey, randValue);
+        saveMetadataInNotebook(randKey, randValue);
+    }, [])
 
     useEffect(() => {
         /**
