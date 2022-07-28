@@ -112,7 +112,6 @@ class GraphStepPerformer(StepPerformer):
         
         facet_col_wrap = graph_creation.get('facet_col_wrap', None)
         facet_col_spacing = graph_creation.get('facet_col_spacing', None)
-        print(facet_col_spacing)
         facet_row_spacing = graph_creation.get('facet_row_spacing', None)
 
         # Validate parameters that are only available for some graph types
