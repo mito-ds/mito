@@ -226,7 +226,7 @@ export type SheetData = {
 export type GraphPreprocessingParams = {
     safety_filter_turned_on_by_user: boolean
 }
-export type GraphCreationParams = {
+export type GraphCreationParams<T> = {
     // Available to all graph types
     graph_type: GraphType,
     sheet_index: number,
@@ -235,20 +235,20 @@ export type GraphCreationParams = {
     color: ColumnID | undefined
     facet_col_column_id: ColumnID | undefined
     facet_row_column_id: ColumnID | undefined,
-    facet_col_wrap: number | undefined,
-    facet_col_spacing: number | undefined,
-    facet_row_spacing: number | undefined,
+    facet_col_wrap: T | undefined,
+    facet_col_spacing: T | undefined,
+    facet_row_spacing: T | undefined,
     
     // Paramaters that are only available for some graph types. 
     // To create these parameters, make sure to update the setGraphType and getDefaultGraphParams so that they 
     // set the param to undefined for all graph types that don't have the param.
     points: string | false | undefined
     line_shape: string | undefined,
-    nbins: number | undefined
+    nbins: T | undefined
     histnorm: string | undefined,
     histfunc: string | undefined,
 }
-export type GraphStylingParams = {
+export type GraphStylingParams<T> = {
     title: {
         title: string | undefined, // when undefined, we use Ploty's default title
         visible: boolean,
@@ -260,7 +260,7 @@ export type GraphStylingParams = {
         title_font_color: string, // defaults to #2f3e5d
         type: string | undefined // when undefined, we use Plotly's default
         showgrid: boolean,
-        gridwidth: number | undefined
+        gridwidth: T | undefined
         rangeslider: {
             visible: boolean,
         }
@@ -271,7 +271,7 @@ export type GraphStylingParams = {
         title_font_color: string, // defaults to #2f3e5d
         type: string | undefined // when undefined, we use Plotly's default
         showgrid: boolean 
-        gridwidth: number | undefined
+        gridwidth: T | undefined
     },
     showlegend: boolean,
     legend: {
@@ -279,8 +279,8 @@ export type GraphStylingParams = {
             text: string | undefined
         } | undefined
         orientation: 'v' | 'h' 
-        x: number | undefined
-        y: number | undefined
+        x: T | undefined
+        y: T | undefined
     }
     
     plot_bgcolor: string // The inner part of the plot with data background. Defaults to a blue-ish shade
@@ -293,10 +293,10 @@ export type GraphStylingParams = {
     barnorm: string | undefined
 }
 
-export type GraphParams = {
+type GraphParamsGeneric<T> = {
     graphPreprocessing: GraphPreprocessingParams,
-    graphCreation: GraphCreationParams,
-    graphStyling: GraphStylingParams,
+    graphCreation: GraphCreationParams<T>,
+    graphStyling: GraphStylingParams<T>,
 };
 
 /**
@@ -306,11 +306,20 @@ export type GraphParams = {
  * @param graphParams - all of the parameters used to construct the graph
  * @param [graphOutput] - the python code, the graph html, and the graph script 
  */
-export type GraphData = {
-    graphParams: GraphParams,
+type GraphDataGeneric<T> = {
+    graphParams: GraphParamsGeneric<T>,
     graphOutput: GraphOutput, 
     graphTabName: string
 };
+
+// We have separate frontend and backend params so that we can 
+// handle input fields which must be strings on the frontend to handle 
+// decimal places and negative signs, while also allowing us to send 
+// correctly types params to the backend.
+export type GraphDataFrontend = GraphDataGeneric<string>
+export type GraphDataBackend = GraphDataGeneric<number>
+export type GraphParamsFrontend = GraphParamsGeneric<string>
+export type GraphParamsBackend = GraphParamsGeneric<number>
 
 export type GraphOutput = {
     graphGeneratedCode: string,
@@ -320,7 +329,7 @@ export type GraphOutput = {
 
 export type GraphID = string;
 
-export type GraphDataDict = Record<GraphID, GraphData>
+export type GraphDataDict = Record<GraphID, GraphDataFrontend>
 
 
 export interface ConcatParams {

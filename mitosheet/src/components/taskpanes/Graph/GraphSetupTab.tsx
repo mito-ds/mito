@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React, { Fragment } from 'react';
-import { ColumnID, ColumnIDsMap, GraphParams, SheetData, UIState } from '../../../types';
+import { ColumnID, ColumnIDsMap, GraphParamsFrontend, SheetData, UIState } from '../../../types';
 import MitoAPI from '../../../jupyter/api';
 import Row from '../../layout/Row';
 import Col from '../../layout/Col';
@@ -69,12 +69,12 @@ function GraphSetupTab(
         uiState: UIState;
         mitoAPI: MitoAPI;
         sheetDataArray: SheetData[];
-        graphParams: GraphParams
+        graphParams: GraphParamsFrontend
         dfNames: string[];
         columnDtypesMap: Record<string, string>;
         columnIDsMapArray: ColumnIDsMap[],
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
-        setGraphParams: React.Dispatch<React.SetStateAction<GraphParams>>;
+        setGraphParams: React.Dispatch<React.SetStateAction<GraphParamsFrontend>>;
         setGraphUpdatedNumber: React.Dispatch<React.SetStateAction<number>>;
     }): JSX.Element {
 
@@ -155,7 +155,7 @@ function GraphSetupTab(
 
         // Update the graph type and reset params that are only available for some graph types
         props.setGraphParams(prevGraphParams => {
-            const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+            const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
             return {
                 ...graphParamsCopy,
                 graphCreation: {

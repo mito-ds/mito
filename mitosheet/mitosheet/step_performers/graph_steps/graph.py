@@ -110,9 +110,10 @@ class GraphStepPerformer(StepPerformer):
         facet_col_column_header = get_column_header_from_optional_column_id_graph_param(prev_state, graph_creation, 'facet_col_column_id')
         facet_row_column_header = get_column_header_from_optional_column_id_graph_param(prev_state, graph_creation, 'facet_row_column_id')
         
-        facet_col_wrap = int(graph_creation['facet_col_wrap']) if 'facet_col_wrap' in graph_creation.keys() else None
-        facet_col_spacing = float(graph_creation['facet_col_spacing']) if 'facet_col_spacing' in graph_creation.keys() else None
-        facet_row_spacing = float(graph_creation['facet_row_spacing']) if 'facet_row_spacing' in graph_creation.keys() else None
+        facet_col_wrap = graph_creation.get('facet_col_wrap', None)
+        facet_col_spacing = graph_creation.get('facet_col_spacing', None)
+        print(facet_col_spacing)
+        facet_row_spacing = graph_creation.get('facet_row_spacing', None)
 
         # Validate parameters that are only available for some graph types
         # Note: We trust the parameters from the frontend, so we don't make sure the params fit the graph type here
@@ -120,7 +121,7 @@ class GraphStepPerformer(StepPerformer):
         line_shape = graph_creation.get('line_shape', None)
         histnorm = graph_creation.get('histnorm', None)
         histfunc = graph_creation.get('histfunc', None)
-        nbins = int(graph_creation['nbins']) if 'nbins' in graph_creation.keys() else None
+        nbins = graph_creation.get('nbins', None)
 
         # Create a copy of the dataframe, just for safety.
         df: pd.DataFrame = prev_state.dfs[sheet_index].copy()

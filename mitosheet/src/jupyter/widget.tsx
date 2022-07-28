@@ -57,8 +57,9 @@ declare global {
 }
 
 import MitoAPI from './api';
-import { AnalysisData, MitoError, MitoStateUpdaters, SheetData, UserProfile } from '../types';
+import { AnalysisData, GraphDataBackend, GraphDataDict, GraphParamsBackend, MitoError, MitoStateUpdaters, SheetData, UserProfile } from '../types';
 import { ModalEnum } from '../components/modals/modals';
+import { convertBackendtoFrontendGraphParams } from '../components/taskpanes/Graph/graphUtils';
 
 export class ExampleView extends DOMWidgetView {
     // Used to make code in the notebook not flash when read in for replaying.
@@ -186,6 +187,22 @@ export class ExampleView extends DOMWidgetView {
 
     getAnalysisData(): AnalysisData {
         const unparsed = this.model.get('analysis_data_json')
+        const parsed = JSON.parse(unparsed)
+
+        // Convert the graphData from backend to frontend form.
+        const graphDataDict: GraphDataDict = {} 
+        Object.entries(parsed['graphDataDict']).map(([graphID, graphDataBackend]) => {
+            const graphDataBackendTyped = graphDataBackend as GraphDataBackend
+            const graphParamsBackend: GraphParamsBackend = graphDataBackendTyped['graphParams']
+            const graphParamsFrontend = convertBackendtoFrontendGraphParams(graphParamsBackend)
+            graphDataDict[graphID] = {
+                ...graphDataBackendTyped,
+                graphParams: graphParamsFrontend
+            }
+        })
+
+        parsed['graphDataDict'] = graphDataDict
+
         return JSON.parse(unparsed);
     }
 }

@@ -4,13 +4,14 @@ import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPan
 import { SortDirection } from "../components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
 import { GraphObject } from "../components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
 import { UniqueValueCount, UniqueValueSortType } from "../components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
+import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Graph/graphUtils";
 import { CSVFileMetadata } from "../components/taskpanes/Import/CSVImport";
 import { FileElement } from "../components/taskpanes/Import/ImportTaskpane";
 import { ExcelFileMetadata } from "../components/taskpanes/Import/XLSXImport";
 import { valuesArrayToRecord } from "../components/taskpanes/PivotTable/pivotUtils";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { BackendPivotParams, FrontendPivotParams } from "../types";
-import { ColumnID, FeedbackID, FilterGroupType, FilterType, FormatTypeObj, GraphID, MitoError, GraphParams } from "../types";
+import { ColumnID, FeedbackID, FilterGroupType, FilterType, FormatTypeObj, GraphID, MitoError, GraphParamsFrontend } from "../types";
 import { getDeduplicatedArray } from "../utils/arrays";
 
 
@@ -560,7 +561,7 @@ export default class MitoAPI {
 
     async editGraph(
         graphID: GraphID,
-        graphParams: GraphParams,
+        graphParams: GraphParamsFrontend,
         height: string,
         width: string,
         stepID?: string,
@@ -572,15 +573,17 @@ export default class MitoAPI {
             stepID = getRandomId();
         }
 
+        const graphParamsBackend = convertFrontendtoBackendGraphParams(graphParams)
+
         await this.send<string>({
             'event': 'edit_event',
             'type': 'graph_edit',
             'step_id': stepID,
             'params': {
                 'graph_id': graphID,
-                'graph_preprocessing': graphParams.graphPreprocessing,
-                'graph_creation': graphParams.graphCreation,
-                'graph_styling': graphParams.graphStyling,
+                'graph_preprocessing': graphParamsBackend.graphPreprocessing,
+                'graph_creation': graphParamsBackend.graphCreation,
+                'graph_styling': graphParamsBackend.graphStyling,
                 'graph_rendering': {
                     'height': height, 
                     'width': width

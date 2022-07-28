@@ -1,9 +1,11 @@
 // Helper function for creating default graph params. Defaults to a Bar chart, 
 import React from "react"
-import { ColumnID, ColumnIDsMap, GraphDataDict, GraphID, GraphParams, SheetData } from "../../../types"
+import { ColumnID, ColumnIDsMap, GraphDataDict, GraphID, GraphParamsBackend, GraphParamsFrontend, SheetData } from "../../../types"
 import { intersection } from "../../../utils/arrays"
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders"
 import { isDatetimeDtype } from "../../../utils/dtypes"
+import { convertStringToFloatOrUndefined } from "../../../utils/numbers"
+import { convertToStringOrUndefined } from "../../../utils/strings"
 import DropdownItem from "../../elements/DropdownItem"
 import { GRAPHS_THAT_HAVE_BARMODE, GRAPHS_THAT_HAVE_HISTFUNC, GRAPHS_THAT_HAVE_LINE_SHAPE, GRAPHS_THAT_HAVE_POINTS, GraphType, GRAPH_SAFETY_FILTER_CUTOFF } from "./GraphSetupTab"
 
@@ -13,7 +15,7 @@ const DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT = '#E6EBF5'
 const DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT = '#2F3E5D'
 
 // unless a graph type is provided
-export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: number, graphType?: GraphType): GraphParams => {
+export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: number, graphType?: GraphType): GraphParamsFrontend => {
     const safetyFilter = getDefaultSafetyFilter(sheetDataArray, sheetIndex)
     graphType = graphType || GraphType.BAR
     return {
@@ -89,7 +91,7 @@ export const getDefaultSafetyFilter = (sheetDataArray: SheetData[], sheetIndex: 
 }
 
 /*
-    A helper function for getting the params for the graph fpr this sheet when
+    A helper function for getting the params for the graph for this sheet when
     opening the graphing taskpane, or when switching to a sheet.
 
     Notably, will filter oout any columns that are no longer in the dataset, 
@@ -101,9 +103,9 @@ export const getGraphParams = (
     graphID: GraphID,
     selectedSheetIndex: number,
     sheetDataArray: SheetData[],
-): GraphParams => {
+): GraphParamsFrontend => {
 
-    const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(graphDataDict[graphID]?.graphParams)); 
+    const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(graphDataDict[graphID]?.graphParams)); 
 
     // If the graph already exists, get the data source sheet index from the graph params.
     // Otherwise create a new graph of the selectedSheetIndex
@@ -189,5 +191,71 @@ export const getGraphTypeFullName = (graphType: GraphType): string => {
         case GraphType.SCATTER: return 'Scatter plot'
         case GraphType.STRIP: return 'Strip plot'
         case GraphType.VIOLIN: return 'Violin plot'
+    }
+}
+
+export const convertFrontendtoBackendGraphParams = (graphParamsFrontend: GraphParamsFrontend): GraphParamsBackend => {
+    const graphCreationParams = graphParamsFrontend.graphCreation
+    const graphStylingParams = graphParamsFrontend.graphStyling
+
+    const x =  {
+        ...graphParamsFrontend,
+        graphCreation: {
+            ...graphParamsFrontend.graphCreation,
+            facet_col_wrap: convertStringToFloatOrUndefined(graphCreationParams.facet_col_wrap),
+            facet_col_spacing: convertStringToFloatOrUndefined(graphCreationParams.facet_col_spacing),
+            facet_row_spacing: convertStringToFloatOrUndefined(graphCreationParams.facet_row_spacing),
+            nbins: convertStringToFloatOrUndefined(graphCreationParams.nbins),
+        },
+        graphStyling: {
+            ...graphParamsFrontend.graphStyling,
+            xaxis: {
+                ...graphParamsFrontend.graphStyling.xaxis,
+                gridwidth: convertStringToFloatOrUndefined(graphStylingParams.xaxis.gridwidth)
+            },
+            yaxis: {
+                ...graphParamsFrontend.graphStyling.yaxis,
+                gridwidth: convertStringToFloatOrUndefined(graphStylingParams.yaxis.gridwidth)
+            },
+            legend: {
+                ...graphParamsFrontend.graphStyling.legend,
+                x: convertStringToFloatOrUndefined(graphStylingParams.legend.x),
+                y: convertStringToFloatOrUndefined(graphStylingParams.legend.y)
+            }
+        }
+    }
+
+    return x
+}
+
+export const convertBackendtoFrontendGraphParams = (graphParamsFrontend: GraphParamsBackend): GraphParamsFrontend => {
+    const graphCreationParams = graphParamsFrontend.graphCreation
+    const graphStylingParams = graphParamsFrontend.graphStyling
+
+    return {
+        ...graphParamsFrontend,
+        graphCreation: {
+            ...graphParamsFrontend.graphCreation,
+            facet_col_wrap: convertToStringOrUndefined(graphCreationParams.facet_col_wrap),
+            facet_col_spacing: convertToStringOrUndefined(graphCreationParams.facet_col_spacing),
+            facet_row_spacing: convertToStringOrUndefined(graphCreationParams.facet_row_spacing),
+            nbins: convertToStringOrUndefined(graphCreationParams.nbins)
+        },
+        graphStyling: {
+            ...graphParamsFrontend.graphStyling,
+            xaxis: {
+                ...graphParamsFrontend.graphStyling.xaxis,
+                gridwidth: convertToStringOrUndefined(graphStylingParams.xaxis.gridwidth)
+            },
+            yaxis: {
+                ...graphParamsFrontend.graphStyling.yaxis,
+                gridwidth: convertToStringOrUndefined(graphStylingParams.yaxis.gridwidth)
+            },
+            legend: {
+                ...graphParamsFrontend.graphStyling.legend,
+                x: convertToStringOrUndefined(graphStylingParams.legend.x),
+                y: convertToStringOrUndefined(graphStylingParams.legend.y)
+            }
+        }
     }
 }

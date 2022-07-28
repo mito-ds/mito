@@ -2,7 +2,7 @@
 
 import React from 'react';
 import LabelAndColor from '../../../pro/graph/LabelAndColor';
-import { GraphParams, UserProfile } from '../../../types';
+import { GraphParamsFrontend, UserProfile } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import Input from '../../elements/Input';
 import Select from '../../elements/Select';
@@ -26,8 +26,8 @@ export enum AxisType {
     like setting the title and axis labels
 */
 function GraphStyleTab(props: {
-    graphParams: GraphParams
-    setGraphParams: React.Dispatch<React.SetStateAction<GraphParams>>;
+    graphParams: GraphParamsFrontend
+    setGraphParams: React.Dispatch<React.SetStateAction<GraphParamsFrontend>>;
     setGraphUpdatedNumber: React.Dispatch<React.SetStateAction<number>>;
     userProfile: UserProfile
 }): JSX.Element {
@@ -49,7 +49,7 @@ function GraphStyleTab(props: {
                         placeholder="Default Graph Title"
                         onChange={(e) => {
                             props.setGraphParams(prevGraphParams => {
-                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams));
+                                const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams));
                                 // We set it to undefined so that the backend knows we're not trying to set a custom axis label 
                                 const newTitle =  e.target.value !== '' ? e.target.value : undefined
                                 return {
@@ -78,7 +78,7 @@ function GraphStyleTab(props: {
                         placeholder="Default X Axis"
                         onChange={(e) => {
                             props.setGraphParams(prevGraphParams => {
-                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                 // We set it to undefined so that the backend knows we're not trying to set a custom axis label 
                                 const newTitle =  e.target.value !== '' ? e.target.value : undefined
                                 return {
@@ -107,7 +107,7 @@ function GraphStyleTab(props: {
                         placeholder="Default Y Axis"
                         onChange={(e) => {
                             props.setGraphParams(prevGraphParams => {
-                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                 const newTitle = e.target.value !== '' ? e.target.value : undefined
                                 return {
                                     ...graphParamsCopy,
@@ -134,7 +134,7 @@ function GraphStyleTab(props: {
                         value={graphStylingParams.title.visible} 
                         onChange={() => {
                             props.setGraphParams(prevGraphParams => {
-                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                 return {
                                     ...graphParamsCopy,
                                     graphStyling: {
@@ -160,7 +160,7 @@ function GraphStyleTab(props: {
                         value={graphStylingParams.xaxis.visible} 
                         onChange={() => {
                             props.setGraphParams(prevGraphParams => {
-                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                 return {
                                     ...graphParamsCopy,
                                     graphStyling: {
@@ -186,7 +186,7 @@ function GraphStyleTab(props: {
                         value={graphStylingParams.yaxis.visible} 
                         onChange={() => {
                             props.setGraphParams(prevGraphParams => {
-                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                 return {
                                     ...graphParamsCopy,
                                     graphStyling: {
@@ -215,7 +215,7 @@ function GraphStyleTab(props: {
                         onChange={(xAxisType: string) => {
                             const newXAxisType = xAxisType !== AxisType.DEFAULT ? xAxisType : undefined
                             props.setGraphParams(prevGraphParams => {
-                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                 return {
                                     ...graphParamsCopy,
                                     graphStyling: {
@@ -260,7 +260,7 @@ function GraphStyleTab(props: {
                         onChange={(yAxisType: string) => {
                             const newYAxisType = yAxisType !== AxisType.DEFAULT ? yAxisType : undefined
                             props.setGraphParams(prevGraphParams => {
-                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                 return {
                                     ...graphParamsCopy,
                                     graphStyling: {
@@ -301,7 +301,7 @@ function GraphStyleTab(props: {
                         <Row justify='space-between' align='center' title='Number of bins in histogram'>
                             <Col>
                                 <p>
-                                    Number of bins
+                                    Number of bins (int)
                                 </p>
                             </Col>
                             <Input
@@ -311,12 +311,12 @@ function GraphStyleTab(props: {
                                 onChange={(e) => {
                                     const newNumberBins = e.target.value === '' ? undefined : e.target.value
                                     props.setGraphParams(prevGraphParams => {
-                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                         return {
                                             ...graphParamsCopy,
                                             graphCreation: {
                                                 ...graphParamsCopy.graphCreation,
-                                                nbins: newNumberBins as number | undefined
+                                                nbins: newNumberBins
                                             } 
                                         }
                                     })
@@ -337,7 +337,7 @@ function GraphStyleTab(props: {
                                 value={props.graphParams.graphStyling.barmode || 'group'}
                                 onChange={(newBarMode: string) => {
                                     props.setGraphParams(prevGraphParams => {
-                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                         return {
                                             ...graphParamsCopy,
                                             graphStyling: {
@@ -377,7 +377,7 @@ function GraphStyleTab(props: {
                                 value={props.graphParams.graphStyling.barnorm || 'none'}
                                 onChange={(newBarNorm: string) => {
                                     props.setGraphParams(prevGraphParams => {
-                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                         return {
                                             ...graphParamsCopy,
                                             graphStyling: {
@@ -416,7 +416,7 @@ function GraphStyleTab(props: {
                                 value={props.graphParams.graphCreation.histnorm || 'none'}
                                 onChange={(newHistnorm: string) => {
                                     props.setGraphParams(prevGraphParams => {
-                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                         return {
                                             ...graphParamsCopy,
                                             graphCreation: {
@@ -463,7 +463,7 @@ function GraphStyleTab(props: {
                                 value={props.graphParams.graphCreation.histfunc || 'count'}
                                 onChange={(newHistfunc: string) => {
                                     props.setGraphParams(prevGraphParams => {
-                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                         return {
                                             ...graphParamsCopy,
                                             graphCreation: {
@@ -512,7 +512,7 @@ function GraphStyleTab(props: {
                                 onChange={(newPointsString) => {
                                     const newPointsParams = newPointsString === 'false' ? false : newPointsString
                                     props.setGraphParams(prevGraphParams => {
-                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                         return {
                                             ...graphParamsCopy,
                                             graphCreation: {
@@ -557,7 +557,7 @@ function GraphStyleTab(props: {
                                 value={props.graphParams.graphCreation.line_shape || 'linear'}
                                 onChange={(newLineShape) => {
                                     props.setGraphParams(prevGraphParams => {
-                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                         return {
                                             ...graphParamsCopy,
                                             graphCreation: {
@@ -603,7 +603,7 @@ function GraphStyleTab(props: {
                                 value={graphStylingParams.showlegend} 
                                 onChange={() => {
                                     props.setGraphParams(prevGraphParams => {
-                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                         return {
                                             ...graphParamsCopy,
                                             graphStyling: {
@@ -627,7 +627,7 @@ function GraphStyleTab(props: {
                                 width='medium'
                                 onChange={(newOrientation: string) => {
                                     props.setGraphParams(prevGraphParams => {
-                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                         return {
                                             ...graphParamsCopy,
                                             graphStyling: {
@@ -655,11 +655,11 @@ function GraphStyleTab(props: {
                             <Input 
                                 value={graphStylingParams.legend.title?.text ? graphStylingParams.legend.title.text : ''} 
                                 width='medium'
-                                placeholder='1'
+                                placeholder='Legend title'
                                 onChange={(e) => {
                                     const newLegendTitle = e.target.value
                                     props.setGraphParams(prevGraphParams => {
-                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                         return {
                                             ...graphParamsCopy,
                                             graphStyling: {
@@ -693,14 +693,14 @@ function GraphStyleTab(props: {
                                 onChange={(e) => {
                                     const newX = e.target.value === '' ? undefined : e.target.value
                                     props.setGraphParams(prevGraphParams => {
-                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                         return {
                                             ...graphParamsCopy,
                                             graphStyling: {
                                                 ...graphParamsCopy.graphStyling,
                                                 legend: {
                                                     ...graphParamsCopy.graphStyling.legend,
-                                                    x: (newX as number | undefined)
+                                                    x: newX
                                                 }
                                             } 
                                         }
@@ -724,14 +724,14 @@ function GraphStyleTab(props: {
                                 onChange={(e) => {
                                     const newY = e.target.value === '' ? undefined : e.target.value
                                     props.setGraphParams(prevGraphParams => {
-                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                         return {
                                             ...graphParamsCopy,
                                             graphStyling: {
                                                 ...graphParamsCopy.graphStyling,
                                                 legend: {
                                                     ...graphParamsCopy.graphStyling.legend,
-                                                    y: (newY as number | undefined)
+                                                    y: newY
                                                 }
                                             } 
                                         }
@@ -763,7 +763,7 @@ function GraphStyleTab(props: {
                                 value={graphStylingParams.xaxis.showgrid} 
                                 onChange={() => {
                                     props.setGraphParams(prevGraphParams => {
-                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                         return {
                                             ...graphParamsCopy,
                                             graphStyling: {
@@ -789,7 +789,7 @@ function GraphStyleTab(props: {
                                 value={graphStylingParams.yaxis.showgrid} 
                                 onChange={() => {
                                     props.setGraphParams(prevGraphParams => {
-                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                         return {
                                             ...graphParamsCopy,
                                             graphStyling: {
@@ -819,14 +819,14 @@ function GraphStyleTab(props: {
                                 onChange={(e) => {
                                     const newHoriztonalGridWidth = e.target.value === '' ? undefined : e.target.value
                                     props.setGraphParams(prevGraphParams => {
-                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                         return {
                                             ...graphParamsCopy,
                                             graphStyling: {
                                                 ...graphParamsCopy.graphStyling,
                                                 xaxis: {
                                                     ...graphParamsCopy.graphStyling.xaxis,
-                                                    gridwidth: (newHoriztonalGridWidth as number | undefined)
+                                                    gridwidth: newHoriztonalGridWidth
                                                 }
                                             } 
                                         }
@@ -849,14 +849,14 @@ function GraphStyleTab(props: {
                                 onChange={(e) => {
                                     const newHoriztonalGridWidth = e.target.value === '' ? undefined : e.target.value
                                     props.setGraphParams(prevGraphParams => {
-                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                         return {
                                             ...graphParamsCopy,
                                             graphStyling: {
                                                 ...graphParamsCopy.graphStyling,
                                                 yaxis: {
                                                     ...graphParamsCopy.graphStyling.yaxis,
-                                                    gridwidth: (newHoriztonalGridWidth as number | undefined)
+                                                    gridwidth: newHoriztonalGridWidth
                                                 }
                                             } 
                                         }
@@ -884,7 +884,7 @@ function GraphStyleTab(props: {
                             color={graphStylingParams.plot_bgcolor}
                             onChange={(newColor) => {
                                 props.setGraphParams(prevGraphParams => {
-                                    const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                    const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                     return {
                                         ...graphParamsCopy,
                                         graphStyling: {
@@ -901,7 +901,7 @@ function GraphStyleTab(props: {
                             color={graphStylingParams.paper_bgcolor}
                             onChange={(newColor) => {
                                 props.setGraphParams(prevGraphParams => {
-                                    const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                    const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                     return {
                                         ...graphParamsCopy,
                                         graphStyling: {
@@ -918,7 +918,7 @@ function GraphStyleTab(props: {
                             color={graphStylingParams.title.title_font_color}
                             onChange={(newColor) => {
                                 props.setGraphParams(prevGraphParams => {
-                                    const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                    const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                     return {
                                         ...graphParamsCopy,
                                         graphStyling: {
@@ -938,7 +938,7 @@ function GraphStyleTab(props: {
                             color={graphStylingParams.xaxis.title_font_color}
                             onChange={(newColor) => {
                                 props.setGraphParams(prevGraphParams => {
-                                    const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                    const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                     return {
                                         ...graphParamsCopy,
                                         graphStyling: {
@@ -958,7 +958,7 @@ function GraphStyleTab(props: {
                             color={graphStylingParams.yaxis.title_font_color}
                             onChange={(newColor) => {
                                 props.setGraphParams(prevGraphParams => {
-                                    const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                    const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                     return {
                                         ...graphParamsCopy,
                                         graphStyling: {
@@ -989,7 +989,7 @@ function GraphStyleTab(props: {
                         <Row justify='space-between' align='center' title='The number of plots to display per row. Has no effect when facet row is used.'>
                             <Col>
                                 <p>
-                                    Facet column wrap
+                                    Number of cols (int)
                                 </p>
                             </Col>
                             <Input 
@@ -1000,12 +1000,12 @@ function GraphStyleTab(props: {
                                 onChange={(e) => {
                                     const newNumCols = e.target.value === '' ? undefined : e.target.value
                                     props.setGraphParams(prevGraphParams => {
-                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                         return {
                                             ...graphParamsCopy,
                                             graphCreation: {
                                                 ...graphParamsCopy.graphCreation,
-                                                facet_col_wrap: newNumCols as number | undefined
+                                                facet_col_wrap: newNumCols
                                             } 
                                         }
                                     })
@@ -1016,7 +1016,7 @@ function GraphStyleTab(props: {
                         <Row justify='space-between' align='center' title='The spacing between columns of facet plots. Set as a fraction of plotting area.'>
                             <Col>
                                 <p>
-                                    Facet column spacing
+                                    Column spacing (0 to 1)
                                 </p>
                             </Col>
                             <Input 
@@ -1027,12 +1027,12 @@ function GraphStyleTab(props: {
                                 onChange={(e) => {
                                     const newColSpacing = e.target.value === '' ? undefined : e.target.value
                                     props.setGraphParams(prevGraphParams => {
-                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                         return {
                                             ...graphParamsCopy,
                                             graphCreation: {
                                                 ...graphParamsCopy.graphCreation,
-                                                facet_col_spacing: newColSpacing as number | undefined
+                                                facet_col_spacing: newColSpacing
                                             } 
                                         }
                                     })
@@ -1043,7 +1043,7 @@ function GraphStyleTab(props: {
                         <Row justify='space-between' align='center' title='The spacing between rows of facet plots. Set as a fraction of plotting area.'>
                             <Col>
                                 <p>
-                                    Facet row spacing
+                                    Row spacing (0 to 1)
                                 </p>
                             </Col>
                             <Input 
@@ -1054,12 +1054,12 @@ function GraphStyleTab(props: {
                                 onChange={(e) => {
                                     const newColSpacing = e.target.value === '' ? undefined : e.target.value
                                     props.setGraphParams(prevGraphParams => {
-                                        const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                        const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                         return {
                                             ...graphParamsCopy,
                                             graphCreation: {
                                                 ...graphParamsCopy.graphCreation,
-                                                facet_row_spacing: newColSpacing as number | undefined
+                                                facet_row_spacing: newColSpacing
                                             } 
                                         }
                                     })
@@ -1081,7 +1081,7 @@ function GraphStyleTab(props: {
                         value={graphStylingParams.xaxis.rangeslider.visible} 
                         onChange={() => {
                             props.setGraphParams(prevGraphParams => {
-                                const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
                                 return {
                                     ...graphParamsCopy,
                                     graphStyling: {
