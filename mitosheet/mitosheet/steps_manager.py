@@ -16,7 +16,7 @@ from mitosheet.data_in_mito import DataTypeInMito, get_data_type_in_mito
 from mitosheet.experiments.experiment_utils import get_current_experiment
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
-from mitosheet.saved_analyses.save_utils import get_analysis_exists
+from mitosheet.saved_analyses.save_utils import get_analysis_exists, get_saved_analysis_string, make_steps_json_obj
 from mitosheet.state import State
 from mitosheet.step import Step
 from mitosheet.step_performers import EVENT_TYPE_TO_STEP_PERFORMER
@@ -295,6 +295,8 @@ class StepsManager:
         return json.dumps(
             {
                 "analysisName": self.analysis_name,
+                # TODO: I wonder if we need to optimize this
+                'analysisJSON': get_saved_analysis_string(make_steps_json_obj(self.steps_including_skipped)),
                 "analysisToReplay": {
                     'analysisName': self.analysis_to_replay,
                     'existsOnDisk': self.analysis_to_replay_exists,

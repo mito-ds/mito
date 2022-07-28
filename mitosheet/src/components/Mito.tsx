@@ -158,12 +158,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     
     useEffect(() => {
-        const randKey = (Math.random() + 1).toString(36).substring(7);
-        const randValue = (Math.random() + 1).toString(36).substring(7);
-
-        console.log("saving metadata", randKey, randValue);
-        saveMetadataInNotebook(randKey, randValue);
-    }, [])
+        console.log("saving metadata", analysisData.analysisName, analysisData.analysisJSON);
+        saveMetadataInNotebook(analysisData.analysisName, analysisData.analysisJSON);
+    }, [analysisData.analysisJSON])
 
     useEffect(() => {
         /**

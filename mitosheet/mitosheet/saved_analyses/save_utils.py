@@ -122,15 +122,19 @@ def rename_saved_analysis(old_analysis_name, new_analysis_name):
     else:
         raise Exception(f'Invalid rename, with old and new analysis are {old_analysis_name} and {new_analysis_name}')
 
+def get_saved_analysis_string(steps_data: List[Dict[str, Any]], version: str=__version__) -> str:
+    """
+    Given a list of steps_data, returns a string representing the saved analysis.
+    """
+    return json.dumps({
+        'version': version,
+        'steps_data': steps_data
+    }, cls=NpEncoder)
+
 
 def write_saved_analysis(analysis_path: str, steps_data: List[Dict[str, Any]], version: str=__version__) -> None:
     with open(analysis_path, 'w+') as f:
-        saved_analysis = {
-            'version': version,
-            'steps_data': steps_data
-        }
-
-        f.write(json.dumps(saved_analysis, cls=NpEncoder))
+        f.write(get_saved_analysis_string(steps_data, version))
 
 
 def make_steps_json_obj(

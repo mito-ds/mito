@@ -588,6 +588,7 @@ interface Experiment {
  */
 export interface AnalysisData {
     analysisName: string,
+    analysisJSON: string,
     analysisToReplay: {
         analysisName: string,
         existsOnDisk: boolean,

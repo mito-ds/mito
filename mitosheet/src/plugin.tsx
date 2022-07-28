@@ -52,7 +52,7 @@ function activateWidgetExtension(
             const notebook = tracker.currentWidget?.content;
             const currentMetadata = notebook?.model?.metadata.get('mitosheet');
             console.log("prevous metadata", currentMetadata);
-            const objectCurrentMetadata = JSON.parse(JSON.stringify(currentMetadata || {}))
+            const objectCurrentMetadata = JSON.parse(JSON.stringify({}))
             notebook?.model?.metadata.set('mitosheet', {...objectCurrentMetadata, [key]: value});
 
             console.log("Current notebooks metadata", notebook?.model?.metadata.get('mitosheet'));
