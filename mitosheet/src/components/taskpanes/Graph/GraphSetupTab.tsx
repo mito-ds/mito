@@ -37,6 +37,9 @@ const SAFETY_FILTER_DISABLED_MESSAGE = `Because you’re graphing less than ${GR
 const SAFETY_FILTER_ENABLED_MESSAGE = `Turning on Filter to Safe Size only graphs the first ${GRAPH_SAFETY_FILTER_CUTOFF} rows of your dataframe, ensuring that your browser tab won’t crash. Turning off Filter to Safe Size graphs the entire dataframe and may slow or crash your browser tab.`
 
 const GRAPHS_THAT_DONT_SUPPORT_COLOR = [GraphType.DENSITY_HEATMAP]
+
+// These variables are used to populate the collapsible style section that is 
+// specific to each graph type.
 export const GRAPHS_THAT_HAVE_NBINS = [GraphType.HISTOGRAM]
 export const GRAPHS_THAT_HAVE_BARMODE = [GraphType.BAR, GraphType.HISTOGRAM]
 export const GRAPHS_THAT_HAVE_BARNORM = [GraphType.BAR, GraphType.HISTOGRAM]
@@ -45,6 +48,17 @@ export const GRAPHS_THAT_HAVE_HISTFUNC = [GraphType.HISTOGRAM]
 export const GRAPHS_THAT_HAVE_POINTS = [GraphType.BOX, GraphType.VIOLIN]
 export const GRAPHS_THAT_HAVE_LINE_SHAPE = [GraphType.LINE]
 
+// This variable is used to figure out which graph types should 
+// havve teh specific graph type configuration section
+export const GRAPHS_WITH_UNIQUE_CONFIG_OPTIONS = [...new Set([
+    ...GRAPHS_THAT_HAVE_NBINS,
+    ...GRAPHS_THAT_HAVE_BARMODE, 
+    ...GRAPHS_THAT_HAVE_BARNORM,
+    ...GRAPHS_THAT_HAVE_HISTNORM,
+    ...GRAPHS_THAT_HAVE_HISTFUNC,
+    ...GRAPHS_THAT_HAVE_POINTS,
+    ...GRAPHS_THAT_HAVE_LINE_SHAPE
+])];
 
 /* 
     The graph setup tab where the user creates the structure of the graph by 

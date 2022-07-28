@@ -115,10 +115,10 @@ class GraphStepPerformer(StepPerformer):
 
         # Validate parameters that are only available for some graph types
         # Note: We trust the parameters from the frontend, so we don't make sure the params fit the graph type here
-        points = graph_creation['points'] if 'points' in graph_creation.keys() else None
-        line_shape = graph_creation['line_shape'] if 'line_shape' in graph_creation.keys() else None
-        histnorm = graph_creation['histnorm'] if 'histnorm' in graph_creation.keys() else None
-        histfunc = graph_creation['histfunc'] if 'histfunc' in graph_creation.keys() else None
+        points = graph_creation.get('points', None)
+        line_shape = graph_creation.get('line_shape', None)
+        histnorm = graph_creation.get('histnorm', None)
+        histfunc = graph_creation.get('histfunc', None)
         nbins = int(graph_creation['nbins']) if 'nbins' in graph_creation.keys() else None
 
         # Create a copy of the dataframe, just for safety.
