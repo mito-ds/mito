@@ -94,7 +94,6 @@ const FormulaBar = (props: {
                     <div 
                         className="formula-bar-formula text-header-3 text-overflow-hide element-width-block" 
                         onDoubleClick={() => {
-                            console.log('setting the row index to: ', rowIndex)
                             props.setEditorState({
                                 rowIndex: rowIndex,
                                 columnIndex: colIndex,

@@ -9,8 +9,8 @@ import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { ControlPanelTab } from '../taskpanes/ControlPanel/ControlPanelTaskpane';
 import { TaskpaneType } from '../taskpanes/taskpanes';
+import { getStartingFormula } from './celleditor/cellEditorUtils';
 import { getColumnIndexesInSelections } from './selectionUtils';
-import { getCellDataFromCellIndexes } from './utils';
 
 /*
     Displays a set of actions one can perform on a column header
@@ -134,15 +134,13 @@ export default function ColumnHeaderDropdown(props: {
             <DropdownItem 
                 title='Set Column Formula'
                 onClick={() => {
-                    const columnFormula = getCellDataFromCellIndexes(props.sheetData, rowIndex, columnIndex).columnFormula;
+                    const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(props.sheetData, rowIndex, columnIndex, 'set_column_formula');
 
                     props.setEditorState({
                         rowIndex: 0,
                         columnIndex: columnIndex,
-                        formula: columnFormula !== undefined ? columnFormula : '',
-                        // As in google sheets, if the starting formula is non empty, we default to the 
-                        // arrow keys scrolling in the editor
-                        arrowKeysScrollInFormula: columnFormula !== undefined && columnFormula.length > 0,
+                        formula: startingColumnFormula,
+                        arrowKeysScrollInFormula: arrowKeysScrollInFormula,
                         editorLocation: 'cell',
                         editingMode: 'set_column_formula'
                     })
