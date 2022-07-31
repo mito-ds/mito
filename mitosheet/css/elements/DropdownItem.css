@@ -70,8 +70,7 @@
 }
 
 .mito-dropdown-item-right-text {
-    position: absolute;
-    right: 15px;
+    padding-right: 5px;
     color: var(--mito-light-gray) !important;
 }
 
