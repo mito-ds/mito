@@ -294,7 +294,7 @@ function GraphStyleTab(props: {
                     </Select>
                 </Row>
             </CollapsibleSection>
-            <CollapsibleSection title='Legend'>
+            <CollapsibleSection title='Legend' proSection={true} isPro={props.userProfile.isPro}>
                 {!props.userProfile.isPro &&
                     <Row justify='space-between' align='center'>
                         <p className='text-body-1'>
@@ -454,7 +454,7 @@ function GraphStyleTab(props: {
                     </>
                 }
             </CollapsibleSection>
-            <CollapsibleSection title='Grid Lines'>
+            <CollapsibleSection title='Grid Lines' proSection={true} isPro={props.userProfile.isPro}>
                 {!props.userProfile.isPro &&
                     <Row justify='space-between' align='center'>
                         <p className='text-body-1'>
@@ -580,7 +580,7 @@ function GraphStyleTab(props: {
                 }
             </CollapsibleSection>
             
-            <CollapsibleSection title='Colors'>
+            <CollapsibleSection title='Colors' proSection={true} isPro={props.userProfile.isPro}>
                 {!props.userProfile.isPro &&
                     <Row justify='space-between' align='center'>
                         <p className='text-body-1'>
@@ -687,7 +687,7 @@ function GraphStyleTab(props: {
                     </>
                 }
             </CollapsibleSection>
-            <CollapsibleSection title='Facet Styling'>
+            <CollapsibleSection title='Facet Styling' proSection={true} isPro={props.userProfile.isPro}>
                 {!props.userProfile.isPro &&
                     <Row justify='space-between' align='center'>
                         <p className='text-body-1'>
