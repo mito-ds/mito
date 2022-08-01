@@ -6,7 +6,7 @@ def get_random_variant() -> str:
     """Returns "A" or "B" with 50% probability"""
     return "A" if random.random() < 0.5 else "B"
 
-def get_new_experiment() -> Optional[Dict[str, str]]:
+def get_new_experiment() -> Dict[str, str]:
     # NOTE: this needs to match the mitosheet package!
     return {
         'experiment_id': 'installer_communication_and_time_to_value',
