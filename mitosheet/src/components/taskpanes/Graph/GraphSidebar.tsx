@@ -21,20 +21,6 @@ import GraphExportTab from './GraphExportTab';
 import { useEffectOnResizeElement } from '../../../hooks/useEffectOnElementResize';
 
 
-export enum GraphType {
-    BAR = 'bar',
-    LINE = 'line',
-    SCATTER = 'scatter',
-    HISTOGRAM = 'histogram',
-    DENSITY_HEATMAP = 'density heatmap',
-    DENSITY_CONTOUR = 'density contour',
-    BOX = 'box',
-    VIOLIN = 'violin',
-    STRIP = 'strip',
-    ECDF = 'ecdf',
-}
-
-
 // Millisecond delay between loading graphs, so that
 // we don't load to many graphs when the user is clicking around
 const LOAD_GRAPH_TIMEOUT = 1000;

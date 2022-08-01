@@ -5,6 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 from typing import Dict, List, Optional, Any, Union
+from mitosheet.state import State
 import io
 from xmlrpc.client import boolean
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
@@ -41,22 +42,6 @@ GRAPH_TITLE_LABELS = {
 # TAB is used in place of \t in generated code because
 # Jupyter turns \t into a grey arrow, but converts four spaces into a tab.
 TAB = "    "
-
-
-def get_barmode(graph_type: str) -> Optional[str]:
-    """
-    Helper function for determing the barmode to apply to the graph creation function, depending
-    on the type of graph being created
-    """
-    if graph_type == BOX:
-        return "stack"
-    elif graph_type == HISTOGRAM:
-        return "group"
-    elif graph_type == BAR:
-        return "group"
-    else:
-        return None
-
 
 def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line: boolean=False) -> str:
     """
@@ -108,16 +93,6 @@ def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line:
         code += f"{NEWLINE_CONSTANT}{TAB_CONSTANT * (level)})"
     
     return code
-
-
-def create_parameter(param_key: str, param_value: Optional[str], format_as_string: bool) -> str:
-    """
-    Returns the params ready to be used in the transpiled code.
-    """
-    if format_as_string:
-        return f"{param_key}='{param_value}'"
-    else:
-        return f"{param_key}={param_value}"
 
 
 def get_graph_title(
@@ -208,3 +183,13 @@ def get_html_and_script_from_figure(
     script = split_html[1][: -len(script_end)]
 
     return {"html": div, "script": script}
+
+def get_column_header_from_optional_column_id_graph_param(
+    state: State, 
+    graph_creation_params: Dict[str, Any], 
+    param_name: str
+) -> Optional[ColumnHeader]:
+    sheet_index = graph_creation_params['sheet_index']
+    if param_name in graph_creation_params.keys() and graph_creation_params[param_name] in state.column_ids.column_id_to_column_header[sheet_index].keys():
+        return state.column_ids.get_column_header_by_id(sheet_index, graph_creation_params[param_name])
+    else: return None

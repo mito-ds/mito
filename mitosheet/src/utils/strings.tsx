@@ -36,3 +36,7 @@ export const fuzzyMatch = (stringOne: string, stringTwo: string): number => {
     
     return 0;
 }
+
+export const convertToStringOrUndefined = (possibleString: string | number | boolean | undefined): string | undefined => {
+    return possibleString !== undefined ? possibleString.toString() : undefined
+}

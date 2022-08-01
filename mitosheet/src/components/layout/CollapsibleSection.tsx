@@ -6,6 +6,8 @@ import DownArrowIcon from '../icons/DownArrowIcon';
 import UpArrowIcon from '../icons/UpArrowIcon';
 import Col from './Col';
 import Row from './Row';
+import ProIcon from '../icons/ProIcon'
+
 
 interface CollapsibleSectionProps {
     /** 
@@ -16,6 +18,16 @@ interface CollapsibleSectionProps {
         * @param [children] - The content that is going inside of this column, to actually be displayed. All overflow will be cut off.
     */
     children?: React.ReactNode,
+
+    /**
+        * @param [pro] - Whether the Pro icon should be displayed if the user is not on pro
+    */
+    proSection?: boolean
+
+    /**
+        * @param [isPro] - If the user is on pro or not
+    */
+    isPro?: boolean
 }
 
 
@@ -33,9 +45,12 @@ const CollapsibleSection = (props: CollapsibleSectionProps): JSX.Element => {
             >
                 <Row justify='space-between' align='center' onClick={() => {setOpen(false)}}>
                     <Col>
-                        <div className='text-header-3'>
-                            {props.title}
-                        </div>
+                        <Row suppressTopBottomMargin>
+                            <div className='text-header-3'>
+                                {props.title} &nbsp;
+                            </div>
+                            {props.proSection && !props.isPro && <ProIcon />}
+                        </Row>
                     </Col>
                     <Col>
                         <UpArrowIcon/>
@@ -52,9 +67,12 @@ const CollapsibleSection = (props: CollapsibleSectionProps): JSX.Element => {
             >
                 <Row justify='space-between' align='center'>
                     <Col>
-                        <div className='text-header-3'>
-                            {props.title}
-                        </div>
+                        <Row suppressTopBottomMargin>
+                            <div className='text-header-3'>
+                                {props.title} &nbsp;
+                            </div>
+                            {props.proSection && !props.isPro && <ProIcon />}
+                        </Row>
                     </Col>
                     <Col>
                         <DownArrowIcon/>

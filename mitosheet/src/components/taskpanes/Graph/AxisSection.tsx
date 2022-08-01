@@ -2,7 +2,6 @@
 
 import React from 'react';
 import MitoAPI from '../../../jupyter/api';
-import { GraphType } from './GraphSidebar';
 import DropdownButton from '../../elements/DropdownButton';
 import Row from '../../layout/Row';
 import Col from '../../layout/Col';
@@ -12,6 +11,7 @@ import { ColumnID, ColumnIDsMap } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import { columnIDMapToDisplayHeadersMap, getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import SelectAndXIconCard from '../../elements/SelectAndXIconCard';
+import { GraphType } from './GraphSetupTab';
 
 
 export enum GraphAxisType {

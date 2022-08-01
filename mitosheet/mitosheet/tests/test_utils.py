@@ -979,6 +979,12 @@ class MitoWidgetTestWrapper:
         yAxisColumnIDs: List[ColumnID],
         height: str,
         width: str,
+        color: Optional[ColumnID]=None,
+        facet_col_column_id: Optional[ColumnID]=None,
+        facet_row_column_id: Optional[ColumnID]=None,
+        facet_col_wrap: Optional[int]=None,
+        facet_col_spacing: Optional[float]=None,
+        facet_row_spacing: Optional[float]=None,
         title_title: Optional[str]=None,
         title_visible: bool=True,
         title_font_color: str=DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT,
@@ -986,64 +992,127 @@ class MitoWidgetTestWrapper:
         xaxis_visible: bool=True,
         xaxis_title_font_color: str=DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT,
         xaxis_type: Optional[str]=None,
+        xaxis_showgrid: bool=True,
+        xaxis_gridwidth: Optional[number]=None,
         xaxis_rangeslider_visible: bool=True,
         yaxis_title: Optional[str]=None,
         yaxis_visible: bool=True,
         yaxis_title_font_color: str=DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT,
         yaxis_type: Optional[str]=None,
+        yaxis_showgrid: bool=True,
+        yaxis_gridwidth: Optional[number]=None,
         showlegend: bool=True,
+        legend_title_text: Optional[str]=None,
+        legend_orientation: Optional[str]='v',
+        legend_x: Optional[number]=None,
+        legend_y: Optional[number]=None,
         step_id: str=None,
         paper_bgcolor: str=DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT,
         plot_bgcolor: str=DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT,
+        barmode: Optional[str]=None,
+        barnorm: Optional[str]=None,
+        histnorm: Optional[str]=None,
+        histfunc: Optional[str]=None,
+        nbins: Optional[number]=None,
+        line_shape: Optional[str]=None,
+        points: Optional[str]=None,
+
     ) -> bool:
+
+        params: Any = {
+            'graph_id': graph_id,
+            'graph_preprocessing': {
+                'safety_filter_turned_on_by_user': safety_filter_turned_on_by_user
+            },
+            'graph_creation': {
+                'graph_type': graph_type,
+                'sheet_index': sheet_index,
+                'x_axis_column_ids': xAxisColumnIDs,
+                'y_axis_column_ids': yAxisColumnIDs,
+                'color': color,
+                'facet_col_column_id': facet_col_column_id,
+                'facet_row_column_id': facet_row_column_id,
+                'histfunc': histfunc,
+                'histnorm': histnorm,
+                'line_shape': line_shape,
+                'points': points
+            },
+            'graph_styling': {
+                'title': {
+                    'title': title_title,
+                    'visible': title_visible,
+                    'title_font_color': title_font_color
+                },
+                'xaxis': {
+                    'title': xaxis_title,
+                    'visible': xaxis_visible,
+                    'title_font_color': xaxis_title_font_color,
+                    'type': xaxis_type,
+                    'showgrid': xaxis_showgrid,
+                    'rangeslider': {
+                        'visible': xaxis_rangeslider_visible
+                    }
+                },
+                'yaxis': {
+                    'title': yaxis_title,
+                    'visible': yaxis_visible,
+                    'title_font_color': yaxis_title_font_color,
+                    'type': yaxis_type,
+                    'showgrid': yaxis_showgrid,
+                },
+                'showlegend': showlegend,
+                'legend': {
+                    'title': {
+                        'text': legend_title_text
+                    },
+                    'orientation': legend_orientation,
+                },
+                'barmode': barmode,
+                'barnorm': barnorm,
+                'paper_bgcolor': paper_bgcolor,
+                'plot_bgcolor': plot_bgcolor,
+            },
+            'graph_rendering': {
+                'height': height,
+                'width': width
+            }
+        }
+
+        # We add these params because when they the backend castst them to a number. The backend doesn't handle the None case because
+        # none params are filtered out. 
+        # Instead of handing the None case specifically for the tests, we keep our code simple by mocking the filtering out of None.
+        if facet_col_wrap is not None:
+            params['graph_creation']['facet_col_wrap'] = facet_col_wrap
+
+        if facet_col_spacing is not None:
+            params['graph_creation']['facet_col_spacing'] = facet_col_spacing
+
+        if facet_row_spacing is not None:
+            params['graph_creation']['facet_row_spacing'] = facet_row_spacing   
+
+        if xaxis_gridwidth is not None:
+            params['graph_styling']['xaxis']['gridwidth'] = xaxis_gridwidth  
+
+        if yaxis_gridwidth is not None:
+            params['graph_styling']['yaxis']['gridwidth'] = yaxis_gridwidth 
+
+        if legend_x is not None:
+            params['graph_styling']['legend']['x'] = legend_x 
+
+        if legend_y is not None:
+            params['graph_styling']['legend']['y'] = legend_y      
+
+        if nbins is not None:
+            params['graph_creation']['nbins'] = nbins
+
         return self.mito_widget.receive_message(
-            self.mito_widget,
+            self.mito_widget, 
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
                 'type': 'graph_edit',
                 'step_id': get_new_id() if step_id is None else step_id,
-                'params': {
-                    'graph_id': graph_id,
-                    'graph_preprocessing': {
-                        'safety_filter_turned_on_by_user': safety_filter_turned_on_by_user
-                    },
-                    'graph_creation': {
-                        'graph_type': graph_type,
-                        'sheet_index': sheet_index,
-                        'x_axis_column_ids': xAxisColumnIDs,
-                        'y_axis_column_ids': yAxisColumnIDs,
-                    },
-                    'graph_styling': {
-                        'title': {
-                            'title': title_title,
-                            'visible': title_visible,
-                            'title_font_color': title_font_color
-                        },
-                        'xaxis': {
-                            'title': xaxis_title,
-                            'visible': xaxis_visible,
-                            'title_font_color': xaxis_title_font_color,
-                            'type': xaxis_type,
-                            'rangeslider': {
-                                'visible': xaxis_rangeslider_visible
-                            }
-                        },
-                        'yaxis': {
-                            'title': yaxis_title,
-                            'visible': yaxis_visible,
-                            'title_font_color': yaxis_title_font_color,
-                            'type': yaxis_type
-                        },
-                        'showlegend': showlegend,
-                        'paper_bgcolor': paper_bgcolor,
-                        'plot_bgcolor': plot_bgcolor,
-                    },
-                    'graph_rendering': {
-                        'height': height,
-                        'width': width
-                    }
-                }
+                'params': params
             }
         )
 
@@ -1185,6 +1254,60 @@ class MitoWidgetTestWrapper:
             if axis == 'y':
                 return graph_data["graphParams"]["graphCreation"]["y_axis_column_ids"]
         return []
+
+    def get_graph_color(self, graph_id: str) -> ColumnID:
+        """
+        Returns the graph color column id
+        """
+        graph_data = self.get_graph_data(graph_id)
+        if bool(graph_data):
+            return graph_data["graphParams"]["graphCreation"]["color"]
+        return ''
+
+    def get_graph_facet_col_column_id(self, graph_id: str) -> ColumnID:
+        """
+        Returns the graph facet col column id
+        """
+        graph_data = self.get_graph_data(graph_id)
+        if bool(graph_data):
+            return graph_data["graphParams"]["graphCreation"]["facet_col_column_id"]
+        return ''
+
+    def get_graph_facet_row_column_id(self, graph_id: str) -> ColumnID:
+        """
+        Returns the graph facet row column id
+        """
+        graph_data = self.get_graph_data(graph_id)
+        if bool(graph_data):
+            return graph_data["graphParams"]["graphCreation"]["facet_row_column_id"]
+        return ''
+
+    def get_graph_facet_col_wrap(self, graph_id: str) -> int:
+        """
+        Returns the graph facet row column id
+        """
+        graph_data = self.get_graph_data(graph_id)
+        if bool(graph_data):
+            return graph_data["graphParams"]["graphCreation"]["facet_col_wrap"]
+        return -1
+
+    def get_graph_facet_col_spacing(self, graph_id: str) -> float:
+        """
+        Returns the graph facet row column id
+        """
+        graph_data = self.get_graph_data(graph_id)
+        if bool(graph_data):
+            return graph_data["graphParams"]["graphCreation"]["facet_col_spacing"]
+        return -1.0
+
+    def get_graph_facet_row_spacing(self, graph_id: str) -> float:
+        """
+        Returns the graph facet row column id
+        """
+        graph_data = self.get_graph_data(graph_id)
+        if bool(graph_data):
+            return graph_data["graphParams"]["graphCreation"]["facet_row_spacing"]
+        return -1.0
     
     def get_is_graph_output_none(self, graph_id: str) -> bool:
         """

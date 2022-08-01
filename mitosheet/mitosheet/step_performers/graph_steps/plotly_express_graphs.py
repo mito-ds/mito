@@ -20,8 +20,6 @@ from mitosheet.step_performers.graph_steps.graph_utils import (
     SCATTER,
     STRIP,
     VIOLIN,
-    create_parameter,
-    get_barmode,
     get_graph_title,
     param_dict_to_code,
 )
@@ -96,7 +94,19 @@ def get_graph_creation_param_dict(
         graph_type: str,
         x_axis_column_headers: List[ColumnHeader],
         y_axis_column_headers: List[ColumnHeader],
-        color_column_header: Optional[ColumnHeader]
+        color_column_header: Optional[ColumnHeader],
+        facet_col_column_header: Optional[ColumnHeader],
+        facet_row_column_header: Optional[ColumnHeader],
+        facet_col_wrap: Optional[int],
+        facet_col_spacing: Optional[float],
+        facet_row_spacing: Optional[float],
+        points: Optional[Union[str, bool]],
+        line_shape: Optional[str],
+        histnorm: Optional[str],
+        histfunc: Optional[str],
+        nbins: Optional[int],
+
+
     ) -> Dict[str, Any]:
 
     # Create the parameters that we use to construct the graph
@@ -118,6 +128,36 @@ def get_graph_creation_param_dict(
     if graph_type not in GRAPHS_THAT_DONT_SUPPORT_COLOR and color_column_header is not None:
         all_params['color'] = color_column_header
 
+    if facet_col_column_header is not None:
+        all_params['facet_col'] = facet_col_column_header
+
+    if facet_row_column_header is not None:
+        all_params['facet_row'] = facet_row_column_header
+
+    if facet_col_wrap is not None: 
+        all_params['facet_col_wrap'] = facet_col_wrap
+
+    if facet_col_spacing is not None:
+        all_params['facet_col_spacing'] = facet_col_spacing
+
+    if facet_row_spacing is not None:
+        all_params['facet_row_spacing'] = facet_row_spacing
+
+    if points is not None:
+        all_params['points'] = points
+
+    if line_shape is not None:
+        all_params['line_shape'] = line_shape
+
+    if nbins is not None: 
+        all_params['nbins'] = nbins
+
+    if histnorm is not None:
+        all_params['histnorm'] = histnorm
+
+    if histfunc is not None:
+        all_params['histfunc'] = histfunc
+
     return all_params
 
 def graph_creation(
@@ -125,14 +165,39 @@ def graph_creation(
     df: pd.DataFrame,
     x_axis_column_headers: List[ColumnHeader],
     y_axis_column_headers: List[ColumnHeader],
-    color_column_header: Optional[ColumnHeader]
+    color_column_header: Optional[ColumnHeader],
+    facet_col_column_header: Optional[ColumnHeader],
+    facet_row_column_header: Optional[ColumnHeader],
+    facet_col_wrap: Optional[int],
+    facet_col_spacing: Optional[float],
+    facet_row_spacing: Optional[float],
+    points: Optional[Union[str, bool]],
+    line_shape: Optional[str],
+    histnorm: Optional[str],
+    histfunc: Optional[str],
+    nbins: Optional[int],
+
 ) -> go.Figure:
     """
     Creates and returns the Plotly express graph figure
     """
 
     param_dict = get_graph_creation_param_dict(
-        graph_type, x_axis_column_headers, y_axis_column_headers, color_column_header
+        graph_type, 
+        x_axis_column_headers, 
+        y_axis_column_headers, 
+        color_column_header, 
+        facet_col_column_header, 
+        facet_row_column_header,
+        facet_col_wrap,
+        facet_col_spacing,
+        facet_row_spacing,
+        points,
+        line_shape,
+        histnorm,
+        histfunc,
+        nbins,
+
     )
 
     if graph_type == BAR:
@@ -162,14 +227,38 @@ def graph_creation_code(
     df_name: str,
     x_axis_column_headers: List[ColumnHeader],
     y_axis_column_headers: List[ColumnHeader],
-    color_column_header: Optional[ColumnHeader]
+    color_column_header: Optional[ColumnHeader],
+    facet_col_column_header: Optional[ColumnHeader],
+    facet_row_column_header: Optional[ColumnHeader],
+    facet_col_wrap: Optional[int],
+    facet_col_spacing: Optional[float],
+    facet_row_spacing: Optional[float],
+    points: Optional[Union[str, bool]],
+    line_shape: Optional[str],
+    histnorm: Optional[str],
+    histfunc: Optional[str],
+    nbins: Optional[int],
+
 ) -> str:
     """
     Returns the code for creating the Plotly express graph
     """
 
     param_dict = get_graph_creation_param_dict(
-        graph_type, x_axis_column_headers, y_axis_column_headers, color_column_header
+        graph_type, 
+        x_axis_column_headers, 
+        y_axis_column_headers, 
+        color_column_header, 
+        facet_col_column_header, 
+        facet_row_column_header,
+        facet_col_wrap,
+        facet_col_spacing,
+        facet_row_spacing,
+        points,
+        line_shape,
+        histnorm,
+        histfunc,
+        nbins,
     )
     param_code = param_dict_to_code(param_dict, as_single_line=True)
 
@@ -235,6 +324,11 @@ def get_graph_styling_param_dict(graph_type: str, column_headers: List[ColumnHea
     if 'type' in graph_styling_params['xaxis']:
         all_params['xaxis']['type'] = graph_styling_params['xaxis']['type']
 
+    all_params['xaxis']['showgrid'] = graph_styling_params['xaxis']['showgrid']
+
+    if 'gridwidth' in graph_styling_params['xaxis']:
+        all_params['xaxis']['gridwidth'] = float(graph_styling_params['xaxis']['gridwidth'])
+
     # Create the range slider param
     if graph_styling_params['xaxis']['rangeslider']['visible']:
         all_params['xaxis']['rangeslider'] = dict(visible=True, thickness=0.05)
@@ -259,10 +353,37 @@ def get_graph_styling_param_dict(graph_type: str, column_headers: List[ColumnHea
     if 'type' in graph_styling_params['yaxis']:
         all_params['yaxis']['type'] = graph_styling_params['yaxis']['type']
 
+    all_params['yaxis']['showgrid'] = graph_styling_params['yaxis']['showgrid']
+
+    if 'gridwidth' in graph_styling_params['yaxis']:
+        all_params['yaxis']['gridwidth'] = float(graph_styling_params['yaxis']['gridwidth'])
+
+    # Create the legend params
+    if graph_styling_params['showlegend']:
+        all_params['legend'] = dict()
+        all_params['legend']['orientation'] = graph_styling_params['legend']['orientation']
+
+        if 'legend' in graph_styling_params:
+            if 'title' in graph_styling_params['legend'] and 'text' in graph_styling_params['legend']['title']:
+                all_params['legend']['title'] = dict()
+                text = graph_styling_params['legend']['title']['text']
+                all_params['legend']['title']['text'] = text
+            
+            if 'x' in graph_styling_params['legend']:
+                all_params['legend']['x'] = float(graph_styling_params['legend']['x'])
+
+            if 'y' in graph_styling_params['legend']:
+                all_params['legend']['y'] = float(graph_styling_params['legend']['y'])
+    else: 
+        # Only add the graph styling param if it is false, otherwise we rely on Ploty default
+        all_params['showlegend'] = graph_styling_params['showlegend']
+   
     # Create the barmode param
-    barmode = get_barmode(graph_type)
-    if barmode is not None:
-        all_params['barmode'] = get_barmode(graph_type)
+    if 'barmode' in graph_styling_params:
+        all_params['barmode'] = graph_styling_params['barmode']
+
+    if 'barnorm' in graph_styling_params:
+        all_params['barnorm'] = graph_styling_params['barnorm']
 
     # Create the background params
     paper_bgcolor = graph_styling_params['paper_bgcolor']
@@ -271,9 +392,6 @@ def get_graph_styling_param_dict(graph_type: str, column_headers: List[ColumnHea
     plot_bgcolor = graph_styling_params['plot_bgcolor']
     if plot_bgcolor != DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT: # NOTE: we don't need to set if it's a default
         all_params['plot_bgcolor'] = plot_bgcolor
-
-    # Create the showlegend param
-    all_params['showlegend'] = graph_styling_params['showlegend']
 
     return all_params
 
@@ -314,6 +432,16 @@ def get_plotly_express_graph(
     x_axis_column_headers: List[ColumnHeader],
     y_axis_column_headers: List[ColumnHeader],
     color_column_header: Optional[ColumnHeader],
+    facet_col_column_header: Optional[ColumnHeader],
+    facet_row_column_header: Optional[ColumnHeader],
+    facet_col_wrap: Optional[int],
+    facet_col_spacing: Optional[float],
+    facet_row_spacing: Optional[float],
+    points: Optional[Union[str, bool]],
+    line_shape: Optional[str],
+    histnorm: Optional[str],
+    histfunc: Optional[str],
+    nbins: Optional[int],
     graph_styling_params: Dict[str, Any],
 ) -> go.Figure:
     """
@@ -331,7 +459,23 @@ def get_plotly_express_graph(
     df = graph_filtering(df, safety_filter_turned_on_by_user)
 
     # Step 2: Graph Creation
-    fig = graph_creation(graph_type, df, x_axis_column_headers, y_axis_column_headers, color_column_header)
+    fig = graph_creation(
+        graph_type, 
+        df, 
+        x_axis_column_headers, 
+        y_axis_column_headers, 
+        color_column_header, 
+        facet_col_column_header, 
+        facet_row_column_header,
+        facet_col_wrap,
+        facet_col_spacing,
+        facet_row_spacing,
+        points,
+        line_shape,
+        histnorm,
+        histfunc,
+        nbins,
+    )
 
     # Step 3: Graph Styling
     fig = graph_styling(fig, graph_type, all_column_headers, is_safety_filter_applied, graph_styling_params)
@@ -346,6 +490,16 @@ def get_plotly_express_graph_code(
     x_axis_column_headers: List[ColumnHeader],
     y_axis_column_headers: List[ColumnHeader],
     color_column_header: Optional[ColumnHeader],
+    facet_col_column_header: Optional[ColumnHeader],
+    facet_row_column_header: Optional[ColumnHeader],
+    facet_col_wrap: Optional[int],
+    facet_col_spacing: Optional[float],
+    facet_row_spacing: Optional[float],
+    points: Optional[Union[str, bool]],
+    line_shape: Optional[str],
+    histnorm: Optional[str],
+    histfunc: Optional[str],
+    nbins: Optional[int],
     graph_styling_params: Dict[str, Any],
     df_name: str,
 ) -> str:
@@ -376,7 +530,21 @@ def get_plotly_express_graph_code(
     )
     code.append(
         graph_creation_code(
-            graph_type, df_name, x_axis_column_headers, y_axis_column_headers, color_column_header
+            graph_type, 
+            df_name, 
+            x_axis_column_headers, 
+            y_axis_column_headers, 
+            color_column_header, 
+            facet_col_column_header,
+            facet_row_column_header,
+            facet_col_wrap,
+            facet_col_spacing,
+            facet_row_spacing,
+            points,
+            line_shape,
+            histnorm,
+            histfunc,
+            nbins,
         )
     )
 
