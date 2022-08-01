@@ -33,7 +33,8 @@ export const createActions = (
     const sheetData = sheetDataArray[sheetIndex];
     const startingRowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex;
     const startingColumnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
-    const {columnID, columnFormula} = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
+    const {columnID} = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
+    const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, startingRowIndex, startingColumnIndex, 'set_column_formula');
     const startingColumnID = columnID;
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
 
@@ -849,12 +850,10 @@ export const createActions = (
 
                 closeOpenEditingPopups();
 
-                const startingFormula = getStartingFormula(sheetData, startingRowIndex, startingColumnIndex, 'set_cell_value');
-
                 setEditorState({
                     rowIndex: startingRowIndex,
                     columnIndex: startingColumnIndex,
-                    formula: startingFormula,
+                    formula: startingColumnFormula,
                     // Since you can't reference other cells while setting the value of a single cell, we default to scrolling in the formula
                     arrowKeysScrollInFormula: true,
                     editorLocation: 'cell',
@@ -886,10 +885,8 @@ export const createActions = (
                 setEditorState({
                     rowIndex: startingRowIndex !== -1 ? startingRowIndex : 0,
                     columnIndex: startingColumnIndex,
-                    formula: columnFormula !== undefined ? columnFormula : '',
-                    // As in google sheets, if the starting formula is non empty, we default to the 
-                    // arrow keys scrolling in the editor
-                    arrowKeysScrollInFormula: columnFormula !== undefined && columnFormula.length > 0,
+                    formula: startingColumnFormula,
+                    arrowKeysScrollInFormula: arrowKeysScrollInFormula,
                     editorLocation: 'cell',
                     editingMode: 'set_column_formula'
                 })

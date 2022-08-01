@@ -69,7 +69,9 @@ const KEYS_TO_ENTER_CELL_EDITING_MODE_EMPTY = [
 /**
  * Called when cell editing mode is turned on, this gets the starting formula/value for
  * the cell editor that it should initially display. If the row index is -1, then this is 
- * a column header, and we return a string version of the column header
+ * a column header, and we return a string version of the column header.
+ * 
+ * Also returns if 
  * 
  * @param sheetData - the data in the endo grid
  * @param startingRowIndex - the place from which the sheet data starts
@@ -78,12 +80,15 @@ const KEYS_TO_ENTER_CELL_EDITING_MODE_EMPTY = [
  * @param e - optionally, if cell editing mode is being entered into by a keypress, pass the event here
  * @returns the formula or value that the cell editor should default to
  */
-export const getStartingFormula = (sheetData: SheetData | undefined, rowIndex: number, columnIndex: number, editingMode: 'set_column_formula' | 'set_cell_value', e?: KeyboardEvent): string => {
+export const getStartingFormula = (sheetData: SheetData | undefined, rowIndex: number, columnIndex: number, editingMode: 'set_column_formula' | 'set_cell_value', e?: KeyboardEvent): {startingColumnFormula: string, arrowKeysScrollInFormula: boolean} => {
   
     const {columnFormula, cellValue, columnHeader} = getCellDataFromCellIndexes(sheetData, rowIndex, columnIndex);
 
     if (columnHeader === undefined) {
-        return '';
+        return {
+            startingColumnFormula: '',
+            arrowKeysScrollInFormula: false
+        };
     }
 
     let originalValue = '';
@@ -117,14 +122,22 @@ export const getStartingFormula = (sheetData: SheetData | undefined, rowIndex: n
         }
     }    
 
+    const defaultFormula = `=${getDisplayColumnHeader(columnHeader)}`;
+
     // If the formula is the default formula, we don't display it
     // as it doesn't add anything, and makes it so the arrow keys
-    // don't move in the sheet
-    if (originalValue === '=0') {
-        return '';
+    // don't move in the sheet.
+    if (originalValue === defaultFormula) {
+        return {
+            startingColumnFormula: '',
+            arrowKeysScrollInFormula: false
+        }
     }
 
-    return originalValue;
+    return {
+        startingColumnFormula: originalValue,
+        arrowKeysScrollInFormula: true
+    };
 }
 
 /**
