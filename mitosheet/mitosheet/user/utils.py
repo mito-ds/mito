@@ -20,6 +20,13 @@ from mitosheet.user.db import get_user_field
 from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_UPGRADED_DATE,
                                     UJ_MITOSHEET_PRO)
 
+try:
+    import mitosheet_helper_pro
+    MITOSHEET_HELPER_PRO = True
+except ImportError:
+    MITOSHEET_HELPER_PRO = False
+
+
 def is_running_test() -> bool:
     """
     A helper function that quickly returns if the current code is running 
@@ -40,13 +47,17 @@ def is_on_kuberentes_mito() -> bool:
     user = getpass.getuser()
     return user == 'jovyan'
 
-
 def is_pro() -> bool:
     """
     Helper function for returning if this is a
     pro deployment of mito
     """
     is_pro = get_user_field(UJ_MITOSHEET_PRO)
+
+    # This package overides the user.json
+    if MITOSHEET_HELPER_PRO:
+        return MITOSHEET_HELPER_PRO
+
     return is_pro if is_pro is not None else False
 
 
@@ -66,7 +77,7 @@ def should_upgrade_mitosheet() -> bool:
 
     Always returns false if:
     - it is not a local installation, for obvious reasons.
-    - the package is mitosheet-private, because it is managed by an account admin
+    - if it has an admin package installed, as this is managed by an admin
 
     NOTE: if the user clicks the upgrade button in the app, then we change the upgraded 
     date to this date, so that the user doesn't get a bunch of annoying popups. This just
@@ -74,10 +85,11 @@ def should_upgrade_mitosheet() -> bool:
     """
     if not is_local_deployment():
         return False
-
-    if package_name == 'mitosheet-private':
+    
+    from mitosheet.telemetry.telemetry_utils import MITOSHEET_HELPER_PRIVATE
+    if MITOSHEET_HELPER_PRO or MITOSHEET_HELPER_PRIVATE:
         return False
-
+    
     last_upgraded_date_stored = get_user_field(UJ_MITOSHEET_LAST_UPGRADED_DATE)
     if last_upgraded_date_stored is None:
         return False

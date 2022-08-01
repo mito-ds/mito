@@ -8,6 +8,7 @@
 Main file containing the mito widget.
 """
 import json
+import os
 import time
 from typing import Any, Dict, List, Optional, Union
 
@@ -26,7 +27,8 @@ from mitosheet.telemetry.telemetry_utils import (log, log_event_processed,
                                                  telemetry_turned_on)
 from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
 from mitosheet.user import is_local_deployment, should_upgrade_mitosheet
-from mitosheet.user.db import get_user_field
+from mitosheet.user.create import try_create_user_json_file
+from mitosheet.user.db import USER_JSON_PATH, get_user_field
 from mitosheet.user.location import is_in_google_colab, is_in_vs_code
 from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES, UJ_RECEIVED_CHECKLISTS,
                                     UJ_RECEIVED_TOURS, UJ_USER_EMAIL)
@@ -286,6 +288,12 @@ def sheet(
     if is_in_vs_code() or is_in_google_colab():
         log('mitosheet_sheet_call_location_failed', failed=True)
         raise Exception("The mitosheet currently only works in JupyterLab.\n\nTo see instructions on getting Mitosheet running in JupyterLab, find install instructions here: https://docs.trymito.io/getting-started/installing-mito")
+
+    # If the user.json does not exist, we create it. This ensures if the file is deleted in between
+    # when the package is imported and mitosheet.sheet is called, the user still gets a user.json. 
+    # We don't need to upgrade as creating the file will automatically use the most recent version
+    if not os.path.exists(USER_JSON_PATH):
+        try_create_user_json_file()
 
     try:
         # We pass in the dataframes directly to the widget

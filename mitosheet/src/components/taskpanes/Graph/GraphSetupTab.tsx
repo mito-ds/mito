@@ -1,19 +1,33 @@
 // Copyright (c) Mito
 
 import React, { Fragment } from 'react';
-import { ColumnID, ColumnIDsMap, GraphParams, SheetData, UIState } from '../../../types';
+import { ColumnID, ColumnIDsMap, GraphParamsFrontend, SheetData, UIState } from '../../../types';
 import MitoAPI from '../../../jupyter/api';
 import Row from '../../layout/Row';
 import Col from '../../layout/Col';
 import Select from '../../elements/Select';
 import DropdownItem from '../../elements/DropdownItem';
-import { GraphType } from './GraphSidebar';
 import AxisSection, { GraphAxisType } from './AxisSection';
 import Toggle from '../../elements/Toggle';
-import { getColorDropdownItems, getDefaultGraphParams, getDefaultSafetyFilter } from './graphUtils';
+import { getColorDropdownItems, getDefaultGraphParams, getDefaultSafetyFilter, getGraphTypeFullName } from './graphUtils';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import Tooltip from '../../elements/Tooltip';
 import DataframeSelect from '../../elements/DataframeSelect';
+import CollapsibleSection from '../../layout/CollapsibleSection';
+import Input from '../../elements/Input';
+
+export enum GraphType {
+    BAR = 'bar',
+    LINE = 'line',
+    SCATTER = 'scatter',
+    HISTOGRAM = 'histogram',
+    DENSITY_HEATMAP = 'density heatmap',
+    DENSITY_CONTOUR = 'density contour',
+    BOX = 'box',
+    VIOLIN = 'violin',
+    STRIP = 'strip',
+    ECDF = 'ecdf',
+}
 
 // Graphing a dataframe with more than this number of rows will
 // give the user the option to apply the safety filter
@@ -26,6 +40,28 @@ const SAFETY_FILTER_ENABLED_MESSAGE = `Turning on Filter to Safe Size only graph
 
 const GRAPHS_THAT_DONT_SUPPORT_COLOR = [GraphType.DENSITY_HEATMAP]
 
+// These variables are used to populate the collapsible style section that is 
+// specific to each graph type.
+export const GRAPHS_THAT_HAVE_NBINS = [GraphType.HISTOGRAM]
+export const GRAPHS_THAT_HAVE_BARMODE = [GraphType.BAR, GraphType.HISTOGRAM]
+export const GRAPHS_THAT_HAVE_BARNORM = [GraphType.BAR, GraphType.HISTOGRAM]
+export const GRAPHS_THAT_HAVE_HISTNORM = [GraphType.HISTOGRAM]
+export const GRAPHS_THAT_HAVE_HISTFUNC = [GraphType.HISTOGRAM]
+export const GRAPHS_THAT_HAVE_POINTS = [GraphType.BOX, GraphType.VIOLIN]
+export const GRAPHS_THAT_HAVE_LINE_SHAPE = [GraphType.LINE]
+
+// This variable is used to figure out which graph types should 
+// havve teh specific graph type configuration section
+export const GRAPHS_WITH_UNIQUE_CONFIG_OPTIONS = [...new Set([
+    ...GRAPHS_THAT_HAVE_NBINS,
+    ...GRAPHS_THAT_HAVE_BARMODE, 
+    ...GRAPHS_THAT_HAVE_BARNORM,
+    ...GRAPHS_THAT_HAVE_HISTNORM,
+    ...GRAPHS_THAT_HAVE_HISTFUNC,
+    ...GRAPHS_THAT_HAVE_POINTS,
+    ...GRAPHS_THAT_HAVE_LINE_SHAPE
+])];
+
 /* 
     The graph setup tab where the user creates the structure of the graph by 
     selecting data
@@ -35,12 +71,12 @@ function GraphSetupTab(
         uiState: UIState;
         mitoAPI: MitoAPI;
         sheetDataArray: SheetData[];
-        graphParams: GraphParams
+        graphParams: GraphParamsFrontend
         dfNames: string[];
         columnDtypesMap: Record<string, string>;
         columnIDsMapArray: ColumnIDsMap[],
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
-        setGraphParams: React.Dispatch<React.SetStateAction<GraphParams>>;
+        setGraphParams: React.Dispatch<React.SetStateAction<GraphParamsFrontend>>;
         setGraphUpdatedNumber: React.Dispatch<React.SetStateAction<number>>;
     }): JSX.Element {
 
@@ -119,11 +155,9 @@ function GraphSetupTab(
         const xAxisColumnIDsCopy = [...props.graphParams.graphCreation.x_axis_column_ids]
         const yAxisColumnIDsCopy = [...props.graphParams.graphCreation.y_axis_column_ids]
 
-        // Update the graph type
+        // Update the graph type and reset params that are only available for some graph types
         props.setGraphParams(prevGraphParams => {
-            const graphParamsCopy: GraphParams = JSON.parse(JSON.stringify(prevGraphParams)); 
-            // If the new graph type doesn't support the color property, then reset the color to undefined
-            const newColor = GRAPHS_THAT_DONT_SUPPORT_COLOR.includes(graphType) ? undefined : graphParamsCopy.graphCreation.color
+            const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
             return {
                 ...graphParamsCopy,
                 graphCreation: {
@@ -131,7 +165,17 @@ function GraphSetupTab(
                     graph_type: graphType,
                     x_axis_column_ids: xAxisColumnIDsCopy,
                     y_axis_column_ids: yAxisColumnIDsCopy,
-                    color: newColor
+                    color: GRAPHS_THAT_DONT_SUPPORT_COLOR.includes(graphType) ? undefined : graphParamsCopy.graphCreation.color,
+                    points: GRAPHS_THAT_HAVE_POINTS.includes(graphType) ? 'outliers' : undefined,
+                    line_shape: GRAPHS_THAT_HAVE_LINE_SHAPE.includes(graphType) ? 'linear' : undefined,
+                    nbins: undefined,
+                    histnorm: undefined,
+                    histfunc: GRAPHS_THAT_HAVE_HISTFUNC.includes(graphType) ? 'count' : undefined
+                },
+                graphStyling: {
+                    ...graphParamsCopy.graphStyling,
+                    barmode: GRAPHS_THAT_HAVE_BARMODE.includes(graphType) ? 'group' : undefined,
+                    barnorm: undefined 
                 }
             }
         })
@@ -291,6 +335,454 @@ function GraphSetupTab(
                         />
                     </Col>
                 </Row>
+                {GRAPHS_WITH_UNIQUE_CONFIG_OPTIONS.includes(props.graphParams.graphCreation .graph_type) && 
+                    <CollapsibleSection title={getGraphTypeFullName(props.graphParams.graphCreation.graph_type) + ' configuration'}>
+                        {GRAPHS_THAT_HAVE_NBINS.includes(props.graphParams.graphCreation.graph_type) && 
+                            <Row justify='space-between' align='center' title='Number of bins in histogram'>
+                                <Col>
+                                    <p>
+                                        Number of bins (int)
+                                    </p>
+                                </Col>
+                                <Input
+                                    value={props.graphParams.graphCreation.nbins?.toString() || ''}
+                                    type='number'
+                                    placeholder='5'
+                                    onChange={(e) => {
+                                        const newNumberBins = e.target.value === '' ? undefined : e.target.value
+                                        props.setGraphParams(prevGraphParams => {
+                                            const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                            return {
+                                                ...graphParamsCopy,
+                                                graphCreation: {
+                                                    ...graphParamsCopy.graphCreation,
+                                                    nbins: newNumberBins
+                                                } 
+                                            }
+                                        })
+                                        props.setGraphUpdatedNumber(old => old + 1)
+                                    }}
+                                    width='small'
+                                />
+                            </Row>
+                        }
+                        {GRAPHS_THAT_HAVE_BARMODE.includes(props.graphParams.graphCreation.graph_type) && 
+                            <Row justify='space-between' align='center' title='How bars are grouped together when there are multiple'>
+                                <Col>
+                                    <Row justify='space-between' align='center' suppressTopBottomMargin>
+                                        <p>
+                                            Bar mode
+                                        </p>
+                                        <Tooltip title='How bars are grouped together when there are multiple'/>
+                                    </Row>
+                                </Col>
+                                <Select
+                                    value={props.graphParams.graphStyling.barmode || 'group'}
+                                    onChange={(newBarMode: string) => {
+                                        props.setGraphParams(prevGraphParams => {
+                                            const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                            return {
+                                                ...graphParamsCopy,
+                                                graphStyling: {
+                                                    ...graphParamsCopy.graphStyling,
+                                                    barmode: newBarMode
+                                                } 
+                                            }
+                                        })
+                                        props.setGraphUpdatedNumber(old => old + 1)
+                                    }}
+                                    width='small'
+                                    dropdownWidth='medium'
+                                >
+                                    <DropdownItem
+                                        title={'stack'}
+                                    />
+                                    <DropdownItem
+                                        title={'group'}
+                                    />
+                                    <DropdownItem
+                                        title={'overlay'}
+                                    />
+                                    <DropdownItem
+                                        title={'relative'}
+                                    />
+                                </Select>
+                            </Row>
+                        }
+                        {GRAPHS_THAT_HAVE_BARNORM.includes(props.graphParams.graphCreation.graph_type) && 
+                            <Row justify='space-between' align='center' title="Normalize strategy used for each group of bars at a specific location on the graph's domain">
+                                <Col>
+                                    <Row justify='space-between' align='center' suppressTopBottomMargin>
+                                        <p>
+                                            Bar normalization
+                                        </p>
+                                        <Tooltip title="Normalize strategy used for each group of bars at a specific location on the graph's domain"/>
+                                    </Row>
+                                </Col>
+                                <Select
+                                    value={props.graphParams.graphStyling.barnorm || 'none'}
+                                    onChange={(newBarNorm: string) => {
+                                        props.setGraphParams(prevGraphParams => {
+                                            const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                            return {
+                                                ...graphParamsCopy,
+                                                graphStyling: {
+                                                    ...graphParamsCopy.graphStyling,
+                                                    barnorm: newBarNorm === 'none' ? undefined : newBarNorm
+                                                } 
+                                            }
+                                        })
+                                        props.setGraphUpdatedNumber(old => old + 1)
+                                    }}
+                                    width='small'
+                                    dropdownWidth='medium'
+                                >
+                                    <DropdownItem
+                                        title={'none'}
+                                    />
+                                    <DropdownItem
+                                        title={'fraction'}
+                                        subtext='value of each bar divided by the sum of all values at that location'
+                                    />
+                                    <DropdownItem
+                                        title={'percent'}
+                                        subtext='fraction multiplied by 100'
+                                    />
+                                </Select>
+                            </Row>
+                        }
+                        {GRAPHS_THAT_HAVE_HISTNORM.includes(props.graphParams.graphCreation.graph_type) && 
+                            <Row justify='space-between' align='center' title='Normalization strategy used for each graphed series in the histogram'>
+                                <Col>
+                                    <Row justify='space-between' align='center' suppressTopBottomMargin>
+                                        <p>
+                                            Hist normalization
+                                        </p>
+                                        <Tooltip title='Normalization strategy used for each graphed series in the histogram'/>
+                                    </Row>
+                                </Col>
+                                <Select
+                                    value={props.graphParams.graphCreation.histnorm || 'none'}
+                                    onChange={(newHistnorm: string) => {
+                                        props.setGraphParams(prevGraphParams => {
+                                            const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                            return {
+                                                ...graphParamsCopy,
+                                                graphCreation: {
+                                                    ...graphParamsCopy.graphCreation,
+                                                    histnorm: newHistnorm === 'none' ? undefined : newHistnorm
+                                                } 
+                                            }
+                                        })
+                                        props.setGraphUpdatedNumber(old => old + 1)
+                                    }}
+                                    width='small'
+                                    dropdownWidth='medium'
+                                >
+                                    <DropdownItem
+                                        title={'none'}
+                                    />
+                                    <DropdownItem
+                                        title={'probability'}
+                                        subtext='occurrences in bin divided by total number of sample points'
+                                    />
+                                    <DropdownItem
+                                        title={'percent'}
+                                        subtext='probabilty multiplied by 100'
+                                    />
+                                    <DropdownItem
+                                        title={'density'}
+                                        subtext='occurences in bin divided by bin interval'
+                                    />
+                                    <DropdownItem
+                                        title={'probability density'}
+                                        subtext='probability that a point falls into bin'
+                                    />
+                                </Select>
+                            </Row>
+                        }
+                        {GRAPHS_THAT_HAVE_HISTFUNC.includes(props.graphParams.graphCreation.graph_type) && 
+                            <Row justify='space-between' align='center' title='The metric displayed for each bin of data'>
+                                <Col>
+                                    <Row justify='space-between' align='center' suppressTopBottomMargin>
+                                        <p>
+                                            Hist function
+                                        </p>
+                                        <Tooltip title='The metric displayed for each bin of data'/>
+                                    </Row>
+                                </Col>
+                                <Select
+                                    value={props.graphParams.graphCreation.histfunc || 'count'}
+                                    onChange={(newHistfunc: string) => {
+                                        props.setGraphParams(prevGraphParams => {
+                                            const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                            return {
+                                                ...graphParamsCopy,
+                                                graphCreation: {
+                                                    ...graphParamsCopy.graphCreation,
+                                                    histfunc: newHistfunc
+                                                } 
+                                            }
+                                        })
+                                        props.setGraphUpdatedNumber(old => old + 1)
+                                    }}
+                                    width='small'
+                                    dropdownWidth='medium'
+                                >
+                                    <DropdownItem
+                                        title={'count'}
+                                        subtext='number of values in each bin'
+                                    />
+                                    <DropdownItem
+                                        title={'sum'}
+                                        subtext='sum of values in each bin'
+                                    />
+                                    <DropdownItem
+                                        title={'avg'}
+                                        subtext='average value in each bin'
+                                    />
+                                    <DropdownItem
+                                        title={'min'}
+                                        subtext='min value in each bin'
+                                    />
+                                    <DropdownItem
+                                        title={'max'}
+                                        subtext='max value in each bin'
+                                    />
+                                </Select>
+                            </Row>
+                        }
+                        {GRAPHS_THAT_HAVE_POINTS.includes(props.graphParams.graphCreation.graph_type) && 
+                            <Row justify='space-between' align='center' title='Display outlier points'>
+                                <Col>
+                                    <p>
+                                        Points
+                                    </p>
+                                </Col>
+                                <Select
+                                    value={props.graphParams.graphCreation.points === false ? 'none' : props.graphParams.graphCreation.points !== undefined ? props.graphParams.graphCreation.points : ''}
+                                    onChange={(newPointsString) => {
+                                        const newPointsParams = newPointsString === 'false' ? false : newPointsString
+                                        props.setGraphParams(prevGraphParams => {
+                                            const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                            return {
+                                                ...graphParamsCopy,
+                                                graphCreation: {
+                                                    ...graphParamsCopy.graphCreation,
+                                                    points: newPointsParams
+                                                } 
+                                            }
+                                        })
+                                        props.setGraphUpdatedNumber(old => old + 1)
+                                    }}
+                                    width='small'
+                                    dropdownWidth='medium'
+                                >
+                                    <DropdownItem
+                                        title={'outliers'}
+                                        subtext='only display sample points outside the whiskers'
+                                    />
+                                    <DropdownItem
+                                        title={'supsected outliers'}
+                                        id={'suspectedoutliers'}
+                                        subtext='display outlier and suspected outlier points'
+                                    />
+                                    <DropdownItem
+                                        title={'all'}
+                                        subtext='display all sample points'
+                                    />
+                                    <DropdownItem
+                                        title={'none'}
+                                        id='false'
+                                        subtext='display no individual sample points'
+                                    />
+                                </Select>
+                            </Row>
+                        }
+                        {GRAPHS_THAT_HAVE_LINE_SHAPE.includes(props.graphParams.graphCreation.graph_type) && 
+                            <Row justify='space-between' align='center' title='The shape of the line'>
+                                <Col>
+                                    <p>
+                                        Line shape
+                                    </p>
+                                </Col>
+                                <Select
+                                    value={props.graphParams.graphCreation.line_shape || 'linear'}
+                                    onChange={(newLineShape) => {
+                                        props.setGraphParams(prevGraphParams => {
+                                            const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                            return {
+                                                ...graphParamsCopy,
+                                                graphCreation: {
+                                                    ...graphParamsCopy.graphCreation,
+                                                    line_shape: newLineShape
+                                                } 
+                                            }
+                                        })
+                                        props.setGraphUpdatedNumber(old => old + 1)
+                                    }}
+                                    width='small'
+                                    dropdownWidth='medium'
+                                >
+                                    <DropdownItem 
+                                        title={'linear'} 
+                                        subtext='straight line between points'
+                                    />
+                                    <DropdownItem 
+                                        title={'spline'} 
+                                        subtext='spline interpolation between points'
+                                    />
+                                    <DropdownItem 
+                                        title={'hv'} 
+                                        subtext='horizontal vertical' 
+                                    />
+                                    <DropdownItem 
+                                        title={'vh'} 
+                                        subtext='veritical horizontal'
+                                    />
+                                    <DropdownItem
+                                        title={'hvh'}
+                                        subtext='horizontal vertical horizontal'
+                                    />
+                                    <DropdownItem 
+                                        title={'vhv'} 
+                                        subtext='vertical horizontal vertical'
+                                    />
+                                </Select>
+                            </Row>
+                        }
+                    </CollapsibleSection>
+                }
+                <CollapsibleSection title='Facet plots'>
+                    <div>
+                        <Row 
+                            justify='space-between' 
+                            align='center' 
+                            title={"Create subplots based on this attribute"}
+                        >
+                            <Col>
+                                <Row justify='space-between' align='center' suppressTopBottomMargin>
+                                    <p>
+                                        Facet Column &nbsp;
+                                    </p>
+                                    <Tooltip title={"Create subplots based on this attribute"}/>
+                                </Row>
+                            </Col>
+                            <Col>
+                                <Select 
+                                    value={props.graphParams.graphCreation.facet_col_column_id ? getDisplayColumnHeader(columnIDsMap[props.graphParams.graphCreation.facet_col_column_id]) : 'None'}
+                                    width='small'
+                                    searchable
+                                >
+                                    {[<DropdownItem
+                                        key='None'
+                                        title='None'
+                                        onClick={() => {
+                                            props.setGraphParams(prevGraphParams => {
+                                                const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                                return {
+                                                    ...graphParamsCopy,
+                                                    graphCreation: {
+                                                        ...graphParamsCopy.graphCreation, 
+                                                        facet_col_column_id: undefined
+                                                    }
+                                                }
+                                            })
+                                            props.setGraphUpdatedNumber((old) => old + 1);
+                                        }}
+                                    />].concat(
+                                        (Object.keys(columnIDsMap) || []).map(columnID => {
+                                            const columnHeader = columnIDsMap[columnID];
+                                            return (
+                                                <DropdownItem
+                                                    key={columnID}
+                                                    title={getDisplayColumnHeader(columnHeader)}
+                                                    onClick={() => {
+                                                        props.setGraphParams(prevGraphParams => {
+                                                            const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                                            return {
+                                                                ...graphParamsCopy,
+                                                                graphCreation: {
+                                                                    ...graphParamsCopy.graphCreation, 
+                                                                    facet_col_column_id: columnID
+                                                                }
+                                                            }
+                                                        })
+                                                        props.setGraphUpdatedNumber((old) => old + 1);
+                                                    }}
+                                                />
+                                            )
+                                        })
+                                    )}
+                                </Select>
+                            </Col>
+                        </Row>
+                    </div>
+                    <div>
+                        <Row 
+                            justify='space-between' 
+                            align='center' 
+                            title={"Create subplots based on this attribute"}
+                        >
+                            <Col>
+                                <Row justify='space-between' align='center' suppressTopBottomMargin>
+                                    <p>
+                                        Facet Row &nbsp;
+                                    </p>
+                                    <Tooltip title={"Create subplots based on this attribute"}/>
+                                </Row>
+                            </Col>
+                            <Col>
+                                <Select 
+                                    value={props.graphParams.graphCreation.facet_row_column_id ? getDisplayColumnHeader(columnIDsMap[props.graphParams.graphCreation.facet_row_column_id]) : 'None'}
+                                    width='small'
+                                    searchable
+                                >
+                                    {[<DropdownItem
+                                        key='None'
+                                        title='None'
+                                        onClick={() => {
+                                            props.setGraphParams(prevGraphParams => {
+                                                const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                                return {
+                                                    ...graphParamsCopy,
+                                                    graphCreation: {
+                                                        ...graphParamsCopy.graphCreation, 
+                                                        facet_row_column_id: undefined
+                                                    }
+                                                }
+                                            })
+                                            props.setGraphUpdatedNumber((old) => old + 1);
+                                        }}
+                                    />].concat(
+                                        (Object.keys(columnIDsMap) || []).map(columnID => {
+                                            const columnHeader = columnIDsMap[columnID];
+                                            return (
+                                                <DropdownItem
+                                                    key={columnID}
+                                                    title={getDisplayColumnHeader(columnHeader)}
+                                                    onClick={() => {
+                                                        props.setGraphParams(prevGraphParams => {
+                                                            const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
+                                                            return {
+                                                                ...graphParamsCopy,
+                                                                graphCreation: {
+                                                                    ...graphParamsCopy.graphCreation, 
+                                                                    facet_row_column_id: columnID
+                                                                }
+                                                            }
+                                                        })
+                                                        props.setGraphUpdatedNumber((old) => old + 1);
+                                                    }}
+                                                />
+                                            )
+                                        })
+                                    )}
+                                </Select>
+                            </Col>
+                        </Row>
+                    </div>
+                </CollapsibleSection>
             </div>
         </Fragment>
     )

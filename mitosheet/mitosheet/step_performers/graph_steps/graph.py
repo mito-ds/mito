@@ -12,7 +12,7 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
 
 from mitosheet.state import State
-from mitosheet.step_performers.graph_steps.graph_utils import GRAPH_TITLE_LABELS, get_html_and_script_from_figure, get_new_graph_tab_name
+from mitosheet.step_performers.graph_steps.graph_utils import GRAPH_TITLE_LABELS, get_column_header_from_optional_column_id_graph_param, get_html_and_script_from_figure, get_new_graph_tab_name
 from mitosheet.step_performers.graph_steps.plotly_express_graphs import (
     get_plotly_express_graph,
     get_plotly_express_graph_code,
@@ -36,7 +36,9 @@ class GraphStepPerformer(StepPerformer):
             sheet_index: int
             x_axis_column_ids: ColumnID[],
             y_axis_column_ids: ColumnID[],
-            color: columnID: columnID
+            color: columnID: columnID | None,
+            facet_column: columnID | None,
+            facet_row: columnID | None,
         },
         graph_styling: {
             title: {
@@ -67,7 +69,7 @@ class GraphStepPerformer(StepPerformer):
 
     @classmethod
     def step_version(cls) -> int:
-        return 3
+        return 4
 
     @classmethod
     def step_type(cls) -> str:
@@ -78,6 +80,7 @@ class GraphStepPerformer(StepPerformer):
         """
         Returns the new post state with the updated graph_data_dict
         """
+
         graph_id: GraphID = get_param(params, 'graph_id')
         graph_preprocessing: Dict[str, Any] = get_param(params, 'graph_preprocessing')
         graph_creation: Dict[str, Any] = get_param(params, 'graph_creation')
@@ -102,8 +105,22 @@ class GraphStepPerformer(StepPerformer):
         y_axis_column_ids = graph_creation["y_axis_column_ids"] if graph_creation["y_axis_column_ids"] is not None else []
         y_axis_column_headers = prev_state.column_ids.get_column_headers_by_ids(sheet_index, y_axis_column_ids)
 
-        # Validate optional parameters 
-        color_column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, graph_creation["color"]) if 'color' in graph_creation.keys() else None
+        # Validate optional parameters that are available for all graph types
+        color_column_header = get_column_header_from_optional_column_id_graph_param(prev_state, graph_creation, 'color')
+        facet_col_column_header = get_column_header_from_optional_column_id_graph_param(prev_state, graph_creation, 'facet_col_column_id')
+        facet_row_column_header = get_column_header_from_optional_column_id_graph_param(prev_state, graph_creation, 'facet_row_column_id')
+        
+        facet_col_wrap = graph_creation.get('facet_col_wrap', None)
+        facet_col_spacing = graph_creation.get('facet_col_spacing', None)
+        facet_row_spacing = graph_creation.get('facet_row_spacing', None)
+
+        # Validate parameters that are only available for some graph types
+        # Note: We trust the parameters from the frontend, so we don't make sure the params fit the graph type here
+        points = graph_creation.get('points', None)
+        line_shape = graph_creation.get('line_shape', None)
+        histnorm = graph_creation.get('histnorm', None)
+        histfunc = graph_creation.get('histfunc', None)
+        nbins = graph_creation.get('nbins', None)
 
         # Create a copy of the dataframe, just for safety.
         df: pd.DataFrame = prev_state.dfs[sheet_index].copy()
@@ -135,6 +152,16 @@ class GraphStepPerformer(StepPerformer):
                 x_axis_column_headers,
                 y_axis_column_headers,
                 color_column_header,
+                facet_col_column_header,
+                facet_row_column_header,
+                facet_col_wrap,
+                facet_col_spacing,
+                facet_row_spacing,
+                points,
+                line_shape,
+                histnorm,
+                histfunc,
+                nbins,
                 graph_styling
             )
             pandas_processing_time = perf_counter() - pandas_start_time
@@ -158,6 +185,16 @@ class GraphStepPerformer(StepPerformer):
                 x_axis_column_headers,
                 y_axis_column_headers,
                 color_column_header,
+                facet_col_column_header,
+                facet_row_column_header,
+                facet_col_wrap,
+                facet_col_spacing,
+                facet_row_spacing,
+                points,
+                line_shape,
+                histnorm,
+                histfunc,
+                nbins,
                 graph_styling,
                 df_name,
             )

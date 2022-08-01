@@ -97,14 +97,14 @@ const CellEditor = (props: {
     }, [props.editorState.pendingSelectedColumns]);
 
     useEffect(() => {
-        const startingFormula = getStartingFormula(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex, props.editorState.editingMode);
+        const {startingColumnFormula} = getStartingFormula(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex, props.editorState.editingMode);
         props.setEditorState(prevEditingState => {
             if (prevEditingState === undefined) {
                 return prevEditingState;
             }
             return {
                 ...prevEditingState,
-                formula: startingFormula
+                formula: startingColumnFormula
             }
         })
     }, [props.editorState.editingMode])
@@ -462,7 +462,8 @@ const CellEditor = (props: {
                             ' ',
                             ',',
                             '(', ')',
-                            '-', '+', '*', '/'
+                            '-', '+', '*', '/',
+                            '='
                         ]
 
                         let arrowKeysScrollInFormula = true

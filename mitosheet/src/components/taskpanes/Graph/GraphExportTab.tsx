@@ -1,7 +1,7 @@
 // Copyright (c) Saga Inc.
 
 import React from 'react';
-import { GraphOutput, GraphParams } from '../../../types';
+import { GraphOutput, GraphParamsFrontend } from '../../../types';
 import MitoAPI from '../../../jupyter/api';
 import TextButton from '../../elements/TextButton';
 import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
@@ -12,7 +12,7 @@ import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
 function GraphExportTab(
     props: {
         mitoAPI: MitoAPI;
-        graphParams: GraphParams
+        graphParams: GraphParamsFrontend
         loading: boolean
         graphOutput: GraphOutput
         mitoContainerRef: React.RefObject<HTMLDivElement>

@@ -496,15 +496,13 @@ function EndoGrid(props: {
             return;
         }
 
-        const startingFormula = getStartingFormula(sheetData, rowIndex, columnIndex, 'set_column_formula');
+        const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, rowIndex, columnIndex, 'set_column_formula');
 
         setEditorState({
             rowIndex: rowIndex,
             columnIndex: columnIndex,
-            formula: startingFormula,
-            // As in google sheets, if the starting formula is non empty, we default to the 
-            // arrow keys scrolling in the editor
-            arrowKeysScrollInFormula: startingFormula.length > 0,
+            formula: startingColumnFormula,
+            arrowKeysScrollInFormula: arrowKeysScrollInFormula,
             editorLocation: 'cell',
             editingMode: 'set_column_formula'
         })
@@ -565,15 +563,13 @@ function EndoGrid(props: {
                 setGridState((gridState) => {
                     const lastSelection = gridState.selections[gridState.selections.length - 1]
 
-                    const startingFormula = getStartingFormula(sheetData, lastSelection.startingRowIndex, lastSelection.startingColumnIndex, 'set_column_formula', e);
+                    const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, lastSelection.startingRowIndex, lastSelection.startingColumnIndex, 'set_column_formula', e);
                     
                     setEditorState({
                         rowIndex: lastSelection.startingRowIndex,
                         columnIndex: lastSelection.startingColumnIndex,
-                        formula: startingFormula,
-                        // As in google sheets, if the starting formula is non empty, we default to the 
-                        // arrow keys scrolling in the editor
-                        arrowKeysScrollInFormula: startingFormula.length > 0,
+                        formula: startingColumnFormula,
+                        arrowKeysScrollInFormula: arrowKeysScrollInFormula,
                         editorLocation: 'cell',
                         editingMode: 'set_column_formula'
                     });

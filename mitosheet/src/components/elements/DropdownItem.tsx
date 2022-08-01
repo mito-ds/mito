@@ -3,6 +3,7 @@ import React from 'react';
 
 import '../../../css/elements/DropdownItem.css'
 import { classNames } from '../../utils/classNames';
+import Row from '../layout/Row';
 import { DROPDOWN_IGNORE_CLICK_CLASS, DROPDOWN_SUPRESS_FOCUS_ON_CLOSE } from './Dropdown';
 
 interface DropdownItemProps {
@@ -96,20 +97,22 @@ const DropdownItem = (props: DropdownItemProps): JSX.Element => {
                 <div className={classNames('mito-dropdown-item-icon-container')}>
                     {props.icon}
                 </div>
-                {/* 
-                    Wrap in a span so that hovering over the HTML element shows the entire 
-                    title, in case it is cut off
-                */}
-                <span title={props.tooltip || props.title}>
-                    <p className={classNames('text-body-2', 'text-overflow-hide', 'cursor-default', {'mito-dropdown-item-title-disabled': disabled})}>
-                        {props.title}
-                    </p>
-                </span>
-                {props.rightText &&
-                    <span className={classNames('mito-dropdown-item-right-text', 'text-body-2')}>
-                        {props.rightText}
+                <Row justify='space-between' align='center'>
+                    {/* 
+                        Wrap in a span so that hovering over the HTML element shows the entire 
+                        title, in case it is cut off
+                    */}
+                    <span title={props.tooltip || props.title}>
+                        <p className={classNames('text-body-2', 'text-overflow-hide', 'cursor-default', {'mito-dropdown-item-title-disabled': disabled})}>
+                            {props.title}
+                        </p>
                     </span>
-                }
+                    {props.rightText &&
+                        <span className={classNames('mito-dropdown-item-right-text', 'text-body-2')}>
+                            {props.rightText}
+                        </span>
+                    }
+                </Row>
             </div>
             {props.subtext &&
                 /* 

@@ -70,7 +70,7 @@ def try_create_user_json_file(is_pro: bool=False) -> None:
         # And we also make sure that the experiment is updated, if it needs
         # to be updated
         new_experiment = get_new_experiment()
-        if new_experiment is not None and updated_user_json['experiment']['experiment_id'] != new_experiment['experiment_id']:
+        if 'experiment' not in updated_user_json or updated_user_json['experiment']['experiment_id'] != new_experiment['experiment_id']:
             updated_user_json['experiment'] = new_experiment
 
         with open(USER_JSON_PATH, 'w') as f:

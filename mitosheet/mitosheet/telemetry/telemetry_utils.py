@@ -22,7 +22,7 @@ from mitosheet.telemetry.private_params_map import LOG_EXECUTION_DATA_PUBLIC
 from mitosheet.types import StepsManagerType
 from mitosheet.user.location import get_location, is_docker
 from mitosheet.user.schemas import UJ_EXPERIMENT, UJ_FEEDBACKS, UJ_FEEDBACKS_V2, UJ_INTENDED_BEHAVIOR, UJ_MITOSHEET_TELEMETRY, UJ_USER_EMAIL
-from mitosheet.user.utils import is_local_deployment
+from mitosheet.user.utils import is_local_deployment, is_pro
 
 import analytics
 
@@ -39,14 +39,25 @@ from mitosheet.user import (UJ_STATIC_USER_ID, get_user_field,
 PRINT_LOGS = False
 
 
+try:
+    import mitosheet_helper_private
+    MITOSHEET_HELPER_PRIVATE = True
+except ImportError:
+    MITOSHEET_HELPER_PRIVATE = False
+
+
 def telemetry_turned_on() -> bool:
     """
     Helper function that tells you if logging is turned on or
     turned off on the entire Mito instance
     """
-    # If the current package is mitosheet-private, then we don't log anything,
-    # ever, under any circumstances - this is a custom distribution for a client
-    if package_name == 'mitosheet-private':
+
+    # If private helper is installed, then we don't log anything
+    if MITOSHEET_HELPER_PRIVATE:
+        return False
+
+    # If Mito Pro is on, then don't log anything
+    if is_pro():
         return False
 
     telemetry = get_user_field(UJ_MITOSHEET_TELEMETRY) 
