@@ -1,6 +1,7 @@
 from mitoinstaller.installer_steps import (ALL_INSTALLER_STEPS,
                                            run_installer_steps)
 from mitoinstaller.installer_steps.initial_installer_steps import initial_install_step_create_user
+from mitoinstaller.log_utils import log_error
 
 
 def do_install() -> None:
@@ -14,7 +15,12 @@ def do_install() -> None:
     # We need to create the user json file before we can run anything,
     # as this creates the experiment variant we use throughout the rest of the
     # installer.
-    initial_install_step_create_user()
+    try:
+        initial_install_step_create_user()
+    except:
+        log_error('install_failed', {'installer_step_name': 'create_user'})
+        log_error('create_user_failed')
+        exit(1)
 
     # Run the installer steps
     run_installer_steps(ALL_INSTALLER_STEPS)
