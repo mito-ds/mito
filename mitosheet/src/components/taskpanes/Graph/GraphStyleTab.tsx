@@ -392,7 +392,7 @@ function GraphStyleTab(props: {
                         <Row justify='space-between' align='center' title='The x position of the legend'>
                             <Col>
                                 <p>
-                                    X position
+                                    X position (-2 to 3)
                                 </p>
                             </Col>
                             <Input 
@@ -423,7 +423,7 @@ function GraphStyleTab(props: {
                         <Row justify='space-between' align='center' title='The y position of the legend'>
                             <Col>
                                 <p>
-                                    Y position
+                                    Y position (-2 to 3)
                                 </p>
                             </Col>
                             <Input 
