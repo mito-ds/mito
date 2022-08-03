@@ -177,7 +177,6 @@ class GraphStepPerformer(StepPerformer):
                 )
             )
 
-            print("include_plotlyjs:", include_plotlyjs)
             html_and_script = get_html_and_script_from_figure(fig, height, width, include_plotlyjs)
 
             graph_generation_code = get_plotly_express_graph_code(
