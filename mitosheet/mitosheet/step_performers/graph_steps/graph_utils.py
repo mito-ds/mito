@@ -145,7 +145,8 @@ def get_new_graph_tab_name(graph_data_dict: Dict[str, Dict[str, Any]]) -> str:
 
 
 def get_html_and_script_from_figure(
-    fig: go.Figure, height: int, width: int
+    fig: go.Figure, height: int, width: int,
+    include_plotlyjs: boolean,
 ) -> Dict[str, str]:
     """
     Given a plotly figure, generates HTML from it, and returns
@@ -163,12 +164,13 @@ def get_html_and_script_from_figure(
     fig.write_html(
         buffer,
         full_html=False,
-        include_plotlyjs=False,
+        include_plotlyjs=include_plotlyjs,
         default_height=height,
         default_width=width,
     )
 
     original_html = buffer.getvalue()
+    open ("original_html.txt", "w").write(original_html)
     # First, we remove the main div, and the resulting whitespace, to just have the children
     original_html = original_html[5:]
     original_html = original_html[:-6]
