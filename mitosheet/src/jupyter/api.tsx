@@ -358,7 +358,8 @@ export default class MitoAPI {
                 'sheet_index': sheetIndex,
                 'column_id': column_id,
                 'height': height,
-                'width': width
+                'width': width,
+                'include_plotlyjs': (window as any).Plotly === undefined,
             },
         }, { maxRetries: 250 })
 
@@ -589,7 +590,8 @@ export default class MitoAPI {
                 'graph_rendering': {
                     'height': height, 
                     'width': width
-                }
+                },
+                'include_plotlyjs': (window as any).Plotly === undefined
             }
         }, { maxRetries: 250 })
 

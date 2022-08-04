@@ -33,6 +33,7 @@ def get_column_summary_graph(params: Dict[str, Any], steps_manager: StepsManager
     column_id: ColumnID = params['column_id']
     height = params['height']
     width = params['width']
+    include_plotlyjs = params['include_plotlyjs']
 
 
     # Create a copy of the dataframe, just for safety.
@@ -51,7 +52,7 @@ def get_column_summary_graph(params: Dict[str, Any], steps_manager: StepsManager
         )
     )
 
-    return_object = get_html_and_script_from_figure(fig, height, width)
+    return_object = get_html_and_script_from_figure(fig, height, width, include_plotlyjs)
 
     return json.dumps(return_object)
 

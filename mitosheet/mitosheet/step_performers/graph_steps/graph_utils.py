@@ -145,7 +145,8 @@ def get_new_graph_tab_name(graph_data_dict: Dict[str, Dict[str, Any]]) -> str:
 
 
 def get_html_and_script_from_figure(
-    fig: go.Figure, height: int, width: int
+    fig: go.Figure, height: int, width: int,
+    include_plotlyjs: boolean,
 ) -> Dict[str, str]:
     """
     Given a plotly figure, generates HTML from it, and returns
@@ -163,24 +164,34 @@ def get_html_and_script_from_figure(
     fig.write_html(
         buffer,
         full_html=False,
-        include_plotlyjs=False,
+        include_plotlyjs=include_plotlyjs,
         default_height=height,
         default_width=width,
     )
 
     original_html = buffer.getvalue()
-    # First, we remove the main div, and the resulting whitespace, to just have the children
-    original_html = original_html[5:]
-    original_html = original_html[:-6]
-    original_html = original_html.strip()
 
-    # Then, we split the children into the div, and the script
-    # making sure to remove the script tag (so we can execute it)
-    script_start = '<script type="text/javascript">'
-    script_end = "</script>"
-    split_html = original_html.split(script_start)
-    div = split_html[0]
-    script = split_html[1][: -len(script_end)]
+    # Everything in a script tag we want to treat as one big script
+
+    # The get the graph div, which looks like: <div id="9c21d143-3fcd-4958-9295-ac7ada668186" class="plotly-graph-div" style="height:425px; width:970px;"></div>
+    # This is the only div we need to put on the frontend.
+    div = original_html[original_html.find('<div id='):original_html.find('</div>', original_html.find('<div id='))]
+
+    # Get all the scripts that are between the <script> tags, and join them together. If include_plotlyjs is true, this includes
+    # the plotly js script, and otherwise, it's just the data and the script that uses Plotly to build the graph on the div above
+    script = ''
+    index = 0
+    while index < len(original_html):
+        script_start = original_html.find('<script type="text/javascript">', index)
+        script_end = original_html.find('</script>', script_start)
+
+        if script_start == -1 or script_end == -1:
+            break
+
+        # Get rid of the initial script
+        script_start += len('<script type="text/javascript">')
+        script = script + original_html[script_start:script_end] + ';\n'
+        index = script_end + 9
 
     return {"html": div, "script": script}
 
