@@ -174,9 +174,11 @@ def get_html_and_script_from_figure(
     # Everything in a script tag we want to treat as one big script
 
     # The get the graph div, which looks like: <div id="9c21d143-3fcd-4958-9295-ac7ada668186" class="plotly-graph-div" style="height:425px; width:970px;"></div>
+    # This is the only div we need to put on the frontend.
     div = original_html[original_html.find('<div id='):original_html.find('</div>', original_html.find('<div id='))]
 
-    # Get all the scripts that are between the <script> tags, and join them together
+    # Get all the scripts that are between the <script> tags, and join them together. If include_plotlyjs is true, this includes
+    # the plotly js script, and otherwise, it's just the data and the script that uses Plotly to build the graph on the div above
     script = ''
     index = 0
     while index < len(original_html):
