@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React, { Fragment } from 'react';
-import { ColumnID, ColumnIDsMap, GraphParamsFrontend, Leaves, SheetData, UIState } from '../../../types';
+import { ColumnID, ColumnIDsMap, GraphParamsFrontend, RecursivePartial, SheetData, UIState } from '../../../types';
 import MitoAPI from '../../../jupyter/api';
 import Row from '../../layout/Row';
 import Col from '../../layout/Col';
@@ -15,7 +15,7 @@ import Tooltip from '../../elements/Tooltip';
 import DataframeSelect from '../../elements/DataframeSelect';
 import CollapsibleSection from '../../layout/CollapsibleSection';
 import Input from '../../elements/Input';
-import {updateParamsAtLeaf} from './graphUtils';
+import {updateParamsWithPartial} from './graphUtils';
 
 export enum GraphType {
     BAR = 'bar',
@@ -183,9 +183,9 @@ function GraphSetupTab(
         props.setGraphUpdatedNumber((old) => old + 1);
     }
 
-    function updateGraphParam<T>(path: Leaves<GraphParamsFrontend>, newValue: T): void {
+    function updateGraphParam<T>(update: RecursivePartial<GraphParamsFrontend>): void {
         props.setGraphParams(prevGraphParams => {
-            return updateParamsAtLeaf<T | undefined>(prevGraphParams, path, newValue);
+            return updateParamsWithPartial<T | undefined>(prevGraphParams, update);
         })
         props.setGraphUpdatedNumber(old => old + 1)
     }
@@ -325,7 +325,7 @@ function GraphSetupTab(
                         <Toggle
                             value={props.graphParams.graphPreprocessing.safety_filter_turned_on_by_user}
                             onChange={() => {
-                                updateGraphParam(['graphPreprocessing', 'safety_filter_turned_on_by_user'], !graphPreprocessingParams.safety_filter_turned_on_by_user)
+                                updateGraphParam({graphPreprocessing: {safety_filter_turned_on_by_user: !graphPreprocessingParams.safety_filter_turned_on_by_user}})
                             }}
                             disabled={!getDefaultSafetyFilter(props.sheetDataArray, graphSheetIndex)}
                         />
@@ -346,7 +346,7 @@ function GraphSetupTab(
                                     placeholder='5'
                                     onChange={(e) => {
                                         const newNumberBins = e.target.value === '' ? undefined : e.target.value
-                                        updateGraphParam(['graphCreation', 'nbins'], newNumberBins);
+                                        updateGraphParam({graphCreation: {nbins: newNumberBins}})
                                     }}
                                     width='small'
                                 />
@@ -365,7 +365,8 @@ function GraphSetupTab(
                                 <Select
                                     value={props.graphParams.graphStyling.barmode || 'group'}
                                     onChange={(newBarMode: string) => {
-                                        updateGraphParam(['graphStyling', 'barmode'], newBarMode);
+                                        updateGraphParam({graphStyling: {barmode: newBarMode}})
+
                                     }}
                                     width='small'
                                     dropdownWidth='medium'
@@ -398,7 +399,7 @@ function GraphSetupTab(
                                 <Select
                                     value={props.graphParams.graphStyling.barnorm || 'none'}
                                     onChange={(newBarNorm: string) => {
-                                        updateGraphParam(['graphStyling', 'barnorm'], newBarNorm);
+                                        updateGraphParam({graphStyling: {barnorm: newBarNorm}})
                                     }}
                                     width='small'
                                     dropdownWidth='medium'
@@ -430,7 +431,7 @@ function GraphSetupTab(
                                 <Select
                                     value={props.graphParams.graphCreation.histnorm || 'none'}
                                     onChange={(newHistnorm: string) => {
-                                        updateGraphParam(['graphCreation', 'histnorm'], newHistnorm);
+                                        updateGraphParam({graphCreation: {histnorm: newHistnorm}})
                                     }}
                                     width='small'
                                     dropdownWidth='medium'
@@ -470,7 +471,7 @@ function GraphSetupTab(
                                 <Select
                                     value={props.graphParams.graphCreation.histfunc || 'count'}
                                     onChange={(newHistfunc: string) => {
-                                        updateGraphParam(['graphCreation', 'histfunc'], newHistfunc);
+                                        updateGraphParam({graphCreation: {histfunc: newHistfunc}})
                                     }}
                                     width='small'
                                     dropdownWidth='medium'
@@ -509,7 +510,8 @@ function GraphSetupTab(
                                     value={props.graphParams.graphCreation.points === false ? 'none' : props.graphParams.graphCreation.points !== undefined ? props.graphParams.graphCreation.points : ''}
                                     onChange={(newPointsString) => {
                                         const newPointsParams = newPointsString === 'false' ? false : newPointsString
-                                        updateGraphParam(['graphCreation', 'points'], newPointsParams);
+                                        updateGraphParam({graphCreation: {points: newPointsParams}})
+
                                     }}
                                     width='small'
                                     dropdownWidth='medium'
@@ -545,7 +547,7 @@ function GraphSetupTab(
                                 <Select
                                     value={props.graphParams.graphCreation.line_shape || 'linear'}
                                     onChange={(newLineShape) => {
-                                        updateGraphParam(['graphCreation', 'line_shape'], newLineShape);
+                                        updateGraphParam({graphCreation: {line_shape: newLineShape}})
                                     }}
                                     width='small'
                                     dropdownWidth='medium'
@@ -604,7 +606,7 @@ function GraphSetupTab(
                                         key='None'
                                         title='None'
                                         onClick={() => {
-                                            updateGraphParam(['graphCreation', 'facet_col_column_id'], undefined);
+                                            updateGraphParam({graphCreation: {facet_col_column_id: undefined}})
                                         }}
                                     />].concat(
                                         (Object.keys(columnIDsMap) || []).map(columnID => {
@@ -614,7 +616,7 @@ function GraphSetupTab(
                                                     key={columnID}
                                                     title={getDisplayColumnHeader(columnHeader)}
                                                     onClick={() => {
-                                                        updateGraphParam(['graphCreation', 'facet_col_column_id'], columnID);
+                                                        updateGraphParam({graphCreation: {facet_col_column_id: columnID}})
                                                     }}
                                                 />
                                             )
@@ -648,7 +650,7 @@ function GraphSetupTab(
                                         key='None'
                                         title='None'
                                         onClick={() => {
-                                            updateGraphParam(['graphCreation', 'facet_row_column_id'], undefined);
+                                            updateGraphParam({graphCreation: {facet_row_column_id: undefined}})
                                         }}
                                     />].concat(
                                         (Object.keys(columnIDsMap) || []).map(columnID => {
@@ -658,8 +660,7 @@ function GraphSetupTab(
                                                     key={columnID}
                                                     title={getDisplayColumnHeader(columnHeader)}
                                                     onClick={() => {
-                                                        updateGraphParam(['graphCreation', 'facet_row_column_id'], columnID);
-                                                        props.setGraphUpdatedNumber((old) => old + 1);
+                                                        updateGraphParam({graphCreation: {facet_row_column_id: columnID}})
                                                     }}
                                                 />
                                             )

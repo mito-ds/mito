@@ -2,7 +2,7 @@
 
 import React from 'react';
 import LabelAndColor from '../../../pro/graph/LabelAndColor';
-import { GraphParamsFrontend, Leaves, UserProfile } from '../../../types';
+import { GraphParamsFrontend, RecursivePartial, UserProfile } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import Input from '../../elements/Input';
 import Select from '../../elements/Select';
@@ -10,7 +10,7 @@ import Toggle from '../../elements/Toggle';
 import Col from '../../layout/Col';
 import CollapsibleSection from '../../layout/CollapsibleSection';
 import Row from '../../layout/Row';
-import { updateParamsAtLeaf } from './graphUtils';
+import { updateParamsWithPartial } from './graphUtils';
 
 export enum AxisType {
     DEFAULT = 'default',
@@ -34,9 +34,9 @@ function GraphStyleTab(props: {
     const graphCreationParams = props.graphParams.graphCreation;
     const graphStylingParams = props.graphParams.graphStyling;
 
-    function updateGraphParam<T>(path: Leaves<GraphParamsFrontend>, newValue: T): void {
+    function updateGraphParam<T>(update: RecursivePartial<GraphParamsFrontend>): void {
         props.setGraphParams(prevGraphParams => {
-            return updateParamsAtLeaf<T | undefined>(prevGraphParams, path, newValue);
+            return updateParamsWithPartial<T | undefined>(prevGraphParams, update);
         })
         props.setGraphUpdatedNumber(old => old + 1)
     }
@@ -57,7 +57,7 @@ function GraphStyleTab(props: {
                         onChange={(e) => {
                             // We set it to undefined so that the backend knows we're not trying to set a custom axis label 
                             const newTitle =  e.target.value !== '' ? e.target.value : undefined
-                            return updateGraphParam(['graphStyling', 'title', 'title'], newTitle);
+                            return updateGraphParam({graphStyling: {title: {title: newTitle}}});
                         }}
                     />
                 </Row>
@@ -73,7 +73,8 @@ function GraphStyleTab(props: {
                         onChange={(e) => {
                             // We set it to undefined so that the backend knows we're not trying to set a custom axis label 
                             const newTitle =  e.target.value !== '' ? e.target.value : undefined
-                            return updateGraphParam(['graphStyling', 'xaxis', 'title'], newTitle);
+                            return updateGraphParam({graphStyling: {xaxis: {title: newTitle}}});
+
                         }}
                     />
                 </Row>
@@ -88,7 +89,8 @@ function GraphStyleTab(props: {
                         placeholder="Default Y Axis"
                         onChange={(e) => {
                             const newTitle = e.target.value !== '' ? e.target.value : undefined
-                            return updateGraphParam(['graphStyling', 'yaxis', 'title'], newTitle);
+                            return updateGraphParam({graphStyling: {yaxis: {title: newTitle}}});
+
                         }}
                     />
                 </Row>
@@ -101,7 +103,7 @@ function GraphStyleTab(props: {
                     <Toggle 
                         value={graphStylingParams.title.visible} 
                         onChange={() => {
-                            return updateGraphParam(['graphStyling', 'title', 'visible'], !graphStylingParams.title.visible);
+                            return updateGraphParam({graphStyling: {title: {visible: !graphStylingParams.title.visible}}});
                         }}     
                     />
                 </Row>
@@ -114,7 +116,7 @@ function GraphStyleTab(props: {
                     <Toggle 
                         value={graphStylingParams.xaxis.visible} 
                         onChange={() => {
-                            return updateGraphParam(['graphStyling', 'xaxis', 'visible'], !graphStylingParams.xaxis.visible);
+                            return updateGraphParam({graphStyling: {xaxis: {visible: !graphStylingParams.xaxis.visible}}});
                         }}     
                     />
                 </Row>
@@ -127,7 +129,8 @@ function GraphStyleTab(props: {
                     <Toggle 
                         value={graphStylingParams.yaxis.visible} 
                         onChange={() => {
-                            return updateGraphParam(['graphStyling', 'yaxis', 'visible'], !graphStylingParams.yaxis.visible);
+                            return updateGraphParam({graphStyling: {yaxis: {visible: !graphStylingParams.yaxis.visible}}});
+
                         }}     
                     />
                 </Row>
@@ -143,7 +146,8 @@ function GraphStyleTab(props: {
                         value={props.graphParams.graphStyling.xaxis.type || 'default'}
                         onChange={(xAxisType: string) => {
                             const newXAxisType = (xAxisType !== AxisType.DEFAULT ? xAxisType : undefined) as AxisType | undefined;
-                            return updateGraphParam(['graphStyling', 'xaxis', 'type'], newXAxisType);
+                            return updateGraphParam({graphStyling: {xaxis: {type: newXAxisType}}});
+
                         }}
                         width='small'
                         dropdownWidth='medium'
@@ -175,7 +179,8 @@ function GraphStyleTab(props: {
                         value={props.graphParams.graphStyling.yaxis.type || 'default'}
                         onChange={(yAxisType: string) => {
                             const newYAxisType = (yAxisType !== AxisType.DEFAULT ? yAxisType : undefined) as AxisType | undefined;
-                            return updateGraphParam(['graphStyling', 'yaxis', 'type'], newYAxisType);
+                            return updateGraphParam({graphStyling: {yaxis: {type: newYAxisType}}});
+
                         }}
                         width='small'
                         dropdownWidth='medium'
@@ -217,7 +222,8 @@ function GraphStyleTab(props: {
                             <Toggle 
                                 value={graphStylingParams.showlegend} 
                                 onChange={() => {
-                                    return updateGraphParam(['graphStyling', 'showlegend'], !graphStylingParams.showlegend);
+                                    return updateGraphParam({graphStyling: {showlegend: !graphStylingParams.showlegend}});
+
                                 }}     
                             />
                         </Row>
@@ -231,7 +237,7 @@ function GraphStyleTab(props: {
                                 value={graphStylingParams.legend.orientation === 'v' ? 'vertical' : 'horiztonal'} 
                                 width='medium'
                                 onChange={(newOrientation: string) => {
-                                    return updateGraphParam(['graphStyling', 'legend', 'orientation'], newOrientation as 'v' | 'h');
+                                    return updateGraphParam({graphStyling: {legend: {orientation: newOrientation as 'v' | 'h'}}});
                                 }}     
                             >   
                                 <DropdownItem title='vertical' id='v' />
@@ -250,7 +256,8 @@ function GraphStyleTab(props: {
                                 placeholder='Legend title'
                                 onChange={(e) => {
                                     const newLegendTitle = e.target.value
-                                    return updateGraphParam(['graphStyling', 'legend', 'title', 'text'], newLegendTitle);
+                                    return updateGraphParam({graphStyling: {legend: {title: {text: newLegendTitle}}}});
+
                                 }}     
                             />
                         </Row>
@@ -268,7 +275,8 @@ function GraphStyleTab(props: {
                                 placeholder={graphStylingParams.legend.orientation === 'v' ? '1.02' : '0.00'}
                                 onChange={(e) => {
                                     const newX = e.target.value === '' ? undefined : e.target.value
-                                    return updateGraphParam<string | undefined>(['graphStyling', 'legend', 'x'], newX);
+                                    return updateGraphParam({graphStyling: {legend: {x: newX}}});
+
                                 }}     
                             />
                         </Row>
@@ -285,8 +293,8 @@ function GraphStyleTab(props: {
                                 // Set default according the https://plotly.com/python/reference/layout/#layout-legend-y
                                 placeholder={graphStylingParams.legend.orientation === 'v' ? '1.00' : graphStylingParams.xaxis.rangeslider.visible ? '1.10' : "-0.10"}
                                 onChange={(e) => {
-                                    const newY = e.target.value === '' ? undefined : e.target.value
-                                    return updateGraphParam<string | undefined>(['graphStyling', 'legend', 'y'], newY);
+                                    const newY = e.target.value === '' ? undefined : e.target.value;
+                                    return updateGraphParam({graphStyling: {legend: {y: newY}}});
                                 }}     
                             />
                         </Row>
@@ -312,7 +320,8 @@ function GraphStyleTab(props: {
                             <Toggle 
                                 value={graphStylingParams.xaxis.showgrid} 
                                 onChange={() => {
-                                    return updateGraphParam<boolean | undefined>(['graphStyling', 'xaxis', 'showgrid'], !graphStylingParams.xaxis.showgrid);
+                                    return updateGraphParam({graphStyling: {xaxis: {showgrid: !graphStylingParams.xaxis.showgrid}}});
+
                                 }}     
                             />
                         </Row>
@@ -325,7 +334,8 @@ function GraphStyleTab(props: {
                             <Toggle 
                                 value={graphStylingParams.yaxis.showgrid} 
                                 onChange={() => {
-                                    return updateGraphParam<boolean | undefined>(['graphStyling', 'yaxis', 'showgrid'], !graphStylingParams.yaxis.showgrid);
+                                    return updateGraphParam({graphStyling: {yaxis: {showgrid: !graphStylingParams.yaxis.showgrid}}});
+
                                 }}     
                             />
                         </Row>
@@ -341,8 +351,8 @@ function GraphStyleTab(props: {
                                 width='small'
                                 placeholder='1'
                                 onChange={(e) => {
-                                    const newVerticalGridWidth = e.target.value === '' ? undefined : e.target.value
-                                    return updateGraphParam<string | undefined>(['graphStyling', 'xaxis', 'gridwidth'], newVerticalGridWidth);
+                                    const newVerticalGridWidth = e.target.value === '' ? undefined : e.target.value;
+                                    return updateGraphParam({graphStyling: {xaxis: {gridwidth: newVerticalGridWidth}}});
                                 }}     
                             />
                         </Row>
@@ -358,8 +368,8 @@ function GraphStyleTab(props: {
                                 width='small'
                                 placeholder='1'
                                 onChange={(e) => {
-                                    const newHoriztonalGridWidth = e.target.value === '' ? undefined : e.target.value
-                                    return updateGraphParam<string | undefined>(['graphStyling', 'yaxis', 'gridwidth'], newHoriztonalGridWidth);
+                                    const newHoriztonalGridWidth = e.target.value === '' ? undefined : e.target.value;
+                                    return updateGraphParam({graphStyling: {yaxis: {gridwidth: newHoriztonalGridWidth}}});
                                 }}     
                             />
                         </Row>
@@ -381,35 +391,35 @@ function GraphStyleTab(props: {
                             label='Plot Background Color'
                             color={graphStylingParams.plot_bgcolor}
                             onChange={(newColor) => {
-                                return updateGraphParam(['graphStyling', 'plot_bgcolor'], newColor);
+                                return updateGraphParam({graphStyling: {plot_bgcolor: newColor}});
                             }}
                         />
                         <LabelAndColor
                             label='Paper Background Color'
                             color={graphStylingParams.paper_bgcolor}
                             onChange={(newColor) => {
-                                return updateGraphParam(['graphStyling', 'paper_bgcolor'], newColor);
+                                return updateGraphParam({graphStyling: {paper_bgcolor: newColor}});
                             }}
                         />
                         <LabelAndColor
                             label='Title color'
                             color={graphStylingParams.title.title_font_color}
                             onChange={(newColor) => {
-                                return updateGraphParam(['graphStyling', 'title', 'title_font_color'], newColor);
+                                return updateGraphParam({graphStyling: {title: {title_font_color: newColor}}});
                             }}
                         />
                         <LabelAndColor
                             label='X axis title color'
                             color={graphStylingParams.xaxis.title_font_color}
                             onChange={(newColor) => {
-                                return updateGraphParam(['graphStyling', 'xaxis', 'title_font_color'], newColor);
+                                return updateGraphParam({graphStyling: {xaxis: {title_font_color: newColor}}});
                             }}
                         />
                         <LabelAndColor
                             label='Y axis title color'
                             color={graphStylingParams.yaxis.title_font_color}
                             onChange={(newColor) => {
-                                return updateGraphParam(['graphStyling', 'yaxis', 'title_font_color'], newColor);
+                                return updateGraphParam({graphStyling: {yaxis: {title_font_color: newColor}}});
                             }}
                         />
                     </>
@@ -438,7 +448,7 @@ function GraphStyleTab(props: {
                                 placeholder='num cols'
                                 onChange={(e) => {
                                     const newNumCols = e.target.value === '' ? undefined : e.target.value
-                                    return updateGraphParam(['graphCreation', 'facet_col_wrap'], newNumCols);
+                                    return updateGraphParam({graphCreation: {facet_col_wrap: newNumCols}});
                                 }}     
                             />
                         </Row>
@@ -455,7 +465,7 @@ function GraphStyleTab(props: {
                                 placeholder='.03'
                                 onChange={(e) => {
                                     const newColSpacing = e.target.value === '' ? undefined : e.target.value
-                                    return updateGraphParam(['graphCreation', 'facet_col_spacing'], newColSpacing);
+                                    return updateGraphParam({graphCreation: {facet_col_spacing: newColSpacing}});
                                 }}     
                             />
                         </Row>
@@ -472,7 +482,7 @@ function GraphStyleTab(props: {
                                 placeholder='.07'
                                 onChange={(e) => {
                                     const newRowSpacing = e.target.value === '' ? undefined : e.target.value
-                                    return updateGraphParam(['graphCreation', 'facet_row_spacing'], newRowSpacing);
+                                    return updateGraphParam({graphCreation: {facet_row_spacing: newRowSpacing}});
                                 }}     
                             />
                         </Row>
@@ -489,7 +499,9 @@ function GraphStyleTab(props: {
                     <Toggle 
                         value={graphStylingParams.xaxis.rangeslider.visible} 
                         onChange={() => {
-                            return updateGraphParam(['graphStyling', 'xaxis', 'rangeslider', 'visible'], !graphStylingParams.xaxis.rangeslider.visible);
+                            return updateGraphParam(
+                                {graphStyling: {xaxis: {rangeslider: {visible: !graphStylingParams.xaxis.rangeslider.visible}}}}
+                            )                                
                         }}     
                     />
                 </Row>

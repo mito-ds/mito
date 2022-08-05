@@ -880,23 +880,11 @@ export enum GraphSidebarTab {
     Export = 'export'
 }
 
-type Cons<H, T> = T extends readonly any[] ?
-    ((h: H, ...t: T) => void) extends ((...r: infer R) => void) ? R : never
-    : never;
 
-type Prev = [never, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-    11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...0[]]
-
-
-export type Paths<T, D extends number = 10> = [D] extends [never] ? never : T extends object ?
-    { [K in keyof T]-?: [K] | (Paths<T[K], Prev[D]> extends infer P ?
-        P extends [] ? never : Cons<K, P> : never
-    ) }[keyof T]
-    : [];
-
-
-// An incredibly fancy type taken from here: https://stackoverflow.com/questions/59455679/typescript-type-definition-for-an-object-property-path
-// that allows us to reference the paths to the edge nodes in a strongly type object. I don't get it, but it works!
-export type Leaves<T, D extends number = 10> = [D] extends [never] ? never : T extends object ?
-    { [K in keyof T]-?: Cons<K, Leaves<T[K], Prev[D]>> }[keyof T]
-    : [];
+// A fancy type taken from here: https://stackoverflow.com/questions/41980195/recursive-partialt-in-typescript
+export type RecursivePartial<T> = {
+    [P in keyof T]?:
+        T[P] extends (infer U)[] ? RecursivePartial<U>[] :
+        T[P] extends object ? RecursivePartial<T[P]> :
+        T[P];
+    };

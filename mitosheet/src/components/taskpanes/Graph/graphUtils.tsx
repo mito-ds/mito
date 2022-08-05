@@ -1,6 +1,6 @@
 // Helper function for creating default graph params. Defaults to a Bar chart, 
 import React from "react"
-import { ColumnID, ColumnIDsMap, GraphDataDict, GraphID, GraphParamsBackend, GraphParamsFrontend, Leaves, SheetData } from "../../../types"
+import { ColumnID, ColumnIDsMap, GraphDataDict, GraphID, GraphParamsBackend, GraphParamsFrontend, RecursivePartial, SheetData } from "../../../types"
 import { intersection } from "../../../utils/arrays"
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders"
 import { isDatetimeDtype } from "../../../utils/dtypes"
@@ -85,13 +85,9 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
     }
 }
 
-export function updateParamsAtLeaf<T>(graphParams: GraphParamsFrontend, path: Leaves<typeof graphParams>, newValue: T): GraphParamsFrontend {
+export function updateParamsWithPartial<T>(graphParams: GraphParamsFrontend, update: RecursivePartial<GraphParamsFrontend>): GraphParamsFrontend {
     const newParams: GraphParamsFrontend = JSON.parse(JSON.stringify(graphParams));
-    let current: Record<string, any> = newParams;
-    for (let level = 0; level < path.length - 1; level++) {
-        current = current[path[level]];
-    }
-    current[path[path.length - 1]] = newValue;
+    Object.assign(newParams, update);
     return newParams;
 }
 
