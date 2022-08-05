@@ -105,7 +105,7 @@ function recurseObjectAssign(target: Record<string, any>, source: Record<string,
 
 }
 
-export function updateParamsWithPartial<T>(graphParams: GraphParamsFrontend, update: RecursivePartial<GraphParamsFrontend>): GraphParamsFrontend {
+export function updateParamsWithPartial(graphParams: GraphParamsFrontend, update: RecursivePartial<GraphParamsFrontend>): GraphParamsFrontend {
     const newParams: GraphParamsFrontend = JSON.parse(JSON.stringify(graphParams));
     recurseObjectAssign(newParams, update);
     return newParams;

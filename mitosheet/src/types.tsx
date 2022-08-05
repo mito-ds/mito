@@ -884,7 +884,7 @@ export enum GraphSidebarTab {
 // A fancy type taken from here: https://stackoverflow.com/questions/41980195/recursive-partialt-in-typescript
 export type RecursivePartial<T> = {
     [P in keyof T]?:
-        T[P] extends (infer U)[] ? RecursivePartial<U>[] :
-        T[P] extends object ? RecursivePartial<T[P]> :
-        T[P];
-    };
+    T[P] extends (infer U)[] ? RecursivePartial<U>[] :
+        T[P] extends Record<string, unknown> ? RecursivePartial<T[P]> :
+            T[P];
+};
