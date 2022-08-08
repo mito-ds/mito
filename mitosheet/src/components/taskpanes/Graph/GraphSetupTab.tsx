@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React, { Fragment } from 'react';
-import { ColumnID, ColumnIDsMap, GraphParamsFrontend, SheetData, UIState } from '../../../types';
+import { ColumnID, ColumnIDsMap, GraphParamsFrontend, RecursivePartial, SheetData, UIState } from '../../../types';
 import MitoAPI from '../../../jupyter/api';
 import Row from '../../layout/Row';
 import Col from '../../layout/Col';
@@ -15,6 +15,7 @@ import Tooltip from '../../elements/Tooltip';
 import DataframeSelect from '../../elements/DataframeSelect';
 import CollapsibleSection from '../../layout/CollapsibleSection';
 import Input from '../../elements/Input';
+import {updateParamsWithPartial} from './graphUtils';
 
 export enum GraphType {
     BAR = 'bar',
@@ -80,23 +81,9 @@ function GraphSetupTab(
         setGraphUpdatedNumber: React.Dispatch<React.SetStateAction<number>>;
     }): JSX.Element {
 
-    const graphSheetIndex = props.graphParams.graphCreation.sheet_index
+    const graphSheetIndex = props.graphParams.graphCreation.sheet_index;
+    const graphPreprocessingParams = props.graphParams.graphPreprocessing;
 
-    // Toggles the safety filter component of the graph params
-    const toggleSafetyFilter = (): void => {
-        const newSafetyFilter = !props.graphParams.graphPreprocessing.safety_filter_turned_on_by_user
-
-        props.setGraphParams(prevGraphParams => {
-            const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
-            return {
-                ...graphParamsCopy,
-                graphPreprocessing: {
-                    safety_filter_turned_on_by_user: newSafetyFilter
-                }
-            }
-        })
-        props.setGraphUpdatedNumber((old) => old + 1);
-    }
 
     /* 
         Function responsible for updating the selected column headers for each axis. 
@@ -194,6 +181,13 @@ function GraphSetupTab(
             }
         })
         props.setGraphUpdatedNumber((old) => old + 1);
+    }
+
+    function updateGraphParam(update: RecursivePartial<GraphParamsFrontend>): void {
+        props.setGraphParams(prevGraphParams => {
+            return updateParamsWithPartial(prevGraphParams, update);
+        })
+        props.setGraphUpdatedNumber(old => old + 1)
     }
 
     const colorByColumnTitle = GRAPHS_THAT_DONT_SUPPORT_COLOR.includes(props.graphParams.graphCreation.graph_type)
@@ -330,7 +324,9 @@ function GraphSetupTab(
                     <Col>
                         <Toggle
                             value={props.graphParams.graphPreprocessing.safety_filter_turned_on_by_user}
-                            onChange={toggleSafetyFilter}
+                            onChange={() => {
+                                updateGraphParam({graphPreprocessing: {safety_filter_turned_on_by_user: !graphPreprocessingParams.safety_filter_turned_on_by_user}})
+                            }}
                             disabled={!getDefaultSafetyFilter(props.sheetDataArray, graphSheetIndex)}
                         />
                     </Col>
@@ -350,17 +346,7 @@ function GraphSetupTab(
                                     placeholder='5'
                                     onChange={(e) => {
                                         const newNumberBins = e.target.value === '' ? undefined : e.target.value
-                                        props.setGraphParams(prevGraphParams => {
-                                            const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
-                                            return {
-                                                ...graphParamsCopy,
-                                                graphCreation: {
-                                                    ...graphParamsCopy.graphCreation,
-                                                    nbins: newNumberBins
-                                                } 
-                                            }
-                                        })
-                                        props.setGraphUpdatedNumber(old => old + 1)
+                                        updateGraphParam({graphCreation: {nbins: newNumberBins}})
                                     }}
                                     width='small'
                                 />
@@ -379,17 +365,8 @@ function GraphSetupTab(
                                 <Select
                                     value={props.graphParams.graphStyling.barmode || 'group'}
                                     onChange={(newBarMode: string) => {
-                                        props.setGraphParams(prevGraphParams => {
-                                            const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
-                                            return {
-                                                ...graphParamsCopy,
-                                                graphStyling: {
-                                                    ...graphParamsCopy.graphStyling,
-                                                    barmode: newBarMode
-                                                } 
-                                            }
-                                        })
-                                        props.setGraphUpdatedNumber(old => old + 1)
+                                        updateGraphParam({graphStyling: {barmode: newBarMode}})
+
                                     }}
                                     width='small'
                                     dropdownWidth='medium'
@@ -422,17 +399,7 @@ function GraphSetupTab(
                                 <Select
                                     value={props.graphParams.graphStyling.barnorm || 'none'}
                                     onChange={(newBarNorm: string) => {
-                                        props.setGraphParams(prevGraphParams => {
-                                            const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
-                                            return {
-                                                ...graphParamsCopy,
-                                                graphStyling: {
-                                                    ...graphParamsCopy.graphStyling,
-                                                    barnorm: newBarNorm === 'none' ? undefined : newBarNorm
-                                                } 
-                                            }
-                                        })
-                                        props.setGraphUpdatedNumber(old => old + 1)
+                                        updateGraphParam({graphStyling: {barnorm: newBarNorm}})
                                     }}
                                     width='small'
                                     dropdownWidth='medium'
@@ -464,17 +431,7 @@ function GraphSetupTab(
                                 <Select
                                     value={props.graphParams.graphCreation.histnorm || 'none'}
                                     onChange={(newHistnorm: string) => {
-                                        props.setGraphParams(prevGraphParams => {
-                                            const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
-                                            return {
-                                                ...graphParamsCopy,
-                                                graphCreation: {
-                                                    ...graphParamsCopy.graphCreation,
-                                                    histnorm: newHistnorm === 'none' ? undefined : newHistnorm
-                                                } 
-                                            }
-                                        })
-                                        props.setGraphUpdatedNumber(old => old + 1)
+                                        updateGraphParam({graphCreation: {histnorm: newHistnorm}})
                                     }}
                                     width='small'
                                     dropdownWidth='medium'
@@ -514,17 +471,7 @@ function GraphSetupTab(
                                 <Select
                                     value={props.graphParams.graphCreation.histfunc || 'count'}
                                     onChange={(newHistfunc: string) => {
-                                        props.setGraphParams(prevGraphParams => {
-                                            const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
-                                            return {
-                                                ...graphParamsCopy,
-                                                graphCreation: {
-                                                    ...graphParamsCopy.graphCreation,
-                                                    histfunc: newHistfunc
-                                                } 
-                                            }
-                                        })
-                                        props.setGraphUpdatedNumber(old => old + 1)
+                                        updateGraphParam({graphCreation: {histfunc: newHistfunc}})
                                     }}
                                     width='small'
                                     dropdownWidth='medium'
@@ -563,17 +510,8 @@ function GraphSetupTab(
                                     value={props.graphParams.graphCreation.points === false ? 'none' : props.graphParams.graphCreation.points !== undefined ? props.graphParams.graphCreation.points : ''}
                                     onChange={(newPointsString) => {
                                         const newPointsParams = newPointsString === 'false' ? false : newPointsString
-                                        props.setGraphParams(prevGraphParams => {
-                                            const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
-                                            return {
-                                                ...graphParamsCopy,
-                                                graphCreation: {
-                                                    ...graphParamsCopy.graphCreation,
-                                                    points: newPointsParams
-                                                } 
-                                            }
-                                        })
-                                        props.setGraphUpdatedNumber(old => old + 1)
+                                        updateGraphParam({graphCreation: {points: newPointsParams}})
+
                                     }}
                                     width='small'
                                     dropdownWidth='medium'
@@ -609,17 +547,7 @@ function GraphSetupTab(
                                 <Select
                                     value={props.graphParams.graphCreation.line_shape || 'linear'}
                                     onChange={(newLineShape) => {
-                                        props.setGraphParams(prevGraphParams => {
-                                            const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
-                                            return {
-                                                ...graphParamsCopy,
-                                                graphCreation: {
-                                                    ...graphParamsCopy.graphCreation,
-                                                    line_shape: newLineShape
-                                                } 
-                                            }
-                                        })
-                                        props.setGraphUpdatedNumber(old => old + 1)
+                                        updateGraphParam({graphCreation: {line_shape: newLineShape}})
                                     }}
                                     width='small'
                                     dropdownWidth='medium'
@@ -678,17 +606,7 @@ function GraphSetupTab(
                                         key='None'
                                         title='None'
                                         onClick={() => {
-                                            props.setGraphParams(prevGraphParams => {
-                                                const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
-                                                return {
-                                                    ...graphParamsCopy,
-                                                    graphCreation: {
-                                                        ...graphParamsCopy.graphCreation, 
-                                                        facet_col_column_id: undefined
-                                                    }
-                                                }
-                                            })
-                                            props.setGraphUpdatedNumber((old) => old + 1);
+                                            updateGraphParam({graphCreation: {facet_col_column_id: undefined}})
                                         }}
                                     />].concat(
                                         (Object.keys(columnIDsMap) || []).map(columnID => {
@@ -698,17 +616,7 @@ function GraphSetupTab(
                                                     key={columnID}
                                                     title={getDisplayColumnHeader(columnHeader)}
                                                     onClick={() => {
-                                                        props.setGraphParams(prevGraphParams => {
-                                                            const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
-                                                            return {
-                                                                ...graphParamsCopy,
-                                                                graphCreation: {
-                                                                    ...graphParamsCopy.graphCreation, 
-                                                                    facet_col_column_id: columnID
-                                                                }
-                                                            }
-                                                        })
-                                                        props.setGraphUpdatedNumber((old) => old + 1);
+                                                        updateGraphParam({graphCreation: {facet_col_column_id: columnID}})
                                                     }}
                                                 />
                                             )
@@ -742,17 +650,7 @@ function GraphSetupTab(
                                         key='None'
                                         title='None'
                                         onClick={() => {
-                                            props.setGraphParams(prevGraphParams => {
-                                                const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
-                                                return {
-                                                    ...graphParamsCopy,
-                                                    graphCreation: {
-                                                        ...graphParamsCopy.graphCreation, 
-                                                        facet_row_column_id: undefined
-                                                    }
-                                                }
-                                            })
-                                            props.setGraphUpdatedNumber((old) => old + 1);
+                                            updateGraphParam({graphCreation: {facet_row_column_id: undefined}})
                                         }}
                                     />].concat(
                                         (Object.keys(columnIDsMap) || []).map(columnID => {
@@ -762,17 +660,7 @@ function GraphSetupTab(
                                                     key={columnID}
                                                     title={getDisplayColumnHeader(columnHeader)}
                                                     onClick={() => {
-                                                        props.setGraphParams(prevGraphParams => {
-                                                            const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
-                                                            return {
-                                                                ...graphParamsCopy,
-                                                                graphCreation: {
-                                                                    ...graphParamsCopy.graphCreation, 
-                                                                    facet_row_column_id: columnID
-                                                                }
-                                                            }
-                                                        })
-                                                        props.setGraphUpdatedNumber((old) => old + 1);
+                                                        updateGraphParam({graphCreation: {facet_row_column_id: columnID}})
                                                     }}
                                                 />
                                             )

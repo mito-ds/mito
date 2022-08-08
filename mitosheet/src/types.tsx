@@ -270,9 +270,9 @@ export type GraphStylingParams<T> = {
         title: string | undefined, // when undefined, we use Ploty's default title
         visible: boolean
         title_font_color: string, // defaults to #2f3e5d
-        type: string | undefined // when undefined, we use Plotly's default
-        showgrid: boolean 
-        gridwidth: T | undefined
+        type: string | undefined, // when undefined, we use Plotly's default
+        showgrid: boolean,
+        gridwidth: T | undefined,
     },
     showlegend: boolean,
     legend: {
@@ -879,3 +879,12 @@ export enum GraphSidebarTab {
     Style = 'style',
     Export = 'export'
 }
+
+
+// A fancy type taken from here: https://stackoverflow.com/questions/41980195/recursive-partialt-in-typescript
+export type RecursivePartial<T> = {
+    [P in keyof T]?:
+    T[P] extends (infer U)[] ? RecursivePartial<U>[] :
+        T[P] extends Record<string, unknown> ? RecursivePartial<T[P]> :
+            T[P];
+};
