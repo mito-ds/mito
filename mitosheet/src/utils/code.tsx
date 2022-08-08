@@ -123,7 +123,7 @@ export function getLastNonEmptyLine(codeText: string): string | undefined {
 }
 
 export const getArgsFromMitosheetCallCode = (codeText: string): string[] => {
-    let nameString = codeText.split('mitosheet.sheet(')[1].split(')')[0];
+    let nameString = codeText.split('sheet(')[1].split(')')[0];
 
     // If there is a (new) analysis name parameter passed, we ignore it
     if (nameString.includes('analysis_to_replay')) {
