@@ -25,7 +25,7 @@ import '../../css/sitewide/widths.css';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import MitoAPI from '../jupyter/api';
 import { getArgs, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell } from '../jupyter/jupyterUtils';
-import { AnalysisData, DataTypeInMito, DFSource, EditorState, GridState, SheetData, UIState, UserProfile } from '../types';
+import { AnalysisData, DFSource, EditorState, GridState, SheetData, UIState, UserProfile } from '../types';
 import { createActions } from '../utils/actions';
 import { classNames } from '../utils/classNames';
 import { isMitoError } from '../utils/errors';
@@ -64,9 +64,6 @@ import UpgradeToProTaskpane from './taskpanes/UpgradeToPro/UpgradeToProTaskpane'
 import Toolbar from './toolbar/Toolbar';
 import Tour from './tour/Tour';
 import { TourName } from './tour/Tours';
-import { isVariantA } from '../utils/experiments';
-import { CHECKLIST_STEPS } from './checklists/checklistData';
-import { getRemainingChecklistItems } from './checklists/Checklist';
 
 export type MitoProps = {
     model_id: string;
@@ -716,33 +713,12 @@ export const Mito = (props: MitoProps): JSX.Element => {
     useKeyboardShortcuts(mitoContainerRef, actions, setGridState);
 
     /* 
-        We currrently send all users through the intro tour.
-
         This returns the tour JSX to display, which might be nothing
         if the user should not go through the tour for some reason.
     */
     const getCurrTour = (): JSX.Element => {
 
-        // If the user has either no or tutorial data in the tool, don't display the tour
-        if (analysisData.dataTypeInTool === DataTypeInMito.NONE || analysisData.dataTypeInTool === DataTypeInMito.TUTORIAL) {
-            return <></>;
-        }
-
         const toursToDisplay: TourName[] = []
-
-        // If we are in variant B, then we display the tour to the user. In either case, we 
-        // take special care to set the user json as if we also did the other variant, so
-        // that make sure the user.json for all users is valid at the end of the experiment
-        if (!userProfile.receivedTours.includes(TourName.INTRO)) {
-            if (isVariantA(analysisData)) {
-                void props.mitoAPI.updateCloseTour([TourName.INTRO]);
-            } else {
-                toursToDisplay.push(TourName.INTRO);
-                if (getRemainingChecklistItems(userProfile).length !== 0) {
-                    void props.mitoAPI.updateChecklist('onboarding_checklist', CHECKLIST_STEPS['onboarding_checklist'], false)
-                }
-            }
-        }
 
         // If we open the cell editor for the first time, we give the user this tour
         if (editorState !== undefined && editorState.rowIndex >= 0 && !userProfile.receivedTours.includes(TourName.COLUMN_FORMULAS)) {

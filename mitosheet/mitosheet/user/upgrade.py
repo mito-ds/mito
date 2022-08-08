@@ -186,10 +186,6 @@ def try_upgrade_user_json_to_current_version() -> None:
 
     if user_json_object is None:
         user_json_object = USER_JSON_DEFAULT
-    
-    # If we don't need to upgrade, don't upgrade
-    if UJ_USER_JSON_VERSION in user_json_object and user_json_object[UJ_USER_JSON_VERSION] == USER_JSON_DEFAULT[UJ_USER_JSON_VERSION]:
-        return
 
     # Try to upgrade it to the final version of 1, if it is not already there
     try_upgrade_to_final_user_json_version_1(user_json_object)
@@ -212,6 +208,7 @@ def try_upgrade_user_json_to_current_version() -> None:
     # We always make sure that the experiment is the most up to date
     # version of the experiment
     new_experiment = get_new_experiment()
+    print(new_experiment, user_json_object[UJ_EXPERIMENT])
     if new_experiment is not None and user_json_object[UJ_EXPERIMENT]['experiment_id'] != new_experiment['experiment_id']:
             user_json_object[UJ_EXPERIMENT] = new_experiment
 

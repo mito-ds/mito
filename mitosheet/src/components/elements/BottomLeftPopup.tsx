@@ -6,7 +6,6 @@ import LoadingIndicator from '../LoadingIndicator';
 import '../../../css/elements/BottomLeftPopup.css';
 import Checklist, { getRemainingChecklistItems } from '../checklists/Checklist';
 import MitoAPI from '../../jupyter/api';
-import { isVariantA } from '../../utils/experiments';
 import { ModalEnum, ModalInfo } from '../modals/modals';
 
 const BottomLeftPopup = (props: {
@@ -36,9 +35,7 @@ const BottomLeftPopup = (props: {
     }, [props.loading.length]);
 
     // We only display the checklist if we are in variant a
-    const displayChecklist = isVariantA(props.analysisData) 
-        && getRemainingChecklistItems(props.userProfile).length > 0
-        && props.currOpenModal.type !== ModalEnum.SignUp;
+    const displayChecklist = getRemainingChecklistItems(props.userProfile).length > 0 && props.currOpenModal.type !== ModalEnum.SignUp;
 
     return (
         <>

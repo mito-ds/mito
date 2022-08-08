@@ -193,6 +193,8 @@ def get_html_and_script_from_figure(
         script = script + original_html[script_start:script_end] + ';\n'
         index = script_end + 9
 
+    open('script.txt', 'w').write(script)
+
     return {"html": div, "script": script}
 
 def get_column_header_from_optional_column_id_graph_param(

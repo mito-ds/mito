@@ -2,7 +2,6 @@ import React from 'react'
 import MitoAPI from '../../jupyter/api';
 import { AnalysisData, UIState, UserProfile } from '../../types';
 import { classNames } from '../../utils/classNames';
-import { isVariantB } from '../../utils/experiments';
 import { getRemainingChecklistItems } from '../checklists/Checklist';
 
 
@@ -23,7 +22,7 @@ interface PlanButtonProps {
  */
 const OpenOnboardingChecklist = (props: PlanButtonProps): JSX.Element => {
     
-    if (isVariantB(props.analysisData) || props.userProfile.numUsages !== 1 || getRemainingChecklistItems(props.userProfile).length !== 0) {
+    if (props.userProfile.numUsages !== 1 || getRemainingChecklistItems(props.userProfile).length !== 0) {
         return <></>;
     }
 
