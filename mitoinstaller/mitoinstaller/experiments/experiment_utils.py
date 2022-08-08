@@ -9,8 +9,8 @@ def get_random_variant() -> str:
 def get_new_experiment() -> Dict[str, str]:
     # NOTE: this needs to match the mitosheet package!
     return {
-        'experiment_id': 'installer_communication_and_time_to_value',
-        'variant': get_random_variant(),
+        'experiment_id': 'no_experiment',
+        'variant': 'A',
     }
 
 def is_variant_a() -> bool:

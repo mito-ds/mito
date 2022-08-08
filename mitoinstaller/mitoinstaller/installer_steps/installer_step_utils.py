@@ -2,7 +2,6 @@ import threading
 from time import perf_counter
 import time
 from mitoinstaller.commands import exit_after_error
-from mitoinstaller.experiments.experiment_utils import is_variant_a
 from mitoinstaller.log_utils import log_error
 import traceback
 from typing import List
@@ -49,14 +48,8 @@ def run_installer_steps(installer_steps: List[InstallerStep]) -> None:
     installer issues easier!
     """
 
-    if not is_variant_a():
-        print('Starting install...')
-
     try:
         for index, installer_step in enumerate(installer_steps):
-
-            if not is_variant_a():
-                print(installer_step.installer_step_name)
 
             # Create a thread to execute the step in, and start it
             th = threading.Thread(target=installer_step.execute)
@@ -67,7 +60,7 @@ def run_installer_steps(installer_steps: List[InstallerStep]) -> None:
             # Then, we wait for the execution to finish, checking every second if it has
             while th.is_alive():
 
-                if is_variant_a() and not installer_step.no_print_in_main_loop:
+                if not installer_step.no_print_in_main_loop:
                     print_current_installer_message(installer_steps, index - 1, start_time)
 
                 # We want to print the progress every 2 seconds, so we the user knows what is going on
