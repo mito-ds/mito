@@ -183,9 +183,9 @@ function GraphSetupTab(
         props.setGraphUpdatedNumber((old) => old + 1);
     }
 
-    function updateGraphParam<T>(update: RecursivePartial<GraphParamsFrontend>): void {
+    function updateGraphParam(update: RecursivePartial<GraphParamsFrontend>): void {
         props.setGraphParams(prevGraphParams => {
-            return updateParamsWithPartial<T | undefined>(prevGraphParams, update);
+            return updateParamsWithPartial(prevGraphParams, update);
         })
         props.setGraphUpdatedNumber(old => old + 1)
     }

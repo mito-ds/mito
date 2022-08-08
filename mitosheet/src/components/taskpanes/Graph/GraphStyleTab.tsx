@@ -34,9 +34,9 @@ function GraphStyleTab(props: {
     const graphCreationParams = props.graphParams.graphCreation;
     const graphStylingParams = props.graphParams.graphStyling;
 
-    function updateGraphParam<T>(update: RecursivePartial<GraphParamsFrontend>): void {
+    function updateGraphParam(update: RecursivePartial<GraphParamsFrontend>): void {
         props.setGraphParams(prevGraphParams => {
-            return updateParamsWithPartial<T | undefined>(prevGraphParams, update);
+            return updateParamsWithPartial(prevGraphParams, update);
         })
         props.setGraphUpdatedNumber(old => old + 1)
     }
