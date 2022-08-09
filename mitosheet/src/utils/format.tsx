@@ -228,6 +228,16 @@ const _getColumnFormatDropdownItems = (
             disabled={disabled}
         />,
         <DropdownItem 
+            key={getFormatTitle({type: NumberColumnFormatEnum.CURRENCY})}
+            title={getFormatTitle({type: NumberColumnFormatEnum.CURRENCY})}
+            icon={appliedColumnFormat?.type === NumberColumnFormatEnum.CURRENCY ? <DropdownCheckmark /> : undefined}
+            onClick={() => onClick({type: NumberColumnFormatEnum.CURRENCY})}
+            subtext={disabled ? FORMAT_DISABLED_MESSAGE : 'Numbers displayed as $1234.57'}
+            hideSubtext={true}
+            displaySubtextOnHover={true}
+            disabled={disabled}
+        />,
+        <DropdownItem 
             key={getFormatTitle({type: NumberColumnFormatEnum.ACCOUNTING})}
             title={getFormatTitle({type: NumberColumnFormatEnum.ACCOUNTING})}
             icon={appliedColumnFormat?.type === NumberColumnFormatEnum.ACCOUNTING ? <DropdownCheckmark /> : undefined}
@@ -278,10 +288,15 @@ export const getFormatTitle = (formatTypeObj: ColumnFormatType | undefined): str
     }
 
     switch(formatTypeObj.type) {
+        case undefined :
+            return 'Default';
         case NumberColumnFormatEnum.PLAIN_TEXT:
             return 'Plain Text'
         case NumberColumnFormatEnum.PERCENTAGE: {
             return 'Percentage'
+        }
+        case NumberColumnFormatEnum.CURRENCY: {
+            return 'Currency'
         }
         case NumberColumnFormatEnum.ACCOUNTING: {
             return 'Accounting'
@@ -292,6 +307,4 @@ export const getFormatTitle = (formatTypeObj: ColumnFormatType | undefined): str
         case NumberColumnFormatEnum.SCIENTIFIC_NOTATION:
             return 'Scientific Notation'
     }
-
-    return 'Default';
 }

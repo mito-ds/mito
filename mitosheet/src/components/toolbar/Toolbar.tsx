@@ -165,7 +165,19 @@ const Toolbar = (
                         action={props.actions[ActionEnum.Change_Dtype]}
                         setEditorState={props.setEditorState}
                         disabledTooltip={isVariantB(props.analysisData) ? undefined : props.actions[ActionEnum.Change_Dtype].isDisabled()}
-
+                    />
+                    <div className="toolbar-vertical-line"></div>
+                    <ToolbarButton
+                        toolbarButtonType={ToolbarButtonType.DTYPE}
+                        action={props.actions[ActionEnum.Precision_Decrease]}
+                        setEditorState={props.setEditorState}
+                        disabledTooltip={props.actions[ActionEnum.Precision_Decrease].isDisabled()}
+                    />
+                    <ToolbarButton
+                        toolbarButtonType={ToolbarButtonType.DTYPE}
+                        action={props.actions[ActionEnum.Precision_Increase]}
+                        setEditorState={props.setEditorState}
+                        disabledTooltip={props.actions[ActionEnum.Precision_Increase].isDisabled()}
                     />
                     
                     <ToolbarButton

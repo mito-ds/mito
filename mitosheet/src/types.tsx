@@ -165,7 +165,7 @@ export enum NumberColumnFormatEnum {
 
 export type ColumnFormatType = | 
 	{
-		type: NumberColumnFormatEnum,
+		type?: NumberColumnFormatEnum,
 		precision?: number
 	} // In the future, if we add other column format types, we add them here
 
@@ -742,6 +742,8 @@ export enum ActionEnum {
     Merge = 'merge',
     Concat_Dataframes = 'concat_dataframes', // Note the unfortunate overlap with concat
     Pivot = 'pivot',
+    Precision_Increase = 'precision increase',
+    Precision_Decrease = 'precision decrease',
     Promote_Row_To_Header = 'promote row to header',
     Redo = 'redo',
     Rename_Column = 'rename column',

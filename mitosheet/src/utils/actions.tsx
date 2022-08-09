@@ -9,10 +9,11 @@ import { getDefaultGraphParams } from "../components/taskpanes/Graph/graphUtils"
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../data/function_documentation";
-import { Action, DFSource, EditorState, GridState, SheetData, UIState, ActionEnum, AnalysisData } from "../types"
+import { Action, DFSource, EditorState, GridState, SheetData, UIState, ActionEnum, AnalysisData, DataframeFormat } from "../types"
 import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { FORMAT_DISABLED_MESSAGE } from "./format";
 import { writeTextToClipboard, getCopyStringForClipboard } from "./copy";
+import { getDefaultDataframeFormat } from "../components/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
 
 
 export const createActions = (
@@ -31,6 +32,7 @@ export const createActions = (
     // Define variables that we use in many actions
     const sheetIndex = gridState.sheetIndex;
     const sheetData = sheetDataArray[sheetIndex];
+    const dfFormat: DataframeFormat = (sheetData?.dfFormat || getDefaultDataframeFormat());
     const startingRowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex;
     const startingColumnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
     const {columnID} = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
@@ -705,6 +707,59 @@ export const createActions = (
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no sheets to pivot. Import data.'},
             searchTerms: ['pivot', 'group', 'group by', 'summarize', 'aggregate'],
             tooltip: "Create a Pivot Table to summarise data by breaking the data into groups and calculating statistics about each group."
+        },
+        [ActionEnum.Precision_Decrease]: {
+            type: ActionEnum.Precision_Decrease,
+            shortTitle: 'More',
+            longTitle: 'Remove decimal from number columns',
+            actionFunction: async () => {  
+                const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
+                const newDfFormat: DataframeFormat = JSON.parse(JSON.stringify(dfFormat));
+                selectedNumberSeriesColumnIDs.forEach((columnID) => {
+                    const newColumnFormat = {
+                        ...newDfFormat.columns[columnID]
+                    }
+                    newColumnFormat.precision = Math.max((newDfFormat.columns[columnID]?.precision || 0) - 1, 0);
+                    newDfFormat.columns[columnID] = newColumnFormat;
+                });
+
+                mitoAPI.editSetDataframeFormat(sheetIndex, newDfFormat);
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to format. Import data.'
+                }
+                
+                return getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData).length > 0 ? undefined : FORMAT_DISABLED_MESSAGE;
+            },
+            searchTerms: ['format', 'round', 'decimal', 'decimal places', 'fraction'],
+            tooltip: "Decrease the number of decimal places that are displayed in the selected number columns." 
+        },
+        [ActionEnum.Precision_Increase]: {
+            type: ActionEnum.Precision_Increase,
+            shortTitle: 'Less',
+            longTitle: 'Adds decimal to number columns',
+            actionFunction: async () => {  
+                const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
+                const newDfFormat: DataframeFormat = JSON.parse(JSON.stringify(dfFormat));
+                selectedNumberSeriesColumnIDs.forEach((columnID) => {
+                    const newColumnFormat = {
+                        ...newDfFormat.columns[columnID]
+                    }
+                    newColumnFormat.precision = (newDfFormat.columns[columnID]?.precision || 0) + 1
+                    newDfFormat.columns[columnID] = newColumnFormat;
+                });
+                mitoAPI.editSetDataframeFormat(sheetIndex, newDfFormat);
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to format. Import data.'
+                }
+                
+                return getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData).length > 0 ? undefined : FORMAT_DISABLED_MESSAGE;
+            },
+            searchTerms: ['format', 'round', 'decimal', 'decimal places', 'fraction'],
+            tooltip: "Increase the number of decimal places that are displayed in the selected number columns." 
         },
         [ActionEnum.Promote_Row_To_Header]: {
             type: ActionEnum.Promote_Row_To_Header,
