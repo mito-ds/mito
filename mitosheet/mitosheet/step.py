@@ -88,8 +88,8 @@ class Step:
         return self.post_state.column_filters
 
     @property
-    def column_format_types(self):
-        return self.post_state.column_format_types
+    def df_formats(self):
+        return self.post_state.df_formats
 
     @property
     def graph_data_dict(self) -> Dict[str, Dict[str, Any]]:

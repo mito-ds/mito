@@ -194,8 +194,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
             pandas_processing_time = perf_counter() - pandas_start_time
 
             # If we're changing between number columns, we keep the formatting on the column. Otherwise, we remove it
-            if not ((is_int_dtype(old_dtype) or is_float_dtype(old_dtype)) and (is_int_dtype(new_dtype) or is_float_dtype(new_dtype))):
-                post_state.column_format_types[sheet_index][column_id] = {'type': FORMAT_DEFAULT}
+            # TODO: fix this up
                 
             return post_state, {
                 'pandas_processing_time': pandas_processing_time

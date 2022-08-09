@@ -35,7 +35,7 @@ FILTER_NAN_TESTS = [
     ),
     (
         [pd.Series([np.NaN, 3.0]), pd.Series([1.0, np.NaN])], 
-        [pd.Series([]), pd.Series([])]
+        [pd.Series([], dtype='float64'), pd.Series([], dtype='float64')]
     ),
 ]
 

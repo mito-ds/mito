@@ -12,7 +12,7 @@ explicit and clear, and make sure to test the types in our
 continous integration
 """
 
-from typing import TYPE_CHECKING, List, Union, Tuple, Any
+from typing import TYPE_CHECKING, Dict, List, Union, Tuple, Any
 
 GraphID = str
 ColumnID = str
@@ -30,5 +30,7 @@ if TYPE_CHECKING:
 else:
     StepsManagerType = Any
 
+
+DataframeFormat = Dict[str, Any]
 
 

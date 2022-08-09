@@ -18,7 +18,6 @@ from mitosheet.state import (
     FORMAT_K_M_B,
     FORMAT_PERCENTAGE,
     FORMAT_PLAIN_TEXT,
-    FORMAT_ROUND_DECIMALS,
     FORMAT_SCIENTIFIC_NOTATION,
 )
 from mitosheet.step_performers import (
@@ -175,7 +174,7 @@ def test_user_json_fields_match():
 
 
 def test_format_types_fields_match():
-    format_types = get_enum_from_ts_file("./src/types.tsx", "FormatType")
+    format_types = get_enum_from_ts_file("./src/types.tsx", "NumberColumnFormatEnum")
     format_types_values = format_types.values()
 
     assert set(format_types_values) == set(
@@ -185,7 +184,6 @@ def test_format_types_fields_match():
             FORMAT_PERCENTAGE,
             FORMAT_ACCOUNTING,
             FORMAT_CURRENCY,
-            FORMAT_ROUND_DECIMALS,
             FORMAT_K_M_B,
             FORMAT_SCIENTIFIC_NOTATION,
         ]

@@ -138,4 +138,3 @@ def test_sheet_json_holds_all_columns():
         assert sheet_data['columnFiltersMap'][str(i)] is not None
         assert sheet_data['columnIDsMap'][str(i)] is not None
         assert sheet_data['columnDtypeMap'][str(i)] is not None
-        assert sheet_data['columnFormatTypeObjMap'][str(i)] is not None

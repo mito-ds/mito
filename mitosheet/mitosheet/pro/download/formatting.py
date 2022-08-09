@@ -1,8 +1,7 @@
 import pandas as pd
 from mitosheet.sheet_functions.types.utils import is_int_dtype, is_number_dtype
 from mitosheet.state import (FORMAT_ACCOUNTING, FORMAT_DEFAULT, FORMAT_K_M_B,
-                             FORMAT_PERCENTAGE, FORMAT_PLAIN_TEXT,
-                             FORMAT_ROUND_DECIMALS, FORMAT_SCIENTIFIC_NOTATION)
+                             FORMAT_PERCENTAGE, FORMAT_PLAIN_TEXT, FORMAT_SCIENTIFIC_NOTATION)
 from mitosheet.types import StepsManagerType
 
 
@@ -32,6 +31,10 @@ def add_formatting_to_excel_sheet(
     """
     df = steps_manager.dfs[sheet_index]
     sheet_name = steps_manager.curr_step.df_names[sheet_index]
+
+    return
+
+    # TODO: fix up the Excel formatting
     format_data_map = steps_manager.curr_step.column_format_types[sheet_index]
 
     workbook  = writer.book
