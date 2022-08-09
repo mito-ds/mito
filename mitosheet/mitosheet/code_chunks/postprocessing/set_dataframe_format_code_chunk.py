@@ -9,6 +9,7 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import NUMBER_FORMAT_ACCOUNTING, NUMBER_FORMAT_CURRENCY, NUMBER_FORMAT_K_M_B, NUMBER_FORMAT_PERCENTAGE, NUMBER_FORMAT_PLAIN_TEXT, NUMBER_FORMAT_SCIENTIFIC_NOTATION, State
 from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_to_transpiled_code
 from mitosheet.types import ColumnFormat, ColumnHeader, DataframeFormat
+from mitosheet.utils import MAX_ROWS
 
 
 def get_dataframes_with_formats(state: State) -> List[int]:
@@ -32,18 +33,18 @@ def get_format_string_for_column_format(column_format: Optional[ColumnFormat]) -
         precision_string = ''
 
     if type == NUMBER_FORMAT_PLAIN_TEXT:
-        return f"{OPEN_BRACKET}:{precision_string}f{CLOSE_BRACKET}"
+        return f"\"{OPEN_BRACKET}:{precision_string}f{CLOSE_BRACKET}\""
     elif type == NUMBER_FORMAT_PERCENTAGE:
-        return f"{OPEN_BRACKET}:,{precision_string}%{CLOSE_BRACKET}"
+        return f"\"{OPEN_BRACKET}:,{precision_string}%{CLOSE_BRACKET}\""
     elif type == NUMBER_FORMAT_ACCOUNTING:
-        return "lambda val: '${OPEN_BRACKET}:>,{precision_string}f{CLOSE_BRACKET}'.format(abs(val)) if val > 0 else '$({OPEN_BRACKET}:>,{precision_string}f{CLOSE_BRACKET})'.format(abs((val)))"
+        return f"lambda val: '${OPEN_BRACKET}:>,{precision_string}f{CLOSE_BRACKET}'.format(abs(val)) if val > 0 else '$({OPEN_BRACKET}:>,{precision_string}f{CLOSE_BRACKET})'.format(abs((val)))"
     elif type == NUMBER_FORMAT_CURRENCY:
-        return f"${OPEN_BRACKET}:{precision_string}f{CLOSE_BRACKET}"    
+        return f"\"${OPEN_BRACKET}:{precision_string}f{CLOSE_BRACKET}\""    
     elif type == NUMBER_FORMAT_K_M_B:
         # TODO: Fix this up when we have the format string
-        return f"{OPEN_BRACKET}:{precision_string}E{CLOSE_BRACKET}"
+        return f"\"{OPEN_BRACKET}:{precision_string}E{CLOSE_BRACKET}\""
     elif type == NUMBER_FORMAT_SCIENTIFIC_NOTATION:
-        return f"{OPEN_BRACKET}:{precision_string}E{CLOSE_BRACKET}"
+        return f"\"{OPEN_BRACKET}:{precision_string}E{CLOSE_BRACKET}\""
 
 
     # TODO: do we want to raise an exception here
@@ -62,7 +63,7 @@ def get_all_columns_format_code(state: State, sheet_index: int) -> Optional[str]
         format_string = get_format_string_for_column_format(column_format)
 
         if format_string is not None:
-            all_columns_format_code += f'.format(\'{format_string}\', subset=[{transpiled_column_header}])'
+            all_columns_format_code += f'.format({format_string}, subset=[{transpiled_column_header}])'
 
     if len(all_columns_format_code) > 0:
         return all_columns_format_code
@@ -72,7 +73,7 @@ def get_transpiled_table_style(selector: str, props: List[Tuple[str, Optional[st
     # We filter out all the props that have None as values
     props = [prop for prop in props if prop[1] is not None]
     if len(props) > 0:
-        return f"{OPEN_BRACKET}'selector': {selector}, 'props': {column_header_list_to_transpiled_code(props)}{CLOSE_BRACKET}"
+        return f"{OPEN_BRACKET}'selector': \'{selector}\', 'props': {column_header_list_to_transpiled_code(props)}{CLOSE_BRACKET}"
     return None
 
 def get_headers_format_code(state: State, sheet_index: int) -> Optional[str]:
@@ -94,7 +95,7 @@ def get_rows_format_code(state: State, sheet_index: int, even_or_odd: str) -> Op
 
     evenOrOdd = rows.get(even_or_odd, dict())
     return get_transpiled_table_style(
-        f'tbdoy tr:nth-child({even_or_odd})',
+        f'tbody tr:nth-child({even_or_odd})',
         [
             ('color', evenOrOdd.get('color', None)),
             ('background-color', evenOrOdd.get('backgroundColor', None))
@@ -129,21 +130,24 @@ def get_table_styles_code(state: State, sheet_index: int) -> Optional[str]:
     border_format_code = get_border_format_code(state, sheet_index)
 
     if header_format_code is not None:
-        table_styles_code += f'\t\t{header_format_code},\n'
+        table_styles_code += f'        {header_format_code},\n'
     if even_format_code is not None:
-        table_styles_code += f'\t\t{even_format_code},\n'
+        table_styles_code += f'        {even_format_code},\n'
     if odd_format_code is not None:
-        table_styles_code += f'\t\t{odd_format_code},\n'
+        table_styles_code += f'        {odd_format_code},\n'
     if border_format_code is not None:
-        table_styles_code += f'\t\t{border_format_code},\n'
+        table_styles_code += f'        {border_format_code},\n'
 
     if len(table_styles_code) > 0:
-        return f".set_table_styles([{table_styles_code}])"
+        return f".set_table_styles([\n{table_styles_code}])"
     return None
 
 def get_python_code_for_dataframe_format(state: State, sheet_index: int) -> Optional[str]:
     df_format = state.df_formats[sheet_index]
     df_name = state.df_names[sheet_index]
+    df = state.dfs[sheet_index]
+
+    dataframe_format_string = f"{df_name}_styler = {df_name}.style"
 
     all_column_format_code = get_all_columns_format_code(state, sheet_index)
     table_styles_code = get_table_styles_code(state, sheet_index)
@@ -151,11 +155,14 @@ def get_python_code_for_dataframe_format(state: State, sheet_index: int) -> Opti
     if all_column_format_code is None and table_styles_code is None:
         return None
 
-    dataframe_format_string = f"{df_name}_styler = {df_name}.style"
+    # If there are more than the max rows, we don't display all of them
+    if len(df) > MAX_ROWS:
+        df_name = f'{df_name}.head({MAX_ROWS})'
+    
     if all_column_format_code is not None:
-        dataframe_format_string += f"\\\t{all_column_format_code}"
+        dataframe_format_string += f"\\\n    {all_column_format_code}"
     if table_styles_code is not None:
-        dataframe_format_string += f"\\\t{table_styles_code}"
+        dataframe_format_string += f"\\\n    {table_styles_code}"
 
     return dataframe_format_string
 

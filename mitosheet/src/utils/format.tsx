@@ -4,21 +4,25 @@ import DropdownItem from "../components/elements/DropdownItem"
 import { getSelectedNumberSeriesColumnIDs } from "../components/endo/selectionUtils"
 import { ColumnFormatType, ColumnID, NumberColumnFormatEnum, GridState, MitoSelection, SheetData } from "../types"
 import DropdownCheckmark from '../components/icons/DropdownCheckmark'
-import { isNumberDtype } from "./dtypes"
+import { isFloatDtype, isNumberDtype } from "./dtypes"
 import { getDefaultDataframeFormat } from "../components/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane"
+import { isValueNone } from "../components/taskpanes/ControlPanel/FilterAndSortTab/filter/utils"
 
 export const FORMAT_DISABLED_MESSAGE = 'You must have at least one Number column selected to adjust the formatting.'
 
 
-const formatCellDataAsStringWithCommas = (cellData: string | number | boolean, decimalPlaces?: number): string => {
-    return Number(cellData).toLocaleString("en-US", {minimumFractionDigits: decimalPlaces, maximumFractionDigits: decimalPlaces})
+const formatNumber = (number: number, precision?: number): string  => {
+    if (precision === undefined) {
+        return number.toString()
+    } else {
+        return number.toLocaleString("en-US", {minimumFractionDigits: precision, maximumFractionDigits: precision});
+    }
 }
+
 
 /*
     For a cell to be formatted as a number, the cell must only contain valid number symbols
-    and be either a int or float column. 
-
-    Note: The cellData type of a float is a string.
+    and be either a int or float column.
 */
 export const displayCellAsNumber = (cellData: boolean | string | number, columnDtype: string): boolean => {
     // If the column is not a number series, then don't format the cell as a number
@@ -30,81 +34,74 @@ export const displayCellAsNumber = (cellData: boolean | string | number, columnD
         return false
     } else if (typeof cellData === 'number') {
         return true
-    } else {
-        return isStringNumeric(cellData)
-    }
-}
+    } 
 
-/*
-    Determines if a string is a number
-    Adapted from: https://stackoverflow.com/questions/175739/how-can-i-check-if-a-string-is-a-valid-number
-    Note: This won't format numbers that have non . separators correctly, but that's okay for now because we wouldn't want to switch them to decimals
-*/
-export const isStringNumeric = (str: string): boolean => {
-    if (typeof str != "string") return false // we only process strings!  
-    return !isNaN(str as unknown as number) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
-           !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+    return false;
 }
 
 /*
     Returns cellData formatted as a number with decimals if the cell only contains valid number symbols
     and the columnMitoType is a number_series. Otherwise, returns the unaltered cellData
 */
-export const formatCellData = (cellData: boolean | string | number, columnDtype: string, columnFormatType: ColumnFormatType | undefined): string => {
-    // Wrap in a try, catch because there are lots of type cases and we'd rather be safe than sorry.
-    // TODO: update this
-    try {
-        if (displayCellAsNumber(cellData, columnDtype)) {
-            switch(columnFormatType?.type) {
-                case undefined:
-                    if (columnDtype?.includes('int')) {
-                        // If the column is an int, default to 0 decimal places
-                        return formatCellDataAsStringWithCommas(cellData, 0)
-                    } else {
-                        // We show the full number of decimals if it is a float
-                        const cellDataToParse = '' + cellData;
-                        let numDecimals = 0;
-                        if (cellDataToParse.includes('.')) {
-                            numDecimals = cellDataToParse.toString().split(".")[1].length || 0;
-                        }
-                        return formatCellDataAsStringWithCommas(cellData, numDecimals)
-                    }
-                case NumberColumnFormatEnum.PLAIN_TEXT:
-                    return '' + cellData
-                case NumberColumnFormatEnum.PERCENTAGE: {
-                    return Number(cellData).toLocaleString("en-US", {style: 'percent', minimumFractionDigits: 2, maximumFractionDigits: 2})
-                }
-                case NumberColumnFormatEnum.ACCOUNTING: {
-                    return Number(cellData).toLocaleString("en-US", {style: "currency", currency: "USD", currencySign: "accounting"})
-                }
-                case NumberColumnFormatEnum.K_M_B: {
-                    // Ensure we're operating on a number.
-                    const number = Number.parseFloat(String(cellData))
-                    const number_abs = Math.abs(number)
-                    if (number_abs >= 1000000000) {
-                        return (number / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
-                    } else if (number_abs >= 1000000) {
-                        return (number / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-                    } else if (number_abs >= 995) {
-                        return (number / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
-                    } else {
-                        // We make anything less than ABS(995) displayed as 0k to match Excel formatting 
-                        return '0k';
-                    }
-                }
-                case NumberColumnFormatEnum.SCIENTIFIC_NOTATION:
-                    return Number.parseFloat(String(cellData)).toExponential(2);
-            }
-        } else {
-            return '' + cellData
-        }
-    } catch {
-        return '' + cellData 
+export const formatCellData = (cellData: boolean | string | number, columnDtype: string, columnFormat: ColumnFormatType | undefined): string => {
+
+    // Deal with NaN up front. Always just display NaN
+    if (isValueNone(cellData)) {
+        return 'NaN';
     }
 
-    // TODO: is this right? Rewrite this fucker
+    // If we are not formatting the cell as a number, then just return the cellData as a string
+    if (!displayCellAsNumber(cellData, columnDtype)) {
+        return '' + cellData;
+    }
+
+    // Otherwise, this is a number, so attempt to format it as a number
+    let number = cellData;
+    if (typeof number !== 'number') { 
+        try {
+            number = Number(number);
+        } catch {
+            return '' + cellData;
+        }
+    }
+
+    const type = columnFormat?.type;
+    const precision = columnFormat?.precision;
+
+    if (type === undefined) {
+        // This is default formatting. Do different things depending on the column type
+        if (isFloatDtype(columnDtype)) {
+            return formatNumber(number, precision);
+        }
+        return formatNumber(number);
+    } else if (type === NumberColumnFormatEnum.PLAIN_TEXT) {
+        // TODO: The default is PLAIN TEXT. We want to change this to commas, I think!
+        return '' + cellData;
+    } else if (type === NumberColumnFormatEnum.PERCENTAGE) {
+        return number.toLocaleString("en-US", {style: 'percent', minimumFractionDigits: precision, maximumFractionDigits: precision})
+    } else if (type === NumberColumnFormatEnum.CURRENCY) {
+        return Number(cellData).toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: precision, maximumFractionDigits: precision})
+    } else if (type === NumberColumnFormatEnum.ACCOUNTING) {
+        return Number(cellData).toLocaleString("en-US", {style: "currency", currency: "USD", currencySign: "accounting", minimumFractionDigits: precision, maximumFractionDigits: precision})
+    } else if (type === NumberColumnFormatEnum.K_M_B) {
+        const number_abs = Math.abs(number)
+        // TODO: make this work with precision
+        if (number_abs >= 1000000000) {
+            
+            return (number / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
+        } else if (number_abs >= 1000000) {
+            return (number / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+        } else if (number_abs >= 995) {
+            return (number / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+        } else {
+            // We make anything less than ABS(995) displayed as 0k to match Excel formatting 
+            return '0k';
+        }
+    } else if (type === NumberColumnFormatEnum.SCIENTIFIC_NOTATION) {
+        return number.toExponential(precision);
+    }
+
     return ''  + cellData;
-    
 }
 
 /* 
