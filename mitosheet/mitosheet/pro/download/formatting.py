@@ -1,7 +1,7 @@
 import pandas as pd
 from mitosheet.sheet_functions.types.utils import is_int_dtype, is_number_dtype
-from mitosheet.state import (FORMAT_ACCOUNTING, FORMAT_DEFAULT, FORMAT_K_M_B,
-                             FORMAT_PERCENTAGE, FORMAT_PLAIN_TEXT, FORMAT_SCIENTIFIC_NOTATION)
+from mitosheet.state import (NUMBER_FORMAT_ACCOUNTING, NUMBER_FORMAT_K_M_B,
+                             NUMBER_FORMAT_PERCENTAGE, NUMBER_FORMAT_PLAIN_TEXT, NUMBER_FORMAT_SCIENTIFIC_NOTATION)
 from mitosheet.types import StepsManagerType
 
 
@@ -53,20 +53,20 @@ def add_formatting_to_excel_sheet(
                     format = workbook.add_format({'num_format': '#,##0'})
                 else:
                     format = workbook.add_format({'num_format': '#,##0.0#####################'})
-            elif format_data['type'] == FORMAT_PLAIN_TEXT:
+            elif format_data['type'] == NUMBER_FORMAT_PLAIN_TEXT:
                 format = workbook.add_format({'num_format': 'General'})
-            elif format_data['type'] == FORMAT_PERCENTAGE:
+            elif format_data['type'] == NUMBER_FORMAT_PERCENTAGE:
                 format = workbook.add_format({'num_format': '0.00%'})
-            elif format_data['type'] == FORMAT_ACCOUNTING:
+            elif format_data['type'] == NUMBER_FORMAT_ACCOUNTING:
                 format = workbook.add_format({'num_format': '_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)'})
             elif format_data['type'] == FORMAT_ROUND_DECIMALS:
                 if format_data['numDecimals'] == 0:
                     format = workbook.add_format({'num_format': '#,##0'})
                 else:
                     format = workbook.add_format({'num_format': '#,##0.' + ('0' * format_data['numDecimals'])})
-            elif format_data['type'] == FORMAT_K_M_B:
+            elif format_data['type'] == NUMBER_FORMAT_K_M_B:
                 format = workbook.add_format({'num_format': '[<999950]0.0,"K";[<999950000]0.0,,"M";0.0,,,"B"'})
-            elif format_data['type'] == FORMAT_SCIENTIFIC_NOTATION:
+            elif format_data['type'] == NUMBER_FORMAT_SCIENTIFIC_NOTATION:
                 format = workbook.add_format({'num_format': '0.00E+00'})
             else:
                 # Default format

@@ -1,6 +1,6 @@
 // Helper function for creating default graph params. Defaults to a Bar chart, 
 import React from "react"
-import { ColumnID, ColumnIDsMap, GraphDataDict, GraphID, GraphParamsBackend, GraphParamsFrontend, RecursivePartial, SheetData } from "../../../types"
+import { ColumnID, ColumnIDsMap, GraphDataDict, GraphID, GraphParamsBackend, GraphParamsFrontend, SheetData } from "../../../types"
 import { intersection } from "../../../utils/arrays"
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders"
 import { isDatetimeDtype } from "../../../utils/dtypes"
@@ -86,30 +86,6 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
 }
 
 
-function recurseObjectAssign(target: Record<string, any>, source: Record<string, any>): Record<string, any> {
-    
-    Object.getOwnPropertyNames(source).forEach((key) => {
-        const sourceValue = source[key];
-        const targetValue = target[key];
-
-        // If source and target are both objects, we recurse
-        if (typeof sourceValue === 'object' && typeof targetValue === 'object') {
-            recurseObjectAssign(targetValue, sourceValue);
-        } else {
-            target[key] = sourceValue;
-        }
-    })
-
-    
-    return target;
-
-}
-
-export function updateParamsWithPartial(graphParams: GraphParamsFrontend, update: RecursivePartial<GraphParamsFrontend>): GraphParamsFrontend {
-    const newParams: GraphParamsFrontend = JSON.parse(JSON.stringify(graphParams));
-    recurseObjectAssign(newParams, update);
-    return newParams;
-}
 
 // Helper function for getting the default safety filter status
 export const getDefaultSafetyFilter = (sheetDataArray: SheetData[], sheetIndex: number): boolean => {

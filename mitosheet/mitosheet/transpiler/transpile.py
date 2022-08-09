@@ -11,6 +11,7 @@ container and generates transpiled Python code.
 from typing import Any, Dict, List
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
+from mitosheet.code_chunks.postprocessing import POSTPROCESSING_CODE_CHUNKS
 
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
 from mitosheet.types import StepsManagerType
@@ -44,7 +45,12 @@ def transpile(
 
     # We only transpile up to the currently checked out step
     all_code_chunks: List[CodeChunk] = get_code_chunks(steps_manager.steps_including_skipped[:steps_manager.curr_step_idx + 1], optimize=optimize)
-    
+
+    # We also make sure to include all the post_processing code chunks, which are those
+    # code chunks that are always at the end of the dataframe
+    for postprocessing_code_chunk in POSTPROCESSING_CODE_CHUNKS:
+        all_code_chunks.append(postprocessing_code_chunk(steps_manager.curr_step.prev_state, steps_manager.curr_step.post_state, {}, {}))
+
     for code_chunk in all_code_chunks:
         comment = '# ' + code_chunk.get_description_comment()
         gotten_code = code_chunk.get_code()

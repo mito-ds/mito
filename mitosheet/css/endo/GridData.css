@@ -5,13 +5,6 @@
     user-select: none;
 }
 
-.mito-grid-row-even {
-    background-color: var(--mito-very-light-gray);
-}
-
-.mito-grid-row-odd {
-    background-color: white;
-}
 
 /* Cell */
 .mito-grid-cell {
@@ -23,7 +16,6 @@
     text-overflow: ellipsis;
     display: block;
 
-    color: var(--mito-gray);
     box-sizing: border-box;
     
     /* Align vertically */
@@ -33,7 +25,7 @@
 }
 
 .mito-grid-cell:hover {
-    background-color: var(--mito-very-light-purple);
+    opacity: .5; /* TODO: this looks awful, what should we change it to? Hard when the colors are different... */
 }
 
 /* We make selected cells look different on even and odd rows */

@@ -4,7 +4,7 @@ import React from 'react';
 import MitoAPI from '../../../../jupyter/api';
 import { ColumnID, GridState, SheetData } from '../../../../types';
 import { isNumberDtype } from '../../../../utils/dtypes';
-import { getColumnFormatDropdownItemsUsingColumnID, getFormatTitle } from '../../../../utils/formatColumns';
+import { getColumnFormatDropdownItemsUsingColumnID, getFormatTitle } from '../../../../utils/format';
 import Select from '../../../elements/Select';
 import Col from '../../../layout/Col';
 import Row from '../../../layout/Row';
@@ -23,7 +23,7 @@ function FormatCard(props: {
     columnDtype: string
     sheetData: SheetData | undefined 
 }): JSX.Element {
-    const formatTypeTitle = getFormatTitle(props.sheetData?.columnFormatTypeObjMap[props.columnID])
+    const formatTypeTitle = getFormatTitle(props.sheetData?.dfFormat.columns[props.columnID])
     
     return (  
         <> 

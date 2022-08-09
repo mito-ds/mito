@@ -1,4 +1,4 @@
-import { ColumnHeader, ColumnID, ColumnIDsMap, DisplayColumnHeader, MultiIndexColumnHeader, PrimitiveColumnHeader } from "../types";
+import { ColumnHeader, ColumnID, ColumnIDsMap, DisplayColumnHeader, MultiIndexColumnHeader, PrimitiveColumnHeader, SheetData } from "../types";
 
 
 export const isPrimitiveColumnHeader = (columnHeader: ColumnHeader): columnHeader is PrimitiveColumnHeader => {
@@ -123,4 +123,8 @@ export const getNewColumnHeader = (): string => {
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
+}
+
+export const getColumnIDByIndex = (sheetData: SheetData, columnIndex: number): ColumnID => {
+    return Object.keys(sheetData.columnIDsMap)[columnIndex]
 }

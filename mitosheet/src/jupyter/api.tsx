@@ -11,8 +11,8 @@ import { FileElement } from "../components/taskpanes/Import/ImportTaskpane";
 import { ExcelFileMetadata } from "../components/taskpanes/Import/XLSXImport";
 import { valuesArrayToRecord } from "../components/taskpanes/PivotTable/pivotUtils";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
-import { BackendPivotParams, FrontendPivotParams } from "../types";
-import { ColumnID, FeedbackID, FilterGroupType, FilterType, FormatTypeObj, GraphID, MitoError, GraphParamsFrontend } from "../types";
+import { BackendPivotParams, DataframeFormat, FrontendPivotParams } from "../types";
+import { ColumnID, FeedbackID, FilterGroupType, FilterType, GraphID, MitoError, GraphParamsFrontend } from "../types";
 import { getDeduplicatedArray } from "../utils/arrays";
 
 
@@ -982,6 +982,25 @@ export default class MitoAPI {
         }, {})
     }
 
+    /*
+        Sets the value of a specific cell
+    */
+    async editSetDataframeFormat(
+        sheetIndex: number,
+        dfFormat: DataframeFormat
+    ): Promise<MitoError | undefined> {
+        const stepID = getRandomId();
+
+        return await this.send({
+            'event': 'edit_event',
+            'type': 'set_dataframe_format_edit',
+            'step_id': stepID,
+            'params': {
+                'sheet_index': sheetIndex,
+                'df_format': dfFormat,
+            }
+        }, {});
+    }
 
     /*
         Sets the formula for the given columns.
@@ -1054,33 +1073,6 @@ export default class MitoAPI {
                 'sheet_index': sheetIndex,
                 'column_id': columnID,
                 'new_dtype': newDtype
-            }
-        }, {});
-
-        return stepID;
-    }
-
-    /*
-        Change the format of the columns
-    */
-    async editChangeColumnFormat(
-        sheetIndex: number,
-        columnIDs: ColumnID[],
-        newFormatType: FormatTypeObj,
-        stepID?: string
-    ): Promise<string> {
-        if (stepID === undefined || stepID == '') {
-            stepID = getRandomId();
-        }
-
-        await this.send({
-            'event': 'edit_event',
-            'type': 'change_column_format_edit',
-            'step_id': stepID,
-            'params': {
-                'sheet_index': sheetIndex,
-                'column_ids': columnIDs,
-                'format_type': newFormatType
             }
         }, {});
 

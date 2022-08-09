@@ -4,7 +4,7 @@ import React, { Fragment, useRef, useState } from 'react';
 import MitoAPI from '../../../../jupyter/api';
 import MultiToggleBox from '../../../elements/MultiToggleBox';
 import Select from '../../../elements/Select';
-import { FilterType, FilterGroupType, ColumnID, FormatTypeObj, UIState } from '../../../../types';
+import { FilterType, FilterGroupType, ColumnID, UIState, ColumnFormatType } from '../../../../types';
 import Col from '../../../layout/Col';
 import Row from '../../../layout/Row';
 import { areFiltersEqual, getAllDoesNotContainsFilterValues, getExclusiveFilterData, getFilterDisabledMessage } from '../FilterAndSortTab/filter/utils';
@@ -12,7 +12,7 @@ import MultiToggleItem from '../../../elements/MultiToggleItem';
 import DropdownItem from '../../../elements/DropdownItem';
 import { useDebouncedEffect } from '../../../../hooks/useDebouncedEffect';
 import { isFilterGroup } from '../FilterAndSortTab/filter/filterTypes';
-import { formatCellData } from '../../../../utils/formatColumns';
+import { formatCellData } from '../../../../utils/format';
 import OpenFillNaN from '../../FillNa/OpenFillNaN';
 
 /*
@@ -69,7 +69,7 @@ export function ValuesTab(
         filters: (FilterType | FilterGroupType)[];
         setFilters: React.Dispatch<React.SetStateAction<(FilterType | FilterGroupType)[]>>;
         columnDtype: string,
-        columnFormatType: FormatTypeObj
+        columnFormatType: ColumnFormatType
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     }): JSX.Element {
 

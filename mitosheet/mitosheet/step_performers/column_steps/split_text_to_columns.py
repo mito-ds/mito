@@ -15,7 +15,7 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.split_text_to_columns_code_chunk import SplitTextToColumnsCodeChunk
 from mitosheet.column_headers import try_make_new_header_valid_if_multi_index_headers
 from mitosheet.sheet_functions.types.utils import is_datetime_dtype, is_timedelta_dtype
-from mitosheet.state import FORMAT_DEFAULT, State
+from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import add_columns_to_df, get_param
 from mitosheet.types import ColumnHeader, ColumnID

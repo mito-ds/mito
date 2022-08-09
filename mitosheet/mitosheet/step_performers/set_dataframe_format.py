@@ -8,7 +8,7 @@
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.set_dataframe_format_code_chunk import SetDataframeFormatCodeChunk
+from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
@@ -58,7 +58,15 @@ class SetDataframeFormatStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            SetDataframeFormatCodeChunk(prev_state, post_state, params, execution_data)
+            EmptyCodeChunk(
+                prev_state, 
+                post_state, 
+                {
+                    'display_name': 'Set dataframe format',
+                    'description_comment': 'Set a dataframe format',
+                },
+                execution_data
+            )
         ]
 
     @classmethod

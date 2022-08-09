@@ -738,9 +738,9 @@ def get_taskpane_imports(params: Dict[str, str], is_live_updating_taskpane: bool
     # Import for elements
     for element in set(used_elements):
         if element == 'Row':
-            imports += "import Row from '../../spacing/Row';\n"
+            imports += "import Row from '../../layout/Row';\n"
         elif element == 'Col':
-            imports += "import Col from '../../spacing/Col';\n"
+            imports += "import Col from '../../layout/Col';\n"
         elif element == 'Select':
             imports += "import Select from '../../elements/Select';\n"
         elif element == 'DropdownItem':

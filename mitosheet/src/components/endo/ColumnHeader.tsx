@@ -16,6 +16,9 @@ import { submitRenameColumnHeader } from './columnHeaderUtils';
 import ColumnHeaderDropdown from './ColumnHeaderDropdown';
 
 
+export const HEADER_BACKGROUND_COLOR_DEFAULT = '#E8EBF8' // This is var(--mito-light-blue) - update this if we change this variable
+export const HEADER_TEXT_COLOR_DEFAULT = '#494650' // This is var(--mito-gray) - update this if we change this variable
+
 /* 
     A single column header at the top of the sheet. If the edited
     cell is this header, then displays an input that allows the user
@@ -59,7 +62,7 @@ const ColumnHeader = (props: {
 
     const selected = getIsCellSelected(props.gridState.selections, -1, props.columnIndex);
     const width = props.gridState.widthDataArray[props.gridState.sheetIndex].widthArray[props.columnIndex];
-    const { columnID, columnFilters, columnHeader, columnDtype } = getCellDataFromCellIndexes(props.sheetData, -1, props.columnIndex);
+    const { columnID, columnFilters, columnHeader, columnDtype, headerBackgroundColor, headerTextColor } = getCellDataFromCellIndexes(props.sheetData, -1, props.columnIndex);
 
     if (columnID === undefined || columnFilters === undefined || columnDtype == undefined || columnHeader === undefined) {
         return <></>
@@ -74,7 +77,6 @@ const ColumnHeader = (props: {
     // lowerLevelColumnHeaders will be an empty array
     const { lowerLevelColumnHeaders, finalColumnHeader } = getColumnHeaderParts(columnHeader);
     const borderStyle = getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, -1, props.columnIndex, props.sheetData.numRows);
-
 
     const openColumnHeaderEditor = () => {
         props.setEditorState({
@@ -116,6 +118,7 @@ const ColumnHeader = (props: {
                 'column-header-text',
                 { 'column-header-container-selected': selected }
             )}
+            style={{color: headerTextColor || HEADER_TEXT_COLOR_DEFAULT, backgroundColor: headerBackgroundColor || HEADER_BACKGROUND_COLOR_DEFAULT}}
             key={props.columnIndex}
             mito-col-index={props.columnIndex + ''}
             onDragStart={(e) => {

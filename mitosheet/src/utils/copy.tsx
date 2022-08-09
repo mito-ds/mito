@@ -1,11 +1,11 @@
 import { MAX_ROWS } from "../components/endo/EndoGrid";
 import { isValueNone } from "../components/taskpanes/ControlPanel/FilterAndSortTab/filter/utils";
-import { FormatTypeObj, MitoSelection, SheetData } from "../types";
-import { getDisplayColumnHeader } from "./columnHeaders";
-import { formatCellData } from "./formatColumns";
+import { ColumnFormatType, MitoSelection, SheetData } from "../types";
+import { getColumnIDByIndex, getDisplayColumnHeader } from "./columnHeaders";
+import { formatCellData } from "./format";
 
 
-const getCopyStringForValue = (value: string | number | boolean, columnDtype: string, columnFormatType: FormatTypeObj): string => {
+const getCopyStringForValue = (value: string | number | boolean, columnDtype: string, columnFormatType: ColumnFormatType | undefined): string => {
     if (isValueNone(value)) {
         return '';
     }
@@ -27,10 +27,11 @@ const getCopyStringForRow = (sheetData: SheetData, rowIndex: number, lowColIndex
             if (columnIndex === -1) {
                 copyString += sheetData.index[rowIndex];
             } else {
+                const columnID = getColumnIDByIndex(sheetData, columnIndex);
                 copyString += getCopyStringForValue(
                     sheetData.data[columnIndex].columnData[rowIndex],
                     sheetData.data[columnIndex].columnDtype,
-                    sheetData.data[columnIndex].columnFormatTypeObj,
+                    sheetData.dfFormat.columns[columnID],
                 )
             }
         }

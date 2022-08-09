@@ -2,9 +2,10 @@ import React from "react"
 import MitoAPI from "../jupyter/api"
 import DropdownItem from "../components/elements/DropdownItem"
 import { getSelectedNumberSeriesColumnIDs } from "../components/endo/selectionUtils"
-import { ColumnID, FormatType, FormatTypeObj, GridState, MitoSelection, SheetData } from "../types"
+import { ColumnFormatType, ColumnID, NumberColumnFormatEnum, GridState, MitoSelection, SheetData } from "../types"
 import DropdownCheckmark from '../components/icons/DropdownCheckmark'
 import { isNumberDtype } from "./dtypes"
+import { getDefaultDataframeFormat } from "../components/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane"
 
 export const FORMAT_DISABLED_MESSAGE = 'You must have at least one Number column selected to adjust the formatting.'
 
@@ -49,12 +50,13 @@ export const isStringNumeric = (str: string): boolean => {
     Returns cellData formatted as a number with decimals if the cell only contains valid number symbols
     and the columnMitoType is a number_series. Otherwise, returns the unaltered cellData
 */
-export const formatCellData = (cellData: boolean | string | number, columnDtype: string, columnFormatType: FormatTypeObj): string => {
+export const formatCellData = (cellData: boolean | string | number, columnDtype: string, columnFormatType: ColumnFormatType | undefined): string => {
     // Wrap in a try, catch because there are lots of type cases and we'd rather be safe than sorry.
+    // TODO: update this
     try {
         if (displayCellAsNumber(cellData, columnDtype)) {
-            switch(columnFormatType.type) {
-                case FormatType.DEFAULT:
+            switch(columnFormatType?.type) {
+                case undefined:
                     if (columnDtype?.includes('int')) {
                         // If the column is an int, default to 0 decimal places
                         return formatCellDataAsStringWithCommas(cellData, 0)
@@ -67,19 +69,15 @@ export const formatCellData = (cellData: boolean | string | number, columnDtype:
                         }
                         return formatCellDataAsStringWithCommas(cellData, numDecimals)
                     }
-                case FormatType.PLAIN_TEXT:
+                case NumberColumnFormatEnum.PLAIN_TEXT:
                     return '' + cellData
-                case FormatType.ROUND_DECIMALS: {
-                    const numDecimals = columnFormatType.numDecimals
-                    return Number(cellData).toLocaleString("en-US", {minimumFractionDigits: numDecimals, maximumFractionDigits: numDecimals})
-                }
-                case FormatType.PERCENTAGE: {
+                case NumberColumnFormatEnum.PERCENTAGE: {
                     return Number(cellData).toLocaleString("en-US", {style: 'percent', minimumFractionDigits: 2, maximumFractionDigits: 2})
                 }
-                case FormatType.ACCOUNTING: {
+                case NumberColumnFormatEnum.ACCOUNTING: {
                     return Number(cellData).toLocaleString("en-US", {style: "currency", currency: "USD", currencySign: "accounting"})
                 }
-                case FormatType.K_M_B: {
+                case NumberColumnFormatEnum.K_M_B: {
                     // Ensure we're operating on a number.
                     const number = Number.parseFloat(String(cellData))
                     const number_abs = Math.abs(number)
@@ -94,7 +92,7 @@ export const formatCellData = (cellData: boolean | string | number, columnDtype:
                         return '0k';
                     }
                 }
-                case FormatType.SCIENTIFIC_NOTATION:
+                case NumberColumnFormatEnum.SCIENTIFIC_NOTATION:
                     return Number.parseFloat(String(cellData)).toExponential(2);
             }
         } else {
@@ -103,6 +101,9 @@ export const formatCellData = (cellData: boolean | string | number, columnDtype:
     } catch {
         return '' + cellData 
     }
+
+    // TODO: is this right? Rewrite this fucker
+    return ''  + cellData;
     
 }
 
@@ -113,28 +114,34 @@ export const formatCellData = (cellData: boolean | string | number, columnDtype:
 export const changeFormatOfSelectedColumns = async (
     sheetIndex: number,
     selections: MitoSelection[], 
-    newFormatTypeObj: FormatTypeObj, 
+    newColumnFormat: ColumnFormatType | undefined, 
     sheetData: SheetData | undefined,
     mitoAPI: MitoAPI
 ): Promise<void> => {
     
     const numberColumnIDsSelected = getSelectedNumberSeriesColumnIDs(selections, sheetData)
+    const newDfFormat = {...(sheetData?.dfFormat || getDefaultDataframeFormat())}
+    numberColumnIDsSelected.forEach(columnID => {
+        newDfFormat.columns[columnID] = newColumnFormat
+    })
+
     
-    await mitoAPI.editChangeColumnFormat(
+    await mitoAPI.editSetDataframeFormat(
         sheetIndex,
-        numberColumnIDsSelected,
-        newFormatTypeObj
+        newDfFormat,
     )
 }
 
 /* 
     Change the format of a single columnID
 */
-export const changeFormatOfColumnID = async (sheetIndex: number, columnID: string, newFormatTypeObj: FormatTypeObj, mitoAPI: MitoAPI): Promise<void> => {
-    await mitoAPI.editChangeColumnFormat(
+export const changeFormatOfColumnID = async (sheetIndex: number, sheetData: SheetData | undefined, columnID: string, newColumnFormat: ColumnFormatType | undefined, mitoAPI: MitoAPI): Promise<void> => {
+    const newDfFormat = {...(sheetData?.dfFormat || getDefaultDataframeFormat())}
+    newDfFormat.columns[columnID] = newColumnFormat
+
+    await mitoAPI.editSetDataframeFormat(
         sheetIndex,
-        [columnID],
-        newFormatTypeObj
+        newDfFormat,
     )
 }
 
@@ -145,11 +152,11 @@ export const changeFormatOfColumnID = async (sheetIndex: number, columnID: strin
 */
 export const getColumnFormatDropdownItemsUsingSelections = (gridState: GridState, sheetData: SheetData | undefined, mitoAPI: MitoAPI): JSX.Element[] => {
 
-    const onClick = (formatTypeObject: FormatTypeObj): void => {
+    const onClick = (columnFormat: ColumnFormatType | undefined): void => {
         void changeFormatOfSelectedColumns(
             gridState.sheetIndex,
             gridState.selections,
-            formatTypeObject,
+            columnFormat,
             sheetData,
             mitoAPI
         )
@@ -159,7 +166,7 @@ export const getColumnFormatDropdownItemsUsingSelections = (gridState: GridState
     const disabled = selectedNumberSeriesColumnIDs.length === 0
 
     // Get the format applied to the first selected column so we can display it in the dropdown
-    const appliedFormatting = sheetData ? sheetData.columnFormatTypeObjMap[selectedNumberSeriesColumnIDs[0]] : undefined
+    const appliedFormatting = sheetData ? sheetData.dfFormat.columns[selectedNumberSeriesColumnIDs[0]] : undefined
 
     return _getColumnFormatDropdownItems(onClick, disabled, appliedFormatting) 
 }
@@ -177,33 +184,34 @@ export const getColumnFormatDropdownItemsUsingColumnID = (
     skipDefaultFormatItem?: boolean  // If false, the DropdownItems returned won't include the Default Format Dropdown Item
 ): JSX.Element[] => {
     
-    const onClick = (formatTypeObject: FormatTypeObj): void => {
+    const onClick = (columnFormat: ColumnFormatType | undefined): void => {
         void changeFormatOfColumnID(
             sheetIndex, 
+            sheetData,
             columnID, 
-            formatTypeObject, 
+            columnFormat, 
             mitoAPI
         )
     }
 
     const disabled = !isNumberDtype(columnDtype);
-    const appliedFormatting = sheetData ? sheetData.columnFormatTypeObjMap[columnID] : undefined
+    const appliedFormatting = sheetData?.dfFormat.columns[columnID];
 
     return _getColumnFormatDropdownItems(onClick, disabled, appliedFormatting, skipDefaultFormatItem) 
 }
 
 const _getColumnFormatDropdownItems = (
-    onClick: (fto: FormatTypeObj) => void, 
+    onClick: (columnFormat: ColumnFormatType | undefined) => void, 
     disabled: boolean, 
-    appliedFormat?: FormatTypeObj, 
+    appliedColumnFormat: ColumnFormatType | undefined, 
     skipDefaultFormatItem?: boolean // If false, the DropdownItems returned won't include the Default Format Dropdown Item
 ): JSX.Element[] => {
     const formatDropdownItems = skipDefaultFormatItem === undefined || skipDefaultFormatItem ? [
         <DropdownItem 
-            key={getFormatTitle({type: FormatType.DEFAULT})}
-            title={getFormatTitle({type: FormatType.DEFAULT})}
-            icon={appliedFormat?.type === FormatType.DEFAULT ? <DropdownCheckmark /> : undefined}
-            onClick={() => onClick({type: FormatType.DEFAULT})}
+            key='Default'
+            title='Default'
+            icon={appliedColumnFormat?.type === undefined ? <DropdownCheckmark /> : undefined}
+            onClick={() => onClick(undefined)}
             subtext={disabled ? FORMAT_DISABLED_MESSAGE : 'ints: 1,235, floats: 1,234.6'}
             hideSubtext={true}
             displaySubtextOnHover={true}
@@ -213,100 +221,50 @@ const _getColumnFormatDropdownItems = (
     
     const remainingFormatDropdownItems = [
         <DropdownItem 
-            key={getFormatTitle({type: FormatType.PLAIN_TEXT})}
-            title={getFormatTitle({type: FormatType.PLAIN_TEXT})}
-            icon={appliedFormat?.type === FormatType.PLAIN_TEXT ? <DropdownCheckmark /> : undefined}
-            onClick={() => onClick({type: FormatType.PLAIN_TEXT})}
+            key={getFormatTitle({type: NumberColumnFormatEnum.PLAIN_TEXT})}
+            title={getFormatTitle({type: NumberColumnFormatEnum.PLAIN_TEXT})}
+            icon={appliedColumnFormat?.type === NumberColumnFormatEnum.PLAIN_TEXT ? <DropdownCheckmark /> : undefined}
+            onClick={() => onClick({type: NumberColumnFormatEnum.PLAIN_TEXT})}
             subtext={disabled ? FORMAT_DISABLED_MESSAGE : 'ints: 1235, floats 1234.5678 (remove commas and display all decimals)'}
             hideSubtext={true}
             displaySubtextOnHover={true}
             disabled={disabled}
         />,
         <DropdownItem 
-            key={getFormatTitle({type: FormatType.ACCOUNTING})}
-            title={getFormatTitle({type: FormatType.ACCOUNTING})}
-            icon={appliedFormat?.type === FormatType.ACCOUNTING ? <DropdownCheckmark /> : undefined}
-            onClick={() => onClick({type: FormatType.ACCOUNTING})}
+            key={getFormatTitle({type: NumberColumnFormatEnum.ACCOUNTING})}
+            title={getFormatTitle({type: NumberColumnFormatEnum.ACCOUNTING})}
+            icon={appliedColumnFormat?.type === NumberColumnFormatEnum.ACCOUNTING ? <DropdownCheckmark /> : undefined}
+            onClick={() => onClick({type: NumberColumnFormatEnum.ACCOUNTING})}
             subtext={disabled ? FORMAT_DISABLED_MESSAGE : 'Negative numbers displayed as ($1234.57)'}
             hideSubtext={true}
             displaySubtextOnHover={true}
             disabled={disabled}
         />,
         <DropdownItem 
-            key={getFormatTitle({type: FormatType.ROUND_DECIMALS, numDecimals: 0})}
-            title={getFormatTitle({type: FormatType.ROUND_DECIMALS, numDecimals: 0})}
-            icon={appliedFormat?.type === FormatType.ROUND_DECIMALS && appliedFormat?.numDecimals === 0 ? <DropdownCheckmark /> : undefined}
-            onClick={() => onClick({type: FormatType.ROUND_DECIMALS, numDecimals: 0})}
-            subtext={disabled ? FORMAT_DISABLED_MESSAGE : '1,235'}
-            hideSubtext={true}
-            displaySubtextOnHover={true}
-            disabled={disabled}
-        />,
-        <DropdownItem 
-            key={getFormatTitle({type: FormatType.ROUND_DECIMALS, numDecimals: 1})}
-            title={getFormatTitle({type: FormatType.ROUND_DECIMALS, numDecimals: 1})}
-            icon={appliedFormat?.type === FormatType.ROUND_DECIMALS && appliedFormat?.numDecimals === 1 ? <DropdownCheckmark /> : undefined}
-            onClick={() => onClick({type: FormatType.ROUND_DECIMALS, numDecimals: 1})}
-            subtext={disabled ? FORMAT_DISABLED_MESSAGE : '1,234.6'}
-            hideSubtext={true}
-            displaySubtextOnHover={true}
-            disabled={disabled}
-        />,
-        <DropdownItem 
-            key={getFormatTitle({type: FormatType.ROUND_DECIMALS, numDecimals: 2})}
-            title={getFormatTitle({type: FormatType.ROUND_DECIMALS, numDecimals: 2})}
-            icon={appliedFormat?.type === FormatType.ROUND_DECIMALS && appliedFormat?.numDecimals === 2 ? <DropdownCheckmark /> : undefined}
-            onClick={() => onClick({type: FormatType.ROUND_DECIMALS, numDecimals: 2})}
-            subtext={disabled ? FORMAT_DISABLED_MESSAGE : '1,234.57'}
-            hideSubtext={true}
-            displaySubtextOnHover={true}
-            disabled={disabled}
-        />,
-        <DropdownItem 
-            key={getFormatTitle({type: FormatType.ROUND_DECIMALS, numDecimals: 3})}
-            title={getFormatTitle({type: FormatType.ROUND_DECIMALS, numDecimals: 3})}
-            icon={appliedFormat?.type === FormatType.ROUND_DECIMALS && appliedFormat?.numDecimals === 3 ? <DropdownCheckmark /> : undefined}
-            onClick={() => onClick({type: FormatType.ROUND_DECIMALS, numDecimals: 3})}
-            subtext={disabled ? FORMAT_DISABLED_MESSAGE : '1,234.568'}
-            hideSubtext={true}
-            displaySubtextOnHover={true}
-            disabled={disabled}
-        />,
-        <DropdownItem 
-            key={getFormatTitle({type: FormatType.ROUND_DECIMALS, numDecimals: 4})}
-            title={getFormatTitle({type: FormatType.ROUND_DECIMALS, numDecimals: 4})}
-            icon={appliedFormat?.type === FormatType.ROUND_DECIMALS && appliedFormat?.numDecimals === 4 ? <DropdownCheckmark /> : undefined}
-            onClick={() => onClick({type: FormatType.ROUND_DECIMALS, numDecimals: 4})}
-            subtext={disabled ? FORMAT_DISABLED_MESSAGE : '1,234.5678'}
-            hideSubtext={true}
-            displaySubtextOnHover={true}
-            disabled={disabled}
-        />,
-        <DropdownItem 
-            key={getFormatTitle({type: FormatType.PERCENTAGE})}
-            title={getFormatTitle({type: FormatType.PERCENTAGE})}
-            icon={appliedFormat?.type === FormatType.PERCENTAGE ? <DropdownCheckmark /> : undefined}
-            onClick={() => onClick({type: FormatType.PERCENTAGE})}
+            key={getFormatTitle({type: NumberColumnFormatEnum.PERCENTAGE})}
+            title={getFormatTitle({type: NumberColumnFormatEnum.PERCENTAGE})}
+            icon={appliedColumnFormat?.type === NumberColumnFormatEnum.PERCENTAGE ? <DropdownCheckmark /> : undefined}
+            onClick={() => onClick({type: NumberColumnFormatEnum.PERCENTAGE})}
             subtext={disabled ? FORMAT_DISABLED_MESSAGE : '123,457.00%'}
             hideSubtext={true}
             displaySubtextOnHover={true}
             disabled={disabled}
         />,
         <DropdownItem 
-            key={getFormatTitle({type: FormatType.K_M_B})}
-            title={getFormatTitle({type: FormatType.K_M_B})}
-            icon={appliedFormat?.type === FormatType.K_M_B ? <DropdownCheckmark /> : undefined}
-            onClick={() => onClick({type: FormatType.K_M_B})}
+            key={getFormatTitle({type: NumberColumnFormatEnum.K_M_B})}
+            title={getFormatTitle({type: NumberColumnFormatEnum.K_M_B})}
+            icon={appliedColumnFormat?.type === NumberColumnFormatEnum.K_M_B ? <DropdownCheckmark /> : undefined}
+            onClick={() => onClick({type: NumberColumnFormatEnum.K_M_B})}
             subtext={disabled ? FORMAT_DISABLED_MESSAGE : '1.234K (numbers less than 995 are displayed as 0k)'}
             hideSubtext={true}
             displaySubtextOnHover={true}
             disabled={disabled}
         />,
         <DropdownItem 
-            key={getFormatTitle({type: FormatType.SCIENTIFIC_NOTATION})}
-            title={getFormatTitle({type: FormatType.SCIENTIFIC_NOTATION})}
-            icon={appliedFormat?.type === FormatType.SCIENTIFIC_NOTATION ? <DropdownCheckmark /> : undefined}
-            onClick={() => onClick({type: FormatType.SCIENTIFIC_NOTATION})}
+            key={getFormatTitle({type: NumberColumnFormatEnum.SCIENTIFIC_NOTATION})}
+            title={getFormatTitle({type: NumberColumnFormatEnum.SCIENTIFIC_NOTATION})}
+            icon={appliedColumnFormat?.type === NumberColumnFormatEnum.SCIENTIFIC_NOTATION ? <DropdownCheckmark /> : undefined}
+            onClick={() => onClick({type: NumberColumnFormatEnum.SCIENTIFIC_NOTATION})}
             subtext={disabled ? FORMAT_DISABLED_MESSAGE : '1.23e+3'}
             hideSubtext={true}
             displaySubtextOnHover={true}
@@ -317,30 +275,26 @@ const _getColumnFormatDropdownItems = (
     return formatDropdownItems.concat(remainingFormatDropdownItems)
 }
 
-export const getFormatTitle = (formatTypeObj: FormatTypeObj | undefined): string => {
+export const getFormatTitle = (formatTypeObj: ColumnFormatType | undefined): string => {
     if (formatTypeObj === undefined) {
         return 'Default'
     }
 
     switch(formatTypeObj.type) {
-        case FormatType.DEFAULT:
-            return 'Default'
-        case FormatType.PLAIN_TEXT:
+        case NumberColumnFormatEnum.PLAIN_TEXT:
             return 'Plain Text'
-        case FormatType.ROUND_DECIMALS: {
-            const plural = formatTypeObj.numDecimals != 1 ? 's' : ''
-            return `${formatTypeObj.numDecimals} decimal place${plural}`
-        }
-        case FormatType.PERCENTAGE: {
+        case NumberColumnFormatEnum.PERCENTAGE: {
             return 'Percentage'
         }
-        case FormatType.ACCOUNTING: {
+        case NumberColumnFormatEnum.ACCOUNTING: {
             return 'Accounting'
         }
-        case FormatType.K_M_B: {
+        case NumberColumnFormatEnum.K_M_B: {
             return 'Use K, M, and B for large numbers'
         }
-        case FormatType.SCIENTIFIC_NOTATION:
+        case NumberColumnFormatEnum.SCIENTIFIC_NOTATION:
             return 'Scientific Notation'
     }
+
+    return 'Default';
 }

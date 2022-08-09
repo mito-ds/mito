@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import "../../../../../css/taskpanes/ControlPanel/ColumnSummaryStatistics.css";
 import MitoAPI from '../../../../jupyter/api';
-import { ColumnID, FormatTypeObj, UIState } from '../../../../types';
-import { formatCellData } from '../../../../utils/formatColumns';
+import { ColumnFormatType, ColumnID, UIState } from '../../../../types';
+import { formatCellData } from '../../../../utils/format';
 import OpenFillNaN from '../../FillNa/OpenFillNaN';
 
 
@@ -12,7 +12,7 @@ type ColumnDescribeChartProps = {
     selectedSheetIndex: number;
     columnID: ColumnID;
     mitoAPI: MitoAPI;
-    columnFormatType: FormatTypeObj;
+    columnFormatType: ColumnFormatType;
     columnDtype: string;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
 }

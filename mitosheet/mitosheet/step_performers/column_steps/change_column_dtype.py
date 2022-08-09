@@ -23,7 +23,7 @@ from mitosheet.sheet_functions.types.utils import (get_datetime_format,
                                                    is_int_dtype,
                                                    is_string_dtype,
                                                    is_timedelta_dtype)
-from mitosheet.state import FORMAT_DEFAULT, State
+from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
 from mitosheet.types import ColumnID

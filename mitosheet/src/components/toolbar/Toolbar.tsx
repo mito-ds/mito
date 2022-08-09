@@ -7,7 +7,7 @@ import ToolbarButton from './ToolbarButton';
 import { ToolbarButtonType } from './utils';
 import { Action, ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
 import Dropdown from '../elements/Dropdown';
-import { getColumnFormatDropdownItemsUsingSelections } from '../../utils/formatColumns';
+import { getColumnFormatDropdownItemsUsingSelections } from '../../utils/format';
 
 // Import CSS
 import "../../../css/toolbar.css"
