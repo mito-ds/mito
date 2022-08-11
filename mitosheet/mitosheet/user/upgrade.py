@@ -32,6 +32,7 @@ _Any change the user.json format must be met with a version bump._
 """
 from typing import Any, Dict
 from mitosheet.experiments.experiment_utils import get_current_experiment, get_new_experiment
+from mitosheet._version import package_name
 
 from mitosheet.user.db import get_user_json_object, set_user_json_object
 from mitosheet.user.schemas import (UJ_CLOSED_FEEDBACK, UJ_EXPERIMENT, UJ_FEEDBACKS_V2,
@@ -164,6 +165,8 @@ def upgrade_user_json_version_6_to_7(user_json_version_6: Dict[str, Any]) -> Dic
     We only upgrade them if they are not on the installer_communication_and_time_to_value 
     experiment, as this means that they have used the installer, and we actually _want_
     them to go through the onboarding checklist.
+
+    We also count the checklist as completed 
     """
     # First, bump the version number
     user_json_version_6[UJ_USER_JSON_VERSION] = 7
@@ -171,7 +174,7 @@ def upgrade_user_json_version_6_to_7(user_json_version_6: Dict[str, Any]) -> Dic
     # Then, set new field
     if UJ_RECEIVED_CHECKLISTS not in user_json_version_6:
         current_experiment = user_json_version_6[UJ_EXPERIMENT]
-        if current_experiment['experiment_id'] != 'installer_communication_and_time_to_value':
+        if current_experiment['experiment_id'] != 'installer_communication_and_time_to_value' or package_name == 'mitosheet-private':
             user_json_version_6[UJ_RECEIVED_CHECKLISTS] = {
                 "onboarding_checklist": ['signup', 'import', 'filter', 'pivot', 'graph', 'finalize']
             }
