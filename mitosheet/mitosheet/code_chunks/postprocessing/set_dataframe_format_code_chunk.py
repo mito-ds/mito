@@ -59,8 +59,6 @@ def get_format_string_for_column_format(column_format: Optional[ColumnFormat], d
     elif type == NUMBER_FORMAT_SCIENTIFIC_NOTATION:
         return f"\"{OPEN_BRACKET}:{precision_string}E{CLOSE_BRACKET}\""
 
-
-    # TODO: do we want to raise an exception here
     return None
 
 def get_all_columns_format_code(state: State, sheet_index: int) -> Optional[str]:
@@ -105,7 +103,6 @@ def get_headers_format_code(state: State, sheet_index: int) -> Optional[str]:
 
 def get_rows_format_code(state: State, sheet_index: int, even_or_odd: str) -> Optional[str]:
     df_format = state.df_formats[sheet_index]
-    print(df_format)
     rows = df_format['rows']
 
     evenOrOdd = rows.get(even_or_odd, dict())
@@ -121,11 +118,11 @@ def get_border_format_code(state: State, sheet_index: int) -> Optional[str]:
     df_format = state.df_formats[sheet_index]
     border = df_format['border']
 
-    # TODO: What are the defaults for real?
-    borderStyle = border.get('borderStyle', 'solid')
+    borderStyle = border.get('borderStyle', 'none')
     borderColor = border.get('borderColor', 'black')
 
-    if borderStyle == 'solid' and borderColor == 'black':
+    # If there is no border, then don't return anything
+    if borderStyle == 'none':
         return None
     
     border_string = f'1px {borderStyle} {borderColor}'

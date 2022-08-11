@@ -6,6 +6,7 @@ import { ColumnFormatType, ColumnID, NumberColumnFormatEnum, SheetData } from ".
 import DropdownCheckmark from '../components/icons/DropdownCheckmark'
 import { isFloatDtype, isIntDtype } from "./dtypes"
 import { getDefaultDataframeFormat } from "../components/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane"
+import DropdownSectionSeperator from "../components/elements/DropdownSectionSeperator"
 
 export const FORMAT_DISABLED_MESSAGE = 'You must have at least one Number column selected to adjust the formatting.'
 
@@ -42,6 +43,11 @@ export const formatCellData = (cellData: boolean | string | number, columnDtype:
     if (precision === undefined) {
         if (isFloatDtype(columnDtype)) {precision = 2}
         if (isIntDtype(columnDtype)) {precision = 0}
+    }
+
+    // We do not allow precision to be greater than 20, as this is the maximum number for minimumFractionDigits before it will crash
+    if ((precision || 0) > 20) {
+        precision = 20;
     }
 
     switch (type) {
@@ -169,6 +175,7 @@ const _getColumnFormatDropdownItems = (
             rightText='1234.6'
             disabled={disabled}
         />,
+        <DropdownSectionSeperator isDropdownSectionSeperator/>,
         <DropdownItem 
             key={getFormatTitle({type: NumberColumnFormatEnum.CURRENCY})}
             title={getFormatTitle({type: NumberColumnFormatEnum.CURRENCY})}

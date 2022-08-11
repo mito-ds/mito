@@ -19,8 +19,9 @@ import { HEADER_BACKGROUND_COLOR_DEFAULT, HEADER_TEXT_COLOR_DEFAULT } from "../.
 import { EVEN_ROW_BACKGROUND_COLOR_DEFAULT, EVEN_ROW_TEXT_COLOR_DEFAULT, ODD_ROW_BACKGROUND_COLOR_DEFAULT, ODD_ROW_TEXT_COLOR_DEFAULT } from "../../endo/GridData";
 import Tooltip from "../../elements/Tooltip";
 import SuggestedStyles from "./SuggestedStyles";
+import DataframeSelect from "../../elements/DataframeSelect";
 
-const BORDER_COLOR_DEFAULT = '#E0E0E0'; // TODO: figure out what this really is!
+const BORDER_COLOR_DEFAULT = '#FFFFFF'; 
 
 
 interface SetDataframeFormatTaskpaneProps {
@@ -94,44 +95,23 @@ const SetDataframeFormatTaskpane = (props: SetDataframeFormatTaskpaneProps): JSX
                 requiresPro
                 requiresProMessage="Setting the dataframe format is a Mito Pro feature. Please upgrade to use this feature."
             >
-                <Row justify='space-between' align='center' title='Select a dataframe to style.'>
-                    <Col>
-                        <p className='text-header-3'>
-                            Dataframe
-                        </p>
-                    </Col>
-                    <Col>
-                        <Select
-                            value={props.sheetDataArray[params.sheet_index]?.dfName}
-                            onChange={(newDfName: string) => {
-                                const newSheetIndex = props.sheetDataArray.findIndex((sheetData) => {
-                                    return sheetData.dfName == newDfName;
-                                })
-                                
-                                setParams(prevParams => {
-                                    const newParams = getDefaultParams(props.sheetDataArray, newSheetIndex);
-                                    if (newParams) {
-                                        return newParams;
-                                    }
-                                    return {
-                                        ...prevParams,
-                                        sheet_index: newSheetIndex
-                                    }
-                                });
-                            }}
-                            width='medium'
-                        >
-                            {props.sheetDataArray.map(sheetData => {
-                                return (
-                                    <DropdownItem
-                                        key={sheetData.dfName}
-                                        title={sheetData.dfName}
-                                    />
-                                )
-                            })}
-                        </Select>
-                    </Col>
-                </Row>
+                <DataframeSelect 
+                    sheetDataArray={props.sheetDataArray} 
+                    sheetIndex={params.sheet_index} 
+                    onChange={(newSheetIndex) => {
+                        setParams(prevParams => {
+                            const newParams = getDefaultParams(props.sheetDataArray, newSheetIndex);
+                            if (newParams) {
+                                return newParams;
+                            }
+                            return {
+                                ...prevParams,
+                                sheet_index: newSheetIndex
+                            }
+                        });
+                        // TODO: should we switch to the sheet?
+                    }}                    
+                />
                 <SuggestedStyles updateDataframeFormatParams={updateDataframeFormatParams}/>
                 <CollapsibleSection title="Column Headers">
                     <LabelAndColor
