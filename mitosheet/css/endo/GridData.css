@@ -25,7 +25,7 @@
 }
 
 .mito-grid-cell:hover {
-    opacity: .5; /* TODO: this looks awful, what should we change it to? Hard when the colors are different... */
+    opacity: .5; /* This doesn't look great, what should we change it to? Hard when the colors are different... */
 }
 
 /* We make selected cells look different on even and odd rows */
