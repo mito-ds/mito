@@ -569,7 +569,7 @@ const Plans: NextPage = () => {
 
             <section id='mito_pro_roadmap'>
                 <h1 className={titleStyles.title}>
-                    Mito Pro & Enterprise Functionality
+                    Mito Pro & Enterprise Features
                 </h1>
             </section>
             <section>
