@@ -129,10 +129,18 @@ const PRESENTATION_FEATURES: Feature[] = [
     }
   },
   {
-    feature: 'Export Column Formats',
+    feature: 'Export Formatting',
     planSupport: {
       'Open Source': false,
       'Pro': true,
+      'Enterprise': true 
+    }
+  },
+  {
+    feature: 'Style Dataframes',
+    planSupport: {
+      'Open Source': false,
+      'Pro': false,
       'Enterprise': true 
     }
   },
@@ -387,7 +395,7 @@ const Plans: NextPage = () => {
                 <div className={plansStyles.plan_bullets_container}> 
                   <PlanBullet>
                     <p>
-                      All of Open Source: and:
+                      All of Open Source, and:
                     </p>
                   </PlanBullet>
                   <PlanBullet>
@@ -561,47 +569,20 @@ const Plans: NextPage = () => {
 
             <section id='mito_pro_roadmap'>
                 <h1 className={titleStyles.title}>
-                    Mito Pro & Enterprise Roadmap
+                    Mito Pro & Enterprise Functionality
                 </h1>
-                <p>
-                  Coming soon!
-                </p>
             </section>
             <section>
-                <div className={pageStyles.subsection}>
-                    <div className={iconAndTextCardStyles.icon_and_text_card}>
+                  <div className={pageStyles.subsection}>
+                      <div className={iconAndTextCardStyles.icon_and_text_card}>
                         <div className={iconAndTextCardStyles.icon}>
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
                         <h1>
-                            Shareable <br/> notebooks
+                          Advanced <br/> formatting
                         </h1>
                         <p>
-                          Share notebooks with Mito embedded in them so colleagues can continue the analysis in Mito.  
-                        </p>
-                    </div>
-                    <div className={iconAndTextCardStyles.icon_and_text_card + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
-                        <div className={iconAndTextCardStyles.icon}>
-                            <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
-                        </div>
-                        <h1>
-                          Advanced <br/> analysis
-                        </h1>
-                        <p>
-                          Go beyond basic data cleaning and analysis features with support for regressions, fuzzy matching and clustering. 
-                        </p>
-                    </div>
-                </div>
-                <div className={pageStyles.subsection}>
-                    <div className={iconAndTextCardStyles.icon_and_text_card}>
-                        <div className={iconAndTextCardStyles.icon}>
-                            <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
-                        </div>
-                        <h1>
-                          Custom <br /> transformations
-                        </h1>
-                        <p>
-                          Import custom Python snippets to use within the Mito Spreadsheet. Add completely new transformations directly into the Mitosheet.  
+                          Utilize Excel-like formatting and conditional formatting to make your analysis stand out.
                         </p>
                     </div>
                     <div className={iconAndTextCardStyles.icon_and_text_card + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
@@ -622,10 +603,35 @@ const Plans: NextPage = () => {
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
                         <h1>
+                            Shareable <br/> notebooks
+                        </h1>
+                        <p>
+                          Share notebooks with Mito embedded in them so colleagues can continue the analysis in Mito. (coming soon)
+                        </p>
+                    </div>
+                    <div className={iconAndTextCardStyles.icon_and_text_card + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
+                        <div className={iconAndTextCardStyles.icon}>
+                            <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
+                        </div>
+                        <h1>
+                          Advanced <br/> analysis
+                        </h1>
+                        <p>
+                          Go beyond basic data cleaning and analysis features with support for regressions, fuzzy matching and clustering. (coming soon)
+                        </p>
+                    </div>
+                </div>
+                
+                <div className={pageStyles.subsection}>
+                    <div className={iconAndTextCardStyles.icon_and_text_card}>
+                        <div className={iconAndTextCardStyles.icon}>
+                            <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
+                        </div>
+                        <h1>
                           Connect to more data sources
                         </h1>
                         <p>
-                          Connect to databases so users can import any data set  without having to write custom pandas code.   
+                          Connect to databases so users can import any data set without having to write custom pandas code. (coming soon)
                         </p>
                     </div>
                     <div className={iconAndTextCardStyles.icon_and_text_card + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
@@ -636,20 +642,20 @@ const Plans: NextPage = () => {
                           Feature <br/> settings
                         </h1>
                         <p>
-                          Customize Mito by toggling code optimization, auto-documentation, seleting between light and dark mode, and more. 
+                          Customize Mito by toggling code optimization, auto-documentation, seleting between light and dark mode, and more. (coming soon)
                         </p>
                     </div>
                 </div>
                 <div className={pageStyles.subsection}>
-                    <div className={iconAndTextCardStyles.icon_and_text_card}>
+                      <div className={iconAndTextCardStyles.icon_and_text_card}>
                         <div className={iconAndTextCardStyles.icon}>
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
                         <h1>
-                          Advanced <br/> formatting
+                          Custom <br /> transformations
                         </h1>
                         <p>
-                          Utilize Excel-like formatting and conditional formatting to make your analysis stand out.
+                          Import custom Python snippets to use within the Mito Spreadsheet. Add completely new transformations directly into the Mitosheet. (coming soon)
                         </p>
                     </div>
                     <div className={iconAndTextCardStyles.icon_and_text_card + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
@@ -660,7 +666,7 @@ const Plans: NextPage = () => {
                           Keyboard <br/> shortcuts
                         </h1>
                         <p>
-                          Navigate Mito without ever using your mouse. 🐁 
+                          Navigate Mito without ever using your mouse. 🐁  (coming soon)
                         </p>
                     </div>
                 </div>
