@@ -11,7 +11,7 @@ import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../data/function_documentation";
 import { Action, DFSource, EditorState, GridState, SheetData, UIState, ActionEnum, AnalysisData, DataframeFormat } from "../types"
 import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
-import { FORMAT_DISABLED_MESSAGE } from "./format";
+import { decreasePrecision, FORMAT_DISABLED_MESSAGE, increasePrecision } from "./format";
 import { writeTextToClipboard, getCopyStringForClipboard } from "./copy";
 import { getDefaultDataframeFormat } from "../components/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
 
@@ -466,9 +466,9 @@ export const createActions = (
             searchTerms: ['filter', 'remove', 'delete'],
             tooltip: "Filter this dataframe based on the data in a column."
         },
-        [ActionEnum.Format]: {
-            type: ActionEnum.Format,
-            shortTitle: 'Format',
+        [ActionEnum.Format_Number_Columns]: {
+            type: ActionEnum.Format_Number_Columns,
+            shortTitle: 'Number',
             longTitle: 'Format number columns',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -710,16 +710,14 @@ export const createActions = (
         },
         [ActionEnum.Precision_Decrease]: {
             type: ActionEnum.Precision_Decrease,
-            shortTitle: 'More',
+            shortTitle: 'Less',
             longTitle: 'Remove decimal from number columns',
             actionFunction: async () => {  
                 const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
                 const newDfFormat: DataframeFormat = JSON.parse(JSON.stringify(dfFormat));
                 selectedNumberSeriesColumnIDs.forEach((columnID) => {
-                    const newColumnFormat = {
-                        ...newDfFormat.columns[columnID]
-                    }
-                    newColumnFormat.precision = Math.max((newDfFormat.columns[columnID]?.precision || 0) - 1, 0);
+                    const columnDtype = sheetData.columnDtypeMap[columnID];
+                    const newColumnFormat = decreasePrecision({...newDfFormat.columns[columnID]}, columnDtype)
                     newDfFormat.columns[columnID] = newColumnFormat;
                 });
 
@@ -737,16 +735,14 @@ export const createActions = (
         },
         [ActionEnum.Precision_Increase]: {
             type: ActionEnum.Precision_Increase,
-            shortTitle: 'Less',
+            shortTitle: 'More',
             longTitle: 'Adds decimal to number columns',
             actionFunction: async () => {  
                 const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
                 const newDfFormat: DataframeFormat = JSON.parse(JSON.stringify(dfFormat));
                 selectedNumberSeriesColumnIDs.forEach((columnID) => {
-                    const newColumnFormat = {
-                        ...newDfFormat.columns[columnID]
-                    }
-                    newColumnFormat.precision = (newDfFormat.columns[columnID]?.precision || 0) + 1
+                    const columnDtype = sheetData.columnDtypeMap[columnID];
+                    const newColumnFormat = increasePrecision({...newDfFormat.columns[columnID]}, columnDtype)
                     newDfFormat.columns[columnID] = newColumnFormat;
                 });
                 mitoAPI.editSetDataframeFormat(sheetIndex, newDfFormat);

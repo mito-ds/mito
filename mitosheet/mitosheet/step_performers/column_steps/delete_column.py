@@ -91,6 +91,8 @@ def _delete_column_id(
 
     # And then update all the state variables removing this column from the state
     del state.column_spreadsheet_code[sheet_index][column_id]
+    if column_id in state.df_formats[sheet_index]['columns']:
+        del state.df_formats[sheet_index]['columns'][column_id]
 
     # Clean up the IDs
     state.column_ids.delete_column_id(sheet_index, column_id)

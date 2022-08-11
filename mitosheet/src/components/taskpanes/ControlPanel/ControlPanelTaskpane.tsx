@@ -58,7 +58,7 @@ type ControlPanelTaskpaneProps = {
 export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Element => {
     
     // Get the values for the first cell that was selected, in accordance with our standard
-    const {columnHeader, columnID, columnFilters, columnDtype, columnFormatType} = getCellDataFromCellIndexes(props.sheetData, props.selection.startingRowIndex, props.selection.startingColumnIndex);
+    const {columnHeader, columnID, columnFilters, columnDtype, columnFormat} = getCellDataFromCellIndexes(props.sheetData, props.selection.startingRowIndex, props.selection.startingColumnIndex);
 
     const [filters, _setFilters] = useState(columnFilters !== undefined ? columnFilters.filters : []);
     const [operator, setOperator] = useState(columnFilters !== undefined ? columnFilters.operator : 'And');
@@ -95,7 +95,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
     
     // If this is not a valid column, don't render anything, and close the takspane! 
     // We have to do this after the useState calls, to make sure this is valid react
-    if (columnHeader === undefined || columnID === undefined || columnDtype == undefined || columnFormatType == undefined) {
+    if (columnHeader === undefined || columnID === undefined || columnDtype == undefined) {
         props.setUIState((prevUIState) => {
             return {
                 ...prevUIState,
@@ -225,7 +225,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                                 setFilters={setFilters}
                                 mitoAPI={props.mitoAPI}
                                 columnDtype={columnDtype}
-                                columnFormatType={columnFormatType}
+                                columnFormat={columnFormat}
                                 setUIState={props.setUIState}
                             />
                         </>
@@ -242,7 +242,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                                 columnID={columnID}
                                 mitoAPI={props.mitoAPI}
                                 columnDtype={columnDtype}
-                                columnFormatType={columnFormatType}
+                                columnFormat={columnFormat}
                                 setUIState={props.setUIState}
                             />
                         </>

@@ -12,7 +12,7 @@ type ColumnDescribeChartProps = {
     selectedSheetIndex: number;
     columnID: ColumnID;
     mitoAPI: MitoAPI;
-    columnFormatType: ColumnFormatType;
+    columnFormat: ColumnFormatType | undefined;
     columnDtype: string;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
 }
@@ -66,7 +66,7 @@ function ColumnSummaryStatistics(props: ColumnDescribeChartProps): JSX.Element {
                             
                             // Add the format, if there is one for this column
                             if (KEY_TO_FORMAT_WITH_COLUMN_FORMAT.includes(key)) {
-                                valueToDisplay = formatCellData(value, props.columnDtype, props.columnFormatType)
+                                valueToDisplay = formatCellData(value, props.columnDtype, props.columnFormat)
                             } 
 
                             // We clip data at 15 letters for now. We also format

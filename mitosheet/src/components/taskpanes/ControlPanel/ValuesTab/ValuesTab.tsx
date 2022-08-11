@@ -69,7 +69,7 @@ export function ValuesTab(
         filters: (FilterType | FilterGroupType)[];
         setFilters: React.Dispatch<React.SetStateAction<(FilterType | FilterGroupType)[]>>;
         columnDtype: string,
-        columnFormatType: ColumnFormatType
+        columnFormat: ColumnFormatType | undefined
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     }): JSX.Element {
 
@@ -234,7 +234,7 @@ export function ValuesTab(
                     disabled={disabledMessage !== undefined}
                 >
                     {sortedUniqueValueCounts.map((uniqueValueCount, index) => {
-                        const valueToDisplay = formatCellData(uniqueValueCount.value, props.columnDtype, props.columnFormatType);
+                        const valueToDisplay = formatCellData(uniqueValueCount.value, props.columnDtype, props.columnFormat);
 
                         /**
                          * If this is an NaN value, we display additional text that allows the user to navigate

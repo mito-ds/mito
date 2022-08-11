@@ -95,7 +95,7 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
     columnFormula: string | undefined,
     cellValue: string | number | boolean | undefined,
     columnFilters: ColumnFilters | undefined,
-    columnFormatType: ColumnFormatType | undefined,
+    columnFormat: ColumnFormatType | undefined,
     headerBackgroundColor: string | undefined,
     headerTextColor: string | undefined,
 } => {
@@ -106,7 +106,7 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
     const columnDtype = columnID !== undefined ? sheetData?.data[columnIndex].columnDtype : undefined;
     const columnFilters = columnID !== undefined ? sheetData?.columnFiltersMap[columnID] : undefined;
     const cellValue = columnID !== undefined ? sheetData?.data[columnIndex].columnData[rowIndex] : undefined;
-    const columnFormatType = columnID !== undefined ? sheetData?.dfFormat.columns[columnID] : undefined;
+    const columnFormat = columnID !== undefined ? sheetData?.dfFormat.columns[columnID] : undefined;
     const headerBackgroundColor = columnID !== undefined ? sheetData?.dfFormat.headers.backgroundColor : undefined;
     const headerTextColor = columnID !== undefined ? sheetData?.dfFormat.headers.color : undefined;
 
@@ -117,7 +117,7 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
         columnDtype: columnDtype,
         columnFilters: columnFilters,
         cellValue: cellValue,
-        columnFormatType: columnFormatType,
+        columnFormat: columnFormat,
         headerBackgroundColor: headerBackgroundColor, 
         headerTextColor: headerTextColor,
     }

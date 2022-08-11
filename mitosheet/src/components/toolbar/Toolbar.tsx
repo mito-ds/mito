@@ -22,6 +22,7 @@ import PlanButton from './PlanButton';
 import ToolbarRowsDropdown from './ToolbarRowsDropdown.tsx';
 import OpenOnboardingChecklist from './OpenChecklistButton';
 import { isVariantB } from '../../utils/experiments';
+import ToolbarFormatDropdown from './ToolbarFormatDropdown';
 
 const Toolbar = (
     props: {
@@ -78,6 +79,13 @@ const Toolbar = (
                     </ToolbarMenu>
                     <ToolbarMenu type='Graphs' uiState={props.uiState} setUIState={props.setUIState}>
                         <ToolbarGraphsDropdown
+                            actions={props.actions}
+                            uiState={props.uiState}
+                            setUIState={props.setUIState}
+                        />
+                    </ToolbarMenu>
+                    <ToolbarMenu type='Format' uiState={props.uiState} setUIState={props.setUIState}>
+                        <ToolbarFormatDropdown
                             actions={props.actions}
                             uiState={props.uiState}
                             setUIState={props.setUIState}
@@ -168,13 +176,13 @@ const Toolbar = (
                     />
                     <div className="toolbar-vertical-line"></div>
                     <ToolbarButton
-                        toolbarButtonType={ToolbarButtonType.DTYPE}
+                        toolbarButtonType={ToolbarButtonType.LESS}
                         action={props.actions[ActionEnum.Precision_Decrease]}
                         setEditorState={props.setEditorState}
                         disabledTooltip={props.actions[ActionEnum.Precision_Decrease].isDisabled()}
                     />
                     <ToolbarButton
-                        toolbarButtonType={ToolbarButtonType.DTYPE}
+                        toolbarButtonType={ToolbarButtonType.MORE}
                         action={props.actions[ActionEnum.Precision_Increase]}
                         setEditorState={props.setEditorState}
                         disabledTooltip={props.actions[ActionEnum.Precision_Increase].isDisabled()}
@@ -182,9 +190,9 @@ const Toolbar = (
                     
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.FORMAT}
-                        action={props.actions[ActionEnum.Format]}
+                        action={props.actions[ActionEnum.Format_Number_Columns]}
                         setEditorState={props.setEditorState}
-                        disabledTooltip={isVariantB(props.analysisData) ? undefined : props.actions[ActionEnum.Format].isDisabled()}
+                        disabledTooltip={isVariantB(props.analysisData) ? undefined : props.actions[ActionEnum.Format_Number_Columns].isDisabled()}
                     >
                         <Dropdown
                             display={props.uiState.displayFormatToolbarDropdown}

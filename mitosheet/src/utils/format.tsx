@@ -13,7 +13,7 @@ export const FORMAT_DISABLED_MESSAGE = 'You must have at least one Number column
 
 const formatNumber = (number: number, precision?: number): string  => {
     if (precision === undefined) {
-        return number.toString()
+        return number.toLocaleString("en-US");
     } else {
         return number.toLocaleString("en-US", {minimumFractionDigits: precision, maximumFractionDigits: precision});
     }
@@ -69,14 +69,26 @@ export const formatCellData = (cellData: boolean | string | number, columnDtype:
     const precision = columnFormat?.precision;
 
     if (type === undefined) {
-        // This is default formatting. Do different things depending on the column type
+        /**
+         * If the column format is undefined, then we apply some default formatting. Note that
+         * this means that what you see in the mitosheet is different than what you see when you
+         * print out a styled dataframe, but the net result is pretty good: users can easily
+         * parse their data in the mitosheet.
+         * 
+         * Our defaults currently:
+         * 1. Always show commas on numbers.
+         * 2. Show 2 decimal places by default for float columns (and none for ints)
+         */
         if (isFloatDtype(columnDtype)) {
-            return formatNumber(number, precision);
+            return formatNumber(number, precision === undefined ? 2 : precision);
         }
-        return formatNumber(number);
+        return formatNumber(number, precision);
     } else if (type === NumberColumnFormatEnum.PLAIN_TEXT) {
-        // TODO: The default is PLAIN TEXT. We want to change this to commas, I think!
-        return '' + cellData;
+        if (isFloatDtype(columnDtype)) {
+            return formatNumber(number, precision === undefined ? 2 : precision).replace(/\,/g, ''); // Remove commas
+        }
+        return formatNumber(number, precision).replace(/\,/g, ''); // Remove commas
+
     } else if (type === NumberColumnFormatEnum.PERCENTAGE) {
         return number.toLocaleString("en-US", {style: 'percent', minimumFractionDigits: precision, maximumFractionDigits: precision})
     } else if (type === NumberColumnFormatEnum.CURRENCY) {
@@ -102,6 +114,30 @@ export const formatCellData = (cellData: boolean | string | number, columnDtype:
     }
 
     return ''  + cellData;
+}
+
+/**
+ * A helper function for increasing the precision of a column format.
+ */
+export const increasePrecision = (columnFormat: ColumnFormatType, columnDtype: string | undefined): ColumnFormatType => {
+    if (columnDtype && isFloatDtype(columnDtype) && columnFormat.precision === undefined) {
+        // If the column is a float column and the precision is undefined, then since we default to 2, increasing means bumping to 3
+        return {...columnFormat, precision: 3}
+    } else {
+        return {...columnFormat, precision: (columnFormat.precision || 0) + 1}
+    }
+}
+
+/**
+ * A helper function for increasing the precision of a column format.
+ */
+export const decreasePrecision = (columnFormat: ColumnFormatType, columnDtype: string | undefined): ColumnFormatType => {
+    if (columnDtype && isFloatDtype(columnDtype) && columnFormat.precision === undefined) {
+        // If the column is a float column and the precision is undefined, then since we default to 2, increasing means dropping to 1
+        return {...columnFormat, precision: 1}
+    } else {
+        return {...columnFormat, precision: Math.max((columnFormat.precision || 0) - 1, 0)}
+    }
 }
 
 /* 
@@ -214,7 +250,7 @@ const _getColumnFormatDropdownItems = (
             displaySubtextOnHover={true}
             disabled={disabled}
         />
-    ] : []
+    ] : [];
     
     const remainingFormatDropdownItems = [
         <DropdownItem 

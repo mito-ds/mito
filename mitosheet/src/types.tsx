@@ -682,7 +682,7 @@ export interface MitoStateUpdaters {
 export interface CSVExportState { exportType: 'csv' }
 export interface ExcelExportState { exportType: 'excel', sheetIndexes: number[] }
 
-export type ToolbarDropdowns = 'Edit' | 'Dataframes' | 'Columns' | 'Rows' | 'Graphs' | 'View' | 'Help'
+export type ToolbarDropdowns = 'Edit' | 'Dataframes' | 'Columns' | 'Rows' | 'Graphs' | 'Format' | 'View' | 'Help';
 
 /**
  * State of the UI, all in one place for ease.
@@ -734,7 +734,7 @@ export enum ActionEnum {
     Export = 'export',
     Fill_Na = 'fill na',
     Filter = 'filter',
-    Format = 'format',
+    Format_Number_Columns = 'format number columns',
     Fullscreen = 'fullscreen',
     Graph = 'graph',
     Help = 'help',

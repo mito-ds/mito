@@ -190,15 +190,18 @@ const SetDataframeFormatTaskpane = (props: SetDataframeFormatTaskpaneProps): JSX
                         </Col>
                         <Col></Col>
                         <Select 
-                            value={params.df_format.border.borderStyle || 'solid'} 
+                            value={params.df_format.border.borderStyle || 'none'}  // It defaults to none
                             width='medium'
                             onChange={(newBorderStyle) => {
+                                if (newBorderStyle === 'none') {
+                                    return updateDataframeFormatParams({border: {borderStyle: undefined}});
+                                }
                                 return updateDataframeFormatParams({border: {borderStyle: newBorderStyle}});
                             }}
                         >
+                            <DropdownItem title="none" />
                             <DropdownItem title="solid" />
                             <DropdownItem title="dashed" />
-                            <DropdownItem title="none" />
                             {/** TODO: do we want to give users all the options? */}
                         </Select>
                     </Row>

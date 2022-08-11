@@ -6,10 +6,12 @@
 # Distributed under the terms of the GPL License.
 from typing import Any, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.sheet_functions.types.utils import is_int_dtype
 from mitosheet.state import NUMBER_FORMAT_ACCOUNTING, NUMBER_FORMAT_CURRENCY, NUMBER_FORMAT_K_M_B, NUMBER_FORMAT_PERCENTAGE, NUMBER_FORMAT_PLAIN_TEXT, NUMBER_FORMAT_SCIENTIFIC_NOTATION, State
 from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_to_transpiled_code
 from mitosheet.types import ColumnFormat, ColumnHeader, DataframeFormat
 from mitosheet.utils import MAX_ROWS
+from mitosheet.sheet_functions.types import is_float_dtype
 
 
 def get_dataframes_with_formats(state: State) -> List[int]:
@@ -20,19 +22,27 @@ def get_dataframes_with_formats(state: State) -> List[int]:
 OPEN_BRACKET = "{"
 CLOSE_BRACKET = "}"
 
-def get_format_string_for_column_format(column_format: Optional[ColumnFormat]) -> Optional[str]:
+def get_format_string_for_column_format(column_format: Optional[ColumnFormat], dtype: str) -> Optional[str]:
     if column_format is None:
         return None
 
     type = column_format.get('type', None)
     precision = column_format.get('precision', None)
 
-    if precision:
+    if precision is not None:
         precision_string = f'.{precision}'
     else:
-        precision_string = ''
+        # If there is no precision, we use the default precision for float to 2
+        if is_float_dtype(dtype):
+            precision_string = '.2'
+        else:
+            precision_string = ''
 
     if type == NUMBER_FORMAT_PLAIN_TEXT:
+        # If this is an int column, and we have no decimals, then we use the d format as to not get any decimals
+        if is_int_dtype(dtype) and precision_string == '':
+            return f"\"{OPEN_BRACKET}:{precision_string}d{CLOSE_BRACKET}\""
+
         return f"\"{OPEN_BRACKET}:{precision_string}f{CLOSE_BRACKET}\""
     elif type == NUMBER_FORMAT_PERCENTAGE:
         return f"\"{OPEN_BRACKET}:,{precision_string}%{CLOSE_BRACKET}\""
@@ -52,6 +62,7 @@ def get_format_string_for_column_format(column_format: Optional[ColumnFormat]) -
 
 def get_all_columns_format_code(state: State, sheet_index: int) -> Optional[str]:
     df_format = state.df_formats[sheet_index]
+    df = state.dfs[sheet_index]
     columns = df_format['columns']
 
     # TODO: in the future, we probably want to combine equivalent column formats
@@ -59,8 +70,9 @@ def get_all_columns_format_code(state: State, sheet_index: int) -> Optional[str]
     all_columns_format_code = ''
     for column_id, column_format in columns.items():
         column_header = state.column_ids.get_column_header_by_id(sheet_index, column_id)
+        dtype = str(df[column_header].dtype)
         transpiled_column_header = column_header_to_transpiled_code(column_header)
-        format_string = get_format_string_for_column_format(column_format)
+        format_string = get_format_string_for_column_format(column_format, dtype)
 
         if format_string is not None:
             all_columns_format_code += f'.format({format_string}, subset=[{transpiled_column_header}])'
@@ -143,7 +155,6 @@ def get_table_styles_code(state: State, sheet_index: int) -> Optional[str]:
     return None
 
 def get_python_code_for_dataframe_format(state: State, sheet_index: int) -> Optional[str]:
-    df_format = state.df_formats[sheet_index]
     df_name = state.df_names[sheet_index]
     df = state.dfs[sheet_index]
 
