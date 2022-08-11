@@ -32,6 +32,6 @@ else:
 
 
 DataframeFormat = Dict[str, Any]
-ColumnFormat = Dict[str, Any] # TODO: strongly type this
+ColumnFormat = Dict[str, Any]
 
 

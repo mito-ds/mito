@@ -13,16 +13,11 @@ from mitosheet.types import ColumnFormat
 from mitosheet.utils import MAX_ROWS
 from mitosheet.sheet_functions.types import is_float_dtype
 
-
-def get_dataframes_with_formats(state: State) -> List[int]:
-    # TODO: look for all the dataframes with non-default formats
-    # For now, we just print out all of them
-    return list(range(len(state.df_formats)))
-
 OPEN_BRACKET = "{"
 CLOSE_BRACKET = "}"
 
 def get_format_string_for_column_format(column_format: Optional[ColumnFormat], dtype: str) -> Optional[str]:
+    """For a given column format, returns a format string or None if it's the default"""
     if column_format is None:
         return None
 
@@ -62,12 +57,13 @@ def get_format_string_for_column_format(column_format: Optional[ColumnFormat], d
     return None
 
 def get_all_columns_format_code(state: State, sheet_index: int) -> Optional[str]:
+    """Returns the .format call for all of the columns"""
     df_format = state.df_formats[sheet_index]
     df = state.dfs[sheet_index]
     columns = df_format['columns']
 
     # TODO: in the future, we probably want to combine equivalent column formats
-    # so that we get pretty generated code
+    # so that we get pretty generated code. For now, we do each one by one
     all_columns_format_code = ''
     for column_id, column_format in columns.items():
         column_header = state.column_ids.get_column_header_by_id(sheet_index, column_id)
@@ -80,9 +76,11 @@ def get_all_columns_format_code(state: State, sheet_index: int) -> Optional[str]
 
     if len(all_columns_format_code) > 0:
         return all_columns_format_code
+
     return None
 
 def get_transpiled_table_style(selector: str, props: List[Tuple[str, Optional[str]]]) -> Optional[str]:
+    """A helper that returns a selector and props pair to be used in a set_table_styles call"""
     # We filter out all the props that have None as values
     props = [prop for prop in props if prop[1] is not None]
     if len(props) > 0:
@@ -90,6 +88,7 @@ def get_transpiled_table_style(selector: str, props: List[Tuple[str, Optional[st
     return None
 
 def get_headers_format_code(state: State, sheet_index: int) -> Optional[str]:
+    """Returns header formatting code"""
     df_format = state.df_formats[sheet_index]
     headers = df_format['headers']
     
@@ -102,6 +101,7 @@ def get_headers_format_code(state: State, sheet_index: int) -> Optional[str]:
     )
 
 def get_rows_format_code(state: State, sheet_index: int, even_or_odd: str) -> Optional[str]:
+    """Returns row formatting code"""
     df_format = state.df_formats[sheet_index]
     rows = df_format['rows']
 
@@ -115,6 +115,7 @@ def get_rows_format_code(state: State, sheet_index: int, even_or_odd: str) -> Op
     )
 
 def get_border_format_code(state: State, sheet_index: int) -> Optional[str]:
+    """Returns border formatting code"""
     df_format = state.df_formats[sheet_index]
     border = df_format['border']
 
@@ -135,6 +136,7 @@ def get_border_format_code(state: State, sheet_index: int) -> Optional[str]:
     )
 
 def get_table_styles_code(state: State, sheet_index: int) -> Optional[str]:
+    """Returns the call to set_table_styles"""
     table_styles_code = ''
     header_format_code = get_headers_format_code(state, sheet_index)
     even_format_code = get_rows_format_code(state, sheet_index, 'even')
@@ -154,7 +156,8 @@ def get_table_styles_code(state: State, sheet_index: int) -> Optional[str]:
         return f".set_table_styles([\n{table_styles_code}])"
     return None
 
-def get_python_code_for_dataframe_format(state: State, sheet_index: int) -> Optional[str]:
+def get_dataframe_format_code(state: State, sheet_index: int) -> Optional[str]:
+    """Returns all the code to set the df_formatting on the dataframe from the state."""
     df_name = state.df_names[sheet_index]
     df = state.dfs[sheet_index]
 
@@ -190,10 +193,9 @@ class SetDataframeFormatCodeChunk(CodeChunk):
         return f'Formatted dataframes. Print these styling objects to see the formatted dataframe'
 
     def get_code(self) -> List[str]:
-        dataframes_with_formats = get_dataframes_with_formats(self.post_state)
         code = []
-        for sheet_index in dataframes_with_formats:
-            dataframe_format_code = get_python_code_for_dataframe_format(self.post_state, sheet_index)
+        for sheet_index in range(len(self.post_state.df_formats)):
+            dataframe_format_code = get_dataframe_format_code(self.post_state, sheet_index)
             if dataframe_format_code is not None:
                 code.append(dataframe_format_code)
         

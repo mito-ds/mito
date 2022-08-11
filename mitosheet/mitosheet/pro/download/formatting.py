@@ -32,9 +32,9 @@ def add_formatting_to_excel_sheet(
     df = steps_manager.dfs[sheet_index]
     sheet_name = steps_manager.curr_step.df_names[sheet_index]
 
+    # TODO: fix up below
     return
 
-    # TODO: fix up the Excel formatting
     format_data_map = steps_manager.curr_step.column_format_types[sheet_index]
 
     workbook  = writer.book

@@ -20,7 +20,7 @@ from mitosheet.sheet_functions.types.utils import (get_datetime_format,
                                                    is_bool_dtype,
                                                    is_datetime_dtype,
                                                    is_float_dtype,
-                                                   is_int_dtype,
+                                                   is_int_dtype, is_number_dtype,
                                                    is_string_dtype,
                                                    is_timedelta_dtype)
 from mitosheet.state import State
@@ -193,8 +193,9 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
             post_state.dfs[sheet_index][column_header] = new_column
             pandas_processing_time = perf_counter() - pandas_start_time
 
-            # If we're changing between number columns, we keep the formatting on the column. Otherwise, we remove it
-            # TODO: fix this up
+            # If we're changing away from a number column, then we remove the formatting on the column if it exists
+            if not is_number_dtype(new_dtype) and column_id in post_state.df_formats[sheet_index]['columns']:
+                del post_state.df_formats[sheet_index]['columns'][column_id]
                 
             return post_state, {
                 'pandas_processing_time': pandas_processing_time
