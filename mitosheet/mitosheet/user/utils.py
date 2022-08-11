@@ -58,6 +58,10 @@ def is_pro() -> bool:
     if MITOSHEET_HELPER_PRO:
         return MITOSHEET_HELPER_PRO
 
+    # If the current package is mitosheet-private, we activate Pro
+    if package_name == 'mitosheet-private':
+        return True
+
     return is_pro if is_pro is not None else False
 
 
@@ -88,6 +92,10 @@ def should_upgrade_mitosheet() -> bool:
     
     from mitosheet.telemetry.telemetry_utils import MITOSHEET_HELPER_PRIVATE
     if MITOSHEET_HELPER_PRO or MITOSHEET_HELPER_PRIVATE:
+        return False
+
+    # If it's mitosheet-private, then we don't give them the upgrade prompts
+    if package_name == 'mitosheet-private':
         return False
     
     last_upgraded_date_stored = get_user_field(UJ_MITOSHEET_LAST_UPGRADED_DATE)
