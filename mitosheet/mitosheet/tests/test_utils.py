@@ -155,6 +155,10 @@ class MitoWidgetTestWrapper:
         return self.mito_widget.steps_manager.curr_step.df_names
 
     @property
+    def df_formats(self):
+        return self.mito_widget.steps_manager.curr_step.df_formats
+
+    @property
     def column_format_types(self):
         return self.mito_widget.steps_manager.curr_step.column_format_types
 
