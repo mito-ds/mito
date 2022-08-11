@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Any, Dict, List, Set, Union
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import pandas as pd
 from mitosheet.types import ColumnHeader
@@ -13,7 +13,7 @@ TAB = '    '
 NEWLINE_TAB = f'\n{TAB}'
 
 
-def column_header_list_to_transpiled_code(column_headers: Union[List[ColumnHeader], Set[ColumnHeader]]) -> str:
+def column_header_list_to_transpiled_code(column_headers: Union[List[ColumnHeader], Set[ColumnHeader], List[Tuple[str, Optional[str]]]]) -> str:
     """
     A helper function for turning a list of column headers into a 
     valid list of Python code.
