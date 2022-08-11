@@ -7,9 +7,9 @@
 from typing import Any, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.sheet_functions.types.utils import is_int_dtype
-from mitosheet.state import NUMBER_FORMAT_ACCOUNTING, NUMBER_FORMAT_CURRENCY, NUMBER_FORMAT_K_M_B, NUMBER_FORMAT_PERCENTAGE, NUMBER_FORMAT_PLAIN_TEXT, NUMBER_FORMAT_SCIENTIFIC_NOTATION, State
+from mitosheet.state import NUMBER_FORMAT_ACCOUNTING, NUMBER_FORMAT_CURRENCY, NUMBER_FORMAT_PERCENTAGE, NUMBER_FORMAT_PLAIN_TEXT, NUMBER_FORMAT_SCIENTIFIC_NOTATION, State
 from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_to_transpiled_code
-from mitosheet.types import ColumnFormat, ColumnHeader, DataframeFormat
+from mitosheet.types import ColumnFormat
 from mitosheet.utils import MAX_ROWS
 from mitosheet.sheet_functions.types import is_float_dtype
 
@@ -38,21 +38,24 @@ def get_format_string_for_column_format(column_format: Optional[ColumnFormat], d
         else:
             precision_string = ''
 
-    if type == NUMBER_FORMAT_PLAIN_TEXT:
-        # If this is an int column, and we have no decimals, then we use the d format as to not get any decimals
-        if is_int_dtype(dtype) and precision_string == '':
-            return f"\"{OPEN_BRACKET}:{precision_string}d{CLOSE_BRACKET}\""
+    # If this is an int column, and we have no decimals, then we use the d format as to not get any decimals
+    format_f_or_d = 'f'
+    if is_int_dtype(dtype) and precision_string == '':
+        format_f_or_d = 'd'
 
-        return f"\"{OPEN_BRACKET}:{precision_string}f{CLOSE_BRACKET}\""
-    elif type == NUMBER_FORMAT_PERCENTAGE:
-        return f"\"{OPEN_BRACKET}:,{precision_string}%{CLOSE_BRACKET}\""
-    elif type == NUMBER_FORMAT_ACCOUNTING:
-        return f"lambda val: '${OPEN_BRACKET}:>,{precision_string}f{CLOSE_BRACKET}'.format(abs(val)) if val > 0 else '$({OPEN_BRACKET}:>,{precision_string}f{CLOSE_BRACKET})'.format(abs((val)))"
+    if type == NUMBER_FORMAT_PLAIN_TEXT:
+        return f"\"{OPEN_BRACKET}:{precision_string}{format_f_or_d}{CLOSE_BRACKET}\""
     elif type == NUMBER_FORMAT_CURRENCY:
-        return f"\"${OPEN_BRACKET}:{precision_string}f{CLOSE_BRACKET}\""    
-    elif type == NUMBER_FORMAT_K_M_B:
-        # TODO: Fix this up when we have the format string
-        return f"\"{OPEN_BRACKET}:{precision_string}E{CLOSE_BRACKET}\""
+        return f"\"${OPEN_BRACKET}:{precision_string}{format_f_or_d}{CLOSE_BRACKET}\""    
+    elif type == NUMBER_FORMAT_ACCOUNTING:
+        return f"lambda val: '${OPEN_BRACKET}:>,{precision_string}{format_f_or_d}{CLOSE_BRACKET}'.format(abs(val)) if val > 0 else '$({OPEN_BRACKET}:>,{precision_string}{format_f_or_d}{CLOSE_BRACKET})'.format(abs((val)))"
+    elif type == NUMBER_FORMAT_PERCENTAGE:
+        # For some reason, if the int dype is used, then we need to add a leading .0 on the percentage
+        # so we don't display decimals
+        if is_int_dtype(dtype) and precision_string == '':
+            precision_string = '.0'
+
+        return f"\"{OPEN_BRACKET}:,{precision_string}%{CLOSE_BRACKET}\""
     elif type == NUMBER_FORMAT_SCIENTIFIC_NOTATION:
         return f"\"{OPEN_BRACKET}:{precision_string}E{CLOSE_BRACKET}\""
 
@@ -122,7 +125,7 @@ def get_border_format_code(state: State, sheet_index: int) -> Optional[str]:
     borderStyle = border.get('borderStyle', 'solid')
     borderColor = border.get('borderColor', 'black')
 
-    if borderStyle is 'solid' and borderColor is 'black':
+    if borderStyle == 'solid' and borderColor == 'black':
         return None
     
     border_string = f'1px {borderStyle} {borderColor}'

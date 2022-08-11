@@ -156,10 +156,9 @@ export interface ColumnFilterMap {
 
 export enum NumberColumnFormatEnum {
     PLAIN_TEXT = 'plain text',
-    PERCENTAGE = 'percentage',
     CURRENCY = 'currency',
     ACCOUNTING = 'accounting',
-    K_M_B = 'k_m_b',
+    PERCENTAGE = 'percentage',
     SCIENTIFIC_NOTATION = 'scientific notation'
 }
 

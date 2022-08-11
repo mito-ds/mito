@@ -1,6 +1,6 @@
 import pandas as pd
 from mitosheet.sheet_functions.types.utils import is_int_dtype, is_number_dtype
-from mitosheet.state import (NUMBER_FORMAT_ACCOUNTING, NUMBER_FORMAT_K_M_B,
+from mitosheet.state import (NUMBER_FORMAT_ACCOUNTING,
                              NUMBER_FORMAT_PERCENTAGE, NUMBER_FORMAT_PLAIN_TEXT, NUMBER_FORMAT_SCIENTIFIC_NOTATION)
 from mitosheet.types import StepsManagerType
 

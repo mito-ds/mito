@@ -24,10 +24,9 @@ DATAFRAME_SOURCE_MELTED = "melted"  # created through a dataframe being melted
 
 # Constants used for formatting. Defined here to avoid circular imports
 NUMBER_FORMAT_PLAIN_TEXT = "plain text"
-NUMBER_FORMAT_PERCENTAGE = "percentage"
-NUMBER_FORMAT_ACCOUNTING = "accounting"
 NUMBER_FORMAT_CURRENCY = "currency"
-NUMBER_FORMAT_K_M_B = "k_m_b"
+NUMBER_FORMAT_ACCOUNTING = "accounting"
+NUMBER_FORMAT_PERCENTAGE = "percentage"
 NUMBER_FORMAT_SCIENTIFIC_NOTATION = "scientific notation"
 
 

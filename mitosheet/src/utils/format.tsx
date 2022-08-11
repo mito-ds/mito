@@ -4,7 +4,7 @@ import DropdownItem from "../components/elements/DropdownItem"
 import { getSelectedNumberSeriesColumnIDs } from "../components/endo/selectionUtils"
 import { ColumnFormatType, ColumnID, NumberColumnFormatEnum, GridState, MitoSelection, SheetData } from "../types"
 import DropdownCheckmark from '../components/icons/DropdownCheckmark'
-import { isFloatDtype, isNumberDtype } from "./dtypes"
+import { isFloatDtype, isIntDtype, isNumberDtype } from "./dtypes"
 import { getDefaultDataframeFormat } from "../components/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane"
 import { isValueNone } from "../components/taskpanes/ControlPanel/FilterAndSortTab/filter/utils"
 
@@ -12,11 +12,7 @@ export const FORMAT_DISABLED_MESSAGE = 'You must have at least one Number column
 
 
 const formatNumber = (number: number, precision?: number): string  => {
-    if (precision === undefined) {
-        return number.toLocaleString("en-US");
-    } else {
-        return number.toLocaleString("en-US", {minimumFractionDigits: precision, maximumFractionDigits: precision});
-    }
+    return number.toLocaleString("en-US", {minimumFractionDigits: precision, maximumFractionDigits: precision});
 }
 
 
@@ -66,7 +62,13 @@ export const formatCellData = (cellData: boolean | string | number, columnDtype:
     }
 
     const type = columnFormat?.type;
-    const precision = columnFormat?.precision;
+    let precision = columnFormat?.precision;
+
+    // Show 2 decimal places by default for float columns (and none for ints)
+    if (precision === undefined) {
+        if (isFloatDtype(columnDtype)) {precision = 2};
+        if (isIntDtype(columnDtype)) {precision = 0};
+    }
 
     if (type === undefined) {
         /**
@@ -77,38 +79,18 @@ export const formatCellData = (cellData: boolean | string | number, columnDtype:
          * 
          * Our defaults currently:
          * 1. Always show commas on numbers.
-         * 2. Show 2 decimal places by default for float columns (and none for ints)
+         * 2. Show a default precision (determined above)
          */
-        if (isFloatDtype(columnDtype)) {
-            return formatNumber(number, precision === undefined ? 2 : precision);
-        }
         return formatNumber(number, precision);
     } else if (type === NumberColumnFormatEnum.PLAIN_TEXT) {
-        if (isFloatDtype(columnDtype)) {
-            return formatNumber(number, precision === undefined ? 2 : precision).replace(/\,/g, ''); // Remove commas
-        }
+        console.log("Formatting plain text", number, precision)
         return formatNumber(number, precision).replace(/\,/g, ''); // Remove commas
-
     } else if (type === NumberColumnFormatEnum.PERCENTAGE) {
         return number.toLocaleString("en-US", {style: 'percent', minimumFractionDigits: precision, maximumFractionDigits: precision})
     } else if (type === NumberColumnFormatEnum.CURRENCY) {
-        return Number(cellData).toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: precision, maximumFractionDigits: precision})
+        return number.toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: precision, maximumFractionDigits: precision})
     } else if (type === NumberColumnFormatEnum.ACCOUNTING) {
-        return Number(cellData).toLocaleString("en-US", {style: "currency", currency: "USD", currencySign: "accounting", minimumFractionDigits: precision, maximumFractionDigits: precision})
-    } else if (type === NumberColumnFormatEnum.K_M_B) {
-        const number_abs = Math.abs(number)
-        // TODO: make this work with precision
-        if (number_abs >= 1000000000) {
-            
-            return (number / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
-        } else if (number_abs >= 1000000) {
-            return (number / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-        } else if (number_abs >= 995) {
-            return (number / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
-        } else {
-            // We make anything less than ABS(995) displayed as 0k to match Excel formatting 
-            return '0k';
-        }
+        return number.toLocaleString("en-US", {style: "currency", currency: "USD", currencySign: "accounting", minimumFractionDigits: precision, maximumFractionDigits: precision})
     } else if (type === NumberColumnFormatEnum.SCIENTIFIC_NOTATION) {
         return number.toExponential(precision);
     }
@@ -155,9 +137,13 @@ export const changeFormatOfSelectedColumns = async (
     const numberColumnIDsSelected = getSelectedNumberSeriesColumnIDs(selections, sheetData)
     const newDfFormat = {...(sheetData?.dfFormat || getDefaultDataframeFormat())}
     numberColumnIDsSelected.forEach(columnID => {
-        newDfFormat.columns[columnID] = newColumnFormat
+        if (newColumnFormat === undefined) {
+            newDfFormat.columns[columnID] = newColumnFormat;
+        } else {
+            const existingColumnFormat: ColumnFormatType = newDfFormat.columns[columnID] || {};
+            newDfFormat.columns[columnID] = {...existingColumnFormat, ...newColumnFormat}
+        }
     })
-
     
     await mitoAPI.editSetDataframeFormat(
         sheetIndex,
@@ -245,9 +231,7 @@ const _getColumnFormatDropdownItems = (
             title='Default'
             icon={appliedColumnFormat?.type === undefined ? <DropdownCheckmark /> : undefined}
             onClick={() => onClick(undefined)}
-            subtext={disabled ? FORMAT_DISABLED_MESSAGE : 'ints: 1,235, floats: 1,234.6'}
-            hideSubtext={true}
-            displaySubtextOnHover={true}
+            rightText='1,234.6'
             disabled={disabled}
         />
     ] : [];
@@ -258,9 +242,7 @@ const _getColumnFormatDropdownItems = (
             title={getFormatTitle({type: NumberColumnFormatEnum.PLAIN_TEXT})}
             icon={appliedColumnFormat?.type === NumberColumnFormatEnum.PLAIN_TEXT ? <DropdownCheckmark /> : undefined}
             onClick={() => onClick({type: NumberColumnFormatEnum.PLAIN_TEXT})}
-            subtext={disabled ? FORMAT_DISABLED_MESSAGE : 'ints: 1235, floats 1234.5678 (remove commas and display all decimals)'}
-            hideSubtext={true}
-            displaySubtextOnHover={true}
+            rightText='1234.6'
             disabled={disabled}
         />,
         <DropdownItem 
@@ -268,9 +250,7 @@ const _getColumnFormatDropdownItems = (
             title={getFormatTitle({type: NumberColumnFormatEnum.CURRENCY})}
             icon={appliedColumnFormat?.type === NumberColumnFormatEnum.CURRENCY ? <DropdownCheckmark /> : undefined}
             onClick={() => onClick({type: NumberColumnFormatEnum.CURRENCY})}
-            subtext={disabled ? FORMAT_DISABLED_MESSAGE : 'Numbers displayed as $1234.57'}
-            hideSubtext={true}
-            displaySubtextOnHover={true}
+            rightText='$-1,234.57'
             disabled={disabled}
         />,
         <DropdownItem 
@@ -278,9 +258,7 @@ const _getColumnFormatDropdownItems = (
             title={getFormatTitle({type: NumberColumnFormatEnum.ACCOUNTING})}
             icon={appliedColumnFormat?.type === NumberColumnFormatEnum.ACCOUNTING ? <DropdownCheckmark /> : undefined}
             onClick={() => onClick({type: NumberColumnFormatEnum.ACCOUNTING})}
-            subtext={disabled ? FORMAT_DISABLED_MESSAGE : 'Negative numbers displayed as ($1234.57)'}
-            hideSubtext={true}
-            displaySubtextOnHover={true}
+            rightText='($1,234.57)'
             disabled={disabled}
         />,
         <DropdownItem 
@@ -288,19 +266,7 @@ const _getColumnFormatDropdownItems = (
             title={getFormatTitle({type: NumberColumnFormatEnum.PERCENTAGE})}
             icon={appliedColumnFormat?.type === NumberColumnFormatEnum.PERCENTAGE ? <DropdownCheckmark /> : undefined}
             onClick={() => onClick({type: NumberColumnFormatEnum.PERCENTAGE})}
-            subtext={disabled ? FORMAT_DISABLED_MESSAGE : '123,457.00%'}
-            hideSubtext={true}
-            displaySubtextOnHover={true}
-            disabled={disabled}
-        />,
-        <DropdownItem 
-            key={getFormatTitle({type: NumberColumnFormatEnum.K_M_B})}
-            title={getFormatTitle({type: NumberColumnFormatEnum.K_M_B})}
-            icon={appliedColumnFormat?.type === NumberColumnFormatEnum.K_M_B ? <DropdownCheckmark /> : undefined}
-            onClick={() => onClick({type: NumberColumnFormatEnum.K_M_B})}
-            subtext={disabled ? FORMAT_DISABLED_MESSAGE : '1.234K (numbers less than 995 are displayed as 0k)'}
-            hideSubtext={true}
-            displaySubtextOnHover={true}
+            rightText='123,457.00%'
             disabled={disabled}
         />,
         <DropdownItem 
@@ -308,9 +274,7 @@ const _getColumnFormatDropdownItems = (
             title={getFormatTitle({type: NumberColumnFormatEnum.SCIENTIFIC_NOTATION})}
             icon={appliedColumnFormat?.type === NumberColumnFormatEnum.SCIENTIFIC_NOTATION ? <DropdownCheckmark /> : undefined}
             onClick={() => onClick({type: NumberColumnFormatEnum.SCIENTIFIC_NOTATION})}
-            subtext={disabled ? FORMAT_DISABLED_MESSAGE : '1.23e+3'}
-            hideSubtext={true}
-            displaySubtextOnHover={true}
+            rightText={'1.23e+3'}
             disabled={disabled}
         />
     ]
@@ -336,9 +300,6 @@ export const getFormatTitle = (formatTypeObj: ColumnFormatType | undefined): str
         }
         case NumberColumnFormatEnum.ACCOUNTING: {
             return 'Accounting'
-        }
-        case NumberColumnFormatEnum.K_M_B: {
-            return 'Use K, M, and B for large numbers'
         }
         case NumberColumnFormatEnum.SCIENTIFIC_NOTATION:
             return 'Scientific Notation'
