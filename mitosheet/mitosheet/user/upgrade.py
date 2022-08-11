@@ -166,7 +166,10 @@ def upgrade_user_json_version_6_to_7(user_json_version_6: Dict[str, Any]) -> Dic
     experiment, as this means that they have used the installer, and we actually _want_
     them to go through the onboarding checklist.
 
-    We also count the checklist as completed 
+    We also count the checklist as completed if the user is on mitosheet-private, as this upgrade
+    does not happen through the installer, and so this experiment id will be set, but we do not
+    want these users to go through the checklist. This is a temporary fix, and we need a much better
+    long-term solution going forward.
     """
     # First, bump the version number
     user_json_version_6[UJ_USER_JSON_VERSION] = 7
