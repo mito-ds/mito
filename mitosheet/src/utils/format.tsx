@@ -175,7 +175,7 @@ const _getColumnFormatDropdownItems = (
             rightText='1234.6'
             disabled={disabled}
         />,
-        <DropdownSectionSeperator isDropdownSectionSeperator/>,
+        <DropdownSectionSeperator isDropdownSectionSeperator key='sep'/>,
         <DropdownItem 
             key={getFormatTitle({type: NumberColumnFormatEnum.CURRENCY})}
             title={getFormatTitle({type: NumberColumnFormatEnum.CURRENCY})}

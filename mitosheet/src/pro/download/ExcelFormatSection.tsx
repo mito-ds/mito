@@ -16,7 +16,7 @@ const ExcelFormatSection = (props: {
 
     return (
         <>
-            TODO: add Excel formatting
+            Excel formatting export coming soon!
         </>
     )
 }
