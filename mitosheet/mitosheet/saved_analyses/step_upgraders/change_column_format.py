@@ -22,4 +22,4 @@ def upgrade_change_column_format_1_to_remove(step: Dict[str, Any], later_steps: 
 
     NEW: 
     """
-    return [] + later_steps
+    return later_steps

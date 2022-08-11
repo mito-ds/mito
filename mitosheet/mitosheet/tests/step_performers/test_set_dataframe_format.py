@@ -7,6 +7,7 @@
 Contains tests for Set Dataframe Format
 """
 
+from typing import Any, Dict
 import pandas as pd
 import pytest
 from mitosheet.state import NUMBER_FORMAT_PLAIN_TEXT, get_default_dataframe_format
@@ -14,7 +15,7 @@ from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 from mitosheet.types import DataframeFormat
 
 
-def get_dataframe_format(columns=None, headers=None, rowsEven=None, rowsOdd=None, border=None) -> DataframeFormat:
+def get_dataframe_format(columns: Dict[str, Any]=None, headers: Dict[str, Any]=None, rowsEven: Dict[str, Any]=None, rowsOdd: Dict[str, Any]=None, border: Dict[str, Any]=None) -> DataframeFormat:
     df_format = get_default_dataframe_format()
 
     if columns is not None:

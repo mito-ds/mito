@@ -22,19 +22,11 @@ const formatNumber = (number: number, precision?: number): string  => {
 export const formatCellData = (cellData: boolean | string | number, columnDtype: string, columnFormat: ColumnFormatType | undefined): string => {
 
     // If we are not formatting a number, then just return the cellData as a string
+    // Otherwise, this is a number, so attempt to format it as a number
     if (typeof cellData !== 'number') {
         return '' + cellData;
     }
 
-    // Otherwise, this is a number, so attempt to format it as a number
-    let number = cellData;
-    if (typeof number !== 'number') { 
-        try {
-            number = Number(number);
-        } catch {
-            return '' + cellData;
-        }
-    }
 
     const type = columnFormat?.type;
     let precision = columnFormat?.precision;
@@ -59,18 +51,18 @@ export const formatCellData = (cellData: boolean | string | number, columnDtype:
              * parse their data in the mitosheet. Our defaults are just a default number of decimal
              * places, and commas on numbers.
              */
-            return formatNumber(number, precision);
+            return formatNumber(cellData, precision);
         }
         case NumberColumnFormatEnum.PLAIN_TEXT:
-            return formatNumber(number, precision).replace(/,/g, '');
+            return formatNumber(cellData, precision).replace(/,/g, '');
         case NumberColumnFormatEnum.PERCENTAGE:
-            return number.toLocaleString("en-US", {style: 'percent', minimumFractionDigits: precision, maximumFractionDigits: precision})
+            return cellData.toLocaleString("en-US", {style: 'percent', minimumFractionDigits: precision, maximumFractionDigits: precision})
         case NumberColumnFormatEnum.CURRENCY:
-            return number.toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: precision, maximumFractionDigits: precision})
+            return cellData.toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: precision, maximumFractionDigits: precision})
         case NumberColumnFormatEnum.ACCOUNTING:
-            return number.toLocaleString("en-US", {style: "currency", currency: "USD", currencySign: "accounting", minimumFractionDigits: precision, maximumFractionDigits: precision})
+            return cellData.toLocaleString("en-US", {style: "currency", currency: "USD", currencySign: "accounting", minimumFractionDigits: precision, maximumFractionDigits: precision})
         case NumberColumnFormatEnum.SCIENTIFIC_NOTATION:
-            return number.toExponential(precision);
+            return cellData.toExponential(precision);
     }
 }
 
