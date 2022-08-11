@@ -165,7 +165,7 @@ MITOSHEET_PACKAGE_JSON = """{
   "scripts": {
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
     "clean:nbextension": "rimraf mitosheet/nbextension",
-    "clean:labextension": "rimrafelif mitosheet/labextension",
+    "clean:labextension": "rimraf mitosheet/labextension",
     "clean:all": "jlpm run clean:lib && jlpm run clean:nbextension && jlpm run clean:labextension",
     "clean": "npm run clean:all",
 
