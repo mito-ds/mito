@@ -134,7 +134,7 @@ const Checklist = (props: {
         }
 
         if (remainingChecklistItems.includes('signup')) {
-            if (props.userProfile.userEmail !== '') {
+            if (props.userProfile.userEmail !== '' || props.userProfile.isPro) {
                 void props.mitoAPI.updateChecklist('onboarding_checklist', ['signup'], false);
             }
         } 
