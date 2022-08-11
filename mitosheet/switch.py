@@ -165,7 +165,7 @@ MITOSHEET_PACKAGE_JSON = """{
   "scripts": {
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
     "clean:nbextension": "rimraf mitosheet/nbextension",
-    "clean:labextension": "rimraf mitosheet/labextension",
+    "clean:labextension": "rimrafelif mitosheet/labextension",
     "clean:all": "jlpm run clean:lib && jlpm run clean:nbextension && jlpm run clean:labextension",
     "clean": "npm run clean:all",
 
@@ -277,6 +277,8 @@ def switch(new_package):
       open('package.json', 'w').write(MITOSHEET_PACKAGE_JSON.replace('REPLACE_WITH_PACKAGE_NAME_WITH_REPLACE', 'mitosheet'))
     elif new_package == 'mitosheet3':    
       open('package.json', 'w').write(MITOSHEET_PACKAGE_JSON.replace('REPLACE_WITH_PACKAGE_NAME_WITH_REPLACE', 'mitosheet3'))
+    elif new_package == 'mitosheet-private':
+       open('package.json', 'w').write(MITOSHEET_PACKAGE_JSON.replace('REPLACE_WITH_PACKAGE_NAME_WITH_REPLACE', 'mitosheet-private'))
 
     
 if __name__ == '__main__':
@@ -291,6 +293,7 @@ if __name__ == '__main__':
       'mitosheet2',
       'mitosheet',
       'mitosheet3',
+      'mitosheet-private'
     ]
 
     # Sanity check!

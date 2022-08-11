@@ -56,6 +56,11 @@ def telemetry_turned_on() -> bool:
     if MITOSHEET_HELPER_PRIVATE:
         return False
 
+    # If the current package is mitosheet-private, then we don't log anything,
+     # ever, under any circumstances - this is a custom distribution for a client
+    if package_name == 'mitosheet-private':
+        return False
+
     # If Mito Pro is on, then don't log anything
     if is_pro():
         return False
