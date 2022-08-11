@@ -747,6 +747,19 @@ export const getSelectedRowLabelsWithEntireSelectedRow = (selections: MitoSelect
 
 }
 
+export const getNumberColumnIDs = (sheetData: SheetData | undefined, columnIDs: (ColumnID | undefined)[]): ColumnID[] => {
+    const columnIDsAndDtypes: [ColumnID, string][] = columnIDs
+        .filter(colId => colId !== undefined)
+        .map(columnID => [columnID as ColumnID, sheetData?.columnDtypeMap[columnID as ColumnID] || ''])
+
+    // Filter out any columns that are not number series
+    return columnIDsAndDtypes
+        .filter(([, columnDtype]) => {return columnDtype !== undefined && isNumberDtype(columnDtype)})
+        .filter(([columnID, ]) => {return columnID !== undefined})
+        .map(([columnID, ]) => {return columnID})
+
+}
+
 
 // Returns a list of column IDs of all of the selected columns that have number dtypes
 export const getSelectedNumberSeriesColumnIDs = (selections: MitoSelection[], sheetData: SheetData | undefined ): ColumnID[] => {
@@ -755,13 +768,9 @@ export const getSelectedNumberSeriesColumnIDs = (selections: MitoSelection[], sh
     }
 
     const columnIndexesSelected = getColumnIndexesInSelections(selections);
-    const columnIDsAndDtypesSelected = columnIndexesSelected
+    const columnIDs = columnIndexesSelected
         .filter(colIdx => sheetData.data.length > colIdx)
-        .map(colIdx => [sheetData.data[colIdx]?.columnID, sheetData.data[colIdx]?.columnDtype])
-
-    // Filter out any columns that are not number series
-    return columnIDsAndDtypesSelected
-        .filter(([, columnDtype]) => {return columnDtype !== undefined && isNumberDtype(columnDtype)})
-        .filter(([columnID, ]) => {return columnID !== undefined})
-        .map(([columnID, ]) => {return columnID})
+        .map(colIdx => sheetData.data[colIdx]?.columnID)
+    
+    return getNumberColumnIDs(sheetData, columnIDs);
 }

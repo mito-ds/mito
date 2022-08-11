@@ -4,7 +4,7 @@ import React from 'react';
 import MitoAPI from '../../../../jupyter/api';
 import { ColumnID, GridState, SheetData } from '../../../../types';
 import { isNumberDtype } from '../../../../utils/dtypes';
-import { getColumnFormatDropdownItemsUsingColumnID, getFormatTitle } from '../../../../utils/format';
+import { getColumnFormatDropdownItems, getFormatTitle } from '../../../../utils/format';
 import Select from '../../../elements/Select';
 import Col from '../../../layout/Col';
 import Row from '../../../layout/Row';
@@ -39,7 +39,7 @@ function FormatCard(props: {
                         <Select
                             value={formatTypeTitle}
                         >
-                            {getColumnFormatDropdownItemsUsingColumnID(props.gridState.sheetIndex, props.columnID, props.mitoAPI, props.columnDtype, props.sheetData)}
+                            {getColumnFormatDropdownItems(props.gridState.sheetIndex, props.sheetData, [props.columnID], props.mitoAPI)}
                         </Select>
                     }
                     {!isNumberDtype(props.columnDtype) &&

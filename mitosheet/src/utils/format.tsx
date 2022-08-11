@@ -1,38 +1,17 @@
 import React from "react"
 import MitoAPI from "../jupyter/api"
 import DropdownItem from "../components/elements/DropdownItem"
-import { getSelectedNumberSeriesColumnIDs } from "../components/endo/selectionUtils"
-import { ColumnFormatType, ColumnID, NumberColumnFormatEnum, GridState, MitoSelection, SheetData } from "../types"
+import { getNumberColumnIDs } from "../components/endo/selectionUtils"
+import { ColumnFormatType, ColumnID, NumberColumnFormatEnum, SheetData } from "../types"
 import DropdownCheckmark from '../components/icons/DropdownCheckmark'
-import { isFloatDtype, isIntDtype, isNumberDtype } from "./dtypes"
+import { isFloatDtype, isIntDtype } from "./dtypes"
 import { getDefaultDataframeFormat } from "../components/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane"
-import { isValueNone } from "../components/taskpanes/ControlPanel/FilterAndSortTab/filter/utils"
 
 export const FORMAT_DISABLED_MESSAGE = 'You must have at least one Number column selected to adjust the formatting.'
 
-
+// Formats a number with commas and a specific number of decimals specified by precision
 const formatNumber = (number: number, precision?: number): string  => {
     return number.toLocaleString("en-US", {minimumFractionDigits: precision, maximumFractionDigits: precision});
-}
-
-
-/*
-    For a cell to be formatted as a number, the cell must only contain valid number symbols
-    and be either a int or float column.
-*/
-export const displayCellAsNumber = (cellData: boolean | string | number, columnDtype: string): boolean => {
-    // If the column is not a number series, then don't format the cell as a number
-    if (!isNumberDtype(columnDtype)) {
-        return false
-    }
-
-    if (typeof cellData === 'boolean') {
-        return false
-    } else if (typeof cellData === 'number') {
-        return true
-    } 
-
-    return false;
 }
 
 /*
@@ -41,13 +20,8 @@ export const displayCellAsNumber = (cellData: boolean | string | number, columnD
 */
 export const formatCellData = (cellData: boolean | string | number, columnDtype: string, columnFormat: ColumnFormatType | undefined): string => {
 
-    // Deal with NaN up front. Always just display NaN
-    if (isValueNone(cellData)) {
-        return 'NaN';
-    }
-
-    // If we are not formatting the cell as a number, then just return the cellData as a string
-    if (!displayCellAsNumber(cellData, columnDtype)) {
+    // If we are not formatting a number, then just return the cellData as a string
+    if (typeof cellData !== 'number') {
         return '' + cellData;
     }
 
@@ -70,32 +44,28 @@ export const formatCellData = (cellData: boolean | string | number, columnDtype:
         if (isIntDtype(columnDtype)) {precision = 0}
     }
 
-    if (type === undefined) {
-        /**
-         * If the column format is undefined, then we apply some default formatting. Note that
-         * this means that what you see in the mitosheet is different than what you see when you
-         * print out a styled dataframe, but the net result is pretty good: users can easily
-         * parse their data in the mitosheet.
-         * 
-         * Our defaults currently:
-         * 1. Always show commas on numbers.
-         * 2. Show a default precision (determined above)
-         */
-        return formatNumber(number, precision);
-    } else if (type === NumberColumnFormatEnum.PLAIN_TEXT) {
-        console.log("Formatting plain text", number, precision)
-        return formatNumber(number, precision).replace(/,/g, ''); // Remove commas
-    } else if (type === NumberColumnFormatEnum.PERCENTAGE) {
-        return number.toLocaleString("en-US", {style: 'percent', minimumFractionDigits: precision, maximumFractionDigits: precision})
-    } else if (type === NumberColumnFormatEnum.CURRENCY) {
-        return number.toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: precision, maximumFractionDigits: precision})
-    } else if (type === NumberColumnFormatEnum.ACCOUNTING) {
-        return number.toLocaleString("en-US", {style: "currency", currency: "USD", currencySign: "accounting", minimumFractionDigits: precision, maximumFractionDigits: precision})
-    } else if (type === NumberColumnFormatEnum.SCIENTIFIC_NOTATION) {
-        return number.toExponential(precision);
+    switch (type) {
+        case undefined: {
+            /**
+             * If the column format is undefined, then we apply some default formatting. Note that
+             * this means that what you see in the mitosheet is different than what you see when you
+             * print out a styled dataframe, but the net result is pretty good: users can easily
+             * parse their data in the mitosheet. Our defaults are just a default number of decimal
+             * places, and commas on numbers.
+             */
+            return formatNumber(number, precision);
+        }
+        case NumberColumnFormatEnum.PLAIN_TEXT:
+            return formatNumber(number, precision).replace(/,/g, '');
+        case NumberColumnFormatEnum.PERCENTAGE:
+            return number.toLocaleString("en-US", {style: 'percent', minimumFractionDigits: precision, maximumFractionDigits: precision})
+        case NumberColumnFormatEnum.CURRENCY:
+            return number.toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: precision, maximumFractionDigits: precision})
+        case NumberColumnFormatEnum.ACCOUNTING:
+            return number.toLocaleString("en-US", {style: "currency", currency: "USD", currencySign: "accounting", minimumFractionDigits: precision, maximumFractionDigits: precision})
+        case NumberColumnFormatEnum.SCIENTIFIC_NOTATION:
+            return number.toExponential(precision);
     }
-
-    return ''  + cellData;
 }
 
 /**
@@ -122,21 +92,19 @@ export const decreasePrecision = (columnFormat: ColumnFormatType, columnDtype: s
     }
 }
 
-/* 
-    Sends the changeColumnFormat message to the backend so that the format of the selected columns
-    will be updated in the state.
-*/
-export const changeFormatOfSelectedColumns = async (
+/**
+ * A helper function that actually changes the format of the passed column ids to the new format.
+ */
+export const changeFormatOfColumns = async (
     sheetIndex: number,
-    selections: MitoSelection[], 
-    newColumnFormat: ColumnFormatType | undefined, 
     sheetData: SheetData | undefined,
+    columnIDs: ColumnID[], 
+    newColumnFormat: ColumnFormatType | undefined, 
     mitoAPI: MitoAPI
 ): Promise<void> => {
     
-    const numberColumnIDsSelected = getSelectedNumberSeriesColumnIDs(selections, sheetData)
     const newDfFormat = {...(sheetData?.dfFormat || getDefaultDataframeFormat())}
-    numberColumnIDsSelected.forEach(columnID => {
+    columnIDs.forEach(columnID => {
         if (newColumnFormat === undefined) {
             newDfFormat.columns[columnID] = newColumnFormat;
         } else {
@@ -151,92 +119,48 @@ export const changeFormatOfSelectedColumns = async (
     )
 }
 
-/* 
-    Change the format of a single columnID
-*/
-export const changeFormatOfColumnID = async (sheetIndex: number, sheetData: SheetData | undefined, columnID: string, newColumnFormat: ColumnFormatType | undefined, mitoAPI: MitoAPI): Promise<void> => {
-    const newDfFormat = {...(sheetData?.dfFormat || getDefaultDataframeFormat())}
-    newDfFormat.columns[columnID] = newColumnFormat
-
-    await mitoAPI.editSetDataframeFormat(
-        sheetIndex,
-        newDfFormat,
-    )
-}
-
-
-/* 
-    Returns all of the format type DropdownItems where the method for checking which columns to apply the formating to 
-    is based on the current selection. This is used to bulk format columns. 
-*/
-export const getColumnFormatDropdownItemsUsingSelections = (gridState: GridState, sheetData: SheetData | undefined, mitoAPI: MitoAPI): JSX.Element[] => {
-
-    const onClick = (columnFormat: ColumnFormatType | undefined): void => {
-        void changeFormatOfSelectedColumns(
-            gridState.sheetIndex,
-            gridState.selections,
-            columnFormat,
-            sheetData,
-            mitoAPI
-        )
-    }
-
-    const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData)
-    const disabled = selectedNumberSeriesColumnIDs.length === 0
-
-    // Get the format applied to the first selected column so we can display it in the dropdown
-    const appliedFormatting = sheetData ? sheetData.dfFormat.columns[selectedNumberSeriesColumnIDs[0]] : undefined
-
-    return _getColumnFormatDropdownItems(onClick, disabled, appliedFormatting) 
-}
 
 /*
     Returns all of the format type DropdownItems where we only apply the format to the passed column id. 
     This is used by the column control panel.
 */
-export const getColumnFormatDropdownItemsUsingColumnID = (
+export const getColumnFormatDropdownItems = (
     sheetIndex: number, 
-    columnID: ColumnID, 
-    mitoAPI: MitoAPI, 
-    columnDtype: string, 
     sheetData: SheetData | undefined,
-    skipDefaultFormatItem?: boolean  // If false, the DropdownItems returned won't include the Default Format Dropdown Item
+    columnIDs: ColumnID[], 
+    mitoAPI: MitoAPI, 
 ): JSX.Element[] => {
-    
+
+    const numberColumnColumnIDs = getNumberColumnIDs(sheetData, columnIDs);
+    const appliedFormatting = sheetData?.dfFormat.columns[numberColumnColumnIDs[0]];
+
     const onClick = (columnFormat: ColumnFormatType | undefined): void => {
-        void changeFormatOfColumnID(
+        void changeFormatOfColumns(
             sheetIndex, 
             sheetData,
-            columnID, 
+            columnIDs, 
             columnFormat, 
             mitoAPI
         )
     }
 
-    const disabled = !isNumberDtype(columnDtype);
-    const appliedFormatting = sheetData?.dfFormat.columns[columnID];
-
-    return _getColumnFormatDropdownItems(onClick, disabled, appliedFormatting, skipDefaultFormatItem) 
+    return _getColumnFormatDropdownItems(onClick, numberColumnColumnIDs.length === 0, appliedFormatting) 
 }
 
 const _getColumnFormatDropdownItems = (
     onClick: (columnFormat: ColumnFormatType | undefined) => void, 
     disabled: boolean, 
     appliedColumnFormat: ColumnFormatType | undefined, 
-    skipDefaultFormatItem?: boolean // If false, the DropdownItems returned won't include the Default Format Dropdown Item
 ): JSX.Element[] => {
-    const formatDropdownItems = skipDefaultFormatItem === undefined || skipDefaultFormatItem ? [
+    return [
         <DropdownItem 
             key='Default'
             title='Default'
             icon={appliedColumnFormat?.type === undefined ? <DropdownCheckmark /> : undefined}
-            onClick={() => onClick(undefined)}
+            onClick={() => onClick({type: undefined})}
             rightText='1,234.6'
             disabled={disabled}
-        />
-    ] : [];
-    
-    const remainingFormatDropdownItems = [
+        />,
         <DropdownItem 
             key={getFormatTitle({type: NumberColumnFormatEnum.PLAIN_TEXT})}
             title={getFormatTitle({type: NumberColumnFormatEnum.PLAIN_TEXT})}
@@ -277,9 +201,7 @@ const _getColumnFormatDropdownItems = (
             rightText={'1.23e+3'}
             disabled={disabled}
         />
-    ]
-
-    return formatDropdownItems.concat(remainingFormatDropdownItems)
+    ];
 }
 
 export const getFormatTitle = (formatTypeObj: ColumnFormatType | undefined): string => {

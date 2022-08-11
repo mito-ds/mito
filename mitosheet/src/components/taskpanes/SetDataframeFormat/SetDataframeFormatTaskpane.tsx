@@ -86,11 +86,15 @@ const SetDataframeFormatTaskpane = (props: SetDataframeFormatTaskpaneProps): JSX
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
-                header="Color Dataframe"
+                header="Format Dataframe"
                 setUIState={props.setUIState}           
             />
-            <DefaultTaskpaneBody>
-                <Row justify='space-between' align='center' title='Select a dataframe TODO.'>
+            <DefaultTaskpaneBody
+                userProfile={props.userProfile}
+                requiresPro
+                requiresProMessage="Setting the dataframe format is a Mito Pro feature. Please upgrade to use this feature."
+            >
+                <Row justify='space-between' align='center' title='Select a dataframe to style.'>
                     <Col>
                         <p className='text-header-3'>
                             Dataframe

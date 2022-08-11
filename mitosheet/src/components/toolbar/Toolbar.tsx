@@ -7,7 +7,7 @@ import ToolbarButton from './ToolbarButton';
 import { ToolbarButtonType } from './utils';
 import { Action, ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
 import Dropdown from '../elements/Dropdown';
-import { getColumnFormatDropdownItemsUsingSelections } from '../../utils/format';
+import { getColumnFormatDropdownItems } from '../../utils/format';
 
 // Import CSS
 import "../../../css/toolbar.css"
@@ -23,6 +23,7 @@ import ToolbarRowsDropdown from './ToolbarRowsDropdown.tsx';
 import OpenOnboardingChecklist from './OpenChecklistButton';
 import { isVariantB } from '../../utils/experiments';
 import ToolbarFormatDropdown from './ToolbarFormatDropdown';
+import { getSelectedNumberSeriesColumnIDs } from '../endo/selectionUtils';
 
 const Toolbar = (
     props: {
@@ -205,7 +206,7 @@ const Toolbar = (
                                 })
                             }
                         >
-                            {getColumnFormatDropdownItemsUsingSelections(props.gridState, props.sheetData, props.mitoAPI)}
+                            {getColumnFormatDropdownItems(props.gridState.sheetIndex, props.sheetData, getSelectedNumberSeriesColumnIDs(props.gridState.selections, props.sheetData), props.mitoAPI)}
                         </Dropdown>
                     </ToolbarButton>
 

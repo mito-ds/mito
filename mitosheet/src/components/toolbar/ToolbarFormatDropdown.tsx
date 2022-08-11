@@ -3,6 +3,7 @@
 import React from 'react';
 import { Action, ActionEnum, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
+import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { makeToolbarDropdownItem } from './utils';
 
 
@@ -33,8 +34,9 @@ const ToolbarFormatDropdown = (props: ToolbarViewDropdownProps): JSX.Element => 
                 })}
                 width='large'
             >
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Format_Number_Columns])}
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Set_Dataframe_Format])}
+                <DropdownSectionSeperator isDropdownSectionSeperator/>
+                {makeToolbarDropdownItem(props.actions[ActionEnum.Format_Number_Columns])}
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Precision_Decrease])}
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Precision_Increase])}
             </Dropdown>
