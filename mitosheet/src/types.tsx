@@ -163,28 +163,28 @@ export enum NumberColumnFormatEnum {
 }
 
 export type ColumnFormatType = | 
-	{
-		type?: NumberColumnFormatEnum,
-		precision?: number
-	} // In the future, if we add other column format types, we add them here
+{
+    type?: NumberColumnFormatEnum,
+    precision?: number
+} // In the future, if we add other column format types, we add them here
 
 export type DataframeFormat = {
-	columns: Record<ColumnID, ColumnFormatType | undefined>
-	headers: {
-		color?: string,
+    columns: Record<ColumnID, ColumnFormatType | undefined>
+    headers: {
+        color?: string,
         backgroundColor?: string
-	},
-	rows: {
-		even: {
+    },
+    rows: {
+        even: {
             color?: string,
             backgroundColor?: string
         }
-    odd: {
-        color?: string,
-        backgroundColor?: string
+        odd: {
+            color?: string,
+            backgroundColor?: string
         }
-	},
-	border: {
+    },
+    border: {
         borderStyle?: string,
         borderColor?: string,
     }  

@@ -721,7 +721,7 @@ export const createActions = (
                     newDfFormat.columns[columnID] = newColumnFormat;
                 });
 
-                mitoAPI.editSetDataframeFormat(sheetIndex, newDfFormat);
+                void mitoAPI.editSetDataframeFormat(sheetIndex, newDfFormat);
             },
             isDisabled: () => {
                 if (!doesAnySheetExist(sheetDataArray)) {
@@ -745,7 +745,7 @@ export const createActions = (
                     const newColumnFormat = increasePrecision({...newDfFormat.columns[columnID]}, columnDtype)
                     newDfFormat.columns[columnID] = newColumnFormat;
                 });
-                mitoAPI.editSetDataframeFormat(sheetIndex, newDfFormat);
+                void mitoAPI.editSetDataframeFormat(sheetIndex, newDfFormat);
             },
             isDisabled: () => {
                 if (!doesAnySheetExist(sheetDataArray)) {

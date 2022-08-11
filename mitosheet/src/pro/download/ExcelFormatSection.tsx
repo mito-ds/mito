@@ -11,6 +11,9 @@ const ExcelFormatSection = (props: {
     setNewlyFormattedColumns: React.Dispatch<React.SetStateAction<Record<number, string[]>>>
 }): JSX.Element => {
 
+    // So the linter is happy
+    props;
+
     return (
         <>
             TODO: add Excel formatting

@@ -66,8 +66,8 @@ export const formatCellData = (cellData: boolean | string | number, columnDtype:
 
     // Show 2 decimal places by default for float columns (and none for ints)
     if (precision === undefined) {
-        if (isFloatDtype(columnDtype)) {precision = 2};
-        if (isIntDtype(columnDtype)) {precision = 0};
+        if (isFloatDtype(columnDtype)) {precision = 2}
+        if (isIntDtype(columnDtype)) {precision = 0}
     }
 
     if (type === undefined) {
@@ -84,7 +84,7 @@ export const formatCellData = (cellData: boolean | string | number, columnDtype:
         return formatNumber(number, precision);
     } else if (type === NumberColumnFormatEnum.PLAIN_TEXT) {
         console.log("Formatting plain text", number, precision)
-        return formatNumber(number, precision).replace(/\,/g, ''); // Remove commas
+        return formatNumber(number, precision).replace(/,/g, ''); // Remove commas
     } else if (type === NumberColumnFormatEnum.PERCENTAGE) {
         return number.toLocaleString("en-US", {style: 'percent', minimumFractionDigits: precision, maximumFractionDigits: precision})
     } else if (type === NumberColumnFormatEnum.CURRENCY) {
