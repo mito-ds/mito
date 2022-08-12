@@ -4,12 +4,12 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from typing import Any, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.sheet_functions.types.utils import is_int_dtype
 from mitosheet.state import NUMBER_FORMAT_ACCOUNTING, NUMBER_FORMAT_CURRENCY, NUMBER_FORMAT_PERCENTAGE, NUMBER_FORMAT_PLAIN_TEXT, NUMBER_FORMAT_SCIENTIFIC_NOTATION, State
 from mitosheet.transpiler.transpile_utils import TAB, column_header_list_to_transpiled_code, column_header_to_transpiled_code
-from mitosheet.types import ColumnFormat
+from mitosheet.types import ColumnFormat, ColumnHeader
 from mitosheet.utils import MAX_ROWS
 from mitosheet.sheet_functions.types import is_float_dtype
 
@@ -54,6 +54,11 @@ def get_format_string_for_column_format(column_format: Optional[ColumnFormat], d
     elif type == NUMBER_FORMAT_SCIENTIFIC_NOTATION:
         return f"\"{OPEN_BRACKET}:{precision_string}E{CLOSE_BRACKET}\""
 
+    # If we have no formatting, we apply the default formatting with the precision (if the precision is set)
+    if precision is not None:
+        return f"\"{OPEN_BRACKET}:{precision_string}{format_f_or_d}{CLOSE_BRACKET}\""
+
+    # Otherwise, we return None
     return None
 
 def get_all_columns_format_code(state: State, sheet_index: int) -> Optional[str]:
@@ -62,17 +67,23 @@ def get_all_columns_format_code(state: State, sheet_index: int) -> Optional[str]
     df = state.dfs[sheet_index]
     columns = df_format['columns']
 
-    # TODO: in the future, we probably want to combine equivalent column formats
-    # so that we get pretty generated code. For now, we do each one by one
-    all_columns_format_code = ''
+    # Store all the ColumnHeaders under their format string, so that we can easily
+    # combine all of them together, and then use the .format efficiently
+    format_string_to_column_headers: Dict[str, List[ColumnHeader]] = {}
     for column_id, column_format in columns.items():
         column_header = state.column_ids.get_column_header_by_id(sheet_index, column_id)
         dtype = str(df[column_header].dtype)
-        transpiled_column_header = column_header_to_transpiled_code(column_header)
         format_string = get_format_string_for_column_format(column_format, dtype)
 
         if format_string is not None:
-            all_columns_format_code += f'.format({format_string}, subset=[{transpiled_column_header}])'
+            if format_string not in format_string_to_column_headers:
+                format_string_to_column_headers[format_string] = []
+            format_string_to_column_headers[format_string].append(column_header)
+
+    # Combine this all into one format string
+    all_columns_format_code = ''
+    for format_string, column_headers in format_string_to_column_headers.items():
+        all_columns_format_code += f'.format({format_string}, subset={column_header_list_to_transpiled_code(column_headers)})'
 
     if len(all_columns_format_code) > 0:
         return all_columns_format_code

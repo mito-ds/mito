@@ -33,9 +33,8 @@ class SetDataframeFormatStepPerformer(StepPerformer):
         sheet_index: int = get_param(params, 'sheet_index')
         df_format: DataframeFormat = get_param(params, 'df_format')
         
-
         # We make a new state to modify it
-        post_state = prev_state.copy() # TODO: update the deep copies
+        post_state = prev_state.copy()
 
         pandas_start_time = perf_counter()
 

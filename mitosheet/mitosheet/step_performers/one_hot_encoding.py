@@ -37,7 +37,7 @@ class OneHotEncodingStepPerformer(StepPerformer):
         column_id: ColumnID = get_param(params, 'column_id')
 
         # We make a new state to modify it
-        post_state = prev_state.copy() # TODO: update the deep copies
+        post_state = prev_state.copy()
 
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
         df = post_state.dfs[sheet_index]

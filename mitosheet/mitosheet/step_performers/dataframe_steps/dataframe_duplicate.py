@@ -45,7 +45,7 @@ class DataframeDuplicateStepPerformer(StepPerformer):
         # the column ids that are created for the df_copy in the add_df_to_state function might be different
         # than the column_ids created initially (e.g. because of renames), we have to go through and updated
         # the mapping with the new column ids that the format types must rely on
-        old_df_format = post_state.df_formats[sheet_index].copy()
+        old_df_format = post_state.df_formats[sheet_index]
         new_df_format = post_state.df_formats[sheet_index].copy()
         for column_id, column_header in post_state.column_ids.get_column_ids_map(sheet_index).items():
             new_column_id = get_column_header_id(column_header)
