@@ -983,7 +983,7 @@ export default class MitoAPI {
     }
 
     /*
-        Sets the value of a specific cell
+        Sets the formatting of the dataframe.
     */
     async editSetDataframeFormat(
         sheetIndex: number,

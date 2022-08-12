@@ -24,6 +24,10 @@ function FormatCard(props: {
     sheetData: SheetData | undefined 
 }): JSX.Element {
     const formatTypeTitle = getFormatTitle(props.sheetData?.dfFormat.columns[props.columnID])
+
+    if (!isNumberDtype(props.columnDtype)) {
+        return (<></>)
+    } 
     
     return (  
         <> 
@@ -31,7 +35,7 @@ function FormatCard(props: {
                 {/* NOTE: the spacing in the Format card should be the same as the SortCard & DtypeCard */}
                 <Col span={4} title={FORMAT_DESCRIPTION}>
                     <p className='text-header-3' title=''> 
-                        Format 
+                        Num Type 
                     </p>
                 </Col>
                 <Col offset={2} flex='1'>
@@ -49,15 +53,7 @@ function FormatCard(props: {
                     }
                 </Col>
             </Row>
-            {!isNumberDtype(props.columnDtype) &&
-                <Row>
-                    <Col>
-                        <p className='text-subtext-1'>
-                            Mito only supports formatting columns with dtype int or float.
-                        </p>
-                    </Col>
-                </Row>
-            }
+            
         </>
     );
 }

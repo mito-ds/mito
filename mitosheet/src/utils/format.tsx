@@ -8,7 +8,7 @@ import { isFloatDtype, isIntDtype } from "./dtypes"
 import { getDefaultDataframeFormat } from "../components/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane"
 import DropdownSectionSeperator from "../components/elements/DropdownSectionSeperator"
 
-export const FORMAT_DISABLED_MESSAGE = 'You must have at least one Number column selected to adjust the formatting.'
+export const FORMAT_DISABLED_MESSAGE = 'You must have at least one number column selected to adjust the formatting.'
 
 // Formats a number with commas and a specific number of decimals specified by precision
 const formatNumber = (number: number, precision?: number): string  => {
@@ -26,8 +26,7 @@ export const formatCellData = (cellData: boolean | string | number, columnDtype:
     if (typeof cellData !== 'number') {
         return '' + cellData;
     }
-
-
+    
     const type = columnFormat?.type;
     let precision = columnFormat?.precision;
 
@@ -79,7 +78,7 @@ export const increasePrecision = (columnFormat: ColumnFormatType, columnDtype: s
 }
 
 /**
- * A helper function for increasing the precision of a column format.
+ * A helper function for decreasing the precision of a column format.
  */
 export const decreasePrecision = (columnFormat: ColumnFormatType, columnDtype: string | undefined): ColumnFormatType => {
     if (columnDtype && isFloatDtype(columnDtype) && columnFormat.precision === undefined) {

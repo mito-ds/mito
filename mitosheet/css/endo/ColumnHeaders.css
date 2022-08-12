@@ -54,10 +54,6 @@
     background-color: var(--mito-light-purple) !important;
 }
 
-.column-header-container-searched {
-    background-color: var(--mito-light-purple) !important;
-}
-
 .column-header-text {
     font-weight: bold;
 }

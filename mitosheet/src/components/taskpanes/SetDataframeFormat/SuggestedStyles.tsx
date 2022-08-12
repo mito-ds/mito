@@ -38,7 +38,7 @@ const SuggestedStyles = (props: {
                     props.updateDataframeFormatParams({
                         headers: {
                             color: HEADER_TEXT_COLOR_DEFAULT,
-                            backgroundColor: '#ACACAD'
+                            backgroundColor: '#9B9B9D'
                         }, 
                         rows: {even: {color: EVEN_ROW_TEXT_COLOR_DEFAULT, backgroundColor: undefined}, odd: {color: ODD_ROW_TEXT_COLOR_DEFAULT, backgroundColor: undefined}},
                         border: {borderStyle: undefined, borderColor: undefined}
@@ -49,7 +49,7 @@ const SuggestedStyles = (props: {
                 <div onClick={() => {
                     props.updateDataframeFormatParams({
                         headers: {
-                            color: HEADER_TEXT_COLOR_DEFAULT,
+                            color: '#FFFFFF',
                             backgroundColor: '#549D3A'
                         }, 
                         rows: {even: {color: EVEN_ROW_TEXT_COLOR_DEFAULT, backgroundColor: '#D0E3C9'}, odd: {color: ODD_ROW_TEXT_COLOR_DEFAULT, backgroundColor: undefined}},
@@ -61,7 +61,7 @@ const SuggestedStyles = (props: {
                 <div onClick={() => {
                     props.updateDataframeFormatParams({
                         headers: {
-                            color: HEADER_TEXT_COLOR_DEFAULT,
+                            color: '#FFFFFF',
                             backgroundColor: '#4D73BE'
                         }, 
                         rows: {even: {color: EVEN_ROW_TEXT_COLOR_DEFAULT, backgroundColor: '#DAE1F0'}, odd: {color: ODD_ROW_TEXT_COLOR_DEFAULT, backgroundColor: undefined}},
@@ -73,8 +73,8 @@ const SuggestedStyles = (props: {
                 <div onClick={() => {
                     props.updateDataframeFormatParams({
                         headers: {
-                            color: HEADER_TEXT_COLOR_DEFAULT,
-                            backgroundColor: '#BE4D4D'
+                            color: '#FFFFFF',
+                            backgroundColor: '#8F1B15'
                         }, 
                         rows: {even: {color: EVEN_ROW_TEXT_COLOR_DEFAULT, backgroundColor: '#F0DADA'}, odd: {color: ODD_ROW_TEXT_COLOR_DEFAULT, backgroundColor: undefined}},
                         border: {borderStyle: undefined, borderColor: undefined}

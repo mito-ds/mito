@@ -8,7 +8,7 @@ from typing import Any, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.sheet_functions.types.utils import is_int_dtype
 from mitosheet.state import NUMBER_FORMAT_ACCOUNTING, NUMBER_FORMAT_CURRENCY, NUMBER_FORMAT_PERCENTAGE, NUMBER_FORMAT_PLAIN_TEXT, NUMBER_FORMAT_SCIENTIFIC_NOTATION, State
-from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import TAB, column_header_list_to_transpiled_code, column_header_to_transpiled_code
 from mitosheet.types import ColumnFormat
 from mitosheet.utils import MAX_ROWS
 from mitosheet.sheet_functions.types import is_float_dtype
@@ -144,13 +144,13 @@ def get_table_styles_code(state: State, sheet_index: int) -> Optional[str]:
     border_format_code = get_border_format_code(state, sheet_index)
 
     if header_format_code is not None:
-        table_styles_code += f'        {header_format_code},\n'
+        table_styles_code += f'{TAB}{TAB}{header_format_code},\n'
     if even_format_code is not None:
-        table_styles_code += f'        {even_format_code},\n'
+        table_styles_code += f'{TAB}{TAB}{even_format_code},\n'
     if odd_format_code is not None:
-        table_styles_code += f'        {odd_format_code},\n'
+        table_styles_code += f'{TAB}{TAB}{odd_format_code},\n'
     if border_format_code is not None:
-        table_styles_code += f'        {border_format_code},\n'
+        table_styles_code += f'{TAB}{TAB}{border_format_code},\n'
 
     if len(table_styles_code) > 0:
         return f".set_table_styles([\n{table_styles_code}])"
@@ -174,9 +174,9 @@ def get_dataframe_format_code(state: State, sheet_index: int) -> Optional[str]:
         df_name = f'{df_name}.head({MAX_ROWS})'
     
     if all_column_format_code is not None:
-        dataframe_format_string += f"\\\n    {all_column_format_code}"
+        dataframe_format_string += f"\\\n{TAB}{all_column_format_code}"
     if table_styles_code is not None:
-        dataframe_format_string += f"\\\n    {table_styles_code}"
+        dataframe_format_string += f"\\\n{TAB}{table_styles_code}"
 
     return dataframe_format_string
 

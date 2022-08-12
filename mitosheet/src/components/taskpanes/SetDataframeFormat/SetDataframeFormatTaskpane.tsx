@@ -64,7 +64,7 @@ const getDefaultParams = (
 */
 const SetDataframeFormatTaskpane = (props: SetDataframeFormatTaskpaneProps): JSX.Element => {
 
-    const {params, setParams} = useLiveUpdatingParams(
+    const {params, setParams, startNewStep} = useLiveUpdatingParams(
         () => getDefaultParams(props.sheetDataArray, props.selectedSheetIndex),
         StepType.SetDataframeFormat, 
         props.mitoAPI,
@@ -87,7 +87,7 @@ const SetDataframeFormatTaskpane = (props: SetDataframeFormatTaskpaneProps): JSX
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
-                header="Format Dataframe"
+                header="Color Dataframe"
                 setUIState={props.setUIState}           
             />
             <DefaultTaskpaneBody
@@ -99,6 +99,10 @@ const SetDataframeFormatTaskpane = (props: SetDataframeFormatTaskpaneProps): JSX
                     sheetDataArray={props.sheetDataArray} 
                     sheetIndex={params.sheet_index} 
                     onChange={(newSheetIndex) => {
+                        // First, we start a new step
+                        startNewStep()
+                        
+                        // Then, update the params
                         setParams(prevParams => {
                             const newParams = getDefaultParams(props.sheetDataArray, newSheetIndex);
                             if (newParams) {
@@ -109,7 +113,14 @@ const SetDataframeFormatTaskpane = (props: SetDataframeFormatTaskpaneProps): JSX
                                 sheet_index: newSheetIndex
                             }
                         });
-                        // TODO: should we switch to the sheet?
+
+                        // Then, we update the selected sheet index
+                        props.setUIState(prevState => {
+                            return {
+                                ...prevState,
+                                selectedSheetIndex: newSheetIndex
+                            }
+                        })
                     }}                    
                 />
                 <SuggestedStyles updateDataframeFormatParams={updateDataframeFormatParams}/>
@@ -197,8 +208,6 @@ const SetDataframeFormatTaskpane = (props: SetDataframeFormatTaskpaneProps): JSX
                         }}
                     />
                 </CollapsibleSection>
-                {/* TODO: add the user input for df_format of type Any */}
-
             </DefaultTaskpaneBody>
         </DefaultTaskpane>
     )
