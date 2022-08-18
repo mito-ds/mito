@@ -47,7 +47,7 @@ const Header = (): JSX.Element => {
                 text='Star on Github'
               />              
               <TranslucentButton
-                href='https://docs.trymito.io/getting-started/installing-mito'
+                href='https://github.com/mito-ds/monorepo'
               >
                 <>
                   Install
