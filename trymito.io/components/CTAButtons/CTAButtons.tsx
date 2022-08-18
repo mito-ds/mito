@@ -9,7 +9,7 @@ const CTAButtons = (props: {variant: 'download' | 'contact'}): JSX.Element => {
             {props.variant === 'download' && 
                 <TextButton 
                     text='Install Mito for Jupyter'
-                    href='https://docs.trymito.io/getting-started/installing-mito'
+                    href='https://github.com/mito-ds/monorepo'
                 />
             }
             {props.variant === 'contact' && 
