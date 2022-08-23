@@ -28,11 +28,11 @@ const Home: NextPage = () => {
         <main className={pageStyles.main}>
           <section className={pageStyles.background_card + ' ' + titleStyles.title_card}>
               <h1 className={titleStyles.title}>
-                Python data analysis in <i>seconds</i>
+                Edit a spreadsheet, generate Python code
               </h1>
 
               <p className={titleStyles.description}>
-                If you can edit an Excel file, you can now write code. <br/>
+                Mito makes Python data analysis 10x easier. <br/>
                 Join thousands using Mito in Jupyter.
               </p>
             
