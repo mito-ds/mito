@@ -48,10 +48,12 @@
 /* Don't highlight if we're resizing */
 .column-headers-no-operation .column-header-container:hover {
     background-color: var(--mito-light-purple) !important;
+    color: var(--mito-gray) !important;
 }
 
 .column-header-container-selected {
     background-color: var(--mito-light-purple) !important;
+    color: var(--mito-gray) !important;
 }
 
 .column-header-text {
