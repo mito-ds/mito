@@ -379,7 +379,7 @@ const Plans: NextPage = () => {
                   Pro
                 </h1>
                 <p className={plansStyles.price_text}>
-                  $10 a month
+                  $40 a month
                 </p>
                 <p className={plansStyles.plan_description}>
                   Mito’s analysis tools, with no telemetry, advanced features, and personal support.
