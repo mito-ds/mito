@@ -18,7 +18,7 @@ import pandas as pd
 from mitosheet.mito_widget import MitoWidget, sheet
 from mitosheet.parser import parse_formula
 from mitosheet.transpiler.transpile import transpile
-from mitosheet.types import ColumnHeader, ColumnID, GraphID, MultiLevelColumnHeader
+from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat, GraphID, MultiLevelColumnHeader
 from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id
 
 
@@ -1325,6 +1325,9 @@ class MitoWidgetTestWrapper:
         """
         graph_data = self.get_graph_data(graph_id)
         return graph_data["graphParams"]["graphStyling"]
+
+    def get_dataframe_format(self, sheet_index: number) -> DataframeFormat: 
+        return self.mito_widget.steps_manager.curr_step.final_defined_state.df_formats[sheet_index]
 
 
 def create_mito_wrapper(sheet_one_A_data: List[Any], sheet_two_A_data: List[Any]=None) -> MitoWidgetTestWrapper:
