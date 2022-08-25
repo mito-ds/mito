@@ -116,9 +116,15 @@ def get_rows_format_code(state: State, sheet_index: int, even_or_odd: str) -> Op
     df_format = state.df_formats[sheet_index]
     rows = df_format['rows']
 
+    # By default, Pandas indexes rows starting with index 0. 
+    # However, when we apply the pandas styler, it defaults to calculating if rows
+    # are even or odd starting at index 1. Therefore, to keep them in sync, we reverse
+    # the even or odd substring of the css selector. 
+    even_or_odd_css_selector = 'even' if even_or_odd == 'odd' else 'odd'
+
     evenOrOdd = rows.get(even_or_odd, dict())
     return get_transpiled_table_style(
-        f'tbody tr:nth-child({even_or_odd})',
+        f'tbody tr:nth-child({even_or_odd_css_selector})',
         [
             ('color', evenOrOdd.get('color', None)),
             ('background-color', evenOrOdd.get('backgroundColor', None))

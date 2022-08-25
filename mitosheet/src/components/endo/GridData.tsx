@@ -42,6 +42,7 @@ const GridData = (props: {
                     'mito-grid-row-odd': rowIndex % 2 !== 0
                 }) 
 
+                // To keep the styles in sync with the pandas styler, we 1 index our rows 
                 const style = rowIndex % 2 === 0 
                     ? {backgroundColor: evenRowBackgroundColor, color: evenRowTextColor} 
                     : {backgroundColor: oddRowBackgroundColor, color: oddRowTextColor};
