@@ -172,17 +172,17 @@ def get_dataframe_format_code(state: State, sheet_index: int) -> Optional[str]:
     df_name = state.df_names[sheet_index]
     df = state.dfs[sheet_index]
 
-    dataframe_format_string = f"{df_name}_styler = {df_name}.style"
+    if len(df) <= MAX_ROWS: 
+        dataframe_format_string = f"{df_name}_styler = {df_name}.style"
+    else: 
+        # If there are more than the max rows, we don't display all of them
+        dataframe_format_string = f"{df_name}_styler = {df_name}.head({MAX_ROWS}).style"
 
     all_column_format_code = get_all_columns_format_code(state, sheet_index)
     table_styles_code = get_table_styles_code(state, sheet_index)
 
     if all_column_format_code is None and table_styles_code is None:
         return None
-
-    # If there are more than the max rows, we don't display all of them
-    if len(df) > MAX_ROWS:
-        df_name = f'{df_name}.head({MAX_ROWS})'
     
     if all_column_format_code is not None:
         dataframe_format_string += f"\\\n{TAB}{all_column_format_code}"
