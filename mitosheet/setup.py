@@ -104,7 +104,7 @@ if name == 'mitosheet2':
         install_requires = [
             # We require jupyterlab 2.0
             'jupyterlab>=2.0,<3.0,!=2.3.0,!=2.3.1', # there are css incompatabilities on version 2.3.1 and 2.3.0
-            'ipywidgets~=8.0.0',
+            'ipywidgets>=7.0.0',
             # We allow users to have many versions of pandas installed. All functionality should
             # work, with the exception of Excel import, which might require additonal dependencies
             'pandas>=0.24.2',
@@ -213,10 +213,10 @@ elif name == 'mitosheet' or name == 'mitosheet3' or name == 'mitosheet-private':
         packages                 = setuptools.find_packages(exclude=['deployment']),
         install_requires=[        
             "jupyterlab~=3.0",
-            'ipywidgets~=8.0.0',
+            'ipywidgets~=7.0.0',
             # In JLab 3, we move to needing to install the jupyterlab-widgets package, which
             # is equivlaent to the @jupyter-widgets/jupyterlab-manager extension for jlab 2
-            'jupyterlab-widgets~=3.0.0',
+            'jupyterlab-widgets>=1.0.0',
             # We allow users to have many versions of pandas installed. All functionality should
             # work, with the exception of Excel import, which might require additonal dependencies
             'pandas>=0.24.2',
