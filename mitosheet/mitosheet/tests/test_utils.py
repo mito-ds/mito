@@ -1326,9 +1326,12 @@ class MitoWidgetTestWrapper:
         graph_data = self.get_graph_data(graph_id)
         return graph_data["graphParams"]["graphStyling"]
 
-    def get_dataframe_format(self, sheet_index: number) -> DataframeFormat: 
+    def get_dataframe_format(self, sheet_index: int) -> DataframeFormat: 
+        """
+        Returns the DataframeFormat object for a specific sheet
+        """
         return self.mito_widget.steps_manager.curr_step.final_defined_state.df_formats[sheet_index]
-
+        
 
 def create_mito_wrapper(sheet_one_A_data: List[Any], sheet_two_A_data: List[Any]=None) -> MitoWidgetTestWrapper:
     """
