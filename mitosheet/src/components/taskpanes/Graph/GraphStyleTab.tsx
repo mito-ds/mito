@@ -3,6 +3,7 @@
 import React from 'react';
 import LabelAndColor from '../../../pro/graph/LabelAndColor';
 import { GraphParamsFrontend, RecursivePartial, UserProfile } from '../../../types';
+import { updateObjectWithPartialObject } from '../../../utils/objects';
 import DropdownItem from '../../elements/DropdownItem';
 import Input from '../../elements/Input';
 import Select from '../../elements/Select';
@@ -10,7 +11,6 @@ import Toggle from '../../elements/Toggle';
 import Col from '../../layout/Col';
 import CollapsibleSection from '../../layout/CollapsibleSection';
 import Row from '../../layout/Row';
-import { updateParamsWithPartial } from './graphUtils';
 
 export enum AxisType {
     DEFAULT = 'default',
@@ -36,7 +36,7 @@ function GraphStyleTab(props: {
 
     function updateGraphParam(update: RecursivePartial<GraphParamsFrontend>): void {
         props.setGraphParams(prevGraphParams => {
-            return updateParamsWithPartial(prevGraphParams, update);
+            return updateObjectWithPartialObject(prevGraphParams, update);
         })
         props.setGraphUpdatedNumber(old => old + 1)
     }

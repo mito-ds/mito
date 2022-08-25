@@ -67,8 +67,8 @@ const UpgradeToProTaskpane = (props: UpgradeTaskpaneProps): JSX.Element => {
                     <ProListElement text="Turn off all telemetry"/>
                     <ProListElement text="Generated code optimization"/>
                     <ProListElement text="Import from external drives"/>
+                    <ProListElement text="Format datframes"/>
                     <ProListElement text="Style graphs"/>
-                    <ProListElement text="Export formatting"/>
                     <ProListElement text="Priority support"/>
                     <ProListElement text="All future pro functionality!"/>
                     <div className="mt-25px">

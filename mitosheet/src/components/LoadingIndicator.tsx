@@ -73,9 +73,6 @@ const getDisplayMessageForMessageType = (messageType: StepType | UpdateType): st
         case StepType.ChangeColumnDtype: {
             return 'Changing a dtype'
         }
-        case StepType.ChangeColumnFormat: {
-            return 'Formatting columns'
-        }
         case StepType.SetCellValue: {
             return 'Setting a cell value'
         }
@@ -111,6 +108,9 @@ const getDisplayMessageForMessageType = (messageType: StepType | UpdateType): st
         }
         case StepType.Melt: {
             return 'Melting dataframe'
+        }
+        case StepType.SetDataframeFormat: {
+            return 'Changing formatting'
         }
         case StepType.OneHotEncoding: {
             return 'One hot encoding'

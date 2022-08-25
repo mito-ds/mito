@@ -15,7 +15,7 @@ import Tooltip from '../../elements/Tooltip';
 import DataframeSelect from '../../elements/DataframeSelect';
 import CollapsibleSection from '../../layout/CollapsibleSection';
 import Input from '../../elements/Input';
-import {updateParamsWithPartial} from './graphUtils';
+import { updateObjectWithPartialObject } from '../../../utils/objects';
 
 export enum GraphType {
     BAR = 'bar',
@@ -185,7 +185,7 @@ function GraphSetupTab(
 
     function updateGraphParam(update: RecursivePartial<GraphParamsFrontend>): void {
         props.setGraphParams(prevGraphParams => {
-            return updateParamsWithPartial(prevGraphParams, update);
+            return updateObjectWithPartialObject(prevGraphParams, update);
         })
         props.setGraphUpdatedNumber(old => old + 1)
     }

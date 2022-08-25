@@ -48,7 +48,7 @@ const ToolbarColumnsDropdown = (props: ToolbarColumnsDropdownProps): JSX.Element
                     makeToolbarDropdownItem(props.actions[ActionEnum.One_Hot_Encoding])
                     : <></>
                 }
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Format])}
+                {makeToolbarDropdownItem(props.actions[ActionEnum.Format_Number_Columns])}
                 <DropdownSectionSeperator isDropdownSectionSeperator/>
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Filter])}
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Sort])}

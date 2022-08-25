@@ -18,7 +18,7 @@ import pandas as pd
 from mitosheet.mito_widget import MitoWidget, sheet
 from mitosheet.parser import parse_formula
 from mitosheet.transpiler.transpile import transpile
-from mitosheet.types import ColumnHeader, ColumnID, GraphID, MultiLevelColumnHeader
+from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat, GraphID, MultiLevelColumnHeader
 from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id
 
 
@@ -106,7 +106,7 @@ def check_dataframes_equal(test_wrapper):
         test_wrapper.mito_widget.steps_manager.curr_step.column_spreadsheet_code,
         test_wrapper.mito_widget.steps_manager.curr_step.column_filters,
         test_wrapper.mito_widget.steps_manager.curr_step.column_ids,
-        test_wrapper.mito_widget.steps_manager.curr_step.column_format_types
+        test_wrapper.mito_widget.steps_manager.curr_step.df_formats
     ), cls=NpEncoder)
 
 
@@ -153,6 +153,10 @@ class MitoWidgetTestWrapper:
     @property
     def df_names(self):
         return self.mito_widget.steps_manager.curr_step.df_names
+
+    @property
+    def df_formats(self):
+        return self.mito_widget.steps_manager.curr_step.df_formats
 
     @property
     def column_format_types(self):
@@ -432,6 +436,31 @@ class MitoWidgetTestWrapper:
                 'params': {
                     'sheet_index': sheet_index,
                     'column_id': column_id,
+                    
+                }
+            }
+        )
+    
+
+    @check_transpiled_code_after_call
+    def set_dataframe_format(
+            self, 
+            sheet_index: int,
+            df_format: Any,
+        ) -> bool:
+
+        
+
+        return self.mito_widget.receive_message(
+            self.mito_widget,
+            {
+                'event': 'edit_event',
+                'id': get_new_id(),
+                'type': 'set_dataframe_format_edit',
+                'step_id': get_new_id(),
+                'params': {
+                    'sheet_index': sheet_index,
+                    'df_format': df_format,
                     
                 }
             }
@@ -723,32 +752,6 @@ class MitoWidgetTestWrapper:
                     'sheet_index': sheet_index,
                     'column_id': column_id,
                     'new_dtype': new_dtype
-                }
-            }
-        )
-
-    @check_transpiled_code_after_call
-    def change_column_format(self, sheet_index: int, column_headers: List[ColumnHeader], new_format: Dict[str, Any]) -> bool:
-
-        column_ids = []
-        for column_header in column_headers: 
-            column_id = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
-                sheet_index,
-                column_header
-            )
-            column_ids.append(column_id)
-
-        return self.mito_widget.receive_message(
-            self.mito_widget,
-            {
-                'event': 'edit_event',
-                'id': get_new_id(),
-                'type': 'change_column_format_edit',
-                'step_id': get_new_id(),
-                'params': {
-                    'sheet_index': sheet_index,
-                    'column_ids': column_ids,
-                    'format_type': new_format
                 }
             }
         )
@@ -1323,6 +1326,12 @@ class MitoWidgetTestWrapper:
         graph_data = self.get_graph_data(graph_id)
         return graph_data["graphParams"]["graphStyling"]
 
+    def get_dataframe_format(self, sheet_index: int) -> DataframeFormat: 
+        """
+        Returns the DataframeFormat object for a specific sheet
+        """
+        return self.mito_widget.steps_manager.curr_step.final_defined_state.df_formats[sheet_index]
+        
 
 def create_mito_wrapper(sheet_one_A_data: List[Any], sheet_two_A_data: List[Any]=None) -> MitoWidgetTestWrapper:
     """

@@ -4,8 +4,6 @@
     grid-area: r-header;
     user-select: none;
     display: flex;
-
-    background-color: var(--mito-light-blue);
 }
 
 .column-headers-container > div {
@@ -49,19 +47,16 @@
 
 /* Don't highlight if we're resizing */
 .column-headers-no-operation .column-header-container:hover {
-    background-color: var(--mito-light-purple);
+    background-color: var(--mito-light-purple) !important;
+    color: var(--mito-gray) !important;
 }
 
 .column-header-container-selected {
-    background-color: var(--mito-light-purple);
-}
-
-.column-header-container-searched {
-    background-color: var(--mito-light-purple);
+    background-color: var(--mito-light-purple) !important;
+    color: var(--mito-gray) !important;
 }
 
 .column-header-text {
-    color: var(--mito-gray);
     font-weight: bold;
 }
 

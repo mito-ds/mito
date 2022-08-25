@@ -50,6 +50,11 @@
     margin-top: 15px;
 }
 
+.default-taskpane-body-disabled {
+    pointer-events: none;  
+    opacity: 50%;
+}
+
 .default-taskpane-header-exit-button-div {
     display: flex;
     align-items: center;

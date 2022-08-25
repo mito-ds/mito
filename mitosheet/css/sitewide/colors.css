@@ -1,3 +1,5 @@
+
+/* Note that we use these colors through out the codebase in JS constants. If you change these variables, make sure to update them everywhere. */
 :root {
     --mito-blue: #0081DE;
     --mito-legacy-gray: #343434;

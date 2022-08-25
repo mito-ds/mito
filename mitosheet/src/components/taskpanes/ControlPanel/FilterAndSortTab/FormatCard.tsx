@@ -4,7 +4,7 @@ import React from 'react';
 import MitoAPI from '../../../../jupyter/api';
 import { ColumnID, GridState, SheetData } from '../../../../types';
 import { isNumberDtype } from '../../../../utils/dtypes';
-import { getColumnFormatDropdownItemsUsingColumnID, getFormatTitle } from '../../../../utils/formatColumns';
+import { getColumnFormatDropdownItems, getFormatTitle } from '../../../../utils/format';
 import Select from '../../../elements/Select';
 import Col from '../../../layout/Col';
 import Row from '../../../layout/Row';
@@ -23,7 +23,11 @@ function FormatCard(props: {
     columnDtype: string
     sheetData: SheetData | undefined 
 }): JSX.Element {
-    const formatTypeTitle = getFormatTitle(props.sheetData?.columnFormatTypeObjMap[props.columnID])
+    const formatTypeTitle = getFormatTitle(props.sheetData?.dfFormat.columns[props.columnID])
+
+    if (!isNumberDtype(props.columnDtype)) {
+        return (<></>)
+    } 
     
     return (  
         <> 
@@ -31,7 +35,7 @@ function FormatCard(props: {
                 {/* NOTE: the spacing in the Format card should be the same as the SortCard & DtypeCard */}
                 <Col span={4} title={FORMAT_DESCRIPTION}>
                     <p className='text-header-3' title=''> 
-                        Format 
+                        Num Type 
                     </p>
                 </Col>
                 <Col offset={2} flex='1'>
@@ -39,7 +43,7 @@ function FormatCard(props: {
                         <Select
                             value={formatTypeTitle}
                         >
-                            {getColumnFormatDropdownItemsUsingColumnID(props.gridState.sheetIndex, props.columnID, props.mitoAPI, props.columnDtype, props.sheetData)}
+                            {getColumnFormatDropdownItems(props.gridState.sheetIndex, props.sheetData, [props.columnID], props.mitoAPI)}
                         </Select>
                     }
                     {!isNumberDtype(props.columnDtype) &&
@@ -49,15 +53,7 @@ function FormatCard(props: {
                     }
                 </Col>
             </Row>
-            {!isNumberDtype(props.columnDtype) &&
-                <Row>
-                    <Col>
-                        <p className='text-subtext-1'>
-                            Mito only supports formatting columns with dtype int or float.
-                        </p>
-                    </Col>
-                </Row>
-            }
+            
         </>
     );
 }

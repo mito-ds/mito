@@ -17,6 +17,8 @@ import FormatIcon from '../icons/FormatIcon';
 import DtypeIcon from '../icons/DtypeIcon';
 import DropdownItem from '../elements/DropdownItem';
 import { Action } from '../../types';
+import MoreIcon from '../icons/MoreIcon';
+import LessIcon from '../icons/LessIcon';
 
 /* 
     Each toolbar button icon has both a light and dark option. 
@@ -45,6 +47,9 @@ export enum ToolbarButtonType {
     ADD_COL = "ADD COL",
     DEL_COL = "DEL COL",
     DTYPE = "DTYPE",
+
+    LESS = "LESS",
+    MORE = "MORE",
     FORMAT = "FORMAT",
 
     PIVOT = "PIVOT",
@@ -71,6 +76,9 @@ export const getToolbarItemIcon = (toolbarButtonType: ToolbarButtonType): JSX.El
         case ToolbarButtonType.ADD_COL: {return <AddColumnIcon />}
         case ToolbarButtonType.DEL_COL: {return <DeleteColumnIcon />}
         case ToolbarButtonType.DTYPE: {return <DtypeIcon />}
+
+        case ToolbarButtonType.LESS: {return <LessIcon />}
+        case ToolbarButtonType.MORE: {return <MoreIcon />}
         case ToolbarButtonType.FORMAT: {return <FormatIcon />}
 
         case ToolbarButtonType.PIVOT: {return <PivotIcon />}

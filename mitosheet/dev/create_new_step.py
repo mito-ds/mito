@@ -570,44 +570,21 @@ def get_param_user_input_code(param_name: str, param_type: str, is_live_updating
     if 'sheet_index' in param_name and param_type == 'int':
 
         # Row, Col, Select, DropdownItem
-        return ("""<Row justify='space-between' align='center' title='Select a dataframe TODO.'>
-                    <Col>
-                        <p className='text-header-3'>
-                            Dataframe
-                        </p>
-                    </Col>
-                    <Col>
-                        <Select
-                            value={props.sheetDataArray[params.sheet_index]?.dfName}
-                            onChange={(newDfName: string) => {
-                                const newSheetIndex = props.sheetDataArray.findIndex((sheetData) => {
-                                    return sheetData.dfName == newDfName;
-                                })
-                                
-                                setParams(prevParams => {
-                                    const newParams = getDefaultParams(props.sheetDataArray, newSheetIndex);
-                                    if (newParams) {
-                                        return newParams;
-                                    }
-                                    return {
-                                        ...prevParams,
-                                        sheet_index: newSheetIndex
-                                    }
-                                });
-                            }}
-                            width='medium'
-                        >
-                            {props.sheetDataArray.map(sheetData => {
-                                return (
-                                    <DropdownItem
-                                        key={sheetData.dfName}
-                                        title={sheetData.dfName}
-                                    />
-                                )
-                            })}
-                        </Select>
-                    </Col>
-                </Row>""", ['Row', 'Col', 'Select', 'DropdownItem'])
+        return (f"""<DataframeSelect 
+                    sheetDataArray={OPEN_BRACKET}props.sheetDataArray{CLOSE_BRACKET}
+                    sheetIndex={OPEN_BRACKET}params.{param_name}{CLOSE_BRACKET}
+                    onChange={OPEN_BRACKET}(newSheetIndex) => {OPEN_BRACKET}
+                        setParams(prevParams => {OPEN_BRACKET}
+                            const newParams = getDefaultParams(props.sheetDataArray, newSheetIndex);
+                            if (newParams) {OPEN_BRACKET}
+                                return newParams;
+                            {CLOSE_BRACKET}
+                            return {OPEN_BRACKET}
+                                ...prevParams,
+                                {param_name}: newSheetIndex
+                            {CLOSE_BRACKET}
+                        {CLOSE_BRACKET});
+                    {CLOSE_BRACKET}{CLOSE_BRACKET}""", ['DataframeSelect'])
     if param_type == 'int' or param_type == 'float':
         # TODO: number input
         return ('<NumberInput>', [])
@@ -738,9 +715,9 @@ def get_taskpane_imports(params: Dict[str, str], is_live_updating_taskpane: bool
     # Import for elements
     for element in set(used_elements):
         if element == 'Row':
-            imports += "import Row from '../../spacing/Row';\n"
+            imports += "import Row from '../../layout/Row';\n"
         elif element == 'Col':
-            imports += "import Col from '../../spacing/Col';\n"
+            imports += "import Col from '../../layout/Col';\n"
         elif element == 'Select':
             imports += "import Select from '../../elements/Select';\n"
         elif element == 'DropdownItem':
@@ -753,6 +730,8 @@ def get_taskpane_imports(params: Dict[str, str], is_live_updating_taskpane: bool
             imports += "import MultiToggleBox from '../../elements/MultiToggleBox';\n"
         elif element == 'MultiToggleItem':
             imports += "import MultiToggleItem from '../../elements/MultiToggleItem';\n"
+        elif element == 'DataframeSelect':
+            imports += "import DataframeSelect from '../../elements/DataframeSelect';\n"
             
         else:
             raise Exception(f'{element} needs to have a import statement defined')

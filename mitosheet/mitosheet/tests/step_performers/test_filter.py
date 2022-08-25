@@ -239,7 +239,7 @@ FILTER_TESTS = [
         ),
         FC_DATETIME_LESS,
         "12-2-2020",
-        pd.DataFrame(data={"A": pd.to_datetime(pd.Series(data=[]))}),
+        pd.DataFrame(data={"A": pd.to_datetime(pd.Series(data=[], dtype='float64'))}),
     ),
     (
         pd.DataFrame(

@@ -41,12 +41,14 @@ function useLiveUpdatingParams<FrontendParamType, BackendParamType>(
     },
     options?: {
         doNotSendDefaultParams: boolean,
-    }
+    },
 ): {
         params: FrontendParamType | undefined, // If this is undefined, no messages will be sent to the backend
         setParams: React.Dispatch<React.SetStateAction<FrontendParamType>>, 
         error: string | undefined,
-        loading: boolean // This loading indicator is for if the edit message is processing
+        loading: boolean, // This loading indicator is for if the edit message is processing
+        startNewStep: () => void, // Allows the consumer of this hook to start a new live updating step
+
     } {
 
     const [params, _setParams] = useState<FrontendParamType | undefined>(defaultParams);
@@ -139,7 +141,8 @@ function useLiveUpdatingParams<FrontendParamType, BackendParamType>(
         params: params,
         setParams: setParams,
         error: error,
-        loading: loading
+        loading: loading,
+        startNewStep: () => {setStepID(undefined);}
     }
 }
 

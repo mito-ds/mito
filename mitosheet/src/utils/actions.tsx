@@ -9,10 +9,11 @@ import { getDefaultGraphParams } from "../components/taskpanes/Graph/graphUtils"
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../data/function_documentation";
-import { Action, DFSource, EditorState, GridState, SheetData, UIState, ActionEnum, AnalysisData } from "../types"
+import { Action, DFSource, EditorState, GridState, SheetData, UIState, ActionEnum, AnalysisData, DataframeFormat } from "../types"
 import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
-import { FORMAT_DISABLED_MESSAGE } from "./formatColumns";
+import { decreasePrecision, FORMAT_DISABLED_MESSAGE, increasePrecision } from "./format";
 import { writeTextToClipboard, getCopyStringForClipboard } from "./copy";
+import { getDefaultDataframeFormat } from "../components/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
 
 
 export const createActions = (
@@ -31,6 +32,7 @@ export const createActions = (
     // Define variables that we use in many actions
     const sheetIndex = gridState.sheetIndex;
     const sheetData = sheetDataArray[sheetIndex];
+    const dfFormat: DataframeFormat = (sheetData?.dfFormat || getDefaultDataframeFormat());
     const startingRowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex;
     const startingColumnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
     const {columnID} = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
@@ -464,9 +466,9 @@ export const createActions = (
             searchTerms: ['filter', 'remove', 'delete'],
             tooltip: "Filter this dataframe based on the data in a column."
         },
-        [ActionEnum.Format]: {
-            type: ActionEnum.Format,
-            shortTitle: 'Format',
+        [ActionEnum.Format_Number_Columns]: {
+            type: ActionEnum.Format_Number_Columns,
+            shortTitle: 'Number',
             longTitle: 'Format number columns',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -705,6 +707,55 @@ export const createActions = (
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no sheets to pivot. Import data.'},
             searchTerms: ['pivot', 'group', 'group by', 'summarize', 'aggregate'],
             tooltip: "Create a Pivot Table to summarise data by breaking the data into groups and calculating statistics about each group."
+        },
+        [ActionEnum.Precision_Decrease]: {
+            type: ActionEnum.Precision_Decrease,
+            shortTitle: 'Less',
+            longTitle: 'Decrease decimal places displayed',
+            actionFunction: async () => {  
+                const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
+                const newDfFormat: DataframeFormat = JSON.parse(JSON.stringify(dfFormat));
+                selectedNumberSeriesColumnIDs.forEach((columnID) => {
+                    const columnDtype = sheetData.columnDtypeMap[columnID];
+                    const newColumnFormat = decreasePrecision({...newDfFormat.columns[columnID]}, columnDtype)
+                    newDfFormat.columns[columnID] = newColumnFormat;
+                });
+
+                void mitoAPI.editSetDataframeFormat(sheetIndex, newDfFormat);
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to format. Import data.'
+                }
+                
+                return getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData).length > 0 ? undefined : FORMAT_DISABLED_MESSAGE;
+            },
+            searchTerms: ['format', 'round', 'decimal', 'decimal places', 'fraction'],
+            tooltip: "Decrease the number of decimal places that are displayed in the selected number columns." 
+        },
+        [ActionEnum.Precision_Increase]: {
+            type: ActionEnum.Precision_Increase,
+            shortTitle: 'More',
+            longTitle: 'Increase decimal places displayed',
+            actionFunction: async () => {  
+                const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
+                const newDfFormat: DataframeFormat = JSON.parse(JSON.stringify(dfFormat));
+                selectedNumberSeriesColumnIDs.forEach((columnID) => {
+                    const columnDtype = sheetData.columnDtypeMap[columnID];
+                    const newColumnFormat = increasePrecision({...newDfFormat.columns[columnID]}, columnDtype)
+                    newDfFormat.columns[columnID] = newColumnFormat;
+                });
+                void mitoAPI.editSetDataframeFormat(sheetIndex, newDfFormat);
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to format. Import data.'
+                }
+                
+                return getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData).length > 0 ? undefined : FORMAT_DISABLED_MESSAGE;
+            },
+            searchTerms: ['format', 'round', 'decimal', 'decimal places', 'fraction'],
+            tooltip: "Increase the number of decimal places that are displayed in the selected number columns." 
         },
         [ActionEnum.Promote_Row_To_Header]: {
             type: ActionEnum.Promote_Row_To_Header,
@@ -1072,7 +1123,28 @@ export const createActions = (
             searchTerms: ['one-hot encoding', 'dummies', 'get dummies', 'categorical'],
             tooltip: "One Hot Encoding"
         },
+        [ActionEnum.Set_Dataframe_Format]: {
+            type: ActionEnum.Set_Dataframe_Format,
+            shortTitle: 'Set Dataframe Colors',
+            longTitle: 'Set dataframe colors',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenTaskpane: {type: TaskpaneType.SET_DATAFRAME_FORMAT},
+                        selectedTabType: 'data'
+                    }
+                })
+            },
+            isDisabled: () => {return undefined}, // TODO
+            searchTerms: ['Set dataframe format', 'dataframe', 'format', 'color', 'color palette', 'border', 'highlight'],
+            tooltip: "Change the styling of the header, rows, and border of the dataframe."
+        },
         // AUTOGENERATED LINE: ACTION (DO NOT DELETE)
+    
     
     
         /*

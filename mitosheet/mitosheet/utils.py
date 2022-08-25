@@ -16,7 +16,7 @@ import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap, get_column_header_display
 from mitosheet.sheet_functions.types.utils import get_float_dt_td_columns
-from mitosheet.types import ColumnHeader, ColumnID
+from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat
 
 # We only send the first 1500 rows of a dataframe; note that this
 # must match this variable defined on the front-end
@@ -91,7 +91,7 @@ def dfs_to_array_for_json(
         column_spreadsheet_code_array: List[Dict[ColumnID, str]],
         column_filters_array: List[Dict[ColumnID, Any]],
         column_ids: ColumnIDMap,
-        column_format_types: List[Dict[ColumnID, Dict[str, str]]]
+        df_formats: List[DataframeFormat]
     ) -> List:
 
     new_array = []
@@ -105,7 +105,7 @@ def dfs_to_array_for_json(
                     column_spreadsheet_code_array[sheet_index],
                     column_filters_array[sheet_index],
                     column_ids.column_header_to_column_id[sheet_index],
-                    column_format_types[sheet_index],
+                    df_formats[sheet_index],
                     # We only send the first 1500 rows and 1500 columns
                     max_rows=MAX_ROWS,
                     max_columns=MAX_COLUMNS
@@ -124,7 +124,7 @@ def df_to_json_dumpsable(
         column_spreadsheet_code: Dict[ColumnID, str],
         column_filters: Dict[ColumnID, Any],
         column_headers_to_column_ids: Dict[ColumnHeader, ColumnID],
-        column_format_types: Dict[ColumnID, Dict[ColumnID, str]],
+        df_format: DataframeFormat,
         max_rows: Optional[int]=MAX_ROWS, # How many items you want to display. None when using this function to get unique value counts
         max_columns: int=MAX_COLUMNS # How many columns you want to display. Unlike max_rows, this is always defined
     ) -> Dict[str, Any]:
@@ -143,14 +143,13 @@ def df_to_json_dumpsable(
             columnHeader: (string | number);
             columnDtype: string;
             columnData: (string | number)[];
-            columnFormatTypeObj: FormatTypeObj;
         }[];
         columnIDsMap: ColumnIDsMap;
         columnSpreadsheetCodeMap: Record<string, string>;
         columnFiltersMap: ColumnFilterMap;
         columnnDtypeMap: Record<ColumnID, string>;
         index: (string | number)[];
-        columnFormatTypeObjMap: ColumnFormatTypeObjMap;
+        df_format: DataframeFormat;
     }
     """
 
@@ -168,7 +167,6 @@ def df_to_json_dumpsable(
             'columnHeader': get_column_header_display(column_header),
             'columnDtype': str(original_df[column_header].dtype),
             'columnData': [],
-            'columnFormatTypeObj': column_format_types[column_id],
         }
         column_dtype_map[column_id] = str(original_df[column_header].dtype)
         for row in json_obj['data']:
@@ -194,7 +192,7 @@ def df_to_json_dumpsable(
         'columnFiltersMap': column_filters,
         'columnDtypeMap': column_dtype_map,
         'index': json_obj['index'],
-        'columnFormatTypeObjMap': column_format_types
+        'dfFormat': df_format
     }
 
 
@@ -230,13 +228,6 @@ def convert_df_to_parsed_json(original_df: pd.DataFrame, max_rows: Optional[int]
     # we format the timedeltas as strings to make them readable
     for column_header in timedelta_columns:
         df[column_header] = df[column_header].apply(lambda x: str(x))
-
-    # Then, we get all the float columns and actually make them 
-    # look like floating point values, by converting them to strings
-    for column_header in float_columns:
-        # Convert the value to a string if it is a number, but leave it alone if its a NaN 
-        # as to preserve the formatting of NaN values. 
-        df[column_header] = df[column_header].apply(lambda x: x if np.isnan(x) else str(x))
 
     # Then, we check the index. If it is a datetime or a timedelta, we have to do
     # the same conversions that we did above

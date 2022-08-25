@@ -45,14 +45,15 @@ class DataframeDuplicateStepPerformer(StepPerformer):
         # the column ids that are created for the df_copy in the add_df_to_state function might be different
         # than the column_ids created initially (e.g. because of renames), we have to go through and updated
         # the mapping with the new column ids that the format types must rely on
-        format_types = post_state.column_format_types[sheet_index].copy()
+        old_df_format = post_state.df_formats[sheet_index]
+        new_df_format = post_state.df_formats[sheet_index].copy()
         for column_id, column_header in post_state.column_ids.get_column_ids_map(sheet_index).items():
             new_column_id = get_column_header_id(column_header)
-            format_types[new_column_id] = format_types[column_id]
-            if column_id != new_column_id:
-                del format_types[column_id]
+            old_column_format = old_df_format['columns'].get(column_id, None)
+            if old_column_format is not None:
+                new_df_format['columns'][new_column_id] = old_column_format
 
-        post_state.add_df_to_state(df_copy, DATAFRAME_SOURCE_DUPLICATED, df_name=new_name, format_types=format_types)
+        post_state.add_df_to_state(df_copy, DATAFRAME_SOURCE_DUPLICATED, df_name=new_name, df_format=new_df_format)
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time

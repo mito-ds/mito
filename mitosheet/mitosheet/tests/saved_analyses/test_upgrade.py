@@ -301,6 +301,17 @@ UPGRADE_TESTS = [
             ]
         }
     ),
+    # Removes change column format
+    (
+        {
+            "version": "0.3.131", 
+            "steps_data": [{"step_version": 1, "step_type": "excel_import", "params": {"file_name": "/Users/nathanrush/monorepo/mitosheet/datasets/small-datasets/small-excel.xlsx", "sheet_names": ["Sheet1"], "has_headers": True, "skiprows": 0}}, {"step_version": 1, "step_type": "change_column_format", "params": {"sheet_index": 0, "column_ids": ["0"], "format_type": {"type": "round decimals", "numDecimals": 4}}}, {"step_version": 1, "step_type": "change_column_format", "params": {"sheet_index": 0, "column_ids": ["0"], "format_type": {"type": "round decimals", "numDecimals": 1}}}, {"step_version": 2, "step_type": "simple_import", "params": {"file_names": ["Tesla.csv"]}}]
+        },
+        {
+            "version": __version__, 
+            "steps_data": [{"step_version": 1, "step_type": "excel_import", "params": {"file_name": "/Users/nathanrush/monorepo/mitosheet/datasets/small-datasets/small-excel.xlsx", "sheet_names": ["Sheet1"], "has_headers": True, "skiprows": 0}}, {"step_version": 2, "step_type": "simple_import", "params": {"file_names": ["Tesla.csv"]}}]
+        },
+    )
 ]
 @pytest.mark.parametrize("old, new", UPGRADE_TESTS)
 def test_upgrades_saved_analysis_properly(old, new):

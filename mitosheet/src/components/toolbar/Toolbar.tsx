@@ -7,7 +7,7 @@ import ToolbarButton from './ToolbarButton';
 import { ToolbarButtonType } from './utils';
 import { Action, ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
 import Dropdown from '../elements/Dropdown';
-import { getColumnFormatDropdownItemsUsingSelections } from '../../utils/formatColumns';
+import { getColumnFormatDropdownItems } from '../../utils/format';
 
 // Import CSS
 import "../../../css/toolbar.css"
@@ -22,6 +22,8 @@ import PlanButton from './PlanButton';
 import ToolbarRowsDropdown from './ToolbarRowsDropdown.tsx';
 import OpenOnboardingChecklist from './OpenChecklistButton';
 import { isVariantB } from '../../utils/experiments';
+import ToolbarFormatDropdown from './ToolbarFormatDropdown';
+import { getSelectedNumberSeriesColumnIDs } from '../endo/selectionUtils';
 
 const Toolbar = (
     props: {
@@ -78,6 +80,13 @@ const Toolbar = (
                     </ToolbarMenu>
                     <ToolbarMenu type='Graphs' uiState={props.uiState} setUIState={props.setUIState}>
                         <ToolbarGraphsDropdown
+                            actions={props.actions}
+                            uiState={props.uiState}
+                            setUIState={props.setUIState}
+                        />
+                    </ToolbarMenu>
+                    <ToolbarMenu type='Format' uiState={props.uiState} setUIState={props.setUIState}>
+                        <ToolbarFormatDropdown
                             actions={props.actions}
                             uiState={props.uiState}
                             setUIState={props.setUIState}
@@ -165,14 +174,26 @@ const Toolbar = (
                         action={props.actions[ActionEnum.Change_Dtype]}
                         setEditorState={props.setEditorState}
                         disabledTooltip={isVariantB(props.analysisData) ? undefined : props.actions[ActionEnum.Change_Dtype].isDisabled()}
-
+                    />
+                    <div className="toolbar-vertical-line"></div>
+                    <ToolbarButton
+                        toolbarButtonType={ToolbarButtonType.LESS}
+                        action={props.actions[ActionEnum.Precision_Decrease]}
+                        setEditorState={props.setEditorState}
+                        disabledTooltip={props.actions[ActionEnum.Precision_Decrease].isDisabled()}
+                    />
+                    <ToolbarButton
+                        toolbarButtonType={ToolbarButtonType.MORE}
+                        action={props.actions[ActionEnum.Precision_Increase]}
+                        setEditorState={props.setEditorState}
+                        disabledTooltip={props.actions[ActionEnum.Precision_Increase].isDisabled()}
                     />
                     
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.FORMAT}
-                        action={props.actions[ActionEnum.Format]}
+                        action={props.actions[ActionEnum.Format_Number_Columns]}
                         setEditorState={props.setEditorState}
-                        disabledTooltip={isVariantB(props.analysisData) ? undefined : props.actions[ActionEnum.Format].isDisabled()}
+                        disabledTooltip={isVariantB(props.analysisData) ? undefined : props.actions[ActionEnum.Format_Number_Columns].isDisabled()}
                     >
                         <Dropdown
                             display={props.uiState.displayFormatToolbarDropdown}
@@ -185,7 +206,7 @@ const Toolbar = (
                                 })
                             }
                         >
-                            {getColumnFormatDropdownItemsUsingSelections(props.gridState, props.sheetData, props.mitoAPI)}
+                            {getColumnFormatDropdownItems(props.gridState.sheetIndex, props.sheetData, getSelectedNumberSeriesColumnIDs(props.gridState.selections, props.sheetData), props.mitoAPI)}
                         </Dropdown>
                     </ToolbarButton>
 

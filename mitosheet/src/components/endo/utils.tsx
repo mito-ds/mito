@@ -1,5 +1,5 @@
 import React from "react";
-import { ColumnFilters, ColumnHeader, ColumnID, FormatTypeObj, GridState, SheetData, UIState } from "../../types";
+import { ColumnFilters, ColumnFormatType, ColumnHeader, ColumnID, GridState, SheetData, UIState } from "../../types";
 import { classNames } from "../../utils/classNames";
 import { isBoolDtype, isDatetimeDtype, isFloatDtype, isIntDtype, isTimedeltaDtype } from "../../utils/dtypes";
 import { getWidthData } from "./widthUtils";
@@ -95,15 +95,20 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
     columnFormula: string | undefined,
     cellValue: string | number | boolean | undefined,
     columnFilters: ColumnFilters | undefined,
-    columnFormatType: FormatTypeObj | undefined
+    columnFormat: ColumnFormatType | undefined,
+    headerBackgroundColor: string | undefined,
+    headerTextColor: string | undefined,
 } => {
+    
     const columnID: string | undefined = sheetData?.data[columnIndex]?.columnID;
     const columnHeader = sheetData?.data[columnIndex]?.columnHeader;
     const columnFormula = columnID !== undefined ? sheetData?.columnSpreadsheetCodeMap[columnID] : undefined;
     const columnDtype = columnID !== undefined ? sheetData?.data[columnIndex].columnDtype : undefined;
     const columnFilters = columnID !== undefined ? sheetData?.columnFiltersMap[columnID] : undefined;
     const cellValue = columnID !== undefined ? sheetData?.data[columnIndex].columnData[rowIndex] : undefined;
-    const columnFormatType = columnID !== undefined ? sheetData?.columnFormatTypeObjMap[columnID] : undefined;
+    const columnFormat = columnID !== undefined ? sheetData?.dfFormat.columns[columnID] : undefined;
+    const headerBackgroundColor = columnID !== undefined ? sheetData?.dfFormat.headers.backgroundColor : undefined;
+    const headerTextColor = columnID !== undefined ? sheetData?.dfFormat.headers.color : undefined;
 
     return {
         columnID: columnID,
@@ -112,7 +117,9 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
         columnDtype: columnDtype,
         columnFilters: columnFilters,
         cellValue: cellValue,
-        columnFormatType: columnFormatType
+        columnFormat: columnFormat,
+        headerBackgroundColor: headerBackgroundColor, 
+        headerTextColor: headerTextColor,
     }
 }
 

@@ -5,13 +5,6 @@
     user-select: none;
 }
 
-.mito-grid-row-even {
-    background-color: var(--mito-very-light-gray);
-}
-
-.mito-grid-row-odd {
-    background-color: white;
-}
 
 /* Cell */
 .mito-grid-cell {
@@ -23,7 +16,6 @@
     text-overflow: ellipsis;
     display: block;
 
-    color: var(--mito-gray);
     box-sizing: border-box;
     
     /* Align vertically */

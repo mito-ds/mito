@@ -22,7 +22,6 @@ from mitosheet.step_performers import (
     DeleteColumnStepPerformer,
     RenameColumnStepPerformer,
     ChangeColumnDtypeStepPerformer,
-    ChangeColumnFormatStepPerformer,
     SimpleImportStepPerformer,
     DataframeDeleteStepPerformer,
     DataframeDuplicateStepPerformer,
@@ -42,6 +41,7 @@ from mitosheet.step_performers.graph_steps.graph_rename import GraphRenameStepPe
 from mitosheet.step_performers.melt import MeltStepPerformer
 from mitosheet.step_performers.one_hot_encoding import OneHotEncodingStepPerformer
 from mitosheet.step_performers.promote_row_to_header import PromoteRowToHeaderStepPerformer
+from mitosheet.step_performers.set_dataframe_format import SetDataframeFormatStepPerformer
 from mitosheet.step_performers.transpose import TransposeStepPerformer
 
 def check_step(
@@ -139,11 +139,10 @@ def test_params_static():
     )
 
     check_step(
-        ChangeColumnFormatStepPerformer,
+        SetDataframeFormatStepPerformer,
         1,
-        'change_column_format'
+        'set_dataframe_format'
     )
-
 
     check_step(
         SimpleImportStepPerformer,

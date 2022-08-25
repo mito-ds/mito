@@ -5,11 +5,11 @@
 # Distributed under the terms of the GPL License.
 from collections import OrderedDict
 from copy import deepcopy
-from typing import Any, Collection, List, Dict, Optional, Set
+from typing import Any, Collection, List, Dict, Optional
 import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap
-from mitosheet.types import ColumnHeader, ColumnID
+from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat
 from mitosheet.utils import get_first_unused_dataframe_name
 
 # Constants for where the dataframe in the state came from
@@ -23,14 +23,23 @@ DATAFRAME_SOURCE_TRANSPOSED = "transposed"  # created through a dataframe being 
 DATAFRAME_SOURCE_MELTED = "melted"  # created through a dataframe being melted
 
 # Constants used for formatting. Defined here to avoid circular imports
-FORMAT_DEFAULT = "default"
-FORMAT_PLAIN_TEXT = "plain text"
-FORMAT_PERCENTAGE = "percentage"
-FORMAT_ACCOUNTING = "accounting"
-FORMAT_CURRENCY = "currency"
-FORMAT_ROUND_DECIMALS = "round decimals"
-FORMAT_K_M_B = "k_m_b"
-FORMAT_SCIENTIFIC_NOTATION = "scientific notation"
+NUMBER_FORMAT_PLAIN_TEXT = "plain text"
+NUMBER_FORMAT_CURRENCY = "currency"
+NUMBER_FORMAT_ACCOUNTING = "accounting"
+NUMBER_FORMAT_PERCENTAGE = "percentage"
+NUMBER_FORMAT_SCIENTIFIC_NOTATION = "scientific notation"
+
+
+def get_default_dataframe_format() -> DataframeFormat:
+    return {
+        "columns": {},
+        "headers": {},
+        "rows": {
+            "even": {},
+            "odd": {},
+        },
+        "border": {}
+    }
 
 
 class State:
@@ -52,7 +61,7 @@ class State:
         column_ids: ColumnIDMap = None,
         column_spreadsheet_code: List[Dict[ColumnID, str]] = None,
         column_filters: List[Dict[ColumnID, Any]] = None,
-        column_format_types: List[Dict[ColumnID, Dict[str, Any]]] = None,
+        df_formats: List[DataframeFormat] = None,
         graph_data_dict: "OrderedDict[str, Dict[str, Any]]" = None
     ):
 
@@ -109,15 +118,12 @@ class State:
             ]
         )
 
-        self.column_format_types: List[Dict[str, Dict[str, Any]]] = (
-            column_format_types
-            if column_format_types is not None
+        self.df_formats: List[DataframeFormat] = (
+            df_formats
+            if df_formats is not None
             else [
-                {
-                    column_id: {"type": "default"}
-                    for column_id in self.column_ids.get_column_ids(sheet_index)
-                }
-                for sheet_index in range(len(dfs))
+                get_default_dataframe_format()
+                for _ in range(len(dfs))
             ]
         )
 
@@ -141,7 +147,7 @@ class State:
             column_ids=deepcopy(self.column_ids),
             column_spreadsheet_code=deepcopy(self.column_spreadsheet_code),
             column_filters=deepcopy(self.column_filters),
-            column_format_types=deepcopy(self.column_format_types),
+            df_formats=deepcopy(self.df_formats),
             graph_data_dict=deepcopy(self.graph_data_dict)
         )
 
@@ -151,8 +157,8 @@ class State:
         df_source: str,
         sheet_index: int = None,
         df_name: str = None,
-        format_types: Dict[str, Any] = None,
-        use_deprecated_id_algorithm: bool = False,
+        df_format: DataframeFormat = None,
+        use_deprecated_id_algorithm: bool = False, 
     ) -> int:
         """
         Helper function for adding a new dataframe to this state,
@@ -191,10 +197,10 @@ class State:
                     for column_id in column_ids
                 }
             )
-            self.column_format_types.append(
-                {column_id: {"type": FORMAT_DEFAULT} for column_id in column_ids}
-                if format_types is None
-                else format_types
+            self.df_formats.append(
+                get_default_dataframe_format()
+                if df_format is None
+                else df_format
             )
 
             # Return the index of this sheet
@@ -226,10 +232,10 @@ class State:
                 column_id: {"operator": "And", "filters": []}
                 for column_id in column_ids
             }
-            self.column_format_types[sheet_index] = (
-                {column_id: {"type": FORMAT_DEFAULT} for column_id in column_ids}
-                if format_types is None
-                else format_types
+            self.df_formats[sheet_index] = (
+                get_default_dataframe_format()
+                if df_format is None
+                else df_format
             )
 
             # Return the index of this sheet
@@ -245,7 +251,6 @@ class State:
             column_id = self.column_ids.add_column_header(sheet_index, column_header)
             self.column_spreadsheet_code[sheet_index][column_id] = ''
             self.column_filters[sheet_index][column_id] = {'operator': 'And', 'filters': []}
-            self.column_format_types[sheet_index][column_id] = {'type': FORMAT_DEFAULT}
 
     def does_sheet_index_exist_within_state(self, sheet_index: int) -> bool:
         """

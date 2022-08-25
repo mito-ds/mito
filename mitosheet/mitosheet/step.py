@@ -88,8 +88,8 @@ class Step:
         return self.post_state.column_filters
 
     @property
-    def column_format_types(self):
-        return self.post_state.column_format_types
+    def df_formats(self):
+        return self.post_state.df_formats
 
     @property
     def graph_data_dict(self) -> Dict[str, Dict[str, Any]]:
@@ -110,6 +110,15 @@ class Step:
         """
         step_performer = STEP_TYPE_TO_STEP_PERFORMER[self.step_type]
         return step_performer
+
+    @property
+    def initial_defined_state(self) -> State:
+        """
+        Returns the initial defined state in this step, as the prev and post
+        state are optional, but we also need a step to have a defined state
+        """
+        return self.prev_state if self.prev_state is not None else \
+            (self.post_state if self.post_state is not None else State([]))
 
     @property
     def final_defined_state(self) -> State:
