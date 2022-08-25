@@ -56,11 +56,11 @@ SET_DATAFRAME_FORMAT_TESTS = [
         get_dataframe_format(
             columns={'A': {'type': NUMBER_FORMAT_PLAIN_TEXT}},
             headers={'color': '#FFFFFF', 'backgroundColor': '#549D3A'},
-            rowsEven={'color': '#494650', 'backgroundColor': '#D0E3C9'}, 
-            rowsOdd={'color': '#494650', 'backgroundColor': '#FFFFFF'},
+            rowsOdd={'color': '#494650', 'backgroundColor': '#D0E3C9'}, 
+            rowsEven={'color': '#494650', 'backgroundColor': '#FFFFFF'},
             border={'borderStyle': 'solid', 'borderColor': '#000000'}
         ),
-        [".format(\"{:d}\", subset=[\'A\'])\\\n    .set_table_styles([\n        {'selector': 'thead', 'props': [('color', '#FFFFFF'), ('background-color', '#549D3A')]},\n        {'selector': 'tbody tr:nth-child(even)', 'props': [('color', '#494650'), ('background-color', '#D0E3C9')]},\n        {'selector': 'tbody tr:nth-child(odd)', 'props': [('color', '#494650'), ('background-color', '#FFFFFF')]},\n        {'selector': '', 'props': [('border', '1px solid #000000')]}"]
+        [".format(\"{:d}\", subset=[\'A\'])\\\n    .set_table_styles([\n        {'selector': 'thead', 'props': [('color', '#FFFFFF'), ('background-color', '#549D3A')]},\n        {'selector': 'tbody tr:nth-child(odd)', 'props': [('color', '#494650'), ('background-color', '#FFFFFF')]},\n        {'selector': 'tbody tr:nth-child(even)', 'props': [('color', '#494650'), ('background-color', '#D0E3C9')]},\n        {'selector': '', 'props': [('border', '1px solid #000000')]}"]
     ),
 ]
 @pytest.mark.parametrize("df_format, included_formatting_code", SET_DATAFRAME_FORMAT_TESTS)
@@ -89,8 +89,8 @@ def test_format_with_undo():
     mito.set_dataframe_format(0, get_dataframe_format(
             columns={'A': {'type': NUMBER_FORMAT_PLAIN_TEXT}},
             headers={'color': '#FFFFFF', 'backgroundColor': '#549D3A'},
-            rowsEven={'color': '#494650', 'backgroundColor': '#D0E3C9'}, 
-            rowsOdd={'color': '#494650', 'backgroundColor': '#FFFFFF'},
+            rowsOdd={'color': '#494650', 'backgroundColor': '#D0E3C9'}, 
+            rowsEven={'color': '#494650', 'backgroundColor': '#FFFFFF'},
             border={'borderStyle': 'solid', 'borderColor': '#000000'}
         )
     )
