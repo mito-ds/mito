@@ -37,6 +37,7 @@ package_json = json.loads(open('package.json').read())
 lab_path = Path(pjoin(HERE, 'mitosheet', 'labextension'))
 notebook_path = Path(pjoin(HERE, 'mitosheet', 'nbextension'))
 
+python_requires='>=3.4'
 
 # The name of the project
 name = package_json['name']
