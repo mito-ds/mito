@@ -66,7 +66,7 @@ export class ExampleView extends DOMWidgetView {
     // See write-code-to-cell below.
     creationSeconds: undefined | number;
 
-    initialize(parameters: WidgetView.InitializeParameters): void {
+    initialize(parameters: WidgetView.IInitializeParameters): void {
         super.initialize(parameters);
 
         // Bind the functions we pass down to other classes
