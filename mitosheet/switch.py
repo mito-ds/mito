@@ -154,7 +154,7 @@ MITOSHEET_PACKAGE_JSON = """{
   },
   "version": "0.3.131",
   "dependencies": {
-    "@jupyter-widgets/base": "^4",
+    "@jupyter-widgets/base": "^4 || ^5 || ^6",
     "@jupyterlab/notebook": "^3.0.6",
     "@types/fscreen": "^1.0.1",
     "@types/react-dom": "^17.0.2",
