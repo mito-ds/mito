@@ -27,7 +27,6 @@ from jupyter_packaging import (
     ensure_targets,
     combine_commands,
     skip_if_exists,
-    ensure_python,
 )
 
 from setuptools import setup
@@ -41,10 +40,6 @@ notebook_path = Path(pjoin(HERE, 'mitosheet', 'nbextension'))
 
 # The name of the project
 name = package_json['name']
-
-# Ensure a valid python version
-ensure_python('>=3.4')
-
 
 if name == 'mitosheet2':
     # Get our version, which we just read 
