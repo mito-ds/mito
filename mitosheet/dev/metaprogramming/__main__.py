@@ -5,6 +5,7 @@ import traceback
 from metaprogramming.create_new_icon import create_new_icon
 from metaprogramming.create_new_step import create_new_step
 from metaprogramming.create_new_taskpane import create_new_taskpane
+from metaprogramming.utils.user_input_utils import read_params
 
 
 def execute_create_new_step(args: argparse.Namespace) -> None:
@@ -17,7 +18,7 @@ def execute_create_new_icon(args: argparse.Namespace) -> None:
 def execute_create_new_taskpane(args: argparse.Namespace) -> None:
     create_new_taskpane(
         args.name,
-        dict(),
+        read_params(),
         args.editing,
         args.live_updating,
         args.remain_open_undo,
