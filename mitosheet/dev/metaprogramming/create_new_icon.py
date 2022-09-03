@@ -75,7 +75,3 @@ def create_new_icon(icon_name: str) -> None:
 
     # Remove the most recent file
     os.remove(most_recent_file_path)
-    
-
-if __name__ == "__main__":
-    main()

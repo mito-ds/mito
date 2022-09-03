@@ -20,7 +20,8 @@ def execute_create_new_taskpane(args: argparse.Namespace) -> None:
         dict(),
         args.editing,
         args.live_updating,
-        args.remain_open_undo
+        args.remain_open_undo,
+        args.create_action,
     )
 
 
@@ -44,6 +45,7 @@ def main() -> None:
     parser_create_new_taskpane.add_argument('--editing', help='If the taskpane edits the sheet and therefor should close on sheet edits.', action='store_true')
     parser_create_new_taskpane.add_argument('--live_updating', help='If the taskpane live updates the params.', action='store_true')
     parser_create_new_taskpane.add_argument('--remain_open_undo', help='If the taskpane should remain open when undo/redo are pressed.', action='store_true')
+    parser_create_new_taskpane.add_argument('--create-action', help='If the taskpane should remain open when undo/redo are pressed.', action='store_true')
     parser_create_new_taskpane.set_defaults(func=execute_create_new_taskpane)
     args = parser.parse_args()
 
