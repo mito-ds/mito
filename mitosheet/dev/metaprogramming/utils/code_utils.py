@@ -205,6 +205,9 @@ def get_typescript_type_for_param(param_name: str, param_type: str) -> str:
 
 
 def get_params_interface_code(original_step_name: str, params: Dict[str, str]) -> str:
+    if len(params) == 0:
+        return ''
+    
     step_name_capital = original_step_name.replace(' ', '')
 
     params_interface = f"interface {step_name_capital}Params {OPEN_BRACKET}\n"
@@ -233,15 +236,34 @@ def get_default_typescript_value_for_param(param_name: str, param_type: str) -> 
     else:
         raise Exception(f'{param_name} of type {param_type} is an unsupported type')
 
-def get_default_params(params: Dict[str, str]) -> str:
+def get_default_params_value(params: Dict[str, str]) -> str:
     default_params = "{\n"
     for param_name, param_type in params.items():
         default_params += f'        {param_name}: {get_default_typescript_value_for_param(param_name, param_type)},\n'
     default_params += "    }"
     return default_params
 
+def get_default_params(taskpane_name_capital: str, params: Dict[str, str]) -> str:
+    if len(params) == 0:
+        return ''
+
+    return f"""const getDefaultParams = (
+    sheetDataArray: SheetData[], 
+    sheetIndex: number,
+): {taskpane_name_capital}Params | undefined => {OPEN_BRACKET}
+
+    if (sheetDataArray.length === 0 || sheetDataArray[sheetIndex] === undefined) {OPEN_BRACKET}
+        return undefined;
+    {CLOSE_BRACKET}
+
+    return {get_default_params_value(params)}
+{CLOSE_BRACKET}"""
+
 
 def get_effect_code(original_step_name: str, params: Dict[str, str], is_live_updating_taskpane: bool) -> str:
+    if len(params) == 0:
+        return ''
+
     step_name_capital = original_step_name.replace(' ', '')
    
     if is_live_updating_taskpane:
@@ -302,6 +324,14 @@ def get_toggle_all_code(params: Dict[str, str]) -> str:
     {CLOSE_BRACKET}"""
 
 
+def get_params_undefined_code(params: Dict[str, str]) -> str:
+    if len(params) == 0:
+        return ''
+
+    return f"""if (params === undefined) {OPEN_BRACKET}
+        return <DefaultEmptyTaskpane setUIState={OPEN_BRACKET}props.setUIState{CLOSE_BRACKET}/>
+    {CLOSE_BRACKET}"""
+
 
 def get_new_taskpane_code(original_taskpane_name: str, params: Dict[str, str], is_live_updating_taskpane: bool) -> str:
 
@@ -329,19 +359,7 @@ interface {taskpane_name_capital}TaskpaneProps {OPEN_BRACKET}
 {CLOSE_BRACKET}
 
 {get_params_interface_code(taskpane_name_capital, params)}
-
-
-const getDefaultParams = (
-    sheetDataArray: SheetData[], 
-    sheetIndex: number,
-): {taskpane_name_capital}Params | undefined => {OPEN_BRACKET}
-
-    if (sheetDataArray.length === 0 || sheetDataArray[sheetIndex] === undefined) {OPEN_BRACKET}
-        return undefined;
-    {CLOSE_BRACKET}
-
-    return {get_default_params(params)}
-{CLOSE_BRACKET}
+{get_default_params(taskpane_name_capital, params)}
 
 
 /* 
@@ -351,9 +369,7 @@ const {taskpane_name_capital}Taskpane = (props: {taskpane_name_capital}TaskpaneP
 
     {get_effect_code(original_taskpane_name, params, is_live_updating_taskpane)}
 
-    if (params === undefined) {OPEN_BRACKET}
-        return <DefaultEmptyTaskpane setUIState={OPEN_BRACKET}props.setUIState{CLOSE_BRACKET}/>
-    {CLOSE_BRACKET}
+    {get_params_undefined_code(params)}
 
     {get_sheet_data_definition(params)}
 

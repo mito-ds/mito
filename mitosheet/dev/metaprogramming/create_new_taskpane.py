@@ -70,7 +70,7 @@ def write_taskpane_types_file(original_taskpane_name: str, is_editing_taskpane: 
         f.write(code)
 
 
-def write_new_taskpane(original_taskpane_name: str, params: Dict[str, str], is_editing_taskpane: bool, is_live_updating_taskpane: bool, is_remain_open_undo_redo_taskpane: bool) -> None:
+def create_new_taskpane(original_taskpane_name: str, params: Dict[str, str], is_editing_taskpane: bool, is_live_updating_taskpane: bool, is_remain_open_undo_redo_taskpane: bool) -> None:
     
     taskpane_name_capital = original_taskpane_name.replace(' ', '')
     path_to_folder = get_src_folder() / 'components' / 'taskpanes' / taskpane_name_capital

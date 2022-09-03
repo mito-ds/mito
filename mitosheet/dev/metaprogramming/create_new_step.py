@@ -14,7 +14,7 @@ import os
 import shutil
 from pathlib import Path
 from typing import Dict, Tuple
-from dev.metaprogramming.create_new_taskpane import write_new_taskpane
+from dev.metaprogramming.create_new_taskpane import create_new_taskpane
 from dev.metaprogramming.utils.code_utils import add_enum_value, get_typescript_type_for_param
 
 from metaprogramming.utils.code_utils import CLOSE_BRACKET, OPEN_BRACKET
@@ -482,7 +482,7 @@ def create_new_step() -> None:
     print("Wrote to actions")
 
     if create_taskpane:
-        write_new_taskpane(original_step_name, params, is_editing_taskpane, is_live_updating_taskpane, is_remain_open_undo_redo_taskpane)
+        create_new_taskpane(original_step_name, params, is_editing_taskpane, is_live_updating_taskpane, is_remain_open_undo_redo_taskpane)
         print("Wrote new taskpane")
     else:
         print("Not writing taskpane...")
