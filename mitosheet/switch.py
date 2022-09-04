@@ -119,7 +119,7 @@ MITOSHEET_TWO_PACKAGE_JSON = """{
     "prettier": "^2.0.5",
     "rimraf": "^3.0.2",
     "typescript": "^4.4.3",
-    "widgetsalias": "npm:@phospor/widgets@^1.9.3"
+    "widgetsalias": "npm:@phosphor/widgets@^1.9.3"
   },
   "main": "lib/index.js",
   "homepage": "https://github.com/mito-ds/monorepo",
