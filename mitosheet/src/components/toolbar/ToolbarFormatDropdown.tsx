@@ -35,6 +35,7 @@ const ToolbarFormatDropdown = (props: ToolbarViewDropdownProps): JSX.Element => 
                 width='large'
             >
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Set_Dataframe_Format])}
+                {makeToolbarDropdownItem(props.actions[ActionEnum.CONDITIONALFORMATTING])}
                 <DropdownSectionSeperator isDropdownSectionSeperator/>
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Format_Number_Columns])}
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Precision_Decrease])}

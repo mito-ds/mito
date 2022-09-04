@@ -274,6 +274,7 @@ class StepsManager:
         )
 
         array = dfs_to_array_for_json(
+            self.curr_step.final_defined_state,
             modified_sheet_indexes,
             self.saved_sheet_data,
             self.curr_step.dfs,

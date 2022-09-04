@@ -1,8 +1,11 @@
 // Copyright (c) Mito
 
+import React from 'react';
 import { FilterType, FilterGroupType } from '../../../../../types';
-import { isBoolDtype, isDatetimeDtype, isNumberDtype, isStringDtype, isTimedeltaDtype } from '../../../../../utils/dtypes';
-import { CONDITIONS_WITH_NO_INPUT } from './filterConditions';
+import { isBoolDtype, isDatetimeDtype, isNumberDtype, isStringDtype } from '../../../../../utils/dtypes';
+import DropdownItem from '../../../../elements/DropdownItem';
+import DropdownSectionSeperator from '../../../../elements/DropdownSectionSeperator';
+import { BOOLEAN_SELECT_OPTIONS, CONDITIONS_WITH_NO_INPUT, DATETIME_SELECT_OPTIONS, NUMBER_SELECT_OPTIONS, SHARED_SELECT_OPTIONS, STRING_SELECT_OPTIONS } from './filterConditions';
 import { isFilterGroup } from './filterTypes';
 
 /*
@@ -11,9 +14,6 @@ import { isFilterGroup } from './filterTypes';
     columnDtpye
 */
 export function getFilterDisabledMessage(columnDtype: string): string | undefined {
-    if (isTimedeltaDtype(columnDtype)) {
-        return 'Sorry, Mito does not support filtering on timedeltas columns currently. Try changing the column dtype to a string and filtering on that instead.'
-    }
     return undefined;
 }
 
@@ -47,7 +47,7 @@ export function getEmptyFilterData(columnDtype: string): FilterType {
         // like timedeltas from crashing the sheet if you add
         // a filter to it (although it's non functional :( )
         return {
-            condition: 'contains',
+            condition: 'not_empty',
             value: ''
         }
     }
@@ -202,4 +202,51 @@ export const areFiltersEqual = (filterOne: FilterType, filterTwo: FilterType): b
 */
 export const isValueNone = (value: string | number | boolean): boolean => {
     return value === 'NaN' || value === 'nan' || value === 'NaT' || value === 'nat' || value === null || value === undefined
+}
+
+
+
+const addToFilterOptions = (prevFilterOptions: JSX.Element[], newOptions: Record<string, string>): JSX.Element[] => {
+    const newFilterOptions = [...prevFilterOptions];
+
+    Object.entries(newOptions).forEach(([filterCondition, displayFilterCondition]) => {
+        newFilterOptions.push(
+            <DropdownItem
+                key={filterCondition}
+                id={filterCondition}
+                title={displayFilterCondition}
+            />
+        )
+    });
+
+    return newFilterOptions;
+}
+
+export const getFilterOptions = (columnDtype: string | undefined): JSX.Element[] => {
+    let filterOptions: JSX.Element[] = [];
+
+    if (!columnDtype || isNumberDtype(columnDtype)) {
+        filterOptions = addToFilterOptions(filterOptions, NUMBER_SELECT_OPTIONS);
+        filterOptions.push(<DropdownSectionSeperator isDropdownSectionSeperator/>)
+    }
+    
+    if (!columnDtype || isBoolDtype(columnDtype)) {
+        filterOptions = addToFilterOptions(filterOptions, BOOLEAN_SELECT_OPTIONS);
+        filterOptions.push(<DropdownSectionSeperator isDropdownSectionSeperator/>)
+    } 
+    
+    if (!columnDtype || isDatetimeDtype(columnDtype)) {
+        filterOptions = addToFilterOptions(filterOptions, DATETIME_SELECT_OPTIONS);
+        filterOptions.push(<DropdownSectionSeperator isDropdownSectionSeperator/>)
+    }
+    
+    if (!columnDtype || isStringDtype(columnDtype)) {
+        filterOptions = addToFilterOptions(filterOptions, STRING_SELECT_OPTIONS);
+        filterOptions.push(<DropdownSectionSeperator isDropdownSectionSeperator/>)
+    }
+
+
+    filterOptions = addToFilterOptions(filterOptions, SHARED_SELECT_OPTIONS);
+
+    return filterOptions;
 }

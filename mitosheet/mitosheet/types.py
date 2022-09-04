@@ -27,11 +27,16 @@ ColumnHeader = Union[PrimativeColumnHeader, MultiLevelColumnHeader]
 if TYPE_CHECKING:
     from mitosheet.steps_manager import StepsManager
     StepsManagerType = StepsManager
+    from mitosheet.state import State
+    StateType = State
 else:
     StepsManagerType = Any
+    StateType = Any
 
 
 DataframeFormat = Dict[str, Any]
 ColumnFormat = Dict[str, Any]
 
+
+ConditionalFormattingResult = Dict[ColumnID, Dict[int, Dict[str, Optional[str]]]]
 

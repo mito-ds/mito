@@ -1,14 +1,15 @@
 // Copyright (c) Mito
 
 import React, { CSSProperties } from 'react';
-import { BOOLEAN_SELECT_OPTIONS, CONDITIONS_WITH_NO_INPUT, DATETIME_SELECT_OPTIONS, NUMBER_SELECT_OPTIONS, STRING_SELECT_OPTIONS } from './filterConditions';
+import { CONDITIONS_WITH_NO_INPUT } from './filterConditions';
 import Row from '../../../../layout/Row';
 import Col from '../../../../layout/Col';
 import Select from '../../../../elements/Select';
 import XIcon from '../../../../icons/XIcon';
-import { FilterType, Operator } from '../../../../../types';
+import {  FilterType, Operator} from '../../../../../types';
 import DropdownItem from '../../../../elements/DropdownItem';
-import { isBoolDtype, isDatetimeDtype, isNumberDtype } from '../../../../../utils/dtypes';
+import { isDatetimeDtype } from '../../../../../utils/dtypes';
+import { getFilterOptions } from './utils';
 
 
 export function Filter(
@@ -21,56 +22,14 @@ export function Filter(
         setOperator: (operator: Operator) => void;
         deleteFilter: () => void;
         inGroup?: boolean;
-        columnDtype: string;
+        columnDtype: string | undefined; // Undefined displays all filter options!
     }): JSX.Element {
 
     // We hide the input if it is not necessary
     const inputStyle: CSSProperties = CONDITIONS_WITH_NO_INPUT.includes(props.filter.condition) ? {'visibility': 'hidden'} : {'visibility': 'visible'};
-    const getFilterOptions = (): JSX.Element[] => {
-        if (isNumberDtype(props.columnDtype)) {
-            return Object.entries(NUMBER_SELECT_OPTIONS).map(([filterCondition, displayFilterCondition]) => {
-                return (
-                    <DropdownItem
-                        key={filterCondition}
-                        id={filterCondition}
-                        title={displayFilterCondition}
-                    />
-                )
-            });
-        } else if (isBoolDtype(props.columnDtype)) {
-            return Object.entries(BOOLEAN_SELECT_OPTIONS).map(([filterCondition, displayFilterCondition]) => {
-                return (
-                    <DropdownItem
-                        key={filterCondition}
-                        id={filterCondition}
-                        title={displayFilterCondition}
-                    />
-                )
-            })
-        } else if (isDatetimeDtype(props.columnDtype)) {
-            return Object.entries(DATETIME_SELECT_OPTIONS).map(([filterCondition, displayFilterCondition]) => {
-                return (
-                    <DropdownItem
-                        key={filterCondition}
-                        id={filterCondition}
-                        title={displayFilterCondition}
-                    />
-                )
-            })
-        }
 
-        return Object.entries(STRING_SELECT_OPTIONS).map(([filterCondition, displayFilterCondition]) => {
-            return (
-                <DropdownItem
-                    key={filterCondition}
-                    id={filterCondition}
-                    title={displayFilterCondition}
-                />
-            )
-        })
-    }
 
-    const filterConditionOptions = getFilterOptions();
+    const filterConditionOptions = getFilterOptions(props.columnDtype);
 
     return (
         <Row justify='space-between' align='center'>
@@ -115,7 +74,7 @@ export function Filter(
                 <input 
                     className='mito-input element-width-block'
                     style={inputStyle}
-                    type={isDatetimeDtype(props.columnDtype) ? 'date' : 'text'}
+                    type={props.columnDtype && isDatetimeDtype(props.columnDtype) ? 'date' : 'text'}
                     value={props.filter.value} 
                     onChange={e => {
                         props.setFilter({

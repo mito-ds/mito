@@ -16,7 +16,7 @@ import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap, get_column_header_display
 from mitosheet.sheet_functions.types.utils import get_float_dt_td_columns
-from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat
+from mitosheet.types import ColumnHeader, ColumnID, ConditionalFormattingResult, DataframeFormat, StateType
 
 # We only send the first 1500 rows of a dataframe; note that this
 # must match this variable defined on the front-end
@@ -82,7 +82,49 @@ def is_default_df_names(df_names: List[str]) -> bool:
     """
     return len(df_names) > 0 and df_names == [f'df{i + 1}' for i in range(len(df_names))]
 
+
+def get_conditonal_formatting_result(
+        state: StateType,
+        sheet_index: int,
+        df: pd.DataFrame,
+        conditional_formatting_rules: List[Dict[str, str]],
+        max_rows=MAX_ROWS,
+    ) -> ConditionalFormattingResult: 
+
+    df = df.head(max_rows)
+
+    result: ConditionalFormattingResult = {}
+
+    for conditional_format in conditional_formatting_rules:
+        column_ids = conditional_format["columnIDs"]
+
+        for column_id in column_ids:
+            # Skip columns this is not applied to
+            if column_id not in column_ids:
+                continue
+            
+            if column_id not in result:
+                result[column_id] = dict()
+
+            filters  = conditional_format["filters"]
+            backgroundColor = conditional_format.get("backgroundColor", None)
+            color = conditional_format.get("color", None)
+
+            column_header = state.column_ids.get_column_header_by_id(sheet_index, column_id)
+
+            # Use the get_applied_filter function from our filtering infrastructure
+            from mitosheet.step_performers.filter import get_full_applied_filter
+            full_applied_filter, _ = get_full_applied_filter(df, column_header, 'And', filters)
+            #applied_indexes = df.index[full_applied_filter] # TODO: get the actual indexes vertially! So this works with non-number columns
+            applied_indexes = full_applied_filter[full_applied_filter].index.tolist()
+
+            for index in applied_indexes:
+                result[column_id][index] = {'backgroundColor': backgroundColor, 'color': color}
+
+    return result
+
 def dfs_to_array_for_json(
+        state: StateType,
         modified_sheet_indexes: Set[int],
         previous_array: List,
         dfs: List[pd.DataFrame],
@@ -99,7 +141,9 @@ def dfs_to_array_for_json(
         if sheet_index in modified_sheet_indexes:
             new_array.append(
                 df_to_json_dumpsable(
+                    state,
                     df, 
+                    sheet_index,
                     df_names[sheet_index],
                     df_sources[sheet_index],
                     column_spreadsheet_code_array[sheet_index],
@@ -118,7 +162,9 @@ def dfs_to_array_for_json(
 
 
 def df_to_json_dumpsable(
+        state: StateType,
         original_df: pd.DataFrame,
+        sheet_index: int,
         df_name: str,
         df_source: str,
         column_spreadsheet_code: Dict[ColumnID, str],
@@ -150,6 +196,7 @@ def df_to_json_dumpsable(
         columnnDtypeMap: Record<ColumnID, string>;
         index: (string | number)[];
         df_format: DataframeFormat;
+        conditionalFormattingResult: ConditionalFormattingResult
     }
     """
 
@@ -192,7 +239,15 @@ def df_to_json_dumpsable(
         'columnFiltersMap': column_filters,
         'columnDtypeMap': column_dtype_map,
         'index': json_obj['index'],
-        'dfFormat': df_format
+        'dfFormat': df_format,
+        'conditionalFormattingResult': get_conditonal_formatting_result(
+            state,
+            sheet_index,
+            original_df,
+            df_format['conditional_formats'],
+            max_rows=max_rows,
+        )
+
     }
 
 
