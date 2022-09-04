@@ -104,7 +104,7 @@ MITOSHEET_TWO_PACKAGE_JSON = """{
     "@typescript-eslint/eslint-plugin": "^4.4.0",
     "@typescript-eslint/parser": "^4.4.0",
     "acorn": "^8.5.0",
-    "application": "npm:@phospor/application@^1.13.1",
+    "application": "npm:@phosphor/application@^1.7.3",
     "buffer": "^6.0.3",
     "eslint": "^7.19.0",
     "eslint-config-prettier": "^8.3.0",
@@ -119,7 +119,7 @@ MITOSHEET_TWO_PACKAGE_JSON = """{
     "prettier": "^2.0.5",
     "rimraf": "^3.0.2",
     "typescript": "^4.4.3",
-    "widgetsalias": "npm:@phospor/widgets@^1.16.1"
+    "widgetsalias": "npm:@phospor/widgets@^1.9.3"
   },
   "main": "lib/index.js",
   "homepage": "https://github.com/mito-ds/monorepo",
