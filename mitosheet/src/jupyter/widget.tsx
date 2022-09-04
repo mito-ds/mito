@@ -61,12 +61,21 @@ import { AnalysisData, GraphDataBackend, GraphDataDict, GraphParamsBackend, Mito
 import { ModalEnum } from '../components/modals/modals';
 import { convertBackendtoFrontendGraphParams } from '../components/taskpanes/Graph/graphUtils';
 
+
+/**
+ * In IPyWidgets 8.0, the type of parameters we need moved from InitializeParameters
+ * to IInitializeParameters. So we create this fancy conditional types to support
+ * both earlier versions as well, as they are necessary on JupyterLab 2.0. 
+ */
+type InitializeParametersOf<T> = T extends { IInitializeParameters: unknown } ? T["IInitializeParameters"] : (T extends { InitializeParameters: unknown } ? T["InitializeParameters"] : never);
+
+
 export class ExampleView extends DOMWidgetView {
     // Used to make code in the notebook not flash when read in for replaying.
     // See write-code-to-cell below.
     creationSeconds: undefined | number;
 
-    initialize(parameters: WidgetView.IInitializeParameters): void {
+    initialize(parameters: InitializeParametersOf<WidgetView>): void {
         super.initialize(parameters);
 
         // Bind the functions we pass down to other classes
