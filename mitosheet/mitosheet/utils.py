@@ -93,9 +93,11 @@ def get_conditonal_formatting_result(
 
     df = df.head(max_rows)
 
-    result: ConditionalFormattingResult = {}
+    invalid_conditional_formats = dict()
+    formatted_result = dict()
 
     for conditional_format in conditional_formatting_rules:
+        format_uuid = conditional_format["format_uuid"]
         column_ids = conditional_format["columnIDs"]
 
         for column_id in column_ids:
@@ -103,8 +105,8 @@ def get_conditonal_formatting_result(
             if column_id not in column_ids:
                 continue
             
-            if column_id not in result:
-                result[column_id] = dict()
+            if column_id not in formatted_result:
+                formatted_result[column_id] = dict()
 
             filters  = conditional_format["filters"]
             backgroundColor = conditional_format.get("backgroundColor", None)
@@ -114,14 +116,22 @@ def get_conditonal_formatting_result(
 
             # Use the get_applied_filter function from our filtering infrastructure
             from mitosheet.step_performers.filter import get_full_applied_filter
-            full_applied_filter, _ = get_full_applied_filter(df, column_header, 'And', filters)
-            #applied_indexes = df.index[full_applied_filter] # TODO: get the actual indexes vertially! So this works with non-number columns
-            applied_indexes = full_applied_filter[full_applied_filter].index.tolist()
+            try:
+                full_applied_filter, _ = get_full_applied_filter(df, column_header, 'And', filters)
+                #applied_indexes = df.index[full_applied_filter] # TODO: get the actual indexes vertially! So this works with non-number columns
+                applied_indexes = full_applied_filter[full_applied_filter].index.tolist()
 
-            for index in applied_indexes:
-                result[column_id][index] = {'backgroundColor': backgroundColor, 'color': color}
+                for index in applied_indexes:
+                    formatted_result[column_id][index] = {'backgroundColor': backgroundColor, 'color': color}
+            except:
+                if format_uuid not in invalid_conditional_formats:
+                    invalid_conditional_formats[format_uuid] = []
+                invalid_conditional_formats[format_uuid].append(column_id)
 
-    return result
+    return {
+        'invalid_conditional_formats': invalid_conditional_formats,
+        'results': formatted_result
+    }
 
 def dfs_to_array_for_json(
         state: StateType,
@@ -221,7 +231,9 @@ def df_to_json_dumpsable(
             # in this case and don't append anything
             column_final_data['columnData'].append(row[column_index] if column_index < MAX_COLUMNS else None)
         
-        final_data.append(column_final_data)     
+        final_data.append(column_final_data) 
+
+    print(df_format)    
     
     return {
         "dfName": df_name,

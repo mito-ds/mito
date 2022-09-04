@@ -236,7 +236,6 @@ function FilterCard (props: FilterCardProps): JSX.Element {
                         } else {
                             return (
                                 <Filter
-                                    first={index === 0}
                                     key={index}
                                     filter={filterOrGroup}
                                     operator={props.operator}
@@ -244,7 +243,7 @@ function FilterCard (props: FilterCardProps): JSX.Element {
                                     setFilter={(newFilter) => {
                                         setFilter(index, newFilter)
                                     }}
-                                    setOperator={props.setOperator}
+                                    setOperator={index === 0 ? undefined : props.setOperator}
                                     deleteFilter={() => {deleteFilter(index)}}
                                     columnDtype={props.columnDtype}
                                 />

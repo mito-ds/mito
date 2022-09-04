@@ -14,13 +14,12 @@ import { getFilterOptions } from './utils';
 
 export function Filter(
     props: {
-        first: boolean;
         filter: FilterType;
         operator: Operator;
         displayOperator: boolean;
         setFilter: (newFilter: FilterType) => void;
-        setOperator: (operator: Operator) => void;
-        deleteFilter: () => void;
+        setOperator?: (operator: Operator) => void;
+        deleteFilter?: () => void;
         inGroup?: boolean;
         columnDtype: string | undefined; // Undefined displays all filter options!
     }): JSX.Element {
@@ -30,19 +29,20 @@ export function Filter(
 
 
     const filterConditionOptions = getFilterOptions(props.columnDtype);
+    const setOperator = props.setOperator;
 
     return (
         <Row justify='space-between' align='center'>
             <Col span={!props.inGroup ? 4 : 5}>
-                {props.first && 
+                {setOperator === undefined && 
                     <p className='text-body-1'>
                         Where
                     </p>
                 }
-                {!props.first && 
+                {setOperator !== undefined && 
                     <Select
                         value={props.operator}
-                        onChange={(newOperator: string) => props.setOperator(newOperator as Operator)}
+                        onChange={(newOperator: string) => setOperator(newOperator as Operator)}
                         dropdownWidth='small'
                     >
                         <DropdownItem
@@ -85,9 +85,11 @@ export function Filter(
                     }}
                 />
             </Col>
-            <Col>
-                <XIcon onClick={props.deleteFilter}/>
-            </Col>
+            {props.deleteFilter &&
+                <Col>
+                    <XIcon onClick={props.deleteFilter}/>
+                </Col>
+            }
         </Row>
     )
 }

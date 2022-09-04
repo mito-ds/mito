@@ -11,7 +11,7 @@ from mitosheet.sheet_functions.types.utils import is_int_dtype
 from mitosheet.state import NUMBER_FORMAT_ACCOUNTING, NUMBER_FORMAT_CURRENCY, NUMBER_FORMAT_PERCENTAGE, NUMBER_FORMAT_PLAIN_TEXT, NUMBER_FORMAT_SCIENTIFIC_NOTATION, State
 from mitosheet.transpiler.transpile_utils import TAB, column_header_list_to_transpiled_code, column_header_to_transpiled_code
 from mitosheet.types import ColumnFormat, ColumnHeader
-from mitosheet.utils import MAX_ROWS
+from mitosheet.utils import MAX_ROWS, get_conditonal_formatting_result
 from mitosheet.sheet_functions.types import is_float_dtype
 
 OPEN_BRACKET = "{"
@@ -178,23 +178,42 @@ def get_table_styles_code(state: State, sheet_index: int) -> Optional[str]:
 def get_conditional_format_code_list(state: State, sheet_index: int) -> Optional[List[str]]:
     """Returns all the code to set the conditional formats"""
     df_name = state.df_names[sheet_index]
+    df = state.dfs[sheet_index]
     conditional_formats = state.df_formats[sheet_index]['conditional_formats']
+
+    # We get the conditional formatting results, and we filter out any columns that are 
+    # are invalid with the filters that are applied
+    conditional_formatting_result = get_conditonal_formatting_result(
+        state,
+        sheet_index,
+        df,
+        conditional_formats
+    )
 
     all_code = []
     for conditional_format in conditional_formats:
+        formatUUID = conditional_format['format_uuid']
         filters = conditional_format['filters']
         column_ids = conditional_format['columnIDs']
         color = conditional_format.get('color', None)
         background_color = conditional_format.get('backgroundColor', None)
+
+        final_column_ids = list(set(column_ids).difference(conditional_formatting_result['invalid_conditional_formats'].get(formatUUID, [])))
+
+        if len(final_column_ids) == 0:
+            continue
+
+        transpiled_column_headers = column_header_list_to_transpiled_code(final_column_ids)
+        
 
         # TODO: talk about this hack!
         entire_filter_string = get_entire_filter_string(state, sheet_index, 'And', filters)
         entire_filter_string = entire_filter_string.replace(f'{df_name}[{column_header_to_transpiled_code(FAKE_COLUMN_HEADER)}]', "series")
 
         if color is not None:
-            all_code.append(f".apply(lambda series: np.where({entire_filter_string}, 'color: {color}', None), subset={column_header_list_to_transpiled_code(column_ids)})")
+            all_code.append(f".apply(lambda series: np.where({entire_filter_string}, 'color: {color}', None), subset={transpiled_column_headers})")
         if background_color is not None:
-            all_code.append(f".apply(lambda series: np.where({entire_filter_string}, 'background-color: {background_color}', None), subset={column_header_list_to_transpiled_code(column_ids)})")
+            all_code.append(f".apply(lambda series: np.where({entire_filter_string}, 'background-color: {background_color}', None), subset={transpiled_column_headers})")
 
     if len(all_code) > 0:
         return all_code

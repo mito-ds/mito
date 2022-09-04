@@ -226,7 +226,10 @@ export type ColumnID = string;
  */
 export type ColumnIDsMap = Record<ColumnID, ColumnHeader>;
 
-export type ConditionalFormattingResult = Record<ColumnID, Record<number, {color: string | undefined, backgroundColor: string | undefined} | undefined> | undefined>
+export type ConditionalFormattingResult = {
+    'invalid_conditional_formats': Record<string, ColumnID[] | undefined>,
+    'results': Record<ColumnID, Record<number, {color: string | undefined, backgroundColor: string | undefined} | undefined> | undefined>
+}
 
 /**
  * Data that will be displayed in the sheet itself.

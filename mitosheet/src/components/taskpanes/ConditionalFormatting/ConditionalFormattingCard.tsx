@@ -43,13 +43,16 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
         </Col>
     );
 
+    const invalidColumnIDs = props.sheetData.conditionalFormattingResult?.invalid_conditional_formats[props.conditionalFormat.format_uuid] || [];
+    // TODO: do something with them!
+
     if (!open) {
         return (
             <div className='conditional-format-card' onClick={() => setOpen(true)}> 
                 <Row justify='space-between' align='center'>
                     <Row suppressTopBottomMargin align='center' justify='start'>
                         <Col span={2}>
-                            II
+                            {invalidColumnIDs.length === 0 ? "II" : 'XX'}
                         </Col>
                         <Col>
                             <div className='flex flex-column'>
@@ -126,15 +129,21 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
                         ) 
                     })}
                 </MultiToggleBox>
+                {invalidColumnIDs.length !== 0 &&
+                    <div>
+                        Invalid columns: {invalidColumnIDs.join(" ")}
+                    </div>
+                }
                 <Filter
-                    first
                     filter={props.conditionalFormat.filters[0]}
                     columnDtype={undefined}
                     operator={"And"}
                     displayOperator={false}
-                    setFilter={(newFilter) => {}}
-                    setOperator={(operator) => {}}
-                    deleteFilter={() => {}}                    
+                    setFilter={(newFilter) => {
+                        const newConditionalFormats = [...props.df_format.conditional_formats];
+                        newConditionalFormats[props.index].filters = [newFilter];
+                        props.updateDataframeFormatParams({...props.df_format, conditional_formats: newConditionalFormats});
+                    }}
                 />
 
                 <Row justify='start'>

@@ -55,7 +55,7 @@ const GridData = (props: {
                             const columnFormatType = sheetData.dfFormat.columns[columnID]
                             const cellData = props.sheetData?.data[columnIndex]?.columnData[rowIndex];
 
-                            const conditionalFormatMap = sheetData?.conditionalFormattingResult[columnID];
+                            const conditionalFormatMap = sheetData?.conditionalFormattingResult.results[columnID];
                             const conditionalFormat = conditionalFormatMap ? conditionalFormatMap[rowIndex] : undefined;
 
                             if (cellData === undefined || columnDtype == undefined) {
