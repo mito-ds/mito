@@ -119,7 +119,7 @@ const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
-                header="ConditionalFormatting"
+                header="Conditional Formatting"
                 setUIState={props.setUIState}           
             />
             <DefaultTaskpaneBody 
