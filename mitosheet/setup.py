@@ -27,7 +27,6 @@ from jupyter_packaging import (
     ensure_targets,
     combine_commands,
     skip_if_exists,
-    ensure_python,
 )
 
 from setuptools import setup
@@ -38,13 +37,10 @@ package_json = json.loads(open('package.json').read())
 lab_path = Path(pjoin(HERE, 'mitosheet', 'labextension'))
 notebook_path = Path(pjoin(HERE, 'mitosheet', 'nbextension'))
 
+python_requires='>=3.4'
 
 # The name of the project
 name = package_json['name']
-
-# Ensure a valid python version
-ensure_python('>=3.4')
-
 
 if name == 'mitosheet2':
     # Get our version, which we just read 
@@ -213,10 +209,10 @@ elif name == 'mitosheet' or name == 'mitosheet3' or name == 'mitosheet-private':
         packages                 = setuptools.find_packages(exclude=['deployment']),
         install_requires=[        
             "jupyterlab~=3.0",
-            'ipywidgets~=7.0.0',
+            'ipywidgets>=7,<9',
             # In JLab 3, we move to needing to install the jupyterlab-widgets package, which
             # is equivlaent to the @jupyter-widgets/jupyterlab-manager extension for jlab 2
-            'jupyterlab-widgets~=1.0.0',
+            'jupyterlab-widgets>=1.0.0',
             # We allow users to have many versions of pandas installed. All functionality should
             # work, with the exception of Excel import, which might require additonal dependencies
             'pandas>=0.24.2',
