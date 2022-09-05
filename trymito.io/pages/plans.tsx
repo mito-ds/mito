@@ -350,7 +350,7 @@ const Plans: NextPage = () => {
                   $0
                 </p>
                 <p className={plansStyles.plan_description}>
-                  Perfect for solo data analytics for work or for fun. Includes <a href={'#' + PRIVATE_TELEMTRY_FAQ_ID} className={plansStyles.private_telemtry_link}> private telemetry</a>.
+                  Perfect for solo data analytics for work or for fun.
                 </p>
                 <div className={plansStyles.plan_bullets_container}> 
                   <PlanBullet>
@@ -390,7 +390,7 @@ const Plans: NextPage = () => {
                   $40 a month
                 </p>
                 <p className={plansStyles.plan_description}>
-                  Mito’s analysis tools, with no telemetry, advanced features, and personal support.
+                  Mito’s analysis tools, advanced features, and personal support.
                 </p>
                 <div className={plansStyles.plan_bullets_container}> 
                   <PlanBullet>
