@@ -101,8 +101,6 @@ const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps
         }
     )
 
-    console.log("PARAMS", params);
-
     if (params === undefined) {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
     }

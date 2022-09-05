@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { FilterType, FilterGroupType } from '../../../../../types';
-import { isBoolDtype, isDatetimeDtype, isNumberDtype, isStringDtype } from '../../../../../utils/dtypes';
+import { isBoolDtype, isDatetimeDtype, isNumberDtype, isStringDtype, isTimedeltaDtype } from '../../../../../utils/dtypes';
 import DropdownItem from '../../../../elements/DropdownItem';
 import DropdownSectionSeperator from '../../../../elements/DropdownSectionSeperator';
 import { BOOLEAN_SELECT_OPTIONS, CONDITIONS_WITH_NO_INPUT, DATETIME_SELECT_OPTIONS, NUMBER_SELECT_OPTIONS, SHARED_SELECT_OPTIONS, STRING_SELECT_OPTIONS } from './filterConditions';
@@ -14,6 +14,9 @@ import { isFilterGroup } from './filterTypes';
     columnDtpye
 */
 export function getFilterDisabledMessage(columnDtype: string): string | undefined {
+    if (isTimedeltaDtype(columnDtype)) {
+        return 'Sorry, Mito does not support filtering on timedeltas columns currently. Try changing the column dtype to a string and filtering on that instead.'
+    }
     return undefined;
 }
 
