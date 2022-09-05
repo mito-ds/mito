@@ -222,7 +222,7 @@ MITOSHEET_PACKAGE_JSON = """{
     "prettier": "^2.1.1",
     "rimraf": "^3.0.2",
     "typescript": "^4.4.3",
-    "widgetsalias": "npm:@lumino/widgets@^1.16.1"
+    "@lumino/widgets": "^1.16.1"
   },
   "main": "lib/index.js",
   "homepage": "https://trymito.io",
