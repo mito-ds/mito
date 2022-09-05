@@ -9,6 +9,7 @@ jobs:
   deploy-mitosheet2:
     name: Deploy mitosheet2
     runs-on: ubuntu-latest
+    if: false
     strategy:
       matrix:
         python-version: [3.8]
