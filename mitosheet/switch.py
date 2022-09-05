@@ -119,7 +119,7 @@ MITOSHEET_TWO_PACKAGE_JSON = """{
     "prettier": "^2.0.5",
     "rimraf": "^3.0.2",
     "typescript": "^4.4.3",
-    "widgets": "npm:@phosphor/widgets@^1.9.3"
+    "widgetsalias": "npm:@phosphor/widgets@^1.9.3"
   },
   "main": "lib/index.js",
   "homepage": "https://github.com/mito-ds/monorepo",
@@ -154,7 +154,7 @@ MITOSHEET_PACKAGE_JSON = """{
   },
   "version": "0.3.131",
   "dependencies": {
-    "@jupyter-widgets/base": "^4",
+    "@jupyter-widgets/base": "^4 || ^5 || ^6",
     "@jupyterlab/notebook": "^3.0.6",
     "@types/fscreen": "^1.0.1",
     "@types/react-dom": "^17.0.2",
@@ -222,7 +222,7 @@ MITOSHEET_PACKAGE_JSON = """{
     "prettier": "^2.1.1",
     "rimraf": "^3.0.2",
     "typescript": "^4.4.3",
-    "widgets": "npm:@lumino/widgets@^1.16.1"
+    "@lumino/widgets": "^1.16.1"
   },
   "main": "lib/index.js",
   "homepage": "https://trymito.io",
