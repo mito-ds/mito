@@ -16,7 +16,7 @@ import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap, get_column_header_display
 from mitosheet.sheet_functions.types.utils import get_float_dt_td_columns
-from mitosheet.types import ColumnHeader, ColumnID, ConditionalFormattingResult, DataframeFormat, StateType
+from mitosheet.types import ColumnHeader, ColumnID, ConditionalFormattingCellResults, ConditionalFormattingResult, DataframeFormat, ConditionalFormattingInvalidResults, StateType
 
 # We only send the first 1500 rows of a dataframe; note that this
 # must match this variable defined on the front-end
@@ -87,14 +87,14 @@ def get_conditonal_formatting_result(
         state: StateType,
         sheet_index: int,
         df: pd.DataFrame,
-        conditional_formatting_rules: List[Dict[str, str]],
-        max_rows=MAX_ROWS,
+        conditional_formatting_rules: List[Dict[str, Any]],
+        max_rows: Optional[int]=MAX_ROWS,
     ) -> ConditionalFormattingResult: 
 
     df = df.head(max_rows)
 
-    invalid_conditional_formats = dict()
-    formatted_result = dict()
+    invalid_conditional_formats: ConditionalFormattingInvalidResults = dict()
+    formatted_result: ConditionalFormattingCellResults = dict()
 
     for conditional_format in conditional_formatting_rules:
         format_uuid = conditional_format["format_uuid"]
@@ -117,7 +117,6 @@ def get_conditonal_formatting_result(
             # Use the get_applied_filter function from our filtering infrastructure
             from mitosheet.step_performers.filter import get_full_applied_filter
             try:
-                print("filters", filters)
                 full_applied_filter, _ = get_full_applied_filter(df, column_header, 'And', filters)
                 #applied_indexes = df.index[full_applied_filter] # TODO: get the actual indexes vertially! So this works with non-number columns
                 applied_indexes = full_applied_filter[full_applied_filter].index.tolist()
@@ -125,12 +124,9 @@ def get_conditonal_formatting_result(
                 for index in applied_indexes:
                     formatted_result[column_id][index] = {'backgroundColor': backgroundColor, 'color': color}
             except Exception as e:
-                print(e)
                 if format_uuid not in invalid_conditional_formats:
                     invalid_conditional_formats[format_uuid] = []
                 invalid_conditional_formats[format_uuid].append(column_id)
-
-    print("Invalid", invalid_conditional_formats)
 
     return {
         'invalid_conditional_formats': invalid_conditional_formats,

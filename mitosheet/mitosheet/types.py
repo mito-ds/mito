@@ -40,9 +40,13 @@ ColumnFormat = Dict[str, Any]
 
 ConditionalFormatUUID = str
 
+ConditionalFormattingInvalidResults = Dict[ConditionalFormatUUID, List[ColumnID]]
+ConditionalFormattingCellResults = Dict[ColumnID, Dict[int, Dict[str, Optional[str]]]]
+
 # TODO: update this to be the same on the frontend!
-ConditionalFormattingResult = Tuple[
-    Dict[ConditionalFormatUUID, List[ColumnID]], # A list of the invalid columns for a specific filter
-    Dict[ColumnID, Dict[int, Dict[str, Optional[str]]]] # The actual formatting results
+ConditionalFormattingResult = Dict[str, Union[
+        ConditionalFormattingInvalidResults, # A list of the invalid columns for a specific filter
+        ConditionalFormattingCellResults # The actual formatting results
+    ]
 ]
 

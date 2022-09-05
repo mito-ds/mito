@@ -208,6 +208,9 @@ def get_conditional_format_code_list(state: State, sheet_index: int) -> Optional
 
         # TODO: talk about this hack!
         entire_filter_string = get_entire_filter_string(state, sheet_index, 'And', filters)
+        if entire_filter_string is None:
+            continue
+
         entire_filter_string = entire_filter_string.replace(f'{df_name}[{column_header_to_transpiled_code(FAKE_COLUMN_HEADER)}]', "series")
 
         if color is not None:

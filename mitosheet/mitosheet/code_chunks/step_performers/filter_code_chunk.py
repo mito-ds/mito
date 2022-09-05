@@ -278,7 +278,7 @@ def create_filter_string_for_condition(
 # TODO: explain this hack
 FAKE_COLUMN_HEADER = 'FAKE_COLUMN_HEADER'
 
-def get_entire_filter_string(state: State, sheet_index: int, operator: str, filters: List[Dict[str, Any]], column_id: Optional[ColumnID]=None) -> str:
+def get_entire_filter_string(state: State, sheet_index: int, operator: str, filters: List[Dict[str, Any]], column_id: Optional[ColumnID]=None) -> Optional[str]:
 
         df_name = state.df_names[sheet_index]
         if column_id:
