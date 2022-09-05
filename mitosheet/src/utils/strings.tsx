@@ -40,3 +40,7 @@ export const fuzzyMatch = (stringOne: string, stringTwo: string): number => {
 export const convertToStringOrUndefined = (possibleString: string | number | boolean | undefined): string | undefined => {
     return possibleString !== undefined ? possibleString.toString() : undefined
 }
+
+export function capitalizeFirstLetter(s: string): string {
+    return s.charAt(0).toUpperCase() + s.slice(1);
+}

@@ -12,6 +12,7 @@ import ConditionalFormattingCard from "./ConditionalFormattingCard";
 import { updateObjectWithPartialObject } from "../../../utils/objects";
 import TextButton from "../../elements/TextButton";
 import { getDefaultDataframeFormat } from "../SetDataframeFormat/SetDataframeFormatTaskpane";
+import { NUMBER_SELECT_OPTIONS } from "../ControlPanel/FilterAndSortTab/filter/filterConditions";
 
 
 interface ConditionalFormattingTaskpaneProps {
@@ -64,8 +65,43 @@ const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps
         StepType.SetDataframeFormat, 
         props.mitoAPI,
         props.analysisData,
-        50
+        50,
+        {
+            getBackendFromFrontend: (params: ConditionalFormattingParams) => {
+                // We parse the filters, if they deserve to be parsed! Making sure that we make copies of 
+                // everything, as to not modify objects when we don't want to
+                const conditionalFormats = params.df_format.conditional_formats.map(conditionalFormat => {
+                    const newConditionalFormat = {...conditionalFormat};
+                    const newFilters = newConditionalFormat.filters.map(filter => {
+                        const newFilter = {...filter};
+                        const value = newFilter.value;
+                        if (Object.keys(NUMBER_SELECT_OPTIONS).includes(newFilter.condition) && typeof value === 'string') {
+                            const valueAsNumber = parseFloat(value);
+                            if (!isNaN(valueAsNumber)) {
+                                newFilter.value = valueAsNumber;
+                            }
+                        }
+                        return newFilter;
+                    });
+                    return {
+                        ...newConditionalFormat,
+                        filters: newFilters
+                    };
+                })
+
+                return {
+                    ...params,
+                    df_format: {
+                        ...params.df_format,
+                        conditional_formats: conditionalFormats
+                    }
+                };
+            },
+            getFrontendFromBackend: (params) => {return params}
+        }
     )
+
+    console.log("PARAMS", params);
 
     if (params === undefined) {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>

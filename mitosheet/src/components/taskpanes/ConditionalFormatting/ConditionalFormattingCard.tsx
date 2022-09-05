@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ConditionalFormat, DataframeFormat, RecursivePartial, SheetData } from '../../../types';
+import { ColumnID, ConditionalFormat, DataframeFormat, RecursivePartial, SheetData } from '../../../types';
 import '../../../../css/taskpanes/ConditionalFormatting/ConditionalFormattingCard.css'
 import Row from '../../layout/Row';
 import Col from '../../layout/Col';
@@ -7,11 +7,15 @@ import XIcon from '../../icons/XIcon';
 import { Filter } from '../ControlPanel/FilterAndSortTab/filter/Filter';
 import MultiToggleBox from '../../elements/MultiToggleBox';
 import MultiToggleItem from '../../elements/MultiToggleItem';
-import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
+import { getDisplayColumnHeader, getFirstCharactersOfColumnHeaders } from '../../../utils/columnHeaders';
 import { getDtypeValue } from '../ControlPanel/FilterAndSortTab/DtypeCard';
 import { addIfAbsent, removeIfPresent, toggleInArray } from '../../../utils/arrays';
 import LabelAndColor from '../../../pro/graph/LabelAndColor';
 import { ODD_ROW_BACKGROUND_COLOR_DEFAULT, ODD_ROW_TEXT_COLOR_DEFAULT } from '../../endo/GridData';
+import { ALL_SELECT_OPTIONS } from '../ControlPanel/FilterAndSortTab/filter/filterConditions';
+import { capitalizeFirstLetter } from '../../../utils/strings';
+import ConditionalFormatIcon from '../../icons/ConditionalFormatIcon';
+import ConditionalFormatInvalidIcon from '../../icons/ConditionalFormatInvalidIcon';
 
 
 
@@ -23,6 +27,45 @@ interface ConditionalFormattingProps {
     sheetData: SheetData;
 }
 
+
+const getColumnHeadersIncludedMessage = (sheetData: SheetData, columnIDs: ColumnID[]): JSX.Element => {
+    if (columnIDs.length === 0) {
+        return (<p>Applied to 0 columns.</p>)
+    } 
+
+    const columnHeaders = columnIDs.map(columnID => sheetData.columnIDsMap[columnID]).filter(columnHeader => columnHeader !== undefined);
+    const [columnHeadersString, numOtherColumnHeaders] = getFirstCharactersOfColumnHeaders(columnHeaders, 15)
+    
+    if (numOtherColumnHeaders === 0) {
+        return (<p>Applied to <span className='text-color-gray-important'>{columnHeadersString}</span>.</p>)
+    } else {
+        return (<p>Applied to <span className='text-color-gray-important'>{columnHeadersString}</span> and <span className='text-color-gray-important'>{numOtherColumnHeaders}</span> others.</p>)
+    }
+}
+
+const getInvalidColumnHeadersMessage = (sheetData: SheetData, invalidColumnIDs: ColumnID[]): JSX.Element | null => {
+    if (invalidColumnIDs.length === 0) {
+        return null
+    } 
+
+    // Sort
+    const allColumnIDs = Object.keys(sheetData.columnIDsMap);
+    const sortedColumnIDs = invalidColumnIDs.sort((a, b) => {
+        return allColumnIDs.indexOf(a) - allColumnIDs.indexOf(b);
+    })
+    
+
+    const columnHeaders = sortedColumnIDs.map(columnID => sheetData.columnIDsMap[columnID]).filter(columnHeader => columnHeader !== undefined);
+    const [columnHeadersString, numOtherColumnHeaders] = getFirstCharactersOfColumnHeaders(columnHeaders, 25)
+    
+    if (numOtherColumnHeaders === 0) {
+        return (<p><span className='text-color-error-important'>{columnHeadersString}</span> are invalid.</p>)
+    } else {
+        return (<p><span className='text-color-error-important'>{columnHeadersString}</span> and <span className='text-color-error-important'>{numOtherColumnHeaders}</span> others are invalid.</p>)
+    }
+}
+
+
 const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Element => {
     const [open, setOpen] = useState(false);
     
@@ -33,7 +76,7 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
     }
 
     const XElement = (
-        <Col span={2}>
+        <Col>
             <XIcon 
                 onClick={(e) => {
                     e.stopPropagation();
@@ -42,25 +85,42 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
             ></XIcon>
         </Col>
     );
+    
+    // TODO: should we sort these
+    const invalidColumnIDs = (props.sheetData.conditionalFormattingResult?.invalid_conditional_formats[props.conditionalFormat.format_uuid] || []);
+    const invalidColumnIDMessage = getInvalidColumnHeadersMessage(props.sheetData, invalidColumnIDs);
 
-    const invalidColumnIDs = props.sheetData.conditionalFormattingResult?.invalid_conditional_formats[props.conditionalFormat.format_uuid] || [];
-    // TODO: do something with them!
+    const conditionText = capitalizeFirstLetter((ALL_SELECT_OPTIONS[props.conditionalFormat.filters[0]?.condition] || ''));
 
+    const color = props.conditionalFormat.color || ODD_ROW_TEXT_COLOR_DEFAULT;
+    const backgroundColor = props.conditionalFormat.backgroundColor || ODD_ROW_BACKGROUND_COLOR_DEFAULT;
+        
     if (!open) {
         return (
             <div className='conditional-format-card' onClick={() => setOpen(true)}> 
                 <Row justify='space-between' align='center'>
                     <Row suppressTopBottomMargin align='center' justify='start'>
-                        <Col span={2}>
-                            {invalidColumnIDs.length === 0 ? "II" : 'XX'}
+                        <Col offsetRight={1}>
+                            {invalidColumnIDs.length === 0 &&
+                                <ConditionalFormatIcon
+                                    color={color}
+                                    backgroundColor={backgroundColor}
+                                />
+                            }
+                            {invalidColumnIDs.length !== 0 &&
+                                <ConditionalFormatInvalidIcon
+                                    color={color}
+                                    backgroundColor={backgroundColor}
+                                />
+                            }
                         </Col>
                         <Col>
                             <div className='flex flex-column'>
                                 <p className='text-body-1'>
-                                    Filter
+                                    {conditionText} {props.conditionalFormat.filters[0]?.value}
                                 </p>
                                 <p className='text-body-2'>
-                                    Columns
+                                    {getColumnHeadersIncludedMessage(props.sheetData, props.conditionalFormat.columnIDs)}
                                 </p>
                             </div>
                         </Col>
@@ -109,11 +169,12 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
                 >
                     {Object.entries(props.sheetData?.columnDtypeMap || {}).map(([columnID, columnDtype], index) => {
                         const columnHeader = props.sheetData.columnIDsMap[columnID];
-                        const toggled = props.conditionalFormat.columnIDs.includes(columnID); // TODO: make it true if merge key with OR
+                        const toggled = props.conditionalFormat.columnIDs.includes(columnID);
+                        const isInvalid = invalidColumnIDs.includes(columnID); // If it's invalid, we merge
                         return (
                             <MultiToggleItem
                                 key={index}
-                                title={getDisplayColumnHeader(columnHeader)}
+                                title={getDisplayColumnHeader(columnHeader) + (isInvalid ? "(invalid)" : '')}
                                 rightText={getDtypeValue(columnDtype)}
                                 toggled={toggled}
                                 index={index}
@@ -129,11 +190,7 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
                         ) 
                     })}
                 </MultiToggleBox>
-                {invalidColumnIDs.length !== 0 &&
-                    <div>
-                        Invalid columns: {invalidColumnIDs.join(" ")}
-                    </div>
-                }
+                {invalidColumnIDMessage}
                 <Filter
                     filter={props.conditionalFormat.filters[0]}
                     columnDtype={undefined}
@@ -145,17 +202,9 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
                         props.updateDataframeFormatParams({...props.df_format, conditional_formats: newConditionalFormats});
                     }}
                 />
-
-                <Row justify='start'>
-                    <Col>
-                        <p className='text-header-4'>
-                            Set Formatting
-                        </p>
-                    </Col>
-                </Row>
                 <LabelAndColor 
                     label="Text Color"
-                    color={props.conditionalFormat.color || ODD_ROW_TEXT_COLOR_DEFAULT}
+                    color={color}
                     onChange={(newColor) => {
                         const newConditionalFormats = [...props.df_format.conditional_formats];
                         newConditionalFormats[props.index].color = newColor;
@@ -164,7 +213,7 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
                 />
                 <LabelAndColor 
                     label="Background Color"
-                    color={props.conditionalFormat.backgroundColor || ODD_ROW_BACKGROUND_COLOR_DEFAULT}
+                    color={backgroundColor}
                     onChange={(newColor) => {
                         const newConditionalFormats = [...props.df_format.conditional_formats];
                         newConditionalFormats[props.index].backgroundColor = newColor;

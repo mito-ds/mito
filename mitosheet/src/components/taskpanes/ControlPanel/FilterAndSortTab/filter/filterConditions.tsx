@@ -40,6 +40,14 @@ export const SHARED_SELECT_OPTIONS: Record<string, string> = {
     ['not_empty']: 'is not empty'
 } 
 
+export const ALL_SELECT_OPTIONS: Record<string, string | undefined> = {
+    ...BOOLEAN_SELECT_OPTIONS,
+    ...NUMBER_SELECT_OPTIONS,
+    ...STRING_SELECT_OPTIONS,
+    ...DATETIME_SELECT_OPTIONS,
+    ...SHARED_SELECT_OPTIONS
+}
+
 export const CONDITIONS_WITH_NO_INPUT = [
     'boolean_is_true',
     'boolean_is_false',

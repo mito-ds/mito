@@ -117,16 +117,20 @@ def get_conditonal_formatting_result(
             # Use the get_applied_filter function from our filtering infrastructure
             from mitosheet.step_performers.filter import get_full_applied_filter
             try:
+                print("filters", filters)
                 full_applied_filter, _ = get_full_applied_filter(df, column_header, 'And', filters)
                 #applied_indexes = df.index[full_applied_filter] # TODO: get the actual indexes vertially! So this works with non-number columns
                 applied_indexes = full_applied_filter[full_applied_filter].index.tolist()
 
                 for index in applied_indexes:
                     formatted_result[column_id][index] = {'backgroundColor': backgroundColor, 'color': color}
-            except:
+            except Exception as e:
+                print(e)
                 if format_uuid not in invalid_conditional_formats:
                     invalid_conditional_formats[format_uuid] = []
                 invalid_conditional_formats[format_uuid].append(column_id)
+
+    print("Invalid", invalid_conditional_formats)
 
     return {
         'invalid_conditional_formats': invalid_conditional_formats,

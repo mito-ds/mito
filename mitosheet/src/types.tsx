@@ -165,11 +165,11 @@ export type ColumnFormatType = |
 
 export type ConditionalFormat = {
     format_uuid: string, // Should be a random string!
-	columnIDs: ColumnID[],
-	filters: FilterType[],
-	invalidFilterColumnIDs: ColumnID[]
-	color: string | undefined
-	backgroundColor: string | undefined
+    columnIDs: ColumnID[],
+    filters: FilterType[],
+    invalidFilterColumnIDs: ColumnID[]
+    color: string | undefined
+    backgroundColor: string | undefined
 }
 
 export type DataframeFormat = {
