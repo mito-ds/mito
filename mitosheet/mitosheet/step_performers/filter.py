@@ -221,7 +221,7 @@ def get_full_applied_filter(
     column_header: ColumnHeader,
     operator: str,
     filters: List[Dict[str, Any]],
-) -> Tuple[pd.Index, float]:
+) -> Tuple[pd.Series, float]:
     applied_filters = []
     pandas_start_time = perf_counter()
 
@@ -247,13 +247,13 @@ def get_full_applied_filter(
 
     
     if len(applied_filters) > 0:
-        index = combine_filters(operator, applied_filters)
+        full_applied_filter = combine_filters(operator, applied_filters)
     else:
-        index = df.index
+        full_applied_filter = pd.Series(True, index=df.index)
     
     pandas_processing_time = perf_counter() - pandas_start_time
 
-    return (index, pandas_processing_time)
+    return (full_applied_filter, pandas_processing_time)
 
 
 
@@ -269,4 +269,5 @@ def _execute_filter(
     """
 
     full_applied_filter, pandas_processing_time = get_full_applied_filter(df, column_header, operator, filters)
+    print("FULL FILTER", full_applied_filter)
     return df[full_applied_filter], pandas_processing_time
