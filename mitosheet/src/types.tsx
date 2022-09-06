@@ -167,7 +167,6 @@ export type ConditionalFormat = {
     format_uuid: string, // Should be a random string!
     columnIDs: ColumnID[],
     filters: FilterType[],
-    invalidFilterColumnIDs: ColumnID[]
     color: string | undefined
     backgroundColor: string | undefined
 }

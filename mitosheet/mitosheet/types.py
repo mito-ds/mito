@@ -40,6 +40,18 @@ ColumnFormat = Dict[str, Any]
 
 ConditionalFormatUUID = str
 
+"""
+{
+    format_uuid: string, // Should be a random string!
+    columnIDs: ColumnID[],
+    filters: FilterType[],
+    invalidFilterColumnIDs: ColumnID[]
+    color: string | undefined
+    backgroundColor: string | undefined
+}
+"""
+ConditionalFormat = Dict[str, Any] 
+
 ConditionalFormattingInvalidResults = Dict[ConditionalFormatUUID, List[ColumnID]]
 ConditionalFormattingCellResults = Dict[ColumnID, Dict[int, Dict[str, Optional[str]]]]
 

@@ -48,7 +48,6 @@ const getDefaultEmptyConditionalFormat = (): ConditionalFormat => {
         format_uuid: getRandomId(),
         columnIDs: [],
         filters: [{condition: 'not_empty', value: ''}], // Always default to one filter for now
-        invalidFilterColumnIDs: [],
         color: undefined,
         backgroundColor: undefined
     }
