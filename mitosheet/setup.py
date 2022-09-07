@@ -208,7 +208,7 @@ elif name == 'mitosheet' or name == 'mitosheet3' or name == 'mitosheet-private':
         cmdclass                 = cmdclass,
         packages                 = setuptools.find_packages(exclude=['deployment']),
         install_requires=[        
-            "jupyterlab~=3.0",
+            "jupyterlab>=3.0",
             'ipywidgets>=7.0',
             # In JLab 3, we move to needing to install the jupyterlab-widgets package, which
             # is equivlaent to the @jupyter-widgets/jupyterlab-manager extension for jlab 2
