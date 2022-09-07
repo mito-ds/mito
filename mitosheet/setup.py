@@ -249,10 +249,10 @@ elif name == 'mitosheet' or name == 'mitosheet3' or name == 'mitosheet-private':
             "License :: OSI Approved :: GNU Affero General Public License v3",
             "Programming Language :: Python",
             "Programming Language :: Python :: 3",
-            "Programming Language :: Python :: 3.6",
             "Programming Language :: Python :: 3.7",
             "Programming Language :: Python :: 3.8",
             "Programming Language :: Python :: 3.9",
+            "Programming Language :: Python :: 3.10",
             "Framework :: Jupyter",
         ],
     )
