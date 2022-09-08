@@ -15,6 +15,18 @@ export const EVEN_ROW_TEXT_COLOR_DEFAULT = '#494650'; // This is var(--mito-gray
 export const ODD_ROW_TEXT_COLOR_DEFAULT = '#494650'; // This is var(--mito-gray), update if we change variable
 
 
+// Code from: https://stackoverflow.com/questions/21646738/convert-hex-to-rgba
+function hexToRGB(hex: string, alpha: number | undefined) {
+    var r = parseInt(hex.slice(1, 3), 16),
+        g = parseInt(hex.slice(3, 5), 16),
+        b = parseInt(hex.slice(5, 7), 16);
+
+    if (alpha) {
+        return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
+    } else {
+        return "rgb(" + r + ", " + g + ", " + b + ")";
+    }
+}
 
 const GridData = (props: {
     sheetData: SheetData | undefined,
@@ -58,9 +70,9 @@ const GridData = (props: {
 
                             const conditionalFormatMap = sheetData?.conditionalFormattingResult.results[columnID];
                             const conditionalFormat = conditionalFormatMap ? {...conditionalFormatMap[rowIndex]} : undefined;
-                            // if the cell is selected, we take the selection background color
-                            if (cellIsSelected && conditionalFormat !== undefined) {
-                                conditionalFormat.backgroundColor = undefined;
+
+                            if (cellIsSelected && conditionalFormat?.backgroundColor !== undefined){
+                                conditionalFormat.backgroundColor = hexToRGB(conditionalFormat.backgroundColor, .4)
                             }
 
                             if (cellData === undefined || columnDtype == undefined) {
@@ -69,6 +81,7 @@ const GridData = (props: {
 
                             const className = classNames('mito-grid-cell', 'text-unselectable', {
                                 'mito-grid-cell-selected': cellIsSelected,
+                                'mito-grid-cell-conditional-format-background-color': conditionalFormat?.backgroundColor !== undefined,
                                 'mito-grid-cell-hidden': props.editorState !== undefined && props.editorState.rowIndex === rowIndex && props.editorState.columnIndex === columnIndex,
                                 'right-align-number-series': isNumberDtype(columnDtype)
                             });
