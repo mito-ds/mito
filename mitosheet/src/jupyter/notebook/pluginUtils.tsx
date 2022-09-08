@@ -253,3 +253,13 @@ export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines
     }
 }
 
+
+export const writeEmptyMitosheetCell = () => {
+    const activeCell = (window as any).Jupyter?.notebook?.get_cell((window as any).Jupyter?.notebook?.get_anchor_index());
+    if (isEmptyCell(activeCell)) {
+        console.log("IS empty, writing", activeCell)
+        writeToCell(activeCell, 'import mitosheet\nmitosheet.sheet()');
+        (window as any).Jupyter?.notebook?.execute_cell();
+    }
+
+}
