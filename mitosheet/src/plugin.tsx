@@ -15,8 +15,38 @@ import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisTo
 import { MODULE_NAME, MODULE_VERSION } from './version';
 import * as widgetExports from './jupyter/widget';
 
+import {
+    ToolbarButton,
+} from '@jupyterlab/apputils';
+
 
 const EXTENSION_ID = 'mitosheet:plugin';
+
+const addButton = (tracker: INotebookTracker) => {
+
+    console.log("Adding button to ", tracker)
+
+    const button = new ToolbarButton({
+        className: 'test',
+        iconClass: 'test',
+        onClick: (): void => {
+            window.commands?.execute('create-empty-mitosheet');
+        },
+        tooltip: 'New Mito button',
+        label: 'Mito',
+    });
+
+    const panel = tracker.currentWidget;
+
+    if (panel) {
+        console.log("Adding button!")
+        const added = panel.toolbar.addItem('Test', button);
+        console.log("Added", added)
+    } else {
+        console.log("No panel")
+    }
+
+}
 
 /**
  * The example plugin.
@@ -43,6 +73,12 @@ function activateWidgetExtension(
     registry: IJupyterWidgetRegistry,
     tracker: INotebookTracker
 ): void {
+    console.log("Running activate!");
+
+    setTimeout(() => {
+        addButton(tracker);
+    }, 10000)
+
 
     app.commands.addCommand('write-analysis-to-replay-to-mitosheet-call', {
         label: 'Given an analysisName, writes it to the mitosheet.sheet() call that created this mitosheet, if it is not already written to this cell.',
@@ -263,6 +299,29 @@ function activateWidgetExtension(
         }
     });
 
+    app.commands.addCommand('create-empty-mitosheet', {
+        label: 'Creates a new empty mitosheet',
+        execute: async (): Promise<void> => {
+
+            // We get the current notebook (currentWidget)
+            const notebook = tracker.currentWidget?.content;
+            const context = tracker.currentWidget?.context;
+            if (!notebook || !context) return;
+
+            // Clear the output of the active cell
+            NotebookActions.clearOutputs(notebook)
+
+            // Create a new code cell that creates a blank mitosheet
+            NotebookActions.insertBelow(notebook);
+            const newActiveCell = notebook.activeCell;
+
+            writeToCell(newActiveCell?.model, `import mitosheet\nmitosheet.sheet()`);
+
+            // Execute the new code cell
+            void NotebookActions.run(notebook, context.sessionContext);
+        }
+    });
+
 
     /**
      * Keyboard shortcuts defined below.
@@ -359,8 +418,6 @@ function activateWidgetExtension(
             // Do nothing, doh
         }
     });
-
-    
 
     window.commands = app.commands; // So we can write to it elsewhere
     registry.registerWidget({
