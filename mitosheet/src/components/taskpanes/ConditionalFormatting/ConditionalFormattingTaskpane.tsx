@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import MitoAPI, { getRandomId } from "../../../jupyter/api";
 import { AnalysisData, ConditionalFormat, DataframeFormat, RecursivePartial, SheetData, StepType, UIState, UserProfile } from "../../../types"
 import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
@@ -100,6 +100,8 @@ const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps
         }
     )
 
+    const [openFormattingCardIdx, setOpenFormattingCardIdx] = useState(-1)
+
     if (params === undefined) {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
     }
@@ -152,6 +154,8 @@ const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps
                             conditionalFormat={conditionalFormat}
                             updateDataframeFormatParams={updateDataframeFormatParams}
                             sheetData={sheetData}
+                            openFormattingCardIdx={openFormattingCardIdx}
+                            setOpenFormattingCardIdx={setOpenFormattingCardIdx}
                         />
                     )
                 })}

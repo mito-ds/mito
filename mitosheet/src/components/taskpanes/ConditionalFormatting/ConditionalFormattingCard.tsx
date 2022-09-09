@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ColumnID, ConditionalFormat, DataframeFormat, RecursivePartial, SheetData } from '../../../types';
 import '../../../../css/taskpanes/ConditionalFormatting/ConditionalFormattingCard.css'
 import Row from '../../layout/Row';
@@ -16,6 +16,8 @@ import { ALL_SELECT_OPTIONS } from '../ControlPanel/FilterAndSortTab/filter/filt
 import { capitalizeFirstLetter } from '../../../utils/strings';
 import ConditionalFormatIcon from '../../icons/ConditionalFormatIcon';
 import ConditionalFormatInvalidIcon from '../../icons/ConditionalFormatInvalidIcon';
+import UpArrowIcon from '../../icons/UpArrowIcon';
+import DownArrowIcon from '../../icons/DownArrowIcon';
 
 
 
@@ -25,6 +27,8 @@ interface ConditionalFormattingProps {
     updateDataframeFormatParams: (df_format: RecursivePartial<DataframeFormat>) => void;
     index: number,
     sheetData: SheetData;
+    openFormattingCardIdx: number
+    setOpenFormattingCardIdx: React.Dispatch<React.SetStateAction<number>>
 }
 
 
@@ -67,7 +71,6 @@ const getInvalidColumnHeadersMessage = (sheetData: SheetData, invalidColumnIDs: 
 
 
 const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Element => {
-    const [open, setOpen] = useState(false);
     
     const onDelete = () => {
         const newConditionalFormats = [...props.df_format.conditional_formats];
@@ -76,7 +79,7 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
     }
 
     const XElement = (
-        <Col>
+        <Col title='Delete conditional formatting rule'>
             <XIcon 
                 onClick={(e) => {
                     e.stopPropagation();
@@ -95,9 +98,9 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
     const color = props.conditionalFormat.color || ODD_ROW_TEXT_COLOR_DEFAULT;
     const backgroundColor = props.conditionalFormat.backgroundColor || ODD_ROW_BACKGROUND_COLOR_DEFAULT;
         
-    if (!open) {
+    if (props.openFormattingCardIdx !== props.index) {
         return (
-            <div className='conditional-format-card' onClick={() => setOpen(true)}> 
+            <div className='conditional-format-card' onClick={() => props.setOpenFormattingCardIdx(props.index)}> 
                 <Row justify='space-between' align='center'>
                     <Row suppressTopBottomMargin align='center' justify='start'>
                         <Col offsetRight={1}>
@@ -125,21 +128,30 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
                             </div>
                         </Col>
                     </Row>
-                    {XElement}
+                    <Row align='top' justify='end'>
+                        <div className='mr-5px' title='Configure conditional formatting rule'>
+                            <UpArrowIcon/>
+                        </div>
+                        {XElement}
+                    </Row>
                 </Row>
-            
             </div>
         )
     } else {
         return (
             <div className='conditional-format-card'> 
-                <Row justify='space-between' onClick={() => setOpen(false)}>
-                    <Col>
+                <Row justify='space-between' onClick={() => props.setOpenFormattingCardIdx(-1)}>
+                    <Col span={12}>
                         <p className='text-header-3'>
                             Columns to format
                         </p>
                     </Col>
-                    {XElement}
+                    <Row justify='end'>
+                        <div className='mr-5px' title='Close conditional formatting configuration'>
+                            <DownArrowIcon/>
+                        </div>
+                        {XElement}
+                    </Row>
                 </Row>
                 <MultiToggleBox
                     searchable
