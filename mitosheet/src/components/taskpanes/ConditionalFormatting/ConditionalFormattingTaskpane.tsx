@@ -142,6 +142,14 @@ const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps
                                 sheet_index: newSheetIndex
                             }
                         });
+
+                        // Then, we update the selected sheet index
+                        props.setUIState(prevState => {
+                            return {
+                                ...prevState,
+                                selectedSheetIndex: newSheetIndex
+                            }
+                        })
                     }}
                 />
                 <p className="text-header-3">Conditional Formats</p>

@@ -176,3 +176,23 @@ export const getDataframeIsSelected = (uiState: UIState, sheetDataArray: SheetDa
     return uiState.selectedTabType === 'data' && sheetDataArray.length !== 0;
 }
 
+/* 
+    Given a hex color value, returs the same color in rgb format with an optional opacity applied. 
+    Code from: https://stackoverflow.com/questions/21646738/convert-hex-to-rgba
+*/ 
+export const hexToRGB = (hex: string | null, alpha: number | undefined): string | undefined => {
+    if (hex === null) {
+        return undefined
+    }
+    
+    const r = parseInt(hex.slice(1, 3), 16)
+    const g = parseInt(hex.slice(3, 5), 16)
+    const b = parseInt(hex.slice(5, 7), 16)
+
+    if (alpha) {
+        return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
+    } else {
+        return "rgb(" + r + ", " + g + ", " + b + ")";
+    }
+}
+

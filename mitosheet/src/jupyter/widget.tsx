@@ -182,7 +182,7 @@ export class ExampleView extends DOMWidgetView {
 
     getSheetDataArray(): SheetData[] {
         const unparsed = this.model.get('sheet_data_json')
-        return JSON.parse(unparsed);
+        return JSON.parse(unparsed)
     }
 
     getUserProfile(): UserProfile {
