@@ -93,7 +93,7 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
     const invalidColumnIDs = (props.sheetData.conditionalFormattingResult?.invalid_conditional_formats[props.conditionalFormat.format_uuid] || []);
     const invalidColumnIDMessage = getInvalidColumnHeadersMessage(props.sheetData, invalidColumnIDs);
 
-    const conditionText = capitalizeFirstLetter((ALL_SELECT_OPTIONS[props.conditionalFormat.filters[0]?.condition] || ''));
+    const conditionText = capitalizeFirstLetter((ALL_SELECT_OPTIONS[props.conditionalFormat.filters[0]?.condition]['long_name'] || ''));
 
     const color = props.conditionalFormat.color || ODD_ROW_TEXT_COLOR_DEFAULT;
     const backgroundColor = props.conditionalFormat.backgroundColor || ODD_ROW_BACKGROUND_COLOR_DEFAULT;
@@ -213,6 +213,7 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
                         newConditionalFormats[props.index].filters = [newFilter];
                         props.updateDataframeFormatParams({...props.df_format, conditional_formats: newConditionalFormats});
                     }}
+                    nameLength='long_name'
                 />
                 <LabelAndColor 
                     label="Text Color"

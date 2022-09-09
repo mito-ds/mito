@@ -35,6 +35,7 @@ export default function FilterGroup(
                         deleteFilter={() => {props.deleteFilter(index)}}
                         inGroup
                         columnDtype={props.columnDtype}
+                        nameLength='short_name'
                     />
                 )
             })}

@@ -209,7 +209,7 @@ export const isValueNone = (value: string | number | boolean): boolean => {
 
 
 
-const addToFilterOptions = (prevFilterOptions: JSX.Element[], newOptions: Record<string, string>): JSX.Element[] => {
+const addToFilterOptions = (prevFilterOptions: JSX.Element[], newOptions: Record<string, Record<string, string>>, name: `long_name` | 'short_name'): JSX.Element[] => {
     const newFilterOptions = [...prevFilterOptions];
 
     Object.entries(newOptions).forEach(([filterCondition, displayFilterCondition]) => {
@@ -217,7 +217,7 @@ const addToFilterOptions = (prevFilterOptions: JSX.Element[], newOptions: Record
             <DropdownItem
                 key={filterCondition}
                 id={filterCondition}
-                title={displayFilterCondition}
+                title={displayFilterCondition[name]}
             />
         )
     });
@@ -225,31 +225,31 @@ const addToFilterOptions = (prevFilterOptions: JSX.Element[], newOptions: Record
     return newFilterOptions;
 }
 
-export const getFilterOptions = (columnDtype: string | undefined): JSX.Element[] => {
+export const getFilterOptions = (columnDtype: string | undefined, nameLength: 'long_name' | 'short_name'): JSX.Element[] => {
     let filterOptions: JSX.Element[] = [];
 
     if (!columnDtype || isNumberDtype(columnDtype)) {
-        filterOptions = addToFilterOptions(filterOptions, NUMBER_SELECT_OPTIONS);
+        filterOptions = addToFilterOptions(filterOptions, NUMBER_SELECT_OPTIONS, nameLength);
         filterOptions.push(<DropdownSectionSeperator isDropdownSectionSeperator/>)
     }
     
     if (!columnDtype || isBoolDtype(columnDtype)) {
-        filterOptions = addToFilterOptions(filterOptions, BOOLEAN_SELECT_OPTIONS);
+        filterOptions = addToFilterOptions(filterOptions, BOOLEAN_SELECT_OPTIONS, nameLength);
         filterOptions.push(<DropdownSectionSeperator isDropdownSectionSeperator/>)
     } 
     
     if (!columnDtype || isDatetimeDtype(columnDtype)) {
-        filterOptions = addToFilterOptions(filterOptions, DATETIME_SELECT_OPTIONS);
+        filterOptions = addToFilterOptions(filterOptions, DATETIME_SELECT_OPTIONS, nameLength);
         filterOptions.push(<DropdownSectionSeperator isDropdownSectionSeperator/>)
     }
     
     if (!columnDtype || isStringDtype(columnDtype)) {
-        filterOptions = addToFilterOptions(filterOptions, STRING_SELECT_OPTIONS);
+        filterOptions = addToFilterOptions(filterOptions, STRING_SELECT_OPTIONS, nameLength);
         filterOptions.push(<DropdownSectionSeperator isDropdownSectionSeperator/>)
     }
 
 
-    filterOptions = addToFilterOptions(filterOptions, SHARED_SELECT_OPTIONS);
+    filterOptions = addToFilterOptions(filterOptions, SHARED_SELECT_OPTIONS, nameLength);
 
     return filterOptions;
 }

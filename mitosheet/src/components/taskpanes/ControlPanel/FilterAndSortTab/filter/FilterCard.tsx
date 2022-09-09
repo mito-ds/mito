@@ -239,6 +239,7 @@ function FilterCard (props: FilterCardProps): JSX.Element {
                             setOperator={index === 0 ? undefined : props.setOperator}
                             deleteFilter={() => {deleteFilter(index)}}
                             columnDtype={props.columnDtype}
+                            nameLength='short_name'
                         />
                     );
                 }

@@ -13,6 +13,8 @@ import { updateObjectWithPartialObject } from "../../../utils/objects";
 import TextButton from "../../elements/TextButton";
 import { getDefaultDataframeFormat } from "../SetDataframeFormat/SetDataframeFormatTaskpane";
 import { NUMBER_SELECT_OPTIONS } from "../ControlPanel/FilterAndSortTab/filter/filterConditions";
+import Row from "../../layout/Row";
+import Col from "../../layout/Col";
 
 
 interface ConditionalFormattingTaskpaneProps {
@@ -152,7 +154,16 @@ const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps
                         })
                     }}
                 />
-                <p className="text-header-3">Conditional Formats</p>
+                <Row>
+                    <Col>
+                        <p className="text-header-3">
+                            Conditional Formats
+                        </p>
+                        <p className='text-subtext mb-10px'>
+                            Rules applied in order
+                        </p>
+                    </Col>
+                </Row>
                 {conditionalFormats.map((conditionalFormat, index) => {
                     return (
                         <ConditionalFormattingCard

@@ -22,13 +22,14 @@ export function Filter(
         deleteFilter?: () => void;
         inGroup?: boolean;
         columnDtype: string | undefined; // Undefined displays all filter options!
+        nameLength: 'long_name' | 'short_name'
     }): JSX.Element {
 
     // We hide the input if it is not necessary
     const inputStyle: CSSProperties = CONDITIONS_WITH_NO_INPUT.includes(props.filter.condition) ? {'visibility': 'hidden'} : {'visibility': 'visible'};
 
 
-    const filterConditionOptions = getFilterOptions(props.columnDtype);
+    const filterConditionOptions = getFilterOptions(props.columnDtype, props.nameLength);
     const setOperator = props.setOperator;
 
     return (
