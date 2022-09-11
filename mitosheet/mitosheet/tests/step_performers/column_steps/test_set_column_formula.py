@@ -273,7 +273,7 @@ def test_set_column_formula_then_delete_dataframe_optimizes():
     mito.delete_columns(0, ['B', 'C'])
     mito.delete_dataframe(0)
 
-    assert mito.transpiled_code == ['del df1']
+    assert mito.transpiled_code == []
 
 def test_set_column_formula_then_delete_diff_dataframe_not_optimizes():
     mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))

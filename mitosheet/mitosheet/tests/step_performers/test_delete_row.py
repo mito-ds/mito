@@ -112,4 +112,4 @@ def test_optimizes_delete_dataframe():
     mito.delete_dataframe(0)
 
     assert len(mito.dfs) == 0
-    assert mito.transpiled_code == ['del df1']
+    assert mito.transpiled_code == []

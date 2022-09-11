@@ -471,11 +471,10 @@ class MitoWidgetTestWrapper:
     @check_transpiled_code_after_call
     def dataframe_import(
             self, 
-            df_name: str,
+            df_names: List[str],
         ) -> bool:
 
         
-
         return self.mito_widget.receive_message(
             self.mito_widget,
             {
@@ -484,8 +483,7 @@ class MitoWidgetTestWrapper:
                 'type': 'dataframe_import_edit',
                 'step_id': get_new_id(),
                 'params': {
-                    'df_name': df_name,
-                    
+                    'df_names': df_names,
                 }
             }
         )

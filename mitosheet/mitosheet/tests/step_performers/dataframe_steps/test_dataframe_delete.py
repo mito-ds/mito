@@ -24,9 +24,7 @@ def test_can_delete_single_dataframe():
         if isinstance(value, list):
             assert len(value) == 0
 
-    assert mito.transpiled_code == [
-        'del df1'
-    ]
+    assert mito.transpiled_code == []
 
 
 def test_can_delete_then_add_to_other_sheet():
@@ -39,7 +37,6 @@ def test_can_delete_then_add_to_other_sheet():
     assert len(mito.dfs) == 1
 
     assert mito.transpiled_code == [
-        'del df1',
         'df2.insert(1, \'B\', 0)'
     ]
 
@@ -64,9 +61,7 @@ def test_can_delete_middle_of_multiple_dfs():
             assert len(value.column_header_to_column_id) == 2
             assert len(value.column_id_to_column_header) == 2
 
-    assert mito.transpiled_code == [
-        'del df2'
-    ]
+    assert mito.transpiled_code == []
 
 
 def test_can_delete_mulitple_dataframe():
@@ -82,10 +77,7 @@ def test_can_delete_mulitple_dataframe():
         if isinstance(value, list):
             assert len(value) == 0
 
-    assert mito.transpiled_code == [
-        'del df1',
-        'del df2',
-    ]
+    assert mito.transpiled_code == []
 
 def test_can_delete_mulitple_dataframe_more():
     df = pd.DataFrame({'A': [123]})
@@ -101,10 +93,7 @@ def test_can_delete_mulitple_dataframe_more():
         if isinstance(value, list):
             assert len(value) == 0
 
-    assert mito.transpiled_code == [
-        'del df1',
-        'del df3',
-    ]
+    assert mito.transpiled_code == []
 
     # We also check that it adjusted the sheet indexes internally correct
     assert mito.optimized_code_chunks[-1].get_param('sheet_indexes') == [0, 2]
@@ -117,12 +106,7 @@ def test_delete_multi_combines_correctly():
     mito.delete_dataframe(0)
     mito.delete_dataframe(4)
 
-    assert mito.transpiled_code == [
-        'del df1',
-        'del df3',
-        'del df2',
-        'del df8',
-    ]
+    assert mito.transpiled_code == []
 
     # We also check that it adjusted the sheet indexes internally correct
     assert mito.optimized_code_chunks[-1].get_param('sheet_indexes') == [0, 2, 1, 7]

@@ -92,8 +92,10 @@ SET_DATAFRAME_FORMAT_TESTS = [
         }]), 
         [
             "import numpy as np",
-            ".apply(lambda series: np.where(series > 2, 'color: red', None), subset=['A', 'B'])",
-            ".apply(lambda series: np.where(series > 2, 'background-color: blue', None), subset=['A', 'B'])"
+            ".apply(lambda series: np.where(series > 2, 'color: red', None), subset=",
+            ".apply(lambda series: np.where(series > 2, 'background-color: blue', None), subset=",
+            ['[\'A\', \'B\']', '[\'B\', \'A\']']
+
         ]
     ),
     # Multiple conditional formats, applied to invalid columns get filtered out
@@ -107,8 +109,9 @@ SET_DATAFRAME_FORMAT_TESTS = [
         }]), 
         [
             "import numpy as np",
-            ".apply(lambda series: np.where(series > 2, 'color: red', None), subset=['A', 'B'])",
-            ".apply(lambda series: np.where(series > 2, 'background-color: blue', None), subset=['A', 'B'])"
+            ".apply(lambda series: np.where(series > 2, 'color: red', None), subset=",
+            ".apply(lambda series: np.where(series > 2, 'background-color: blue', None), subset=",
+            ['[\'A\', \'B\']', '[\'B\', \'A\']']
         ]
     ),
     
@@ -126,9 +129,14 @@ def test_set_dataframe_format(df_format, included_formatting_code):
 
     # Check that the correct code is included
     for code in included_formatting_code:
-        assert code in mito.transpiled_code[-1]
-
-    # TODO: it would be nice to test the to_html, but this is tricky...
+        if isinstance(code, list):
+            one_found = False
+            for c in code:
+                if c in mito.transpiled_code[-1]:
+                    one_found = True
+            assert one_found
+        else:
+            assert code in mito.transpiled_code[-1]
 
 
 def test_format_with_undo():

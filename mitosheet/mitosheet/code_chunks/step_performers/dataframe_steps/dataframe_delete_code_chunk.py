@@ -21,8 +21,10 @@ class DataframeDeleteCodeChunk(CodeChunk):
         return f'Deleted {", ".join(df_names)}'
 
     def get_code(self) -> List[str]:
-        old_dataframe_names = self.get_param('old_dataframe_names')
-        return [f'del {old_dataframe_name}' for old_dataframe_name in old_dataframe_names]
+        # NOTE: We do not actually delete the dataframes, as it serves no purpose, but 
+        # makes things confusing if you're importing dataframes from outside the sheet
+        # However, we still use this code chunk as it optimizes out other code chunks
+        return []
 
     def _combine_right_dataframe_delete(self, other_code_chunk: "DataframeDeleteCodeChunk") -> CodeChunk:
         first_sheet_indexes = deepcopy(self.get_param('sheet_indexes'))

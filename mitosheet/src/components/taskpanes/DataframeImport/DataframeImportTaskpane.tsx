@@ -76,7 +76,7 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
 
                         return {
                             ...prevParams,
-                            sheet_indexes: newDfNames
+                            df_names: newDfNames
                         }
                     })
                 }}
@@ -89,7 +89,7 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
-                header="DataframeImport"
+                header="Import Dataframes"
                 setUIState={props.setUIState}           
             />
             <DefaultTaskpaneBody>
@@ -146,7 +146,7 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
                 {dataframeCards}
                 {dataframeCards.length === 0 &&
                     <Row>
-                        <p className="text-body-2">Add a dataframe to import it as a tab in the mitosheet.</p>
+                        <p className="text-subtext-1">Add a dataframe to import it as a tab in the mitosheet.</p>
                     </Row>
                 
                 }

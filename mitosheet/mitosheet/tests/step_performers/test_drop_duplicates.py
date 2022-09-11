@@ -63,7 +63,7 @@ def test_drop_duplicates_optimizes_after_delete():
     mito.drop_duplicates(0, [0], 'last')
     mito.delete_dataframe(0)
 
-    assert mito.transpiled_code == ['del df1']
+    assert mito.transpiled_code == []
 
 def test_drop_duplicates_not_optimizes_after_different_delete():
     df = pd.DataFrame({0: [1, 2, 1], 'B': [4, 5, 3]})

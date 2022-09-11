@@ -225,7 +225,7 @@ def test_optimize_out_renames_after_delete():
     mito.rename_column(0, 'new_two', 'new_two_prime')
     mito.delete_dataframe(0)
 
-    assert mito.transpiled_code == ['del df1']
+    assert mito.transpiled_code == []
 
 def test_not_optimize_out_renames_after_delete_different():
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123]}))

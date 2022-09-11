@@ -378,4 +378,4 @@ def test_fill_nan_then_delete_optimizes():
     )
     mito.delete_dataframe(0)
 
-    assert mito.transpiled_code == ['del df1']
+    assert mito.transpiled_code == []
