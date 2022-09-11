@@ -6,6 +6,7 @@
 from copy import copy
 from typing import Any, Dict, List, Optional, Set, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
 from mitosheet.code_chunks.step_performers.dataframe_steps.dataframe_delete_code_chunk import DataframeDeleteCodeChunk
 
 from mitosheet.state import State
@@ -61,15 +62,13 @@ class DataframeDeleteStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            DataframeDeleteCodeChunk(
+            EmptyCodeChunk(
                 prev_state, 
                 post_state, 
-                # Our dataframe delete code chunk can support mulitple dataframes being deleted
-                # at once, so we turn it into this format
                 {
-                    'sheet_indexes': [params['sheet_index']],
-                    'old_dataframe_names': [params['old_dataframe_name']],
-                }, 
+                    'display_name': 'Deleted Dataframes',
+                    'description_comment': 'Deleted dataframes from the mitosheet',
+                },
                 execution_data
             )
         ]

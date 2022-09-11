@@ -25,7 +25,7 @@ const DefaultEmptyTaskpane = (
         props.setUIState(prevUIState => {
             return {
                 ...prevUIState,
-                currOpenTaskpane: {type: TaskpaneType.IMPORT}
+                currOpenTaskpane: {type: TaskpaneType.IMPORT_FILES}
             }
         })
     }

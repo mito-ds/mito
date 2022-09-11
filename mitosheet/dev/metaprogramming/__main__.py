@@ -2,6 +2,7 @@
 import argparse
 import traceback
 
+from metaprogramming.create_new_api_call import create_new_api_call
 from metaprogramming.create_new_icon import create_new_icon
 from metaprogramming.create_new_step import create_new_step
 from metaprogramming.create_new_taskpane import create_new_taskpane
@@ -13,6 +14,9 @@ def execute_create_new_step(args: argparse.Namespace) -> None:
 
 def execute_create_new_icon(args: argparse.Namespace) -> None:
     create_new_icon(args.name)
+
+def execute_create_new_api_call(args: argparse.Namespace) -> None:
+    create_new_api_call(args.name)
 
 
 def execute_create_new_taskpane(args: argparse.Namespace) -> None:
@@ -41,6 +45,10 @@ def main() -> None:
     parser_create_new_icon.add_argument('--name', required=True, help='The name of the icon to create. E.g. UpArrow, DownArrow')
     parser_create_new_icon.set_defaults(func=execute_create_new_icon)
 
+    parser_create_new_api_call = subparsers.add_parser('api', help='Create a new api call.')
+    parser_create_new_api_call.add_argument('--name', required=True, help='The name of the api call to create. E.g. get_csv_files_metadata, get_value_counts')
+    parser_create_new_api_call.set_defaults(func=execute_create_new_api_call)
+
     parser_create_new_taskpane = subparsers.add_parser('taskpane', help='Create a new taskpane.')
     parser_create_new_taskpane.add_argument('--name', required=True, help='The name of the taskpane to create. E.g. Download, Import')
     parser_create_new_taskpane.add_argument('--editing', help='If the taskpane edits the sheet and therefor should close on sheet edits.', action='store_true')
@@ -49,6 +57,8 @@ def main() -> None:
     parser_create_new_taskpane.add_argument('--create-action', help='If the taskpane should remain open when undo/redo are pressed.', action='store_true')
     parser_create_new_taskpane.set_defaults(func=execute_create_new_taskpane)
     args = parser.parse_args()
+    
+    # TODO: add metaprogramming to add metaprogramming? lol
 
     try:
         args.func(args)
