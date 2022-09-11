@@ -5,10 +5,11 @@
 # Distributed under the terms of the GPL License.
 
 
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.sheet_functions.types.utils import is_datetime_dtype
+from mitosheet.state import State
 from mitosheet.step_performers.filter import (
     FC_BOOLEAN_IS_FALSE, FC_BOOLEAN_IS_TRUE, FC_DATETIME_EXACTLY,
     FC_DATETIME_GREATER, FC_DATETIME_GREATER_THAN_OR_EQUAL, FC_DATETIME_LESS,
@@ -20,7 +21,7 @@ from mitosheet.step_performers.filter import (
     FC_STRING_NOT_EXACTLY, FC_STRING_STARTS_WITH)
 from mitosheet.transpiler.transpile_utils import (
     column_header_to_transpiled_code, list_to_string_without_internal_quotes)
-from mitosheet.types import ColumnHeader
+from mitosheet.types import ColumnHeader, ColumnID
 
 # Dict used when a filter condition is only used by one filter
 FILTER_FORMAT_STRING_DICT = {
@@ -274,29 +275,20 @@ def create_filter_string_for_condition(
 
     return ""
 
+# TODO: explain this hack
+FAKE_COLUMN_HEADER = 'FAKE_COLUMN_HEADER'
 
-class FilterCodeChunk(CodeChunk):
+def get_entire_filter_string(state: State, sheet_index: int, operator: str, filters: List[Dict[str, Any]], column_id: Optional[ColumnID]=None) -> Optional[str]:
 
-    def get_display_name(self) -> str:
-        return 'Filtered'
-    
-    def get_description_comment(self) -> str:
-        sheet_index = self.get_param('sheet_index')
-        column_id = self.get_param('column_id')
-        column_header = self.post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-        return f'Filtered {column_header}'
-
-    def get_code(self) -> List[str]:
-        sheet_index = self.get_param('sheet_index')
-        column_id = self.get_param('column_id')
-        operator = self.get_param('operator')
-        filters = self.get_param('filters')
-
-        df_name = self.post_state.df_names[sheet_index]
-        column_header = self.post_state.column_ids.get_column_header_by_id(
-            sheet_index, column_id
-        )
-        column_dtype = str(self.post_state.dfs[sheet_index][column_header].dtype)
+        df_name = state.df_names[sheet_index]
+        if column_id:
+            column_header = state.column_ids.get_column_header_by_id(
+                sheet_index, column_id
+            )
+            column_dtype = str(state.dfs[sheet_index][column_header].dtype)
+        else:
+            column_header = FAKE_COLUMN_HEADER
+            column_dtype = 'string'
 
         filters_only = [
             filter_or_group
@@ -351,17 +343,45 @@ class FilterCodeChunk(CodeChunk):
             )
 
         if len(filter_strings) == 0:
-            return []
+            return None
         elif len(filter_strings) == 1:
-            return [
-                f"{df_name} = {df_name}[{filter_strings[0]}]",
-            ]
+            return filter_strings[0]
         else:
             filter_string = combine_filter_strings(
                 operator, filter_strings, split_lines=True
             )
+            return filter_string
+
+
+
+class FilterCodeChunk(CodeChunk):
+
+    def get_display_name(self) -> str:
+        return 'Filtered'
+    
+    def get_description_comment(self) -> str:
+        sheet_index = self.get_param('sheet_index')
+        column_id = self.get_param('column_id')
+        column_header = self.post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
+        return f'Filtered {column_header}'
+
+    def get_code(self) -> List[str]:
+        sheet_index: int = self.get_param('sheet_index')
+        column_id: ColumnID = self.get_param('column_id')
+        operator: str = self.get_param('operator')
+        filters: List[Dict[str, Any]] = self.get_param('filters')
+
+        df_name = self.post_state.df_names[sheet_index]
+
+        entire_filter_string = get_entire_filter_string(
+            self.post_state, sheet_index, operator, filters, column_id
+        )
+
+        if entire_filter_string is None:
+            return []
+        else:
             return [
-                f"{df_name} = {df_name}[{filter_string}]",
+                f"{df_name} = {df_name}[{entire_filter_string}]",
             ]
 
     def get_edited_sheet_indexes(self) -> List[int]:

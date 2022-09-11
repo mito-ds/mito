@@ -54,13 +54,21 @@ const GridData = (props: {
                             const columnDtype = props.sheetData?.data[columnIndex]?.columnDtype;
                             const columnFormatType = sheetData.dfFormat.columns[columnID]
                             const cellData = props.sheetData?.data[columnIndex]?.columnData[rowIndex];
+                            const cellIsSelected = getIsCellSelected(props.gridState.selections, rowIndex, columnIndex);
+
+                            const conditionalFormatMap = sheetData?.conditionalFormattingResult.results[columnID];
+                            const conditionalFormat = conditionalFormatMap ? {...conditionalFormatMap[rowIndex]} : undefined;
+                            // if the cell is selected, we take the selection background color
+                            if (cellIsSelected && conditionalFormat !== undefined) {
+                                conditionalFormat.backgroundColor = undefined;
+                            }
 
                             if (cellData === undefined || columnDtype == undefined) {
                                 return null;
                             }
 
                             const className = classNames('mito-grid-cell', 'text-unselectable', {
-                                'mito-grid-cell-selected': getIsCellSelected(props.gridState.selections, rowIndex, columnIndex),
+                                'mito-grid-cell-selected': cellIsSelected,
                                 'mito-grid-cell-hidden': props.editorState !== undefined && props.editorState.rowIndex === rowIndex && props.editorState.columnIndex === columnIndex,
                                 'right-align-number-series': isNumberDtype(columnDtype)
                             });
@@ -75,7 +83,8 @@ const GridData = (props: {
                                     className={className} key={columnIndex}
                                     style={{
                                         width: `${cellWidth}px`,
-                                        ...getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, rowIndex, columnIndex, sheetData.numRows)
+                                        ...getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, rowIndex, columnIndex, sheetData.numRows),
+                                        ...(conditionalFormat || {})
                                     }}
                                     tabIndex={-1}
                                     mito-col-index={columnIndex}

@@ -6,11 +6,12 @@
 # Distributed under the terms of the GPL License.
 from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.filter_code_chunk import FAKE_COLUMN_HEADER, get_entire_filter_string
 from mitosheet.sheet_functions.types.utils import is_int_dtype
 from mitosheet.state import NUMBER_FORMAT_ACCOUNTING, NUMBER_FORMAT_CURRENCY, NUMBER_FORMAT_PERCENTAGE, NUMBER_FORMAT_PLAIN_TEXT, NUMBER_FORMAT_SCIENTIFIC_NOTATION, State
 from mitosheet.transpiler.transpile_utils import TAB, column_header_list_to_transpiled_code, column_header_to_transpiled_code
 from mitosheet.types import ColumnFormat, ColumnHeader
-from mitosheet.utils import MAX_ROWS
+from mitosheet.utils import MAX_ROWS, get_conditonal_formatting_result
 from mitosheet.sheet_functions.types import is_float_dtype
 
 OPEN_BRACKET = "{"
@@ -173,6 +174,55 @@ def get_table_styles_code(state: State, sheet_index: int) -> Optional[str]:
         return f".set_table_styles([\n{table_styles_code}])"
     return None
 
+
+def get_conditional_format_code_list(state: State, sheet_index: int) -> Optional[List[str]]:
+    """Returns all the code to set the conditional formats"""
+    df_name = state.df_names[sheet_index]
+    df = state.dfs[sheet_index]
+    conditional_formats = state.df_formats[sheet_index]['conditional_formats']
+
+    # We get the conditional formatting results, and we filter out any columns that are 
+    # are invalid with the filters that are applied
+    conditional_formatting_result = get_conditonal_formatting_result(
+        state,
+        sheet_index,
+        df,
+        conditional_formats
+    )
+
+    all_code = []
+    for conditional_format in conditional_formats:
+        formatUUID = conditional_format['format_uuid']
+        filters = conditional_format['filters']
+        column_ids = conditional_format['columnIDs']
+        color = conditional_format.get('color', None)
+        background_color = conditional_format.get('backgroundColor', None)
+
+        final_column_ids = list(set(column_ids).difference(conditional_formatting_result['invalid_conditional_formats'].get(formatUUID, [])))
+
+        if len(final_column_ids) == 0:
+            continue
+
+        transpiled_column_headers = column_header_list_to_transpiled_code(final_column_ids)
+        
+
+        # TODO: talk about this hack!
+        entire_filter_string = get_entire_filter_string(state, sheet_index, 'And', filters)
+        if entire_filter_string is None:
+            continue
+
+        entire_filter_string = entire_filter_string.replace(f'{df_name}[{column_header_to_transpiled_code(FAKE_COLUMN_HEADER)}]', "series")
+
+        if color is not None:
+            all_code.append(f".apply(lambda series: np.where({entire_filter_string}, 'color: {color}', None), subset={transpiled_column_headers})")
+        if background_color is not None:
+            all_code.append(f".apply(lambda series: np.where({entire_filter_string}, 'background-color: {background_color}', None), subset={transpiled_column_headers})")
+
+    if len(all_code) > 0:
+        return all_code
+
+    return None
+
 def get_dataframe_format_code(state: State, sheet_index: int) -> Optional[str]:
     """Returns all the code to set the df_formatting on the dataframe from the state."""
     df_name = state.df_names[sheet_index]
@@ -184,17 +234,26 @@ def get_dataframe_format_code(state: State, sheet_index: int) -> Optional[str]:
         # If there are more than the max rows, we don't display all of them
         dataframe_format_string = f"{df_name}_styler = {df_name}.head({MAX_ROWS}).style"
 
-    all_column_format_code = get_all_columns_format_code(state, sheet_index)
-    table_styles_code = get_table_styles_code(state, sheet_index)
+    format_code = [
+        get_all_columns_format_code(state, sheet_index),
+        get_table_styles_code(state, sheet_index),
+    ]
+    conditional_format_code = get_conditional_format_code_list(state, sheet_index)
+    if conditional_format_code:
+        format_code += conditional_format_code
 
-    if all_column_format_code is None and table_styles_code is None:
+    # If all the format code is None, then we write nothing
+    if all(map(lambda x: x is None, format_code)):
         return None
     
-    if all_column_format_code is not None:
-        dataframe_format_string += f"\\\n{TAB}{all_column_format_code}"
-    if table_styles_code is not None:
-        dataframe_format_string += f"\\\n{TAB}{table_styles_code}"
+    for line in format_code:
+        if line is None:
+            continue
+        dataframe_format_string += f"\\\n{TAB}{line}"
 
+    if 'np.where' in dataframe_format_string:
+        dataframe_format_string = 'import numpy as np\n' + dataframe_format_string
+    
     return dataframe_format_string
 
 class SetDataframeFormatCodeChunk(CodeChunk):

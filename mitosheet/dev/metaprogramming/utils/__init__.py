@@ -1,0 +1,2 @@
+OPEN_BRACKET = '{'
+CLOSE_BRACKET = '}'

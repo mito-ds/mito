@@ -9,7 +9,7 @@ const XIcon = (
         variant?: IconVariant,
         width?: string, 
         height?: string,
-        onClick?: () => void
+        onClick?: (e: React.MouseEvent) => void
     }): JSX.Element => {
     const stroke = props.variant === 'light' ? 'var(--mito-white)' : 'var(--mito-legacy-gray)';
 

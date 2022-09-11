@@ -216,18 +216,12 @@ def combine_filters(operator: str, filters: pd.Series) -> pd.Series:
     # Combine all the filters into a single filter
     return functools.reduce(filter_reducer, filters)
 
-
-def _execute_filter(
+def get_full_applied_filter(
     df: pd.DataFrame,
     column_header: ColumnHeader,
     operator: str,
     filters: List[Dict[str, Any]],
-) -> Tuple[pd.DataFrame, float]:
-    """
-    Executes a filter on the given column, filtering by removing any rows who
-    don't meet the condition.
-    """
-
+) -> Tuple[pd.Series, float]:
     applied_filters = []
     pandas_start_time = perf_counter()
 
@@ -253,10 +247,27 @@ def _execute_filter(
 
     
     if len(applied_filters) > 0:
-        filtered_df = df[combine_filters(operator, applied_filters)]
+        full_applied_filter = combine_filters(operator, applied_filters)
     else:
-        filtered_df = df
-
+        full_applied_filter = pd.Series(True, index=df.index)
+    
     pandas_processing_time = perf_counter() - pandas_start_time
 
-    return filtered_df, pandas_processing_time
+    return (full_applied_filter, pandas_processing_time)
+
+
+
+def _execute_filter(
+    df: pd.DataFrame,
+    column_header: ColumnHeader,
+    operator: str,
+    filters: List[Dict[str, Any]],
+) -> Tuple[pd.DataFrame, float]:
+    """
+    Executes a filter on the given column, filtering by removing any rows who
+    don't meet the condition.
+    """
+
+    full_applied_filter, pandas_processing_time = get_full_applied_filter(df, column_header, operator, filters)
+    print("FULL FILTER", full_applied_filter)
+    return df[full_applied_filter], pandas_processing_time

@@ -12,7 +12,7 @@ import Col from '../../../../layout/Col';
 import '../../../../../../css/taskpanes/ControlPanel/FilterCard.css';
 import { FilterType, Operator, FilterGroupType, ColumnID } from '../../../../../types';
 import DropdownItem from '../../../../elements/DropdownItem';
-import { getEmptyFilterData, getFilterDisabledMessage } from './utils';
+import { getEmptyFilterData } from './utils';
 
 
 interface FilterCardProps {
@@ -171,109 +171,99 @@ function FilterCard (props: FilterCardProps): JSX.Element {
         })
     }
 
-    const disabledMessage = getFilterDisabledMessage(props.columnDtype);
-
     return (
         <div>
             <div className='text-header-3 mt-15px'>
                 <p> Filter </p>
             </div>
-            {disabledMessage !== undefined && 
-                <p className='text-subtext-1 mt-5px'>{disabledMessage}</p>
-            }
-            {disabledMessage === undefined &&
-                <>
-                    {props.filters.map((filterOrGroup, index) => {
-                        if (isFilterGroup(filterOrGroup)) {
-                            return (
-                                /* 
-                                    If the FilterGroup is the first Filter or FilterGroup
-                                    in the FilterCard, add a 'Where'
-                                */
-                                <Row justify='space-between' align='top'>
-                                    <Col span={4}>
-                                        {index === 0 &&
-                                            <p className='text-body-1'>
-                                                Where
-                                            </p>
-                                        }
-                                        {index !== 0 && 
-                                            <Select
-                                                value={props.operator}
-                                                onChange={(newOperator: string) => props.setOperator(newOperator as Operator)}
-                                                dropdownWidth='small'
-                                            >
-                                                <DropdownItem
-                                                    title='And'
-                                                />
-                                                <DropdownItem
-                                                    title='Or'
-                                                />
-                                            </Select>
-                                        }
-                                    </Col>
-                                    <Col span={19}>
-                                        <FilterGroup
-                                            key={index}
-                                            mainOperator={props.operator}
-                                            filters={filterOrGroup.filters}
-                                            groupOperator={filterOrGroup.operator}
-                                            setFilter={(filterIndex, newFilter) => {
-                                                setFilterInGroup(index, filterIndex, newFilter);
-                                            }}
-                                            setOperator={(newOperator) => {
-                                                setOperatorInGroup(index, newOperator);
-                                            }}
-                                            deleteFilter={(filterIndex: number) => {
-                                                deleteFilterFromGroup(index, filterIndex);
-                                            }}
-                                            addFilter={() => addFilterToGroup(index)}
-                                            columnDtype={props.columnDtype}
+            {props.filters.map((filterOrGroup, index) => {
+                if (isFilterGroup(filterOrGroup)) {
+                    return (
+                        /* 
+                            If the FilterGroup is the first Filter or FilterGroup
+                            in the FilterCard, add a 'Where'
+                        */
+                        <Row justify='space-between' align='top'>
+                            <Col span={4}>
+                                {index === 0 &&
+                                    <p className='text-body-1'>
+                                        Where
+                                    </p>
+                                }
+                                {index !== 0 && 
+                                    <Select
+                                        value={props.operator}
+                                        onChange={(newOperator: string) => props.setOperator(newOperator as Operator)}
+                                        dropdownWidth='small'
+                                    >
+                                        <DropdownItem
+                                            title='And'
                                         />
-                                    </Col>
-                                </Row>
-                            );
-                        } else {
-                            return (
-                                <Filter
-                                    first={index === 0}
+                                        <DropdownItem
+                                            title='Or'
+                                        />
+                                    </Select>
+                                }
+                            </Col>
+                            <Col span={19}>
+                                <FilterGroup
                                     key={index}
-                                    filter={filterOrGroup}
-                                    operator={props.operator}
-                                    displayOperator
-                                    setFilter={(newFilter) => {
-                                        setFilter(index, newFilter)
+                                    mainOperator={props.operator}
+                                    filters={filterOrGroup.filters}
+                                    groupOperator={filterOrGroup.operator}
+                                    setFilter={(filterIndex, newFilter) => {
+                                        setFilterInGroup(index, filterIndex, newFilter);
                                     }}
-                                    setOperator={props.setOperator}
-                                    deleteFilter={() => {deleteFilter(index)}}
+                                    setOperator={(newOperator) => {
+                                        setOperatorInGroup(index, newOperator);
+                                    }}
+                                    deleteFilter={(filterIndex: number) => {
+                                        deleteFilterFromGroup(index, filterIndex);
+                                    }}
+                                    addFilter={() => addFilterToGroup(index)}
                                     columnDtype={props.columnDtype}
                                 />
-                            );
-                        }
-                    })}
-                    <DropdownButton
-                        text={ADD_FILTER_SELECT_TITLE}
-                        width='medium'
-                        dropdownWidth='medium'
-                    >
-                        <DropdownItem
-                            title='Add a Filter'
-                            onClick={addFilter}
-                        />
-                        <DropdownItem
-                            title='Add a Group of Filters'
-                            onClick={addFilterGroup}
-                        />
-                    </DropdownButton>
-                    {props.editedFilter && 
-                        <Row className='text-subtext-1'>
-                            {props.rowDifference >= 0 ?
-                                `Removed an additional ${Math.abs(props.rowDifference)} rows` : 
-                                `Added back ${Math.abs(props.rowDifference)} rows`
-                            }
+                            </Col>
                         </Row>
+                    );
+                } else {
+                    return (
+                        <Filter
+                            key={index}
+                            filter={filterOrGroup}
+                            operator={props.operator}
+                            displayOperator
+                            setFilter={(newFilter) => {
+                                setFilter(index, newFilter)
+                            }}
+                            setOperator={index === 0 ? undefined : props.setOperator}
+                            deleteFilter={() => {deleteFilter(index)}}
+                            columnDtype={props.columnDtype}
+                        />
+                    );
+                }
+            })}
+            <DropdownButton
+                text={ADD_FILTER_SELECT_TITLE}
+                width='medium'
+                dropdownWidth='medium'
+            >
+                <DropdownItem
+                    title='Add a Filter'
+                    onClick={addFilter}
+                />
+                <DropdownItem
+                    title='Add a Group of Filters'
+                    onClick={addFilterGroup}
+                />
+            </DropdownButton>
+            {props.editedFilter && 
+                <Row className='text-subtext-1'>
+                    {props.rowDifference >= 0 ?
+                        `Removed an additional ${Math.abs(props.rowDifference)} rows` : 
+                        `Added back ${Math.abs(props.rowDifference)} rows`
                     }
-                </>
+                </Row>
             }
         </div>
     )

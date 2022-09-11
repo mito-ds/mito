@@ -7,16 +7,17 @@
 Contains tests for Set Dataframe Format
 """
 
-from typing import Any, Dict
+from typing import Any, Dict, List
 import pandas as pd
 import pytest
 from mitosheet.state import NUMBER_FORMAT_PLAIN_TEXT, NUMBER_FORMAT_CURRENCY, get_default_dataframe_format
+from mitosheet.step_performers.filter import FC_NUMBER_GREATER
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
-from mitosheet.types import DataframeFormat
+from mitosheet.types import ConditionalFormat, DataframeFormat
 
 
 
-def get_dataframe_format(columns: Dict[str, Any]=None, headers: Dict[str, Any]=None, rowsEven: Dict[str, Any]=None, rowsOdd: Dict[str, Any]=None, border: Dict[str, Any]=None) -> DataframeFormat:
+def get_dataframe_format(columns: Dict[str, Any]=None, headers: Dict[str, Any]=None, rowsEven: Dict[str, Any]=None, rowsOdd: Dict[str, Any]=None, border: Dict[str, Any]=None, conditional_formats: List[ConditionalFormat]=None) -> DataframeFormat:
     df_format = get_default_dataframe_format()
 
     if columns is not None:
@@ -33,6 +34,9 @@ def get_dataframe_format(columns: Dict[str, Any]=None, headers: Dict[str, Any]=N
     
     if border is not None:
         df_format['border'] = border
+
+    if conditional_formats is not None:
+        df_format['conditional_formats'] = conditional_formats
 
     return df_format
 
@@ -62,6 +66,52 @@ SET_DATAFRAME_FORMAT_TESTS = [
         ),
         [".format(\"{:d}\", subset=[\'A\'])\\\n    .set_table_styles([\n        {'selector': 'thead', 'props': [('color', '#FFFFFF'), ('background-color', '#549D3A')]},\n        {'selector': 'tbody tr:nth-child(odd)', 'props': [('color', '#494650'), ('background-color', '#FFFFFF')]},\n        {'selector': 'tbody tr:nth-child(even)', 'props': [('color', '#494650'), ('background-color', '#D0E3C9')]},\n        {'selector': '', 'props': [('border', '1px solid #000000')]}"]
     ),
+    # Single conditional format
+    (
+        get_dataframe_format(conditional_formats=[{
+            'format_uuid': '1234',
+            'columnIDs': ['A'],
+            'filters': [{'condition': FC_NUMBER_GREATER, 'value': 2}],
+            'color': 'red',
+            'backgroundColor': 'blue',
+        }]), 
+        [
+            "import numpy as np",
+            ".apply(lambda series: np.where(series > 2, 'color: red', None), subset=['A'])",
+            ".apply(lambda series: np.where(series > 2, 'background-color: blue', None), subset=['A'])"
+        ]
+    ),
+    # Multiple conditional formats
+    (
+        get_dataframe_format(conditional_formats=[{
+            'format_uuid': '1234',
+            'columnIDs': ['A', 'B'],
+            'filters': [{'condition': FC_NUMBER_GREATER, 'value': 2}],
+            'color': 'red',
+            'backgroundColor': 'blue',
+        }]), 
+        [
+            "import numpy as np",
+            ".apply(lambda series: np.where(series > 2, 'color: red', None), subset=['A', 'B'])",
+            ".apply(lambda series: np.where(series > 2, 'background-color: blue', None), subset=['A', 'B'])"
+        ]
+    ),
+    # Multiple conditional formats, applied to invalid columns get filtered out
+    (
+        get_dataframe_format(conditional_formats=[{
+            'format_uuid': '1234',
+            'columnIDs': ['A', 'B', 'D'],
+            'filters': [{'condition': FC_NUMBER_GREATER, 'value': 2}],
+            'color': 'red',
+            'backgroundColor': 'blue',
+        }]), 
+        [
+            "import numpy as np",
+            ".apply(lambda series: np.where(series > 2, 'color: red', None), subset=['A', 'B'])",
+            ".apply(lambda series: np.where(series > 2, 'background-color: blue', None), subset=['A', 'B'])"
+        ]
+    ),
+    
 ]
 @pytest.mark.parametrize("df_format, included_formatting_code", SET_DATAFRAME_FORMAT_TESTS)
 def test_set_dataframe_format(df_format, included_formatting_code):

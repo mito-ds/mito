@@ -6,8 +6,6 @@ import { BooleanFilterCondition, DatetimeFilterCondition, NumberFilterCondition,
 export const BOOLEAN_SELECT_OPTIONS: Record<BooleanFilterCondition, string> = {
     ['boolean_is_true']: 'is true',
     ['boolean_is_false']: 'is false',
-    ['empty']: 'is empty',
-    ['not_empty']: 'is not empty'
 } 
 
 export const NUMBER_SELECT_OPTIONS: Record<NumberFilterCondition, string> = {
@@ -17,8 +15,6 @@ export const NUMBER_SELECT_OPTIONS: Record<NumberFilterCondition, string> = {
     ['greater_than_or_equal']: '\u2265',
     ['less']: '\u003C',
     ['less_than_or_equal']: '\u2264',
-    ['empty']: 'is empty',
-    ['not_empty']: 'is not empty'
 } 
 
 export const STRING_SELECT_OPTIONS: Record<StringFilterCondition, string> = {
@@ -28,8 +24,6 @@ export const STRING_SELECT_OPTIONS: Record<StringFilterCondition, string> = {
     ['string_not_exactly']: 'is not exactly',
     ['string_starts_with']: 'starts with',
     ['string_ends_with']: 'ends with',
-    ['empty']: 'is empty',
-    ['not_empty']: 'is not empty'
 } 
 
 export const DATETIME_SELECT_OPTIONS: Record<DatetimeFilterCondition, string> = {
@@ -39,9 +33,20 @@ export const DATETIME_SELECT_OPTIONS: Record<DatetimeFilterCondition, string> = 
     ['datetime_greater_than_or_equal']: '\u2265',
     ['datetime_less']: '\u003C',
     ['datetime_less_than_or_equal']: '\u2264',
+} 
+
+export const SHARED_SELECT_OPTIONS: Record<string, string> = {
     ['empty']: 'is empty',
     ['not_empty']: 'is not empty'
 } 
+
+export const ALL_SELECT_OPTIONS: Record<string, string | undefined> = {
+    ...BOOLEAN_SELECT_OPTIONS,
+    ...NUMBER_SELECT_OPTIONS,
+    ...STRING_SELECT_OPTIONS,
+    ...DATETIME_SELECT_OPTIONS,
+    ...SHARED_SELECT_OPTIONS
+}
 
 export const CONDITIONS_WITH_NO_INPUT = [
     'boolean_is_true',

@@ -39,7 +39,7 @@ interface SetDataframeFormatParams {
 }
 
 export const getDefaultDataframeFormat = (): DataframeFormat => {
-    return {columns: {}, headers: {}, rows: {even: {}, odd: {}}, border: {}}
+    return {columns: {}, headers: {}, rows: {even: {}, odd: {}}, border: {}, conditional_formats: []}
 }
 
 
