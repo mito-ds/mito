@@ -18,6 +18,7 @@ import * as widgetExports from './jupyter/widget';
 import {
     ToolbarButton,
 } from '@jupyterlab/apputils';
+import { mitoJLabIcon } from './components/icons/JLabIcon/MitoIcon';
 
 
 const EXTENSION_ID = 'mitosheet:plugin';
@@ -28,7 +29,7 @@ const addButton = (tracker: INotebookTracker) => {
 
     const button = new ToolbarButton({
         className: 'toolbar-mito-button-class',
-        iconClass: 'test',
+        icon: mitoJLabIcon,
         onClick: (): void => {
             window.commands?.execute('create-empty-mitosheet');
         },
