@@ -17,6 +17,7 @@ import * as widgetExports from './jupyter/widget';
 
 import {
     ToolbarButton,
+    showDialog
 } from '@jupyterlab/apputils';
 import { mitoJLabIcon } from './components/icons/JLabIcon/MitoIcon';
 
@@ -49,6 +50,19 @@ const addButton = (tracker: INotebookTracker) => {
 
 }
 
+const addDialog = (tracker: INotebookTracker) => {
+
+    console.log("Adding dialog to ", tracker)
+
+    const body = 'this is a dialog box';
+
+    void showDialog({
+        title: 'hello nate',
+        body,
+    });
+
+}
+
 /**
  * The example plugin.
  */
@@ -78,6 +92,7 @@ function activateWidgetExtension(
 
     setTimeout(() => {
         addButton(tracker);
+        addDialog(tracker);
     }, 10000)
 
 
