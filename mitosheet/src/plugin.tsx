@@ -20,6 +20,7 @@ import {
     showDialog
 } from '@jupyterlab/apputils';
 import { mitoJLabIcon } from './components/icons/JLabIcon/MitoIcon';
+import React from 'react';
 
 
 const EXTENSION_ID = 'mitosheet:plugin';
@@ -54,11 +55,9 @@ const addDialog = (tracker: INotebookTracker) => {
 
     console.log("Adding dialog to ", tracker)
 
-    const body = 'this is a dialog box';
-
     void showDialog({
         title: 'hello nate',
-        body,
+        body: <input placeholder='testing'></input>,
     });
 
 }
