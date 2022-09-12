@@ -1,6 +1,6 @@
 // Copyright (c) Jupyter Development Team.
 
-import { writeEmptyMitosheetCell } from "./pluginUtils";
+import { writeEmptyMitosheetCell } from "./pluginUtils"; 
 
 // This file contains the javascript that is run when the notebook is loaded.
 // It contains some requirejs configuration and the `load_ipython_extension`
@@ -28,8 +28,8 @@ if (window.require) {
 // Try to add a button
 (window as any).Jupyter?.toolbar.add_buttons_group([{
     id : 'create_mitosheet',
-    label : 'Mito',
-    icon : 'Test',
+    label : 'Changed',
+    icon: 'test',
     callback : () => {
         // TODO: make this work here
         console.log("Create a mitosheet")

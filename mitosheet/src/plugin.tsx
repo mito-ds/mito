@@ -27,7 +27,7 @@ const addButton = (tracker: INotebookTracker) => {
     console.log("Adding button to ", tracker)
 
     const button = new ToolbarButton({
-        className: 'test',
+        className: 'toolbar-mito-button-class',
         iconClass: 'test',
         onClick: (): void => {
             window.commands?.execute('create-empty-mitosheet');

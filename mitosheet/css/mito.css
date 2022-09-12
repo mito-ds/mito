@@ -2,6 +2,19 @@
     --taskpane-width: 430px;
 }
 
+:root .toolbar-mito-button-class {
+    background-color: var(--mito-purple);
+    border-radius: 3px;
+}
+
+:root .toolbar-mito-button-class:hover {
+    background-color: var(--mito-medium-purple);
+}
+
+:root .toolbar-mito-button-class .jp-ToolbarButtonComponent-label {
+    color: white !important;
+}
+
 /* 
     We override the the overflow behavior on the jupyter-widgets class, which 
     seems to only be applied to the container of the widgets themselves (e.g.
