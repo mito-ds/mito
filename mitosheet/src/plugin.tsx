@@ -78,7 +78,7 @@ function activateWidgetExtension(
 
     setTimeout(() => {
         addButton(tracker);
-    }, 500)
+    }, 1000)
 
 
     app.commands.addCommand('write-analysis-to-replay-to-mitosheet-call', {
