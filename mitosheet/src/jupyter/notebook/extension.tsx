@@ -30,7 +30,7 @@ if (window.require) {
     id : 'create_mitosheet', // Since we're unable to set the className, we use the id for styling
     label : 'Create new Mitosheet',
     title: 'Create a blank Mitosheet below the active code cell',
-    icon: 'mito-noteboook-toolbar',
+    icon: 'fa-regular fa-table', // For now we use a font awesome icon, since we can't load our icon -- this is what Jupyter suggests
     callback : () => {
         writeEmptyMitosheetCell()
     },
