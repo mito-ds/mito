@@ -3,16 +3,12 @@
 }
 
 :root .toolbar-mito-button-class {
-    background-color: var(--mito-purple);
+    background-color: var(--mito-very-light-purple);
     border-radius: 3px;
 }
 
-:root .toolbar-mito-button-class:hover {
-    background-color: var(--mito-medium-purple);
-}
-
 :root .toolbar-mito-button-class .jp-ToolbarButtonComponent-label {
-    color: white !important;
+    color: var(--mito-purple);
 }
 
 /* 
