@@ -14,13 +14,11 @@ import { getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMos
 import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, getAnalysisNameFromOldGeneratedCode, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine, isMitosheetCallCode } from './utils/code';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 import * as widgetExports from './jupyter/widget';
+import { mitoJLabIcon } from './components/icons/JLabIcon/MitoIcon';
 
 import {
     ToolbarButton,
-    showDialog
 } from '@jupyterlab/apputils';
-import { mitoJLabIcon } from './components/icons/JLabIcon/MitoIcon';
-import React from 'react';
 
 
 const EXTENSION_ID = 'mitosheet:plugin';
@@ -35,30 +33,19 @@ const addButton = (tracker: INotebookTracker) => {
         onClick: (): void => {
             window.commands?.execute('create-empty-mitosheet');
         },
-        tooltip: 'New Mito button',
-        label: 'Mito',
+        tooltip: 'Create a blank Mitosheet below the active code cell',
+        label: 'Create new Mitosheet',
     });
 
     const panel = tracker.currentWidget;
 
     if (panel) {
         console.log("Adding button!")
-        const added = panel.toolbar.addItem('Test', button);
+        const added = panel.toolbar.insertAfter('cellType', 'Create Mito Button', button, );
         console.log("Added", added)
     } else {
         console.log("No panel")
     }
-
-}
-
-const addDialog = (tracker: INotebookTracker) => {
-
-    console.log("Adding dialog to ", tracker)
-
-    void showDialog({
-        title: 'hello nate',
-        body: <input placeholder='testing'></input>,
-    });
 
 }
 
@@ -91,7 +78,6 @@ function activateWidgetExtension(
 
     setTimeout(() => {
         addButton(tracker);
-        addDialog(tracker);
     }, 10000)
 
 
