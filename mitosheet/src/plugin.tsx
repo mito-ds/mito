@@ -32,7 +32,7 @@ const addButton = (tracker: INotebookTracker) => {
             window.commands?.execute('create-empty-mitosheet');
         },
         tooltip: 'Create a blank Mitosheet below the active code cell',
-        label: 'Create new Mitosheet',
+        label: 'Create New Mitosheet',
     });
 
     const panel = tracker.currentWidget;
@@ -72,7 +72,7 @@ function activateWidgetExtension(
 ): void {
 
     setTimeout(() => {
-        // Add the Create new Mitosheet button after a short delay so everything is defined
+        // Add the Create New Mitosheet button after a short delay so everything is defined
         addButton(tracker);
     }, 1000)
 
