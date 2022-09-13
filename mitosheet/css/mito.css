@@ -2,14 +2,20 @@
     --taskpane-width: 430px;
 }
 
-:root .toolbar-mito-button-class {
+/* 
+    The following two css rules are used to style the Create new Mitosheet button in the notebook toolbar. 
+    The pure css selectors are used for the JLab button, and the id selection is used for the notebook 
+    button, since we're not able to set the class name of our button in notebooks. 
+*/
+:root .toolbar-mito-button-class, #create_mitosheet {
     background-color: var(--mito-very-light-purple);
     border-radius: 3px;
 }
 
-:root .toolbar-mito-button-class .jp-ToolbarButtonComponent-label {
+:root .toolbar-mito-button-class .jp-ToolbarButtonComponent-label, #create_mitosheet {
     color: var(--mito-purple);
 }
+
 
 /* 
     We override the the overflow behavior on the jupyter-widgets class, which 

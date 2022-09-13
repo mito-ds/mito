@@ -254,6 +254,9 @@ export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines
 }
 
 
+
+
+
 export const writeEmptyMitosheetCell = () => {
     // Create a new cell below the active code cell
     (window as any).Jupyter?.notebook?.insert_cell_below();
@@ -265,5 +268,4 @@ export const writeEmptyMitosheetCell = () => {
         writeToCell(activeCell, 'import mitosheet\nmitosheet.sheet()');
         (window as any).Jupyter?.notebook?.execute_cell();
     }
-
 }
