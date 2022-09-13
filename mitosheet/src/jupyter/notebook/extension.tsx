@@ -28,13 +28,12 @@ if (window.require) {
 // Try to add a button
 (window as any).Jupyter?.toolbar.add_buttons_group([{
     id : 'create_mitosheet',
-    label : 'Mito',
+    label : 'Create new Mitosheet',
     icon: 'test',
     callback : () => {
-        // TODO: make this work here
-        console.log("Create a mitosheet")
         writeEmptyMitosheetCell()
     },
+    className: 'toolbar-mito-button-class'
 }]);
 
 // Export the required load_ipython_extension

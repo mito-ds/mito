@@ -309,9 +309,6 @@ function activateWidgetExtension(
             const context = tracker.currentWidget?.context;
             if (!notebook || !context) return;
 
-            // Clear the output of the active cell
-            NotebookActions.clearOutputs(notebook)
-
             // Create a new code cell that creates a blank mitosheet
             NotebookActions.insertBelow(notebook);
             const newActiveCell = notebook.activeCell;
