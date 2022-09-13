@@ -25,8 +25,6 @@ const EXTENSION_ID = 'mitosheet:plugin';
 
 const addButton = (tracker: INotebookTracker) => {
 
-    console.log("Adding button to ", tracker)
-
     const button = new ToolbarButton({
         className: 'toolbar-mito-button-class',
         icon: mitoJLabIcon,
@@ -40,11 +38,9 @@ const addButton = (tracker: INotebookTracker) => {
     const panel = tracker.currentWidget;
 
     if (panel) {
-        console.log("Adding button!")
-        const added = panel.toolbar.insertAfter('cellType', 'Create Mito Button', button, );
-        console.log("Added", added)
+        panel.toolbar.insertAfter('cellType', 'Create Mito Button', button);
     } else {
-        console.log("No panel")
+        console.log("Unable to insert Create Mito Button because the Notebook Panel was undefined")
     }
 
 }
@@ -74,9 +70,9 @@ function activateWidgetExtension(
     registry: IJupyterWidgetRegistry,
     tracker: INotebookTracker
 ): void {
-    console.log("Running activate!");
 
     setTimeout(() => {
+        // Add the Create new Mitosheet button after a short delay so everything is defined
         addButton(tracker);
     }, 1000)
 
