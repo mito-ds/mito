@@ -1,5 +1,7 @@
 // Copyright (c) Jupyter Development Team.
 
+import { writeEmptyMitosheetCell } from "./pluginUtils"; 
+
 // This file contains the javascript that is run when the notebook is loaded.
 // It contains some requirejs configuration and the `load_ipython_extension`
 // which is required for any notebook extension.
@@ -22,6 +24,17 @@ if (window.require) {
         }
     });
 }
+
+// Try to add a button
+(window as any).Jupyter?.toolbar.add_buttons_group([{
+    id : 'mito-toolbar-button-id', // Since we're unable to set the className, we use the id for styling
+    label : 'Create New Mitosheet',
+    title: 'Create a blank Mitosheet below the active code cell',
+    icon: 'fa-regular fa-table', // For now we use a font awesome icon, since we can't load our icon -- this is what Jupyter suggests
+    callback : () => {
+        writeEmptyMitosheetCell()
+    },
+}]);
 
 // Export the required load_ipython_extension
 module.exports = {
