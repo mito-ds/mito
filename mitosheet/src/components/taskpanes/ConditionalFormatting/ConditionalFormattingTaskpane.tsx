@@ -70,7 +70,9 @@ const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps
         {
             getBackendFromFrontend: (params: ConditionalFormattingParams) => {
                 // We parse the filters, if they deserve to be parsed! Making sure that we make copies of 
-                // everything, as to not modify objects when we don't want to
+                // everything, as to not modify objects when we don't want to. 
+                // NOTE: this parsing must happen right before the parameters are sent to the backend, 
+                // so that we can store the parameters as strings in the interim
                 const conditionalFormats = params.df_format.conditional_formats.map(conditionalFormat => {
                     const newConditionalFormat = {...conditionalFormat};
                     const newFilters = newConditionalFormat.filters.map(filter => {
@@ -117,8 +119,6 @@ const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps
         })
     }
 
-    
-
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
@@ -127,7 +127,7 @@ const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps
             />
             <DefaultTaskpaneBody 
                 userProfile={props.userProfile} 
-                requiresPro={true}
+                requiresPro
                 requiresProMessage="Conditional formatting is a Mito Pro feature. Please upgrade to use this feature."
             >
                 <DataframeSelect 

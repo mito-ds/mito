@@ -41,13 +41,10 @@ class DataframeImportStepPerformer(StepPerformer):
         ipython = get_ipython()
         for df_name in df_names:
             df = ipython.ev(df_name)
+            # TODO: There is a bug if you import the same dataframe twice, then you get
+            # issues where the generated code does not match with the sheet. Do we want 
+            # to insist on uniqueness here? Or do we want to automatically make a copy?
             post_state.add_df_to_state(df, DATAFRAME_SOURCE_IMPORTED, df_name=df_name)
-
-        # TODO: fix a bug where:
-        # 1. simple import
-        # 2. Dataframe import
-        # delete dataframe import dataframe in sheet
-        # try (and fail) to delete simple import in sheet
         
         pandas_processing_time = perf_counter() - pandas_start_time
 

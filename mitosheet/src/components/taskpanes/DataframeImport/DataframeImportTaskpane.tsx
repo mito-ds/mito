@@ -13,6 +13,7 @@ import DropdownItem from "../../elements/DropdownItem";
 import SelectAndXIconCard from "../../elements/SelectAndXIconCard";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import TextButton from "../../elements/TextButton";
+import Tooltip from "../../elements/Tooltip";
 
 
 interface DataframeImportTaskpaneProps {
@@ -26,37 +27,30 @@ interface DataframeImportTaskpaneProps {
 
 
 
-
-
 /* 
-    This is the DataframeImport taskpane.
+    This is the DataframeImport taskpane, allows users to import a specific dataframe
 */
 const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Element => {
 
-    const [definedDfNames, setDefinedDfNames] = useState<string[]>([]);
+    const [dfNamesInNotebook, setDfNamesInNotebook] = useState<string[]>([]);
 
     const {params, setParams, edit} = useSendEditOnClick<{df_names: string[]}, {df_names: string[]}>(
-        {df_names: []}, StepType.DataframeImport, props.mitoAPI, props.analysisData,
+        {df_names: []}, StepType.DataframeImport, props.mitoAPI, props.analysisData, {allowSameParamsToReapplyTwice: true}
     )
-
 
     useEffect(() => {
         const loadDefinedDfNames = async () => {
             const _definedDfNames = await props.mitoAPI.getDefinedDfNames();
             if (_definedDfNames !== undefined) {
-                setDefinedDfNames(_definedDfNames.df_names)
+                setDfNamesInNotebook(_definedDfNames.df_names)
             }
         }
         void loadDefinedDfNames();
-    }, [])
-
-    const dfNameMap: Record<string, string> = {};
-    definedDfNames.forEach(dfName => {dfNameMap[dfName] = dfName});
+    }, []);
 
     const dataframeCards: JSX.Element[] = (params?.df_names || []).map((dfName, arrIndex) => {
         return (
             <SelectAndXIconCard 
-                titleMap={dfNameMap}
                 value={dfName}
                 onChange={(newDfName) => {
                     setParams(prevParams => {
@@ -80,11 +74,10 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
                         }
                     })
                 }}
-                selectableValues={definedDfNames}
+                selectableValues={dfNamesInNotebook}
             />
         )
     })
-
 
     return (
         <DefaultTaskpane>
@@ -98,6 +91,7 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
                         <p className='text-header-3'>
                             Dataframes to Import
                         </p>
+                        <Tooltip title={"Dataframes that have been created elsewhere in this notebook can be imported through this taskpane."} />
                     </Col>
                     <Col>
                         <DropdownButton
@@ -105,14 +99,14 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
                             width='small'
                             searchable
                         >   
-                            {/** We allow users to select all dataframes in the sheet, as some users want this */}
+                            {/** We allow users to select all dataframes in the notebook, as some users want this */}
                             {[
                                 <DropdownItem
                                     key={-1}
                                     title="Add all dataframes"
                                     onClick={() => {
                                         setParams(prevParams => {
-                                            const newDfNames = [...definedDfNames];
+                                            const newDfNames = [...dfNamesInNotebook];
                     
                                             return {
                                                 ...prevParams,
@@ -121,7 +115,7 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
                                         })
                                     }}
                                 />
-                            ].concat(definedDfNames.map((dfName, index) => {
+                            ].concat(dfNamesInNotebook.map((dfName, index) => {
                                 return (
                                     <DropdownItem
                                         key={index}
