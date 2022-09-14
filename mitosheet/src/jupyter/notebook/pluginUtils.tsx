@@ -266,6 +266,6 @@ export const writeEmptyMitosheetCell = () => {
     // Add mitosheet.sheet call to new code cell
     if (isEmptyCell(activeCell)) {
         writeToCell(activeCell, 'import mitosheet\nmitosheet.sheet()');
-        (window as any).Jupyter?.notebook?.execute_cell();
+        (window as any).Jupyter?.notebook?.execute_cell_and_insert_below();
     }
 }
