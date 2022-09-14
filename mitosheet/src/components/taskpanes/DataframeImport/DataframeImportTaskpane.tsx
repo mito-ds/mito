@@ -88,10 +88,16 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
             <DefaultTaskpaneBody>
                 <Row justify='space-between' align='center'>
                     <Col>
-                        <p className='text-header-3'>
-                            Dataframes to Import
-                        </p>
-                        <Tooltip title={"Dataframes that have been created elsewhere in this notebook can be imported through this taskpane."} />
+                        <Row justify="start" align="center">
+                            <Col>
+                                <p className='text-header-3'>
+                                    Dataframes to Import
+                                </p>
+                            </Col>
+                            <Col>
+                                <Tooltip title={"Dataframes that have been created elsewhere in this notebook can be imported through this taskpane."} />
+                            </Col>
+                        </Row>
                     </Col>
                     <Col>
                         <DropdownButton

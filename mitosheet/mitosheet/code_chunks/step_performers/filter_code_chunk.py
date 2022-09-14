@@ -275,7 +275,6 @@ def create_filter_string_for_condition(
 
     return ""
 
-# TODO: explain this hack
 FAKE_COLUMN_HEADER = 'FAKE_COLUMN_HEADER'
 
 def get_entire_filter_string(state: State, sheet_index: int, operator: str, filters: List[Dict[str, Any]], column_id: Optional[ColumnID]=None) -> Optional[str]:
@@ -287,6 +286,10 @@ def get_entire_filter_string(state: State, sheet_index: int, operator: str, filt
             )
             column_dtype = str(state.dfs[sheet_index][column_header].dtype)
         else:
+            # If this filter string is for no particular column header, we use a fake column header, 
+            # which allows us to change the resulting filter string to filter things other than
+            # the dataframe (e.g. we want to filter a series in the conditional format). This is 
+            # a somewhat ugly hack for now
             column_header = FAKE_COLUMN_HEADER
             column_dtype = 'string'
 

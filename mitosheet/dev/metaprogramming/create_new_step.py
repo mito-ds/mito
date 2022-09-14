@@ -415,15 +415,3 @@ def create_new_step() -> None:
         print("Wrote new taskpane")
     else:
         print("Not writing taskpane...")
-
-
-
-    # TODO:
-    # 3. Be able to specify that we're creating a taskpane and then take the step parameters passed in a particular order and create a UI for them. For example, if sheet_index is the first param provided, then it should create a taskpane with a Dataframe -> DfName seletc.
-    # 4. Be able to read the params back in correctly (and do some refactoring!)
-    # 5. Be able to do upgrade refactoring automatically - just tell it how to migrate
-
-
-
-if __name__ == "__main__":
-    main()

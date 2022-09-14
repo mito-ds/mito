@@ -5,14 +5,44 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
+import inspect
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
+
+import pandas as pd
+from IPython import get_ipython
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
-
+from mitosheet.code_chunks.step_performers.import_steps.dataframe_import_code_chunk import DataframeImportCodeChunk
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
+
+
+def get_variable_with_name_from_caller(variable_name: str) -> Optional[Any]:
+    """
+    This helper function tries to find a variable with in the calling context. 
+    It will first check ipython to see if it is defined, and get the variable
+    from this context. 
+
+    If ipython is not defined, it will assume we are in some other python enviornment,
+    and attempt to get the variable from the callers stack frames.
+    """
+    ipython = get_ipython()
+    if ipython is not None:
+        return ipython.ev(variable_name)
+
+    stack = inspect.stack()
+    for s in reversed(stack):
+        local_var = s[0].f_locals.get(variable_name)
+        if local_var is not None:
+            return local_var
+            
+        global_var = s[0].f_globals.get(variable_name)
+        if global_var is not None:
+            return global_var
+
+    return None
 
 class DataframeImportStepPerformer(StepPerformer):
     """
@@ -37,10 +67,9 @@ class DataframeImportStepPerformer(StepPerformer):
         pandas_start_time = perf_counter()
         
         # Get the dataframe, and import it
-        from IPython import get_ipython
-        ipython = get_ipython()
+
         for df_name in df_names:
-            df = ipython.ev(df_name)
+            df = get_variable_with_name_from_caller(df_name)
             # TODO: There is a bug if you import the same dataframe twice, then you get
             # issues where the generated code does not match with the sheet. Do we want 
             # to insist on uniqueness here? Or do we want to automatically make a copy?
@@ -65,7 +94,7 @@ class DataframeImportStepPerformer(StepPerformer):
         # We don't need a code chunk here, as this isn't creating anything new. It's just putting this
         # dataframe inside the mitosheet state
         return [
-            EmptyCodeChunk(
+            DataframeImportCodeChunk(
                 prev_state, 
                 post_state, 
                 {

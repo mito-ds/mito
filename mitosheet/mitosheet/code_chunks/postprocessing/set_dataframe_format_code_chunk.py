@@ -211,7 +211,9 @@ def get_conditional_format_code_list(state: State, sheet_index: int) -> Optional
         if entire_filter_string is None:
             continue
 
-        # TODO: talk about this hack!
+        # The filter string, if it's not given a column header when generated, uses this FAKE_COLUMN_HEADER. 
+        # See get_entire_filter_string for further description, but it allows us to filter the series var used
+        # in the conditional formatting implementation
         entire_filter_string = entire_filter_string.replace(f'{df_name}[{column_header_to_transpiled_code(FAKE_COLUMN_HEADER)}]', "series")
 
         if color is not None:

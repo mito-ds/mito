@@ -118,11 +118,13 @@ def get_conditonal_formatting_result(
             from mitosheet.step_performers.filter import get_full_applied_filter
             try:
                 full_applied_filter, _ = get_full_applied_filter(df, column_header, 'And', filters)
-                #applied_indexes = df.index[full_applied_filter] # TODO: get the actual indexes vertially! So this works with non-number columns
                 applied_indexes = full_applied_filter[full_applied_filter].index.tolist()
 
                 for index in applied_indexes:
-                    formatted_result[column_id][index] = {'backgroundColor': backgroundColor, 'color': color}
+                    # We need to make this index valid json, and do so in a way that is consistent with how indexes
+                    # are sent to the frontend
+                    json_index = json.dumps(index, cls=NpEncoder)
+                    formatted_result[column_id][json_index] = {'backgroundColor': backgroundColor, 'color': color}
             except Exception as e:
                 if format_uuid not in invalid_conditional_formats:
                     invalid_conditional_formats[format_uuid] = []
@@ -232,8 +234,6 @@ def df_to_json_dumpsable(
             column_final_data['columnData'].append(row[column_index] if column_index < MAX_COLUMNS else None)
         
         final_data.append(column_final_data) 
-
-    print(df_format)    
     
     return {
         "dfName": df_name,

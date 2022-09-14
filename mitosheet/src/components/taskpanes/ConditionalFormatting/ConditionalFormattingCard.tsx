@@ -27,11 +27,11 @@ interface ConditionalFormattingProps {
     updateDataframeFormatParams: (df_format: RecursivePartial<DataframeFormat>) => void;
     index: number,
     sheetData: SheetData;
-    openFormattingCardIdx: number
+    openFormattingCardIndex: number
     setOpenFormattingCardIdx: React.Dispatch<React.SetStateAction<number>>
 }
 
-
+// Gets the message displayed on the closed conditional formatting card about which columns this is applied to.
 const getColumnHeadersIncludedMessage = (sheetData: SheetData, columnIDs: ColumnID[]): JSX.Element => {
     if (columnIDs.length === 0) {
         return (<p>Applied to 0 columns.</p>)
@@ -47,17 +47,18 @@ const getColumnHeadersIncludedMessage = (sheetData: SheetData, columnIDs: Column
     }
 }
 
+// Gets the message to display if there are invalid columns in this conditional format (e.g. the filter can't be applied)
 const getInvalidColumnHeadersMessage = (sheetData: SheetData, invalidColumnIDs: ColumnID[]): JSX.Element | null => {
     if (invalidColumnIDs.length === 0) {
         return null
     } 
 
-    // Sort
+    // Sort in the order they appear in the column id map, so they are in the same order
+    // as the mutli-toggle box
     const allColumnIDs = Object.keys(sheetData.columnIDsMap);
     const sortedColumnIDs = invalidColumnIDs.sort((a, b) => {
         return allColumnIDs.indexOf(a) - allColumnIDs.indexOf(b);
     })
-    
 
     const columnHeaders = sortedColumnIDs.map(columnID => sheetData.columnIDsMap[columnID]).filter(columnHeader => columnHeader !== undefined);
     const [columnHeadersString, numOtherColumnHeaders] = getFirstCharactersOfColumnHeaders(columnHeaders, 25)
@@ -71,34 +72,30 @@ const getInvalidColumnHeadersMessage = (sheetData: SheetData, invalidColumnIDs: 
 
 
 const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Element => {
-    
-    const onDelete = () => {
-        const newConditionalFormats = [...props.df_format.conditional_formats];
-        newConditionalFormats.splice(props.index, 1);
-        props.updateDataframeFormatParams({...props.df_format, conditional_formats: newConditionalFormats});
-    }
 
     const XElement = (
         <Col title='Delete conditional formatting rule'>
             <XIcon 
                 onClick={(e) => {
                     e.stopPropagation();
-                    onDelete();
+                    const newConditionalFormats = [...props.df_format.conditional_formats];
+                    newConditionalFormats.splice(props.index, 1);
+                    props.updateDataframeFormatParams({...props.df_format, conditional_formats: newConditionalFormats});
                 }}
             ></XIcon>
         </Col>
     );
     
-    // TODO: should we sort these
     const invalidColumnIDs = (props.sheetData.conditionalFormattingResult?.invalid_conditional_formats[props.conditionalFormat.format_uuid] || []);
     const invalidColumnIDMessage = getInvalidColumnHeadersMessage(props.sheetData, invalidColumnIDs);
 
-    const conditionText = capitalizeFirstLetter((ALL_SELECT_OPTIONS[props.conditionalFormat.filters[0]?.condition]['long_name'] || ''));
+    const conditionText = capitalizeFirstLetter((ALL_SELECT_OPTIONS[props.conditionalFormat.filters[0]?.condition]['long_name'] || 'contains'));
 
     const color = props.conditionalFormat.color || ODD_ROW_TEXT_COLOR_DEFAULT;
     const backgroundColor = props.conditionalFormat.backgroundColor || ODD_ROW_BACKGROUND_COLOR_DEFAULT;
-        
-    if (props.openFormattingCardIdx !== props.index) {
+            
+    if (props.openFormattingCardIndex !== props.index) {
+        // If this is not the open card
         return (
             <div className='conditional-format-card' onClick={() => props.setOpenFormattingCardIdx(props.index)}> 
                 <Row justify='space-between' align='center'>
@@ -233,8 +230,6 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
                         props.updateDataframeFormatParams({...props.df_format, conditional_formats: newConditionalFormats});
                     }}              
                 />
-
-            
             </div>
         )
     }

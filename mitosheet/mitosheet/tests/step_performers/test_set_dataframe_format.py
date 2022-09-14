@@ -186,3 +186,34 @@ def test_format_with_duplicate():
     assert df0_format['columns']['A']['type'] == NUMBER_FORMAT_PLAIN_TEXT
     assert df1_format['columns']['A']['type'] == NUMBER_FORMAT_CURRENCY
 
+
+INDEXES = [
+    (pd.Index([0, 1, 2])),
+    (pd.Index([1, 2, 3])),
+    (pd.Index(["1", "2", "3"])),
+    (pd.Index(["a", "b", "c"])),
+    (pd.Index(pd.to_datetime(["12-22-1997", "12-23-1997", "12-24-1997"]))),
+]
+
+@pytest.mark.parametrize("df_format, included_formatting_code", SET_DATAFRAME_FORMAT_TESTS)
+@pytest.mark.parametrize("index", INDEXES)
+def test_set_dataframe_format_different_indexes(df_format, included_formatting_code, index):
+    df = pd.DataFrame({'A': [1, 2, 3], 'B': [1.0, 2.0, 3.0], 'C': [True, False, True], 'D': ["string", "with spaces", "and/!other@characters"], 'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 'F': pd.to_timedelta(['1 days', '2 days', '3 days'])}, index=index)
+    mito = create_mito_wrapper_dfs(df)
+    mito.set_dataframe_format(0, df_format)
+
+    assert len(mito.dfs) == 1
+    assert mito.dfs[0].equals(df)
+    for k in mito.df_formats[0]:
+        assert mito.df_formats[0][k] == df_format[k]
+
+    # Check that the correct code is included
+    for code in included_formatting_code:
+        if isinstance(code, list):
+            one_found = False
+            for c in code:
+                if c in mito.transpiled_code[-1]:
+                    one_found = True
+            assert one_found
+        else:
+            assert code in mito.transpiled_code[-1]

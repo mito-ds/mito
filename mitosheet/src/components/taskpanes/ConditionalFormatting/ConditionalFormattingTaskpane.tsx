@@ -104,7 +104,7 @@ const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps
         }
     )
 
-    const [openFormattingCardIdx, setOpenFormattingCardIdx] = useState(-1)
+    const [openFormattingCardIndex, setOpenFormattingCardIndex] = useState(-1)
 
     if (params === undefined) {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
@@ -159,8 +159,8 @@ const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps
                         <p className="text-header-3">
                             Conditional Formats
                         </p>
-                        <p className='text-subtext mb-10px'>
-                            Rules applied in order
+                        <p className='text-subtext-1 mb-10px'>
+                            Formatting rules applied in order. Later formatting rules overwrite earlier ones.
                         </p>
                     </Col>
                 </Row>
@@ -173,8 +173,8 @@ const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps
                             conditionalFormat={conditionalFormat}
                             updateDataframeFormatParams={updateDataframeFormatParams}
                             sheetData={sheetData}
-                            openFormattingCardIdx={openFormattingCardIdx}
-                            setOpenFormattingCardIdx={setOpenFormattingCardIdx}
+                            openFormattingCardIndex={openFormattingCardIndex}
+                            setOpenFormattingCardIdx={setOpenFormattingCardIndex}
                         />
                     )
                 })}
