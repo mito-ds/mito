@@ -25,24 +25,34 @@ const EXTENSION_ID = 'mitosheet:plugin';
 
 const addButton = (tracker: INotebookTracker) => {
 
-    const button = new ToolbarButton({
-        className: 'toolbar-mito-button-class',
-        icon: mitoJLabIcon,
-        onClick: (): void => {
-            window.commands?.execute('create-empty-mitosheet');
-        },
-        tooltip: 'Create a blank Mitosheet below the active code cell',
-        label: 'Create New Mitosheet',
-    });
+    // We try and add the button every 3 seconds for 20 seconds, in case
+    // the panel takes a while to load
+    let buttonLoaded = false;
 
-    const panel = tracker.currentWidget;
+    for (let i = 0; i < 20; i += 3) {
+        setTimeout(() => {
+            if (buttonLoaded) {
+                return 
+            }
 
-    if (panel) {
-        panel.toolbar.insertAfter('cellType', 'Create Mito Button', button);
-    } else {
-        console.log("Unable to insert Create Mito Button because the Notebook Panel was undefined")
+            const button = new ToolbarButton({
+                className: 'toolbar-mito-button-class',
+                icon: mitoJLabIcon,
+                onClick: (): void => {
+                    window.commands?.execute('create-empty-mitosheet');
+                },
+                tooltip: 'Create a blank Mitosheet below the active code cell',
+                label: 'Create New Mitosheet',
+            });
+
+            const panel = tracker.currentWidget;
+
+            if (panel && !buttonLoaded) {
+                panel.toolbar.insertAfter('cellType', 'Create Mito Button', button);
+                buttonLoaded = true;
+            } 
+        }, i * 1000)
     }
-
 }
 
 /**
@@ -71,10 +81,8 @@ function activateWidgetExtension(
     tracker: INotebookTracker
 ): void {
 
-    setTimeout(() => {
-        // Add the Create New Mitosheet button after a short delay so everything is defined
-        addButton(tracker);
-    }, 1000)
+    // Add the Create New Mitosheet button
+    addButton(tracker);
 
 
     app.commands.addCommand('write-analysis-to-replay-to-mitosheet-call', {
