@@ -25,10 +25,9 @@ interface ConditionalFormattingProps {
     df_format: DataframeFormat,
     conditionalFormat: ConditionalFormat,
     updateDataframeFormatParams: (df_format: RecursivePartial<DataframeFormat>) => void;
-    index: number,
     sheetData: SheetData;
     openFormattingCardIndex: number
-    setOpenFormattingCardIdx: React.Dispatch<React.SetStateAction<number>>
+    setOpenFormattingCardIndex: React.Dispatch<React.SetStateAction<number>>
 }
 
 // Gets the message displayed on the closed conditional formatting card about which columns this is applied to.
@@ -73,13 +72,15 @@ const getInvalidColumnHeadersMessage = (sheetData: SheetData, invalidColumnIDs: 
 
 const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Element => {
 
+    const conditionalFormatIndex = props.df_format.conditional_formats.findIndex(format => {return format.format_uuid === props.conditionalFormat.format_uuid});
+
     const XElement = (
         <Col title='Delete conditional formatting rule'>
             <XIcon 
                 onClick={(e) => {
                     e.stopPropagation();
                     const newConditionalFormats = [...props.df_format.conditional_formats];
-                    newConditionalFormats.splice(props.index, 1);
+                    newConditionalFormats.splice(conditionalFormatIndex, 1);
                     props.updateDataframeFormatParams({...props.df_format, conditional_formats: newConditionalFormats});
                 }}
             ></XIcon>
@@ -94,10 +95,10 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
     const color = props.conditionalFormat.color || ODD_ROW_TEXT_COLOR_DEFAULT;
     const backgroundColor = props.conditionalFormat.backgroundColor || ODD_ROW_BACKGROUND_COLOR_DEFAULT;
             
-    if (props.openFormattingCardIndex !== props.index) {
+    if (props.openFormattingCardIndex !== conditionalFormatIndex) {
         // If this is not the open card
         return (
-            <div className='conditional-format-card' onClick={() => props.setOpenFormattingCardIdx(props.index)}> 
+            <div className='conditional-format-card' onClick={() => props.setOpenFormattingCardIndex(conditionalFormatIndex)}> 
                 <Row justify='space-between' align='center'>
                     <Row suppressTopBottomMargin align='center' justify='start'>
                         <Col offsetRight={1}>
@@ -137,7 +138,7 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
     } else {
         return (
             <div className='conditional-format-card'> 
-                <Row justify='space-between' onClick={() => props.setOpenFormattingCardIdx(-1)}>
+                <Row justify='space-between' onClick={() => props.setOpenFormattingCardIndex(-1)}>
                     <Col span={12}>
                         <p className='text-header-3'>
                             Columns to format
@@ -170,7 +171,7 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
                             })
                         }
                         const newConditionalFormats = [...props.df_format.conditional_formats];
-                        newConditionalFormats[props.index].columnIDs = newSelectedColumnIDs;
+                        newConditionalFormats[conditionalFormatIndex].columnIDs = newSelectedColumnIDs;
 
                         props.updateDataframeFormatParams({...props.df_format, conditional_formats: newConditionalFormats});
                     }}
@@ -191,7 +192,7 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
                                     const newSelectedColumnIDs = [...props.conditionalFormat.columnIDs];
                                     toggleInArray(newSelectedColumnIDs, columnID);
                                     const newConditionalFormats = [...props.df_format.conditional_formats];
-                                    newConditionalFormats[props.index].columnIDs = newSelectedColumnIDs;
+                                    newConditionalFormats[conditionalFormatIndex].columnIDs = newSelectedColumnIDs;
             
                                     props.updateDataframeFormatParams({...props.df_format, conditional_formats: newConditionalFormats});
                                 }}
@@ -207,7 +208,7 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
                     displayOperator={false}
                     setFilter={(newFilter) => {
                         const newConditionalFormats = [...props.df_format.conditional_formats];
-                        newConditionalFormats[props.index].filters = [newFilter];
+                        newConditionalFormats[conditionalFormatIndex].filters = [newFilter];
                         props.updateDataframeFormatParams({...props.df_format, conditional_formats: newConditionalFormats});
                     }}
                     nameLength='long_name'
@@ -217,7 +218,7 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
                     color={color}
                     onChange={(newColor) => {
                         const newConditionalFormats = [...props.df_format.conditional_formats];
-                        newConditionalFormats[props.index].color = newColor;
+                        newConditionalFormats[conditionalFormatIndex].color = newColor;
                         props.updateDataframeFormatParams({...props.df_format, conditional_formats: newConditionalFormats});
                     }}              
                 />
@@ -226,7 +227,7 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
                     color={backgroundColor}
                     onChange={(newColor) => {
                         const newConditionalFormats = [...props.df_format.conditional_formats];
-                        newConditionalFormats[props.index].backgroundColor = newColor;
+                        newConditionalFormats[conditionalFormatIndex].backgroundColor = newColor;
                         props.updateDataframeFormatParams({...props.df_format, conditional_formats: newConditionalFormats});
                     }}              
                 />

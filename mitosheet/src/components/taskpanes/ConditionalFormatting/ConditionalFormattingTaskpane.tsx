@@ -160,35 +160,35 @@ const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps
                             Conditional Formats
                         </p>
                         <p className='text-subtext-1 mb-10px'>
-                            Formatting rules applied in order. Later formatting rules overwrite earlier ones.
+                            Rules applied in order. Later formatting rules overwrite earlier rules.
                         </p>
                     </Col>
                 </Row>
                 {conditionalFormats.map((conditionalFormat, index) => {
                     return (
                         <ConditionalFormattingCard
-                            key={conditionalFormat.format_uuid}
+                            key={conditionalFormat.format_uuid + index}
                             df_format={params.df_format}
-                            index={index}    
                             conditionalFormat={conditionalFormat}
                             updateDataframeFormatParams={updateDataframeFormatParams}
                             sheetData={sheetData}
                             openFormattingCardIndex={openFormattingCardIndex}
-                            setOpenFormattingCardIdx={setOpenFormattingCardIndex}
+                            setOpenFormattingCardIndex={setOpenFormattingCardIndex}
                         />
                     )
                 })}
-                <TextButton 
-                    variant="dark"
-                    onClick={() => {
-                        const newConditionalFormats = [...params.df_format.conditional_formats];
-                        newConditionalFormats.push(getDefaultEmptyConditionalFormat());
-                        console.log(newConditionalFormats);
-                        return updateDataframeFormatParams({conditional_formats: newConditionalFormats});
-                    }}
-                >
-                    Add Conditional Formatting Rule
-                </TextButton>
+                <Row>
+                    <TextButton 
+                        variant="dark"
+                        onClick={() => {
+                            const newConditionalFormats = [...params.df_format.conditional_formats];
+                            newConditionalFormats.push(getDefaultEmptyConditionalFormat());
+                            return updateDataframeFormatParams({conditional_formats: newConditionalFormats});
+                        }}
+                    >
+                        Add Conditional Formatting Rule
+                    </TextButton>
+                </Row>
             </DefaultTaskpaneBody>
         </DefaultTaskpane>
     )

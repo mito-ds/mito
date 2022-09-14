@@ -1,12 +1,12 @@
 // Copyright (c) Mito
 
 import React, { CSSProperties } from 'react';
-import { CONDITIONS_WITH_NO_INPUT } from './filterConditions';
+import { CONDITIONS_WITH_NO_INPUT, DATETIME_SELECT_OPTIONS } from './filterConditions';
 import Row from '../../../../layout/Row';
 import Col from '../../../../layout/Col';
 import Select from '../../../../elements/Select';
 import XIcon from '../../../../icons/XIcon';
-import {  FilterType, Operator} from '../../../../../types';
+import {  DatetimeFilterCondition, FilterType, Operator} from '../../../../../types';
 import DropdownItem from '../../../../elements/DropdownItem';
 import { isDatetimeDtype } from '../../../../../utils/dtypes';
 import { getFilterOptions } from './utils';
@@ -31,6 +31,9 @@ export function Filter(
 
     const filterConditionOptions = getFilterOptions(props.columnDtype, props.nameLength);
     const setOperator = props.setOperator;
+
+    const isDatetime = (props.columnDtype && isDatetimeDtype(props.columnDtype)) ||
+        (props.columnDtype === undefined && DATETIME_SELECT_OPTIONS[props.filter.condition as DatetimeFilterCondition] !== undefined)
 
     return (
         <Row justify='space-between' align='center'>
@@ -75,7 +78,7 @@ export function Filter(
                 <input 
                     className='mito-input element-width-block'
                     style={inputStyle}
-                    type={props.columnDtype && isDatetimeDtype(props.columnDtype) ? 'date' : 'text'}
+                    type={isDatetime ? 'date' : 'text'}
                     value={props.filter.value} 
                     onChange={e => {
                         props.setFilter({
