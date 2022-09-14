@@ -114,7 +114,7 @@ const Checklist = (props: {
 
     const allChecklistItemsAndActions: [string, Action | undefined][] = [
         ['signup', undefined],
-        ['import', props.actions[ActionEnum.Import]],
+        ['import', props.actions[ActionEnum.Import_Files]],
         ['filter', props.actions[ActionEnum.Filter]],
         ['pivot', props.actions[ActionEnum.Pivot]],
         ['graph', props.actions[ActionEnum.Graph]],

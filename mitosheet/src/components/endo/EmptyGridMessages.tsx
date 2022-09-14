@@ -35,13 +35,13 @@ const EmptyGridMessages = (props: {sheetData: SheetData | undefined, setUIState:
                                 props.setUIState(prevUIState => {
                                     return {
                                         ...prevUIState,
-                                        currOpenTaskpane: {type: TaskpaneType.IMPORT}
+                                        currOpenTaskpane: {type: TaskpaneType.IMPORT_FILES}
                                     }
                                 })
 
                                 void props.mitoAPI.log('clicked_empty_grid_import_button');
                             }}
-                            disabled={props.uiState.currOpenTaskpane.type === TaskpaneType.IMPORT}
+                            disabled={props.uiState.currOpenTaskpane.type === TaskpaneType.IMPORT_FILES}
                         >
                             Import Files
                         </TextButton>

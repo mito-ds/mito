@@ -34,7 +34,9 @@ const ToolbarDataframesDropdown = (props: ToolbarDataframesDropdownProps): JSX.E
                 })}
                 width='large'
             >
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Import])}
+                {makeToolbarDropdownItem(props.actions[ActionEnum.Import_Files])}
+                {makeToolbarDropdownItem(props.actions[ActionEnum.DATAFRAME_IMPORT])}
+                <DropdownSectionSeperator isDropdownSectionSeperator/>
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Export])}
                 <DropdownSectionSeperator isDropdownSectionSeperator/>
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Duplicate_Dataframe])}

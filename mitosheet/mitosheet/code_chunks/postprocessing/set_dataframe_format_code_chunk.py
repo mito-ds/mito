@@ -203,14 +203,15 @@ def get_conditional_format_code_list(state: State, sheet_index: int) -> Optional
         if len(final_column_ids) == 0:
             continue
 
-        transpiled_column_headers = column_header_list_to_transpiled_code(final_column_ids)
-        
+        # Get the column headers
+        column_headers = state.column_ids.get_column_headers_by_ids(sheet_index, final_column_ids)
+        transpiled_column_headers = column_header_list_to_transpiled_code(column_headers)
 
-        # TODO: talk about this hack!
         entire_filter_string = get_entire_filter_string(state, sheet_index, 'And', filters)
         if entire_filter_string is None:
             continue
 
+        # TODO: talk about this hack!
         entire_filter_string = entire_filter_string.replace(f'{df_name}[{column_header_to_transpiled_code(FAKE_COLUMN_HEADER)}]', "series")
 
         if color is not None:

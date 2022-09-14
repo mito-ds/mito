@@ -20,6 +20,9 @@ def get_code_chunk_folder() -> Path:
 def get_test_folder() -> Path:
     return Path('../mitosheet/tests')
 
+def get_api_folder() -> Path:
+    return Path('../mitosheet/api')
+
 def create_folder(path_to_folder: Path) -> None:
     if os.path.exists(path_to_folder):
         clear = input(f'{path_to_folder} already exists, do you want to clear it?: [y/n]').lower().startswith('y')

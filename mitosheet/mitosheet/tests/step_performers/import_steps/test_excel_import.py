@@ -174,7 +174,6 @@ def test_remove_multiple_one_by_one_does_not_optimize_till_all_gone():
     mito.delete_dataframe(2)
 
     assert len(mito.dfs) == 2
-    assert mito.transpiled_code[-1] == 'del Sheet2'
 
     mito.delete_dataframe(1)
 

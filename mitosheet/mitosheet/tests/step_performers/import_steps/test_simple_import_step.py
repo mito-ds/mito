@@ -326,7 +326,6 @@ def test_multiple_imports_are_not_deleted_by_single_delete():
         "import pandas as pd",
         "test_file = pd.read_csv(r'test_file.csv')",
         "test_file_1 = pd.read_csv(r'test_file.csv')",
-        "del test_file"
     ]
 
     # Remove the test file

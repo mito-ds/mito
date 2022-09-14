@@ -46,7 +46,7 @@ const SelectAndXIconCard = (props: SelectAndXIconProps): JSX.Element => {
             </Col>
             <Col offset={1} offsetRight={1}>
                 <XIcon
-                    onClick={() => {props.onDelete()}}
+                    onClick={props.onDelete}
                 />
             </Col>
         </Row>

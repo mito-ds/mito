@@ -32,7 +32,7 @@ def get_default_typescript_value_for_param(param_name: str, param_type: str) -> 
         return 'true'
     elif param_type == 'ColumnID':
         return 'TODO'
-    elif param_type == 'List[ColumnID]':
+    elif param_type.startswith('List'):
         return '[]'
     elif param_type == 'Any':
         return input(f'What is the default value for {param_name}')
@@ -51,6 +51,8 @@ def get_typescript_type_for_param(param_name: str, param_type: str) -> str:
         return 'ColumnID'
     elif param_type == 'List[ColumnID]':
         return 'ColumnID[]'
+    elif param_type == 'List[str]':
+        return 'string[]'
     elif param_type == 'Any':
         return input(f'What is the Typescript type for {param_name}')
     else:
