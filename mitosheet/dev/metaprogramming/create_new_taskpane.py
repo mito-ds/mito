@@ -2,7 +2,7 @@
 
 
 
-from typing import Dict
+from typing import Dict, Optional
 
 from metaprogramming.utils.action_utils import write_to_actions_file
 from metaprogramming.utils.code_utils import (CLOSE_BRACKET, OPEN_BRACKET,
@@ -71,7 +71,7 @@ def write_taskpane_types_file(original_taskpane_name: str, is_editing_taskpane: 
         f.write(code)
 
 
-def create_new_taskpane(original_taskpane_name: str, params: Dict[str, str], is_editing_taskpane: bool, is_live_updating_taskpane: bool, is_remain_open_undo_redo_taskpane: bool, create_action: bool) -> None:
+def create_new_taskpane(original_taskpane_name: str, params: Dict[str, str], is_editing_taskpane: bool, is_live_updating_taskpane: bool, is_remain_open_undo_redo_taskpane: bool, create_action: Optional[bool]=None) -> None:
     
     taskpane_name_capital = original_taskpane_name.replace(' ', '')
     path_to_folder = get_src_folder() / 'components' / 'taskpanes' / taskpane_name_capital

@@ -33,6 +33,8 @@ else:
     StepsManagerType = Any
     StateType = Any
 
+IndexType = Union[str, int, bool, float]
+
 
 DataframeFormat = Dict[str, Any]
 ColumnFormat = Dict[str, Any]
@@ -53,7 +55,7 @@ ConditionalFormat: {
 """
 
 ConditionalFormattingInvalidResults = Dict[ConditionalFormatUUID, List[ColumnID]]
-ConditionalFormattingCellResults = Dict[ColumnID, Dict[int, Dict[str, Optional[str]]]]
+ConditionalFormattingCellResults = Dict[ColumnID, Dict[IndexType, Dict[str, Optional[str]]]]
 
 ConditionalFormattingResult = Dict[str, Union[
         ConditionalFormattingInvalidResults, # A list of the invalid columns for a specific filter
