@@ -39,6 +39,14 @@ export const NUMBER_SELECT_OPTIONS: Record<NumberFilterCondition, {'long_name': 
         long_name:  '\u2264',
         short_name: '\u2264'
     },
+    ['number_lowest']: {
+        long_name:  'lowest',
+        short_name: 'lowest'
+    },
+    ['number_highest']: {
+        long_name:  'highest',
+        short_name: 'highest'
+    },
 } 
 
 export const STRING_SELECT_OPTIONS: Record<StringFilterCondition, {'long_name': string, 'short_name': string}> = {
@@ -103,6 +111,14 @@ export const SHARED_SELECT_OPTIONS: Record<string, {'long_name': string, 'short_
     ['not_empty']: {
         long_name: 'is not empty',
         short_name: 'is not empty'
+    },
+    ['most_frequent']: {
+        long_name: 'most frequent',
+        short_name: 'most frequent'
+    },
+    ['least_frequent']: {
+        long_name: 'least frequent',
+        short_name: 'least frequent'
     }
 } 
 

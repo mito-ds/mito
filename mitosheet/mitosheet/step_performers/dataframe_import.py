@@ -27,6 +27,9 @@ def get_variable_with_name_from_caller(variable_name: str) -> Optional[Any]:
 
     If ipython is not defined, it will assume we are in some other python enviornment,
     and attempt to get the variable from the callers stack frames.
+
+    This is useful so that we can test this function (e.g. pytest does not run in
+    an ipython enviornment).
     """
     ipython = get_ipython()
     if ipython is not None:

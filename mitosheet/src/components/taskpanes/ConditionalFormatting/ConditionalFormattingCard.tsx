@@ -63,7 +63,7 @@ const getInvalidColumnHeadersMessage = (sheetData: SheetData, invalidColumnIDs: 
     const [columnHeadersString, numOtherColumnHeaders] = getFirstCharactersOfColumnHeaders(columnHeaders, 25)
     
     if (numOtherColumnHeaders === 0) {
-        return (<p><span className='text-color-error-important'>{columnHeadersString}</span> are invalid.</p>)
+        return (<p><span className='text-color-error-important'>{columnHeadersString}</span> {invalidColumnIDs.length === 1 ? 'is' : 'are'} invalid.</p>)
     } else {
         return (<p><span className='text-color-error-important'>{columnHeadersString}</span> and <span className='text-color-error-important'>{numOtherColumnHeaders}</span> others are invalid.</p>)
     }
@@ -99,39 +99,39 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
         // If this is not the open card
         return (
             <div className='conditional-format-card' onClick={() => props.setOpenFormattingCardIndex(conditionalFormatIndex)}> 
-                <Row justify='space-between' align='center'>
-                    <Row suppressTopBottomMargin align='center' justify='start'>
-                        <Col offsetRight={1}>
-                            {invalidColumnIDs.length === 0 &&
-                                <ConditionalFormatIcon
-                                    color={color}
-                                    backgroundColor={backgroundColor}
-                                />
-                            }
-                            {invalidColumnIDs.length !== 0 &&
-                                <ConditionalFormatInvalidIcon
-                                    color={color}
-                                    backgroundColor={backgroundColor}
-                                />
-                            }
-                        </Col>
-                        <Col>
-                            <div className='flex flex-column'>
-                                <p className='text-body-1'>
-                                    {conditionText} {props.conditionalFormat.filters[0]?.value}
-                                </p>
-                                <p className='text-body-2'>
-                                    {getColumnHeadersIncludedMessage(props.sheetData, props.conditionalFormat.columnIDs)}
-                                </p>
-                            </div>
-                        </Col>
-                    </Row>
-                    <Row align='top' justify='end'>
-                        <div className='mr-5px' title='Configure conditional formatting rule'>
-                            <UpArrowIcon/>
+                <Row suppressTopBottomMargin align='center' justify='start'>
+                    <Col offsetRight={1} title={invalidColumnIDs.length !== 0 ? `This conditional format cannot be applied to ${invalidColumnIDs.length} columns that are selected. Please update the filters or selected columns to fix.` : ''}>
+                        {invalidColumnIDs.length === 0 &&
+                            <ConditionalFormatIcon
+                                color={color}
+                                backgroundColor={backgroundColor}
+                            />
+                        }
+                        {invalidColumnIDs.length !== 0 &&
+                            <ConditionalFormatInvalidIcon
+                                color={color}
+                                backgroundColor={backgroundColor}
+                            />
+                        }
+                    </Col>
+                    <Col span={17.5}>
+                        <div className='flex flex-column'>
+                            <p className='text-body-1'>
+                                {conditionText} {props.conditionalFormat.filters[0]?.value}
+                            </p>
+                            <p className='text-body-2'>
+                                {getColumnHeadersIncludedMessage(props.sheetData, props.conditionalFormat.columnIDs)}
+                            </p>
                         </div>
-                        {XElement}
-                    </Row>
+                    </Col>
+                    <Col>
+                        <Row align='top' justify='end' suppressTopBottomMargin>
+                            <div className='mr-5px' title='Configure conditional formatting rule'>
+                                <UpArrowIcon/>
+                            </div>
+                            {XElement}
+                        </Row>
+                    </Col>
                 </Row>
             </div>
         )
@@ -184,7 +184,7 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
                         return (
                             <MultiToggleItem
                                 key={index}
-                                title={getDisplayColumnHeader(columnHeader) + (isInvalid ? "(invalid)" : '')}
+                                title={getDisplayColumnHeader(columnHeader) + (isInvalid ? " (invalid)" : '')}
                                 rightText={getDtypeValue(columnDtype)}
                                 toggled={toggled}
                                 index={index}

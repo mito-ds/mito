@@ -13,10 +13,10 @@ from mitosheet.state import State
 from mitosheet.step_performers.filter import (
     FC_BOOLEAN_IS_FALSE, FC_BOOLEAN_IS_TRUE, FC_DATETIME_EXACTLY,
     FC_DATETIME_GREATER, FC_DATETIME_GREATER_THAN_OR_EQUAL, FC_DATETIME_LESS,
-    FC_DATETIME_LESS_THAN_OR_EQUAL, FC_DATETIME_NOT_EXACTLY, FC_EMPTY,
+    FC_DATETIME_LESS_THAN_OR_EQUAL, FC_DATETIME_NOT_EXACTLY, FC_EMPTY, FC_LEAST_FREQUENT, FC_MOST_FREQUENT,
     FC_NOT_EMPTY, FC_NUMBER_EXACTLY, FC_NUMBER_GREATER,
-    FC_NUMBER_GREATER_THAN_OR_EQUAL, FC_NUMBER_LESS,
-    FC_NUMBER_LESS_THAN_OR_EQUAL, FC_NUMBER_NOT_EXACTLY, FC_STRING_CONTAINS,
+    FC_NUMBER_GREATER_THAN_OR_EQUAL, FC_NUMBER_HIGHEST, FC_NUMBER_LESS,
+    FC_NUMBER_LESS_THAN_OR_EQUAL, FC_NUMBER_LOWEST, FC_NUMBER_NOT_EXACTLY, FC_STRING_CONTAINS,
     FC_STRING_DOES_NOT_CONTAIN, FC_STRING_ENDS_WITH, FC_STRING_EXACTLY,
     FC_STRING_NOT_EXACTLY, FC_STRING_STARTS_WITH)
 from mitosheet.transpiler.transpile_utils import (
@@ -28,6 +28,8 @@ FILTER_FORMAT_STRING_DICT = {
     # SHARED CONDITIONS
     FC_EMPTY: "{df_name}[{transpiled_column_header}].isna()",
     FC_NOT_EMPTY: "{df_name}[{transpiled_column_header}].notnull()",
+    FC_LEAST_FREQUENT: "{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].value_counts().index.tolist()[-{value}:])",
+    FC_MOST_FREQUENT: "{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].value_counts().index.tolist()[:{value}])",
     # BOOLEAN
     FC_BOOLEAN_IS_TRUE: "{df_name}[{transpiled_column_header}] == True",
     FC_BOOLEAN_IS_FALSE: "{df_name}[{transpiled_column_header}] == False",
@@ -38,6 +40,8 @@ FILTER_FORMAT_STRING_DICT = {
     FC_NUMBER_GREATER_THAN_OR_EQUAL: "{df_name}[{transpiled_column_header}] >= {value}",
     FC_NUMBER_LESS: "{df_name}[{transpiled_column_header}] < {value}",
     FC_NUMBER_LESS_THAN_OR_EQUAL: "{df_name}[{transpiled_column_header}] <= {value}",
+    FC_NUMBER_LOWEST: '{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].nsmallest({value}, keep=\'all\'))',
+    FC_NUMBER_HIGHEST: '{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].nlargest({value}, keep=\'all\'))',
     # STRINGS
     FC_STRING_CONTAINS: "{df_name}[{transpiled_column_header}].str.contains('{value}', na=False)",
     FC_STRING_DOES_NOT_CONTAIN: "~{df_name}[{transpiled_column_header}].str.contains('{value}', na=False)",
@@ -64,6 +68,14 @@ FILTER_FORMAT_STRING_MULTIPLE_VALUES_DICT = {
     FC_NOT_EMPTY: {
         "Or": "{df_name}[{transpiled_column_header}].notnull()",
         "And": "{df_name}[{transpiled_column_header}].notnull()",
+    },
+    FC_LEAST_FREQUENT: {
+        'Or': "{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].value_counts().index.tolist()[-max({values}):])",
+        'And': "{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].value_counts().index.tolist()[-min({values}):])",
+    },
+    FC_MOST_FREQUENT: {
+        'Or': "{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].value_counts().index.tolist()[:max({values})])",
+        'And': "{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].value_counts().index.tolist()[:min({values})])"
     },
     FC_BOOLEAN_IS_TRUE: {
         "Or": "{df_name}[{transpiled_column_header}] == True",
@@ -96,6 +108,14 @@ FILTER_FORMAT_STRING_MULTIPLE_VALUES_DICT = {
     FC_NUMBER_LESS_THAN_OR_EQUAL: {
         "Or": "{df_name}[{transpiled_column_header}].apply(lambda val: any(val <= n for n in {values}))",
         "And": "{df_name}[{transpiled_column_header}].apply(lambda val: all(val <= n for n in {values}))",
+    },
+    FC_NUMBER_LOWEST: {
+        "Or": '{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].nsmallest(max({values}), keep=\'all\'))',
+        "And": '{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].nsmallest(min({values}), keep=\'all\'))'
+    }, 
+    FC_NUMBER_HIGHEST: {
+        "Or": '{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].nlargest(max({values}), keep=\'all\'))',
+        "And": '{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].nlargest(min({values}), keep=\'all\'))'
     },
     FC_STRING_CONTAINS: {
         "Or": "{df_name}[{transpiled_column_header}].apply(lambda val: any(s in str(val) for s in {values}))",

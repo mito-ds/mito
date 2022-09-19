@@ -50,12 +50,13 @@ const GridData = (props: {
                             const columnIndex = currentSheetView.startingColumnIndex + _colIndex;
                             const columnID = columnIDs[columnIndex]
                             const columnDtype = props.sheetData?.data[columnIndex]?.columnDtype;
+                            const index = props.sheetData?.index[rowIndex] !== undefined ? props.sheetData?.index[rowIndex] : 0;
                             const columnFormatType = sheetData.dfFormat.columns[columnID]
                             const cellData = props.sheetData?.data[columnIndex]?.columnData[rowIndex];
                             const cellIsSelected = getIsCellSelected(props.gridState.selections, rowIndex, columnIndex);
 
                             const conditionalFormatMap = sheetData?.conditionalFormattingResult.results[columnID];
-                            const conditionalFormat = conditionalFormatMap ? {...conditionalFormatMap[rowIndex]} : undefined;
+                            const conditionalFormat = conditionalFormatMap ? {...conditionalFormatMap[index]} : undefined;
 
 
                             if (cellIsSelected && conditionalFormat?.backgroundColor !== undefined && conditionalFormat?.backgroundColor !== null) {

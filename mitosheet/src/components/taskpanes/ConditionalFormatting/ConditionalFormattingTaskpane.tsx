@@ -1,20 +1,20 @@
 import React, { useState } from "react";
-import MitoAPI, { getRandomId } from "../../../jupyter/api";
-import { AnalysisData, ConditionalFormat, DataframeFormat, RecursivePartial, SheetData, StepType, UIState, UserProfile } from "../../../types"
 import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
+import MitoAPI, { getRandomId } from "../../../jupyter/api";
+import { AnalysisData, ConditionalFormat, DataframeFormat, RecursivePartial, SheetData, StepType, UIState, UserProfile } from "../../../types";
 import DataframeSelect from '../../elements/DataframeSelect';
 
+import { updateObjectWithPartialObject } from "../../../utils/objects";
+import TextButton from "../../elements/TextButton";
+import Col from "../../layout/Col";
+import Row from "../../layout/Row";
+import { checkFilterShouldHaveNumberValue } from "../ControlPanel/FilterAndSortTab/filter/utils";
+import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
-import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
-import ConditionalFormattingCard from "./ConditionalFormattingCard";
-import { updateObjectWithPartialObject } from "../../../utils/objects";
-import TextButton from "../../elements/TextButton";
 import { getDefaultDataframeFormat } from "../SetDataframeFormat/SetDataframeFormatTaskpane";
-import { NUMBER_SELECT_OPTIONS } from "../ControlPanel/FilterAndSortTab/filter/filterConditions";
-import Row from "../../layout/Row";
-import Col from "../../layout/Col";
+import ConditionalFormattingCard from "./ConditionalFormattingCard";
 
 
 interface ConditionalFormattingTaskpaneProps {
@@ -77,13 +77,14 @@ const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps
                     const newConditionalFormat = {...conditionalFormat};
                     const newFilters = newConditionalFormat.filters.map(filter => {
                         const newFilter = {...filter};
-                        const value = newFilter.value;
-                        if (Object.keys(NUMBER_SELECT_OPTIONS).includes(newFilter.condition) && typeof value === 'string') {
-                            const valueAsNumber = parseFloat(value);
+                        let newValue = newFilter.value;
+                        if (checkFilterShouldHaveNumberValue(newFilter)) {
+                            const valueAsNumber = parseFloat(newFilter.value);
                             if (!isNaN(valueAsNumber)) {
-                                newFilter.value = valueAsNumber;
+                                newValue = valueAsNumber;
                             }
                         }
+                        newFilter.value = newValue;
                         return newFilter;
                     });
                     return {

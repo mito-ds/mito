@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { FilterType, FilterGroupType } from '../../../../../types';
+import { FilterType, FilterGroupType, StringValueFilterType } from '../../../../../types';
 import { isBoolDtype, isDatetimeDtype, isNumberDtype, isStringDtype, isTimedeltaDtype } from '../../../../../utils/dtypes';
 import DropdownItem from '../../../../elements/DropdownItem';
 import DropdownSectionSeperator from '../../../../elements/DropdownSectionSeperator';
@@ -100,6 +100,11 @@ export function getExclusiveFilterData(columnDtype: string, value: string | numb
     }
 }
 
+export const checkFilterShouldHaveNumberValue = (filter: FilterType): filter is StringValueFilterType => {
+    return ((Object.keys(NUMBER_SELECT_OPTIONS).includes(filter.condition) || filter.condition === 'most_frequent' || filter.condition === 'least_frequent')
+                            && typeof filter.value === 'string')
+}
+
 /* 
     A filter is invalid if:
     1. It should have an input, and it does not
@@ -126,8 +131,8 @@ export const isValidFilter = (filter: FilterType, columnDtype: string): boolean 
     The frontend stores number filters as strings, and so we parse them to
     numbers before sending them to the backend
 */
-export const parseFilter = (filter: FilterType, columnDtype: string): FilterType => {
-    if (isNumberDtype(columnDtype) && typeof filter.value === 'string') {
+export const parseFilter = (filter: FilterType): FilterType => {
+    if (checkFilterShouldHaveNumberValue(filter)) {
         return {
             condition: filter.condition,
             value: parseFloat(filter.value)

@@ -146,7 +146,7 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
                 {dataframeCards}
                 {dataframeCards.length === 0 &&
                     <Row>
-                        <p className="text-subtext-1">Add a dataframe to import it as a tab in the mitosheet.</p>
+                        <p className="text-subtext-1">Import an existing dataframe as a new sheet tab in Mito</p>
                     </Row>
                 
                 }

@@ -101,10 +101,6 @@ def get_conditonal_formatting_result(
         column_ids = conditional_format["columnIDs"]
 
         for column_id in column_ids:
-            # Skip columns this is not applied to
-            if column_id not in column_ids:
-                continue
-            
             if column_id not in formatted_result:
                 formatted_result[column_id] = dict()
 
@@ -118,7 +114,7 @@ def get_conditonal_formatting_result(
             from mitosheet.step_performers.filter import get_full_applied_filter
             try:
                 full_applied_filter, _ = get_full_applied_filter(df, column_header, 'And', filters)
-                applied_indexes = full_applied_filter[full_applied_filter].index.tolist()
+                applied_indexes = df[full_applied_filter].index.tolist()
 
                 for index in applied_indexes:
                     # We need to make this index valid json, and do so in a way that is consistent with how indexes

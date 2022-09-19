@@ -1161,12 +1161,12 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return undefined}, 
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no data to format. Import data before formatting.'}, 
             searchTerms: ['Set dataframe format', 'dataframe', 'format', 'color', 'color palette', 'border', 'highlight'],
             tooltip: "Change the styling of the header, rows, and border of the dataframe."
         },
-        [ActionEnum.CONDITIONALFORMATTING]: {
-            type: ActionEnum.CONDITIONALFORMATTING,
+        [ActionEnum.Conditional_Formatting]: {
+            type: ActionEnum.Conditional_Formatting,
             shortTitle: 'Conditional Formatting',
             longTitle: 'Conditional formatting',
             actionFunction: () => {
@@ -1185,10 +1185,10 @@ export const createActions = (
                 return doesAnySheetExist(sheetDataArray) ? undefined : 'There is no data to format. Import data.';
             },
             searchTerms: ['formatting', 'conditional', 'color', 'background', 'highlight'],
-            tooltip: "Format"
+            tooltip: "Set the background color and text color of the cell based on a condition."
         },
-        [ActionEnum.DATAFRAME_IMPORT]: {
-            type: ActionEnum.DATAFRAME_IMPORT,
+        [ActionEnum.Dataframe_Import]: {
+            type: ActionEnum.Dataframe_Import,
             shortTitle: 'Import Dataframes',
             longTitle: 'Import dataframes',
             actionFunction: () => {

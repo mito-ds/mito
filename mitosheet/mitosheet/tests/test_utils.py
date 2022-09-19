@@ -23,19 +23,6 @@ from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat, GraphID, Mu
 from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id
 
 
-def decorate_all_functions(function_decorator):
-    """
-    Helper function to decorate all function
-    calls in a class
-    """
-    def decorator(cls):
-        for name, obj in vars(cls).items():
-            if callable(obj):
-                setattr(cls, name, function_decorator(obj))
-        return cls
-    return decorator
-
-
 def check_transpiled_code_after_call(func):
     @wraps(func)
     def wrapper(*args, **kw):
@@ -74,6 +61,8 @@ def check_dataframes_equal(test_wrapper):
     # Then, construct code that is just the code we expect, except at the end
     # it compares the dataframe to the final dataframe we expect
     def check_final_dataframe(df_name, df):
+        print(final_dfs[df_name])
+        print(df)
         assert final_dfs[df_name].equals(df)
 
     code = "\n".join(
@@ -85,6 +74,7 @@ def check_dataframes_equal(test_wrapper):
     )
 
     import mitosheet
+    print(code)
     exec(code, 
         {
             'check_final_dataframe': check_final_dataframe,

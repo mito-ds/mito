@@ -11,13 +11,11 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.pivot_code_chunk import PivotCodeChunk
 
 from mitosheet.column_headers import flatten_column_header
-from mitosheet.errors import (make_invalid_aggregation_error,
-                              make_invalid_pivot_error, make_no_column_error)
+from mitosheet.errors import (make_invalid_pivot_error, make_no_column_error)
 from mitosheet.step_performers.utils import get_param
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.state import DATAFRAME_SOURCE_PIVOTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
-from pandas.core.base import DataError
 
 from mitosheet.types import ColumnHeader, ColumnID
 
@@ -101,34 +99,26 @@ class PivotStepPerformer(StepPerformer):
         # Create the post state, it can be a shallow copy
         post_state = prev_state.copy()
 
-        try:
-            # Actually execute the pivoting
-            pandas_start_time = perf_counter()
-            new_df, was_series = _execute_pivot(
-                prev_state.dfs[sheet_index], 
-                pivot_rows,
-                pivot_columns,
-                values,
-                flatten_column_headers
-            )
-            pandas_processing_time = perf_counter() - pandas_start_time
-            # Create a new df name if we don't have one
-            df_name = get_new_pivot_df_name(post_state, sheet_index) if destination_sheet_index is None else post_state.df_names[destination_sheet_index]
-            
-            destination_sheet_index = post_state.add_df_to_state(
-                new_df, 
-                DATAFRAME_SOURCE_PIVOTED,
-                sheet_index=destination_sheet_index,
-                df_name=df_name,
-                use_deprecated_id_algorithm=use_deprecated_id_algorithm
-            )
-
-        except DataError as e:
-            # A data-error occurs when you try to aggregate on a column where the function
-            # cannot be applied (e.g. 'mean' on a column of strings)
-            print(e)
-            # Generate an error informing the user
-            raise make_invalid_aggregation_error()
+        # Actually execute the pivoting
+        pandas_start_time = perf_counter()
+        new_df, was_series = _execute_pivot(
+            prev_state.dfs[sheet_index], 
+            pivot_rows,
+            pivot_columns,
+            values,
+            flatten_column_headers
+        )
+        pandas_processing_time = perf_counter() - pandas_start_time
+        # Create a new df name if we don't have one
+        df_name = get_new_pivot_df_name(post_state, sheet_index) if destination_sheet_index is None else post_state.df_names[destination_sheet_index]
+        
+        destination_sheet_index = post_state.add_df_to_state(
+            new_df, 
+            DATAFRAME_SOURCE_PIVOTED,
+            sheet_index=destination_sheet_index,
+            df_name=df_name,
+            use_deprecated_id_algorithm=use_deprecated_id_algorithm
+        )
 
 
         return post_state, {

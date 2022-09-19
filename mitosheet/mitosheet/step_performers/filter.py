@@ -20,6 +20,8 @@ from mitosheet.types import ColumnHeader, ColumnID
 # NOTE: these must be unique (e.g. no repeating names for different types)
 FC_EMPTY = "empty"
 FC_NOT_EMPTY = "not_empty"
+FC_LEAST_FREQUENT = "least_frequent"
+FC_MOST_FREQUENT = "most_frequent"
 
 FC_BOOLEAN_IS_TRUE = "boolean_is_true"
 FC_BOOLEAN_IS_FALSE = "boolean_is_false"
@@ -37,6 +39,8 @@ FC_NUMBER_GREATER = "greater"
 FC_NUMBER_GREATER_THAN_OR_EQUAL = "greater_than_or_equal"
 FC_NUMBER_LESS = "less"
 FC_NUMBER_LESS_THAN_OR_EQUAL = "less_than_or_equal"
+FC_NUMBER_LOWEST = 'number_lowest'
+FC_NUMBER_HIGHEST = 'number_highest'
 
 FC_DATETIME_EXACTLY = "datetime_exactly"
 FC_DATETIME_NOT_EXACTLY = "datetime_not_exactly"
@@ -143,6 +147,11 @@ def get_applied_filter(
         return df[column_header].isna()
     elif condition == FC_NOT_EMPTY:
         return df[column_header].notnull()
+    elif condition == FC_LEAST_FREQUENT:
+        return df[column_header].isin(df[column_header].value_counts().index.tolist()[-value:])
+    elif condition == FC_MOST_FREQUENT:
+        return df[column_header].isin(df[column_header].value_counts().index.tolist()[:value])
+
 
     # Then bool
     if condition == FC_BOOLEAN_IS_TRUE:
@@ -177,6 +186,10 @@ def get_applied_filter(
         return df[column_header] < value
     elif condition == FC_NUMBER_LESS_THAN_OR_EQUAL:
         return df[column_header] <= value
+    elif condition == FC_NUMBER_LOWEST:
+        return df[column_header].isin(df[column_header].nsmallest(value, keep='all'))
+    elif condition == FC_NUMBER_HIGHEST:
+        return df[column_header].isin(df[column_header].nlargest(value, keep='all'))
 
     # Check that we were given something that can be understood as a date
     try:
@@ -269,5 +282,4 @@ def _execute_filter(
     """
 
     full_applied_filter, pandas_processing_time = get_full_applied_filter(df, column_header, operator, filters)
-    print("FULL FILTER", full_applied_filter)
     return df[full_applied_filter], pandas_processing_time

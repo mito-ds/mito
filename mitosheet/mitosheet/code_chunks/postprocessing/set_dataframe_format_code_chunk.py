@@ -216,10 +216,16 @@ def get_conditional_format_code_list(state: State, sheet_index: int) -> Optional
         # in the conditional formatting implementation
         entire_filter_string = entire_filter_string.replace(f'{df_name}[{column_header_to_transpiled_code(FAKE_COLUMN_HEADER)}]', "series")
 
+        color_string = ''
         if color is not None:
-            all_code.append(f".apply(lambda series: np.where({entire_filter_string}, 'color: {color}', None), subset={transpiled_column_headers})")
+            color_string += f'color: {color}'
         if background_color is not None:
-            all_code.append(f".apply(lambda series: np.where({entire_filter_string}, 'background-color: {background_color}', None), subset={transpiled_column_headers})")
+            if len(color_string) > 0:
+                color_string += '; '
+            color_string += f'background-color: {background_color}'
+
+        if len(color_string) > 0:
+            all_code.append(f".apply(lambda series: np.where({entire_filter_string}, '{color_string}', None), subset={transpiled_column_headers})")
 
     if len(all_code) > 0:
         return all_code

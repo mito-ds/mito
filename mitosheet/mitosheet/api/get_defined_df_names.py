@@ -30,7 +30,7 @@ def get_df_names() -> Dict[str, pd.DataFrame]:
     with Capturing() as output:
         ipython.run_line_magic("who",  "DataFrame")
         
-    output = [line.strip() for line in output]
+    output = [df.strip() for line in output for df in line.split("\t") if df.strip() != '']
     return output
 
 
