@@ -1,0 +1,77 @@
+.floating-cell-editor {
+    /* The entire floating cell editor should float */
+    z-index: 2;
+    position: absolute;
+    box-sizing: border-box;
+}
+
+.cell-editor {
+    height: min-content;
+    background: white;
+}
+
+.cell-editor-form {
+    border: 2px solid var(--mito-medium-purple);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.cell-editor-input {
+    height: 23px;
+    width: 100%;
+    border: none;
+    box-sizing: border-box;
+    /* Notebooks does some weird things with outlines */
+    outline: none;
+}
+
+.cell-editor-dropdown-box {
+    background: white;
+    box-shadow: 1px 1px 5px grey;
+    border-radius: 3px;
+    
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    white-space: normal;
+ 
+    /* This div should float whether it is in the cell or formula bar */
+    z-index: 2;
+    position: absolute;
+}
+
+.cell-editor-suggestion {
+    display: flex;
+    flex-direction: column;
+    padding-left: 10px;
+
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.cell-editor-suggestion-selected {
+    background-color: var(--mito-light-blue);
+}
+
+.cell-editor-function-documentation-header {
+    background-color: var(--mito-light-blue);
+}
+
+.cell-editor-function-documentation-header > * + * {
+    margin-top: 5px;
+}
+
+.cell-editor-function-documentation-example {
+    color: var(--mito-purple);
+}
+
+.cell-editor-label {
+    background-color: var(--mito-very-light-gray);
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.cell-editor-error-container {
+    white-space: normal;
+    overflow-wrap: break-word;
+}

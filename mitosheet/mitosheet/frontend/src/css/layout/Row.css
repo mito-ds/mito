@@ -1,0 +1,13 @@
+.spacing-row {
+    display: flex;
+    width: 100%;
+    box-sizing: border-box;    
+}
+
+.spacing-row-no-top-bottom-margin {
+    margin: 0px;
+}
+
+.spacing-row-top-bottom-margin {
+    margin: 4px 0px;
+}

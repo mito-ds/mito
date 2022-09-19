@@ -1,0 +1,19 @@
+
+
+.checklist-container {
+    background-color: var(--mito-purple);
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.checklist-item {
+    color: var(--mito-white);
+}
+
+.checklist-item:hover {
+    color: var(--mito-off-white);
+}
+
+.checklist-item-completed {
+    color: var(--mito-disabled-purple);
+}

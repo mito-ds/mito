@@ -1,0 +1,46 @@
+
+/* Row */
+.mito-grid-row {
+    display: flex;
+    user-select: none;
+}
+
+
+/* Cell */
+.mito-grid-cell {
+    height: var(--cell-height);
+    padding: 0px 5px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+
+    box-sizing: border-box;
+    
+    /* Align vertically */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.mito-grid-cell:hover {
+    background-color: var(--mito-very-light-purple);
+}
+
+/* We make selected cells look different on even and odd rows */
+.mito-grid-row-even .mito-grid-cell-selected {
+    background-color: rgba(153, 102, 255, .15);
+}
+.mito-grid-row-odd .mito-grid-cell-selected {
+    background-color: rgba(153, 102, 255, 0.10);
+}
+
+.mito-grid-cell-hidden {
+    visibility: hidden;
+}
+
+.right-align-number-series {
+    /* Right align number series */
+    text-align: right;
+}

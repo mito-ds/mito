@@ -1,0 +1,132 @@
+.column-headers-container {
+    overflow: hidden;
+    /* NOTE: this must match EndoGrid.css */
+    grid-area: r-header;
+    user-select: none;
+    display: flex;
+}
+
+.column-headers-container > div {
+    display: flex;
+}
+
+/* 
+    Stores all of the pieces of a single column header, 
+    which is sometimes just a single piece, but in the
+    case of a multi-index header, is mulitple items.
+*/
+.column-header-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.column-header-resizer {
+    /* We make the cursor appear to the user as something you can use to resize */
+    cursor: col-resize;
+    width: 10px;
+    height: 100%;
+}
+
+.column-headers-resizing {
+    cursor: col-resize;
+}
+
+.grabbable {
+    cursor: move; 
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+}
+
+ /* Apply a "closed-hand" cursor during drag operation. */
+.grabbable:active {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+}
+
+/* Don't highlight if we're resizing */
+.column-headers-no-operation .column-header-container:hover {
+    background-color: var(--mito-light-purple) !important;
+    color: var(--mito-gray) !important;
+}
+
+.column-header-container-selected {
+    background-color: var(--mito-light-purple) !important;
+    color: var(--mito-gray) !important;
+}
+
+.column-header-text {
+    font-weight: bold;
+}
+
+.column-header-lower-level-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.column-header-lower-level-text {
+    padding-top: 5px;
+    padding-right: 5px;
+    padding-left: 5px;
+}
+
+/* 
+    The container div that holds a single column header 
+    at the bottom of the column headers.
+*/
+.column-header-final-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+
+.column-header-final-text {
+    flex: 1;
+
+    padding-top: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    /* 
+        We set this bottom padding smaller to hide the weird text below 
+        the line clamp.
+    */
+    padding-bottom: 2.5px; 
+
+    /* 
+        It is hard to get the header to show two lines of text and to also
+        use ellipises, without using javascript (but we want to do so for 
+        efficiency reasons!).  
+
+        See the second answer to see how we do this: 
+        https://stackoverflow.com/questions/11989546/wrap-a-text-within-only-two-lines-inside-div
+    */
+    word-break: break-all;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2; /* number of lines to show */
+    box-sizing: border-box;
+}
+
+/* Stop too much resizing happening with border when a header is selected */
+.column-header-final-container-selected .column-header-final-text {
+    padding-top: 4.5px;
+    padding-left: 4.5px;
+    padding-right: 4.5px;
+} 
+
+/* Container for the icons and resizer */
+.column-header-final-right-side {
+    display: flex;
+}
+
+.column-header-final-icons {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+}

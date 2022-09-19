@@ -1,0 +1,16 @@
+.border-t-light-gray {
+    border-top: 1px solid var(--mito-light-gray);
+}
+.border-b-light-gray {
+    border-bottom: 1px solid var(--mito-light-gray);
+}
+.border-l-light-gray {
+    border-left: 1px solid var(--mito-light-gray);
+}
+.border-r-light-gray {
+    border-right: 1px solid var(--mito-light-gray);
+}
+
+.border-red-important {
+    border: 1px solid red !important;
+}
