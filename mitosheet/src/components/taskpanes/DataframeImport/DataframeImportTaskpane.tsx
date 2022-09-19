@@ -51,6 +51,7 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
     const dataframeCards: JSX.Element[] = (params?.df_names || []).map((dfName, arrIndex) => {
         return (
             <SelectAndXIconCard 
+                key={arrIndex}
                 value={dfName}
                 onChange={(newDfName) => {
                     setParams(prevParams => {
