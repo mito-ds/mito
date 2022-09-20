@@ -43,19 +43,19 @@ FILTER_FORMAT_STRING_DICT = {
     FC_NUMBER_LOWEST: '{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].nsmallest({value}, keep=\'all\'))',
     FC_NUMBER_HIGHEST: '{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].nlargest({value}, keep=\'all\'))',
     # STRINGS
-    FC_STRING_CONTAINS: "{df_name}[{transpiled_column_header}].str.contains('{value}', na=False)",
-    FC_STRING_DOES_NOT_CONTAIN: "~{df_name}[{transpiled_column_header}].str.contains('{value}', na=False)",
-    FC_STRING_EXACTLY: "{df_name}[{transpiled_column_header}] == '{value}'",
-    FC_STRING_NOT_EXACTLY: "{df_name}[{transpiled_column_header}] != '{value}'",
-    FC_STRING_STARTS_WITH: "{df_name}[{transpiled_column_header}].str.startswith('{value}', na=False)",
-    FC_STRING_ENDS_WITH: "{df_name}[{transpiled_column_header}].str.endswith('{value}', na=False)",
+    FC_STRING_CONTAINS: "{df_name}[{transpiled_column_header}].str.contains({value}, na=False)",
+    FC_STRING_DOES_NOT_CONTAIN: "~{df_name}[{transpiled_column_header}].str.contains({value}, na=False)",
+    FC_STRING_EXACTLY: "{df_name}[{transpiled_column_header}] == {value}",
+    FC_STRING_NOT_EXACTLY: "{df_name}[{transpiled_column_header}] != {value}",
+    FC_STRING_STARTS_WITH: "{df_name}[{transpiled_column_header}].str.startswith({value}, na=False)",
+    FC_STRING_ENDS_WITH: "{df_name}[{transpiled_column_header}].str.endswith({value}, na=False)",
     # DATES
-    FC_DATETIME_EXACTLY: "{df_name}[{transpiled_column_header}] == pd.to_datetime('{value}')",
-    FC_DATETIME_NOT_EXACTLY: "{df_name}[{transpiled_column_header}] != pd.to_datetime('{value}')",
-    FC_DATETIME_GREATER: "{df_name}[{transpiled_column_header}] > pd.to_datetime('{value}')",
-    FC_DATETIME_GREATER_THAN_OR_EQUAL: "{df_name}[{transpiled_column_header}] >= pd.to_datetime('{value}')",
-    FC_DATETIME_LESS: "{df_name}[{transpiled_column_header}] < pd.to_datetime('{value}')",
-    FC_DATETIME_LESS_THAN_OR_EQUAL: "{df_name}[{transpiled_column_header}] <= pd.to_datetime('{value}')",
+    FC_DATETIME_EXACTLY: "{df_name}[{transpiled_column_header}] == pd.to_datetime({value})",
+    FC_DATETIME_NOT_EXACTLY: "{df_name}[{transpiled_column_header}] != pd.to_datetime({value})",
+    FC_DATETIME_GREATER: "{df_name}[{transpiled_column_header}] > pd.to_datetime({value})",
+    FC_DATETIME_GREATER_THAN_OR_EQUAL: "{df_name}[{transpiled_column_header}] >= pd.to_datetime({value})",
+    FC_DATETIME_LESS: "{df_name}[{transpiled_column_header}] < pd.to_datetime({value})",
+    FC_DATETIME_LESS_THAN_OR_EQUAL: "{df_name}[{transpiled_column_header}] <= pd.to_datetime({value})",
 }
 
 # Dict used when there a specific filter condition has multiple

@@ -77,8 +77,7 @@ SET_DATAFRAME_FORMAT_TESTS = [
         }]), 
         [
             "import numpy as np",
-            ".apply(lambda series: np.where(series > 2, 'color: red', None), subset=['A'])",
-            ".apply(lambda series: np.where(series > 2, 'background-color: blue', None), subset=['A'])"
+            ".apply(lambda series: np.where(series > 2, 'color: red; background-color: blue', None), subset=['A'])",
         ]
     ),
     # Multiple conditional formats
@@ -92,8 +91,7 @@ SET_DATAFRAME_FORMAT_TESTS = [
         }]), 
         [
             "import numpy as np",
-            ".apply(lambda series: np.where(series > 2, 'color: red', None), subset=",
-            ".apply(lambda series: np.where(series > 2, 'background-color: blue', None), subset=",
+            ".apply(lambda series: np.where(series > 2, 'color: red; background-color: blue', None), subset=",
             ['[\'A\', \'B\']', '[\'B\', \'A\']']
 
         ]
@@ -109,8 +107,7 @@ SET_DATAFRAME_FORMAT_TESTS = [
         }]), 
         [
             "import numpy as np",
-            ".apply(lambda series: np.where(series > 2, 'color: red', None), subset=",
-            ".apply(lambda series: np.where(series > 2, 'background-color: blue', None), subset=",
+            ".apply(lambda series: np.where(series > 2, 'color: red; background-color: blue', None), subset=",
             ['[\'A\', \'B\']', '[\'B\', \'A\']']
         ]
     ),
