@@ -24,7 +24,6 @@ export default function FilterGroup(
             {props.filters.map((filter, index) => {
                 return (
                     <Filter
-                        first={index === 0}
                         key={index}
                         filter={filter}
                         operator={props.groupOperator}
@@ -32,10 +31,11 @@ export default function FilterGroup(
                         setFilter={(newFilter) => {
                             props.setFilter(index, newFilter);
                         }}
-                        setOperator={props.setOperator}
+                        setOperator={index === 0 ? undefined : props.setOperator}
                         deleteFilter={() => {props.deleteFilter(index)}}
                         inGroup
                         columnDtype={props.columnDtype}
+                        nameLength='short_name'
                     />
                 )
             })}

@@ -27,11 +27,39 @@ ColumnHeader = Union[PrimativeColumnHeader, MultiLevelColumnHeader]
 if TYPE_CHECKING:
     from mitosheet.steps_manager import StepsManager
     StepsManagerType = StepsManager
+    from mitosheet.state import State
+    StateType = State
 else:
     StepsManagerType = Any
+    StateType = Any
+
+IndexType = Union[str, int, bool, float]
 
 
 DataframeFormat = Dict[str, Any]
 ColumnFormat = Dict[str, Any]
 
+
+ConditionalFormatUUID = str
+
+ConditionalFormat = Dict[str, Any] 
+"""
+ConditionalFormat: {
+    format_uuid: string, // Should be a random string!
+    columnIDs: ColumnID[],
+    filters: FilterType[],
+    invalidFilterColumnIDs: ColumnID[]
+    color: string | undefined
+    backgroundColor: string | undefined
+}
+"""
+
+ConditionalFormattingInvalidResults = Dict[ConditionalFormatUUID, List[ColumnID]]
+ConditionalFormattingCellResults = Dict[ColumnID, Dict[IndexType, Dict[str, Optional[str]]]]
+
+ConditionalFormattingResult = Dict[str, Union[
+        ConditionalFormattingInvalidResults, # A list of the invalid columns for a specific filter
+        ConditionalFormattingCellResults # The actual formatting results
+    ]
+]
 

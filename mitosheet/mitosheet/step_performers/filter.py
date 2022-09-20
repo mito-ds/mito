@@ -20,6 +20,8 @@ from mitosheet.types import ColumnHeader, ColumnID
 # NOTE: these must be unique (e.g. no repeating names for different types)
 FC_EMPTY = "empty"
 FC_NOT_EMPTY = "not_empty"
+FC_LEAST_FREQUENT = "least_frequent"
+FC_MOST_FREQUENT = "most_frequent"
 
 FC_BOOLEAN_IS_TRUE = "boolean_is_true"
 FC_BOOLEAN_IS_FALSE = "boolean_is_false"
@@ -37,6 +39,8 @@ FC_NUMBER_GREATER = "greater"
 FC_NUMBER_GREATER_THAN_OR_EQUAL = "greater_than_or_equal"
 FC_NUMBER_LESS = "less"
 FC_NUMBER_LESS_THAN_OR_EQUAL = "less_than_or_equal"
+FC_NUMBER_LOWEST = 'number_lowest'
+FC_NUMBER_HIGHEST = 'number_highest'
 
 FC_DATETIME_EXACTLY = "datetime_exactly"
 FC_DATETIME_NOT_EXACTLY = "datetime_not_exactly"
@@ -143,6 +147,11 @@ def get_applied_filter(
         return df[column_header].isna()
     elif condition == FC_NOT_EMPTY:
         return df[column_header].notnull()
+    elif condition == FC_LEAST_FREQUENT:
+        return df[column_header].isin(df[column_header].value_counts().index.tolist()[-value:])
+    elif condition == FC_MOST_FREQUENT:
+        return df[column_header].isin(df[column_header].value_counts().index.tolist()[:value])
+
 
     # Then bool
     if condition == FC_BOOLEAN_IS_TRUE:
@@ -177,6 +186,10 @@ def get_applied_filter(
         return df[column_header] < value
     elif condition == FC_NUMBER_LESS_THAN_OR_EQUAL:
         return df[column_header] <= value
+    elif condition == FC_NUMBER_LOWEST:
+        return df[column_header].isin(df[column_header].nsmallest(value, keep='all'))
+    elif condition == FC_NUMBER_HIGHEST:
+        return df[column_header].isin(df[column_header].nlargest(value, keep='all'))
 
     # Check that we were given something that can be understood as a date
     try:
@@ -216,18 +229,12 @@ def combine_filters(operator: str, filters: pd.Series) -> pd.Series:
     # Combine all the filters into a single filter
     return functools.reduce(filter_reducer, filters)
 
-
-def _execute_filter(
+def get_full_applied_filter(
     df: pd.DataFrame,
     column_header: ColumnHeader,
     operator: str,
     filters: List[Dict[str, Any]],
-) -> Tuple[pd.DataFrame, float]:
-    """
-    Executes a filter on the given column, filtering by removing any rows who
-    don't meet the condition.
-    """
-
+) -> Tuple[pd.Series, float]:
     applied_filters = []
     pandas_start_time = perf_counter()
 
@@ -253,10 +260,26 @@ def _execute_filter(
 
     
     if len(applied_filters) > 0:
-        filtered_df = df[combine_filters(operator, applied_filters)]
+        full_applied_filter = combine_filters(operator, applied_filters)
     else:
-        filtered_df = df
-
+        full_applied_filter = pd.Series(data=True, index=df.index, dtype='bool')
+    
     pandas_processing_time = perf_counter() - pandas_start_time
 
-    return filtered_df, pandas_processing_time
+    return (full_applied_filter, pandas_processing_time)
+
+
+
+def _execute_filter(
+    df: pd.DataFrame,
+    column_header: ColumnHeader,
+    operator: str,
+    filters: List[Dict[str, Any]],
+) -> Tuple[pd.DataFrame, float]:
+    """
+    Executes a filter on the given column, filtering by removing any rows who
+    don't meet the condition.
+    """
+
+    full_applied_filter, pandas_processing_time = get_full_applied_filter(df, column_header, operator, filters)
+    return df[full_applied_filter], pandas_processing_time

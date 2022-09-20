@@ -239,7 +239,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
     const dropdownContainerElement = useRef(document.createElement("div"));
     // We store if this select was created when the element was in fullscreen or
     // not, which is helpful for cleaning up the select
-    const [isNotFullscreen] = useState(fscreen.fullscreenElement === undefined || fscreen.fullscreenElement === null);
+    const [isNotFullscreen, setIsNotFullscreen] = useState(fscreen.fullscreenElement === undefined || fscreen.fullscreenElement === null);
     // If we are in fullscreen, we need the closest mito container, and so
     // we store it in this case so we have access to it
     const mitoContainerRef = useRef<Element | null>(null);
@@ -290,17 +290,53 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
         }
     },[]);
 
+
     // Refresh the location of the dropdown for as long as it's open
     // NOTE: we could use an onscroll listener, but in practice it's 
     // wayyyy too laggy. So no thanks.
     useEffect(() => {
+        if (dropdownAnchor.current !== null) {
+            updateDropdownPosition(dropdownAnchor.current);
+        }
         const interval = setInterval(() => {
             if (dropdownAnchor.current !== null) {
                 updateDropdownPosition(dropdownAnchor.current);
             }
         }, 25)
         return () => clearInterval(interval);
-    }, [])
+    }, [props.display])
+
+    // This effect watches for full screen changes, and moves the dropdown container
+    // in the case that we enter or exit fullscreen. This is now necessary because we 
+    // always have the same dropdown anchor, whereas before it was redefined when the 
+    // dropdown was opened. We need to keep the dropdown anchor always defined so we 
+    // can find the parent element of it, and so focus on it's parent
+    useEffect(() => {
+        const handleChange = () => {
+            setIsNotFullscreen(!fscreen.fullscreenElement);
+
+            if (!fscreen.fullscreenElement) {
+                // Add element to the document, if we're not in 
+                // fullscreen mode
+                document.body.append(dropdownContainerElement.current);
+            } else {
+                // If we are in fullscreen mode, then place the dropdownContainerElement in the
+                // mitoContainer so that it is visible in fullscreen mode
+                const mitoContainer = dropdownAnchor.current?.closest('.mito-container');
+                if (mitoContainer) {
+                    mitoContainer.appendChild(dropdownContainerElement.current)
+                    mitoContainerRef.current = mitoContainer;
+                }
+            }
+
+            if (dropdownAnchor.current) {
+                updateDropdownPosition(dropdownAnchor.current);
+            }
+        };
+        fscreen.addEventListener('fullscreenchange', handleChange);
+        return () =>
+            fscreen.removeEventListener('fullscreenchange', handleChange);
+    }, []);
 
     /* 
         This function actually does the work of figuring out where the 

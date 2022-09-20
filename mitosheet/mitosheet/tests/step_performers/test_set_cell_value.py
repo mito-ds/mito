@@ -277,7 +277,7 @@ def test_set_cell_value_then_delete_dataframe():
     mito.delete_columns(0, ['A', 'B'])
     mito.delete_dataframe(0)
 
-    assert mito.transpiled_code == ['del df1']
+    assert mito.transpiled_code == []
 
 def test_set_cell_value_then_delete_different_dataframe():
     mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1], 'B': [2]}))

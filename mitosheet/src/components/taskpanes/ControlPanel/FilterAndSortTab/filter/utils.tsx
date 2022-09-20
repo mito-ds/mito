@@ -1,8 +1,11 @@
 // Copyright (c) Mito
 
-import { FilterType, FilterGroupType } from '../../../../../types';
+import React from 'react';
+import { FilterType, FilterGroupType, StringValueFilterType } from '../../../../../types';
 import { isBoolDtype, isDatetimeDtype, isNumberDtype, isStringDtype, isTimedeltaDtype } from '../../../../../utils/dtypes';
-import { CONDITIONS_WITH_NO_INPUT } from './filterConditions';
+import DropdownItem from '../../../../elements/DropdownItem';
+import DropdownSectionSeperator from '../../../../elements/DropdownSectionSeperator';
+import { BOOLEAN_SELECT_OPTIONS, CONDITIONS_WITH_NO_INPUT, DATETIME_SELECT_OPTIONS, NUMBER_SELECT_OPTIONS, SHARED_SELECT_OPTIONS, STRING_SELECT_OPTIONS } from './filterConditions';
 import { isFilterGroup } from './filterTypes';
 
 /*
@@ -47,7 +50,7 @@ export function getEmptyFilterData(columnDtype: string): FilterType {
         // like timedeltas from crashing the sheet if you add
         // a filter to it (although it's non functional :( )
         return {
-            condition: 'contains',
+            condition: 'not_empty',
             value: ''
         }
     }
@@ -97,6 +100,11 @@ export function getExclusiveFilterData(columnDtype: string, value: string | numb
     }
 }
 
+export const checkFilterShouldHaveNumberValue = (filter: FilterType): filter is StringValueFilterType => {
+    return ((Object.keys(NUMBER_SELECT_OPTIONS).includes(filter.condition) || filter.condition === 'most_frequent' || filter.condition === 'least_frequent')
+                            && typeof filter.value === 'string')
+}
+
 /* 
     A filter is invalid if:
     1. It should have an input, and it does not
@@ -123,8 +131,8 @@ export const isValidFilter = (filter: FilterType, columnDtype: string): boolean 
     The frontend stores number filters as strings, and so we parse them to
     numbers before sending them to the backend
 */
-export const parseFilter = (filter: FilterType, columnDtype: string): FilterType => {
-    if (isNumberDtype(columnDtype) && typeof filter.value === 'string') {
+export const parseFilter = (filter: FilterType): FilterType => {
+    if (checkFilterShouldHaveNumberValue(filter)) {
         return {
             condition: filter.condition,
             value: parseFloat(filter.value)
@@ -202,4 +210,50 @@ export const areFiltersEqual = (filterOne: FilterType, filterTwo: FilterType): b
 */
 export const isValueNone = (value: string | number | boolean): boolean => {
     return value === 'NaN' || value === 'nan' || value === 'NaT' || value === 'nat' || value === null || value === undefined
+}
+
+
+
+const addToFilterOptions = (prevFilterOptions: JSX.Element[], newOptions: Record<string, Record<string, string>>, name: `long_name` | 'short_name'): JSX.Element[] => {
+    const newFilterOptions = [...prevFilterOptions];
+
+    Object.entries(newOptions).forEach(([filterCondition, displayFilterCondition]) => {
+        newFilterOptions.push(
+            <DropdownItem
+                key={filterCondition}
+                id={filterCondition}
+                title={displayFilterCondition[name]}
+            />
+        )
+    });
+
+    return newFilterOptions;
+}
+
+export const getFilterOptions = (columnDtype: string | undefined, nameLength: 'long_name' | 'short_name'): JSX.Element[] => {
+    let filterOptions: JSX.Element[] = [];
+
+    if (!columnDtype || isNumberDtype(columnDtype)) {
+        filterOptions = addToFilterOptions(filterOptions, NUMBER_SELECT_OPTIONS, nameLength);
+        filterOptions.push(<DropdownSectionSeperator isDropdownSectionSeperator/>)
+    }
+
+    if (!columnDtype || isStringDtype(columnDtype)) {
+        filterOptions = addToFilterOptions(filterOptions, STRING_SELECT_OPTIONS, nameLength);
+        filterOptions.push(<DropdownSectionSeperator isDropdownSectionSeperator/>)
+    }
+    
+    if (!columnDtype || isBoolDtype(columnDtype)) {
+        filterOptions = addToFilterOptions(filterOptions, BOOLEAN_SELECT_OPTIONS, nameLength);
+        filterOptions.push(<DropdownSectionSeperator isDropdownSectionSeperator/>)
+    } 
+    
+    if (!columnDtype || isDatetimeDtype(columnDtype)) {
+        filterOptions = addToFilterOptions(filterOptions, DATETIME_SELECT_OPTIONS, nameLength);
+        filterOptions.push(<DropdownSectionSeperator isDropdownSectionSeperator/>)
+    }
+
+    filterOptions = addToFilterOptions(filterOptions, SHARED_SELECT_OPTIONS, nameLength);
+
+    return filterOptions;
 }

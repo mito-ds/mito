@@ -3,7 +3,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from copy import copy
+from copy import copy, deepcopy
 from typing import List, Optional
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
@@ -21,12 +21,14 @@ class DataframeDeleteCodeChunk(CodeChunk):
         return f'Deleted {", ".join(df_names)}'
 
     def get_code(self) -> List[str]:
-        old_dataframe_names = self.get_param('old_dataframe_names')
-        return [f'del {old_dataframe_name}' for old_dataframe_name in old_dataframe_names]
+        # NOTE: We do not actually delete the dataframes, as it serves no purpose, but 
+        # makes things confusing if you're importing dataframes from outside the sheet
+        # However, we still use this code chunk as it optimizes out other code chunks
+        return []
 
     def _combine_right_dataframe_delete(self, other_code_chunk: "DataframeDeleteCodeChunk") -> CodeChunk:
-        first_sheet_indexes = self.get_param('sheet_indexes')
-        second_sheet_indexes = other_code_chunk.get_param('sheet_indexes')
+        first_sheet_indexes = deepcopy(self.get_param('sheet_indexes'))
+        second_sheet_indexes = deepcopy(other_code_chunk.get_param('sheet_indexes'))
 
         # Because we don't have sheet ids, we need to bump any deleted dataframes
         # that are greater than those deleted first, so that they have the correct

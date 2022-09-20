@@ -10,7 +10,7 @@ import DropdownItem from './DropdownItem';
 
 interface SelectAndXIconProps {
     value: string,
-    titleMap: Record<string, string>; // Map from id -> display title
+    titleMap?: Record<string, string>; // Map from id -> display title
     onChange: (newID: string) => void;
     onDelete: () => void;
     selectableValues: string[]
@@ -33,7 +33,7 @@ const SelectAndXIconCard = (props: SelectAndXIconProps): JSX.Element => {
                     searchable
                 >
                     {props.selectableValues.map(id => {
-                        const title = props.titleMap[id];
+                        const title = props.titleMap ? props.titleMap[id] : id;
                         return (
                             <DropdownItem
                                 key={id}
@@ -46,7 +46,7 @@ const SelectAndXIconCard = (props: SelectAndXIconProps): JSX.Element => {
             </Col>
             <Col offset={1} offsetRight={1}>
                 <XIcon
-                    onClick={() => {props.onDelete()}}
+                    onClick={props.onDelete}
                 />
             </Col>
         </Row>

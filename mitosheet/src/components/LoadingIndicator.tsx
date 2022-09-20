@@ -115,6 +115,9 @@ const getDisplayMessageForMessageType = (messageType: StepType | UpdateType): st
         case StepType.OneHotEncoding: {
             return 'One hot encoding'
         }
+        case StepType.DataframeImport: {
+            return 'Dataframe Import'
+        }
         case UpdateType.Undo: {
             return 'Undoing previous edit'
         }

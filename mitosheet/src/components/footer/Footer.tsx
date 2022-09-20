@@ -47,7 +47,7 @@ function Footer(props: FooterProps): JSX.Element {
                     props.setUIState(prevUIState => {
                         return {
                             ...prevUIState,
-                            currOpenTaskpane: {type: TaskpaneType.IMPORT}
+                            currOpenTaskpane: {type: TaskpaneType.IMPORT_FILES}
                         }
                     })
                 }}

@@ -70,9 +70,7 @@ def test_add_column_and_then_delete():
         if isinstance(value, list):
             assert len(value) == 0
 
-    assert mito.transpiled_code == [
-        'del df1'
-    ]
+    assert mito.transpiled_code == []
 
 def test_add_column_in_middle():
     df = pd.DataFrame({'A': [123], 'B': [123]})
@@ -243,7 +241,7 @@ def test_add_then_set_formula_then_rename_then_delete_sheet_does_optimize():
     mito.delete_dataframe(0)
     mito.delete_dataframe(0)
 
-    assert mito.transpiled_code == ['del df1']
+    assert mito.transpiled_code == []
 
 def test_add_then_set_formula_then_rename_then_delete_different_sheet_does_not_optimize():
     mito = create_mito_wrapper([1])

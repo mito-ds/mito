@@ -22,12 +22,16 @@ from mitosheet.step_performers.filter import (
     FC_DATETIME_LESS_THAN_OR_EQUAL,
     FC_DATETIME_NOT_EXACTLY,
     FC_EMPTY,
+    FC_LEAST_FREQUENT,
+    FC_MOST_FREQUENT,
     FC_NOT_EMPTY,
     FC_NUMBER_EXACTLY,
     FC_NUMBER_GREATER,
     FC_NUMBER_GREATER_THAN_OR_EQUAL,
+    FC_NUMBER_HIGHEST,
     FC_NUMBER_LESS,
     FC_NUMBER_LESS_THAN_OR_EQUAL,
+    FC_NUMBER_LOWEST,
     FC_NUMBER_NOT_EXACTLY,
     FC_STRING_CONTAINS,
     FC_STRING_DOES_NOT_CONTAIN,
@@ -142,6 +146,18 @@ FILTER_TESTS = [
         pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
     ),
     (
+        pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
+        FC_NUMBER_LOWEST,
+        2,
+        pd.DataFrame(data={"A": [1, 2]}),
+    ),
+    (
+        pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
+        FC_NUMBER_HIGHEST,
+        2,
+        pd.DataFrame(data={"A": [5, 6]}, index=[4, 5]),
+    ),
+    (
         pd.DataFrame(data={"A": [None, 2, 3, 4, 5, 6]}),
         FC_EMPTY,
         None,
@@ -158,6 +174,42 @@ FILTER_TESTS = [
         FC_NOT_EMPTY,
         None,
         pd.DataFrame(data={"A": [2.0, 3.0, 4.0, 5.0, 6.0]}, index=list(range(1, 6))),
+    ),
+    (
+        pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6, 6]}),
+        FC_MOST_FREQUENT,
+        1,
+        pd.DataFrame(data={"A": [6, 6]}, index=list(range(5, 7))),
+    ),
+    (
+        pd.DataFrame(data={"A": [1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6]}),
+        FC_LEAST_FREQUENT,
+        1,
+        pd.DataFrame(data={"A": [1]}),
+    ),
+    (
+        pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 5, 6, 6]}),
+        FC_MOST_FREQUENT,
+        2,
+        pd.DataFrame(data={"A": [5, 5, 6, 6]}, index=list(range(4, 8))),
+    ),
+    (
+        pd.DataFrame(data={"A": [0, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6]}),
+        FC_LEAST_FREQUENT,
+        2,
+        pd.DataFrame(data={"A": [0, 1]}),
+    ),
+    (
+        pd.DataFrame(data={"A": [1, 2, 3, 3]}, index=['a', 'b', 'c', 'd']),
+        FC_MOST_FREQUENT,
+        1,
+        pd.DataFrame(data={"A": [3, 3]}, index=['c', 'd']),
+    ),
+    (
+        pd.DataFrame(data={"A": [1, 2, 3, 3]}, index=['a', 'b', 'c', 'd']),
+        FC_LEAST_FREQUENT,
+        2,
+        pd.DataFrame(data={"A": [1, 2]}, index=['a', 'b']),
     ),
     (
         pd.DataFrame(data={"A": ["1", "2", "3", "4", "5", "6"]}),
@@ -808,6 +860,38 @@ def test_boolean_and_empty_collapses_to_one_check():
 
 FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
     (
+        pd.DataFrame({"A": [1, 1, 2, 2]}),
+        FC_MOST_FREQUENT,
+        "Or",
+        1,
+        2,
+        "df1 = df1[df1['A'].isin(df1['A'].value_counts().index.tolist()[:max([1, 2])])]"
+    ),
+    (
+        pd.DataFrame({"A": [1, 1, 2, 2]}),
+        FC_LEAST_FREQUENT,
+        "Or",
+        1,
+        2,
+        "df1 = df1[df1['A'].isin(df1['A'].value_counts().index.tolist()[-max([1, 2]):])]"
+    ),
+    (
+        pd.DataFrame({"A": [1, 1, 2, 2]}),
+        FC_MOST_FREQUENT,
+        "And",
+        1,
+        2,
+        "df1 = df1[df1['A'].isin(df1['A'].value_counts().index.tolist()[:min([1, 2])])]"
+    ),
+    (
+        pd.DataFrame({"A": [1, 1, 2, 2]}),
+        FC_LEAST_FREQUENT,
+        "And",
+        1,
+        2,
+        "df1 = df1[df1['A'].isin(df1['A'].value_counts().index.tolist()[-min([1, 2]):])]"
+    ),
+    (
         pd.DataFrame({"A": [1, 2, 3, 4, 5, 6, 7, 8, 9]}),
         FC_NUMBER_GREATER,
         "And",
@@ -886,6 +970,38 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
         1,
         2,
         "df1 = df1[df1['A'].apply(lambda val: any(val <= n for n in [1, 2]))]",
+    ),
+    (
+        pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
+        FC_NUMBER_LOWEST,
+        'Or',
+        2,
+        3,
+        "df1 = df1[df1['A'].isin(df1['A'].nsmallest(max([2, 3]), keep=\'all\'))]",
+    ),
+    (
+        pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
+        FC_NUMBER_HIGHEST,
+        'Or',
+        2,
+        3,
+        "df1 = df1[df1['A'].isin(df1['A'].nlargest(max([2, 3]), keep=\'all\'))]",
+    ),
+    (
+        pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
+        FC_NUMBER_LOWEST,
+        'And',
+        2,
+        3,
+        "df1 = df1[df1['A'].isin(df1['A'].nsmallest(min([2, 3]), keep=\'all\'))]",
+    ),
+    (
+        pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
+        FC_NUMBER_HIGHEST,
+        'And',
+        2,
+        3,
+        "df1 = df1[df1['A'].isin(df1['A'].nlargest(min([2, 3]), keep=\'all\'))]",
     ),
     (
         pd.DataFrame({"A": ["123", "1334", "4567"]}),
@@ -1191,7 +1307,7 @@ def test_filter_optimizes_out_after_delete():
     mito.filter(0, "A", "And", FC_STRING_CONTAINS, "r")
     mito.delete_dataframe(0)
 
-    assert mito.transpiled_code == ['del df1']
+    assert mito.transpiled_code == []
 
 def test_filter_not_optimizes_out_after_delete_diff_sheet():
     df = pd.DataFrame({"A": ["aaron", "jake", "jon", 1, 2, "nate"]})
@@ -1202,5 +1318,4 @@ def test_filter_not_optimizes_out_after_delete_diff_sheet():
     mito.filter(0, "A", "And", FC_STRING_CONTAINS, "r")
     mito.delete_dataframe(1)
 
-    assert mito.transpiled_code[-1] == 'del df1_copy'
     assert len(mito.optimized_code_chunks) >= 3

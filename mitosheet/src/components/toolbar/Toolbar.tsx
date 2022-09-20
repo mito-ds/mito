@@ -24,6 +24,8 @@ import OpenOnboardingChecklist from './OpenChecklistButton';
 import { isVariantB } from '../../utils/experiments';
 import ToolbarFormatDropdown from './ToolbarFormatDropdown';
 import { getSelectedNumberSeriesColumnIDs } from '../endo/selectionUtils';
+import DropdownItem from '../elements/DropdownItem';
+import { TaskpaneType } from '../taskpanes/taskpanes';
 
 const Toolbar = (
     props: {
@@ -143,9 +145,35 @@ const Toolbar = (
 
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.IMPORT}
-                        action={props.actions[ActionEnum.Import]}
+                        action={props.actions[ActionEnum.Import_Dropdown]}
                         setEditorState={props.setEditorState}
-                    />
+                    >
+                        <Dropdown
+                            display={props.uiState.displayImportToolbarDropdown}
+                            closeDropdown={() => 
+                                props.setUIState(prevUIState => {
+                                    return {
+                                        ...prevUIState,
+                                        displayImportToolbarDropdown: false
+                                    }
+                                })
+                            }
+                            width='medium'
+                        >
+                            <DropdownItem title='Import Files' onClick={() => {props.setUIState(prevUIState => {
+                                return {
+                                    ...prevUIState,
+                                    currOpenTaskpane: {type: TaskpaneType.IMPORT_FILES}
+                                }
+                            })}}/>
+                            <DropdownItem title='Import Dataframes' onClick={() => {props.setUIState(prevUIState => {
+                                return {
+                                    ...prevUIState,
+                                    currOpenTaskpane: {type: TaskpaneType.DATAFRAMEIMPORT}
+                                }
+                            })}}/>
+                        </Dropdown>
+                    </ToolbarButton>
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.EXPORT}
                         action={props.actions[ActionEnum.Export]}

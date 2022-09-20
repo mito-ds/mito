@@ -16,7 +16,7 @@ import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap, get_column_header_display
 from mitosheet.sheet_functions.types.utils import get_float_dt_td_columns
-from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat
+from mitosheet.types import ColumnHeader, ColumnID, ConditionalFormattingCellResults, ConditionalFormattingResult, DataframeFormat, ConditionalFormattingInvalidResults, StateType
 
 # We only send the first 1500 rows of a dataframe; note that this
 # must match this variable defined on the front-end
@@ -82,7 +82,57 @@ def is_default_df_names(df_names: List[str]) -> bool:
     """
     return len(df_names) > 0 and df_names == [f'df{i + 1}' for i in range(len(df_names))]
 
+
+def get_conditonal_formatting_result(
+        state: StateType,
+        sheet_index: int,
+        df: pd.DataFrame,
+        conditional_formatting_rules: List[Dict[str, Any]],
+        max_rows: Optional[int]=MAX_ROWS,
+    ) -> ConditionalFormattingResult: 
+
+    df = df.head(max_rows)
+
+    invalid_conditional_formats: ConditionalFormattingInvalidResults = dict()
+    formatted_result: ConditionalFormattingCellResults = dict()
+
+    for conditional_format in conditional_formatting_rules:
+        format_uuid = conditional_format["format_uuid"]
+        column_ids = conditional_format["columnIDs"]
+
+        for column_id in column_ids:
+            if column_id not in formatted_result:
+                formatted_result[column_id] = dict()
+
+            filters  = conditional_format["filters"]
+            backgroundColor = conditional_format.get("backgroundColor", None)
+            color = conditional_format.get("color", None)
+
+            column_header = state.column_ids.get_column_header_by_id(sheet_index, column_id)
+
+            # Use the get_applied_filter function from our filtering infrastructure
+            from mitosheet.step_performers.filter import get_full_applied_filter
+            try:
+                full_applied_filter, _ = get_full_applied_filter(df, column_header, 'And', filters)
+                applied_indexes = df[full_applied_filter].index.tolist()
+
+                for index in applied_indexes:
+                    # We need to make this index valid json, and do so in a way that is consistent with how indexes
+                    # are sent to the frontend
+                    json_index = json.dumps(index, cls=NpEncoder)
+                    formatted_result[column_id][json_index] = {'backgroundColor': backgroundColor, 'color': color}
+            except Exception as e:
+                if format_uuid not in invalid_conditional_formats:
+                    invalid_conditional_formats[format_uuid] = []
+                invalid_conditional_formats[format_uuid].append(column_id)
+
+    return {
+        'invalid_conditional_formats': invalid_conditional_formats,
+        'results': formatted_result
+    }
+
 def dfs_to_array_for_json(
+        state: StateType,
         modified_sheet_indexes: Set[int],
         previous_array: List,
         dfs: List[pd.DataFrame],
@@ -99,7 +149,9 @@ def dfs_to_array_for_json(
         if sheet_index in modified_sheet_indexes:
             new_array.append(
                 df_to_json_dumpsable(
+                    state,
                     df, 
+                    sheet_index,
                     df_names[sheet_index],
                     df_sources[sheet_index],
                     column_spreadsheet_code_array[sheet_index],
@@ -118,7 +170,9 @@ def dfs_to_array_for_json(
 
 
 def df_to_json_dumpsable(
+        state: StateType,
         original_df: pd.DataFrame,
+        sheet_index: int,
         df_name: str,
         df_source: str,
         column_spreadsheet_code: Dict[ColumnID, str],
@@ -150,6 +204,7 @@ def df_to_json_dumpsable(
         columnnDtypeMap: Record<ColumnID, string>;
         index: (string | number)[];
         df_format: DataframeFormat;
+        conditionalFormattingResult: ConditionalFormattingResult
     }
     """
 
@@ -174,7 +229,7 @@ def df_to_json_dumpsable(
             # in this case and don't append anything
             column_final_data['columnData'].append(row[column_index] if column_index < MAX_COLUMNS else None)
         
-        final_data.append(column_final_data)     
+        final_data.append(column_final_data) 
     
     return {
         "dfName": df_name,
@@ -192,7 +247,15 @@ def df_to_json_dumpsable(
         'columnFiltersMap': column_filters,
         'columnDtypeMap': column_dtype_map,
         'index': json_obj['index'],
-        'dfFormat': df_format
+        'dfFormat': df_format,
+        'conditionalFormattingResult': get_conditonal_formatting_result(
+            state,
+            sheet_index,
+            original_df,
+            df_format['conditional_formats'],
+            max_rows=max_rows,
+        )
+
     }
 
 

@@ -120,12 +120,12 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
             if (isFilterGroup(filterOrGroup)) {
                 return {
                     filters: filterOrGroup.filters.map((filter) => {
-                        return parseFilter(filter, columnDtype);
+                        return parseFilter(filter);
                     }),
                     operator: filterOrGroup.operator
                 }
             } else {
-                return parseFilter(filterOrGroup, columnDtype)
+                return parseFilter(filterOrGroup)
             }
         })
 
