@@ -1,22 +1,22 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import warnings
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from time import perf_counter
-from typing import Any, Callable, Dict, Collection, List, Optional, Set, Tuple
-import pandas as pd
-import warnings
-from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.pivot_code_chunk import PivotCodeChunk
+from typing import Any, Callable, Collection, Dict, List, Optional, Set, Tuple
 
+import pandas as pd
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.pivot_code_chunk import \
+    PivotCodeChunk
 from mitosheet.column_headers import flatten_column_header
-from mitosheet.errors import (make_invalid_pivot_error, make_no_column_error)
-from mitosheet.step_performers.utils import get_param
-from mitosheet.telemetry.telemetry_utils import log
+from mitosheet.errors import make_invalid_pivot_error, make_no_column_error
 from mitosheet.state import DATAFRAME_SOURCE_PIVOTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
-
+from mitosheet.step_performers.utils import get_param
+from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.types import ColumnHeader, ColumnID
 
 # Aggregation types pivot supports

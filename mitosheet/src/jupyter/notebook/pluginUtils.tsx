@@ -253,3 +253,19 @@ export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines
     }
 }
 
+
+
+
+
+export const writeEmptyMitosheetCell = () => {
+    // Create a new cell below the active code cell
+    (window as any).Jupyter?.notebook?.insert_cell_below();
+    (window as any).Jupyter?.notebook?.select_next();
+    const activeCell = (window as any).Jupyter?.notebook?.get_cell((window as any).Jupyter?.notebook?.get_anchor_index());
+
+    // Add mitosheet.sheet call to new code cell
+    if (isEmptyCell(activeCell)) {
+        writeToCell(activeCell, 'import mitosheet\nmitosheet.sheet()');
+        (window as any).Jupyter?.notebook?.execute_cell_and_insert_below();
+    }
+}
