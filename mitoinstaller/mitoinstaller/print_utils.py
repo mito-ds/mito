@@ -1,6 +1,7 @@
 
 
 
+import sys
 import time
 import os
 from typing import List
@@ -39,7 +40,12 @@ def print_current_installer_message(installer_steps: List[InstallerStep], finish
 
     # First, build the checklist of the completed steps
 
-    final_string = 'Starting Mito install. This make take a few moments.\n\nIn the meantime, check out a 2 minute intro to Mito: https://www.youtube.com/watch?v=LFfWfqzdKyE\n\n'
+    is_install = 'install' in sys.argv
+
+    if is_install:
+        final_string = 'Starting Mito install. This make take a few moments.\n\nIn the meantime, check out a 2 minute intro to Mito: https://www.youtube.com/watch?v=LFfWfqzdKyE\n\n'
+    else: 
+        final_string = 'Starting Mito upgrade. This make take a few moments.\n\nIn the meantime, check out our docs: https://docs.trymito.io\n\n'
 
     running_for = time.perf_counter() - start_time
 
