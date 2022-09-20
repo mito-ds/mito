@@ -100,7 +100,7 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
         return (
             <div className='conditional-format-card' onClick={() => props.setOpenFormattingCardIndex(conditionalFormatIndex)}> 
                 <Row suppressTopBottomMargin align='center' justify='start'>
-                    <Col offsetRight={1} title={invalidColumnIDs.length !== 0 ? `This conditional format cannot be applied to ${invalidColumnIDs.length} columns that are selected. Please update the filters or selected columns to fix.` : ''}>
+                    <Col offsetRight={1} title={invalidColumnIDs.length !== 0 ? `This conditional format cannot be applied to ${invalidColumnIDs.length} column${invalidColumnIDs.length === 1 ? '' : 's'} that ${invalidColumnIDs.length === 1 ? 'is' : 'are'} selected. Please update the filters or selected columns to fix.` : ''}>
                         {invalidColumnIDs.length === 0 &&
                             <ConditionalFormatIcon
                                 color={color}
