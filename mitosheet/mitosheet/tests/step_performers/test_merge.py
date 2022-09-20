@@ -185,6 +185,54 @@ MERGE_UNIQUE_TESTS = [
             pd.DataFrame({'C': [1,2], 'D': [5,3]}),
         ],
     ),
+    (
+        [
+            pd.DataFrame({'A': [1], 'B': [None]}),
+            pd.DataFrame({'A': [1], 'C': [3]})
+        ],
+        'unique in left', 0, 1, [['A', 'A'], ['B', 'C']], ['A', 'B'], ['A', 'C'],
+        [
+            pd.DataFrame({'A': [1], 'B': [None]}),
+            pd.DataFrame({'A': [1], 'C': [3]}),
+            pd.DataFrame({'A': [1], 'B': [None]})
+        ],
+    ),
+    (
+        [
+            pd.DataFrame({'A': [1], 'B': [2]}),
+            pd.DataFrame({'A': [1], 'C': [None]})
+        ],
+        'unique in right', 0, 1, [['A', 'A'], ['B', 'C']], ['A', 'B'], ['A', 'C'],
+        [
+            pd.DataFrame({'A': [1], 'B': [2]}),
+            pd.DataFrame({'A': [1], 'C': [None]}),
+            pd.DataFrame({'A': [1], 'C': [None]})
+        ],
+    ),
+    (
+        [
+            pd.DataFrame({'A': [None,2,3], 'B': [4,5,6]}),
+            pd.DataFrame({'C': [1,1,2], 'D': [5,4,3]})
+        ],
+        'unique in left', 0, 1, [['A', 'C'], ['B', 'D']], ['A', 'B'], ['C', 'D'],
+        [
+            pd.DataFrame({'A': [None,2,3], 'B': [4,5,6]}),
+            pd.DataFrame({'C': [1,1,2], 'D': [5,4,3]}),
+            pd.DataFrame({'A': [2,3], 'B': [5,6]}),
+        ],
+    ),
+    (
+        [
+            pd.DataFrame({'A': [1,2,3], 'B': [4,5,6]}),
+            pd.DataFrame({'C': [1,None,2], 'D': [5,4,3]})
+        ],
+        'unique in right', 0, 1, [['A', 'C'], ['B', 'D']], ['A', 'B'], ['C', 'D'],
+        [
+            pd.DataFrame({'A': [1,2,3], 'B': [4,5,6]}),
+            pd.DataFrame({'C': [1,None,2], 'D': [5,4,3]}),
+            pd.DataFrame({'C': [None,2], 'D': [5,3]}),
+        ],
+    ),
 ]
 @pandas_post_1_only
 @pytest.mark.parametrize("input_dfs, how, sheet_index_one, sheet_index_two, merge_key_columns, selected_columns_one, selected_columns_two, output_dfs", MERGE_TESTS)
