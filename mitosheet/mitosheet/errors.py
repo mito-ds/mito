@@ -315,20 +315,6 @@ def make_invalid_arguments_error(function: str) -> MitoError:
         f'It looks like you passed the wrong arguments to {function}. Try checking out the documentation to see correct usage!'
     )
 
-def make_invalid_aggregation_error() -> MitoError:
-    """
-    Helper function for creating a invalid_aggregation_error.
-
-    Occurs when:
-    -  the user tries to .agg with a function on a column that has the wrong type (e.g. 'mean' on a
-        column of strings).
-    """
-    return MitoError(
-        'invalid_aggregation_error',
-        f'Invalid Aggregation Function',
-        f'Sorry, you tried to aggregate with a function that could not be applied to that type of column. Please try again!'
-    )
-
 def make_invalid_filter_error(filter_value: Any, correct_type: str) -> MitoError:
     """
     Helper function for creating a invalid_filter_error.
