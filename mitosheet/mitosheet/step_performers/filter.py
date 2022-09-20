@@ -262,7 +262,7 @@ def get_full_applied_filter(
     if len(applied_filters) > 0:
         full_applied_filter = combine_filters(operator, applied_filters)
     else:
-        full_applied_filter = pd.Series(True, index=df.index)
+        full_applied_filter = pd.Series(data=True, index=df.index)
     
     pandas_processing_time = perf_counter() - pandas_start_time
 
