@@ -9,10 +9,8 @@ import inspect
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 
-import pandas as pd
 from IPython import get_ipython
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
 from mitosheet.code_chunks.step_performers.import_steps.dataframe_import_code_chunk import DataframeImportCodeChunk
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
