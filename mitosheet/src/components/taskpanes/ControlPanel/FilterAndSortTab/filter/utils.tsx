@@ -237,6 +237,11 @@ export const getFilterOptions = (columnDtype: string | undefined, nameLength: 'l
         filterOptions = addToFilterOptions(filterOptions, NUMBER_SELECT_OPTIONS, nameLength);
         filterOptions.push(<DropdownSectionSeperator isDropdownSectionSeperator/>)
     }
+
+    if (!columnDtype || isStringDtype(columnDtype)) {
+        filterOptions = addToFilterOptions(filterOptions, STRING_SELECT_OPTIONS, nameLength);
+        filterOptions.push(<DropdownSectionSeperator isDropdownSectionSeperator/>)
+    }
     
     if (!columnDtype || isBoolDtype(columnDtype)) {
         filterOptions = addToFilterOptions(filterOptions, BOOLEAN_SELECT_OPTIONS, nameLength);
@@ -247,12 +252,6 @@ export const getFilterOptions = (columnDtype: string | undefined, nameLength: 'l
         filterOptions = addToFilterOptions(filterOptions, DATETIME_SELECT_OPTIONS, nameLength);
         filterOptions.push(<DropdownSectionSeperator isDropdownSectionSeperator/>)
     }
-    
-    if (!columnDtype || isStringDtype(columnDtype)) {
-        filterOptions = addToFilterOptions(filterOptions, STRING_SELECT_OPTIONS, nameLength);
-        filterOptions.push(<DropdownSectionSeperator isDropdownSectionSeperator/>)
-    }
-
 
     filterOptions = addToFilterOptions(filterOptions, SHARED_SELECT_OPTIONS, nameLength);
 
