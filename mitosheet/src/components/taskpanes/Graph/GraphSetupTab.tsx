@@ -399,6 +399,9 @@ function GraphSetupTab(
                                 <Select
                                     value={props.graphParams.graphStyling.barnorm || 'none'}
                                     onChange={(newBarNorm: string) => {
+                                        if (newBarNorm === 'none') {
+                                            updateGraphParam({graphStyling: {barnorm: undefined}})
+                                        }
                                         updateGraphParam({graphStyling: {barnorm: newBarNorm}})
                                     }}
                                     width='small'
@@ -431,6 +434,9 @@ function GraphSetupTab(
                                 <Select
                                     value={props.graphParams.graphCreation.histnorm || 'none'}
                                     onChange={(newHistnorm: string) => {
+                                        if (newHistnorm === 'none') {
+                                            updateGraphParam({graphCreation: {histnorm: undefined}})
+                                        }
                                         updateGraphParam({graphCreation: {histnorm: newHistnorm}})
                                     }}
                                     width='small'
