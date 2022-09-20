@@ -106,23 +106,7 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
                             width='small'
                             searchable
                         >   
-                            {/** We allow users to select all dataframes in the notebook, as some users want this */}
-                            {[
-                                <DropdownItem
-                                    key={-1}
-                                    title="Add all dataframes"
-                                    onClick={() => {
-                                        setParams(prevParams => {
-                                            const newDfNames = [...dfNamesInNotebook];
-                    
-                                            return {
-                                                ...prevParams,
-                                                df_names: newDfNames
-                                            }
-                                        })
-                                    }}
-                                />
-                            ].concat(dfNamesInNotebook.map((dfName, index) => {
+                            {dfNamesInNotebook.map((dfName, index) => {
                                 return (
                                     <DropdownItem
                                         key={index}
@@ -140,7 +124,7 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
                                         }}
                                     />
                                 )
-                            }))}
+                            })}
                         </DropdownButton>
                     </Col>
                 </Row>

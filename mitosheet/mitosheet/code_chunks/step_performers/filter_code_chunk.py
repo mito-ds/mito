@@ -182,6 +182,7 @@ def get_single_filter_string(
     value = filter_["value"]
 
     transpiled_column_header = column_header_to_transpiled_code(column_header)
+    value = column_header_to_transpiled_code(value)
 
     return FILTER_FORMAT_STRING_DICT[condition].format(
         df_name=df_name, transpiled_column_header=transpiled_column_header, value=value

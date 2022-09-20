@@ -10,6 +10,8 @@ import pandas as pd
 from mitosheet.types import StepsManagerType
 
 
+NO_DEFINED_DF_MESSAGE = 'No variables match your requested type.'
+
 def get_df_names() -> Dict[str, pd.DataFrame]:
     from IPython import get_ipython
     from io import StringIO 
@@ -31,6 +33,11 @@ def get_df_names() -> Dict[str, pd.DataFrame]:
         ipython.run_line_magic("who",  "DataFrame")
         
     output = [df.strip() for line in output for df in line.split("\t") if df.strip() != '']
+    
+    # If we get a message there are no variables, clear this out of the ouput
+    if len(output) == 1 and output[0] == NO_DEFINED_DF_MESSAGE:
+        output = []
+
     return output
 
 

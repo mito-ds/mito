@@ -323,7 +323,6 @@ def test_filter(df, condition, value, filtered_df):
     if filtered_df.empty and mito.dfs[0].empty:
         return True
 
-    print(mito.dfs[0], filtered_df)
     assert mito.dfs[0].equals(filtered_df)
 
 
