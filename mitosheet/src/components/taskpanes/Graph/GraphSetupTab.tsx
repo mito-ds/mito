@@ -400,7 +400,8 @@ function GraphSetupTab(
                                     value={props.graphParams.graphStyling.barnorm || 'none'}
                                     onChange={(newBarNorm: string) => {
                                         if (newBarNorm === 'none') {
-                                            updateGraphParam({graphStyling: {barnorm: undefined}})
+                                            updateGraphParam({graphStyling: {barnorm: undefined}});
+                                            return;
                                         }
                                         updateGraphParam({graphStyling: {barnorm: newBarNorm}})
                                     }}
@@ -435,7 +436,8 @@ function GraphSetupTab(
                                     value={props.graphParams.graphCreation.histnorm || 'none'}
                                     onChange={(newHistnorm: string) => {
                                         if (newHistnorm === 'none') {
-                                            updateGraphParam({graphCreation: {histnorm: undefined}})
+                                            updateGraphParam({graphCreation: {histnorm: undefined}});
+                                            return;
                                         }
                                         updateGraphParam({graphCreation: {histnorm: newHistnorm}})
                                     }}
