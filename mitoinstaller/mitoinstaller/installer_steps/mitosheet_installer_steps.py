@@ -53,14 +53,13 @@ def remove_mitosheet_3_if_present():
 
 def install_step_mitosheet_install_mitosheet():
     try:
+        print("This may take a few moments...")
         install_pip_packages('mitosheet', test_pypi='--test-pypi' in sys.argv)
     except:
         # If the user hits an install error because of permission issues, we ask them if 
         # they want to try a user install
-        # TODO: note this is off for now, as it conflicts with the constant print
-        # messages that we are getting from the install process.
         error_traceback_last_line = get_recent_traceback().strip().split('\n')[-1].strip()
-        if False and error_traceback_last_line == 'Consider using the `--user` option or check the permissions.':
+        if error_traceback_last_line == 'Consider using the `--user` option or check the permissions.':
             do_user_install = input("The installer hit a permission error while trying to install Mito. Would you like to do a user install? Note that this will not work inside a virtual enviornment. [y/n] ")
             if do_user_install.lower().startswith('y'):
                 # Log do user install
@@ -70,7 +69,6 @@ def install_step_mitosheet_install_mitosheet():
         
         # Otherwise, if it is some other error, we just bubble it up
         raise
-
 
 
 def install_step_mitosheet_activate_notebook_extension():
