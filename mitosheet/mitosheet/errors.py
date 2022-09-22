@@ -340,7 +340,7 @@ def make_invalid_filter_error(filter_value: Any, correct_type: str) -> MitoError
         f'Sorry, the value {filter_value} is not a valid value for that {correct_type} filter. Please enter a value {correct_format}!'
     )
 
-def make_duplicated_column_headers_error(duplicated_headers: List[ColumnHeader]) -> MitoError:
+def make_duplicated_column_headers_error(duplicated_headers: List[ColumnHeader]) -> ValueError:
     """
     Helper function for creating a invalid_filter_error.
 
