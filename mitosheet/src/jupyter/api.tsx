@@ -11,6 +11,7 @@ import { FileElement } from "../components/taskpanes/Import/ImportTaskpane";
 import { ExcelFileMetadata } from "../components/taskpanes/Import/XLSXImport";
 import { valuesArrayToRecord } from "../components/taskpanes/PivotTable/pivotUtils";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
+import { UpdatedImports } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
 import { BackendPivotParams, DataframeFormat, FrontendPivotParams } from "../types";
 import { ColumnID, FeedbackID, FilterGroupType, FilterType, GraphID, MitoError, GraphParamsFrontend } from "../types";
 import { getDeduplicatedArray } from "../utils/arrays";
@@ -552,7 +553,7 @@ export default class MitoAPI {
         return undefined;
     }
 
-    async getImportedFilesAndDataframes(): Promise<void> {
+    async getImportedFilesAndDataframes(): Promise<UpdatedImports | undefined> {
         console.log('here in api.tsx')
         const resultString = await this.send<string>({
             'event': 'api_call',
@@ -561,10 +562,9 @@ export default class MitoAPI {
         }, {})
 
         if (resultString !== undefined && resultString !== '') {
-            console.log(JSON.parse(resultString));
-        } else {
-            console.log(resultString)
-        }
+            return(JSON.parse(resultString));
+        } 
+        return undefined
 
     }
 
