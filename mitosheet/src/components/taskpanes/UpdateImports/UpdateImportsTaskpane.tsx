@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import MitoAPI from "../../../jupyter/api";
 import { AnalysisData, SheetData, UIState, UserProfile } from "../../../types"
 
@@ -25,12 +25,9 @@ interface updateImportsTaskpaneProps {
 */
 const updateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element => {
 
-    
-
-    
-
-    
-
+    useEffect(() => {
+        void props.mitoAPI.getImportedFilesAndDataframes()
+    }, [])
     
 
     return (
@@ -47,3 +44,4 @@ const updateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element =
 }
 
 export default updateImportsTaskpane;
+
