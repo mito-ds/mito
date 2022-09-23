@@ -25,8 +25,6 @@ interface DataframeImportTaskpaneProps {
     importIndex: number;
 }
 
-
-
 /* 
     This is the DataframeImport taskpane, allows users to import a specific dataframe
 */
@@ -40,7 +38,6 @@ const UpdateImportWithDataframeTaskpane = (props: DataframeImportTaskpaneProps):
             const _definedDfNames = await props.mitoAPI.getDefinedDfNames();
             if (_definedDfNames !== undefined) {
                 setDfNamesInNotebook(_definedDfNames.df_names)
-                console.log('notebooks to show:', _definedDfNames.df_names)
             }
         }
         void loadDefinedDfNames();

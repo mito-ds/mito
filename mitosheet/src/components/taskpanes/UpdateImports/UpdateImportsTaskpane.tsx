@@ -53,8 +53,6 @@ export type UpdatedImport =
 */
 const updateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element => {
 
-    console.log("Update imports taskpane: ", props.updatedImports)
-
     const [updatedImports, setUpdatedImports] = useState<UpdatedImport[] | undefined>(props.updatedImports)
 
     async function loadImportedFilesAndDataframes() {
@@ -67,8 +65,6 @@ const updateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element =
             void loadImportedFilesAndDataframes();
         }
     }, [])
-
-    console.log(updatedImports)
 
     return (
         <DefaultTaskpane>

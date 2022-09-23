@@ -8,17 +8,24 @@ import Row from '../../layout/Row';
 import { ModalEnum } from '../../modals/modals';
 import { TaskpaneType } from '../taskpanes';
 import { UpdatedImport } from './UpdateImportsTaskpane';
+import CSVFileIcon from '../../icons/CSVFileIcon';
 
-const getTitleText = (updatedImport: UpdatedImport): JSX.Element => {
-    if (updatedImport.type === 'csv') {
-        return  <p>{updatedImport.import_params.file_names[0]}</p>
-    } else if (updatedImport.type === 'excel') {
-        return <p>{updatedImport.import_params.sheet_names[0]} <span className='text-subtext-1'> from </span> {updatedImport.import_params.file_name}</p>
-    } else {
-        return <p>{updatedImport.import_params.df_names[0]}</p>
-    }
+const getBaseOfPath = (fullPath: string): string => {
+    return fullPath.replace(/^.*[\\\\/]/, '')
 }
 
+const getTitleText = (updatedImport: UpdatedImport): string => {
+    let fullPath = ''
+    if (updatedImport.type === 'csv') {
+        fullPath = updatedImport.import_params.file_names[0]
+    } else if (updatedImport.type === 'excel') {
+        fullPath = updatedImport.import_params.sheet_names[0]
+    } else {
+        fullPath = updatedImport.import_params.df_names[0]
+    }
+
+    return getBaseOfPath(fullPath)
+}
 
 
 /* 
@@ -34,10 +41,24 @@ const ImportCard = (props: {
 
     return (
         <Row justify='space-between' align='center'>
-            <Col span={16}>
-                {getTitleText(updatedImport)}
+            <Col span={22}>
+                <Row align='center'>
+                    <CSVFileIcon />
+                    <Col span={22} offset={.25}>
+                        {updatedImport.type === 'excel' &&
+                            <div>
+                                <span className='text-color-medium-gray-important'>Imported </span> {getTitleText(updatedImport)} <span className='text-color-medium-gray-important'>from </span> {getBaseOfPath(updatedImport.import_params.file_name)}
+                            </div>
+                        } 
+                        {updatedImport.type !== 'excel' &&
+                            <div>
+                                <span className='text-color-medium-gray-important'>Imported </span> {getTitleText(updatedImport)}
+                            </div>
+                        }
+                    </Col>
+                </Row>
             </Col>
-            <Col span={4}>
+            <Col>
                 <div onClick={() => {
                     // We open the merge taskpane
                     props.setUIState(prevUIState => {
