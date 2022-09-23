@@ -55,7 +55,7 @@ export type TaskpaneInfo =
         graphID: GraphID,
         graphSidebarTab?: GraphSidebarTab
     }    
-    | {type: TaskpaneType.IMPORT_FILES}
+    | {type: TaskpaneType.IMPORT_FILES, origin?: 'update_imports'}
     | {type: TaskpaneType.MERGE}
     | {type: TaskpaneType.CONCAT}
     | {type: TaskpaneType.NONE}
