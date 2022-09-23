@@ -21,6 +21,8 @@ const RadioButtons = (props: RadioButtonsProps): JSX.Element => {
 
     const [possibleAnswers, setPossibleAnswers] = useState<string[]>([])
 
+    console.log('radio button values: ', props.values)
+
     // Set the possible answers. We don't set them prior to this
     // so that if we're setting a random order, the order of the 
     // values don't change after render.

@@ -21,7 +21,7 @@ export type UpdatedImport =
         step_id: string,
         type: 'csv'
         import_params: {
-            file_name: string, 
+            file_names: string[], 
             encoding: string | undefined, 
             delimeters: string | undefined,
             error_bad_lines: boolean | undefined
@@ -32,7 +32,7 @@ export type UpdatedImport =
         type: 'excel'
         import_params: {
             file_name: string
-            sheet_name: string
+            sheet_names: string[]
             has_headers: boolean
             skiprows: number
         }
@@ -40,7 +40,9 @@ export type UpdatedImport =
     {
         step_id: string
         type: 'df'
-        df_name: string
+        import_params: {
+            df_names: string[]
+        }
     }
 
 /* 
@@ -75,11 +77,13 @@ const updateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element =
                                 key={idx}
                                 setUIState={props.setUIState}
                                 updatedImport={updatedImport}
-                                setUpdatedImports={(newUpdatedImport: UpdatedImport) => setUpdatedImports(updatedImports => {
-                                    const updatedImportsCopy: UpdatedImport[] = JSON.parse(JSON.stringify(updatedImports)); 
-                                    updatedImportsCopy[idx] = newUpdatedImport
-                                    return updatedImportsCopy
-                                })}
+                                setUpdatedImports={(newUpdatedImport: UpdatedImport) => {
+                                    setUpdatedImports(updatedImports => {
+                                        const updatedImportsCopy: UpdatedImport[] = JSON.parse(JSON.stringify(updatedImports)); 
+                                        updatedImportsCopy[idx] = newUpdatedImport
+                                        return updatedImportsCopy
+                                    })
+                                }}
                             />
                         )
                     })

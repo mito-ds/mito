@@ -20,7 +20,7 @@ def get_imported_files_and_dataframes(params: Dict[str, Any], steps_manager: Ste
             step_id: str,
             type: 'csv'
             import_params: {
-                file_name: string, 
+                file_names: List[str] <- Note: This should only have one entry, 
                 encoding: str | undefined, 
                 delimeters: str | undefined,
                 error_bad_lines: boolean | undefined
@@ -30,8 +30,8 @@ def get_imported_files_and_dataframes(params: Dict[str, Any], steps_manager: Ste
             step_id: str,
             type: 'excel'
             import_params: {
-                file_name: str
-                sheet_name: str
+                file_name: str 
+                sheet_names: List[str] <- Note: This should only have one entry
                 has_headers: bool
                 skiprows: int 
             }
@@ -39,7 +39,7 @@ def get_imported_files_and_dataframes(params: Dict[str, Any], steps_manager: Ste
         {
             step_id: str
             type: 'df'
-            df_name: str
+            df_names: List[str] <- Note: This should only have one entry
         }
 	]
 	
@@ -49,13 +49,13 @@ def get_imported_files_and_dataframes(params: Dict[str, Any], steps_manager: Ste
         step_params_copy = step.params.copy()
 
         if step.step_type == 'simple_import':
+            del step_params_copy['file_names']
             for file_name in step.params['file_names']:
-                del step_params_copy['file_names']
                 imported_files_and_dataframes.append({
                     'step_id': step.step_id,
                     'type': 'csv',
                     'import_params': {
-                        'file_name': file_name, 
+                        'file_names': [file_name], 
                         **step_params_copy
                     } 
                 })
@@ -67,10 +67,11 @@ def get_imported_files_and_dataframes(params: Dict[str, Any], steps_manager: Ste
                     'step_id': step.step_id,
                     'type': 'excel',
                     'import_params': {
-                        'sheet_name': sheet_name,
+                        'sheet_names': [sheet_name],
                         **step_params_copy
                     }
                 })
+
         if step.step_type == 'dataframe_import':
             del step_params_copy['df_names']
             for df_name in step.params['df_names']:
@@ -78,9 +79,10 @@ def get_imported_files_and_dataframes(params: Dict[str, Any], steps_manager: Ste
                     'step_id': step.step_id,
                     'type': 'df',
                     'import_params': {
-                        'df_name': df_name,
+                        'df_names': [df_name],
                         **step_params_copy
                     }
                 })
 
+    print(imported_files_and_dataframes)
     return json.dumps({'imported_files_and_dataframes': imported_files_and_dataframes})

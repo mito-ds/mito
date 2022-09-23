@@ -11,13 +11,15 @@ import { UpdatedImport } from './UpdateImportsTaskpane';
 
 const getTitleText = (updatedImport: UpdatedImport): JSX.Element => {
     if (updatedImport.type === 'csv') {
-        return  <p>{updatedImport.import_params.file_name}</p>
+        return  <p>{updatedImport.import_params.file_names[0]}</p>
     } else if (updatedImport.type === 'excel') {
-        return <p>{updatedImport.import_params.sheet_name} <span className='text-subtext-1'> from </span> {updatedImport.import_params.file_name}</p>
+        return <p>{updatedImport.import_params.sheet_names[0]} <span className='text-subtext-1'> from </span> {updatedImport.import_params.file_name}</p>
     } else {
-        return <p>{updatedImport.df_name}</p>
+        return <p>{updatedImport.import_params.df_names[0]}</p>
     }
 }
+
+
 
 /* 
   A custom component that displays a previous import and whether its still valid
@@ -40,7 +42,7 @@ const ImportCard = (props: {
                         return {
                             ...prevUIState,
                             currOpenModal: {type: ModalEnum.None},
-                            currOpenTaskpane: {type: TaskpaneType.IMPORT_FILES, origin: 'update_imports'},
+                            currOpenTaskpane: {type: TaskpaneType.UPDATE_IMPORT_WITH_DATAFRAME, /*setUpdatedImports: props.setUpdatedImports */},
                             selectedTabType: 'data'
                         }
                     })
