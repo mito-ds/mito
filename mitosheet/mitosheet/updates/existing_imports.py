@@ -11,6 +11,7 @@ from mitosheet.step_performers import EVENT_TYPE_TO_STEP_PERFORMER
 from mitosheet.step_performers.dataframe_import import DataframeImportStepPerformer
 from mitosheet.step_performers.import_steps.excel_import import ExcelImportStepPerformer
 from mitosheet.step_performers.import_steps.simple_import import SimpleImportStepPerformer
+from mitosheet.updates.replay_analysis import execute_replay_analysis_update
 
 
 EXISTING_IMPORTS_UPDATE_EVENT = 'existing_import_update'
@@ -45,7 +46,16 @@ def execute_existing_imports_update(steps_manager: StepsManagerType, updated_imp
 
                 step.params = new_step.params
 
-                # refresh analysis here
+    
+    # Refresh the anlaysis starting from the first step
+    steps_manager.execute_and_update_steps(steps_manager.steps_including_skipped, 0)
+
+
+
+    # Write the analysis
+    
+    #analysis['steps_data'])
+
 
 
 EXISTING_IMPORTS_UPDATE = {

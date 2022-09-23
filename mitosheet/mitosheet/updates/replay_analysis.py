@@ -7,6 +7,7 @@
 Replays an existing analysis
 """
 
+from typing import Optional
 from mitosheet.errors import make_no_analysis_error
 
 from mitosheet.telemetry.telemetry_utils import log
