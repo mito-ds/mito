@@ -1275,6 +1275,21 @@ export default class MitoAPI {
         }, {});
     }
 
+    /*
+        Sends the user_email to the backend so the user can sign in
+    */
+    async updateExistingImports(
+        updatedImports: UpdatedImport[]
+    ): Promise<void> {
+        await this.send({
+            'event': 'update_event',
+            'type': 'existing_import_update',
+            'params': {
+                'updated_imports': updatedImports
+            }
+        }, {});
+    }
+
 
     /*
         Manually marks the tool as upgraded, which for now stops

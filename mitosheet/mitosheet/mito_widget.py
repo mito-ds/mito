@@ -148,6 +148,7 @@ class MitoWidget(DOMWidget):
         """
 
         try:
+            print("HANDLE UPDATE EVENT")
             self.steps_manager.handle_update_event(event)
 
             # Update all state variables

@@ -25,15 +25,17 @@ const getTitleText = (updatedImport: UpdatedImport): JSX.Element => {
   A custom component that displays a previous import and whether its still valid
 */
 const ImportCard = (props: {
-    updatedImport: UpdatedImport,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
-    setUpdatedImports: (newUpdatedImport: UpdatedImport) => void
+    importIndex: number,
+    updatedImports: UpdatedImport[]
 }): JSX.Element => {
+
+    const updatedImport = props.updatedImports[props.importIndex]
 
     return (
         <Row justify='space-between' align='center'>
             <Col span={16}>
-                {getTitleText(props.updatedImport)}
+                {getTitleText(updatedImport)}
             </Col>
             <Col span={4}>
                 <div onClick={() => {
@@ -42,7 +44,11 @@ const ImportCard = (props: {
                         return {
                             ...prevUIState,
                             currOpenModal: {type: ModalEnum.None},
-                            currOpenTaskpane: {type: TaskpaneType.UPDATE_IMPORT_WITH_DATAFRAME, /*setUpdatedImports: props.setUpdatedImports */},
+                            currOpenTaskpane: {
+                                type: TaskpaneType.UPDATE_IMPORT_WITH_DATAFRAME, 
+                                updatedImports: props.updatedImports, 
+                                importIndex: props.importIndex
+                            },
                             selectedTabType: 'data'
                         }
                     })

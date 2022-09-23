@@ -10,6 +10,8 @@ import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import TextButton from "../../elements/TextButton";
 import Tooltip from "../../elements/Tooltip";
 import RadioButtonBox from "../../elements/RadioButtonBox";
+import { UpdatedImport } from "./UpdateImportsTaskpane";
+import { TaskpaneType } from "../taskpanes";
 
 
 interface DataframeImportTaskpaneProps {
@@ -19,6 +21,8 @@ interface DataframeImportTaskpaneProps {
     analysisData: AnalysisData;
     sheetDataArray: SheetData[];
     selectedSheetIndex: number;
+    updatedImports: UpdatedImport[];
+    importIndex: number;
 }
 
 
@@ -76,7 +80,22 @@ const UpdateImportWithDataframeTaskpane = (props: DataframeImportTaskpaneProps):
                     variant='dark'
                     width='block'
                     onClick={() => {
-                        console.log('here');
+                        const newUpdatedImports: UpdatedImport[] = JSON.parse(JSON.stringify(props.updatedImports))
+                        newUpdatedImports[props.importIndex] = {
+                            ...newUpdatedImports[props.importIndex],
+                            type: 'df',
+                            import_params: {
+                                df_names: [selectedDFName]
+                            }                            
+                        }
+
+                        console.log('new udpated imports: ', newUpdatedImports)
+                        props.setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                currOpenTaskpane: {type: TaskpaneType.UPDATEIMPORTS, updatedImports: newUpdatedImports}
+                            }
+                        })
                     }}
                     disabled={selectedDFName === ''}
                 >

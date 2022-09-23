@@ -30,6 +30,7 @@ from mitosheet.updates import UPDATES
 from mitosheet.user.utils import is_pro, is_running_test
 from mitosheet.utils import (NpEncoder, dfs_to_array_for_json, get_new_id,
                              is_default_df_names)
+from mitosheet.updates.existing_imports import EXISTING_IMPORTS_UPDATE_EVENT
 
 
 def get_step_indexes_to_skip(step_list: List[Step]) -> Set[int]:
@@ -403,6 +404,7 @@ class StepsManager:
         other types of new data coming from the frontend (e.g. the df names
         or some existing steps).
         """
+
         for update in UPDATES:
             if update_event["type"] == update["event_type"]:
                 # Get the params for this event
@@ -413,7 +415,6 @@ class StepsManager:
                 self.update_event_count += 1
                 # And then return
                 return
-
 
         raise Exception(f"{update_event} is not an update event!")
 

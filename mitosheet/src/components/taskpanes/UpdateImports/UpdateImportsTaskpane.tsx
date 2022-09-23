@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import MitoAPI from "../../../jupyter/api";
 import { AnalysisData, SheetData, UIState, UserProfile } from "../../../types"
+import TextButton from "../../elements/TextButton";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
+import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import ImportCard from "./ImportCard";
 
@@ -14,6 +16,7 @@ interface updateImportsTaskpaneProps {
     analysisData: AnalysisData;
     sheetDataArray: SheetData[];
     selectedSheetIndex: number;
+    updatedImports?: UpdatedImport[]
 }
 
 export type UpdatedImport = 
@@ -50,7 +53,9 @@ export type UpdatedImport =
 */
 const updateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element => {
 
-    const [updatedImports, setUpdatedImports] = useState<UpdatedImport[] | undefined>(undefined)
+    console.log("Update imports taskpane: ", props.updatedImports)
+
+    const [updatedImports, setUpdatedImports] = useState<UpdatedImport[] | undefined>(props.updatedImports)
 
     async function loadImportedFilesAndDataframes() {
         const loadedFilesAndDataframes = await props.mitoAPI.getImportedFilesAndDataframes()
@@ -58,7 +63,9 @@ const updateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element =
     }
 
     useEffect(() => {
-        void loadImportedFilesAndDataframes();
+        if (updatedImports === undefined) {
+            void loadImportedFilesAndDataframes();
+        }
     }, [])
 
     console.log(updatedImports)
@@ -76,19 +83,24 @@ const updateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element =
                             <ImportCard 
                                 key={idx}
                                 setUIState={props.setUIState}
-                                updatedImport={updatedImport}
-                                setUpdatedImports={(newUpdatedImport: UpdatedImport) => {
-                                    setUpdatedImports(updatedImports => {
-                                        const updatedImportsCopy: UpdatedImport[] = JSON.parse(JSON.stringify(updatedImports)); 
-                                        updatedImportsCopy[idx] = newUpdatedImport
-                                        return updatedImportsCopy
-                                    })
-                                }}
+                                updatedImports={updatedImports}
+                                importIndex={idx}            
                             />
                         )
                     })
                 }
             </DefaultTaskpaneBody>
+            <DefaultTaskpaneFooter>
+                <TextButton 
+                    variant="dark"
+                    onClick={() => props.mitoAPI.updateExistingImports(updatedImports || [])}
+                    disabled={updatedImports === undefined}
+                >
+                    <p>
+                        Update Imports
+                    </p>
+                </TextButton>
+            </DefaultTaskpaneFooter>
         </DefaultTaskpane>
     )
 }
