@@ -120,10 +120,8 @@ def handle_api_event(
     API must return the same ID that the incoming message contains,
     so that the frontend knows how to match the responses.
     """
-    print('handle api event')
     result: Union[str, List[str]] = ''
     params = event['params']
-    print('params: ', params)
     start_time = perf_counter()
     failed = False
 

@@ -89,7 +89,6 @@ const UpdateImportWithDataframeTaskpane = (props: DataframeImportTaskpaneProps):
                             }                            
                         }
 
-                        console.log('new udpated imports: ', newUpdatedImports)
                         props.setUIState(prevUIState => {
                             return {
                                 ...prevUIState,

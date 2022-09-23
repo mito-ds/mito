@@ -149,7 +149,6 @@ class MitoWidget(DOMWidget):
 
         try:
             self.steps_manager.handle_update_event(event)
-            print('got back to original mito_widget')
 
             # Update all state variables
             self.update_shared_state_variables()

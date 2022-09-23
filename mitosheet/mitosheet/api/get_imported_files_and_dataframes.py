@@ -84,5 +84,4 @@ def get_imported_files_and_dataframes(params: Dict[str, Any], steps_manager: Ste
                     }
                 })
 
-    print(imported_files_and_dataframes)
     return json.dumps({'imported_files_and_dataframes': imported_files_and_dataframes})

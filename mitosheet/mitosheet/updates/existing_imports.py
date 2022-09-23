@@ -51,13 +51,6 @@ def execute_existing_imports_update(steps_manager: StepsManagerType, updated_imp
     steps_manager.execute_and_update_steps(steps_manager.steps_including_skipped, 0)
 
 
-
-    # Write the analysis
-    
-    #analysis['steps_data'])
-
-
-
 EXISTING_IMPORTS_UPDATE = {
     'event_type': EXISTING_IMPORTS_UPDATE_EVENT,
     'params': EXISTING_IMPORTS_PARAMS,
