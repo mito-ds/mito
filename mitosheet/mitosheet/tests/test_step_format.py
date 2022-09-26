@@ -135,7 +135,7 @@ def test_params_static():
 
     check_step(
         ChangeColumnDtypeStepPerformer,
-        2,
+        3,
         'change_column_dtype'
     )
 

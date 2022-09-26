@@ -69,7 +69,7 @@ function DtypeCard(props: DtypeCardProps): JSX.Element {
     async function changeColumnDtype(newDtype: string) {
         const newStepID = await props.mitoAPI.editChangeColumnDtype(
             props.selectedSheetIndex,
-            props.columnID,
+            [props.columnID],
             newDtype,
             stepID
         )
