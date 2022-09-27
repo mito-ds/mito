@@ -248,3 +248,20 @@ def test_change_type_deletes_diff_dataframe_no_optimizes():
     mito.change_column_dtype(0, ['A'], 'int')
     mito.delete_dataframe(1)
     assert len(mito.optimized_code_chunks) >= 3
+
+
+def test_change_multiple_dtype_works():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3], 'B': ['1.0', '2.0', '3.0']}))
+    mito.change_column_dtype(0, ['A', 'B'], 'float')
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1.0, 2.0, 3.0], 'B': [1.0, 2.0, 3.0]}))
+
+def test_change_multiple_dtype_works_if_no_op():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3], 'B': ['1.0', '2.0', '3.0']}))
+    mito.change_column_dtype(0, ['A', 'B'], 'int')
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, 3]}))
+
+def test_change_multiple_dtype_fails_is_atomic():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3], 'B': pd.to_datetime(['12-22-1997', '12-22-1997', '12-22-1997'])}))
+    mito.change_column_dtype(0, ['A', 'B'], 'timedelta')
+    print(mito.dfs[0])
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': pd.to_datetime(['12-22-1997', '12-22-1997', '12-22-1997'])}))

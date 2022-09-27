@@ -71,7 +71,9 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
         pandas_processing_time = 0
 
 
-        # Change each column id
+        # Store the changed columns till the end, so we can change them in a single
+        # operation, so if a later change fails, it doesn't cause any issues
+        new_column_map = dict()
         for column_id in column_ids:
 
             old_dtype = old_dtypes[column_id]
@@ -203,7 +205,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
                         pass
 
                 # We update the column, as well as the type of the column
-                post_state.dfs[sheet_index][column_header] = new_column
+                new_column_map[column_header] = new_column
                 pandas_processing_time += (perf_counter() - pandas_start_time)
 
                 # If we're changing away from a number column, then we remove the formatting on the column if it exists
@@ -217,6 +219,10 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
                     old_dtype,
                     new_dtype
                 )
+
+        # Finially, update all the columns atomically
+        for column_header, new_column in new_column_map.items():
+            post_state.dfs[sheet_index][column_header] = new_column
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time
