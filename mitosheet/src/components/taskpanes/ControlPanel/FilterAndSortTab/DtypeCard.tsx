@@ -67,11 +67,13 @@ export function getDtypeSelectOptions(onChange?: (newDtype: string) => void): JS
 
     return [
         <DropdownItem
-                title={ColumnDtypes.BOOL}
-                onClick={onChange ? () => {onChange(ColumnDtypes.BOOL)} : undefined}
+            title={ColumnDtypes.BOOL}
+            key={ColumnDtypes.BOOL}
+            onClick={onChange ? () => {onChange(ColumnDtypes.BOOL)} : undefined}
         />,
         <DropdownItem
             title={ColumnDtypes.INT}
+            key={ColumnDtypes.INT}
             subtext={'Casting to an int will turn all NaN values to 0.'}
             hideSubtext
             displaySubtextOnHover
@@ -79,22 +81,26 @@ export function getDtypeSelectOptions(onChange?: (newDtype: string) => void): JS
         />,
         <DropdownItem
             title={ColumnDtypes.FLOAT}
+            key={ColumnDtypes.FLOAT}
             onClick={onChange ? () => {onChange(ColumnDtypes.FLOAT)} : undefined}
 
         />,
         <DropdownItem
             title={ColumnDtypes.STRING}
+            key={ColumnDtypes.STRING}
             onClick={onChange ? () => {onChange(ColumnDtypes.STRING)} : undefined}
         />,
         <DropdownItem
             title={ColumnDtypes.DATETIME}
+            key={ColumnDtypes.DATETIME}
             onClick={onChange ? () => {onChange(ColumnDtypes.DATETIME)} : undefined}
         />,
         <DropdownItem
             title={ColumnDtypes.TIMEDELTA}
+            key={ColumnDtypes.TIMEDELTA}
             onClick={onChange ? () => {onChange(ColumnDtypes.TIMEDELTA)} : undefined}
         />
-]
+    ]
 }
 
 /*
