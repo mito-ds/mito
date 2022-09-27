@@ -34,7 +34,7 @@ interface RadioButtonsProps {
 }
 
 /**
- * The RadioButtonBox component lets the user select on option from a set of options, 
+ * The RadioButtonBox component lets the user select one option from a set of options, 
  * inside of a box that looks like the multi toggle box.
  */ 
 const RadioButtonBox = (props: RadioButtonsProps): JSX.Element => {
