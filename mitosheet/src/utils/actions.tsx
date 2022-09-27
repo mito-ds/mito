@@ -104,9 +104,7 @@ export const createActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                        selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
-                        selectedTabType: 'data'
+                        toolbarDropdown: 'dtype'
                     }
                 })
             },
@@ -481,7 +479,7 @@ export const createActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        displayFormatToolbarDropdown: true
+                        toolbarDropdown: 'format'
                     }
                 })
             },
@@ -590,7 +588,7 @@ export const createActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        displayImportToolbarDropdown: true
+                        toolbarDropdown: 'import'
                     }
                 })
             },
