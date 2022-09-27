@@ -138,6 +138,7 @@ interface CSVImportProps {
     setFileForImportWizard: React.Dispatch<React.SetStateAction<FileElement | undefined>>;
     error: MitoError | undefined;
     setError: React.Dispatch<React.SetStateAction<MitoError | undefined>>;
+    updateImportEdit?: (csvImportParams: CSVImportParams) => void
 }
 
 // This is our guesses about the metadata of the file
@@ -146,14 +147,14 @@ export interface CSVFileMetadata {
     encodings: string[]
 }
 
-interface CSVImportParams {
+export interface CSVImportParams {
     file_names: string[],
     delimeters: string[],
     encodings: string[],
     error_bad_lines: boolean[],
 }
 
-const getDefaultParams = (fileName: string): CSVImportParams => {
+export const getDefaultCSVParams = (fileName: string): CSVImportParams => {
     return {
         file_names: [fileName],
         delimeters: [','],
@@ -184,10 +185,11 @@ function CSVImport(props: CSVImportProps): JSX.Element {
     // and not for importing the file
     const [fileMetadata, setFileMetadata] = useState<CSVFileMetadata | undefined>(undefined);
     const {params, setParams, loading, edit, editApplied, error} = useSendEditOnClick(
-        () => getDefaultParams(props.fileName),
+        () => getDefaultCSVParams(props.fileName),
         StepType.SimpleImport,
         props.mitoAPI, props.analysisData,
-        {allowSameParamsToReapplyTwice: true}
+        {allowSameParamsToReapplyTwice: true},
+        props.updateImportEdit
     )
 
 

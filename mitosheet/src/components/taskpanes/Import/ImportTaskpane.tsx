@@ -6,7 +6,9 @@ import MitoAPI, { PathContents } from '../../../jupyter/api';
 import { AnalysisData, MitoError, UIState, UserProfile } from '../../../types';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
-import CSVImport from './CSVImport';
+import { TaskpaneType } from '../taskpanes';
+import { UpdatedImport } from '../UpdateImports/UpdateImportsTaskpane';
+import CSVImport, { CSVImportParams } from './CSVImport';
 import FileImportBodyAndFooter from './FileImportBodyAndFooter';
 import { isExcelFile } from './importUtils';
 import XLSXImport from './XLSXImport';
@@ -18,6 +20,10 @@ interface ImportTaskpaneProps {
     currPathParts: string[];
     setCurrPathParts: (newCurrPathParts: string[]) => void;
     analysisData: AnalysisData;
+    updateImportedData?: {
+        updatedImports: UpdatedImport[], 
+        importIndex: number
+    }
 }
 
 type FileSort = 'name_ascending' | 'name_descending' | 'last_modified_ascending' | 'last_modified_descending';
@@ -67,6 +73,33 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
     // Track if there has been an error
     const [importError, setImportError] = useState<MitoError | undefined>(undefined);
 
+    const updateImportedData = (newCSVImportParams: CSVImportParams): void => {
+        if (props.updateImportedData === undefined) {
+            return 
+        }
+
+        // Just to help the type system out
+        if (props.updateImportedData === undefined) {
+            return
+        }
+
+        console.log("running update import edit in import taskpane")
+
+        const newUpdatedImports: UpdatedImport[] = JSON.parse(JSON.stringify(props.updateImportedData.updatedImports))
+        const importIndex = props.updateImportedData.importIndex
+        newUpdatedImports[importIndex] = {
+            ...newUpdatedImports[importIndex],
+            type: 'csv',
+            import_params: newCSVImportParams
+        }
+
+        props.setUIState(prevUIState => {
+            return {
+                ...prevUIState,
+                currOpenTaskpane: {type: TaskpaneType.UPDATEIMPORTS, updatedImports: newUpdatedImports}
+            }
+        })
+    }
     
     // Check both the file and the full file name so that 
     // the screen does not flash when the back button is pressed
@@ -97,6 +130,7 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                 importState={importState}
                 error={importError}
                 setError={setImportError}
+                updateImportEdit={props.updateImportedData === undefined ? undefined : updateImportedData}
             />
         )
     }
@@ -120,6 +154,7 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                 currPathParts={props.currPathParts}
                 setCurrPathParts={props.setCurrPathParts}
                 analysisData={props.analysisData}
+                updateImportedData={props.updateImportedData === undefined ? undefined : updateImportedData}
             />
         </DefaultTaskpane>            
     )

@@ -21,7 +21,8 @@ function useSendEditOnClick<ParamType, ResultType>(
     analysisData: AnalysisData,
     options?: {
         allowSameParamsToReapplyTwice: boolean
-    }
+    },
+    overideEdit?: (params: ParamType) => void,
 ): {
         params: ParamType | undefined, // If this is undefined, no messages will be sent to the backend
         setParams: React.Dispatch<React.SetStateAction<ParamType>>, 
@@ -93,7 +94,15 @@ function useSendEditOnClick<ParamType, ResultType>(
         setLoading(true);
         const newStepID = getRandomId(); // always use a new step id
 
-        const possibleError = await mitoAPI._edit<ParamType>(editEvent, finalParams, newStepID);
+        console.log("in edit function")
+        let possibleError = undefined
+        if (overideEdit === undefined) {
+            console.log('override edit is undefined')
+            possibleError = await mitoAPI._edit<ParamType>(editEvent, finalParams, newStepID);
+        } else {
+            console.log('override edit is not undefined')
+            possibleError = overideEdit(finalParams)
+        }
         setLoading(false);
 
         // Handle if we return an error

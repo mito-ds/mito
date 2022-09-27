@@ -11,6 +11,7 @@ import Col from '../../layout/Col';
 import Row from '../../layout/Row';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultTaskpaneFooter from '../DefaultTaskpane/DefaultTaskpaneFooter';
+import { CSVImportParams, getDefaultCSVParams } from './CSVImport';
 import FileBrowser from './FileBrowser';
 import { FileElement, ImportTaskpaneState } from './ImportTaskpane';
 import { getElementsToDisplay, getFileEnding, getImportButtonStatus, isExcelFile } from './importUtils';
@@ -28,6 +29,7 @@ interface FileImportBodyAndFooter {
     currPathParts: string[];
     setCurrPathParts: (newCurrPathParts: string[]) => void;
     analysisData: AnalysisData;
+    updateImportedData?: (newCSVImportParams: CSVImportParams) => void
 }
 
 
@@ -152,7 +154,15 @@ function FileImportBodyAndFooter(props: FileImportBodyAndFooter): JSX.Element {
                 loadingImport: true
             }
         })
-        const possibleMitoError = await props.mitoAPI.editSimpleImport([joinedPath])
+
+        let possibleMitoError = undefined
+        if (props.updateImportedData === undefined) {
+            possibleMitoError = await props.mitoAPI.editSimpleImport([joinedPath])
+        } else {
+            const defaultCSVParams = getDefaultCSVParams(joinedPath)
+            possibleMitoError = props.updateImportedData(defaultCSVParams)
+        }
+
         if (isMitoError(possibleMitoError)) {
             // If this an error, then we open the CSV config 
             props.setImportError(possibleMitoError);

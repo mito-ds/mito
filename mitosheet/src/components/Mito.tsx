@@ -613,6 +613,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setCurrPathParts={setCurrPathParts}
                     userProfile={userProfile}
                     analysisData={analysisData}
+                    updateImportedData={uiState.currOpenTaskpane.updateImportedData}
                 />
             )
             case TaskpaneType.MERGE: return (

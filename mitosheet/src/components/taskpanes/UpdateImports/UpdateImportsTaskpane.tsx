@@ -6,6 +6,7 @@ import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
+import { CSVImportParams } from "../Import/CSVImport";
 import ImportCard from "./ImportCard";
 
 
@@ -23,12 +24,7 @@ export type UpdatedImport =
     {
         step_id: string,
         type: 'csv'
-        import_params: {
-            file_names: string[], 
-            encoding: string | undefined, 
-            delimeters: string | undefined,
-            error_bad_lines: boolean | undefined
-        } 
+        import_params: CSVImportParams
     } |
     {
         step_id: string,

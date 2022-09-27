@@ -61,6 +61,24 @@ const ImportCard = (props: {
             <Col>
                 <div onClick={() => {
                     // We open the merge taskpane
+                    
+                    props.setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            currOpenModal: {type: ModalEnum.None},
+                            currOpenTaskpane: {
+                                type: TaskpaneType.IMPORT_FILES, 
+                                updateImportedData: {
+                                    updatedImports: props.updatedImports, 
+                                    importIndex: props.importIndex
+                                }
+                            },
+                            selectedTabType: 'data'
+                        }
+                    })
+
+
+                    /*
                     props.setUIState(prevUIState => {
                         return {
                             ...prevUIState,
@@ -73,6 +91,7 @@ const ImportCard = (props: {
                             selectedTabType: 'data'
                         }
                     })
+                    */
                 }}>
                     <RightPointerIcon />
                 </div>
