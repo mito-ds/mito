@@ -7,6 +7,7 @@ import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import { CSVImportParams } from "../Import/CSVImport";
+import { ExcelImportParams } from "../Import/XLSXImport";
 import ImportCard from "./ImportCard";
 
 
@@ -29,12 +30,7 @@ export type UpdatedImport =
     {
         step_id: string,
         type: 'excel'
-        import_params: {
-            file_name: string
-            sheet_names: string[]
-            has_headers: boolean
-            skiprows: number
-        }
+        import_params: ExcelImportParams
     } |
     {
         step_id: string

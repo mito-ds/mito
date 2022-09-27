@@ -38,6 +38,7 @@ const ImportCard = (props: {
 }): JSX.Element => {
 
     const updatedImport = props.updatedImports[props.importIndex]
+    console.log(updatedImport)
 
     return (
         <Row justify='space-between' align='center'>

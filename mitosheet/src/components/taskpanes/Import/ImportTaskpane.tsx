@@ -11,7 +11,8 @@ import { UpdatedImport } from '../UpdateImports/UpdateImportsTaskpane';
 import CSVImport, { CSVImportParams } from './CSVImport';
 import FileImportBodyAndFooter from './FileImportBodyAndFooter';
 import { isExcelFile } from './importUtils';
-import XLSXImport from './XLSXImport';
+import XLSXImport, { ExcelImportParams } from './XLSXImport';
+
 
 interface ImportTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -73,24 +74,28 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
     // Track if there has been an error
     const [importError, setImportError] = useState<MitoError | undefined>(undefined);
 
-    const updateImportedData = (newCSVImportParams: CSVImportParams): void => {
+    const updateImportedData = (newImportParams: CSVImportParams | ExcelImportParams): void => {
         if (props.updateImportedData === undefined) {
             return 
         }
 
-        // Just to help the type system out
-        if (props.updateImportedData === undefined) {
-            return
-        }
-
-        console.log("running update import edit in import taskpane")
-
         const newUpdatedImports: UpdatedImport[] = JSON.parse(JSON.stringify(props.updateImportedData.updatedImports))
         const importIndex = props.updateImportedData.importIndex
-        newUpdatedImports[importIndex] = {
-            ...newUpdatedImports[importIndex],
-            type: 'csv',
-            import_params: newCSVImportParams
+
+        if (Object.keys(newImportParams).includes('sheet_names')) {
+            newImportParams = newImportParams as ExcelImportParams
+            newUpdatedImports[importIndex] = {
+                ...newUpdatedImports[importIndex],
+                type: 'excel',
+                import_params: newImportParams
+            }
+        } else {
+            newImportParams = newImportParams as CSVImportParams
+            newUpdatedImports[importIndex] = {
+                ...newUpdatedImports[importIndex],
+                type: 'csv', 
+                import_params: newImportParams
+            }
         }
 
         props.setUIState(prevUIState => {
@@ -115,6 +120,7 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                 setImportState={setImportState}
                 setUIState={props.setUIState} 
                 importState={importState}
+                updateImportEdit={props.updateImportedData === undefined ? undefined : updateImportedData}
             />
         )
     } else if (fileForImportWizard !== undefined && fullFileNameForImportWizard !== undefined) {

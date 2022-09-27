@@ -30,6 +30,8 @@ interface XLSXImportProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     fileForImportWizard: FileElement | undefined,
     setFileForImportWizard: React.Dispatch<React.SetStateAction<FileElement | undefined>>;
+    updateImportEdit?: (excelImportParams: ExcelImportParams) => void
+
 }
 
 export interface ExcelFileMetadata {
@@ -38,7 +40,7 @@ export interface ExcelFileMetadata {
     loading: boolean,
 }
 
-interface ExcelImportParams {
+export interface ExcelImportParams {
     file_name: string,
     sheet_names: string[],
     has_headers: boolean,
@@ -83,7 +85,8 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
         () => getDefaultParams(props.fileName),
         StepType.ExcelImport,
         props.mitoAPI, props.analysisData,
-        {allowSameParamsToReapplyTwice: true}
+        {allowSameParamsToReapplyTwice: true},
+        props.updateImportEdit
     )
 
 
