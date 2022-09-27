@@ -27,7 +27,7 @@ DATETIME_ARRAY = [pd.to_datetime(x, unit='s') for x in [100, 200, 300]]
 TIMEDELTA_ARRAY = [pd.to_timedelta(x, unit='s') for x in [100, 200, 300]]
 
 BOOL_TESTS = [
-    ('bool', BOOL_ARRAY, 'df1[\'A\'] = df1[\'A\']'), 
+    ('bool', BOOL_ARRAY, None), 
     ('int', [1, 0, 1], 'df1[\'A\'] = df1[\'A\'].astype(\'int\')'), 
     ('int64', [1, 0, 1], 'df1[\'A\'] = df1[\'A\'].astype(\'int\')'), 
     ('float', [1.0, 0.0, 1.0], 'df1[\'A\'] = df1[\'A\'].astype(\'float\')'), 
@@ -54,8 +54,8 @@ def test_bool_to_other_types(new_dtype, result, code):
 
 INT_TESTS = [
     ('bool', [True, True, True], 'df1[\'A\'] = df1[\'A\'].fillna(False).astype(\'bool\')'), 
-    ('int', [1, 2, 3], 'df1[\'A\'] = df1[\'A\']'), 
-    ('int64', [1, 2, 3], 'df1[\'A\'] = df1[\'A\']'), 
+    ('int', [1, 2, 3], None), 
+    ('int64', [1, 2, 3], None), 
     ('float', [1.0, 2.0, 3.0], 'df1[\'A\'] = df1[\'A\'].astype(\'float\')'), 
     ('float64', [1.0, 2.0, 3.0], 'df1[\'A\'] = df1[\'A\'].astype(\'float\')'), 
     ('str', ['1', '2', '3'], 'df1[\'A\'] = df1[\'A\'].astype(\'str\')'), 
@@ -80,8 +80,8 @@ FLOAT_TESTS = [
     ('bool', [True, True, True], 'df1[\'A\'] = df1[\'A\'].fillna(False).astype(\'bool\')'), 
     ('int', [4, 5, 6], 'df1[\'A\'] = df1[\'A\'].astype(\'int\')'), 
     ('int64', [4, 5, 6], 'df1[\'A\'] = df1[\'A\'].astype(\'int\')'), 
-    ('float', [4.0, 5.1, 6.2], 'df1[\'A\'] = df1[\'A\']'), 
-    ('float64', [4.0, 5.1, 6.2], 'df1[\'A\'] = df1[\'A\']'), 
+    ('float', [4.0, 5.1, 6.2], None), 
+    ('float64', [4.0, 5.1, 6.2], None), 
     ('str', ['4.0', '5.1', '6.2'], 'df1[\'A\'] = df1[\'A\'].astype(\'str\')'), 
     ('object', ['4.0', '5.1', '6.2'], 'df1[\'A\'] = df1[\'A\'].astype(\'str\')'), 
     ('string', ['4.0', '5.1', '6.2'], 'df1[\'A\'] = df1[\'A\'].astype(\'str\')'), 
@@ -106,9 +106,9 @@ STRING_TESTS = [
     ('int64', [1, 2, -3], 'df1[\'A\'] = to_int_series(df1[\'A\'])'), 
     ('float', [1.0, 2.1, -3.2], 'df1[\'A\'] = to_float_series(df1[\'A\'])'), 
     ('float64', [1.0, 2.1, -3.2], 'df1[\'A\'] = to_float_series(df1[\'A\'])'),  
-    ('str', ["$1", "2.1", "(3.2)"], 'df1[\'A\'] = df1[\'A\']'), 
-    ('object', ["$1", "2.1", "(3.2)"], 'df1[\'A\'] = df1[\'A\']'), 
-    ('string', ["$1", "2.1", "(3.2)"], 'df1[\'A\'] = df1[\'A\']'),
+    ('str', ["$1", "2.1", "(3.2)"], None), 
+    ('object', ["$1", "2.1", "(3.2)"], None), 
+    ('string', ["$1", "2.1", "(3.2)"], None),
     ('datetime', [pd.to_datetime('A', errors='coerce') for x in [None, None, None]], 'df1[\'A\'] = pd.to_datetime(df1[\'A\'], format=\'%m-%d-%Y\', errors=\'coerce\')'), 
     ('datetime64[ns]', [pd.to_datetime('A', errors='coerce') for x in [None, None, None]], 'df1[\'A\'] = pd.to_datetime(df1[\'A\'], format=\'%m-%d-%Y\', errors=\'coerce\')'), 
     ('timedelta', [pd.to_timedelta('A', errors='coerce') for x in [None, None, None]], 'df1[\'A\'] = pd.to_timedelta(df1[\'A\'], errors=\'coerce\')'), 
@@ -168,8 +168,8 @@ DATETIME_TESTS = [
     ('str', ['1970-01-01 00:01:40', '1970-01-01 00:03:20', '1970-01-01 00:05:00'], 'df1[\'A\'] = df1[\'A\'].dt.strftime(\'%Y-%m-%d %X\')'), 
     ('object', ['1970-01-01 00:01:40', '1970-01-01 00:03:20', '1970-01-01 00:05:00'], 'df1[\'A\'] = df1[\'A\'].dt.strftime(\'%Y-%m-%d %X\')'), 
     ('string', ['1970-01-01 00:01:40', '1970-01-01 00:03:20', '1970-01-01 00:05:00'], 'df1[\'A\'] = df1[\'A\'].dt.strftime(\'%Y-%m-%d %X\')'),
-    ('datetime', DATETIME_ARRAY, 'df1[\'A\'] = df1[\'A\']'), 
-    ('datetime64[ns]', DATETIME_ARRAY, 'df1[\'A\'] = df1[\'A\']'), 
+    ('datetime', DATETIME_ARRAY, None), 
+    ('datetime64[ns]', DATETIME_ARRAY, None), 
     ('timedelta', DATETIME_ARRAY, None), 
 ]
 @pytest.mark.parametrize("new_dtype, result, code", DATETIME_TESTS)
@@ -190,7 +190,7 @@ TIMEDELTA_TESTS = [
     ('float64', [100.0, 200.0, 300.0], 'df1[\'A\'] = df1[\'A\'].dt.total_seconds()'),  
     ('datetime', TIMEDELTA_ARRAY, None), 
     ('datetime64[ns]', TIMEDELTA_ARRAY, None), 
-    ('timedelta', TIMEDELTA_ARRAY, 'df1[\'A\'] = df1[\'A\']'), 
+    ('timedelta', TIMEDELTA_ARRAY, None), 
 ]
 @pytest.mark.parametrize("new_dtype, result, code", TIMEDELTA_TESTS)
 def test_timedelta_to_other_types(new_dtype, result, code):
