@@ -32,7 +32,6 @@ interface XLSXImportProps {
     fileForImportWizard: FileElement | undefined,
     setFileForImportWizard: React.Dispatch<React.SetStateAction<FileElement | undefined>>;
     updateImportEdit?: (excelImportParams: ExcelImportParams) => void
-
 }
 
 export interface ExcelFileMetadata {
@@ -57,11 +56,13 @@ const getDefaultParams = (fileName: string): ExcelImportParams => {
     }
 }
 
-const getButtonMessage = (params: ExcelImportParams, loading: boolean): string => {
+const getButtonMessage = (params: ExcelImportParams, loading: boolean, isUpdate: boolean): string => {
     if (loading) {
         return `Importing...`
     } else if (params.sheet_names.length === 0) {
         return `Select sheets to import them`
+    } else if (isUpdate) {
+        return `Update to ${params.sheet_names[0]}`
     }
     return `Import ${params.sheet_names.length} Selected Sheet${params.sheet_names.length === 1 ? '' : 's'}`;
 }
@@ -254,7 +255,7 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
                     disabled={numSelectedSheets === 0}
                     autoFocus
                 >
-                    {getButtonMessage(params, loading)}
+                    {getButtonMessage(params, loading, props.updateImportEdit !== undefined)}
                 </TextButton>
                 {editApplied && !loading &&
                     <p className='text-subtext-1'>

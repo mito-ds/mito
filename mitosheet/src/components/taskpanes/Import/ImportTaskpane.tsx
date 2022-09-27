@@ -7,11 +7,13 @@ import { AnalysisData, MitoError, UIState, UserProfile } from '../../../types';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import { TaskpaneType } from '../taskpanes';
+import { getImportName } from '../UpdateImports/ImportCard';
 import { UpdatedImport } from '../UpdateImports/UpdateImportsTaskpane';
-import CSVImport, { CSVImportParams } from './CSVImport';
+import { updateImportedDataWithFile } from '../UpdateImports/UpdateImportsUtils';
+import CSVImport from './CSVImport';
 import FileImportBodyAndFooter from './FileImportBodyAndFooter';
 import { isExcelFile } from './importUtils';
-import XLSXImport, { ExcelImportParams } from './XLSXImport';
+import XLSXImport from './XLSXImport';
 
 
 interface ImportTaskpaneProps {
@@ -73,38 +75,6 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
 
     // Track if there has been an error
     const [importError, setImportError] = useState<MitoError | undefined>(undefined);
-
-    const updateImportedData = (newImportParams: CSVImportParams | ExcelImportParams): void => {
-        if (props.updateImportedData === undefined) {
-            return 
-        }
-
-        const newUpdatedImports: UpdatedImport[] = JSON.parse(JSON.stringify(props.updateImportedData.updatedImports))
-        const importIndex = props.updateImportedData.importIndex
-
-        if (Object.keys(newImportParams).includes('sheet_names')) {
-            newImportParams = newImportParams as ExcelImportParams
-            newUpdatedImports[importIndex] = {
-                ...newUpdatedImports[importIndex],
-                type: 'excel',
-                import_params: newImportParams
-            }
-        } else {
-            newImportParams = newImportParams as CSVImportParams
-            newUpdatedImports[importIndex] = {
-                ...newUpdatedImports[importIndex],
-                type: 'csv', 
-                import_params: newImportParams
-            }
-        }
-
-        props.setUIState(prevUIState => {
-            return {
-                ...prevUIState,
-                currOpenTaskpane: {type: TaskpaneType.UPDATEIMPORTS, updatedImports: newUpdatedImports}
-            }
-        })
-    }
     
     // Check both the file and the full file name so that 
     // the screen does not flash when the back button is pressed
@@ -120,7 +90,8 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                 setImportState={setImportState}
                 setUIState={props.setUIState} 
                 importState={importState}
-                updateImportEdit={props.updateImportedData === undefined ? undefined : updateImportedData}
+                // If we're updating an existing import than pass a function to override the default edit function
+                updateImportEdit={props.updateImportedData === undefined ? undefined : (newImportedData) => updateImportedDataWithFile(props.updateImportedData, newImportedData, props.setUIState)}
             />
         )
     } else if (fileForImportWizard !== undefined && fullFileNameForImportWizard !== undefined) {
@@ -136,7 +107,8 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                 importState={importState}
                 error={importError}
                 setError={setImportError}
-                updateImportEdit={props.updateImportedData === undefined ? undefined : updateImportedData}
+                // If we're updating an existing import than pass a function to override the default edit function
+                updateImportEdit={props.updateImportedData === undefined ? undefined : (newImportedData) => updateImportedDataWithFile(props.updateImportedData, newImportedData, props.setUIState)}
             />
         )
     }
@@ -144,8 +116,16 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader
-                header='Import Files'
+                header={props.updateImportedData === undefined ? 'Import Files' : 'Replace ' + getImportName(props.updateImportedData?.updatedImports[props.updateImportedData?.importIndex])}
                 setUIState={props.setUIState}
+                backCallback={props.updateImportedData === undefined ? undefined : () => {
+                    props.setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            currOpenTaskpane: {type: TaskpaneType.UPDATEIMPORTS, updatedImports: props.updateImportedData?.updatedImports}
+                        }
+                    })
+                }}
             />
             <FileImportBodyAndFooter
                 mitoAPI={props.mitoAPI}
@@ -160,7 +140,8 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                 currPathParts={props.currPathParts}
                 setCurrPathParts={props.setCurrPathParts}
                 analysisData={props.analysisData}
-                updateImportedData={props.updateImportedData === undefined ? undefined : updateImportedData}
+                // If we're updating an existing import than pass a function to override the default edit function
+                updateImportedData={props.updateImportedData === undefined ? undefined : (newImportedData) => updateImportedDataWithFile(props.updateImportedData, newImportedData, props.setUIState)}
             />
         </DefaultTaskpane>            
     )

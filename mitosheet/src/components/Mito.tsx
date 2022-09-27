@@ -71,7 +71,6 @@ import { TourName } from './tour/Tours';
 import { isVariantA } from '../utils/experiments';
 import { CHECKLIST_STEPS } from './checklists/checklistData';
 import { getRemainingChecklistItems } from './checklists/Checklist';
-import UpdateImportWithDataframeTaskpane from './taskpanes/UpdateImports/UpdateImportWithDataframeTaskpane';
 
 export type MitoProps = {
     model_id: string;
@@ -723,6 +722,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     mitoAPI={props.mitoAPI}
                     selectedSheetIndex={uiState.selectedSheetIndex}
+                    updateImportedData={uiState.currOpenTaskpane.updateImportedData}
                 />
             )
             case TaskpaneType.UPDATEIMPORTS: return (
@@ -734,18 +734,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     mitoAPI={props.mitoAPI}
                     selectedSheetIndex={uiState.selectedSheetIndex}
                     updatedImports={uiState.currOpenTaskpane.updatedImports}
-                />
-            )
-            case TaskpaneType.UPDATE_IMPORT_WITH_DATAFRAME: return (
-                <UpdateImportWithDataframeTaskpane
-                    userProfile={userProfile}
-                    analysisData={analysisData}
-                    sheetDataArray={sheetDataArray}
-                    setUIState={setUIState}
-                    mitoAPI={props.mitoAPI}
-                    selectedSheetIndex={uiState.selectedSheetIndex}
-                    updatedImports={uiState.currOpenTaskpane.updatedImports}
-                    importIndex={uiState.currOpenTaskpane.importIndex}
                 />
             )
 

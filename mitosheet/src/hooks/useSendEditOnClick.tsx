@@ -81,6 +81,7 @@ function useSendEditOnClick<ParamType, ResultType>(
         // Do not send an edit message if the params are undefined
         // or if we have already sent a message for these params
         if (params === undefined) {
+            console.log(55)
             return;
         } else if (!options?.allowSameParamsToReapplyTwice && paramsApplied) {
             setAttemptedEditWithTheseParamsMultipleTimes(true);
@@ -95,9 +96,12 @@ function useSendEditOnClick<ParamType, ResultType>(
         const newStepID = getRandomId(); // always use a new step id
 
         let possibleError = undefined
+        console.log(1)
         if (overideEdit === undefined) {
+            console.log(2)
             possibleError = await mitoAPI._edit<ParamType>(editEvent, finalParams, newStepID);
         } else {
+            console.log(3)
             possibleError = overideEdit(finalParams)
         }
         setLoading(false);

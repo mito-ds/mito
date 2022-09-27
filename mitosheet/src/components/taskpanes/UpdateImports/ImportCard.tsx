@@ -16,7 +16,7 @@ const getBaseOfPath = (fullPath: string): string => {
     return fullPath.replace(/^.*[\\\\/]/, '')
 }
 
-const getTitleText = (updatedImport: UpdatedImport): string => {
+export const getImportName = (updatedImport: UpdatedImport): string => {
     let fullPath = ''
     if (updatedImport.type === 'csv') {
         fullPath = updatedImport.import_params.file_names[0]
@@ -42,7 +42,6 @@ const ImportCard = (props: {
 }): JSX.Element => {
 
     const updatedImport = props.updatedImports[props.importIndex]
-    console.log(updatedImport)
 
     return (
         <Row justify='space-between' align='center'>
@@ -52,12 +51,12 @@ const ImportCard = (props: {
                     <Col span={22} offset={.25}>
                         {updatedImport.type === 'excel' &&
                             <div>
-                                <span className='text-color-medium-gray-important'>Imported </span> {getTitleText(updatedImport)} <span className='text-color-medium-gray-important'>from </span> {getBaseOfPath(updatedImport.import_params.file_name)}
+                                <span className='text-color-medium-gray-important'>Imported </span> {getImportName(updatedImport)} <span className='text-color-medium-gray-important'>from </span> {getBaseOfPath(updatedImport.import_params.file_name)}
                             </div>
                         } 
                         {updatedImport.type !== 'excel' &&
                             <div>
-                                <span className='text-color-medium-gray-important'>Imported </span> {getTitleText(updatedImport)}
+                                <span className='text-color-medium-gray-important'>Imported </span> {getImportName(updatedImport)}
                             </div>
                         }
                     </Col>
@@ -95,9 +94,11 @@ const ImportCard = (props: {
                                     ...prevUIState,
                                     currOpenModal: {type: ModalEnum.None},
                                     currOpenTaskpane: {
-                                        type: TaskpaneType.UPDATE_IMPORT_WITH_DATAFRAME, 
-                                        updatedImports: props.updatedImports, 
-                                        importIndex: props.importIndex
+                                        type: TaskpaneType.DATAFRAMEIMPORT, 
+                                        updateImportedData: {
+                                            updatedImports: props.updatedImports, 
+                                            importIndex: props.importIndex
+                                        }
                                     },
                                     selectedTabType: 'data'
                                 }

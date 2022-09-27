@@ -68,7 +68,7 @@ export const getInvalidFileError = (selectedElement: FileElement, excelImportEna
     and also the message to display on the button based on which
     element is selected.
 */
-export const getImportButtonStatus = (selectedElement: FileElement | undefined, excelImportEnabled: boolean, loadingImport: boolean): {disabled: boolean, buttonText: string} => {
+export const getImportButtonStatus = (selectedElement: FileElement | undefined, excelImportEnabled: boolean, loadingImport: boolean, isUpdate: boolean): {disabled: boolean, buttonText: string} => {
     if (selectedElement === undefined) {
         return {
             disabled: true,
@@ -94,6 +94,13 @@ export const getImportButtonStatus = (selectedElement: FileElement | undefined, 
             disabled: false,
             buttonText: 'Importing...'
         };
+    }
+
+    if (isUpdate) {
+        return {
+            disabled: false, 
+            buttonText: 'Update to ' + selectedElement.name
+        }
     }
     return {
         disabled: false,

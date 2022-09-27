@@ -14,6 +14,11 @@ import SelectAndXIconCard from "../../elements/SelectAndXIconCard";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import TextButton from "../../elements/TextButton";
 import Tooltip from "../../elements/Tooltip";
+import { UpdatedImport } from "../UpdateImports/UpdateImportsTaskpane";
+import { getImportName } from "../UpdateImports/ImportCard";
+import { TaskpaneType } from "../taskpanes";
+import { updateImportedDataWithDataframe } from "../UpdateImports/UpdateImportsUtils";
+import RadioButtonBox from "../../elements/RadioButtonBox";
 
 
 interface DataframeImportTaskpaneProps {
@@ -23,8 +28,26 @@ interface DataframeImportTaskpaneProps {
     analysisData: AnalysisData;
     sheetDataArray: SheetData[];
     selectedSheetIndex: number;
+    updateImportedData?: {
+        updatedImports: UpdatedImport[], 
+        importIndex: number
+    }
 }
 
+export interface DataframeImportParams {
+    df_names: string[],
+}
+
+const getButtonMessage = (params: DataframeImportParams, isUpdate: boolean): string => {
+    if (params.df_names.length === 0 && !isUpdate) {
+        return `Select dataframes to import them`
+    } else if (params.df_names.length === 0 && isUpdate) {
+        return `Select a dataframe to import`
+    } else if (isUpdate) {
+        return `Update to ${params.df_names[0]}`
+    }
+    return `Import ${params.df_names.length} Selected dataframe${params.df_names.length === 1 ? '' : 's'}`;
+}
 
 
 /* 
@@ -35,7 +58,13 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
     const [dfNamesInNotebook, setDfNamesInNotebook] = useState<string[]>([]);
 
     const {params, setParams, edit} = useSendEditOnClick<{df_names: string[]}, {df_names: string[]}>(
-        {df_names: []}, StepType.DataframeImport, props.mitoAPI, props.analysisData, {allowSameParamsToReapplyTwice: true}
+        {df_names: []}, 
+        StepType.DataframeImport, 
+        props.mitoAPI, 
+        props.analysisData, 
+        {allowSameParamsToReapplyTwice: true}, 
+        // If we're updating already imported data, then pass the override edit function
+        props.updateImportedData === undefined ? undefined : (newImportedData) => updateImportedDataWithDataframe(props.updateImportedData, newImportedData, props.setUIState)
     )
 
     useEffect(() => {
@@ -80,11 +109,40 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
         )
     })
 
+    const radioButtonBox: JSX.Element = (
+        <RadioButtonBox 
+            values={dfNamesInNotebook} 
+            selectedValue={params?.df_names[0]} 
+            onChange={newDfName => setParams(prevParams => {
+                return {
+                    ...prevParams,
+                    df_names: [newDfName]
+                }
+            })}
+        />
+    ) 
+
+    if (params === undefined) {
+        return (
+            <div className='text-body-1'>
+                There has been an error loading dataframes to import. Please try again, or contact support.
+            </div>
+        )
+    }
+
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
-                header="Import Dataframes"
-                setUIState={props.setUIState}           
+                header={props.updateImportedData === undefined ? 'Import Dataframes' : 'Replace ' + getImportName(props.updateImportedData?.updatedImports[props.updateImportedData?.importIndex])}
+                setUIState={props.setUIState} 
+                backCallback={props.updateImportedData === undefined ? undefined : () => {
+                    props.setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            currOpenTaskpane: {type: TaskpaneType.UPDATEIMPORTS, updatedImports: props.updateImportedData?.updatedImports}
+                        }
+                    })
+                }}          
             />
             <DefaultTaskpaneBody>
                 <Row justify='space-between' align='center'>
@@ -128,7 +186,8 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
                         </DropdownButton>
                     </Col>
                 </Row>
-                {dataframeCards}
+                {props.updateImportedData === undefined && dataframeCards}
+                {props.updateImportedData !== undefined && radioButtonBox}
                 {dataframeCards.length === 0 &&
                     <Row>
                         <p className="text-subtext-1">Import an existing dataframe as a new sheet tab in Mito</p>
@@ -141,11 +200,12 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
                     variant='dark'
                     width='block'
                     onClick={() => {
+                        console.log("here")
                         edit();
                     }}
                     disabled={(params?.df_names.length || 0) === 0}
                 >
-                    Import Dataframes
+                    {getButtonMessage(params, props.updateImportedData !== undefined)}
                 </TextButton>
             </DefaultTaskpaneFooter>
         </DefaultTaskpane>

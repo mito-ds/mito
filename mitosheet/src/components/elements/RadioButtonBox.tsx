@@ -7,8 +7,17 @@ import RadioButtonItem from './RadioButtonItem';
 
 
 interface RadioButtonsProps {
+    /**
+        * @param values - The options for the user to pick between 
+    */
     values: string[];
-    selectedValue: string;
+    /** 
+        * @param selectedValue - The value currently selected
+    */
+    selectedValue: string | undefined;
+    /**
+        * @param onChange - function to set the selectedValue when radio button is selected
+    */
     onChange: (newValue: string) => void;
     /** 
         * @param [height] - Height of the MultiToggleBox

@@ -128,7 +128,7 @@ function FileImportBodyAndFooter(props: FileImportBodyAndFooter): JSX.Element {
     }
 
     async function importElement(element: FileElement | undefined): Promise<void> {
-        const importButtonStatus = getImportButtonStatus(element, props.userProfile.excelImportEnabled, props.importState.loadingImport);
+        const importButtonStatus = getImportButtonStatus(element, props.userProfile.excelImportEnabled, props.importState.loadingImport, props.updateImportedData !== undefined);
         // Quit early if the selected thing is not importable, or if there
         // is nothing even selected
         if (importButtonStatus.disabled || element === undefined) {
@@ -178,7 +178,12 @@ function FileImportBodyAndFooter(props: FileImportBodyAndFooter): JSX.Element {
         })
     }
 
-    const importButtonStatus = getImportButtonStatus(selectedElement, props.userProfile.excelImportEnabled, props.importState.loadingImport);
+    const importButtonStatus = getImportButtonStatus(
+        selectedElement, 
+        props.userProfile.excelImportEnabled, 
+        props.importState.loadingImport,
+        props.updateImportedData !== undefined
+    );
     
 
     return (

@@ -163,9 +163,11 @@ export const getDefaultCSVParams = (fileName: string): CSVImportParams => {
     }
 }
 
-const getButtonMessage = (fileElement: FileElement, loading: boolean): string => {
+const getButtonMessage = (fileElement: FileElement, loading: boolean, isUpdate: boolean): string => {
     if (loading) {
         return `Importing...`
+    } else if (isUpdate) {
+        return `Update to ${fileElement.name}`
     }
     return `Import ${fileElement.name}`;
 }
@@ -353,7 +355,7 @@ function CSVImport(props: CSVImportProps): JSX.Element {
                     }}
                     autoFocus
                 >
-                    {getButtonMessage(props.fileForImportWizard, loading)}
+                    {getButtonMessage(props.fileForImportWizard, loading, props.updateImportEdit !== undefined)}
                 </TextButton>
                 {editApplied && !loading &&
                     <p className='text-subtext-1'>
