@@ -68,7 +68,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
         new_dtype: str = get_param(params, 'new_dtype')
 
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
-        pandas_processing_time = 0
+        pandas_processing_time: float = 0
 
 
         # Store the changed columns till the end, so we can change them in a single
