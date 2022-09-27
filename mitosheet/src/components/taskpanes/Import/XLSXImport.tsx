@@ -19,6 +19,7 @@ import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultTaskpaneFooter from '../DefaultTaskpane/DefaultTaskpaneFooter';
 import Spacer from '../../layout/Spacer';
+import RadioButtonBox from '../../elements/RadioButtonBox';
 
 
 interface XLSXImportProps {
@@ -126,47 +127,64 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
             />
             <DefaultTaskpaneBody noScroll>
                 <div> 
-                    <MultiToggleBox
-                        loading={fileMetadata.loading}
-                        searchable
-                        height='medium'
-                        toggleAllIndexes={(indexesToToggle) => {
-                            setParams(prevParams => {
-                                const newSheetNames = [...prevParams.sheet_names];
-                                const sheetsToToggle = indexesToToggle.map(index => fileMetadata.sheet_names[index]);
-                                sheetsToToggle.forEach(sheetName => {
-                                    toggleInArray(newSheetNames, sheetName);
-                                })
+                    {props.updateImportEdit === undefined &&
+                        <MultiToggleBox
+                            loading={fileMetadata.loading}
+                            searchable
+                            height='medium'
+                            toggleAllIndexes={(indexesToToggle) => {
+                                setParams(prevParams => {
+                                    const newSheetNames = [...prevParams.sheet_names];
+                                    const sheetsToToggle = indexesToToggle.map(index => fileMetadata.sheet_names[index]);
+                                    sheetsToToggle.forEach(sheetName => {
+                                        toggleInArray(newSheetNames, sheetName);
+                                    })
 
+                                    return {
+                                        ...prevParams,
+                                        sheet_names: newSheetNames
+                                    }
+                                })
+                            }}
+                        >
+                            {fileMetadata.sheet_names.map((sheetName, idx) => {
+                                return (
+                                    <MultiToggleItem
+                                        key={idx}
+                                        title={sheetName}
+                                        toggled={params.sheet_names.includes(sheetName)}
+                                        onToggle={() => {
+                                            setParams(prevParams => {
+                                                const newSheetNames = [...prevParams.sheet_names];
+                                                toggleInArray(newSheetNames, sheetName);
+
+                                                return {
+                                                    ...prevParams,
+                                                    sheet_names: newSheetNames
+                                                }
+                                            })
+                                        }}
+                                        index={idx}
+                                    />
+                                )
+                            })}
+                        </MultiToggleBox>
+                    }
+                    {props.updateImportEdit !== undefined &&
+                        <RadioButtonBox
+                            values={fileMetadata.sheet_names}
+                            selectedValue={params.sheet_names[0]}
+                            height='medium'
+                            onChange={(value) => setParams(prevParams => {
+                                console.log('setting to value: ', value)
                                 return {
                                     ...prevParams,
-                                    sheet_names: newSheetNames
+                                    sheet_names: [value]
                                 }
-                            })
-                        }}
-                    >
-                        {fileMetadata.sheet_names.map((sheetName, idx) => {
-                            return (
-                                <MultiToggleItem
-                                    key={idx}
-                                    title={sheetName}
-                                    toggled={params.sheet_names.includes(sheetName)}
-                                    onToggle={() => {
-                                        setParams(prevParams => {
-                                            const newSheetNames = [...prevParams.sheet_names];
-                                            toggleInArray(newSheetNames, sheetName);
-
-                                            return {
-                                                ...prevParams,
-                                                sheet_names: newSheetNames
-                                            }
-                                        })
-                                    }}
-                                    index={idx}
-                                />
-                            )
-                        })}
-                    </MultiToggleBox>
+                            })}
+                        />
+                    }
+                    
                     <p className='text-body-1 mt-20px'>
                         Has Header Row
                     </p>

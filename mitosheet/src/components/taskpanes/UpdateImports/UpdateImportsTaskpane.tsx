@@ -46,6 +46,7 @@ export type UpdatedImport =
 const updateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element => {
 
     const [updatedImports, setUpdatedImports] = useState<UpdatedImport[] | undefined>(props.updatedImports)
+    const [displayedImportCardDropdownIndex, setDisplayedImportCardDropdownIndex] = useState<number | undefined>(undefined)
 
     async function loadImportedFilesAndDataframes() {
         const loadedFilesAndDataframes = await props.mitoAPI.getImportedFilesAndDataframes()
@@ -72,7 +73,9 @@ const updateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element =
                                 key={idx}
                                 setUIState={props.setUIState}
                                 updatedImports={updatedImports}
-                                importIndex={idx}            
+                                importIndex={idx}    
+                                displayedImportCardDropdownIndex={displayedImportCardDropdownIndex}
+                                setDisplayedImportCardDropdownIndex={setDisplayedImportCardDropdownIndex}        
                             />
                         )
                     })

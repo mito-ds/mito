@@ -94,13 +94,10 @@ function useSendEditOnClick<ParamType, ResultType>(
         setLoading(true);
         const newStepID = getRandomId(); // always use a new step id
 
-        console.log("in edit function")
         let possibleError = undefined
         if (overideEdit === undefined) {
-            console.log('override edit is undefined')
             possibleError = await mitoAPI._edit<ParamType>(editEvent, finalParams, newStepID);
         } else {
-            console.log('override edit is not undefined')
             possibleError = overideEdit(finalParams)
         }
         setLoading(false);

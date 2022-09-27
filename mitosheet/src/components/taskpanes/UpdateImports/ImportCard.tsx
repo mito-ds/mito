@@ -9,6 +9,8 @@ import { ModalEnum } from '../../modals/modals';
 import { TaskpaneType } from '../taskpanes';
 import { UpdatedImport } from './UpdateImportsTaskpane';
 import CSVFileIcon from '../../icons/CSVFileIcon';
+import DropdownItem from '../../elements/DropdownItem';
+import Dropdown from '../../elements/Dropdown';
 
 const getBaseOfPath = (fullPath: string): string => {
     return fullPath.replace(/^.*[\\\\/]/, '')
@@ -35,6 +37,8 @@ const ImportCard = (props: {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     importIndex: number,
     updatedImports: UpdatedImport[]
+    displayedImportCardDropdownIndex: number | undefined
+    setDisplayedImportCardDropdownIndex: React.Dispatch<React.SetStateAction<number | undefined>>
 }): JSX.Element => {
 
     const updatedImport = props.updatedImports[props.importIndex]
@@ -60,41 +64,46 @@ const ImportCard = (props: {
                 </Row>
             </Col>
             <Col>
-                <div onClick={() => {
-                    // We open the merge taskpane
-                    
-                    props.setUIState(prevUIState => {
-                        return {
-                            ...prevUIState,
-                            currOpenModal: {type: ModalEnum.None},
-                            currOpenTaskpane: {
-                                type: TaskpaneType.IMPORT_FILES, 
-                                updateImportedData: {
-                                    updatedImports: props.updatedImports, 
-                                    importIndex: props.importIndex
-                                }
-                            },
-                            selectedTabType: 'data'
-                        }
-                    })
-
-
-                    /*
-                    props.setUIState(prevUIState => {
-                        return {
-                            ...prevUIState,
-                            currOpenModal: {type: ModalEnum.None},
-                            currOpenTaskpane: {
-                                type: TaskpaneType.UPDATE_IMPORT_WITH_DATAFRAME, 
-                                updatedImports: props.updatedImports, 
-                                importIndex: props.importIndex
-                            },
-                            selectedTabType: 'data'
-                        }
-                    })
-                    */
-                }}>
+                <div onClick={() => {props.setDisplayedImportCardDropdownIndex(props.importIndex)}}>
                     <RightPointerIcon />
+                    <Dropdown 
+                        display={props.displayedImportCardDropdownIndex === props.importIndex}
+                        closeDropdown={() => props.setDisplayedImportCardDropdownIndex(undefined)}
+                        width='medium'
+                    >
+                        <DropdownItem
+                            title='Import file'
+                            onClick={() => props.setUIState(prevUIState => {
+                                return {
+                                    ...prevUIState,
+                                    currOpenModal: {type: ModalEnum.None},
+                                    currOpenTaskpane: {
+                                        type: TaskpaneType.IMPORT_FILES, 
+                                        updateImportedData: {
+                                            updatedImports: props.updatedImports, 
+                                            importIndex: props.importIndex
+                                        }
+                                    },
+                                    selectedTabType: 'data'
+                                }
+                            })}
+                        />
+                        <DropdownItem
+                            title='Import dataframe'
+                            onClick={() => props.setUIState(prevUIState => {
+                                return {
+                                    ...prevUIState,
+                                    currOpenModal: {type: ModalEnum.None},
+                                    currOpenTaskpane: {
+                                        type: TaskpaneType.UPDATE_IMPORT_WITH_DATAFRAME, 
+                                        updatedImports: props.updatedImports, 
+                                        importIndex: props.importIndex
+                                    },
+                                    selectedTabType: 'data'
+                                }
+                            })}
+                        />
+                    </Dropdown>
                 </div>
             </Col>
             
