@@ -260,7 +260,7 @@ def get_dataframe_format_code(state: State, sheet_index: int) -> Optional[str]:
         dataframe_format_string = f"{df_name}_styler = {df_name}.head({MAX_ROWS}).style"
 
         # If there is a .head call, and we have filter conditions that require access to the entire
-        # dataframe, than we generate an extra comment to let the user know what is going on
+        # dataframe, than we generate an extra comment to let the user know something might be incorrect
         if check_conditional_filters_have_filter_condition_that_requires_whole_dataframe(state, sheet_index):
             dataframe_format_string = f'# This head call will avoid printing too much data, but also may result in incorrect calculations\n{dataframe_format_string}'
         
@@ -272,8 +272,6 @@ def get_dataframe_format_code(state: State, sheet_index: int) -> Optional[str]:
     conditional_format_code = get_conditional_format_code_list(state, sheet_index)
     if conditional_format_code:
         format_code += conditional_format_code
-
-    # If the conditional format code has a .head call
 
     # If all the format code is None, then we write nothing
     if all(map(lambda x: x is None, format_code)):
