@@ -9,7 +9,7 @@ from typing import List
 from mitoinstaller.installer_steps.installer_step import InstallerStep
 
 
-def get_installer_start_message() -> None:
+def get_installer_start_message() -> str:
 
     # First, build the checklist of the completed steps
 
