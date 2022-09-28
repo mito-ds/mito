@@ -11,7 +11,6 @@ from mitosheet.step_performers import EVENT_TYPE_TO_STEP_PERFORMER
 from mitosheet.step_performers.dataframe_import import DataframeImportStepPerformer
 from mitosheet.step_performers.import_steps.excel_import import ExcelImportStepPerformer
 from mitosheet.step_performers.import_steps.simple_import import SimpleImportStepPerformer
-from mitosheet.updates.replay_analysis import execute_replay_analysis_update
 
 
 EXISTING_IMPORTS_UPDATE_EVENT = 'existing_import_update'
@@ -21,12 +20,26 @@ def execute_existing_imports_update(steps_manager: StepsManagerType, updated_imp
 
     for i in range(len(steps_manager.steps_including_skipped)):
         step = steps_manager.steps_including_skipped[i]
+
+        final_import_updates = []
+        
+        #TODO: Combine the updated_imports by step id so if there are multiple updates to one step, we can handle it properly
+        for updated_import in updated_imports:
+            updated_import_step_id = updated_import['step_id']
+
+            # Find other steps with the same step_id
+                # If they are the same import type, combine them
+                # If they are different import types, create a new step id for one of them and add it to the end as new import step
+                new_simple_import_steps = []
+                new_excel_import_steps = []
+                new_df_import_step = []
+
+        # For each import that we're updating, find the original import step and update the params
         for updated_import in updated_imports:
             updated_import_step_id = updated_import['step_id']
         
             if updated_import_step_id == step.step_id:
 
-                #TODO: Combine the updated_imports by step id so if there are multiple updates to one step, we can handle it properly
 
                 # Update the step_type
                 updated_import_type = updated_import['type']
