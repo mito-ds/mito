@@ -75,7 +75,7 @@ const getInvalidColumnHeadersMessage = (sheetData: SheetData, invalidColumnIDs: 
 
 
     if (numOtherColumnHeaders === 0) {
-        return (<p>This filter cannot be applied to <span className='text-color-error-important'>{columnHeadersString}</span> {invalidColumnIDs.length === 1 ? 'is' : 'are'}. {likelyCauseOfInvalid}</p>)
+        return (<p>This filter cannot be applied to <span className='text-color-error-important'>{columnHeadersString}</span>. {likelyCauseOfInvalid}</p>)
     } else {
         return (<p>This filter cannot be applied to <span className='text-color-error-important'>{columnHeadersString}</span> and <span className='text-color-error-important'>{numOtherColumnHeaders}</span> others. {likelyCauseOfInvalid}</p>)
     }
