@@ -16,7 +16,11 @@ import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap, get_column_header_display
 from mitosheet.sheet_functions.types.utils import get_float_dt_td_columns
-from mitosheet.types import ColumnHeader, ColumnID, ConditionalFormattingCellResults, ConditionalFormattingResult, DataframeFormat, ConditionalFormattingInvalidResults, StateType
+from mitosheet.types import (ColumnHeader, ColumnID,
+                             ConditionalFormattingCellResults,
+                             ConditionalFormattingInvalidResults,
+                             ConditionalFormattingResult, DataframeFormat,
+                             StateType)
 
 # We only send the first 1500 rows of a dataframe; note that this
 # must match this variable defined on the front-end
@@ -90,14 +94,14 @@ def get_conditonal_formatting_result(
         conditional_formatting_rules: List[Dict[str, Any]],
         max_rows: Optional[int]=MAX_ROWS,
     ) -> ConditionalFormattingResult: 
-
-    df = df.head(max_rows)
+    from mitosheet.step_performers.filter import check_filters_contain_condition_that_needs_full_df
 
     invalid_conditional_formats: ConditionalFormattingInvalidResults = dict()
     formatted_result: ConditionalFormattingCellResults = dict()
 
     for conditional_format in conditional_formatting_rules:
         try:
+
             format_uuid = conditional_format["format_uuid"]
             column_ids = conditional_format["columnIDs"]
 
@@ -108,13 +112,22 @@ def get_conditonal_formatting_result(
                 filters  = conditional_format["filters"]
                 backgroundColor = conditional_format.get("backgroundColor", None)
                 color = conditional_format.get("color", None)
+                
+                # Certain filter conditions require the entire dataframe to be present, as they calculate based
+                # on the full dataframe. In other cases, we only operate on the first 1500 rows, for speed
+                _df = df
+                if not check_filters_contain_condition_that_needs_full_df(filters):
+                    df = df.head(max_rows)
 
                 column_header = state.column_ids.get_column_header_by_id(sheet_index, column_id)
 
                 # Use the get_applied_filter function from our filtering infrastructure
-                from mitosheet.step_performers.filter import get_full_applied_filter
-                full_applied_filter, _ = get_full_applied_filter(df, column_header, 'And', filters)
-                applied_indexes = df[full_applied_filter].index.tolist()
+                from mitosheet.step_performers.filter import \
+                    get_full_applied_filter
+                full_applied_filter, _ = get_full_applied_filter(_df, column_header, 'And', filters)
+
+                # We can only take the first max_rows here, as this is all we need
+                applied_indexes = _df[full_applied_filter].head(max_rows).index.tolist()
 
                 for index in applied_indexes:
                     # We need to make this index valid json, and do so in a way that is consistent with how indexes

@@ -70,14 +70,14 @@ const getInvalidColumnHeadersMessage = (sheetData: SheetData, invalidColumnIDs: 
         (Object.keys(NUMBER_SELECT_OPTIONS).includes(filters[0].condition) || (filters[0].condition === 'most_frequent' || filters[0].condition === 'least_frequent')) &&
         filters[0].value === ''
     ) {
-        likelyCauseOfInvalid = 'Please enter a number in the filter input.'
+        likelyCauseOfInvalid = 'Please enter a number in the condition input.'
     }
 
 
     if (numOtherColumnHeaders === 0) {
-        return (<p>This filter cannot be applied to <span className='text-color-error-important'>{columnHeadersString}</span>. {likelyCauseOfInvalid}</p>)
+        return (<p>This condition cannot be applied to <span className='text-color-error-important'>{columnHeadersString}</span>. {likelyCauseOfInvalid}</p>)
     } else {
-        return (<p>This filter cannot be applied to <span className='text-color-error-important'>{columnHeadersString}</span> and <span className='text-color-error-important'>{numOtherColumnHeaders}</span> others. {likelyCauseOfInvalid}</p>)
+        return (<p>This condition cannot be applied to <span className='text-color-error-important'>{columnHeadersString}</span> and <span className='text-color-error-important'>{numOtherColumnHeaders}</span> others. {likelyCauseOfInvalid}</p>)
     }
 }
 
