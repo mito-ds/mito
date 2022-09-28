@@ -275,7 +275,7 @@ class SetDataframeFormatCodeChunk(CodeChunk):
         return 'Set Dataframe Format'
     
     def get_description_comment(self) -> str:
-        return f'Formatted dataframes. Print these styling objects to see the formatted dataframe'
+        return f'Formatted dataframes. View these styling objects to see the formatted dataframe'
 
     def get_code(self) -> List[str]:
         code = []

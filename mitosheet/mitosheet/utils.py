@@ -97,22 +97,22 @@ def get_conditonal_formatting_result(
     formatted_result: ConditionalFormattingCellResults = dict()
 
     for conditional_format in conditional_formatting_rules:
-        format_uuid = conditional_format["format_uuid"]
-        column_ids = conditional_format["columnIDs"]
+        try:
+            format_uuid = conditional_format["format_uuid"]
+            column_ids = conditional_format["columnIDs"]
 
-        for column_id in column_ids:
-            if column_id not in formatted_result:
-                formatted_result[column_id] = dict()
+            for column_id in column_ids:
+                if column_id not in formatted_result:
+                    formatted_result[column_id] = dict()
 
-            filters  = conditional_format["filters"]
-            backgroundColor = conditional_format.get("backgroundColor", None)
-            color = conditional_format.get("color", None)
+                filters  = conditional_format["filters"]
+                backgroundColor = conditional_format.get("backgroundColor", None)
+                color = conditional_format.get("color", None)
 
-            column_header = state.column_ids.get_column_header_by_id(sheet_index, column_id)
+                column_header = state.column_ids.get_column_header_by_id(sheet_index, column_id)
 
-            # Use the get_applied_filter function from our filtering infrastructure
-            from mitosheet.step_performers.filter import get_full_applied_filter
-            try:
+                # Use the get_applied_filter function from our filtering infrastructure
+                from mitosheet.step_performers.filter import get_full_applied_filter
                 full_applied_filter, _ = get_full_applied_filter(df, column_header, 'And', filters)
                 applied_indexes = df[full_applied_filter].index.tolist()
 
@@ -121,10 +121,10 @@ def get_conditonal_formatting_result(
                     # are sent to the frontend
                     json_index = json.dumps(index, cls=NpEncoder)
                     formatted_result[column_id][json_index] = {'backgroundColor': backgroundColor, 'color': color}
-            except Exception as e:
-                if format_uuid not in invalid_conditional_formats:
-                    invalid_conditional_formats[format_uuid] = []
-                invalid_conditional_formats[format_uuid].append(column_id)
+        except Exception as e:
+            if format_uuid not in invalid_conditional_formats:
+                invalid_conditional_formats[format_uuid] = []
+            invalid_conditional_formats[format_uuid].append(column_id)
 
     return {
         'invalid_conditional_formats': invalid_conditional_formats,

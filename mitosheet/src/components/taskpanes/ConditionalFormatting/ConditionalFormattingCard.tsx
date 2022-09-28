@@ -1,5 +1,5 @@
 import React from 'react';
-import { ColumnID, ConditionalFormat, DataframeFormat, RecursivePartial, SheetData } from '../../../types';
+import { ColumnID, ConditionalFormat, DataframeFormat, FilterType, RecursivePartial, SheetData } from '../../../types';
 import '../../../../css/taskpanes/ConditionalFormatting/ConditionalFormattingCard.css'
 import Row from '../../layout/Row';
 import Col from '../../layout/Col';
@@ -12,7 +12,7 @@ import { getDtypeValue } from '../ControlPanel/FilterAndSortTab/DtypeCard';
 import { addIfAbsent, removeIfPresent, toggleInArray } from '../../../utils/arrays';
 import LabelAndColor from '../../../pro/graph/LabelAndColor';
 import { ODD_ROW_BACKGROUND_COLOR_DEFAULT, ODD_ROW_TEXT_COLOR_DEFAULT } from '../../endo/GridData';
-import { ALL_SELECT_OPTIONS } from '../ControlPanel/FilterAndSortTab/filter/filterConditions';
+import { ALL_SELECT_OPTIONS, NUMBER_SELECT_OPTIONS } from '../ControlPanel/FilterAndSortTab/filter/filterConditions';
 import { capitalizeFirstLetter } from '../../../utils/strings';
 import ConditionalFormatIcon from '../../icons/ConditionalFormatIcon';
 import ConditionalFormatInvalidIcon from '../../icons/ConditionalFormatInvalidIcon';
@@ -47,7 +47,7 @@ const getColumnHeadersIncludedMessage = (sheetData: SheetData, columnIDs: Column
 }
 
 // Gets the message to display if there are invalid columns in this conditional format (e.g. the filter can't be applied)
-const getInvalidColumnHeadersMessage = (sheetData: SheetData, invalidColumnIDs: ColumnID[]): JSX.Element | null => {
+const getInvalidColumnHeadersMessage = (sheetData: SheetData, invalidColumnIDs: ColumnID[], filters: FilterType[]): JSX.Element | null => {
     if (invalidColumnIDs.length === 0) {
         return null
     } 
@@ -60,12 +60,24 @@ const getInvalidColumnHeadersMessage = (sheetData: SheetData, invalidColumnIDs: 
     })
 
     const columnHeaders = sortedColumnIDs.map(columnID => sheetData.columnIDsMap[columnID]).filter(columnHeader => columnHeader !== undefined);
-    const [columnHeadersString, numOtherColumnHeaders] = getFirstCharactersOfColumnHeaders(columnHeaders, 25)
+    const [columnHeadersString, numOtherColumnHeaders] = getFirstCharactersOfColumnHeaders(columnHeaders, 20)
     
+    // We try and give users a good error message. The most common errors are the user are missing a value in their
+    // filter, or the types of the filter are incorrect, so we have a simple heuristic to detect which is which
+    let likelyCauseOfInvalid = 'This is likely due to incompatible dtypes.'
+    if (
+        filters.length === 1 && 
+        (Object.keys(NUMBER_SELECT_OPTIONS).includes(filters[0].condition) || (filters[0].condition === 'most_frequent' || filters[0].condition === 'least_frequent')) &&
+        filters[0].value === ''
+    ) {
+        likelyCauseOfInvalid = 'Please enter a number in the filter input.'
+    }
+
+
     if (numOtherColumnHeaders === 0) {
-        return (<p><span className='text-color-error-important'>{columnHeadersString}</span> {invalidColumnIDs.length === 1 ? 'is' : 'are'} invalid.</p>)
+        return (<p>This filter cannot be applied to <span className='text-color-error-important'>{columnHeadersString}</span>. {likelyCauseOfInvalid}</p>)
     } else {
-        return (<p><span className='text-color-error-important'>{columnHeadersString}</span> and <span className='text-color-error-important'>{numOtherColumnHeaders}</span> others are invalid.</p>)
+        return (<p>This filter cannot be applied to <span className='text-color-error-important'>{columnHeadersString}</span> and <span className='text-color-error-important'>{numOtherColumnHeaders}</span> others. {likelyCauseOfInvalid}</p>)
     }
 }
 
@@ -88,7 +100,7 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
     );
     
     const invalidColumnIDs = (props.sheetData.conditionalFormattingResult?.invalid_conditional_formats[props.conditionalFormat.format_uuid] || []);
-    const invalidColumnIDMessage = getInvalidColumnHeadersMessage(props.sheetData, invalidColumnIDs);
+    const invalidColumnIDMessage = getInvalidColumnHeadersMessage(props.sheetData, invalidColumnIDs, props.conditionalFormat.filters);
 
     const conditionText = capitalizeFirstLetter((ALL_SELECT_OPTIONS[props.conditionalFormat.filters[0]?.condition]['long_name'] || 'contains'));
 
