@@ -1,0 +1,13 @@
+{
+    "load_extensions": {
+      "mitosheet/extension": true
+    },
+    "jupyter.lab.toolbars": {
+      "Notebook": [
+        {
+          "name": "create-new-mitosheet",
+          "rank": 10
+        }
+      ]
+    }
+}

@@ -6,8 +6,13 @@
 // having to change what we import in code. This allows us to support 
 // jlab2 and jlab3
 import { IJupyterWidgetRegistry } from '@jupyter-widgets/base';
-import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
-import { Application, IPlugin } from 'application';
+import { INotebookTracker, NotebookActions, NotebookPanel } from '@jupyterlab/notebook';
+import { Application, IPlugin, } from 'application';
+import {
+    ILabShell,
+    JupyterFrontEnd,
+    JupyterFrontEndPlugin
+  } from '@jupyterlab/application';
 import { Widget } from "@lumino/widgets";
 import MitoAPI from './jupyter/api';
 import { getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell } from './jupyter/lab/pluginUtils';
@@ -16,58 +21,78 @@ import { MODULE_NAME, MODULE_VERSION } from './version';
 import * as widgetExports from './jupyter/widget';
 import { mitoJLabIcon } from './components/icons/JLabIcon/MitoIcon';
 
+
 import {
-    ToolbarButton,
+    ToolbarButton, IToolbarWidgetRegistry, ICommandPalette, 
 } from '@jupyterlab/apputils';
 
 
 const EXTENSION_ID = 'mitosheet:plugin';
-
-const addButton = (tracker: INotebookTracker) => {
-
-    // We try and add the button every 3 seconds for 20 seconds, in case
-    // the panel takes a while to load
-    let buttonLoaded = false;
-
-    for (let i = 0; i < 20; i += 3) {
-        setTimeout(() => {
-            if (buttonLoaded) {
-                return 
-            }
-
-            const button = new ToolbarButton({
-                className: 'toolbar-mito-button-class',
-                icon: mitoJLabIcon,
-                onClick: (): void => {
-                    window.commands?.execute('create-empty-mitosheet');
-                },
-                tooltip: 'Create a blank Mitosheet below the active code cell',
-                label: 'Create New Mitosheet',
-            });
-
-            const panel = tracker.currentWidget;
-
-            if (panel && !buttonLoaded) {
-                panel.toolbar.insertAfter('cellType', 'Create Mito Button', button);
-                buttonLoaded = true;
-            } 
-        }, i * 1000)
-    }
-}
 
 /**
  * The example plugin.
  */
 const mitosheetJupyterLabPlugin: IPlugin<Application<Widget>, void> = ({
     id: EXTENSION_ID,
-    requires: [IJupyterWidgetRegistry, INotebookTracker],
+    requires: [IJupyterWidgetRegistry, INotebookTracker, IToolbarWidgetRegistry],
     activate: activateWidgetExtension,
     autoStart: true,
 } as unknown) as IPlugin<Application<Widget>, void>;
+
+
+const launchButtons: JupyterFrontEndPlugin<void> = {
+    id: '@mitosheet/lab-extension:buttons',
+    autoStart: true,
+    requires: [],
+    optional: [
+      INotebookTracker,
+      ICommandPalette,
+      ILabShell,
+      IToolbarWidgetRegistry
+    ],
+    activate: (
+      app: JupyterFrontEnd,
+      notebookTracker: INotebookTracker | null,
+      palette: ICommandPalette | null,
+      labShell: ILabShell | null,
+      toolbarRegistry: IToolbarWidgetRegistry | null
+    ) => {
+        console.log("Activing second extension")
+
+      if (!notebookTracker) {
+        // to prevent showing the toolbar button in non-notebook pages
+        console.log("Notebook not defined")
+        return;
+      }
+    
+      if (toolbarRegistry) {
+        toolbarRegistry.registerFactory<NotebookPanel>(
+            'Notebook',
+            'create-new-mitosheet',
+            (panel) => {
+                const button = new ToolbarButton({
+                    className: 'toolbar-mito-button-class',
+                    icon: mitoJLabIcon,
+                    onClick: (): void => {
+                        window.commands?.execute('create-empty-mitosheet');
+                    },
+                    tooltip: 'Create a blank Mitosheet below the active code cell',
+                    label: 'Create New Mitosheet',
+                });
+                console.log("Creating button")
+        
+                return button;
+            }
+        )
+      }
+    }
+  };
 // The "as unknown as ..." typecast above is solely to support JupyterLab 1
 // and 2 in the same codebase and should be removed when we migrate to Lumino.
 
-export default mitosheetJupyterLabPlugin;
+export default [mitosheetJupyterLabPlugin, launchButtons];
+
+  
 
 /**
  * Activate the widget extension.
@@ -78,11 +103,9 @@ export default mitosheetJupyterLabPlugin;
 function activateWidgetExtension(
     app: Application<Widget>,
     registry: IJupyterWidgetRegistry,
-    tracker: INotebookTracker
-): void {
-
-    // Add the Create New Mitosheet button
-    addButton(tracker);
+    tracker: INotebookTracker,
+    toolbarRegistry: IToolbarWidgetRegistry
+): void {    
 
 
     app.commands.addCommand('write-analysis-to-replay-to-mitosheet-call', {

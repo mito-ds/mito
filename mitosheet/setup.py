@@ -162,7 +162,7 @@ elif name == 'mitosheet' or name == 'mitosheet3' or name == 'mitosheet-private':
     data_files_spec = [
         # Notebook extension data files
         ('share/jupyter/nbextensions/mitosheet', notebook_path, '**'),
-        ('etc/jupyter/nbconfig/notebook.d', '.', 'mitosheet.json'),
+        ('etc/jupyter/nbconfig/notebook.d', '.', 'schemas/mitosheet.json'),
 
         # Lab extension data files
         ("share/jupyter/labextensions/%s" % labext_name, str(lab_path), "**"),

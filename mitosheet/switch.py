@@ -33,7 +33,8 @@ MITOSHEET_TWO_PACKAGE_JSON = """{
     "fonts/**/*",
     "dist/*.js",
     "css/**/*.css",
-    "style/index.js"
+    "style/index.js",
+    "schemas/mitosheet.json"
   ],
   "jupyterlab": {
     "outputDir": "mitosheet/labextension",
@@ -133,7 +134,8 @@ MITOSHEET_PACKAGE_JSON = """{
     "fonts/**/*",
     "dist/*.js",
     "css/**/*.css",
-    "style/index.js"
+    "style/index.js",
+    "schemas/mitosheet.json"
   ],
   "jupyterlab": {
     "outputDir": "mitosheet/labextension",
@@ -208,6 +210,7 @@ MITOSHEET_PACKAGE_JSON = """{
     "@typescript-eslint/eslint-plugin": "^4.8.1",
     "@typescript-eslint/parser": "^4.8.1",
     "acorn": "^8.5.0",
+    "@jupyterlab/application": "^3.4.7",
     "application": "npm:@lumino/application@^1.13.1",
     "eslint": "^7.14.0",
     "eslint-config-prettier": "^8.3.0",
