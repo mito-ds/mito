@@ -262,7 +262,7 @@ def get_dataframe_format_code(state: State, sheet_index: int) -> Optional[str]:
         # If there is a .head call, and we have filter conditions that require access to the entire
         # dataframe, than we generate an extra comment to let the user know something might be incorrect
         if check_conditional_filters_have_filter_condition_that_requires_whole_dataframe(state, sheet_index):
-            dataframe_format_string = f'# This head call will avoid printing too much data, but also may result in incorrect calculations\n{dataframe_format_string}'
+            dataframe_format_string = f'# This .head call avoids printing too much data, but may lead to incorrectly calculated conditional formats\n{dataframe_format_string}'
         
 
     format_code = [
