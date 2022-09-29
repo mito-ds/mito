@@ -27,7 +27,7 @@ DATETIME_ARRAY = [pd.to_datetime(x, unit='s') for x in [100, 200, 300]]
 TIMEDELTA_ARRAY = [pd.to_timedelta(x, unit='s') for x in [100, 200, 300]]
 
 BOOL_TESTS = [
-    ('bool', BOOL_ARRAY, 'df1[\'A\'] = df1[\'A\']'), 
+    ('bool', BOOL_ARRAY, None), 
     ('int', [1, 0, 1], 'df1[\'A\'] = df1[\'A\'].astype(\'int\')'), 
     ('int64', [1, 0, 1], 'df1[\'A\'] = df1[\'A\'].astype(\'int\')'), 
     ('float', [1.0, 0.0, 1.0], 'df1[\'A\'] = df1[\'A\'].astype(\'float\')'), 
@@ -42,7 +42,7 @@ BOOL_TESTS = [
 @pytest.mark.parametrize("new_dtype, result, code", BOOL_TESTS)
 def test_bool_to_other_types(new_dtype, result, code):
     mito = create_mito_wrapper(BOOL_ARRAY)
-    mito.change_column_dtype(0, 'A', new_dtype)
+    mito.change_column_dtype(0, ['A'], new_dtype)
     assert mito.get_column(0, 'A', as_list=True) == result
     if code is not None:
         assert mito.transpiled_code == [
@@ -54,8 +54,8 @@ def test_bool_to_other_types(new_dtype, result, code):
 
 INT_TESTS = [
     ('bool', [True, True, True], 'df1[\'A\'] = df1[\'A\'].fillna(False).astype(\'bool\')'), 
-    ('int', [1, 2, 3], 'df1[\'A\'] = df1[\'A\']'), 
-    ('int64', [1, 2, 3], 'df1[\'A\'] = df1[\'A\']'), 
+    ('int', [1, 2, 3], None), 
+    ('int64', [1, 2, 3], None), 
     ('float', [1.0, 2.0, 3.0], 'df1[\'A\'] = df1[\'A\'].astype(\'float\')'), 
     ('float64', [1.0, 2.0, 3.0], 'df1[\'A\'] = df1[\'A\'].astype(\'float\')'), 
     ('str', ['1', '2', '3'], 'df1[\'A\'] = df1[\'A\'].astype(\'str\')'), 
@@ -68,7 +68,7 @@ INT_TESTS = [
 @pytest.mark.parametrize("new_dtype, result, code", INT_TESTS)
 def test_int_to_other_types(new_dtype, result, code):
     mito = create_mito_wrapper(INT_ARRAY)
-    mito.change_column_dtype(0, 'A', new_dtype)
+    mito.change_column_dtype(0, ['A'], new_dtype)
     assert mito.get_column(0, 'A', as_list=True) == result
     if code is not None:            
         assert len(mito.transpiled_code) > 0
@@ -80,8 +80,8 @@ FLOAT_TESTS = [
     ('bool', [True, True, True], 'df1[\'A\'] = df1[\'A\'].fillna(False).astype(\'bool\')'), 
     ('int', [4, 5, 6], 'df1[\'A\'] = df1[\'A\'].astype(\'int\')'), 
     ('int64', [4, 5, 6], 'df1[\'A\'] = df1[\'A\'].astype(\'int\')'), 
-    ('float', [4.0, 5.1, 6.2], 'df1[\'A\'] = df1[\'A\']'), 
-    ('float64', [4.0, 5.1, 6.2], 'df1[\'A\'] = df1[\'A\']'), 
+    ('float', [4.0, 5.1, 6.2], None), 
+    ('float64', [4.0, 5.1, 6.2], None), 
     ('str', ['4.0', '5.1', '6.2'], 'df1[\'A\'] = df1[\'A\'].astype(\'str\')'), 
     ('object', ['4.0', '5.1', '6.2'], 'df1[\'A\'] = df1[\'A\'].astype(\'str\')'), 
     ('string', ['4.0', '5.1', '6.2'], 'df1[\'A\'] = df1[\'A\'].astype(\'str\')'), 
@@ -92,7 +92,7 @@ FLOAT_TESTS = [
 @pytest.mark.parametrize("new_dtype, result, code", FLOAT_TESTS)
 def test_float_to_other_types(new_dtype, result, code):
     mito = create_mito_wrapper(FLOAT_ARRAY)
-    mito.change_column_dtype(0, 'A', new_dtype)
+    mito.change_column_dtype(0, ['A'], new_dtype)
     assert mito.get_column(0, 'A', as_list=True) == result
     if code is not None:            
         assert len(mito.transpiled_code) > 0
@@ -106,9 +106,9 @@ STRING_TESTS = [
     ('int64', [1, 2, -3], 'df1[\'A\'] = to_int_series(df1[\'A\'])'), 
     ('float', [1.0, 2.1, -3.2], 'df1[\'A\'] = to_float_series(df1[\'A\'])'), 
     ('float64', [1.0, 2.1, -3.2], 'df1[\'A\'] = to_float_series(df1[\'A\'])'),  
-    ('str', ["$1", "2.1", "(3.2)"], 'df1[\'A\'] = df1[\'A\']'), 
-    ('object', ["$1", "2.1", "(3.2)"], 'df1[\'A\'] = df1[\'A\']'), 
-    ('string', ["$1", "2.1", "(3.2)"], 'df1[\'A\'] = df1[\'A\']'),
+    ('str', ["$1", "2.1", "(3.2)"], None), 
+    ('object', ["$1", "2.1", "(3.2)"], None), 
+    ('string', ["$1", "2.1", "(3.2)"], None),
     ('datetime', [pd.to_datetime('A', errors='coerce') for x in [None, None, None]], 'df1[\'A\'] = pd.to_datetime(df1[\'A\'], format=\'%m-%d-%Y\', errors=\'coerce\')'), 
     ('datetime64[ns]', [pd.to_datetime('A', errors='coerce') for x in [None, None, None]], 'df1[\'A\'] = pd.to_datetime(df1[\'A\'], format=\'%m-%d-%Y\', errors=\'coerce\')'), 
     ('timedelta', [pd.to_timedelta('A', errors='coerce') for x in [None, None, None]], 'df1[\'A\'] = pd.to_timedelta(df1[\'A\'], errors=\'coerce\')'), 
@@ -116,7 +116,7 @@ STRING_TESTS = [
 @pytest.mark.parametrize("new_dtype, result, code", STRING_TESTS)
 def test_string_to_other_types(new_dtype, result, code):
     mito = create_mito_wrapper(STRING_ARRAY)
-    mito.change_column_dtype(0, 'A', new_dtype)
+    mito.change_column_dtype(0, ['A'], new_dtype)
     assert mito.get_column(0, 'A', as_list=True) == result
     if code is not None:            
         assert len(mito.transpiled_code) > 0
@@ -151,7 +151,7 @@ COMPLEX_DATE_STRINGS = [
 @pytest.mark.parametrize("strings, result, code", COMPLEX_DATE_STRINGS)
 def test_complex_date_strings(strings, result, code):
     mito = create_mito_wrapper(strings)
-    mito.change_column_dtype(0, 'A', 'datetime')
+    mito.change_column_dtype(0, ['A'], 'datetime')
     assert mito.get_column(0, 'A', as_list=True) == result
     if code is not None:            
         assert len(mito.transpiled_code) > 0
@@ -168,14 +168,14 @@ DATETIME_TESTS = [
     ('str', ['1970-01-01 00:01:40', '1970-01-01 00:03:20', '1970-01-01 00:05:00'], 'df1[\'A\'] = df1[\'A\'].dt.strftime(\'%Y-%m-%d %X\')'), 
     ('object', ['1970-01-01 00:01:40', '1970-01-01 00:03:20', '1970-01-01 00:05:00'], 'df1[\'A\'] = df1[\'A\'].dt.strftime(\'%Y-%m-%d %X\')'), 
     ('string', ['1970-01-01 00:01:40', '1970-01-01 00:03:20', '1970-01-01 00:05:00'], 'df1[\'A\'] = df1[\'A\'].dt.strftime(\'%Y-%m-%d %X\')'),
-    ('datetime', DATETIME_ARRAY, 'df1[\'A\'] = df1[\'A\']'), 
-    ('datetime64[ns]', DATETIME_ARRAY, 'df1[\'A\'] = df1[\'A\']'), 
+    ('datetime', DATETIME_ARRAY, None), 
+    ('datetime64[ns]', DATETIME_ARRAY, None), 
     ('timedelta', DATETIME_ARRAY, None), 
 ]
 @pytest.mark.parametrize("new_dtype, result, code", DATETIME_TESTS)
 def test_datetime_to_other_types(new_dtype, result, code):
     mito = create_mito_wrapper(DATETIME_ARRAY)
-    mito.change_column_dtype(0, 'A', new_dtype)
+    mito.change_column_dtype(0, ['A'], new_dtype)
     assert mito.get_column(0, 'A', as_list=True) == result
     if code is not None:            
         assert len(mito.transpiled_code) > 0
@@ -190,12 +190,12 @@ TIMEDELTA_TESTS = [
     ('float64', [100.0, 200.0, 300.0], 'df1[\'A\'] = df1[\'A\'].dt.total_seconds()'),  
     ('datetime', TIMEDELTA_ARRAY, None), 
     ('datetime64[ns]', TIMEDELTA_ARRAY, None), 
-    ('timedelta', TIMEDELTA_ARRAY, 'df1[\'A\'] = df1[\'A\']'), 
+    ('timedelta', TIMEDELTA_ARRAY, None), 
 ]
 @pytest.mark.parametrize("new_dtype, result, code", TIMEDELTA_TESTS)
 def test_timedelta_to_other_types(new_dtype, result, code):
     mito = create_mito_wrapper(TIMEDELTA_ARRAY)
-    mito.change_column_dtype(0, 'A', new_dtype)
+    mito.change_column_dtype(0, ['A'], new_dtype)
     assert mito.get_column(0, 'A', as_list=True) == result
     if code is not None:            
         assert len(mito.transpiled_code) > 0
@@ -212,7 +212,7 @@ TIMEDELTA_TESTS_STRING = [
 @pytest.mark.parametrize("new_dtype, result, code", TIMEDELTA_TESTS)
 def test_timedelta_to_other_types_post_1_post_3_6(new_dtype, result, code):
     mito = create_mito_wrapper(TIMEDELTA_ARRAY)
-    mito.change_column_dtype(0, 'A', new_dtype)
+    mito.change_column_dtype(0, ['A'], new_dtype)
     assert mito.get_column(0, 'A', as_list=True) == result
     if code is not None:            
         assert len(mito.transpiled_code) > 0
@@ -221,7 +221,7 @@ def test_timedelta_to_other_types_post_1_post_3_6(new_dtype, result, code):
     
 def test_convert_none_to_bool():
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': ['none', 'None']}))
-    mito.change_column_dtype(0, 'A', 'bool')
+    mito.change_column_dtype(0, ['A'], 'bool')
     assert mito.get_column(0, 'A', as_list=True) == [False, False]
 
 def test_change_type_on_renamed_column():
@@ -233,18 +233,34 @@ def test_change_type_on_renamed_column():
 
 def test_change_type_float_to_int_nan():
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1.2, 2.0, None]}))
-    mito.change_column_dtype(0, 'A', 'int')
+    mito.change_column_dtype(0, ['A'], 'int')
     assert mito.get_column(0, 'A', as_list=True) == [1, 2, 0]
 
 def test_change_type_deletes_dataframe_optimizes():
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1.2, 2.0, None]}))
-    mito.change_column_dtype(0, 'A', 'int')
+    mito.change_column_dtype(0, ['A'], 'int')
     mito.delete_dataframe(0)
     assert mito.transpiled_code == []
 
 def test_change_type_deletes_diff_dataframe_no_optimizes():
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1.2, 2.0, None]}))
     mito.duplicate_dataframe(0)
-    mito.change_column_dtype(0, 'A', 'int')
+    mito.change_column_dtype(0, ['A'], 'int')
     mito.delete_dataframe(1)
     assert len(mito.optimized_code_chunks) >= 3
+
+
+def test_change_multiple_dtype_works():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3], 'B': ['1.0', '2.0', '3.0']}))
+    mito.change_column_dtype(0, ['A', 'B'], 'float')
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1.0, 2.0, 3.0], 'B': [1.0, 2.0, 3.0]}))
+
+def test_change_multiple_dtype_works_if_no_op():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3], 'B': ['1.0', '2.0', '3.0']}))
+    mito.change_column_dtype(0, ['A', 'B'], 'int')
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, 3]}))
+
+def test_change_multiple_dtype_fails_is_atomic():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3], 'B': pd.to_datetime(['12-22-1997', '12-22-1997', '12-22-1997'])}))
+    mito.change_column_dtype(0, ['A', 'B'], 'timedelta')
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': pd.to_datetime(['12-22-1997', '12-22-1997', '12-22-1997'])}))

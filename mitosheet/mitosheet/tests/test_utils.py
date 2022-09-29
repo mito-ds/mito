@@ -746,11 +746,11 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def change_column_dtype(self, sheet_index: int, column_header: ColumnHeader, new_dtype: str) -> bool:
+    def change_column_dtype(self, sheet_index: int, column_headers: List[ColumnHeader], new_dtype: str) -> bool:
 
-        column_id = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
+        column_ids = self.mito_widget.steps_manager.curr_step.column_ids.get_column_ids_by_headers(
             sheet_index,
-            column_header
+            column_headers
         )
 
         return self.mito_widget.receive_message(
@@ -762,7 +762,7 @@ class MitoWidgetTestWrapper:
                 'step_id': get_new_id(),
                 'params': {
                     'sheet_index': sheet_index,
-                    'column_id': column_id,
+                    'column_ids': column_ids,
                     'new_dtype': new_dtype
                 }
             }

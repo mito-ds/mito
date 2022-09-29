@@ -43,3 +43,43 @@ def upgrade_change_column_dtype_1_to_2(step: Dict[str, Any], later_steps: List[D
         "step_type": "change_column_dtype", 
         "params": params
     }] + later_steps
+
+def upgrade_change_column_dtype_2_to_3(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Supports changing the types of multiple columns at once
+
+    OLD: {
+        'step_version': 2, 
+        'step_type': "change_column_dtype",
+        'params': {
+            sheet_index: 0,
+            column_id: ColumnID,
+            old_dtype: str,
+            new_dtype: str,
+        }
+    }
+
+    NEW: {
+        'step_version': 3, 
+        'step_type': "change_column_dtype",
+        'params': {
+            sheet_index: 0,
+            column_ids: List[ColumnID],
+            old_dtypes: Dict[ColumnID, str],
+            new_dtype: str,
+        }
+    }
+    """
+    params = step['params']
+
+    params['column_ids'] = [params['column_id']]
+    params['old_dtypes'] = {params['column_id']: params['old_dtype']}
+    
+    del params['column_id']
+    del params['old_dtype']
+
+    return [{
+        "step_version": 3, 
+        "step_type": "change_column_dtype", 
+        "params": params
+    }] + later_steps

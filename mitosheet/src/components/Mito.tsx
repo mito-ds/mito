@@ -113,8 +113,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         selectedGraphID: Object.keys(props.analysisData.graphDataDict || {}).length === 0 ? undefined : Object.keys(props.analysisData.graphDataDict)[0],
         selectedTabType: 'data',
         currOpenToolbarDropdown: undefined,
-        displayImportToolbarDropdown: false,
-        displayFormatToolbarDropdown: false,
+        toolbarDropdown: undefined,
         exportConfiguration: {exportType: 'csv'}
     })
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined);
@@ -838,6 +837,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     userProfile={userProfile}
                     setEditorState={setEditorState}
                     analysisData={analysisData}
+                    sheetIndex={uiState.selectedSheetIndex}
                 />
                 <div className="mito-main-sheet-div" id="mito-main-sheet-div"> 
                     <div className={formulaBarAndSheetClassNames}>
