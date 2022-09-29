@@ -1176,7 +1176,7 @@ class MitoWidgetTestWrapper:
             }
         )
 
-    def update_existing_imports(self, updated_imports) -> bool:
+    def update_existing_imports(self, updated_import_obj_objs) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
             {
@@ -1184,7 +1184,7 @@ class MitoWidgetTestWrapper:
                 'type': 'existing_import_update',
                 'id': get_new_id(),
                 'params': {
-                    'updated_imports': updated_imports
+                    'updated_import_obj_objs': updated_import_obj_objs
                 }
             }
         )

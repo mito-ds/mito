@@ -8,7 +8,7 @@ import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import { TaskpaneType } from '../taskpanes';
 import { getImportName } from '../UpdateImports/ImportCard';
-import { UpdatedImport } from '../UpdateImports/UpdateImportsTaskpane';
+import { UpdatedImportObj } from '../UpdateImports/UpdateImportsTaskpane';
 import { updateImportedDataWithFile } from '../UpdateImports/UpdateImportsUtils';
 import CSVImport from './CSVImport';
 import FileImportBodyAndFooter from './FileImportBodyAndFooter';
@@ -24,7 +24,7 @@ interface ImportTaskpaneProps {
     setCurrPathParts: (newCurrPathParts: string[]) => void;
     analysisData: AnalysisData;
     updateImportedData?: {
-        updatedImports: UpdatedImport[], 
+        updatedImportObjs: UpdatedImportObj[], 
         importIndex: number
     }
 }
@@ -116,13 +116,13 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader
-                header={props.updateImportedData === undefined ? 'Import Files' : 'Replace ' + getImportName(props.updateImportedData?.updatedImports[props.updateImportedData?.importIndex])}
+                header={props.updateImportedData === undefined ? 'Import Files' : 'Replace ' + getImportName(props.updateImportedData?.updatedImportObjs[props.updateImportedData?.importIndex])}
                 setUIState={props.setUIState}
                 backCallback={props.updateImportedData === undefined ? undefined : () => {
                     props.setUIState(prevUIState => {
                         return {
                             ...prevUIState,
-                            currOpenTaskpane: {type: TaskpaneType.UPDATEIMPORTS, updatedImports: props.updateImportedData?.updatedImports}
+                            currOpenTaskpane: {type: TaskpaneType.UPDATEIMPORTS, updatedImportObjs: props.updateImportedData?.updatedImportObjs}
                         }
                     })
                 }}

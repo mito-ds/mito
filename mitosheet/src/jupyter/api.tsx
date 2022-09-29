@@ -11,7 +11,7 @@ import { FileElement } from "../components/taskpanes/Import/ImportTaskpane";
 import { ExcelFileMetadata } from "../components/taskpanes/Import/XLSXImport";
 import { valuesArrayToRecord } from "../components/taskpanes/PivotTable/pivotUtils";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
-import { UpdatedImport } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
+import { UpdatedImportObj } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
 import { BackendPivotParams, DataframeFormat, FrontendPivotParams } from "../types";
 import { ColumnID, FeedbackID, FilterGroupType, FilterType, GraphID, MitoError, GraphParamsFrontend } from "../types";
 import { getDeduplicatedArray } from "../utils/arrays";
@@ -553,7 +553,7 @@ export default class MitoAPI {
         return undefined;
     }
 
-    async getImportedFilesAndDataframes(): Promise<UpdatedImport[] | undefined> {
+    async getImportedFilesAndDataframes(): Promise<UpdatedImportObj[] | undefined> {
         const resultString = await this.send<string>({
             'event': 'api_call',
             'type': 'get_imported_files_and_dataframes',
@@ -1279,13 +1279,13 @@ export default class MitoAPI {
         Sends the user_email to the backend so the user can sign in
     */
     async updateExistingImports(
-        updatedImports: UpdatedImport[]
+        updatedImportObjs: UpdatedImportObj[]
     ): Promise<void> {
         await this.send({
             'event': 'update_event',
             'type': 'existing_import_update',
             'params': {
-                'updated_imports': updatedImports
+                'updated_import_obj_objs': updatedImportObjs
             }
         }, {});
     }

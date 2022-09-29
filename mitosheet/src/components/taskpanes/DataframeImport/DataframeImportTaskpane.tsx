@@ -14,7 +14,7 @@ import SelectAndXIconCard from "../../elements/SelectAndXIconCard";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import TextButton from "../../elements/TextButton";
 import Tooltip from "../../elements/Tooltip";
-import { UpdatedImport } from "../UpdateImports/UpdateImportsTaskpane";
+import { UpdatedImportObj } from "../UpdateImports/UpdateImportsTaskpane";
 import { getImportName } from "../UpdateImports/ImportCard";
 import { TaskpaneType } from "../taskpanes";
 import { updateImportedDataWithDataframe } from "../UpdateImports/UpdateImportsUtils";
@@ -29,7 +29,7 @@ interface DataframeImportTaskpaneProps {
     sheetDataArray: SheetData[];
     selectedSheetIndex: number;
     updateImportedData?: {
-        updatedImports: UpdatedImport[], 
+        updatedImportObjs: UpdatedImportObj[], 
         importIndex: number
     }
 }
@@ -133,13 +133,13 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
-                header={props.updateImportedData === undefined ? 'Import Dataframes' : 'Replace ' + getImportName(props.updateImportedData?.updatedImports[props.updateImportedData?.importIndex])}
+                header={props.updateImportedData === undefined ? 'Import Dataframes' : 'Replace ' + getImportName(props.updateImportedData?.updatedImportObjs[props.updateImportedData?.importIndex])}
                 setUIState={props.setUIState} 
                 backCallback={props.updateImportedData === undefined ? undefined : () => {
                     props.setUIState(prevUIState => {
                         return {
                             ...prevUIState,
-                            currOpenTaskpane: {type: TaskpaneType.UPDATEIMPORTS, updatedImports: props.updateImportedData?.updatedImports}
+                            currOpenTaskpane: {type: TaskpaneType.UPDATEIMPORTS, updatedImportObjs: props.updateImportedData?.updatedImportObjs}
                         }
                     })
                 }}          

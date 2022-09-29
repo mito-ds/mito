@@ -7,7 +7,7 @@ import Col from '../../layout/Col';
 import Row from '../../layout/Row';
 import { ModalEnum } from '../../modals/modals';
 import { TaskpaneType } from '../taskpanes';
-import { UpdatedImport } from './UpdateImportsTaskpane';
+import { UpdatedImportObj } from './UpdateImportsTaskpane';
 import CSVFileIcon from '../../icons/CSVFileIcon';
 import DropdownItem from '../../elements/DropdownItem';
 import Dropdown from '../../elements/Dropdown';
@@ -16,14 +16,14 @@ const getBaseOfPath = (fullPath: string): string => {
     return fullPath.replace(/^.*[\\\\/]/, '')
 }
 
-export const getImportName = (updatedImport: UpdatedImport): string => {
+export const getImportName = (updatedImportObj: UpdatedImportObj): string => {
     let fullPath = ''
-    if (updatedImport.type === 'csv') {
-        fullPath = updatedImport.import_params.file_names[0]
-    } else if (updatedImport.type === 'excel') {
-        fullPath = updatedImport.import_params.sheet_names[0]
+    if (updatedImportObj.type === 'csv') {
+        fullPath = updatedImportObj.import_params.file_names[0]
+    } else if (updatedImportObj.type === 'excel') {
+        fullPath = updatedImportObj.import_params.sheet_names[0]
     } else {
-        fullPath = updatedImport.import_params.df_names[0]
+        fullPath = updatedImportObj.import_params.df_names[0]
     }
 
     return getBaseOfPath(fullPath)
@@ -36,12 +36,12 @@ export const getImportName = (updatedImport: UpdatedImport): string => {
 const ImportCard = (props: {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     importIndex: number,
-    updatedImports: UpdatedImport[]
+    updatedImportObjs: UpdatedImportObj[]
     displayedImportCardDropdownIndex: number | undefined
     setDisplayedImportCardDropdownIndex: React.Dispatch<React.SetStateAction<number | undefined>>
 }): JSX.Element => {
 
-    const updatedImport = props.updatedImports[props.importIndex]
+    const updatedImportObj = props.updatedImportObjs[props.importIndex]
 
     return (
         <Row justify='space-between' align='center'>
@@ -49,14 +49,14 @@ const ImportCard = (props: {
                 <Row align='center'>
                     <CSVFileIcon />
                     <Col span={22} offset={.25}>
-                        {updatedImport.type === 'excel' &&
+                        {updatedImportObj.type === 'excel' &&
                             <div>
-                                <span className='text-color-medium-gray-important'>Imported </span> {getImportName(updatedImport)} <span className='text-color-medium-gray-important'>from </span> {getBaseOfPath(updatedImport.import_params.file_name)}
+                                <span className='text-color-medium-gray-important'>Imported </span> {getImportName(updatedImportObj)} <span className='text-color-medium-gray-important'>from </span> {getBaseOfPath(updatedImportObj.import_params.file_name)}
                             </div>
                         } 
-                        {updatedImport.type !== 'excel' &&
+                        {updatedImportObj.type !== 'excel' &&
                             <div>
-                                <span className='text-color-medium-gray-important'>Imported </span> {getImportName(updatedImport)}
+                                <span className='text-color-medium-gray-important'>Imported </span> {getImportName(updatedImportObj)}
                             </div>
                         }
                     </Col>
@@ -79,7 +79,7 @@ const ImportCard = (props: {
                                     currOpenTaskpane: {
                                         type: TaskpaneType.IMPORT_FILES, 
                                         updateImportedData: {
-                                            updatedImports: props.updatedImports, 
+                                            updatedImportObjs: props.updatedImportObjs, 
                                             importIndex: props.importIndex
                                         }
                                     },
@@ -96,7 +96,7 @@ const ImportCard = (props: {
                                     currOpenTaskpane: {
                                         type: TaskpaneType.DATAFRAMEIMPORT, 
                                         updateImportedData: {
-                                            updatedImports: props.updatedImports, 
+                                            updatedImportObjs: props.updatedImportObjs, 
                                             importIndex: props.importIndex
                                         }
                                     },

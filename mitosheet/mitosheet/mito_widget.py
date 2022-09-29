@@ -151,11 +151,7 @@ class MitoWidget(DOMWidget):
             self.steps_manager.handle_update_event(event)
 
             # Update all state variables
-            print('about to  shared state variables')
-
             self.update_shared_state_variables()
-
-            print('updated shared state variables')
         except:
             # We handle the case of replaying the analysis specially, because we don't
             # want to display the error modal - we want to display something specific

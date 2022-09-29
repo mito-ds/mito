@@ -733,7 +733,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     mitoAPI={props.mitoAPI}
                     selectedSheetIndex={uiState.selectedSheetIndex}
-                    updatedImports={uiState.currOpenTaskpane.updatedImports}
+                    updatedImportObjs={uiState.currOpenTaskpane.updatedImportObjs}
                 />
             )
 

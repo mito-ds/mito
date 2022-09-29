@@ -3,10 +3,10 @@ import { DataframeImportParams } from "../DataframeImport/DataframeImportTaskpan
 import { CSVImportParams } from "../Import/CSVImport";
 import { ExcelImportParams } from "../Import/XLSXImport";
 import { TaskpaneType } from "../taskpanes";
-import { UpdatedImport } from "./UpdateImportsTaskpane"
+import { UpdatedImportObj } from "./UpdateImportsTaskpane"
 
 export interface UpdateImportData {
-    updatedImports: UpdatedImport[],
+    updatedImportObjs: UpdatedImportObj[],
     importIndex: number
 }
 
@@ -20,11 +20,11 @@ export const updateImportedDataWithDataframe = (
         return 
     }
 
-    const newUpdatedImports: UpdatedImport[] = JSON.parse(JSON.stringify(updateImportedData.updatedImports))
+    const newUpdatedImportObjs: UpdatedImportObj[] = JSON.parse(JSON.stringify(updateImportedData.updatedImportObjs))
     const importIndex = updateImportedData.importIndex
 
-    newUpdatedImports[importIndex] = {
-        ...newUpdatedImports[importIndex],
+    newUpdatedImportObjs[importIndex] = {
+        ...newUpdatedImportObjs[importIndex],
         type: 'df', 
         import_params: newImportParams
     }
@@ -32,7 +32,7 @@ export const updateImportedDataWithDataframe = (
     setUIState(prevUIState => {
         return {
             ...prevUIState,
-            currOpenTaskpane: {type: TaskpaneType.UPDATEIMPORTS, updatedImports: newUpdatedImports}
+            currOpenTaskpane: {type: TaskpaneType.UPDATEIMPORTS, updatedImportObjs: newUpdatedImportObjs}
         }
     })
 }
@@ -46,20 +46,20 @@ export const updateImportedDataWithFile = (
         return 
     }
 
-    const newUpdatedImports: UpdatedImport[] = JSON.parse(JSON.stringify(updateImportedData.updatedImports))
+    const newUpdatedImportObjs: UpdatedImportObj[] = JSON.parse(JSON.stringify(updateImportedData.updatedImportObjs))
     const importIndex = updateImportedData.importIndex
 
     if (Object.keys(newImportParams).includes('sheet_names')) {
         newImportParams = newImportParams as ExcelImportParams
-        newUpdatedImports[importIndex] = {
-            ...newUpdatedImports[importIndex],
+        newUpdatedImportObjs[importIndex] = {
+            ...newUpdatedImportObjs[importIndex],
             type: 'excel',
             import_params: newImportParams
         }
     } else {
         newImportParams = newImportParams as CSVImportParams
-        newUpdatedImports[importIndex] = {
-            ...newUpdatedImports[importIndex],
+        newUpdatedImportObjs[importIndex] = {
+            ...newUpdatedImportObjs[importIndex],
             type: 'csv', 
             import_params: newImportParams
         }
@@ -68,7 +68,7 @@ export const updateImportedDataWithFile = (
     setUIState(prevUIState => {
         return {
             ...prevUIState,
-            currOpenTaskpane: {type: TaskpaneType.UPDATEIMPORTS, updatedImports: newUpdatedImports}
+            currOpenTaskpane: {type: TaskpaneType.UPDATEIMPORTS, updatedImportObjs: newUpdatedImportObjs}
         }
     })
 }
