@@ -294,7 +294,7 @@ def _execute_filter(
     return df[full_applied_filter], pandas_processing_time
 
 
-def check_filters_contain_condition_that_needs_full_df(filters: List[Dict[str, Any]]):
+def check_filters_contain_condition_that_needs_full_df(filters: List[Dict[str, Any]]) -> bool:
     """
     Returns true if any filter condition is a FILTER_CONDITIONS_THAT_REQUIRE_FULL_DATAFRAME
     """
@@ -304,7 +304,6 @@ def check_filters_contain_condition_that_needs_full_df(filters: List[Dict[str, A
         # If it's a group, then we build the filters for the group, combine them
         # and then add that to the applied filters
         if "filters" in filter_or_group:
-            group_filters = []
             for filter_ in filter_or_group["filters"]:
                 if filter_['condition'] in FILTER_CONDITIONS_THAT_REQUIRE_FULL_DATAFRAME:
                     return True
