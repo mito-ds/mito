@@ -1176,6 +1176,18 @@ class MitoWidgetTestWrapper:
             }
         )
 
+    def update_existing_imports(self, updated_imports) -> bool:
+        return self.mito_widget.receive_message(
+            self.mito_widget,
+            {
+                'event': 'update_event',
+                'type': 'existing_import_update',
+                'id': get_new_id(),
+                'params': {
+                    'updated_imports': updated_imports
+                }
+            }
+        )
 
     def get_formula(self, sheet_index: int, column_header: ColumnHeader) -> str:
         """
