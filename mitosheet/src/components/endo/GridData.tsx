@@ -4,7 +4,7 @@ import { getBorderStyle, getIsCellSelected } from './selectionUtils';
 import { calculateCurrentSheetView } from './sheetViewUtils';
 import { EditorState, GridState, SheetData, UIState } from '../../types';
 import { classNames } from '../../utils/classNames';
-import { getColumnIDsArrayFromSheetDataArray } from './utils';
+import { getColumnIDsArrayFromSheetDataArray, hexToRGB } from './utils';
 import { formatCellData } from '../../utils/format';
 import { isNumberDtype } from '../../utils/dtypes';
 
@@ -13,8 +13,6 @@ export const EVEN_ROW_BACKGROUND_COLOR_DEFAULT = '#F5F5F5';
 export const ODD_ROW_BACKGROUND_COLOR_DEFAULT = '#FFFFFF';
 export const EVEN_ROW_TEXT_COLOR_DEFAULT = '#494650'; // This is var(--mito-gray), update if we change variable
 export const ODD_ROW_TEXT_COLOR_DEFAULT = '#494650'; // This is var(--mito-gray), update if we change variable
-
-
 
 const GridData = (props: {
     sheetData: SheetData | undefined,
@@ -52,15 +50,26 @@ const GridData = (props: {
                             const columnIndex = currentSheetView.startingColumnIndex + _colIndex;
                             const columnID = columnIDs[columnIndex]
                             const columnDtype = props.sheetData?.data[columnIndex]?.columnDtype;
+                            const index = props.sheetData?.index[rowIndex] !== undefined ? props.sheetData?.index[rowIndex] : 0;
                             const columnFormatType = sheetData.dfFormat.columns[columnID]
                             const cellData = props.sheetData?.data[columnIndex]?.columnData[rowIndex];
+                            const cellIsSelected = getIsCellSelected(props.gridState.selections, rowIndex, columnIndex);
+
+                            const conditionalFormatMap = sheetData?.conditionalFormattingResult.results[columnID];
+                            const conditionalFormat = conditionalFormatMap ? {...conditionalFormatMap[index]} : undefined;
+
+
+                            if (cellIsSelected && conditionalFormat?.backgroundColor !== undefined && conditionalFormat?.backgroundColor !== null) {
+                                conditionalFormat.backgroundColor = hexToRGB(conditionalFormat.backgroundColor, .4)
+                            }
 
                             if (cellData === undefined || columnDtype == undefined) {
                                 return null;
                             }
 
                             const className = classNames('mito-grid-cell', 'text-unselectable', {
-                                'mito-grid-cell-selected': getIsCellSelected(props.gridState.selections, rowIndex, columnIndex),
+                                'mito-grid-cell-selected': cellIsSelected,
+                                'mito-grid-cell-conditional-format-background-color': conditionalFormat?.backgroundColor !== undefined,
                                 'mito-grid-cell-hidden': props.editorState !== undefined && props.editorState.rowIndex === rowIndex && props.editorState.columnIndex === columnIndex,
                                 'right-align-number-series': isNumberDtype(columnDtype)
                             });
@@ -75,7 +84,8 @@ const GridData = (props: {
                                     className={className} key={columnIndex}
                                     style={{
                                         width: `${cellWidth}px`,
-                                        ...getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, rowIndex, columnIndex, sheetData.numRows)
+                                        ...getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, rowIndex, columnIndex, sheetData.numRows),
+                                        ...(conditionalFormat || {})
                                     }}
                                     tabIndex={-1}
                                     mito-col-index={columnIndex}

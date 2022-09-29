@@ -240,7 +240,7 @@ def test_change_type_deletes_dataframe_optimizes():
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1.2, 2.0, None]}))
     mito.change_column_dtype(0, 'A', 'int')
     mito.delete_dataframe(0)
-    assert mito.transpiled_code == ['del df1']
+    assert mito.transpiled_code == []
 
 def test_change_type_deletes_diff_dataframe_no_optimizes():
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1.2, 2.0, None]}))

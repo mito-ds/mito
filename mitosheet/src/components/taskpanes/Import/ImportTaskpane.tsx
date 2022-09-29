@@ -1,21 +1,14 @@
 // Copyright (c) Mito
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 // Import 
 import MitoAPI, { PathContents } from '../../../jupyter/api';
 import { AnalysisData, MitoError, UIState, UserProfile } from '../../../types';
-import { isMitoError } from '../../../utils/errors';
-import TextButton from '../../elements/TextButton';
-import ConfigureIcon from '../../icons/ConfigureIcon';
-import Col from '../../layout/Col';
-import Row from '../../layout/Row';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
-import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
-import DefaultTaskpaneFooter from '../DefaultTaskpane/DefaultTaskpaneFooter';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import CSVImport from './CSVImport';
-import FileBrowser from './FileBrowser';
-import { getElementsToDisplay, getFileEnding, getImportButtonStatus, isExcelFile } from './importUtils';
+import FileImportBodyAndFooter from './FileImportBodyAndFooter';
+import { isExcelFile } from './importUtils';
 import XLSXImport from './XLSXImport';
 
 interface ImportTaskpaneProps {
@@ -28,6 +21,7 @@ interface ImportTaskpaneProps {
 }
 
 type FileSort = 'name_ascending' | 'name_descending' | 'last_modified_ascending' | 'last_modified_descending';
+
 
 export interface ImportTaskpaneState {
     pathContents: PathContents,
@@ -47,6 +41,7 @@ export interface FileElement {
     name: string,
     lastModified?: number;
 }
+
 
 function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
 
@@ -72,142 +67,6 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
     // Track if there has been an error
     const [importError, setImportError] = useState<MitoError | undefined>(undefined);
 
-    useEffect(() => {
-        const getFullFileNameForImportWizard = async (fileForImportWizard: string): Promise<void> => {
-            const finalPath = [...props.currPathParts];
-            finalPath.push(fileForImportWizard);
-            const fullFileName = await props.mitoAPI.getPathJoined(finalPath);
-            setFullFileNameForImportWizard(fullFileName);
-        }
-        if (fileForImportWizard !== undefined) {
-            void getFullFileNameForImportWizard(fileForImportWizard.name);
-        } else {
-            setFullFileNameForImportWizard(undefined);
-        }
-    }, [fileForImportWizard])
-
-    // We make sure to get the elements that are displayed and use the index on that to get the correct element
-    const selectedElement: FileElement | undefined = getElementsToDisplay(importState)[importState.selectedElementIndex];
-
-
-
-    /* 
-        Any time the current path changes, we update
-        the files that are displayed
-    */
-    useEffect(() => {
-        // When the current path changes, we reload the path contents
-        void loadPathContents(props.currPathParts)
-        // We also unselect anything that might be selected
-        setImportState(prevImportState => {
-            return {
-                ...prevImportState,
-                selectedElementIndex: -1
-            }
-        })
-        // Log how long the path is
-        void props.mitoAPI.log('curr_path_changed', {'path_parts_length': props.currPathParts.length})
-    }, [props.currPathParts])
-
-
-    /* 
-        Any time the selected element changes we log the file
-        ending (or none, if it has none).
-    */
-    useEffect(() => {
-        let selectedElementName = '';
-        
-        if (selectedElement === undefined) {
-            selectedElementName = 'undefined';
-        } else if (selectedElement.isDirectory) {
-            selectedElementName = 'directory';
-        } else {
-            const fileEnding = getFileEnding(selectedElement.name);
-            if (fileEnding !== undefined) {
-                selectedElementName = fileEnding;
-            } else {
-                selectedElementName = 'No File Ending';
-            }
-        }
-        void props.mitoAPI.log(
-            'selected_element_changed',
-            {'selected_element': selectedElementName}
-        )
-
-    }, [selectedElement])
-    
-
-    // Loads the path data from the API and sets it for the file browser
-    async function loadPathContents(currPathParts: string[]) {
-        setImportState(prevImportState => {
-            return {
-                ...prevImportState,
-                loadingFolder: true
-            }
-        })
-        const _pathContents = await props.mitoAPI.getPathContents(currPathParts);
-        if (_pathContents) {
-            setImportState(prevImportState => {
-                return {
-                    ...prevImportState,
-                    pathContents: _pathContents,
-                    loadingFolder: false
-                }
-            })
-        } else {
-            setImportState(prevImportState => {
-                return {
-                    ...prevImportState,
-                    loadingFolder: false
-                }
-            })
-        }
-    }
-
-    async function importElement(element: FileElement | undefined): Promise<void> {
-        const importButtonStatus = getImportButtonStatus(element, props.userProfile.excelImportEnabled, importState.loadingImport);
-        // Quit early if the selected thing is not importable, or if there
-        // is nothing even selected
-        if (importButtonStatus.disabled || element === undefined) {
-            return;
-        }
-
-        if (isExcelFile(element)) {
-            setFileForImportWizard(element);
-            return;
-        }
-
-        // Do the actual import
-        const finalPath = [...props.currPathParts];
-        finalPath.push(element.name);
-        const joinedPath = await props.mitoAPI.getPathJoined(finalPath);
-        if (joinedPath === undefined) {
-            return;
-        }
-        // And then actually import it
-        setImportState(prevImportState => {
-            return {
-                ...prevImportState,
-                loadingImport: true
-            }
-        })
-        const possibleMitoError = await props.mitoAPI.editSimpleImport([joinedPath])
-        if (isMitoError(possibleMitoError)) {
-            // If this an error, then we open the CSV config 
-            setImportError(possibleMitoError);
-            setFileForImportWizard(element);
-        } 
-
-
-        setImportState(prevImportState => {
-            return {
-                ...prevImportState,
-                loadingImport: false
-            }
-        })
-    }
-
-    const importButtonStatus = getImportButtonStatus(selectedElement, props.userProfile.excelImportEnabled, importState.loadingImport);
     
     // Check both the file and the full file name so that 
     // the screen does not flash when the back button is pressed
@@ -241,64 +100,27 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
             />
         )
     }
-    
-    
+
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader
                 header='Import Files'
                 setUIState={props.setUIState}
             />
-            <DefaultTaskpaneBody noScroll>
-                <FileBrowser
-                    mitoAPI={props.mitoAPI}
-                    setCurrPathParts={props.setCurrPathParts}
-                    setUIState={props.setUIState}
-                    importState={importState}
-                    setImportState={setImportState}
-                    importElement={importElement}
-                    userProfile={props.userProfile}
-                />
-            </DefaultTaskpaneBody>
-            <DefaultTaskpaneFooter>
-                <Row justify='space-between'>
-                    {/** TODO: maybe we should make this display on XLSX, and just allow for default import as well on that! */}
-                    {!importButtonStatus.disabled && !isExcelFile(selectedElement) &&
-                        <Col>
-                            <TextButton
-                                variant='light'
-                                width='small'
-                                onClick={() => {
-                                    setImportError(undefined);
-                                    setFileForImportWizard(selectedElement);
-                                }}
-                                disabled={importButtonStatus.disabled}
-                            >
-                                <Row suppressTopBottomMargin justify='space-between' align='center'>
-                                    <ConfigureIcon/>
-                                    <p className='ml-2px'>
-                                        Configure
-                                    </p>
-                                </Row>
-                                
-                            </TextButton>
-                        </Col>
-                    }
-                    <Col span={!importButtonStatus.disabled && !isExcelFile(selectedElement) ? 18 : 24}>
-                        <TextButton
-                            variant='dark'
-                            width='block'
-                            onClick={() => {
-                                void importElement(selectedElement);
-                            }}
-                            disabled={importButtonStatus.disabled}
-                        >
-                            {importButtonStatus.buttonText}
-                        </TextButton>
-                    </Col>
-                </Row>
-                
-            </DefaultTaskpaneFooter>
+            <FileImportBodyAndFooter
+                mitoAPI={props.mitoAPI}
+                importState={importState}
+                setImportState={setImportState}
+                setFullFileNameForImportWizard={setFullFileNameForImportWizard}
+                setImportError={setImportError}
+                fileForImportWizard={fileForImportWizard}
+                setFileForImportWizard={setFileForImportWizard}
+                userProfile={props.userProfile}
+                setUIState={props.setUIState}
+                currPathParts={props.currPathParts}
+                setCurrPathParts={props.setCurrPathParts}
+                analysisData={props.analysisData}
+            />
         </DefaultTaskpane>            
     )
 }

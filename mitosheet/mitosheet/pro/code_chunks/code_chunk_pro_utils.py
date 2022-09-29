@@ -90,7 +90,7 @@ def optimize_code_chunks(all_code_chunks: List[CodeChunk]) -> List[CodeChunk]:
 
     optimized_right, code_chunks_list = optimize_code_chunks_combine_right(all_code_chunks)
     optimized_left, code_chunks_list = optimize_code_chunks_combine_left(code_chunks_list)
-
+    
     # As long as we optimized in this iteration, recurse as we might
     # need to optimize again
     if optimized_right or optimized_left:

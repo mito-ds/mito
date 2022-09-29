@@ -1,6 +1,8 @@
 
-OPEN_BRACKET = '{'
-CLOSE_BRACKET = '}'
+import os
+
+from metaprogramming.utils.code_utils import OPEN_BRACKET, CLOSE_BRACKET
+from metaprogramming.utils.path_utils import get_downloads_folder, get_src_folder
 
 
 SPLIT_ON = [
@@ -40,28 +42,24 @@ const {icon_name}Icon = (): JSX.Element => {OPEN_BRACKET}
 export default {icon_name}Icon;"""
 
 
-def main() -> None:
+def create_new_icon(icon_name: str) -> None:
     """
     Gets the most recent file from the downloads folder,
     and adds it as an icon if it is an SVG file.
     """
 
-    import os
-    import tempfile
-
     # Get the most recent file from the downloads folder
-    downloads_folder = os.path.join(os.path.expanduser('~'), 'Downloads')
+    downloads_folder = get_downloads_folder()
     most_recent_file = max([os.path.join(downloads_folder, x) for x in os.listdir(downloads_folder) if x.endswith('.svg')], key=os.path.getctime)
     most_recent_file_path = os.path.join(downloads_folder, most_recent_file)
 
 
     # Check if it is an SVG file
     if most_recent_file.endswith('.svg'):
-        icon_name = input('What would you like to name the icon? [UpArrow, DownArrow]')
         with open(most_recent_file_path) as f:
             svg_code = f.read()
 
-        icon_path = f'src/components/icons/{icon_name}Icon.tsx'
+        icon_path = get_src_folder() / 'components' / 'icons' / f'{icon_name}Icon.tsx'
         
         if os.path.exists(icon_path):
             print("Removing existing icon...")
@@ -77,7 +75,3 @@ def main() -> None:
 
     # Remove the most recent file
     os.remove(most_recent_file_path)
-    
-
-if __name__ == "__main__":
-    main()

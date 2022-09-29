@@ -145,5 +145,5 @@ def test_split_text_to_columns_then_delete_optimizes():
     )
     mito.delete_dataframe(0)
 
-    assert mito.transpiled_code == ['del df1']
+    assert mito.transpiled_code == []
 

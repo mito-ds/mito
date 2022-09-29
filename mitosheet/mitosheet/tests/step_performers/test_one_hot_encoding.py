@@ -101,7 +101,7 @@ def test_one_hot_encoding_optimized_by_delete():
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
     mito.one_hot_encoding(0, 'A')
     mito.delete_dataframe(0)
-    assert mito.transpiled_code == ['del df1']
+    assert mito.transpiled_code == []
 
 def test_one_hot_encode_twice_error():
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))

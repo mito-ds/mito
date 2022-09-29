@@ -24,8 +24,11 @@ from typing import Dict, Optional
 from mitosheet.user.db import USER_JSON_PATH, get_user_field
 
 def get_random_variant() -> str:
-    """Returns "A" or "B" with 50% probability"""
-    return "A" if random.random() < 0.5 else "B"
+    """Returns "A" or "B" with 50% probability
+    
+    Currently, as we have no experiment, only returns option B!
+    """
+    return "B"
 
 def get_new_experiment() -> Dict[str, str]:
     # NOTE: this needs to match the installer!

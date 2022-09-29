@@ -28,4 +28,11 @@ class EmptyCodeChunk(CodeChunk):
         return []
 
     def combine_right(self, other_code_chunk: CodeChunk) -> Optional[CodeChunk]:
-        return other_code_chunk
+        # We just return the other code chunk, while also updating the prev_state. To avoid
+        # causing issues by modifying data, we make a copy of this object
+        return type(other_code_chunk)(
+            self.prev_state,
+            other_code_chunk.post_state,
+            other_code_chunk.params,
+            other_code_chunk.execution_data
+        )

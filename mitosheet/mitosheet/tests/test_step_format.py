@@ -32,6 +32,7 @@ from mitosheet.step_performers import (
     GraphStepPerformer,
     ConcatStepPerformer
 )
+from mitosheet.step_performers.dataframe_import import DataframeImportStepPerformer
 from mitosheet.step_performers.delete_row import DeleteRowStepPerformer
 from mitosheet.step_performers.column_steps.split_text_to_columns import SplitTextToColumnsStepPerformer
 from mitosheet.step_performers.fill_na import FillNaStepPerformer
@@ -264,11 +265,10 @@ def test_params_static():
         'one_hot_encoding'
     )
 
-    assert len(STEP_PERFORMERS) == 31
+    check_step(
+        DataframeImportStepPerformer,
+        1,
+        'dataframe_import'
+    )
 
-
-def get_fake_param(param_name):
-    if 'index' in param_name:
-        return random.randint(0, 2)
-    else:
-        return 'data'
+    assert len(STEP_PERFORMERS) == 32

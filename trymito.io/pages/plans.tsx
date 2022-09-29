@@ -137,6 +137,14 @@ const PRESENTATION_FEATURES: Feature[] = [
     }
   },
   {
+    feature: 'Conditional Formatting',
+    planSupport: {
+      'Open Source': false,
+      'Pro': false,
+      'Enterprise': true 
+    }
+  },
+  {
     feature: 'Style Dataframes',
     planSupport: {
       'Open Source': false,

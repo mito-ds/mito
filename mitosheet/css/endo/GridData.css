@@ -29,10 +29,10 @@
 }
 
 /* We make selected cells look different on even and odd rows */
-.mito-grid-row-even .mito-grid-cell-selected {
+.mito-grid-row-even .mito-grid-cell-selected:not(.mito-grid-cell-conditional-format-background-color) {
     background-color: rgba(153, 102, 255, .15);
 }
-.mito-grid-row-odd .mito-grid-cell-selected {
+.mito-grid-row-odd .mito-grid-cell-selected:not(.mito-grid-cell-conditional-format-background-color) {
     background-color: rgba(153, 102, 255, 0.10);
 }
 

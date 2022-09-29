@@ -14,6 +14,7 @@ import pandas as pd
 
 from mitosheet.data_in_mito import DataTypeInMito, get_data_type_in_mito
 from mitosheet.experiments.experiment_utils import get_current_experiment
+from mitosheet.step_performers.dataframe_import import DataframeImportStepPerformer
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
 from mitosheet.saved_analyses.save_utils import get_analysis_exists
@@ -274,6 +275,7 @@ class StepsManager:
         )
 
         array = dfs_to_array_for_json(
+            self.curr_step.final_defined_state,
             modified_sheet_indexes,
             self.saved_sheet_data,
             self.curr_step.dfs,
@@ -539,6 +541,7 @@ class StepsManager:
                 step.step_type == "initialize"
                 or step.step_type == SimpleImportStepPerformer.step_type()
                 or step.step_type == ExcelImportStepPerformer.step_type()
+                or step.step_type == DataframeImportStepPerformer.step_type()
             )
         ]
 

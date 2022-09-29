@@ -75,6 +75,9 @@ export function getIcon(stepType: StepType | UpdateType, height?: string, width?
         case StepType.SimpleImport: return (
             <ImportIcon/>
         )
+        case StepType.DataframeImport: return (
+            <ImportIcon/>
+        )
         case StepType.ExcelImport: return (
             <ImportIcon/>
         )

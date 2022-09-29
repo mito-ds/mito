@@ -38,7 +38,8 @@ def get_default_dataframe_format() -> DataframeFormat:
             "even": {},
             "odd": {},
         },
-        "border": {}
+        "border": {},
+        "conditional_formats": []
     }
 
 

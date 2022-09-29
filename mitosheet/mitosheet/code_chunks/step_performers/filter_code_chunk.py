@@ -5,28 +5,31 @@
 # Distributed under the terms of the GPL License.
 
 
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.sheet_functions.types.utils import is_datetime_dtype
+from mitosheet.state import State
 from mitosheet.step_performers.filter import (
     FC_BOOLEAN_IS_FALSE, FC_BOOLEAN_IS_TRUE, FC_DATETIME_EXACTLY,
     FC_DATETIME_GREATER, FC_DATETIME_GREATER_THAN_OR_EQUAL, FC_DATETIME_LESS,
-    FC_DATETIME_LESS_THAN_OR_EQUAL, FC_DATETIME_NOT_EXACTLY, FC_EMPTY,
+    FC_DATETIME_LESS_THAN_OR_EQUAL, FC_DATETIME_NOT_EXACTLY, FC_EMPTY, FC_LEAST_FREQUENT, FC_MOST_FREQUENT,
     FC_NOT_EMPTY, FC_NUMBER_EXACTLY, FC_NUMBER_GREATER,
-    FC_NUMBER_GREATER_THAN_OR_EQUAL, FC_NUMBER_LESS,
-    FC_NUMBER_LESS_THAN_OR_EQUAL, FC_NUMBER_NOT_EXACTLY, FC_STRING_CONTAINS,
+    FC_NUMBER_GREATER_THAN_OR_EQUAL, FC_NUMBER_HIGHEST, FC_NUMBER_LESS,
+    FC_NUMBER_LESS_THAN_OR_EQUAL, FC_NUMBER_LOWEST, FC_NUMBER_NOT_EXACTLY, FC_STRING_CONTAINS,
     FC_STRING_DOES_NOT_CONTAIN, FC_STRING_ENDS_WITH, FC_STRING_EXACTLY,
     FC_STRING_NOT_EXACTLY, FC_STRING_STARTS_WITH)
 from mitosheet.transpiler.transpile_utils import (
     column_header_to_transpiled_code, list_to_string_without_internal_quotes)
-from mitosheet.types import ColumnHeader
+from mitosheet.types import ColumnHeader, ColumnID
 
 # Dict used when a filter condition is only used by one filter
 FILTER_FORMAT_STRING_DICT = {
     # SHARED CONDITIONS
     FC_EMPTY: "{df_name}[{transpiled_column_header}].isna()",
     FC_NOT_EMPTY: "{df_name}[{transpiled_column_header}].notnull()",
+    FC_LEAST_FREQUENT: "{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].value_counts().index.tolist()[-{value}:])",
+    FC_MOST_FREQUENT: "{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].value_counts().index.tolist()[:{value}])",
     # BOOLEAN
     FC_BOOLEAN_IS_TRUE: "{df_name}[{transpiled_column_header}] == True",
     FC_BOOLEAN_IS_FALSE: "{df_name}[{transpiled_column_header}] == False",
@@ -37,20 +40,22 @@ FILTER_FORMAT_STRING_DICT = {
     FC_NUMBER_GREATER_THAN_OR_EQUAL: "{df_name}[{transpiled_column_header}] >= {value}",
     FC_NUMBER_LESS: "{df_name}[{transpiled_column_header}] < {value}",
     FC_NUMBER_LESS_THAN_OR_EQUAL: "{df_name}[{transpiled_column_header}] <= {value}",
+    FC_NUMBER_LOWEST: '{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].nsmallest({value}, keep=\'all\'))',
+    FC_NUMBER_HIGHEST: '{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].nlargest({value}, keep=\'all\'))',
     # STRINGS
-    FC_STRING_CONTAINS: "{df_name}[{transpiled_column_header}].str.contains('{value}', na=False)",
-    FC_STRING_DOES_NOT_CONTAIN: "~{df_name}[{transpiled_column_header}].str.contains('{value}', na=False)",
-    FC_STRING_EXACTLY: "{df_name}[{transpiled_column_header}] == '{value}'",
-    FC_STRING_NOT_EXACTLY: "{df_name}[{transpiled_column_header}] != '{value}'",
-    FC_STRING_STARTS_WITH: "{df_name}[{transpiled_column_header}].str.startswith('{value}', na=False)",
-    FC_STRING_ENDS_WITH: "{df_name}[{transpiled_column_header}].str.endswith('{value}', na=False)",
+    FC_STRING_CONTAINS: "{df_name}[{transpiled_column_header}].str.contains({value}, na=False)",
+    FC_STRING_DOES_NOT_CONTAIN: "~{df_name}[{transpiled_column_header}].str.contains({value}, na=False)",
+    FC_STRING_EXACTLY: "{df_name}[{transpiled_column_header}] == {value}",
+    FC_STRING_NOT_EXACTLY: "{df_name}[{transpiled_column_header}] != {value}",
+    FC_STRING_STARTS_WITH: "{df_name}[{transpiled_column_header}].str.startswith({value}, na=False)",
+    FC_STRING_ENDS_WITH: "{df_name}[{transpiled_column_header}].str.endswith({value}, na=False)",
     # DATES
-    FC_DATETIME_EXACTLY: "{df_name}[{transpiled_column_header}] == pd.to_datetime('{value}')",
-    FC_DATETIME_NOT_EXACTLY: "{df_name}[{transpiled_column_header}] != pd.to_datetime('{value}')",
-    FC_DATETIME_GREATER: "{df_name}[{transpiled_column_header}] > pd.to_datetime('{value}')",
-    FC_DATETIME_GREATER_THAN_OR_EQUAL: "{df_name}[{transpiled_column_header}] >= pd.to_datetime('{value}')",
-    FC_DATETIME_LESS: "{df_name}[{transpiled_column_header}] < pd.to_datetime('{value}')",
-    FC_DATETIME_LESS_THAN_OR_EQUAL: "{df_name}[{transpiled_column_header}] <= pd.to_datetime('{value}')",
+    FC_DATETIME_EXACTLY: "{df_name}[{transpiled_column_header}] == pd.to_datetime({value})",
+    FC_DATETIME_NOT_EXACTLY: "{df_name}[{transpiled_column_header}] != pd.to_datetime({value})",
+    FC_DATETIME_GREATER: "{df_name}[{transpiled_column_header}] > pd.to_datetime({value})",
+    FC_DATETIME_GREATER_THAN_OR_EQUAL: "{df_name}[{transpiled_column_header}] >= pd.to_datetime({value})",
+    FC_DATETIME_LESS: "{df_name}[{transpiled_column_header}] < pd.to_datetime({value})",
+    FC_DATETIME_LESS_THAN_OR_EQUAL: "{df_name}[{transpiled_column_header}] <= pd.to_datetime({value})",
 }
 
 # Dict used when there a specific filter condition has multiple
@@ -63,6 +68,14 @@ FILTER_FORMAT_STRING_MULTIPLE_VALUES_DICT = {
     FC_NOT_EMPTY: {
         "Or": "{df_name}[{transpiled_column_header}].notnull()",
         "And": "{df_name}[{transpiled_column_header}].notnull()",
+    },
+    FC_LEAST_FREQUENT: {
+        'Or': "{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].value_counts().index.tolist()[-max({values}):])",
+        'And': "{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].value_counts().index.tolist()[-min({values}):])",
+    },
+    FC_MOST_FREQUENT: {
+        'Or': "{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].value_counts().index.tolist()[:max({values})])",
+        'And': "{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].value_counts().index.tolist()[:min({values})])"
     },
     FC_BOOLEAN_IS_TRUE: {
         "Or": "{df_name}[{transpiled_column_header}] == True",
@@ -95,6 +108,14 @@ FILTER_FORMAT_STRING_MULTIPLE_VALUES_DICT = {
     FC_NUMBER_LESS_THAN_OR_EQUAL: {
         "Or": "{df_name}[{transpiled_column_header}].apply(lambda val: any(val <= n for n in {values}))",
         "And": "{df_name}[{transpiled_column_header}].apply(lambda val: all(val <= n for n in {values}))",
+    },
+    FC_NUMBER_LOWEST: {
+        "Or": '{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].nsmallest(max({values}), keep=\'all\'))',
+        "And": '{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].nsmallest(min({values}), keep=\'all\'))'
+    }, 
+    FC_NUMBER_HIGHEST: {
+        "Or": '{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].nlargest(max({values}), keep=\'all\'))',
+        "And": '{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].nlargest(min({values}), keep=\'all\'))'
     },
     FC_STRING_CONTAINS: {
         "Or": "{df_name}[{transpiled_column_header}].apply(lambda val: any(s in str(val) for s in {values}))",
@@ -161,6 +182,7 @@ def get_single_filter_string(
     value = filter_["value"]
 
     transpiled_column_header = column_header_to_transpiled_code(column_header)
+    value = column_header_to_transpiled_code(value)
 
     return FILTER_FORMAT_STRING_DICT[condition].format(
         df_name=df_name, transpiled_column_header=transpiled_column_header, value=value
@@ -274,29 +296,23 @@ def create_filter_string_for_condition(
 
     return ""
 
+FAKE_COLUMN_HEADER = 'FAKE_COLUMN_HEADER'
 
-class FilterCodeChunk(CodeChunk):
+def get_entire_filter_string(state: State, sheet_index: int, operator: str, filters: List[Dict[str, Any]], column_id: Optional[ColumnID]=None) -> Optional[str]:
 
-    def get_display_name(self) -> str:
-        return 'Filtered'
-    
-    def get_description_comment(self) -> str:
-        sheet_index = self.get_param('sheet_index')
-        column_id = self.get_param('column_id')
-        column_header = self.post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-        return f'Filtered {column_header}'
-
-    def get_code(self) -> List[str]:
-        sheet_index = self.get_param('sheet_index')
-        column_id = self.get_param('column_id')
-        operator = self.get_param('operator')
-        filters = self.get_param('filters')
-
-        df_name = self.post_state.df_names[sheet_index]
-        column_header = self.post_state.column_ids.get_column_header_by_id(
-            sheet_index, column_id
-        )
-        column_dtype = str(self.post_state.dfs[sheet_index][column_header].dtype)
+        df_name = state.df_names[sheet_index]
+        if column_id:
+            column_header = state.column_ids.get_column_header_by_id(
+                sheet_index, column_id
+            )
+            column_dtype = str(state.dfs[sheet_index][column_header].dtype)
+        else:
+            # If this filter string is for no particular column header, we use a fake column header, 
+            # which allows us to change the resulting filter string to filter things other than
+            # the dataframe (e.g. we want to filter a series in the conditional format). This is 
+            # a somewhat ugly hack for now
+            column_header = FAKE_COLUMN_HEADER
+            column_dtype = 'string'
 
         filters_only = [
             filter_or_group
@@ -351,17 +367,45 @@ class FilterCodeChunk(CodeChunk):
             )
 
         if len(filter_strings) == 0:
-            return []
+            return None
         elif len(filter_strings) == 1:
-            return [
-                f"{df_name} = {df_name}[{filter_strings[0]}]",
-            ]
+            return filter_strings[0]
         else:
             filter_string = combine_filter_strings(
                 operator, filter_strings, split_lines=True
             )
+            return filter_string
+
+
+
+class FilterCodeChunk(CodeChunk):
+
+    def get_display_name(self) -> str:
+        return 'Filtered'
+    
+    def get_description_comment(self) -> str:
+        sheet_index = self.get_param('sheet_index')
+        column_id = self.get_param('column_id')
+        column_header = self.post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
+        return f'Filtered {column_header}'
+
+    def get_code(self) -> List[str]:
+        sheet_index: int = self.get_param('sheet_index')
+        column_id: ColumnID = self.get_param('column_id')
+        operator: str = self.get_param('operator')
+        filters: List[Dict[str, Any]] = self.get_param('filters')
+
+        df_name = self.post_state.df_names[sheet_index]
+
+        entire_filter_string = get_entire_filter_string(
+            self.post_state, sheet_index, operator, filters, column_id
+        )
+
+        if entire_filter_string is None:
+            return []
+        else:
             return [
-                f"{df_name} = {df_name}[{filter_string}]",
+                f"{df_name} = {df_name}[{entire_filter_string}]",
             ]
 
     def get_edited_sheet_indexes(self) -> List[int]:
