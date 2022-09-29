@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import useSendEditOnClick from "../../../hooks/useSendEditOnClick";
 import MitoAPI from "../../../jupyter/api";
 import { AnalysisData, SheetData, UIState, UserProfile } from "../../../types"
 import TextButton from "../../elements/TextButton";
