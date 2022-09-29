@@ -1176,7 +1176,7 @@ class MitoWidgetTestWrapper:
             }
         )
 
-    def update_existing_imports(self, updated_import_objs) -> bool:
+    def update_existing_imports(self, updated_import_objs: List[Dict[str, Any]]) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
             {

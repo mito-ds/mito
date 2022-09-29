@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import useSendEditOnClick from "../../../hooks/useSendEditOnClick";
 import MitoAPI from "../../../jupyter/api";
 import { AnalysisData, SheetData, UIState, UserProfile } from "../../../types"
 import TextButton from "../../elements/TextButton";
@@ -44,6 +45,7 @@ export type UpdatedImportObj =
 */
 const updateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element => {
 
+    // TODO: Depending on redo/undo/clear implementation, maybe move to useSendEditOnClick, or make a similar version of update events
     const [updatedImportObjs, setUpdatedImportObjs] = useState<UpdatedImportObj[] | undefined>(props.updatedImportObjs)
     const [displayedImportCardDropdownIndex, setDisplayedImportCardDropdownIndex] = useState<number | undefined>(undefined)
 

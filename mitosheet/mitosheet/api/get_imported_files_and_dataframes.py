@@ -14,6 +14,8 @@ from mitosheet.types import StepsManagerType
 def get_imported_files_and_dataframes(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
     """
     Returns a list all the imported files and dataframes, and their import params.
+    Note: we break each imported file into its own object so that if a user imported multiple dataframes
+    through the same dataframe_import step, they can replace one with a csv and the other with a new df, for example. 
 
     [
         {
