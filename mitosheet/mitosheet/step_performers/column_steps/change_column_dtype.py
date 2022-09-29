@@ -70,10 +70,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
         pandas_processing_time: float = 0
 
-
-        # Store the changed columns till the end, so we can change them in a single
-        # operation, so if a later change fails, it doesn't cause any issues
-        new_column_map = dict()
+        changed_column_ids: List[ColumnID] = []
         for column_id in column_ids:
 
             old_dtype = old_dtypes[column_id]
@@ -81,13 +78,14 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
 
             column: pd.Series = prev_state.dfs[sheet_index][column_header]
             new_column = column
+            changed_this_column = True
             
             # How we handle the type conversion depends on what type it is
             try:
                 pandas_start_time = perf_counter()
                 if is_bool_dtype(old_dtype):
                     if is_bool_dtype(new_dtype):
-                        pass
+                        changed_this_column = False
                     elif is_int_dtype(new_dtype):
                         new_column = new_column.astype('int')
                     elif is_float_dtype(new_dtype):
@@ -110,7 +108,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
                     if is_bool_dtype(new_dtype):
                         new_column = column.fillna(False).astype('bool')
                     elif is_int_dtype(new_dtype):
-                        pass
+                        changed_this_column = False
                     elif is_float_dtype(new_dtype):
                         new_column = column.astype('float')
                     elif is_string_dtype(new_dtype):
@@ -129,7 +127,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
                     elif is_int_dtype(new_dtype):
                         new_column = column.fillna(0).astype('int')
                     elif is_float_dtype(new_dtype):
-                        pass
+                        changed_this_column = False
                     elif is_string_dtype(new_dtype):
                         new_column = column.astype('str')
                     elif is_datetime_dtype(new_dtype):
@@ -148,7 +146,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
                     elif is_float_dtype(new_dtype):
                         new_column = to_float_series(column)
                     elif is_string_dtype(new_dtype):
-                        pass
+                        changed_this_column = False
                     elif is_datetime_dtype(new_dtype):
                         # Guess the datetime format to the best of Pandas abilities
                         datetime_format = get_datetime_format(column)
@@ -179,7 +177,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
                         # NOTE: this is the same conversion that we send to the frontend
                         new_column = column.dt.strftime('%Y-%m-%d %X')
                     elif is_datetime_dtype(new_dtype):
-                        pass
+                        changed_this_column = False
                     elif is_timedelta_dtype(new_dtype):
                         raise make_invalid_column_type_change_error(
                             column_header,
@@ -202,30 +200,30 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
                             new_dtype
                         )
                     elif is_timedelta_dtype(new_dtype):
-                        pass
+                        changed_this_column = False
 
                 # We update the column, as well as the type of the column
-                new_column_map[column_header] = new_column
+                post_state.dfs[sheet_index][column_header] = new_column
                 pandas_processing_time += (perf_counter() - pandas_start_time)
+
+                # Remember which columns we changed
+                if changed_this_column:
+                    changed_column_ids.append(column_id)
 
                 # If we're changing away from a number column, then we remove the formatting on the column if it exists
                 if not is_number_dtype(new_dtype) and column_id in post_state.df_formats[sheet_index]['columns']:
                     del post_state.df_formats[sheet_index]['columns'][column_id]
                     
             except:
-                print(get_recent_traceback())
                 raise make_invalid_column_type_change_error(
                     column_header,
                     old_dtype,
                     new_dtype
                 )
 
-        # Finially, update all the columns atomically
-        for column_header, new_column in new_column_map.items():
-            post_state.dfs[sheet_index][column_header] = new_column
-
         return post_state, {
-            'pandas_processing_time': pandas_processing_time
+            'pandas_processing_time': pandas_processing_time,
+            'changed_column_ids': changed_column_ids
         }
         
 

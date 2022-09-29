@@ -138,10 +138,10 @@ class ChangeColumnDtypeCodeChunk(CodeChunk):
         return 'Changed dtype'
     
     def get_description_comment(self) -> str:
-        sheet_index = self.get_param('sheet_index')
-        column_ids = self.get_param('column_ids')
-        new_dtype = self.get_param('new_dtype')
-        column_headers = self.post_state.column_ids.get_column_headers_by_ids(sheet_index, column_ids)
+        sheet_index: int = self.get_param('sheet_index')
+        new_dtype: str = self.get_param('new_dtype')
+        changed_column_ids: List[ColumnID] = self.get_execution_data('changed_column_ids')
+        column_headers = self.post_state.column_ids.get_column_headers_by_ids(sheet_index, changed_column_ids)
         return f'Changed {", ".join([str(ch) for ch in column_headers])} to dtype {new_dtype}'
 
     def get_code(self) -> List[str]:

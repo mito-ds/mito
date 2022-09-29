@@ -60,7 +60,7 @@ def upgrade_change_column_dtype_2_to_3(step: Dict[str, Any], later_steps: List[D
     }
 
     NEW: {
-        'step_version': 2, 
+        'step_version': 3, 
         'step_type': "change_column_dtype",
         'params': {
             sheet_index: 0,

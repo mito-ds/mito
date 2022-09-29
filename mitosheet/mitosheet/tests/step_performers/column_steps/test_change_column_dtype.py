@@ -263,5 +263,4 @@ def test_change_multiple_dtype_works_if_no_op():
 def test_change_multiple_dtype_fails_is_atomic():
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3], 'B': pd.to_datetime(['12-22-1997', '12-22-1997', '12-22-1997'])}))
     mito.change_column_dtype(0, ['A', 'B'], 'timedelta')
-    print(mito.dfs[0])
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': pd.to_datetime(['12-22-1997', '12-22-1997', '12-22-1997'])}))
