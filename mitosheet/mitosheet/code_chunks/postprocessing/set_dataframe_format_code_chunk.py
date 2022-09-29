@@ -232,6 +232,22 @@ def get_conditional_format_code_list(state: State, sheet_index: int) -> Optional
 
     return None
 
+def check_conditional_filters_have_filter_condition_that_requires_whole_dataframe(state: State, sheet_index: int) -> bool:
+    """
+    Returns true if any of the conditional formats have any filter conditions that require
+    the full dataframe to be present to calculate correctly.
+    """
+    from mitosheet.step_performers.filter import check_filters_contain_condition_that_needs_full_df
+    conditional_formats = state.df_formats[sheet_index]['conditional_formats']
+
+    for conditional_format in conditional_formats:
+        filters = conditional_format['filters']
+        if check_filters_contain_condition_that_needs_full_df(filters):
+            return True
+
+    return False
+
+
 def get_dataframe_format_code(state: State, sheet_index: int) -> Optional[str]:
     """Returns all the code to set the df_formatting on the dataframe from the state."""
     df_name = state.df_names[sheet_index]
@@ -242,6 +258,12 @@ def get_dataframe_format_code(state: State, sheet_index: int) -> Optional[str]:
     else: 
         # If there are more than the max rows, we don't display all of them
         dataframe_format_string = f"{df_name}_styler = {df_name}.head({MAX_ROWS}).style"
+
+        # If there is a .head call, and we have filter conditions that require access to the entire
+        # dataframe, than we generate an extra comment to let the user know something might be incorrect
+        if check_conditional_filters_have_filter_condition_that_requires_whole_dataframe(state, sheet_index):
+            dataframe_format_string = f'# This .head call avoids printing too much data, but may lead to incorrectly calculated conditional formats\n{dataframe_format_string}'
+        
 
     format_code = [
         get_all_columns_format_code(state, sheet_index),
