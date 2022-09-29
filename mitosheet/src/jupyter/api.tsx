@@ -1285,7 +1285,7 @@ export default class MitoAPI {
             'event': 'update_event',
             'type': 'existing_import_update',
             'params': {
-                'updated_import_obj_objs': updatedImportObjs
+                'updated_import_objs': updatedImportObjs
             }
         }, {});
     }

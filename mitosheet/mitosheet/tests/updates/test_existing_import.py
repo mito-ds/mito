@@ -38,7 +38,7 @@ def test_overwrite_multiple_imports():
     step_id = mito.curr_step.step_id
 
     # Update the imports 
-    updated_import_obj_obj = [
+    updated_import_obj = [
         {
             'step_id': step_id,
             'type': 'csv',
@@ -68,7 +68,7 @@ def test_overwrite_multiple_imports():
         }
     ]
 
-    mito.update_existing_imports(updated_import_obj_obj)
+    mito.update_existing_imports(updated_import_obj)
 
     # Make sure the updates occured correctly 
     new_csv_import_step = mito.steps_including_skipped[1]
@@ -102,7 +102,7 @@ def test_replay_steps_correctly():
     mito.set_formula('=A', 0, 'B', True)
 
     # Update the imports 
-    updated_import_obj_obj = [ 
+    updated_import_obj = [ 
         {
            'step_id': step_id,
             'type': 'csv',
@@ -115,7 +115,7 @@ def test_replay_steps_correctly():
         }
     ]
 
-    mito.update_existing_imports(updated_import_obj_obj)
+    mito.update_existing_imports(updated_import_obj)
 
     # Make sure the updates occured correctly 
     assert mito.get_value(0, 'A', 1) == 10

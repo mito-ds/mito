@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from copy import copy
-from typing import Any, Dict, List
+from typing import Any, List
 from mitosheet.step import Step
 from mitosheet.types import StepsManagerType
 from mitosheet.step_performers import EVENT_TYPE_TO_STEP_PERFORMER
@@ -15,17 +15,17 @@ from mitosheet.utils import create_step_id
 
 
 EXISTING_IMPORTS_UPDATE_EVENT = 'existing_import_update'
-EXISTING_IMPORTS_PARAMS = ['updated_import_obj_objs']
+EXISTING_IMPORTS_PARAMS = ['updated_import_objs']
 
 
-def execute_existing_imports_update(steps_manager: StepsManagerType, updated_import_obj_objs: List[Dict[str, Any]]) -> None:
+def execute_existing_imports_update(steps_manager: StepsManagerType, updated_import_objs: List) -> None:
     """
     Updates the step list with new import steps
 
     We must preserve the order of the sheets within the import. Consider this example:
     In original step (step id: abc): imports sheet_1 and sheet_2 from .xlsx file
     In updated imports, replaces those files with file_1.csv and file_2.csv
-    The updated_import_obj obj for file_1 and file_2 will both have step id: abc, but we must ensure
+    The updated_import obj for file_1 and file_2 will both have step id: abc, but we must ensure
     that file_1.csv gets imported before file_2.csv so it replaces the correct file. 
 
     Assumptions:
@@ -38,9 +38,9 @@ def execute_existing_imports_update(steps_manager: StepsManagerType, updated_imp
         step = steps_manager.steps_including_skipped[i]
         number_of_times_this_step_updated = 0
 
-        for updated_import_obj in updated_import_obj_objs:
+        for updated_import in updated_import_objs:
         
-            if updated_import_obj['step_id'] != step.step_id:
+            if updated_import['step_id'] != step.step_id:
                 continue 
 
             if number_of_times_this_step_updated > 0:
@@ -49,22 +49,22 @@ def execute_existing_imports_update(steps_manager: StepsManagerType, updated_imp
                 # TODO: We should combine steps that are the same step_id and have the same configuration. 
                 # For example, if importing 2 sheets from the same .xlsx file with the same configuration, 
                 # that should just be one step. 
-                updated_import_obj['step_id'] = create_step_id()
+                updated_import['step_id'] = create_step_id()
             
             # Update the step_type
-            updated_import_obj_type = updated_import_obj['type']
-            if updated_import_obj_type == 'csv':
+            updated_import_type = updated_import['type']
+            if updated_import_type == 'csv':
                 step_type = SimpleImportStepPerformer.step_type()
-            if updated_import_obj_type == 'excel':
+            if updated_import_type == 'excel':
                 step_type = ExcelImportStepPerformer.step_type()
-            if updated_import_obj_type == 'df':
+            if updated_import_type == 'df':
                 step_type = DataframeImportStepPerformer.step_type()
                 
             step_performer = EVENT_TYPE_TO_STEP_PERFORMER[step_type + '_edit']
 
             # Create the new step from the import_params
             new_step = Step(
-                step_performer.step_type(), updated_import_obj['step_id'], updated_import_obj["import_params"]
+                step_performer.step_type(), updated_import['step_id'], updated_import["import_params"]
             )
 
             if number_of_times_this_step_updated > 0:
