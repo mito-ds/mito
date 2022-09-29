@@ -53,6 +53,15 @@ FC_DATETIME_LESS_THAN_OR_EQUAL = "datetime_less_than_or_equal"
 # given operator in the middle
 OPERATOR_SIGNS = {"Or": "|", "And": "&"}
 
+# Filter conditions that cannot be applied to the first 1500 rows of the dataframe 
+# should be put here. They require different handling in conditonal formats, for example
+FILTER_CONDITIONS_THAT_REQUIRE_FULL_DATAFRAME = [
+    FC_LEAST_FREQUENT,
+    FC_MOST_FREQUENT,
+    FC_NUMBER_LOWEST,
+    FC_NUMBER_HIGHEST,
+]
+
 class FilterStepPerformer(StepPerformer):
     """
     Allows you to filter a column based on some conditions and some values.
@@ -283,3 +292,22 @@ def _execute_filter(
 
     full_applied_filter, pandas_processing_time = get_full_applied_filter(df, column_header, operator, filters)
     return df[full_applied_filter], pandas_processing_time
+
+
+def check_filters_contain_condition_that_needs_full_df(filters: List[Dict[str, Any]]) -> bool:
+    """
+    Returns true if any filter condition is a FILTER_CONDITIONS_THAT_REQUIRE_FULL_DATAFRAME
+    """
+
+    for filter_or_group in filters:
+
+        # If it's a group, then we build the filters for the group, combine them
+        # and then add that to the applied filters
+        if "filters" in filter_or_group:
+            for filter_ in filter_or_group["filters"]:
+                if filter_['condition'] in FILTER_CONDITIONS_THAT_REQUIRE_FULL_DATAFRAME:
+                    return True
+        elif filter_or_group['condition'] in FILTER_CONDITIONS_THAT_REQUIRE_FULL_DATAFRAME:
+                return True
+
+    return False
