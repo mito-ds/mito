@@ -14,17 +14,32 @@ function GraphExportTab(
         mitoAPI: MitoAPI;
         graphParams: GraphParamsFrontend
         loading: boolean
-        graphOutput: GraphOutput
+        graphOutput: GraphOutput,
+        graphTabName: string,
         mitoContainerRef: React.RefObject<HTMLDivElement>
     }): JSX.Element {
 
-    const [_copyGraphCode, graphCodeCopied] = useCopyToClipboard(props.graphOutput?.graphGeneratedCode);
+    // We append the correct export code for showing and for exporting to html
+    const [_copyShowGraphCode, showGraphCodeCopied] = useCopyToClipboard(
+        (props.graphOutput?.graphGeneratedCode || '') + `\nfig.show(renderer="iframe")`
+    );
+    const [_copyExportHTMLGraphCode, exportHTMLGraphCodeCopied] = useCopyToClipboard(
+        (props.graphOutput?.graphGeneratedCode || '') + `\nfig.write_html("${props.graphTabName}.html")`
+    );
 
-    const copyGraphCode = () => {
-        _copyGraphCode()
+    const copyShowGraphCode = () => {
+        _copyShowGraphCode()
 
         // Log that the user copied the graph code
         void props.mitoAPI.log('copy_graph_code', {
+            'graph_type': props.graphParams.graphCreation.graph_type
+        });
+    }
+    const copyExportHTMLGraphCode = () => {
+        _copyExportHTMLGraphCode()
+
+        // Log that the user copied the graph code
+        void props.mitoAPI.log('copy_export_html_graph_code', {
             'graph_type': props.graphParams.graphCreation.graph_type
         });
     }
@@ -34,11 +49,25 @@ function GraphExportTab(
             <div>
                 <TextButton
                     variant='dark'
-                    onClick={copyGraphCode}
+                    onClick={copyShowGraphCode}
                     disabled={props.loading || props.graphOutput === undefined}
+                    title={'Click to copy code that creates graph and displays it in the notebook'}
                 >
-                    {!graphCodeCopied
-                        ? "Copy Graph Code"
+                    {!showGraphCodeCopied
+                        ? "Copy Show Graph Code"
+                        : "Copied to Clipboard!"
+                    }
+                </TextButton>
+            </div>
+            <div>
+                <TextButton
+                    variant='dark'
+                    onClick={copyExportHTMLGraphCode}
+                    disabled={props.loading || props.graphOutput === undefined}
+                    title={'Click to copy code that creates graph and exports it as an html file'}
+                >
+                    {!exportHTMLGraphCodeCopied
+                        ? "Copy Export HTML Graph Code"
                         : "Copied to Clipboard!"
                     }
                 </TextButton>
@@ -52,6 +81,7 @@ function GraphExportTab(
                         downloadLink?.click()
                     }}
                     disabled={props.loading || props.graphOutput === undefined}
+                    title={'Click to download graph as png'}
                 >
                     Download as PNG
                 </TextButton>
