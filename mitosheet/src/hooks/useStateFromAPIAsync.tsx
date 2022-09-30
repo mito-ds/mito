@@ -21,7 +21,7 @@ export function useStateFromAPIAsync<T>(
                 }
             }
         }
-        void loadData;
+        void loadData();
     }, []);
 
     return [state, setState];

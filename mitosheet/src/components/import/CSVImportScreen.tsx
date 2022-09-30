@@ -5,7 +5,7 @@ import { useStateFromAPIAsync } from '../../hooks/useStateFromAPIAsync';
 
 // Import 
 import MitoAPI from '../../jupyter/api';
-import { AnalysisData, MitoError, UIState } from '../../types';
+import { AnalysisData, UIState } from '../../types';
 import DropdownItem from '../elements/DropdownItem';
 import Input from '../elements/Input';
 import Select from '../elements/Select';
@@ -134,12 +134,12 @@ interface CSVImportProps {
     fileName: string; // data.csv
     filePath: string; // the/full/path/to/data.csv
 
-    params: CSVImportParams;
+    params: CSVImportParams | undefined;
     setParams: React.Dispatch<React.SetStateAction<CSVImportParams>>;
     edit: () => void;
     editApplied: boolean;
     loading: boolean;
-    error: MitoError | undefined;
+    error: string | undefined;
 
     backCallback: () => void;
 }
@@ -155,15 +155,6 @@ export interface CSVImportParams {
     delimeters: string[],
     encodings: string[],
     error_bad_lines: boolean[],
-}
-
-export const getDefaultCSVParams = (filePath: string): CSVImportParams => {
-    return {
-        file_names: [filePath],
-        delimeters: [','],
-        encodings: ['default'],
-        error_bad_lines: [true]
-    }
 }
 
 const getButtonMessage = (fileName: string, loading: boolean, isUpdate: boolean): string => {

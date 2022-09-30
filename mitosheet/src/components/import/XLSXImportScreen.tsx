@@ -2,10 +2,9 @@
 
 import React from 'react';
 
-// Import 
 import { useStateFromAPIAsync } from '../../hooks/useStateFromAPIAsync';
 import MitoAPI from '../../jupyter/api';
-import { AnalysisData, MitoError, UIState } from '../../types';
+import { AnalysisData, UIState } from '../../types';
 import { toggleInArray } from '../../utils/arrays';
 import DropdownItem from '../elements/DropdownItem';
 import Input from '../elements/Input';
@@ -30,12 +29,11 @@ interface XLSXImportProps {
     fileName: string; // workbook.xlsx
     filePath: string; // this/is/the/full/path/to/workbook.xlsx
 
-    params: ExcelImportParams;
+    params: ExcelImportParams | undefined;
     setParams: React.Dispatch<React.SetStateAction<ExcelImportParams>>;
     edit: (finalTransform?: ((params: ExcelImportParams) => ExcelImportParams) | undefined) => void;
     editApplied: boolean;
     loading: boolean;
-    error: MitoError | undefined;
 
     backCallback: () => void;
 }
@@ -102,7 +100,8 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
         }
     );
 
-    if (props.params === undefined) {
+    const params = props.params;
+    if (params === undefined) {
         return (
             <div className='text-body-1'>
                 There has been an error loading your Excel file metadata. Please try again, or contact support.
@@ -110,7 +109,7 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
         )
     }
 
-    const numSelectedSheets = props.params?.sheet_names.length;
+    const numSelectedSheets = params.sheet_names.length;
     
     return (
         <DefaultTaskpane>
@@ -146,7 +145,7 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
                                     <MultiToggleItem
                                         key={idx}
                                         title={sheetName}
-                                        toggled={props.params.sheet_names.includes(sheetName)}
+                                        toggled={params.sheet_names.includes(sheetName)}
                                         onToggle={() => {
                                             props.setParams(prevParams => {
                                                 const newSheetNames = [...prevParams.sheet_names];
@@ -167,7 +166,7 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
                     {props.isUpdate &&
                         <RadioButtonBox
                             values={fileMetadata.sheet_names}
-                            selectedValue={props.params.sheet_names[0]}
+                            selectedValue={params.sheet_names[0]}
                             height='medium'
                             onChange={(value) => props.setParams(prevParams => {
                                 console.log('setting to value: ', value)
@@ -183,7 +182,7 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
                         Has Header Row
                     </p>
                     <Select
-                        value={props.params.has_headers ? 'Yes' : 'No'}
+                        value={params.has_headers ? 'Yes' : 'No'}
                         onChange={(newValue: string) => props.setParams(prevParams => {
                             return {
                                 ...prevParams,
@@ -202,7 +201,7 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
                         Number of Rows to Skip
                     </p>
                     <Input
-                        value={"" + props.params.skiprows}
+                        value={"" + params.skiprows}
                         type='number'
                         onChange={(e) => {
                             const newValue = e.target.value;
@@ -248,11 +247,11 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
                     disabled={numSelectedSheets === 0}
                     autoFocus
                 >
-                    {getButtonMessage(props.params, props.loading, props.isUpdate)}
+                    {getButtonMessage(params, props.loading, props.isUpdate)}
                 </TextButton>
                 {props.editApplied && !props.loading &&
                     <p className='text-subtext-1'>
-                        {getSuccessMessage(props.params)} 
+                        {getSuccessMessage(params)} 
                     </p>
                 } 
                 {!props.editApplied && 

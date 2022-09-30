@@ -25,7 +25,7 @@ interface FileBrowserElementProps {
     
     index: number;
     element: FileElement;
-    selectFile: (element: FileElement | undefined) => Promise<void>;
+    setSelectedFile: React.Dispatch<React.SetStateAction<FileElement | undefined>>
 
     excelImportEnabled: boolean;
     isParentFolder?: boolean;
@@ -97,7 +97,7 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
                     newPathParts.push(props.element.name);
                     props.setCurrPathParts(newPathParts);
                 } else {
-                    void props.selectFile(props.element);
+                    void props.setSelectedFile(props.element);
                 }
             }}
         >

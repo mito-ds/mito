@@ -26,7 +26,7 @@ interface DataframeImportTaskpaneProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     isUpdate: boolean;
 
-    params: DataframeImportParams;
+    params: DataframeImportParams | undefined;
     setParams: React.Dispatch<React.SetStateAction<DataframeImportParams>>;
     edit: () => void;
 
@@ -60,8 +60,9 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
 
     const [dfNamesInNotebook] = useStateFromAPIAsync(
         [],
-        props.mitoAPI.getDefinedDfNames,
+        () => {return props.mitoAPI.getDefinedDfNames()},
     )
+
 
     const dataframeCards: JSX.Element[] = (props.params?.df_names || []).map((dfName, arrIndex) => {
         return (

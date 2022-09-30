@@ -51,7 +51,7 @@ import DownloadTaskpane from './taskpanes/Download/DownloadTaskpane';
 import DropDuplicatesTaskpane from './taskpanes/DropDuplicates/DropDuplicates';
 import FillNaTaskpane from './taskpanes/FillNa/FillNaTaskpane';
 import GraphSidebar from './taskpanes/Graph/GraphSidebar';
-import ImportTaskpane from './taskpanes/FileImport/ImportTaskpane';
+import ImportTaskpane from './taskpanes/FileImport/NewImportTaskpane';
 import MeltTaskpane from './taskpanes/Melt/MeltTaskpane';
 import MergeTaskpane from './taskpanes/Merge/MergeTaskpane';
 import PivotTaskpane from './taskpanes/PivotTable/PivotTaskpane';
@@ -606,13 +606,13 @@ export const Mito = (props: MitoProps): JSX.Element => {
             )
             case TaskpaneType.IMPORT_FILES: return (
                 <ImportTaskpane
-                    setUIState={setUIState}
                     mitoAPI={props.mitoAPI}
+                    analysisData={analysisData}
+                    userProfile={userProfile}
+                    setUIState={setUIState}
+
                     currPathParts={currPathParts}
                     setCurrPathParts={setCurrPathParts}
-                    userProfile={userProfile}
-                    analysisData={analysisData}
-                    updateImportedData={uiState.currOpenTaskpane.updateImportedData}
                 />
             )
             case TaskpaneType.MERGE: return (

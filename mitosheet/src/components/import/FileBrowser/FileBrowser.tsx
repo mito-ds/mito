@@ -27,7 +27,7 @@ interface FileBrowserProps {
     setCurrPathParts: (newCurrPathParts: string[]) => void;
 
     selectedFile: FileElement | undefined;
-    selectFile: (element: FileElement | undefined) => Promise<void>;
+    setSelectedFile: React.Dispatch<React.SetStateAction<FileElement | undefined>>
 }
 
 
@@ -97,6 +97,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
 
     // Loads the path data from the API and sets it for the file browser
     async function loadPathContents(currPathParts: string[]) {
+        console.log("Loading path parts", currPathParts)
         setFileBrowserState(prevImportState => {
             return {
                 ...prevImportState,
@@ -104,6 +105,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
             }
         })
         const _pathContents = await props.mitoAPI.getPathContents(currPathParts);
+        console.log("path contents", _pathContents)
         if (_pathContents) {
             setFileBrowserState(prevImportState => {
                 return {
@@ -138,11 +140,16 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
             <DefaultTaskpaneBody noScroll>
                 <FileBrowserBody
                     mitoAPI={props.mitoAPI}
+                    userProfile={props.userProfile}
+                    setUIState={props.setUIState}
+
                     currPathParts={props.currPathParts}
                     setCurrPathParts={props.setCurrPathParts}
-                    setUIState={props.setUIState}
-                    selectFile={props.selectFile}
-                    userProfile={props.userProfile}
+
+                    fileBrowserState={fileBrowserState}
+                    setFileBrowserState={setFileBrowserState}
+
+                    setSelectedFile={props.setSelectedFile}
                 />
             </DefaultTaskpaneBody>
             <DefaultTaskpaneFooter>
@@ -154,7 +161,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                                 variant='light'
                                 width='small'
                                 onClick={() => {
-                                    props.selectFile(selectedElement);
+                                    props.setSelectedFile(selectedElement);
                                 }}
                                 disabled={importButtonStatus.disabled}
                             >
@@ -173,7 +180,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                             variant='dark'
                             width='block'
                             onClick={() => {
-                                void props.selectFile(selectedElement);
+                                void props.setSelectedFile(selectedElement);
                             }}
                             disabled={importButtonStatus.disabled}
                         >

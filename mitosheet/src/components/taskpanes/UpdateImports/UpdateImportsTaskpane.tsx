@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import MitoAPI from "../../../jupyter/api";
 import { AnalysisData, SheetData, UIState, UserProfile } from "../../../types"
 import TextButton from "../../elements/TextButton";
-import { DataframeImportParams } from "../DataframeImport/DataframeImportTaskpane";
+import { DataframeImportParams } from "../../import/DataframeImportScreen";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
