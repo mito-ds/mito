@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 import React, { useEffect, useRef } from 'react';
-import { FileElement } from '../../taskpanes/FileImport/ImportTaskpane';
+import { FileElement } from '../../taskpanes/FileImport/NewImportTaskpane';
 import FileBrowserElement from './FileBrowserElement';
 import FileBrowserPathSelector from './FileBrowserPathSelector';
 

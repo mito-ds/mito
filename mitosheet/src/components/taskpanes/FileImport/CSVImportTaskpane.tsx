@@ -12,9 +12,6 @@ interface CSVImportTaskpaneProps {
     analysisData: AnalysisData;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
 
-    currPathParts: string[];
-    setCurrPathParts: (newCurrPathParts: string[]) => void;
-
     fileName: string;
     filePath: string;
 

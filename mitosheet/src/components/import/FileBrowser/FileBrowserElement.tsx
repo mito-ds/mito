@@ -11,7 +11,7 @@ import Col from '../../layout/Col';
 import Row from '../../layout/Row';
 import {
     FileElement
-} from '../../taskpanes/FileImport/ImportTaskpane';
+} from '../../taskpanes/FileImport/NewImportTaskpane';
 import { getInvalidFileError } from '../../taskpanes/FileImport/importUtils';
 import { FileBrowserState } from './FileBrowserBody';
 

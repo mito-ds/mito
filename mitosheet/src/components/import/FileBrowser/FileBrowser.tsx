@@ -11,7 +11,7 @@ import DefaultTaskpane from '../../taskpanes/DefaultTaskpane/DefaultTaskpane';
 import DefaultTaskpaneBody from '../../taskpanes/DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultTaskpaneFooter from '../../taskpanes/DefaultTaskpane/DefaultTaskpaneFooter';
 import DefaultTaskpaneHeader from '../../taskpanes/DefaultTaskpane/DefaultTaskpaneHeader';
-import { FileElement } from '../../taskpanes/FileImport/ImportTaskpane';
+import { FileElement } from '../../taskpanes/FileImport/NewImportTaskpane';
 import { getElementsToDisplay, getFileEnding, getImportButtonStatus, isExcelFile } from '../../taskpanes/FileImport/importUtils';
 import { ImportScreen } from '../../taskpanes/FileImport/NewImportTaskpane';
 import FileBrowserBody, { FileBrowserState } from './FileBrowserBody';
@@ -52,8 +52,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
     })
 
     // We make sure to get the elements that are displayed and use the index on that to get the correct element
-    const selectedElement: FileElement | undefined = getElementsToDisplay(fileBrowserState)[fileBrowserState.selectedElementIndex];
-
+    const selectedFile: FileElement | undefined = getElementsToDisplay(fileBrowserState)[fileBrowserState.selectedElementIndex];
 
     /* 
         Any time the current path changes, we update
@@ -74,6 +73,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
     }, [props.currPathParts])
 
 
+
     /* 
         Any time the selected element changes we log the file
         ending (or none, if it has none).
@@ -81,12 +81,12 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
     useEffect(() => {
         let selectedElementName = '';
         
-        if (selectedElement === undefined) {
+        if (selectedFile === undefined) {
             selectedElementName = 'undefined';
-        } else if (selectedElement.isDirectory) {
+        } else if (selectedFile.isDirectory) {
             selectedElementName = 'directory';
         } else {
-            const fileEnding = getFileEnding(selectedElement.name);
+            const fileEnding = getFileEnding(selectedFile.name);
             if (fileEnding !== undefined) {
                 selectedElementName = fileEnding;
             } else {
@@ -98,7 +98,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
             {'selected_element': selectedElementName}
         )
 
-    }, [selectedElement])
+    }, [selectedFile])
     
 
     // Loads the path data from the API and sets it for the file browser
@@ -129,7 +129,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
     }
 
     const importButtonStatus = getImportButtonStatus(
-        selectedElement, 
+        selectedFile, 
         props.userProfile.excelImportEnabled, 
         fileBrowserState.loadingImport,
         props.isUpdate
@@ -159,13 +159,12 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
             </DefaultTaskpaneBody>
             <DefaultTaskpaneFooter>
                 <Row justify='space-between'>
-                    {!importButtonStatus.disabled && !isExcelFile(selectedElement) &&
+                    {!importButtonStatus.disabled && !isExcelFile(selectedFile) &&
                         <Col>
                             <TextButton
                                 variant='light'
                                 width='small'
                                 onClick={() => {
-                                    props.setSelectedFile(selectedElement);
                                     props.setScreen('csv_import');
                                 }}
                                 disabled={importButtonStatus.disabled}
@@ -180,13 +179,13 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                             </TextButton>
                         </Col>
                     }
-                    <Col span={!importButtonStatus.disabled && !isExcelFile(selectedElement) ? 18 : 24}>
+                    <Col span={!importButtonStatus.disabled && !isExcelFile(selectedFile) ? 18 : 24}>
                         <TextButton
                             variant='dark'
                             width='block'
                             onClick={() => {
-                                props.setSelectedFile(selectedElement);
-                                props.importCSVFile(selectedElement);
+                                props.setSelectedFile(selectedFile);
+                                props.importCSVFile(selectedFile);
                             }}
                             disabled={importButtonStatus.disabled}
                         >

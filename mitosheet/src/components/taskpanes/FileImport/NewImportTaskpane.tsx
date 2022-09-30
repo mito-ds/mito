@@ -89,13 +89,10 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                 mitoAPI={props.mitoAPI}
                 analysisData={props.analysisData}
                 setUIState={props.setUIState}
-            
-                currPathParts={props.currPathParts}
-                setCurrPathParts={props.setCurrPathParts}
 
                 fileName={selectedFile?.name || ''}
                 filePath={filePath || ''}
-                
+
                 setScreen={setScreen}
             />
         )

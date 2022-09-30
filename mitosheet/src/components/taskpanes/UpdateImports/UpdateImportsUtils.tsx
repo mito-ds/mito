@@ -1,7 +1,7 @@
 import { UIState } from "../../../types";
 import { DataframeImportParams } from "../../import/DataframeImportScreen"
-import { CSVImportParams } from "../FileImport/CSVImport";
-import { ExcelImportParams } from "../FileImport/XLSXImport";
+import { CSVImportParams } from "../../import/CSVImportScreen";
+import { ExcelImportParams } from "../../import/XLSXImportScreen";
 import { TaskpaneType } from "../taskpanes";
 import { UpdatedImportObj } from "./UpdateImportsTaskpane"
 
