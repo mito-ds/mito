@@ -7,7 +7,7 @@ import { GraphObject } from "../components/taskpanes/ControlPanel/SummaryStatsTa
 import { UniqueValueCount, UniqueValueSortType } from "../components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
 import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Graph/graphUtils";
 import { CSVFileMetadata } from "../components/import/CSVImportScreen";
-import { FileElement } from "../components/taskpanes/FileImport/NewImportTaskpane";
+import { FileElement } from "../components/taskpanes/FileImport/FileImportTaskpane";
 import { ExcelFileMetadata } from "../components/import/XLSXImportScreen";
 import { valuesArrayToRecord } from "../components/taskpanes/PivotTable/pivotUtils";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";

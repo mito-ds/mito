@@ -31,7 +31,7 @@ interface XLSXImportProps {
 
     params: ExcelImportParams | undefined;
     setParams: React.Dispatch<React.SetStateAction<ExcelImportParams>>;
-    edit: (finalTransform?: ((params: ExcelImportParams) => ExcelImportParams) | undefined) => void;
+    edit: (finalTransform?: ((params: ExcelImportParams | undefined) => ExcelImportParams | undefined) | undefined) => void;
     editApplied: boolean;
     loading: boolean;
 
@@ -236,6 +236,10 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
                     variant='dark'
                     width='block'
                     onClick={() => props.edit((params) => {
+                        if (params === undefined) {
+                            return undefined;
+                        }
+
                         // Do a final parsing to make sure that the int is a valid number
                         const parsedSkipRows = parseInt("" + params.skiprows);
 

@@ -6,7 +6,7 @@ import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import MitoAPI from '../../../jupyter/api';
 import { AnalysisData, StepType, UIState } from '../../../types';
 import XLSXImportScreen, { ExcelImportParams } from '../../import/XLSXImportScreen';
-import { ImportScreen } from './NewImportTaskpane';
+import { ImportScreen } from './FileImportTaskpane';
 
 
 interface XLSXImportProps {

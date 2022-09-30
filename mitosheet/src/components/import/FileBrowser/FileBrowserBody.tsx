@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 import React, { useEffect, useRef } from 'react';
-import { FileElement } from '../../taskpanes/FileImport/NewImportTaskpane';
+import { FileElement } from '../../taskpanes/FileImport/FileImportTaskpane';
 import FileBrowserElement from './FileBrowserElement';
 import FileBrowserPathSelector from './FileBrowserPathSelector';
 
@@ -13,7 +13,7 @@ import SortArrowIcon from '../../icons/SortArrowIcon';
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
 import { getElementsToDisplay, inRootFolder } from '../../taskpanes/FileImport/importUtils';
-import { ImportScreen } from '../../taskpanes/FileImport/NewImportTaskpane';
+import { ImportScreen } from '../../taskpanes/FileImport/FileImportTaskpane';
 import { TaskpaneType } from '../../taskpanes/taskpanes';
 
 

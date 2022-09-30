@@ -1,6 +1,6 @@
 import { fuzzyMatch } from "../../../utils/strings";
 import { FileBrowserState } from "../../import/FileBrowser/FileBrowserBody";
-import { FileElement } from "./NewImportTaskpane";
+import { FileElement } from "./FileImportTaskpane";
 
 const PARENT_FOLDER_NAME = 'Parent Folder';
 

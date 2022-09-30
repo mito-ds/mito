@@ -51,7 +51,7 @@ import DownloadTaskpane from './taskpanes/Download/DownloadTaskpane';
 import DropDuplicatesTaskpane from './taskpanes/DropDuplicates/DropDuplicates';
 import FillNaTaskpane from './taskpanes/FillNa/FillNaTaskpane';
 import GraphSidebar from './taskpanes/Graph/GraphSidebar';
-import ImportTaskpane from './taskpanes/FileImport/NewImportTaskpane';
+import ImportTaskpane from './taskpanes/FileImport/FileImportTaskpane';
 import MeltTaskpane from './taskpanes/Melt/MeltTaskpane';
 import MergeTaskpane from './taskpanes/Merge/MergeTaskpane';
 import PivotTaskpane from './taskpanes/PivotTable/PivotTaskpane';

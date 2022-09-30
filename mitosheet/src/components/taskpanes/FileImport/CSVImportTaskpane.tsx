@@ -5,7 +5,7 @@ import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import MitoAPI from '../../../jupyter/api';
 import { AnalysisData, StepType, UIState } from '../../../types';
 import CSVImportScreen, { CSVImportParams } from '../../import/CSVImportScreen';
-import { ImportScreen } from './NewImportTaskpane';
+import { ImportScreen } from './FileImportTaskpane';
 
 interface CSVImportTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -19,10 +19,7 @@ interface CSVImportTaskpaneProps {
 }
 
 
-export const getDefaultCSVParams = (filePath: string | undefined): CSVImportParams | undefined => {
-    if (filePath === undefined) {
-        return undefined;
-    }
+export const getDefaultCSVParams = (filePath: string): CSVImportParams => {
     return {
         file_names: [filePath],
         delimeters: [','],

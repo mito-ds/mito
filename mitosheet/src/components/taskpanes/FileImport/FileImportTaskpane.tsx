@@ -1,12 +1,10 @@
 // Copyright (c) Mito
 
 import React, { useEffect, useState } from 'react';
-// Import 
 import MitoAPI from '../../../jupyter/api';
 import { AnalysisData, UIState, UserProfile } from '../../../types';
-import FileBrowser from '../../import/FileBrowser/FileBrowser';
 import CSVImportTaskpane from './CSVImportTaskpane';
-import { isExcelFile } from './importUtils';
+import FileBrowserTaskpane from './FileBrowserTaskpane';
 import XLSXImportTaskpane from './XLSXImportTaskpane';
 
 interface ImportTaskpaneProps {
@@ -36,16 +34,6 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
     const [filePath, setFilePath] = useState<string | undefined>(undefined);
 
     useEffect(() => {
-        if (selectedFile !== undefined) {
-            if (isExcelFile(selectedFile)) {
-                setScreen('xslx_import')
-            } else {
-                setScreen('csv_import')
-            }
-        }
-    }, [selectedFile])
-
-    useEffect(() => {
         const loadFilePath = async () => {
             if (selectedFile !== undefined) {
                 const fullPath = [...props.currPathParts];
@@ -64,12 +52,11 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
     // We only load a specific screen if the full file path is determined
     if (screen === 'file_browser') {
         return (
-            <FileBrowser
+            <FileBrowserTaskpane
                 mitoAPI={props.mitoAPI}
                 analysisData={props.analysisData}
                 userProfile={props.userProfile}
                 setUIState={props.setUIState}
-                isUpdate={false}
             
                 currPathParts={props.currPathParts}
                 setCurrPathParts={props.setCurrPathParts}
@@ -78,9 +65,6 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                 setSelectedFile={setSelectedFile}
 
                 setScreen={setScreen}
-                importCSVFile={async (file) => {
-                    console.log("Importing file", file)
-                }}
             />
         )
     } else if (screen == 'csv_import') {
