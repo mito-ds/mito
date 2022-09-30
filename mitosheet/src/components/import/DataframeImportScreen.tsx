@@ -1,32 +1,36 @@
-import React, { useEffect, useState } from "react";
-import MitoAPI from "../../../jupyter/api";
-import { AnalysisData, SheetData, StepType, UIState, UserProfile } from "../../../types"
-import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
+import React from "react";
+import MitoAPI from "../../jupyter/api";
+import { AnalysisData, UIState } from "../../types"
 
-import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
-import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
-import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
-import Row from "../../layout/Row";
-import Col from "../../layout/Col";
-import DropdownButton from "../../elements/DropdownButton";
-import DropdownItem from "../../elements/DropdownItem";
-import SelectAndXIconCard from "../../elements/SelectAndXIconCard";
-import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
-import TextButton from "../../elements/TextButton";
-import Tooltip from "../../elements/Tooltip";
-import { UpdatedImportObj } from "../UpdateImports/UpdateImportsTaskpane";
-import { getImportName } from "../UpdateImports/ImportCard";
-import { TaskpaneType } from "../taskpanes";
-import RadioButtonBox from "../../elements/RadioButtonBox";
+import DefaultTaskpane from "../taskpanes/DefaultTaskpane/DefaultTaskpane";
+import DefaultTaskpaneBody from "../taskpanes/DefaultTaskpane/DefaultTaskpaneBody";
+import DefaultTaskpaneHeader from "../taskpanes/DefaultTaskpane/DefaultTaskpaneHeader";
+import Row from "../layout/Row";
+import Col from "../layout/Col";
+import DropdownButton from "../elements/DropdownButton";
+import DropdownItem from "../elements/DropdownItem";
+import SelectAndXIconCard from "../elements/SelectAndXIconCard";
+import DefaultTaskpaneFooter from "../taskpanes/DefaultTaskpane/DefaultTaskpaneFooter";
+import TextButton from "../elements/TextButton";
+import Tooltip from "../elements/Tooltip";
+import { UpdatedImportObj } from "../taskpanes/UpdateImports/UpdateImportsTaskpane";
+import { getImportName } from "../taskpanes/UpdateImports/ImportCard";
+import { TaskpaneType } from "../taskpanes/taskpanes";
+import RadioButtonBox from "../elements/RadioButtonBox";
+import { useStateFromAPIAsync } from "../../hooks/useStateFromAPIAsync";
 
 
 interface DataframeImportTaskpaneProps {
     mitoAPI: MitoAPI;
-    userProfile: UserProfile;
-    setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     analysisData: AnalysisData;
-    sheetDataArray: SheetData[];
-    selectedSheetIndex: number;
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>;
+    isUpdate: boolean;
+
+    params: DataframeImportParams;
+    setParams: React.Dispatch<React.SetStateAction<DataframeImportParams>>;
+    edit: () => void;
+
+    
     updateImportedData?: {
         updatedImportObjs: UpdatedImportObj[], 
         importIndex: number
@@ -54,33 +58,18 @@ const getButtonMessage = (params: DataframeImportParams, isUpdate: boolean): str
 */
 const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Element => {
 
-    const [dfNamesInNotebook, setDfNamesInNotebook] = useState<string[]>([]);
-
-    const {params, setParams, edit} = useSendEditOnClick<{df_names: string[]}, {df_names: string[]}>(
-        {df_names: []}, 
-        StepType.DataframeImport, 
-        props.mitoAPI, 
-        props.analysisData, 
-        {allowSameParamsToReapplyTwice: true}, 
+    const [dfNamesInNotebook] = useStateFromAPIAsync(
+        [],
+        props.mitoAPI.getDefinedDfNames,
     )
 
-    useEffect(() => {
-        const loadDefinedDfNames = async () => {
-            const _definedDfNames = await props.mitoAPI.getDefinedDfNames();
-            if (_definedDfNames !== undefined) {
-                setDfNamesInNotebook(_definedDfNames)
-            }
-        }
-        void loadDefinedDfNames();
-    }, []);
-
-    const dataframeCards: JSX.Element[] = (params?.df_names || []).map((dfName, arrIndex) => {
+    const dataframeCards: JSX.Element[] = (props.params?.df_names || []).map((dfName, arrIndex) => {
         return (
             <SelectAndXIconCard 
                 key={arrIndex}
                 value={dfName}
                 onChange={(newDfName) => {
-                    setParams(prevParams => {
+                    props.setParams(prevParams => {
                         const newDfNames = [...prevParams.df_names];
                         newDfNames[arrIndex] = newDfName;
 
@@ -91,7 +80,7 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
                     })
                 }}
                 onDelete={() => {
-                    setParams(prevParams => {
+                    props.setParams(prevParams => {
                         const newDfNames = [...prevParams.df_names];
                         newDfNames.splice(arrIndex, 1);
 
@@ -109,8 +98,8 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
     const radioButtonBox: JSX.Element = (
         <RadioButtonBox 
             values={dfNamesInNotebook} 
-            selectedValue={params?.df_names[0]} 
-            onChange={newDfName => setParams(prevParams => {
+            selectedValue={props.params?.df_names[0]} 
+            onChange={newDfName => props.setParams(prevParams => {
                 return {
                     ...prevParams,
                     df_names: [newDfName]
@@ -119,7 +108,7 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
         />
     ) 
 
-    if (params === undefined) {
+    if (props.params === undefined) {
         return (
             <div className='text-body-1'>
                 There has been an error loading dataframes to import. Please try again, or contact support.
@@ -167,7 +156,7 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
                                         key={index}
                                         title={dfName}
                                         onClick={() => {
-                                            setParams(prevParams => {
+                                            props.setParams(prevParams => {
                                                 const newDfNames = [...prevParams.df_names];
                                                 newDfNames.push(dfName);
                         
@@ -197,12 +186,11 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
                     variant='dark'
                     width='block'
                     onClick={() => {
-                        console.log("here")
-                        edit();
+                        props.edit();
                     }}
-                    disabled={(params?.df_names.length || 0) === 0}
+                    disabled={(props.params?.df_names.length || 0) === 0}
                 >
-                    {getButtonMessage(params, props.updateImportedData !== undefined)}
+                    {getButtonMessage(props.params, props.updateImportedData !== undefined)}
                 </TextButton>
             </DefaultTaskpaneFooter>
         </DefaultTaskpane>

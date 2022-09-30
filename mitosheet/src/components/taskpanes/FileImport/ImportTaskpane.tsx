@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 // Import 
 import MitoAPI, { PathContents } from '../../../jupyter/api';
 import { AnalysisData, MitoError, UIState, UserProfile } from '../../../types';
+import { FileSort } from '../../import/FileBrowser/FileBrowserBody';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import { TaskpaneType } from '../taskpanes';
@@ -28,8 +29,6 @@ interface ImportTaskpaneProps {
         importIndex: number
     }
 }
-
-type FileSort = 'name_ascending' | 'name_descending' | 'last_modified_ascending' | 'last_modified_descending';
 
 
 export interface ImportTaskpaneState {

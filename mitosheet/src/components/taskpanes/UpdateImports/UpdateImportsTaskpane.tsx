@@ -7,8 +7,8 @@ import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
-import { CSVImportParams } from "../Import/CSVImport";
-import { ExcelImportParams } from "../Import/XLSXImport";
+import { CSVImportParams } from "../FileImport/CSVImport";
+import { ExcelImportParams } from "../FileImport/XLSXImport";
 import ImportCard from "./ImportCard";
 
 

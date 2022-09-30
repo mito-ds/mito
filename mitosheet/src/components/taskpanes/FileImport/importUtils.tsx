@@ -1,5 +1,6 @@
 import { fuzzyMatch } from "../../../utils/strings";
-import { FileElement, ImportTaskpaneState } from "./ImportTaskpane";
+import { FileBrowserState } from "../../import/FileBrowser/FileBrowserBody";
+import { FileElement } from "./ImportTaskpane";
 
 const PARENT_FOLDER_NAME = 'Parent Folder';
 
@@ -112,7 +113,7 @@ export const isExcelFile = (element: FileElement | undefined): boolean => {
     return element !== undefined && !element?.isDirectory && element?.name.toLowerCase().endsWith('.xlsx');
 }
 
-export const getElementsToDisplay = (importState: ImportTaskpaneState): FileElement[] => {
+export const getElementsToDisplay = (importState: FileBrowserState): FileElement[] => {
 
     const allElements: FileElement[] = [...importState.pathContents.elements];
 

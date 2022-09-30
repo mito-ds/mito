@@ -1,37 +1,43 @@
 // Copyright (c) Mito
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 // Import 
-import MitoAPI from '../../../jupyter/api';
-import Input from '../../elements/Input';
-import MultiToggleBox from '../../elements/MultiToggleBox';
-import MultiToggleItem from '../../elements/MultiToggleItem';
-import Select from '../../elements/Select';
-import TextButton from '../../elements/TextButton';
-import DropdownItem from '../../elements/DropdownItem';
-import { AnalysisData, StepType, UIState } from '../../../types';
-import { FileElement, ImportTaskpaneState } from './ImportTaskpane';
-import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
-import { toggleInArray } from '../../../utils/arrays';
-import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
-import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
-import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
-import DefaultTaskpaneFooter from '../DefaultTaskpane/DefaultTaskpaneFooter';
-import Spacer from '../../layout/Spacer';
-import RadioButtonBox from '../../elements/RadioButtonBox';
+import { useStateFromAPIAsync } from '../../hooks/useStateFromAPIAsync';
+import MitoAPI from '../../jupyter/api';
+import { AnalysisData, MitoError, UIState } from '../../types';
+import { toggleInArray } from '../../utils/arrays';
+import DropdownItem from '../elements/DropdownItem';
+import Input from '../elements/Input';
+import MultiToggleBox from '../elements/MultiToggleBox';
+import MultiToggleItem from '../elements/MultiToggleItem';
+import RadioButtonBox from '../elements/RadioButtonBox';
+import Select from '../elements/Select';
+import TextButton from '../elements/TextButton';
+import Spacer from '../layout/Spacer';
+import DefaultTaskpane from '../taskpanes/DefaultTaskpane/DefaultTaskpane';
+import DefaultTaskpaneBody from '../taskpanes/DefaultTaskpane/DefaultTaskpaneBody';
+import DefaultTaskpaneFooter from '../taskpanes/DefaultTaskpane/DefaultTaskpaneFooter';
+import DefaultTaskpaneHeader from '../taskpanes/DefaultTaskpane/DefaultTaskpaneHeader';
 
 
 interface XLSXImportProps {
     mitoAPI: MitoAPI;
     analysisData: AnalysisData;
-    fileName: string;
-    importState: ImportTaskpaneState;
-    setImportState: React.Dispatch<React.SetStateAction<ImportTaskpaneState>>;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
-    fileForImportWizard: FileElement | undefined,
-    setFileForImportWizard: React.Dispatch<React.SetStateAction<FileElement | undefined>>;
-    updateImportEdit?: (excelImportParams: ExcelImportParams) => void
+    isUpdate: boolean;
+
+    fileName: string; // workbook.xlsx
+    filePath: string; // this/is/the/full/path/to/workbook.xlsx
+
+    params: ExcelImportParams;
+    setParams: React.Dispatch<React.SetStateAction<ExcelImportParams>>;
+    edit: (finalTransform?: ((params: ExcelImportParams) => ExcelImportParams) | undefined) => void;
+    editApplied: boolean;
+    loading: boolean;
+    error: MitoError | undefined;
+
+    backCallback: () => void;
 }
 
 export interface ExcelFileMetadata {
@@ -47,9 +53,9 @@ export interface ExcelImportParams {
     skiprows: number | string,
 }
 
-const getDefaultParams = (fileName: string): ExcelImportParams => {
+export const getDefaultParams = (filePath: string): ExcelImportParams => {
     return {
-        file_name: fileName,
+        file_name: filePath, // TODO: fix up the weird naming here
         sheet_names: [],
         has_headers: true,
         skiprows: 0,
@@ -80,36 +86,23 @@ function getSuccessMessage(params: ExcelImportParams): string {
 */
 function XLSXImport(props: XLSXImportProps): JSX.Element {
 
-    // NOTE: this loading state is just for getting the metadata about the sheets
-    // and not for importing the file
-    const [fileMetadata, setFileMetadata] = useState<ExcelFileMetadata>({sheet_names: [], size: 0, loading: true});
-    const {params, setParams, loading, edit, editApplied} = useSendEditOnClick(
-        () => getDefaultParams(props.fileName),
-        StepType.ExcelImport,
-        props.mitoAPI, props.analysisData,
-        {allowSameParamsToReapplyTwice: true},
-        props.updateImportEdit
-    )
-
-
-    useEffect(() => {
-        const loadSheets = async () => {
-            const loadedFileMetadata = await props.mitoAPI.getExcelFileMetadata(props.fileName) || {sheet_names: [], size: 0, loading: false};
-
-            setFileMetadata(loadedFileMetadata);
-
-            setParams(prevParams => {
-                return {
-                    ...prevParams,
-                    sheet_names: loadedFileMetadata.sheet_names
-                }
-            })
+    // Load the metadata about the Excel file from the API
+    const [fileMetadata] = useStateFromAPIAsync<ExcelFileMetadata>(
+        {sheet_names: [], size: 0, loading: true},
+        () => {return props.mitoAPI.getExcelFileMetadata(props.fileName)},
+        (loadedData) => {
+            if (loadedData !== undefined) {
+                props.setParams(prevParams => {
+                    return {
+                        ...prevParams,
+                        sheet_names: loadedData.sheet_names
+                    }
+                })
+            }
         }
+    );
 
-        void loadSheets()
-    }, []);
-
-    if (params === undefined) {
+    if (props.params === undefined) {
         return (
             <div className='text-body-1'>
                 There has been an error loading your Excel file metadata. Please try again, or contact support.
@@ -117,24 +110,24 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
         )
     }
 
-    const numSelectedSheets = params?.sheet_names.length;
+    const numSelectedSheets = props.params?.sheet_names.length;
     
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader
-                header={`Import ${props.fileForImportWizard?.name}`}
+                header={`Import ${props.fileName}`}
                 setUIState={props.setUIState}
-                backCallback={() => props.setFileForImportWizard(undefined)}
+                backCallback={props.backCallback}
             />
             <DefaultTaskpaneBody noScroll>
                 <div> 
-                    {props.updateImportEdit === undefined &&
+                    {!props.isUpdate &&
                         <MultiToggleBox
                             loading={fileMetadata.loading}
                             searchable
                             height='medium'
                             toggleAllIndexes={(indexesToToggle) => {
-                                setParams(prevParams => {
+                                props.setParams(prevParams => {
                                     const newSheetNames = [...prevParams.sheet_names];
                                     const sheetsToToggle = indexesToToggle.map(index => fileMetadata.sheet_names[index]);
                                     sheetsToToggle.forEach(sheetName => {
@@ -153,9 +146,9 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
                                     <MultiToggleItem
                                         key={idx}
                                         title={sheetName}
-                                        toggled={params.sheet_names.includes(sheetName)}
+                                        toggled={props.params.sheet_names.includes(sheetName)}
                                         onToggle={() => {
-                                            setParams(prevParams => {
+                                            props.setParams(prevParams => {
                                                 const newSheetNames = [...prevParams.sheet_names];
                                                 toggleInArray(newSheetNames, sheetName);
 
@@ -171,12 +164,12 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
                             })}
                         </MultiToggleBox>
                     }
-                    {props.updateImportEdit !== undefined &&
+                    {props.isUpdate &&
                         <RadioButtonBox
                             values={fileMetadata.sheet_names}
-                            selectedValue={params.sheet_names[0]}
+                            selectedValue={props.params.sheet_names[0]}
                             height='medium'
-                            onChange={(value) => setParams(prevParams => {
+                            onChange={(value) => props.setParams(prevParams => {
                                 console.log('setting to value: ', value)
                                 return {
                                     ...prevParams,
@@ -190,8 +183,8 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
                         Has Header Row
                     </p>
                     <Select
-                        value={params.has_headers ? 'Yes' : 'No'}
-                        onChange={(newValue: string) => setParams(prevParams => {
+                        value={props.params.has_headers ? 'Yes' : 'No'}
+                        onChange={(newValue: string) => props.setParams(prevParams => {
                             return {
                                 ...prevParams,
                                 has_headers: newValue === 'Yes'
@@ -209,12 +202,12 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
                         Number of Rows to Skip
                     </p>
                     <Input
-                        value={"" + params.skiprows}
+                        value={"" + props.params.skiprows}
                         type='number'
                         onChange={(e) => {
                             const newValue = e.target.value;
 
-                            setParams(prevParams => {
+                            props.setParams(prevParams => {
                                 return {
                                     ...prevParams,
                                     skiprows: newValue
@@ -243,7 +236,7 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
                 <TextButton
                     variant='dark'
                     width='block'
-                    onClick={() => edit((params) => {
+                    onClick={() => props.edit((params) => {
                         // Do a final parsing to make sure that the int is a valid number
                         const parsedSkipRows = parseInt("" + params.skiprows);
 
@@ -255,14 +248,14 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
                     disabled={numSelectedSheets === 0}
                     autoFocus
                 >
-                    {getButtonMessage(params, loading, props.updateImportEdit !== undefined)}
+                    {getButtonMessage(props.params, props.loading, props.isUpdate)}
                 </TextButton>
-                {editApplied && !loading &&
+                {props.editApplied && !props.loading &&
                     <p className='text-subtext-1'>
-                        {getSuccessMessage(params)} 
+                        {getSuccessMessage(props.params)} 
                     </p>
                 } 
-                {!editApplied && 
+                {!props.editApplied && 
                     <Spacer px={18}/>
                 }
             </DefaultTaskpaneFooter>

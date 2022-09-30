@@ -6,9 +6,9 @@ import { SortDirection } from "../components/taskpanes/ControlPanel/FilterAndSor
 import { GraphObject } from "../components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
 import { UniqueValueCount, UniqueValueSortType } from "../components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
 import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Graph/graphUtils";
-import { CSVFileMetadata } from "../components/taskpanes/Import/CSVImport";
-import { FileElement } from "../components/taskpanes/Import/ImportTaskpane";
-import { ExcelFileMetadata } from "../components/taskpanes/Import/XLSXImport";
+import { CSVFileMetadata } from "../components/taskpanes/FileImport/CSVImport";
+import { FileElement } from "../components/taskpanes/FileImport/ImportTaskpane";
+import { ExcelFileMetadata } from "../components/taskpanes/FileImport/XLSXImport";
 import { valuesArrayToRecord } from "../components/taskpanes/PivotTable/pivotUtils";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { UpdatedImportObj } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
@@ -539,7 +539,7 @@ export default class MitoAPI {
     }
 
 	
-    async getDefinedDfNames(): Promise<{df_names: string[],} | undefined> {
+    async getDefinedDfNames(): Promise<string[] | undefined> {
 
         const resultString = await this.send<string>({
             'event': 'api_call',
