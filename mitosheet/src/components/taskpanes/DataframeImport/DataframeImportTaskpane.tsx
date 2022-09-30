@@ -3,7 +3,6 @@ import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import MitoAPI from "../../../jupyter/api";
 import { AnalysisData, SheetData, StepType, UIState, UserProfile } from "../../../types";
 import DataframeImportScreen from "../../import/DataframeImportScreen";
-import { UpdatedImportObj } from "../UpdateImports/UpdateImportsTaskpane";
 
 
 interface DataframeImportTaskpaneProps {
@@ -13,10 +12,6 @@ interface DataframeImportTaskpaneProps {
     analysisData: AnalysisData;
     sheetDataArray: SheetData[];
     selectedSheetIndex: number;
-    updateImportedData?: {
-        updatedImportObjs: UpdatedImportObj[], 
-        importIndex: number
-    }
 }
 
 

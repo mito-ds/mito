@@ -176,7 +176,12 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                             width='block'
                             onClick={() => {
                                 props.setSelectedFile(selectedFile);
-                                props.importCSVFile(selectedFile);
+
+                                if (isExcelFile(selectedFile)) {
+                                    props.setScreen('xslx_import');
+                                } else {
+                                    props.importCSVFile(selectedFile);
+                                }
                             }}
                             disabled={importButtonStatus.disabled}
                         >

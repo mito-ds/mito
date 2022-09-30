@@ -13,9 +13,6 @@ import SelectAndXIconCard from "../elements/SelectAndXIconCard";
 import DefaultTaskpaneFooter from "../taskpanes/DefaultTaskpane/DefaultTaskpaneFooter";
 import TextButton from "../elements/TextButton";
 import Tooltip from "../elements/Tooltip";
-import { UpdatedImportObj } from "../taskpanes/UpdateImports/UpdateImportsTaskpane";
-import { getImportName } from "../taskpanes/UpdateImports/ImportCard";
-import { TaskpaneType } from "../taskpanes/taskpanes";
 import RadioButtonBox from "../elements/RadioButtonBox";
 import { useStateFromAPIAsync } from "../../hooks/useStateFromAPIAsync";
 
@@ -29,12 +26,6 @@ interface DataframeImportTaskpaneProps {
     params: DataframeImportParams | undefined;
     setParams: React.Dispatch<React.SetStateAction<DataframeImportParams>>;
     edit: () => void;
-
-    
-    updateImportedData?: {
-        updatedImportObjs: UpdatedImportObj[], 
-        importIndex: number
-    }
 }
 
 export interface DataframeImportParams {
@@ -120,16 +111,9 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
-                header={props.updateImportedData === undefined ? 'Import Dataframes' : 'Replace ' + getImportName(props.updateImportedData?.updatedImportObjs[props.updateImportedData?.importIndex])}
+                header={'Import Dataframes'}
                 setUIState={props.setUIState} 
-                backCallback={props.updateImportedData === undefined ? undefined : () => {
-                    props.setUIState(prevUIState => {
-                        return {
-                            ...prevUIState,
-                            currOpenTaskpane: {type: TaskpaneType.UPDATEIMPORTS, updatedImportObjs: props.updateImportedData?.updatedImportObjs}
-                        }
-                    })
-                }}          
+                backCallback={undefined} // TODO: add a back callback if we need one!          
             />
             <DefaultTaskpaneBody>
                 <Row justify='space-between' align='center'>
@@ -173,8 +157,8 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
                         </DropdownButton>
                     </Col>
                 </Row>
-                {props.updateImportedData === undefined && dataframeCards}
-                {props.updateImportedData !== undefined && radioButtonBox}
+                {!props.isUpdate && dataframeCards}
+                {props.isUpdate && radioButtonBox}
                 {dataframeCards.length === 0 &&
                     <Row>
                         <p className="text-subtext-1">Import an existing dataframe as a new sheet tab in Mito</p>
@@ -191,7 +175,7 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
                     }}
                     disabled={(props.params?.df_names.length || 0) === 0}
                 >
-                    {getButtonMessage(props.params, props.updateImportedData !== undefined)}
+                    {getButtonMessage(props.params, props.isUpdate)}
                 </TextButton>
             </DefaultTaskpaneFooter>
         </DefaultTaskpane>
