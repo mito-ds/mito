@@ -7,6 +7,7 @@ import CSVFileIcon from '../../icons/CSVFileIcon';
 import RightPointerIcon from '../../icons/RightPointerIcon';
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
+import { DataframeCreationIndex, ReplacingDataframeState } from './UpdateImportsTaskpane';
 
 const getBaseOfPath = (fullPath: string): string => {
     return fullPath.replace(/^.*[\\\\/]/, '')
@@ -51,25 +52,25 @@ export const getUpdateImportCardTitle = (dataframeCreationData: DataframeCreatio
   A custom component that displays a previous import and whether its still valid
 */
 const UpdateImportCard = (props: {
-    step_id: string, 
-    index: number,
+    dataframeCreationIndex: DataframeCreationIndex;
     dataframeCreationData: DataframeCreationData
-    displayedImportCardDropdown: {step_id: string, index: number} | undefined;
-    setDisplayedImportCardDropdown: React.Dispatch<React.SetStateAction<{step_id: string, index: number} | undefined>>;
+    displayedImportCardDropdown: DataframeCreationIndex | undefined;
+    setDisplayedImportCardDropdown: React.Dispatch<React.SetStateAction<DataframeCreationIndex | undefined>>;
+    setReplacingDataframeState: React.Dispatch<React.SetStateAction<ReplacingDataframeState | undefined>>
 }): JSX.Element => {
 
-    const displayDropdown = props.displayedImportCardDropdown?.step_id === props.step_id && props.displayedImportCardDropdown?.index === props.index;
+    const displayDropdown = props.displayedImportCardDropdown?.step_id === props.dataframeCreationIndex.step_id && props.displayedImportCardDropdown?.index === props.dataframeCreationIndex.index;
 
     const openDropdown = () => {
         props.setDisplayedImportCardDropdown({
-            step_id: props.step_id,
-            index: props.index
+            step_id: props.dataframeCreationIndex.step_id,
+            index: props.dataframeCreationIndex.index
         })
     }
 
     const closeDropdown = () => {
         props.setDisplayedImportCardDropdown(prevValue => {
-            if (prevValue?.step_id !== props.step_id || prevValue?.index !== props.index) {
+            if (prevValue?.step_id !== props.dataframeCreationIndex.step_id || prevValue?.index !== props.dataframeCreationIndex.index) {
                 return prevValue;
             }
             return undefined;
@@ -97,13 +98,21 @@ const UpdateImportCard = (props: {
                         <DropdownItem
                             title='Replace with file'
                             onClick={() => {
-                                console.log("TODO: open import file")
+                                props.setReplacingDataframeState({
+                                    dataframeCreationIndex: props.dataframeCreationIndex,
+                                    screen: 'file_browser',
+                                    params: undefined
+                                });
                             }}
                         />
                         <DropdownItem
                             title='Replace with dataframe'
                             onClick={() => {
-                                console.log("TODO: open dataframe import file")
+                                props.setReplacingDataframeState({
+                                    dataframeCreationIndex: props.dataframeCreationIndex,
+                                    screen: 'dataframe_import',
+                                    params: undefined
+                                });
                             }}
                         />
                     </Dropdown>

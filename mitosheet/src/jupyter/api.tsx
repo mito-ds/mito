@@ -1279,13 +1279,13 @@ export default class MitoAPI {
         Sends the user_email to the backend so the user can sign in
     */
     async updateExistingImports(
-        updatedImportObjs: StepImportData[]
+        setUpdatedStepImportData: StepImportData[]
     ): Promise<void> {
         await this.send({
             'event': 'update_event',
             'type': 'existing_import_update',
             'params': {
-                'updated_import_objs': updatedImportObjs
+                'updated_step_import_data': setUpdatedStepImportData
             }
         }, {});
     }
