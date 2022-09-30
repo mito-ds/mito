@@ -440,14 +440,14 @@ export default class MitoAPI {
         Gets metadata about an Excel file
     */
     async getExcelFileMetadata(
-        fileName: string
+        filePath: string
     ): Promise<ExcelFileMetadata | undefined> {
 
         const excelFileMetadataString = await this.send<string>({
             'event': 'api_call',
             'type': 'get_excel_file_metadata',
             'params': {
-                'file_name': fileName
+                'file_name': filePath // TODO: change the api call to file_path
             },
         }, {})
 

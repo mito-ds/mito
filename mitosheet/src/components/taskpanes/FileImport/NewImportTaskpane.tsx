@@ -46,21 +46,23 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
     }, [selectedFile])
 
     useEffect(() => {
-        const loadFilePath = async (currentlySelectedFile: FileElement | undefined) => {
-            if (currentlySelectedFile !== undefined) {
+        const loadFilePath = async () => {
+            if (selectedFile !== undefined) {
                 const fullPath = [...props.currPathParts];
-                fullPath.push(currentlySelectedFile.name);
+                fullPath.push(selectedFile.name);
                 const _filePath = await props.mitoAPI.getPathJoined(fullPath);
                 setFilePath(_filePath);
             } else {
                 setFilePath(undefined);
             }
         }
-        void loadFilePath;
+        void loadFilePath();
     }, [selectedFile])
 
+    console.log(screen, selectedFile, filePath);
+
     // We only load a specific screen if the full file path is determined
-    if (screen === 'file_browser' || selectedFile === undefined || filePath === undefined) {
+    if (screen === 'file_browser') {
         return (
             <FileBrowser
                 mitoAPI={props.mitoAPI}
@@ -74,6 +76,11 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
             
                 selectedFile={selectedFile}
                 setSelectedFile={setSelectedFile}
+
+                setScreen={setScreen}
+                importCSVFile={async (file) => {
+                    console.log("Importing file", file)
+                }}
             />
         )
     } else if (screen == 'csv_import') {
@@ -86,7 +93,7 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                 currPathParts={props.currPathParts}
                 setCurrPathParts={props.setCurrPathParts}
             
-                fileName={selectedFile.name}
+                fileName={selectedFile?.name}
                 filePath={filePath}
             
                 setScreen={setScreen}
@@ -100,10 +107,7 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                 setUIState={props.setUIState}
             
                 currPathParts={props.currPathParts}
-                setCurrPathParts={props.setCurrPathParts}
-            
-                fileName={selectedFile.name}
-                filePath={filePath}
+                fileName={selectedFile?.name || ''}
             
                 setScreen={setScreen}
             />

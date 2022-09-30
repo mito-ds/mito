@@ -97,7 +97,8 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
                     newPathParts.push(props.element.name);
                     props.setCurrPathParts(newPathParts);
                 } else {
-                    void props.setSelectedFile(props.element);
+                    props.setSelectedFile(props.element);
+                    // TODO: set the correct screen?
                 }
             }}
         >

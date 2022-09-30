@@ -131,8 +131,8 @@ interface CSVImportProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     isUpdate: boolean;
 
-    fileName: string; // data.csv
-    filePath: string; // the/full/path/to/data.csv
+    fileName: string | undefined; // data.csv
+    filePath: string | undefined; // the/full/path/to/data.csv
 
     params: CSVImportParams | undefined;
     setParams: React.Dispatch<React.SetStateAction<CSVImportParams>>;
@@ -204,7 +204,7 @@ function CSVImport(props: CSVImportProps): JSX.Element {
         })
     }
 
-    if (props.params === undefined) {
+    if (props.params === undefined || props.fileName === undefined || props.filePath === undefined) {
         return (
             <div className='text-body-1'>
                 There has been an error loading your CSV file encodings. Please try again, or contact support.

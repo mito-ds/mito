@@ -1,7 +1,6 @@
 // Copyright (c) Mito
 
 import React, { useEffect, useState } from 'react';
-// Import 
 import MitoAPI from '../../../jupyter/api';
 import { AnalysisData, UIState, UserProfile } from '../../../types';
 import TextButton from '../../elements/TextButton';
@@ -12,9 +11,10 @@ import DefaultTaskpane from '../../taskpanes/DefaultTaskpane/DefaultTaskpane';
 import DefaultTaskpaneBody from '../../taskpanes/DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultTaskpaneFooter from '../../taskpanes/DefaultTaskpane/DefaultTaskpaneFooter';
 import DefaultTaskpaneHeader from '../../taskpanes/DefaultTaskpane/DefaultTaskpaneHeader';
-import FileBrowserBody, { FileBrowserState } from './FileBrowserBody';
 import { FileElement } from '../../taskpanes/FileImport/ImportTaskpane';
 import { getElementsToDisplay, getFileEnding, getImportButtonStatus, isExcelFile } from '../../taskpanes/FileImport/importUtils';
+import { ImportScreen } from '../../taskpanes/FileImport/NewImportTaskpane';
+import FileBrowserBody, { FileBrowserState } from './FileBrowserBody';
 
 interface FileBrowserProps {
     mitoAPI: MitoAPI;
@@ -27,10 +27,16 @@ interface FileBrowserProps {
     setCurrPathParts: (newCurrPathParts: string[]) => void;
 
     selectedFile: FileElement | undefined;
-    setSelectedFile: React.Dispatch<React.SetStateAction<FileElement | undefined>>
+    setSelectedFile: React.Dispatch<React.SetStateAction<FileElement | undefined>>;
+
+    setScreen: React.Dispatch<React.SetStateAction<ImportScreen>>;
+    importCSVFile: (file: FileElement) => Promise<void>;
 }
 
-
+// You can either select a file then change the screen
+// Or, you can import a CSV directly. The latter should be a function you
+// pass in called importCSVFile, that takes a file element...
+// and requires error handling, or what? No.
 function FileBrowser(props: FileBrowserProps): JSX.Element {
 
     const [fileBrowserState, setFileBrowserState] = useState<FileBrowserState>({
@@ -97,7 +103,6 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
 
     // Loads the path data from the API and sets it for the file browser
     async function loadPathContents(currPathParts: string[]) {
-        console.log("Loading path parts", currPathParts)
         setFileBrowserState(prevImportState => {
             return {
                 ...prevImportState,
@@ -105,7 +110,6 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
             }
         })
         const _pathContents = await props.mitoAPI.getPathContents(currPathParts);
-        console.log("path contents", _pathContents)
         if (_pathContents) {
             setFileBrowserState(prevImportState => {
                 return {
@@ -150,11 +154,11 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                     setFileBrowserState={setFileBrowserState}
 
                     setSelectedFile={props.setSelectedFile}
+                    setScreen={props.setScreen}
                 />
             </DefaultTaskpaneBody>
             <DefaultTaskpaneFooter>
                 <Row justify='space-between'>
-                    {/** TODO: maybe we should make this display on XLSX, and just allow for default import as well on that! */}
                     {!importButtonStatus.disabled && !isExcelFile(selectedElement) &&
                         <Col>
                             <TextButton
@@ -162,6 +166,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                                 width='small'
                                 onClick={() => {
                                     props.setSelectedFile(selectedElement);
+                                    props.setScreen('csv_import');
                                 }}
                                 disabled={importButtonStatus.disabled}
                             >
@@ -180,7 +185,8 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                             variant='dark'
                             width='block'
                             onClick={() => {
-                                void props.setSelectedFile(selectedElement);
+                                props.setSelectedFile(selectedElement);
+                                props.importCSVFile(selectedElement);
                             }}
                             disabled={importButtonStatus.disabled}
                         >

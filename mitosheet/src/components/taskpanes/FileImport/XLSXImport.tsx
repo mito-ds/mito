@@ -93,7 +93,7 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
 
     useEffect(() => {
         const loadSheets = async () => {
-            const loadedFileMetadata = await props.mitoAPI.getExcelFileMetadata(props.fileName) || {sheet_names: [], size: 0, loading: false};
+            const loadedFileMetadata = {sheet_names: [], size: 0, loading: false};
 
             setFileMetadata(loadedFileMetadata);
 

@@ -1,18 +1,19 @@
 // Copyright (c) Mito
 import React, { useEffect, useRef } from 'react';
+import { FileElement } from '../../taskpanes/FileImport/ImportTaskpane';
 import FileBrowserElement from './FileBrowserElement';
 import FileBrowserPathSelector from './FileBrowserPathSelector';
-import { FileElement } from '../../taskpanes/FileImport/ImportTaskpane';
 
-import '../../../../css/elements/Input.css'
+import '../../../../css/elements/Input.css';
 import '../../../../css/taskpanes/Import/FileBrowser.css';
 import MitoAPI from '../../../jupyter/api';
-import Row from '../../layout/Row';
-import Col from '../../layout/Col';
-import SortArrowIcon from '../../icons/SortArrowIcon';
 import { UIState, UserProfile } from '../../../types';
 import { classNames } from '../../../utils/classNames';
+import SortArrowIcon from '../../icons/SortArrowIcon';
+import Col from '../../layout/Col';
+import Row from '../../layout/Row';
 import { getElementsToDisplay, inRootFolder } from '../../taskpanes/FileImport/importUtils';
+import { ImportScreen } from '../../taskpanes/FileImport/NewImportTaskpane';
 import { TaskpaneType } from '../../taskpanes/taskpanes';
 
 
@@ -44,6 +45,8 @@ interface FileBrowserProps {
     setFileBrowserState: React.Dispatch<React.SetStateAction<FileBrowserState>>;
 
     setSelectedFile: React.Dispatch<React.SetStateAction<FileElement | undefined>>
+
+    setScreen: React.Dispatch<React.SetStateAction<ImportScreen>>;
 }
 
 
@@ -185,7 +188,9 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
                                 newPathParts.push(selectedElement.name);
                                 props.setCurrPathParts(newPathParts);
                             } else {
-                                void props.setSelectedFile(selectedElement);
+                                props.setSelectedFile(selectedElement);
+                                // TODO: make this import, if it can!
+                                // Otherwise, set the screen for Excel
                             }
                         }
                     }}

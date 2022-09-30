@@ -1,5 +1,6 @@
 // Copyright (c) Mito
 
+import path from 'path';
 import React from 'react';
 
 import { useStateFromAPIAsync } from '../../hooks/useStateFromAPIAsync';
@@ -26,8 +27,8 @@ interface XLSXImportProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     isUpdate: boolean;
 
-    fileName: string; // workbook.xlsx
-    filePath: string; // this/is/the/full/path/to/workbook.xlsx
+    fileName: string;
+    filePath: string | undefined;
 
     params: ExcelImportParams | undefined;
     setParams: React.Dispatch<React.SetStateAction<ExcelImportParams>>;
@@ -87,7 +88,7 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
     // Load the metadata about the Excel file from the API
     const [fileMetadata] = useStateFromAPIAsync<ExcelFileMetadata>(
         {sheet_names: [], size: 0, loading: true},
-        () => {return props.mitoAPI.getExcelFileMetadata(props.fileName)},
+        () => {return props.mitoAPI.getExcelFileMetadata(props.filePath)},
         (loadedData) => {
             if (loadedData !== undefined) {
                 props.setParams(prevParams => {

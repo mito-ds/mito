@@ -15,14 +15,17 @@ interface CSVImportTaskpaneProps {
     currPathParts: string[];
     setCurrPathParts: (newCurrPathParts: string[]) => void;
 
-    fileName: string;
-    filePath: string;
+    fileName: string | undefined;
+    filePath: string | undefined;
 
     setScreen: React.Dispatch<React.SetStateAction<ImportScreen>>;
 }
 
 
-export const getDefaultCSVParams = (filePath: string): CSVImportParams => {
+export const getDefaultCSVParams = (filePath: string | undefined): CSVImportParams | undefined => {
+    if (filePath === undefined) {
+        return undefined;
+    }
     return {
         file_names: [filePath],
         delimeters: [','],
