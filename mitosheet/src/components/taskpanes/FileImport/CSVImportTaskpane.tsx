@@ -15,8 +15,8 @@ interface CSVImportTaskpaneProps {
     currPathParts: string[];
     setCurrPathParts: (newCurrPathParts: string[]) => void;
 
-    fileName: string | undefined;
-    filePath: string | undefined;
+    fileName: string;
+    filePath: string;
 
     setScreen: React.Dispatch<React.SetStateAction<ImportScreen>>;
 }

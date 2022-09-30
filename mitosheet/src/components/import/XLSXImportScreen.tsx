@@ -1,6 +1,5 @@
 // Copyright (c) Mito
 
-import path from 'path';
 import React from 'react';
 
 import { useStateFromAPIAsync } from '../../hooks/useStateFromAPIAsync';
@@ -28,7 +27,7 @@ interface XLSXImportProps {
     isUpdate: boolean;
 
     fileName: string;
-    filePath: string | undefined;
+    filePath: string;
 
     params: ExcelImportParams | undefined;
     setParams: React.Dispatch<React.SetStateAction<ExcelImportParams>>;

@@ -131,8 +131,8 @@ interface CSVImportProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     isUpdate: boolean;
 
-    fileName: string | undefined; // data.csv
-    filePath: string | undefined; // the/full/path/to/data.csv
+    fileName: string; // data.csv
+    filePath: string; // the/full/path/to/data.csv
 
     params: CSVImportParams | undefined;
     setParams: React.Dispatch<React.SetStateAction<CSVImportParams>>;

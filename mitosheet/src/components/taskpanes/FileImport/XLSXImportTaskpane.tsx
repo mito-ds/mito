@@ -1,9 +1,8 @@
 // Copyright (c) Mito
 
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
-import { useStateFromAPIAsync } from '../../../hooks/useStateFromAPIAsync';
 import MitoAPI from '../../../jupyter/api';
 import { AnalysisData, StepType, UIState } from '../../../types';
 import XLSXImportScreen, { ExcelImportParams } from '../../import/XLSXImportScreen';
@@ -15,15 +14,15 @@ interface XLSXImportProps {
     analysisData: AnalysisData;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
 
-    currPathParts: string[];
     fileName: string;
+    filePath: string;
 
     setScreen: React.Dispatch<React.SetStateAction<ImportScreen>>;
 }
 
-const getDefaultXLSXParams = (fullPath: string): ExcelImportParams => {
+const getDefaultXLSXParams = (filePath: string): ExcelImportParams => {
     return {
-        file_name: fullPath,
+        file_name: filePath,
         sheet_names: [],
         has_headers: true,
         skiprows: 0,
@@ -41,26 +40,12 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
     // NOTE: this loading state is just for getting the metadata about the sheets
     // and not for importing the file
     const {params, setParams, loading, edit, editApplied} = useSendEditOnClick<ExcelImportParams, ExcelImportParams>(
-        undefined,
+        () => {return getDefaultXLSXParams(props.filePath)},
         StepType.ExcelImport,
         props.mitoAPI, props.analysisData,
         {allowSameParamsToReapplyTwice: true},
     )
 
-    const [filePath] = useStateFromAPIAsync<string | undefined>(
-        undefined,
-        () => {
-            const allPathParts = [...props.currPathParts, props.fileName];
-            return props.mitoAPI.getPathJoined(allPathParts);
-        }
-    )
-
-    useEffect(() => {
-        if (filePath !== undefined) {
-            setParams(getDefaultXLSXParams(filePath))
-        }
-    }, [filePath])
-    
     return (
         <XLSXImportScreen
             mitoAPI={props.mitoAPI}
@@ -69,7 +54,7 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
             isUpdate={false}
 
             fileName={props.fileName}
-            filePath={filePath}
+            filePath={props.filePath}
         
             params={params}
             setParams={setParams}

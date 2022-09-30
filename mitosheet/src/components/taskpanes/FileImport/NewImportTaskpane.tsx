@@ -92,10 +92,10 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
             
                 currPathParts={props.currPathParts}
                 setCurrPathParts={props.setCurrPathParts}
-            
-                fileName={selectedFile?.name}
-                filePath={filePath}
-            
+
+                fileName={selectedFile?.name || ''}
+                filePath={filePath || ''}
+                
                 setScreen={setScreen}
             />
         )
@@ -106,8 +106,9 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                 analysisData={props.analysisData}
                 setUIState={props.setUIState}
             
-                currPathParts={props.currPathParts}
+                
                 fileName={selectedFile?.name || ''}
+                filePath={filePath || ''}
             
                 setScreen={setScreen}
             />
