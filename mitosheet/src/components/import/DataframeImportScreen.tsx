@@ -24,8 +24,10 @@ interface DataframeImportTaskpaneProps {
     isUpdate: boolean;
 
     params: DataframeImportParams | undefined;
-    setParams: React.Dispatch<React.SetStateAction<DataframeImportParams>>;
+    setParams: (updater: (prevParams: DataframeImportParams) => DataframeImportParams) => void;
     edit: () => void;
+
+    backCallback?: () => void;
 }
 
 export interface DataframeImportParams {
@@ -47,7 +49,7 @@ const getButtonMessage = (params: DataframeImportParams, isUpdate: boolean): str
 /* 
     This is the DataframeImport taskpane, allows users to import a specific dataframe
 */
-const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Element => {
+const DataframeImportScreen = (props: DataframeImportTaskpaneProps): JSX.Element => {
 
     const [dfNamesInNotebook] = useStateFromAPIAsync(
         [],
@@ -113,7 +115,7 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
             <DefaultTaskpaneHeader 
                 header={'Import Dataframes'}
                 setUIState={props.setUIState} 
-                backCallback={undefined} // TODO: add a back callback if we need one!          
+                backCallback={props.backCallback}    
             />
             <DefaultTaskpaneBody>
                 <Row justify='space-between' align='center'>
@@ -182,4 +184,4 @@ const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Eleme
     )
 }
 
-export default DataframeImportTaskpane;
+export default DataframeImportScreen;

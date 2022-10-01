@@ -13,6 +13,7 @@ import ImportCard from "./UpdateImportCard";
 import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
 import { isCSVImportData, isExcelImportData } from "./UpdateImportsUtils";
 import { ImportScreen } from "../FileImport/FileImportTaskpane";
+import UpdateDataframeImportTaskpane from "./UpdateDataframeImportTaskpane";
 
 
 interface updateImportsTaskpaneProps {
@@ -167,7 +168,18 @@ const UpdateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element =
         return (<div></div>)
     } else {
         // Dataframe import
-        return (<div></div>)
+        return (
+            <UpdateDataframeImportTaskpane
+                mitoAPI={props.mitoAPI}
+                analysisData={props.analysisData}
+                setUIState={props.setUIState}
+                        
+                replacingDataframeState={replacingDataframeState}
+                setReplacingDataframeState={setReplacingDataframeState}
+
+                setUpdatedStepImportData={setUpdatedStepImportData}
+            />
+        )
     }
 }
 

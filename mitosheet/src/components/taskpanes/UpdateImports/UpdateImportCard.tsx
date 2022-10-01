@@ -111,7 +111,7 @@ const UpdateImportCard = (props: {
                                 props.setReplacingDataframeState({
                                     dataframeCreationIndex: props.dataframeCreationIndex,
                                     screen: 'dataframe_import',
-                                    params: undefined
+                                    params: {df_names: []}
                                 });
                             }}
                         />
