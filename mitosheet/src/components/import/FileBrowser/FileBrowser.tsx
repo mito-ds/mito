@@ -181,8 +181,9 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                                 props.setSelectedFile(selectedFile);
 
                                 if (isExcelFile(selectedFile)) {
-                                    props.setScreen('xslx_import');
+                                    props.setScreen('xlsx_import');
                                 } else {
+                                    console.log("Calling import", selectedFile)
                                     props.importCSVFile(selectedFile);
                                 }
                             }}

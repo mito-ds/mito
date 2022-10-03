@@ -58,14 +58,88 @@ function UpdateFileBrowserTaskpane(props: UpdateFileBrowserTaskpaneProps): JSX.E
             setFileBrowserState={setFileBrowserState}
 
             setScreen={(newScreen) => {
+                if (selectedFile === undefined) {
+                    return;
+                }
+
+                console.log("newScreen", newScreen)
+
                 if (newScreen === 'csv_import') {
-                    // We need to get the full file path
+                    // We need to get the full file path and add this to the params, presumably, so that the 
+                    const loadCSVImport = async () => {
+                        const fullPath = [...props.currPathParts]
+                        fullPath.push(selectedFile.name);
+                        const filePath = await props.mitoAPI.getPathJoined(fullPath);
+
+                        if (filePath === undefined) {
+                            return;
+                        } 
+
+                        props.setReplacingDataframeState({
+                            'screen': 'csv_import',
+                            'params': {
+                                'file_names': [filePath]
+                            },
+                            'dataframeCreationIndex': props.replacingDataframeState.dataframeCreationIndex
+                        })
+                    }
+                    void loadCSVImport();
+                } else if (newScreen === 'xlsx_import') {
+                    // We need to get the full file path and add this to the params, presumably, so that the 
+                    const loadCSVImport = async () => {
+                        const fullPath = [...props.currPathParts]
+                        fullPath.push(selectedFile.name);
+                        const filePath = await props.mitoAPI.getPathJoined(fullPath);
+
+                        if (filePath === undefined) {
+                            return;
+                        } 
+
+                        props.setReplacingDataframeState({
+                            'screen': 'xlsx_import',
+                            'params': {
+                                'file_name': filePath, // TODO: explain how we use the full path here
+                                'sheet_names': [],
+                                'has_headers': true,
+                                'skiprows': 0,
+                            },
+                            'dataframeCreationIndex': props.replacingDataframeState.dataframeCreationIndex
+                        })
+                    }
+                    void loadCSVImport();
+
                 }
                 // If we 
 
 
             }}
             importCSVFile={async (file: FileElement) => {
+                const fullPath = [...props.currPathParts]
+                fullPath.push(file.name);
+                const filePath = await props.mitoAPI.getPathJoined(fullPath);
+
+                if (filePath === undefined) {
+                    return
+                }
+
+                props.setUpdatedStepImportData((prevUpdatedStepImportData) => {
+                    const newUpdatedStepImportData = [...prevUpdatedStepImportData]
+
+                    // First, we go and find the specific step object we need to update
+                    const stepIndex = newUpdatedStepImportData.findIndex((stepImportData) => stepImportData.step_id === props.replacingDataframeState.dataframeCreationIndex.step_id)
+
+                    // TODO: break up the imports properly in this case!
+                    newUpdatedStepImportData[stepIndex].imports[props.replacingDataframeState.dataframeCreationIndex.index] = {
+                        'step_type': 'simple_import',
+                        'params': {
+                            file_names: [filePath],
+                        }
+                    }
+
+                    return newUpdatedStepImportData;
+                })
+
+                props.setReplacingDataframeState(undefined);
 
             }}
             backCallback={() => {

@@ -124,6 +124,10 @@ const DELIMETER_TOOLTIP = 'The text that seperates one column from another.'
 const ENCODING_TOOLTIP = 'Set the encoding used to save this file.' // I can't think of anything better lol
 const ERROR_BAD_LINES_TOOLTIP = 'Turn on to skip any lines that are missing fields.'
 
+const DEFAULT_DELIMETER = ',';
+const DEFAULT_ENCODING = 'default';
+const DEFAULT_ERROR_BAD_LINES = true;
+
 
 interface CSVImportProps {
     mitoAPI: MitoAPI;
@@ -152,10 +156,11 @@ export interface CSVFileMetadata {
 
 export interface CSVImportParams {
     file_names: string[],
-    delimeters: string[],
-    encodings: string[],
-    error_bad_lines: boolean[],
+    delimeters?: string[],
+    encodings?: string[],
+    error_bad_lines?: boolean[],
 }
+
 
 const getButtonMessage = (fileName: string, loading: boolean, isUpdate: boolean): string => {
     if (loading) {
@@ -185,8 +190,8 @@ function CSVImport(props: CSVImportProps): JSX.Element {
             props.setParams(prevParams => {
                 return {
                     ...prevParams,
-                    delimeters: loadedData?.delimeters || [','],
-                    encodings: loadedData?.encodings || ['default']
+                    delimeters: loadedData?.delimeters || [DEFAULT_DELIMETER],
+                    encodings: loadedData?.encodings || [DEFAULT_ENCODING]
                 }
             })
         }
@@ -197,9 +202,9 @@ function CSVImport(props: CSVImportProps): JSX.Element {
         props.setParams(prevParams => {
             return {
                 ...prevParams,
-                delimeters: fileMetadata?.delimeters || [','],
-                encodings: fileMetadata?.encodings || ['default'],
-                error_bad_lines: [true]
+                delimeters: fileMetadata?.delimeters || [DEFAULT_DELIMETER],
+                encodings: fileMetadata?.encodings || [DEFAULT_ENCODING],
+                error_bad_lines: [DEFAULT_ERROR_BAD_LINES]
             }
         })
     }
@@ -212,9 +217,13 @@ function CSVImport(props: CSVImportProps): JSX.Element {
         )
     }
 
-    const currentDelimeter = props.params.delimeters[0];
-    const currentEncoding = props.params.encodings[0] === 'default' ? 'utf-8' : props.params.encodings[0];
-    const currentErrorBadLines = props.params.error_bad_lines[0];
+    const delimeters = props.params.delimeters;
+    const encodings = props.params.encodings;
+    const error_bad_lines = props.params.error_bad_lines
+
+    const currentDelimeter = delimeters !== undefined ? delimeters[0] : DEFAULT_DELIMETER;
+    const currentEncoding = ((encodings !== undefined ? encodings[0] : DEFAULT_ENCODING) === 'default') ? 'utf-8' : (encodings !== undefined ? encodings[0] : 'utf-8');
+    const currentErrorBadLines = error_bad_lines !== undefined ? error_bad_lines[0] : DEFAULT_ERROR_BAD_LINES;
     
     return (
         <DefaultTaskpane>
@@ -254,9 +263,10 @@ function CSVImport(props: CSVImportProps): JSX.Element {
                                 if (e.key === 'Tab') {
                                     e.preventDefault();
                                     props.setParams(prevParams => {
+                                        const delimeters = prevParams.delimeters;
                                         return {
                                             ...prevParams,
-                                            delimeters: [prevParams.delimeters[0] + '\t']
+                                            delimeters: [(delimeters !== undefined ? delimeters[0] : DEFAULT_DELIMETER) + '\t']
                                         }
                                     })
                                 }
@@ -305,9 +315,10 @@ function CSVImport(props: CSVImportProps): JSX.Element {
                     <Col>
                         <Toggle value={!currentErrorBadLines} onChange={() => {
                             props.setParams(prevParams => {
+                                const error_bad_lines = prevParams.error_bad_lines;
                                 return {
                                     ...prevParams,
-                                    error_bad_lines: [!prevParams.error_bad_lines[0]]
+                                    error_bad_lines: [error_bad_lines !== undefined ? !error_bad_lines[0] : DEFAULT_ERROR_BAD_LINES]
                                 }
                             })
                         }}/>

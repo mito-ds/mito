@@ -24,7 +24,7 @@ export interface FileElement {
     lastModified?: number;
 }
 
-export type ImportScreen = 'file_browser' | 'csv_import' | 'xslx_import';
+export type ImportScreen = 'file_browser' | 'csv_import' | 'xlsx_import';
 
 
 function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {

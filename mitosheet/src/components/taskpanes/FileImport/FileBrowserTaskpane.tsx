@@ -8,7 +8,6 @@ import { AnalysisData, StepType, UIState, UserProfile } from '../../../types';
 import { CSVImportParams } from '../../import/CSVImportScreen';
 import FileBrowser from '../../import/FileBrowser/FileBrowser';
 import { FileBrowserState } from '../../import/FileBrowser/FileBrowserBody';
-import { getDefaultCSVParams } from './CSVImportTaskpane';
 import { FileElement, ImportScreen } from './FileImportTaskpane';
 
 
@@ -77,9 +76,10 @@ function FileBrowserTaskpane(props: FileBrowserImportProps): JSX.Element {
                 const filePath = await props.mitoAPI.getPathJoined([...props.currPathParts, file.name]);
                 console.log("Sending", filePath)
                 if (filePath) {
-                    edit((params) => {
-                        console.log("transformating to")
-                        return getDefaultCSVParams(filePath);
+                    edit(() => {
+                        return {
+                            file_names: [filePath]
+                        };
                     })
                 }
             }}

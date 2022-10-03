@@ -5,7 +5,7 @@ import { CSVImportData, DataframeImportData, ExcelImportData } from "./UpdateImp
 
 
 export function isCSVImportParams(params: CSVImportParams | ExcelImportParams | DataframeImportParams | undefined): params is CSVImportParams {
-    return params !== undefined && 'delimeters' in params;
+    return params !== undefined && 'file_names' in params && !('sheet_names' in params);
 }
 export function isExcelImportParams(params: CSVImportParams | ExcelImportParams | DataframeImportParams | undefined): params is ExcelImportParams {
     return params !== undefined && 'sheet_names' in params;
@@ -21,4 +21,8 @@ export function isExcelImportData(importData: CSVImportData | ExcelImportData | 
 }
 export function isDataframeImportData(importData: CSVImportData | ExcelImportData | DataframeImportData): importData is CSVImportData {
     return isDataframeImportParams(importData.params);
+}
+
+export const getBaseOfPath = (fullPath: string): string => {
+    return fullPath.replace(/^.*[\\\\/]/, '')
 }

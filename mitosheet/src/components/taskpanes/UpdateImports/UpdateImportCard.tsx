@@ -8,10 +8,7 @@ import RightPointerIcon from '../../icons/RightPointerIcon';
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
 import { DataframeCreationIndex, ReplacingDataframeState } from './UpdateImportsTaskpane';
-
-const getBaseOfPath = (fullPath: string): string => {
-    return fullPath.replace(/^.*[\\\\/]/, '')
-}
+import { getBaseOfPath } from './UpdateImportsUtils';
 
 type DataframeCreationData = {
     'step_type': 'simple_import',
