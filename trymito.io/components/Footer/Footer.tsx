@@ -44,7 +44,7 @@ const Footer = (): JSX.Element => {
                         <Link href='/security'>Security</Link>
                     </li>
                     <li className='text-nav'>
-                        <a href='https://discord.gg/XdJSZyejJU' target="_blank" rel="noreferrer">Support</a>
+                        <a href='https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg' target="_blank" rel="noreferrer">Support</a>
                     </li>
                 </div>
                 <div className='flex-column'>
@@ -62,6 +62,9 @@ const Footer = (): JSX.Element => {
                     </li>
                     <li className='text-nav'>
                         <a href='https://discord.gg/XdJSZyejJU' target="_blank" rel="noreferrer">Discord</a>
+                    </li>
+                    <li className='text-nav'>
+                        <a href='https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg' target="_blank" rel="noreferrer">Slack</a>
                     </li>
                 </div>
                 <div className='flex-column'>
