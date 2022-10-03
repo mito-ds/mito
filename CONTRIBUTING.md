@@ -6,7 +6,7 @@ When contributing to Mito, first make sure that the changes you wish to make are
 
 ## Communication
 
-If you're thinking of contributing to Mito, join our [discord](https://discord.gg/XdJSZyejJU).
+If you're thinking of contributing to Mito, join our [discord](https://discord.gg/XdJSZyejJU) or [slack](https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg).
 
 ## Issue Policy
 
