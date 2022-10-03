@@ -6,7 +6,7 @@ import { ModalEnum } from './modals';
 import TextButton from '../elements/TextButton';
 import MitoAPI from '../../jupyter/api';
 import { MitoError, UIState } from '../../types';
-import { DISCORD_INVITE_LINK } from '../../data/documentationLinks';
+import { SLACK_INVITE_LINK } from '../../data/documentationLinks';
 
 /*
     A modal that displays error messages and gives
@@ -65,7 +65,7 @@ const ErrorModal = (
                     <TextButton
                         variant='dark'
                         width='medium'
-                        href={DISCORD_INVITE_LINK}
+                        href={SLACK_INVITE_LINK}
                         target='_blank'
                         onClick={() => {
                             props.setUIState((prevUIState) => {
@@ -74,7 +74,7 @@ const ErrorModal = (
                                     currOpenModal: {type: ModalEnum.None}
                                 }
                             })
-                            void props.mitoAPI.log('clicked_discord_invite', {
+                            void props.mitoAPI.log('clicked_slack_invite', {
                                 'location': 'error modal'
                             });
                             return true;
