@@ -53,7 +53,8 @@ export const getUpdateImportCardTitle = (dataframeCreationData: DataframeCreatio
 */
 const UpdateImportCard = (props: {
     dataframeCreationIndex: DataframeCreationIndex;
-    dataframeCreationData: DataframeCreationData
+    dataframeCreationData: DataframeCreationData;
+    //updatedDataframeCreationData: DataframeCreationData;
     displayedImportCardDropdown: DataframeCreationIndex | undefined;
     setDisplayedImportCardDropdown: React.Dispatch<React.SetStateAction<DataframeCreationIndex | undefined>>;
     setReplacingDataframeState: React.Dispatch<React.SetStateAction<ReplacingDataframeState | undefined>>
@@ -76,6 +77,8 @@ const UpdateImportCard = (props: {
             return undefined;
         })
     }
+
+    //const updated = !isDeepEqual(props.dataframeCreationData, props.updatedDataframeCreationData);
 
     return (
         <Row justify='space-between' align='center'>

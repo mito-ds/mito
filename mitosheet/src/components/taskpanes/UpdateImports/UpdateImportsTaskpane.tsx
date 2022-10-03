@@ -14,6 +14,9 @@ import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
 import { isCSVImportData, isExcelImportData } from "./UpdateImportsUtils";
 import { ImportScreen } from "../FileImport/FileImportTaskpane";
 import UpdateDataframeImportTaskpane from "./UpdateDataframeImportTaskpane";
+import UpdateXLSXImportsTaskpane from "./UpdateXLSXImportTaskpane";
+import UpdateCSVImportTaskpane from "./UpdateCSVImportTaskpane";
+import UpdateFileBrowserTaskpane from "./UpdateFileBrowserTaskpane";
 
 
 interface updateImportsTaskpaneProps {
@@ -21,6 +24,9 @@ interface updateImportsTaskpaneProps {
     userProfile: UserProfile;
     analysisData: AnalysisData;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
+
+    currPathParts: string[];
+    setCurrPathParts: (newCurrPathParts: string[]) => void;
 
     sheetDataArray: SheetData[];
     selectedSheetIndex: number;
@@ -161,11 +167,54 @@ const UpdateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element =
             </DefaultTaskpane>
         )
     } else if (replacingDataframeState.screen === 'file_browser') {
-        return (<div></div>)
+        return (
+            <UpdateFileBrowserTaskpane
+                mitoAPI={props.mitoAPI}
+                analysisData={props.analysisData}
+                userProfile={props.userProfile}
+                setUIState={props.setUIState}
+
+                currPathParts={props.currPathParts} 
+                setCurrPathParts={props.setCurrPathParts}
+
+                replacingDataframeState={replacingDataframeState}
+                setReplacingDataframeState={setReplacingDataframeState}
+
+                setUpdatedStepImportData={setUpdatedStepImportData}  
+            />
+        )
     } else if (replacingDataframeState.screen === 'csv_import') {
-        return (<div></div>)
+        return (
+            <UpdateCSVImportTaskpane
+                mitoAPI={props.mitoAPI}
+                analysisData={props.analysisData}
+                setUIState={props.setUIState}
+
+                fileName={'test.csv'}
+                filePath={'test.csv'}
+                        
+                replacingDataframeState={replacingDataframeState}
+                setReplacingDataframeState={setReplacingDataframeState}
+
+                setUpdatedStepImportData={setUpdatedStepImportData}
+            />
+        )
     } else if (replacingDataframeState.screen === 'xslx_import') {
-        return (<div></div>)
+        return (
+            <UpdateXLSXImportsTaskpane
+                mitoAPI={props.mitoAPI}
+                analysisData={props.analysisData}
+                setUIState={props.setUIState}
+
+                fileName={'test.csv'}
+                filePath={'test.csv'}
+                        
+                replacingDataframeState={replacingDataframeState}
+                setReplacingDataframeState={setReplacingDataframeState}
+
+                setUpdatedStepImportData={setUpdatedStepImportData}
+            />
+        )
     } else {
         // Dataframe import
         return (

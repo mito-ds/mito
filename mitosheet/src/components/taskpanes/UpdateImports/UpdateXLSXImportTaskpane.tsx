@@ -3,14 +3,17 @@
 import React from 'react';
 import MitoAPI from '../../../jupyter/api';
 import { AnalysisData, UIState } from '../../../types';
-import DataframeImportScreen from '../../import/DataframeImportScreen';
+import XLSXImportScreen from '../../import/XLSXImportScreen';
 import { ReplacingDataframeState, StepImportData } from './UpdateImportsTaskpane';
-import { isDataframeImportParams } from './UpdateImportsUtils';
+import { isExcelImportParams } from './UpdateImportsUtils';
 
-interface UpdateDataframeImportTaskpaneProps {
+interface UpdateXLSXImportTaskpaneProps {
     mitoAPI: MitoAPI;
     analysisData: AnalysisData;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
+
+    fileName: string;
+    filePath: string;
 
     replacingDataframeState: ReplacingDataframeState;
     setReplacingDataframeState: React.Dispatch<React.SetStateAction<ReplacingDataframeState | undefined>>;
@@ -19,21 +22,24 @@ interface UpdateDataframeImportTaskpaneProps {
 }
 
 
-function UpdateDataframeImportTaskpane(props: UpdateDataframeImportTaskpaneProps): JSX.Element {
+function UpdateXLSXImportsTaskpane(props: UpdateXLSXImportTaskpaneProps): JSX.Element {
 
     const params = props.replacingDataframeState.params;
-    if (!isDataframeImportParams(params)) {
+    if (!isExcelImportParams(params)) {
         props.setReplacingDataframeState(undefined);
         return (<></>)
     }
 
     return (
-        <DataframeImportScreen
+        <XLSXImportScreen
             mitoAPI={props.mitoAPI}
             analysisData={props.analysisData}
             setUIState={props.setUIState}
             isUpdate={true}
-                
+        
+            fileName={props.fileName}
+            filePath={props.filePath}
+        
             params={params}
             setParams={(updater) => {
                 props.setReplacingDataframeState(prevReplacingDataframeState => {
@@ -52,7 +58,7 @@ function UpdateDataframeImportTaskpane(props: UpdateDataframeImportTaskpaneProps
                 // When we import the CSV, we update the screen
 
                 const params = props.replacingDataframeState.params;
-                if (params === undefined || !isDataframeImportParams(params)) {
+                if (params === undefined || !isExcelImportParams(params)) {
                     return params;
                 }
 
@@ -64,7 +70,7 @@ function UpdateDataframeImportTaskpane(props: UpdateDataframeImportTaskpaneProps
 
                     // TODO: break up the imports properly in this case!
                     newUpdatedStepImportData[stepIndex].imports[props.replacingDataframeState.dataframeCreationIndex.index] = {
-                        'step_type': 'dataframe_import',
+                        'step_type': 'excel_import',
                         'params': params
                     }
 
@@ -74,6 +80,8 @@ function UpdateDataframeImportTaskpane(props: UpdateDataframeImportTaskpaneProps
                 props.setReplacingDataframeState(undefined);
 
             }}
+            editApplied={false}
+            loading={false}
         
             backCallback={() => {
                 props.setReplacingDataframeState(undefined);
@@ -82,4 +90,4 @@ function UpdateDataframeImportTaskpane(props: UpdateDataframeImportTaskpaneProps
     )
 }
 
-export default UpdateDataframeImportTaskpane;
+export default UpdateXLSXImportsTaskpane;

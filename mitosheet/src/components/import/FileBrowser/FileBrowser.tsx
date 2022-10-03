@@ -34,6 +34,8 @@ interface FileBrowserProps {
 
     setScreen: React.Dispatch<React.SetStateAction<ImportScreen>>;
     importCSVFile: (file: FileElement) => Promise<void>;
+
+    backCallback?: () => void;
 }
 
 // You can either select a file then change the screen
@@ -131,6 +133,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
             <DefaultTaskpaneHeader
                 header={`TODO: allow a header to be passed`}
                 setUIState={props.setUIState}
+                backCallback={props.backCallback}
             />
             <DefaultTaskpaneBody noScroll>
                 <FileBrowserBody

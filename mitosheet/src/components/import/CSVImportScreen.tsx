@@ -135,7 +135,7 @@ interface CSVImportProps {
     filePath: string; // the/full/path/to/data.csv
 
     params: CSVImportParams | undefined;
-    setParams: React.Dispatch<React.SetStateAction<CSVImportParams>>;
+    setParams: (updater: (prevParams: CSVImportParams) => CSVImportParams) => void;
     edit: () => void;
     editApplied: boolean;
     loading: boolean;

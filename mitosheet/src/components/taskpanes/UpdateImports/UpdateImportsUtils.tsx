@@ -22,4 +22,3 @@ export function isExcelImportData(importData: CSVImportData | ExcelImportData | 
 export function isDataframeImportData(importData: CSVImportData | ExcelImportData | DataframeImportData): importData is CSVImportData {
     return isDataframeImportParams(importData.params);
 }
-
