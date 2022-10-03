@@ -32,7 +32,7 @@ You can find all Mito documentation available [here](https://docs.trymito.io).
 
 ## Getting Help
 
-To get support, [join our Discord](https://discord.com/invite/XdJSZyejJU).
+To get support, join our [Discord](https://discord.com/invite/XdJSZyejJU) or [Slack](https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg).
 
 ## Docker Quick Start
 
