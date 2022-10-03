@@ -3,87 +3,60 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
+from copy import copy
 import json
 import os
 from typing import Any, Dict
 
 import pandas as pd
 from mitosheet.types import StepsManagerType
+from mitosheet.step_performers.import_steps.simple_import import SimpleImportStepPerformer
+from mitosheet.step_performers.import_steps.excel_import import ExcelImportStepPerformer
+from mitosheet.step_performers.dataframe_import import DataframeImportStepPerformer
 
 
 def get_imported_files_and_dataframes(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
     """
-    Returns a list all the imported files and dataframes, and their import params.
-    Note: we break each imported file into its own object so that if a user imported multiple dataframes
-    through the same dataframe_import step, they can replace one with a csv and the other with a new df, for example. 
+    Returns a list all the imported files and dataframes, and their import params. This is the type
+    ImportData. We do not break steps into their own objects, as to keep things as simple as possible.
 
     [
         {
-            step_id: str,
-            type: 'csv'
-            import_params: {
-                file_names: List[str] <- Note: This should only have one entry, 
-                encoding: str | undefined, 
-                delimeters: str | undefined,
-                error_bad_lines: boolean | undefined
-            } 
-        } |
-        {
-            step_id: str,
-            type: 'excel'
-            import_params: {
-                file_name: str 
-                sheet_names: List[str] <- Note: This should only have one entry
-                has_headers: bool
-                skiprows: int 
-            }
-        } |
-        {
-            step_id: str
-            type: 'df'
-            df_names: List[str] <- Note: This should only have one entry
+            step_id: string,
+            imports: ({
+                step_type: 'simple_import'
+                params: CSVImportParams
+            } |
+            {
+                step_type: 'excel_import'
+                params: ExcelImportParams
+            } |
+            {
+                step_type: 'dataframe_import'
+                params: DataframeImportParams
+            })[]
         }
 	]
 	
     """
-    imported_files_and_dataframes = []
-    for step in steps_manager.steps_including_skipped:
-        step_params_copy = step.params.copy()
+    # First, get all steps that import
+    import_steps = [
+        step for step in steps_manager.steps_including_skipped
+        if step.step_type == SimpleImportStepPerformer.step_type() or \
+            step.step_type == ExcelImportStepPerformer.step_type() or \
+            step.step_type == DataframeImportStepPerformer.step_type()        
+    ]
 
-        if step.step_type == 'simple_import':
-            del step_params_copy['file_names']
-            for file_name in step.params['file_names']:
-                imported_files_and_dataframes.append({
-                    'step_id': step.step_id,
-                    'type': 'csv',
-                    'import_params': {
-                        'file_names': [file_name], 
-                        **step_params_copy
-                    } 
-                })
-        
-        if step.step_type == 'excel_import':
-            del step_params_copy['sheet_names']
-            for sheet_name in step.params['sheet_names']:
-                imported_files_and_dataframes.append({
-                    'step_id': step.step_id,
-                    'type': 'excel',
-                    'import_params': {
-                        'sheet_names': [sheet_name],
-                        **step_params_copy
-                    }
-                })
+    # Then, turn this into the output format
+    imported_files_and_dataframes = [
+        {
+            'step_id': step.step_id,
+            'imports': [{
+                'step_type': step.step_type,
+                'params': copy(step.params)
+            }]
+        }
+        for step in import_steps
+    ]
 
-        if step.step_type == 'dataframe_import':
-            del step_params_copy['df_names']
-            for df_name in step.params['df_names']:
-                imported_files_and_dataframes.append({
-                    'step_id': step.step_id,
-                    'type': 'df',
-                    'import_params': {
-                        'df_names': [df_name],
-                        **step_params_copy
-                    }
-                })
-
-    return json.dumps({'imported_files_and_dataframes': imported_files_and_dataframes})
+    return json.dumps(imported_files_and_dataframes)
