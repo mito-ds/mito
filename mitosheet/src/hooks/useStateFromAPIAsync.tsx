@@ -17,7 +17,10 @@ export function useStateFromAPIAsync<T>(
             if (loadedData !== undefined) {
                 setState(loadedData);
                 if (onLoad !== undefined) {
-                    onLoad(loadedData);
+                    // We make a copy before sending the loaded data to the callback
+                    // so that we don't accidently manipulate the data
+                    const loadedDataCopy = JSON.parse(JSON.stringify(loadedData));
+                    onLoad(loadedDataCopy);
                 }
             }
         }

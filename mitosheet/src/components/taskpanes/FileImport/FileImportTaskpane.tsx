@@ -27,7 +27,7 @@ export interface FileElement {
 export type ImportScreen = 'file_browser' | 'csv_import' | 'xlsx_import';
 
 
-function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
+function FileImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
 
     const [screen, setScreen] = useState<ImportScreen>('file_browser');
     const [selectedFile, setSelectedFile] = useState<FileElement | undefined>(undefined);
@@ -46,8 +46,6 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
         }
         void loadFilePath();
     }, [selectedFile])
-
-    console.log(screen, selectedFile, filePath);
 
     // We only load a specific screen if the full file path is determined
     if (screen === 'file_browser') {
@@ -97,4 +95,4 @@ function ImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
     }
 }
 
-export default ImportTaskpane;
+export default FileImportTaskpane;

@@ -11,7 +11,7 @@ import { CSVImportParams } from "../../import/CSVImportScreen";
 import { ExcelImportParams } from "../../import/XLSXImportScreen";
 import ImportCard from "./UpdateImportCard";
 import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
-import { getBaseOfPath, isCSVImportData, isCSVImportParams, isExcelImportData, isExcelImportParams } from "./UpdateImportsUtils";
+import { getBaseOfPath, getOriginalAndUpdatedDataframeCreationDataPairs, isCSVImportParams, isExcelImportParams } from "./UpdateImportsUtils";
 import { ImportScreen } from "../FileImport/FileImportTaskpane";
 import UpdateDataframeImportTaskpane from "./UpdateDataframeImportTaskpane";
 import UpdateXLSXImportsTaskpane from "./UpdateXLSXImportTaskpane";
@@ -45,14 +45,16 @@ export interface DataframeImportData {
     params: DataframeImportParams
 }
 
+export type DataframeCreationData = CSVImportData | ExcelImportData | DataframeImportData;
+
+
 export interface StepImportData {
     step_id: string,
-    imports: (CSVImportData | ExcelImportData | DataframeImportData)[];
+    imports: DataframeCreationData[];
 }
 
-export interface DataframeCreationIndex {step_id: string, index: number}
 export interface ReplacingDataframeState {
-    dataframeCreationIndex: DataframeCreationIndex, 
+    dataframeCreationIndex: number, 
     screen: ImportScreen | 'dataframe_import',
     params: CSVImportParams | ExcelImportParams | DataframeImportParams | undefined
 }
@@ -64,8 +66,8 @@ export interface ReplacingDataframeState {
 */
 const UpdateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element => {
 
-    const [updatedStepImportData, setUpdatedStepImportData] = useState<StepImportData[]>([]);
-    const [displayedImportCardDropdown, setDisplayedImportCardDropdown] = useState<DataframeCreationIndex | undefined>(undefined);
+    const [updatedStepImportData, setUpdatedStepImportData] = useState<StepImportData[] | undefined>(undefined);
+    const [displayedImportCardDropdown, setDisplayedImportCardDropdown] = useState<number | undefined>(undefined);
     const [replacingDataframeState, setReplacingDataframeState] = useState<ReplacingDataframeState | undefined>(undefined);
 
     const [originalStepImportData] = useStateFromAPIAsync(
@@ -78,68 +80,18 @@ const UpdateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element =
     )
 
     // We create an import card for each of the dataframes created within the original imports
-    const updateImportCards = originalStepImportData?.map((stepImportData) => {
-        return stepImportData.imports.map((_import) => {
-            if (isCSVImportData(_import)) {
-                return _import.params.file_names.map((fileName, index) => {
-                    return (
-                        <ImportCard 
-                            key={stepImportData.step_id + index}
-                            dataframeCreationIndex={{
-                                step_id: stepImportData.step_id,
-                                index: index
-                            }}
-                            dataframeCreationData={{
-                                step_type: 'simple_import',
-                                file_name: fileName
-                            }}
-                            displayedImportCardDropdown={displayedImportCardDropdown}
-                            setDisplayedImportCardDropdown={setDisplayedImportCardDropdown}
-                            setReplacingDataframeState={setReplacingDataframeState}
-                        />
-                    )
-                })
-            } else if (isExcelImportData(_import)) {
-                return _import.params.sheet_names.map((sheetName, index) => {
-                    return (
-                        <ImportCard 
-                            key={stepImportData.step_id + index}
-                            dataframeCreationIndex={{
-                                step_id: stepImportData.step_id,
-                                index: index
-                            }}
-                            dataframeCreationData={{
-                                step_type: 'excel_import',
-                                file_name: _import.params.file_name,
-                                sheet_name: sheetName
-                            }}
-                            displayedImportCardDropdown={displayedImportCardDropdown}
-                            setDisplayedImportCardDropdown={setDisplayedImportCardDropdown}
-                            setReplacingDataframeState={setReplacingDataframeState}
-                        />
-                    )
-                })
-            } else {
-                return _import.params.df_names.map((dfName, index) => {
-                    return (
-                        <ImportCard 
-                            key={stepImportData.step_id + index}
-                            dataframeCreationIndex={{
-                                step_id: stepImportData.step_id,
-                                index: index
-                            }}
-                            dataframeCreationData={{
-                                step_type: 'dataframe_import',
-                                df_name: dfName,
-                            }}
-                            displayedImportCardDropdown={displayedImportCardDropdown}
-                            setDisplayedImportCardDropdown={setDisplayedImportCardDropdown}
-                            setReplacingDataframeState={setReplacingDataframeState}
-                        />
-                    )
-                })
-            }
-        })
+    const updateImportCards = getOriginalAndUpdatedDataframeCreationDataPairs(originalStepImportData, updatedStepImportData).map(([originalDfCreationData, updatedDfCreationData], index) => {
+        return (
+            <ImportCard 
+                key={index}
+                dataframeCreationIndex={index}
+                dataframeCreationData={originalDfCreationData}
+                updatedDataframeCreationData={updatedDfCreationData}
+                displayedImportCardDropdown={displayedImportCardDropdown}
+                setDisplayedImportCardDropdown={setDisplayedImportCardDropdown}
+                setReplacingDataframeState={setReplacingDataframeState}
+            />
+        )
     })
 
 
@@ -156,7 +108,11 @@ const UpdateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element =
                 <DefaultTaskpaneFooter>
                     <TextButton 
                         variant="dark"
-                        onClick={() => props.mitoAPI.updateExistingImports(updatedStepImportData)}
+                        onClick={() => {
+                            if (updatedStepImportData !== undefined) {
+                                props.mitoAPI.updateExistingImports(updatedStepImportData)
+                            }
+                        }}
                         disabled={undefined } // TODO, disable this if there is an error
                     >
                         <p>

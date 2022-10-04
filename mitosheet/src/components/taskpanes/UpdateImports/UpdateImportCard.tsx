@@ -7,68 +7,80 @@ import CSVFileIcon from '../../icons/CSVFileIcon';
 import RightPointerIcon from '../../icons/RightPointerIcon';
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
-import { DataframeCreationIndex, ReplacingDataframeState } from './UpdateImportsTaskpane';
-import { getBaseOfPath } from './UpdateImportsUtils';
-
-type DataframeCreationData = {
-    'step_type': 'simple_import',
-    'file_name': string
-} | {
-    'step_type': 'excel_import',
-    'file_name': string,
-    'sheet_name': string,
-} | {
-    'step_type': 'dataframe_import',
-    'df_name': string,
-}
+import { DataframeCreationData, ReplacingDataframeState } from './UpdateImportsTaskpane';
+import { getBaseOfPath, isUpdatedDfCreationData } from './UpdateImportsUtils';
 
 export const getUpdateImportCardTitle = (dataframeCreationData: DataframeCreationData): JSX.Element => {
     if (dataframeCreationData.step_type === 'excel_import') {
         return (
             <div>
-                <span className='text-color-medium-gray-important'>Imported </span> {dataframeCreationData.sheet_name} <span className='text-color-medium-gray-important'>from </span> {getBaseOfPath(dataframeCreationData.file_name)}
+                <span className='text-color-medium-gray-important'>Imported </span> {dataframeCreationData.params.sheet_names[0]} <span className='text-color-medium-gray-important'>from </span> {getBaseOfPath(dataframeCreationData.params.file_name)}
             </div>
         )
     } else if (dataframeCreationData.step_type === 'simple_import') {
         return (
             <div>
-                <span className='text-color-medium-gray-important'>Imported </span> {getBaseOfPath(dataframeCreationData.file_name)}
+                <span className='text-color-medium-gray-important'>Imported </span> {getBaseOfPath(dataframeCreationData.params.file_names[0])}
             </div>
         )
     } else {
         return (
             <div>
-                <span className='text-color-medium-gray-important'>Imported </span> {dataframeCreationData.df_name}
+                <span className='text-color-medium-gray-important'>Imported </span> {dataframeCreationData.params.df_names[0]}
             </div>
         )
     }
 }
 
+export const getUpdateImportCardSubtitle = (dataframeCreationData: DataframeCreationData, updatedDataframeCreationData: DataframeCreationData): JSX.Element | null => {
+    const isUpdated = isUpdatedDfCreationData(dataframeCreationData, updatedDataframeCreationData);
+
+    if (!isUpdated) {
+        return null;
+    }
+
+    if (updatedDataframeCreationData.step_type === 'excel_import') {
+        return (
+            <div>
+                <span className='text-color-medium-gray-important'>Updated to </span> {updatedDataframeCreationData.params.sheet_names[0]} <span className='text-color-medium-gray-important'>from </span> {getBaseOfPath(updatedDataframeCreationData.params.file_name)}
+            </div>
+        )
+    } else if (updatedDataframeCreationData.step_type === 'simple_import') {
+        return (
+            <div>
+                <span className='text-color-medium-gray-important'>Updated to </span> {getBaseOfPath(updatedDataframeCreationData.params.file_names[0])}
+            </div>
+        )
+    } else {
+        return (
+            <div>
+                <span className='text-color-medium-gray-important'>Updated </span> {updatedDataframeCreationData.params.df_names[0]}
+            </div>
+        )
+    }
+}
 
 /* 
   A custom component that displays a previous import and whether its still valid
 */
 const UpdateImportCard = (props: {
-    dataframeCreationIndex: DataframeCreationIndex;
+    dataframeCreationIndex: number;
     dataframeCreationData: DataframeCreationData;
-    //updatedDataframeCreationData: DataframeCreationData;
-    displayedImportCardDropdown: DataframeCreationIndex | undefined;
-    setDisplayedImportCardDropdown: React.Dispatch<React.SetStateAction<DataframeCreationIndex | undefined>>;
+    updatedDataframeCreationData: DataframeCreationData;
+    displayedImportCardDropdown: number | undefined;
+    setDisplayedImportCardDropdown: React.Dispatch<React.SetStateAction<number | undefined>>;
     setReplacingDataframeState: React.Dispatch<React.SetStateAction<ReplacingDataframeState | undefined>>
 }): JSX.Element => {
 
-    const displayDropdown = props.displayedImportCardDropdown?.step_id === props.dataframeCreationIndex.step_id && props.displayedImportCardDropdown?.index === props.dataframeCreationIndex.index;
+    const displayDropdown = props.displayedImportCardDropdown === props.dataframeCreationIndex;
 
     const openDropdown = () => {
-        props.setDisplayedImportCardDropdown({
-            step_id: props.dataframeCreationIndex.step_id,
-            index: props.dataframeCreationIndex.index
-        })
+        props.setDisplayedImportCardDropdown(props.dataframeCreationIndex)
     }
 
     const closeDropdown = () => {
         props.setDisplayedImportCardDropdown(prevValue => {
-            if (prevValue?.step_id !== props.dataframeCreationIndex.step_id || prevValue?.index !== props.dataframeCreationIndex.index) {
+            if (prevValue !== props.dataframeCreationIndex) {
                 return prevValue;
             }
             return undefined;
@@ -84,6 +96,7 @@ const UpdateImportCard = (props: {
                     <CSVFileIcon />
                     <Col span={22} offset={.25}>
                         {getUpdateImportCardTitle(props.dataframeCreationData)}
+                        {getUpdateImportCardSubtitle(props.dataframeCreationData, props.updatedDataframeCreationData)}
                     </Col>
                 </Row>
             </Col>

@@ -5,7 +5,7 @@ import MitoAPI from '../../../jupyter/api';
 import { AnalysisData, UIState } from '../../../types';
 import DataframeImportScreen from '../../import/DataframeImportScreen';
 import { ReplacingDataframeState, StepImportData } from './UpdateImportsTaskpane';
-import { isDataframeImportParams } from './UpdateImportsUtils';
+import { isDataframeImportParams, updateStepImportDataList } from './UpdateImportsUtils';
 
 interface UpdateDataframeImportTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -15,7 +15,7 @@ interface UpdateDataframeImportTaskpaneProps {
     replacingDataframeState: ReplacingDataframeState;
     setReplacingDataframeState: React.Dispatch<React.SetStateAction<ReplacingDataframeState | undefined>>;
 
-    setUpdatedStepImportData: React.Dispatch<React.SetStateAction<StepImportData[]>>
+    setUpdatedStepImportData: React.Dispatch<React.SetStateAction<StepImportData[] | undefined>>
 }
 
 
@@ -57,18 +57,17 @@ function UpdateDataframeImportTaskpane(props: UpdateDataframeImportTaskpaneProps
                 }
 
                 props.setUpdatedStepImportData((prevUpdatedStepImportData) => {
-                    const newUpdatedStepImportData = [...prevUpdatedStepImportData]
-
-                    // First, we go and find the specific step object we need to update
-                    const stepIndex = newUpdatedStepImportData.findIndex((stepImportData) => stepImportData.step_id === props.replacingDataframeState.dataframeCreationIndex.step_id)
-
-                    // TODO: break up the imports properly in this case!
-                    newUpdatedStepImportData[stepIndex].imports[props.replacingDataframeState.dataframeCreationIndex.index] = {
-                        'step_type': 'dataframe_import',
-                        'params': params
+                    if (prevUpdatedStepImportData === undefined) {
+                        return undefined;
                     }
-
-                    return newUpdatedStepImportData;
+                    return updateStepImportDataList(
+                        prevUpdatedStepImportData, 
+                        props.replacingDataframeState.dataframeCreationIndex, 
+                        {
+                            'step_type': 'dataframe_import',
+                            'params': params
+                        }
+                    )
                 })
 
                 props.setReplacingDataframeState(undefined);

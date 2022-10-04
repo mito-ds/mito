@@ -30,7 +30,7 @@ from mitosheet.updates import UPDATES
 from mitosheet.user.utils import is_pro, is_running_test
 from mitosheet.utils import (NpEncoder, dfs_to_array_for_json, get_new_id,
                              is_default_df_names)
-from mitosheet.updates.existing_imports import EXISTING_IMPORTS_UPDATE_EVENT
+from mitosheet.updates.update_existing_imports import EXISTING_IMPORTS_UPDATE_EVENT
 
 
 def get_step_indexes_to_skip(step_list: List[Step]) -> Set[int]:

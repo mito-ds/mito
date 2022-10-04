@@ -18,19 +18,30 @@ EXISTING_IMPORTS_UPDATE_EVENT = 'existing_import_update'
 EXISTING_IMPORTS_PARAMS = ['updated_step_import_data']
 
 
-def execute_existing_imports_update(steps_manager: StepsManagerType, updated_step_import_data: List[Dict[str, Any]]) -> None:
+def execute_update_existing_imports_update(steps_manager: StepsManagerType, updated_step_import_data: List[Dict[str, Any]]) -> None:
     """
     Updates the step list with the new step import data.
     """
 
     new_steps = copy(steps_manager.steps_including_skipped)
+
+    # We group up all the steps by their ids
+    imports_for_step_id: Dict[str, List[Dict, Any]] = dict()
     for step_import_data in updated_step_import_data:
         step_id = step_import_data['step_id']
         imports = step_import_data['imports']
 
+        arr = imports_for_step_id.get(step_id, [])
+        arr.extend(imports)
+
+        imports_for_step_id[step_id] = arr
+
+    for step_id, imports in imports_for_step_id.items():
         original_step_index = [index for index, step in enumerate(new_steps) if step.step_id == step_id][0]
 
         # Build all the new steps
+        # TODO: we could combine them, but this is done in code optimization otherwise. It might lead to strange undo/redo
+        # behavior, but we ignore that for now
         import_steps_to_replace_with = []
         for _import in imports:
             import_steps_to_replace_with.append(
@@ -41,11 +52,11 @@ def execute_existing_imports_update(steps_manager: StepsManagerType, updated_ste
         new_steps = new_steps[:original_step_index] + import_steps_to_replace_with + new_steps[(original_step_index + 1):]
 
     # Refresh the anlaysis starting from the first step
-    steps_manager.execute_and_update_steps(steps_manager.steps_including_skipped, 0)
+    steps_manager.execute_and_update_steps(new_steps, 0)
 
 
 EXISTING_IMPORTS_UPDATE = {
     'event_type': EXISTING_IMPORTS_UPDATE_EVENT,
     'params': EXISTING_IMPORTS_PARAMS,
-    'execute': execute_existing_imports_update
+    'execute': execute_update_existing_imports_update
 }

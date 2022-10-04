@@ -5,7 +5,7 @@ import MitoAPI from '../../../jupyter/api';
 import { AnalysisData, UIState } from '../../../types';
 import XLSXImportScreen from '../../import/XLSXImportScreen';
 import { ReplacingDataframeState, StepImportData } from './UpdateImportsTaskpane';
-import { isExcelImportParams } from './UpdateImportsUtils';
+import { isExcelImportParams, updateStepImportDataList } from './UpdateImportsUtils';
 
 interface UpdateXLSXImportTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -18,7 +18,7 @@ interface UpdateXLSXImportTaskpaneProps {
     replacingDataframeState: ReplacingDataframeState;
     setReplacingDataframeState: React.Dispatch<React.SetStateAction<ReplacingDataframeState | undefined>>;
 
-    setUpdatedStepImportData: React.Dispatch<React.SetStateAction<StepImportData[]>>
+    setUpdatedStepImportData: React.Dispatch<React.SetStateAction<StepImportData[] | undefined>>
 }
 
 
@@ -63,18 +63,17 @@ function UpdateXLSXImportsTaskpane(props: UpdateXLSXImportTaskpaneProps): JSX.El
                 }
 
                 props.setUpdatedStepImportData((prevUpdatedStepImportData) => {
-                    const newUpdatedStepImportData = [...prevUpdatedStepImportData]
-
-                    // First, we go and find the specific step object we need to update
-                    const stepIndex = newUpdatedStepImportData.findIndex((stepImportData) => stepImportData.step_id === props.replacingDataframeState.dataframeCreationIndex.step_id)
-
-                    // TODO: break up the imports properly in this case!
-                    newUpdatedStepImportData[stepIndex].imports[props.replacingDataframeState.dataframeCreationIndex.index] = {
-                        'step_type': 'excel_import',
-                        'params': params
+                    if (prevUpdatedStepImportData === undefined) {
+                        return undefined;
                     }
-
-                    return newUpdatedStepImportData;
+                    return updateStepImportDataList(
+                        prevUpdatedStepImportData, 
+                        props.replacingDataframeState.dataframeCreationIndex, 
+                        {
+                            'step_type': 'excel_import',
+                            'params': params
+                        }
+                    )
                 })
 
                 props.setReplacingDataframeState(undefined);

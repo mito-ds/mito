@@ -1,7 +1,8 @@
+import { isDeepEqual } from "../../../utils/objects";
 import { CSVImportParams } from "../../import/CSVImportScreen";
 import { DataframeImportParams } from "../../import/DataframeImportScreen";
 import { ExcelImportParams } from "../../import/XLSXImportScreen";
-import { CSVImportData, DataframeImportData, ExcelImportData } from "./UpdateImportsTaskpane"
+import { CSVImportData, DataframeCreationData, DataframeImportData, ExcelImportData, StepImportData } from "./UpdateImportsTaskpane"
 
 
 export function isCSVImportParams(params: CSVImportParams | ExcelImportParams | DataframeImportParams | undefined): params is CSVImportParams {
@@ -25,4 +26,43 @@ export function isDataframeImportData(importData: CSVImportData | ExcelImportDat
 
 export const getBaseOfPath = (fullPath: string): string => {
     return fullPath.replace(/^.*[\\\\/]/, '')
+}
+
+export const isUpdatedDfCreationData = (dfCreationData: DataframeCreationData, newDfCreationData: DataframeCreationData) => {
+    return !isDeepEqual(dfCreationData, newDfCreationData);
+}
+
+export function updateStepImportDataList(stepImportDataList: StepImportData[], newDataframeCreationIndex: number, newDataframeCreationData: DataframeCreationData): StepImportData[]  {
+    const newStepImportDataList = [...stepImportDataList];
+
+    let numSeen = 0;
+    newStepImportDataList.forEach(stepImportData => {
+        if (numSeen + stepImportData.imports.length > newDataframeCreationIndex) {
+            stepImportData.imports[newDataframeCreationIndex - numSeen] = newDataframeCreationData;
+        }
+        numSeen += stepImportData.imports.length;
+    })
+
+    return newStepImportDataList;
+}
+
+// We transform the step imports into a more helpful 
+export const getAllDataframeCreationData = (stepImportDataList: StepImportData[] | undefined): DataframeCreationData[] => {
+    if (stepImportDataList === undefined) {
+        return [];
+    }
+
+    return stepImportDataList.map(stepImportData => {
+        return stepImportData.imports;
+    }).flat();
+}
+
+export const getOriginalAndUpdatedDataframeCreationDataPairs = (originalStepImportData: StepImportData[] | undefined, updatedStepImportData: StepImportData[] | undefined): [DataframeCreationData, DataframeCreationData][] => {
+    const originalImports = getAllDataframeCreationData(originalStepImportData);
+    // We handle the case the original imports have been loaded, btu the newImports have not yet been loaded
+    const newImports = originalStepImportData !== undefined && updatedStepImportData === undefined ? originalImports : getAllDataframeCreationData(updatedStepImportData);
+
+    return originalImports.map((dfCreationData, index): [DataframeCreationData, DataframeCreationData] => {
+        return [dfCreationData, newImports[index]];
+    })
 }

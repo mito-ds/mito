@@ -7,6 +7,7 @@ import FileBrowser from '../../import/FileBrowser/FileBrowser';
 import { FileBrowserState } from '../../import/FileBrowser/FileBrowserBody';
 import { FileElement } from '../FileImport/FileImportTaskpane';
 import { ReplacingDataframeState, StepImportData } from './UpdateImportsTaskpane';
+import { updateStepImportDataList } from './UpdateImportsUtils';
 
 interface UpdateFileBrowserTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -20,7 +21,7 @@ interface UpdateFileBrowserTaskpaneProps {
     replacingDataframeState: ReplacingDataframeState;
     setReplacingDataframeState: React.Dispatch<React.SetStateAction<ReplacingDataframeState | undefined>>;
 
-    setUpdatedStepImportData: React.Dispatch<React.SetStateAction<StepImportData[]>>
+    setUpdatedStepImportData: React.Dispatch<React.SetStateAction<StepImportData[] | undefined>>
 }
 
 
@@ -61,8 +62,6 @@ function UpdateFileBrowserTaskpane(props: UpdateFileBrowserTaskpaneProps): JSX.E
                 if (selectedFile === undefined) {
                     return;
                 }
-
-                console.log("newScreen", newScreen)
 
                 if (newScreen === 'csv_import') {
                     // We need to get the full file path and add this to the params, presumably, so that the 
@@ -123,20 +122,19 @@ function UpdateFileBrowserTaskpane(props: UpdateFileBrowserTaskpaneProps): JSX.E
                 }
 
                 props.setUpdatedStepImportData((prevUpdatedStepImportData) => {
-                    const newUpdatedStepImportData = [...prevUpdatedStepImportData]
-
-                    // First, we go and find the specific step object we need to update
-                    const stepIndex = newUpdatedStepImportData.findIndex((stepImportData) => stepImportData.step_id === props.replacingDataframeState.dataframeCreationIndex.step_id)
-
-                    // TODO: break up the imports properly in this case!
-                    newUpdatedStepImportData[stepIndex].imports[props.replacingDataframeState.dataframeCreationIndex.index] = {
-                        'step_type': 'simple_import',
-                        'params': {
-                            file_names: [filePath],
-                        }
+                    if (prevUpdatedStepImportData === undefined) {
+                        return undefined;
                     }
-
-                    return newUpdatedStepImportData;
+                    return updateStepImportDataList(
+                        prevUpdatedStepImportData, 
+                        props.replacingDataframeState.dataframeCreationIndex, 
+                        {
+                            'step_type': 'simple_import',
+                            'params': {
+                                file_names: [filePath],
+                            }
+                        }
+                    )
                 })
 
                 props.setReplacingDataframeState(undefined);
