@@ -3,17 +3,18 @@ import { useEffect, useState } from "react";
 /* 
     This effect uses an API call to get data
 */
-export function useStateFromAPIAsync<T>(
-        defaultValue: T,
-        apiCall: () => Promise<T | undefined>,
-        onLoad?: (loadedData: T) => void
-    ): [T, React.Dispatch<React.SetStateAction<T>>] {
+export function useStateFromAPIAsync<ResultType, ParamType>(
+        defaultValue: ResultType,
+        apiCall: (...rest: ParamType[]) => Promise<ResultType | undefined>,
+        onLoad: ((loadedData: ResultType) => void) | undefined,
+        params: ParamType[],
+    ): [ResultType, React.Dispatch<React.SetStateAction<ResultType>>] {
     const [state, setState] = useState(defaultValue);
 
     useEffect(() => {
         const loadData = async () => {
             // Get the data and save it
-            const loadedData = await apiCall();
+            const loadedData = await apiCall(...params);
             if (loadedData !== undefined) {
                 setState(loadedData);
                 if (onLoad !== undefined) {
@@ -25,7 +26,7 @@ export function useStateFromAPIAsync<T>(
             }
         }
         void loadData();
-    }, []);
+    }, params);
 
     return [state, setState];
 }

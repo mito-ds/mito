@@ -5,7 +5,7 @@ import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import MitoAPI from '../../../jupyter/api';
 import { AnalysisData, StepType, UIState } from '../../../types';
 import CSVImportScreen, { CSVImportParams } from '../../import/CSVImportScreen';
-import { ImportScreen } from './FileImportTaskpane';
+import { ImportState } from './FileImportTaskpane';
 
 interface CSVImportTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -15,7 +15,8 @@ interface CSVImportTaskpaneProps {
     fileName: string;
     filePath: string;
 
-    setScreen: React.Dispatch<React.SetStateAction<ImportScreen>>;
+    error: string | undefined;
+    setScreen: React.Dispatch<React.SetStateAction<ImportState>>;
 }
 
 
@@ -38,6 +39,8 @@ function CSVImportTaskpane(props: CSVImportTaskpaneProps): JSX.Element {
         {allowSameParamsToReapplyTwice: true},
     )
 
+    console.log("Error", props.error)
+
     return (
         <CSVImportScreen
             mitoAPI={props.mitoAPI}
@@ -53,10 +56,10 @@ function CSVImportTaskpane(props: CSVImportTaskpaneProps): JSX.Element {
             edit={edit}
             editApplied={editApplied}
             loading={loading}
-            error={error}
+            error={props.error !== undefined ? props.error : error}
         
             backCallback={() => {
-                props.setScreen('file_browser')
+                props.setScreen({screen: 'file_browser'})
             }}
         />
     )

@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 
 import MitoAPI from '../../../jupyter/api';
@@ -8,7 +8,7 @@ import { AnalysisData, StepType, UIState, UserProfile } from '../../../types';
 import { CSVImportParams } from '../../import/CSVImportScreen';
 import FileBrowser from '../../import/FileBrowser/FileBrowser';
 import { FileBrowserState } from '../../import/FileBrowser/FileBrowserBody';
-import { FileElement, ImportScreen } from './FileImportTaskpane';
+import { FileElement, ImportState } from './FileImportTaskpane';
 
 
 interface FileBrowserImportProps {
@@ -23,7 +23,7 @@ interface FileBrowserImportProps {
     selectedFile: FileElement | undefined;
     setSelectedFile: React.Dispatch<React.SetStateAction<FileElement | undefined>>;
 
-    setScreen: React.Dispatch<React.SetStateAction<ImportScreen>>;
+    setImportState: React.Dispatch<React.SetStateAction<ImportState>>;
 }
 
 
@@ -47,12 +47,21 @@ function FileBrowserTaskpane(props: FileBrowserImportProps): JSX.Element {
         loadingImport: false
     })
 
-    const {edit} = useSendEditOnClick<CSVImportParams, CSVImportParams>(
+    const {edit, error} = useSendEditOnClick<CSVImportParams, CSVImportParams>(
         undefined,
         StepType.SimpleImport,
         props.mitoAPI, props.analysisData, 
         {allowSameParamsToReapplyTwice: true}
     )
+
+    useEffect(() => {
+        if (error !== undefined) {
+            props.setImportState({
+                screen: 'csv_import',
+                error: error
+            })
+        }
+    }, [error])
 
     return (
         <FileBrowser
@@ -71,7 +80,7 @@ function FileBrowserTaskpane(props: FileBrowserImportProps): JSX.Element {
             fileBrowserState={fileBrowserState}
             setFileBrowserState={setFileBrowserState}
 
-            setScreen={props.setScreen}
+            setImportState={props.setImportState}
             importCSVFile={async (file) => {
                 const filePath = await props.mitoAPI.getPathJoined([...props.currPathParts, file.name]);
                 console.log("Sending", filePath)

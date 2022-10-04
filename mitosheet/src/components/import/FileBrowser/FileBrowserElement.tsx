@@ -10,9 +10,9 @@ import FileIcon from '../../icons/FileIcon';
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
 import {
-    FileElement
+    FileElement, ImportState
 } from '../../taskpanes/FileImport/FileImportTaskpane';
-import { getInvalidFileError } from '../../taskpanes/FileImport/importUtils';
+import { getInvalidFileError, isExcelFile } from '../../taskpanes/FileImport/importUtils';
 import { FileBrowserState } from './FileBrowserBody';
 
 
@@ -29,6 +29,9 @@ interface FileBrowserElementProps {
 
     excelImportEnabled: boolean;
     isParentFolder?: boolean;
+
+    importCSVFile: (file: FileElement) => Promise<void>;
+    setImportState: (newImportState: ImportState) => void;
 }
 
 /* 
@@ -98,6 +101,13 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
                     props.setCurrPathParts(newPathParts);
                 } else {
                     props.setSelectedFile(props.element);
+                    
+                    if (isExcelFile(props.element)) {
+                        props.setImportState({screen: 'xlsx_import'});
+                    } else {
+                        props.importCSVFile(props.element);
+                    }
+
                     // TODO: set the correct screen?
                 }
             }}

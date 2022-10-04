@@ -5,7 +5,7 @@ import MitoAPI from '../../../jupyter/api';
 import { AnalysisData, UIState, UserProfile } from '../../../types';
 import FileBrowser from '../../import/FileBrowser/FileBrowser';
 import { FileBrowserState } from '../../import/FileBrowser/FileBrowserBody';
-import { FileElement } from '../FileImport/FileImportTaskpane';
+import { FileElement, ImportState } from '../FileImport/FileImportTaskpane';
 import { ReplacingDataframeState, StepImportData } from './UpdateImportsTaskpane';
 import { updateStepImportDataList } from './UpdateImportsUtils';
 
@@ -58,12 +58,12 @@ function UpdateFileBrowserTaskpane(props: UpdateFileBrowserTaskpaneProps): JSX.E
             fileBrowserState={fileBrowserState}
             setFileBrowserState={setFileBrowserState}
 
-            setScreen={(newScreen) => {
+            setImportState={(newImportState: ImportState) => {
                 if (selectedFile === undefined) {
                     return;
                 }
 
-                if (newScreen === 'csv_import') {
+                if (newImportState.screen === 'csv_import') {
                     // We need to get the full file path and add this to the params, presumably, so that the 
                     const loadCSVImport = async () => {
                         const fullPath = [...props.currPathParts]
@@ -83,7 +83,7 @@ function UpdateFileBrowserTaskpane(props: UpdateFileBrowserTaskpaneProps): JSX.E
                         })
                     }
                     void loadCSVImport();
-                } else if (newScreen === 'xlsx_import') {
+                } else if (newImportState.screen === 'xlsx_import') {
                     // We need to get the full file path and add this to the params, presumably, so that the 
                     const loadCSVImport = async () => {
                         const fullPath = [...props.currPathParts]

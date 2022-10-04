@@ -85,9 +85,9 @@ function getSuccessMessage(params: ExcelImportParams): string {
 function XLSXImportScreen(props: XLSXImportProps): JSX.Element {
 
     // Load the metadata about the Excel file from the API
-    const [fileMetadata] = useStateFromAPIAsync<ExcelFileMetadata>(
+    const [fileMetadata] = useStateFromAPIAsync<ExcelFileMetadata, string>(
         {sheet_names: [], size: 0, loading: true},
-        () => {return props.mitoAPI.getExcelFileMetadata(props.filePath)},
+        (filePath: string) => {return props.mitoAPI.getExcelFileMetadata(filePath)},
         (loadedData) => {
             if (loadedData !== undefined) {
                 props.setParams(prevParams => {
@@ -97,7 +97,8 @@ function XLSXImportScreen(props: XLSXImportProps): JSX.Element {
                     }
                 })
             }
-        }
+        },
+        [props.filePath]
     );
 
     const params = props.params;

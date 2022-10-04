@@ -1,9 +1,5 @@
 // Copyright (c) Mito
 import React, { useEffect, useRef } from 'react';
-import { FileElement } from '../../taskpanes/FileImport/FileImportTaskpane';
-import FileBrowserElement from './FileBrowserElement';
-import FileBrowserPathSelector from './FileBrowserPathSelector';
-
 import '../../../../css/elements/Input.css';
 import '../../../../css/taskpanes/Import/FileBrowser.css';
 import MitoAPI from '../../../jupyter/api';
@@ -12,9 +8,11 @@ import { classNames } from '../../../utils/classNames';
 import SortArrowIcon from '../../icons/SortArrowIcon';
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
-import { getElementsToDisplay, inRootFolder } from '../../taskpanes/FileImport/importUtils';
-import { ImportScreen } from '../../taskpanes/FileImport/FileImportTaskpane';
+import { FileElement, ImportState } from '../../taskpanes/FileImport/FileImportTaskpane';
+import { getElementsToDisplay, inRootFolder, isExcelFile } from '../../taskpanes/FileImport/importUtils';
 import { TaskpaneType } from '../../taskpanes/taskpanes';
+import FileBrowserElement from './FileBrowserElement';
+import FileBrowserPathSelector from './FileBrowserPathSelector';
 
 
 export interface PathContents {
@@ -46,7 +44,8 @@ interface FileBrowserProps {
 
     setSelectedFile: React.Dispatch<React.SetStateAction<FileElement | undefined>>
 
-    setScreen: React.Dispatch<React.SetStateAction<ImportScreen>>;
+    importCSVFile: (file: FileElement) => Promise<void>;
+    setImportState: (newImportState: ImportState) => void;
 }
 
 
@@ -60,7 +59,7 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
 
     // Filter to the searched for elements, and then sort properly
     const elementsToDisplay = getElementsToDisplay(props.fileBrowserState);
-    const selectedElement: FileElement | undefined = elementsToDisplay[props.fileBrowserState.selectedElementIndex];
+    const selectedFile: FileElement | undefined = elementsToDisplay[props.fileBrowserState.selectedElementIndex];
 
     useEffect(() => {
         // When the user switches folders, reset the search
@@ -175,20 +174,28 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
                             })
                             e.preventDefault();
                         } else if (e.key === 'Enter') {
-                            if (!selectedElement) {
+                            if (!selectedFile) {
                                 return;
                             }
 
-                            if (selectedElement.isParentDirectory) {
+                            if (selectedFile.isParentDirectory) {
                                 const newPathParts = [...props.fileBrowserState.pathContents.path_parts];
                                 newPathParts.pop()
                                 props.setCurrPathParts(newPathParts);
-                            } else if (selectedElement.isDirectory) {
+                            } else if (selectedFile.isDirectory) {
                                 const newPathParts = props.fileBrowserState.pathContents.path_parts || [];
-                                newPathParts.push(selectedElement.name);
+                                newPathParts.push(selectedFile.name);
                                 props.setCurrPathParts(newPathParts);
                             } else {
-                                props.setSelectedFile(selectedElement);
+                                props.setSelectedFile(selectedFile);
+                                if (isExcelFile(selectedFile)) {
+                                    props.setImportState({screen: 'xlsx_import'});
+                                } else {
+                                    console.log("Calling import", selectedFile)
+                                    props.importCSVFile(selectedFile);
+                                }
+
+
                                 // TODO: make this import, if it can!
                                 // Otherwise, set the screen for Excel
                             }
@@ -248,6 +255,8 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
                                     setSelectedFile={props.setSelectedFile}
                                     setCurrPathParts={props.setCurrPathParts}
                                     excelImportEnabled={props.userProfile.excelImportEnabled}
+                                    setImportState={props.setImportState}
+                                    importCSVFile={props.importCSVFile}
                                 />
                             )
                         })}

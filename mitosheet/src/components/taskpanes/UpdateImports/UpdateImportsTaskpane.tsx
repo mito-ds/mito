@@ -76,7 +76,8 @@ const UpdateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element =
         (loadedData) => {
             // On load, update the updated import data
             setUpdatedStepImportData(loadedData || [])
-        }
+        },
+        []
     )
 
     // We create an import card for each of the dataframes created within the original imports

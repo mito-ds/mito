@@ -11,9 +11,8 @@ import DefaultTaskpane from '../../taskpanes/DefaultTaskpane/DefaultTaskpane';
 import DefaultTaskpaneBody from '../../taskpanes/DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultTaskpaneFooter from '../../taskpanes/DefaultTaskpane/DefaultTaskpaneFooter';
 import DefaultTaskpaneHeader from '../../taskpanes/DefaultTaskpane/DefaultTaskpaneHeader';
-import { FileElement } from '../../taskpanes/FileImport/FileImportTaskpane';
+import { FileElement, ImportState } from '../../taskpanes/FileImport/FileImportTaskpane';
 import { getElementsToDisplay, getFileEnding, getImportButtonStatus, isExcelFile } from '../../taskpanes/FileImport/importUtils';
-import { ImportScreen } from '../../taskpanes/FileImport/FileImportTaskpane';
 import FileBrowserBody, { FileBrowserState } from './FileBrowserBody';
 
 interface FileBrowserProps {
@@ -32,7 +31,7 @@ interface FileBrowserProps {
     fileBrowserState: FileBrowserState;
     setFileBrowserState: React.Dispatch<React.SetStateAction<FileBrowserState>>;
 
-    setScreen: React.Dispatch<React.SetStateAction<ImportScreen>>;
+    setImportState: (newImportState: ImportState) => void;
     importCSVFile: (file: FileElement) => Promise<void>;
 
     backCallback?: () => void;
@@ -148,7 +147,8 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                     setFileBrowserState={props.setFileBrowserState}
 
                     setSelectedFile={props.setSelectedFile}
-                    setScreen={props.setScreen}
+                    importCSVFile={props.importCSVFile}
+                    setImportState={props.setImportState}
                 />
             </DefaultTaskpaneBody>
             <DefaultTaskpaneFooter>
@@ -159,7 +159,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                                 variant='light'
                                 width='small'
                                 onClick={() => {
-                                    props.setScreen('csv_import');
+                                    props.setImportState({screen: 'csv_import'});
                                 }}
                                 disabled={importButtonStatus.disabled}
                             >
@@ -181,7 +181,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                                 props.setSelectedFile(selectedFile);
 
                                 if (isExcelFile(selectedFile)) {
-                                    props.setScreen('xlsx_import');
+                                    props.setImportState({screen: 'xlsx_import'});
                                 } else {
                                     console.log("Calling import", selectedFile)
                                     props.importCSVFile(selectedFile);

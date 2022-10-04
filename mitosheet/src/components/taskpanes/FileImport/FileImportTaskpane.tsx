@@ -25,11 +25,15 @@ export interface FileElement {
 }
 
 export type ImportScreen = 'file_browser' | 'csv_import' | 'xlsx_import';
+export interface ImportState {
+    screen: ImportScreen,
+    error?: string | undefined
+}
 
 
 function FileImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
 
-    const [screen, setScreen] = useState<ImportScreen>('file_browser');
+    const [importState, setImportState] = useState<ImportState>({screen: 'file_browser'});
     const [selectedFile, setSelectedFile] = useState<FileElement | undefined>(undefined);
     const [filePath, setFilePath] = useState<string | undefined>(undefined);
 
@@ -48,7 +52,7 @@ function FileImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
     }, [selectedFile])
 
     // We only load a specific screen if the full file path is determined
-    if (screen === 'file_browser') {
+    if (importState.screen === 'file_browser') {
         return (
             <FileBrowserTaskpane
                 mitoAPI={props.mitoAPI}
@@ -62,10 +66,10 @@ function FileImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                 selectedFile={selectedFile}
                 setSelectedFile={setSelectedFile}
 
-                setScreen={setScreen}
+                setImportState={setImportState}
             />
         )
-    } else if (screen == 'csv_import') {
+    } else if (importState.screen == 'csv_import') {
         return (
             <CSVImportTaskpane
                 mitoAPI={props.mitoAPI}
@@ -75,7 +79,8 @@ function FileImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                 fileName={selectedFile?.name || ''}
                 filePath={filePath || ''}
 
-                setScreen={setScreen}
+                error={importState.error}
+                setScreen={setImportState}
             />
         )
     } else {
@@ -89,7 +94,7 @@ function FileImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                 fileName={selectedFile?.name || ''}
                 filePath={filePath || ''}
             
-                setScreen={setScreen}
+                setImportState={setImportState}
             />
         )
     }
