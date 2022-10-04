@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
 from mitosheet.step_performers.dataframe_import import get_variable_with_name_from_caller
 from mitosheet.step_performers.graph_steps.plotly_express_graphs import DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT, DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT, DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT
-from numpy import bool_, number
+from numpy import number
 
 import pandas as pd
 from mitosheet.mito_widget import MitoWidget, sheet
