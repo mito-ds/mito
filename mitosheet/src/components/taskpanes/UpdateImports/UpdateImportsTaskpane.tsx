@@ -70,6 +70,8 @@ const UpdateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element =
     const [displayedImportCardDropdown, setDisplayedImportCardDropdown] = useState<number | undefined>(undefined);
     const [replacingDataframeState, setReplacingDataframeState] = useState<ReplacingDataframeState | undefined>(undefined);
 
+    const [invalidImportMessages, setInvalidImportMessages] = useState<Record<number, string | undefined>>({});
+
     const [originalStepImportData] = useStateFromAPIAsync(
         undefined,
         () => {return props.mitoAPI.getImportedFilesAndDataframes()},
@@ -93,6 +95,7 @@ const UpdateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element =
                 displayedImportCardDropdown={displayedImportCardDropdown}
                 setDisplayedImportCardDropdown={setDisplayedImportCardDropdown}
                 setReplacingDataframeState={setReplacingDataframeState}
+                invalidImportMessage={invalidImportMessages[index]}
             />
         )
     })
@@ -114,9 +117,20 @@ const UpdateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element =
                 <DefaultTaskpaneFooter>
                     <TextButton 
                         variant="dark"
-                        onClick={() => {
-                            if (updatedStepImportData !== undefined) {
-                                props.mitoAPI.updateExistingImports(updatedStepImportData)
+                        onClick={async () => {
+                            if (updatedStepImportData === undefined) {
+                                return
+                            }
+                            const _invalidImportIndexes = await props.mitoAPI.getTestImports(updatedStepImportData);
+                            console.log(_invalidImportIndexes);
+                            if (_invalidImportIndexes === undefined) {
+                                return;
+                            }
+                            setInvalidImportMessages(_invalidImportIndexes);
+
+                            // If there are no invalid indexes, then we can update
+                            if (Object.keys(_invalidImportIndexes).length === 0) {
+                                props.mitoAPI.updateExistingImports(updatedStepImportData);
                             }
                         }}
                         disabled={!updated} // TODO, disable this if there is an error

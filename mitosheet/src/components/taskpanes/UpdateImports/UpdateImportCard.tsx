@@ -32,29 +32,44 @@ export const getUpdateImportCardTitle = (dataframeCreationData: DataframeCreatio
     }
 }
 
-export const getUpdateImportCardSubtitle = (dataframeCreationData: DataframeCreationData, updatedDataframeCreationData: DataframeCreationData): JSX.Element | null => {
+export const getUpdateImportCardSubtitle = (dataframeCreationData: DataframeCreationData, updatedDataframeCreationData: DataframeCreationData, invalidImportMessage: string | undefined): JSX.Element | null => {
     const isUpdated = isUpdatedDfCreationData(dataframeCreationData, updatedDataframeCreationData);
 
+    let errorSpan = invalidImportMessage === undefined
+        ? null
+        : (
+            <span className='text-color-error-important'>{invalidImportMessage}</ span>
+        )
+
     if (!isUpdated) {
+        if (invalidImportMessage !== undefined) {
+            return (
+                <div>
+                    {errorSpan}
+                </div>
+            )
+        }
         return null;
     }
+
+ 
 
     if (updatedDataframeCreationData.step_type === 'excel_import') {
         return (
             <div>
-                <span className='text-color-medium-gray-important'>Updated to </span> {updatedDataframeCreationData.params.sheet_names[0]} <span className='text-color-medium-gray-important'>from </span> {getBaseOfPath(updatedDataframeCreationData.params.file_name)}
+                <span className='text-color-medium-gray-important'>Updated to </span> {updatedDataframeCreationData.params.sheet_names[0]} <span className='text-color-medium-gray-important'>from </span> {getBaseOfPath(updatedDataframeCreationData.params.file_name)} {errorSpan}
             </div>
         )
     } else if (updatedDataframeCreationData.step_type === 'simple_import') {
         return (
             <div>
-                <span className='text-color-medium-gray-important'>Updated to </span> {getBaseOfPath(updatedDataframeCreationData.params.file_names[0])}
+                <span className='text-color-medium-gray-important'>Updated to </span> {getBaseOfPath(updatedDataframeCreationData.params.file_names[0])} {errorSpan}
             </div>
         )
     } else {
         return (
             <div>
-                <span className='text-color-medium-gray-important'>Updated </span> {updatedDataframeCreationData.params.df_names[0]}
+                <span className='text-color-medium-gray-important'>Updated to </span> {updatedDataframeCreationData.params.df_names[0]} {errorSpan}
             </div>
         )
     }
@@ -70,6 +85,7 @@ const UpdateImportCard = (props: {
     displayedImportCardDropdown: number | undefined;
     setDisplayedImportCardDropdown: React.Dispatch<React.SetStateAction<number | undefined>>;
     setReplacingDataframeState: React.Dispatch<React.SetStateAction<ReplacingDataframeState | undefined>>
+    invalidImportMessage: string | undefined;
 }): JSX.Element => {
 
     const displayDropdown = props.displayedImportCardDropdown === props.dataframeCreationIndex;
@@ -90,18 +106,18 @@ const UpdateImportCard = (props: {
     //const updated = !isDeepEqual(props.dataframeCreationData, props.updatedDataframeCreationData);
 
     return (
-        <Row justify='space-between' align='center'>
+        <Row justify='space-between' align='center' onClick={() => {openDropdown()}}>
             <Col span={22}>
                 <Row align='top'>
                     <CSVFileIcon />
                     <Col span={22} offset={.25}>
                         {getUpdateImportCardTitle(props.dataframeCreationData)}
-                        {getUpdateImportCardSubtitle(props.dataframeCreationData, props.updatedDataframeCreationData)}
+                        {getUpdateImportCardSubtitle(props.dataframeCreationData, props.updatedDataframeCreationData, props.invalidImportMessage)}
                     </Col>
                 </Row>
             </Col>
             <Col>
-                <div onClick={() => {openDropdown()}}>
+                <div>
                     <RightPointerIcon />
                     <Dropdown 
                         display={displayDropdown}
