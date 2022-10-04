@@ -85,7 +85,8 @@ def get_conversion_code(state: State, sheet_index: int, column_id: ColumnID, old
             return None
         elif is_datetime_dtype(new_dtype):
             # Guess the datetime format to the best of Pandas abilities
-            datetime_format = get_datetime_format(column)
+            datetime_format = get_datetime_format(column, 'code')
+            print('code: ', datetime_format)
             if datetime_format is not None:
                 return f'{df_name}[{transpiled_column_header}] = pd.to_datetime({df_name}[{transpiled_column_header}], format=\'{datetime_format}\', errors=\'coerce\')'
             else:

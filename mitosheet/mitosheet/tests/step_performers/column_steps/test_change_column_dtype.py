@@ -146,7 +146,6 @@ COMPLEX_DATE_STRINGS = [
     (['2016-01-31T19:29:50.000+0000', '2016-01-31T19:29:50.000+0000'], [pd.Timestamp(year=2016, month=1, day=31, hour=19, minute=29, second=50, tz='UTC'), pd.Timestamp(year=2016, month=1, day=31, hour=19, minute=29, second=50, tz='UTC')], 'df1[\'A\'] = pd.to_datetime(df1[\'A\'], infer_datetime_format=True, errors=\'coerce\')'),
     # M/DD/YYY
     (['4/14/2015', '4/15/2015'], [ts(y=2015, m=4, d=14), ts(y=2015, m=4, d=15)], 'df1[\'A\'] = pd.to_datetime(df1[\'A\'], infer_datetime_format=True, errors=\'coerce\')'),
-
 ]
 @pytest.mark.parametrize("strings, result, code", COMPLEX_DATE_STRINGS)
 def test_complex_date_strings(strings, result, code):
@@ -181,6 +180,18 @@ def test_datetime_to_other_types(new_dtype, result, code):
         assert len(mito.transpiled_code) > 0
     else:
         assert len(mito.transpiled_code) == 0
+
+DATETIME_FORMAT_TESTS = [
+    (['6/6/2020', '11/6/2020', '12/6/2020', '13/6/2020', '14/6/2020'], ['2020-06-06 00:00:00', '2020-06-11 00:00:00', '2020-06-12 00:00:00', '2020-06-13 00:00:00', '20202-06-14 00:00:00'])
+]
+
+@pytest.mark.parametrize("input_data, result", DATETIME_FORMAT_TESTS)
+def test_datetime_separators(input_data, result):
+    df = pd.DataFrame({'A': input_data})
+    mito = create_mito_wrapper_dfs(df)
+    mito.change_column_dtype(0, ['A'], 'datetime')
+    assert mito.get_column(0, 'A', as_list=True) == result
+
 
 TIMEDELTA_TESTS = [
     ('bool', [True, True, True], 'df1[\'A\'] = ~df1[\'A\'].isnull()'), 

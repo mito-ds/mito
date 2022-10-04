@@ -106,30 +106,43 @@ def put_nan_indexes_back(series: pd.Series, original_index: pd.Index) -> pd.Seri
     return series.reindex(original_index)
 
 
-def get_datetime_format(string_series: pd.Series) -> Optional[str]:
+def get_datetime_format(string_series: pd.Series, caller: Optional[str]) -> Optional[str]:
     """
-    Given a series of datetime strings, detects if the format is MM-DD-YYYY,
-    which is the most common format that pandas does not default to.
-
-    In the future, we can extend this to detect other formats. Returns None
-    if infer_datetime_format is good enough!
+    Given a series of datetime strings, guesses the most likely date format.
     """
     try:
-        # If we can convert all non null inputs, then we assume that pandas
-        # is guessing the input correctly
+        print("Caller: ", caller)
+        # If we can convert all non null inputs, then we assume we guessed correctly
         non_null_inputs = string_series[~string_series.isna()]
-        converted = pd.to_datetime(non_null_inputs, errors='coerce', infer_datetime_format=True)
-        if converted.isna().sum() > 0:
-            raise Exception("Non full conversion")
-        return None
-    except:
-        # Otherwise, we manually figure out the format.
-        sample_string_datetime = string_series[string_series.first_valid_index()]
-        if "/" in sample_string_datetime: 
-            return '%m/%d/%Y'
-        else:
-            return '%m-%d-%Y'
+        print(non_null_inputs)
 
+        # First try letting pandas guess the correct datetime
+        converted = pd.to_datetime(non_null_inputs, errors='coerce', infer_datetime_format=True)
+        if converted.isna().sum() == 0:
+            print('pandas got it correct')
+            return None
+
+        # Then we try the most popular datetime formats
+        sample_string_datetime = string_series[string_series.first_valid_index()]
+        FORMATS = ['%m{s}%d{s}%Y', '%d{s}%m{s}%Y', '%Y{s}%d{s}%m', '%Y{s}%m{s}%d']
+        SEPERATORS = ['/', '-', '.', ':', ' ', '']
+
+        for seperator in SEPERATORS:
+            if seperator in sample_string_datetime:
+                for _format in FORMATS:
+                    format = _format.format(s=seperator)
+                    if test_datetime_format(non_null_inputs, format):
+                        return format  
+    except:
+        # Log that we were unable to determine the correct datetime format 
+        print('FAILED')
+        return None
+
+
+def test_datetime_format(series: pd.Series, _format: str) -> bool:
+    converted = pd.to_datetime(series, errors='coerce', format=_format)
+    return converted.isna().sum() == 0
+        
 
 def get_million_identifier_in_string(string: str) -> Union[str, None]:
     """

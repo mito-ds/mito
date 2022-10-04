@@ -149,7 +149,8 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
                         changed_this_column = False
                     elif is_datetime_dtype(new_dtype):
                         # Guess the datetime format to the best of Pandas abilities
-                        datetime_format = get_datetime_format(column)
+                        datetime_format = get_datetime_format(column, 'execute')
+                        print('execute: ', datetime_format)
                         # If it's None, then infer_datetime_format is enough to figure it out
                         if datetime_format is not None:
                             new_column = pd.to_datetime(
