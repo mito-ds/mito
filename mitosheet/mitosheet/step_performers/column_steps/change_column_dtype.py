@@ -71,6 +71,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
         pandas_processing_time: float = 0
 
         changed_column_ids: List[ColumnID] = []
+        datetime_formats: Dict[ColumnID, Optional[str]] = {}
         for column_id in column_ids:
 
             old_dtype = old_dtypes[column_id]
@@ -150,6 +151,10 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
                     elif is_datetime_dtype(new_dtype):
                         # Guess the datetime format to the best of Pandas abilities
                         datetime_format = get_datetime_format(column)
+
+                        # Save the datetime_format for use in the code chunk
+                        datetime_formats[column_id] = datetime_format
+
                         # If it's None, then infer_datetime_format is enough to figure it out
                         if datetime_format is not None:
                             new_column = pd.to_datetime(
@@ -221,10 +226,15 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
                     new_dtype
                 )
 
-        return post_state, {
+        execution_data = {
             'pandas_processing_time': pandas_processing_time,
             'changed_column_ids': changed_column_ids
         }
+
+        if len(datetime_formats) > 0:
+            execution_data['datetime_formats'] = datetime_formats
+
+        return post_state, execution_data
         
 
     @classmethod
