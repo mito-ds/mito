@@ -92,7 +92,7 @@ const UpdateImportCard = (props: {
     return (
         <Row justify='space-between' align='center'>
             <Col span={22}>
-                <Row align='center'>
+                <Row align='top'>
                     <CSVFileIcon />
                     <Col span={22} offset={.25}>
                         {getUpdateImportCardTitle(props.dataframeCreationData)}

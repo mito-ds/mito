@@ -60,9 +60,9 @@ def get_imported_files_and_dataframes(params: Dict[str, Any], steps_manager: Ste
                             'step_type': step.step_type,
                             'params': {
                                 'file_names': [file_name],
-                                'delimeters': [get_index_from_possible_null_list(step.params['delimeters'], index)],
-                                'encodings': [get_index_from_possible_null_list(step.params['encodings'], index)],
-                                'error_bad_lines': [get_index_from_possible_null_list(step.params['error_bad_lines'], index)]
+                                'delimeters': [get_index_from_possible_null_list(step.params.get('delimeters', None), index)],
+                                'encodings': [get_index_from_possible_null_list(step.params.get('encodings', None), index)],
+                                'error_bad_lines': [get_index_from_possible_null_list(step.params.get('error_bad_lines', None), index)]
                             }
                         }]
                     }

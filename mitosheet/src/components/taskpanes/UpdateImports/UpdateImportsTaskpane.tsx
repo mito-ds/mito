@@ -11,7 +11,7 @@ import { CSVImportParams } from "../../import/CSVImportScreen";
 import { ExcelImportParams } from "../../import/XLSXImportScreen";
 import ImportCard from "./UpdateImportCard";
 import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
-import { getBaseOfPath, getOriginalAndUpdatedDataframeCreationDataPairs, isCSVImportParams, isExcelImportParams } from "./UpdateImportsUtils";
+import { getBaseOfPath, getOriginalAndUpdatedDataframeCreationDataPairs, isCSVImportParams, isExcelImportParams, isUpdatedDfCreationData } from "./UpdateImportsUtils";
 import { ImportScreen } from "../FileImport/FileImportTaskpane";
 import UpdateDataframeImportTaskpane from "./UpdateDataframeImportTaskpane";
 import UpdateXLSXImportsTaskpane from "./UpdateXLSXImportTaskpane";
@@ -74,6 +74,7 @@ const UpdateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element =
         undefined,
         () => {return props.mitoAPI.getImportedFilesAndDataframes()},
         (loadedData) => {
+            console.log("Loaded", loadedData)
             // On load, update the updated import data
             setUpdatedStepImportData(loadedData || [])
         },
@@ -81,7 +82,8 @@ const UpdateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element =
     )
 
     // We create an import card for each of the dataframes created within the original imports
-    const updateImportCards = getOriginalAndUpdatedDataframeCreationDataPairs(originalStepImportData, updatedStepImportData).map(([originalDfCreationData, updatedDfCreationData], index) => {
+    const originalAndUpdatedDataframeCreationPairs = getOriginalAndUpdatedDataframeCreationDataPairs(originalStepImportData, updatedStepImportData);
+    const updateImportCards = originalAndUpdatedDataframeCreationPairs.map(([originalDfCreationData, updatedDfCreationData], index) => {
         return (
             <ImportCard 
                 key={index}
@@ -95,6 +97,9 @@ const UpdateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element =
         )
     })
 
+    const updated = originalAndUpdatedDataframeCreationPairs.map(([originalDfCreationData, updatedDfCreationData]) => {
+        return isUpdatedDfCreationData(originalDfCreationData, updatedDfCreationData);
+    }).reduce((prevValue, newValue) => {return prevValue || newValue}, false);
 
     if (replacingDataframeState === undefined) {
         return (
@@ -114,7 +119,7 @@ const UpdateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element =
                                 props.mitoAPI.updateExistingImports(updatedStepImportData)
                             }
                         }}
-                        disabled={undefined } // TODO, disable this if there is an error
+                        disabled={!updated} // TODO, disable this if there is an error
                     >
                         <p>
                             Update Imports

@@ -23,36 +23,42 @@ def execute_update_existing_imports_update(steps_manager: StepsManagerType, upda
     Updates the step list with the new step import data.
     """
 
+    old_steps = copy(steps_manager.steps_including_skipped)
     new_steps = copy(steps_manager.steps_including_skipped)
 
-    # We group up all the steps by their ids
-    imports_for_step_id: Dict[str, List[Dict, Any]] = dict()
-    for step_import_data in updated_step_import_data:
-        step_id = step_import_data['step_id']
-        imports = step_import_data['imports']
+    try:
+        # We group up all the steps by their ids
+        imports_for_step_id: Dict[str, List[Dict, Any]] = dict()
+        for step_import_data in updated_step_import_data:
+            step_id = step_import_data['step_id']
+            imports = step_import_data['imports']
 
-        arr = imports_for_step_id.get(step_id, [])
-        arr.extend(imports)
+            arr = imports_for_step_id.get(step_id, [])
+            arr.extend(imports)
 
-        imports_for_step_id[step_id] = arr
+            imports_for_step_id[step_id] = arr
 
-    for step_id, imports in imports_for_step_id.items():
-        original_step_index = [index for index, step in enumerate(new_steps) if step.step_id == step_id][0]
+        for step_id, imports in imports_for_step_id.items():
+            original_step_index = [index for index, step in enumerate(new_steps) if step.step_id == step_id][0]
 
-        # Build all the new steps
-        # TODO: we could combine them, but this is done in code optimization otherwise. It might lead to strange undo/redo
-        # behavior, but we ignore that for now
-        import_steps_to_replace_with = []
-        for _import in imports:
-            import_steps_to_replace_with.append(
-                Step(_import['step_type'], create_step_id(), _import["params"])
-            )
+            # Build all the new steps
+            # TODO: we could combine them, but this is done in code optimization otherwise. It might lead to strange undo/redo
+            # behavior, but we ignore that for now
+            import_steps_to_replace_with = []
+            for _import in imports:
+                import_steps_to_replace_with.append(
+                    Step(_import['step_type'], create_step_id(), _import["params"])
+                )
 
-        # Then, replace the single old step with all the new steps
-        new_steps = new_steps[:original_step_index] + import_steps_to_replace_with + new_steps[(original_step_index + 1):]
+            # Then, replace the single old step with all the new steps
+            new_steps = new_steps[:original_step_index] + import_steps_to_replace_with + new_steps[(original_step_index + 1):]
+    except:
+        from mitosheet.errors import get_recent_traceback
+        print(get_recent_traceback())
 
     # Refresh the anlaysis starting from the first step
     steps_manager.execute_and_update_steps(new_steps, 0)
+    steps_manager.undone_step_list_store.append(("clear", old_steps))
 
 
 EXISTING_IMPORTS_UPDATE = {
