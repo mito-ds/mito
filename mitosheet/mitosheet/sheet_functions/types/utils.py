@@ -106,20 +106,17 @@ def put_nan_indexes_back(series: pd.Series, original_index: pd.Index) -> pd.Seri
     return series.reindex(original_index)
 
 
-def get_datetime_format(string_series: pd.Series, caller: Optional[str]) -> Optional[str]:
+def get_datetime_format(string_series: pd.Series) -> Optional[str]:
     """
     Given a series of datetime strings, guesses the most likely date format.
     """
     try:
-        print("Caller: ", caller)
         # If we can convert all non null inputs, then we assume we guessed correctly
         non_null_inputs = string_series[~string_series.isna()]
-        print(non_null_inputs)
 
         # First try letting pandas guess the correct datetime
         converted = pd.to_datetime(non_null_inputs, errors='coerce', infer_datetime_format=True)
         if converted.isna().sum() == 0:
-            print('pandas got it correct')
             return None
 
         # Then we try the most popular datetime formats
@@ -135,7 +132,6 @@ def get_datetime_format(string_series: pd.Series, caller: Optional[str]) -> Opti
                         return format  
     except:
         # Log that we were unable to determine the correct datetime format 
-        print('FAILED')
         return None
 
 

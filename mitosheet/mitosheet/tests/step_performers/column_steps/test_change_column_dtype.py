@@ -181,16 +181,23 @@ def test_datetime_to_other_types(new_dtype, result, code):
     else:
         assert len(mito.transpiled_code) == 0
 
+RESULT = [pd.to_datetime(x) for x in ['2020-06-06', '2020-06-11', '2020-06-12', '2020-06-13', '2020-06-14']]
 DATETIME_FORMAT_TESTS = [
-    (['6/6/2020', '11/6/2020', '12/6/2020', '13/6/2020', '14/6/2020'], ['2020-06-06 00:00:00', '2020-06-11 00:00:00', '2020-06-12 00:00:00', '2020-06-13 00:00:00', '20202-06-14 00:00:00'])
+    (['6/6/2020', '11/6/2020', '12/6/2020', '13/6/2020', '14/6/2020']),
+    (['6-6-2020', '11-6-2020', '12-6-2020', '13-6-2020', '14-6-2020']),
+    (['6.6.2020', '11.6.2020', '12.6.2020', '13.6.2020', '14.6.2020']),
+    (['6:6:2020', '11:6:2020', '12:6:2020', '13:6:2020', '14:6:2020']),
+    (['6 6 2020', '11 6 2020', '12 6 2020', '13 6 2020', '14 6 2020']),
+    (['662020', '1162020', '1262020', '1362020', '1462020']),
 ]
 
-@pytest.mark.parametrize("input_data, result", DATETIME_FORMAT_TESTS)
-def test_datetime_separators(input_data, result):
+@pytest.mark.parametrize("input_data", DATETIME_FORMAT_TESTS)
+def test_datetime_separators(input_data):
     df = pd.DataFrame({'A': input_data})
     mito = create_mito_wrapper_dfs(df)
     mito.change_column_dtype(0, ['A'], 'datetime')
-    assert mito.get_column(0, 'A', as_list=True) == result
+    column = mito.get_column(0, 'A', as_list=True)
+    assert column == RESULT
 
 
 TIMEDELTA_TESTS = [

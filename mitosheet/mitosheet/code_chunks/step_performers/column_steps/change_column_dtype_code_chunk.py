@@ -10,8 +10,7 @@ from mitosheet.types import ColumnID
 from mitosheet.state import State
 
 from mitosheet.errors import make_invalid_column_type_change_error
-from mitosheet.sheet_functions.types.utils import (get_datetime_format,
-                                                   is_bool_dtype,
+from mitosheet.sheet_functions.types.utils import (get_datetime_format, is_bool_dtype,
                                                    is_datetime_dtype,
                                                    is_float_dtype,
                                                    is_int_dtype,
@@ -20,12 +19,11 @@ from mitosheet.sheet_functions.types.utils import (get_datetime_format,
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
 
 
-def get_conversion_code(state: State, sheet_index: int, column_id: ColumnID, old_dtype: str, new_dtype: str) -> Optional[str]:
+def get_conversion_code(prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, old_dtype: str, new_dtype: str) -> Optional[str]:
     
-    column_header = state.column_ids.get_column_header_by_id(sheet_index, column_id)
+    column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
     transpiled_column_header = column_header_to_transpiled_code(column_header)
-    df_name = state.df_names[sheet_index]
-    column = state.dfs[sheet_index][column_header]
+    df_name = post_state.df_names[sheet_index]
 
     if is_bool_dtype(old_dtype):
         if is_bool_dtype(new_dtype):
@@ -84,9 +82,9 @@ def get_conversion_code(state: State, sheet_index: int, column_id: ColumnID, old
         elif is_string_dtype(new_dtype):
             return None
         elif is_datetime_dtype(new_dtype):
-            # Guess the datetime format to the best of Pandas abilities
-            datetime_format = get_datetime_format(column, 'code')
-            print('code: ', datetime_format)
+            column = prev_state.dfs[sheet_index][column_header]
+            datetime_format = get_datetime_format(column)
+
             if datetime_format is not None:
                 return f'{df_name}[{transpiled_column_header}] = pd.to_datetime({df_name}[{transpiled_column_header}], format=\'{datetime_format}\', errors=\'coerce\')'
             else:
@@ -151,7 +149,6 @@ class ChangeColumnDtypeCodeChunk(CodeChunk):
         old_dtypes = self.get_param('old_dtypes')
         new_dtype = self.get_param('new_dtype')
 
-
         # Note: we can't actually group all the headers together in one conversion, and not every dtype can be converted
         # to the target dtype in the same way. Even if they have the same old_dtype, this still might not work in the case
         # of converting to datetimes. It ends up being really hard to actually group these together (>50+ lines of relatively
@@ -161,7 +158,7 @@ class ChangeColumnDtypeCodeChunk(CodeChunk):
         for column_id in column_ids:
             old_dtype = old_dtypes[column_id]
 
-            conversion_code = get_conversion_code(self.post_state, sheet_index, column_id, old_dtype, new_dtype)
+            conversion_code = get_conversion_code(self.prev_state, self.post_state, sheet_index, column_id, old_dtype, new_dtype)
             if conversion_code is not None:
                 code.append(conversion_code)
         

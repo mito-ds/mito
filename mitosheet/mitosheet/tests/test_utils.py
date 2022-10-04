@@ -1241,9 +1241,6 @@ class MitoWidgetTestWrapper:
         Errors if the column does not exist. 
         """
         if as_list:
-            print('BBBBBB')
-            print(self.mito_widget.steps_manager.dfs[sheet_index][column_header].tolist())
-            print('CCCCCC')
             return self.mito_widget.steps_manager.dfs[sheet_index][column_header].tolist()
         return self.mito_widget.steps_manager.dfs[sheet_index][column_header]
 
