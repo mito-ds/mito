@@ -82,6 +82,8 @@ def get_conversion_code(prev_state: State, post_state: State, sheet_index: int, 
         elif is_string_dtype(new_dtype):
             return None
         elif is_datetime_dtype(new_dtype):
+            # We use the prev state to determine the datetime_format because in the post_state, 
+            # the format has already been updated. 
             column = prev_state.dfs[sheet_index][column_header]
             datetime_format = get_datetime_format(column)
 

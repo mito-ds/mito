@@ -111,6 +111,9 @@ def get_datetime_format(string_series: pd.Series) -> Optional[str]:
     Given a series of datetime strings, guesses the most likely date format.
     """
     try:
+        # Import log function here to avoid circular import
+        from mitosheet.telemetry.telemetry_utils import log
+
         # If we can convert all non null inputs, then we assume we guessed correctly
         non_null_inputs = string_series[~string_series.isna()]
 
@@ -130,8 +133,11 @@ def get_datetime_format(string_series: pd.Series) -> Optional[str]:
                     format = _format.format(s=seperator)
                     if test_datetime_format(non_null_inputs, format):
                         return format  
+
+        log('unable_to_determine_datetime_format_on_cast')
+        return None
     except:
-        # Log that we were unable to determine the correct datetime format 
+        log('unable_to_determine_datetime_format_on_cast')
         return None
 
 

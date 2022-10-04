@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
 from mitosheet.step_performers.dataframe_import import get_variable_with_name_from_caller
 from mitosheet.step_performers.graph_steps.plotly_express_graphs import DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT, DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT, DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT
-from numpy import bool_, number
+from numpy import number
 
 import pandas as pd
 from mitosheet.mito_widget import MitoWidget, sheet
@@ -43,7 +43,6 @@ def check_dataframes_equal(test_wrapper):
 
     # The only dataframes we want to define apriori are the dataframes that
     # were passed directly to the mito widget
-    print(4)
     original_dfs = {
         df_name: df.copy(deep=True) for df, df_name in 
         zip(
@@ -51,7 +50,6 @@ def check_dataframes_equal(test_wrapper):
             test_wrapper.mito_widget.steps_manager.steps_including_skipped[0].df_names
         )
     }
-    print(5)
     final_dfs = {
         df_name: df.copy(deep=True) for df, df_name in 
         zip(
@@ -59,19 +57,11 @@ def check_dataframes_equal(test_wrapper):
             test_wrapper.mito_widget.steps_manager.curr_step.df_names
         )
     }
-    print(6)
 
     # Then, construct code that is just the code we expect, except at the end
     # it compares the dataframe to the final dataframe we expect
     def check_final_dataframe(df_name, df):
-        print('final df')
-        print(final_dfs[df_name])
-        print('df')
-        print(df)
         assert final_dfs[df_name].equals(df)
-
-    print(7)
-
 
     code = "\n".join(
         test_wrapper.transpiled_code +
@@ -80,7 +70,6 @@ def check_dataframes_equal(test_wrapper):
             for df_name in test_wrapper.mito_widget.steps_manager.curr_step.df_names
         ]
     )
-    print(8)
 
     import mitosheet
     exec(code, 
@@ -93,8 +82,6 @@ def check_dataframes_equal(test_wrapper):
         }, 
         original_dfs
     )
-
-    print(9)
 
     # We then check that the sheet data json that is saved by the widget, which 
     # notably uses caching, does not get incorrectly cached and is written correctly
