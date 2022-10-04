@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
     This effect uses an API call to get data
 */
 export function useStateFromAPIAsync<ResultType, ParamType>(
-        defaultValue: ResultType,
-        apiCall: (...rest: ParamType[]) => Promise<ResultType | undefined>,
-        onLoad: ((loadedData: ResultType) => void) | undefined,
-        params: ParamType[],
-    ): [ResultType, React.Dispatch<React.SetStateAction<ResultType>>] {
+    defaultValue: ResultType,
+    apiCall: (...rest: ParamType[]) => Promise<ResultType | undefined>,
+    onLoad: ((loadedData: ResultType) => void) | undefined,
+    params: ParamType[],
+): [ResultType, React.Dispatch<React.SetStateAction<ResultType>>] {
     const [state, setState] = useState(defaultValue);
 
     useEffect(() => {

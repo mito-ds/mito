@@ -6,9 +6,9 @@ export function isDeepEqual(obj1: Record<string | number | symbol, any>, obj2: R
 
     if (keys1.length !== keys2.length) {
         return false;
-    };
+    }
 
-    for (var key of keys1) {
+    for (const key of keys1) {
         const value1 = obj1[key];
         const value2 = obj2[key];
 

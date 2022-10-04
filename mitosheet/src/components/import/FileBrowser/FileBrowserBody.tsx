@@ -191,8 +191,7 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
                                 if (isExcelFile(selectedFile)) {
                                     props.setImportState({screen: 'xlsx_import'});
                                 } else {
-                                    console.log("Calling import", selectedFile)
-                                    props.importCSVFile(selectedFile);
+                                    void props.importCSVFile(selectedFile);
                                 }
 
 

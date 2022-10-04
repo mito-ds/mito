@@ -35,7 +35,7 @@ export const getUpdateImportCardTitle = (dataframeCreationData: DataframeCreatio
 export const getUpdateImportCardSubtitle = (dataframeCreationData: DataframeCreationData, updatedDataframeCreationData: DataframeCreationData, invalidImportMessage: string | undefined): JSX.Element | null => {
     const isUpdated = isUpdatedDfCreationData(dataframeCreationData, updatedDataframeCreationData);
 
-    let errorSpan = invalidImportMessage === undefined
+    const errorSpan = invalidImportMessage === undefined
         ? null
         : (
             <span className='text-color-error-important'>{invalidImportMessage}</ span>

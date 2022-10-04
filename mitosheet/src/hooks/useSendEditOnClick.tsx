@@ -95,7 +95,7 @@ function useSendEditOnClick<ParamType, ResultType>(
 
         setLoading(true);
         const newStepID = getRandomId(); // always use a new step id
-        let possibleError = await mitoAPI._edit<ParamType>(editEvent, finalParams, newStepID);
+        const possibleError = await mitoAPI._edit<ParamType>(editEvent, finalParams, newStepID);
         setLoading(false);
 
         // Handle if we return an error

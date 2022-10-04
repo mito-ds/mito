@@ -1184,7 +1184,7 @@ class MitoWidgetTestWrapper:
                 'type': 'existing_import_update',
                 'id': get_new_id(),
                 'params': {
-                    'updated_import_objs': updated_import_objs
+                    'updated_step_import_data': updated_import_objs
                 }
             }
         )

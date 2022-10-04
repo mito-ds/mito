@@ -130,7 +130,7 @@ const UpdateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element =
 
                             // If there are no invalid indexes, then we can update
                             if (Object.keys(_invalidImportIndexes).length === 0) {
-                                props.mitoAPI.updateExistingImports(updatedStepImportData);
+                                void props.mitoAPI.updateExistingImports(updatedStepImportData);
                             }
                         }}
                         disabled={!updated} // TODO, disable this if there is an error

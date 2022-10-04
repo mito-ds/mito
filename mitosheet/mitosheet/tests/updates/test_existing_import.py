@@ -41,30 +41,33 @@ def test_overwrite_multiple_imports():
     updated_import_obj = [
         {
             'step_id': step_id,
-            'type': 'csv',
-            'import_params': {
-                'file_names': [TEST_CSV_FILE],
-                'delimeters': [','],
-                'encodings': ['utf-8'],
-                'error_bad_lines': [False],
-            }
-        },
-        {
-            'step_id': step_id,
-            'type': 'excel',
-            'import_params': {
-                'file_name': TEST_EXCEL_FILE,
-                'sheet_names': ['Sheet3'],
-                'has_headers': True,
-                'skiprows': 0,
-            }
-        },  
-        {
-            'step_id': step_id,
-            'type': 'df',
-            'import_params': {
-                'df_names': ['df2']
-            }
+            'imports': [
+                {
+                    'step_type': 'simple_import',
+                    'params': {
+                        'file_names': [TEST_CSV_FILE],
+                        'delimeters': [','],
+                        'encodings': ['utf-8'],
+                        'error_bad_lines': [False],
+                    }
+                },
+                {
+                    'step_type': 'excel_import',
+                    'params': {
+                        'file_name': TEST_EXCEL_FILE,
+                        'sheet_names': ['Sheet3'],
+                        'has_headers': True,
+                        'skiprows': 0,
+                    }
+                },
+                {
+                    'step_type': 'dataframe_import',
+                    'params': {
+                        'df_names': ['df2']
+                    }
+                }
+            ]
+            
         }
     ]
 
@@ -105,13 +108,17 @@ def test_replay_steps_correctly():
     updated_import_obj = [ 
         {
            'step_id': step_id,
-            'type': 'csv',
-            'import_params': {
-                'file_names': [TEST_CSV_FILE_TWO],
-                'delimeters': [','],
-                'encodings': ['utf-8'],
-                'error_bad_lines': [False],
-            }
+           'imports': [
+                {
+                    'step_type': 'simple_import',
+                    'params': {
+                        'file_names': [TEST_CSV_FILE_TWO],
+                        'delimeters': [','],
+                        'encodings': ['utf-8'],
+                        'error_bad_lines': [False],
+                    }
+                }
+           ]
         }
     ]
 

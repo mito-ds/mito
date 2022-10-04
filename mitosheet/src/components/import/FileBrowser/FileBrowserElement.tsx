@@ -105,7 +105,7 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
                     if (isExcelFile(props.element)) {
                         props.setImportState({screen: 'xlsx_import'});
                     } else {
-                        props.importCSVFile(props.element);
+                        void props.importCSVFile(props.element);
                     }
 
                     // TODO: set the correct screen?
