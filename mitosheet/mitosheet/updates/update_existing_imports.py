@@ -58,7 +58,7 @@ def execute_update_existing_imports_update(steps_manager: StepsManagerType, upda
 
     # Refresh the anlaysis starting from the first step
     steps_manager.execute_and_update_steps(new_steps, 0)
-    steps_manager.undone_step_list_store.append(("clear", old_steps))
+    steps_manager.undone_step_list_store.append(("reset", old_steps))
 
 
 EXISTING_IMPORTS_UPDATE = {

@@ -125,4 +125,84 @@ def test_replay_steps_correctly():
     mito.update_existing_imports(updated_import_obj)
 
     # Make sure the updates occured correctly 
-    assert mito.get_value(0, 'A', 1) == 10
+    print(mito.dfs[0])
+    assert mito.dfs[0].equals(pd.DataFrame({'Unnamed: 0': [0, 1, 2], 'A': [10, 20, 30], 'B': [10, 20, 30]}))
+
+def test_undo_works():
+    # Make dataframes and files for test
+    df1 = pd.DataFrame(data={'A': [1, 2, 3]})
+    df1.to_csv(TEST_CSV_FILE, index=True)
+    df2 = pd.DataFrame(data={'A': [10, 20, 30]})
+    df2.to_csv(TEST_CSV_FILE_TWO, index=True)
+
+    # Create with no dataframes
+    mito = create_mito_wrapper_dfs()
+    # And then import just a test file
+    mito.simple_import([TEST_CSV_FILE])
+    step_id = mito.curr_step.step_id
+
+    mito.set_formula('=A', 0, 'B', True)
+
+    # Update the imports 
+    updated_import_obj = [ 
+        {
+           'step_id': step_id,
+           'imports': [
+                {
+                    'step_type': 'simple_import',
+                    'params': {
+                        'file_names': [TEST_CSV_FILE_TWO],
+                        'delimeters': [','],
+                        'encodings': ['utf-8'],
+                        'error_bad_lines': [False],
+                    }
+                }
+           ]
+        }
+    ]
+
+    mito.update_existing_imports(updated_import_obj)
+    mito.undo()
+
+    # Make sure the updates occured correctly 
+    assert mito.dfs[0].equals(pd.DataFrame({'Unnamed: 0': [0, 1, 2], 'A': [1, 2, 3], 'B': [1, 2, 3]}, index=[0, 1, 2]))
+
+
+def test_redo_works():
+    # Make dataframes and files for test
+    df1 = pd.DataFrame(data={'A': [1, 2, 3]})
+    df1.to_csv(TEST_CSV_FILE, index=True)
+    df2 = pd.DataFrame(data={'A': [10, 20, 30]})
+    df2.to_csv(TEST_CSV_FILE_TWO, index=True)
+
+    # Create with no dataframes
+    mito = create_mito_wrapper_dfs()
+    # And then import just a test file
+    mito.simple_import([TEST_CSV_FILE])
+    step_id = mito.curr_step.step_id
+
+    mito.set_formula('=A', 0, 'B', True)
+
+    # Update the imports 
+    updated_import_obj = [ 
+        {
+           'step_id': step_id,
+           'imports': [
+                {
+                    'step_type': 'simple_import',
+                    'params': {
+                        'file_names': [TEST_CSV_FILE_TWO],
+                        'delimeters': [','],
+                        'encodings': ['utf-8'],
+                        'error_bad_lines': [False],
+                    }
+                }
+           ]
+        }
+    ]
+
+    mito.update_existing_imports(updated_import_obj)
+    mito.redo()
+
+    # Make sure the updates occured correctly 
+    assert mito.dfs[0].equals(pd.DataFrame({'Unnamed: 0': [0, 1, 2], 'A': [1, 2, 3], 'B': [1, 2, 3]}, index=[0, 1, 2]))
