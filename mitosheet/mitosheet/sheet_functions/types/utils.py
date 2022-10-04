@@ -124,7 +124,16 @@ def get_datetime_format(string_series: pd.Series) -> Optional[str]:
 
         # Then we try the most popular datetime formats
         sample_string_datetime = string_series[string_series.first_valid_index()]
-        FORMATS = ['%m{s}%d{s}%Y', '%d{s}%m{s}%Y', '%Y{s}%d{s}%m', '%Y{s}%m{s}%d']
+        FORMATS = [
+            '%m{s}%d{s}%Y', 
+            '%d{s}%m{s}%Y', 
+            '%Y{s}%d{s}%m', 
+            '%Y{s}%m{s}%d', 
+            '%m{s}%d{s}%Y %H:%M:%S', 
+            '%d{s}%m{s}%Y  %H:%M:%S', 
+            '%Y{s}%d{s}%m  %H:%M:%S', 
+            '%Y{s}%m{s}%d  %H:%M:%S'
+        ]
         SEPERATORS = ['/', '-', '.', ':', ' ', '']
 
         for seperator in SEPERATORS:
