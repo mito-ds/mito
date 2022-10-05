@@ -5,6 +5,7 @@ import { GraphOutput, GraphParamsFrontend } from '../../../types';
 import MitoAPI from '../../../jupyter/api';
 import TextButton from '../../elements/TextButton';
 import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
+import Row from '../../layout/Row';
 
 /* 
     The export tab that lets the user copy the graph code or download as a png
@@ -54,10 +55,11 @@ function GraphExportTab(
                     title={'Click to copy code that creates graph and displays it in the notebook'}
                 >
                     {!showGraphCodeCopied
-                        ? "Copy Show Graph Code"
+                        ? "Copy code that displays graph"
                         : "Copied to Clipboard!"
                     }
                 </TextButton>
+                {showGraphCodeCopied ? (<Row justify='center' className='text-subtext-1'>Paste copied code in code cell below</Row>) : <></>}
             </div>
             <div>
                 <TextButton
@@ -67,10 +69,11 @@ function GraphExportTab(
                     title={'Click to copy code that creates graph and exports it as an html file'}
                 >
                     {!exportHTMLGraphCodeCopied
-                        ? "Copy Export HTML Graph Code"
+                        ? "Copy code to create graph HTML file"
                         : "Copied to Clipboard!"
                     }
                 </TextButton>
+                {exportHTMLGraphCodeCopied ? (<Row justify='center' className='text-subtext-1'>Paste copied code in code cell below</Row>) : <></>}
             </div>
             <div>
                 <TextButton
