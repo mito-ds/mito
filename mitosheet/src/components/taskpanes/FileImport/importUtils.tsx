@@ -1,3 +1,4 @@
+import MitoAPI from "../../../jupyter/api";
 import { fuzzyMatch } from "../../../utils/strings";
 import { FileBrowserState } from "../../import/FileBrowser/FileBrowserBody";
 import { FileElement } from "./FileImportTaskpane";
@@ -157,4 +158,15 @@ export const getElementsToDisplay = (importState: FileBrowserState): FileElement
 export const inRootFolder = (pathParts: string[]): boolean => {
     pathParts = pathParts.filter(pathPart => pathPart !== '')
     return pathParts.length === 1 && (pathParts[0] === '/' || pathParts[0] === '\\');
+}
+
+
+export const getFilePath = async (mitoAPI: MitoAPI, pathParts: string[], file: FileElement | undefined): Promise<string | undefined> => {
+    const fullPath = [...pathParts];
+    if (file === undefined) {
+        return;
+    }
+    fullPath.push(file?.name)
+
+    return await mitoAPI.getPathJoined(fullPath);
 }

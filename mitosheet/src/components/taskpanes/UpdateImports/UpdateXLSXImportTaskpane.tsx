@@ -4,6 +4,7 @@ import React from 'react';
 import MitoAPI from '../../../jupyter/api';
 import { AnalysisData, UIState } from '../../../types';
 import XLSXImportScreen from '../../import/XLSXImportScreen';
+import { getDefaultXLSXParams } from '../FileImport/XLSXImportTaskpane';
 import { ReplacingDataframeState, StepImportData } from './UpdateImportsTaskpane';
 import { isExcelImportParams, updateStepImportDataList } from './UpdateImportsUtils';
 
@@ -24,11 +25,9 @@ interface UpdateXLSXImportTaskpaneProps {
 
 function UpdateXLSXImportsTaskpane(props: UpdateXLSXImportTaskpaneProps): JSX.Element {
 
-    const params = props.replacingDataframeState.params;
-    if (!isExcelImportParams(params)) {
-        props.setReplacingDataframeState(undefined);
-        return (<></>)
-    }
+    const params = isExcelImportParams(props.replacingDataframeState.params)
+        ? props.replacingDataframeState.params
+        : getDefaultXLSXParams(props.filePath)
 
     return (
         <XLSXImportScreen
@@ -49,19 +48,13 @@ function UpdateXLSXImportsTaskpane(props: UpdateXLSXImportTaskpaneProps): JSX.El
 
                     return {
                         ...prevReplacingDataframeState,
-                        params: params === undefined ? undefined : updater(params)
+                        params: updater(params)
                     }
                 })
             }}
             edit={() => {
                 // When we do the edit, we change the set this import
                 // When we import the CSV, we update the screen
-
-                const params = props.replacingDataframeState.params;
-                if (params === undefined || !isExcelImportParams(params)) {
-                    return params;
-                }
-
                 props.setUpdatedStepImportData((prevUpdatedStepImportData) => {
                     if (prevUpdatedStepImportData === undefined) {
                         return undefined;

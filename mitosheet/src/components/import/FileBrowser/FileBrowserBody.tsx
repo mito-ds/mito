@@ -9,7 +9,7 @@ import SortArrowIcon from '../../icons/SortArrowIcon';
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
 import { FileElement, ImportState } from '../../taskpanes/FileImport/FileImportTaskpane';
-import { getElementsToDisplay, inRootFolder, isExcelFile } from '../../taskpanes/FileImport/importUtils';
+import { getElementsToDisplay, getFilePath, inRootFolder, isExcelFile } from '../../taskpanes/FileImport/importUtils';
 import { TaskpaneType } from '../../taskpanes/taskpanes';
 import FileBrowserElement from './FileBrowserElement';
 import FileBrowserPathSelector from './FileBrowserPathSelector';
@@ -41,8 +41,6 @@ interface FileBrowserProps {
 
     fileBrowserState: FileBrowserState;
     setFileBrowserState: React.Dispatch<React.SetStateAction<FileBrowserState>>;
-
-    setSelectedFile: React.Dispatch<React.SetStateAction<FileElement | undefined>>
 
     importCSVFile: (file: FileElement) => Promise<void>;
     setImportState: (newImportState: ImportState) => void;
@@ -187,9 +185,20 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
                                 newPathParts.push(selectedFile.name);
                                 props.setCurrPathParts(newPathParts);
                             } else {
-                                props.setSelectedFile(selectedFile);
                                 if (isExcelFile(selectedFile)) {
-                                    props.setImportState({screen: 'xlsx_import'});
+                                    const openExcelImport = async () => {
+                                        const filePath = await getFilePath(props.mitoAPI, props.currPathParts, selectedFile);
+                                        if (filePath === undefined || selectedFile === undefined) {
+                                            return;
+                                        }
+                                        props.setImportState({
+                                            screen: 'xlsx_import',
+                                            fileName: selectedFile.name,
+                                            filePath: filePath
+                                        });
+                                    }
+            
+                                    void openExcelImport();
                                 } else {
                                     void props.importCSVFile(selectedFile);
                                 }
@@ -251,7 +260,7 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
                                     element={element}
                                     fileBrowserState={props.fileBrowserState}
                                     setFileBrowserState={props.setFileBrowserState}
-                                    setSelectedFile={props.setSelectedFile}
+                                    currPathParts={props.currPathParts}
                                     setCurrPathParts={props.setCurrPathParts}
                                     excelImportEnabled={props.userProfile.excelImportEnabled}
                                     setImportState={props.setImportState}

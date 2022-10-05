@@ -9,6 +9,7 @@ import { CSVImportParams } from '../../import/CSVImportScreen';
 import FileBrowser from '../../import/FileBrowser/FileBrowser';
 import { FileBrowserState } from '../../import/FileBrowser/FileBrowserBody';
 import { FileElement, ImportState } from './FileImportTaskpane';
+import { getElementsToDisplay, getFilePath } from './importUtils';
 
 
 interface FileBrowserImportProps {
@@ -19,9 +20,6 @@ interface FileBrowserImportProps {
 
     currPathParts: string[];
     setCurrPathParts: (newPathParts: string[]) => void;
-
-    selectedFile: FileElement | undefined;
-    setSelectedFile: React.Dispatch<React.SetStateAction<FileElement | undefined>>;
 
     setImportState: React.Dispatch<React.SetStateAction<ImportState>>;
 }
@@ -54,12 +52,24 @@ function FileBrowserTaskpane(props: FileBrowserImportProps): JSX.Element {
         {allowSameParamsToReapplyTwice: true}
     )
 
+    const selectedFile: FileElement | undefined = getElementsToDisplay(fileBrowserState)[fileBrowserState.selectedElementIndex];
+
     useEffect(() => {
-        if (error !== undefined) {
+        const openCSVOnError = async () => {
+            const filePath = await getFilePath(props.mitoAPI, props.currPathParts, selectedFile);
+            if (filePath === undefined || selectedFile === undefined) {
+                return
+            }
             props.setImportState({
                 screen: 'csv_import',
+                fileName: selectedFile.name,
+                filePath: filePath,
                 error: error
             })
+        }
+
+        if (error !== undefined) {
+            void openCSVOnError()
         }
     }, [error])
 
@@ -73,9 +83,6 @@ function FileBrowserTaskpane(props: FileBrowserImportProps): JSX.Element {
 
             currPathParts={props.currPathParts}
             setCurrPathParts={props.setCurrPathParts}
-
-            selectedFile={props.selectedFile}
-            setSelectedFile={props.setSelectedFile}
 
             fileBrowserState={fileBrowserState}
             setFileBrowserState={setFileBrowserState}

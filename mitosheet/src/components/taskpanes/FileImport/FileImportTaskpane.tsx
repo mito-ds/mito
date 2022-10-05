@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import MitoAPI from '../../../jupyter/api';
 import { AnalysisData, UIState, UserProfile } from '../../../types';
 import CSVImportTaskpane from './CSVImportTaskpane';
@@ -24,32 +24,26 @@ export interface FileElement {
     lastModified?: number;
 }
 
-export type ImportScreen = 'file_browser' | 'csv_import' | 'xlsx_import';
-export interface ImportState {
-    screen: ImportScreen,
+
+export type ImportState = {
+    screen: 'file_browser'
+} | {
+    screen: 'csv_import', 
+    fileName: string,
+    filePath: string,
     error?: string | undefined
+} | {
+    screen: 'xlsx_import',
+    fileName: string,
+    filePath: string
+} | {
+    screen: 'dataframe_import'
 }
 
 
 function FileImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
 
     const [importState, setImportState] = useState<ImportState>({screen: 'file_browser'});
-    const [selectedFile, setSelectedFile] = useState<FileElement | undefined>(undefined);
-    const [filePath, setFilePath] = useState<string | undefined>(undefined);
-
-    useEffect(() => {
-        const loadFilePath = async () => {
-            if (selectedFile !== undefined) {
-                const fullPath = [...props.currPathParts];
-                fullPath.push(selectedFile.name);
-                const _filePath = await props.mitoAPI.getPathJoined(fullPath);
-                setFilePath(_filePath);
-            } else {
-                setFilePath(undefined);
-            }
-        }
-        void loadFilePath();
-    }, [selectedFile])
 
     // We only load a specific screen if the full file path is determined
     if (importState.screen === 'file_browser') {
@@ -62,9 +56,6 @@ function FileImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
             
                 currPathParts={props.currPathParts}
                 setCurrPathParts={props.setCurrPathParts}
-            
-                selectedFile={selectedFile}
-                setSelectedFile={setSelectedFile}
 
                 setImportState={setImportState}
             />
@@ -76,27 +67,28 @@ function FileImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                 analysisData={props.analysisData}
                 setUIState={props.setUIState}
 
-                fileName={selectedFile?.name || ''}
-                filePath={filePath || ''}
+                fileName={importState.fileName}
+                filePath={importState.filePath}
 
                 error={importState.error}
                 setScreen={setImportState}
             />
         )
-    } else {
+    } else if (importState.screen == 'xlsx_import') {
         return (
             <XLSXImportTaskpane
                 mitoAPI={props.mitoAPI}
                 analysisData={props.analysisData}
                 setUIState={props.setUIState}
-            
                 
-                fileName={selectedFile?.name || ''}
-                filePath={filePath || ''}
+                fileName={importState.fileName}
+                filePath={importState.filePath}
             
                 setImportState={setImportState}
             />
         )
+    } else {
+        return (<></>)
     }
 }
 

@@ -12,12 +12,13 @@ import Row from '../../layout/Row';
 import {
     FileElement, ImportState
 } from '../../taskpanes/FileImport/FileImportTaskpane';
-import { getInvalidFileError, isExcelFile } from '../../taskpanes/FileImport/importUtils';
+import { getFilePath, getInvalidFileError, isExcelFile } from '../../taskpanes/FileImport/importUtils';
 import { FileBrowserState } from './FileBrowserBody';
 
 
 interface FileBrowserElementProps {
     mitoAPI: MitoAPI,
+    currPathParts: string[],
     setCurrPathParts: (newPathParts: string[]) => void;
     
     fileBrowserState: FileBrowserState;
@@ -25,7 +26,6 @@ interface FileBrowserElementProps {
     
     index: number;
     element: FileElement;
-    setSelectedFile: React.Dispatch<React.SetStateAction<FileElement | undefined>>
 
     excelImportEnabled: boolean;
     isParentFolder?: boolean;
@@ -100,15 +100,24 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
                     newPathParts.push(props.element.name);
                     props.setCurrPathParts(newPathParts);
                 } else {
-                    props.setSelectedFile(props.element);
                     
                     if (isExcelFile(props.element)) {
-                        props.setImportState({screen: 'xlsx_import'});
+                        const openExcelImport = async () => {
+                            const filePath = await getFilePath(props.mitoAPI, props.currPathParts, props.element);
+                            if (filePath === undefined) {
+                                return;
+                            }
+                            props.setImportState({
+                                screen: 'xlsx_import',
+                                fileName: props.element.name,
+                                filePath: filePath
+                            });
+                        }
+
+                        void openExcelImport();
                     } else {
                         void props.importCSVFile(props.element);
                     }
-
-                    // TODO: set the correct screen?
                 }
             }}
         >

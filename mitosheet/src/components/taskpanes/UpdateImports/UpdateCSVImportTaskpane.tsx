@@ -4,6 +4,7 @@ import React from 'react';
 import MitoAPI from '../../../jupyter/api';
 import { AnalysisData, UIState } from '../../../types';
 import CSVImportScreen from '../../import/CSVImportScreen';
+import { getDefaultCSVParams } from '../FileImport/CSVImportTaskpane';
 import { ReplacingDataframeState, StepImportData } from './UpdateImportsTaskpane';
 import { isCSVImportParams, updateStepImportDataList } from './UpdateImportsUtils';
 
@@ -24,11 +25,9 @@ interface UpdateCSVImportTaskpaneProps {
 
 function UpdateCSVImportTaskpane(props: UpdateCSVImportTaskpaneProps): JSX.Element {
 
-    const params = props.replacingDataframeState.params;
-    if (!isCSVImportParams(params)) {
-        props.setReplacingDataframeState(undefined);
-        return (<></>)
-    }
+    const params = isCSVImportParams(props.replacingDataframeState.params)
+        ? props.replacingDataframeState.params
+        : getDefaultCSVParams(props.filePath)
 
     return (
         <CSVImportScreen
@@ -49,19 +48,13 @@ function UpdateCSVImportTaskpane(props: UpdateCSVImportTaskpaneProps): JSX.Eleme
 
                     return {
                         ...prevReplacingDataframeState,
-                        params: params === undefined ? undefined : updater(params)
+                        params: updater(params)
                     }
                 })
             }}
             edit={() => {
                 // When we do the edit, we change the set this import
                 // When we import the CSV, we update the screen
-
-                const params = props.replacingDataframeState.params;
-                if (params === undefined || !isCSVImportParams(params)) {
-                    return params;
-                }
-
                 props.setUpdatedStepImportData((prevUpdatedStepImportData) => {
                     if (prevUpdatedStepImportData === undefined) {
                         return undefined;

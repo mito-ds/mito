@@ -1,22 +1,22 @@
 import React, { useState } from "react";
+import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
 import MitoAPI from "../../../jupyter/api";
-import { AnalysisData, SheetData, UIState, UserProfile } from "../../../types"
+import { AnalysisData, SheetData, UIState, UserProfile } from "../../../types";
 import TextButton from "../../elements/TextButton";
+import { CSVImportParams } from "../../import/CSVImportScreen";
 import { DataframeImportParams } from "../../import/DataframeImportScreen";
+import { ExcelImportParams } from "../../import/XLSXImportScreen";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
-import { CSVImportParams } from "../../import/CSVImportScreen";
-import { ExcelImportParams } from "../../import/XLSXImportScreen";
-import ImportCard from "./UpdateImportCard";
-import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
-import { getBaseOfPath, getOriginalAndUpdatedDataframeCreationDataPairs, isCSVImportParams, isExcelImportParams, isUpdatedDfCreationData } from "./UpdateImportsUtils";
-import { ImportScreen } from "../FileImport/FileImportTaskpane";
-import UpdateDataframeImportTaskpane from "./UpdateDataframeImportTaskpane";
-import UpdateXLSXImportsTaskpane from "./UpdateXLSXImportTaskpane";
+import { ImportState } from "../FileImport/FileImportTaskpane";
 import UpdateCSVImportTaskpane from "./UpdateCSVImportTaskpane";
+import UpdateDataframeImportTaskpane from "./UpdateDataframeImportTaskpane";
 import UpdateFileBrowserTaskpane from "./UpdateFileBrowserTaskpane";
+import ImportCard from "./UpdateImportCard";
+import { getOriginalAndUpdatedDataframeCreationDataPairs, isUpdatedDfCreationData } from "./UpdateImportsUtils";
+import UpdateXLSXImportsTaskpane from "./UpdateXLSXImportTaskpane";
 
 
 interface updateImportsTaskpaneProps {
@@ -55,7 +55,7 @@ export interface StepImportData {
 
 export interface ReplacingDataframeState {
     dataframeCreationIndex: number, 
-    screen: ImportScreen | 'dataframe_import',
+    importState: ImportState,
     params: CSVImportParams | ExcelImportParams | DataframeImportParams | undefined
 }
 
@@ -95,7 +95,7 @@ const UpdateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element =
                 displayedImportCardDropdown={displayedImportCardDropdown}
                 setDisplayedImportCardDropdown={setDisplayedImportCardDropdown}
                 setReplacingDataframeState={setReplacingDataframeState}
-                invalidImportMessage={invalidImportMessages[index]}
+                postUpdateInvalidImportMessage={invalidImportMessages[index]}
             />
         )
     })
@@ -142,7 +142,7 @@ const UpdateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element =
                 </DefaultTaskpaneFooter>
             </DefaultTaskpane>
         )
-    } else if (replacingDataframeState.screen === 'file_browser') {
+    } else if (replacingDataframeState.importState.screen === 'file_browser') {
         return (
             <UpdateFileBrowserTaskpane
                 mitoAPI={props.mitoAPI}
@@ -159,15 +159,15 @@ const UpdateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element =
                 setUpdatedStepImportData={setUpdatedStepImportData}  
             />
         )
-    } else if (replacingDataframeState.screen === 'csv_import' && isCSVImportParams(replacingDataframeState.params)) {
+    } else if (replacingDataframeState.importState.screen === 'csv_import') {
         return (
             <UpdateCSVImportTaskpane
                 mitoAPI={props.mitoAPI}
                 analysisData={props.analysisData}
                 setUIState={props.setUIState}
 
-                fileName={getBaseOfPath(replacingDataframeState.params.file_names[0])}
-                filePath={replacingDataframeState.params.file_names[0]}
+                fileName={replacingDataframeState.importState.fileName}
+                filePath={replacingDataframeState.importState.filePath}
                         
                 replacingDataframeState={replacingDataframeState}
                 setReplacingDataframeState={setReplacingDataframeState}
@@ -175,15 +175,15 @@ const UpdateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element =
                 setUpdatedStepImportData={setUpdatedStepImportData}
             />
         )
-    } else if (replacingDataframeState.screen === 'xlsx_import' && isExcelImportParams(replacingDataframeState.params)) {
+    } else if (replacingDataframeState.importState.screen === 'xlsx_import') {
         return (
             <UpdateXLSXImportsTaskpane
                 mitoAPI={props.mitoAPI}
                 analysisData={props.analysisData}
                 setUIState={props.setUIState}
 
-                fileName={getBaseOfPath(replacingDataframeState.params.file_name)}
-                filePath={replacingDataframeState.params.file_name}
+                fileName={replacingDataframeState.importState.fileName}
+                filePath={replacingDataframeState.importState.filePath}
                         
                 replacingDataframeState={replacingDataframeState}
                 setReplacingDataframeState={setReplacingDataframeState}

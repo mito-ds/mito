@@ -85,7 +85,7 @@ const UpdateImportCard = (props: {
     displayedImportCardDropdown: number | undefined;
     setDisplayedImportCardDropdown: React.Dispatch<React.SetStateAction<number | undefined>>;
     setReplacingDataframeState: React.Dispatch<React.SetStateAction<ReplacingDataframeState | undefined>>
-    invalidImportMessage: string | undefined;
+    postUpdateInvalidImportMessage: string | undefined;
 }): JSX.Element => {
 
     const displayDropdown = props.displayedImportCardDropdown === props.dataframeCreationIndex;
@@ -106,15 +106,22 @@ const UpdateImportCard = (props: {
     //const updated = !isDeepEqual(props.dataframeCreationData, props.updatedDataframeCreationData);
 
     return (
-        <Row justify='space-between' align='center' onClick={() => {openDropdown()}}>
+        <Row justify='space-between' align='top' onClick={() => {openDropdown()}}>
             <Col span={22}>
                 <Row align='top'>
                     <CSVFileIcon />
                     <Col span={22} offset={.25}>
                         {getUpdateImportCardTitle(props.dataframeCreationData)}
-                        {getUpdateImportCardSubtitle(props.dataframeCreationData, props.updatedDataframeCreationData, props.invalidImportMessage)}
+                        {getUpdateImportCardSubtitle(props.dataframeCreationData, props.updatedDataframeCreationData, undefined)}
                     </Col>
                 </Row>
+                {props.postUpdateInvalidImportMessage &&
+                    <Row align='top'>
+                        <Col span={22} offset={1.2}>
+                            <span className='text-color-error-important text-overflow-wrap'>{props.postUpdateInvalidImportMessage}</ span>
+                        </Col>
+                    </Row>                
+                }
             </Col>
             <Col>
                 <div>
@@ -129,7 +136,7 @@ const UpdateImportCard = (props: {
                             onClick={() => {
                                 props.setReplacingDataframeState({
                                     dataframeCreationIndex: props.dataframeCreationIndex,
-                                    screen: 'file_browser',
+                                    importState: {screen: 'file_browser'},
                                     params: undefined
                                 });
                             }}
@@ -139,7 +146,7 @@ const UpdateImportCard = (props: {
                             onClick={() => {
                                 props.setReplacingDataframeState({
                                     dataframeCreationIndex: props.dataframeCreationIndex,
-                                    screen: 'dataframe_import',
+                                    importState: {screen: 'dataframe_import'},
                                     params: {df_names: []}
                                 });
                             }}

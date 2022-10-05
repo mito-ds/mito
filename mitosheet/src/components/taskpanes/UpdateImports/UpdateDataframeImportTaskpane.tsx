@@ -21,11 +21,9 @@ interface UpdateDataframeImportTaskpaneProps {
 
 function UpdateDataframeImportTaskpane(props: UpdateDataframeImportTaskpaneProps): JSX.Element {
 
-    const params = props.replacingDataframeState.params;
-    if (!isDataframeImportParams(params)) {
-        props.setReplacingDataframeState(undefined);
-        return (<></>)
-    }
+    const params = isDataframeImportParams(props.replacingDataframeState.params)
+        ? props.replacingDataframeState.params
+        : {df_names: []}
 
     return (
         <DataframeImportScreen
@@ -43,19 +41,13 @@ function UpdateDataframeImportTaskpane(props: UpdateDataframeImportTaskpaneProps
 
                     return {
                         ...prevReplacingDataframeState,
-                        params: params === undefined ? undefined : updater(params)
+                        params: updater(params)
                     }
                 })
             }}
             edit={() => {
                 // When we do the edit, we change the set this import
                 // When we import the CSV, we update the screen
-
-                const params = props.replacingDataframeState.params;
-                if (params === undefined || !isDataframeImportParams(params)) {
-                    return params;
-                }
-
                 props.setUpdatedStepImportData((prevUpdatedStepImportData) => {
                     if (prevUpdatedStepImportData === undefined) {
                         return undefined;
@@ -71,7 +63,6 @@ function UpdateDataframeImportTaskpane(props: UpdateDataframeImportTaskpaneProps
                 })
 
                 props.setReplacingDataframeState(undefined);
-
             }}
         
             backCallback={() => {

@@ -20,7 +20,7 @@ interface XLSXImportProps {
     setImportState: React.Dispatch<React.SetStateAction<ImportState>>;
 }
 
-const getDefaultXLSXParams = (filePath: string): ExcelImportParams => {
+export const getDefaultXLSXParams = (filePath: string): ExcelImportParams => {
     return {
         file_name: filePath,
         sheet_names: [],
@@ -35,7 +35,7 @@ const getDefaultXLSXParams = (filePath: string): ExcelImportParams => {
     in turn allows them to configure how to import sheets in this
     file.
 */
-function XLSXImport(props: XLSXImportProps): JSX.Element {
+function XLSXImportTaskpane(props: XLSXImportProps): JSX.Element {
 
 
     // NOTE: this loading state is just for getting the metadata about the sheets
@@ -76,4 +76,4 @@ function XLSXImport(props: XLSXImportProps): JSX.Element {
     )
 }
 
-export default XLSXImport;
+export default XLSXImportTaskpane;

@@ -101,6 +101,8 @@ function XLSXImportScreen(props: XLSXImportProps): JSX.Element {
         [props.filePath]
     );
 
+    console.log(props.filePath, fileMetadata)
+
     const params = props.params;
     if (params === undefined) {
         return (
@@ -170,7 +172,6 @@ function XLSXImportScreen(props: XLSXImportProps): JSX.Element {
                             selectedValue={params.sheet_names[0]}
                             height='medium'
                             onChange={(value) => props.setParams(prevParams => {
-                                console.log('setting to value: ', value)
                                 return {
                                     ...prevParams,
                                     sheet_names: [value]
