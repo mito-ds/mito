@@ -74,7 +74,6 @@ export function getDtypeSelectOptions(onChange?: (newDtype: string) => void): JS
         <DropdownItem
             title={ColumnDtypes.INT}
             key={ColumnDtypes.INT}
-            subtext={'Casting to an int will turn all NaN values to 0.'}
             hideSubtext
             displaySubtextOnHover
             onClick={onChange ? () => {onChange(ColumnDtypes.INT)} : undefined}
