@@ -136,7 +136,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader
-                header={`TODO: allow a header to be passed`}
+                header={!props.isUpdate ? 'Import Files' : 'Update Import'}
                 setUIState={props.setUIState}
                 backCallback={props.backCallback}
             />

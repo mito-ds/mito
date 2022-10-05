@@ -4,6 +4,7 @@ import { classNames } from '../../utils/classNames';
 import '../../../css/elements/RadioButtonBox.css'
 import { Height, Width } from './sizes.d';
 import RadioButtonItem from './RadioButtonItem';
+import Row from '../layout/Row';
 
 
 interface RadioButtonsProps {
@@ -28,9 +29,38 @@ interface RadioButtonsProps {
     */
     width?: Width;
     /** 
-        * @param className - Optional class name to add to the multi toggle box
+        * @param [className] - Optional class name to add to the multi toggle box
     */
     className?: string
+    /** 
+        * @param [loading] - If the data items are still being loaded
+    */
+    loading?: boolean
+}
+
+const RadioButtonBoxMessage = (props: {
+    values: string[],
+    loading?: boolean
+}): JSX.Element | null => {
+    if (props.loading) {
+        return (
+            <Row justify='center'>
+                <p className='text-body-1'> 
+                    Loading...
+                </p>
+            </Row>
+        )
+    } else if (props.values.length === 0) {
+        return (
+            <Row justify='center'>
+                <p className='text-body-1'> 
+                    No items to display.
+                </p>
+            </Row>
+        )
+    } 
+
+    return null;
 }
 
 /**
@@ -48,6 +78,10 @@ const RadioButtonBox = (props: RadioButtonsProps): JSX.Element => {
         <div 
             className={classNames('text-body-2', 'radio-button-box', heightClass, widthClass, props.className)} 
         >
+            <RadioButtonBoxMessage
+                values={props.values}
+                loading={props.loading}
+            />
             {props.values.map((value) => {
                 return (
                     <RadioButtonItem

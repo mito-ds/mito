@@ -3,6 +3,7 @@
 import React from 'react';
 
 import '../../../css/elements/RadioButtonBox.css'
+import { classNames } from '../../utils/classNames';
 
 /* 
   A single item that can be toggled 
@@ -26,7 +27,7 @@ const RadioButtonItem = (props: {
             onClick={() => {
                 props.onClick();
             }}
-            className='radio-button-box-row'
+            className={classNames('radio-button-box-row', {'radio-button-box-row-selected': props.checked})}
         >
             <input type="radio" name={props.value} value={props.value} checked={props.checked}/>
             <label htmlFor={props.value}>{props.value}</label>

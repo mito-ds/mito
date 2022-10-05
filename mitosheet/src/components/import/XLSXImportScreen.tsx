@@ -41,7 +41,6 @@ interface XLSXImportProps {
 export interface ExcelFileMetadata {
     sheet_names: string[]
     size: number,
-    loading: boolean,
 }
 
 export interface ExcelImportParams {
@@ -85,8 +84,8 @@ function getSuccessMessage(params: ExcelImportParams): string {
 function XLSXImportScreen(props: XLSXImportProps): JSX.Element {
 
     // Load the metadata about the Excel file from the API
-    const [fileMetadata] = useStateFromAPIAsync<ExcelFileMetadata, string>(
-        {sheet_names: [], size: 0, loading: true},
+    const [fileMetadata, loading] = useStateFromAPIAsync<ExcelFileMetadata, string>(
+        {sheet_names: [], size: 0},
         (filePath: string) => {return props.mitoAPI.getExcelFileMetadata(filePath)},
         (loadedData) => {
             if (loadedData !== undefined) {
@@ -117,7 +116,7 @@ function XLSXImportScreen(props: XLSXImportProps): JSX.Element {
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader
-                header={`Import ${props.fileName}`}
+                header={!props.isUpdate ? `Import ${props.fileName}` : `Update to ${props.fileName}`}
                 setUIState={props.setUIState}
                 backCallback={props.backCallback}
             />
@@ -125,7 +124,7 @@ function XLSXImportScreen(props: XLSXImportProps): JSX.Element {
                 <div> 
                     {!props.isUpdate &&
                         <MultiToggleBox
-                            loading={fileMetadata.loading}
+                            loading={loading}
                             searchable
                             height='medium'
                             toggleAllIndexes={(indexesToToggle) => {
@@ -177,6 +176,7 @@ function XLSXImportScreen(props: XLSXImportProps): JSX.Element {
                                     sheet_names: [value]
                                 }
                             })}
+                            loading={loading}
                         />
                     }
                     

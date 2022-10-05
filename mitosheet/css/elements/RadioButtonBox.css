@@ -28,3 +28,7 @@
 .radio-button-box-row:hover {
     background-color: var(--mito-light-blue);
 }
+
+.radio-button-box-row-selected {
+    background-color: var(--mito-light-blue);
+}

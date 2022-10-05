@@ -51,7 +51,7 @@ const getButtonMessage = (params: DataframeImportParams, isUpdate: boolean): str
 */
 const DataframeImportScreen = (props: DataframeImportTaskpaneProps): JSX.Element => {
 
-    const [dfNamesInNotebook] = useStateFromAPIAsync(
+    const [dfNamesInNotebook, loading] = useStateFromAPIAsync(
         [],
         () => {return props.mitoAPI.getDefinedDfNames()},
         undefined,
@@ -101,6 +101,7 @@ const DataframeImportScreen = (props: DataframeImportTaskpaneProps): JSX.Element
                     df_names: [newDfName]
                 }
             })}
+            loading={loading}
         />
     ) 
 
@@ -115,7 +116,7 @@ const DataframeImportScreen = (props: DataframeImportTaskpaneProps): JSX.Element
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
-                header={'Import Dataframes'}
+                header={props.isUpdate ? 'Import Dataframes' : 'Update Import'}
                 setUIState={props.setUIState} 
                 backCallback={props.backCallback}    
             />

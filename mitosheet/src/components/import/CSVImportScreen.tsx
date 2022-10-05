@@ -229,7 +229,7 @@ function CSVImport(props: CSVImportProps): JSX.Element {
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader
-                header={`Import ${props.fileName}`}
+                header={!props.isUpdate ? `Import ${props.fileName}` : `Update to ${props.fileName}`}
                 setUIState={props.setUIState}
                 backCallback={props.backCallback}
             />

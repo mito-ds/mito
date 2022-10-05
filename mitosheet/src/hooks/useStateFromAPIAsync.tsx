@@ -8,11 +8,13 @@ export function useStateFromAPIAsync<ResultType, ParamType>(
     apiCall: (...rest: ParamType[]) => Promise<ResultType | undefined>,
     onLoad: ((loadedData: ResultType) => void) | undefined,
     params: ParamType[],
-): [ResultType, React.Dispatch<React.SetStateAction<ResultType>>] {
+): [ResultType, boolean] {
+    const [loading, setLoading] = useState(true);
     const [state, setState] = useState(defaultValue);
 
     useEffect(() => {
         const loadData = async () => {
+            setLoading(true)
             // Get the data and save it
             const loadedData = await apiCall(...params);
             if (loadedData !== undefined) {
@@ -24,9 +26,10 @@ export function useStateFromAPIAsync<ResultType, ParamType>(
                     onLoad(loadedDataCopy);
                 }
             }
+            setLoading(false);
         }
         void loadData();
     }, params);
 
-    return [state, setState];
+    return [state, loading];
 }
