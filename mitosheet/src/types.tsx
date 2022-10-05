@@ -717,8 +717,7 @@ export interface UIState {
     selectedGraphID: GraphID | undefined;
     selectedTabType: 'data' | 'graph';
     currOpenToolbarDropdown: undefined | ToolbarDropdowns;
-    displayImportToolbarDropdown: boolean;
-    displayFormatToolbarDropdown: boolean;
+    toolbarDropdown: 'import' | 'format' | 'dtype' | undefined;
 }
 
 /**

@@ -43,7 +43,7 @@ def test_sheet_json_displays_dates_correctly():
 
 def test_sheet_displays_dates_with_non_standard_dtype():
     mito = create_mito_wrapper(['2016-01-31T19:29:50.000+0000', '2016-01-31T19:29:50.000+0000'])
-    mito.change_column_dtype(0, 'A', 'datetime')
+    mito.change_column_dtype(0, ['A'], 'datetime')
 
     sheet_data = json.loads(mito.mito_widget.sheet_data_json)[0]
     assert get_value_helper(sheet_data, 0, 0) == '2016-01-31 19:29:50'

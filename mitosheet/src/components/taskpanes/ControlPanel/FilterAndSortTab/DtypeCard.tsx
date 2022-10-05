@@ -24,7 +24,7 @@ type DtypeCardProps = {
 }
 
 // The dtypes accepted by the change column dtype change
-enum ColumnDtypes {
+export enum ColumnDtypes {
     BOOL = 'bool',
     INT = 'int',
     FLOAT = 'float',
@@ -60,6 +60,48 @@ export function getDtypeValue(dtype: string | undefined): ColumnDtypes {
     return ColumnDtypes.STRING;
 }
 
+export function getDtypeSelectOptions(onChange?: (newDtype: string) => void): JSX.Element[] {
+
+    // If you want to define an onClick directly, pass this onChange to the select options. This is necesary
+    // if, like in the toolbar, we're creating a dropdown directly rather than a select
+
+    return [
+        <DropdownItem
+            title={ColumnDtypes.BOOL}
+            key={ColumnDtypes.BOOL}
+            onClick={onChange ? () => {onChange(ColumnDtypes.BOOL)} : undefined}
+        />,
+        <DropdownItem
+            title={ColumnDtypes.INT}
+            key={ColumnDtypes.INT}
+            hideSubtext
+            displaySubtextOnHover
+            onClick={onChange ? () => {onChange(ColumnDtypes.INT)} : undefined}
+        />,
+        <DropdownItem
+            title={ColumnDtypes.FLOAT}
+            key={ColumnDtypes.FLOAT}
+            onClick={onChange ? () => {onChange(ColumnDtypes.FLOAT)} : undefined}
+
+        />,
+        <DropdownItem
+            title={ColumnDtypes.STRING}
+            key={ColumnDtypes.STRING}
+            onClick={onChange ? () => {onChange(ColumnDtypes.STRING)} : undefined}
+        />,
+        <DropdownItem
+            title={ColumnDtypes.DATETIME}
+            key={ColumnDtypes.DATETIME}
+            onClick={onChange ? () => {onChange(ColumnDtypes.DATETIME)} : undefined}
+        />,
+        <DropdownItem
+            title={ColumnDtypes.TIMEDELTA}
+            key={ColumnDtypes.TIMEDELTA}
+            onClick={onChange ? () => {onChange(ColumnDtypes.TIMEDELTA)} : undefined}
+        />
+    ]
+}
+
 /*
     A card that allows a user to change the dtype of a column.
 */
@@ -69,7 +111,7 @@ function DtypeCard(props: DtypeCardProps): JSX.Element {
     async function changeColumnDtype(newDtype: string) {
         const newStepID = await props.mitoAPI.editChangeColumnDtype(
             props.selectedSheetIndex,
-            props.columnID,
+            [props.columnID],
             newDtype,
             stepID
         )
@@ -93,27 +135,7 @@ function DtypeCard(props: DtypeCardProps): JSX.Element {
                         }}
                         dropdownWidth='medium'
                     >
-                        <DropdownItem
-                            title={ColumnDtypes.BOOL}
-                        />
-                        <DropdownItem
-                            title={ColumnDtypes.INT}
-                            subtext={'Casting to an int will turn all NaN values to 0.'}
-                            hideSubtext
-                            displaySubtextOnHover
-                        />
-                        <DropdownItem
-                            title={ColumnDtypes.FLOAT}
-                        />
-                        <DropdownItem
-                            title={ColumnDtypes.STRING}
-                        />
-                        <DropdownItem
-                            title={ColumnDtypes.DATETIME}
-                        />
-                        <DropdownItem
-                            title={ColumnDtypes.TIMEDELTA}
-                        />
+                        {getDtypeSelectOptions()}
                     </Select>
                 </Col>
             </Row>

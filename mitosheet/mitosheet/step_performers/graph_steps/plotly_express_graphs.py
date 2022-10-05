@@ -554,8 +554,4 @@ def get_plotly_express_graph_code(
         graph_styling_code(graph_type, all_column_headers, is_safety_filter_applied, graph_styling_params)
     )
 
-    # We use fig.show(renderer="iframe") which works in both JLab 2 & 3
-    # and renders in line,
-    code.append('fig.show(renderer="iframe")')
-
     return "\n".join(code)

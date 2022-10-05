@@ -227,6 +227,12 @@ class ColumnIDMap():
     def get_column_id_by_header(self, sheet_index: int, column_header: ColumnHeader) -> str:
         return self.column_header_to_column_id[sheet_index][column_header]
 
+    def get_column_ids_by_headers(self, sheet_index: int, column_headers: List[ColumnHeader]) -> List[ColumnID]:
+        return [
+            self.column_header_to_column_id[sheet_index][column_header] 
+            for column_header in column_headers
+        ]
+
     def get_column_header_by_id(self, sheet_index: int, column_id: ColumnID) -> ColumnHeader:
         return self.column_id_to_column_header[sheet_index][column_id]
 
