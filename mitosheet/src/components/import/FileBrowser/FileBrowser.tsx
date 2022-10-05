@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import MitoAPI from '../../../jupyter/api';
 import { AnalysisData, UIState, UserProfile } from '../../../types';
 import TextButton from '../../elements/TextButton';
@@ -25,9 +25,6 @@ interface FileBrowserProps {
     currPathParts: string[];
     setCurrPathParts: (newCurrPathParts: string[]) => void;
 
-    fileBrowserState: FileBrowserState;
-    setFileBrowserState: React.Dispatch<React.SetStateAction<FileBrowserState>>;
-
     setImportState: (newImportState: ImportState) => void;
     importCSVFile: (file: FileElement) => Promise<void>;
 
@@ -40,8 +37,20 @@ interface FileBrowserProps {
 // and requires error handling, or what? No.
 function FileBrowser(props: FileBrowserProps): JSX.Element {
 
+    const [fileBrowserState, setFileBrowserState] = useState<FileBrowserState>({
+        pathContents: {
+            path_parts: props.currPathParts,
+            elements: []
+        },
+        sort: 'last_modified_descending',
+        searchString: '',
+        selectedElementIndex: -1,
+        loadingFolder: false,
+        loadingImport: false
+    })
+
     // We make sure to get the elements that are displayed and use the index on that to get the correct element
-    const selectedFile: FileElement | undefined = getElementsToDisplay(props.fileBrowserState)[props.fileBrowserState.selectedElementIndex];
+    const selectedFile: FileElement | undefined = getElementsToDisplay(fileBrowserState)[fileBrowserState.selectedElementIndex];
 
     /* 
         Any time the current path changes, we update
@@ -51,7 +60,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
         // When the current path changes, we reload the path contents
         void loadPathContents(props.currPathParts)
         // We also unselect anything that might be selected
-        props.setFileBrowserState(prevImportState => {
+        setFileBrowserState(prevImportState => {
             return {
                 ...prevImportState,
                 selectedElementIndex: -1
@@ -92,7 +101,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
 
     // Loads the path data from the API and sets it for the file browser
     async function loadPathContents(currPathParts: string[]) {
-        props.setFileBrowserState(prevImportState => {
+        setFileBrowserState(prevImportState => {
             return {
                 ...prevImportState,
                 loadingFolder: true
@@ -100,7 +109,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
         })
         const _pathContents = await props.mitoAPI.getPathContents(currPathParts);
         if (_pathContents) {
-            props.setFileBrowserState(prevImportState => {
+            setFileBrowserState(prevImportState => {
                 return {
                     ...prevImportState,
                     pathContents: _pathContents,
@@ -108,7 +117,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                 }
             })
         } else {
-            props.setFileBrowserState(prevImportState => {
+            setFileBrowserState(prevImportState => {
                 return {
                     ...prevImportState,
                     loadingFolder: false
@@ -120,7 +129,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
     const importButtonStatus = getImportButtonStatus(
         selectedFile, 
         props.userProfile.excelImportEnabled, 
-        props.fileBrowserState.loadingImport,
+        fileBrowserState.loadingImport,
         props.isUpdate
     );
 
@@ -140,8 +149,8 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                     currPathParts={props.currPathParts}
                     setCurrPathParts={props.setCurrPathParts}
 
-                    fileBrowserState={props.fileBrowserState}
-                    setFileBrowserState={props.setFileBrowserState}
+                    fileBrowserState={fileBrowserState}
+                    setFileBrowserState={setFileBrowserState}
 
                     importCSVFile={props.importCSVFile}
                     setImportState={props.setImportState}

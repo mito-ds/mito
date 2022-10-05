@@ -1,15 +1,12 @@
 // Copyright (c) Mito
 
-import React, { useEffect, useState } from 'react';
-import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
+import React from 'react';
 
 import MitoAPI from '../../../jupyter/api';
-import { AnalysisData, StepType, UIState, UserProfile } from '../../../types';
-import { CSVImportParams } from '../../import/CSVImportScreen';
+import { AnalysisData, UIState, UserProfile } from '../../../types';
+import { isMitoError } from '../../../utils/errors';
 import FileBrowser from '../../import/FileBrowser/FileBrowser';
-import { FileBrowserState } from '../../import/FileBrowser/FileBrowserBody';
-import { FileElement, ImportState } from './FileImportTaskpane';
-import { getElementsToDisplay, getFilePath } from './importUtils';
+import { ImportState } from './FileImportTaskpane';
 
 
 interface FileBrowserImportProps {
@@ -33,46 +30,6 @@ interface FileBrowserImportProps {
 */
 function FileBrowserTaskpane(props: FileBrowserImportProps): JSX.Element {
 
-    const [fileBrowserState, setFileBrowserState] = useState<FileBrowserState>({
-        pathContents: {
-            path_parts: props.currPathParts,
-            elements: []
-        },
-        sort: 'last_modified_descending',
-        searchString: '',
-        selectedElementIndex: -1,
-        loadingFolder: false,
-        loadingImport: false
-    })
-
-    const {edit, error} = useSendEditOnClick<CSVImportParams, CSVImportParams>(
-        undefined,
-        StepType.SimpleImport,
-        props.mitoAPI, props.analysisData, 
-        {allowSameParamsToReapplyTwice: true}
-    )
-
-    const selectedFile: FileElement | undefined = getElementsToDisplay(fileBrowserState)[fileBrowserState.selectedElementIndex];
-
-    useEffect(() => {
-        const openCSVOnError = async () => {
-            const filePath = await getFilePath(props.mitoAPI, props.currPathParts, selectedFile);
-            if (filePath === undefined || selectedFile === undefined) {
-                return
-            }
-            props.setImportState({
-                screen: 'csv_import',
-                fileName: selectedFile.name,
-                filePath: filePath,
-                error: error
-            })
-        }
-
-        if (error !== undefined) {
-            void openCSVOnError()
-        }
-    }, [error])
-
     return (
         <FileBrowser
             mitoAPI={props.mitoAPI}
@@ -84,18 +41,24 @@ function FileBrowserTaskpane(props: FileBrowserImportProps): JSX.Element {
             currPathParts={props.currPathParts}
             setCurrPathParts={props.setCurrPathParts}
 
-            fileBrowserState={fileBrowserState}
-            setFileBrowserState={setFileBrowserState}
-
             setImportState={props.setImportState}
             importCSVFile={async (file) => {
+                // Get the full file path
                 const filePath = await props.mitoAPI.getPathJoined([...props.currPathParts, file.name]);
-                console.log("Sending", filePath)
-                if (filePath) {
-                    edit(() => {
-                        return {
-                            file_names: [filePath]
-                        };
+                if (filePath === undefined) {
+                    return;
+                }
+
+                // Send an import message
+                const result = await props.mitoAPI.editSimpleImport([filePath]);
+
+                // If it is an error, we open the import taskpane with an error
+                if (isMitoError(result)) {
+                    props.setImportState({
+                        screen: 'csv_import',
+                        fileName: file.name,
+                        filePath: filePath,
+                        error: result.to_fix
                     })
                 }
             }}

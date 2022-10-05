@@ -1,10 +1,9 @@
 // Copyright (c) Mito
 
-import React, { useState } from 'react';
+import React from 'react';
 import MitoAPI from '../../../jupyter/api';
 import { AnalysisData, UIState, UserProfile } from '../../../types';
 import FileBrowser from '../../import/FileBrowser/FileBrowser';
-import { FileBrowserState } from '../../import/FileBrowser/FileBrowserBody';
 import { FileElement } from '../FileImport/FileImportTaskpane';
 import { ReplacingDataframeState, StepImportData } from './UpdateImportsTaskpane';
 import { updateStepImportDataList } from './UpdateImportsUtils';
@@ -27,18 +26,6 @@ interface UpdateFileBrowserTaskpaneProps {
 
 function UpdateFileBrowserTaskpane(props: UpdateFileBrowserTaskpaneProps): JSX.Element {
 
-    const [fileBrowserState, setFileBrowserState] = useState<FileBrowserState>({
-        pathContents: {
-            path_parts: props.currPathParts,
-            elements: []
-        },
-        sort: 'last_modified_descending',
-        searchString: '',
-        selectedElementIndex: -1,
-        loadingFolder: false,
-        loadingImport: false
-    })
-
     return (
         <FileBrowser
             mitoAPI={props.mitoAPI}
@@ -49,9 +36,6 @@ function UpdateFileBrowserTaskpane(props: UpdateFileBrowserTaskpaneProps): JSX.E
         
             currPathParts={props.currPathParts}
             setCurrPathParts={props.setCurrPathParts}
-
-            fileBrowserState={fileBrowserState}
-            setFileBrowserState={setFileBrowserState}
 
             setImportState={(newImportState) => {
                 props.setReplacingDataframeState({

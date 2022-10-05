@@ -39,8 +39,6 @@ function CSVImportTaskpane(props: CSVImportTaskpaneProps): JSX.Element {
         {allowSameParamsToReapplyTwice: true},
     )
 
-    console.log("Error", props.error)
-
     return (
         <CSVImportScreen
             mitoAPI={props.mitoAPI}
