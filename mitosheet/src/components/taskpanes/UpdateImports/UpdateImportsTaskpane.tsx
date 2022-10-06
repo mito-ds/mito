@@ -1,25 +1,19 @@
 import React, { useState } from "react";
-import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
 import MitoAPI from "../../../jupyter/api";
 import { AnalysisData, SheetData, UIState, UserProfile } from "../../../types";
-import TextButton from "../../elements/TextButton";
 import { CSVImportParams } from "../../import/CSVImportScreen";
 import { DataframeImportParams } from "../../import/DataframeImportScreen";
 import { ExcelImportParams } from "../../import/XLSXImportScreen";
-import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
-import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
-import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
-import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import { ImportState } from "../FileImport/FileImportTaskpane";
 import UpdateCSVImportTaskpane from "./UpdateCSVImportTaskpane";
 import UpdateDataframeImportTaskpane from "./UpdateDataframeImportTaskpane";
 import UpdateFileBrowserTaskpane from "./UpdateFileBrowserTaskpane";
-import ImportCard from "./UpdateImportCard";
-import { getOriginalAndUpdatedDataframeCreationDataPairs, isUpdatedDfCreationData } from "./UpdateImportsUtils";
+import UpdateImportsPostReplayTaskpane from "./UpdateImportsPostReplayTaskpane copy";
+import UpdateImportsPreReplayTaskpane from "./UpdateImportsPreReplayTaskpane";
 import UpdateXLSXImportsTaskpane from "./UpdateXLSXImportTaskpane";
 
 
-interface updateImportsTaskpaneProps {
+interface UpdateImportsTaskpaneProps {
     mitoAPI: MitoAPI;
     userProfile: UserProfile;
     analysisData: AnalysisData;
@@ -30,6 +24,12 @@ interface updateImportsTaskpaneProps {
 
     sheetDataArray: SheetData[];
     selectedSheetIndex: number;
+
+    failedReplayAnalysisOnImports: {
+        analysisName: string,
+        importData: StepImportData[],
+        invalidImportIndexes: Record<number, string>
+    } | undefined
 }
 
 export interface CSVImportData {
@@ -62,86 +62,64 @@ export interface ReplacingDataframeState {
     
 
 /* 
-    This is the updateImports taskpane.
+    This is the UpdateImportsTaskpane taskpane: TODO: talk about how it can be either
+    pre or post update
 */
-const UpdateImportsTaskpane = (props: updateImportsTaskpaneProps): JSX.Element => {
+const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element => {
 
-    const [updatedStepImportData, setUpdatedStepImportData] = useState<StepImportData[] | undefined>(undefined);
+    const [updatedStepImportData, setUpdatedStepImportData] = useState<StepImportData[] | undefined>(() => {
+        // TODO: explain how the default variable below matches with the onLoad
+        const importData = props.failedReplayAnalysisOnImports?.importData;
+        return importData === undefined ? undefined : JSON.parse(JSON.stringify(props.failedReplayAnalysisOnImports?.importData));
+    });
     const [displayedImportCardDropdown, setDisplayedImportCardDropdown] = useState<number | undefined>(undefined);
     const [replacingDataframeState, setReplacingDataframeState] = useState<ReplacingDataframeState | undefined>(undefined);
-
     const [invalidImportMessages, setInvalidImportMessages] = useState<Record<number, string | undefined>>({});
 
-    const [originalStepImportData] = useStateFromAPIAsync(
-        undefined,
-        () => {return props.mitoAPI.getImportedFilesAndDataframes()},
-        (loadedData) => {
-            console.log("Loaded", loadedData)
-            // On load, update the updated import data
-            setUpdatedStepImportData(loadedData || [])
-        },
-        []
-    )
-
-    // We create an import card for each of the dataframes created within the original imports
-    const originalAndUpdatedDataframeCreationPairs = getOriginalAndUpdatedDataframeCreationDataPairs(originalStepImportData, updatedStepImportData);
-    const updateImportCards = originalAndUpdatedDataframeCreationPairs.map(([originalDfCreationData, updatedDfCreationData], index) => {
-        return (
-            <ImportCard 
-                key={index}
-                dataframeCreationIndex={index}
-                dataframeCreationData={originalDfCreationData}
-                updatedDataframeCreationData={updatedDfCreationData}
-                displayedImportCardDropdown={displayedImportCardDropdown}
-                setDisplayedImportCardDropdown={setDisplayedImportCardDropdown}
-                setReplacingDataframeState={setReplacingDataframeState}
-                postUpdateInvalidImportMessage={invalidImportMessages[index]}
-            />
-        )
-    })
-
-    const updated = originalAndUpdatedDataframeCreationPairs.map(([originalDfCreationData, updatedDfCreationData]) => {
-        return isUpdatedDfCreationData(originalDfCreationData, updatedDfCreationData);
-    }).reduce((prevValue, newValue) => {return prevValue || newValue}, false);
+    console.log("updatedStepImportData", updatedStepImportData)
+    console.log("props.failedReplayAnalysisOnImports?.importData", props.failedReplayAnalysisOnImports?.importData)
 
     if (replacingDataframeState === undefined) {
-        return (
-            <DefaultTaskpane>
-                <DefaultTaskpaneHeader 
-                    header="Update Imports"
-                    setUIState={props.setUIState}           
-                />
-                <DefaultTaskpaneBody>
-                    {updateImportCards}
-                </DefaultTaskpaneBody>
-                <DefaultTaskpaneFooter>
-                    <TextButton 
-                        variant="dark"
-                        onClick={async () => {
-                            if (updatedStepImportData === undefined) {
-                                return
-                            }
-                            const _invalidImportIndexes = await props.mitoAPI.getTestImports(updatedStepImportData);
-                            console.log(_invalidImportIndexes);
-                            if (_invalidImportIndexes === undefined) {
-                                return;
-                            }
-                            setInvalidImportMessages(_invalidImportIndexes);
+        if (props.failedReplayAnalysisOnImports === undefined) {
+            return (
+                <UpdateImportsPostReplayTaskpane
+                    mitoAPI={props.mitoAPI}
+                    setUIState={props.setUIState}
 
-                            // If there are no invalid indexes, then we can update
-                            if (Object.keys(_invalidImportIndexes).length === 0) {
-                                void props.mitoAPI.updateExistingImports(updatedStepImportData);
-                            }
-                        }}
-                        disabled={!updated} // TODO, disable this if there is an error
-                    >
-                        <p>
-                            Update Imports
-                        </p>
-                    </TextButton>
-                </DefaultTaskpaneFooter>
-            </DefaultTaskpane>
-        )
+                    updatedStepImportData={updatedStepImportData}
+                    setUpdatedStepImportData={setUpdatedStepImportData}
+
+                    displayedImportCardDropdown={displayedImportCardDropdown}
+                    setDisplayedImportCardDropdown={setDisplayedImportCardDropdown}
+
+                    setReplacingDataframeState={setReplacingDataframeState}
+
+                    invalidImportMessages={invalidImportMessages}
+                    setInvalidImportMessages={setInvalidImportMessages}
+                    
+                />
+            )
+        } else {
+            return (
+                <UpdateImportsPreReplayTaskpane
+                    mitoAPI={props.mitoAPI}
+                    setUIState={props.setUIState}
+
+                    updatedStepImportData={updatedStepImportData}
+                    setUpdatedStepImportData={setUpdatedStepImportData}
+
+                    displayedImportCardDropdown={displayedImportCardDropdown}
+                    setDisplayedImportCardDropdown={setDisplayedImportCardDropdown}
+
+                    setReplacingDataframeState={setReplacingDataframeState}
+
+                    invalidImportMessages={invalidImportMessages}
+                    setInvalidImportMessages={setInvalidImportMessages}
+
+                    failedReplayAnalysisOnImports={props.failedReplayAnalysisOnImports}
+                />
+            )
+        }
     } else if (replacingDataframeState.importState.screen === 'file_browser') {
         return (
             <UpdateFileBrowserTaskpane

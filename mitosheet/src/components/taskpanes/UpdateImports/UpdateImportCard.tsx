@@ -35,17 +35,11 @@ export const getUpdateImportCardTitle = (dataframeCreationData: DataframeCreatio
 export const getUpdateImportCardSubtitle = (dataframeCreationData: DataframeCreationData, updatedDataframeCreationData: DataframeCreationData, invalidImportMessage: string | undefined): JSX.Element | null => {
     const isUpdated = isUpdatedDfCreationData(dataframeCreationData, updatedDataframeCreationData);
 
-    const errorSpan = invalidImportMessage === undefined
-        ? null
-        : (
-            <span className='text-color-error-important'>{invalidImportMessage}</ span>
-        )
-
     if (!isUpdated) {
         if (invalidImportMessage !== undefined) {
             return (
                 <div>
-                    {errorSpan}
+                    <span className='text-color-error-important text-overflow-wrap'>{invalidImportMessage}</ span>
                 </div>
             )
         }
@@ -55,21 +49,25 @@ export const getUpdateImportCardSubtitle = (dataframeCreationData: DataframeCrea
  
 
     if (updatedDataframeCreationData.step_type === 'excel_import') {
+        const sheetName = updatedDataframeCreationData.params.sheet_names[0];
+        const fileName = getBaseOfPath(updatedDataframeCreationData.params.file_name);
         return (
             <div>
-                <span className='text-color-medium-gray-important'>Updated to </span> {updatedDataframeCreationData.params.sheet_names[0]} <span className='text-color-medium-gray-important'>from </span> {getBaseOfPath(updatedDataframeCreationData.params.file_name)} {errorSpan}
+                <span className='text-color-medium-gray-important'>Updated to </span> <span title={sheetName}>{sheetName}</span> <span className='text-color-medium-gray-important'>from </span> <span title={fileName}>{fileName}</span>
             </div>
         )
     } else if (updatedDataframeCreationData.step_type === 'simple_import') {
+        const fileName = getBaseOfPath(updatedDataframeCreationData.params.file_names[0]);
         return (
             <div>
-                <span className='text-color-medium-gray-important'>Updated to </span> {getBaseOfPath(updatedDataframeCreationData.params.file_names[0])} {errorSpan}
+                <span className='text-color-medium-gray-important'>Updated to </span> <span title={fileName}>{fileName}</span>
             </div>
         )
     } else {
+        const dfName = updatedDataframeCreationData.params.df_names[0];
         return (
             <div>
-                <span className='text-color-medium-gray-important'>Updated to </span> {updatedDataframeCreationData.params.df_names[0]} {errorSpan}
+                <span className='text-color-medium-gray-important'>Updated to </span> <span title={dfName}>{dfName}</span>
             </div>
         )
     }
@@ -85,6 +83,7 @@ const UpdateImportCard = (props: {
     displayedImportCardDropdown: number | undefined;
     setDisplayedImportCardDropdown: React.Dispatch<React.SetStateAction<number | undefined>>;
     setReplacingDataframeState: React.Dispatch<React.SetStateAction<ReplacingDataframeState | undefined>>
+    preUpdateInvalidImportMessage: string | undefined;
     postUpdateInvalidImportMessage: string | undefined;
 }): JSX.Element => {
 
@@ -112,7 +111,7 @@ const UpdateImportCard = (props: {
                     <CSVFileIcon />
                     <Col span={22} offset={.25}>
                         {getUpdateImportCardTitle(props.dataframeCreationData)}
-                        {getUpdateImportCardSubtitle(props.dataframeCreationData, props.updatedDataframeCreationData, undefined)}
+                        {getUpdateImportCardSubtitle(props.dataframeCreationData, props.updatedDataframeCreationData, props.preUpdateInvalidImportMessage)}
                     </Col>
                 </Row>
                 {props.postUpdateInvalidImportMessage &&

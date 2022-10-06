@@ -563,8 +563,25 @@ export default class MitoAPI {
         if (resultString !== undefined && resultString !== '') {
             return(JSON.parse(resultString));
         } 
-        return undefined
 
+        return undefined
+    }
+
+
+    async getImportedFilesAndDataframesFromAnalysisName(analysisName: string): Promise<StepImportData[] | undefined> {
+
+        const resultString = await this.send<string>({
+            'event': 'api_call',
+            'type': 'get_imported_files_and_dataframes_from_analysis_name',
+            'params': {
+                'analysis_name': analysisName,
+            }
+        }, {})
+
+        if (resultString !== undefined && resultString !== '') {
+            return JSON.parse(resultString);
+        }
+        return undefined;
     }
 
     
@@ -574,7 +591,7 @@ export default class MitoAPI {
             'event': 'api_call',
             'type': 'get_test_imports',
             'params': {
-                'updated_step_import_data': updated_step_import_data
+                'updated_step_import_data': updated_step_import_data,
             }
         }, {})
 
@@ -1262,13 +1279,15 @@ export default class MitoAPI {
     */
     async updateReplayAnalysis(
         analysisName: string,
+        importDataToOverwrite?: StepImportData[]
     ): Promise<MitoError | undefined> {
 
         const result: MitoError | undefined = await this.send({
             'event': 'update_event',
             'type': 'replay_analysis_update',
             'params': {
-                'analysis_name': analysisName
+                'analysis_name': analysisName,
+                'import_data_to_overwrite': importDataToOverwrite === undefined ? [] : importDataToOverwrite
             }
         }, { maxRetries: 500 });
 

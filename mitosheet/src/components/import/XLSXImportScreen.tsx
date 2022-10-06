@@ -90,9 +90,12 @@ function XLSXImportScreen(props: XLSXImportProps): JSX.Element {
         (loadedData) => {
             if (loadedData !== undefined) {
                 props.setParams(prevParams => {
+                    // If it's an update to an existing import, we just select the first sheet, as we only ever want one sheet selected
+                    // but if it's a normal import, we select all the files
+
                     return {
                         ...prevParams,
-                        sheet_names: loadedData.sheet_names
+                        sheet_names: !props.isUpdate ? loadedData.sheet_names : loadedData.sheet_names.slice(0, 1)
                     }
                 })
             }

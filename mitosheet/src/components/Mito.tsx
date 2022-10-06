@@ -206,28 +206,61 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     return;
                 }
 
-
                 // Then, we replay the analysis to replay!
                 const error = await props.mitoAPI.updateReplayAnalysis(analysisToReplayName);
                 
                 if (isMitoError(error)) {
                     /**
-                     * If the replayed analysis fails, the first thing that we need to do is to
-                     * report this to the user by displaying a modal that tells them as much
+                     * If an analysis fails to replay, there are two possible reasons this happened:
+                     * 1. One of the import steps failed
+                     * 2. A step other than an import step failed
+                     * 
+                     * For now, we help users handle the first case, where an import step has failed. 
+                     * We do this by explicitly checking if there is an error with an import step, and 
+                     * if there is, then showing the user the replay analysis modal. 
+                     * 
+                     * Otherwise, we just show users an error where they are told that they have errors
+                     * in their input data (TODO: would it be cool to allow them to open the change inputs
+                     * from this modal?).
                      */
-                    setUIState(prevUIState => {
-                        return {
-                            ...prevUIState,
-                            currOpenModal: {
-                                type: ModalEnum.ErrorReplayedAnalysis,
-                                header: 'Analysis Could Not Be Replayed',
-                                message: 'There was an error replaying your analysis because of changes in the input data. You can see the previous analysis in the code cell below.',
-                                error: error,
-                                oldAnalysisName: analysisToReplayName,
-                                newAnalysisName: analysisData.analysisName
+
+                    const importData = await props.mitoAPI.getImportedFilesAndDataframesFromAnalysisName(analysisToReplayName);
+                    const invalidImportIndexes = await props.mitoAPI.getTestImports(importData || []);
+                    console.log("IMPORT DATA", importData, invalidImportIndexes);
+                    if (importData !== undefined && invalidImportIndexes !== undefined && Object.keys(invalidImportIndexes).length !== 0) {
+                        setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                currOpenTaskpane: {
+                                    type: TaskpaneType.UPDATEIMPORTS,
+                                    failedReplayAnalysisOnImports: {
+                                        analysisName: analysisToReplayName,
+                                        importData: importData,
+                                        invalidImportIndexes: invalidImportIndexes
+                                    }
+                                }
                             }
-                        }
-                    })
+                        })
+                    } else {
+                        setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                currOpenModal: {
+                                    type: ModalEnum.ErrorReplayedAnalysis,
+                                    header: 'Analysis Could Not Be Replayed',
+                                    message: 'There was an error replaying your analysis because of changes in the input data. You can see the previous analysis in the code cell below.',
+                                    error: error,
+                                    oldAnalysisName: analysisToReplayName,
+                                    newAnalysisName: analysisData.analysisName
+                                }
+                            }
+                        })
+                    }
+
+
+
+
+                    
                 }
             } else {
                 /**
@@ -734,6 +767,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     selectedSheetIndex={uiState.selectedSheetIndex}
                     currPathParts={currPathParts}
                     setCurrPathParts={setCurrPathParts}
+                    failedReplayAnalysisOnImports={uiState.currOpenTaskpane.failedReplayAnalysisOnImports}
                 />
             )
 

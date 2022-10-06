@@ -8,7 +8,7 @@ from typing import Any, Dict, List
 from mitosheet.step import Step
 from mitosheet.types import StepsManagerType
 from mitosheet.step_performers import EVENT_TYPE_TO_STEP_PERFORMER
-from mitosheet.step_performers.dataframe_import import DataframeImportStepPerformer
+from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
 from mitosheet.step_performers.import_steps.excel_import import ExcelImportStepPerformer
 from mitosheet.step_performers.import_steps.simple_import import SimpleImportStepPerformer
 from mitosheet.utils import create_step_id

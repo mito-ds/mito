@@ -6,19 +6,27 @@
 
 import json
 from typing import Any, Dict, List
-from mitosheet.step import Step
-from mitosheet.types import StepsManagerType
+
 from mitosheet.errors import MitoError
+from mitosheet.saved_analyses.save_utils import read_and_upgrade_analysis
+from mitosheet.step import Step
+from mitosheet.step_performers.import_steps import is_import_step_type
+from mitosheet.types import StepsManagerType
+from mitosheet.api.get_imported_files_and_dataframes import get_import_data_with_single_import_list
 
 GENERIC_DATA_ERROR = 'There was an error importing this data. Please select a different file or dataframe and try again.'
 
 
 def get_test_imports(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
-    updated_step_import_data: Any = params['updated_step_import_data']
+    """
+    Allows you to test the specific import steps, either by passing import steps
+    or by passing an analysis name to check. 
+    """
+    step_import_data: Any = params['updated_step_import_data'] # TODO: change the name to include _list
 
     invalid_import_indexes: Dict[int, str] = dict()
     index = 0
-    for step_import_data in updated_step_import_data:
+    for step_import_data in step_import_data:
         imports = step_import_data['imports']
 
         for _import in imports:

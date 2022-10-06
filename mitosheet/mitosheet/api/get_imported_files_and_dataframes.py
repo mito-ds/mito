@@ -12,13 +12,50 @@ import pandas as pd
 from mitosheet.types import StepsManagerType
 from mitosheet.step_performers.import_steps.simple_import import SimpleImportStepPerformer
 from mitosheet.step_performers.import_steps.excel_import import ExcelImportStepPerformer
-from mitosheet.step_performers.dataframe_import import DataframeImportStepPerformer
+from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
+from mitosheet.step_performers.import_steps import is_import_step_type
 
 def get_index_from_possible_null_list(l: Optional[List[Any]], index: int) -> Optional[Any]:
     if l is None:
         return None
         
     return l[index]
+
+def get_import_data_with_single_import_list(step_type: str, params: Dict[str, Any]) -> List[Dict[str, Any]]:
+    if step_type == SimpleImportStepPerformer.step_type():
+        for index, file_name in enumerate(params['file_names']):
+            return [{
+                'step_type': step_type,
+                'params': {
+                    'file_names': [file_name],
+                    'delimeters': [get_index_from_possible_null_list(params.get('delimeters', None), index)],
+                    'encodings': [get_index_from_possible_null_list(params.get('encodings', None), index)],
+                    'error_bad_lines': [get_index_from_possible_null_list(params.get('error_bad_lines', None), index)]
+                }
+            }]
+
+    if step_type == ExcelImportStepPerformer.step_type():
+        for index, sheet_name in enumerate(params['sheet_names']):
+            return [{
+                'step_type': step_type,
+                'params': {
+                    'file_name': params['file_name'],
+                    'sheet_names': [sheet_name],
+                    'has_headers': params['has_headers'],
+                    'skiprows': params['skiprows']
+                }
+            }]
+
+    if step_type == DataframeImportStepPerformer.step_type():
+        for index, df_name in enumerate(params['df_names']):
+            return [{
+                'step_type': step_type,
+                'params': {
+                    'df_names': [df_name],
+                }
+            }]
+
+    return []
 
 
 def get_imported_files_and_dataframes(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
@@ -51,53 +88,11 @@ def get_imported_files_and_dataframes(params: Dict[str, Any], steps_manager: Ste
     # as this is what is easiest to work with on the frontend
     import_steps_with_just_one_dataframe = []
     for step in steps_manager.steps_including_skipped:
-        if step.step_type == SimpleImportStepPerformer.step_type():
-            for index, file_name in enumerate(step.params['file_names']):
-                import_steps_with_just_one_dataframe.append(
-                    {
-                        'step_id': step.step_id,
-                        'imports': [{
-                            'step_type': step.step_type,
-                            'params': {
-                                'file_names': [file_name],
-                                'delimeters': [get_index_from_possible_null_list(step.params.get('delimeters', None), index)],
-                                'encodings': [get_index_from_possible_null_list(step.params.get('encodings', None), index)],
-                                'error_bad_lines': [get_index_from_possible_null_list(step.params.get('error_bad_lines', None), index)]
-                            }
-                        }]
-                    }
-                )
-
-        if step.step_type == ExcelImportStepPerformer.step_type():
-            for index, sheet_name in enumerate(step.params['sheet_names']):
-                import_steps_with_just_one_dataframe.append(
-                    {
-                        'step_id': step.step_id,
-                        'imports': [{
-                            'step_type': step.step_type,
-                            'params': {
-                                'file_name': step.params['file_name'],
-                                'sheet_names': [sheet_name],
-                                'has_headers': step.params['has_headers'],
-                                'skiprows': step.params['skiprows']
-                            }
-                        }]
-                    }
-                )
-
-        if step.step_type == DataframeImportStepPerformer.step_type():
-            for index, df_name in enumerate(step.params['df_names']):
-                import_steps_with_just_one_dataframe.append(
-                    {
-                        'step_id': step.step_id,
-                        'imports': [{
-                            'step_type': step.step_type,
-                            'params': {
-                                'df_names': [df_name],
-                            }
-                        }]
-                    }
-                )
+        if is_import_step_type(step.step_type):
+            import_steps_with_just_one_dataframe.append({
+                'step_id': step.step_id,
+                'imports': get_import_data_with_single_import_list(step.step_type, step.params)
+            })
 
     # Then, turn this into the output format
     return json.dumps(import_steps_with_just_one_dataframe)
