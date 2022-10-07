@@ -1,7 +1,8 @@
-import { CSVImportParams } from "../../import/CSVImportScreen";
+import React from "react";
+import { CSVImportParams } from "../../import/CSVImportConfigScreen";
 import { DataframeImportParams } from "../../import/DataframeImportScreen";
-import { ExcelImportParams } from "../../import/XLSXImportScreen";
-import { CSVImportData, DataframeCreationData, DataframeImportData, ExcelImportData, StepImportData } from "./UpdateImportsTaskpane"
+import { ExcelImportParams } from "../../import/XLSXImportConfigScreen";
+import { DataframeCreationData, ReplacingDataframeState, StepImportData } from "./UpdateImportsTaskpane"
 
 
 export function isCSVImportParams(params: CSVImportParams | ExcelImportParams | DataframeImportParams | undefined): params is CSVImportParams {
@@ -12,15 +13,6 @@ export function isExcelImportParams(params: CSVImportParams | ExcelImportParams 
 }
 export function isDataframeImportParams(params: CSVImportParams | ExcelImportParams | DataframeImportParams | undefined): params is DataframeImportParams {
     return params !== undefined && 'df_names' in params;
-}
-export function isCSVImportData(importData: CSVImportData | ExcelImportData | DataframeImportData): importData is CSVImportData {
-    return isCSVImportParams(importData.params);
-}
-export function isExcelImportData(importData: CSVImportData | ExcelImportData | DataframeImportData): importData is ExcelImportData {
-    return isExcelImportParams(importData.params);
-}
-export function isDataframeImportData(importData: CSVImportData | ExcelImportData | DataframeImportData): importData is CSVImportData {
-    return isDataframeImportParams(importData.params);
 }
 
 export const getBaseOfPath = (fullPath: string): string => {
@@ -60,4 +52,48 @@ export const getOriginalAndUpdatedDataframeCreationDataPairs = (originalStepImpo
     return originalImports.map((dfCreationData, index): [DataframeCreationData, DataframeCreationData] => {
         return [dfCreationData, newImports[index]];
     })
+}
+
+export const updateDataframeCreation = (
+    dataframeCreationIndex: number,
+    dataframeCreationData: DataframeCreationData,
+    setUpdatedStepImportData: React.Dispatch<React.SetStateAction<StepImportData[] | undefined>>,
+    setUpdatedIndexes: React.Dispatch<React.SetStateAction<number[]>>,
+    setInvalidImportMessages: React.Dispatch<React.SetStateAction<Record<number, string | undefined>>>,
+    setReplacingDataframeState: React.Dispatch<React.SetStateAction<ReplacingDataframeState | undefined>>
+) => {
+
+    // First, update the stepImportData
+    setUpdatedStepImportData((prevUpdatedStepImportData) => {
+        if (prevUpdatedStepImportData === undefined) {
+            return undefined;
+        }
+        return updateStepImportDataList(
+            prevUpdatedStepImportData, 
+            dataframeCreationIndex, 
+            dataframeCreationData
+        )
+    })
+
+    // Save that this index is updated
+    setUpdatedIndexes((prevUpdatedIndexes) => {
+        if (prevUpdatedIndexes.includes(dataframeCreationIndex)) {
+            return prevUpdatedIndexes;
+        }
+        const newUpdatedIndexes = [...prevUpdatedIndexes];
+        newUpdatedIndexes.push(dataframeCreationIndex);
+        return newUpdatedIndexes;
+    })
+
+    // Remove the invalid import message if it exists
+    setInvalidImportMessages(prevInvalidImportMessage => {
+        const newInvalidImportMessage = {...prevInvalidImportMessage};
+        if (newInvalidImportMessage[dataframeCreationIndex] !== undefined) {
+            delete newInvalidImportMessage[dataframeCreationIndex]
+        }
+        return newInvalidImportMessage;
+    })
+
+    // And mark that we are done replacing this dataframe creation
+    setReplacingDataframeState(undefined);
 }

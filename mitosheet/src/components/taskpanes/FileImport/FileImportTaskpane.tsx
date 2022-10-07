@@ -3,9 +3,10 @@
 import React, { useState } from 'react';
 import MitoAPI from '../../../jupyter/api';
 import { AnalysisData, UIState, UserProfile } from '../../../types';
-import CSVImportTaskpane from './CSVImportTaskpane';
-import FileBrowserTaskpane from './FileBrowserTaskpane';
-import XLSXImportTaskpane from './XLSXImportTaskpane';
+import { isMitoError } from '../../../utils/errors';
+import FileBrowser from '../../import/FileBrowser/FileBrowser';
+import CSVImportConfigTaskpane from './CSVImportConfigTaskpane';
+import XLSXImportConfigTaskpane from './XLSXImportConfigTaskpane';
 
 interface ImportTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -28,12 +29,12 @@ export interface FileElement {
 export type ImportState = {
     screen: 'file_browser'
 } | {
-    screen: 'csv_import', 
+    screen: 'csv_import_config', 
     fileName: string,
     filePath: string,
     error?: string | undefined
 } | {
-    screen: 'xlsx_import',
+    screen: 'xlsx_import_config',
     fileName: string,
     filePath: string
 } | {
@@ -48,21 +49,42 @@ function FileImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
     // We only load a specific screen if the full file path is determined
     if (importState.screen === 'file_browser') {
         return (
-            <FileBrowserTaskpane
+            <FileBrowser
                 mitoAPI={props.mitoAPI}
                 analysisData={props.analysisData}
                 userProfile={props.userProfile}
                 setUIState={props.setUIState}
-            
+                isUpdate={false}
+
                 currPathParts={props.currPathParts}
                 setCurrPathParts={props.setCurrPathParts}
 
                 setImportState={setImportState}
+                importCSVFile={async (file) => {
+                    // Get the full file path
+                    const filePath = await props.mitoAPI.getPathJoined([...props.currPathParts, file.name]);
+                    if (filePath === undefined) {
+                        return;
+                    }
+
+                    // Send an import message
+                    const result = await props.mitoAPI.editSimpleImport([filePath]);
+
+                    // If it is an error, we open the import taskpane with an error
+                    if (isMitoError(result)) {
+                        setImportState({
+                            screen: 'csv_import_config',
+                            fileName: file.name,
+                            filePath: filePath,
+                            error: result.to_fix
+                        })
+                    }
+                }}
             />
         )
-    } else if (importState.screen == 'csv_import') {
+    } else if (importState.screen == 'csv_import_config') {
         return (
-            <CSVImportTaskpane
+            <CSVImportConfigTaskpane
                 mitoAPI={props.mitoAPI}
                 analysisData={props.analysisData}
                 setUIState={props.setUIState}
@@ -74,9 +96,9 @@ function FileImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                 setScreen={setImportState}
             />
         )
-    } else if (importState.screen == 'xlsx_import') {
+    } else if (importState.screen == 'xlsx_import_config') {
         return (
-            <XLSXImportTaskpane
+            <XLSXImportConfigTaskpane
                 mitoAPI={props.mitoAPI}
                 analysisData={props.analysisData}
                 setUIState={props.setUIState}

@@ -6,9 +6,9 @@ import { SortDirection } from "../components/taskpanes/ControlPanel/FilterAndSor
 import { GraphObject } from "../components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
 import { UniqueValueCount, UniqueValueSortType } from "../components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
 import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Graph/graphUtils";
-import { CSVFileMetadata } from "../components/import/CSVImportScreen";
+import { CSVFileMetadata } from "../components/import/CSVImportConfigScreen";
 import { FileElement } from "../components/taskpanes/FileImport/FileImportTaskpane";
-import { ExcelFileMetadata } from "../components/import/XLSXImportScreen";
+import { ExcelFileMetadata } from "../components/import/XLSXImportConfigScreen";
 import { valuesArrayToRecord } from "../components/taskpanes/PivotTable/pivotUtils";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
@@ -447,7 +447,7 @@ export default class MitoAPI {
             'event': 'api_call',
             'type': 'get_excel_file_metadata',
             'params': {
-                'file_name': filePath // TODO: change the api call to file_path
+                'file_path': filePath
             },
         }, {})
 
@@ -1279,7 +1279,7 @@ export default class MitoAPI {
     */
     async updateReplayAnalysis(
         analysisName: string,
-        importDataToOverwrite?: StepImportData[]
+        stepImportDataListToOverwrite?: StepImportData[]
     ): Promise<MitoError | undefined> {
 
         const result: MitoError | undefined = await this.send({
@@ -1287,7 +1287,7 @@ export default class MitoAPI {
             'type': 'replay_analysis_update',
             'params': {
                 'analysis_name': analysisName,
-                'import_data_to_overwrite': importDataToOverwrite === undefined ? [] : importDataToOverwrite
+                'step_import_data_list_to_overwrite': stepImportDataListToOverwrite === undefined ? [] : stepImportDataListToOverwrite
             }
         }, { maxRetries: 500 });
 

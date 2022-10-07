@@ -758,14 +758,14 @@ export const Mito = (props: MitoProps): JSX.Element => {
             )
             case TaskpaneType.UPDATEIMPORTS: return (
                 <UpdateImportsTaskpane
+                    mitoAPI={props.mitoAPI}
+                    setUIState={setUIState}
                     userProfile={userProfile}
                     analysisData={analysisData}
-                    sheetDataArray={sheetDataArray}
-                    setUIState={setUIState}
-                    mitoAPI={props.mitoAPI}
-                    selectedSheetIndex={uiState.selectedSheetIndex}
+    
                     currPathParts={currPathParts}
                     setCurrPathParts={setCurrPathParts}
+    
                     failedReplayAnalysisOnImports={uiState.currOpenTaskpane.failedReplayAnalysisOnImports}
                 />
             )

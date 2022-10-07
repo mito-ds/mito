@@ -21,13 +21,13 @@ function useSendEditOnClick<ParamType, ResultType>(
     analysisData: AnalysisData,
     options?: {
         allowSameParamsToReapplyTwice: boolean
-    },
+    }
 ): {
         params: ParamType | undefined, // If this is undefined, no messages will be sent to the backend
         setParams: React.Dispatch<React.SetStateAction<ParamType>>, 
         error: string | undefined,
         loading: boolean // This loading indicator is for if the edit message is processing
-        edit: (finalTransform?: (params: ParamType | undefined) => ParamType | undefined) => void; // Actually applies the edit. You can optionally pass a function that does one final transformation on the params
+        edit: (finalTransform?: (params: ParamType) => ParamType) => void; // Actually applies the edit. You can optionally pass a function that does one final transformation on the params
         editApplied: boolean; // True if any edit is applied. E.g. the user has clicked a button, created a step, and not undone it.
         attemptedEditWithTheseParamsMultipleTimes: boolean; // True if the user applies the edit, and then clicks the edit button again without changing the params
         result: ResultType | undefined; // The result of this edit. Undefined if no edit is applied (or if the step has no result)
@@ -76,10 +76,12 @@ function useSendEditOnClick<ParamType, ResultType>(
     );
 
     // This function actually sends the edit message to the backend
-    const edit = async (finalTransform?: (params: ParamType | undefined) => ParamType | undefined) => {
-        
-        // Do not send a message if we have already sent it already
-        if (!options?.allowSameParamsToReapplyTwice && paramsApplied) {
+    const edit = async (finalTransform?: (params: ParamType) => ParamType) => {
+        // Do not send an edit message if the params are undefined
+        // or if we have already sent a message for these params
+        if (params === undefined) {
+            return;
+        } else if (!options?.allowSameParamsToReapplyTwice && paramsApplied) {
             setAttemptedEditWithTheseParamsMultipleTimes(true);
             return;
         }
@@ -88,13 +90,9 @@ function useSendEditOnClick<ParamType, ResultType>(
         // transformation before we actually send the edit
         const finalParams = finalTransform ? finalTransform(params) : params;
 
-        // Do not send an edit message if the final params are undefined
-        if (finalParams === undefined) {
-            return;
-        }
-
         setLoading(true);
         const newStepID = getRandomId(); // always use a new step id
+
         const possibleError = await mitoAPI._edit<ParamType>(editEvent, finalParams, newStepID);
         setLoading(false);
 

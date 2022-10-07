@@ -47,7 +47,7 @@ const getButtonMessage = (params: DataframeImportParams, isUpdate: boolean): str
 
 
 /* 
-    This is the DataframeImport taskpane, allows users to import a specific dataframe
+    Allows users to import a specific dataframe
 */
 const DataframeImportScreen = (props: DataframeImportTaskpaneProps): JSX.Element => {
 

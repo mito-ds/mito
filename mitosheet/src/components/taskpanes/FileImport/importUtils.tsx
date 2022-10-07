@@ -98,15 +98,9 @@ export const getImportButtonStatus = (selectedElement: FileElement | undefined, 
         };
     }
 
-    if (isUpdate) {
-        return {
-            disabled: false, 
-            buttonText: 'Update to ' + selectedElement.name
-        }
-    }
     return {
         disabled: false,
-        buttonText: 'Import ' + selectedElement.name
+        buttonText: (!isUpdate ? 'Import ' : 'Update to') + selectedElement.name
     };
 }
 

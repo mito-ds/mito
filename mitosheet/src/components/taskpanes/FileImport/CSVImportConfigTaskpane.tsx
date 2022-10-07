@@ -4,10 +4,10 @@ import React from 'react';
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import MitoAPI from '../../../jupyter/api';
 import { AnalysisData, StepType, UIState } from '../../../types';
-import CSVImportScreen, { CSVImportParams } from '../../import/CSVImportScreen';
+import CSVImportScreen, { CSVImportParams } from '../../import/CSVImportConfigScreen';
 import { ImportState } from './FileImportTaskpane';
 
-interface CSVImportTaskpaneProps {
+interface CSVImportConfigTaskpaneProps {
     mitoAPI: MitoAPI;
     analysisData: AnalysisData;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
@@ -29,8 +29,11 @@ export const getDefaultCSVParams = (filePath: string): CSVImportParams => {
     }
 }
 
-
-function CSVImportTaskpane(props: CSVImportTaskpaneProps): JSX.Element {
+/**
+ * A taskpane that allows a user to configur a CSV taskpane for import
+ * as a new step.
+ */
+function CSVImportConfigTaskpane(props: CSVImportConfigTaskpaneProps): JSX.Element {
 
     const {params, setParams, loading, edit, editApplied, error} = useSendEditOnClick(
         () => getDefaultCSVParams(props.filePath),
@@ -66,4 +69,4 @@ function CSVImportTaskpane(props: CSVImportTaskpaneProps): JSX.Element {
 
 }
 
-export default CSVImportTaskpane;
+export default CSVImportConfigTaskpane;

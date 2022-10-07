@@ -1207,7 +1207,7 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return undefined}, // TODO
+            isDisabled: () => {return undefined},
             searchTerms: ['Dataframe Import'],
             tooltip: "Dataframe Import"
         },
@@ -1227,7 +1227,7 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return undefined}, // TODO
+            isDisabled: () => {return undefined},
             searchTerms: ['update', 'imports', 'replay', 'refresh', 'change'],
             tooltip: "Update Imports"
         },

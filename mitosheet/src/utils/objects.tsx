@@ -1,29 +1,5 @@
 import { RecursivePartial } from "../types";
 
-export function isDeepEqual(obj1: Record<string | number | symbol, any>, obj2: Record<string | number | symbol, any>): boolean {
-    const keys1 = Object.keys(obj1);
-    const keys2 = Object.keys(obj2);
-
-    if (keys1.length !== keys2.length) {
-        return false;
-    }
-
-    for (const key of keys1) {
-        const value1 = obj1[key];
-        const value2 = obj2[key];
-
-        const isObjects = value1 !== null && value2 !== null && typeof value1 === 'object' && typeof value2 === 'object';
-
-        if (isObjects && !isDeepEqual(value1, value2)) {
-            return false;
-        } else if (!isObjects && value1 !== value2) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 /* 
     Returns a key that maps to a value in a given
     object. Defaults to the empty string if it

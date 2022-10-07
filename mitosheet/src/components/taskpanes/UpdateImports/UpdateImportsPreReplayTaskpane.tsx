@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MitoAPI from "../../../jupyter/api";
 import { UIState } from "../../../types";
 import { isMitoError } from "../../../utils/errors";
@@ -9,7 +9,7 @@ import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import { TaskpaneType } from "../taskpanes";
 import ImportCard from "./UpdateImportCard";
-import { ReplacingDataframeState, StepImportData } from "./UpdateImportsTaskpane";
+import { FailedReplayOnImportData, ReplacingDataframeState, StepImportData } from "./UpdateImportsTaskpane";
 import { getOriginalAndUpdatedDataframeCreationDataPairs } from "./updateImportsUtils";
 
 
@@ -31,18 +31,26 @@ interface UpdateImportPreReplayTaskpaneProps {
     invalidImportMessages: Record<number, string | undefined>;
     setInvalidImportMessages: React.Dispatch<React.SetStateAction<Record<number, string | undefined>>>;
     
-    failedReplayAnalysisOnImports: {
-        analysisName: string,
-        importData: StepImportData[],
-        invalidImportIndexes: Record<number, string>
-    }
+    failedReplayAnalysisOnImports: FailedReplayOnImportData
 }
     
 
 /* 
-    This is the updateImports taskpane.
+    This taskpane is displayed if the user replays an analysis
+    that has some failed imports, that the user is then given
+    the option to reconfigure to make them valid.
 */
 const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProps): JSX.Element => {
+
+    // We default the prevUpdatedStepImportData to be the the original import data, if it's undefined
+    useEffect(() => {
+        props.setUpdatedStepImportData(prevUpdatedStepImportData => {
+            if (prevUpdatedStepImportData === undefined) {
+                return JSON.parse(JSON.stringify(props.failedReplayAnalysisOnImports?.importData));
+            }
+            return prevUpdatedStepImportData;
+        })
+    }, [])
 
     const [invalidReplayError, setInvalidReplayError] = useState('Mito failed to replay the analysis because it could not import the files or used in the analysis. Correct the errors below.');
     

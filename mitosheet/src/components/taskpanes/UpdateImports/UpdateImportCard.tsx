@@ -32,7 +32,7 @@ export const getUpdateImportCardTitle = (dataframeCreationData: DataframeCreatio
     }
 }
 
-export const getUpdateImportCardSubtitle = (dataframeCreationData: DataframeCreationData, updatedDataframeCreationData: DataframeCreationData, invalidImportMessage: string | undefined, isUpdated: boolean): JSX.Element | null => {
+export const getUpdateImportCardSubtitle = (updatedDataframeCreationData: DataframeCreationData, invalidImportMessage: string | undefined, isUpdated: boolean): JSX.Element | null => {
 
     if (!isUpdated) {
         if (invalidImportMessage !== undefined) {
@@ -73,16 +73,19 @@ export const getUpdateImportCardSubtitle = (dataframeCreationData: DataframeCrea
 }
 
 /* 
-  A custom component that displays a previous import and whether its still valid
+  This card displays an single dataframe creation, what that dataframe creation
+  has been updated to, as well as some errors if there are any.
 */
 const UpdateImportCard = (props: {
     dataframeCreationIndex: number;
     dataframeCreationData: DataframeCreationData;
     updatedDataframeCreationData: DataframeCreationData;
     isUpdated: boolean;
+
     displayedImportCardDropdown: number | undefined;
     setDisplayedImportCardDropdown: React.Dispatch<React.SetStateAction<number | undefined>>;
-    setReplacingDataframeState: React.Dispatch<React.SetStateAction<ReplacingDataframeState | undefined>>
+    setReplacingDataframeState: React.Dispatch<React.SetStateAction<ReplacingDataframeState | undefined>>;
+
     preUpdateInvalidImportMessage: string | undefined;
     postUpdateInvalidImportMessage: string | undefined;
 }): JSX.Element => {
@@ -109,7 +112,7 @@ const UpdateImportCard = (props: {
                     <CSVFileIcon />
                     <Col span={22} offset={.25}>
                         {getUpdateImportCardTitle(props.dataframeCreationData)}
-                        {getUpdateImportCardSubtitle(props.dataframeCreationData, props.updatedDataframeCreationData, props.preUpdateInvalidImportMessage, props.isUpdated)}
+                        {getUpdateImportCardSubtitle(props.updatedDataframeCreationData, props.preUpdateInvalidImportMessage, props.isUpdated)}
                     </Col>
                 </Row>
                 {props.postUpdateInvalidImportMessage &&

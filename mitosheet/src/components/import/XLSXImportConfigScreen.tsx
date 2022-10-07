@@ -20,7 +20,7 @@ import DefaultTaskpaneFooter from '../taskpanes/DefaultTaskpane/DefaultTaskpaneF
 import DefaultTaskpaneHeader from '../taskpanes/DefaultTaskpane/DefaultTaskpaneHeader';
 
 
-interface XLSXImportProps {
+interface XLSXImportConfigScreenProps {
     mitoAPI: MitoAPI;
     analysisData: AnalysisData;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
@@ -31,7 +31,7 @@ interface XLSXImportProps {
 
     params: ExcelImportParams | undefined;
     setParams: (updater: (prevParams: ExcelImportParams) => ExcelImportParams) => void;
-    edit: (finalTransform?: ((params: ExcelImportParams | undefined) => ExcelImportParams | undefined) | undefined) => void;
+    edit: (finalTransform?: ((params: ExcelImportParams) => ExcelImportParams) | undefined) => void;
     editApplied: boolean;
     loading: boolean;
 
@@ -81,7 +81,7 @@ function getSuccessMessage(params: ExcelImportParams): string {
     in turn allows them to configure how to import sheets in this
     file.
 */
-function XLSXImportScreen(props: XLSXImportProps): JSX.Element {
+function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element {
 
     // Load the metadata about the Excel file from the API
     const [fileMetadata, loading] = useStateFromAPIAsync<ExcelFileMetadata, string>(
@@ -240,10 +240,6 @@ function XLSXImportScreen(props: XLSXImportProps): JSX.Element {
                     variant='dark'
                     width='block'
                     onClick={() => props.edit((params) => {
-                        if (params === undefined) {
-                            return undefined;
-                        }
-
                         // Do a final parsing to make sure that the int is a valid number
                         const parsedSkipRows = parseInt("" + params.skiprows);
 
@@ -270,4 +266,4 @@ function XLSXImportScreen(props: XLSXImportProps): JSX.Element {
     )
 }
 
-export default XLSXImportScreen;
+export default XLSXImportConfigScreen;

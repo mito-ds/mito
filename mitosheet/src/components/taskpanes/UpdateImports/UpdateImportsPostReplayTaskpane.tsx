@@ -35,7 +35,8 @@ interface UpdateImportPostReplayTaskpaneProps {
     
 
 /* 
-    This is the updateImports taskpane.
+    This taskpane is displayed if the user wants to change the imported
+    data after they have a full valid analysis.
 */
 const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpaneProps): JSX.Element => {
 
@@ -45,12 +46,12 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
         undefined,
         () => {return props.mitoAPI.getImportedFilesAndDataframes()},
         (loadedData) => {
-            // On load, update the updated import data
+            // We default the prevUpdatedStepImportData to be the the original import data, if it's undefined
             if (loadedData !== undefined && props.updatedStepImportData === undefined) {
                 props.setUpdatedStepImportData(loadedData)
             }
         },
-        [] // TODO: what do we want to refresh on? User applying the edit? No...
+        []
     )
     
     // We create an import card for each of the dataframes created within the original imports

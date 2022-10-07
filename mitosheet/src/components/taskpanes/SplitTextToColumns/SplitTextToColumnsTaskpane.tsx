@@ -260,10 +260,6 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                     variant='dark'
                     width='block'
                     onClick={() => edit(prevParams => {
-                        if (prevParams === undefined) {
-                            return undefined;
-                        }
-
                         return {
                             ...prevParams, 
                             // Prepare for the user splitting again by creating a new column suffix,

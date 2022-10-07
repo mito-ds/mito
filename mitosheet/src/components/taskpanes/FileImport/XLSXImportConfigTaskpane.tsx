@@ -1,15 +1,15 @@
 // Copyright (c) Mito
 
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import MitoAPI from '../../../jupyter/api';
 import { AnalysisData, StepType, UIState } from '../../../types';
-import XLSXImportScreen, { ExcelImportParams } from '../../import/XLSXImportScreen';
+import XLSXImportConfigScreen, { ExcelImportParams } from '../../import/XLSXImportConfigScreen';
 import { ImportState } from './FileImportTaskpane';
 
 
-interface XLSXImportProps {
+interface XLSXImportConfigTaskpaneProps {
     mitoAPI: MitoAPI;
     analysisData: AnalysisData;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
@@ -35,7 +35,7 @@ export const getDefaultXLSXParams = (filePath: string): ExcelImportParams => {
     in turn allows them to configure how to import sheets in this
     file.
 */
-function XLSXImportTaskpane(props: XLSXImportProps): JSX.Element {
+function XLSXImportConfigTaskpane(props: XLSXImportConfigTaskpaneProps): JSX.Element {
 
 
     // NOTE: this loading state is just for getting the metadata about the sheets
@@ -47,14 +47,8 @@ function XLSXImportTaskpane(props: XLSXImportProps): JSX.Element {
         {allowSameParamsToReapplyTwice: true},
     )
 
-    // This is necessary as the filePath loads later than the fileName, as we need to go get it
-    // from the backend
-    useEffect(() => {
-        setParams(getDefaultXLSXParams(props.filePath))
-    }, [props.filePath])
-
     return (
-        <XLSXImportScreen
+        <XLSXImportConfigScreen
             mitoAPI={props.mitoAPI}
             analysisData={props.analysisData}
             setUIState={props.setUIState}
@@ -76,4 +70,4 @@ function XLSXImportTaskpane(props: XLSXImportProps): JSX.Element {
     )
 }
 
-export default XLSXImportTaskpane;
+export default XLSXImportConfigTaskpane;

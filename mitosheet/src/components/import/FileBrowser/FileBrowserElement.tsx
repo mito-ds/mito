@@ -108,7 +108,7 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
                                 return;
                             }
                             props.setImportState({
-                                screen: 'xlsx_import',
+                                screen: 'xlsx_import_config',
                                 fileName: props.element.name,
                                 filePath: filePath
                             });

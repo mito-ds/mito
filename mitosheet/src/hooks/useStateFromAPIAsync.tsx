@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 
 /* 
-    This effect uses an API call to get data
+    This effect uses an API call to get data, while also
+    keeping track if this data loaded. 
+
+    This is useful for taskpanes that want to load state from the API
+    that they want to display. For example, an ExcelImportTaskpane wants
+    to load metadata about the excel file being imported -- this is a
+    useful hook for this.
 */
 export function useStateFromAPIAsync<ResultType, ParamType>(
     defaultValue: ResultType,

@@ -31,10 +31,11 @@ interface FileBrowserProps {
     backCallback?: () => void;
 }
 
-// You can either select a file then change the screen
-// Or, you can import a CSV directly. The latter should be a function you
-// pass in called importCSVFile, that takes a file element...
-// and requires error handling, or what? No.
+/**
+ * Allows a user to browser files on their hard drive, and either 
+ * select a CSV file to import directly, or enter the CSVConfig or
+ * XLSXConfig screens.
+ */
 function FileBrowser(props: FileBrowserProps): JSX.Element {
 
     const [fileBrowserState, setFileBrowserState] = useState<FileBrowserState>({
@@ -170,7 +171,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                                             return;
                                         }
                                         props.setImportState({
-                                            screen: 'csv_import',
+                                            screen: 'csv_import_config',
                                             fileName: selectedFile.name,
                                             filePath: filePath
                                         });
@@ -202,7 +203,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                                             return;
                                         }
                                         props.setImportState({
-                                            screen: 'xlsx_import',
+                                            screen: 'xlsx_import_config',
                                             fileName: selectedFile.name,
                                             filePath: filePath
                                         });

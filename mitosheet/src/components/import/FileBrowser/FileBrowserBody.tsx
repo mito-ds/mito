@@ -192,7 +192,7 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
                                             return;
                                         }
                                         props.setImportState({
-                                            screen: 'xlsx_import',
+                                            screen: 'xlsx_import_config',
                                             fileName: selectedFile.name,
                                             filePath: filePath
                                         });

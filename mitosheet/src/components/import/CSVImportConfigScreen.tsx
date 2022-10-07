@@ -129,7 +129,7 @@ const DEFAULT_ENCODING = 'default';
 const DEFAULT_ERROR_BAD_LINES = true;
 
 
-interface CSVImportProps {
+interface CSVImportConfigScreenProps {
     mitoAPI: MitoAPI;
     analysisData: AnalysisData;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
@@ -180,7 +180,7 @@ function getSuccessMessage(fileName: string): string {
 /* 
     Allows a user to configure the import for a specific CSV file
 */
-function CSVImport(props: CSVImportProps): JSX.Element {
+function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
 
     // Get the metadata of the CSV file
     const [fileMetadata] = useStateFromAPIAsync<CSVFileMetadata | undefined, undefined>(
@@ -353,4 +353,4 @@ function CSVImport(props: CSVImportProps): JSX.Element {
     )
 }
 
-export default CSVImport;
+export default CSVImportConfigScreen;

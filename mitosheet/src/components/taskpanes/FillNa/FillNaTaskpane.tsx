@@ -340,10 +340,6 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                         // We check if the params have a string stored in them that could be a number,
                         // and if so we parse it to a number. This is a final tranform before the edit
                         edit((prevParams) => {
-                            if (prevParams === undefined) {
-                                return undefined;
-                            }
-
                             if (prevParams.fill_method.type === 'value' && typeof prevParams.fill_method.value === 'string') {
                                 let finalValue: string | boolean | number = prevParams.fill_method.value;
 
