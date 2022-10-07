@@ -8,6 +8,7 @@ import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
+import { TaskpaneType } from "../taskpanes";
 import ImportCard from "./UpdateImportCard";
 import { ReplacingDataframeState, StepImportData } from "./UpdateImportsTaskpane";
 import { getOriginalAndUpdatedDataframeCreationDataPairs } from "./updateImportsUtils";
@@ -108,6 +109,13 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
                             const possibleMitoError = await props.mitoAPI.updateExistingImports(props.updatedStepImportData);
                             if (isMitoError(possibleMitoError)) {
                                 setInvalidReplayError(possibleMitoError.to_fix)
+                            } else {
+                                props.setUIState((prevUIState) => {
+                                    return {
+                                        ...prevUIState,
+                                        currOpenTaskpane: {type: TaskpaneType.NONE}
+                                    }
+                                })
                             }
                         }
                     }}
