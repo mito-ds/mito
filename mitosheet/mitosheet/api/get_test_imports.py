@@ -36,8 +36,6 @@ def get_test_imports(params: Dict[str, Any], steps_manager: StepsManagerType) ->
                 if not executed:
                     invalid_import_indexes[index] = GENERIC_DATA_ERROR
             except MitoError as e:
-                from mitosheet.errors import get_recent_traceback
-                print(get_recent_traceback())
                 invalid_import_indexes[index] = e.to_fix
             except:
                 invalid_import_indexes[index] = GENERIC_DATA_ERROR

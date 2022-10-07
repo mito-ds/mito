@@ -1316,8 +1316,8 @@ export default class MitoAPI {
     */
     async updateExistingImports(
         setUpdatedStepImportData: StepImportData[]
-    ): Promise<void> {
-        await this.send({
+    ): Promise<string | undefined> {
+        return await this.send({
             'event': 'update_event',
             'type': 'existing_import_update',
             'params': {

@@ -103,7 +103,6 @@ function XLSXImportScreen(props: XLSXImportProps): JSX.Element {
         [props.filePath]
     );
 
-    console.log(props.filePath, fileMetadata)
 
     const params = props.params;
     if (params === undefined) {

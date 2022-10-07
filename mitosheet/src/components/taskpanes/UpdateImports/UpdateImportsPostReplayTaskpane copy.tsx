@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
 import MitoAPI from "../../../jupyter/api";
 import { UIState } from "../../../types";
+import { isMitoError } from "../../../utils/errors";
 import TextButton from "../../elements/TextButton";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
@@ -9,7 +10,7 @@ import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import ImportCard from "./UpdateImportCard";
 import { ReplacingDataframeState, StepImportData } from "./UpdateImportsTaskpane";
-import { getOriginalAndUpdatedDataframeCreationDataPairs, isUpdatedDfCreationData } from "./UpdateImportsUtils";
+import { getOriginalAndUpdatedDataframeCreationDataPairs } from "./updateImportsUtils";
 
 
 interface UpdateImportPostReplayTaskpaneProps {
@@ -19,6 +20,9 @@ interface UpdateImportPostReplayTaskpaneProps {
     updatedStepImportData: StepImportData[] | undefined;
     setUpdatedStepImportData: React.Dispatch<React.SetStateAction<StepImportData[] | undefined>>;
 
+    updatedIndexes: number[];
+    setUpdatedIndexes: React.Dispatch<React.SetStateAction<number[]>>;
+    
     displayedImportCardDropdown: number | undefined
     setDisplayedImportCardDropdown: React.Dispatch<React.SetStateAction<number | undefined>>
 
@@ -33,6 +37,8 @@ interface UpdateImportPostReplayTaskpaneProps {
     This is the updateImports taskpane.
 */
 const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpaneProps): JSX.Element => {
+
+    const [invalidReplayError, setInvalidReplayError] = useState<string | undefined>(undefined);
 
     const [originalStepImportData] = useStateFromAPIAsync(
         undefined,
@@ -54,6 +60,7 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
                 key={index}
                 dataframeCreationIndex={index}
                 dataframeCreationData={originalDfCreationData}
+                isUpdated={props.updatedIndexes.includes(index)}
                 updatedDataframeCreationData={updatedDfCreationData}
                 displayedImportCardDropdown={props.displayedImportCardDropdown}
                 setDisplayedImportCardDropdown={props.setDisplayedImportCardDropdown}
@@ -64,9 +71,8 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
         )
     })
 
-    const updated = originalAndUpdatedDataframeCreationPairs.map(([originalDfCreationData, updatedDfCreationData]) => {
-        return isUpdatedDfCreationData(originalDfCreationData, updatedDfCreationData);
-    }).reduce((prevValue, newValue) => {return prevValue || newValue}, false);
+    const updated = props.updatedIndexes.length > 0;
+    const invalid = Object.keys(props.invalidImportMessages).length > 0;
 
     return (
         <DefaultTaskpane>
@@ -75,6 +81,11 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
                 setUIState={props.setUIState}           
             />
             <DefaultTaskpaneBody>
+                {invalidReplayError &&
+                    <p className="text-color-error text-overflow-wrap">
+                        {invalidReplayError}
+                    </p>
+                }
                 {updateImportCards}
             </DefaultTaskpaneBody>
             <DefaultTaskpaneFooter>
@@ -86,7 +97,6 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
                             return
                         }
                         const _invalidImportIndexes = await props.mitoAPI.getTestImports(props.updatedStepImportData);
-                        console.log(_invalidImportIndexes);
                         if (_invalidImportIndexes === undefined) {
                             return;
                         }
@@ -95,10 +105,13 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
                         // If there are no invalid indexes, then we can update. Since this is
                         // pre replay, we are replaying the analysis
                         if (Object.keys(_invalidImportIndexes).length === 0) {
-                            void props.mitoAPI.updateExistingImports(props.updatedStepImportData);
+                            const possibleMitoError = await props.mitoAPI.updateExistingImports(props.updatedStepImportData);
+                            if (isMitoError(possibleMitoError)) {
+                                setInvalidReplayError(possibleMitoError.to_fix)
+                            }
                         }
                     }}
-                    disabled={!updated} // TODO, disable this if there is an error
+                    disabled={!updated || invalid}
                 >
                     <p>
                         Update Imports

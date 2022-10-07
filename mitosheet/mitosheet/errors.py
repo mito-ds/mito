@@ -429,6 +429,20 @@ def make_no_analysis_error(analysis_id: str, error_modal: bool=True) -> MitoErro
         error_modal=error_modal
     )
 
+def make_invalid_update_imports_error() -> MitoError:
+    """
+    Helper function for creating a invalid_update_imports_error.
+
+    Occurs when the user tries to update imports to an invalid
+    """
+    
+    return MitoError(
+        'invalid_update_imports_error', 
+        "Cannot udpate imports",
+        'The newly  imported data does not have the same structure as the original data, and as such the analysis failed to apply. Please update the imports to preserve the structure of the data and try again.' ,
+        error_modal=False
+    )
+
 def make_invalid_promote_row_to_header(error_modal: bool=True) -> MitoError:
     """
     Helper function for creating a invalid_promote_row_to_header.

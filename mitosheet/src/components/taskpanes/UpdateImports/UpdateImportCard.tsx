@@ -8,7 +8,7 @@ import RightPointerIcon from '../../icons/RightPointerIcon';
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
 import { DataframeCreationData, ReplacingDataframeState } from './UpdateImportsTaskpane';
-import { getBaseOfPath, isUpdatedDfCreationData } from './UpdateImportsUtils';
+import { getBaseOfPath } from './updateImportsUtils';
 
 export const getUpdateImportCardTitle = (dataframeCreationData: DataframeCreationData): JSX.Element => {
     if (dataframeCreationData.step_type === 'excel_import') {
@@ -32,8 +32,7 @@ export const getUpdateImportCardTitle = (dataframeCreationData: DataframeCreatio
     }
 }
 
-export const getUpdateImportCardSubtitle = (dataframeCreationData: DataframeCreationData, updatedDataframeCreationData: DataframeCreationData, invalidImportMessage: string | undefined): JSX.Element | null => {
-    const isUpdated = isUpdatedDfCreationData(dataframeCreationData, updatedDataframeCreationData);
+export const getUpdateImportCardSubtitle = (dataframeCreationData: DataframeCreationData, updatedDataframeCreationData: DataframeCreationData, invalidImportMessage: string | undefined, isUpdated: boolean): JSX.Element | null => {
 
     if (!isUpdated) {
         if (invalidImportMessage !== undefined) {
@@ -80,6 +79,7 @@ const UpdateImportCard = (props: {
     dataframeCreationIndex: number;
     dataframeCreationData: DataframeCreationData;
     updatedDataframeCreationData: DataframeCreationData;
+    isUpdated: boolean;
     displayedImportCardDropdown: number | undefined;
     setDisplayedImportCardDropdown: React.Dispatch<React.SetStateAction<number | undefined>>;
     setReplacingDataframeState: React.Dispatch<React.SetStateAction<ReplacingDataframeState | undefined>>
@@ -102,8 +102,6 @@ const UpdateImportCard = (props: {
         })
     }
 
-    //const updated = !isDeepEqual(props.dataframeCreationData, props.updatedDataframeCreationData);
-
     return (
         <Row justify='space-between' align='top' onClick={() => {openDropdown()}}>
             <Col span={22}>
@@ -111,7 +109,7 @@ const UpdateImportCard = (props: {
                     <CSVFileIcon />
                     <Col span={22} offset={.25}>
                         {getUpdateImportCardTitle(props.dataframeCreationData)}
-                        {getUpdateImportCardSubtitle(props.dataframeCreationData, props.updatedDataframeCreationData, props.preUpdateInvalidImportMessage)}
+                        {getUpdateImportCardSubtitle(props.dataframeCreationData, props.updatedDataframeCreationData, props.preUpdateInvalidImportMessage, props.isUpdated)}
                     </Col>
                 </Row>
                 {props.postUpdateInvalidImportMessage &&

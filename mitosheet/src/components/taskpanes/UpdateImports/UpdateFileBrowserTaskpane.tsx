@@ -6,7 +6,7 @@ import { AnalysisData, UIState, UserProfile } from '../../../types';
 import FileBrowser from '../../import/FileBrowser/FileBrowser';
 import { FileElement } from '../FileImport/FileImportTaskpane';
 import { ReplacingDataframeState, StepImportData } from './UpdateImportsTaskpane';
-import { updateStepImportDataList } from './UpdateImportsUtils';
+import { updateStepImportDataList } from './updateImportsUtils';
 
 interface UpdateFileBrowserTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -20,7 +20,9 @@ interface UpdateFileBrowserTaskpaneProps {
     replacingDataframeState: ReplacingDataframeState;
     setReplacingDataframeState: React.Dispatch<React.SetStateAction<ReplacingDataframeState | undefined>>;
 
-    setUpdatedStepImportData: React.Dispatch<React.SetStateAction<StepImportData[] | undefined>>
+    setUpdatedStepImportData: React.Dispatch<React.SetStateAction<StepImportData[] | undefined>>;
+    setUpdatedIndexes: React.Dispatch<React.SetStateAction<number[]>>;
+    setInvalidImportMessages: React.Dispatch<React.SetStateAction<Record<number, string | undefined>>>;
 }
 
 
@@ -53,13 +55,15 @@ function UpdateFileBrowserTaskpane(props: UpdateFileBrowserTaskpaneProps): JSX.E
                     return
                 }
 
+                const dataframeCreationIndex = props.replacingDataframeState.dataframeCreationIndex;
+
                 props.setUpdatedStepImportData((prevUpdatedStepImportData) => {
                     if (prevUpdatedStepImportData === undefined) {
                         return undefined;
                     }
                     return updateStepImportDataList(
                         prevUpdatedStepImportData, 
-                        props.replacingDataframeState.dataframeCreationIndex, 
+                        dataframeCreationIndex, 
                         {
                             'step_type': 'simple_import',
                             'params': {
@@ -67,6 +71,25 @@ function UpdateFileBrowserTaskpane(props: UpdateFileBrowserTaskpaneProps): JSX.E
                             }
                         }
                     )
+                })
+            
+                // Mark this as updated
+                props.setUpdatedIndexes((prevUpdatedIndexes) => {
+                    if (prevUpdatedIndexes.includes(dataframeCreationIndex)) {
+                        return prevUpdatedIndexes;
+                    }
+                    const newUpdatedIndexes = [...prevUpdatedIndexes];
+                    newUpdatedIndexes.push(dataframeCreationIndex);
+                    return newUpdatedIndexes;
+                })
+
+                // Remove the invalid import message if it exists
+                props.setInvalidImportMessages(prevInvalidImportMessage => {
+                    const newInvalidImportMessage = {...prevInvalidImportMessage};
+                    if (newInvalidImportMessage[dataframeCreationIndex] !== undefined) {
+                        delete newInvalidImportMessage[dataframeCreationIndex]
+                    }
+                    return newInvalidImportMessage;
                 })
 
                 props.setReplacingDataframeState(undefined);

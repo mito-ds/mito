@@ -128,7 +128,6 @@ def handle_api_event(
     failed = False
 
     try:
-        print("CALLING!")
         if event["type"] == "get_path_contents":
             result = get_path_contents(params)
         elif event["type"] == "get_path_join":
@@ -156,7 +155,6 @@ def handle_api_event(
         elif event["type"] == 'get_imported_files_and_dataframes':
             result = get_imported_files_and_dataframes(params, steps_manager)
         elif event["type"] == 'get_imported_files_and_dataframes_from_analysis_name':
-            print("123")
             result = get_imported_files_and_dataframes_from_analysis_name(params, steps_manager)
         elif event["type"] == "get_test_imports":
             result = get_test_imports(params, steps_manager)

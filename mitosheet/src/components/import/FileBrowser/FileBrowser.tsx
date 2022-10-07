@@ -198,7 +198,6 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                                 if (isExcelFile(selectedFile)) {
                                     const openExcelImport = async () => {
                                         const filePath = await getFilePath(props.mitoAPI, props.currPathParts, selectedFile);
-                                        console.log("File path", filePath, selectedFile)
                                         if (filePath === undefined || selectedFile === undefined) {
                                             return;
                                         }

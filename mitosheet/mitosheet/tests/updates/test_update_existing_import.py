@@ -125,7 +125,6 @@ def test_replay_steps_correctly():
     mito.update_existing_imports(updated_import_obj)
 
     # Make sure the updates occured correctly 
-    print(mito.dfs[0])
     assert mito.dfs[0].equals(pd.DataFrame({'Unnamed: 0': [0, 1, 2], 'A': [10, 20, 30], 'B': [10, 20, 30]}))
 
 def test_undo_works():

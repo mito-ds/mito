@@ -6,7 +6,7 @@ import { AnalysisData, UIState } from '../../../types';
 import XLSXImportScreen from '../../import/XLSXImportScreen';
 import { getDefaultXLSXParams } from '../FileImport/XLSXImportTaskpane';
 import { ReplacingDataframeState, StepImportData } from './UpdateImportsTaskpane';
-import { isExcelImportParams, updateStepImportDataList } from './UpdateImportsUtils';
+import { isExcelImportParams, updateStepImportDataList } from './updateImportsUtils';
 
 interface UpdateXLSXImportTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -19,7 +19,9 @@ interface UpdateXLSXImportTaskpaneProps {
     replacingDataframeState: ReplacingDataframeState;
     setReplacingDataframeState: React.Dispatch<React.SetStateAction<ReplacingDataframeState | undefined>>;
 
-    setUpdatedStepImportData: React.Dispatch<React.SetStateAction<StepImportData[] | undefined>>
+    setUpdatedStepImportData: React.Dispatch<React.SetStateAction<StepImportData[] | undefined>>;
+    setUpdatedIndexes: React.Dispatch<React.SetStateAction<number[]>>;
+    setInvalidImportMessages: React.Dispatch<React.SetStateAction<Record<number, string | undefined>>>;
 }
 
 
@@ -53,6 +55,8 @@ function UpdateXLSXImportsTaskpane(props: UpdateXLSXImportTaskpaneProps): JSX.El
                 })
             }}
             edit={() => {
+                const dataframeCreationIndex = props.replacingDataframeState.dataframeCreationIndex;
+
                 // When we do the edit, we change the set this import
                 // When we import the CSV, we update the screen
                 props.setUpdatedStepImportData((prevUpdatedStepImportData) => {
@@ -61,12 +65,31 @@ function UpdateXLSXImportsTaskpane(props: UpdateXLSXImportTaskpaneProps): JSX.El
                     }
                     return updateStepImportDataList(
                         prevUpdatedStepImportData, 
-                        props.replacingDataframeState.dataframeCreationIndex, 
+                        dataframeCreationIndex, 
                         {
                             'step_type': 'excel_import',
                             'params': params
                         }
                     )
+                })
+
+                // Mark this as updated
+                props.setUpdatedIndexes((prevUpdatedIndexes) => {
+                    if (prevUpdatedIndexes.includes(dataframeCreationIndex)) {
+                        return prevUpdatedIndexes;
+                    }
+                    const newUpdatedIndexes = [...prevUpdatedIndexes];
+                    newUpdatedIndexes.push(dataframeCreationIndex);
+                    return newUpdatedIndexes;
+                })
+
+                // Remove the invalid import message if it exists
+                props.setInvalidImportMessages(prevInvalidImportMessage => {
+                    const newInvalidImportMessage = {...prevInvalidImportMessage};
+                    if (newInvalidImportMessage[dataframeCreationIndex] !== undefined) {
+                        delete newInvalidImportMessage[dataframeCreationIndex]
+                    }
+                    return newInvalidImportMessage;
                 })
 
                 props.setReplacingDataframeState(undefined);

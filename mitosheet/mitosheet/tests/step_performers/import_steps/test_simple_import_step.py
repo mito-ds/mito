@@ -442,8 +442,6 @@ Henrik,Sedin,VAN,C,33,1,1980-09-26""")
 
     mito = create_mito_wrapper_dfs()
     mito.simple_import([TEST_FILE_PATHS[0]], [DEFAULT_DELIMETER], [DEFAULT_ENCODING], [True])
-
-    print(mito.dfs)
     
     assert len(mito.dfs) == 0
 

@@ -5,7 +5,7 @@ import MitoAPI from '../../../jupyter/api';
 import { AnalysisData, UIState } from '../../../types';
 import DataframeImportScreen from '../../import/DataframeImportScreen';
 import { ReplacingDataframeState, StepImportData } from './UpdateImportsTaskpane';
-import { isDataframeImportParams, updateStepImportDataList } from './UpdateImportsUtils';
+import { isDataframeImportParams, updateStepImportDataList } from './updateImportsUtils';
 
 interface UpdateDataframeImportTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -15,7 +15,9 @@ interface UpdateDataframeImportTaskpaneProps {
     replacingDataframeState: ReplacingDataframeState;
     setReplacingDataframeState: React.Dispatch<React.SetStateAction<ReplacingDataframeState | undefined>>;
 
-    setUpdatedStepImportData: React.Dispatch<React.SetStateAction<StepImportData[] | undefined>>
+    setUpdatedStepImportData: React.Dispatch<React.SetStateAction<StepImportData[] | undefined>>;
+    setUpdatedIndexes: React.Dispatch<React.SetStateAction<number[]>>;
+    setInvalidImportMessages: React.Dispatch<React.SetStateAction<Record<number, string | undefined>>>;
 }
 
 
@@ -46,6 +48,9 @@ function UpdateDataframeImportTaskpane(props: UpdateDataframeImportTaskpaneProps
                 })
             }}
             edit={() => {
+
+                const dataframeCreationIndex = props.replacingDataframeState.dataframeCreationIndex
+
                 // When we do the edit, we change the set this import
                 // When we import the CSV, we update the screen
                 props.setUpdatedStepImportData((prevUpdatedStepImportData) => {
@@ -54,12 +59,31 @@ function UpdateDataframeImportTaskpane(props: UpdateDataframeImportTaskpaneProps
                     }
                     return updateStepImportDataList(
                         prevUpdatedStepImportData, 
-                        props.replacingDataframeState.dataframeCreationIndex, 
+                        dataframeCreationIndex, 
                         {
                             'step_type': 'dataframe_import',
                             'params': params
                         }
                     )
+                })
+
+                // Mark this as updated
+                props.setUpdatedIndexes((prevUpdatedIndexes) => {
+                    if (prevUpdatedIndexes.includes(dataframeCreationIndex)) {
+                        return prevUpdatedIndexes;
+                    }
+                    const newUpdatedIndexes = [...prevUpdatedIndexes];
+                    newUpdatedIndexes.push(dataframeCreationIndex);
+                    return newUpdatedIndexes;
+                })
+
+                // Remove the invalid import message if it exists
+                props.setInvalidImportMessages(prevInvalidImportMessage => {
+                    const newInvalidImportMessage = {...prevInvalidImportMessage};
+                    if (newInvalidImportMessage[dataframeCreationIndex] !== undefined) {
+                        delete newInvalidImportMessage[dataframeCreationIndex]
+                    }
+                    return newInvalidImportMessage;
                 })
 
                 props.setReplacingDataframeState(undefined);

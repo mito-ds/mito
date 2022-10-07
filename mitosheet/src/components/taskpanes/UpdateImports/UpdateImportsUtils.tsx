@@ -1,4 +1,3 @@
-import { isDeepEqual } from "../../../utils/objects";
 import { CSVImportParams } from "../../import/CSVImportScreen";
 import { DataframeImportParams } from "../../import/DataframeImportScreen";
 import { ExcelImportParams } from "../../import/XLSXImportScreen";
@@ -26,10 +25,6 @@ export function isDataframeImportData(importData: CSVImportData | ExcelImportDat
 
 export const getBaseOfPath = (fullPath: string): string => {
     return fullPath.replace(/^.*[\\\\/]/, '')
-}
-
-export const isUpdatedDfCreationData = (dfCreationData: DataframeCreationData, newDfCreationData: DataframeCreationData) => {
-    return !isDeepEqual(dfCreationData, newDfCreationData);
 }
 
 export function updateStepImportDataList(stepImportDataList: StepImportData[], newDataframeCreationIndex: number, newDataframeCreationData: DataframeCreationData): StepImportData[]  {

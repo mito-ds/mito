@@ -72,12 +72,10 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
         const importData = props.failedReplayAnalysisOnImports?.importData;
         return importData === undefined ? undefined : JSON.parse(JSON.stringify(props.failedReplayAnalysisOnImports?.importData));
     });
+    const [updatedIndexes, setUpdatedIndexes] = useState<number[]>([]);
     const [displayedImportCardDropdown, setDisplayedImportCardDropdown] = useState<number | undefined>(undefined);
     const [replacingDataframeState, setReplacingDataframeState] = useState<ReplacingDataframeState | undefined>(undefined);
     const [invalidImportMessages, setInvalidImportMessages] = useState<Record<number, string | undefined>>({});
-
-    console.log("updatedStepImportData", updatedStepImportData)
-    console.log("props.failedReplayAnalysisOnImports?.importData", props.failedReplayAnalysisOnImports?.importData)
 
     if (replacingDataframeState === undefined) {
         if (props.failedReplayAnalysisOnImports === undefined) {
@@ -88,6 +86,9 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
 
                     updatedStepImportData={updatedStepImportData}
                     setUpdatedStepImportData={setUpdatedStepImportData}
+
+                    updatedIndexes={updatedIndexes}
+                    setUpdatedIndexes={setUpdatedIndexes}
 
                     displayedImportCardDropdown={displayedImportCardDropdown}
                     setDisplayedImportCardDropdown={setDisplayedImportCardDropdown}
@@ -107,6 +108,9 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
 
                     updatedStepImportData={updatedStepImportData}
                     setUpdatedStepImportData={setUpdatedStepImportData}
+
+                    updatedIndexes={updatedIndexes}
+                    setUpdatedIndexes={setUpdatedIndexes}
 
                     displayedImportCardDropdown={displayedImportCardDropdown}
                     setDisplayedImportCardDropdown={setDisplayedImportCardDropdown}
@@ -135,6 +139,8 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 setReplacingDataframeState={setReplacingDataframeState}
 
                 setUpdatedStepImportData={setUpdatedStepImportData}  
+                setUpdatedIndexes={setUpdatedIndexes}
+                setInvalidImportMessages={setInvalidImportMessages}
             />
         )
     } else if (replacingDataframeState.importState.screen === 'csv_import') {
@@ -151,6 +157,8 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 setReplacingDataframeState={setReplacingDataframeState}
 
                 setUpdatedStepImportData={setUpdatedStepImportData}
+                setUpdatedIndexes={setUpdatedIndexes}
+                setInvalidImportMessages={setInvalidImportMessages}
             />
         )
     } else if (replacingDataframeState.importState.screen === 'xlsx_import') {
@@ -167,6 +175,8 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 setReplacingDataframeState={setReplacingDataframeState}
 
                 setUpdatedStepImportData={setUpdatedStepImportData}
+                setUpdatedIndexes={setUpdatedIndexes}
+                setInvalidImportMessages={setInvalidImportMessages}
             />
         )
     } else {
@@ -181,6 +191,8 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 setReplacingDataframeState={setReplacingDataframeState}
 
                 setUpdatedStepImportData={setUpdatedStepImportData}
+                setUpdatedIndexes={setUpdatedIndexes}
+                setInvalidImportMessages={setInvalidImportMessages}
             />
         )
     }
