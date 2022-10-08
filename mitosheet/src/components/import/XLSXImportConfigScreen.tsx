@@ -52,7 +52,7 @@ export interface ExcelImportParams {
 
 export const getDefaultParams = (filePath: string): ExcelImportParams => {
     return {
-        file_name: filePath, // TODO: fix up the weird naming here
+        file_name: filePath, // These names don't match. At some point, we should upgrade the file import steps to use file_path as the param
         sheet_names: [],
         has_headers: true,
         skiprows: 0,

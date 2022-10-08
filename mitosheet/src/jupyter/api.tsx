@@ -585,13 +585,13 @@ export default class MitoAPI {
     }
 
     
-    async getTestImports(updated_step_import_data: StepImportData[]): Promise<Record<number, string> | undefined> {
+    async getTestImports(updated_step_import_data_list: StepImportData[]): Promise<Record<number, string> | undefined> {
 
         const resultString = await this.send<string>({
             'event': 'api_call',
             'type': 'get_test_imports',
             'params': {
-                'updated_step_import_data': updated_step_import_data,
+                'updated_step_import_data_list': updated_step_import_data_list,
             }
         }, {})
 
@@ -1315,13 +1315,13 @@ export default class MitoAPI {
         Sends the user_email to the backend so the user can sign in
     */
     async updateExistingImports(
-        setUpdatedStepImportData: StepImportData[]
+        updatedStepImportDataList: StepImportData[]
     ): Promise<string | undefined> {
         return await this.send({
             'event': 'update_event',
-            'type': 'existing_import_update',
+            'type': 'update_existing_import_update',
             'params': {
-                'updated_step_import_data': setUpdatedStepImportData
+                'updated_step_import_data_list': updatedStepImportDataList
             }
         }, {});
     }

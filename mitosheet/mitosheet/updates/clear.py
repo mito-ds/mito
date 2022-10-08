@@ -11,7 +11,7 @@ from mitosheet.types import StepsManagerType
 CLEAR_EVENT = 'clear'
 CLEAR_PARAMS: List[str] = []
 
-def execute_clear_update(steps_manager: StepsManagerType):
+def execute_clear_update(steps_manager: StepsManagerType) -> None:
     steps_manager.execute_clear()
 
 CLEAR_UPDATE = {

@@ -57,7 +57,7 @@ function CSVImportConfigTaskpane(props: CSVImportConfigTaskpaneProps): JSX.Eleme
             edit={edit}
             editApplied={editApplied}
             loading={loading}
-            error={props.error !== undefined ? props.error : error}
+            error={error !== undefined ? error : props.error}
         
             backCallback={() => {
                 props.setScreen({screen: 'file_browser'})

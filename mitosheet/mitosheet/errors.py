@@ -433,13 +433,15 @@ def make_invalid_update_imports_error() -> MitoError:
     """
     Helper function for creating a invalid_update_imports_error.
 
-    Occurs when the user tries to update imports to an invalid
+    Occurs when the user tries to update update the imports in an analysis in a way
+    that leads to no importing errors, but other errors as the structure of the data
+    has changed from the original dataset.
     """
     
     return MitoError(
         'invalid_update_imports_error', 
-        "Cannot udpate imports",
-        'The newly  imported data does not have the same structure as the original data, and as such the analysis failed to apply. Please update the imports to preserve the structure of the data and try again.' ,
+        "Cannot update imports",
+        'The newly imported data does not have the same structure as the original data, and as such the analysis failed to apply. Please update the imports to preserve the structure of the data and try again.',
         error_modal=False
     )
 

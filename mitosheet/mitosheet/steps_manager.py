@@ -524,7 +524,7 @@ class StepsManager:
         # that we don't redo it again
         self.undone_step_list_store.pop()
 
-    def execute_clear(self):
+    def execute_clear(self) -> None:
         """
         A clear update, which removes all steps in the analysis
         that are not imports.

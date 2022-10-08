@@ -15,22 +15,32 @@ from mitosheet.step_performers.import_steps.excel_import import ExcelImportStepP
 from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
 from mitosheet.step_performers.import_steps import is_import_step_type
 
-def get_index_from_possible_null_list(l: Optional[List[Any]], index: int) -> Optional[Any]:
+def get_sublist_at_index_from_optional_list(l: Optional[List[Any]], index: int) -> Optional[List[Any]]:
     if l is None:
         return None
         
-    return l[index]
+    return [l[index]]
+
 
 def get_import_data_with_single_import_list(step_type: str, params: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """
+    Given a step_type that is an import, and the parameters to that import step,
+    this function will create a list of DataframeCreationData that represent
+    parameters to steps that only create a single dataframe.
+
+    This is useful because the frontend allows users to update dataframe imports one 
+    be one - and so having each step only do a single import is convenient for working
+    with the data on the frontend.
+    """
     if step_type == SimpleImportStepPerformer.step_type():
         for index, file_name in enumerate(params['file_names']):
             return [{
                 'step_type': step_type,
                 'params': {
                     'file_names': [file_name],
-                    'delimeters': [get_index_from_possible_null_list(params.get('delimeters', None), index)],
-                    'encodings': [get_index_from_possible_null_list(params.get('encodings', None), index)],
-                    'error_bad_lines': [get_index_from_possible_null_list(params.get('error_bad_lines', None), index)]
+                    'delimeters': get_sublist_at_index_from_optional_list(params.get('delimeters', None), index),
+                    'encodings': get_sublist_at_index_from_optional_list(params.get('encodings', None), index),
+                    'error_bad_lines': get_sublist_at_index_from_optional_list(params.get('error_bad_lines', None), index)
                 }
             }]
 

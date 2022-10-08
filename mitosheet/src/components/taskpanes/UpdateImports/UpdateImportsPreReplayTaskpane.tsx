@@ -52,7 +52,7 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
         })
     }, [])
 
-    const [invalidReplayError, setInvalidReplayError] = useState('Mito failed to replay the analysis because it could not import the files or used in the analysis. Correct the errors below.');
+    const [invalidReplayError, setInvalidReplayError] = useState<string>('Mito failed to replay the analysis because it could not import the files or used in the analysis. Correct the errors below.');
     
     // We create an import card for each of the dataframes created within the original imports
     const originalAndUpdatedDataframeCreationPairs = getOriginalAndUpdatedDataframeCreationDataPairs(props.failedReplayAnalysisOnImports.importData, props.updatedStepImportData);
@@ -74,7 +74,7 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
     })
 
     const updated = props.updatedIndexes.length > 0;
-    const invalid = Object.keys(props.invalidImportMessages).length > 0;
+    const invalidPostUpdate = Object.keys(props.invalidImportMessages).length > 0;
 
     return (
         <DefaultTaskpane>
@@ -83,9 +83,11 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
                 setUIState={props.setUIState}           
             />
             <DefaultTaskpaneBody>
-                <p className="text-color-error text-overflow-wrap">
-                    {invalidReplayError}
-                </p>
+                {invalidReplayError && invalidPostUpdate && 
+                    <p className="text-color-error text-overflow-wrap">
+                        {invalidReplayError}
+                    </p>
+                }
                 {updateImportCards}
             </DefaultTaskpaneBody>
             <DefaultTaskpaneFooter>
@@ -108,7 +110,7 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
                             const replayAnalysisError = await props.mitoAPI.updateReplayAnalysis(props.failedReplayAnalysisOnImports.analysisName, props.updatedStepImportData);
                             // If there is an error replaying the analysis, we know it is not with 
                             if (isMitoError(replayAnalysisError)) {
-                                setInvalidReplayError(replayAnalysisError.to_fix)
+                                setInvalidReplayError(replayAnalysisError.to_fix + '')
                             } else {
                                 props.setUIState((prevUIState) => {
                                     return {
@@ -120,7 +122,7 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
                             
                         }
                     }}
-                    disabled={!updated || invalid}
+                    disabled={!updated || invalidPostUpdate}
                 >
                     <p>
                         Update Imports

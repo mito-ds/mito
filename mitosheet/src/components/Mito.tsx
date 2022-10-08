@@ -226,6 +226,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
                     const importData = await props.mitoAPI.getImportedFilesAndDataframesFromAnalysisName(analysisToReplayName);
                     const invalidImportIndexes = await props.mitoAPI.getTestImports(importData || []);
+                    console.log(importData, invalidImportIndexes);
                     if (importData !== undefined && invalidImportIndexes !== undefined && Object.keys(invalidImportIndexes).length !== 0) {
                         setUIState(prevUIState => {
                             return {

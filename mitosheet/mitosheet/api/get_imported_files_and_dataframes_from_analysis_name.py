@@ -35,30 +35,14 @@ def get_step_import_data_from_saved_analysis(analysis_name: str) -> List[Dict[st
         return step_import_data_list
 
 
-def get_imported_files_and_dataframes_from_analysis_name(params: Dict[str, Any], steps_manager: StepsManagerType):
+def get_imported_files_and_dataframes_from_analysis_name(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
     """
     Returns a list all the imported files and dataframes, and their import params. Does so by turning
     the import into a list of imports that only import a single dataframe, as this is convenient
     for what we work with on the frontend.
 
-    [
-        {
-            step_id: string,
-            imports: ({
-                step_type: 'simple_import'
-                params: CSVImportParams
-            } |
-            {
-                step_type: 'excel_import'
-                params: ExcelImportParams
-            } |
-            {
-                step_type: 'dataframe_import'
-                params: DataframeImportParams
-            })[]
-        }
-	]
-	
+    A mirror of get_imported_files_and_dataframes, but works from saved analysis data, and is used
+    when a replayed analysis is failed - as there are no steps in the steps_manager currently.
     """
     analysis_name = params["analysis_name"]
 

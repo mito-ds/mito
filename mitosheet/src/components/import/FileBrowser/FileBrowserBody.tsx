@@ -202,10 +202,6 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
                                 } else {
                                     void props.importCSVFile(selectedFile);
                                 }
-
-
-                                // TODO: make this import, if it can!
-                                // Otherwise, set the screen for Excel
                             }
                         }
                     }}

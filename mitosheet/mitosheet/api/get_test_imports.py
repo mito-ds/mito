@@ -13,8 +13,19 @@ from mitosheet.step import Step
 from mitosheet.step_performers.import_steps import is_import_step_type
 from mitosheet.types import StepsManagerType
 from mitosheet.api.get_imported_files_and_dataframes import get_import_data_with_single_import_list
+from mitosheet.step_performers.import_steps.simple_import import SimpleImportStepPerformer
+from mitosheet.step_performers.import_steps.excel_import import ExcelImportStepPerformer
 
-GENERIC_DATA_ERROR = 'There was an error importing this data. Please select a different file or dataframe and try again.'
+CSV_IMPORT_ERROR = 'There was an error importing this CSV file. Check the file exists, or select a different file or dataframe.'
+EXCEL_IMPORT_ERROR = 'There was an error importing this Excel file. Check the file exists, or select a different file or dataframe.'
+DATAFRAME_IMPORT_ERROR = 'There was an error importing this dataframe. Check the dataframe is defined, or select different file or dataframe and try again.'
+
+def get_import_error_for_step_type(step_type: str) -> str:
+    if step_type == SimpleImportStepPerformer.step_type():
+        return CSV_IMPORT_ERROR
+    if step_type == ExcelImportStepPerformer.step_type():
+        return EXCEL_IMPORT_ERROR
+    return DATAFRAME_IMPORT_ERROR
 
 
 def get_test_imports(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
@@ -22,11 +33,11 @@ def get_test_imports(params: Dict[str, Any], steps_manager: StepsManagerType) ->
     Allows you to test the specific import steps, either by passing import steps
     or by passing an analysis name to check. 
     """
-    step_import_data: Any = params['updated_step_import_data'] # TODO: change the name to include _list
+    updated_step_import_data_list: Any = params['updated_step_import_data_list'] # TODO: change the name to include _list
 
     invalid_import_indexes: Dict[int, str] = dict()
     index = 0
-    for step_import_data in step_import_data:
+    for step_import_data in updated_step_import_data_list:
         imports = step_import_data['imports']
 
         for _import in imports:
@@ -34,11 +45,11 @@ def get_test_imports(params: Dict[str, Any], steps_manager: StepsManagerType) ->
                 step = Step(_import['step_type'], 'fake_id', _import["params"])
                 executed = step.set_prev_state_and_execute(steps_manager.steps_including_skipped[0].final_defined_state)
                 if not executed:
-                    invalid_import_indexes[index] = GENERIC_DATA_ERROR
+                    invalid_import_indexes[index] = get_import_error_for_step_type(_import['step_type'])
             except MitoError as e:
                 invalid_import_indexes[index] = e.to_fix
             except:
-                invalid_import_indexes[index] = GENERIC_DATA_ERROR
+                invalid_import_indexes[index] = get_import_error_for_step_type(_import['step_type'])
 
             index += 1
 

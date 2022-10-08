@@ -79,7 +79,10 @@ class SimpleImportStepPerformer(StepPerformer):
                     _error_bad_lines = True
                     pandas_processing_time += (perf_counter() - partial_pandas_start_time)
             except:
-                raise make_invalid_simple_import_error()
+                if os.path.exists(file_name):
+                    raise make_invalid_simple_import_error()
+                else:
+                    raise FileNotFoundError(f'{file_name} does not exist.')
 
             # Save the delimeter and encodings for transpiling
             file_delimeters.append(delimeter)
