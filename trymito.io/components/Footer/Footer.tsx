@@ -3,6 +3,7 @@ import Image from "next/image"
 import footerStyle from './Footer.module.css'
 import pageStyle from '../../styles/Page.module.css'
 import { MITO_GITHUB_LINK } from '../GithubButton/GithubButton';
+import { MITO_INSTALLATION_DOCS_LINK } from '../Header/Header';
 
 const Footer = (): JSX.Element => {
 
@@ -38,7 +39,7 @@ const Footer = (): JSX.Element => {
                         <a href={MITO_GITHUB_LINK} target="_blank" rel="noreferrer">GitHub</a>
                     </li>
                     <li className='text-nav'>
-                        <a href='https://docs.trymito.io/getting-started/installing-mito' target="_blank" rel="noreferrer">Install</a>
+                        <a href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer">Install</a>
                     </li>
                     <li className='text-nav'>
                         <Link href='/security'>Security</Link>

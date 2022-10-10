@@ -7,7 +7,7 @@ import pageStyles from '../styles/Page.module.css'
 import plansStyles from '../styles/Plans.module.css'
 import iconAndTextCardStyles from '../styles/IconAndTextCard.module.css'
 
-import Header from '../components/Header/Header';
+import Header, { MITO_INSTALLATION_DOCS_LINK } from '../components/Header/Header';
 import Footer from '../components/Footer/Footer';
 import PlanBullet from '../components/PlanBullet/PlanBullet';
 import TranslucentButton from '../components/TranslucentButton/TranslucentButton';
@@ -385,7 +385,7 @@ const Plans: NextPage = () => {
                 <div className={plansStyles.plan_cta}>
                   <TextButton 
                     text='Get Started'
-                    href='https://docs.trymito.io/getting-started/installing-mito'
+                    href={MITO_INSTALLATION_DOCS_LINK}
                   />
                 </div>
               </div>
