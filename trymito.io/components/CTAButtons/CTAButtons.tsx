@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { MITO_INSTALLATION_DOCS_LINK } from '../Header/Header';
 import TextButton from '../TextButton/TextButton';
 import styles from './CTAButtons.module.css'
 
@@ -9,7 +10,7 @@ const CTAButtons = (props: {variant: 'download' | 'contact'}): JSX.Element => {
             {props.variant === 'download' && 
                 <TextButton 
                     text='Install Mito for Jupyter'
-                    href='https://github.com/mito-ds/monorepo'
+                    href={MITO_INSTALLATION_DOCS_LINK}
                 />
             }
             {props.variant === 'contact' && 
