@@ -137,7 +137,7 @@ def get_datetime_format(string_series: pd.Series) -> Optional[str]:
             '%Y{s}%d{s}%m  %H:%M:%S', 
             '%Y{s}%m{s}%d  %H:%M:%S'
         ]
-        SEPERATORS = ['/', '-', '.', ':', ' ', '']
+        SEPERATORS = ['/', '-', '.', ',', ':', ' ', '']
 
         for seperator in SEPERATORS:
             if seperator in sample_string_datetime:
