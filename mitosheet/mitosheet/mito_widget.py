@@ -7,6 +7,7 @@
 """
 Main file containing the mito widget.
 """
+from ast import Import
 import json
 import os
 import time
@@ -21,9 +22,10 @@ from mitosheet.api import API
 from mitosheet.data_in_mito import DataTypeInMito
 from mitosheet.errors import (MitoError, get_recent_traceback,
                               make_execution_error)
+from mitosheet.mito_config import MitoConfig
 from mitosheet.saved_analyses import write_analysis
 from mitosheet.steps_manager import StepsManager
-from mitosheet.telemetry.telemetry_utils import (log, log_event_processed,
+from mitosheet.telemetry.telemetry_utils import (MITOSHEET_HELPER_PRIVATE, log, log_event_processed,
                                                  telemetry_turned_on)
 from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
 from mitosheet.user import is_local_deployment, should_upgrade_mitosheet
@@ -33,6 +35,11 @@ from mitosheet.user.location import is_in_google_colab, is_in_vs_code
 from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES, UJ_RECEIVED_CHECKLISTS,
                                     UJ_RECEIVED_TOURS, UJ_USER_EMAIL)
 from mitosheet.user.utils import is_excel_import_enabled, is_pro, is_running_test
+
+try:
+    from mitosheet_helper_config import MITO_ENTERPRISE_CONFIGURATION 
+except ImportError:
+    MITO_ENTERPRISE_CONFIGURATION = None
 
 
 class MitoWidget(DOMWidget):
@@ -61,6 +68,8 @@ class MitoWidget(DOMWidget):
             
         # Set up the state container to hold private widget state
         self.steps_manager = StepsManager(args, analysis_to_replay=analysis_to_replay)
+
+        self.mito_config = MitoConfig(MITO_ENTERPRISE_CONFIGURATION)
 
         # Set up message handler
         self.on_msg(self.receive_message)
