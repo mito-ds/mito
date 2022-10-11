@@ -63,6 +63,10 @@ interface TextButtonProps {
     className?: string
 
     /**
+        * @param [tooltip] -- Messaage to display as tooltip on button. Has lower priority than the tooltip
+    */
+    tooltip?: string
+    /**
         * @param [disabledTooltip] -- Messaage to display as tooltip when button is disabled 
     */
     disabledTooltip?: string
@@ -88,6 +92,11 @@ const TextButton = (props: TextButtonProps): JSX.Element => {
     const widthClass = `element-width-${width}`
     const variantClass = `text-button-variant-${props.variant}`
 
+    const disabledTooltip = props.disabled && props.disabledTooltip ? props.disabledTooltip : undefined;
+    // Note: the disabled tooltip has higher priority than the tooltip
+    // TODO: change the interface to just make the person set the tooltip manually? 
+    const tooltip = disabledTooltip ? disabledTooltip : props.tooltip;
+
     if (props.href !== undefined) {
         return (
             <a 
@@ -100,7 +109,7 @@ const TextButton = (props: TextButtonProps): JSX.Element => {
                 download={disabled ? undefined : props.download}
                 onClick={disabled ? () => {return} : props.onClick}
                 target={props.target}
-                title={props.disabled && props.disabledTooltip ? props.disabledTooltip : undefined}
+                title={tooltip}
             >
                 {props.children}
             </a>

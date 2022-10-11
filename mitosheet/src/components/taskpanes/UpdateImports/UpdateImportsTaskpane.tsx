@@ -130,6 +130,7 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
             return (
                 <UpdateImportsPreReplayTaskpane
                     mitoAPI={props.mitoAPI}
+                    analysisData={props.analysisData}
                     setUIState={props.setUIState}
 
                     updatedStepImportData={updatedStepImportData}
