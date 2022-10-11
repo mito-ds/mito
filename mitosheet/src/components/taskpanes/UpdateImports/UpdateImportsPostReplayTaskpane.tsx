@@ -44,7 +44,7 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
 
     const [originalStepImportData] = useStateFromAPIAsync(
         undefined,
-        () => {return props.mitoAPI.getImportedFilesAndDataframes()},
+        () => {return props.mitoAPI.getImportedFilesAndDataframesFromCurrentSteps()},
         (loadedData) => {
             // We default the prevUpdatedStepImportData to be the the original import data, if it's undefined
             if (loadedData !== undefined && props.updatedStepImportData === undefined) {
@@ -73,13 +73,13 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
         )
     })
 
-    const updated = props.updatedIndexes.length > 0;
-    const invalid = Object.keys(props.invalidImportMessages).length > 0;
+    const anyUpdated = props.updatedIndexes.length > 0;
+    const invalidPostUpdate = Object.keys(props.invalidImportMessages).length > 0;
 
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
-                header="Update Imports"
+                header="Change Imports"
                 setUIState={props.setUIState}           
             />
             <DefaultTaskpaneBody>
@@ -105,7 +105,7 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
                         props.setInvalidImportMessages(_invalidImportIndexes);
 
                         // If there are no invalid indexes, then we can update. Since this is
-                        // pre replay, we are replaying the analysis
+                        // post replay, we are updating the existing imports
                         if (Object.keys(_invalidImportIndexes).length === 0) {
                             const possibleMitoError = await props.mitoAPI.updateExistingImports(props.updatedStepImportData);
                             if (isMitoError(possibleMitoError)) {
@@ -120,10 +120,11 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
                             }
                         }
                     }}
-                    disabled={!updated || invalid}
+                    disabled={!anyUpdated || invalidPostUpdate}
+                    disabledTooltip={(!anyUpdated || invalidPostUpdate) ? "Please resolve all errors with above imports." : undefined}
                 >
                     <p>
-                        Update Imports
+                        Change Imports
                     </p>
                 </TextButton>
             </DefaultTaskpaneFooter>

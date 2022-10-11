@@ -226,7 +226,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
                     const importData = await props.mitoAPI.getImportedFilesAndDataframesFromAnalysisName(analysisToReplayName);
                     const invalidImportIndexes = await props.mitoAPI.getTestImports(importData || []);
-                    console.log(importData, invalidImportIndexes);
+
                     if (importData !== undefined && invalidImportIndexes !== undefined && Object.keys(invalidImportIndexes).length !== 0) {
                         setUIState(prevUIState => {
                             return {
@@ -248,7 +248,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                                 currOpenModal: {
                                     type: ModalEnum.ErrorReplayedAnalysis,
                                     header: 'Analysis Could Not Be Replayed',
-                                    message: 'There was an error replaying your analysis because of changes in the input data. You can see the previous analysis in the code cell below.',
+                                    message: 'There was an error replaying your analysis because of changes in the input data. For example, a referenced column may be missing. You can see the previous analysis in the code cell below.',
                                     error: error,
                                     oldAnalysisName: analysisToReplayName,
                                     newAnalysisName: analysisData.analysisName
@@ -256,11 +256,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             }
                         })
                     }
-
-
-
-
-                    
                 }
             } else {
                 /**

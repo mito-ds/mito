@@ -15,7 +15,8 @@ https://stackoverflow.com/questions/16138232/is-it-a-good-practice-to-use-try-ex
 """
 import re
 import traceback
-from typing import Any, Collection, Iterable, Optional, Set, List
+from os.path import basename, normpath
+from typing import Any, Collection, Iterable, List, Optional, Set
 
 from mitosheet.types import ColumnHeader
 
@@ -441,7 +442,7 @@ def make_invalid_update_imports_error() -> MitoError:
     return MitoError(
         'invalid_update_imports_error', 
         "Cannot update imports",
-        'The newly imported data does not have the same structure as the original data, and as such the analysis failed to apply. Please update the imports to preserve the structure of the data and try again.',
+        'The newly imported data does not have the same structure as the original data. Please update the imports to preserve the structure of the original imports and try again.',
         error_modal=False
     )
 
@@ -467,13 +468,27 @@ def make_invalid_simple_import_error(error_modal: bool=False) -> MitoError:
 
     Occurs when a user tries to simple import and it fails
     """
-    to_fix = f'We were unable to automatically determine a delimeter and encoding. Please select a delemeter and encoding.' 
+    to_fix = f'We were unable to automatically determine a delimiter and encoding. Please select a delimiter and encoding.' 
     
     return MitoError(
         'invalid_simple_import_error', 
         "Cannot Determine File Data",
         to_fix,
         error_modal=error_modal
+    )
+
+def make_file_not_found_error(file_name: str, error_modal: bool=False) -> MitoError:
+    """
+    Helper function for creating a file_not_found_error.
+
+    Occurs when a user tries to import a file that does not exist
+    """
+    
+    return MitoError(
+        'file_not_found_error', 
+        "File does not exist",
+        f'{basename(normpath(file_name))} does not exist.',
+        error_modal=False
     )
 
 ARG_FULL_NAME = {

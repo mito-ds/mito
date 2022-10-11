@@ -14,7 +14,7 @@ from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.saved_analyses import read_and_upgrade_analysis
 from mitosheet.types import StepsManagerType
 from mitosheet.step_performers.import_steps import is_import_step_type
-from mitosheet.api.get_imported_files_and_dataframes import get_import_data_with_single_import_list
+from mitosheet.api.get_imported_files_and_dataframes_from_current_steps import get_import_data_with_single_import_list
 
 REPLAY_ANALYSIS_UPDATE_EVENT = 'replay_analysis_update'
 REPLAY_ANALYSIS_UPDATE_PARAMS = [
@@ -53,10 +53,14 @@ def overwrite_import_data(analysis: Dict[str, Any], step_import_data_list_to_ove
             num_imports_in_step = len(get_import_data_with_single_import_list(step_type, params))
             for i in range(num_imports_in_step):
                 import_data_index = import_number + i
+                print(import_data_index, all_imports[import_data_index])
                 new_step_data = deepcopy(step_data)
                 new_step_data['step_type'] = all_imports[import_data_index]['step_type']
                 new_step_data['params'] = all_imports[import_data_index]['params']
                 final_analysis['steps_data'].append(new_step_data)
+            
+            import_number += num_imports_in_step
+            
     
     return final_analysis
 
@@ -72,7 +76,7 @@ def execute_replay_analysis_update(
     current import steps with the new updated import steps that are passed.
 
     This means that the number of dataframes created in step_import_data_list_to_overwrite,
-    must be equal to the number of dataframes created in analysis_name. The frontend
+    must be equal to the number of dataframes imported in analysis_name. The frontend
     should maintain this invariant when allowing users to update imports.
 
     If any step fails to execute, none of the analysis gets replayed at all.

@@ -553,10 +553,10 @@ export default class MitoAPI {
         return undefined;
     }
 
-    async getImportedFilesAndDataframes(): Promise<StepImportData[] | undefined> {
+    async getImportedFilesAndDataframesFromCurrentSteps(): Promise<StepImportData[] | undefined> {
         const resultString = await this.send<string>({
             'event': 'api_call',
-            'type': 'get_imported_files_and_dataframes',
+            'type': 'get_imported_files_and_dataframes_from_current_steps',
             'params': {}
         }, {})
 

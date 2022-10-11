@@ -1,20 +1,19 @@
 import React from "react";
 import MitoAPI from "../../jupyter/api";
-import { AnalysisData, UIState } from "../../types"
+import { AnalysisData, UIState } from "../../types";
 
-import DefaultTaskpane from "../taskpanes/DefaultTaskpane/DefaultTaskpane";
-import DefaultTaskpaneBody from "../taskpanes/DefaultTaskpane/DefaultTaskpaneBody";
-import DefaultTaskpaneHeader from "../taskpanes/DefaultTaskpane/DefaultTaskpaneHeader";
-import Row from "../layout/Row";
-import Col from "../layout/Col";
+import { useStateFromAPIAsync } from "../../hooks/useStateFromAPIAsync";
 import DropdownButton from "../elements/DropdownButton";
 import DropdownItem from "../elements/DropdownItem";
 import SelectAndXIconCard from "../elements/SelectAndXIconCard";
-import DefaultTaskpaneFooter from "../taskpanes/DefaultTaskpane/DefaultTaskpaneFooter";
 import TextButton from "../elements/TextButton";
 import Tooltip from "../elements/Tooltip";
-import RadioButtonBox from "../elements/RadioButtonBox";
-import { useStateFromAPIAsync } from "../../hooks/useStateFromAPIAsync";
+import Col from "../layout/Col";
+import Row from "../layout/Row";
+import DefaultTaskpane from "../taskpanes/DefaultTaskpane/DefaultTaskpane";
+import DefaultTaskpaneBody from "../taskpanes/DefaultTaskpane/DefaultTaskpaneBody";
+import DefaultTaskpaneFooter from "../taskpanes/DefaultTaskpane/DefaultTaskpaneFooter";
+import DefaultTaskpaneHeader from "../taskpanes/DefaultTaskpane/DefaultTaskpaneHeader";
 
 
 interface DataframeImportTaskpaneProps {
@@ -34,13 +33,9 @@ export interface DataframeImportParams {
     df_names: string[],
 }
 
-const getButtonMessage = (params: DataframeImportParams, isUpdate: boolean): string => {
-    if (params.df_names.length === 0 && !isUpdate) {
+const getButtonMessage = (params: DataframeImportParams): string => {
+    if (params.df_names.length === 0) {
         return `Select dataframes to import them`
-    } else if (params.df_names.length === 0 && isUpdate) {
-        return `Select a dataframe to import`
-    } else if (isUpdate) {
-        return `Update to ${params.df_names[0]}`
     }
     return `Import ${params.df_names.length} Selected dataframe${params.df_names.length === 1 ? '' : 's'}`;
 }
@@ -51,7 +46,7 @@ const getButtonMessage = (params: DataframeImportParams, isUpdate: boolean): str
 */
 const DataframeImportScreen = (props: DataframeImportTaskpaneProps): JSX.Element => {
 
-    const [dfNamesInNotebook, loading] = useStateFromAPIAsync(
+    const [dfNamesInNotebook] = useStateFromAPIAsync(
         [],
         () => {return props.mitoAPI.getDefinedDfNames()},
         undefined,
@@ -90,20 +85,6 @@ const DataframeImportScreen = (props: DataframeImportTaskpaneProps): JSX.Element
             />
         )
     })
-
-    const radioButtonBox: JSX.Element = (
-        <RadioButtonBox 
-            values={dfNamesInNotebook} 
-            selectedValue={props.params?.df_names[0]} 
-            onChange={newDfName => props.setParams(prevParams => {
-                return {
-                    ...prevParams,
-                    df_names: [newDfName]
-                }
-            })}
-            loading={loading}
-        />
-    ) 
 
     if (props.params === undefined) {
         return (
@@ -162,8 +143,7 @@ const DataframeImportScreen = (props: DataframeImportTaskpaneProps): JSX.Element
                         </DropdownButton>
                     </Col>
                 </Row>
-                {!props.isUpdate && dataframeCards}
-                {props.isUpdate && radioButtonBox}
+                {dataframeCards}
                 {dataframeCards.length === 0 &&
                     <Row>
                         <p className="text-subtext-1">Import an existing dataframe as a new sheet tab in Mito</p>
@@ -180,7 +160,7 @@ const DataframeImportScreen = (props: DataframeImportTaskpaneProps): JSX.Element
                     }}
                     disabled={(props.params?.df_names.length || 0) === 0}
                 >
-                    {getButtonMessage(props.params, props.isUpdate)}
+                    {getButtonMessage(props.params)}
                 </TextButton>
             </DefaultTaskpaneFooter>
         </DefaultTaskpane>

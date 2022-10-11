@@ -124,9 +124,9 @@ const DELIMETER_TOOLTIP = 'The text that seperates one column from another.'
 const ENCODING_TOOLTIP = 'Set the encoding used to save this file.' // I can't think of anything better lol
 const ERROR_BAD_LINES_TOOLTIP = 'Turn on to skip any lines that are missing fields.'
 
-const DEFAULT_DELIMETER = ',';
-const DEFAULT_ENCODING = 'default';
-const DEFAULT_ERROR_BAD_LINES = true;
+export const DEFAULT_DELIMETER = ',';
+export const DEFAULT_ENCODING = 'default';
+export const DEFAULT_ERROR_BAD_LINES = true;
 
 
 interface CSVImportConfigScreenProps {
@@ -235,7 +235,7 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
             />
             <DefaultTaskpaneBody noScroll>
                 {props.error !== undefined &&
-                    <p className='text-color-error'> This import configuration is invalid. Please select a delimeter and encoding, or skip invalid lines.</p>
+                    <p className='text-color-error'> This import configuration is invalid. Please select a delimiter and encoding, or skip invalid lines.</p>
                 }
                 <Row justify='space-between' align='center' title={DELIMETER_TOOLTIP}>
                     <Col>

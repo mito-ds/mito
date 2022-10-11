@@ -153,8 +153,6 @@ class MitoWidget(DOMWidget):
             # Update all state variables
             self.update_shared_state_variables()
         except Exception as e:
-            from mitosheet.errors import get_recent_traceback
-            print(get_recent_traceback())
             # We handle the case of replaying the analysis specially, because we don't
             # want to display the error modal - we want to display something specific
             # in this case. Note that we include the updating of shared state variables

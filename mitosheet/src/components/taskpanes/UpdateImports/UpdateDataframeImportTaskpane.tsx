@@ -1,0 +1,119 @@
+import React from "react";
+import MitoAPI from "../../../jupyter/api";
+import { AnalysisData, UIState } from "../../../types";
+
+import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
+import RadioButtonBox from "../../elements/RadioButtonBox";
+import TextButton from "../../elements/TextButton";
+import Tooltip from "../../elements/Tooltip";
+import Col from "../../layout/Col";
+import Row from "../../layout/Row";
+import DefaultTaskpane from "../../taskpanes/DefaultTaskpane/DefaultTaskpane";
+import DefaultTaskpaneBody from "../../taskpanes/DefaultTaskpane/DefaultTaskpaneBody";
+import DefaultTaskpaneFooter from "../../taskpanes/DefaultTaskpane/DefaultTaskpaneFooter";
+import DefaultTaskpaneHeader from "../../taskpanes/DefaultTaskpane/DefaultTaskpaneHeader";
+
+
+interface UpdateDataframeImportTaskpaneProps {
+    mitoAPI: MitoAPI;
+    analysisData: AnalysisData;
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>;
+    isUpdate: boolean;
+
+    params: DataframeImportParams | undefined;
+    setParams: (updater: (prevParams: DataframeImportParams) => DataframeImportParams) => void;
+    edit: () => void;
+
+    backCallback?: () => void;
+}
+
+export interface DataframeImportParams {
+    df_names: string[],
+}
+
+const getButtonMessage = (params: DataframeImportParams): string => {
+    if (params.df_names.length === 0) {
+        return `Select dataframe to update`
+    }
+    return `Update to ${params.df_names[0]}`;
+}
+
+
+/* 
+    Allows users to change an imported dataframe to an new dataframe.
+
+    This is distinct from the DataframeImport taskpane as it fundamentally
+    displays a new UI, in a major way!
+*/
+const UpdateDataframeImportScreen = (props: UpdateDataframeImportTaskpaneProps): JSX.Element => {
+
+    const [dfNamesInNotebook, loading] = useStateFromAPIAsync(
+        [],
+        () => {return props.mitoAPI.getDefinedDfNames()},
+        undefined,
+        []
+    )
+
+    const radioButtonBox: JSX.Element = (
+        <RadioButtonBox 
+            values={dfNamesInNotebook} 
+            selectedValue={props.params?.df_names[0]} 
+            onChange={newDfName => props.setParams(prevParams => {
+                return {
+                    ...prevParams,
+                    df_names: [newDfName]
+                }
+            })}
+            loading={loading}
+        />
+    ) 
+
+    if (props.params === undefined) {
+        return (
+            <div className='text-body-1'>
+                There has been an error loading dataframes to import. Please try again, or contact support.
+            </div>
+        )
+    }
+
+    return (
+        <DefaultTaskpane>
+            <DefaultTaskpaneHeader 
+                header={props.isUpdate ? 'Import Dataframes' : 'Update Import'}
+                setUIState={props.setUIState} 
+                backCallback={props.backCallback}    
+            />
+            <DefaultTaskpaneBody>
+                <Row justify='start' align='center'>
+                    <Col>
+                        <Row justify="start" align="center">
+                            <Col>
+                                <p className='text-header-3'>
+                                    Dataframes to Import
+                                </p>
+                            </Col>
+                            <Col>
+                                <Tooltip title={"Dataframes that have been created elsewhere in this notebook can be imported through this taskpane."} />
+                            </Col>
+                        </Row>
+                    </Col>
+                </Row>
+                {radioButtonBox}
+            </DefaultTaskpaneBody>
+            <DefaultTaskpaneFooter>
+                <TextButton
+                    variant='dark'
+                    width='block'
+                    onClick={() => {
+                        props.edit();
+                    }}
+                    disabled={(props.params?.df_names.length || 0) === 0}
+                >
+                    {getButtonMessage(props.params)}
+                </TextButton>
+            </DefaultTaskpaneFooter>
+        </DefaultTaskpane>
+    )
+}
+
+export default UpdateDataframeImportScreen;

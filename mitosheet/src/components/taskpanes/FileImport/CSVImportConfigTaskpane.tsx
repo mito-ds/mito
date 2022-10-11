@@ -4,7 +4,7 @@ import React from 'react';
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import MitoAPI from '../../../jupyter/api';
 import { AnalysisData, StepType, UIState } from '../../../types';
-import CSVImportScreen, { CSVImportParams } from '../../import/CSVImportConfigScreen';
+import CSVImportConfigScreen, { CSVImportParams, DEFAULT_DELIMETER, DEFAULT_ENCODING, DEFAULT_ERROR_BAD_LINES } from '../../import/CSVImportConfigScreen';
 import { ImportState } from './FileImportTaskpane';
 
 interface CSVImportConfigTaskpaneProps {
@@ -23,9 +23,9 @@ interface CSVImportConfigTaskpaneProps {
 export const getDefaultCSVParams = (filePath: string): CSVImportParams => {
     return {
         file_names: [filePath],
-        delimeters: [','],
-        encodings: ['default'],
-        error_bad_lines: [true]
+        delimeters: [DEFAULT_DELIMETER],
+        encodings: [DEFAULT_ENCODING],
+        error_bad_lines: [DEFAULT_ERROR_BAD_LINES]
     }
 }
 
@@ -43,7 +43,7 @@ function CSVImportConfigTaskpane(props: CSVImportConfigTaskpaneProps): JSX.Eleme
     )
 
     return (
-        <CSVImportScreen
+        <CSVImportConfigScreen
             mitoAPI={props.mitoAPI}
             analysisData={props.analysisData}
             setUIState={props.setUIState}

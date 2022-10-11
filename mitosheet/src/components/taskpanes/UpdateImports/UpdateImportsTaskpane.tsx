@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import MitoAPI from "../../../jupyter/api";
 import { AnalysisData, UIState, UserProfile } from "../../../types";
 import CSVImportConfigScreen, { CSVImportParams } from "../../import/CSVImportConfigScreen";
-import DataframeImportScreen, { DataframeImportParams } from "../../import/DataframeImportScreen";
+import { DataframeImportParams } from "../../import/DataframeImportScreen";
 import FileBrowser from "../../import/FileBrowser/FileBrowser";
 import XLSXImportConfigScreen, { ExcelImportParams } from "../../import/XLSXImportConfigScreen";
 import { getDefaultCSVParams } from "../FileImport/CSVImportConfigTaskpane";
 import { FileElement, ImportState } from "../FileImport/FileImportTaskpane";
 import { getDefaultXLSXParams } from "../FileImport/XLSXImportConfigTaskpane";
+import UpdateDataframeImportScreen from "./UpdateDataframeImportTaskpane";
 import UpdateImportsPostReplayTaskpane from "./UpdateImportsPostReplayTaskpane";
 import UpdateImportsPreReplayTaskpane from "./UpdateImportsPreReplayTaskpane";
 import { isCSVImportParams, isDataframeImportParams, isExcelImportParams, updateDataframeCreation } from "./updateImportsUtils";
@@ -152,14 +153,41 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                         return
                     }
 
+                    const dataframeCreationData: DataframeCreationData = {
+                        'step_type': 'simple_import',
+                        'params': {
+                            file_names: [filePath],
+                        }
+                    }
+
+                    // First, check that this is a valid import, and if it is, then update this
+                    const indexToErrorMap = await props.mitoAPI.getTestImports([{
+                        'step_id': 'fake_id',
+                        'imports': [dataframeCreationData]
+                    }])
+
+                    console.log("Checkling", indexToErrorMap)
+
+                    // if it's not a valid import, then we send the user to the CSV config screen
+                    if (indexToErrorMap === undefined || Object.keys(indexToErrorMap).length > 0) {
+                        console.log("Error", indexToErrorMap !== undefined ? indexToErrorMap[0] : undefined)
+                        setReplacingDataframeState({
+                            'importState': {
+                                'screen': 'csv_import_config',
+                                'fileName': file.name,
+                                'filePath': filePath,
+                                'error': indexToErrorMap !== undefined ? indexToErrorMap[0] : undefined
+                            },
+                            'params': undefined,
+                            'dataframeCreationIndex': replacingDataframeState.dataframeCreationIndex
+                        })
+                        return;
+                    }
+
+                    // 
                     updateDataframeCreation(
                         replacingDataframeState.dataframeCreationIndex,
-                        {
-                            'step_type': 'simple_import',
-                            'params': {
-                                file_names: [filePath],
-                            }
-                        },
+                        dataframeCreationData,
                         setUpdatedStepImportData,
                         setUpdatedIndexes,
                         setInvalidImportMessages,
@@ -214,7 +242,7 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 }}
                 editApplied={false}
                 loading={false}
-                error={undefined}
+                error={replacingDataframeState.importState.error}
             
                 backCallback={() => {
                     setReplacingDataframeState(undefined);
@@ -278,7 +306,7 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
             : {df_names: []}
             
         return (
-            <DataframeImportScreen
+            <UpdateDataframeImportScreen
                 mitoAPI={props.mitoAPI}
                 analysisData={props.analysisData}
                 setUIState={props.setUIState}

@@ -12,7 +12,7 @@ import pandas as pd
 from mitosheet.types import StepsManagerType
 from mitosheet.step_performers.import_steps import is_import_step_type
 from mitosheet.saved_analyses import read_and_upgrade_analysis
-from mitosheet.api.get_imported_files_and_dataframes import get_import_data_with_single_import_list
+from mitosheet.api.get_imported_files_and_dataframes_from_current_steps import get_import_data_with_single_import_list
 
 
 def get_step_import_data_from_saved_analysis(analysis_name: str) -> List[Dict[str, Any]]:
@@ -41,8 +41,13 @@ def get_imported_files_and_dataframes_from_analysis_name(params: Dict[str, Any],
     the import into a list of imports that only import a single dataframe, as this is convenient
     for what we work with on the frontend.
 
-    A mirror of get_imported_files_and_dataframes, but works from saved analysis data, and is used
+    A mirror of get_imported_files_and_dataframes_from_current_steps, but works from saved analysis data, and is used
     when a replayed analysis is failed - as there are no steps in the steps_manager currently.
+
+    In the case where we're getting import data from a saved analysis, we do not have step ids to use.
+    But we don't need step ids, as when we replay an analysis we can just replace import events based
+    on the index of the import. As such, don't worry about step_ids in the UpdateImportPreReplay
+    case, as this uses the replay_analysis function and matched based on indexes.
     """
     analysis_name = params["analysis_name"]
 

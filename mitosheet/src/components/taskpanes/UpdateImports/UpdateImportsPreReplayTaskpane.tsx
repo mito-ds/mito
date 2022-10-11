@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import MitoAPI from "../../../jupyter/api";
 import { UIState } from "../../../types";
+import { intersection } from "../../../utils/arrays";
 import { isMitoError } from "../../../utils/errors";
 import TextButton from "../../elements/TextButton";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
@@ -73,17 +74,18 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
         )
     })
 
-    const updated = props.updatedIndexes.length > 0;
+    const numInitialErrors = Object.keys(props.failedReplayAnalysisOnImports.invalidImportIndexes).length;
+    const allErrorsUpdated = intersection(Object.keys(props.updatedIndexes), Object.keys(props.failedReplayAnalysisOnImports.invalidImportIndexes)).length === numInitialErrors;
     const invalidPostUpdate = Object.keys(props.invalidImportMessages).length > 0;
 
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
-                header="Update Imports"
+                header="Change Imports"
                 setUIState={props.setUIState}           
             />
             <DefaultTaskpaneBody>
-                {invalidReplayError && invalidPostUpdate && 
+                {((invalidReplayError !== undefined && Object.keys(props.updatedIndexes).length === 0) || (invalidReplayError !== undefined && invalidPostUpdate)) && 
                     <p className="text-color-error text-overflow-wrap">
                         {invalidReplayError}
                     </p>
@@ -122,10 +124,12 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
                             
                         }
                     }}
-                    disabled={!updated || invalidPostUpdate}
+                    // TODO: move this to pre-replay as well!
+                    disabled={!allErrorsUpdated || invalidPostUpdate}
+                    disabledTooltip={(!allErrorsUpdated || invalidPostUpdate) ? "Please resolve all errors with above imports." : undefined}
                 >
                     <p>
-                        Update Imports
+                        Change Imports
                     </p>
                 </TextButton>
             </DefaultTaskpaneFooter>

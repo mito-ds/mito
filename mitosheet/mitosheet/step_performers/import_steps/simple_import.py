@@ -17,7 +17,7 @@ from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk
 from mitosheet.step_performers.utils import get_param
 
 from mitosheet.utils import get_valid_dataframe_names
-from mitosheet.errors import get_recent_traceback, make_invalid_promote_row_to_header, make_invalid_simple_import_error, make_is_directory_error
+from mitosheet.errors import make_file_not_found_error, make_invalid_simple_import_error, make_is_directory_error
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 
@@ -82,7 +82,7 @@ class SimpleImportStepPerformer(StepPerformer):
                 if os.path.exists(file_name):
                     raise make_invalid_simple_import_error()
                 else:
-                    raise FileNotFoundError(f'{file_name} does not exist.')
+                    raise make_file_not_found_error(file_name)
 
             # Save the delimeter and encodings for transpiling
             file_delimeters.append(delimeter)

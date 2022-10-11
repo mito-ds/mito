@@ -10,8 +10,8 @@ from mitosheet.types import StepsManagerType
 from mitosheet.utils import create_step_id
 
 
-EXISTING_IMPORTS_UPDATE_EVENT = 'update_existing_import_update'
-EXISTING_IMPORTS_PARAMS = ['updated_step_import_data_list']
+UPDATE_EXISTING_IMPORTS_UPDATE_EVENT = 'update_existing_import_update'
+UPDATE_EXISTING_IMPORTS_PARAMS = ['updated_step_import_data_list']
 
 
 def execute_update_existing_imports_update(steps_manager: StepsManagerType, updated_step_import_data_list: List[Dict[str, Any]]) -> None:
@@ -32,10 +32,7 @@ def execute_update_existing_imports_update(steps_manager: StepsManagerType, upda
         step_id = step_import_data['step_id']
         imports = step_import_data['imports']
 
-        arr = imports_for_step_id.get(step_id, [])
-        arr.extend(imports)
-
-        imports_for_step_id[step_id] = arr
+        imports_for_step_id[step_id] = imports_for_step_id.get(step_id, []) + imports
 
     for step_id, imports in imports_for_step_id.items():
         original_step_index = [index for index, step in enumerate(new_steps) if step.step_id == step_id][0]
@@ -65,8 +62,8 @@ def execute_update_existing_imports_update(steps_manager: StepsManagerType, upda
     steps_manager.undone_step_list_store.append(("reset", old_steps))
 
 
-EXISTING_IMPORTS_UPDATE = {
-    'event_type': EXISTING_IMPORTS_UPDATE_EVENT,
-    'params': EXISTING_IMPORTS_PARAMS,
+UPDATE_EXISTING_IMPORTS_UPDATE = {
+    'event_type': UPDATE_EXISTING_IMPORTS_UPDATE_EVENT,
+    'params': UPDATE_EXISTING_IMPORTS_PARAMS,
     'execute': execute_update_existing_imports_update
 }

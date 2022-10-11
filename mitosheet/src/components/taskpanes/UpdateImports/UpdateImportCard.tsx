@@ -45,28 +45,27 @@ export const getUpdateImportCardSubtitle = (updatedDataframeCreationData: Datafr
         return null;
     }
 
- 
 
     if (updatedDataframeCreationData.step_type === 'excel_import') {
         const sheetName = updatedDataframeCreationData.params.sheet_names[0];
         const fileName = getBaseOfPath(updatedDataframeCreationData.params.file_name);
         return (
             <div>
-                <span className='text-color-medium-gray-important'>Updated to </span> <span title={sheetName}>{sheetName}</span> <span className='text-color-medium-gray-important'>from </span> <span title={fileName}>{fileName}</span>
+                <span className='text-color-medium-gray-important'>Update to </span> <span title={sheetName}>{sheetName}</span> <span className='text-color-medium-gray-important'>from </span> <span title={fileName}>{fileName}</span>
             </div>
         )
     } else if (updatedDataframeCreationData.step_type === 'simple_import') {
         const fileName = getBaseOfPath(updatedDataframeCreationData.params.file_names[0]);
         return (
             <div>
-                <span className='text-color-medium-gray-important'>Updated to </span> <span title={fileName}>{fileName}</span>
+                <span className='text-color-medium-gray-important'>Update to </span> <span title={fileName}>{fileName}</span>
             </div>
         )
     } else {
         const dfName = updatedDataframeCreationData.params.df_names[0];
         return (
             <div>
-                <span className='text-color-medium-gray-important'>Updated to </span> <span title={dfName}>{dfName}</span>
+                <span className='text-color-medium-gray-important'>Update to </span> <span title={dfName}>{dfName}</span>
             </div>
         )
     }

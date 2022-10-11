@@ -68,7 +68,7 @@ def get_import_data_with_single_import_list(step_type: str, params: Dict[str, An
     return []
 
 
-def get_imported_files_and_dataframes(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
+def get_imported_files_and_dataframes_from_current_steps(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
     """
     Returns a list all the imported files and dataframes, and their import params. Does so by turning
     the import into a list of imports that only import a single dataframe, as this is convenient
@@ -91,7 +91,12 @@ def get_imported_files_and_dataframes(params: Dict[str, Any], steps_manager: Ste
             })[]
         }
 	]
-	
+
+    NOTE: see comment in get_imported_files_and_dataframes_from_analysis_name for additional context. 
+    This function is only used once an analysis exists, in which case the step ids are used for 
+    matching imports. Note that results from this function will lead to changing imports with the `update_imports`
+    update event -- while the get_imported_files_and_dataframes_from_analysis_name function will change imports
+    through a parameter to the replay_analysis update.
     """
 
     # Then, we turn import steps into a version of the step that just creates a single dataframe
