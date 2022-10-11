@@ -9,11 +9,13 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.column_steps.set_column_formula_code_chunk import SetColumnFormulaCodeChunk
-from mitosheet.errors import (MitoError, make_circular_reference_error,
-                              make_execution_error, make_invalid_formula_after_update_error, make_no_column_error,
-                              make_operator_type_error,
-                              make_unsupported_function_error)
+from mitosheet.code_chunks.step_performers.column_steps.set_column_formula_code_chunk import \
+    SetColumnFormulaCodeChunk
+from mitosheet.errors import (MitoError, make_execution_error,
+                              make_invalid_formula_after_update_error,
+                              make_no_column_error, make_operator_type_error,
+                              make_unsupported_function_error,
+                              raise_error_if_column_ids_do_not_exist)
 from mitosheet.parser import parse_formula
 from mitosheet.sheet_functions import FUNCTIONS
 from mitosheet.state import State
@@ -62,6 +64,13 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')
         new_formula: str = get_param(params, 'new_formula')
+
+        raise_error_if_column_ids_do_not_exist(
+            cls.step_type(),
+            prev_state,
+            sheet_index,
+            column_id
+        )
 
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
         column_headers = prev_state.dfs[sheet_index].keys()

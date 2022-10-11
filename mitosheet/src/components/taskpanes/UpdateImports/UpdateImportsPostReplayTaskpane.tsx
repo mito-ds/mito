@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
 import MitoAPI from "../../../jupyter/api";
 import { UIState } from "../../../types";
@@ -10,8 +10,9 @@ import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import { TaskpaneType } from "../taskpanes";
 import ImportCard from "./UpdateImportCard";
+import { ImportDataAndImportErrors } from "./UpdateImportsPreReplayTaskpane";
 import { ReplacingDataframeState, StepImportData } from "./UpdateImportsTaskpane";
-import { getOriginalAndUpdatedDataframeCreationDataPairs } from "./updateImportsUtils";
+import { getErrorTextFromToFix, getOriginalAndUpdatedDataframeCreationDataPairs } from "./updateImportsUtils";
 
 
 interface UpdateImportPostReplayTaskpaneProps {
@@ -31,6 +32,11 @@ interface UpdateImportPostReplayTaskpaneProps {
 
     invalidImportMessages: Record<number, string | undefined>;
     setInvalidImportMessages: React.Dispatch<React.SetStateAction<Record<number, string | undefined>>>;
+
+    importDataAndErrors: ImportDataAndImportErrors | undefined;
+
+    invalidReplayError: string | undefined;
+    setInvalidReplayError: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
     
 
@@ -40,8 +46,7 @@ interface UpdateImportPostReplayTaskpaneProps {
 */
 const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpaneProps): JSX.Element => {
 
-    const [invalidReplayError, setInvalidReplayError] = useState<string | undefined>(undefined);
-
+    // TODO: move this to the master taskpane!
     const [originalStepImportData] = useStateFromAPIAsync(
         undefined,
         () => {return props.mitoAPI.getImportedFilesAndDataframesFromCurrentSteps()},
@@ -83,9 +88,9 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
                 setUIState={props.setUIState}           
             />
             <DefaultTaskpaneBody>
-                {invalidReplayError &&
+                {props.invalidReplayError &&
                     <p className="text-color-error text-overflow-wrap">
-                        {invalidReplayError}
+                        {props.invalidReplayError}
                     </p>
                 }
                 {updateImportCards}
@@ -109,7 +114,7 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
                         if (Object.keys(_invalidImportIndexes).length === 0) {
                             const possibleMitoError = await props.mitoAPI.updateExistingImports(props.updatedStepImportData);
                             if (isMitoError(possibleMitoError)) {
-                                setInvalidReplayError(possibleMitoError.to_fix)
+                                props.setInvalidReplayError(getErrorTextFromToFix(possibleMitoError.to_fix))
                             } else {
                                 props.setUIState((prevUIState) => {
                                     return {

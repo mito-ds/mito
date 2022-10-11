@@ -50,12 +50,14 @@ def execute_update_existing_imports_update(steps_manager: StepsManagerType, upda
     try:
         # Refresh the anlaysis starting from the first step
         steps_manager.execute_and_update_steps(new_steps, 0)
-    except:
+    except Exception as e:
         # We also make sure to catch any error, and turn it into an error that
         # does not go directly to an error modal.
-        # Notably, as we test imports before replacing them, this error is not
-        # an issue with importing, but rather an issue with the structure of the
-        # data
+        from mitosheet.errors import MitoError, make_invalid_update_imports_error
+        if isinstance(e, MitoError):
+            e.error_modal = False
+            raise e
+        
         from mitosheet.errors import make_invalid_update_imports_error
         raise make_invalid_update_imports_error()
 

@@ -5,9 +5,11 @@
 # Distributed under the terms of the GPL License.
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
-from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnsCodeChunk
 
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import \
+    DeleteColumnsCodeChunk
+from mitosheet.errors import raise_error_if_column_ids_do_not_exist
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
@@ -31,6 +33,13 @@ class DeleteColumnStepPerformer(StepPerformer):
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         sheet_index: int = get_param(params, 'sheet_index')
         column_ids: List[ColumnID] = get_param(params, 'column_ids')
+
+        raise_error_if_column_ids_do_not_exist(
+            cls.step_type(),
+            prev_state,
+            sheet_index,
+            column_ids
+        )
 
         # Make a post state, that is a deep copy
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])

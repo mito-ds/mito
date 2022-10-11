@@ -97,3 +97,7 @@ export const updateDataframeCreation = (
     // And mark that we are done replacing this dataframe creation
     setReplacingDataframeState(undefined);
 }
+
+export const getErrorTextFromToFix = (toFix: string): string => {
+    return "Mito hit an error when replaying this analysis: " + toFix + " Update imports to fix this error.";
+}

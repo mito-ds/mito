@@ -101,12 +101,9 @@ def execute_replay_analysis_update(
     try:
         steps_manager.execute_steps_data(new_steps_data=analysis['steps_data'])
     except:
-        # If this replay overwriting some imports, we report a custom error to the user
-        # Otherwise, we just propagate the error we got up a level
-        if len(step_import_data_list_to_overwrite) > 0:
-            from mitosheet.errors import make_invalid_update_imports_error
-            raise make_invalid_update_imports_error()
-        raise 
+        from mitosheet.errors import get_recent_traceback
+        print(get_recent_traceback())
+        raise
 
     # NOTE: We update the analysis name only if the new steps execute correctly,
     # so that we actually do go about overwriting the saved analysis in this case.

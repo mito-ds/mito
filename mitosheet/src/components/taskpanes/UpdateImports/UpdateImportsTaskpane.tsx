@@ -1,6 +1,7 @@
 import React, { useState } from "react";
+import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
 import MitoAPI from "../../../jupyter/api";
-import { AnalysisData, UIState, UserProfile } from "../../../types";
+import { AnalysisData, MitoError, UIState, UserProfile } from "../../../types";
 import CSVImportConfigScreen, { CSVImportParams } from "../../import/CSVImportConfigScreen";
 import { DataframeImportParams } from "../../import/DataframeImportScreen";
 import FileBrowser from "../../import/FileBrowser/FileBrowser";
@@ -10,8 +11,8 @@ import { FileElement, ImportState } from "../FileImport/FileImportTaskpane";
 import { getDefaultXLSXParams } from "../FileImport/XLSXImportConfigTaskpane";
 import UpdateDataframeImportScreen from "./UpdateDataframeImportTaskpane";
 import UpdateImportsPostReplayTaskpane from "./UpdateImportsPostReplayTaskpane";
-import UpdateImportsPreReplayTaskpane from "./UpdateImportsPreReplayTaskpane";
-import { isCSVImportParams, isDataframeImportParams, isExcelImportParams, updateDataframeCreation } from "./updateImportsUtils";
+import UpdateImportsPreReplayTaskpane, { ImportDataAndImportErrors } from "./UpdateImportsPreReplayTaskpane";
+import { getErrorTextFromToFix, isCSVImportParams, isDataframeImportParams, isExcelImportParams, updateDataframeCreation } from "./updateImportsUtils";
 
 
 interface UpdateImportsTaskpaneProps {
@@ -23,7 +24,7 @@ interface UpdateImportsTaskpaneProps {
     currPathParts: string[];
     setCurrPathParts: (newCurrPathParts: string[]) => void;
 
-    failedReplayAnalysisOnImports: FailedReplayOnImportData | undefined;
+    failedReplayData: FailedReplayData | undefined;
 }
 
 export type DataframeCreationData = {
@@ -49,10 +50,9 @@ export interface ReplacingDataframeState {
     params: CSVImportParams | ExcelImportParams | DataframeImportParams | undefined
 }
 
-export interface FailedReplayOnImportData {
+export interface FailedReplayData {
     analysisName: string,
-    importData: StepImportData[],
-    invalidImportIndexes: Record<number, string>
+    error: MitoError
 }
     
 
@@ -76,10 +76,57 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
     const [updatedIndexes, setUpdatedIndexes] = useState<number[]>([]);
     const [displayedImportCardDropdown, setDisplayedImportCardDropdown] = useState<number | undefined>(undefined);
     const [replacingDataframeState, setReplacingDataframeState] = useState<ReplacingDataframeState | undefined>(undefined);
-    const [invalidImportMessages, setInvalidImportMessages] = useState<Record<number, string | undefined>>({});
+    const [postUpdateInvalidImportMessages, setPostUpdateInvalidImportMessages] = useState<Record<number, string | undefined>>({});
+
+    // We load data in this taskpane, rather than in the subtaskpanes as they are
+    // killed and recreated when we switch screens, meaning this data would have to be reloaded
+    const [importDataAndErrors] = useStateFromAPIAsync<ImportDataAndImportErrors | undefined, undefined>(
+        undefined,
+        async () => {
+            let importData: StepImportData[] | undefined = undefined;
+            let invalidImportIndexes: Record<number, string> | undefined = undefined;
+            
+            const failedReplayData = props.failedReplayData;
+            if (failedReplayData !== undefined) {
+                importData = await props.mitoAPI.getImportedFilesAndDataframesFromAnalysisName(failedReplayData.analysisName);
+                invalidImportIndexes = await props.mitoAPI.getTestImports(importData || []);
+            } else {
+                importData = await props.mitoAPI.getImportedFilesAndDataframesFromCurrentSteps();
+                invalidImportIndexes = {};
+            }
+
+            if (importData !== undefined && invalidImportIndexes !== undefined) {
+                return {
+                    importData: importData,
+                    invalidImportMessages: invalidImportIndexes
+                }
+            }
+            return undefined;
+        },
+        (loadedData) => {
+            if (loadedData === undefined) {
+                return;
+            }
+
+            // TODO: explain why we do this!
+            setUpdatedStepImportData(prevUpdatedStepImportData => {
+                if (prevUpdatedStepImportData === undefined) {
+                    return JSON.parse(JSON.stringify(loadedData.importData));
+                }
+                return prevUpdatedStepImportData;
+            })
+        }, 
+        []
+    )
+
+    const [invalidReplayError, setInvalidReplayError] = useState<string | undefined>(
+        props.failedReplayData 
+        ? getErrorTextFromToFix(props.failedReplayData.error.to_fix)
+        : undefined
+    );
 
     if (replacingDataframeState === undefined) {
-        if (props.failedReplayAnalysisOnImports !== undefined) {
+        if (props.failedReplayData !== undefined) {
             return (
                 <UpdateImportsPreReplayTaskpane
                     mitoAPI={props.mitoAPI}
@@ -96,10 +143,14 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
 
                     setReplacingDataframeState={setReplacingDataframeState}
 
-                    invalidImportMessages={invalidImportMessages}
-                    setInvalidImportMessages={setInvalidImportMessages}
+                    postUpdateInvalidImportMessages={postUpdateInvalidImportMessages}
+                    setPostUpdateInvalidImportMessages={setPostUpdateInvalidImportMessages}
 
-                    failedReplayAnalysisOnImports={props.failedReplayAnalysisOnImports}
+                    failedReplayData={props.failedReplayData}
+                    importDataAndErrors={importDataAndErrors}
+
+                    invalidReplayError={invalidReplayError}
+                    setInvalidReplayError={setInvalidReplayError}
                 />
             )
         } else {
@@ -119,8 +170,13 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
 
                     setReplacingDataframeState={setReplacingDataframeState}
 
-                    invalidImportMessages={invalidImportMessages}
-                    setInvalidImportMessages={setInvalidImportMessages}
+                    invalidImportMessages={postUpdateInvalidImportMessages}
+                    setInvalidImportMessages={setPostUpdateInvalidImportMessages}
+
+                    importDataAndErrors={importDataAndErrors}
+
+                    invalidReplayError={invalidReplayError}
+                    setInvalidReplayError={setInvalidReplayError}
                     
                 />
             )
@@ -166,8 +222,6 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                         'imports': [dataframeCreationData]
                     }])
 
-                    console.log("Checkling", indexToErrorMap)
-
                     // if it's not a valid import, then we send the user to the CSV config screen
                     if (indexToErrorMap === undefined || Object.keys(indexToErrorMap).length > 0) {
                         console.log("Error", indexToErrorMap !== undefined ? indexToErrorMap[0] : undefined)
@@ -190,7 +244,7 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                         dataframeCreationData,
                         setUpdatedStepImportData,
                         setUpdatedIndexes,
-                        setInvalidImportMessages,
+                        setPostUpdateInvalidImportMessages,
                         setReplacingDataframeState
                     )
                 }}
@@ -236,7 +290,7 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                         },
                         setUpdatedStepImportData,
                         setUpdatedIndexes,
-                        setInvalidImportMessages,
+                        setPostUpdateInvalidImportMessages,
                         setReplacingDataframeState
                     )
                 }}
@@ -286,7 +340,7 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                         },
                         setUpdatedStepImportData,
                         setUpdatedIndexes,
-                        setInvalidImportMessages,
+                        setPostUpdateInvalidImportMessages,
                         setReplacingDataframeState
                     )
                 }}
@@ -334,7 +388,7 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                         },
                         setUpdatedStepImportData,
                         setUpdatedIndexes,
-                        setInvalidImportMessages,
+                        setPostUpdateInvalidImportMessages,
                         setReplacingDataframeState
                     )
                 }}

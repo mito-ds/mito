@@ -5,14 +5,15 @@
 # Distributed under the terms of the GPL License.
 
 import functools
+from datetime import date
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
-import pandas as pd
-from datetime import date
-from mitosheet.code_chunks.code_chunk import CodeChunk
 
-from mitosheet.step_performers.step_performer import StepPerformer
+import pandas as pd
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.errors import raise_error_if_column_ids_do_not_exist
 from mitosheet.state import State
+from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
 from mitosheet.types import ColumnHeader, ColumnID
 
@@ -92,6 +93,13 @@ class FilterStepPerformer(StepPerformer):
         operator: str = get_param(params, 'operator')
         filters: Any = get_param(params, 'filters')
 
+        raise_error_if_column_ids_do_not_exist(
+            cls.step_type(),
+            prev_state,
+            sheet_index,
+            column_id
+        )
+
         # Get the correct column_header
         column_header = prev_state.column_ids.get_column_header_by_id(
             sheet_index, column_id
@@ -122,7 +130,8 @@ class FilterStepPerformer(StepPerformer):
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
-        from mitosheet.code_chunks.step_performers.filter_code_chunk import FilterCodeChunk
+        from mitosheet.code_chunks.step_performers.filter_code_chunk import \
+            FilterCodeChunk
         return [
             FilterCodeChunk(prev_state, post_state, params, execution_data)
         ]
