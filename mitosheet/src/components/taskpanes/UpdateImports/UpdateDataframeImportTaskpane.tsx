@@ -26,6 +26,7 @@ interface UpdateDataframeImportTaskpaneProps {
     edit: () => void;
 
     backCallback?: () => void;
+    notCloseable?: boolean;
 }
 
 export interface DataframeImportParams {
@@ -82,7 +83,8 @@ const UpdateDataframeImportScreen = (props: UpdateDataframeImportTaskpaneProps):
             <DefaultTaskpaneHeader 
                 header={props.isUpdate ? 'Import Dataframes' : 'Update Import'}
                 setUIState={props.setUIState} 
-                backCallback={props.backCallback}    
+                backCallback={props.backCallback}
+                notCloseable={props.notCloseable}    
             />
             <DefaultTaskpaneBody>
                 <Row justify='start' align='center'>

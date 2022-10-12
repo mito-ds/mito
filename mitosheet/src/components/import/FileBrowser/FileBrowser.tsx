@@ -29,6 +29,7 @@ interface FileBrowserProps {
     importCSVFile: (file: FileElement) => Promise<void>;
 
     backCallback?: () => void;
+    notCloseable?: boolean;
 }
 
 /**
@@ -140,6 +141,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                 header={!props.isUpdate ? 'Import Files' : 'Update Import'}
                 setUIState={props.setUIState}
                 backCallback={props.backCallback}
+                notCloseable={props.notCloseable}
             />
             <DefaultTaskpaneBody noScroll>
                 <FileBrowserBody

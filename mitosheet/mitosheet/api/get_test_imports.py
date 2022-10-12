@@ -32,8 +32,10 @@ def get_test_imports(params: Dict[str, Any], steps_manager: StepsManagerType) ->
     """
     updated_step_import_data_list: Any = params['updated_step_import_data_list']
 
+
     invalid_import_indexes: Dict[int, str] = dict()
-    for index, step_import_data in enumerate(updated_step_import_data_list):
+    index = 0
+    for step_import_data in updated_step_import_data_list:
         imports = step_import_data['imports']
 
         for _import in imports:
@@ -46,5 +48,7 @@ def get_test_imports(params: Dict[str, Any], steps_manager: StepsManagerType) ->
                 invalid_import_indexes[index] = e.to_fix
             except:
                 invalid_import_indexes[index] = get_import_error_for_step_type(_import['step_type'])
+            
+            index += 1
 
     return json.dumps(invalid_import_indexes)

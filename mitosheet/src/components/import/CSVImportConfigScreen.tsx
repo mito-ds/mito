@@ -146,6 +146,7 @@ interface CSVImportConfigScreenProps {
     error: string | undefined;
 
     backCallback: () => void;
+    notCloseable?: boolean;
 }
 
 // This is our guesses about the metadata of the file
@@ -232,6 +233,7 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                 header={!props.isUpdate ? `Import ${props.fileName}` : `Update to ${props.fileName}`}
                 setUIState={props.setUIState}
                 backCallback={props.backCallback}
+                notCloseable={props.notCloseable}
             />
             <DefaultTaskpaneBody noScroll>
                 {props.error !== undefined &&

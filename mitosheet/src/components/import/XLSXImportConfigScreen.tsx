@@ -36,6 +36,7 @@ interface XLSXImportConfigScreenProps {
     loading: boolean;
 
     backCallback: () => void;
+    notCloseable?: boolean;
 }
 
 export interface ExcelFileMetadata {
@@ -121,6 +122,7 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
                 header={!props.isUpdate ? `Import ${props.fileName}` : `Update to ${props.fileName}`}
                 setUIState={props.setUIState}
                 backCallback={props.backCallback}
+                notCloseable={props.notCloseable}
             />
             <DefaultTaskpaneBody noScroll>
                 <div> 

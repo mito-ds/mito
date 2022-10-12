@@ -73,6 +73,7 @@ export interface FailedReplayData {
 const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element => {
 
     const failedReplayData = props.failedReplayData;
+    const updatePreReplay = failedReplayData !== undefined;
     
     const [updatedStepImportData, setUpdatedStepImportData] = useState<StepImportData[] | undefined>(undefined);
     const [updatedIndexes, setUpdatedIndexes] = useState<number[]>([]);
@@ -262,6 +263,7 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 backCallback={() => {
                     setReplacingDataframeState(undefined);
                 }}
+                notCloseable={updatePreReplay}
             />
         )
     } else if (importState.screen === 'csv_import_config') {
@@ -344,6 +346,7 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 backCallback={() => {
                     setReplacingDataframeState(undefined);
                 }}
+                notCloseable={updatePreReplay}
             />
         )
     } else if (replacingDataframeState.importState.screen === 'xlsx_import_config') {
@@ -393,6 +396,7 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 backCallback={() => {
                     setReplacingDataframeState(undefined);
                 }}
+                notCloseable={updatePreReplay}
             />
         )
     } else {
@@ -439,6 +443,7 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 backCallback={() => {
                     setReplacingDataframeState(undefined);
                 }}
+                notCloseable={updatePreReplay}
             />
         )
     }
