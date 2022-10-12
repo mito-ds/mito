@@ -11,7 +11,7 @@ import { FileElement, ImportState } from "../FileImport/FileImportTaskpane";
 import { getDefaultXLSXParams } from "../FileImport/XLSXImportConfigTaskpane";
 import UpdateDataframeImportScreen from "./UpdateDataframeImportTaskpane";
 import UpdateImportsPostReplayTaskpane from "./UpdateImportsPostReplayTaskpane";
-import UpdateImportsPreReplayTaskpane, { ImportDataAndImportErrors } from "./UpdateImportsPreReplayTaskpane";
+import UpdateImportsPreReplayTaskpane, { ImportDataAndImportErrors, PRE_REPLAY_IMPORT_ERROR_TEXT } from "./UpdateImportsPreReplayTaskpane";
 import { getErrorTextFromToFix, isCSVImportParams, isDataframeImportParams, isExcelImportParams, updateDataframeCreation } from "./updateImportsUtils";
 
 
@@ -71,6 +71,7 @@ export interface FailedReplayData {
 */
 const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element => {
 
+    const failedReplayData = props.failedReplayData;
     
     const [updatedStepImportData, setUpdatedStepImportData] = useState<StepImportData[] | undefined>(undefined);
     const [updatedIndexes, setUpdatedIndexes] = useState<number[]>([]);
@@ -86,7 +87,6 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
             let importData: StepImportData[] | undefined = undefined;
             let invalidImportIndexes: Record<number, string> | undefined = undefined;
             
-            const failedReplayData = props.failedReplayData;
             if (failedReplayData !== undefined) {
                 importData = await props.mitoAPI.getImportedFilesAndDataframesFromAnalysisName(failedReplayData.analysisName);
                 invalidImportIndexes = await props.mitoAPI.getTestImports(importData || []);
@@ -108,22 +108,28 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 return;
             }
 
-            // TODO: explain why we do this!
             setUpdatedStepImportData(prevUpdatedStepImportData => {
                 if (prevUpdatedStepImportData === undefined) {
                     return JSON.parse(JSON.stringify(loadedData.importData));
                 }
                 return prevUpdatedStepImportData;
             })
-        }, 
+
+            // If we're in the pre-replay state, then we want to default to having an error
+            if (failedReplayData !== undefined) {
+                // If there are some invalid imported dataframes, then we display this as the error message
+                if (Object.keys(loadedData.invalidImportMessages).length > 0) {
+                    setInvalidReplayError(PRE_REPLAY_IMPORT_ERROR_TEXT);
+                } else {
+                    // Otherwise, display the error that occured when replaying the analysis 
+                    setInvalidReplayError(getErrorTextFromToFix(failedReplayData.error.to_fix));
+                }
+            }
+        },
         []
     )
 
-    const [invalidReplayError, setInvalidReplayError] = useState<string | undefined>(
-        props.failedReplayData 
-        ? getErrorTextFromToFix(props.failedReplayData.error.to_fix)
-        : undefined
-    );
+    const [invalidReplayError, setInvalidReplayError] = useState<string | undefined>(undefined);
 
     if (replacingDataframeState === undefined) {
         if (props.failedReplayData !== undefined) {
@@ -225,7 +231,6 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
 
                     // if it's not a valid import, then we send the user to the CSV config screen
                     if (indexToErrorMap === undefined || Object.keys(indexToErrorMap).length > 0) {
-                        console.log("Error", indexToErrorMap !== undefined ? indexToErrorMap[0] : undefined)
                         setReplacingDataframeState({
                             'importState': {
                                 'screen': 'csv_import_config',
@@ -239,7 +244,6 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                         return;
                     }
 
-                    // 
                     updateDataframeCreation(
                         replacingDataframeState.dataframeCreationIndex,
                         dataframeCreationData,

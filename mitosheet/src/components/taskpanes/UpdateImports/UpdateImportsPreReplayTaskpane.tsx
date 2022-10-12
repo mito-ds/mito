@@ -48,41 +48,7 @@ export interface ImportDataAndImportErrors {
     invalidImportMessages: Record<number, string | undefined>
 }
 
-const getNumImportsInvalidReplayThatAreNotUpdated = (
-    preUpdateInvalidImportMessage: Record<number, string | undefined>,
-    updatedIndexes: number[]
-): number => {
-    return Object.keys(preUpdateInvalidImportMessage).filter(index => !updatedIndexes.includes(parseInt(index))).length
-}
-
-const getErrorMessage = (
-    invalidReplayError: string | undefined,
-    loadingImportDataAndErrors: boolean,
-    preUpdateInvalidImportMessage: Record<number, string | undefined>,
-    postUpdateInvalidImportMessage: Record<number, string | undefined>,
-    updatedIndexes: number[]
-): React.ReactNode => {
-    const numImportsInvalidPostReplay = Object.keys(postUpdateInvalidImportMessage).length;
-    const numImportsInvalidPreReplayThatAreNotUpdated = getNumImportsInvalidReplayThatAreNotUpdated(preUpdateInvalidImportMessage, updatedIndexes)
-
-    let errorText: string | undefined = undefined;
-
-    if (!loadingImportDataAndErrors) {
-        if (numImportsInvalidPreReplayThatAreNotUpdated > 0 || numImportsInvalidPostReplay > 0) {
-            errorText = 'Please fix the failed imports below before updating imports';
-        } else if (invalidReplayError !== undefined) {
-            errorText = invalidReplayError;
-        }
-    }
-
-    if (errorText !== undefined) {
-        return (
-            <p className="text-color-error text-overflow-wrap">
-                {errorText}
-            </p>
-        )
-    }
-}
+export const PRE_REPLAY_IMPORT_ERROR_TEXT = 'Please fix failed data imports to replay analysis.';
 
 
 /* 
@@ -121,7 +87,7 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
     }
 
 
-    const allErrorsUpdated = getNumImportsInvalidReplayThatAreNotUpdated(props.importDataAndErrors?.invalidImportMessages || {}, props.updatedIndexes) === 0;
+    const allErrorsUpdated = Object.keys(props.importDataAndErrors?.invalidImportMessages || {}).filter(index => !props.updatedIndexes.includes(parseInt(index))).length === 0;
     const invalidPostUpdate = Object.keys(props.postUpdateInvalidImportMessages).length > 0;
 
     const retryButtonDisabled = !allErrorsUpdated || invalidPostUpdate || loadingImportDataAndErrors;
@@ -133,7 +99,11 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
                 setUIState={props.setUIState}           
             />
             <DefaultTaskpaneBody>
-                {getErrorMessage(props.invalidReplayError, loadingImportDataAndErrors, props.importDataAndErrors?.invalidImportMessages || {}, props.postUpdateInvalidImportMessages, props.updatedIndexes)}
+                {((props.invalidReplayError === PRE_REPLAY_IMPORT_ERROR_TEXT && !allErrorsUpdated) || (props.invalidReplayError !== undefined && props.invalidReplayError !== PRE_REPLAY_IMPORT_ERROR_TEXT)) && 
+                    <p className="text-color-error text-overflow-wrap">
+                        {props.invalidReplayError}
+                    </p>
+                }
                 {updateImportBody}
             </DefaultTaskpaneBody>
             <DefaultTaskpaneFooter>
