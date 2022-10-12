@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import MitoAPI from "../../../jupyter/api";
 import { overwriteAnalysisToReplayToMitosheetCall } from "../../../jupyter/jupyterUtils";
 import { AnalysisData, UIState } from "../../../types";
@@ -57,6 +57,8 @@ export const PRE_REPLAY_IMPORT_ERROR_TEXT = 'Please fix failed data imports to r
     the option to reconfigure to make them valid.
 */
 const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProps): JSX.Element => {
+
+    const [loadingUpdate, setLoadingUpdate] = useState(false);
     
     let updateImportBody: React.ReactNode = null;
     const loadingImportDataAndErrors = props.importDataAndErrors === undefined;
@@ -90,13 +92,14 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
     const allErrorsUpdated = Object.keys(props.importDataAndErrors?.invalidImportMessages || {}).filter(index => !props.updatedIndexes.includes(parseInt(index))).length === 0;
     const invalidPostUpdate = Object.keys(props.postUpdateInvalidImportMessages).length > 0;
 
-    const retryButtonDisabled = !allErrorsUpdated || invalidPostUpdate || loadingImportDataAndErrors;
+    const retryButtonDisabled = !allErrorsUpdated || invalidPostUpdate || loadingImportDataAndErrors || loadingUpdate;
 
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
-                header="Update Imports to Replay Analysis"
+                header="Change Imports to Replay Analysis"
                 setUIState={props.setUIState}           
+                notCloseable
             />
             <DefaultTaskpaneBody>
                 {((props.invalidReplayError === PRE_REPLAY_IMPORT_ERROR_TEXT && !allErrorsUpdated) || (props.invalidReplayError !== undefined && props.invalidReplayError !== PRE_REPLAY_IMPORT_ERROR_TEXT)) && 
@@ -126,51 +129,57 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
                                     }
                                 })}
                             }
-                            tooltip={"This will start a new, blank mitosheet."} // TODO: this text is awful
+                            tooltip={"This will start a new analysis with no steps in this mitosheet."}
                         >
-                            Restart Analysis
+                            Start New Analysis
                         </TextButton>
                     </Col>
                     <Col span={12}>
                         <TextButton 
                             variant="dark"
                             onClick={async () => {
-                                
-                                if (props.updatedStepImportData === undefined) {
-                                    return
-                                }
-                                const _invalidImportIndexes = await props.mitoAPI.getTestImports(props.updatedStepImportData);
-                                if (_invalidImportIndexes === undefined) {
-                                    return;
-                                }
-                                props.setPostUpdateInvalidImportMessages(_invalidImportIndexes);
 
-                                // If there are no invalid indexes, then we can update. Since this is
-                                // pre replay, we are replaying the analysis
-                                if (Object.keys(_invalidImportIndexes).length === 0) {
-
-                                    props.setInvalidReplayError(undefined) // Clear the error
-
-                                    const replayAnalysisError = await props.mitoAPI.updateReplayAnalysis(props.failedReplayData.analysisName, props.updatedStepImportData);
-                                    // If there is an error replaying the analysis, we know it is not with 
-                                    if (isMitoError(replayAnalysisError)) {
-                                        props.setInvalidReplayError(getErrorTextFromToFix(replayAnalysisError.to_fix))
-                                    } else {
-                                        props.setUIState((prevUIState) => {
-                                            return {
-                                                ...prevUIState,
-                                                currOpenTaskpane: {type: TaskpaneType.NONE}
-                                            }
-                                        })
+                                const doUpdate = async () => {
+                                    if (props.updatedStepImportData === undefined) {
+                                        return
                                     }
-                                    
+                                    const _invalidImportIndexes = await props.mitoAPI.getTestImports(props.updatedStepImportData);
+                                    if (_invalidImportIndexes === undefined) {
+                                        return;
+                                    }
+                                    props.setPostUpdateInvalidImportMessages(_invalidImportIndexes);
+
+                                    // If there are no invalid indexes, then we can update. Since this is
+                                    // pre replay, we are replaying the analysis
+                                    if (Object.keys(_invalidImportIndexes).length === 0) {
+
+                                        props.setInvalidReplayError(undefined) // Clear the error
+
+                                        const replayAnalysisError = await props.mitoAPI.updateReplayAnalysis(props.failedReplayData.analysisName, props.updatedStepImportData);
+                                        // If there is an error replaying the analysis, we know it is not with 
+                                        if (isMitoError(replayAnalysisError)) {
+                                            props.setInvalidReplayError(getErrorTextFromToFix(replayAnalysisError.to_fix))
+                                        } else {
+                                            props.setUIState((prevUIState) => {
+                                                return {
+                                                    ...prevUIState,
+                                                    currOpenTaskpane: {type: TaskpaneType.NONE}
+                                                }
+                                            })
+                                        }
+                                    }
                                 }
+
+                                setLoadingUpdate(true);
+                                await doUpdate();
+                                setLoadingUpdate(false);
+
                             }}
                             disabled={retryButtonDisabled}
                             disabledTooltip={retryButtonDisabled ? "Please resolve all errors with above imports." : undefined}
                         >
                             <p>
-                                Retry With Updated Imports
+                                {!loadingUpdate ? "Retry With Updated Imports" : "Updating Imports..."}
                             </p>
                         </TextButton>
                     </Col>

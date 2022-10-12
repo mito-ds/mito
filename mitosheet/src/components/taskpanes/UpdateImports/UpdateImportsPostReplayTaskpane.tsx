@@ -1,9 +1,9 @@
-import React from "react";
-import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
+import React, { useState } from "react";
 import MitoAPI from "../../../jupyter/api";
-import { UIState } from "../../../types";
+import { SheetData, UIState } from "../../../types";
 import { isMitoError } from "../../../utils/errors";
 import TextButton from "../../elements/TextButton";
+import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
@@ -17,6 +17,7 @@ import { getErrorTextFromToFix, getOriginalAndUpdatedDataframeCreationDataPairs 
 
 interface UpdateImportPostReplayTaskpaneProps {
     mitoAPI: MitoAPI;
+    sheetDataArray: SheetData[];
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
 
     updatedStepImportData: StepImportData[] | undefined;
@@ -46,40 +47,49 @@ interface UpdateImportPostReplayTaskpaneProps {
 */
 const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpaneProps): JSX.Element => {
 
-    // TODO: move this to the master taskpane!
-    const [originalStepImportData] = useStateFromAPIAsync(
-        undefined,
-        () => {return props.mitoAPI.getImportedFilesAndDataframesFromCurrentSteps()},
-        (loadedData) => {
-            // We default the prevUpdatedStepImportData to be the the original import data, if it's undefined
-            if (loadedData !== undefined && props.updatedStepImportData === undefined) {
-                props.setUpdatedStepImportData(loadedData)
-            }
-        },
-        []
-    )
-    
-    // We create an import card for each of the dataframes created within the original imports
-    const originalAndUpdatedDataframeCreationPairs = getOriginalAndUpdatedDataframeCreationDataPairs(originalStepImportData, props.updatedStepImportData);
-    const updateImportCards = originalAndUpdatedDataframeCreationPairs.map(([originalDfCreationData, updatedDfCreationData], index) => {
-        return (
-            <ImportCard 
-                key={index}
-                dataframeCreationIndex={index}
-                dataframeCreationData={originalDfCreationData}
-                isUpdated={props.updatedIndexes.includes(index)}
-                updatedDataframeCreationData={updatedDfCreationData}
-                displayedImportCardDropdown={props.displayedImportCardDropdown}
-                setDisplayedImportCardDropdown={props.setDisplayedImportCardDropdown}
-                setReplacingDataframeState={props.setReplacingDataframeState}
-                preUpdateInvalidImportMessage={undefined}
-                postUpdateInvalidImportMessage={props.invalidImportMessages[index]}
-            />
+    const [loadingUpdate, setLoadingUpdate] = useState(false);
+
+    let updateImportBody: React.ReactNode = null;
+    if (props.importDataAndErrors === undefined) {
+        updateImportBody = (
+            <p>Loading previously imported data...</p>
         )
-    })
+    } else {
+
+        // Show a different empty taskpane message depending if you passed a dataframe or not
+        if ((props.importDataAndErrors?.importData.length || 0) === 0 && props.sheetDataArray.length === 0) {
+            return <DefaultEmptyTaskpane setUIState={props.setUIState} message='Before changing imports, you need to import something.'/>
+        } else if ((props.importDataAndErrors?.importData.length || 0) === 0) {
+            return <DefaultEmptyTaskpane header='Update passed dataframes' setUIState={props.setUIState} message='You can change imports by changing the data passed to the mitosheet.sheet call above.' suppressImportLink/>
+
+        }
+
+        // We create an import card for each of the dataframes created within the original imports
+        const originalAndUpdatedDataframeCreationPairs = getOriginalAndUpdatedDataframeCreationDataPairs(props.importDataAndErrors?.importData || [], props.updatedStepImportData);
+        updateImportBody = originalAndUpdatedDataframeCreationPairs.map(([originalDfCreationData, updatedDfCreationData], index) => {
+            return (
+                <ImportCard 
+                    key={index}
+                    dataframeCreationIndex={index}
+                    dataframeCreationData={originalDfCreationData}
+                    isUpdated={props.updatedIndexes.includes(index)}
+                    updatedDataframeCreationData={updatedDfCreationData}
+                    displayedImportCardDropdown={props.displayedImportCardDropdown}
+                    setDisplayedImportCardDropdown={props.setDisplayedImportCardDropdown}
+                    setReplacingDataframeState={props.setReplacingDataframeState}
+                    preUpdateInvalidImportMessage={undefined}
+                    postUpdateInvalidImportMessage={props.invalidImportMessages[index]}
+                />
+            )
+        })
+    }
+    
+   
 
     const anyUpdated = props.updatedIndexes.length > 0;
     const invalidPostUpdate = Object.keys(props.invalidImportMessages).length > 0;
+
+    const retryButtonDisabled = !anyUpdated || invalidPostUpdate || loadingUpdate;
 
     return (
         <DefaultTaskpane>
@@ -93,43 +103,48 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
                         {props.invalidReplayError}
                     </p>
                 }
-                {updateImportCards}
+                {updateImportBody}
             </DefaultTaskpaneBody>
             <DefaultTaskpaneFooter>
                 <TextButton 
                     variant="dark"
                     onClick={async () => {
-                        
-                        if (props.updatedStepImportData === undefined) {
-                            return
-                        }
-                        const _invalidImportIndexes = await props.mitoAPI.getTestImports(props.updatedStepImportData);
-                        if (_invalidImportIndexes === undefined) {
-                            return;
-                        }
-                        props.setInvalidImportMessages(_invalidImportIndexes);
+                        const doUpdate = async () => {
+                            if (props.updatedStepImportData === undefined) {
+                                return
+                            }
+                            const _invalidImportIndexes = await props.mitoAPI.getTestImports(props.updatedStepImportData);
+                            if (_invalidImportIndexes === undefined) {
+                                return;
+                            }
+                            props.setInvalidImportMessages(_invalidImportIndexes);
 
-                        // If there are no invalid indexes, then we can update. Since this is
-                        // post replay, we are updating the existing imports
-                        if (Object.keys(_invalidImportIndexes).length === 0) {
-                            const possibleMitoError = await props.mitoAPI.updateExistingImports(props.updatedStepImportData);
-                            if (isMitoError(possibleMitoError)) {
-                                props.setInvalidReplayError(getErrorTextFromToFix(possibleMitoError.to_fix))
-                            } else {
-                                props.setUIState((prevUIState) => {
-                                    return {
-                                        ...prevUIState,
-                                        currOpenTaskpane: {type: TaskpaneType.NONE}
-                                    }
-                                })
+                            // If there are no invalid indexes, then we can update. Since this is
+                            // post replay, we are updating the existing imports
+                            if (Object.keys(_invalidImportIndexes).length === 0) {
+                                const possibleMitoError = await props.mitoAPI.updateExistingImports(props.updatedStepImportData);
+                                if (isMitoError(possibleMitoError)) {
+                                    props.setInvalidReplayError(getErrorTextFromToFix(possibleMitoError.to_fix))
+                                } else {
+                                    props.setUIState((prevUIState) => {
+                                        return {
+                                            ...prevUIState,
+                                            currOpenTaskpane: {type: TaskpaneType.NONE}
+                                        }
+                                    })
+                                }
                             }
                         }
+
+                        setLoadingUpdate(true);
+                        await doUpdate();
+                        setLoadingUpdate(false);
                     }}
-                    disabled={!anyUpdated || invalidPostUpdate}
-                    disabledTooltip={(!anyUpdated || invalidPostUpdate) ? "Please resolve all errors with above imports." : undefined}
+                    disabled={retryButtonDisabled}
+                    disabledTooltip={(retryButtonDisabled) ? "Please resolve all errors with above imports." : undefined}
                 >
                     <p>
-                        Change Imports
+                        {!loadingUpdate ? "Change Imports" : "Changing Imports..."}
                     </p>
                 </TextButton>
             </DefaultTaskpaneFooter>

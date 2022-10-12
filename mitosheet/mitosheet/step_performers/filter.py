@@ -94,7 +94,7 @@ class FilterStepPerformer(StepPerformer):
         filters: Any = get_param(params, 'filters')
 
         raise_error_if_column_ids_do_not_exist(
-            cls.step_type(),
+            'filter',
             prev_state,
             sheet_index,
             column_id

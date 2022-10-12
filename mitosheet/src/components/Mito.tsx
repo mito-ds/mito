@@ -226,7 +226,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             ...prevUIState,
                             currOpenTaskpane: {
                                 type: TaskpaneType.UPDATEIMPORTS,
-                                failedReplayAnalysisOnImports: {
+                                failedReplayData: {
                                     analysisName: analysisToReplayName,
                                     error: error
                                 }
@@ -732,6 +732,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
             case TaskpaneType.UPDATEIMPORTS: return (
                 <UpdateImportsTaskpane
                     mitoAPI={props.mitoAPI}
+                    sheetDataArray={sheetDataArray}
                     setUIState={setUIState}
                     userProfile={userProfile}
                     analysisData={analysisData}
@@ -739,7 +740,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     currPathParts={currPathParts}
                     setCurrPathParts={setCurrPathParts}
     
-                    failedReplayData={uiState.currOpenTaskpane.failedReplayAnalysisOnImports}
+                    failedReplayData={uiState.currOpenTaskpane.failedReplayData}
                 />
             )
 

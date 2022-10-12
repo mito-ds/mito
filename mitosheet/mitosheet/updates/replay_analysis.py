@@ -53,7 +53,6 @@ def overwrite_import_data(analysis: Dict[str, Any], step_import_data_list_to_ove
             num_imports_in_step = len(get_import_data_with_single_import_list(step_type, params))
             for i in range(num_imports_in_step):
                 import_data_index = import_number + i
-                print(import_data_index, all_imports[import_data_index])
                 new_step_data = deepcopy(step_data)
                 new_step_data['step_type'] = all_imports[import_data_index]['step_type']
                 new_step_data['params'] = all_imports[import_data_index]['params']

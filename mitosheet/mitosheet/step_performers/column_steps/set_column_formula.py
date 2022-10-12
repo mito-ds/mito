@@ -66,7 +66,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         new_formula: str = get_param(params, 'new_formula')
 
         raise_error_if_column_ids_do_not_exist(
-            cls.step_type(),
+            'set column formula',
             prev_state,
             sheet_index,
             column_id

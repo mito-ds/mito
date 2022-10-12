@@ -43,7 +43,7 @@ def get_test_imports(params: Dict[str, Any], steps_manager: StepsManagerType) ->
                 if not executed:
                     invalid_import_indexes[index] = get_import_error_for_step_type(_import['step_type'])
             except MitoError as e:
-                invalid_import_indexes[index] = e.to_fix + ' Please select a different file or dataframe.'
+                invalid_import_indexes[index] = e.to_fix
             except:
                 invalid_import_indexes[index] = get_import_error_for_step_type(_import['step_type'])
 

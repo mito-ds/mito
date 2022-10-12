@@ -35,7 +35,7 @@ class DeleteColumnStepPerformer(StepPerformer):
         column_ids: List[ColumnID] = get_param(params, 'column_ids')
 
         raise_error_if_column_ids_do_not_exist(
-            cls.step_type(),
+            'delete column',
             prev_state,
             sheet_index,
             column_ids

@@ -51,14 +51,16 @@ export enum UpdateType {
     Redo = 'redo',
     Clear = 'clear',
     ArgsUpdate = 'args_update',
-    SaveAnalysisUpdate ='save_analysis_update',
+    SaveAnalysisUpdate = 'save_analysis_update',
     ReplayAnalysisUpdate = 'replay_analysis_update',
     CheckoutStepByIdxUpdate = 'checkout_step_by_idx_update',
     AppendUserFieldUpdate = 'append_user_field_update',
     SetUserFieldUpdate = 'set_user_field_update',
     UpdateFeedbackv2ObjObject = 'update_feedback_v2_obj_update',
     GoPro = 'go_pro',
-    RenderCountUpdate = 'render_count_update'
+    RenderCountUpdate = 'render_count_update',
+    ChecklistUpdate = 'checklist_update',
+    UpdateExistingImportUpdate = 'update_existing_import_update',
 }
 
 /**

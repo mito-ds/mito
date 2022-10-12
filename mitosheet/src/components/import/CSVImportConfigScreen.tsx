@@ -235,7 +235,7 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
             />
             <DefaultTaskpaneBody noScroll>
                 {props.error !== undefined &&
-                    <p className='text-color-error'> This import configuration is invalid. Please select a delimiter and encoding, or skip invalid lines.</p>
+                    <p className='text-color-error'> {props.error} </p>
                 }
                 <Row justify='space-between' align='center' title={DELIMETER_TOOLTIP}>
                     <Col>

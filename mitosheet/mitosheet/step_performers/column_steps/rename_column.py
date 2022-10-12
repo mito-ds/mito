@@ -42,7 +42,7 @@ class RenameColumnStepPerformer(StepPerformer):
         level: int = get_param(params, 'new_column_header')
 
         raise_error_if_column_ids_do_not_exist(
-            cls.step_type(),
+            'rename column',
             prev_state,
             sheet_index,
             column_id

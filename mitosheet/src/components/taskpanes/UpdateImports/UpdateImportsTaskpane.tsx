@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
 import MitoAPI from "../../../jupyter/api";
-import { AnalysisData, MitoError, UIState, UserProfile } from "../../../types";
+import { AnalysisData, MitoError, SheetData, UIState, UserProfile } from "../../../types";
 import CSVImportConfigScreen, { CSVImportParams } from "../../import/CSVImportConfigScreen";
 import { DataframeImportParams } from "../../import/DataframeImportScreen";
 import FileBrowser from "../../import/FileBrowser/FileBrowser";
@@ -17,6 +17,7 @@ import { getErrorTextFromToFix, isCSVImportParams, isDataframeImportParams, isEx
 
 interface UpdateImportsTaskpaneProps {
     mitoAPI: MitoAPI;
+    sheetDataArray: SheetData[],
     userProfile: UserProfile;
     analysisData: AnalysisData;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
@@ -131,6 +132,7 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
 
     const [invalidReplayError, setInvalidReplayError] = useState<string | undefined>(undefined);
 
+
     if (replacingDataframeState === undefined) {
         if (props.failedReplayData !== undefined) {
             return (
@@ -164,6 +166,7 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
             return (
                 <UpdateImportsPostReplayTaskpane
                     mitoAPI={props.mitoAPI}
+                    sheetDataArray={props.sheetDataArray}
                     setUIState={props.setUIState}
 
                     updatedStepImportData={updatedStepImportData}
@@ -188,7 +191,10 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 />
             )
         }
-    } else if (replacingDataframeState.importState.screen === 'file_browser') {
+    } 
+
+    const importState = replacingDataframeState.importState;    
+    if (importState.screen === 'file_browser') {
         return (
             <FileBrowser
                 mitoAPI={props.mitoAPI}
@@ -258,10 +264,10 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 }}
             />
         )
-    } else if (replacingDataframeState.importState.screen === 'csv_import_config') {
+    } else if (importState.screen === 'csv_import_config') {
         const params = isCSVImportParams(replacingDataframeState.params)
             ? replacingDataframeState.params
-            : getDefaultCSVParams(replacingDataframeState.importState.filePath)
+            : getDefaultCSVParams(importState.filePath)
 
         return (
             <CSVImportConfigScreen
@@ -270,8 +276,8 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 setUIState={props.setUIState}
                 isUpdate={true}
             
-                fileName={replacingDataframeState.importState.fileName}
-                filePath={replacingDataframeState.importState.filePath}
+                fileName={importState.fileName}
+                filePath={importState.filePath}
             
                 params={params}
                 setParams={(updater) => {
@@ -286,7 +292,39 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                         }
                     })
                 }}
-                edit={() => {
+                edit={async () => {
+                    // First, check that this is valid
+                    const dataframeCreationData: DataframeCreationData = {
+                        'step_type': 'simple_import',
+                        'params': params
+                    }
+
+                    // First, check that this is a valid import
+                    const indexToErrorMap = await props.mitoAPI.getTestImports([{
+                        'step_id': 'fake_id',
+                        'imports': [dataframeCreationData]
+                    }])
+
+                    // if it's not a valid import, then we send the user to the CSV config screen
+                    if (indexToErrorMap === undefined || Object.keys(indexToErrorMap).length > 0) {
+                        // Get the new error message. So that the user is always reminded if this is
+                        // invalid, we keep appending "Still invalid." to the end of the error so that the user
+                        // knows this is still invalid. This is kinda silly, but an ok hack for now.
+                        const newError = indexToErrorMap !== undefined ? indexToErrorMap[0] : undefined;
+                        const finalError = newError && importState.error?.startsWith(newError)  ? `${importState.error} Still invalid.` : newError;
+
+                        setReplacingDataframeState({
+                            'importState': {
+                                ...importState,
+                                error: finalError
+                            },
+                            'params': undefined,
+                            'dataframeCreationIndex': replacingDataframeState.dataframeCreationIndex
+                        })
+                        return;
+                    }
+
+
                     updateDataframeCreation(
                         replacingDataframeState.dataframeCreationIndex,
                         {
@@ -301,7 +339,7 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 }}
                 editApplied={false}
                 loading={false}
-                error={replacingDataframeState.importState.error}
+                error={importState.error}
             
                 backCallback={() => {
                     setReplacingDataframeState(undefined);

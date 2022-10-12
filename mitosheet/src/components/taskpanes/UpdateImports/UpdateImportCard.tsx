@@ -12,21 +12,25 @@ import { getBaseOfPath } from './updateImportsUtils';
 
 export const getUpdateImportCardTitle = (dataframeCreationData: DataframeCreationData): JSX.Element => {
     if (dataframeCreationData.step_type === 'excel_import') {
+        const sheetName = dataframeCreationData.params.sheet_names[0];
+        const fileName = getBaseOfPath(dataframeCreationData.params.file_name);
         return (
             <div>
-                <span className='text-color-medium-gray-important'>Imported </span> {dataframeCreationData.params.sheet_names[0]} <span className='text-color-medium-gray-important'>from </span> {getBaseOfPath(dataframeCreationData.params.file_name)}
+                <span className='text-color-medium-gray-important'>Imported </span> <span title={sheetName}>{sheetName}</span> <span className='text-color-medium-gray-important'>from </span> <span title={fileName}>{fileName}</span>
             </div>
         )
     } else if (dataframeCreationData.step_type === 'simple_import') {
+        const fileName = getBaseOfPath(dataframeCreationData.params.file_names[0]);
         return (
             <div>
-                <span className='text-color-medium-gray-important'>Imported </span> {getBaseOfPath(dataframeCreationData.params.file_names[0])}
+                <span className='text-color-medium-gray-important'>Imported </span> <span title={fileName}>{fileName}</span>
             </div>
         )
     } else {
+        const dfName = dataframeCreationData.params.df_names[0];
         return (
             <div>
-                <span className='text-color-medium-gray-important'>Imported </span> {dataframeCreationData.params.df_names[0]}
+                <span className='text-color-medium-gray-important'>Imported </span> <span title={dfName}>{dfName}</span>
             </div>
         )
     }
@@ -37,7 +41,7 @@ export const getUpdateImportCardSubtitle = (updatedDataframeCreationData: Datafr
     if (!isUpdated) {
         if (invalidImportMessage !== undefined) {
             return (
-                <div>
+                <div className='mt-3px'>
                     <span className='text-color-error-important text-overflow-wrap'>{invalidImportMessage}</ span>
                 </div>
             )
@@ -50,21 +54,21 @@ export const getUpdateImportCardSubtitle = (updatedDataframeCreationData: Datafr
         const sheetName = updatedDataframeCreationData.params.sheet_names[0];
         const fileName = getBaseOfPath(updatedDataframeCreationData.params.file_name);
         return (
-            <div>
+            <div className='mt-3px'>
                 <span className='text-color-medium-gray-important'>Update to </span> <span title={sheetName}>{sheetName}</span> <span className='text-color-medium-gray-important'>from </span> <span title={fileName}>{fileName}</span>
             </div>
         )
     } else if (updatedDataframeCreationData.step_type === 'simple_import') {
         const fileName = getBaseOfPath(updatedDataframeCreationData.params.file_names[0]);
         return (
-            <div>
+            <div className='mt-3px'>
                 <span className='text-color-medium-gray-important'>Update to </span> <span title={fileName}>{fileName}</span>
             </div>
         )
     } else {
         const dfName = updatedDataframeCreationData.params.df_names[0];
         return (
-            <div>
+            <div className='mt-3px'>
                 <span className='text-color-medium-gray-important'>Update to </span> <span title={dfName}>{dfName}</span>
             </div>
         )
@@ -108,7 +112,9 @@ const UpdateImportCard = (props: {
         <Row justify='space-between' align='top' onClick={() => {openDropdown()}}>
             <Col span={22}>
                 <Row align='top'>
-                    <CSVFileIcon />
+                    <div className='mt-1px'>
+                        <CSVFileIcon />
+                    </div>
                     <Col span={22} offset={.25}>
                         {getUpdateImportCardTitle(props.dataframeCreationData)}
                         {getUpdateImportCardSubtitle(props.updatedDataframeCreationData, props.preUpdateInvalidImportMessage, props.isUpdated)}
@@ -122,7 +128,7 @@ const UpdateImportCard = (props: {
                     </Row>                
                 }
             </Col>
-            <Col>
+            <Col className='mt-3px'>
                 <div>
                     <RightPointerIcon />
                     <Dropdown 

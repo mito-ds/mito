@@ -61,7 +61,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
         new_dtype: str = get_param(params, 'new_dtype')
 
         raise_error_if_column_ids_do_not_exist(
-            cls.step_type(),
+            'change column dtype',
             prev_state,
             sheet_index,
             column_id

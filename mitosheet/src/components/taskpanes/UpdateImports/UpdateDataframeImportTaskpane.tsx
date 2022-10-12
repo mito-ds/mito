@@ -12,6 +12,7 @@ import DefaultTaskpane from "../../taskpanes/DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../../taskpanes/DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneFooter from "../../taskpanes/DefaultTaskpane/DefaultTaskpaneFooter";
 import DefaultTaskpaneHeader from "../../taskpanes/DefaultTaskpane/DefaultTaskpaneHeader";
+import Spacer from "../../layout/Spacer";
 
 
 interface UpdateDataframeImportTaskpaneProps {
@@ -71,7 +72,7 @@ const UpdateDataframeImportScreen = (props: UpdateDataframeImportTaskpaneProps):
     if (props.params === undefined) {
         return (
             <div className='text-body-1'>
-                There has been an error loading dataframes to import. Please try again, or contact support.
+                There has been an error loading dataframes to import. Please try again, or <a className='text-body-1-link' href='https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg' target='_blank' rel="noreferrer">contact support</a>.
             </div>
         )
     }
@@ -99,6 +100,7 @@ const UpdateDataframeImportScreen = (props: UpdateDataframeImportTaskpaneProps):
                     </Col>
                 </Row>
                 {radioButtonBox}
+                <Spacer px={10}/>
             </DefaultTaskpaneBody>
             <DefaultTaskpaneFooter>
                 <TextButton
