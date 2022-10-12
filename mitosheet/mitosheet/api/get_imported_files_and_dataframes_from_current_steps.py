@@ -33,37 +33,34 @@ def get_import_data_with_single_import_list(step_type: str, params: Dict[str, An
     with the data on the frontend.
     """
     if step_type == SimpleImportStepPerformer.step_type():
-        for index, file_name in enumerate(params['file_names']):
-            return [{
-                'step_type': step_type,
-                'params': {
-                    'file_names': [file_name],
-                    'delimeters': get_sublist_at_index_from_optional_list(params.get('delimeters', None), index),
-                    'encodings': get_sublist_at_index_from_optional_list(params.get('encodings', None), index),
-                    'error_bad_lines': get_sublist_at_index_from_optional_list(params.get('error_bad_lines', None), index)
-                }
-            }]
+        return [{
+            'step_type': step_type,
+            'params': {
+                'file_names': [file_name],
+                'delimeters': get_sublist_at_index_from_optional_list(params.get('delimeters', None), index),
+                'encodings': get_sublist_at_index_from_optional_list(params.get('encodings', None), index),
+                'error_bad_lines': get_sublist_at_index_from_optional_list(params.get('error_bad_lines', None), index)
+            }
+        } for index, file_name in enumerate(params['file_names'])]
 
     if step_type == ExcelImportStepPerformer.step_type():
-        for index, sheet_name in enumerate(params['sheet_names']):
-            return [{
-                'step_type': step_type,
-                'params': {
-                    'file_name': params['file_name'],
-                    'sheet_names': [sheet_name],
-                    'has_headers': params['has_headers'],
-                    'skiprows': params['skiprows']
-                }
-            }]
+        return [{
+            'step_type': step_type,
+            'params': {
+                'file_name': params['file_name'],
+                'sheet_names': [sheet_name],
+                'has_headers': params['has_headers'],
+                'skiprows': params['skiprows']
+            }
+        } for sheet_name in params['sheet_names']]
 
     if step_type == DataframeImportStepPerformer.step_type():
-        for index, df_name in enumerate(params['df_names']):
-            return [{
-                'step_type': step_type,
-                'params': {
-                    'df_names': [df_name],
-                }
-            }]
+        return [{
+            'step_type': step_type,
+            'params': {
+                'df_names': [df_name],
+            }
+        } for df_name in params['df_names']]
 
     return []
 
