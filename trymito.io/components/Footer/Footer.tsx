@@ -3,6 +3,7 @@ import Image from "next/image"
 import footerStyle from './Footer.module.css'
 import pageStyle from '../../styles/Page.module.css'
 import { MITO_GITHUB_LINK } from '../GithubButton/GithubButton';
+import { MITO_INSTALLATION_DOCS_LINK } from '../Header/Header';
 
 const Footer = (): JSX.Element => {
 
@@ -38,13 +39,13 @@ const Footer = (): JSX.Element => {
                         <a href={MITO_GITHUB_LINK} target="_blank" rel="noreferrer">GitHub</a>
                     </li>
                     <li className='text-nav'>
-                        <a href='https://docs.trymito.io/getting-started/installing-mito' target="_blank" rel="noreferrer">Install</a>
+                        <a href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer">Install</a>
                     </li>
                     <li className='text-nav'>
                         <Link href='/security'>Security</Link>
                     </li>
                     <li className='text-nav'>
-                        <a href='https://discord.gg/XdJSZyejJU' target="_blank" rel="noreferrer">Support</a>
+                        <a href='https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg' target="_blank" rel="noreferrer">Support</a>
                     </li>
                 </div>
                 <div className='flex-column'>
@@ -63,6 +64,9 @@ const Footer = (): JSX.Element => {
                     <li className='text-nav'>
                         <a href='https://discord.gg/XdJSZyejJU' target="_blank" rel="noreferrer">Discord</a>
                     </li>
+                    <li className='text-nav'>
+                        <a href='https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg' target="_blank" rel="noreferrer">Slack</a>
+                    </li>
                 </div>
                 <div className='flex-column'>
                     <ol>
@@ -78,7 +82,7 @@ const Footer = (): JSX.Element => {
                         <a href='https://www.youtube.com/channel/UCN9o_0m1fwCjigfIpnKr0oA/videos' target="_blank" rel="noreferrer">YouTube</a>
                     </li>
                     <li className='text-nav'>
-                        <a href='https://discord.gg/XdJSZyejJU' target="_blank" rel="noreferrer">Contact</a>
+                        <a href='https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg' target="_blank" rel="noreferrer">Contact</a>
                     </li>
                 </div>
             </div>

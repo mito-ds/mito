@@ -355,6 +355,18 @@ def make_invalid_filter_error(filter_value: Any, correct_type: str) -> MitoError
         f'Sorry, the value {filter_value} is not a valid value for that {correct_type} filter. Please enter a value {correct_format}!'
     )
 
+def make_duplicated_column_headers_error(duplicated_headers: List[ColumnHeader]) -> ValueError:
+    """
+    Helper function for creating a invalid_filter_error.
+
+    Occurs when:
+    - A user tries to pass a column with duplicated column headers
+    """
+
+    return ValueError(
+        f'The column headers {duplicated_headers} are duplicated in the dataframe. Please only pass dataframes with unique column names.'
+    )
+
 def make_invalid_sort_error(column_header: ColumnHeader) -> MitoError:
     """
     Helper function for creating a invalid_sort_error.

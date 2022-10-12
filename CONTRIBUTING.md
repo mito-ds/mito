@@ -6,13 +6,13 @@ When contributing to Mito, first make sure that the changes you wish to make are
 
 ## Communication
 
-If you're thinking of contributing to Mito, join our [discord](https://discord.gg/XdJSZyejJU).
+If you're thinking of contributing to Mito, join our [discord](https://discord.gg/XdJSZyejJU) or [slack](https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg).
 
 ## Issue Policy
 
 We track issues so that we can fix them! As such, having organized and well-structured issues is really helpful in making Mito better. To help us accomplish this, please keep the following in mind:
 
-- If you have an issue installing Mito, please make a post in the `#install-help` Discord channel rather than opening an issue, as it will allow us to help you more quickly.
+- If you have an issue installing Mito, please make a post in the `#install-help` [Discord](https://discord.gg/XdJSZyejJU) or [Slack](https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg) channel rather than opening an issue, as it will allow us to help you more quickly.
 - If you run into an issue with Mito that is specific to data you are using Mito with, **try and include a sample of the data in the issue**. For example, if Mito gives you an error while renaming a specific column in your dataset, upload enough of the dataframe that we can replicate this (make sure it's not private data!).
 
 
@@ -43,7 +43,7 @@ Nobody is perfect when they are writing code, least of all us. That being said, 
 
 ### I've submitted a PR and it passes CI. When can I expect to get some review feedback?
 
-We aim to review all outstanding PRs within the week they are posted, and will do our best to get to them quicker if possible. If a week has passed without any feedback, consider posting in our Discord!
+We aim to review all outstanding PRs within the week they are posted, and will do our best to get to them quicker if possible. If a week has passed without any feedback, consider posting in our [Discord](https://discord.gg/XdJSZyejJU) or [Slack](https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg)!
 
 ### Who maintains Mito?
 

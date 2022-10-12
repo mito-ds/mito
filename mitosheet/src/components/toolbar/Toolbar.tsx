@@ -8,7 +8,8 @@ import { Action, ActionEnum, AnalysisData, EditorState, GridState, SheetData, UI
 import { getColumnFormatDropdownItems } from '../../utils/format';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
-import { getSelectedNumberSeriesColumnIDs } from '../endo/selectionUtils';
+import { getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs } from '../endo/selectionUtils';
+import { getDtypeSelectOptions } from '../taskpanes/ControlPanel/FilterAndSortTab/DtypeCard';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import OpenOnboardingChecklist from './OpenChecklistButton';
 import PlanButton from './PlanButton';
@@ -40,9 +41,9 @@ const Toolbar = (
         sheetData: SheetData;
         userProfile: UserProfile;
         setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
-        analysisData: AnalysisData
-    }): JSX.Element => {
-    
+        analysisData: AnalysisData,
+        sheetIndex: number
+    }): JSX.Element => {    
 
     return (
         <div className='toolbar-container'>
@@ -151,12 +152,16 @@ const Toolbar = (
                         disabledTooltip={props.actions[ActionEnum.Import_Dropdown].isDisabled()}
                     >
                         <Dropdown
-                            display={props.uiState.displayImportToolbarDropdown}
+                            display={props.uiState.toolbarDropdown === 'import'}
                             closeDropdown={() => 
                                 props.setUIState(prevUIState => {
+                                    if (prevUIState.toolbarDropdown !== 'import') {
+                                        return prevUIState;
+                                    }
+
                                     return {
                                         ...prevUIState,
-                                        displayImportToolbarDropdown: false
+                                        toolbarDropdown: undefined
                                     }
                                 })
                             }
@@ -204,7 +209,34 @@ const Toolbar = (
                         action={props.actions[ActionEnum.Change_Dtype]}
                         setEditorState={props.setEditorState}
                         disabledTooltip={props.actions[ActionEnum.Change_Dtype].isDisabled()}
-                    />
+                    >  
+                        <Dropdown
+                            display={props.uiState.toolbarDropdown === 'dtype'}
+                            closeDropdown={() => 
+                                props.setUIState(prevUIState => {
+                                    if (prevUIState.toolbarDropdown !== 'dtype') {
+                                        return prevUIState;
+                                    }
+
+                                    return {
+                                        ...prevUIState,
+                                        toolbarDropdown: undefined
+                                    }
+                                })
+                            }
+                            width='medium'
+                            
+                        >
+                            {getDtypeSelectOptions((newDtype => {
+                                const selectedColumnIDs = getSelectedColumnIDsWithEntireSelectedColumn(props.gridState.selections, props.sheetData);
+                                void props.mitoAPI.editChangeColumnDtype(
+                                    props.sheetIndex,
+                                    selectedColumnIDs,
+                                    newDtype
+                                )
+                            }))}
+                        </Dropdown>
+                    </ToolbarButton>
                     <div className="toolbar-vertical-line"></div>
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.LESS}
@@ -226,12 +258,16 @@ const Toolbar = (
                         disabledTooltip={props.actions[ActionEnum.Format_Number_Columns].isDisabled()}
                     >
                         <Dropdown
-                            display={props.uiState.displayFormatToolbarDropdown}
+                            display={props.uiState.toolbarDropdown === 'format'}
                             closeDropdown={() => 
                                 props.setUIState(prevUIState => {
+                                    if (prevUIState.toolbarDropdown !== 'format') {
+                                        return prevUIState;
+                                    }
+
                                     return {
                                         ...prevUIState,
-                                        displayFormatToolbarDropdown: false
+                                        toolbarDropdown: undefined
                                     }
                                 })
                             }

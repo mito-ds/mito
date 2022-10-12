@@ -63,11 +63,11 @@ interface TextButtonProps {
     className?: string
 
     /**
-        * @param [tooltip] -- Messaage to display as tooltip on button. Has lower priority than the disabledTooltip
+        * @param [tooltip] -- Message to display as tooltip on button. Has lower priority than the disabledTooltip
     */
     tooltip?: string
     /**
-        * @param [disabledTooltip] -- Messaage to display as tooltip when button is disabled 
+        * @param [disabledTooltip] -- Message to display as tooltip when button is disabled 
     */
     disabledTooltip?: string
 }

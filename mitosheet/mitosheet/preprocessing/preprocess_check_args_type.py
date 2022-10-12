@@ -3,8 +3,10 @@
 
 # Copyright (c) Mito.
 # Distributed under the terms of the Modified BSD License.
+import collections
 from typing import Any, Dict, Collection, List, Optional, Tuple
 import pandas as pd
+from mitosheet.errors import make_duplicated_column_headers_error
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.preprocessing.preprocess_step_performer import \
     PreprocessStepPerformer
@@ -39,6 +41,12 @@ class CheckArgsTypePreprocessStepPerformer(PreprocessStepPerformer):
                 error_message = f'Invalid argument passed to sheet: {arg}. Please pass all dataframes or paths to CSV files.'
                 log('mitosheet_sheet_call_failed', {'error': error_message}, failed=True)
                 raise ValueError(error_message)
+
+            # We also validate there are no duplicated headers in dataframes
+            if isinstance(arg, pd.DataFrame):
+                duplicated_headers = [item for item, count in collections.Counter(arg.columns).items() if count > 1]
+                if len(duplicated_headers) > 0:
+                    raise make_duplicated_column_headers_error(duplicated_headers)
         
         # We do filter out all the None arguments
         return [arg for arg in args if arg is not None], None

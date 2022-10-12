@@ -138,3 +138,10 @@ def test_sheet_json_holds_all_columns():
         assert sheet_data['columnFiltersMap'][str(i)] is not None
         assert sheet_data['columnIDsMap'][str(i)] is not None
         assert sheet_data['columnDtypeMap'][str(i)] is not None
+
+@pandas_post_1_only
+def test_throws_duplicated_column_error():
+    with pytest.raises(ValueError) as e_info:
+        df = pd.DataFrame(columns=['A', 'A'])
+        sheet(df)
+    assert 'A' in str(e_info)

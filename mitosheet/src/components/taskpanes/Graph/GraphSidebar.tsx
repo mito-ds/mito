@@ -67,6 +67,7 @@ const GraphSidebar = (props: {
 
     const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
     const graphOutput = props.graphDataDict[graphID]?.graphOutput
+    const graphTabName = props.graphDataDict[graphID]?.graphTabName;
     const [loading, setLoading] = useState<boolean>(false)
 
     const [selectedGraphSidebarTab, setSelectedGraphSidebarTab] = useState<GraphSidebarTab>(GraphSidebarTab.Setup)
@@ -255,6 +256,7 @@ const GraphSidebar = (props: {
                         }
                         {selectedGraphSidebarTab === GraphSidebarTab.Export && 
                             <GraphExportTab 
+                                graphTabName={graphTabName}
                                 graphParams={graphParams}
                                 mitoAPI={props.mitoAPI}
                                 loading={loading}

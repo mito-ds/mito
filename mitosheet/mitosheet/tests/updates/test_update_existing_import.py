@@ -321,7 +321,7 @@ def test_test_import_returns_good_data():
         }
     ]}, mito.mito_widget.steps_manager))
 
-    assert result["1"] == CSV_IMPORT_ERROR
-    assert result["3"] == EXCEL_IMPORT_ERROR
+    assert result["1"] == 'no such file does not exist.'
+    assert result["3"] == 'fake_file does not exist.'
     assert result["5"] == DATAFRAME_IMPORT_ERROR
     assert len(result) == 3

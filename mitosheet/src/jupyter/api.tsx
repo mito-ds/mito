@@ -1125,7 +1125,7 @@ export default class MitoAPI {
     */
     async editChangeColumnDtype(
         sheetIndex: number,
-        columnID: ColumnID,
+        columnIDs: ColumnID[],
         newDtype: string,
         stepID?: string
     ): Promise<string> {
@@ -1139,7 +1139,7 @@ export default class MitoAPI {
             'step_id': stepID,
             'params': {
                 'sheet_index': sheetIndex,
-                'column_id': columnID,
+                'column_ids': columnIDs,
                 'new_dtype': newDtype
             }
         }, {});

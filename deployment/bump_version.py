@@ -50,8 +50,11 @@ def version_string_to_tuple(version_string: str) -> Tuple[int, int, int]:
 
 def get_next_version(package: str, on_dev: bool) -> Tuple[int, int, int]:
     last_pypi_version = get_pypi_version(package, on_dev=on_dev)
+    print("Current pypi version", last_pypi_version)
     (x, y, z) = version_string_to_tuple(last_pypi_version)
-    return (x, y, z + 1)
+    new_version = (x, y, z + 1)
+    print("New version", new_version)
+    return new_version
 
 def bump_version_mitoinstaller(on_dev: bool) -> None:
     with open('mitoinstaller/__init__.py', 'r+') as f:
@@ -83,6 +86,8 @@ def bump_version(package: str, deploy_location: str, new_version: Tuple[int, int
 
     if new_version is None:
         new_version = get_next_version(package, on_dev)
+
+    print("new version", new_version)
 
     # We just need to change the version in the package.json
     with open('package.json', 'r+') as f:

@@ -231,7 +231,7 @@ def test_all_other_steps_after_pivot():
 
     # Run all the other steps
     mito.set_cell_value(1, 'Name', 0, 'Dork')
-    mito.change_column_dtype(1, 'Height min', 'string')
+    mito.change_column_dtype(1, ['Height min'], 'string')
     mito.add_column(1, 'A')
     mito.add_column(1, 'B')
     mito.delete_columns(1, ['B'])

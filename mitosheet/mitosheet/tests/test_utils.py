@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
 from mitosheet.step_performers.import_steps.dataframe_import import get_variable_with_name_from_caller
 from mitosheet.step_performers.graph_steps.plotly_express_graphs import DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT, DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT, DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT
-from numpy import bool_, number
+from numpy import number
 
 import pandas as pd
 from mitosheet.mito_widget import MitoWidget, sheet
@@ -746,11 +746,11 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def change_column_dtype(self, sheet_index: int, column_header: ColumnHeader, new_dtype: str) -> bool:
+    def change_column_dtype(self, sheet_index: int, column_headers: List[ColumnHeader], new_dtype: str) -> bool:
 
-        column_id = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
+        column_ids = self.mito_widget.steps_manager.curr_step.column_ids.get_column_ids_by_headers(
             sheet_index,
-            column_header
+            column_headers
         )
 
         return self.mito_widget.receive_message(
@@ -762,7 +762,7 @@ class MitoWidgetTestWrapper:
                 'step_id': get_new_id(),
                 'params': {
                     'sheet_index': sheet_index,
-                    'column_id': column_id,
+                    'column_ids': column_ids,
                     'new_dtype': new_dtype
                 }
             }

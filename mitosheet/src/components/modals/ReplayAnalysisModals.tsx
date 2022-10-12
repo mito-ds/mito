@@ -2,7 +2,7 @@
 
 import React, { Fragment, useState } from 'react';
 import MitoAPI from '../../jupyter/api';
-import { DISCORD_INVITE_LINK } from '../../data/documentationLinks';
+import { SLACK_INVITE_LINK } from '../../data/documentationLinks';
 import { overwriteAnalysisToReplayToMitosheetCall } from '../../jupyter/jupyterUtils';
 import { MitoError, UIState } from '../../types';
 import DefaultModal from '../DefaultModal';
@@ -58,7 +58,7 @@ const ErrorReplayedAnalysisModal = (
                     <TextButton
                         variant='light'
                         width='medium'
-                        href={DISCORD_INVITE_LINK}
+                        href={SLACK_INVITE_LINK}
                         target='_blank'
                     >
                         Get Support

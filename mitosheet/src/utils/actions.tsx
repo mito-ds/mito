@@ -7,7 +7,7 @@ import { ModalEnum } from "../components/modals/modals";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
 import { getDefaultGraphParams } from "../components/taskpanes/Graph/graphUtils";
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
-import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
+import { SLACK_INVITE_LINK } from "../data/documentationLinks";
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../data/function_documentation";
 import { Action, DFSource, EditorState, GridState, SheetData, UIState, ActionEnum, AnalysisData, DataframeFormat } from "../types"
 import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
@@ -107,9 +107,7 @@ export const createActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                        selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
-                        selectedTabType: 'data'
+                        toolbarDropdown: 'dtype'
                     }
                 })
             },
@@ -484,7 +482,7 @@ export const createActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        displayFormatToolbarDropdown: true
+                        toolbarDropdown: 'format'
                     }
                 })
             },
@@ -572,12 +570,12 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
 
-                // Open discord
-                window.open(DISCORD_INVITE_LINK, '_blank')
+                // Open slack
+                window.open(SLACK_INVITE_LINK, '_blank')
             },
             isDisabled: () => {return undefined},
-            searchTerms: ['help', 'contact', 'support'],
-            tooltip: "Join our Discord for more help."
+            searchTerms: ['help', 'contact', 'support', 'slack', 'discord'],
+            tooltip: "Join our Slack for more help."
         },
         [ActionEnum.Import_Dropdown]: {
             type: ActionEnum.Import_Dropdown,
@@ -593,7 +591,7 @@ export const createActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        displayImportToolbarDropdown: true
+                        toolbarDropdown: 'import'
                     }
                 })
             },

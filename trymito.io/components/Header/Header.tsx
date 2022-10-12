@@ -7,6 +7,7 @@ import CloseButton from '../../public/CloseButton.png'
 import TranslucentButton from "../TranslucentButton/TranslucentButton"
 import GithubButton, { MITO_GITHUB_LINK } from "../GithubButton/GithubButton"
 
+export const MITO_INSTALLATION_DOCS_LINK = 'https://docs.trymito.io/getting-started/installing-mito'
 
 const Header = (): JSX.Element => {
 
@@ -47,7 +48,7 @@ const Header = (): JSX.Element => {
                 text='Star on Github'
               />              
               <TranslucentButton
-                href='https://github.com/mito-ds/monorepo'
+                href={MITO_INSTALLATION_DOCS_LINK}
               >
                 <>
                   Install
