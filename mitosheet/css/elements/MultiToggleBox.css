@@ -1,10 +1,10 @@
-.mutli-toggle-box-container {
+.multi-toggle-box-container {
     display: flex;
     flex-direction: column;
 }
 
 /* Avoid some strange JNotebook overwrites */
-.mutli-toggle-box-container * input[type="checkbox"] {
+.multi-toggle-box-container * input[type="checkbox"] {
     margin: 3px;
 }
 

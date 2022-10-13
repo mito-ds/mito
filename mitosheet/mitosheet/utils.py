@@ -7,6 +7,7 @@
 Contains helpful utility functions
 """
 import json
+from random import randint
 import re
 import uuid
 from typing import Any, Dict, List, Optional, Set, Tuple
@@ -333,6 +334,9 @@ def get_random_id() -> str:
 
 def get_new_id() -> str:
     return str(uuid.uuid4())
+
+def create_step_id() -> str:
+    return '_' + str(randint(10**9, 10**10-1))
 
 
 def run_command(command_array: List[str]) -> Tuple[str, str]:

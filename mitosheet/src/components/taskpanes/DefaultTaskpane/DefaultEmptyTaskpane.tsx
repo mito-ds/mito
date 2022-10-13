@@ -18,7 +18,9 @@ import DefaultTaskpaneHeader from './DefaultTaskpaneHeader';
 const DefaultEmptyTaskpane = (
     props: {
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
-        message?: string
+        header?: string,
+        message?: string,
+        suppressImportLink?: boolean
     }): JSX.Element => {
 
     const openImportTaskpane = () => {
@@ -33,13 +35,17 @@ const DefaultEmptyTaskpane = (
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader
-                header='Import data first'
+                header={props.header !== undefined ? props.header : 'Import data first'}
                 setUIState={props.setUIState}   
             />
             <DefaultTaskpaneBody>
                 <p className='text-body-1 text-overflow-wrap'>
                     {props.message ? props.message : 'Before performing that action, you need to import data into Mito.'}
-                    {' '}<span className='text-body-1-link' onClick={openImportTaskpane}>Click here to import data.</span>
+                    {props.suppressImportLink !== true && 
+                        <>
+                            {' '}<span className='text-body-1-link' onClick={openImportTaskpane}>Click here to import data.</span>
+                        </>
+                    }
                 </p>
             </DefaultTaskpaneBody>
         </DefaultTaskpane>

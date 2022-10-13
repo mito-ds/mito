@@ -10,7 +10,7 @@ import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.change_column_dtype_code_chunk import ChangeColumnDtypeCodeChunk
 
-from mitosheet.errors import get_recent_traceback, make_invalid_column_type_change_error
+from mitosheet.errors import get_recent_traceback, make_invalid_column_type_change_error, raise_error_if_column_ids_do_not_exist
 from mitosheet.sheet_functions.types import to_int_series
 from mitosheet.sheet_functions.types.to_boolean_series import to_boolean_series
 from mitosheet.sheet_functions.types.to_float_series import to_float_series
@@ -66,6 +66,13 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
         column_ids: List[ColumnID] = get_param(params, 'column_ids')
         old_dtypes: Dict[ColumnID, str] = get_param(params, 'old_dtypes')
         new_dtype: str = get_param(params, 'new_dtype')
+
+        raise_error_if_column_ids_do_not_exist(
+            'change column dtype',
+            prev_state,
+            sheet_index,
+            column_ids
+        )
 
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
         pandas_processing_time: float = 0

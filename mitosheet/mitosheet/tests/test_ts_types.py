@@ -193,3 +193,12 @@ def test_graph_safety_filter_cutoff_matches():
     )
 
     assert int(graph_safety_filter_cutoff) == GRAPH_SAFETY_FILTER_CUTOFF
+
+
+def test_update_events_enum_defined():
+    update_types = get_enum_from_ts_file("./src/types.tsx", "UpdateType")
+    from mitosheet.updates import UPDATES
+
+    for UPDATE in UPDATES:
+        assert UPDATE['event_type'] in update_types.values()
+

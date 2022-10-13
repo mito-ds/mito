@@ -1,5 +1,7 @@
+import MitoAPI from "../../../jupyter/api";
 import { fuzzyMatch } from "../../../utils/strings";
-import { FileElement, ImportTaskpaneState } from "./ImportTaskpane";
+import { FileBrowserState } from "../../import/FileBrowser/FileBrowserBody";
+import { FileElement } from "./FileImportTaskpane";
 
 const PARENT_FOLDER_NAME = 'Parent Folder';
 
@@ -68,7 +70,7 @@ export const getInvalidFileError = (selectedElement: FileElement, excelImportEna
     and also the message to display on the button based on which
     element is selected.
 */
-export const getImportButtonStatus = (selectedElement: FileElement | undefined, excelImportEnabled: boolean, loadingImport: boolean): {disabled: boolean, buttonText: string} => {
+export const getImportButtonStatus = (selectedElement: FileElement | undefined, excelImportEnabled: boolean, loadingImport: boolean, isUpdate: boolean): {disabled: boolean, buttonText: string} => {
     if (selectedElement === undefined) {
         return {
             disabled: true,
@@ -95,9 +97,10 @@ export const getImportButtonStatus = (selectedElement: FileElement | undefined, 
             buttonText: 'Importing...'
         };
     }
+
     return {
         disabled: false,
-        buttonText: 'Import ' + selectedElement.name
+        buttonText: (!isUpdate ? 'Import ' : 'Update to ') + selectedElement.name
     };
 }
 
@@ -105,7 +108,7 @@ export const isExcelFile = (element: FileElement | undefined): boolean => {
     return element !== undefined && !element?.isDirectory && element?.name.toLowerCase().endsWith('.xlsx');
 }
 
-export const getElementsToDisplay = (importState: ImportTaskpaneState): FileElement[] => {
+export const getElementsToDisplay = (importState: FileBrowserState): FileElement[] => {
 
     const allElements: FileElement[] = [...importState.pathContents.elements];
 
@@ -149,4 +152,15 @@ export const getElementsToDisplay = (importState: ImportTaskpaneState): FileElem
 export const inRootFolder = (pathParts: string[]): boolean => {
     pathParts = pathParts.filter(pathPart => pathPart !== '')
     return pathParts.length === 1 && (pathParts[0] === '/' || pathParts[0] === '\\');
+}
+
+
+export const getFilePath = async (mitoAPI: MitoAPI, pathParts: string[], file: FileElement | undefined): Promise<string | undefined> => {
+    const fullPath = [...pathParts];
+    if (file === undefined) {
+        return;
+    }
+    fullPath.push(file?.name)
+
+    return await mitoAPI.getPathJoined(fullPath);
 }

@@ -42,8 +42,4 @@ def get_df_names() -> Dict[str, pd.DataFrame]:
 
 
 def get_defined_df_names(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
-    
-
-    return json.dumps({
-        	'df_names': get_df_names(),
-    })
+    return json.dumps(get_df_names())

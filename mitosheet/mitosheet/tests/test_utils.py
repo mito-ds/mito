@@ -11,7 +11,7 @@ import json
 from functools import wraps
 from typing import Any, Dict, List, Optional, Tuple, Union
 from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
-from mitosheet.step_performers.dataframe_import import get_variable_with_name_from_caller
+from mitosheet.step_performers.import_steps.dataframe_import import get_variable_with_name_from_caller
 from mitosheet.step_performers.graph_steps.plotly_express_graphs import DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT, DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT, DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT
 from numpy import number
 
@@ -940,7 +940,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def replay_analysis(self, analysis_name: str) -> bool:
+    def replay_analysis(self, analysis_name: str, step_import_data_list_to_overwrite: List[Dict[str, Any]]=None) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
             {
@@ -949,6 +949,7 @@ class MitoWidgetTestWrapper:
                 'type': 'replay_analysis_update',
                 'params': {
                     'analysis_name': analysis_name,
+                    'step_import_data_list_to_overwrite': step_import_data_list_to_overwrite if step_import_data_list_to_overwrite is not None else []
                 },
             }
         )
@@ -1176,6 +1177,18 @@ class MitoWidgetTestWrapper:
             }
         )
 
+    def update_existing_imports(self, updated_import_objs: List[Dict[str, Any]]) -> bool:
+        return self.mito_widget.receive_message(
+            self.mito_widget,
+            {
+                'event': 'update_event',
+                'type': 'update_existing_import_update',
+                'id': get_new_id(),
+                'params': {
+                    'updated_step_import_data_list': updated_import_objs
+                }
+            }
+        )
 
     def get_formula(self, sheet_index: int, column_header: ColumnHeader) -> str:
         """

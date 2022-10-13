@@ -257,7 +257,7 @@ export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines
 
 
 
-export const writeEmptyMitosheetCell = () => {
+export const writeEmptyMitosheetCell = (): void => {
     // Create a new cell below the active code cell
     (window as any).Jupyter?.notebook?.insert_cell_below();
     (window as any).Jupyter?.notebook?.select_next();

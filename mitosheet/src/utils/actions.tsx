@@ -40,6 +40,10 @@ export const createActions = (
     const startingColumnID = columnID;
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
 
+    // If the replay analysis taskpane is open due to a failed replay analysis, we pretty much disable all actions
+    // as the user needs to resolve these errors or start a new analysis
+    const disabledDueToReplayAnalysis = uiState.currOpenTaskpane.type === TaskpaneType.UPDATEIMPORTS && uiState.currOpenTaskpane.failedReplayData !== undefined;
+    const defaultActionDisabledMessage = disabledDueToReplayAnalysis ? 'Please resolve issues with the failed replay analysis before making further edits.' : undefined;
 
     /*
         All of the actions that can be taken from the Action Search Bar. 
@@ -76,7 +80,7 @@ export const createActions = (
                     newColumnHeaderIndex
                 );
             },
-            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no dataframes to add columns to. Import data.'},
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to add columns to. Import data.'},
             searchTerms: ['add column', 'add col', 'new column', 'new col', 'insert column', 'insert col'],
             tooltip: "Add a new formula column to the right of your selection."
         },
@@ -113,7 +117,7 @@ export const createActions = (
                     return 'There are no columns to change the dtype of. Import data.';
                 } 
 
-                return undefined;
+                return defaultActionDisabledMessage;
             },
             searchTerms: ['change dtype', 'dtype', 'cast', 'boolean', 'string', 'number', 'float', 'int', 'datetime', 'date', 'timedelta'],
             tooltip: "Cast the dtype of your data column to a string, int, float, boolean, datetime, or timedelta."
@@ -139,7 +143,7 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return undefined},
+            isDisabled: () => {return defaultActionDisabledMessage},
             searchTerms: ['clear', 'reset', 'undo', 'redo'],
             tooltip: "Removes all of the transformations you've made to imported dataframes."
         },
@@ -161,7 +165,7 @@ export const createActions = (
                 })
             },
             isDisabled: () => {
-                return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? undefined : 'There are no columns to summarize in the selected sheet. Add data to the sheet.'
+                return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to summarize in the selected sheet. Add data to the sheet.'
             },
             searchTerms: ['column summary', 'describe', 'stats'],
             tooltip: "Learn about the distribution of the data in the selected column."
@@ -198,7 +202,7 @@ export const createActions = (
                 });
             },
             isDisabled: () => {
-                return getDataframeIsSelected(uiState, sheetDataArray) ? undefined : "There is no selected data to copy."
+                return getDataframeIsSelected(uiState, sheetDataArray) ? defaultActionDisabledMessage : "There is no selected data to copy."
             },
             searchTerms: ['copy', 'paste', 'export'],
             tooltip: "Copy the current selection to the clipboard.",
@@ -237,7 +241,7 @@ export const createActions = (
 
                 if (doesColumnExist(startingColumnID, sheetIndex, sheetDataArray)) {
                     if (isSelectionsOnlyColumnHeaders(gridState.selections)) {
-                        return undefined
+                        return defaultActionDisabledMessage
                     } else {
                         return "The selection contains individual cells. Click on column headers to select entire columns only."
                     }
@@ -270,7 +274,7 @@ export const createActions = (
 
             },
             isDisabled: () => {
-                return getDataframeIsSelected(uiState, sheetDataArray) ? undefined : "There is no selected dataframe to delete."
+                return getDataframeIsSelected(uiState, sheetDataArray) ? defaultActionDisabledMessage : "There is no selected dataframe to delete."
             },
             searchTerms: ['delete', 'delete dataframe', 'delete sheet', 'del', 'del dataframe', 'del sheet', 'remove', 'remove dataframe', 'remove sheet'],
             tooltip: "Delete the selected sheet."
@@ -285,7 +289,7 @@ export const createActions = (
                 }
             },
             isDisabled: () => {
-                return getGraphIsSelected(uiState) ? undefined : "There is no selected graph to delete."
+                return getGraphIsSelected(uiState) ? defaultActionDisabledMessage : "There is no selected graph to delete."
             },
             searchTerms: ['delete', 'delete graph', 'delete chart', 'del', 'del chart', 'del chart', 'remove', 'remove chart', 'remove graph'],
             tooltip: "Delete the selected graph."
@@ -303,7 +307,7 @@ export const createActions = (
             isDisabled: () => {
                 const rowsToDelete = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
                 if (rowsToDelete.length > 0) {
-                    return undefined;
+                    return defaultActionDisabledMessage;
                 }
                 return "There are no selected rows to delete."
             },
@@ -348,7 +352,7 @@ export const createActions = (
                 })
             },
             isDisabled: () => {
-                return doesAnySheetExist(sheetDataArray) ? undefined : "There are no dataframes to operate on. Import data."
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : "There are no dataframes to operate on. Import data."
             },
             searchTerms: ['dedup', 'deduplicate', 'same', 'remove', 'drop duplicates', 'duplicates'],
             tooltip: "Remove duplicated rows from your dataframe."
@@ -364,7 +368,7 @@ export const createActions = (
                 await mitoAPI.editDataframeDuplicate(sheetIndex)
             },
             isDisabled: () => {
-                return getDataframeIsSelected(uiState, sheetDataArray) ? undefined : 'There is no selected dataframe to duplicate.'
+                return getDataframeIsSelected(uiState, sheetDataArray) ? defaultActionDisabledMessage : 'There is no selected dataframe to duplicate.'
             },
             searchTerms: ['duplicate', 'copy'],
             tooltip: "Make a copy of the selected sheet."
@@ -383,7 +387,7 @@ export const createActions = (
                 }
             },
             isDisabled: () => {
-                return getGraphIsSelected(uiState) ? undefined : 'There is no selected graph to duplicate.'
+                return getGraphIsSelected(uiState) ? defaultActionDisabledMessage : 'There is no selected graph to duplicate.'
             },
             searchTerms: ['duplicate', 'copy', 'graph'],
             tooltip: "Make a copy of the selected graph."
@@ -409,7 +413,7 @@ export const createActions = (
                 })
             },
             isDisabled: () => {
-                return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no dataframes to export. Import data.'
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to export. Import data.'
             },
             searchTerms: ['export', 'download', 'excel', 'csv'],
             tooltip: "Download dataframes as a .csv or .xlsx file."
@@ -436,7 +440,7 @@ export const createActions = (
                 })
             },
             isDisabled: () => {
-                return doesAnySheetExist(sheetDataArray) ? undefined : 'There is no dataframe to fill nan values within.'
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There is no dataframe to fill nan values within.'
             },
             searchTerms: ['fill nan', 'nan', 'find', 'replace', 'null', 'undefined', 'fill null', 'fill undefined', 'empty', 'none', 'blank'],
             tooltip: "Fill all NaN values within a dataframe or list of columns."
@@ -459,7 +463,7 @@ export const createActions = (
                 })
             },
             isDisabled: () => {
-                return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? undefined : 'There are no columns to filter in the selected sheet. Add data to the sheet.'
+                return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to filter in the selected sheet. Add data to the sheet.'
             },
             searchTerms: ['filter', 'remove', 'delete'],
             tooltip: "Filter this dataframe based on the data in a column."
@@ -488,7 +492,7 @@ export const createActions = (
                     return 'There are no columns to format. Import data.'
                 }
                 
-                return getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData).length > 0 ? undefined : FORMAT_DISABLED_MESSAGE
+                return getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData).length > 0 ? defaultActionDisabledMessage : FORMAT_DISABLED_MESSAGE
             },
             searchTerms: ['format', 'decimals', 'percent', '%', 'scientific', 'Mill', 'Bill', 'round'],
             tooltip: "Format all of the selected columns as percents, choose the number of decimals, etc. This only changes the display of the data, and does not effect the underlying dataframe."
@@ -555,7 +559,7 @@ export const createActions = (
                     undefined, 
                 );
             },
-            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no dataframes to graph. Import data.'},
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
             tooltip: "Create an interactive graph. Pick from bar charts, histograms, scatter plots, etc."
         },
@@ -592,7 +596,7 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return undefined},
+            isDisabled: () => {return defaultActionDisabledMessage},
             searchTerms: ['import', 'upload', 'new', 'excel', 'csv', 'add'],
             tooltip: "Import any .csv or well-formatted .xlsx file as a new sheet."
         },
@@ -616,7 +620,7 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return undefined},
+            isDisabled: () => {return defaultActionDisabledMessage},
             searchTerms: ['import', 'upload', 'new', 'excel', 'csv', 'add'],
             tooltip: "Import any .csv or well-formatted .xlsx file as a new sheet."
         },
@@ -638,7 +642,7 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return sheetDataArray.length >= 2 ? undefined : 'You need to import at least two dataframes before you can merge them.'},
+            isDisabled: () => {return sheetDataArray.length >= 2 ? defaultActionDisabledMessage : 'You need to import at least two dataframes before you can merge them.'},
             searchTerms: ['merge', 'join', 'vlookup', 'lookup', 'anti', 'diff', 'difference', 'unique'],
             tooltip: "Merge two dataframes together using a lookup, left, right, inner, or outer join. Or find the differences between two dataframes."
         },
@@ -660,7 +664,7 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return sheetDataArray.length >= 2 ? undefined : 'You need to import at least two dataframes before you can concatenate them.'},
+            isDisabled: () => {return sheetDataArray.length >= 2 ? defaultActionDisabledMessage : 'You need to import at least two dataframes before you can concatenate them.'},
             searchTerms: ['stack', 'merge', 'join', 'concat', 'concatenate', 'append'],
             tooltip: "Concatenate two or more dataframes by stacking them vertically on top of eachother."
         },
@@ -724,7 +728,7 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no sheets to pivot. Import data.'},
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no sheets to pivot. Import data.'},
             searchTerms: ['pivot', 'group', 'group by', 'summarize', 'aggregate'],
             tooltip: "Create a Pivot Table to summarise data by breaking the data into groups and calculating statistics about each group."
         },
@@ -748,7 +752,7 @@ export const createActions = (
                     return 'There are no columns to format. Import data.'
                 }
                 
-                return getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData).length > 0 ? undefined : FORMAT_DISABLED_MESSAGE;
+                return getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData).length > 0 ? defaultActionDisabledMessage : FORMAT_DISABLED_MESSAGE;
             },
             searchTerms: ['format', 'round', 'decimal', 'decimal places', 'fraction'],
             tooltip: "Decrease the number of decimal places that are displayed in the selected number columns." 
@@ -772,7 +776,7 @@ export const createActions = (
                     return 'There are no columns to format. Import data.'
                 }
                 
-                return getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData).length > 0 ? undefined : FORMAT_DISABLED_MESSAGE;
+                return getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData).length > 0 ? defaultActionDisabledMessage : FORMAT_DISABLED_MESSAGE;
             },
             searchTerms: ['format', 'round', 'decimal', 'decimal places', 'fraction'],
             tooltip: "Increase the number of decimal places that are displayed in the selected number columns." 
@@ -790,7 +794,7 @@ export const createActions = (
             isDisabled: () => {
                 const rowsToDelete = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
                 if (rowsToDelete.length > 0) {
-                    return undefined;
+                    return defaultActionDisabledMessage;
                 }
                 return "There is no selected row to promote to header."
             },
@@ -810,7 +814,7 @@ export const createActions = (
     
                 void mitoAPI.updateRedo();
             },
-            isDisabled: () => {return undefined},
+            isDisabled: () => {return defaultActionDisabledMessage},
             searchTerms: ['redo', 'undo'],
             tooltip: "Reapplies the last step that you undid, as long as you haven't made any edits since the undo.",
             displayKeyboardShortcuts: {
@@ -840,7 +844,7 @@ export const createActions = (
 
             },
             isDisabled: () => {
-                return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? undefined : 'There are no columns in the dataframe to rename. Add data to the dataframe.'
+                return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns in the dataframe to rename. Add data to the dataframe.'
             },
             searchTerms: ['rename', 'name', 'header'],
             tooltip: "Rename the selected column."
@@ -864,7 +868,7 @@ export const createActions = (
             isDisabled: () => {
                 // We check if any sheet exists, instead of the specific sheet because this event is often accessed
                 // very closely in time with switching the sheet indexes via double clicking. 
-                return getDataframeIsSelected(uiState, sheetDataArray) ? undefined : 'There is no selected dataframe to rename.'
+                return getDataframeIsSelected(uiState, sheetDataArray) ? defaultActionDisabledMessage : 'There is no selected dataframe to rename.'
             },
             searchTerms: ['rename', 'name'],
             tooltip: "Rename the selected sheet."
@@ -886,7 +890,7 @@ export const createActions = (
                 }
             },
             isDisabled: () => {
-                return getGraphIsSelected(uiState) ? undefined : 'There is not selected graph to rename.'
+                return getGraphIsSelected(uiState) ? defaultActionDisabledMessage : 'There is not selected graph to rename.'
             },
             searchTerms: ['rename', 'name', 'graph'],
             tooltip: "Rename the selected graph."
@@ -940,7 +944,7 @@ export const createActions = (
                     return "An entire column is selected. Select a single cell to edit."
                 }
 
-                return undefined
+                return defaultActionDisabledMessage
             },
             searchTerms: ['formula', 'function', 'edit', 'set', 'set formula', 'set column formula'],
             tooltip: "Update the value of a specific cell in a data column."
@@ -968,7 +972,7 @@ export const createActions = (
                     return 'There are no cells in the dataframe to set the formula of. Add data to the sheet.'
                 } 
 
-                return undefined
+                return defaultActionDisabledMessage;
             },
             searchTerms: ['formula', 'function', 'edit', 'set', 'set formula', 'set column formula'],
             tooltip: "Use one of Mito's spreadsheet formulas or basic math operators to set the column's values."
@@ -991,7 +995,7 @@ export const createActions = (
                 })
             },
             isDisabled: () => {
-                return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? undefined : 'There are no columns to sort in the selected sheet. Add data to the sheet.'
+                return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to sort in the selected sheet. Add data to the sheet.'
             },
             searchTerms: ['sort', 'ascending', 'descending', 'arrange'],
             tooltip: "Sort a column in ascending or descending order."
@@ -1011,7 +1015,7 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? undefined : 'There are no columns in the selected sheet. Add data to the sheet.'},
+            isDisabled: () => {return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns in the selected sheet. Add data to the sheet.'},
             searchTerms: ['split', 'extract', 'parse', 'column', 'splice', 'text', 'delimiter', 'comma', 'space', 'tab', 'dash'],
             tooltip: "Split a column on a delimiter to break it into multiple columns."
         },
@@ -1030,7 +1034,7 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return undefined},
+            isDisabled: () => {return defaultActionDisabledMessage},
             searchTerms: ['steps', 'history'],
             tooltip: "View a list of all the edits you've made to your data."
         },
@@ -1047,7 +1051,7 @@ export const createActions = (
         
                 void mitoAPI.updateUndo();
             },
-            isDisabled: () => {return undefined},
+            isDisabled: () => {return defaultActionDisabledMessage},
             searchTerms: ['undo', 'go back', 'redo'],
             tooltip: 'Undo the most recent edit.',
             displayKeyboardShortcuts: {
@@ -1073,7 +1077,7 @@ export const createActions = (
                 })
             },
             isDisabled: () => {
-                return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? undefined : 'There are no columns in the selected sheet. Add data to the sheet.'
+                return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns in the selected sheet. Add data to the sheet.'
             },
             searchTerms: ['unique values', 'values', 'toggle', 'filter'],
             tooltip: "See a list of unique values in the column, and toggle to filter them."
@@ -1094,7 +1098,7 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return undefined},
+            isDisabled: () => {return defaultActionDisabledMessage},
             searchTerms: ['pro', 'upgrade', 'mito pro', 'open source'],
             tooltip: "Upgrade to a Mito Pro account and get access to all of Mito Pro's functionality."
         },
@@ -1105,7 +1109,7 @@ export const createActions = (
             actionFunction: () => {
                 void mitoAPI.editTranspose(sheetIndex);
             },
-            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'Import data before transposing it'},
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'Import data before transposing it'},
             searchTerms: ['transpose', 'diagonal', 'rows and columns', 'flip', 'rotate'],
             tooltip: "Switches rows and columns in a dataframe"
         },
@@ -1125,7 +1129,7 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : "Import data before trying to unpivot it"},
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : "Import data before trying to unpivot it"},
             searchTerms: ['Melt', 'Unpivot'],
             tooltip: "Unpivot a DataFrame from wide to long format."
         },
@@ -1139,7 +1143,7 @@ export const createActions = (
                     void mitoAPI.editOneHotEncoding(sheetIndex, columnID);
                 }
             },
-            isDisabled: () => {return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? undefined : 'There are no columns in the selected sheet. Add data to the sheet.'},
+            isDisabled: () => {return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns in the selected sheet. Add data to the sheet.'},
             searchTerms: ['one-hot encoding', 'dummies', 'get dummies', 'categorical'],
             tooltip: "One Hot Encoding"
         },
@@ -1159,7 +1163,7 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'There are no data to format. Import data before formatting.'}, 
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no data to format. Import data before formatting.'}, 
             searchTerms: ['Set dataframe format', 'dataframe', 'format', 'color', 'color palette', 'border', 'highlight'],
             tooltip: "Change the styling of the header, rows, and border of the dataframe."
         },
@@ -1180,7 +1184,7 @@ export const createActions = (
                 })
             },
             isDisabled: () => {
-                return doesAnySheetExist(sheetDataArray) ? undefined : 'There is no data to format. Import data.';
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There is no data to format. Import data.';
             },
             searchTerms: ['formatting', 'conditional', 'color', 'background', 'highlight'],
             tooltip: "Set the background color and text color of the cell based on a condition."
@@ -1205,11 +1209,32 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return undefined}, // TODO
+            isDisabled: () => {return defaultActionDisabledMessage},
             searchTerms: ['Dataframe Import'],
             tooltip: "Dataframe Import"
         },
+        [ActionEnum.UPDATEIMPORTS]: {
+            type: ActionEnum.UPDATEIMPORTS,
+            shortTitle: 'Change imports',
+            longTitle: 'Change imported data',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenTaskpane: {type: TaskpaneType.UPDATEIMPORTS},
+                        selectedTabType: 'data'
+                    }
+                })
+            },
+            isDisabled: () => {return undefined},
+            searchTerms: ['update', 'imports', 'replay', 'refresh', 'change'],
+            tooltip: "Change imported data to rerun the same edits on new data."
+        },
         // AUTOGENERATED LINE: ACTION (DO NOT DELETE)
+    
     
         /*
             ** --------------------------- **

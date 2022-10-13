@@ -6,16 +6,14 @@
 
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
+
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.sort_code_chunk import SortCodeChunk
-
+from mitosheet.errors import (make_invalid_sort_error,
+                              raise_error_if_column_ids_do_not_exist)
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.errors import (
-    make_invalid_sort_error
-)
 from mitosheet.step_performers.utils import get_param
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
 from mitosheet.types import ColumnID
 
 # CONSTANTS USED IN THE SORT STEP ITSELF
@@ -42,6 +40,13 @@ class SortStepPerformer(StepPerformer):
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')
         sort_direction: str = get_param(params, 'sort_direction')
+
+        raise_error_if_column_ids_do_not_exist(
+            'sort',
+            prev_state,
+            sheet_index,
+            column_id
+        )
 
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
 

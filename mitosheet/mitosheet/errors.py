@@ -15,12 +15,10 @@ https://stackoverflow.com/questions/16138232/is-it-a-good-practice-to-use-try-ex
 """
 import re
 import traceback
-import collections
-from typing import Any, Collection, Iterable, List, Optional, Set
+from os.path import basename, normpath
+from typing import Any, Collection, Iterable, List, Optional, Set, Union
 
-import pandas as pd
-
-from mitosheet.types import ColumnHeader
+from mitosheet.types import ColumnHeader, ColumnID, StateType
 
 
 class MitoError(Exception):
@@ -40,6 +38,24 @@ class MitoError(Exception):
         self.to_fix = to_fix
         self.error_modal = error_modal
         self.traceback = get_recent_traceback() # record the most recent error when the error is created
+
+
+def raise_error_if_column_ids_do_not_exist(step_display_name: str, state: StateType, sheet_index: int, column_ids: Union[List[ColumnID], ColumnID], error_modal: bool=True) -> None:
+    df_name = state.df_names[sheet_index]
+
+    # Make sure it's a list, if the user just passes a column header
+    if not isinstance(column_ids, list):
+        column_ids = [column_ids]
+
+    for column_id in column_ids:
+        if column_id not in state.column_ids.column_id_to_column_header[sheet_index]:
+            raise MitoError(
+                'no_column_error',
+                'No Column Exists',
+                f'A {step_display_name} step failed. The column "{column_id}" does not exist in {df_name}.',
+                error_modal=error_modal
+            )
+
 
 def make_no_sheet_error(sheet_indexes: Set[int]) -> MitoError:
     """
@@ -444,6 +460,22 @@ def make_no_analysis_error(analysis_id: str, error_modal: bool=True) -> MitoErro
         error_modal=error_modal
     )
 
+def make_invalid_update_imports_error() -> MitoError:
+    """
+    Helper function for creating a invalid_update_imports_error.
+
+    Occurs when the user tries to update update the imports in an analysis in a way
+    that leads to no importing errors, but other errors as the structure of the data
+    has changed from the original dataset.
+    """
+    
+    return MitoError(
+        'invalid_update_imports_error', 
+        "Cannot update imports",
+        'The newly imported data does not have the same structure as the original data. Likely, a column used in the analysis is not part of the new data set.',
+        error_modal=False
+    )
+
 def make_invalid_promote_row_to_header(error_modal: bool=True) -> MitoError:
     """
     Helper function for creating a invalid_promote_row_to_header.
@@ -466,13 +498,38 @@ def make_invalid_simple_import_error(error_modal: bool=False) -> MitoError:
 
     Occurs when a user tries to simple import and it fails
     """
-    to_fix = f'We were unable to automatically determine a delimeter and encoding. Please select a delemeter and encoding.' 
+    to_fix = f'We were unable to automatically determine a delimiter and encoding. Update import to select a delimiter and encoding.' 
     
     return MitoError(
         'invalid_simple_import_error', 
         "Cannot Determine File Data",
         to_fix,
         error_modal=error_modal
+    )
+
+def make_file_not_found_error(file_name: str) -> MitoError:
+    """
+    Helper function for creating a file_not_found_error.
+
+    Occurs when a user tries to import a file that does not exist
+    """
+    
+    return MitoError(
+        'file_not_found_error', 
+        "File does not exist",
+        f'{basename(normpath(file_name))} does not exist.',
+        error_modal=False
+    )
+
+def make_dataframe_not_found_error(df_name: str) -> MitoError:
+    """
+    Occurs when a user tries to import a dataframe that does not exist
+    """
+    
+    return MitoError(
+        'dataframe_not_found_error', 
+        "File does not exist",
+        f'{df_name} is not defined.'
     )
 
 ARG_FULL_NAME = {

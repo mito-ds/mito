@@ -52,7 +52,7 @@ function GraphExportTab(
                     variant='dark'
                     onClick={copyShowGraphCode}
                     disabled={props.loading || props.graphOutput === undefined}
-                    title={'Click to copy code that creates graph and displays it in the notebook'}
+                    tooltip={'Click to copy code that creates graph and displays it in the notebook'}
                 >
                     {!showGraphCodeCopied
                         ? "Copy code that displays graph"
@@ -66,7 +66,7 @@ function GraphExportTab(
                     variant='dark'
                     onClick={copyExportHTMLGraphCode}
                     disabled={props.loading || props.graphOutput === undefined}
-                    title={'Click to copy code that creates graph and exports it as an html file'}
+                    tooltip={'Click to copy code that creates graph and exports it as an html file'}
                 >
                     {!exportHTMLGraphCodeCopied
                         ? "Copy code to create graph HTML file"
@@ -84,7 +84,7 @@ function GraphExportTab(
                         downloadLink?.click()
                     }}
                     disabled={props.loading || props.graphOutput === undefined}
-                    title={'Click to download graph as png'}
+                    tooltip={'Click to download graph as png'}
                 >
                     Download as PNG
                 </TextButton>
