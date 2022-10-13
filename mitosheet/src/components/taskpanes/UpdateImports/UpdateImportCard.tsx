@@ -10,27 +10,38 @@ import Row from '../../layout/Row';
 import { DataframeCreationData, ReplacingDataframeState } from './UpdateImportsTaskpane';
 import { getBaseOfPath } from './updateImportsUtils';
 
+const getFileNameSpanFromFilePath = (filePath: string): JSX.Element => {
+    const fileName = getBaseOfPath(filePath);
+    // NOTE: In any span that shows a file path, we always show the full path as the title, as that
+    // the users can figure out where the file is supposed to be
+    return (
+        <span title={filePath}>{fileName}</span>
+    )
+}
+
+const getSimpleNameSpan = (name: string): JSX.Element => {
+    return (<span title={name}>{name}</span>)
+}
+
+
+
 export const getUpdateImportCardTitle = (dataframeCreationData: DataframeCreationData): JSX.Element => {
     if (dataframeCreationData.step_type === 'excel_import') {
-        const sheetName = dataframeCreationData.params.sheet_names[0];
-        const fileName = getBaseOfPath(dataframeCreationData.params.file_name);
         return (
             <div>
-                <span className='text-color-medium-gray-important'>Imported </span> <span title={sheetName}>{sheetName}</span> <span className='text-color-medium-gray-important'>from </span> <span title={fileName}>{fileName}</span>
+                <span className='text-color-medium-gray-important'>Imported </span> {getSimpleNameSpan(dataframeCreationData.params.sheet_names[0])} <span className='text-color-medium-gray-important'>from </span> {getFileNameSpanFromFilePath(dataframeCreationData.params.file_name)}
             </div>
         )
     } else if (dataframeCreationData.step_type === 'simple_import') {
-        const fileName = getBaseOfPath(dataframeCreationData.params.file_names[0]);
         return (
             <div>
-                <span className='text-color-medium-gray-important'>Imported </span> <span title={fileName}>{fileName}</span>
+                <span className='text-color-medium-gray-important'>Imported </span> {getFileNameSpanFromFilePath(dataframeCreationData.params.file_names[0])}
             </div>
         )
     } else {
-        const dfName = dataframeCreationData.params.df_names[0];
         return (
             <div>
-                <span className='text-color-medium-gray-important'>Imported </span> <span title={dfName}>{dfName}</span>
+                <span className='text-color-medium-gray-important'>Imported </span> {getSimpleNameSpan(dataframeCreationData.params.df_names[0])}
             </div>
         )
     }
@@ -51,25 +62,21 @@ export const getUpdateImportCardSubtitle = (updatedDataframeCreationData: Datafr
 
 
     if (updatedDataframeCreationData.step_type === 'excel_import') {
-        const sheetName = updatedDataframeCreationData.params.sheet_names[0];
-        const fileName = getBaseOfPath(updatedDataframeCreationData.params.file_name);
         return (
             <div className='mt-3px'>
-                <span className='text-color-medium-gray-important'>Update to </span> <span title={sheetName}>{sheetName}</span> <span className='text-color-medium-gray-important'>from </span> <span title={fileName}>{fileName}</span>
+                <span className='text-color-medium-gray-important'>Update to </span> {getSimpleNameSpan(updatedDataframeCreationData.params.sheet_names[0])} <span className='text-color-medium-gray-important'>from </span> {getFileNameSpanFromFilePath(updatedDataframeCreationData.params.file_name)}
             </div>
         )
     } else if (updatedDataframeCreationData.step_type === 'simple_import') {
-        const fileName = getBaseOfPath(updatedDataframeCreationData.params.file_names[0]);
         return (
             <div className='mt-3px'>
-                <span className='text-color-medium-gray-important'>Update to </span> <span title={fileName}>{fileName}</span>
+                <span className='text-color-medium-gray-important'>Update to </span> {getFileNameSpanFromFilePath(updatedDataframeCreationData.params.file_names[0])}
             </div>
         )
     } else {
-        const dfName = updatedDataframeCreationData.params.df_names[0];
         return (
             <div className='mt-3px'>
-                <span className='text-color-medium-gray-important'>Update to </span> <span title={dfName}>{dfName}</span>
+                <span className='text-color-medium-gray-important'>Update to </span> {getSimpleNameSpan(updatedDataframeCreationData.params.df_names[0])}
             </div>
         )
     }

@@ -103,7 +103,7 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
             />
             <DefaultTaskpaneBody>
                 {((props.invalidReplayError === PRE_REPLAY_IMPORT_ERROR_TEXT && !allErrorsUpdated) || (props.invalidReplayError !== undefined && props.invalidReplayError !== PRE_REPLAY_IMPORT_ERROR_TEXT)) && 
-                    <p className="text-color-error text-overflow-wrap">
+                    <p className="text-color-error">
                         {props.invalidReplayError}
                     </p>
                 }

@@ -99,7 +99,7 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
             />
             <DefaultTaskpaneBody>
                 {props.invalidReplayError &&
-                    <p className="text-color-error text-overflow-wrap">
+                    <p className="text-color-error">
                         {props.invalidReplayError}
                     </p>
                 }
