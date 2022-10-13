@@ -58,7 +58,6 @@ def execute_update_existing_imports_update(steps_manager: StepsManagerType, upda
             e.error_modal = False
             raise e
         
-        from mitosheet.errors import make_invalid_update_imports_error
         raise make_invalid_update_imports_error()
 
     steps_manager.undone_step_list_store.append(("reset", old_steps))

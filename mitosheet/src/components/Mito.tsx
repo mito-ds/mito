@@ -211,14 +211,12 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 if (isMitoError(error)) {
                     /**
                      * If an analysis fails to replay, we open the update import pre replay 
-                     * taskpane with the error. There are two cases where the analysis failed
-                     * to replay:
+                     * taskpane with the error. The analysis either failed because an import
+                     * step failed, or some other step failed as the structure of the data 
+                     * changed. 
                      * 
-                     * 1. One of the import steps failed
-                     * 2. A step other than an import step failed
-                     * 
-                     * In the first case, we can give very specific error messages. In the case 
-                     * a different step has failed, we do our best to help the user!
+                     * In either case, we give the user the update import pre replay taskpane
+                     * so that they can hopefully resolve these issues.
                      */
                     setUIState(prevUIState => {
                         return {

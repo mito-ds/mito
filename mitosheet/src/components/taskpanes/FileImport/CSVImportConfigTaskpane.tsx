@@ -64,9 +64,6 @@ function CSVImportConfigTaskpane(props: CSVImportConfigTaskpaneProps): JSX.Eleme
             }}
         />
     )
-
-
-
 }
 
 export default CSVImportConfigTaskpane;

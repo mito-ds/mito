@@ -15,7 +15,7 @@ interface PlanButtonProps {
 // The component in the toolbar that either tells you are pro or asks you to upgrade
 const PlanButton = (props: PlanButtonProps): JSX.Element => {
 
-    const disabledDueToReplayAnalysis = props.uiState.currOpenTaskpane.type === TaskpaneType.UPDATEIMPORTS && props.uiState.currOpenTaskpane.failedReplayData !== undefined;;
+    const disabledDueToReplayAnalysis = props.uiState.currOpenTaskpane.type === TaskpaneType.UPDATEIMPORTS && props.uiState.currOpenTaskpane.failedReplayData !== undefined;
 
     return (
         <div 

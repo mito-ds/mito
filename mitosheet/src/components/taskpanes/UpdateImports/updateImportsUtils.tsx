@@ -61,7 +61,7 @@ export const updateDataframeCreation = (
     setUpdatedIndexes: React.Dispatch<React.SetStateAction<number[]>>,
     setInvalidImportMessages: React.Dispatch<React.SetStateAction<Record<number, string | undefined>>>,
     setReplacingDataframeState: React.Dispatch<React.SetStateAction<ReplacingDataframeState | undefined>>
-) => {
+): void => {
 
     // First, update the stepImportData
     setUpdatedStepImportData((prevUpdatedStepImportData) => {

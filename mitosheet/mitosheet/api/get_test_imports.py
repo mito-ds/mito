@@ -30,25 +30,21 @@ def get_test_imports(params: Dict[str, Any], steps_manager: StepsManagerType) ->
     Allows you to test the specific import steps, either by passing import steps
     or by passing an analysis name to check. 
     """
+    # Get imports and flatten then, so we can iterate over them easily
     updated_step_import_data_list: Any = params['updated_step_import_data_list']
-
+    all_imports = [_import for import_data in updated_step_import_data_list for _import in import_data['imports']]
 
     invalid_import_indexes: Dict[int, str] = dict()
-    index = 0
-    for step_import_data in updated_step_import_data_list:
-        imports = step_import_data['imports']
-
-        for _import in imports:
-            try:
-                step = Step(_import['step_type'], 'fake_id', _import["params"])
-                executed = step.set_prev_state_and_execute(steps_manager.steps_including_skipped[0].final_defined_state)
-                if not executed:
-                    invalid_import_indexes[index] = get_import_error_for_step_type(_import['step_type'])
-            except MitoError as e:
-                invalid_import_indexes[index] = e.to_fix
-            except:
+    for index, _import in enumerate(all_imports):
+        try:
+            step = Step(_import['step_type'], 'fake_id', _import["params"])
+            executed = step.set_prev_state_and_execute(steps_manager.steps_including_skipped[0].final_defined_state)
+            if not executed:
                 invalid_import_indexes[index] = get_import_error_for_step_type(_import['step_type'])
+        except MitoError as e:
+            invalid_import_indexes[index] = e.to_fix
+        except:
+            invalid_import_indexes[index] = get_import_error_for_step_type(_import['step_type'])
             
-            index += 1
 
     return json.dumps(invalid_import_indexes)

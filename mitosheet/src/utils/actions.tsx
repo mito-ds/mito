@@ -40,7 +40,8 @@ export const createActions = (
     const startingColumnID = columnID;
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
 
-
+    // If the replay analysis taskpane is open due to a failed replay analysis, we pretty much disable all actions
+    // as the user needs to resolve these errors or start a new analysis
     const disabledDueToReplayAnalysis = uiState.currOpenTaskpane.type === TaskpaneType.UPDATEIMPORTS && uiState.currOpenTaskpane.failedReplayData !== undefined;
     const defaultActionDisabledMessage = disabledDueToReplayAnalysis ? 'Please resolve issues with the failed replay analysis before making further edits.' : undefined;
 

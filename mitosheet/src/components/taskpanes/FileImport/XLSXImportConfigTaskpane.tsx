@@ -37,9 +37,6 @@ export const getDefaultXLSXParams = (filePath: string): ExcelImportParams => {
 */
 function XLSXImportConfigTaskpane(props: XLSXImportConfigTaskpaneProps): JSX.Element {
 
-
-    // NOTE: this loading state is just for getting the metadata about the sheets
-    // and not for importing the file
     const {params, setParams, loading, edit, editApplied} = useSendEditOnClick<ExcelImportParams, ExcelImportParams>(
         () => {return getDefaultXLSXParams(props.filePath)},
         StepType.ExcelImport,
