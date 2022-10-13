@@ -76,17 +76,11 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         column_headers = prev_state.dfs[sheet_index].keys()
 
         # Then we try and parse the formula
-        _, new_functions, new_dependencies_column_headers = parse_formula(
+        _, new_functions, _ = parse_formula(
             new_formula, 
             column_header,
             column_headers
         )
-        new_dependencies = set(prev_state.column_ids.get_column_ids(sheet_index, new_dependencies_column_headers))
-
-        # We check that the formula doesn't reference any columns that don't exist
-        missing_columns = new_dependencies.difference(prev_state.column_ids.get_column_ids(sheet_index))
-        if any(missing_columns):
-            raise make_no_column_error(missing_columns, error_modal=False)
 
         # The formula can only reference known formulas
         missing_functions = new_functions.difference(set(FUNCTIONS.keys()))
@@ -225,6 +219,8 @@ def exec_column_formula(post_state: State, df: pd.DataFrame, sheet_index: int, c
     Helper function for refreshing the column when the formula is set
     """
 
+    df_name = post_state.df_names[sheet_index]
+
     if spreadsheet_code == '':
         return
 
@@ -260,7 +256,12 @@ def exec_column_formula(post_state: State, df: pd.DataFrame, sheet_index: int, c
         # If we have a column header that does not exist in the formula, we may
         # throw a name error, in which case we alert the user
         column_header = str(e).split('\'')[1]
-        raise make_no_column_error({column_header})
+        raise MitoError(
+            'no_column_error',
+            'No Column Exists',
+            f'Setting a column formula failed. The column "{str(column_header)}" referenced in the formula does not exist in {df_name}.',
+            error_modal=True
+        )
     except Exception as e:
         # If this is the same formula as before, then it used to be valid and is not,
         # and so we let the user know they must have made some other change that made 

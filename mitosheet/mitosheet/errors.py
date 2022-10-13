@@ -40,7 +40,7 @@ class MitoError(Exception):
         self.traceback = get_recent_traceback() # record the most recent error when the error is created
 
 
-def raise_error_if_column_ids_do_not_exist(step_display_name: str, state: StateType, sheet_index: int, column_ids: Union[List[ColumnID], ColumnID]) -> None:
+def raise_error_if_column_ids_do_not_exist(step_display_name: str, state: StateType, sheet_index: int, column_ids: Union[List[ColumnID], ColumnID], error_modal: bool=True) -> None:
     df_name = state.df_names[sheet_index]
 
     # Make sure it's a list, if the user just passes a column header
@@ -52,7 +52,8 @@ def raise_error_if_column_ids_do_not_exist(step_display_name: str, state: StateT
             raise MitoError(
                 'no_column_error',
                 'No Column Exists',
-                f'A {step_display_name} step failed. The column "{column_id}" does not exist in {df_name}.'
+                f'A {step_display_name} step failed. The column "{column_id}" does not exist in {df_name}.',
+                error_modal=error_modal
             )
 
 
@@ -497,7 +498,7 @@ def make_invalid_simple_import_error(error_modal: bool=False) -> MitoError:
 
     Occurs when a user tries to simple import and it fails
     """
-    to_fix = f'We were unable to automatically determine a delimiter and encoding. Please select a delimiter and encoding.' 
+    to_fix = f'We were unable to automatically determine a delimiter and encoding. Update the import to select a delimiter and encoding.' 
     
     return MitoError(
         'invalid_simple_import_error', 
