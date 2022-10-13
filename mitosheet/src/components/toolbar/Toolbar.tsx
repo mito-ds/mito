@@ -130,13 +130,13 @@ const Toolbar = (
                         toolbarButtonType={ToolbarButtonType.UNDO}
                         action={props.actions[ActionEnum.Undo]}
                         disabledTooltip={props.actions[ActionEnum.Undo].isDisabled()}
-                        />
+                    />
                     <ToolbarButton
                         id='mito-redo-button' // NOTE: this is used to click the redo button in plugin.tsx
                         toolbarButtonType={ToolbarButtonType.REDO}
                         action={props.actions[ActionEnum.Redo]}
                         disabledTooltip={props.actions[ActionEnum.Redo].isDisabled()}
-                        />
+                    />
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.CLEAR}
                         action={props.actions[ActionEnum.Clear]}

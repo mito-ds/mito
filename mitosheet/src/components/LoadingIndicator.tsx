@@ -154,9 +154,6 @@ const getDisplayMessageForMessageType = (messageType: StepType | UpdateType): st
         case UpdateType.RenderCountUpdate: {
             return 'Updating user profile'
         }
-        case UpdateType.RenderCountUpdate: {
-            return 'Updating user profile'
-        }
         case UpdateType.ChecklistUpdate: {
             return 'Updating checklist'
         }

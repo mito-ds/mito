@@ -39,7 +39,7 @@ function Footer(props: FooterProps): JSX.Element {
         props.graphDataDict[selectedGraphID].graphParams.graphCreation.sheet_index : selectedSheetIndex
     const sheetData: SheetData | undefined = props.sheetDataArray[sheetIndex]
 
-    const disabledDueToReplayAnalysis = props.uiState.currOpenTaskpane.type === TaskpaneType.UPDATEIMPORTS && props.uiState.currOpenTaskpane.failedReplayData !== undefined;;
+    const disabledDueToReplayAnalysis = props.uiState.currOpenTaskpane.type === TaskpaneType.UPDATEIMPORTS && props.uiState.currOpenTaskpane.failedReplayData !== undefined;
 
     return (
         <div className='footer'>
