@@ -11,7 +11,7 @@ import { Application, IPlugin } from 'application';
 import { Widget } from "@lumino/widgets";
 import MitoAPI from './jupyter/api';
 import { getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell } from './jupyter/lab/pluginUtils';
-import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, getAnalysisNameFromOldGeneratedCode, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine, isMitosheetCallCode } from './utils/code';
+import { containsGeneratedCodeOfAnalysis, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine } from './utils/code';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 import * as widgetExports from './jupyter/widget';
 import { mitoJLabIcon } from './components/icons/JLabIcon/MitoIcon';
@@ -127,72 +127,6 @@ function activateWidgetExtension(
             }
         }
     })
-
-
-    app.commands.addCommand('move-saved-analysis-id-to-mitosheet-call', {
-        label: 'Reads an old existing mito analysis from the generated code cell, and moves it to the mitosheet.sheet call above, to upgrade to the new format.',
-        execute: async (): Promise<boolean> => {
-
-            /**
-             * This is one of the few places of this code that we still rely on the active cell, and 
-             * as such we need to call this function right after the sheet renders for the first
-             * time, so the active cell is most likely in the correct location.
-             */
-
-            // We get the current notebook (currentWidget)
-            const notebook = tracker.currentWidget?.content;
-            const cells = notebook?.model?.cells;
-
-            if (!notebook || !cells) {
-                return false;
-            }
-
-            // We get the previous cell to the current active cell
-            const activeCell = notebook.activeCell?.model;
-            const activeCellIndex = notebook.activeCellIndex;
-
-            if (!activeCell)  {
-                return false;
-            }
-
-            const activeCellCode = getCellText(activeCell);
-            const oldAnalysisName = getAnalysisNameFromOldGeneratedCode(activeCellCode);
-
-            if (oldAnalysisName === undefined)  {
-                return false;
-            }
-
-            // If there is an analysis name in the generated code with the old format, 
-            // we go to the previous cell (which should be a mitosheet.sheet call), and
-            // add it as a parameter to this call, and then rerun this top cell. This allows
-            // us to remove a large amount of legacy code with how we used to replay analyses
-            const previousCell = getCellAtIndex(cells, activeCellIndex - 1)
-
-            if (!isMitosheetCallCode(getCellText(previousCell))) {
-                return false;
-            }
-
-            // If it already has a saved analysis (though this should never happen), return
-            if (containsMitosheetCallWithAnyAnalysisToReplay(getCellText(previousCell))) {
-                return false;
-            }
-
-            // Otherwise, add this parameter to the mitosheet call!
-            const written = tryWriteAnalysisToReplayParameter(previousCell, oldAnalysisName);
-            if (!written) {
-                return false;
-            }
-
-            // And then move up to the mitosheet.sheet() call and rerun this!
-            NotebookActions.selectAbove(notebook);
-
-            const sessionContext = tracker.currentWidget?.context?.sessionContext;
-            await NotebookActions.runAndAdvance(notebook, sessionContext);
-
-            // Return true if we actually added this analysis to replay to the top cell
-            return true;
-        }
-    });
 
     app.commands.addCommand('write-generated-code-cell', {
         label: 'Writes the generated code for a mito analysis to the cell below the mitosheet.sheet() call that generated this analysis. NOTE: this should only be called after the analysis_to_replay has been written in the mitosheet.sheet() call, so this cell can be found correctly.',
