@@ -122,6 +122,7 @@ export default function SheetTabActions(props: {
 
     const dropdownItems: JSX.Element[] = [
         <DropdownItem
+            key='Create graph'
             title='Create graph'
             onClick={(e) => {
                 // Stop propogation so that the onClick of the sheet tab div
@@ -132,11 +133,12 @@ export default function SheetTabActions(props: {
             }}
         />,
         <DropdownItem 
+            key='Export'
             title='Export'
             onClick={openDownloadTaskpane}
         />,
         // if this dataframe is imported, then allow the user to change the import
-        imported ? <DropdownItem title='Change Import' onClick={() => {
+        imported ? <DropdownItem key='Change Import' title='Change Import' onClick={() => {
             props.closeOpenEditingPopups();
             props.setUIState(prevUIState => {
                 return {
@@ -147,17 +149,20 @@ export default function SheetTabActions(props: {
                 }
             })
         }}/> : undefined,
-        <DropdownSectionSeperator isDropdownSectionSeperator={true} />,
+        <DropdownSectionSeperator key='sep' isDropdownSectionSeperator={true} />,
         <DropdownItem 
+            key='Duplicate'
             title='Duplicate'
             onClick={onDuplicate}
         />,
         <DropdownItem 
+            key='Rename'
             title='Rename'
             onClick={onRename}
             supressFocusSettingOnClose
         />,
         <DropdownItem 
+            key='Delete'
             title='Delete'
             onClick={(e) => {
                 // Stop propogation so that the onClick of the sheet tab div
