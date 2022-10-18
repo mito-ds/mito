@@ -209,6 +209,9 @@ elif name == 'mitosheet' or name == 'mitosheet3' or name == 'mitosheet-private':
         packages                 = setuptools.find_packages(exclude=['deployment']),
         install_requires=[        
             "jupyterlab~=3.0",
+            # According to this documentation (https://ipywidgets.readthedocs.io/en/7.x/changelog.html),
+            # ipywidgets 7.7 is the first release to support Python 3.10.
+            # Mito does not support ipywidgets 8 because it is still in testing
             'ipywidgets>=7,<8; python_version<"3.10"',
             'ipywidgets~=7.7.0; python_version>="3.10"',
             # In JLab 3, we move to needing to install the jupyterlab-widgets package, which
