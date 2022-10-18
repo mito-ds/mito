@@ -154,7 +154,7 @@ MITOSHEET_PACKAGE_JSON = """{
   },
   "version": "0.3.131",
   "dependencies": {
-    "@jupyter-widgets/base": "^4 || ^5 || ^6",
+    "@jupyter-widgets/base": "^4",
     "@jupyterlab/notebook": "^3.0.6",
     "@types/fscreen": "^1.0.1",
     "@types/react-dom": "^17.0.2",
@@ -275,7 +275,7 @@ def switch(new_package):
       open('package.json', 'w').write(MITOSHEET_TWO_PACKAGE_JSON)
     elif new_package == 'mitosheet':    
       open('package.json', 'w').write(MITOSHEET_PACKAGE_JSON.replace('REPLACE_WITH_PACKAGE_NAME_WITH_REPLACE', 'mitosheet'))
-    elif new_package == 'mitosheet3':    
+    elif new_package == 'mitosheet3':  
       open('package.json', 'w').write(MITOSHEET_PACKAGE_JSON.replace('REPLACE_WITH_PACKAGE_NAME_WITH_REPLACE', 'mitosheet3'))
     elif new_package == 'mitosheet-private':
        open('package.json', 'w').write(MITOSHEET_PACKAGE_JSON.replace('REPLACE_WITH_PACKAGE_NAME_WITH_REPLACE', 'mitosheet-private'))

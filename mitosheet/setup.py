@@ -209,11 +209,11 @@ elif name == 'mitosheet' or name == 'mitosheet3' or name == 'mitosheet-private':
         packages                 = setuptools.find_packages(exclude=['deployment']),
         install_requires=[        
             "jupyterlab~=3.0",
-            'ipywidgets>=7',
+            'ipywidgets>=7,<8; python_version<"3.10"',
+            'ipywidgets~=7.7.0; python_version>="3.10"',
             # In JLab 3, we move to needing to install the jupyterlab-widgets package, which
             # is equivlaent to the @jupyter-widgets/jupyterlab-manager extension for jlab 2
-            'jupyterlab-widgets>=3.0; python_version>="3.7"',
-            'jupyterlab-widgets>=1.0; python_version<"3.7"',
+            'jupyterlab-widgets~=1.0.0',
             # We allow users to have many versions of pandas installed. All functionality should
             # work, with the exception of Excel import, which might require additonal dependencies
             'pandas>=0.24.2',
@@ -225,7 +225,7 @@ elif name == 'mitosheet' or name == 'mitosheet3' or name == 'mitosheet-private':
             'openpyxl',
             # xlsxwriter is needed for adding formatting to exported Excel sheets. 
             # We pin to a pretty old version because the formatting functionality hasn't changed in a long time.
-            'xlsxwriter>=0.6.9,<=3.0.2 '
+            'xlsxwriter>=0.6.9,<=3.0.2'
         ],
         extras_require = {
             'test': [
