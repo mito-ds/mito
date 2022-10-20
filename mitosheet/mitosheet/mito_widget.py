@@ -7,7 +7,6 @@
 """
 Main file containing the mito widget.
 """
-from ast import Import
 import json
 import os
 import time

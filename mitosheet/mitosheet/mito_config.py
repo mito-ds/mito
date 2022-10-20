@@ -15,20 +15,24 @@ SUPPORT_EMAIL = 'support_email'
 DEFAULT_SUPPORT_EMAIL = 'founders@sagacollab.com'
 
 # When updating the MEC_VERSION, add a function here 
-# to update the previous mec to the new version. 
-# If mec_version=3, the following functions should exist:
-# upgrade_mec_1_to_2, upgrade_mec_2_to_3.
-mec_upgrade_functions = {}	
+# to update the previous mec to the new version. For example, 
+# if mec_version=3, mec_upgrade_functions should look like:
+# {
+#    1: upgrade_mec_1_to_2,
+#    2: upgrade_mec_2_to_3
+# }
+mec_upgrade_functions: Dict[int, Any] = {}	
 
 def upgrade_mito_enterprise_configuration(mec: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    if mec is None:
+        return None
 
-	if mec is None:
-		return None
+    # So mypy tests recognize that mec is not None
+    _mec = mec
+    while _mec[MEC_VERSION] < len(mec_upgrade_functions) + 1:
+        _mec = mec_upgrade_functions[_mec[MEC_VERSION]](_mec)
 
-	while mec[MEC_VERSION] < len(mec_upgrade_functions) + 1:
-		mec = mec_upgrade_functions[mec[MEC_VERSION]](mec)
-
-	return mec
+    return _mec
 
 class MitoConfig:
     """
