@@ -12,6 +12,8 @@ from typing import Any, Dict, Optional
 MEC_VERSION = 'mec_version'
 SUPPORT_EMAIL = 'support_email'
 
+DEFAULT_SUPPORT_EMAIL = 'founders@sagacollab.com'
+
 # When updating the MEC_VERSION, add a function here 
 # to update the previous mec to the new version. 
 # If mec_version=3, the following functions should exist:
@@ -45,7 +47,7 @@ class MitoConfig:
     @property
     def support_email(self) -> str:
         if self.mec is None:
-            return 'help@sagacollab.com'
+            return DEFAULT_SUPPORT_EMAIL
         return self.mec[SUPPORT_EMAIL]
 
     @property 

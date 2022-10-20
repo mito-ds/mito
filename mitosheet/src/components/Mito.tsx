@@ -85,7 +85,6 @@ export type MitoProps = {
     userProfile: UserProfile;
 };
 
-
 export const Mito = (props: MitoProps): JSX.Element => {
 
     const mitoContainerRef = useRef<HTMLDivElement>(null);
@@ -487,6 +486,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     error={uiState.currOpenModal.error}
                     setUIState={setUIState}
                     mitoAPI={props.mitoAPI}
+                    userProfile={props.userProfile}
                 />
             )
             case ModalEnum.ClearAnalysis: return (
@@ -520,6 +520,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     error={uiState.currOpenModal.error}
                     newAnalysisName={uiState.currOpenModal.newAnalysisName}
                     oldAnalysisName={uiState.currOpenModal.oldAnalysisName}
+                    userProfile={userProfile}
                 />
             )
             case ModalEnum.DeleteGraphs: return (
@@ -739,7 +740,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
         setGridState,
         props.mitoAPI, 
         mitoContainerRef,
-        analysisData
+        analysisData,
+        userProfile
     )
 
 

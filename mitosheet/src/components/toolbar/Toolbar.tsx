@@ -26,7 +26,7 @@ import { getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesCo
 import DropdownItem from '../elements/DropdownItem';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import { getDtypeSelectOptions } from '../taskpanes/ControlPanel/FilterAndSortTab/DtypeCard';
-import TextButton from '../elements/TextButton';
+import GetSupportButton from '../elements/GetSupportButton';
 
 const Toolbar = (
     props: {
@@ -111,13 +111,13 @@ const Toolbar = (
                     </ToolbarMenu>
                 </div>
                 <div className='toolbar-top-right'>
-                    <TextButton 
-                        className='plan-button'
+                    <GetSupportButton 
+                        userProfile={props.userProfile} 
+                        setUIState={props.setUIState} 
+                        mitoAPI={props.mitoAPI} 
                         width='small'
-                        href={`mailto:${props.userProfile.mitoConfig['support_email']}`} target='_blank' variant='dark'
-                    >
-                        Get Support 
-                    </TextButton>
+                        className='plan-button'
+                    />
                     <PlanButton
                         userProfile={props.userProfile}
                         setUIState={props.setUIState}

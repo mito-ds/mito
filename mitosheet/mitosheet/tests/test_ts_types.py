@@ -4,6 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from mitosheet.data_in_mito import DataTypeInMito
+from mitosheet.mito_config import DEFAULT_SUPPORT_EMAIL
 from mitosheet.state import (
     DATAFRAME_SOURCE_DUPLICATED,
     DATAFRAME_SOURCE_IMPORTED,
@@ -193,3 +194,11 @@ def test_graph_safety_filter_cutoff_matches():
     )
 
     assert int(graph_safety_filter_cutoff) == GRAPH_SAFETY_FILTER_CUTOFF
+
+def test_user_profile_defaults_matches():
+    user_profile_support_email = get_constant_from_ts_file(
+        "./src/components/elements/GetSupportButton.tsx",
+        'DEFAULT_SUPPORT_EMAIL'
+    )
+
+    assert user_profile_support_email == f"\'{DEFAULT_SUPPORT_EMAIL}\'"
