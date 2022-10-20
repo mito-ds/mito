@@ -202,3 +202,11 @@ def test_user_profile_defaults_matches():
     )
 
     assert user_profile_support_email == f"\'{DEFAULT_SUPPORT_EMAIL}\'"
+
+def test_update_events_enum_defined():
+    update_types = get_enum_from_ts_file("./src/types.tsx", "UpdateType")
+    from mitosheet.updates import UPDATES
+
+    for UPDATE in UPDATES:
+        assert UPDATE['event_type'] in update_types.values()
+

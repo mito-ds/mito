@@ -6,11 +6,12 @@ import { SortDirection } from "../components/taskpanes/ControlPanel/FilterAndSor
 import { GraphObject } from "../components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
 import { UniqueValueCount, UniqueValueSortType } from "../components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
 import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Graph/graphUtils";
-import { CSVFileMetadata } from "../components/taskpanes/Import/CSVImport";
-import { FileElement } from "../components/taskpanes/Import/ImportTaskpane";
-import { ExcelFileMetadata } from "../components/taskpanes/Import/XLSXImport";
+import { CSVFileMetadata } from "../components/import/CSVImportConfigScreen";
+import { FileElement } from "../components/taskpanes/FileImport/FileImportTaskpane";
+import { ExcelFileMetadata } from "../components/import/XLSXImportConfigScreen";
 import { valuesArrayToRecord } from "../components/taskpanes/PivotTable/pivotUtils";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
+import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
 import { BackendPivotParams, DataframeFormat, FrontendPivotParams } from "../types";
 import { ColumnID, FeedbackID, FilterGroupType, FilterType, GraphID, MitoError, GraphParamsFrontend } from "../types";
 import { getDeduplicatedArray } from "../utils/arrays";
@@ -439,14 +440,14 @@ export default class MitoAPI {
         Gets metadata about an Excel file
     */
     async getExcelFileMetadata(
-        fileName: string
+        filePath: string
     ): Promise<ExcelFileMetadata | undefined> {
 
         const excelFileMetadataString = await this.send<string>({
             'event': 'api_call',
             'type': 'get_excel_file_metadata',
             'params': {
-                'file_name': fileName
+                'file_path': filePath
             },
         }, {})
 
@@ -538,12 +539,60 @@ export default class MitoAPI {
     }
 
 	
-    async getDefinedDfNames(): Promise<{df_names: string[],} | undefined> {
+    async getDefinedDfNames(): Promise<string[] | undefined> {
 
         const resultString = await this.send<string>({
             'event': 'api_call',
             'type': 'get_defined_df_names',
             'params': {}
+        }, {})
+
+        if (resultString !== undefined && resultString !== '') {
+            return JSON.parse(resultString);
+        }
+        return undefined;
+    }
+
+    async getImportedFilesAndDataframesFromCurrentSteps(): Promise<StepImportData[] | undefined> {
+        const resultString = await this.send<string>({
+            'event': 'api_call',
+            'type': 'get_imported_files_and_dataframes_from_current_steps',
+            'params': {}
+        }, {})
+
+        if (resultString !== undefined && resultString !== '') {
+            return(JSON.parse(resultString));
+        } 
+
+        return undefined
+    }
+
+
+    async getImportedFilesAndDataframesFromAnalysisName(analysisName: string): Promise<StepImportData[] | undefined> {
+
+        const resultString = await this.send<string>({
+            'event': 'api_call',
+            'type': 'get_imported_files_and_dataframes_from_analysis_name',
+            'params': {
+                'analysis_name': analysisName,
+            }
+        }, {})
+
+        if (resultString !== undefined && resultString !== '') {
+            return JSON.parse(resultString);
+        }
+        return undefined;
+    }
+
+    
+    async getTestImports(updated_step_import_data_list: StepImportData[]): Promise<Record<number, string> | undefined> {
+
+        const resultString = await this.send<string>({
+            'event': 'api_call',
+            'type': 'get_test_imports',
+            'params': {
+                'updated_step_import_data_list': updated_step_import_data_list,
+            }
         }, {})
 
         if (resultString !== undefined && resultString !== '') {
@@ -1230,13 +1279,15 @@ export default class MitoAPI {
     */
     async updateReplayAnalysis(
         analysisName: string,
+        stepImportDataListToOverwrite?: StepImportData[]
     ): Promise<MitoError | undefined> {
 
         const result: MitoError | undefined = await this.send({
             'event': 'update_event',
             'type': 'replay_analysis_update',
             'params': {
-                'analysis_name': analysisName
+                'analysis_name': analysisName,
+                'step_import_data_list_to_overwrite': stepImportDataListToOverwrite === undefined ? [] : stepImportDataListToOverwrite
             }
         }, { maxRetries: 500 });
 
@@ -1256,6 +1307,21 @@ export default class MitoAPI {
             'params': {
                 'field': UserJsonFields.UJ_USER_EMAIL,
                 'value': userEmail
+            }
+        }, {});
+    }
+
+    /*
+        Sends the user_email to the backend so the user can sign in
+    */
+    async updateExistingImports(
+        updatedStepImportDataList: StepImportData[]
+    ): Promise<string | undefined> {
+        return await this.send({
+            'event': 'update_event',
+            'type': 'update_existing_import_update',
+            'params': {
+                'updated_step_import_data_list': updatedStepImportDataList
             }
         }, {});
     }

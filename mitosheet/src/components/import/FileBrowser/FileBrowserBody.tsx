@@ -1,30 +1,49 @@
 // Copyright (c) Mito
 import React, { useEffect, useRef } from 'react';
-import FileBrowserElement from './FileBrowserElement';
-import FileBrowserPathSelector from './FileBrowserPathSelector';
-import { FileElement, ImportTaskpaneState } from './ImportTaskpane';
-
-import '../../../../css/elements/Input.css'
+import '../../../../css/elements/Input.css';
 import '../../../../css/taskpanes/Import/FileBrowser.css';
 import MitoAPI from '../../../jupyter/api';
-import Row from '../../layout/Row';
-import Col from '../../layout/Col';
-import SortArrowIcon from '../../icons/SortArrowIcon';
 import { UIState, UserProfile } from '../../../types';
 import { classNames } from '../../../utils/classNames';
-import { getElementsToDisplay, inRootFolder } from './importUtils';
-import { TaskpaneType } from '../taskpanes';
+import SortArrowIcon from '../../icons/SortArrowIcon';
+import Col from '../../layout/Col';
+import Row from '../../layout/Row';
+import { FileElement, ImportState } from '../../taskpanes/FileImport/FileImportTaskpane';
+import { getElementsToDisplay, getFilePath, inRootFolder, isExcelFile } from '../../taskpanes/FileImport/importUtils';
+import { TaskpaneType } from '../../taskpanes/taskpanes';
+import FileBrowserElement from './FileBrowserElement';
+import FileBrowserPathSelector from './FileBrowserPathSelector';
+
+
+export interface PathContents {
+    path_parts: string[],
+    elements: FileElement[];
+}
+
+export type FileSort = 'name_ascending' | 'name_descending' | 'last_modified_ascending' | 'last_modified_descending';
+
+export interface FileBrowserState {
+    pathContents: PathContents,
+    sort: FileSort,
+    searchString: string,
+    selectedElementIndex: number,
+    loadingFolder: boolean,
+    loadingImport: boolean,
+}
 
 interface FileBrowserProps {
     mitoAPI: MitoAPI;
     userProfile: UserProfile;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
+
+    currPathParts: string[],
     setCurrPathParts: (newPathParts: string[]) => void;
 
-    importState: ImportTaskpaneState;
-    setImportState: React.Dispatch<React.SetStateAction<ImportTaskpaneState>>;
+    fileBrowserState: FileBrowserState;
+    setFileBrowserState: React.Dispatch<React.SetStateAction<FileBrowserState>>;
 
-    importElement: (element: FileElement | undefined) => Promise<void>;
+    importCSVFile: (file: FileElement) => Promise<void>;
+    setImportState: (newImportState: ImportState) => void;
 }
 
 
@@ -32,17 +51,17 @@ interface FileBrowserProps {
     This file browser component displays a list of files and folders
     and allows a user to navigate through the file and folder. 
 */
-function FileBrowser(props: FileBrowserProps): JSX.Element {
+function FileBrowserBody(props: FileBrowserProps): JSX.Element {
 
     const inputRef = useRef<HTMLInputElement>(null);
 
     // Filter to the searched for elements, and then sort properly
-    const elementsToDisplay = getElementsToDisplay(props.importState);
-    const selectedElement: FileElement | undefined = elementsToDisplay[props.importState.selectedElementIndex];
+    const elementsToDisplay = getElementsToDisplay(props.fileBrowserState);
+    const selectedFile: FileElement | undefined = elementsToDisplay[props.fileBrowserState.selectedElementIndex];
 
     useEffect(() => {
         // When the user switches folders, reset the search
-        props.setImportState(prevImportState => {
+        props.setFileBrowserState(prevImportState => {
             return {
                 ...prevImportState,
                 searchString: ''
@@ -50,7 +69,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
         })
         // Also, focus on the search so we can start typing immediately
         inputRef.current?.focus()
-    }, [props.importState.pathContents.path_parts])
+    }, [props.fileBrowserState.pathContents.path_parts])
 
     // We make sure to always focus back on the search input after the selected
     // element changes; this is because if the user clicks on a different element
@@ -58,16 +77,16 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
     // with the arrow keys)
     useEffect(() => {
         inputRef.current?.focus();
-    }, [props.importState.selectedElementIndex, props.importState.sort])
+    }, [props.fileBrowserState.selectedElementIndex, props.fileBrowserState.sort])
 
-    const displayUpgradeToPro = inRootFolder(props.importState.pathContents.path_parts) && !props.userProfile.isPro;
+    const displayUpgradeToPro = inRootFolder(props.fileBrowserState.pathContents.path_parts) && !props.userProfile.isPro;
 
     return (
         <div className='file-browser flexbox-column'>
             <div>
                 <FileBrowserPathSelector
                     setCurrPathParts={props.setCurrPathParts}
-                    pathParts={props.importState.pathContents.path_parts}
+                    pathParts={props.fileBrowserState.pathContents.path_parts}
                 />
             </div>
             <Row className='border-t-light-gray border-b-light-gray' justify='space-between'>
@@ -75,7 +94,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                     span={18} 
                     className='flexbox-row flexbox-space-between border-r-light-gray'
                     onClick={() => {
-                        props.setImportState(prevImportState => {
+                        props.setFileBrowserState(prevImportState => {
                             return {
                                 ...prevImportState,
                                 sort: prevImportState.sort === 'name_descending' ? 'name_ascending' : 'name_descending'
@@ -86,9 +105,9 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                     <p className='text-body-2 pt-5px pb-5px'>
                         Name
                     </p>
-                    {props.importState.sort.startsWith('name') &&
+                    {props.fileBrowserState.sort.startsWith('name') &&
                         <div className='mr-5px ml-5px'>
-                            <SortArrowIcon direction={props.importState.sort.endsWith('descending') ? 'descending' : 'ascending'}/>
+                            <SortArrowIcon direction={props.fileBrowserState.sort.endsWith('descending') ? 'descending' : 'ascending'}/>
                         </div>
                     }
                 </Col>
@@ -96,7 +115,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                     span={6} 
                     className='flexbox-row flexbox-justify-end text-align-right'
                     onClick={() => {
-                        props.setImportState(prevImportState => {
+                        props.setFileBrowserState(prevImportState => {
                             return {
                                 ...prevImportState,
                                 sort: prevImportState.sort === 'last_modified_descending' ? 'last_modified_ascending' : 'last_modified_descending'
@@ -104,9 +123,9 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                         })
                     }}
                 >
-                    {props.importState.sort.startsWith('last_modified') &&
+                    {props.fileBrowserState.sort.startsWith('last_modified') &&
                         <div className='mr-5px ml-5px'>
-                            <SortArrowIcon direction={props.importState.sort.endsWith('descending') ? 'descending' : 'ascending'}/>
+                            <SortArrowIcon direction={props.fileBrowserState.sort.endsWith('descending') ? 'descending' : 'ascending'}/>
                         </div>
                     }
                     <p 
@@ -122,11 +141,11 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                     // but as of now we don't support an input with a passed ref (it's complex and confusing)
                     className={classNames('mito-input', 'text-body-2', 'element-width-block')}
                     ref={inputRef}
-                    value={props.importState.searchString}
+                    value={props.fileBrowserState.searchString}
                     placeholder='Search the current folder'
                     onChange={(e) => {
                         const newSearchString = e.target.value;
-                        props.setImportState(prevImportState => {
+                        props.setFileBrowserState(prevImportState => {
                             return {
                                 ...prevImportState,
                                 searchString: newSearchString
@@ -137,7 +156,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                     // as if the user wants to import by pressing enter
                     onKeyDown={(e) => {
                         if (e.key == 'ArrowUp') {
-                            props.setImportState(prevImportState => {
+                            props.setFileBrowserState(prevImportState => {
                                 return {
                                     ...prevImportState,
                                     selectedElementIndex: Math.max(prevImportState.selectedElementIndex - 1, -1)
@@ -145,7 +164,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                             })
                             e.preventDefault();
                         } else if (e.key === 'ArrowDown') {
-                            props.setImportState(prevImportState => {
+                            props.setFileBrowserState(prevImportState => {
                                 return {
                                     ...prevImportState,
                                     selectedElementIndex: Math.min(prevImportState.selectedElementIndex + 1, elementsToDisplay.length - 1)
@@ -153,20 +172,36 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                             })
                             e.preventDefault();
                         } else if (e.key === 'Enter') {
-                            if (!selectedElement) {
+                            if (!selectedFile) {
                                 return;
                             }
 
-                            if (selectedElement.isParentDirectory) {
-                                const newPathParts = [...props.importState.pathContents.path_parts];
+                            if (selectedFile.isParentDirectory) {
+                                const newPathParts = [...props.fileBrowserState.pathContents.path_parts];
                                 newPathParts.pop()
                                 props.setCurrPathParts(newPathParts);
-                            } else if (selectedElement.isDirectory) {
-                                const newPathParts = props.importState.pathContents.path_parts || [];
-                                newPathParts.push(selectedElement.name);
+                            } else if (selectedFile.isDirectory) {
+                                const newPathParts = props.fileBrowserState.pathContents.path_parts || [];
+                                newPathParts.push(selectedFile.name);
                                 props.setCurrPathParts(newPathParts);
                             } else {
-                                void props.importElement(selectedElement);
+                                if (isExcelFile(selectedFile)) {
+                                    const openExcelImport = async () => {
+                                        const filePath = await getFilePath(props.mitoAPI, props.currPathParts, selectedFile);
+                                        if (filePath === undefined || selectedFile === undefined) {
+                                            return;
+                                        }
+                                        props.setImportState({
+                                            screen: 'xlsx_import_config',
+                                            fileName: selectedFile.name,
+                                            filePath: filePath
+                                        });
+                                    }
+            
+                                    void openExcelImport();
+                                } else {
+                                    void props.importCSVFile(selectedFile);
+                                }
                             }
                         }
                     }}
@@ -212,22 +247,24 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                 }
                 {!displayUpgradeToPro &&
                     <>
-                        {!props.importState.loadingFolder && elementsToDisplay?.map((element, i) => {
+                        {!props.fileBrowserState.loadingFolder && elementsToDisplay?.map((element, i) => {
                             return (
                                 <FileBrowserElement
                                     key={i}
                                     mitoAPI={props.mitoAPI}
                                     index={i}
                                     element={element}
-                                    importState={props.importState}
-                                    setImportState={props.setImportState}
-                                    importElement={props.importElement}
+                                    fileBrowserState={props.fileBrowserState}
+                                    setFileBrowserState={props.setFileBrowserState}
+                                    currPathParts={props.currPathParts}
                                     setCurrPathParts={props.setCurrPathParts}
                                     excelImportEnabled={props.userProfile.excelImportEnabled}
+                                    setImportState={props.setImportState}
+                                    importCSVFile={props.importCSVFile}
                                 />
                             )
                         })}
-                        {props.importState.loadingFolder && <p>Loading folder contents...</p>}
+                        {props.fileBrowserState.loadingFolder && <p>Loading folder contents...</p>}
                     </>
                 }
             </div>
@@ -235,4 +272,4 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
     )
 }
 
-export default FileBrowser;
+export default FileBrowserBody;

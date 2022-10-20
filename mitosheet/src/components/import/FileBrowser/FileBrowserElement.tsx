@@ -10,21 +10,28 @@ import FileIcon from '../../icons/FileIcon';
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
 import {
-    FileElement, ImportTaskpaneState
-} from './ImportTaskpane';
-import { getInvalidFileError } from './importUtils';
+    FileElement, ImportState
+} from '../../taskpanes/FileImport/FileImportTaskpane';
+import { getFilePath, getInvalidFileError, isExcelFile } from '../../taskpanes/FileImport/importUtils';
+import { FileBrowserState } from './FileBrowserBody';
 
 
 interface FileBrowserElementProps {
     mitoAPI: MitoAPI,
+    currPathParts: string[],
+    setCurrPathParts: (newPathParts: string[]) => void;
+    
+    fileBrowserState: FileBrowserState;
+    setFileBrowserState: React.Dispatch<React.SetStateAction<FileBrowserState>>;
+    
     index: number;
     element: FileElement;
-    setCurrPathParts: (newPathParts: string[]) => void;
-    importState: ImportTaskpaneState;
-    setImportState: React.Dispatch<React.SetStateAction<ImportTaskpaneState>>;
-    importElement: (element: FileElement | undefined) => Promise<void>;
+
     excelImportEnabled: boolean;
     isParentFolder?: boolean;
+
+    importCSVFile: (file: FileElement) => Promise<void>;
+    setImportState: (newImportState: ImportState) => void;
 }
 
 /* 
@@ -36,7 +43,7 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
 
     // Check if this element being displayed is the selected element in the
     // file browser!
-    const isSelected = props.index === props.importState.selectedElementIndex;
+    const isSelected = props.index === props.fileBrowserState.selectedElementIndex;
 
     // If the element becomes selected, we make sure it is visible in the div
     useEffect(() => {
@@ -68,14 +75,14 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
                     we select it.
                 */
                 if (isSelected) {
-                    props.setImportState(prevImportState => {
+                    props.setFileBrowserState(prevImportState => {
                         return {
                             ...prevImportState,
                             selectedElementIndex: -1
                         }
                     });
                 } else {
-                    props.setImportState(prevImportState => {
+                    props.setFileBrowserState(prevImportState => {
                         return {
                             ...prevImportState,
                             selectedElementIndex: props.index
@@ -85,15 +92,32 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
             }}
             onDoubleClick={() => {
                 if (props.element.isParentDirectory) {
-                    const newPathParts = [...props.importState.pathContents.path_parts];
+                    const newPathParts = [...props.fileBrowserState.pathContents.path_parts];
                     newPathParts.pop()
                     props.setCurrPathParts(newPathParts);
                 } else if (props.element.isDirectory) {
-                    const newPathParts = props.importState.pathContents.path_parts || [];
+                    const newPathParts = props.fileBrowserState.pathContents.path_parts || [];
                     newPathParts.push(props.element.name);
                     props.setCurrPathParts(newPathParts);
                 } else {
-                    void props.importElement(props.element);
+                    
+                    if (isExcelFile(props.element)) {
+                        const openExcelImport = async () => {
+                            const filePath = await getFilePath(props.mitoAPI, props.currPathParts, props.element);
+                            if (filePath === undefined) {
+                                return;
+                            }
+                            props.setImportState({
+                                screen: 'xlsx_import_config',
+                                fileName: props.element.name,
+                                filePath: filePath
+                            });
+                        }
+
+                        void openExcelImport();
+                    } else {
+                        void props.importCSVFile(props.element);
+                    }
                 }
             }}
         >

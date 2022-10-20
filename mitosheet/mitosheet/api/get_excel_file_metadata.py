@@ -20,13 +20,14 @@ def get_excel_file_metadata(params: Dict[str, Any], steps_manager: StepsManagerT
     but in the future we may be able to request more about 
     the workbook
     """
-    file_name = params['file_name']
+    file_path = params['file_path']
 
-    file = pd.ExcelFile(file_name, engine='openpyxl')
+    file = pd.ExcelFile(file_path, engine='openpyxl')
     sheet_names = file.sheet_names
+
     return json.dumps({
         'sheet_names': sheet_names,
-        'size': os.path.getsize(file_name)
+        'size': os.path.getsize(file_path)
     })
 
 

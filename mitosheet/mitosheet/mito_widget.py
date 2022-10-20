@@ -162,12 +162,17 @@ class MitoWidget(DOMWidget):
 
             # Update all state variables
             self.update_shared_state_variables()
-        except:
+        except Exception as e:
             # We handle the case of replaying the analysis specially, because we don't
             # want to display the error modal - we want to display something specific
             # in this case. Note that we include the updating of shared state variables
             # in the try catch, as this is sometimes where errors occur
             if event["type"] == REPLAY_ANALYSIS_UPDATE['event_type']:
+                # Propagate the Mito error if we can. We never want a replay analysis to open
+                # an error modal, so make sure to update the error if necessary
+                if isinstance(e, MitoError):
+                    e.error_modal = False
+                    raise e
                 raise make_execution_error(error_modal=False)
             raise
         # Also, write the analysis to a file!

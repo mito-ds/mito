@@ -1,32 +1,29 @@
 // Copyright (c) Mito
 
-import React from 'react';
 import fscreen from 'fscreen';
+import React from 'react';
+import "../../../css/toolbar.css";
 import MitoAPI from '../../jupyter/api';
-import ToolbarButton from './ToolbarButton';
-import { ToolbarButtonType } from './utils';
 import { Action, ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
-import Dropdown from '../elements/Dropdown';
 import { getColumnFormatDropdownItems } from '../../utils/format';
-
-// Import CSS
-import "../../../css/toolbar.css"
-import ToolbarEditDropdown from './ToolbarEditDropdown';
+import Dropdown from '../elements/Dropdown';
+import DropdownItem from '../elements/DropdownItem';
+import { getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs } from '../endo/selectionUtils';
+import { getDtypeSelectOptions } from '../taskpanes/ControlPanel/FilterAndSortTab/DtypeCard';
+import { TaskpaneType } from '../taskpanes/taskpanes';
+import PlanButton from './PlanButton';
+import ToolbarButton from './ToolbarButton';
+import ToolbarColumnsDropdown from './ToolbarColumnsDropdown';
 import ToolbarDataframesDropdown from './ToolbarDataframesDropdown';
 import ToolbarMenu from './ToolbarDropdownSelector';
-import ToolbarColumnsDropdown from './ToolbarColumnsDropdown';
-import ToolbarGraphsDropdown from './ToolbarGraphsDropdown';
-import ToolbarViewDropdown from './ToolbarViewDropdown';
-import ToolbarHelpDropdown from './ToolbarHelpDropdown';
-import PlanButton from './PlanButton';
-import ToolbarRowsDropdown from './ToolbarRowsDropdown.tsx';
-import { isVariantB } from '../../utils/experiments';
+import ToolbarEditDropdown from './ToolbarEditDropdown';
 import ToolbarFormatDropdown from './ToolbarFormatDropdown';
-import { getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs } from '../endo/selectionUtils';
-import DropdownItem from '../elements/DropdownItem';
-import { TaskpaneType } from '../taskpanes/taskpanes';
-import { getDtypeSelectOptions } from '../taskpanes/ControlPanel/FilterAndSortTab/DtypeCard';
+import ToolbarGraphsDropdown from './ToolbarGraphsDropdown';
+import ToolbarHelpDropdown from './ToolbarHelpDropdown';
+import ToolbarRowsDropdown from './ToolbarRowsDropdown.tsx';
 import GetSupportButton from '../elements/GetSupportButton';
+import ToolbarViewDropdown from './ToolbarViewDropdown';
+import { ToolbarButtonType } from './utils';
 
 const Toolbar = (
     props: {
@@ -119,6 +116,7 @@ const Toolbar = (
                         className='plan-button'
                     />
                     <PlanButton
+                        uiState={props.uiState}
                         userProfile={props.userProfile}
                         setUIState={props.setUIState}
                         mitoAPI={props.mitoAPI}
@@ -132,15 +130,18 @@ const Toolbar = (
                         id='mito-undo-button' // NOTE: this is used to click the undo button in plugin.tsx
                         toolbarButtonType={ToolbarButtonType.UNDO}
                         action={props.actions[ActionEnum.Undo]}
+                        disabledTooltip={props.actions[ActionEnum.Undo].isDisabled()}
                     />
                     <ToolbarButton
                         id='mito-redo-button' // NOTE: this is used to click the redo button in plugin.tsx
                         toolbarButtonType={ToolbarButtonType.REDO}
                         action={props.actions[ActionEnum.Redo]}
+                        disabledTooltip={props.actions[ActionEnum.Redo].isDisabled()}
                     />
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.CLEAR}
                         action={props.actions[ActionEnum.Clear]}
+                        disabledTooltip={props.actions[ActionEnum.Clear].isDisabled()}
                     />
 
                     <div className="toolbar-vertical-line"/>
@@ -149,6 +150,7 @@ const Toolbar = (
                         toolbarButtonType={ToolbarButtonType.IMPORT}
                         action={props.actions[ActionEnum.Import_Dropdown]}
                         setEditorState={props.setEditorState}
+                        disabledTooltip={props.actions[ActionEnum.Import_Dropdown].isDisabled()}
                     >
                         <Dropdown
                             display={props.uiState.toolbarDropdown === 'import'}
@@ -184,7 +186,7 @@ const Toolbar = (
                         toolbarButtonType={ToolbarButtonType.EXPORT}
                         action={props.actions[ActionEnum.Export]}
                         setEditorState={props.setEditorState}
-                        disabledTooltip={isVariantB(props.analysisData) ? undefined : props.actions[ActionEnum.Export].isDisabled()}
+                        disabledTooltip={props.actions[ActionEnum.Export].isDisabled()}
                     />
 
                     <div className="toolbar-vertical-line"/>
@@ -194,20 +196,20 @@ const Toolbar = (
                         action={props.actions[ActionEnum.Add_Column]}
                         highlightToolbarButton={props.highlightAddColButton}
                         setEditorState={props.setEditorState}
-                        disabledTooltip={isVariantB(props.analysisData) ? undefined : props.actions[ActionEnum.Add_Column].isDisabled()}
+                        disabledTooltip={props.actions[ActionEnum.Add_Column].isDisabled()}
                     />
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.DEL_COL}
                         action={props.actions[ActionEnum.Delete_Column]}
                         setEditorState={props.setEditorState}
-                        disabledTooltip={isVariantB(props.analysisData) ? undefined : props.actions[ActionEnum.Delete_Column].isDisabled()}
+                        disabledTooltip={props.actions[ActionEnum.Delete_Column].isDisabled()}
 
                     />
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.DTYPE}
                         action={props.actions[ActionEnum.Change_Dtype]}
                         setEditorState={props.setEditorState}
-                        disabledTooltip={isVariantB(props.analysisData) ? undefined : props.actions[ActionEnum.Change_Dtype].isDisabled()}
+                        disabledTooltip={props.actions[ActionEnum.Change_Dtype].isDisabled()}
                     >  
                         <Dropdown
                             display={props.uiState.toolbarDropdown === 'dtype'}
@@ -254,7 +256,7 @@ const Toolbar = (
                         toolbarButtonType={ToolbarButtonType.FORMAT}
                         action={props.actions[ActionEnum.Format_Number_Columns]}
                         setEditorState={props.setEditorState}
-                        disabledTooltip={isVariantB(props.analysisData) ? undefined : props.actions[ActionEnum.Format_Number_Columns].isDisabled()}
+                        disabledTooltip={props.actions[ActionEnum.Format_Number_Columns].isDisabled()}
                     >
                         <Dropdown
                             display={props.uiState.toolbarDropdown === 'format'}
@@ -282,13 +284,13 @@ const Toolbar = (
                         action={props.actions[ActionEnum.Pivot]}
                         highlightToolbarButton={props.highlightPivotTableButton}
                         setEditorState={props.setEditorState}
-                        disabledTooltip={isVariantB(props.analysisData) ? undefined : props.actions[ActionEnum.Pivot].isDisabled()}
+                        disabledTooltip={props.actions[ActionEnum.Pivot].isDisabled()}
                     />
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.GRAPH}
                         action={props.actions[ActionEnum.Graph]}
                         setEditorState={props.setEditorState}
-                        disabledTooltip={isVariantB(props.analysisData) ? undefined : props.actions[ActionEnum.Graph].isDisabled()}
+                        disabledTooltip={props.actions[ActionEnum.Graph].isDisabled()}
 
                     />
 
@@ -306,6 +308,7 @@ const Toolbar = (
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.STEPS}
                         action={props.actions[ActionEnum.Steps]}
+                        disabledTooltip={props.actions[ActionEnum.Steps].isDisabled()}
                     />
 
                     <div className="toolbar-vertical-line"></div>
