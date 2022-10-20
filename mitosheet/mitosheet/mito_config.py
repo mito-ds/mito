@@ -49,10 +49,8 @@ class MitoConfig:
         return self.mec[SUPPORT_EMAIL]
 
     @property 
-    def mito_config_json(self) -> str:
-        return json.dumps(
-            {
+    def mito_config(self) -> Dict[str, Any]:
+        return {
                 SUPPORT_EMAIL: self.support_email
             }
-        )
 

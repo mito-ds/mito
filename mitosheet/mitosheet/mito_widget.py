@@ -113,6 +113,7 @@ class MitoWidget(DOMWidget):
             'isLocalDeployment': self.is_local_deployment,
             'shouldUpgradeMitosheet': self.should_upgrade_mitosheet,
             'numUsages': self.num_usages,
+            'mitoConfig': self.mito_config.mito_config
         })
 
 

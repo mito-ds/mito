@@ -94,7 +94,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const [analysisData, setAnalysisData] = useState<AnalysisData>(props.analysisData);
     const [userProfile, setUserProfile] = useState<UserProfile>(props.userProfile);
 
-
     // TODO: can we delete the above 3 props keys, so we cannot use them (as type checked by compiler)?
     // These props are always out of date, and we should only use the state variables.
 

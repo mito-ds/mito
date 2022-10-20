@@ -20,13 +20,13 @@ import ToolbarViewDropdown from './ToolbarViewDropdown';
 import ToolbarHelpDropdown from './ToolbarHelpDropdown';
 import PlanButton from './PlanButton';
 import ToolbarRowsDropdown from './ToolbarRowsDropdown.tsx';
-import OpenOnboardingChecklist from './OpenChecklistButton';
 import { isVariantB } from '../../utils/experiments';
 import ToolbarFormatDropdown from './ToolbarFormatDropdown';
 import { getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs } from '../endo/selectionUtils';
 import DropdownItem from '../elements/DropdownItem';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import { getDtypeSelectOptions } from '../taskpanes/ControlPanel/FilterAndSortTab/DtypeCard';
+import TextButton from '../elements/TextButton';
 
 const Toolbar = (
     props: {
@@ -46,7 +46,7 @@ const Toolbar = (
         setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
         analysisData: AnalysisData,
         sheetIndex: number
-    }): JSX.Element => {    
+    }): JSX.Element => {  
 
     return (
         <div className='toolbar-container'>
@@ -110,13 +110,14 @@ const Toolbar = (
                         />
                     </ToolbarMenu>
                 </div>
-                <div className='flexbox-row' style={{gap: '10px'}}>
-                    <OpenOnboardingChecklist
-                        userProfile={props.userProfile}
-                        setUIState={props.setUIState}
-                        mitoAPI={props.mitoAPI}
-                        analysisData={props.analysisData}
-                    />
+                <div className='toolbar-top-right'>
+                    <TextButton 
+                        className='plan-button'
+                        width='small'
+                        href={`mailto:${props.userProfile.mitoConfig['support_email']}`} target='_blank' variant='dark'
+                    >
+                        Get Support 
+                    </TextButton>
                     <PlanButton
                         userProfile={props.userProfile}
                         setUIState={props.setUIState}

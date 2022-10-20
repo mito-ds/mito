@@ -685,6 +685,9 @@ export interface UserProfile {
     isLocalDeployment: boolean;
     shouldUpgradeMitosheet: boolean;
     numUsages: number;
+    mitoConfig: {
+        'support_email': string
+    };
 }
 
 
