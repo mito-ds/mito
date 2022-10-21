@@ -1,10 +1,9 @@
 // Copyright (c) Mito
 
-import React from 'react';
+import React, { useEffect } from 'react';
 
 // import css
 import "../../css/ephemeral-message.css";
-import { useDebouncedEffect } from '../hooks/useDebouncedEffect';
 import { UIState } from '../types';
 import { classNames } from '../utils/classNames';
 
@@ -17,14 +16,20 @@ const EphemeralMessage = (props: {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>,
 }): JSX.Element => {
 
-    useDebouncedEffect(() => {
-        props.setUIState(prevUIState => {
-            return {
-                ...prevUIState,
-                ephemeralMessage: undefined
-            }
-        })
-    }, [props.message], 5000)
+    // This effect tracks the message we're displaying and closes the ephemeral message after
+    // 5 seconds. If the message changes within those 5 seconds, it changes to the new message
+    // and restarts the countdown. 
+    useEffect(() => {
+        const interval = setInterval(() => {
+            props.setUIState(prevUIState => {
+                return {
+                    ...prevUIState,
+                    ephemeralMessage: undefined
+                }
+            })
+        }, 5000)
+        return () => {clearInterval(interval)};
+    }, [props.message])
 
     return (
         <p className={classNames('ephemeral-message-container', 'text-body-1')}>

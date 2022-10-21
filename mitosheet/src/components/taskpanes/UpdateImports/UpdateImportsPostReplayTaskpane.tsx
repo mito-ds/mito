@@ -130,7 +130,7 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
                                         return {
                                             ...prevUIState,
                                             currOpenTaskpane: {type: TaskpaneType.NONE},
-                                            ephemeralMessage: "Successfully replayed analysis on new data"
+                                            ephemeralMessage: `Successfully replayed analysis on new data`
                                         }
                                     })
                                 }
