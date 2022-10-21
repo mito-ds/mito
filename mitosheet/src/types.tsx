@@ -720,6 +720,7 @@ export interface UIState {
     selectedTabType: 'data' | 'graph';
     currOpenToolbarDropdown: undefined | ToolbarDropdowns;
     toolbarDropdown: 'import' | 'format' | 'dtype' | undefined;
+    ephemeralMessage: string | undefined
 }
 
 /**

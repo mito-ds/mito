@@ -115,7 +115,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
         selectedTabType: 'data',
         currOpenToolbarDropdown: undefined,
         toolbarDropdown: undefined,
-        exportConfiguration: {exportType: 'csv'}
+        exportConfiguration: {exportType: 'csv'},
+        ephemeralMessage: undefined
     })
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined);
 
@@ -905,6 +906,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     mitoAPI={props.mitoAPI}
                     currOpenModal={uiState.currOpenModal}
                     actions={actions}
+                    ephemeralMessage={uiState.ephemeralMessage}
+                    setUIState={setUIState}
                 />
                 {/* 
                     If the step index of the last step isn't the current step,
