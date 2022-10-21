@@ -233,43 +233,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 }
             } else {
                 /**
-                 * If we don't have an analysis to replay, we check if we need to upgrade from the 
-                 * old analysis_to_replay format to the new one.
-                 * 
-                 * In the past, we used to only store the analysis id in the generated code cell,
-                 * which led to a ton of issues making it really hard to handle things like users
-                 * running all, etc. 
-                 * 
-                 * We moved to storing the analysis id in the mitosheet call and the generated code
-                 * cell, which allows us to easily link them together. 
-                 * 
-                 * To transition from the old system to the new system, we run this piece of code
-                 * that moves the saved analysis id from the generated code to the mitosheet call,
-                 * and then reruns this mitosheet call. 
-                 * 
-                 * This is the cleanest way to have this transition occur, by far, based on the 48
-                 * hours that I spent thinking about such things.
-                 * 
-                 * TODO: remove this effect 6 months after implemented, as pretty much all users will
-                 * have upgraded by then. Delete this code on September 1, 2022.
-                 * 
-                 * ALSO NOTE: We only do this in JupyterLab rather than both Lab and Notebooks, as we 
-                 * added notebook support way after this upgrade phrase, and the complexity isn't worth
-                 * it.
-                 */
-                const upgradedFromSaveInGeneratedCodeToSheet = await window.commands?.execute('move-saved-analysis-id-to-mitosheet-call');
-                if (upgradedFromSaveInGeneratedCodeToSheet) {
-                    // We stop here, and do not do anything else in this case
-                    return;
-                }
-
-                /**
-                 * If we didn't have to upgrade from the old format to the new format, and we don't
-                 * have a analysis_to_replay, then we need to write the analysis_to_replay to the 
+                 * If there is no analysis_to_replay, then we need to write the analysis_to_replay to the 
                  * mitosheet.sheet call. 
-                 * 
-                 * Specifically, we want to write the analysis name of this analysis, as this is the 
-                 * analysis that will get written to the code cell below.
                  */
                 writeAnalysisToReplayToMitosheetCall(analysisData.analysisName, props.mitoAPI);
             }
