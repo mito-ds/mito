@@ -22,7 +22,7 @@ class SetDataframeFormatStepPerformer(StepPerformer):
 
     @classmethod
     def step_version(cls) -> int:
-        return 1
+        return 2
 
     @classmethod
     def step_type(cls) -> str:

@@ -141,7 +141,7 @@ def test_params_static():
 
     check_step(
         SetDataframeFormatStepPerformer,
-        1,
+        2,
         'set_dataframe_format'
     )
 
