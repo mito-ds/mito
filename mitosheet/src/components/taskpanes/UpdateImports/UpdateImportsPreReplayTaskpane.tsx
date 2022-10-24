@@ -6,6 +6,7 @@ import { isMitoError } from "../../../utils/errors";
 import TextButton from "../../elements/TextButton";
 import Col from "../../layout/Col";
 import Row from "../../layout/Row";
+import Spacer from "../../layout/Spacer";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
@@ -49,6 +50,7 @@ export interface ImportDataAndImportErrors {
 }
 
 export const PRE_REPLAY_IMPORT_ERROR_TEXT = 'Please fix failed data imports to replay analysis.';
+export const SUCCESSFUL_REPLAY_ANALYSIS_TEXT = 'Successfully replayed analysis on new data.'
 
 
 /* 
@@ -59,6 +61,7 @@ export const PRE_REPLAY_IMPORT_ERROR_TEXT = 'Please fix failed data imports to r
 const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProps): JSX.Element => {
 
     const [loadingUpdate, setLoadingUpdate] = useState(false);
+    const [displaySuccessMessage, setDisplaySuccessMessage] = useState(false);
     
     let updateImportBody: React.ReactNode = null;
     const loadingImportDataAndErrors = props.importDataAndErrors === undefined;
@@ -160,12 +163,14 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
                                         if (isMitoError(replayAnalysisError)) {
                                             props.setInvalidReplayError(getErrorTextFromToFix(replayAnalysisError.to_fix))
                                         } else {
-                                            props.setUIState((prevUIState) => {
-                                                return {
-                                                    ...prevUIState,
-                                                    currOpenTaskpane: {type: TaskpaneType.NONE}
-                                                }
-                                            })
+                                            // Clear the error message if it exists
+                                            props.setInvalidReplayError(undefined)
+                                            // Show success message
+                                            setDisplaySuccessMessage(true)
+                                            // Since the stepIDs change when we replay the analysis on new data, we need to refresh
+                                            // the importData so the user can update the imports again without throwing an error.
+                                            const importData = await props.mitoAPI.getImportedFilesAndDataframesFromCurrentSteps();
+                                            props.setUpdatedStepImportData(importData)
                                         }
                                     }
                                 }
@@ -184,6 +189,14 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
                         </TextButton>
                     </Col>
                 </Row>
+                {displaySuccessMessage && 
+                    <p className='text-subtext-1'> 
+                        {SUCCESSFUL_REPLAY_ANALYSIS_TEXT}
+                    </p>
+                }
+                {!displaySuccessMessage && 
+                    <Spacer px={16}/>
+                }
             </DefaultTaskpaneFooter>
         </DefaultTaskpane>
     )

@@ -3,14 +3,14 @@ import MitoAPI from "../../../jupyter/api";
 import { SheetData, UIState } from "../../../types";
 import { isMitoError } from "../../../utils/errors";
 import TextButton from "../../elements/TextButton";
+import Spacer from "../../layout/Spacer";
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
-import { TaskpaneType } from "../taskpanes";
 import ImportCard from "./UpdateImportCard";
-import { ImportDataAndImportErrors } from "./UpdateImportsPreReplayTaskpane";
+import { ImportDataAndImportErrors, SUCCESSFUL_REPLAY_ANALYSIS_TEXT } from "./UpdateImportsPreReplayTaskpane";
 import { ReplacingDataframeState, StepImportData } from "./UpdateImportsTaskpane";
 import { getErrorTextFromToFix, getOriginalAndUpdatedDataframeCreationDataPairs } from "./updateImportsUtils";
 
@@ -48,6 +48,7 @@ interface UpdateImportPostReplayTaskpaneProps {
 const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpaneProps): JSX.Element => {
 
     const [loadingUpdate, setLoadingUpdate] = useState(false);
+    const [displaySuccessMessage, setDisplaySuccessMessage] = useState(false);
 
     let updateImportBody: React.ReactNode = null;
     if (props.importDataAndErrors === undefined) {
@@ -84,8 +85,6 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
         })
     }
     
-   
-
     const anyUpdated = props.updatedIndexes.length > 0;
     const invalidPostUpdate = Object.keys(props.invalidImportMessages).length > 0;
 
@@ -122,16 +121,20 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
                             // If there are no invalid indexes, then we can update. Since this is
                             // post replay, we are updating the existing imports
                             if (Object.keys(_invalidImportIndexes).length === 0) {
+                                console.log(props.updatedStepImportData)
                                 const possibleMitoError = await props.mitoAPI.updateExistingImports(props.updatedStepImportData);
+                                console.log('possibleMitoError: ', possibleMitoError)
                                 if (isMitoError(possibleMitoError)) {
                                     props.setInvalidReplayError(getErrorTextFromToFix(possibleMitoError.to_fix))
                                 } else {
-                                    props.setUIState((prevUIState) => {
-                                        return {
-                                            ...prevUIState,
-                                            currOpenTaskpane: {type: TaskpaneType.NONE}
-                                        }
-                                    })
+                                    // Clear the error message if it exists
+                                    props.setInvalidReplayError(undefined)
+                                    // Show success message
+                                    setDisplaySuccessMessage(true)
+                                    // Since the stepIDs change when we replay the analysis on new data, we need to refresh
+                                    // the importData so the user can update the imports again without throwing an error.
+                                    const importData = await props.mitoAPI.getImportedFilesAndDataframesFromCurrentSteps();
+                                    props.setUpdatedStepImportData(importData)
                                 }
                             }
                         }
@@ -147,6 +150,14 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
                         {!loadingUpdate ? "Change Imports" : "Changing Imports..."}
                     </p>
                 </TextButton>
+                {displaySuccessMessage && 
+                    <p className='text-subtext-1'> 
+                        {SUCCESSFUL_REPLAY_ANALYSIS_TEXT}
+                    </p>
+                }
+                {!displaySuccessMessage && 
+                    <Spacer px={16}/>
+                }
             </DefaultTaskpaneFooter>
         </DefaultTaskpane>
     )
