@@ -1,7 +1,7 @@
 import React from 'react'
 import { SLACK_INVITE_LINK } from '../../data/documentationLinks';
 import MitoAPI from '../../jupyter/api';
-import { UIState, UserProfile } from '../../types';
+import { MitoEnterpriseConfigKey, UIState, UserProfile } from '../../types';
 import { ModalEnum } from '../modals/modals';
 import { Width } from './sizes.d';
 import TextButton from './TextButton';
@@ -27,7 +27,7 @@ const GetSupportButton = (props: GetSupportButtonProps): JSX.Element => {
             className={props.className}
             variant='dark'
             width={props.width || 'medium'}
-            href={props.userProfile.mitoConfig['support_email'] === DEFAULT_SUPPORT_EMAIL ? SLACK_INVITE_LINK : `mailto:${props.userProfile.mitoConfig['support_email']}`}
+            href={props.userProfile.mitoConfig[MitoEnterpriseConfigKey.SUPPORT_EMAIL] === DEFAULT_SUPPORT_EMAIL ? SLACK_INVITE_LINK : `mailto:${props.userProfile.mitoConfig[MitoEnterpriseConfigKey.SUPPORT_EMAIL]}`}
             target='_blank'
             onClick={() => {
                 props.setUIState((prevUIState) => {
