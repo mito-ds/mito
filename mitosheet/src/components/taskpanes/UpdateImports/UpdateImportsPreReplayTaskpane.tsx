@@ -102,7 +102,7 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
             <DefaultTaskpaneHeader 
                 header="Change Imports to Replay Analysis"
                 setUIState={props.setUIState}           
-                notCloseable
+                notCloseable={props.invalidReplayError !== undefined}
             />
             <DefaultTaskpaneBody>
                 {((props.invalidReplayError === PRE_REPLAY_IMPORT_ERROR_TEXT && !allErrorsUpdated) || (props.invalidReplayError !== undefined && props.invalidReplayError !== PRE_REPLAY_IMPORT_ERROR_TEXT)) && 

@@ -37,7 +37,7 @@ export const GRAPH_SAFETY_FILTER_CUTOFF = 1000;
 
 // Tooltips used to explain the Safety filter toggle
 const SAFETY_FILTER_DISABLED_MESSAGE = `Because you’re graphing less than ${GRAPH_SAFETY_FILTER_CUTOFF} rows of data, you can safely graph your data without applying a filter first.`
-const SAFETY_FILTER_ENABLED_MESSAGE = `Turning on Filter to Safe Size only graphs the first ${GRAPH_SAFETY_FILTER_CUTOFF} rows of your dataframe, ensuring that your browser tab won’t crash. Turning off Filter to Safe Size graphs the entire dataframe and may slow or crash your browser tab.`
+const SAFETY_FILTER_ENABLED_MESSAGE = `Turning on Limit ${GRAPH_SAFETY_FILTER_CUTOFF} only graphs the first ${GRAPH_SAFETY_FILTER_CUTOFF} rows of your dataframe, ensuring that your browser tab won’t crash. Turning it off graphs the entire dataframe and may slow or crash your browser tab.`
 
 const GRAPHS_THAT_DONT_SUPPORT_COLOR = [GraphType.DENSITY_HEATMAP]
 
@@ -316,7 +316,7 @@ function GraphSetupTab(
                     <Col>
                         <Row justify='space-between' align='center' suppressTopBottomMargin> 
                             <p className='text-header-3' >
-                                Filter to safe size &nbsp;
+                                Limit {GRAPH_SAFETY_FILTER_CUTOFF} rows &nbsp;
                             </p>
                             <Tooltip title={getDefaultSafetyFilter(props.sheetDataArray, graphSheetIndex) ? SAFETY_FILTER_ENABLED_MESSAGE : SAFETY_FILTER_DISABLED_MESSAGE}/>
                         </Row>

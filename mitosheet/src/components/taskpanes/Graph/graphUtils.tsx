@@ -16,11 +16,10 @@ const DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT = '#2F3E5D'
 
 // unless a graph type is provided
 export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: number, graphType?: GraphType): GraphParamsFrontend => {
-    const safetyFilter = getDefaultSafetyFilter(sheetDataArray, sheetIndex)
     graphType = graphType || GraphType.BAR
     return {
         graphPreprocessing: {
-            safety_filter_turned_on_by_user: safetyFilter
+            safety_filter_turned_on_by_user: true
         },
         graphCreation: {
             graph_type: graphType,
