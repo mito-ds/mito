@@ -16,6 +16,7 @@ from mitosheet._version import __version__
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.types import StepsManagerType
 from mitosheet.utils import NpEncoder
+from mitosheet.user import get_user_field, UJ_STATIC_USER_ID
 
 
 # Where all global .mito files are stored
@@ -123,14 +124,34 @@ def rename_saved_analysis(old_analysis_name, new_analysis_name):
         raise Exception(f'Invalid rename, with old and new analysis are {old_analysis_name} and {new_analysis_name}')
 
 
-def write_saved_analysis(analysis_path: str, steps_data: List[Dict[str, Any]], version: str=__version__) -> None:
+
+def write_saved_analysis(analysis_path: str, steps_manager: StepsManagerType, version: str=__version__) -> None:
+
+    saved_analysis_json = create_saved_analysis_json(steps_manager, version=version)
+
     with open(analysis_path, 'w+') as f:
-        saved_analysis = {
+        f.write(saved_analysis_json)
+
+
+static_user_id = None
+
+def create_saved_analysis_json(steps_manager: StepsManagerType, version: str=__version__):
+    global static_user_id
+    if static_user_id is None:
+        static_user_id = get_user_field(UJ_STATIC_USER_ID)
+        # TODO: do we want to error check this?
+
+    author_hash = 'test123' # TODO: make this a legit function
+
+    steps_data = make_steps_json_obj(steps_manager.steps_including_skipped)
+
+    saved_analysis = {
             'version': version,
-            'steps_data': steps_data
+            'author_hash': author_hash,
+            'steps_data': steps_data,
         }
 
-        f.write(json.dumps(saved_analysis, cls=NpEncoder))
+    return json.dumps(saved_analysis, cls=NpEncoder)
 
 
 def make_steps_json_obj(
@@ -184,6 +205,8 @@ def make_steps_json_obj(
 
     return steps_json_obj
 
+
+
 def write_analysis(steps_manager: StepsManagerType, analysis_name: str=None) -> None:
     """
     Writes the analysis saved in steps_manager to
@@ -205,10 +228,9 @@ def write_analysis(steps_manager: StepsManagerType, analysis_name: str=None) -> 
         analysis_name = steps_manager.analysis_name
 
     analysis_path = f'{SAVED_ANALYSIS_FOLDER}/{analysis_name}.json'
-    steps = make_steps_json_obj(steps_manager.steps_including_skipped)
 
     # Actually write the file
-    write_saved_analysis(analysis_path, steps)
+    write_saved_analysis(analysis_path, steps_manager)
 
 
 def register_analysis(analysis_name):

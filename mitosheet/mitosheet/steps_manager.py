@@ -17,7 +17,7 @@ from mitosheet.experiments.experiment_utils import get_current_experiment
 from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
-from mitosheet.saved_analyses.save_utils import get_analysis_exists
+from mitosheet.saved_analyses.save_utils import create_saved_analysis_json, get_analysis_exists
 from mitosheet.state import State
 from mitosheet.step import Step
 from mitosheet.step_performers import EVENT_TYPE_TO_STEP_PERFORMER
@@ -30,7 +30,6 @@ from mitosheet.updates import UPDATES
 from mitosheet.user.utils import is_pro, is_running_test
 from mitosheet.utils import (NpEncoder, dfs_to_array_for_json, get_new_id,
                              is_default_df_names)
-from mitosheet.updates.update_existing_imports import UPDATE_EXISTING_IMPORTS_UPDATE_EVENT
 
 
 def get_step_indexes_to_skip(step_list: List[Step]) -> Set[int]:
@@ -309,6 +308,7 @@ class StepsManager:
                 'renderCount': self.render_count,
                 'lastResult': self.curr_step.execution_data['result'] if 'result' in self.curr_step.execution_data else None,
                 'experiment': self.experiment,
+                'savedAnalysisJSON': create_saved_analysis_json(self)
             }
         )
 

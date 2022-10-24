@@ -24,8 +24,8 @@ import '../../css/sitewide/text.css';
 import '../../css/sitewide/widths.css';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import MitoAPI from '../jupyter/api';
-import { getArgs, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell } from '../jupyter/jupyterUtils';
-import { AnalysisData, DataTypeInMito, DFSource, EditorState, GridState, SheetData, UIState, UserProfile } from '../types';
+import { getArgs, getNotebookMetadata, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell, writeToNotebookMetadata } from '../jupyter/jupyterUtils';
+import { AnalysisData, DataTypeInMito, DFSource, EditorState, GridState, MitoError, SheetData, UIState, UserProfile } from '../types';
 import { createActions } from '../utils/actions';
 import { classNames } from '../utils/classNames';
 import { isMitoError } from '../utils/errors';
@@ -184,9 +184,23 @@ export const Mito = (props: MitoProps): JSX.Element => {
             if (analysisData.analysisToReplay) {
                 const analysisToReplayName = analysisData.analysisToReplay?.analysisName;
 
-                // First, if the analysis to replay does not exist at all, we just open an error modal
-                // and tell users that this does not exist on their computer
-                if (!analysisData.analysisToReplay.existsOnDisk) {
+                /**
+                 * We look for this analysis in two locations: in the notebook metadata, and on disk
+                 * as well. We try to run the one saved in the notebook first, and if it does not exist
+                 * then the one on disk. If neither of these exist, then we throw a replayed_nonexistant_analysis_failed
+                 * error for the user.
+                 */
+
+                const analysisSavedInNotebook = await getNotebookMetadata(`saved_analyses:${analysisToReplayName}`);
+
+                let error: MitoError | undefined = undefined;
+
+                if (analysisSavedInNotebook !== undefined) {
+                    // TODO: we need to do this one properly
+                    error = await props.mitoAPI.updateReplayAnalysis(analysisToReplayName);
+                } else if (analysisData.analysisToReplay.existsOnDisk) {
+                    error = await props.mitoAPI.updateReplayAnalysis(analysisToReplayName);
+                } else {
                     void props.mitoAPI.log('replayed_nonexistant_analysis_failed')
 
                     setUIState(prevUIState => {
@@ -202,13 +216,13 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             }
                         }
                     })
+
                     return;
                 }
-
-                // Then, we replay the analysis to replay!
-                const error = await props.mitoAPI.updateReplayAnalysis(analysisToReplayName);
                 
-                if (isMitoError(error)) {
+                // We need to make the error a const so that TypeScript can reason about it
+                const finalError = error;
+                if (isMitoError(finalError)) {
                     /**
                      * If an analysis fails to replay, we open the update import pre replay 
                      * taskpane with the error. The analysis either failed because an import
@@ -225,7 +239,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                                 type: TaskpaneType.UPDATEIMPORTS,
                                 failedReplayData: {
                                     analysisName: analysisToReplayName,
-                                    error: error
+                                    error: finalError
                                 }
                             }
                         }
@@ -255,10 +269,19 @@ export const Mito = (props: MitoProps): JSX.Element => {
         /**
          * We only write code after the render count has been incremented once, which
          * means that we have read in and replayed the updated analysis, etc. 
+         * 
+         * We also write the analysis to the metadata of the notebook in this case.
          */
         if (analysisData.renderCount >= 1) {
             // Finially, we can go and write the code!
             writeGeneratedCodeToCell(analysisData.analysisName, analysisData.code, userProfile.telemetryEnabled);
+            
+            // And we write the analysis to the metadata
+            writeToNotebookMetadata(
+                `saved_analyses:${analysisData.analysisName}`,
+                analysisData.savedAnalysisJSON
+            )
+
         }
         // TODO: we should store some data with analysis data to not make
         // this run too often?

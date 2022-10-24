@@ -258,6 +258,32 @@ function activateWidgetExtension(
         }
     });
 
+    app.commands.addCommand('set-metadata', {
+        label: 'Set Metadata',
+        execute: (args: any) => {
+            const key = args.key as string;
+            const value = args.value as string;
+            const notebook = tracker.currentWidget?.content;
+            const currentMetadata = notebook?.model?.metadata.get('mitosheet');
+            console.log("prevous metadata", currentMetadata);
+            const objectCurrentMetadata = JSON.parse(JSON.stringify({}))
+            notebook?.model?.metadata.set('mitosheet', {...objectCurrentMetadata, [key]: value});
+
+            console.log("Current notebooks metadata", notebook?.model?.metadata.get('mitosheet'));
+        }
+    })
+
+    app.commands.addCommand('get-metadata', {
+        label: 'Get Metadata',
+        execute: (args: any): string | undefined => {
+            const key = args.key as string;
+            const notebook = tracker.currentWidget?.content;
+            // TODO: check that this cast is legit
+            const currentMetadata = notebook?.model?.metadata.get('mitosheet') as Record<string, string>;
+            return currentMetadata ? currentMetadata[key] : undefined;
+        }
+    })
+
 
     /**
      * Keyboard shortcuts defined below.

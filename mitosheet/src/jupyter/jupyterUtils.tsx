@@ -17,7 +17,7 @@
 
 
 import MitoAPI from "./api"
-import { notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteGeneratedCodeToCell } from "./notebook/pluginUtils"
+import { getMetadataInNotebook, notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteGeneratedCodeToCell, setMetadataInNotebook } from "./notebook/pluginUtils"
 
 
 /**
@@ -95,5 +95,34 @@ export const getArgs = (analysisToReplayName: string | undefined): Promise<strin
             console.error("Not detected as in Jupyter Notebook or JupyterLab")
         }
         return resolve([]);
+    })
+}
+
+export const writeToNotebookMetadata = (key: string, value: string): void => {
+    console.log("Writing", key, "to", value)
+    if (isInJupyterLab()) {
+        window.commands?.execute('set-metadata', {
+            key: key,
+            value: value
+        });
+    } else if (isInJupyterNotebook()) {
+        setMetadataInNotebook(key, value);
+    } else {
+        console.error("Not detected as in Jupyter Notebook or JupyterLab")
+    }
+}
+
+export const getNotebookMetadata = (key: string): Promise<void | string> => {
+    console.log("getting value for", key)
+    // TODO!
+    return new Promise((resolve) => {
+        if (isInJupyterLab()) {
+            return;
+        } else if (isInJupyterNotebook()) {
+            return getMetadataInNotebook(key);
+        } else {
+            console.error("Not detected as in Jupyter Notebook or JupyterLab")
+        }
+        return resolve();
     })
 }

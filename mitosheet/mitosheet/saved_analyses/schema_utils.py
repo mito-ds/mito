@@ -10,6 +10,8 @@ steps within the file.
 """
 from typing import Any, Dict, Optional
 from mitosheet._version import __version__
+from mitosheet.user.db import get_user_field
+from mitosheet.user.schemas import UJ_STATIC_USER_ID
 
 
 def upgrade_saved_analysis_format_to_steps_data(saved_analysis: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
@@ -75,6 +77,39 @@ def upgrade_saved_analysis_format_to_steps_data(saved_analysis: Optional[Dict[st
         return saved_analysis
 
 
+def upgrade_saved_analysis_format_to_have_author_hash(saved_analysis: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    """
+    Upgrades a saved analysis to have an author hash
+
+    {
+        "version": "0.1.197",
+        "author": 'static user id',
+        "steps_data": [
+            {
+                "step_version": 1,
+                "step_type": "filter",
+                "params": {
+                    ....
+                }
+            }
+        ],
+    }
+    """ 
+    # If this saved analysis has the old format, we update it
+    if saved_analysis is None:
+        return None
+
+    if 'author_hash' not in saved_analysis:
+        static_user_id = get_user_field(UJ_STATIC_USER_ID)
+        steps_data = saved_analysis['steps_data']
+        author_hash = 'test123' # TODO: make this legit
+        
+        return {
+            **saved_analysis,
+            'author_hash': author_hash,
+        }
+    else:
+        return saved_analysis
 
 def is_prev_version(version: str, curr_version: str=__version__) -> bool:
     """
