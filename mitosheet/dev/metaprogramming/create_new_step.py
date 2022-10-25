@@ -322,7 +322,7 @@ def write_steptype_to_types_file(original_step_name: str) -> None:
 
     add_enum_value(path_to_types, STEPTYPE_MARKER, enum_name, step_name)
 
-def get_api_function_params(params: Dict[str, str]) -> str:
+def get_ts_function_params(params: Dict[str, str]) -> str:
 
     final_params = ''
 
@@ -332,7 +332,7 @@ def get_api_function_params(params: Dict[str, str]) -> str:
     return final_params.strip()
 
 
-def get_api_function_params_for_send(params: Dict[str, str]) -> str:
+def get_ts_function_params_for_send(params: Dict[str, str]) -> str:
     final_params = ''
 
     for param_name in params.keys():
@@ -347,7 +347,7 @@ def get_api_function_code(original_step_name: str, params: Dict[str, str]) -> st
 
     return f"""
     async edit{enum_name}(
-        {get_api_function_params(params)}
+        {get_ts_function_params(params)}
     ): Promise<void> {OPEN_BRACKET}
 
         const stepID = getRandomId();
@@ -356,7 +356,7 @@ def get_api_function_code(original_step_name: str, params: Dict[str, str]) -> st
             'type': '{step_name}_edit',
             'step_id': stepID,
             'params': {OPEN_BRACKET}
-                {get_api_function_params_for_send(params)}
+                {get_ts_function_params_for_send(params)}
             {CLOSE_BRACKET}
         {CLOSE_BRACKET}, {OPEN_BRACKET}{CLOSE_BRACKET})
     {CLOSE_BRACKET}

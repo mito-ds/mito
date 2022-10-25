@@ -18,7 +18,8 @@ from typing import Any, Callable, Dict, List, Optional
 
 from mitosheet._version import __version__, package_name
 from mitosheet.saved_analyses.schema_utils import (
-    is_prev_version, upgrade_saved_analysis_format_to_have_author_hash, upgrade_saved_analysis_format_to_steps_data)
+    is_prev_version, upgrade_saved_analysis_format_to_have_author_hash,
+    upgrade_saved_analysis_format_to_steps_data)
 from mitosheet.saved_analyses.step_upgraders.add_column import \
     upgrade_add_column_1_to_add_column_2
 from mitosheet.saved_analyses.step_upgraders.change_column_dtype import \

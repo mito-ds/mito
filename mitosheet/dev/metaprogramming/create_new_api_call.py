@@ -3,7 +3,7 @@
 
 from typing import Dict
 
-from metaprogramming.create_new_step import get_api_function_params
+from metaprogramming.create_new_step import get_ts_function_params
 from metaprogramming.utils.code_utils import CLOSE_BRACKET, OPEN_BRACKET
 from metaprogramming.utils.path_utils import (get_api_folder, get_src_folder,
                                               write_python_code_file)
@@ -67,8 +67,8 @@ def write_to_api_py_file(name: str) -> None:
 
 def get_typescript_api_code(name: str, params: Dict[str, str], result_params: Dict[str, str]) -> str:
     ts_function_name = "get" + "".join([s.title() for (idx, s) in enumerate(name.split('_')) if idx != 0])
-    params_type = F"{OPEN_BRACKET}{get_api_function_params(params)}{CLOSE_BRACKET}"
-    result_params_type = F"{OPEN_BRACKET}{get_api_function_params(result_params)}{CLOSE_BRACKET}"
+    params_type = F"{OPEN_BRACKET}{get_ts_function_params(params)}{CLOSE_BRACKET}"
+    result_params_type = F"{OPEN_BRACKET}{get_ts_function_params(result_params)}{CLOSE_BRACKET}"
 
     return f"""
     async {ts_function_name}(params: {params_type}): Promise<{result_params_type} | undefined> {OPEN_BRACKET}

@@ -23,6 +23,9 @@ def get_test_folder() -> Path:
 def get_api_folder() -> Path:
     return Path('../mitosheet/api')
 
+def get_updates_folder() -> Path:
+    return Path('../mitosheet/updates')
+
 def create_folder(path_to_folder: Path) -> None:
     if os.path.exists(path_to_folder):
         clear = input(f'{path_to_folder} already exists, do you want to clear it?: [y/n]').lower().startswith('y')

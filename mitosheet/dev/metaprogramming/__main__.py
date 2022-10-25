@@ -6,6 +6,7 @@ from metaprogramming.create_new_api_call import create_new_api_call
 from metaprogramming.create_new_icon import create_new_icon
 from metaprogramming.create_new_step import create_new_step
 from metaprogramming.create_new_taskpane import create_new_taskpane
+from metaprogramming.create_new_update import create_new_update_call
 from metaprogramming.utils.user_input_utils import read_params
 
 
@@ -17,6 +18,9 @@ def execute_create_new_icon(args: argparse.Namespace) -> None:
 
 def execute_create_new_api_call(args: argparse.Namespace) -> None:
     create_new_api_call(args.name)
+
+def execute_create_new_update_call(args: argparse.Namespace) -> None:
+    create_new_update_call(args.name)
 
 
 def execute_create_new_taskpane(args: argparse.Namespace) -> None:
@@ -48,6 +52,10 @@ def main() -> None:
     parser_create_new_api_call = subparsers.add_parser('api', help='Create a new api call.')
     parser_create_new_api_call.add_argument('--name', required=True, help='The name of the api call to create. E.g. get_csv_files_metadata, get_value_counts')
     parser_create_new_api_call.set_defaults(func=execute_create_new_api_call)
+
+    parser_create_new_api_call = subparsers.add_parser('update', help='Create a new update event.')
+    parser_create_new_api_call.add_argument('--name', required=True, help='The name of the update event to create. E.g. go pro, render count')
+    parser_create_new_api_call.set_defaults(func=execute_create_new_update_call)
 
     parser_create_new_taskpane = subparsers.add_parser('taskpane', help='Create a new taskpane.')
     parser_create_new_taskpane.add_argument('--name', required=True, help='The name of the taskpane to create. E.g. Download, Import')
