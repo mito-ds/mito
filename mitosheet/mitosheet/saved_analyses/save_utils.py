@@ -135,7 +135,7 @@ def write_saved_analysis(analysis_path: str, steps_manager: StepsManagerType, ve
 
 static_user_id = None
 
-def create_saved_analysis_json(steps_manager: StepsManagerType, version: str=__version__):
+def create_saved_analysis_json(steps_manager: StepsManagerType, version: str=__version__) -> str:
     global static_user_id
     if static_user_id is None:
         static_user_id = get_user_field(UJ_STATIC_USER_ID)

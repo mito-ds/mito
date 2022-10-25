@@ -940,7 +940,12 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def replay_analysis(self, analysis_name: str, step_import_data_list_to_overwrite: List[Dict[str, Any]]=None) -> bool:
+    def replay_analysis(
+        self, 
+        analysis_name: str, 
+        analysis: Optional[Dict[str, Any]]=None,
+        step_import_data_list_to_overwrite: Optional[List[Dict[str, Any]]]=None
+    ) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
             {
@@ -949,6 +954,7 @@ class MitoWidgetTestWrapper:
                 'type': 'replay_analysis_update',
                 'params': {
                     'analysis_name': analysis_name,
+                    'analysis': analysis,
                     'step_import_data_list_to_overwrite': step_import_data_list_to_overwrite if step_import_data_list_to_overwrite is not None else []
                 },
             }

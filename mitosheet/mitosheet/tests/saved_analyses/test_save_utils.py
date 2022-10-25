@@ -334,3 +334,17 @@ def test_save_replays_overwrite_by_ids_propererly():
     assert new_mito.dfs[1].equals(
         pd.DataFrame({'A': [1, 2, 3], 'A count': [1, 1, 1]})
     )
+
+def test_replay_analysis_pass_analysis_upgrades_analysis():
+
+    df = pd.DataFrame({'A': [123], 'B': [123]})
+    mito = create_mito_wrapper_dfs(df)
+
+    mito.replay_analysis('not a name', analysis={
+        'version': '0.1.60',
+        'steps': {"1": {"step_version": 1, "step_type": "group", "sheet_index": 0, "group_rows": ["A"], "group_columns": [], "values": {"B": "sum"}}},
+    })
+
+    assert mito.dfs[1].equals(
+        pd.DataFrame({'A': [123], 'B_sum': [123]})
+    )

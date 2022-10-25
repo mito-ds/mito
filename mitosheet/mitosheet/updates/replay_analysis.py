@@ -107,7 +107,7 @@ def execute_replay_analysis_update(
     if len(step_import_data_list_to_overwrite) > 0:
         analysis = overwrite_import_data(analysis, step_import_data_list_to_overwrite)
 
-    steps_manager.execute_steps_data(new_steps_data=analysis['steps_data'])
+    steps_manager.execute_steps_data(new_steps_data=analysis['steps_data']) # type: ignore
 
     # NOTE: We update the analysis name only if the new steps execute correctly,
     # so that we actually do go about overwriting the saved analysis in this case.
