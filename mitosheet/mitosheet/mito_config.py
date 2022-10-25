@@ -50,8 +50,8 @@ class MitoConfig:
         self.mec = upgrade_mito_enterprise_configuration(mito_enterprise_configuration)
 
     def get_version(self) -> Optional[int] :
-        if self.mec is None or self.mec[MEC_CONFIG_KEY_VERSION] is None:
-            return None
+        if self.mec is None:
+            return 1 # NOTE: update this to be the most recent version, when we bump the version
         return self.mec[MEC_CONFIG_KEY_VERSION]
 
     def get_support_email(self) -> str:
