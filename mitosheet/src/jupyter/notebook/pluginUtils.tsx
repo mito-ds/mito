@@ -271,7 +271,7 @@ export const writeEmptyMitosheetCell = (): void => {
 }
 
 export const setMetadataInNotebook = (key: string, value: string): void => {
-    let currentMetadata = (window as any)?.Jupyter.notebook.metadata.mitosheet
+    const currentMetadata = (window as any)?.Jupyter.notebook.metadata.mitosheet
     if (currentMetadata !== undefined && currentMetadata !== null) {
         currentMetadata[key] = value;
     } else {
