@@ -14,7 +14,6 @@ import { AnalysisData, FeedbackID, SheetData, UIState } from '../../types';
 import { checkProAccessCode } from '../../utils/pro';
 import Experiment from '../elements/Experiment';
 import { TaskpaneType } from '../taskpanes/taskpanes';
-import { isVariantA } from '../../utils/experiments';
 
 /* 
     This file contains all the screens used in the signup modal. As these
