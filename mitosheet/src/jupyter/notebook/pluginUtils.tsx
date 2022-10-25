@@ -271,11 +271,23 @@ export const writeEmptyMitosheetCell = (): void => {
 }
 
 export const setMetadataInNotebook = (key: string, value: string): void => {
-    const currentMetadata = (window as any)?.Jupyter.notebook.metadata.mitosheet
-    currentMetadata[key] = value;
+    let currentMetadata = (window as any)?.Jupyter.notebook.metadata.mitosheet
+    if (currentMetadata !== undefined && currentMetadata !== null) {
+        currentMetadata[key] = value;
+    } else {
+        const metadata = (window as any)?.Jupyter.notebook.metadata;
+        if (metadata) {
+            metadata['mitosheet'] = {
+                key: value
+            }
+        }
+    }
 }
 
 export const getMetadataInNotebook = (key: string): string | undefined => {
     const currentMetadata = (window as any)?.Jupyter.notebook.metadata.mitosheet
-    return currentMetadata[key];
+    if (currentMetadata !== undefined && currentMetadata !== null) {
+        return currentMetadata[key];
+    }
+    return undefined;
 }

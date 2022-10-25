@@ -99,7 +99,7 @@ export const getArgs = (analysisToReplayName: string | undefined): Promise<strin
 }
 
 export const writeToNotebookMetadata = (key: string, value: string): void => {
-    console.log("Writing", key, "to", value)
+    console.log("Writing", value, "to", key)
     if (isInJupyterLab()) {
         window.commands?.execute('set-metadata', {
             key: key,
@@ -122,7 +122,7 @@ export const getNotebookMetadata = (key: string): Promise<void | string> => {
             })
             return;
         } else if (isInJupyterNotebook()) {
-            return getMetadataInNotebook(key);
+            return resolve(getMetadataInNotebook(key));
         } else {
             console.error("Not detected as in Jupyter Notebook or JupyterLab")
         }
