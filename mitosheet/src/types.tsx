@@ -617,14 +617,17 @@ export enum DataTypeInMito {
     PERSONAL = 'personal',
 }
 
-
-
 export type ExperimentID = 
     | 'title_name';
 
 interface Experiment {
     experiment_id: ExperimentID;
     variant: "A" | "B";
+}
+
+export enum MitoEnterpriseConfigKey {
+    MEC_VERSION = 'mec_version',
+    SUPPORT_EMAIL = 'support_email'
 }
 
 
@@ -687,6 +690,10 @@ export interface UserProfile {
     isLocalDeployment: boolean;
     shouldUpgradeMitosheet: boolean;
     numUsages: number;
+    mitoConfig: {
+        [MitoEnterpriseConfigKey.MEC_VERSION]: number | undefined
+        [MitoEnterpriseConfigKey.SUPPORT_EMAIL]: string
+    };
 }
 
 

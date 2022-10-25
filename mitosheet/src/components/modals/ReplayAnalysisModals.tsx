@@ -2,12 +2,12 @@
 
 import React, { Fragment, useState } from 'react';
 import MitoAPI from '../../jupyter/api';
-import { SLACK_INVITE_LINK } from '../../data/documentationLinks';
 import { overwriteAnalysisToReplayToMitosheetCall } from '../../jupyter/jupyterUtils';
-import { MitoError, UIState } from '../../types';
+import { MitoError, UIState, UserProfile } from '../../types';
 import DefaultModal from '../DefaultModal';
 import TextButton from '../elements/TextButton';
 import { ModalEnum } from './modals';
+import GetSupportButton from '../elements/GetSupportButton';
 
 
 
@@ -20,6 +20,7 @@ const ErrorReplayedAnalysisModal = (
     props: {
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
         mitoAPI: MitoAPI,
+        userProfile: UserProfile,
 
         header: string,
         message: string,
@@ -55,14 +56,11 @@ const ErrorReplayedAnalysisModal = (
             }
             buttons={
                 <>
-                    <TextButton
-                        variant='light'
-                        width='medium'
-                        href={SLACK_INVITE_LINK}
-                        target='_blank'
-                    >
-                        Get Support
-                    </TextButton>
+                    <GetSupportButton 
+                        userProfile={props.userProfile} 
+                        setUIState={props.setUIState} 
+                        mitoAPI={props.mitoAPI}
+                    />
                     <TextButton
                         variant='dark'
                         width='medium'

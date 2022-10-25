@@ -11,7 +11,6 @@ import DropdownItem from '../elements/DropdownItem';
 import { getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs } from '../endo/selectionUtils';
 import { getDtypeSelectOptions } from '../taskpanes/ControlPanel/FilterAndSortTab/DtypeCard';
 import { TaskpaneType } from '../taskpanes/taskpanes';
-import OpenOnboardingChecklist from './OpenChecklistButton';
 import PlanButton from './PlanButton';
 import ToolbarButton from './ToolbarButton';
 import ToolbarColumnsDropdown from './ToolbarColumnsDropdown';
@@ -22,6 +21,7 @@ import ToolbarFormatDropdown from './ToolbarFormatDropdown';
 import ToolbarGraphsDropdown from './ToolbarGraphsDropdown';
 import ToolbarHelpDropdown from './ToolbarHelpDropdown';
 import ToolbarRowsDropdown from './ToolbarRowsDropdown.tsx';
+import GetSupportButton from '../elements/GetSupportButton';
 import ToolbarViewDropdown from './ToolbarViewDropdown';
 import { ToolbarButtonType } from './utils';
 
@@ -43,7 +43,7 @@ const Toolbar = (
         setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
         analysisData: AnalysisData,
         sheetIndex: number
-    }): JSX.Element => {    
+    }): JSX.Element => {  
 
     return (
         <div className='toolbar-container'>
@@ -107,12 +107,13 @@ const Toolbar = (
                         />
                     </ToolbarMenu>
                 </div>
-                <div className='flexbox-row' style={{gap: '10px'}}>
-                    <OpenOnboardingChecklist
-                        userProfile={props.userProfile}
-                        setUIState={props.setUIState}
-                        mitoAPI={props.mitoAPI}
-                        analysisData={props.analysisData}
+                <div className='toolbar-top-right'>
+                    <GetSupportButton 
+                        userProfile={props.userProfile} 
+                        setUIState={props.setUIState} 
+                        mitoAPI={props.mitoAPI} 
+                        width='small'
+                        className='plan-button'
                     />
                     <PlanButton
                         uiState={props.uiState}
