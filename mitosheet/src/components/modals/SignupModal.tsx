@@ -344,7 +344,7 @@ const SignupModal = (
                 return {
                     ...prevUIState,
                     currOpenModal: {type: ModalEnum.None},
-                    currOpenTaskpanel: {type: isVariantA(props.analysisData) ? TaskpaneType.NONE : TaskpaneType.IMPORT_FILES},
+                    currOpenTaskpanel: {type: TaskpaneType.IMPORT_FILES},
                 }
             })
             void props.mitoAPI.log('finished_signup');

@@ -68,9 +68,6 @@ import UpgradeToProTaskpane from './taskpanes/UpgradeToPro/UpgradeToProTaskpane'
 import Toolbar from './toolbar/Toolbar';
 import Tour from './tour/Tour';
 import { TourName } from './tour/Tours';
-import { isVariantA } from '../utils/experiments';
-import { CHECKLIST_STEPS } from './checklists/checklistData';
-import { getRemainingChecklistItems } from './checklists/Checklist';
 
 export type MitoProps = {
     model_id: string;
@@ -749,18 +746,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
         const toursToDisplay: TourName[] = []
 
-        // If we are in variant B, then we display the tour to the user. In either case, we 
-        // take special care to set the user json as if we also did the other variant, so
-        // that make sure the user.json for all users is valid at the end of the experiment
+        // We display the INTRO to users if they have not received it
         if (!userProfile.receivedTours.includes(TourName.INTRO)) {
-            if (isVariantA(analysisData)) {
-                void props.mitoAPI.updateCloseTour([TourName.INTRO]);
-            } else {
-                toursToDisplay.push(TourName.INTRO);
-                if (getRemainingChecklistItems(userProfile).length !== 0) {
-                    void props.mitoAPI.updateChecklist('onboarding_checklist', CHECKLIST_STEPS['onboarding_checklist'], false)
-                }
-            }
+            toursToDisplay.push(TourName.INTRO);
         }
 
         // If we open the cell editor for the first time, we give the user this tour
