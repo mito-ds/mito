@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import MitoAPI from "../../../jupyter/api";
-import { SheetData, UIState } from "../../../types";
+import { PopupLocation, PopupType, SheetData, UIState } from "../../../types";
 import { isMitoError } from "../../../utils/errors";
 import TextButton from "../../elements/TextButton";
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
@@ -130,7 +130,13 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
                                         return {
                                             ...prevUIState,
                                             currOpenTaskpane: {type: TaskpaneType.NONE},
-                                            ephemeralMessage: `Successfully replayed analysis on new data`
+                                            currOpenPopups: {
+                                                ...prevUIState.currOpenPopups,
+                                                [PopupLocation.TopRight]: {
+                                                    type: PopupType.EphemeralMessage, 
+                                                    message: 'Successfully replayed analysis on new data'
+                                                }
+                                            }
                                         }
                                     })
                                 }

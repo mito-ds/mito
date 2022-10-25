@@ -6,14 +6,12 @@ import LoadingIndicator from '../LoadingIndicator';
 import '../../../css/elements/BottomLeftPopup.css';
 import MitoAPI from '../../jupyter/api';
 import { ModalInfo } from '../modals/modals';
-import EphemeralMessage from '../EphemeralMessage';
 
 const BottomLeftPopup = (props: {
     analysisData: AnalysisData
     userProfile: UserProfile,
     mitoAPI: MitoAPI
     loading: [string, string | undefined, string][],
-    ephemeralMessage: string | undefined
     sheetDataArray: SheetData[],
     currOpenModal: ModalInfo,
     actions: Record<ActionEnum, Action>
@@ -42,14 +40,6 @@ const BottomLeftPopup = (props: {
                 <div className='bottom-left-popup-container'>
                     <LoadingIndicator loading={props.loading}/>
                 </div>
-            }
-            {!displayLoadingIndicator && props.ephemeralMessage &&
-                <div className='bottom-left-popup-container'>
-                    <EphemeralMessage 
-                        message={props.ephemeralMessage}
-                        setUIState={props.setUIState}
-                    />
-                </div>    
             }
         </>
     )
