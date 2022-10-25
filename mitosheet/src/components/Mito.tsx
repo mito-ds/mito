@@ -191,13 +191,16 @@ export const Mito = (props: MitoProps): JSX.Element => {
                  * error for the user.
                  */
 
-                const analysisSavedInNotebook = await getNotebookMetadata(`saved_analyses:${analysisToReplayName}`);
+                const analysisSavedInNotebookJSON = await getNotebookMetadata(`saved_analyses:${analysisToReplayName}`);
+                const analysisSavedInNotebook: Record<string, string> | undefined = analysisSavedInNotebookJSON !== undefined ? JSON.parse(analysisSavedInNotebookJSON) : undefined;
+                
+                console.log("Got analysis saved in notebook", analysisSavedInNotebook);
 
                 let error: MitoError | undefined = undefined;
 
                 if (analysisSavedInNotebook !== undefined) {
                     // TODO: we need to do this one properly
-                    error = await props.mitoAPI.updateReplayAnalysis(analysisToReplayName);
+                    error = await props.mitoAPI.updateReplayAnalysis(analysisToReplayName, analysisSavedInNotebook);
                 } else if (analysisData.analysisToReplay.existsOnDisk) {
                     error = await props.mitoAPI.updateReplayAnalysis(analysisToReplayName);
                 } else {
@@ -281,7 +284,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 `saved_analyses:${analysisData.analysisName}`,
                 analysisData.savedAnalysisJSON
             )
-
         }
         // TODO: we should store some data with analysis data to not make
         // this run too often?

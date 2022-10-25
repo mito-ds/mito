@@ -146,10 +146,10 @@ def create_saved_analysis_json(steps_manager: StepsManagerType, version: str=__v
     steps_data = make_steps_json_obj(steps_manager.steps_including_skipped)
 
     saved_analysis = {
-            'version': version,
-            'author_hash': author_hash,
-            'steps_data': steps_data,
-        }
+        'version': version,
+        'author_hash': author_hash,
+        'steps_data': steps_data,
+    }
 
     return json.dumps(saved_analysis, cls=NpEncoder)
 

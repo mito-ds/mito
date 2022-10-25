@@ -117,6 +117,9 @@ export const getNotebookMetadata = (key: string): Promise<void | string> => {
     // TODO!
     return new Promise((resolve) => {
         if (isInJupyterLab()) {
+            window.commands?.execute('get-metadata', {key: key}).then(async (value: string) => {
+                return resolve(value);
+            })
             return;
         } else if (isInJupyterNotebook()) {
             return getMetadataInNotebook(key);

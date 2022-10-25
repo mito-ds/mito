@@ -7,11 +7,11 @@
 Replays an existing analysis
 """
 from copy import copy, deepcopy
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from mitosheet.errors import make_no_analysis_error
 
 from mitosheet.telemetry.telemetry_utils import log
-from mitosheet.saved_analyses import read_and_upgrade_analysis
+from mitosheet.saved_analyses import read_and_upgrade_analysis, upgrade_saved_analysis_to_current_version
 from mitosheet.types import StepsManagerType
 from mitosheet.step_performers.import_steps import is_import_step_type
 from mitosheet.api.get_imported_files_and_dataframes_from_current_steps import get_import_data_with_single_import_list
@@ -19,6 +19,7 @@ from mitosheet.api.get_imported_files_and_dataframes_from_current_steps import g
 REPLAY_ANALYSIS_UPDATE_EVENT = 'replay_analysis_update'
 REPLAY_ANALYSIS_UPDATE_PARAMS = [
     'analysis_name',
+    'analysis',
     'step_import_data_list_to_overwrite'
 ]
 
@@ -67,6 +68,7 @@ def overwrite_import_data(analysis: Dict[str, Any], step_import_data_list_to_ove
 def execute_replay_analysis_update(
         steps_manager: StepsManagerType,
         analysis_name: str,
+        analysis: Optional[Dict[str, str]],
         step_import_data_list_to_overwrite: List[Dict[str, Any]]
     ) -> None:
     """
@@ -85,8 +87,16 @@ def execute_replay_analysis_update(
     if analysis_name == steps_manager.analysis_name:
         return
 
-    # If we're getting an event telling us to update, we read in the steps from the file
-    analysis = read_and_upgrade_analysis(analysis_name)
+    if analysis is None:
+        print("READING IN", analysis_name)
+        # If we aren't provided steps from the frontend, then we have to 
+        # go and get these steps from the disk
+        analysis = read_and_upgrade_analysis(analysis_name)
+    else:
+        print("USING", analysis)
+        # Otherwise, we just have to make sure that the analysis we're using
+        # is upgraded
+        analysis = upgrade_saved_analysis_to_current_version(analysis)
 
     # If there is no analysis with this name, generate an error
     if analysis is None:
@@ -97,10 +107,7 @@ def execute_replay_analysis_update(
     if len(step_import_data_list_to_overwrite) > 0:
         analysis = overwrite_import_data(analysis, step_import_data_list_to_overwrite)
 
-    try:
-        steps_manager.execute_steps_data(new_steps_data=analysis['steps_data'])
-    except:
-        raise
+    steps_manager.execute_steps_data(new_steps_data=analysis['steps_data'])
 
     # NOTE: We update the analysis name only if the new steps execute correctly,
     # so that we actually do go about overwriting the saved analysis in this case.
