@@ -15,6 +15,7 @@ from typing import Any, Dict, List, Optional
 from mitosheet._version import __version__
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.types import StepsManagerType
+from mitosheet.user.utils import is_running_test
 from mitosheet.utils import NpEncoder
 from mitosheet.user import get_user_field, UJ_STATIC_USER_ID
 
@@ -132,22 +133,33 @@ def write_saved_analysis(analysis_path: str, steps_manager: StepsManagerType, ve
     with open(analysis_path, 'w+') as f:
         f.write(saved_analysis_json)
 
-
 static_user_id = None
 
-def create_saved_analysis_json(steps_manager: StepsManagerType, version: str=__version__) -> str:
+
+TEST_AUTHOR_HASH = 'test-hash'
+def get_author_hash(steps_data:  List[Dict[str, Any]]) -> str:
+    """
+    For security reasons, we store the hash... to explain this
+    
+    """
     global static_user_id
     if static_user_id is None:
         static_user_id = get_user_field(UJ_STATIC_USER_ID)
         # TODO: do we want to error check this?
 
-    author_hash = 'test123' # TODO: make this a legit function
+    if is_running_test():
+        return TEST_AUTHOR_HASH
+    else:
+        # TODO: return a real hash, of the static user id 
+        return 'real-hash'
 
+def create_saved_analysis_json(steps_manager: StepsManagerType, version: str=__version__) -> str:
+    
     steps_data = make_steps_json_obj(steps_manager.steps_including_skipped)
 
     saved_analysis = {
         'version': version,
-        'author_hash': author_hash,
+        'author_hash': get_author_hash(steps_data),
         'steps_data': steps_data,
     }
 

@@ -6,6 +6,7 @@
 import json
 import os
 from pathlib import Path
+from mitosheet.saved_analyses.save_utils import TEST_AUTHOR_HASH
 from mitosheet.step_performers.graph_steps.plotly_express_graphs import DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT, DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT, DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT
 import pytest
 import pandas as pd
@@ -40,7 +41,8 @@ UPGRADE_TESTS = [
             "steps": {"1": {"step_version": 1, "step_type": "add_column", "sheet_index": 0, "column_header": "["}}
         },
         {
-            "version": __version__, 
+            "version": __version__,  
+            "author_hash": TEST_AUTHOR_HASH,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "add_column", 'params': { "sheet_index": 0, "column_header": "[", "column_header_index": -1}}]
         }
     ),
@@ -51,18 +53,21 @@ UPGRADE_TESTS = [
             "steps_data": [{"step_version": 1, "step_type": "change_column_dtype", "params": {"sheet_index": 0, "column_header": "Median_Income", "new_dtype": "int", "old_dtype": "float64"}}]
         },
         {
-            "version": __version__, 
+            "version": __version__,  
+            "author_hash": TEST_AUTHOR_HASH,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 3, "step_type": "change_column_dtype", "params": {"sheet_index": 0, "column_ids": [get_column_header_id("Median_Income")], "new_dtype": "int", "old_dtypes": {get_column_header_id("Median_Income"): "float64"}}}]
         }
     ),
     # Rename a column 
     (
         {
-            "version": '0.1.338', 
+            "version": '0.1.338',  
+            "author_hash": TEST_AUTHOR_HASH,
             "steps_data": [{"step_version": 1, "step_type": "rename_column", "params": {"sheet_index": 0, "old_column_header": "Zip", "new_column_header": "Zip1"}}]
         },
         {
-            "version": __version__, 
+            "version": __version__,  
+            "author_hash": TEST_AUTHOR_HASH,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "rename_column", "params": {"sheet_index": 0, "column_id": get_column_header_id("Zip"), "new_column_header": "Zip1"}}]
         }
     ),
@@ -73,7 +78,8 @@ UPGRADE_TESTS = [
             "steps_data": [{"step_version": 1, "step_type": "reorder_column", "params": {"sheet_index": 0, "column_header": "Zip1", "new_column_index": 2}}]
         },
         {
-            "version": __version__, 
+            "version": __version__,  
+            "author_hash": TEST_AUTHOR_HASH,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "reorder_column", "params": {"sheet_index": 0, "column_id": get_column_header_id("Zip1"), "new_column_index": 2}}]
         }
     ),
@@ -84,7 +90,8 @@ UPGRADE_TESTS = [
             "steps": {"1": {"step_version": 1, "step_type": "add_column", "sheet_index": 0, "column_header": "D"}, "2": {"step_version": 1, "step_type": "add_column", "sheet_index": 0, "column_header": "E"}, "3": {"step_version": 1, "step_type": "set_column_formula", "sheet_index": 0, "column_header": "D", "old_formula": "=0", "new_formula": "=OFFSET(B, -1)"}, "4": {"step_version": 1, "step_type": "delete_column", "sheet_index": 0, "column_header": "D"}}
         },
         {
-            "version": __version__, 
+            "version": __version__,  
+            "author_hash": TEST_AUTHOR_HASH,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "add_column", 'params': {"sheet_index": 0, "column_header": "D", "column_header_index": -1}}, {"step_version": 2, "step_type": "add_column", 'params': {"sheet_index": 0, "column_header": "E", "column_header_index": -1}}, {"step_version": 2, "step_type": "set_column_formula", 'params': {"sheet_index": 0, "column_id": get_column_header_id("D"), "old_formula": "=0", "new_formula": "=OFFSET(B, -1)"}}, {"step_version": 3, "step_type": "delete_column", 'params': {"sheet_index": 0, "column_ids": [get_column_header_id("D")]}}]
         }
     ),
@@ -95,7 +102,8 @@ UPGRADE_TESTS = [
             "steps": {"1": {"step_version": 1, "step_type": "merge", "sheet_index_one": 0, "sheet_index_two": 1, "merge_key_one": "Name", "merge_key_two": "Name", "selected_columns_one": ["Name", "Number"], "selected_columns_two": ["Name", "Sign"]}, "2": {"step_version": 1, "step_type": "sort", "sheet_index": 2, "column_header": "Number", "sort_direction": "descending"}}
         },
         {
-            "version": __version__, 
+            "version": __version__,  
+            "author_hash": TEST_AUTHOR_HASH,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 4, "step_type": "merge", 'params': {"how": 'lookup', "sheet_index_one": 0, "sheet_index_two": 1, "merge_key_column_ids": [[get_column_header_id("Name"), get_column_header_id("Name")]], "selected_column_ids_one": get_column_header_ids(["Name", "Number"]), "selected_column_ids_two": get_column_header_ids(["Name", "Sign"])}}, {"step_version": 2, "step_type": "sort", 'params': {"sheet_index": 2, "column_id": get_column_header_id("Number"), "sort_direction": "descending"}}]
         },
     ),
@@ -107,6 +115,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
+            "author_hash": TEST_AUTHOR_HASH, 
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "sort", 'params': {"sheet_index": 0, "column_id": get_column_header_id("String"), "sort_direction": "ascending"}}]
         },
     ),
@@ -114,11 +123,13 @@ UPGRADE_TESTS = [
     # and then further upgrade to the most recently pivot version
     (
         {
-            "version": "0.1.54", 
+            "version": "0.1.54",  
+            "author_hash": TEST_AUTHOR_HASH,
             "steps": {"1": {"step_version": 1, "step_type": "group", "sheet_index": 0, "group_rows": ["Name"], "group_columns": [], "values": {"Height": "sum"}}}
         },
         {
-            "version": __version__, 
+            "version": __version__,  
+            "author_hash": TEST_AUTHOR_HASH,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 6, "step_type": "pivot", 'params': {"flatten_column_headers": True, "use_deprecated_id_algorithm": True, "sheet_index": 0, "pivot_rows_column_ids": get_column_header_ids(["Name"]), "pivot_columns_column_ids": [], "values_column_ids_map": {get_column_header_id("Height"): ["sum"]}}}, {'params': {}, 'step_type': 'bulk_old_rename', 'step_version': 1}]
         }
     ), 
@@ -130,7 +141,8 @@ UPGRADE_TESTS = [
             "steps": {"1": {"step_version": 1, "step_type": "add_column", "sheet_index": 0, "column_header": "B"}, "2": {"step_version": 1, "step_type": "set_column_formula", "sheet_index": 0, "column_header": "B", "old_formula": "=0", "new_formula": "=1"}, "3": {"step_version": 1, "step_type": "group", "sheet_index": 0, "group_rows": ["Name"], "group_columns": ["DORK"], "values": {"Height": "sum"}}}
         },
         {
-            "version": __version__, 
+            "version": __version__,  
+            "author_hash": TEST_AUTHOR_HASH,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "add_column", 'params': {"sheet_index": 0, "column_header": "B", "column_header_index": -1}}, {"step_version": 2, "step_type": "set_column_formula", 'params': {"sheet_index": 0, "column_id": get_column_header_id("B"), "old_formula": "=0", "new_formula": "=1"}}, {"step_version": 6, "step_type": "pivot", 'params': {"flatten_column_headers": True, "use_deprecated_id_algorithm": True, "sheet_index": 0, "pivot_rows_column_ids": get_column_header_ids(["Name"]), "pivot_columns_column_ids": get_column_header_ids(["DORK"]), "values_column_ids_map": {get_column_header_id("Height"): ["sum"]}}}, {'params': {}, 'step_type': 'bulk_old_rename', 'step_version': 1}, ]
         },
     ), 
@@ -141,7 +153,8 @@ UPGRADE_TESTS = [
             "steps": {"1": {"step_version": 1, "step_type": "simple_import", "file_names": ["NamesNew.csv"]}, "2": {"step_version": 1, "step_type": "add_column", "sheet_index": 0, "column_header": 'New_Column_Header'}}
         },
         {
-            "version": __version__, 
+            "version": __version__,  
+            "author_hash": TEST_AUTHOR_HASH,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "simple_import", 'params': {"file_names": ["NamesNew.csv"], "use_deprecated_id_algorithm": True}}, {'params': {}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "add_column", 'params': {"sheet_index": 0, "column_header": 'New_Column_Header', "column_header_index": -1}}]
         },
     ), 
@@ -152,7 +165,8 @@ UPGRADE_TESTS = [
             "steps": {"1": {"step_version": 1, "step_type": "simple_import", "file_names": ["NamesNew.csv"]}, "2": {"step_version": 1, "step_type": "delete_column", "sheet_index": 0, "column_header": 'New_Column_Header'}}
         },
         {
-            "version": __version__, 
+            "version": __version__,  
+            "author_hash": TEST_AUTHOR_HASH,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "simple_import", 'params': {"file_names": ["NamesNew.csv"], "use_deprecated_id_algorithm": True}}, {'params': {}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 3, "step_type": "delete_column", 'params': {"sheet_index": 0, "column_ids": ['New_Column_Header']}}]
         },
     ), 
@@ -163,7 +177,8 @@ UPGRADE_TESTS = [
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "simple_import", 'params': {"file_names": ["NamesNew.csv"], "use_deprecated_id_algorithm": True}}, {'params': {}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "delete_column", 'params': {"sheet_index": 0, "column_id": 'New_Column_Header'}}]
         },
         {
-            "version": __version__, 
+            "version": __version__,  
+            "author_hash": TEST_AUTHOR_HASH,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "simple_import", 'params': {"file_names": ["NamesNew.csv"], "use_deprecated_id_algorithm": True}}, {'params': {}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 3, "step_type": "delete_column", 'params': {"sheet_index": 0, "column_ids": ['New_Column_Header']}}]
         },
     ), 
@@ -174,7 +189,8 @@ UPGRADE_TESTS = [
             "steps": {"1": {"step_version": 1, "step_type": "filter_column", "sheet_index": 0, "column_header": "A", "filters": [{"type": "number", "condition": "greater", "value": 1}, {"filters": [{"type": "number", "condition": "greater", "value": 2}, {"type": "number", "condition": "greater", "value": 3}], "operator": "And"}], "operator": "And"}}
         },
         {
-            "version": __version__, 
+            "version": __version__,  
+            "author_hash": TEST_AUTHOR_HASH,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 4, "step_type": "filter_column", 'params': { "sheet_index": 0, "column_id": get_column_header_id("A"), "filters": [{"condition": "greater", "value": 1}, {"filters": [{"condition": "greater", "value": 2}, {"condition": "greater", "value": 3}], "operator": "And"}], "operator": "And"}}]
         }
     ), 
@@ -185,7 +201,8 @@ UPGRADE_TESTS = [
             "steps": {"1": {"step_version": 1, "step_type": "filter_column", "sheet_index": 1, "column_header": "event", "filters": [{"type": "string", "condition": "contains", "value": "sheet_view_creation"}], "operator": "Or"}}
         },
         {
-            "version": __version__, 
+            "version": __version__,  
+            "author_hash": TEST_AUTHOR_HASH,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 4, "step_type": "filter_column", 'params': {"sheet_index": 1, "column_id": get_column_header_id("event"), "filters": [{"condition": "contains", "value": "sheet_view_creation"}], "operator": "Or"}}]
         },
     ), 
@@ -197,6 +214,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
+            "author_hash": TEST_AUTHOR_HASH, 
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 4, "step_type": "filter_column", 'params': {"sheet_index": 1, "column_id": get_column_header_id("event"), "filters": [{"condition": "datetime_less", "value": "2010-12-12"}], "operator": "And"}}]
         },
     ), 
@@ -204,7 +222,8 @@ UPGRADE_TESTS = [
     (
         {   
             # NOTE: we set the version as to avoid the bulk_old_rename steps
-            "version": '0.3.131', 
+            "version": '0.3.131',  
+            "author_hash": TEST_AUTHOR_HASH,
             "steps_data": [
                 {"step_version": 1, "step_type": "rename_column", "params": {"sheet_index": 0, "old_column_header": "old", "new_column_header": "new"}}, 
                 # NOTE: in all of these steps, should only change the header if it is the _right one_ in the _right sheet_!
@@ -217,7 +236,8 @@ UPGRADE_TESTS = [
             ]
         },
         {
-            "version": __version__, 
+            "version": __version__,  
+            "author_hash": TEST_AUTHOR_HASH,
             "steps_data": [
                 {"step_version": 2, "step_type": "rename_column", "params": {"sheet_index": 0, "column_id": get_column_header_id("old"), "new_column_header": "new"}}, 
                 {"step_version": 4, "step_type": "merge", 'params': {"how": 'lookup', "sheet_index_one": 0, "sheet_index_two": 1, "merge_key_column_ids": [[get_column_header_id("old"), get_column_header_id("new")]], "selected_column_ids_one": [get_column_header_id("old")], "selected_column_ids_two": [get_column_header_id("new")]}},
@@ -233,7 +253,8 @@ UPGRADE_TESTS = [
     (
         {   
             # NOTE: we set the version as to avoid the bulk_old_rename steps
-            "version": '0.3.131', 
+            "version": '0.3.131',  
+            "author_hash": TEST_AUTHOR_HASH,
             "steps_data": [
                 {"step_version": 1, "step_type": "rename_column", "params": {"sheet_index": 0, "old_column_header": "old", "new_column_header": "new"}}, 
                 {"step_version": 1, "step_type": "dataframe_duplicate", "params": {"sheet_index": 0}}, 
@@ -242,7 +263,8 @@ UPGRADE_TESTS = [
             ]
         },
         {
-            "version": __version__, 
+            "version": __version__,  
+            "author_hash": TEST_AUTHOR_HASH,
             "steps_data": [
                 {"step_version": 2, "step_type": "rename_column", "params": {"sheet_index": 0, "column_id": get_column_header_id("old"), "new_column_header": "new"}}, 
                 {"step_version": 1, "step_type": "dataframe_duplicate", "params": {"sheet_index": 0}}, 
@@ -255,7 +277,8 @@ UPGRADE_TESTS = [
     (
         {   
             # NOTE: we set the version as to avoid the bulk_old_rename steps
-            "version": '0.3.131', 
+            "version": '0.3.131',  
+            "author_hash": TEST_AUTHOR_HASH,
             "steps_data": [
                 {"step_version": 1, "step_type": "rename_column", "params": {"sheet_index": 0, "old_column_header": "old", "new_column_header": "new"}}, 
                 {"step_version": 1, "step_type": "rename_column", "params": {"sheet_index": 0, "old_column_header": "new", "new_column_header": "newer"}}, 
@@ -268,7 +291,8 @@ UPGRADE_TESTS = [
             ]
         },
         {
-            "version": __version__, 
+            "version": __version__,  
+            "author_hash": TEST_AUTHOR_HASH,
             "steps_data": [
                 {"step_version": 2, "step_type": "rename_column", "params": {"sheet_index": 0, "column_id": get_column_header_id("old"), "new_column_header": "new"}}, 
                 {"step_version": 2, "step_type": "rename_column", "params": {"sheet_index": 0, "column_id": get_column_header_id("old"), "new_column_header": "newer"}}, 
@@ -283,7 +307,8 @@ UPGRADE_TESTS = [
     # Add graph styling params 
     (
         {
-            "version": "0.3.131", 
+            "version": "0.3.131",  
+            "author_hash": TEST_AUTHOR_HASH,
             "steps_data": [ 
                 {"step_version": 2, "step_type": "simple_import", "params": {"file_names": ["Tesla.csv"]}}, 
                 {"step_version": 2, "step_type": "change_column_dtype", "params": {"sheet_index": 0, "column_id": "Date", "new_dtype": "datetime", "old_dtype": "object"}}, {"step_version": 2, "step_type": "add_column", "params": {"sheet_index": 0, "column_header": "new-column-9rkm", "column_header_index": 1}}, 
@@ -292,7 +317,8 @@ UPGRADE_TESTS = [
             ]
         },
         {
-            "version": __version__, 
+            "version": __version__,  
+            "author_hash": TEST_AUTHOR_HASH,
             "steps_data": [ 
                 {"step_version": 2, "step_type": "simple_import", "params": {"file_names": ["Tesla.csv"]}}, 
                 {"step_version": 3, "step_type": "change_column_dtype", "params": {"sheet_index": 0, "column_ids": ["Date"], "new_dtype": "datetime", "old_dtypes": {"Date": "object"}}}, {"step_version": 2, "step_type": "add_column", "params": {"sheet_index": 0, "column_header": "new-column-9rkm", "column_header_index": 1}}, 
@@ -308,7 +334,8 @@ UPGRADE_TESTS = [
             "steps_data": [{"step_version": 1, "step_type": "excel_import", "params": {"file_name": "/Users/nathanrush/monorepo/mitosheet/datasets/small-datasets/small-excel.xlsx", "sheet_names": ["Sheet1"], "has_headers": True, "skiprows": 0}}, {"step_version": 1, "step_type": "change_column_format", "params": {"sheet_index": 0, "column_ids": ["0"], "format_type": {"type": "round decimals", "numDecimals": 4}}}, {"step_version": 1, "step_type": "change_column_format", "params": {"sheet_index": 0, "column_ids": ["0"], "format_type": {"type": "round decimals", "numDecimals": 1}}}, {"step_version": 2, "step_type": "simple_import", "params": {"file_names": ["Tesla.csv"]}}]
         },
         {
-            "version": __version__, 
+            "version": __version__,  
+            "author_hash": TEST_AUTHOR_HASH,
             "steps_data": [{"step_version": 1, "step_type": "excel_import", "params": {"file_name": "/Users/nathanrush/monorepo/mitosheet/datasets/small-datasets/small-excel.xlsx", "sheet_names": ["Sheet1"], "has_headers": True, "skiprows": 0}}, {"step_version": 2, "step_type": "simple_import", "params": {"file_names": ["Tesla.csv"]}}]
         },
     ),
@@ -316,10 +343,12 @@ UPGRADE_TESTS = [
     (
         {
             "version": "0.2.4", 
+            "author_hash": TEST_AUTHOR_HASH,
             "steps_data": [{"step_version": 2, "step_type": "simple_import", "params": {"file_names": ["tesla stock new.csv"]}}, {"step_version": 3, "step_type": "delete_column", "params": {"sheet_index": 0, "column_ids": ["Open New"]}}, {"step_version": 3, "step_type": "delete_column", "params": {"sheet_index": 0, "column_ids": ["Close"]}}, {"step_version": 1, "step_type": "set_dataframe_format", "params": {"sheet_index": 0, "df_format": {"columns": {}, "headers": {"color": "#FFFFFF", "backgroundColor": "#549D3A"}, "rows": {"even": {"color": "#494650", "backgroundColor": "#D0E3C9"}, "odd": {"color": "#494650"}}, "border": {}}}}]
         },
         {
             "version": __version__, 
+            "author_hash": TEST_AUTHOR_HASH,
             "steps_data": [{"step_version": 2, "step_type": "simple_import", "params": {"file_names": ["tesla stock new.csv"]}}, {"step_version": 3, "step_type": "delete_column", "params": {"sheet_index": 0, "column_ids": ["Open New"]}}, {"step_version": 3, "step_type": "delete_column", "params": {"sheet_index": 0, "column_ids": ["Close"]}}, {"step_version": 2, "step_type": "set_dataframe_format", "params": {"sheet_index": 0, "df_format": {"conditional_formats": [], "columns": {}, "headers": {"color": "#FFFFFF", "backgroundColor": "#549D3A"}, "rows": {"even": {"color": "#494650", "backgroundColor": "#D0E3C9"}, "odd": {"color": "#494650"}}, "border": {}}}}]
         }
     ),
@@ -350,6 +379,7 @@ def test_doesnt_upgrade_updated_format():
 
     new = {
         "version": __version__, 
+        "author_hash": TEST_AUTHOR_HASH,
         "steps_data": [{"step_version": 4, "step_type": "filter_column", 'params': {"sheet_index": 1, "column_id": get_column_header_id("event"), "filters": [{"condition": "datetime_less", "value": "2010-12-12"}], "operator": "And"}}]
     }
     

@@ -10,6 +10,7 @@ steps within the file.
 """
 from typing import Any, Dict, Optional
 from mitosheet._version import __version__
+from mitosheet.saved_analyses.save_utils import get_author_hash
 from mitosheet.user.db import get_user_field
 from mitosheet.user.schemas import UJ_STATIC_USER_ID
 
@@ -100,13 +101,9 @@ def upgrade_saved_analysis_format_to_have_author_hash(saved_analysis: Optional[D
         return None
 
     if 'author_hash' not in saved_analysis:
-        static_user_id = get_user_field(UJ_STATIC_USER_ID)
-        steps_data = saved_analysis['steps_data']
-        author_hash = 'test123' # TODO: make this legit
-        
         return {
             **saved_analysis,
-            'author_hash': author_hash,
+            'author_hash': get_author_hash(saved_analysis['steps_data']),
         }
     else:
         return saved_analysis

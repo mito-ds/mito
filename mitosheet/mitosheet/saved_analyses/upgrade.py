@@ -23,7 +23,7 @@ from mitosheet.saved_analyses.schema_utils import (
 from mitosheet.saved_analyses.step_upgraders.add_column import \
     upgrade_add_column_1_to_add_column_2
 from mitosheet.saved_analyses.step_upgraders.change_column_dtype import \
-    upgrade_change_column_dtype_1_to_2
+    upgrade_change_column_dtype_1_to_2, upgrade_change_column_dtype_2_to_3
 from mitosheet.saved_analyses.step_upgraders.change_column_format import \
     upgrade_change_column_format_1_to_remove
 from mitosheet.saved_analyses.step_upgraders.delete_column import (
@@ -93,7 +93,8 @@ STEP_UPGRADES_FUNCTION_MAPPING_NEW_FORMAT = {
         3: upgrade_merge_3_to_4,
     },
     'change_column_dtype': {
-        1: upgrade_change_column_dtype_1_to_2
+        1: upgrade_change_column_dtype_1_to_2,
+        2: upgrade_change_column_dtype_2_to_3
     },
     'delete_column': {
         1: upgrade_delete_column_1_to_2,
