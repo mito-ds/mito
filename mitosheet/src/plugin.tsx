@@ -10,7 +10,7 @@ import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { Application, IPlugin } from 'application';
 import { Widget } from "@lumino/widgets";
 import MitoAPI from './jupyter/api';
-import { getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell } from './jupyter/lab/pluginUtils';
+import { getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getCellWithCodeForAnalysis, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell } from './jupyter/lab/pluginUtils';
 import { containsGeneratedCodeOfAnalysis, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine } from './utils/code';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 import * as widgetExports from './jupyter/widget';
@@ -263,13 +263,12 @@ function activateWidgetExtension(
         execute: (args: any) => {
             const key = args.key as string;
             const value = args.value as string;
-            const notebook = tracker.currentWidget?.content;
-            const currentMetadata = notebook?.model?.metadata.get('mitosheet');
-            console.log("prevous metadata", currentMetadata);
-            const objectCurrentMetadata = JSON.parse(JSON.stringify({}))
-            notebook?.model?.metadata.set('mitosheet', {...objectCurrentMetadata, [key]: value});
+            const analysisName = args.analysisName as string;
 
-            console.log("Current notebooks metadata", notebook?.model?.metadata.get('mitosheet'));
+            const codeCellData = getCellWithCodeForAnalysis(tracker, analysisName);
+
+            const objectCurrentMetadata = JSON.parse(JSON.stringify({}))
+            codeCellData?.metadata.set('mitosheet', {...objectCurrentMetadata, [key]: value});
         }
     })
 
@@ -277,9 +276,11 @@ function activateWidgetExtension(
         label: 'Get Metadata',
         execute: (args: any): string | undefined => {
             const key = args.key as string;
-            const notebook = tracker.currentWidget?.content;
+            const analysisName = args.analysisName as string;
+
             // TODO: check that this cast is legit
-            const currentMetadata = notebook?.model?.metadata.get('mitosheet') as Record<string, string>;
+            const codeCellData = getCellWithCodeForAnalysis(tracker, analysisName);
+            const currentMetadata = codeCellData?.metadata.get('mitosheet') as Record<string, string>;
             return currentMetadata ? currentMetadata[key] : undefined;
         }
     })

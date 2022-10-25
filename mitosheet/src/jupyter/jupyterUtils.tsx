@@ -98,11 +98,12 @@ export const getArgs = (analysisToReplayName: string | undefined): Promise<strin
     })
 }
 
-export const writeToNotebookMetadata = (key: string, value: string): void => {
+export const writeToNotebookMetadata = (analysisName: string, key: string, value: string): void => {
     if (isInJupyterLab()) {
         window.commands?.execute('set-metadata', {
             key: key,
-            value: value
+            value: value,
+            analysisName: analysisName
         });
     } else if (isInJupyterNotebook()) {
         setMetadataInNotebook(key, value);
@@ -111,7 +112,7 @@ export const writeToNotebookMetadata = (key: string, value: string): void => {
     }
 }
 
-export const getNotebookMetadata = (key: string): Promise<void | string> => {
+export const getNotebookMetadata = (analysisName: string, key: string): Promise<void | string> => {
     return new Promise((resolve) => {
         if (isInJupyterLab()) {
             window.commands?.execute('get-metadata', {key: key}).then(async (value: string) => {

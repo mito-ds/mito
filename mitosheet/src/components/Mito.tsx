@@ -190,7 +190,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                  * this will be used to replay. Otherwise, the analysis on disk will be used
                  */
 
-                const analysisSavedInNotebookJSON = await getNotebookMetadata(`saved_analyses:${analysisToReplayName}`);
+                const analysisSavedInNotebookJSON = await getNotebookMetadata(analysisData.analysisName, `saved_analyses:${analysisToReplayName}`);
                 const analysisSavedInNotebook: Record<string, string> | undefined = analysisSavedInNotebookJSON !== undefined ? JSON.parse(analysisSavedInNotebookJSON) : undefined;
                 
                 // If there is no analysis anywhere, bail
@@ -281,6 +281,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
             
             // And we write the analysis to the metadata
             writeToNotebookMetadata(
+                analysisData.analysisName,
                 `saved_analyses:${analysisData.analysisName}`,
                 analysisData.savedAnalysisJSON
             )

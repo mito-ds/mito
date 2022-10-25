@@ -90,6 +90,25 @@ export function getCellCallingMitoshetWithAnalysis(tracker: INotebookTracker, an
     return undefined;
 }
 
+export function getCellWithCodeForAnalysis(tracker: INotebookTracker, analysisName: string): ICellModel | undefined {
+    const mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(tracker, analysisName);
+    if (mitosheetCallCellAndIndex === undefined) {
+        return;
+    }
+
+    const [, mitosheetCallIndex] = mitosheetCallCellAndIndex;
+
+    const notebook = tracker.currentWidget?.content;
+    const cells = notebook?.model?.cells;
+
+    if (notebook === undefined || cells === undefined) {
+        return;
+    }
+
+    const codeCell = getCellAtIndex(cells, mitosheetCallIndex + 1);
+    return codeCell;
+}
+
 
 /**
  * A function that returns the [cell, index] pair of the mitosheet.sheet() call that contains
