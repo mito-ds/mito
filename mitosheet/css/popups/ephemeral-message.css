@@ -1,9 +1,7 @@
 .ephemeral-message-container {
-    width: 290px;
     border-radius: 5px;
     padding: 15px 20px;
 
     background-color: var(--mito-purple);
-    color: var(--mito-white);
 }
 

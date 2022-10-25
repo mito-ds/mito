@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import MitoAPI from "../../../jupyter/api";
 import { overwriteAnalysisToReplayToMitosheetCall } from "../../../jupyter/jupyterUtils";
-import { AnalysisData, UIState } from "../../../types";
+import { AnalysisData, PopupLocation, PopupType, UIState } from "../../../types";
 import { isMitoError } from "../../../utils/errors";
 import TextButton from "../../elements/TextButton";
 import Col from "../../layout/Col";
@@ -164,7 +164,13 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
                                                 return {
                                                     ...prevUIState,
                                                     currOpenTaskpane: {type: TaskpaneType.NONE},
-                                                    ephemeralMessage: `Successfully replayed analysis on new data`
+                                                    currOpenPopups: {
+                                                        ...prevUIState.currOpenPopups,
+                                                        [PopupLocation.TopRight]: {
+                                                            type: PopupType.EphemeralMessage, 
+                                                            message: 'Successfully replayed analysis on new data'
+                                                        }
+                                                    }
                                                 }
                                             })
                                         }
