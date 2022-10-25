@@ -139,8 +139,14 @@ static_user_id = None
 TEST_AUTHOR_HASH = 'test-hash'
 def get_author_hash(steps_data:  List[Dict[str, Any]]) -> str:
     """
-    For security reasons, we store the hash... to explain this
-    
+    Sometimes, users are replaying an analysis that was saved in their notebook. In this case,
+    as they may be getting a notebook from a different user, we want to ensure that the user knows
+    what they are running. 
+
+    To do this, we take a hash of the steps_data combined with the static_user_id, which is something 
+    that is never shared with other users. Thus, the author_hash tells a user if some other user
+    has ever edited this analysis that is stored in the notebook, and thus we can prompt the user 
+    to review the saved analysis before running it.
     """
     global static_user_id
     if static_user_id is None:

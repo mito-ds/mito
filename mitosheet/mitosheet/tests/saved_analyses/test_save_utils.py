@@ -12,8 +12,9 @@ import random
 
 import pandas as pd
 import pytest
+from mitosheet._version import __version__
 from mitosheet.saved_analyses import SAVED_ANALYSIS_FOLDER, write_analysis
-from mitosheet.saved_analyses.save_utils import read_and_upgrade_analysis
+from mitosheet.saved_analyses.save_utils import TEST_AUTHOR_HASH, read_and_upgrade_analysis
 from mitosheet.step_performers.filter import FC_NUMBER_EXACTLY
 from mitosheet.tests.test_utils import (create_mito_wrapper,
                                         create_mito_wrapper_dfs)
@@ -333,6 +334,21 @@ def test_save_replays_overwrite_by_ids_propererly():
 
     assert new_mito.dfs[1].equals(
         pd.DataFrame({'A': [1, 2, 3], 'A count': [1, 1, 1]})
+    )
+
+def test_replay_analysis_pass_analysis():
+
+    df = pd.DataFrame({'A': [123]})
+    mito = create_mito_wrapper_dfs(df)
+
+    mito.replay_analysis('not a name', analysis={
+        'version': __version__,
+        'author_hash': TEST_AUTHOR_HASH,
+        "steps_data": [{"step_version": 2, "step_type": "add_column", 'params': { "sheet_index": 0, "column_header": "B", "column_header_index": -1}}]
+    })
+
+    assert mito.dfs[0].equals(
+        pd.DataFrame({'A': [123], 'B': [0]})
     )
 
 def test_replay_analysis_pass_analysis_upgrades_analysis():

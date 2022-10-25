@@ -645,8 +645,7 @@ interface Experiment {
  * @param lastResult - This is the result of the last step that was applied. This might be undefined if the 
  *        step does not return a result
  * @param experiment - The experiment that this user is currently running, which may not be defined
- * @param savedAnalysisJSON - The string that is saved in the analysis file that is stored on disk and in this
- *        notebook
+ * @param savedAnalysisJSON - The string that is saved in the analysis file that is stored on disk, and in the notebook metadata
  */
 export interface AnalysisData {
     analysisName: string,

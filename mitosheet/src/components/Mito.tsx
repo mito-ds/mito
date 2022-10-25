@@ -25,7 +25,7 @@ import '../../css/sitewide/widths.css';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import MitoAPI from '../jupyter/api';
 import { getArgs, getNotebookMetadata, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell, writeToNotebookMetadata } from '../jupyter/jupyterUtils';
-import { AnalysisData, DataTypeInMito, DFSource, EditorState, GridState, MitoError, SheetData, UIState, UserProfile } from '../types';
+import { AnalysisData, DataTypeInMito, DFSource, EditorState, GridState, SheetData, UIState, UserProfile } from '../types';
 import { createActions } from '../utils/actions';
 import { classNames } from '../utils/classNames';
 import { isMitoError } from '../utils/errors';
@@ -186,24 +186,15 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
                 /**
                  * We look for this analysis in two locations: in the notebook metadata, and on disk
-                 * as well. We try to run the one saved in the notebook first, and if it does not exist
-                 * then the one on disk. If neither of these exist, then we throw a replayed_nonexistant_analysis_failed
-                 * error for the user.
+                 * as well. When replaying, on the backend, if there is an analysisSavedInNotebook, then
+                 * this will be used to replay. Otherwise, the analysis on disk will be used
                  */
 
                 const analysisSavedInNotebookJSON = await getNotebookMetadata(`saved_analyses:${analysisToReplayName}`);
                 const analysisSavedInNotebook: Record<string, string> | undefined = analysisSavedInNotebookJSON !== undefined ? JSON.parse(analysisSavedInNotebookJSON) : undefined;
                 
-                console.log("Got analysis saved in notebook", analysisSavedInNotebook);
-
-                let error: MitoError | undefined = undefined;
-
-                if (analysisSavedInNotebook !== undefined) {
-                    // TODO: we need to do this one properly
-                    error = await props.mitoAPI.updateReplayAnalysis(analysisToReplayName, analysisSavedInNotebook);
-                } else if (analysisData.analysisToReplay.existsOnDisk) {
-                    error = await props.mitoAPI.updateReplayAnalysis(analysisToReplayName);
-                } else {
+                // If there is no analysis anywhere, bail
+                if (analysisSavedInNotebook === undefined && !analysisData.analysisToReplay.existsOnDisk) {
                     void props.mitoAPI.log('replayed_nonexistant_analysis_failed')
 
                     setUIState(prevUIState => {
@@ -221,11 +212,19 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     })
 
                     return;
+                } 
+
+                if (analysisSavedInNotebook !== undefined) {
+                    // TODO: check if the analysisSavedInNotebook is created by this user. We need to use an api
+                    // function that allows us to getCheckAuthorHash. if it is false, then we prompt the user in 
+                    // a modal to replay this analysis
+                    
                 }
+
+                // Otherwise, attempt to replay the analysis
+                const replayAnalysisError = await props.mitoAPI.updateReplayAnalysis(analysisToReplayName, analysisSavedInNotebook);
                 
-                // We need to make the error a const so that TypeScript can reason about it
-                const finalError = error;
-                if (isMitoError(finalError)) {
+                if (isMitoError(replayAnalysisError)) {
                     /**
                      * If an analysis fails to replay, we open the update import pre replay 
                      * taskpane with the error. The analysis either failed because an import
@@ -242,7 +241,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
                                 type: TaskpaneType.UPDATEIMPORTS,
                                 failedReplayData: {
                                     analysisName: analysisToReplayName,
-                                    error: finalError
+                                    analysis: analysisSavedInNotebook,
+                                    error: replayAnalysisError
                                 }
                             }
                         }

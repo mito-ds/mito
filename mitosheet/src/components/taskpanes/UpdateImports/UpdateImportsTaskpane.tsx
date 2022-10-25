@@ -53,6 +53,7 @@ export interface ReplacingDataframeState {
 
 export interface FailedReplayData {
     analysisName: string,
+    analysis: Record<string, any> | undefined,
     error: MitoError
 }
     

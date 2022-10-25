@@ -72,8 +72,12 @@ def execute_replay_analysis_update(
         step_import_data_list_to_overwrite: List[Dict[str, Any]]
     ) -> None:
     """
-    This function reapplies the analysis saved at analysis_name. Notably, if
-    step_import_data_list_to_overwrite are passed, this it overwrites all the
+    This function either:
+    1. reapplies the analysis saved at analysis_name
+    2. reapplies the analysis data passed through the variable analysis
+
+
+    Notably, if step_import_data_list_to_overwrite are passed, this it overwrites all the
     current import steps with the new updated import steps that are passed.
 
     This means that the number of dataframes created in step_import_data_list_to_overwrite,
@@ -88,14 +92,12 @@ def execute_replay_analysis_update(
         return
 
     if analysis is None:
-        print("READING IN", analysis_name)
         # If we aren't provided steps from the frontend, then we have to 
         # go and get these steps from the disk
         analysis = read_and_upgrade_analysis(analysis_name)
     else:
-        print("USING", analysis)
-        # Otherwise, we just have to make sure that the analysis we're using
-        # is upgraded
+        # Otherwise, we just have to make sure that the analysis provided from
+        # the frontend is upgraded as well
         analysis = upgrade_saved_analysis_to_current_version(analysis)
 
     # If there is no analysis with this name, generate an error
