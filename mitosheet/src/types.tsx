@@ -719,7 +719,7 @@ export type PopupInfo =
     | {type: PopupType.None} 
 
 export enum PopupLocation {
-    TopRight = 'top_right'
+    TopRight = 'top_right',
 }
 
 /**

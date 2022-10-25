@@ -25,7 +25,7 @@ const EphemeralMessage = (props: {
             return {
                 ...prevUIState,
                 currOpenPopups: {
-                    ...prevUIState,
+                    ...prevUIState.currOpenPopups,
                     [props.popupLocation]: {type: PopupType.None}
                 }
             }

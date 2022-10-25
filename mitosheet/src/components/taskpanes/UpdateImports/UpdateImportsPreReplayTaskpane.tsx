@@ -120,7 +120,9 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
                                     props.failedReplayData.analysisName,
                                     props.analysisData.analysisName,
                                     props.mitoAPI
-                                )
+                                ) 
+
+                                void props.mitoAPI.log('clicked_start_new_analysis_from_pre_replay_update_imports') 
                                 
                                 props.setUIState((prevUIState) => {
                                     return {
@@ -148,6 +150,12 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
                                         return;
                                     }
                                     props.setPostUpdateInvalidImportMessages(_invalidImportIndexes);
+
+                                    void props.mitoAPI.log('clicked_update_from_pre_replay_update_imports') 
+                                    void props.mitoAPI.log('get_test_import_results', {
+                                        'num_invalid_imports': Object.keys(_invalidImportIndexes).length,
+                                        'open_due_to_replay_error': true
+                                    })
 
                                     // If there are no invalid indexes, then we can update. Since this is
                                     // pre replay, we are replaying the analysis

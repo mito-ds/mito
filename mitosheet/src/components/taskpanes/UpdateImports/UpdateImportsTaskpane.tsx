@@ -88,7 +88,7 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
         async () => {
             let importData: StepImportData[] | undefined = undefined;
             let invalidImportIndexes: Record<number, string> | undefined = undefined;
-            
+
             if (failedReplayData !== undefined) {
                 importData = await props.mitoAPI.getImportedFilesAndDataframesFromAnalysisName(failedReplayData.analysisName);
                 invalidImportIndexes = await props.mitoAPI.getTestImports(importData || []);
@@ -96,6 +96,12 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 importData = await props.mitoAPI.getImportedFilesAndDataframesFromCurrentSteps();
                 invalidImportIndexes = {};
             }
+
+            void props.mitoAPI.log('opened_update_imports_taskpane', {
+                'open_due_to_replay_error': updatePreReplay,
+                'num_invalid_imports': invalidImportIndexes === undefined ? 0 : Object.keys(invalidImportIndexes).length,
+                'num_total_imports': importData === undefined ? 0 : importData.length
+            });
 
             if (importData !== undefined && invalidImportIndexes !== undefined) {
                 return {

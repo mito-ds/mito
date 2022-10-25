@@ -117,7 +117,13 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
                             if (_invalidImportIndexes === undefined) {
                                 return;
                             }
+
                             props.setInvalidImportMessages(_invalidImportIndexes);
+
+                            void props.mitoAPI.log('get_test_import_results', {
+                                'open_due_to_replay_error': false,
+                                'num_invalid_imports': Object.keys(_invalidImportIndexes).length,
+                            })
 
                             // If there are no invalid indexes, then we can update. Since this is
                             // post replay, we are updating the existing imports
