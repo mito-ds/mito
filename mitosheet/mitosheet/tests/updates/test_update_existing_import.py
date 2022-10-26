@@ -8,6 +8,7 @@ Contains tests for existing import update events.
 """
 import pandas as pd
 import os
+from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL
 from mitosheet.tests.test_utils import create_mito_wrapper, create_mito_wrapper_dfs
 from mitosheet.tests.decorators import pandas_post_1_only, python_post_3_6_only
 
@@ -33,7 +34,7 @@ def test_overwrite_multiple_imports():
     # Create with no dataframes
     mito = create_mito_wrapper_dfs()
     # And then import three sheets from the excel file
-    mito.excel_import(TEST_EXCEL_FILE, ['Sheet1', 'Sheet2', 'Sheet3'], True, 0)
+    mito.excel_import(TEST_EXCEL_FILE, ['Sheet1', 'Sheet2', 'Sheet3'], True, 0, DEFAULT_DECIMAL)
 
     step_id = mito.curr_step.step_id
 
@@ -58,6 +59,7 @@ def test_overwrite_multiple_imports():
                         'sheet_names': ['Sheet3'],
                         'has_headers': True,
                         'skiprows': 0,
+                        'decimal': '.'
                     }
                 },
                 {
@@ -219,7 +221,7 @@ def test_update_imports_is_atomic():
     
     # Create with no dataframes
     mito = create_mito_wrapper_dfs()
-    mito.excel_import(TEST_EXCEL_FILE, ['Sheet1'], True, 0)
+    mito.excel_import(TEST_EXCEL_FILE, ['Sheet1'], True, 0, DEFAULT_DECIMAL)
     mito.simple_import([TEST_CSV_FILE])
 
     mito.update_existing_imports([
@@ -261,7 +263,7 @@ def test_update_imports_with_multiple_imports_per_step():
     # Create with no dataframes
     mito = create_mito_wrapper_dfs()
     mito.simple_import([TEST_CSV_FILE, TEST_CSV_FILE])
-    mito.excel_import(TEST_EXCEL_FILE, ['Sheet1'], True, 0)
+    mito.excel_import(TEST_EXCEL_FILE, ['Sheet1'], True, 0, DEFAULT_DECIMAL)
 
     mito.update_existing_imports([
         {
@@ -339,7 +341,8 @@ def test_test_import_returns_good_data():
                     'file_name': TEST_EXCEL_FILE,
                     'sheet_names': ['Sheet1'],
                     'has_headers': True,
-                    'skiprows': 0
+                    'skiprows': 0,
+                    'decimal': '.'
                 }
             }]
         },
@@ -351,7 +354,8 @@ def test_test_import_returns_good_data():
                     'file_name': 'fake_file',
                     'sheet_names': ['Sheet1'],
                     'has_headers': True,
-                    'skiprows': 0
+                    'skiprows': 0,
+                    'decimal': '.'
                 }
             }]
         },

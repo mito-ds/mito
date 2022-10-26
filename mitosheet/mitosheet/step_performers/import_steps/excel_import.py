@@ -39,12 +39,14 @@ class ExcelImportStepPerformer(StepPerformer):
         sheet_names: List[str] = get_param(params, 'sheet_names')
         has_headers: bool = get_param(params, 'has_headers')
         skiprows: int = get_param(params, 'skiprows')
+        decimal: bool = get_param(params, 'decimal')
 
         post_state = prev_state.copy()
 
         read_excel_params = {
             'sheet_name': sheet_names,
-            'skiprows': skiprows
+            'skiprows': skiprows,
+            'decimal': decimal
         }
 
         # Get rid of the headers if it doesn't have them

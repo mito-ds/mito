@@ -120,7 +120,7 @@ const ENCODINGS = [
     "utf_8_sig"
 ] 
 
-const DECIMALS = ['.', ',']
+export const DECIMALS = ['.', ',']
 
 const DELIMETER_TOOLTIP = 'The text that seperates one column from another.'
 const ENCODING_TOOLTIP = 'Set the encoding used to save this file.' // I can't think of anything better lol

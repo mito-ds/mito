@@ -13,11 +13,13 @@ import MultiToggleItem from '../elements/MultiToggleItem';
 import RadioButtonBox from '../elements/RadioButtonBox';
 import Select from '../elements/Select';
 import TextButton from '../elements/TextButton';
+import Row from '../layout/Row';
 import Spacer from '../layout/Spacer';
 import DefaultTaskpane from '../taskpanes/DefaultTaskpane/DefaultTaskpane';
 import DefaultTaskpaneBody from '../taskpanes/DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultTaskpaneFooter from '../taskpanes/DefaultTaskpane/DefaultTaskpaneFooter';
 import DefaultTaskpaneHeader from '../taskpanes/DefaultTaskpane/DefaultTaskpaneHeader';
+import { DECIMALS, DEFAULT_DECIMAL } from './CSVImportConfigScreen';
 
 
 interface XLSXImportConfigScreenProps {
@@ -49,6 +51,7 @@ export interface ExcelImportParams {
     sheet_names: string[],
     has_headers: boolean,
     skiprows: number | string,
+    decimal: string
 }
 
 export const getDefaultParams = (filePath: string): ExcelImportParams => {
@@ -57,6 +60,7 @@ export const getDefaultParams = (filePath: string): ExcelImportParams => {
         sheet_names: [],
         has_headers: true,
         skiprows: 0,
+        decimal: DEFAULT_DECIMAL
     }
 }
 
@@ -124,7 +128,7 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
                 backCallback={props.backCallback}
                 notCloseable={props.notCloseable}
             />
-            <DefaultTaskpaneBody noScroll>
+            <DefaultTaskpaneBody>
                 <div> 
                     {!props.isUpdate &&
                         <MultiToggleBox
@@ -183,43 +187,72 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
                             loading={loading}
                         />
                     }
-                    
-                    <p className='text-body-1 mt-20px'>
-                        Has Header Row
-                    </p>
-                    <Select
-                        value={params.has_headers ? 'Yes' : 'No'}
-                        onChange={(newValue: string) => props.setParams(prevParams => {
-                            return {
-                                ...prevParams,
-                                has_headers: newValue === 'Yes'
-                            }
-                        })}
-                    >
-                        <DropdownItem
-                            title='Yes'
-                        />
-                        <DropdownItem
-                            title='No'
-                        />
-                    </Select>
-                    <p className='text-body-1 mt-20px'>
-                        Number of Rows to Skip
-                    </p>
-                    <Input
-                        value={"" + params.skiprows}
-                        type='number'
-                        onChange={(e) => {
-                            const newValue = e.target.value;
+                    <Row justify='space-between' align='center'>
+                        <p className='text-body-1'>
+                            Has Header Row
+                        </p>
 
-                            props.setParams(prevParams => {
+                        <Select
+                            value={params.has_headers ? 'Yes' : 'No'}
+                            width='medium'
+                            onChange={(newValue: string) => props.setParams(prevParams => {
                                 return {
                                     ...prevParams,
-                                    skiprows: newValue
+                                    has_headers: newValue === 'Yes'
                                 }
-                            })
-                        }}
-                    />
+                            })}
+                        >
+                            <DropdownItem
+                                title='Yes'
+                            />
+                            <DropdownItem
+                                title='No'
+                            />
+                        </Select>
+                    </Row>
+
+                    <Row justify='space-between' align='center'>
+                        <p className='text-body-1'>
+                            Number of Rows to Skip
+                        </p>
+                        <Input
+                            value={"" + params.skiprows}
+                            type='number'
+                            width='medium'
+                            onChange={(e) => {
+                                const newValue = e.target.value;
+
+                                props.setParams(prevParams => {
+                                    return {
+                                        ...prevParams,
+                                        skiprows: newValue
+                                    }
+                                })
+                            }}
+                        />
+                    </Row>
+
+                    <Row justify='space-between' align='center'>
+                        <p className='text-body-1'>
+                            Decimal Separator
+                        </p>
+                        <Select 
+                            value={params.decimal} 
+                            width='medium'
+                            onChange={(newDecimalSeparator) => {
+                                props.setParams(prevParams => {
+                                    return {
+                                        ...prevParams,
+                                        decimal: newDecimalSeparator
+                                    }
+                                })
+                            }}>
+                            {(DECIMALS).map((decimalSeparator) => {
+                                return <DropdownItem key={decimalSeparator} title={decimalSeparator}/>
+                            })}
+                        </Select>
+                    </Row>
+                    
                     {/* 
                         We note that we might have to adjust these size checks, depending
                         on feedback from users going forward.

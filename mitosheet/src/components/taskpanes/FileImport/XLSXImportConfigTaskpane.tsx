@@ -5,6 +5,7 @@ import React from 'react';
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import MitoAPI from '../../../jupyter/api';
 import { AnalysisData, StepType, UIState } from '../../../types';
+import { DEFAULT_DECIMAL } from '../../import/CSVImportConfigScreen';
 import XLSXImportConfigScreen, { ExcelImportParams } from '../../import/XLSXImportConfigScreen';
 import { ImportState } from './FileImportTaskpane';
 
@@ -25,6 +26,7 @@ export const getDefaultXLSXParams = (filePath: string): ExcelImportParams => {
         file_name: filePath,
         sheet_names: [],
         has_headers: true,
+        decimal: DEFAULT_DECIMAL,
         skiprows: 0,
     }
 }

@@ -24,10 +24,12 @@ class ExcelImportCodeChunk(CodeChunk):
         sheet_names = self.get_param('sheet_names')
         has_headers = self.get_param('has_headers')
         skiprows = self.get_param('skiprows')
+        decimal = self.get_param('decimal')
 
         read_excel_params = {
             'sheet_name': sheet_names,
-            'skiprows': skiprows
+            'skiprows': skiprows,
+            'decimal': f"'{decimal}'"
         }
 
         # Get rid of the headers if it doesn't have them

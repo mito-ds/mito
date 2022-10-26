@@ -795,7 +795,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def excel_import(self, file_name: str, sheet_names: List[str], has_headers: bool, skiprows: int) -> bool:
+    def excel_import(self, file_name: str, sheet_names: List[str], has_headers: bool, skiprows: int, decimal: str) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
             {
@@ -808,6 +808,7 @@ class MitoWidgetTestWrapper:
                     'sheet_names': sheet_names,
                     'has_headers': has_headers,
                     'skiprows': skiprows,
+                    'decimal': decimal
                 }   
             }
         )
