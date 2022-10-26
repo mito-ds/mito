@@ -25,7 +25,8 @@ REPLAY_ANALYSIS_UPDATE_EVENT = 'replay_analysis_update'
 REPLAY_ANALYSIS_UPDATE_PARAMS = [
     'analysis_name',
     'analysis',
-    'step_import_data_list_to_overwrite'
+    'step_import_data_list_to_overwrite',
+    'ignore_author_hash'
 ]
 
 def overwrite_import_data(analysis: Dict[str, Any], step_import_data_list_to_overwrite: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -65,7 +66,6 @@ def overwrite_import_data(analysis: Dict[str, Any], step_import_data_list_to_ove
                 final_analysis['steps_data'].append(new_step_data)
             
             import_number += num_imports_in_step
-            
     
     return final_analysis
 
@@ -74,7 +74,8 @@ def execute_replay_analysis_update(
         steps_manager: StepsManagerType,
         analysis_name: str,
         analysis: Optional[Dict[str, str]],
-        step_import_data_list_to_overwrite: List[Dict[str, Any]]
+        step_import_data_list_to_overwrite: List[Dict[str, Any]],
+        ignore_author_hash: Optional[bool]
     ) -> None:
     """
     This function either:
@@ -105,7 +106,8 @@ def execute_replay_analysis_update(
         # we verify it's author_hash to make sure to the user is replaying
         # their own edits. If not, we throw an error
         if get_author_hash(analysis['steps_data'], get_user_field(UJ_STATIC_USER_ID)) != analysis['author_hash']:
-            raise make_replay_analysis_permissions_error()
+            if ignore_author_hash != True:
+                raise make_replay_analysis_permissions_error()
         print("Checked author hash!")
         
         # We also have to make sure that the analysis provided from

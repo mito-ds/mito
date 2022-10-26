@@ -1280,7 +1280,8 @@ export default class MitoAPI {
     async updateReplayAnalysis(
         analysisName: string,
         analysis?: SavedAnalysis,
-        stepImportDataListToOverwrite?: StepImportData[]
+        stepImportDataListToOverwrite?: StepImportData[],
+        ignoreAuthorHash?: boolean
     ): Promise<MitoError | undefined> {
 
         const result: MitoError | undefined = await this.send({
@@ -1289,7 +1290,8 @@ export default class MitoAPI {
             'params': {
                 'analysis_name': analysisName,
                 'analysis': analysis === undefined ? null : analysis,
-                'step_import_data_list_to_overwrite': stepImportDataListToOverwrite === undefined ? [] : stepImportDataListToOverwrite
+                'step_import_data_list_to_overwrite': stepImportDataListToOverwrite === undefined ? [] : stepImportDataListToOverwrite,
+                'ignore_author_hash': ignoreAuthorHash === undefined ? false : true
             }
         }, { maxRetries: 500 });
 

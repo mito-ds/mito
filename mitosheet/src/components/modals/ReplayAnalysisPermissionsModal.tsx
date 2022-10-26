@@ -9,6 +9,8 @@ import { ModalEnum } from './modals';
 import { overwriteAnalysisToReplayToMitosheetCall } from '../../jupyter/jupyterUtils';
 import Row from '../layout/Row';
 import Col from '../layout/Col';
+import { isMitoError } from '../../utils/errors';
+import { TaskpaneType } from '../taskpanes/taskpanes';
 
 
 /**
@@ -54,15 +56,15 @@ const ReplayAnalysisPermissionsModal = (
 
     return (
         <DefaultModal
-            header={'This is someone elses analysis'}
+            header={'Do you want to trust this analysis?'}
             modalType={ModalEnum.ReplayAnalysisPermissions}
             wide
             viewComponent={
                 <>
                     <div className='text-align-left text-body-1' onClick={() => setViewSteps((viewTraceback) => !viewTraceback)}>
-                        It looks like someone else created this analysis and send you this notebook.
+                        The <span>analysis_to_replay</span> {props.analysisName} was created by someone else. Make sure you trust who sent you this notebook before running this analysis.
                         <span className='text-body-1-link'>
-                            Click to expand parameters for all steps.
+                            Click to view parameters for all steps.
                         </span>
                     </div>
                     {viewSteps &&
@@ -100,15 +102,33 @@ const ReplayAnalysisPermissionsModal = (
                     <TextButton
                         variant='dark'
                         width='medium'
-                        onClick={() => {  
-                            void props.mitoAPI.updateReplayAnalysis(props.analysisName, props.analysis);
+                        onClick={async () => {  
+                            const replayAnalysisError = await props.mitoAPI.updateReplayAnalysis(props.analysisName, props.analysis, undefined, true);
+
+                            if (isMitoError(replayAnalysisError)) {
+                                props.setUIState(prevUIState => {
+                                    return {
+                                        ...prevUIState,
+                                        currOpenTaskpane: {
+                                            type: TaskpaneType.UPDATEIMPORTS,
+                                            failedReplayData: {
+                                                analysisName: props.analysisName,
+                                                analysis: props.analysis,
+                                                error: replayAnalysisError
+                                            }
+                                        },
+                                        currOpenModal: {type: ModalEnum.None}
+                                    }
+                                })
+                            } else {
+                                props.setUIState((prevUIState) => {
+                                    return {
+                                        ...prevUIState,
+                                        currOpenModal: {type: ModalEnum.None}
+                                    }
+                                })}
+                            }
                             
-                            props.setUIState((prevUIState) => {
-                                return {
-                                    ...prevUIState,
-                                    currOpenModal: {type: ModalEnum.None}
-                                }
-                            })}
                         }
                     >
                         Trust analysis   
