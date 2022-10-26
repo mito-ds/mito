@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import chardet
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DELIMETER, DEFAULT_ENCODING, SimpleImportCodeChunk, get_read_csv_params
+from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL, DEFAULT_DELIMETER, DEFAULT_ENCODING, SimpleImportCodeChunk, get_read_csv_params
 from mitosheet.step_performers.utils import get_param
 
 from mitosheet.utils import get_valid_dataframe_names
@@ -42,6 +42,7 @@ class SimpleImportStepPerformer(StepPerformer):
         file_names: List[str] = get_param(params, 'file_names')
         delimeters: Optional[List[str]] = get_param(params, 'delimeters')
         encodings: Optional[List[str]] = get_param(params, 'encodings')
+        decimals: Optional[List[str]] = get_param(params, 'decimals')
         error_bad_lines: Optional[List[bool]] = get_param(params, 'error_bad_lines')
 
         use_deprecated_id_algorithm: bool = get_param(params, 'use_deprecated_id_algorithm') if get_param(params, 'use_deprecated_id_algorithm') else False
@@ -57,6 +58,7 @@ class SimpleImportStepPerformer(StepPerformer):
 
         file_delimeters = []
         file_encodings = []
+        file_decimals = []
         file_error_bad_lines = []
 
         just_final_file_names = [basename(normpath(file_name)) for file_name in file_names]
@@ -68,14 +70,15 @@ class SimpleImportStepPerformer(StepPerformer):
 
             # NOTE: if you specify one, specify them all!
             try:
-                if delimeters is not None and encodings is not None and error_bad_lines is not None:
+                if delimeters is not None and encodings is not None and error_bad_lines is not None and decimals is not None:
                     delimeter = delimeters[index]
                     encoding = encodings[index]
+                    decimal = decimals[index]
                     _error_bad_lines = error_bad_lines[index]
-                    df = pd.read_csv(file_name, **get_read_csv_params(delimeter, encoding, _error_bad_lines))
+                    df = pd.read_csv(file_name, **get_read_csv_params(delimeter, encoding, decimal, _error_bad_lines))
                     pandas_processing_time += (perf_counter() - partial_pandas_start_time)
                 else:
-                    df, delimeter, encoding = read_csv_get_delimeter_and_encoding(file_name)
+                    df, delimeter, encoding, decimal = read_csv_get_delimiter_and_encoding_and_decimal(file_name)
                     _error_bad_lines = True
                     pandas_processing_time += (perf_counter() - partial_pandas_start_time)
             except:
@@ -87,8 +90,9 @@ class SimpleImportStepPerformer(StepPerformer):
             # Save the delimeter and encodings for transpiling
             file_delimeters.append(delimeter)
             file_encodings.append(encoding)
+            file_decimals.append(decimal)
             file_error_bad_lines.append(_error_bad_lines)
-
+            
             post_state.add_df_to_state(
                 df, 
                 DATAFRAME_SOURCE_IMPORTED, 
@@ -101,6 +105,7 @@ class SimpleImportStepPerformer(StepPerformer):
         return post_state, {
             'file_delimeters': file_delimeters,
             'file_encodings': file_encodings,
+            'file_decimals': file_decimals,
             'file_error_bad_lines': file_error_bad_lines,
             'pandas_processing_time': pandas_processing_time
         }
@@ -124,13 +129,14 @@ class SimpleImportStepPerformer(StepPerformer):
 
 
 
-def read_csv_get_delimeter_and_encoding(file_name: str) -> Tuple[pd.DataFrame, str, str]:
+def read_csv_get_delimiter_and_encoding_and_decimal(file_name: str) -> Tuple[pd.DataFrame, str, str]:
     """
     Given a file_name, will read in the file as a CSV, and
-    return the df, delimeter, and encoding of the file
+    return the df, delimeter, decimal separator, and encoding of the file
     """
     encoding = DEFAULT_ENCODING
     delimeter = DEFAULT_DELIMETER
+    decimal = DEFAULT_DECIMAL
     try:
         # First attempt to read csv without specifying an encoding, just with a delimeter
         delimeter = guess_delimeter(file_name)
@@ -140,16 +146,16 @@ def read_csv_get_delimeter_and_encoding(file_name: str) -> Tuple[pd.DataFrame, s
         try: 
             encoding = guess_encoding(file_name)
             delimeter = guess_delimeter(file_name, encoding=encoding)
-
+            decimal = guess_decimal(file_name)
             # Read the file as dataframe 
-            df = pd.read_csv(file_name, sep=delimeter, encoding=encoding)
+            df = pd.read_csv(file_name, sep=delimeter, encoding=encoding, decimal=decimal)
         except: 
             # Sometimes guess_encoding, guesses 'ascii' when we want 'latin-1', 
             # so if guess_encoding fails, we try latin-1
             encoding = 'latin-1'
-            df = pd.read_csv(file_name, sep=delimeter, encoding=encoding)
+            df = pd.read_csv(file_name, sep=delimeter, encoding=encoding, decimal=decimal)
         
-    return df, delimeter, encoding
+    return df, delimeter, encoding, decimal
 
 
 def guess_delimeter(file_name: str, encoding: str=None) -> str:
@@ -170,3 +176,9 @@ def guess_encoding(file_name: str) -> str:
     with open(file_name, 'rb') as f:
         result = chardet.detect(f.readline())
         return result['encoding']
+
+def guess_decimal(file_name: str, encoding: str=None) -> str:
+    """
+    For now, always guesses that the decimal is a .
+    """
+    return '.'

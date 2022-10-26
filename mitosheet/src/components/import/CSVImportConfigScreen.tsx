@@ -120,12 +120,16 @@ const ENCODINGS = [
     "utf_8_sig"
 ] 
 
+const DECIMALS = ['.', ',']
+
 const DELIMETER_TOOLTIP = 'The text that seperates one column from another.'
 const ENCODING_TOOLTIP = 'Set the encoding used to save this file.' // I can't think of anything better lol
+const DECIMAL_TOOLTIP = 'Set the character used to separate the decimal places.'
 const ERROR_BAD_LINES_TOOLTIP = 'Turn on to skip any lines that are missing fields.'
 
 export const DEFAULT_DELIMETER = ',';
 export const DEFAULT_ENCODING = 'default';
+export const DEFAULT_DECIMAL = '.';
 export const DEFAULT_ERROR_BAD_LINES = true;
 
 
@@ -152,13 +156,15 @@ interface CSVImportConfigScreenProps {
 // This is our guesses about the metadata of the file
 export interface CSVFileMetadata {
     delimeters: string[],
-    encodings: string[]
+    encodings: string[],
+    decimals: string[]
 }
 
 export interface CSVImportParams {
     file_names: string[],
     delimeters?: string[],
     encodings?: string[],
+    decimals?: string[],
     error_bad_lines?: boolean[],
 }
 
@@ -192,7 +198,8 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                 return {
                     ...prevParams,
                     delimeters: loadedData?.delimeters || [DEFAULT_DELIMETER],
-                    encodings: loadedData?.encodings || [DEFAULT_ENCODING]
+                    encodings: loadedData?.encodings || [DEFAULT_ENCODING],
+                    decimals: loadedData?.decimals || [DEFAULT_DECIMAL]
                 }
             })
         },
@@ -206,7 +213,7 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                 ...prevParams,
                 delimeters: fileMetadata?.delimeters || [DEFAULT_DELIMETER],
                 encodings: fileMetadata?.encodings || [DEFAULT_ENCODING],
-                error_bad_lines: [DEFAULT_ERROR_BAD_LINES]
+                error_bad_lines: [DEFAULT_ERROR_BAD_LINES],
             }
         })
     }
@@ -221,10 +228,12 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
 
     const delimeters = props.params.delimeters;
     const encodings = props.params.encodings;
+    const decimals = props.params.decimals;
     const error_bad_lines = props.params.error_bad_lines
 
     const currentDelimeter = delimeters !== undefined ? delimeters[0] : DEFAULT_DELIMETER;
     const currentEncoding = ((encodings !== undefined ? encodings[0] : DEFAULT_ENCODING) === 'default') ? 'utf-8' : (encodings !== undefined ? encodings[0] : 'utf-8');
+    const currentDecimal = decimals !== undefined ? decimals[0] : DEFAULT_DECIMAL
     const currentErrorBadLines = error_bad_lines !== undefined ? error_bad_lines[0] : DEFAULT_ERROR_BAD_LINES;
     
     return (
@@ -301,6 +310,34 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                             }}>
                             {(ENCODINGS).map((encoding) => {
                                 return <DropdownItem key={encoding} title={encoding}/>
+                            })}
+                        </Select>
+                    </Col>
+                </Row>
+                <Row justify='space-between' align='center' title={DECIMAL_TOOLTIP}>
+                    <Col>
+                        <Row justify='start' align='center' suppressTopBottomMargin>
+                            <p className='text-header-3'>
+                                Decimal Separator
+                            </p>
+                            <Tooltip title={DECIMAL_TOOLTIP}/>
+                        </Row>
+                    </Col>
+                    <Col>
+                        <Select 
+                            searchable
+                            width='medium' 
+                            value={currentDecimal} 
+                            onChange={(newDecimalSeparator) => {
+                                props.setParams(prevParams => {
+                                    return {
+                                        ...prevParams,
+                                        decimals: [newDecimalSeparator]
+                                    }
+                                })
+                            }}>
+                            {(DECIMALS).map((decimalSeparator) => {
+                                return <DropdownItem key={decimalSeparator} title={decimalSeparator}/>
                             })}
                         </Select>
                     </Col>

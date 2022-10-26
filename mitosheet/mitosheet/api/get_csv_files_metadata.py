@@ -9,7 +9,7 @@ from typing import Any, Dict
 
 import pandas as pd
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_ENCODING
-from mitosheet.step_performers.import_steps.simple_import import read_csv_get_delimeter_and_encoding
+from mitosheet.step_performers.import_steps.simple_import import read_csv_get_delimiter_and_encoding_and_decimal
 from mitosheet.types import StepsManagerType
 
 
@@ -25,7 +25,7 @@ def get_csv_files_metadata(params: Dict[str, Any], steps_manager: StepsManagerTy
     encodings = []
     for file_name in file_names:
         try:
-            _, delimiter, encoding = read_csv_get_delimeter_and_encoding(file_name)
+            _, delimiter, encoding = read_csv_get_delimiter_and_encoding_and_decimal(file_name)
             delimeters.append(delimiter)
             encodings.append(encoding)
         except:

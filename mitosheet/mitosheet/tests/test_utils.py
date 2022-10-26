@@ -769,7 +769,14 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def simple_import(self, file_names: List[str], delimeters: Optional[List[str]]=None, encodings: Optional[List[str]]=None, error_bad_lines: Optional[List[bool]]=None) -> bool:
+    def simple_import(
+        self, 
+        file_names: List[str], 
+        delimeters: Optional[List[str]]=None, 
+        encodings: Optional[List[str]]=None, 
+        decimals: Optional[List[str]]=None, 
+        error_bad_lines: Optional[List[bool]]=None
+    ) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
             {
@@ -781,6 +788,7 @@ class MitoWidgetTestWrapper:
                     'file_names': file_names,
                     'delimeters': delimeters,
                     'encodings': encodings,
+                    'decimals': decimals,
                     'error_bad_lines': error_bad_lines,
                 }
             }
