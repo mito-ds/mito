@@ -127,9 +127,9 @@ const ENCODING_TOOLTIP = 'Set the encoding used to save this file.' // I can't t
 const DECIMAL_TOOLTIP = 'Set the character used to separate the decimal places.'
 const ERROR_BAD_LINES_TOOLTIP = 'Turn on to skip any lines that are missing fields.'
 
-export const DEFAULT_DELIMETER = ',';
-export const DEFAULT_ENCODING = 'default';
-export const DEFAULT_DECIMAL = '.';
+export const DEFAULT_DELIMETER = ",";
+export const DEFAULT_ENCODING = "default";
+export const DEFAULT_DECIMAL = ".";
 export const DEFAULT_ERROR_BAD_LINES = true;
 
 
