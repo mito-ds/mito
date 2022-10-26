@@ -668,7 +668,7 @@ export interface AnalysisData {
 export interface SavedAnalysis {
     'version': string,
     'author_hash': string,
-    'steps_data': Record<string, any>[],
+    'steps_data': {step_version: number, step_type: StepType, params: Record<string, string>}[],
 }
 /**
  * An object represending this user

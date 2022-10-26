@@ -237,6 +237,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                                     type: ModalEnum.ReplayAnalysisPermissions,
                                     analysis: analysisSavedInNotebook,
                                     analysisName: analysisToReplayName,
+                                    potentialNewAnalysisName: analysisData.analysisName
                                 }
                             }
                         })
@@ -541,6 +542,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     mitoAPI={props.mitoAPI}
                     analysisName={uiState.currOpenModal.analysisName}
                     analysis={uiState.currOpenModal.analysis}
+                    potentialNewAnalysisName={uiState.currOpenModal.potentialNewAnalysisName}
                 />
             )
         }

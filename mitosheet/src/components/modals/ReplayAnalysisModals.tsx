@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 import MitoAPI from '../../jupyter/api';
 import { SLACK_INVITE_LINK } from '../../data/documentationLinks';
 import { overwriteAnalysisToReplayToMitosheetCall } from '../../jupyter/jupyterUtils';
@@ -37,7 +37,7 @@ const ErrorReplayedAnalysisModal = (
             modalType={ModalEnum.Error}
             wide
             viewComponent={
-                <Fragment>
+                <>
                     <div className='text-align-left text-body-1' onClick={() => setViewTraceback((viewTraceback) => !viewTraceback)}>
                         {props.message} {' '}
                         {props.error?.traceback && 
@@ -51,7 +51,7 @@ const ErrorReplayedAnalysisModal = (
                             <pre>{props.error.traceback}</pre>
                         </div>
                     }
-                </Fragment>
+                </>
             }
             buttons={
                 <>

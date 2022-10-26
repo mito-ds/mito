@@ -64,7 +64,8 @@ interface DeleteGraphsModalInfo {
 interface ReplayAnalysisPermissionsModalInfo {
     type: ModalEnum.ReplayAnalysisPermissions,
     analysisName: string,
-    analysis: SavedAnalysis
+    analysis: SavedAnalysis,
+    potentialNewAnalysisName: string
 }
 
 

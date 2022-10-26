@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import React, { Fragment, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import MitoAPI from '../../../../jupyter/api';
 import MultiToggleBox from '../../../elements/MultiToggleBox';
 import Select from '../../../elements/Select';
@@ -193,7 +193,7 @@ export function ValuesTab(
     const disabledMessage = getFilterDisabledMessage(props.columnDtype);
 
     return (
-        <Fragment>
+        <>
             <Row justify='space-between'>
                 <Col flex='1' offsetRight={1}>
                     <p className='text-header-2'> 
@@ -289,7 +289,6 @@ export function ValuesTab(
                     })}
                 </MultiToggleBox>
             </div>
-            
-        </Fragment>
+        </>
     )
 }

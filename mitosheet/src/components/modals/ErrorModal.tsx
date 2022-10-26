@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import React, {Fragment, useState} from 'react';
+import React, {useState} from 'react';
 import DefaultModal from '../DefaultModal'; 
 import { ModalEnum } from './modals';
 import TextButton from '../elements/TextButton';
@@ -30,7 +30,7 @@ const ErrorModal = (
             modalType={ModalEnum.Error}
             wide
             viewComponent={
-                <Fragment>
+                <>
                     {props.error.to_fix &&
                         <div className='text-align-left text-body-1' onClick={() => setViewTraceback((viewTraceback) => !viewTraceback)}>
                             {props.error.to_fix} {' '}
@@ -46,10 +46,10 @@ const ErrorModal = (
                             <pre>{props.error.traceback}</pre>
                         </div>
                     }
-                </Fragment>
+                </>
             }
             buttons={
-                <Fragment>
+                <>
                     <TextButton
                         variant='light'
                         width='small'
@@ -82,7 +82,7 @@ const ErrorModal = (
                     >
                         Get Immediate Support
                     </TextButton>
-                </Fragment> 
+                </> 
             }
         />
     )    

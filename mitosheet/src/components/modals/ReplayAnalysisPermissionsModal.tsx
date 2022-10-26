@@ -1,13 +1,38 @@
 // Copyright (c) Mito
 
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 import MitoAPI from '../../jupyter/api';
-import { SLACK_INVITE_LINK } from '../../data/documentationLinks';
 import { SavedAnalysis, UIState } from '../../types';
 import DefaultModal from '../DefaultModal';
 import TextButton from '../elements/TextButton';
 import { ModalEnum } from './modals';
+import { overwriteAnalysisToReplayToMitosheetCall } from '../../jupyter/jupyterUtils';
+import Row from '../layout/Row';
+import Col from '../layout/Col';
 
+
+/**
+ * This function returns a summary view of the 
+ */
+const getAnalysisSummary = (analysis: SavedAnalysis): JSX.Element => {
+    console.log(analysis.steps_data)
+    return (
+        <>
+            {analysis.steps_data.map(step_data => {
+                return (
+                    <Row>
+                        <Col>
+                            {step_data.step_type}
+                        </Col>
+                        <Col>
+                            {JSON.stringify(step_data.params)}
+                        </Col>
+                    </Row>
+                )
+            })}   
+        </>
+    )
+}
 
 
 /*
@@ -21,37 +46,54 @@ const ReplayAnalysisPermissionsModal = (
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
 
         analysisName: string;
-        analysis: SavedAnalysis
+        analysis: SavedAnalysis;
+        potentialNewAnalysisName: string;
     }): JSX.Element => {
 
-    const [viewTraceback, setViewTraceback] = useState(false);
+    const [viewSteps, setViewSteps] = useState(false);
 
     return (
         <DefaultModal
-            header={'Are you sure you want to replay'}
+            header={'This is someone elses analysis'}
             modalType={ModalEnum.ReplayAnalysisPermissions}
             wide
             viewComponent={
-                <Fragment>
-                    <div className='text-align-left text-body-1' onClick={() => setViewTraceback((viewTraceback) => !viewTraceback)}>
+                <>
+                    <div className='text-align-left text-body-1' onClick={() => setViewSteps((viewTraceback) => !viewTraceback)}>
+                        It looks like someone else created this analysis and send you this notebook.
                         <span className='text-body-1-link'>
-                            This is not your analysis. Do you trust where this notebook is coming from?
+                            Click to expand parameters for all steps.
                         </span>
                     </div>
-                    {viewTraceback &&
-                        <div className='flex flex-column text-align-left text-overflow-hidden text-overflow-scroll mt-5px' style={{height: '200px', border: '1px solid var(--mito-purple)', borderRadius: '2px', padding: '5px'}}>
-                            <pre>{props.analysis}</pre>
+                    {viewSteps &&
+                        <div 
+                            className='flex flex-column text-align-left text-overflow-hidden text-overflow-scroll mt-5px' 
+                            style={{height: '200px', border: '1px solid var(--mito-purple)', borderRadius: '2px', padding: '5px'}}
+                        >
+                            {getAnalysisSummary(props.analysis)}
                         </div>
                     }
-                </Fragment>
+                </>
             }
             buttons={
                 <>
                     <TextButton
                         variant='light'
                         width='medium'
-                        href={SLACK_INVITE_LINK}
-                        target='_blank'
+                        onClick={() => {    
+                            overwriteAnalysisToReplayToMitosheetCall(
+                                props.analysisName,
+                                props.potentialNewAnalysisName,
+                                props.mitoAPI
+                            )
+                            
+                            props.setUIState((prevUIState) => {
+                                return {
+                                    ...prevUIState,
+                                    currOpenModal: {type: ModalEnum.None}
+                                }
+                            })}
+                        }
                     >
                         Start New Analysis
                     </TextButton>
@@ -69,7 +111,7 @@ const ReplayAnalysisPermissionsModal = (
                             })}
                         }
                     >
-                        Replay analysis   
+                        Trust analysis   
                     </TextButton>
                 </> 
             }

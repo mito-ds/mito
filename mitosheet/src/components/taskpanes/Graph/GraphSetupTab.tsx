@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import React, { Fragment } from 'react';
+import React from 'react';
 import { ColumnID, ColumnIDsMap, GraphParamsFrontend, RecursivePartial, SheetData, UIState } from '../../../types';
 import MitoAPI from '../../../jupyter/api';
 import Row from '../../layout/Row';
@@ -197,7 +197,7 @@ function GraphSetupTab(
     const columnIDsMap = props.columnIDsMapArray[graphSheetIndex] || {};
 
     return (  
-        <Fragment>
+        <>
             <div className='graph-sidebar-toolbar-content'>
                 <DataframeSelect
                     title='Select the data sheet to graph.'
@@ -680,7 +680,7 @@ function GraphSetupTab(
                     </div>
                 </CollapsibleSection>
             </div>
-        </Fragment>
+        </>
     )
 } 
 
