@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import { MitoError } from "../../types";
+import { MitoError, SavedAnalysis } from "../../types";
 
 
 export enum ModalEnum {
@@ -13,6 +13,7 @@ export enum ModalEnum {
     Feedback = 'Feedback',
     DeleteGraphs = 'DeleteGraphs',
     ErrorReplayedAnalysis = 'ErrorReplayAnalysis',
+    ReplayAnalysisPermissions = 'ReplayAnalysisPermissions',
 }
 
 /* 
@@ -60,6 +61,13 @@ interface DeleteGraphsModalInfo {
     }[]
 }
 
+interface ReplayAnalysisPermissionsModalInfo {
+    type: ModalEnum.ReplayAnalysisPermissions,
+    analysisName: string,
+    analysis: SavedAnalysis
+}
+
+
 export type ModalInfo = 
     | NoneModalInfo 
     | ErrorModalInfo
@@ -68,3 +76,4 @@ export type ModalInfo =
     | ClearAnalysisInfo
     | DeleteGraphsModalInfo
     | ErrorReplayedAnalysisInfo
+    | ReplayAnalysisPermissionsModalInfo

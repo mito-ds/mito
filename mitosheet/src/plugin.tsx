@@ -158,6 +158,8 @@ function activateWidgetExtension(
 
             const codeCell = getCellAtIndex(cells, mitosheetCallIndex + 1);
 
+            let writtenToCell = codeCell;
+            
             if (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(getCellText(codeCell), analysisName)) {
                 writeToCell(codeCell, code)
             } else {
@@ -179,6 +181,12 @@ function activateWidgetExtension(
                 // And then write to this new cell below, which is now the active cell
                 NotebookActions.insertBelow(notebook);
                 writeToCell(notebook?.activeCell?.model, code);
+                writtenToCell = notebook?.activeCell?.model;
+            }
+
+            // Finially, we make this cell read only
+            if (writtenToCell !== undefined) {
+                writtenToCell.metadata.set('editable', false);
             }
         }
     })
@@ -280,7 +288,9 @@ function activateWidgetExtension(
 
             // TODO: check that this cast is legit
             const codeCellData = getCellWithCodeForAnalysis(tracker, analysisName);
+            console.log("returned", codeCellData)
             const currentMetadata = codeCellData?.metadata.get('mitosheet') as Record<string, string>;
+            console.log('current metadata', currentMetadata)
             return currentMetadata ? currentMetadata[key] : undefined;
         }
     })

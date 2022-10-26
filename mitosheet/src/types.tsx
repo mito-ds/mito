@@ -665,6 +665,11 @@ export interface AnalysisData {
     savedAnalysisJSON: string,
 }
 
+export interface SavedAnalysis {
+    'version': string,
+    'author_hash': string,
+    'steps_data': Record<string, any>[],
+}
 /**
  * An object represending this user
  * 
@@ -679,6 +684,7 @@ export interface AnalysisData {
  * @param usageTriggeredFeedbackID - the id of the usage triggered feedback id to display to the user
  */
 export interface UserProfile {
+    staticUserID: string,
     userEmail: string;
     receivedTours: string[];
     receivedChecklists: Record<ChecklistID, string[] | undefined>;

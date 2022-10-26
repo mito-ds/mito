@@ -25,7 +25,7 @@ import '../../css/sitewide/widths.css';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import MitoAPI from '../jupyter/api';
 import { getArgs, getNotebookMetadata, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell, writeToNotebookMetadata } from '../jupyter/jupyterUtils';
-import { AnalysisData, DataTypeInMito, DFSource, EditorState, GridState, SheetData, UIState, UserProfile } from '../types';
+import { AnalysisData, DataTypeInMito, DFSource, EditorState, GridState, SavedAnalysis, SheetData, UIState, UserProfile } from '../types';
 import { createActions } from '../utils/actions';
 import { classNames } from '../utils/classNames';
 import { isMitoError } from '../utils/errors';
@@ -71,6 +71,7 @@ import { TourName } from './tour/Tours';
 import { isVariantA } from '../utils/experiments';
 import { CHECKLIST_STEPS } from './checklists/checklistData';
 import { getRemainingChecklistItems } from './checklists/Checklist';
+import ReplayAnalysisPermissionsModal from './modals/ReplayAnalysisPermissionsModal';
 
 export type MitoProps = {
     model_id: string;
@@ -190,10 +191,11 @@ export const Mito = (props: MitoProps): JSX.Element => {
                  * this will be used to replay. Otherwise, the analysis on disk will be used
                  */
 
-                const analysisSavedInNotebookJSON = await getNotebookMetadata(analysisData.analysisName, `saved_analyses:${analysisToReplayName}`);
-                const analysisSavedInNotebook: Record<string, string> | undefined = analysisSavedInNotebookJSON !== undefined ? JSON.parse(analysisSavedInNotebookJSON) : undefined;
+                const analysisSavedInNotebookJSON = await getNotebookMetadata(analysisToReplayName, `saved_analyses:${analysisToReplayName}`);
+                const analysisSavedInNotebook: SavedAnalysis | undefined = analysisSavedInNotebookJSON !== undefined ? JSON.parse(analysisSavedInNotebookJSON) : undefined;
                 
-                // If there is no analysis anywhere, bail
+                // If there is no analysis anywhere, then tell the user that
+                // TODO: update this error message
                 if (analysisSavedInNotebook === undefined && !analysisData.analysisToReplay.existsOnDisk) {
                     void props.mitoAPI.log('replayed_nonexistant_analysis_failed')
 
@@ -214,39 +216,45 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     return;
                 } 
 
-                if (analysisSavedInNotebook !== undefined) {
-                    // TODO: check if the analysisSavedInNotebook is created by this user. We need to use an api
-                    // function that allows us to getCheckAuthorHash. if it is false, then we prompt the user in 
-                    // a modal to replay this analysis
-                    
-                }
-
                 // Otherwise, attempt to replay the analysis
                 const replayAnalysisError = await props.mitoAPI.updateReplayAnalysis(analysisToReplayName, analysisSavedInNotebook);
                 
                 if (isMitoError(replayAnalysisError)) {
                     /**
-                     * If an analysis fails to replay, we open the update import pre replay 
-                     * taskpane with the error. The analysis either failed because an import
-                     * step failed, or some other step failed as the structure of the data 
-                     * changed. 
+                     * If an analysis fails to replay, there are two reasons why this could have happened:
+                     * 1.   We read in the saved analysis from the notebook, and the author_hash does not
+                     *      checkout with what it should be. 
+                     * 2.   The analysis actually failed to replay (e.g. some step was invalid).
                      * 
-                     * In either case, we give the user the update import pre replay taskpane
-                     * so that they can hopefully resolve these issues.
+                     * In the first case, we open a modal that prompts the user to trust this analysis,
+                     * and in the second case we open the update imports taskpane.
                      */
-                    setUIState(prevUIState => {
-                        return {
-                            ...prevUIState,
-                            currOpenTaskpane: {
-                                type: TaskpaneType.UPDATEIMPORTS,
-                                failedReplayData: {
-                                    analysisName: analysisToReplayName,
+                    if (analysisSavedInNotebook !== undefined && replayAnalysisError.type === 'replay_analysis_permissions_error') {
+                        setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                currOpenModal: {
+                                    type: ModalEnum.ReplayAnalysisPermissions,
                                     analysis: analysisSavedInNotebook,
-                                    error: replayAnalysisError
+                                    analysisName: analysisToReplayName,
                                 }
                             }
-                        }
-                    })
+                        })
+                    } else {
+                        setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                currOpenTaskpane: {
+                                    type: TaskpaneType.UPDATEIMPORTS,
+                                    failedReplayData: {
+                                        analysisName: analysisToReplayName,
+                                        analysis: analysisSavedInNotebook,
+                                        error: replayAnalysisError
+                                    }
+                                }
+                            }
+                        })
+                    }
                 }
             } else {
                 /**
@@ -525,6 +533,14 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     sheetIndex={uiState.currOpenModal.sheetIndex}
                     dependantGraphTabNamesAndIDs={uiState.currOpenModal.dependantGraphTabNamesAndIDs}
                     dfName={sheetDataArray[uiState.currOpenModal.sheetIndex] ? sheetDataArray[uiState.currOpenModal.sheetIndex].dfName : 'this dataframe'}
+                />
+            )
+            case ModalEnum.ReplayAnalysisPermissions: return (
+                <ReplayAnalysisPermissionsModal
+                    setUIState={setUIState}
+                    mitoAPI={props.mitoAPI}
+                    analysisName={uiState.currOpenModal.analysisName}
+                    analysis={uiState.currOpenModal.analysis}
                 />
             )
         }

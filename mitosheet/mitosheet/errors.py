@@ -532,6 +532,19 @@ def make_dataframe_not_found_error(df_name: str) -> MitoError:
         f'{df_name} is not defined.'
     )
 
+def make_replay_analysis_permissions_error() -> MitoError:
+    """
+    Occurs when a user tries to replay an analysis from the frontend
+    where the steps hashed with their user id do not match up with the
+    saved author has
+    """
+    
+    return MitoError(
+        'replay_analysis_permissions_error', 
+        "Replay Analysis Permissions Error",
+        f'This is not your analysis. Please verify the steps.'
+    )
+
 ARG_FULL_NAME = {
     'int': 'number',
     'float': 'number',

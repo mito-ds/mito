@@ -31,7 +31,7 @@ from mitosheet.user.create import try_create_user_json_file
 from mitosheet.user.db import USER_JSON_PATH, get_user_field
 from mitosheet.user.location import is_in_google_colab, is_in_vs_code
 from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES, UJ_RECEIVED_CHECKLISTS,
-                                    UJ_RECEIVED_TOURS, UJ_USER_EMAIL)
+                                    UJ_RECEIVED_TOURS, UJ_STATIC_USER_ID, UJ_USER_EMAIL)
 from mitosheet.user.utils import is_excel_import_enabled, is_pro, is_running_test
 
 
@@ -94,6 +94,7 @@ class MitoWidget(DOMWidget):
         self.analysis_data_json = self.steps_manager.analysis_data_json
         self.user_profile_json = json.dumps({
             # Dynamic, update each time
+            'static_user_id': get_user_field(UJ_STATIC_USER_ID),
             'userEmail': get_user_field(UJ_USER_EMAIL),
             'receivedTours': get_user_field(UJ_RECEIVED_TOURS),
             'receivedChecklists': get_user_field(UJ_RECEIVED_CHECKLISTS),

@@ -8,13 +8,18 @@ Replays an existing analysis
 """
 from copy import copy, deepcopy
 from typing import Any, Dict, List, Optional
-from mitosheet.errors import make_no_analysis_error
 
-from mitosheet.telemetry.telemetry_utils import log
-from mitosheet.saved_analyses import read_and_upgrade_analysis, upgrade_saved_analysis_to_current_version
-from mitosheet.types import StepsManagerType
+from mitosheet.api.get_imported_files_and_dataframes_from_current_steps import \
+    get_import_data_with_single_import_list
+from mitosheet.errors import (make_no_analysis_error,
+                              make_replay_analysis_permissions_error)
+from mitosheet.saved_analyses import (
+    read_and_upgrade_analysis, upgrade_saved_analysis_to_current_version)
+from mitosheet.saved_analyses.save_utils import get_author_hash
 from mitosheet.step_performers.import_steps import is_import_step_type
-from mitosheet.api.get_imported_files_and_dataframes_from_current_steps import get_import_data_with_single_import_list
+from mitosheet.telemetry.telemetry_utils import log
+from mitosheet.types import StepsManagerType
+from mitosheet.user import UJ_STATIC_USER_ID, get_user_field
 
 REPLAY_ANALYSIS_UPDATE_EVENT = 'replay_analysis_update'
 REPLAY_ANALYSIS_UPDATE_PARAMS = [
@@ -96,8 +101,16 @@ def execute_replay_analysis_update(
         # go and get these steps from the disk
         analysis = read_and_upgrade_analysis(analysis_name)
     else:
-        # Otherwise, we just have to make sure that the analysis provided from
-        # the frontend is upgraded as well
+        # Otherwise, if there is a saved analysis provided from the frontend,
+        # we verify it's author_hash to make sure to the user is replaying
+        # their own edits. If not, we throw an error
+        if get_author_hash(analysis['steps_data'], get_user_field(UJ_STATIC_USER_ID)) != analysis['author_hash']:
+            raise make_replay_analysis_permissions_error()
+        print("Checked author hash!")
+        
+        # We also have to make sure that the analysis provided from
+        # the frontend is upgraded as well. Note that we do this _after_
+        # verifying that author_hash, as it might change the analysis!
         analysis = upgrade_saved_analysis_to_current_version(analysis)
 
     # If there is no analysis with this name, generate an error

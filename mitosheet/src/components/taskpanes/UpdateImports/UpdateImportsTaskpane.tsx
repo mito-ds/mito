@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
 import MitoAPI from "../../../jupyter/api";
-import { AnalysisData, MitoError, SheetData, UIState, UserProfile } from "../../../types";
+import { AnalysisData, MitoError, SavedAnalysis, SheetData, UIState, UserProfile } from "../../../types";
 import CSVImportConfigScreen, { CSVImportParams } from "../../import/CSVImportConfigScreen";
 import { DataframeImportParams } from "../../import/DataframeImportScreen";
 import FileBrowser from "../../import/FileBrowser/FileBrowser";
@@ -53,7 +53,7 @@ export interface ReplacingDataframeState {
 
 export interface FailedReplayData {
     analysisName: string,
-    analysis: Record<string, any> | undefined,
+    analysis: SavedAnalysis | undefined,
     error: MitoError
 }
     

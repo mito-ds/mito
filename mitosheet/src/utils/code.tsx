@@ -29,13 +29,17 @@ export function getCodeString(
         }
     }
 
+    const notEditableComment = '# This cell is not editable. To edit it, copy it to a new cell\n';
+
     // If telemetry not enabled, we want to be clear about this by
     // simply not calling a func w/ the analysis name
     if (telemetryEnabled) {
         return `from mitosheet import *; register_analysis("${analysisName}");
+${notEditableComment}
     ${finalCode}`
     } else {
         return `from mitosheet import *; # Analysis Name:${analysisName};
+${notEditableComment}
     ${finalCode}`
     }
 }

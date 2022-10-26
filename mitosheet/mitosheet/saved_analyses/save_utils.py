@@ -134,10 +134,8 @@ def write_saved_analysis(analysis_path: str, steps_manager: StepsManagerType, ve
         f.write(saved_analysis_json)
 
 static_user_id = None
-
-
 TEST_AUTHOR_HASH = 'test-hash'
-def get_author_hash(steps_data:  List[Dict[str, Any]]) -> str:
+def get_author_hash(steps_data:  List[Dict[str, Any]], user_id: Optional[str]=None) -> str:
     """
     Sometimes, users are replaying an analysis that was saved in their notebook. In this case,
     as they may be getting a notebook from a different user, we want to ensure that the user knows
@@ -151,13 +149,20 @@ def get_author_hash(steps_data:  List[Dict[str, Any]]) -> str:
     global static_user_id
     if static_user_id is None:
         static_user_id = get_user_field(UJ_STATIC_USER_ID)
+        
+    if user_id is None:
+        user_id = static_user_id
+
+
+    if user_id is None:
         # TODO: do we want to error check this?
+        return 'randohash'
 
     if is_running_test():
         return TEST_AUTHOR_HASH
     else:
-        # TODO: return a real hash, of the static user id 
-        return 'real-hash'
+        import hashlib
+        return hashlib.sha256(f'{json.dumps(steps_data)}-{user_id}'.encode('utf-8')).hexdigest()
 
 def create_saved_analysis_json(steps_manager: StepsManagerType, version: str=__version__) -> str:
     

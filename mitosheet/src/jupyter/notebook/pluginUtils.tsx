@@ -106,6 +106,16 @@ export function getMostLikelyMitosheetCallingCell(analysisName: string | undefin
     return undefined;
 }
 
+export function getNotebookCellWithCodeForAnalysis(analysisName: string | undefined): CellType | undefined {
+    const mitosheetCall = getMostLikelyMitosheetCallingCell(analysisName);
+    if (mitosheetCall !== undefined) {
+        const [, mitosheetCallIndex] = mitosheetCall;
+        return (window as any).Jupyter?.notebook?.get_cell(mitosheetCallIndex + 1);
+    }
+
+    return undefined;
+}
+
 export function writeToCell(cell: CellType | undefined, code: string): void {
     if (cell == undefined) {
         return;
@@ -226,6 +236,7 @@ export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines
 
     const codeCell = getCellAtIndex(mitosheetCallIndex + 1);
 
+    let writtenCell = codeCell;
     if (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(getCellText(codeCell), analysisName)) {
         writeToCell(codeCell, code)
     } else {
@@ -250,12 +261,13 @@ export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines
         (window as any).Jupyter?.notebook?.select_next();
         const activeCell = (window as any).Jupyter?.notebook?.get_cell((window as any).Jupyter?.notebook?.get_anchor_index());
         writeToCell(activeCell, code);
+        writtenCell = activeCell;
+    }
+
+    if (writtenCell !== undefined) {
+        writtenCell.metadata['editable'] = false;
     }
 }
-
-
-
-
 
 export const writeEmptyMitosheetCell = (): void => {
     // Create a new cell below the active code cell
@@ -270,12 +282,18 @@ export const writeEmptyMitosheetCell = (): void => {
     }
 }
 
-export const setMetadataInNotebook = (key: string, value: string): void => {
-    const currentMetadata = (window as any)?.Jupyter.notebook.metadata.mitosheet
+export const setMetadataInNotebook = (analysisName: string, key: string, value: string): void => {
+    const codeCell = getNotebookCellWithCodeForAnalysis(analysisName);
+
+    if (codeCell === undefined) {
+        return;
+    }
+
+    const currentMetadata = codeCell.metadata.mitosheet
     if (currentMetadata !== undefined && currentMetadata !== null) {
         currentMetadata[key] = value;
     } else {
-        const metadata = (window as any)?.Jupyter.notebook.metadata;
+        const metadata = codeCell.metadata;
         if (metadata) {
             metadata['mitosheet'] = {
                 key: value
@@ -284,8 +302,14 @@ export const setMetadataInNotebook = (key: string, value: string): void => {
     }
 }
 
-export const getMetadataInNotebook = (key: string): string | undefined => {
-    const currentMetadata = (window as any)?.Jupyter.notebook.metadata.mitosheet
+export const getMetadataInNotebook = (analysisName: string, key: string): string | undefined => {
+    const codeCell = getNotebookCellWithCodeForAnalysis(analysisName);
+
+    if (codeCell === undefined) {
+        return undefined;
+    }
+
+    const currentMetadata = codeCell.metadata.mitosheet
     if (currentMetadata !== undefined && currentMetadata !== null) {
         return currentMetadata[key];
     }

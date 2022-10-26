@@ -12,7 +12,7 @@ import { ExcelFileMetadata } from "../components/import/XLSXImportConfigScreen";
 import { valuesArrayToRecord } from "../components/taskpanes/PivotTable/pivotUtils";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
-import { BackendPivotParams, DataframeFormat, FrontendPivotParams } from "../types";
+import { BackendPivotParams, DataframeFormat, FrontendPivotParams, SavedAnalysis } from "../types";
 import { ColumnID, FeedbackID, FilterGroupType, FilterType, GraphID, MitoError, GraphParamsFrontend } from "../types";
 import { getDeduplicatedArray } from "../utils/arrays";
 
@@ -1279,7 +1279,7 @@ export default class MitoAPI {
     */
     async updateReplayAnalysis(
         analysisName: string,
-        analysis?: Record<string, string>,
+        analysis?: SavedAnalysis,
         stepImportDataListToOverwrite?: StepImportData[]
     ): Promise<MitoError | undefined> {
 

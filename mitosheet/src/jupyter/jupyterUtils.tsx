@@ -106,21 +106,22 @@ export const writeToNotebookMetadata = (analysisName: string, key: string, value
             analysisName: analysisName
         });
     } else if (isInJupyterNotebook()) {
-        setMetadataInNotebook(key, value);
+        setMetadataInNotebook(analysisName, key, value);
     } else {
         console.error("Not detected as in Jupyter Notebook or JupyterLab")
     }
 }
 
 export const getNotebookMetadata = (analysisName: string, key: string): Promise<void | string> => {
+    console.log("Getting notebook metadata", analysisName, key)
     return new Promise((resolve) => {
         if (isInJupyterLab()) {
-            window.commands?.execute('get-metadata', {key: key}).then(async (value: string) => {
+            window.commands?.execute('get-metadata', {key: key, analysisName: analysisName}).then(async (value: string) => {
                 return resolve(value);
             })
             return;
         } else if (isInJupyterNotebook()) {
-            return resolve(getMetadataInNotebook(key));
+            return resolve(getMetadataInNotebook(analysisName, key));
         } else {
             console.error("Not detected as in Jupyter Notebook or JupyterLab")
         }
