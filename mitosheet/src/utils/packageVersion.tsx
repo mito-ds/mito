@@ -5,26 +5,31 @@ import { UserProfile } from "../types"
     to the current version; note that this assumes semantic versioning
     with x.y.z!
 */
-export const isAfterBenchmarkVersion = (currentVersion: string, benchmarkVersion: string): boolean => {
-    console.log(currentVersion)
-    console.log(currentVersion.split('.').map(versionPart => parseInt(versionPart)))
+export const isAtLeastBenchmarkVersion = (currentVersion: string, benchmarkVersion: string): boolean => {
     const currentVersionParts = currentVersion.split('.').map(versionPart => parseInt(versionPart))
-    console.log('111')
     const benchmarkVersionParts = benchmarkVersion.split('.').map(versionPart => parseInt(versionPart))
 
-    if (benchmarkVersionParts[0] > currentVersionParts[0]) {
-        return false
+    // Make sure that the current version is of the format x.y.z
+    if (currentVersionParts.length == 1) {
+        currentVersionParts[1] = 0
+    }
+    if (currentVersionParts.length == 2) {
+        currentVersionParts[2] = 0
     }
 
-    if (benchmarkVersionParts[1] > currentVersionParts[1]) {
-        return false
+    let i = 0
+    for (i; i < currentVersionParts.length; i ++) {
+        if (currentVersionParts[i] > benchmarkVersionParts[i]) {
+            return true 
+        } 
+
+        if (currentVersionParts[i] < benchmarkVersionParts[i]) {
+            return false 
+        }
     }
 
-    if (benchmarkVersionParts[2] > currentVersionParts[2]) {
-        return false
-    }
-
-    return true
+    // If they are the same version, return True 
+    return true 
 }
 
 /*
@@ -34,6 +39,5 @@ export const isAfterBenchmarkVersion = (currentVersion: string, benchmarkVersion
     See here: https://pandas.pydata.org/pandas-docs/dev/whatsnew/v0.25.0.html
 */
 export const isExcelImportEnabled = (userProfile: UserProfile): boolean => {
-    console.log("Pandas Version: ", userProfile.pandasVersion)
-    return isAfterBenchmarkVersion(userProfile.pythonVersion, '3.6.0') && isAfterBenchmarkVersion(userProfile.pandasVersion, '0.25.0')
+    return isAtLeastBenchmarkVersion(userProfile.pythonVersion, '3.6.0') && isAtLeastBenchmarkVersion(userProfile.pandasVersion, '0.25.0')
 }

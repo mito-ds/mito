@@ -6,7 +6,7 @@ import { useStateFromAPIAsync } from '../../hooks/useStateFromAPIAsync';
 import MitoAPI from '../../jupyter/api';
 import { AnalysisData, UIState, UserProfile } from '../../types';
 import { toggleInArray } from '../../utils/arrays';
-import { isAfterBenchmarkVersion } from '../../utils/packageVersion';
+import { isAtLeastBenchmarkVersion } from '../../utils/packageVersion';
 import DropdownItem from '../elements/DropdownItem';
 import Input from '../elements/Input';
 import MultiToggleBox from '../elements/MultiToggleBox';
@@ -237,7 +237,7 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
                         Decimal was only added to the read_excel pandas api in version 1.4, so 
                         if the user is on a previous version, we don't show it.
                     */}
-                    {isAfterBenchmarkVersion(props.userProfile.pandasVersion, '1.4.0') && 
+                    {isAtLeastBenchmarkVersion(props.userProfile.pandasVersion, '1.4.0') && 
                         <Row justify='space-between' align='center'>
                             <p className='text-body-1'>
                                 Decimal Separator
