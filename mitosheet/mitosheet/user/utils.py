@@ -112,7 +112,7 @@ def get_pandas_version() -> str:
     return pd.__version__
 
 
-def get_python_version() -> str:
+def get_python_version() -> int:
     """
     Returns the Python version
     """
