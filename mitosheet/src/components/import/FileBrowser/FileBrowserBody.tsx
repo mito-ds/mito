@@ -5,6 +5,7 @@ import '../../../../css/taskpanes/Import/FileBrowser.css';
 import MitoAPI from '../../../jupyter/api';
 import { UIState, UserProfile } from '../../../types';
 import { classNames } from '../../../utils/classNames';
+import { isExcelImportEnabled } from '../../../utils/packageVersion';
 import SortArrowIcon from '../../icons/SortArrowIcon';
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
@@ -258,7 +259,7 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
                                     setFileBrowserState={props.setFileBrowserState}
                                     currPathParts={props.currPathParts}
                                     setCurrPathParts={props.setCurrPathParts}
-                                    excelImportEnabled={props.userProfile.excelImportEnabled}
+                                    excelImportEnabled={isExcelImportEnabled(props.userProfile)}
                                     setImportState={props.setImportState}
                                     importCSVFile={props.importCSVFile}
                                 />

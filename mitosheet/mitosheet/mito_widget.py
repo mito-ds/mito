@@ -9,6 +9,7 @@ Main file containing the mito widget.
 """
 import json
 import os
+from sysconfig import get_python_version
 import time
 from typing import Any, Dict, List, Optional, Union
 
@@ -33,7 +34,7 @@ from mitosheet.user.db import USER_JSON_PATH, get_user_field
 from mitosheet.user.location import is_in_google_colab, is_in_vs_code
 from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES, UJ_RECEIVED_CHECKLISTS,
                                     UJ_RECEIVED_TOURS, UJ_USER_EMAIL)
-from mitosheet.user.utils import get_pandas_version, is_excel_import_enabled, is_pro, is_running_test
+from mitosheet.user.utils import get_pandas_version, is_pro, is_running_test
 
 try:
     from mitosheet_helper_config import MITO_ENTERPRISE_CONFIGURATION 
@@ -108,7 +109,7 @@ class MitoWidget(DOMWidget):
             'isPro': is_pro(),
             'telemetryEnabled': telemetry_turned_on(),
             # Static over a single analysis
-            'excelImportEnabled': is_excel_import_enabled(),
+            'pythonVersion': get_python_version(),
             'pandasVersion': get_pandas_version(),
             'isLocalDeployment': self.is_local_deployment,
             'shouldUpgradeMitosheet': self.should_upgrade_mitosheet,
