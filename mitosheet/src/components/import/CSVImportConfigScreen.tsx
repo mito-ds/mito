@@ -363,7 +363,9 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                             width='medium'
                             onChange={(e) => {
                                 const newSkiprows = e.target.value;
-                                const newSkiprowsNumber = parseFloat(newSkiprows)
+                                // Since we can only skip integer number of rows, we don't let the user add a decimal,
+                                // which they probably won't anyways
+                                const newSkiprowsNumber = Math.floor(parseFloat(newSkiprows))
 
                                 props.setParams(prevParams => {
                                     return {
