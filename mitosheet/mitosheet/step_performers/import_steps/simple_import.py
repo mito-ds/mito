@@ -129,7 +129,7 @@ class SimpleImportStepPerformer(StepPerformer):
 
 
 
-def read_csv_get_delimiter_and_encoding_and_decimal(file_name: str) -> Tuple[pd.DataFrame, str, str]:
+def read_csv_get_delimiter_and_encoding_and_decimal(file_name: str) -> Tuple[pd.DataFrame, str, str, str]:
     """
     Given a file_name, will read in the file as a CSV, and
     return the df, delimeter, decimal separator, and encoding of the file

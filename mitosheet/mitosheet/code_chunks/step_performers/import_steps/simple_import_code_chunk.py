@@ -11,8 +11,7 @@ import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
 
-# We use 'default' instead of None to ensure that we log the encoding even when we don't need to set one.
-DEFAULT_ENCODING = 'default'
+DEFAULT_ENCODING = 'utf-8'
 DEFAULT_DELIMETER = ','
 DEFAULT_DECIMAL = '.'
 DEFAULT_ERROR_BAD_LINES = True

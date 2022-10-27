@@ -128,7 +128,7 @@ const DECIMAL_TOOLTIP = 'Set the character used to separate the decimal places.'
 const ERROR_BAD_LINES_TOOLTIP = 'Turn on to skip any lines that are missing fields.'
 
 export const DEFAULT_DELIMETER = ",";
-export const DEFAULT_ENCODING = "default";
+export const DEFAULT_ENCODING = "utf-8";
 export const DEFAULT_DECIMAL = ".";
 export const DEFAULT_ERROR_BAD_LINES = true;
 
@@ -232,7 +232,7 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
     const error_bad_lines = props.params.error_bad_lines
 
     const currentDelimeter = delimeters !== undefined ? delimeters[0] : DEFAULT_DELIMETER;
-    const currentEncoding = ((encodings !== undefined ? encodings[0] : DEFAULT_ENCODING) === 'default') ? 'utf-8' : (encodings !== undefined ? encodings[0] : 'utf-8');
+    const currentEncoding = encodings !== undefined ? encodings[0] : DEFAULT_ENCODING;
     const currentDecimal = decimals !== undefined ? decimals[0] : DEFAULT_DECIMAL
     const currentErrorBadLines = error_bad_lines !== undefined ? error_bad_lines[0] : DEFAULT_ERROR_BAD_LINES;
     
