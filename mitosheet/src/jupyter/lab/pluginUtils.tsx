@@ -97,7 +97,6 @@ export function getCellWithCodeForAnalysis(tracker: INotebookTracker, analysisNa
     }
 
     const [, mitosheetCallIndex] = mitosheetCallCellAndIndex;
-    console.log("got mito call index", mitosheetCallIndex)
 
     const notebook = tracker.currentWidget?.content;
     const cells = notebook?.model?.cells;
@@ -107,7 +106,6 @@ export function getCellWithCodeForAnalysis(tracker: INotebookTracker, analysisNa
     }
 
     const codeCell = getCellAtIndex(cells, mitosheetCallIndex + 1);
-    console.log("code cell", codeCell)
     return codeCell;
 }
 

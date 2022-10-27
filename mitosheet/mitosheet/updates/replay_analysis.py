@@ -78,12 +78,23 @@ def execute_replay_analysis_update(
         ignore_author_hash: Optional[bool]
     ) -> None:
     """
-    This function either:
-    1. reapplies the analysis saved at analysis_name
-    2. reapplies the analysis data passed through the variable analysis
+    This update function replays an analysis. There are two ways to replay
+    an analysis
 
+    1. By providing an analysis_name, but no analysis. In this case, the analysis
+    being replayed is stored on disk, and so we can safely assume the user is 
+    using it. 
 
-    Notably, if step_import_data_list_to_overwrite are passed, this it overwrites all the
+    2. By providing an analysis. In this case, we assume that the frontend is storing
+    the analysis, and so the user might be getting it from a different user. Thus, we 
+    need to check that the hash of the steps_data in this analysis is the hash of the
+    steps_data with the static id of this user. 
+    
+    If the author_hash does not pass, then we throw an auth error, and ask the user to
+    explicitly trust this analysis on the frontend. In this case, they can call this 
+    function again with ignore_author_hash=True to bypass this authentication check.
+    
+    If step_import_data_list_to_overwrite are passed, this it overwrites all the
     current import steps with the new updated import steps that are passed.
 
     This means that the number of dataframes created in step_import_data_list_to_overwrite,
@@ -108,7 +119,6 @@ def execute_replay_analysis_update(
         if get_author_hash(analysis['steps_data'], get_user_field(UJ_STATIC_USER_ID)) != analysis['author_hash']:
             if ignore_author_hash != True:
                 raise make_replay_analysis_permissions_error()
-        print("Checked author hash!")
         
         # We also have to make sure that the analysis provided from
         # the frontend is upgraded as well. Note that we do this _after_

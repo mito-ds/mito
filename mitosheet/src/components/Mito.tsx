@@ -24,7 +24,7 @@ import '../../css/sitewide/text.css';
 import '../../css/sitewide/widths.css';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import MitoAPI from '../jupyter/api';
-import { getArgs, getNotebookMetadata, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell, writeToNotebookMetadata } from '../jupyter/jupyterUtils';
+import { getArgs, getNotebookMetadata, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell, writeToNotebookMetadata as writeToGeneratedCodeCellMetadata } from '../jupyter/jupyterUtils';
 import { AnalysisData, DataTypeInMito, DFSource, EditorState, GridState, SavedAnalysis, SheetData, UIState, UserProfile } from '../types';
 import { createActions } from '../utils/actions';
 import { classNames } from '../utils/classNames';
@@ -41,7 +41,7 @@ import ClearAnalysisModal from './modals/ClearAnalysisModal';
 import DeleteGraphsModal from './modals/DeleteGraphsModal';
 import ErrorModal from './modals/ErrorModal';
 import { ModalEnum } from './modals/modals';
-import ErrorReplayedAnalysisModal from './modals/ReplayAnalysisModals';
+import ErrorReplayedAnalysisModal from './modals/ErrorReplayedAnalysisModal';
 import SignUpModal from './modals/SignupModal';
 import UpgradeModal from './modals/UpgradeModal';
 import ConcatTaskpane from './taskpanes/Concat/ConcatTaskpane';
@@ -195,7 +195,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 const analysisSavedInNotebook: SavedAnalysis | undefined = analysisSavedInNotebookJSON !== undefined ? JSON.parse(analysisSavedInNotebookJSON) : undefined;
                 
                 // If there is no analysis anywhere, then tell the user that
-                // TODO: update this error message
                 if (analysisSavedInNotebook === undefined && !analysisData.analysisToReplay.existsOnDisk) {
                     void props.mitoAPI.log('replayed_nonexistant_analysis_failed')
 
@@ -205,7 +204,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             currOpenModal: {
                                 type: ModalEnum.ErrorReplayedAnalysis,
                                 header: 'analysis_to_replay does not exist',
-                                message: `We're unable to replay ${analysisToReplayName} because you don't have access to it. This is probably because the analysis was created on a different computer.`,
+                                message: `We're unable to replay ${analysisToReplayName}. This is likely because you deleted the cell that contained the generated code for this analysis.`,
                                 error: undefined,
                                 oldAnalysisName: analysisToReplayName,
                                 newAnalysisName: analysisData.analysisName
@@ -289,7 +288,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
             writeGeneratedCodeToCell(analysisData.analysisName, analysisData.code, userProfile.telemetryEnabled);
             
             // And we write the analysis to the metadata
-            writeToNotebookMetadata(
+            writeToGeneratedCodeCellMetadata(
                 analysisData.analysisName,
                 `saved_analyses:${analysisData.analysisName}`,
                 analysisData.savedAnalysisJSON

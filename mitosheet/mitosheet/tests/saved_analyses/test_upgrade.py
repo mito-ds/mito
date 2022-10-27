@@ -124,7 +124,6 @@ UPGRADE_TESTS = [
     (
         {
             "version": "0.1.54",  
-            "author_hash": TEST_AUTHOR_HASH,
             "steps": {"1": {"step_version": 1, "step_type": "group", "sheet_index": 0, "group_rows": ["Name"], "group_columns": [], "values": {"Height": "sum"}}}
         },
         {

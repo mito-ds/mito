@@ -127,7 +127,7 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
                         }
                     </Col>
                     <Col span={17.5}>
-                        <div className='flex flex-column'>
+                        <div className='flexbox-column'>
                             <p className='text-body-1'>
                                 {conditionText} {props.conditionalFormat.filters[0]?.value}
                             </p>

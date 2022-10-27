@@ -264,7 +264,8 @@ export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines
         writtenCell = activeCell;
     }
 
-    if (writtenCell !== undefined) {
+    // make sure this cell is not editable as well
+    if (writtenCell !== undefined && writtenCell.metadata) {
         writtenCell.metadata['editable'] = false;
     }
 }

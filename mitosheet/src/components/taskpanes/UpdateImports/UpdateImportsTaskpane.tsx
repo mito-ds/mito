@@ -54,7 +54,8 @@ export interface ReplacingDataframeState {
 export interface FailedReplayData {
     analysisName: string,
     analysis: SavedAnalysis | undefined,
-    error: MitoError
+    error: MitoError,
+    ignoreAuthorHash?: boolean
 }
     
 

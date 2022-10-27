@@ -17,7 +17,7 @@
 
 
 import MitoAPI from "./api"
-import { getMetadataInNotebook, notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteGeneratedCodeToCell, setMetadataInNotebook } from "./notebook/pluginUtils"
+import { getMetadataInNotebook as getGeneratedCodeCellMetadataInNotebook, notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteGeneratedCodeToCell, setMetadataInNotebook as setGeneratedCodeCellMetadataInNotebook } from "./notebook/pluginUtils"
 
 
 /**
@@ -100,28 +100,27 @@ export const getArgs = (analysisToReplayName: string | undefined): Promise<strin
 
 export const writeToNotebookMetadata = (analysisName: string, key: string, value: string): void => {
     if (isInJupyterLab()) {
-        window.commands?.execute('set-metadata', {
+        window.commands?.execute('set-generated-code-cell-metadata', {
             key: key,
             value: value,
             analysisName: analysisName
         });
     } else if (isInJupyterNotebook()) {
-        setMetadataInNotebook(analysisName, key, value);
+        setGeneratedCodeCellMetadataInNotebook(analysisName, key, value);
     } else {
         console.error("Not detected as in Jupyter Notebook or JupyterLab")
     }
 }
 
 export const getNotebookMetadata = (analysisName: string, key: string): Promise<void | string> => {
-    console.log("Getting notebook metadata", analysisName, key)
     return new Promise((resolve) => {
         if (isInJupyterLab()) {
-            window.commands?.execute('get-metadata', {key: key, analysisName: analysisName}).then(async (value: string) => {
+            window.commands?.execute('get-generated-code-cell-metadata', {key: key, analysisName: analysisName}).then(async (value: string) => {
                 return resolve(value);
             })
             return;
         } else if (isInJupyterNotebook()) {
-            return resolve(getMetadataInNotebook(analysisName, key));
+            return resolve(getGeneratedCodeCellMetadataInNotebook(analysisName, key));
         } else {
             console.error("Not detected as in Jupyter Notebook or JupyterLab")
         }

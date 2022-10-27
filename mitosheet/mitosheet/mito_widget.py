@@ -94,7 +94,6 @@ class MitoWidget(DOMWidget):
         self.analysis_data_json = self.steps_manager.analysis_data_json
         self.user_profile_json = json.dumps({
             # Dynamic, update each time
-            'static_user_id': get_user_field(UJ_STATIC_USER_ID),
             'userEmail': get_user_field(UJ_USER_EMAIL),
             'receivedTours': get_user_field(UJ_RECEIVED_TOURS),
             'receivedChecklists': get_user_field(UJ_RECEIVED_CHECKLISTS),
@@ -153,7 +152,7 @@ class MitoWidget(DOMWidget):
 
             # Update all state variables
             self.update_shared_state_variables()
-        except Exception as e:
+        except Exception as e:           
             # We handle the case of replaying the analysis specially, because we don't
             # want to display the error modal - we want to display something specific
             # in this case. Note that we include the updating of shared state variables

@@ -266,7 +266,7 @@ function activateWidgetExtension(
         }
     });
 
-    app.commands.addCommand('set-metadata', {
+    app.commands.addCommand('set-generated-code-cell-metadata', {
         label: 'Set Metadata',
         execute: (args: any) => {
             const key = args.key as string;
@@ -274,23 +274,19 @@ function activateWidgetExtension(
             const analysisName = args.analysisName as string;
 
             const codeCellData = getCellWithCodeForAnalysis(tracker, analysisName);
-
-            const objectCurrentMetadata = JSON.parse(JSON.stringify({}))
+            const objectCurrentMetadata = (codeCellData?.metadata.get('mitosheet') as Record<string, string> | undefined) || {};
             codeCellData?.metadata.set('mitosheet', {...objectCurrentMetadata, [key]: value});
         }
     })
 
-    app.commands.addCommand('get-metadata', {
+    app.commands.addCommand('get-generated-code-cell-metadata', {
         label: 'Get Metadata',
         execute: (args: any): string | undefined => {
             const key = args.key as string;
             const analysisName = args.analysisName as string;
 
-            // TODO: check that this cast is legit
             const codeCellData = getCellWithCodeForAnalysis(tracker, analysisName);
-            console.log("returned", codeCellData)
             const currentMetadata = codeCellData?.metadata.get('mitosheet') as Record<string, string>;
-            console.log('current metadata', currentMetadata)
             return currentMetadata ? currentMetadata[key] : undefined;
         }
     })

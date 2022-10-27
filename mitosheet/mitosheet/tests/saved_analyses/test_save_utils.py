@@ -18,6 +18,7 @@ from mitosheet.saved_analyses.save_utils import TEST_AUTHOR_HASH, read_and_upgra
 from mitosheet.step_performers.filter import FC_NUMBER_EXACTLY
 from mitosheet.tests.test_utils import (create_mito_wrapper,
                                         create_mito_wrapper_dfs)
+from mitosheet.errors import MitoError
 
 # We assume only column A exists
 PERSIST_ANALYSIS_TESTS = [
@@ -358,9 +359,52 @@ def test_replay_analysis_pass_analysis_upgrades_analysis():
 
     mito.replay_analysis('not a name', analysis={
         'version': '0.1.60',
-        'steps': {"1": {"step_version": 1, "step_type": "group", "sheet_index": 0, "group_rows": ["A"], "group_columns": [], "values": {"B": "sum"}}},
+        'author_hash': TEST_AUTHOR_HASH,
+        'steps_data': [{
+            "step_version": 5, 
+            "step_type": "pivot", 
+            "params": {
+                'sheet_index': 0,
+                'pivot_rows_column_ids': ['A'],
+                'pivot_columns_column_ids': [],
+                'values_column_ids_map': {'B': ['sum']},
+            }
+        }]
     })
 
     assert mito.dfs[1].equals(
-        pd.DataFrame({'A': [123], 'B_sum': [123]})
+        pd.DataFrame({'A': [123], 'B sum': [123]})
+    )
+
+def test_replay_analysis_pass_analysis_with_invalid_author_hash():
+    df = pd.DataFrame({'A': [123]})
+    mito = create_mito_wrapper_dfs(df)
+
+    WRONG_AUTHOR_HASH_MESSAGE = {
+        'event': 'update_event',
+        'id': '123123',
+        'type': 'replay_analysis_update',
+        'params': {
+            'analysis_name': 'fake_name',
+            'analysis': {
+                'version': __version__,
+                'author_hash': 'wrong hash',
+                "steps_data": [{"step_version": 2, "step_type": "add_column", 'params': { "sheet_index": 0, "column_header": "B", "column_header_index": -1}}]
+            },
+            'step_import_data_list_to_overwrite': [],
+            'ignore_author_hash': False
+        },
+    }
+
+    with pytest.raises(MitoError) as e_info:
+        mito.mito_widget.steps_manager.handle_update_event(WRONG_AUTHOR_HASH_MESSAGE)
+
+    assert 'replay_analysis_permissions_error' in str(e_info)
+
+    # Then, ignore the author hash, and make sure it replays
+    WRONG_AUTHOR_HASH_MESSAGE['params']['ignore_author_hash'] = True
+    mito.mito_widget.steps_manager.handle_update_event(WRONG_AUTHOR_HASH_MESSAGE)
+
+    assert mito.dfs[0].equals(
+        pd.DataFrame({'A': [123], 'B': [0]})
     )

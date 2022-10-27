@@ -1,35 +1,34 @@
 // Copyright (c) Mito
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import MitoAPI from '../../jupyter/api';
 import { SavedAnalysis, UIState } from '../../types';
 import DefaultModal from '../DefaultModal';
 import TextButton from '../elements/TextButton';
 import { ModalEnum } from './modals';
 import { overwriteAnalysisToReplayToMitosheetCall } from '../../jupyter/jupyterUtils';
-import Row from '../layout/Row';
-import Col from '../layout/Col';
 import { isMitoError } from '../../utils/errors';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 
 
 /**
- * This function returns a summary view of the 
+ * This function returns a summary view of the analysis. Note that we don't do anything
+ * super fancy here, as this will likely be a very rare flow as users will most often
+ * trust where they are getting their notebooks from.
  */
 const getAnalysisSummary = (analysis: SavedAnalysis): JSX.Element => {
-    console.log(analysis.steps_data)
     return (
         <>
             {analysis.steps_data.map(step_data => {
                 return (
-                    <Row>
-                        <Col>
-                            {step_data.step_type}
-                        </Col>
-                        <Col>
+                    <div className='flexbox-row text-overflow-scroll'>
+                        <div>
+                            {step_data.step_type}:
+                        </div>
+                        <div title={JSON.stringify(step_data.params)}>
                             {JSON.stringify(step_data.params)}
-                        </Col>
-                    </Row>
+                        </div>
+                    </div>
                 )
             })}   
         </>
@@ -38,9 +37,10 @@ const getAnalysisSummary = (analysis: SavedAnalysis): JSX.Element => {
 
 
 /*
-    This modal displays to the user when:
-    1. the analysis that they are replaying does not exist on their computer
-    2. the analysis errors during replay for some other reason
+    This modal displays to the user when they replay an analysis that
+    was not created on their computer and last edited by them.
+
+    It asks them to either trust the analysis, or start a new one
 */
 const ReplayAnalysisPermissionsModal = (
     props: {
@@ -54,6 +54,12 @@ const ReplayAnalysisPermissionsModal = (
 
     const [viewSteps, setViewSteps] = useState(false);
 
+    useEffect(() => {
+        if (viewSteps) {
+            props.mitoAPI.log('clicked_view_all_steps')
+        }
+    }, [viewSteps])
+
     return (
         <DefaultModal
             header={'Do you want to trust this analysis?'}
@@ -62,14 +68,14 @@ const ReplayAnalysisPermissionsModal = (
             viewComponent={
                 <>
                     <div className='text-align-left text-body-1' onClick={() => setViewSteps((viewTraceback) => !viewTraceback)}>
-                        The <span>analysis_to_replay</span> {props.analysisName} was created by someone else. Make sure you trust who sent you this notebook before running this analysis.
+                        The <span>analysis_to_replay</span> {props.analysisName} was last edited by someone else. Make sure you trust who sent you this notebook before running this analysis.
                         <span className='text-body-1-link'>
-                            Click to view parameters for all steps.
+                            View all steps.
                         </span>
                     </div>
                     {viewSteps &&
                         <div 
-                            className='flex flex-column text-align-left text-overflow-hidden text-overflow-scroll mt-5px' 
+                            className='text-align-left text-overflow-hidden text-overflow-scroll mt-5px' 
                             style={{height: '200px', border: '1px solid var(--mito-purple)', borderRadius: '2px', padding: '5px'}}
                         >
                             {getAnalysisSummary(props.analysis)}
@@ -114,7 +120,8 @@ const ReplayAnalysisPermissionsModal = (
                                             failedReplayData: {
                                                 analysisName: props.analysisName,
                                                 analysis: props.analysis,
-                                                error: replayAnalysisError
+                                                error: replayAnalysisError,
+                                                ignoreAuthorHash: true
                                             }
                                         },
                                         currOpenModal: {type: ModalEnum.None}
