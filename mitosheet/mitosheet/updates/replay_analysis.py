@@ -73,7 +73,7 @@ def overwrite_import_data(analysis: Dict[str, Any], step_import_data_list_to_ove
 def execute_replay_analysis_update(
         steps_manager: StepsManagerType,
         analysis_name: str,
-        analysis: Optional[Dict[str, str]],
+        analysis: Optional[Dict[str, Any]],
         step_import_data_list_to_overwrite: List[Dict[str, Any]],
         ignore_author_hash: Optional[bool]
     ) -> None:

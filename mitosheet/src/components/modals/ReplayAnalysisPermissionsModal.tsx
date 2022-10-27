@@ -19,9 +19,9 @@ import { TaskpaneType } from '../taskpanes/taskpanes';
 const getAnalysisSummary = (analysis: SavedAnalysis): JSX.Element => {
     return (
         <>
-            {analysis.steps_data.map(step_data => {
+            {analysis.steps_data.map((step_data, idx) => {
                 return (
-                    <div className='flexbox-row text-overflow-scroll'>
+                    <div key={idx} className='flexbox-row text-overflow-scroll'>
                         <div>
                             {step_data.step_type}:
                         </div>
@@ -56,7 +56,7 @@ const ReplayAnalysisPermissionsModal = (
 
     useEffect(() => {
         if (viewSteps) {
-            props.mitoAPI.log('clicked_view_all_steps')
+            void props.mitoAPI.log('clicked_view_all_steps')
         }
     }, [viewSteps])
 
@@ -134,7 +134,7 @@ const ReplayAnalysisPermissionsModal = (
                                         currOpenModal: {type: ModalEnum.None}
                                     }
                                 })}
-                            }
+                        }
                             
                         }
                     >
