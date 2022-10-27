@@ -686,6 +686,7 @@ export interface UserProfile {
 
     isPro: boolean;
     excelImportEnabled: boolean;
+    pandasVersion: string;
     telemetryEnabled: boolean;
     isLocalDeployment: boolean;
     shouldUpgradeMitosheet: boolean;

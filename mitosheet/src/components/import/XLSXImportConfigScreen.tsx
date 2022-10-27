@@ -4,8 +4,9 @@ import React from 'react';
 
 import { useStateFromAPIAsync } from '../../hooks/useStateFromAPIAsync';
 import MitoAPI from '../../jupyter/api';
-import { AnalysisData, UIState } from '../../types';
+import { AnalysisData, UIState, UserProfile } from '../../types';
 import { toggleInArray } from '../../utils/arrays';
+import { isAfterBenchmarkVersion } from '../../utils/packageVersion';
 import DropdownItem from '../elements/DropdownItem';
 import Input from '../elements/Input';
 import MultiToggleBox from '../elements/MultiToggleBox';
@@ -25,6 +26,7 @@ import { DECIMALS, DEFAULT_DECIMAL } from './CSVImportConfigScreen';
 interface XLSXImportConfigScreenProps {
     mitoAPI: MitoAPI;
     analysisData: AnalysisData;
+    userProfile: UserProfile;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     isUpdate: boolean;
 
@@ -231,28 +233,32 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
                             }}
                         />
                     </Row>
-
-                    <Row justify='space-between' align='center'>
-                        <p className='text-body-1'>
-                            Decimal Separator
-                        </p>
-                        <Select 
-                            value={params.decimal} 
-                            width='medium'
-                            onChange={(newDecimalSeparator) => {
-                                props.setParams(prevParams => {
-                                    return {
-                                        ...prevParams,
-                                        decimal: newDecimalSeparator
-                                    }
-                                })
-                            }}>
-                            {(DECIMALS).map((decimalSeparator) => {
-                                return <DropdownItem key={decimalSeparator} title={decimalSeparator}/>
-                            })}
-                        </Select>
-                    </Row>
-                    
+                    {/*
+                        Decimal was only added to the read_excel pandas api in version 1.4, so 
+                        if the user is on a previous version, we don't show it.
+                    */}
+                    {isAfterBenchmarkVersion(props.userProfile.pandasVersion, '1.4.0') && 
+                        <Row justify='space-between' align='center'>
+                            <p className='text-body-1'>
+                                Decimal Separator
+                            </p>
+                            <Select 
+                                value={params.decimal} 
+                                width='medium'
+                                onChange={(newDecimalSeparator) => {
+                                    props.setParams(prevParams => {
+                                        return {
+                                            ...prevParams,
+                                            decimal: newDecimalSeparator
+                                        }
+                                    })
+                                }}>
+                                {(DECIMALS).map((decimalSeparator) => {
+                                    return <DropdownItem key={decimalSeparator} title={decimalSeparator}/>
+                                })}
+                            </Select>
+                        </Row>
+                    }
                     {/* 
                         We note that we might have to adjust these size checks, depending
                         on feedback from users going forward.

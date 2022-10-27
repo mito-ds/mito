@@ -3,7 +3,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL, DEFAULT_DELIMETER, DEFAULT_ENCODING
+from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL, DEFAULT_DELIMETER, DEFAULT_ENCODING, DEFAULT_ERROR_BAD_LINES, DEFAULT_SKIPROWS
 from mitosheet.data_in_mito import DataTypeInMito
 from mitosheet.mito_config import DEFAULT_SUPPORT_EMAIL, MEC_CONFIG_KEY_SUPPORT_EMAIL, MEC_CONFIG_KEY_VERSION, MitoConfig
 from mitosheet.state import (
@@ -220,7 +220,12 @@ def test_update_events_default_import_decimal():
     default_delimiter = get_constant_from_ts_file("./src/components/import/CSVImportConfigScreen.tsx", "DEFAULT_DELIMETER")
     default_encoding = get_constant_from_ts_file("./src/components/import/CSVImportConfigScreen.tsx", "DEFAULT_ENCODING")
     default_decimal = get_constant_from_ts_file("./src/components/import/CSVImportConfigScreen.tsx", "DEFAULT_DECIMAL")
+    default_skiprows = get_constant_from_ts_file("./src/components/import/CSVImportConfigScreen.tsx", "DEFAULT_SKIPROWS")
+    default_error_bad_lines = get_constant_from_ts_file("./src/components/import/CSVImportConfigScreen.tsx", "DEFAULT_ERROR_BAD_LINES")
     
     assert default_delimiter == f'"{DEFAULT_DELIMETER}"'
     assert default_encoding == f'"{DEFAULT_ENCODING}"'
     assert default_decimal == f'"{DEFAULT_DECIMAL}"'
+    assert int(default_skiprows) == DEFAULT_SKIPROWS
+    assert bool(default_error_bad_lines) == DEFAULT_ERROR_BAD_LINES
+

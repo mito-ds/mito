@@ -119,6 +119,12 @@ def is_excel_import_enabled() -> bool:
 
     return python_version_valid and pandas_version_valid
 
+def get_pandas_version() -> str:
+    """
+    Returns the pandas version
+    """
+    return pd.__version__
+
 
 def check_pro_acccess_code(access_code: Optional[str]) -> bool:
     """Checks if the passed access code is correct, by hashing it and comparing to the hashed value"""
