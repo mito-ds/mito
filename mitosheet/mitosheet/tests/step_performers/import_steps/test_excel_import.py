@@ -184,6 +184,8 @@ def test_remove_multiple_one_by_one_does_not_optimize_till_all_gone():
     os.remove(TEST_FILE)
 
 
+@pandas_post_1_only
+@python_post_3_6_only
 def test_comma_decimal_excel_import():
     df_comma = pd.DataFrame({'KG': ['267,88', '458,99', '125,89', '1,55', '1']}) 
     df_result = pd.DataFrame({'KG': [267.88, 458.99, 125.89, 1.55, 1]}) 
