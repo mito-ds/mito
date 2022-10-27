@@ -68,9 +68,6 @@ import UpgradeToProTaskpane from './taskpanes/UpgradeToPro/UpgradeToProTaskpane'
 import Toolbar from './toolbar/Toolbar';
 import Tour from './tour/Tour';
 import { TourName } from './tour/Tours';
-import { isVariantA } from '../utils/experiments';
-import { CHECKLIST_STEPS } from './checklists/checklistData';
-import { getRemainingChecklistItems } from './checklists/Checklist';
 import ReplayAnalysisPermissionsModal from './modals/ReplayAnalysisPermissionsModal';
 
 export type MitoProps = {
@@ -87,7 +84,6 @@ export type MitoProps = {
     userProfile: UserProfile;
 };
 
-
 export const Mito = (props: MitoProps): JSX.Element => {
 
     const mitoContainerRef = useRef<HTMLDivElement>(null);
@@ -95,7 +91,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const [sheetDataArray, setSheetDataArray] = useState<SheetData[]>(props.sheetDataArray);
     const [analysisData, setAnalysisData] = useState<AnalysisData>(props.analysisData);
     const [userProfile, setUserProfile] = useState<UserProfile>(props.userProfile);
-
 
     // TODO: can we delete the above 3 props keys, so we cannot use them (as type checked by compiler)?
     // These props are always out of date, and we should only use the state variables.
@@ -491,6 +486,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     error={uiState.currOpenModal.error}
                     setUIState={setUIState}
                     mitoAPI={props.mitoAPI}
+                    userProfile={props.userProfile}
                 />
             )
             case ModalEnum.ClearAnalysis: return (
@@ -524,6 +520,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     error={uiState.currOpenModal.error}
                     newAnalysisName={uiState.currOpenModal.newAnalysisName}
                     oldAnalysisName={uiState.currOpenModal.oldAnalysisName}
+                    userProfile={userProfile}
                 />
             )
             case ModalEnum.DeleteGraphs: return (
@@ -769,7 +766,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
         setGridState,
         props.mitoAPI, 
         mitoContainerRef,
-        analysisData
+        analysisData,
+        userProfile
     )
 
 
@@ -792,18 +790,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
         const toursToDisplay: TourName[] = []
 
-        // If we are in variant B, then we display the tour to the user. In either case, we 
-        // take special care to set the user json as if we also did the other variant, so
-        // that make sure the user.json for all users is valid at the end of the experiment
+        // We display the INTRO to users if they have not received it
         if (!userProfile.receivedTours.includes(TourName.INTRO)) {
-            if (isVariantA(analysisData)) {
-                void props.mitoAPI.updateCloseTour([TourName.INTRO]);
-            } else {
-                toursToDisplay.push(TourName.INTRO);
-                if (getRemainingChecklistItems(userProfile).length !== 0) {
-                    void props.mitoAPI.updateChecklist('onboarding_checklist', CHECKLIST_STEPS['onboarding_checklist'], false)
-                }
-            }
+            toursToDisplay.push(TourName.INTRO);
         }
 
         // If we open the cell editor for the first time, we give the user this tour

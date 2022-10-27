@@ -29,6 +29,15 @@
   flex-direction: row;
 }
 
+.toolbar-top-right {
+  display: flex;
+  flex-direction: row;
+}
+
+.toolbar-top-right > * + * {
+  margin-left: 5px;
+}
+
 .toolbar-dropdown-selector {
   height: 22px;
   margin-right: 5px;

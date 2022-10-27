@@ -5,8 +5,8 @@ import DefaultModal from '../DefaultModal';
 import { ModalEnum } from './modals';
 import TextButton from '../elements/TextButton';
 import MitoAPI from '../../jupyter/api';
-import { MitoError, UIState } from '../../types';
-import { SLACK_INVITE_LINK } from '../../data/documentationLinks';
+import { MitoError, UIState, UserProfile } from '../../types';
+import GetSupportButton from '../elements/GetSupportButton';
 
 /*
     A modal that displays error messages and gives
@@ -16,7 +16,8 @@ const ErrorModal = (
     props: {
         error: MitoError | undefined, 
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
-        mitoAPI: MitoAPI
+        mitoAPI: MitoAPI;
+        userProfile: UserProfile
     }): JSX.Element => {
     const [viewTraceback, setViewTraceback] = useState(false);
 
@@ -62,26 +63,11 @@ const ErrorModal = (
                     >
                         Close
                     </TextButton>
-                    <TextButton
-                        variant='dark'
-                        width='medium'
-                        href={SLACK_INVITE_LINK}
-                        target='_blank'
-                        onClick={() => {
-                            props.setUIState((prevUIState) => {
-                                return {
-                                    ...prevUIState,
-                                    currOpenModal: {type: ModalEnum.None}
-                                }
-                            })
-                            void props.mitoAPI.log('clicked_slack_invite', {
-                                'location': 'error modal'
-                            });
-                            return true;
-                        }}
-                    >
-                        Get Immediate Support
-                    </TextButton>
+                    <GetSupportButton 
+                        userProfile={props.userProfile} 
+                        setUIState={props.setUIState}
+                        mitoAPI={props.mitoAPI}                 
+                    />
                 </> 
             }
         />
