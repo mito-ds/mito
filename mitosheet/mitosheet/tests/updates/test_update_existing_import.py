@@ -11,7 +11,7 @@ import os
 import json
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL
 from mitosheet.tests.test_utils import create_mito_wrapper, create_mito_wrapper_dfs
-from mitosheet.tests.decorators import pandas_post_1_only, python_post_3_6_only
+from mitosheet.tests.decorators import pandas_post_1_only, pandas_post_1_4_only, python_post_3_6_only
 
 TEST_EXCEL_FILE = 'excel_file.xlsx'
 TEST_CSV_FILE = 'csv_file.csv'
@@ -466,7 +466,7 @@ def test_test_import_correct_index_for_multiple_items_in_one_step():
     os.remove(TEST_EXCEL_FILE)
 
 
-@pandas_post_1_only
+@pandas_post_1_4_only
 @python_post_3_6_only
 def test_update_imports_replays_unchanged_files_correctly_from_steps():
     # Make dataframes and files for test
@@ -514,7 +514,7 @@ def test_update_imports_replays_unchanged_files_correctly_from_steps():
     os.remove(TEST_EXCEL_FILE)
 
 
-@pandas_post_1_only
+@pandas_post_1_4_only
 @python_post_3_6_only
 def test_update_imports_replays_unchanged_files_correctly_from_analysis_name():
     # Make dataframes and files for test

@@ -8,7 +8,7 @@ import pandas as pd
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL
 
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
-from mitosheet.tests.decorators import pandas_post_1_only, python_post_3_6_only
+from mitosheet.tests.decorators import pandas_post_1_only, pandas_post_1_4_only, python_post_3_6_only
 
 TEST_FILE = 'file.xlsx'
 
@@ -184,7 +184,7 @@ def test_remove_multiple_one_by_one_does_not_optimize_till_all_gone():
     os.remove(TEST_FILE)
 
 
-@pandas_post_1_only
+@pandas_post_1_4_only
 @python_post_3_6_only
 def test_comma_decimal_excel_import():
     df_comma = pd.DataFrame({'KG': ['267,88', '458,99', '125,89', '1,55', '1']}) 
