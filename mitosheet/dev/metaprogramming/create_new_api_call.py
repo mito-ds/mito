@@ -19,7 +19,7 @@ def get_api_call_python_code_params(params: Dict[str, str]) -> str:
     params_code = ""
 
     for name, type in params.items():
-        params_code += f'    {name}: {type} = params[\'{name}\']'
+        params_code += f'    {name}: {type} = params[\'{name}\']\n'
 
     return params_code
 
@@ -44,7 +44,7 @@ from mitosheet.types import StepsManagerType
 
 
 def {name}(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
-    {get_api_call_python_code_params(params)}
+{get_api_call_python_code_params(params)}
 
     # TODO: Implement the call
 
