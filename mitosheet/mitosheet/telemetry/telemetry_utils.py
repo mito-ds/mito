@@ -191,6 +191,11 @@ try:
     from notebook import __version__ as notebook_version
 except:
     notebook_version = 'No notebook'
+try:
+    from pandas import __version__ as pandas_version
+except:
+    pandas_version = 'unkown'
+
 
 location = None
 
@@ -206,6 +211,7 @@ def _get_enviornment_params() -> Dict[str, Any]:
     # Add the python properties to every log event we can
     enviornment_params = {
         'version_python': sys.version_info,
+        'version_pandas': pandas_version,
         'version_jupyterlab': jupyterlab_version,
         'version_notebook': notebook_version,
         'version_mito': __version__,
@@ -313,6 +319,7 @@ def identify() -> None:
         # NOTE: we do not log anything when tests are running
         analytics.identify(static_user_id, {
             'version_python': sys.version_info,
+            'version_pandas': pandas_version,
             'version_sys': sys.version,
             'version_mito': __version__,
             'package_name': package_name, 
