@@ -43,7 +43,7 @@ class SimpleImportStepPerformer(StepPerformer):
         delimeters: Optional[List[str]] = get_param(params, 'delimeters')
         encodings: Optional[List[str]] = get_param(params, 'encodings')
         decimals: Optional[List[str]] = get_param(params, 'decimals')
-        skiprows: Optional[List[str]] = get_param(params, 'skiprows')
+        skiprows: Optional[List[int]] = get_param(params, 'skiprows')
         error_bad_lines: Optional[List[bool]] = get_param(params, 'error_bad_lines')
 
         use_deprecated_id_algorithm: bool = get_param(params, 'use_deprecated_id_algorithm') if get_param(params, 'use_deprecated_id_algorithm') else False
@@ -72,7 +72,7 @@ class SimpleImportStepPerformer(StepPerformer):
 
             try:
                 # NOTE: if you specify one, specify them all!
-                if None not in [delimeters, encodings, decimals, skiprows, error_bad_lines]:
+                if delimeters is not None and encodings is not None and decimals is not None and skiprows is not None and error_bad_lines is not None:
                     delimeter = delimeters[index]
                     encoding = encodings[index]
                     decimal = decimals[index]
