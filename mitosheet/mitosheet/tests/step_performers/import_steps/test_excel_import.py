@@ -65,7 +65,7 @@ def test_can_import_multiple_sheets():
     # Create with no dataframes
     mito = create_mito_wrapper_dfs()
     # And then import just a test file
-    mito.excel_import(TEST_FILE, ['Sheet1', 'Sheet2'], True, 0, DEFAULT_DECIMAL)
+    mito.excel_import(TEST_FILE, ['Sheet1', 'Sheet2'], True, 0)
 
     # Make sure a step has been created, and that the dataframe is the correct dataframe
     assert mito.curr_step.step_type == 'excel_import'
@@ -87,7 +87,7 @@ def test_can_import_multiple_sheets_then_delete_no_optimize():
     # Create with no dataframes
     mito = create_mito_wrapper_dfs()
     # And then import just a test file
-    mito.excel_import(TEST_FILE, ['Sheet1', 'Sheet2'], True, 0, DEFAULT_DECIMAL)
+    mito.excel_import(TEST_FILE, ['Sheet1', 'Sheet2'], True, 0)
     mito.delete_dataframe(0)
 
     # Make sure a step has been created, and that the dataframe is the correct dataframe
@@ -109,7 +109,7 @@ def test_can_import_multiple_sheets_then_delete_last_no_optimize():
     # Create with no dataframes
     mito = create_mito_wrapper_dfs()
     # And then import just a test file
-    mito.excel_import(TEST_FILE, ['Sheet1', 'Sheet2'], True, 0, DEFAULT_DECIMAL)
+    mito.excel_import(TEST_FILE, ['Sheet1', 'Sheet2'], True, 0)
     mito.delete_dataframe(1)
 
     # Make sure a step has been created, and that the dataframe is the correct dataframe
@@ -131,7 +131,7 @@ def test_can_import_multiple_sheets_then_multiple_deletes():
     # Create with no dataframes
     mito = create_mito_wrapper_dfs()
     # And then import just a test file
-    mito.excel_import(TEST_FILE, ['Sheet1', 'Sheet2'], True, 0, DEFAULT_DECIMAL)
+    mito.excel_import(TEST_FILE, ['Sheet1', 'Sheet2'], True, 0)
     mito.delete_dataframe(0)
     mito.delete_dataframe(0)
 
@@ -151,7 +151,7 @@ def test_can_import_multiple_sheets_then_multiple_deletes_later_in_analysis():
 
     mito = create_mito_wrapper_dfs(df)
 
-    mito.excel_import(TEST_FILE, ['Sheet1', 'Sheet2'], True, 0, DEFAULT_DECIMAL)
+    mito.excel_import(TEST_FILE, ['Sheet1', 'Sheet2'], True, 0)
     mito.delete_dataframe(2)
     mito.delete_dataframe(1)
 
@@ -171,7 +171,7 @@ def test_remove_multiple_one_by_one_does_not_optimize_till_all_gone():
 
     mito = create_mito_wrapper_dfs(df)
 
-    mito.excel_import(TEST_FILE, ['Sheet1', 'Sheet2'], True, 0, DEFAULT_DECIMAL)
+    mito.excel_import(TEST_FILE, ['Sheet1', 'Sheet2'], True, 0)
     mito.delete_dataframe(2)
 
     assert len(mito.dfs) == 2
