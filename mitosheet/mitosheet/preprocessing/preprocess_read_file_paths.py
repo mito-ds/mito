@@ -13,7 +13,7 @@ from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.preprocessing.preprocess_step_performer import \
     PreprocessStepPerformer
 from mitosheet.step_performers.import_steps.simple_import import (
-    get_valid_dataframe_names, read_csv_get_delimiter_and_encoding_and_decimal)
+    get_valid_dataframe_names, read_csv_get_delimiter_and_encoding)
 from mitosheet.types import StepsManagerType
 
 
@@ -37,18 +37,16 @@ class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
         df_args: List[pd.DataFrame] = []
         delimeters: List[Optional[str]] = []
         encodings: List[Optional[str]] = []
-        decimals: List[Optional[str]] = []
         for arg in args:
             if isinstance(arg, pd.DataFrame):
                 df_args.append(arg)
                 delimeters.append(None)
                 encodings.append(None)
-                decimals.append(None)
             elif isinstance(arg, str):
                 # If it is a string, we try and read it in as a dataframe
                 try:
                     # We use the simple import 
-                    df, delimeter, encoding, decimal = read_csv_get_delimiter_and_encoding_and_decimal(arg)
+                    df, delimeter, encoding = read_csv_get_delimiter_and_encoding(arg)
 
                     df_args.append(
                         df
@@ -56,7 +54,6 @@ class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
 
                     delimeters.append(delimeter)
                     encodings.append(encoding)
-                    decimals.append(decimal)
                 except:
                     # If this pd.read_csv fails, then we report this error to the user
                     # as a failed mitosheet call
@@ -71,7 +68,6 @@ class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
         return df_args, {
             'delimeters': delimeters,
             'encodings': encodings,
-            'decimals': decimals
         }
 
     @classmethod
@@ -94,7 +90,6 @@ class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
 
         delimeters = execution_data['delimeters'] if execution_data is not None else [None for _ in range(len(df_names))]
         encodings = execution_data['encodings'] if execution_data is not None else [None for _ in range(len(df_names))]
-        decimals = execution_data['decimals'] if execution_data is not None else [None for _ in range(len(df_names))]
 
         num_strs = 0
         for arg_index, arg in enumerate(steps_manager.original_args):
@@ -103,7 +98,7 @@ class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
                 num_strs += 1
 
                 read_csv_code = generate_read_csv_code(
-                    arg, df_name, delimeters[arg_index], encodings[arg_index], decimals[arg_index], True
+                    arg, df_name, delimeters[arg_index], encodings[arg_index], None, None, None
                 )
 
                 code.append(

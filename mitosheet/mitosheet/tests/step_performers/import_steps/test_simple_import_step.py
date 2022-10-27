@@ -9,7 +9,7 @@ Contains tests for simple import steps
 import pytest
 import pandas as pd
 import os
-from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL, DEFAULT_DELIMETER, DEFAULT_ENCODING
+from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL, DEFAULT_DELIMETER, DEFAULT_ENCODING, DEFAULT_SKIPROWS
 from mitosheet.saved_analyses.schema_utils import is_prev_version
 
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
@@ -29,6 +29,7 @@ SIMPLE_IMPORT_TESTS = [
         ';', 
         'utf-8',
         '.',
+        0,
         False
     ),
     (
@@ -36,17 +37,18 @@ SIMPLE_IMPORT_TESTS = [
         '|', 
         'big5',
         '.',
+        0,
         True
     ),
 ]
-@pytest.mark.parametrize("input_df, delimeter, encoding, decimal, error_bad_lines", SIMPLE_IMPORT_TESTS)
-def test_simple_import(input_df, delimeter, encoding, decimal, error_bad_lines):
+@pytest.mark.parametrize("input_df, delimeter, encoding, decimal, skiprows, error_bad_lines", SIMPLE_IMPORT_TESTS)
+def test_simple_import(input_df, delimeter, encoding, decimal, skiprows, error_bad_lines):
     input_df.to_csv(TEST_FILE_PATHS[0], index=False, sep=delimeter, encoding=encoding)
 
     # Create with no dataframes
     mito = create_mito_wrapper_dfs()
     # And then import just a test file
-    mito.simple_import([TEST_FILE_PATHS[0]], [delimeter], [encoding], [decimal], [error_bad_lines])
+    mito.simple_import([TEST_FILE_PATHS[0]], [delimeter], [encoding], [decimal], [skiprows], [error_bad_lines])
 
     # Remove the test file
     os.remove(TEST_FILE_PATHS[0])
@@ -443,11 +445,11 @@ Daniel,Sedin,VAN,LW,22,1,1980-09-26
 Henrik,Sedin,VAN,C,33,1,1980-09-26""")
 
     mito = create_mito_wrapper_dfs()
-    mito.simple_import([TEST_FILE_PATHS[0]], [DEFAULT_DELIMETER], [DEFAULT_ENCODING], [DEFAULT_DECIMAL], [True])
+    mito.simple_import([TEST_FILE_PATHS[0]], [DEFAULT_DELIMETER], [DEFAULT_ENCODING], [DEFAULT_DECIMAL], [DEFAULT_SKIPROWS], [True])
     
     assert len(mito.dfs) == 0
 
-    mito.simple_import([TEST_FILE_PATHS[0]], [DEFAULT_DELIMETER], [DEFAULT_ENCODING], [DEFAULT_DECIMAL], [False])
+    mito.simple_import([TEST_FILE_PATHS[0]], [DEFAULT_DELIMETER], [DEFAULT_ENCODING], [DEFAULT_DECIMAL], [DEFAULT_SKIPROWS], [False])
 
 
     from io import StringIO
@@ -467,6 +469,9 @@ Henrik,Sedin,VAN,C,33,1,1980-09-26""")
     assert mito.dfs[0].equals(df)
     assert len(mito.dfs[0].index) == 4
 
+    # Remove the test file
+    os.remove(TEST_FILE_PATHS[0])
+
 
 def test_comma_decimal():
     df_comma = pd.DataFrame({'KG': ['267,88', '458,99', '125,89', '1,55', '1']}) 
@@ -474,6 +479,26 @@ def test_comma_decimal():
     df_comma.to_csv(TEST_FILE_PATHS[0], index=False)
 
     mito = create_mito_wrapper_dfs()
-    mito.simple_import([TEST_FILE_PATHS[0]], [DEFAULT_DELIMETER], [DEFAULT_ENCODING], [','], [False])
+    mito.simple_import([TEST_FILE_PATHS[0]], [DEFAULT_DELIMETER], [DEFAULT_ENCODING], [','], [DEFAULT_SKIPROWS], [True])
     
     assert mito.dfs[0].equals(df_result)
+
+     # Remove the test file
+    os.remove(TEST_FILE_PATHS[0])
+
+def test_can_import_with_skiprows():
+    df = pd.DataFrame(data={'A': ['B', 2, 3], 'C': ['D', 3, 4]})
+    df.to_csv(TEST_FILE_PATHS[0], index=False)
+
+    # Create with no dataframes
+    mito = create_mito_wrapper_dfs()
+    # And then import just a test file
+    mito.simple_import([TEST_FILE_PATHS[0]], [DEFAULT_DELIMETER], [DEFAULT_ENCODING], [DEFAULT_DECIMAL], [1], [True])
+
+    assert len(mito.dfs) == 1
+    assert mito.dfs[0].equals(pd.DataFrame({
+        'B': [2, 3], 'D': [3, 4]
+    }))
+
+    # Remove the test file
+    os.remove(TEST_FILE_PATHS[0])

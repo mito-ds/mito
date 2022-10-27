@@ -125,13 +125,14 @@ export const DECIMALS = ['.', ',']
 const DELIMETER_TOOLTIP = 'The text that seperates one column from another.'
 const ENCODING_TOOLTIP = 'Set the encoding used to save this file.' // I can't think of anything better lol
 const DECIMAL_TOOLTIP = 'Set the character used to separate the decimal places.'
+const SKIP_ROWS_TOOLTIP = 'The number of rows at the top of the file to skip when reading data into the dataframe'
 const ERROR_BAD_LINES_TOOLTIP = 'Turn on to skip any lines that are missing fields.'
 
 export const DEFAULT_DELIMETER = ",";
 export const DEFAULT_ENCODING = "utf-8";
 export const DEFAULT_DECIMAL = ".";
+export const DEFAULT_SKIPROWS = 0;
 export const DEFAULT_ERROR_BAD_LINES = true;
-
 
 interface CSVImportConfigScreenProps {
     mitoAPI: MitoAPI;
@@ -158,6 +159,7 @@ export interface CSVFileMetadata {
     delimeters: string[],
     encodings: string[],
     decimals: string[]
+    skiprows: number[]
 }
 
 export interface CSVImportParams {
@@ -165,6 +167,7 @@ export interface CSVImportParams {
     delimeters?: string[],
     encodings?: string[],
     decimals?: string[],
+    skiprows?: number[]
     error_bad_lines?: boolean[],
 }
 
@@ -229,11 +232,13 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
     const delimeters = props.params.delimeters;
     const encodings = props.params.encodings;
     const decimals = props.params.decimals;
-    const error_bad_lines = props.params.error_bad_lines
+    const skiprows = props.params.skiprows;
+    const error_bad_lines = props.params.error_bad_lines;
 
     const currentDelimeter = delimeters !== undefined ? delimeters[0] : DEFAULT_DELIMETER;
     const currentEncoding = encodings !== undefined ? encodings[0] : DEFAULT_ENCODING;
     const currentDecimal = decimals !== undefined ? decimals[0] : DEFAULT_DECIMAL
+    const currentSkiprows = skiprows !== undefined ? skiprows[0] : DEFAULT_SKIPROWS
     const currentErrorBadLines = error_bad_lines !== undefined ? error_bad_lines[0] : DEFAULT_ERROR_BAD_LINES;
     
     return (
@@ -251,7 +256,7 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                 <Row justify='space-between' align='center' title={DELIMETER_TOOLTIP}>
                     <Col>
                         <Row justify='start' align='center' suppressTopBottomMargin>
-                            <p className='text-header-3'>
+                            <p className='text-body-1'>
                                 Delimeter
                             </p>
                             <Tooltip title={DELIMETER_TOOLTIP}/>
@@ -289,7 +294,7 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                 <Row justify='space-between' align='center' title={ENCODING_TOOLTIP}>
                     <Col>
                         <Row justify='start' align='center' suppressTopBottomMargin>
-                            <p className='text-header-3'>
+                            <p className='text-body-1'>
                                 Encoding
                             </p>
                             <Tooltip title={ENCODING_TOOLTIP}/>
@@ -317,7 +322,7 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                 <Row justify='space-between' align='center' title={DECIMAL_TOOLTIP}>
                     <Col>
                         <Row justify='start' align='center' suppressTopBottomMargin>
-                            <p className='text-header-3'>
+                            <p className='text-body-1'>
                                 Decimal Separator
                             </p>
                             <Tooltip title={DECIMAL_TOOLTIP}/>
@@ -342,11 +347,38 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                         </Select>
                     </Col>
                 </Row>
+                <Row justify='space-between' align='center' title={SKIP_ROWS_TOOLTIP}>
+                    <Col>
+                        <Row justify='start' align='center' suppressTopBottomMargin>
+                            <p className='text-body-1'>
+                                Number of Rows to Skip
+                            </p>
+                            <Tooltip title={SKIP_ROWS_TOOLTIP}/>
+                        </Row>
+                    </Col>
+                    <Col>
+                        <Input
+                            value={"" + currentSkiprows}
+                            type='number'
+                            width='medium'
+                            onChange={(e) => {
+                                const newSkiprows = e.target.value;
+                                const newSkiprowsNumber = parseFloat(newSkiprows)
+
+                                props.setParams(prevParams => {
+                                    return {
+                                        ...prevParams,
+                                        skiprows: [newSkiprowsNumber]
+                                    }
+                                })
+                            }}
+                        />
+                    </Col>
+                </Row>
                 <Row justify='space-between' align='center' title={ERROR_BAD_LINES_TOOLTIP}>
                     <Col>
                         <Row justify='start' align='center' suppressTopBottomMargin>
-
-                            <p className='text-header-3'>
+                            <p className='text-body-1'>
                                 Skip Invalid Lines
                             </p>
                             <Tooltip title={ERROR_BAD_LINES_TOOLTIP}/>

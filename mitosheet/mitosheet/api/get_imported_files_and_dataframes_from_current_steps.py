@@ -40,6 +40,7 @@ def get_import_data_with_single_import_list(step_type: str, params: Dict[str, An
                 'delimeters': get_sublist_at_index_from_optional_list(params.get('delimeters', None), index),
                 'encodings': get_sublist_at_index_from_optional_list(params.get('encodings', None), index),
                 'decimals': get_sublist_at_index_from_optional_list(params.get('decimals', None), index),
+                'skiprows': get_sublist_at_index_from_optional_list(params.get('skiprows', None), index),
                 'error_bad_lines': get_sublist_at_index_from_optional_list(params.get('error_bad_lines', None), index)
             }
         } for index, file_name in enumerate(params['file_names'])]

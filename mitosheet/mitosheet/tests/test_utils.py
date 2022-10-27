@@ -775,6 +775,7 @@ class MitoWidgetTestWrapper:
         delimeters: Optional[List[str]]=None, 
         encodings: Optional[List[str]]=None, 
         decimals: Optional[List[str]]=None, 
+        skiprows: Optional[List[int]]=None,
         error_bad_lines: Optional[List[bool]]=None
     ) -> bool:
         return self.mito_widget.receive_message(
@@ -789,6 +790,7 @@ class MitoWidgetTestWrapper:
                     'delimeters': delimeters,
                     'encodings': encodings,
                     'decimals': decimals,
+                    'skiprows': skiprows,
                     'error_bad_lines': error_bad_lines,
                 }
             }

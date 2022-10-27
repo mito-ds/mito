@@ -194,3 +194,6 @@ def test_comma_decimal_excel_import():
     mito.excel_import(TEST_FILE, ['Sheet1'], True, 0, ',')
     
     assert mito.dfs[0].equals(df_result)
+
+    # Remove the test file
+    os.remove(TEST_FILE)
