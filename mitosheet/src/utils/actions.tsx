@@ -9,11 +9,12 @@ import { getDefaultGraphParams } from "../components/taskpanes/Graph/graphUtils"
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { SLACK_INVITE_LINK } from "../data/documentationLinks";
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../data/function_documentation";
-import { Action, DFSource, EditorState, GridState, SheetData, UIState, ActionEnum, AnalysisData, DataframeFormat } from "../types"
+import { Action, DFSource, EditorState, GridState, SheetData, UIState, ActionEnum, AnalysisData, DataframeFormat, UserProfile, MitoEnterpriseConfigKey } from "../types"
 import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { decreasePrecision, FORMAT_DISABLED_MESSAGE, increasePrecision } from "./format";
 import { writeTextToClipboard, getCopyStringForClipboard } from "./copy";
 import { getDefaultDataframeFormat } from "../components/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
+import { DEFAULT_SUPPORT_EMAIL } from "../components/elements/GetSupportButton";
 
 
 export const createActions = (
@@ -27,7 +28,8 @@ export const createActions = (
     setGridState: React.Dispatch<React.SetStateAction<GridState>>,
     mitoAPI: MitoAPI,
     mitoContainerRef: React.RefObject<HTMLDivElement>,
-    analysisData: AnalysisData
+    analysisData: AnalysisData,
+    userProfile: UserProfile
 ): Record<ActionEnum, Action> => {
     // Define variables that we use in many actions
     const sheetIndex = gridState.sheetIndex;
@@ -572,7 +574,12 @@ export const createActions = (
                 setEditorState(undefined);
 
                 // Open slack
-                window.open(SLACK_INVITE_LINK, '_blank')
+                if (userProfile.mitoConfig[MitoEnterpriseConfigKey.SUPPORT_EMAIL] === DEFAULT_SUPPORT_EMAIL) {
+                    window.open(SLACK_INVITE_LINK, '_blank')
+                } else {
+                    window.open(`mailto:${userProfile.mitoConfig[MitoEnterpriseConfigKey.SUPPORT_EMAIL]}`)
+                }
+                
             },
             isDisabled: () => {return undefined},
             searchTerms: ['help', 'contact', 'support', 'slack', 'discord'],

@@ -68,9 +68,6 @@ import UpgradeToProTaskpane from './taskpanes/UpgradeToPro/UpgradeToProTaskpane'
 import Toolbar from './toolbar/Toolbar';
 import Tour from './tour/Tour';
 import { TourName } from './tour/Tours';
-import { isVariantA } from '../utils/experiments';
-import { CHECKLIST_STEPS } from './checklists/checklistData';
-import { getRemainingChecklistItems } from './checklists/Checklist';
 import EphemeralMessage from './popups/EphemeralMessage';
 
 export type MitoProps = {
@@ -87,7 +84,6 @@ export type MitoProps = {
     userProfile: UserProfile;
 };
 
-
 export const Mito = (props: MitoProps): JSX.Element => {
 
     const mitoContainerRef = useRef<HTMLDivElement>(null);
@@ -95,7 +91,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const [sheetDataArray, setSheetDataArray] = useState<SheetData[]>(props.sheetDataArray);
     const [analysisData, setAnalysisData] = useState<AnalysisData>(props.analysisData);
     const [userProfile, setUserProfile] = useState<UserProfile>(props.userProfile);
-
 
     // TODO: can we delete the above 3 props keys, so we cannot use them (as type checked by compiler)?
     // These props are always out of date, and we should only use the state variables.
@@ -237,43 +232,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 }
             } else {
                 /**
-                 * If we don't have an analysis to replay, we check if we need to upgrade from the 
-                 * old analysis_to_replay format to the new one.
-                 * 
-                 * In the past, we used to only store the analysis id in the generated code cell,
-                 * which led to a ton of issues making it really hard to handle things like users
-                 * running all, etc. 
-                 * 
-                 * We moved to storing the analysis id in the mitosheet call and the generated code
-                 * cell, which allows us to easily link them together. 
-                 * 
-                 * To transition from the old system to the new system, we run this piece of code
-                 * that moves the saved analysis id from the generated code to the mitosheet call,
-                 * and then reruns this mitosheet call. 
-                 * 
-                 * This is the cleanest way to have this transition occur, by far, based on the 48
-                 * hours that I spent thinking about such things.
-                 * 
-                 * TODO: remove this effect 6 months after implemented, as pretty much all users will
-                 * have upgraded by then. Delete this code on September 1, 2022.
-                 * 
-                 * ALSO NOTE: We only do this in JupyterLab rather than both Lab and Notebooks, as we 
-                 * added notebook support way after this upgrade phrase, and the complexity isn't worth
-                 * it.
-                 */
-                const upgradedFromSaveInGeneratedCodeToSheet = await window.commands?.execute('move-saved-analysis-id-to-mitosheet-call');
-                if (upgradedFromSaveInGeneratedCodeToSheet) {
-                    // We stop here, and do not do anything else in this case
-                    return;
-                }
-
-                /**
-                 * If we didn't have to upgrade from the old format to the new format, and we don't
-                 * have a analysis_to_replay, then we need to write the analysis_to_replay to the 
+                 * If there is no analysis_to_replay, then we need to write the analysis_to_replay to the 
                  * mitosheet.sheet call. 
-                 * 
-                 * Specifically, we want to write the analysis name of this analysis, as this is the 
-                 * analysis that will get written to the code cell below.
                  */
                 writeAnalysisToReplayToMitosheetCall(analysisData.analysisName, props.mitoAPI);
             }
@@ -496,6 +456,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     error={uiState.currOpenModal.error}
                     setUIState={setUIState}
                     mitoAPI={props.mitoAPI}
+                    userProfile={props.userProfile}
                 />
             )
             case ModalEnum.ClearAnalysis: return (
@@ -529,6 +490,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     error={uiState.currOpenModal.error}
                     newAnalysisName={uiState.currOpenModal.newAnalysisName}
                     oldAnalysisName={uiState.currOpenModal.oldAnalysisName}
+                    userProfile={userProfile}
                 />
             )
             case ModalEnum.DeleteGraphs: return (
@@ -783,7 +745,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
         setGridState,
         props.mitoAPI, 
         mitoContainerRef,
-        analysisData
+        analysisData,
+        userProfile
     )
 
 
@@ -806,18 +769,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
         const toursToDisplay: TourName[] = []
 
-        // If we are in variant B, then we display the tour to the user. In either case, we 
-        // take special care to set the user json as if we also did the other variant, so
-        // that make sure the user.json for all users is valid at the end of the experiment
+        // We display the INTRO to users if they have not received it
         if (!userProfile.receivedTours.includes(TourName.INTRO)) {
-            if (isVariantA(analysisData)) {
-                void props.mitoAPI.updateCloseTour([TourName.INTRO]);
-            } else {
-                toursToDisplay.push(TourName.INTRO);
-                if (getRemainingChecklistItems(userProfile).length !== 0) {
-                    void props.mitoAPI.updateChecklist('onboarding_checklist', CHECKLIST_STEPS['onboarding_checklist'], false)
-                }
-            }
+            toursToDisplay.push(TourName.INTRO);
         }
 
         // If we open the cell editor for the first time, we give the user this tour
