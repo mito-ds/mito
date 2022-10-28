@@ -9,6 +9,7 @@ import { classNames } from '../../utils/classNames';
 const DefaultPopup = (props: {
     children: ReactNode,
     popupLocation: PopupLocation
+    className?: string
 }): JSX.Element => {
 
     let popupLocationClass = undefined
@@ -18,7 +19,7 @@ const DefaultPopup = (props: {
     }
 
     return (
-        <div className={classNames('popup-container', popupLocationClass)}>
+        <div className={classNames('popup-container', popupLocationClass, props.className)}>
             {props.children}
         </div>
     )
