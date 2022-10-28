@@ -17,8 +17,7 @@ export const isAtLeastBenchmarkVersion = (currentVersion: string, benchmarkVersi
         currentVersionParts[2] = 0
     }
 
-    let i = 0
-    for (i; i < currentVersionParts.length; i ++) {
+    for (let i = 0; i < currentVersionParts.length; i ++) {
         if (currentVersionParts[i] > benchmarkVersionParts[i]) {
             return true 
         } 

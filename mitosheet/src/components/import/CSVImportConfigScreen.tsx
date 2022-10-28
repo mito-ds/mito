@@ -120,7 +120,14 @@ const ENCODINGS = [
     "utf_8_sig"
 ] 
 
-export const DECIMALS = ['.', ',']
+export enum Decimal {
+    PERIOD = '.',
+    COMMA = ','
+}
+export const decimalCharToTitle: Record<Decimal, string> = {
+    [Decimal.PERIOD] : 'period',
+    [Decimal.COMMA]: 'comma'
+}
 
 const DELIMETER_TOOLTIP = 'The text that seperates one column from another.'
 const ENCODING_TOOLTIP = 'Set the encoding used to save this file.' // I can't think of anything better lol
@@ -130,7 +137,7 @@ const ERROR_BAD_LINES_TOOLTIP = 'Turn on to skip any lines that are missing fiel
 
 export const DEFAULT_DELIMETER = ",";
 export const DEFAULT_ENCODING = "utf-8";
-export const DEFAULT_DECIMAL = ".";
+export const DEFAULT_DECIMAL = Decimal.PERIOD;
 export const DEFAULT_SKIPROWS = 0;
 export const DEFAULT_ERROR_BAD_LINES = true;
 
@@ -158,7 +165,7 @@ interface CSVImportConfigScreenProps {
 export interface CSVFileMetadata {
     delimeters: string[],
     encodings: string[],
-    decimals: string[]
+    decimals: Decimal[]
     skiprows: number[]
 }
 
@@ -166,7 +173,7 @@ export interface CSVImportParams {
     file_names: string[],
     delimeters?: string[],
     encodings?: string[],
-    decimals?: string[],
+    decimals?: Decimal[],
     skiprows?: number[]
     error_bad_lines?: boolean[],
 }
@@ -202,7 +209,8 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                     ...prevParams,
                     delimeters: loadedData?.delimeters || [DEFAULT_DELIMETER],
                     encodings: loadedData?.encodings || [DEFAULT_ENCODING],
-                    decimals: loadedData?.decimals || [DEFAULT_DECIMAL]
+                    decimals: loadedData?.decimals || [DEFAULT_DECIMAL],
+                    skiprows: loadedData?.skiprows || [DEFAULT_SKIPROWS],
                 }
             })
         },
@@ -216,6 +224,8 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                 ...prevParams,
                 delimeters: fileMetadata?.delimeters || [DEFAULT_DELIMETER],
                 encodings: fileMetadata?.encodings || [DEFAULT_ENCODING],
+                decimals: fileMetadata?.decimals || [DEFAULT_DECIMAL],
+                skiprows: fileMetadata?.skiprows || [DEFAULT_SKIPROWS],
                 error_bad_lines: [DEFAULT_ERROR_BAD_LINES],
             }
         })
@@ -332,17 +342,18 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                         <Select 
                             searchable
                             width='medium' 
-                            value={currentDecimal} 
+                            value={decimalCharToTitle[currentDecimal]} 
                             onChange={(newDecimalSeparator) => {
                                 props.setParams(prevParams => {
                                     return {
                                         ...prevParams,
-                                        decimals: [newDecimalSeparator]
+                                        decimals: [newDecimalSeparator as Decimal]
                                     }
                                 })
                             }}>
-                            {(DECIMALS).map((decimalSeparator) => {
-                                return <DropdownItem key={decimalSeparator} title={decimalSeparator}/>
+                            {(Object.keys(decimalCharToTitle)).map(decimalCharacter => {
+                                const decimalTitle = decimalCharToTitle[decimalCharacter as Decimal]
+                                return <DropdownItem key={decimalTitle} title={decimalTitle} id={decimalCharacter}/>
                             })}
                         </Select>
                     </Col>

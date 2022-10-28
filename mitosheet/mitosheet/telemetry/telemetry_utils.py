@@ -194,7 +194,11 @@ except:
 try:
     from pandas import __version__ as pandas_version
 except:
-    pandas_version = 'unkown'
+    pandas_version = 'no pandas'
+try:
+    from ipywidgets import __version__ as ipywidgets_version
+except:
+    ipywidgets_version = 'no pandas'
 
 
 location = None
@@ -212,6 +216,7 @@ def _get_enviornment_params() -> Dict[str, Any]:
     enviornment_params = {
         'version_python': sys.version_info,
         'version_pandas': pandas_version,
+        'version_ipywidgets': ipywidgets_version,
         'version_jupyterlab': jupyterlab_version,
         'version_notebook': notebook_version,
         'version_mito': __version__,
@@ -320,6 +325,7 @@ def identify() -> None:
         analytics.identify(static_user_id, {
             'version_python': sys.version_info,
             'version_pandas': pandas_version,
+            'version_ipywidgets': ipywidgets_version,
             'version_sys': sys.version,
             'version_mito': __version__,
             'package_name': package_name, 

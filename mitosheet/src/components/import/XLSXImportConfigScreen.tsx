@@ -20,7 +20,7 @@ import DefaultTaskpane from '../taskpanes/DefaultTaskpane/DefaultTaskpane';
 import DefaultTaskpaneBody from '../taskpanes/DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultTaskpaneFooter from '../taskpanes/DefaultTaskpane/DefaultTaskpaneFooter';
 import DefaultTaskpaneHeader from '../taskpanes/DefaultTaskpane/DefaultTaskpaneHeader';
-import { DECIMALS, DEFAULT_DECIMAL } from './CSVImportConfigScreen';
+import { Decimal, decimalCharToTitle, DEFAULT_DECIMAL } from './CSVImportConfigScreen';
 
 
 interface XLSXImportConfigScreenProps {
@@ -53,7 +53,7 @@ export interface ExcelImportParams {
     sheet_names: string[],
     has_headers: boolean,
     skiprows: number | string,
-    decimal: string
+    decimal: Decimal
 }
 
 export const getDefaultParams = (filePath: string): ExcelImportParams => {
@@ -243,18 +243,19 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
                                 Decimal Separator
                             </p>
                             <Select 
-                                value={params.decimal} 
-                                width='medium'
+                                width='medium' 
+                                value={decimalCharToTitle[params.decimal]} 
                                 onChange={(newDecimalSeparator) => {
                                     props.setParams(prevParams => {
                                         return {
                                             ...prevParams,
-                                            decimal: newDecimalSeparator
+                                            decimals: [newDecimalSeparator as Decimal]
                                         }
                                     })
                                 }}>
-                                {(DECIMALS).map((decimalSeparator) => {
-                                    return <DropdownItem key={decimalSeparator} title={decimalSeparator}/>
+                                {(Object.keys(decimalCharToTitle)).map(decimalCharacter => {
+                                    const decimalTitle = decimalCharToTitle[decimalCharacter as Decimal]
+                                    return <DropdownItem key={decimalTitle} title={decimalTitle} id={decimalCharacter}/>
                                 })}
                             </Select>
                         </Row>

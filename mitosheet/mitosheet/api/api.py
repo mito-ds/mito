@@ -34,7 +34,7 @@ MAX_QUEUED_API_CALLS = 3
 
 # NOTE: BE CAREFUL WITH THIS. When in development mode, you can set it to False
 # so the API calls are handled in the main thread, to make printing easy
-THREADED = True
+THREADED = False
 
 
 class API:
