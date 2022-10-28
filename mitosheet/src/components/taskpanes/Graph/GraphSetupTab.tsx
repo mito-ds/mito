@@ -37,7 +37,7 @@ export const GRAPH_SAFETY_FILTER_CUTOFF = 1000;
 
 // Tooltips used to explain the Safety filter toggle
 const SAFETY_FILTER_DISABLED_MESSAGE = `Because you’re graphing less than ${GRAPH_SAFETY_FILTER_CUTOFF} rows of data, you can safely graph your data without applying a filter first.`
-const SAFETY_FILTER_ENABLED_MESSAGE = `Turning on Limit ${GRAPH_SAFETY_FILTER_CUTOFF} only graphs the first ${GRAPH_SAFETY_FILTER_CUTOFF} rows of your dataframe, ensuring that your browser tab won’t crash. Turning it off graphs the entire dataframe and may slow or crash your browser tab.`
+const SAFETY_FILTER_ENABLED_MESSAGE = `Turning on Limit ${GRAPH_SAFETY_FILTER_CUTOFF} rows only graphs the first ${GRAPH_SAFETY_FILTER_CUTOFF} rows of your dataframe, ensuring that your browser tab won’t crash. Turning it off graphs the entire dataframe and may slow or crash your browser tab.`
 
 const GRAPHS_THAT_DONT_SUPPORT_COLOR = [GraphType.DENSITY_HEATMAP]
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
 import MitoAPI from "../../../jupyter/api";
 import { AnalysisData, MitoError, SheetData, UIState, UserProfile } from "../../../types";
@@ -97,12 +97,6 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 invalidImportIndexes = {};
             }
 
-            void props.mitoAPI.log('opened_update_imports_taskpane', {
-                'open_due_to_replay_error': updatePreReplay,
-                'num_invalid_imports': invalidImportIndexes === undefined ? 0 : Object.keys(invalidImportIndexes).length,
-                'num_total_imports': importData === undefined ? 0 : importData.length
-            });
-
             if (importData !== undefined && invalidImportIndexes !== undefined) {
                 return {
                     importData: importData,
@@ -138,6 +132,14 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
     )
 
     const [invalidReplayError, setInvalidReplayError] = useState<string | undefined>(undefined);
+
+    useEffect(() => {
+        void props.mitoAPI.log('opened_update_imports_taskpane', {
+            'open_due_to_replay_error': updatePreReplay,
+            'num_invalid_imports': importDataAndErrors?.invalidImportMessages === undefined ? 0 : Object.keys(importDataAndErrors.invalidImportMessages).length,
+            'num_total_imports': importDataAndErrors?.importData === undefined ? 0 : importDataAndErrors?.importData.length
+        });
+    }, [importDataAndErrors])
 
 
     if (replacingDataframeState === undefined) {
