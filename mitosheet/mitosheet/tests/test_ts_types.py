@@ -219,13 +219,17 @@ def test_update_events_enum_defined():
 def test_update_events_default_import_decimal():
     default_delimiter = get_constant_from_ts_file("./src/components/import/CSVImportConfigScreen.tsx", "DEFAULT_DELIMETER")
     default_encoding = get_constant_from_ts_file("./src/components/import/CSVImportConfigScreen.tsx", "DEFAULT_ENCODING")
-    default_decimal = get_constant_from_ts_file("./src/components/import/CSVImportConfigScreen.tsx", "DEFAULT_DECIMAL")
+    _default_decimal = get_constant_from_ts_file("./src/components/import/CSVImportConfigScreen.tsx", "DEFAULT_DECIMAL")
     default_skiprows = get_constant_from_ts_file("./src/components/import/CSVImportConfigScreen.tsx", "DEFAULT_SKIPROWS")
     default_error_bad_lines = get_constant_from_ts_file("./src/components/import/CSVImportConfigScreen.tsx", "DEFAULT_ERROR_BAD_LINES")
+
+    # We must make sure the DEFAULT_DECIMAL reference to the Decimal enum is correct.
+    decimalEnum = get_enum_from_ts_file("./src/components/import/CSVImportConfigScreen.tsx", "Decimal")
+    default_decimal = decimalEnum[_default_decimal.split('.')[1]]
     
     assert default_delimiter == f'"{DEFAULT_DELIMETER}"'
     assert default_encoding == f'"{DEFAULT_ENCODING}"'
-    assert default_decimal == f'"{DEFAULT_DECIMAL}"'
+    assert default_decimal == f'{DEFAULT_DECIMAL}'
     assert int(default_skiprows) == DEFAULT_SKIPROWS
     assert bool(default_error_bad_lines) == DEFAULT_ERROR_BAD_LINES
 

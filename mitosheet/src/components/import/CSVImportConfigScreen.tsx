@@ -129,11 +129,11 @@ export const decimalCharToTitle: Record<Decimal, string> = {
     [Decimal.COMMA]: 'comma'
 }
 
-const DELIMETER_TOOLTIP = 'The text that seperates one column from another.'
-const ENCODING_TOOLTIP = 'Set the encoding used to save this file.' // I can't think of anything better lol
-const DECIMAL_TOOLTIP = 'Set the character used to separate the decimal places.'
-const SKIP_ROWS_TOOLTIP = 'The number of rows at the top of the file to skip when reading data into the dataframe'
-const ERROR_BAD_LINES_TOOLTIP = 'Turn on to skip any lines that are missing fields.'
+export const DELIMETER_TOOLTIP = 'The text that seperates one column from another.'
+export const ENCODING_TOOLTIP = 'Set the encoding used to save this file.' // I can't think of anything better lol
+export const DECIMAL_TOOLTIP = 'Set the character used to separate the decimal places.'
+export const SKIP_ROWS_TOOLTIP = 'The number of rows at the top of the file to skip when reading data into the dataframe'
+export const ERROR_BAD_LINES_TOOLTIP = 'Turn on to skip any lines that are missing fields.'
 
 export const DEFAULT_DELIMETER = ",";
 export const DEFAULT_ENCODING = "utf-8";
