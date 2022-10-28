@@ -120,7 +120,7 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
 
                             props.setInvalidImportMessages(_invalidImportIndexes);
 
-                            void props.mitoAPI.log('clicked_start_new_analysis_from_post_replay_update_imports') 
+                            void props.mitoAPI.log('clicked_update_from_post_replay_update_imports') 
                             void props.mitoAPI.log('get_test_import_results', {
                                 'open_due_to_replay_error': false,
                                 'num_invalid_imports': Object.keys(_invalidImportIndexes).length,
