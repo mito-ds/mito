@@ -1,26 +1,24 @@
 // Copyright (c) Mito
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { useStateFromAPIAsync } from '../../hooks/useStateFromAPIAsync';
 
 // Import 
-import MitoAPI from '../../../jupyter/api';
-import Select from '../../elements/Select';
-import TextButton from '../../elements/TextButton';
-import DropdownItem from '../../elements/DropdownItem';
-import { AnalysisData, MitoError, StepType, UIState } from '../../../types';
-import { FileElement, ImportTaskpaneState } from './ImportTaskpane';
-import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
-import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
-import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
-import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
-import DefaultTaskpaneFooter from '../DefaultTaskpane/DefaultTaskpaneFooter';
-import Spacer from '../../layout/Spacer';
-import Row from '../../layout/Row';
-import Col from '../../layout/Col';
-import Input from '../../elements/Input';
-import Toggle from '../../elements/Toggle';
-import { isMitoError } from '../../../utils/errors';
-import Tooltip from '../../elements/Tooltip';
+import MitoAPI from '../../jupyter/api';
+import { AnalysisData, UIState } from '../../types';
+import DropdownItem from '../elements/DropdownItem';
+import Input from '../elements/Input';
+import Select from '../elements/Select';
+import TextButton from '../elements/TextButton';
+import Toggle from '../elements/Toggle';
+import Tooltip from '../elements/Tooltip';
+import Col from '../layout/Col';
+import Row from '../layout/Row';
+import Spacer from '../layout/Spacer';
+import DefaultTaskpane from '../taskpanes/DefaultTaskpane/DefaultTaskpane';
+import DefaultTaskpaneBody from '../taskpanes/DefaultTaskpane/DefaultTaskpaneBody';
+import DefaultTaskpaneFooter from '../taskpanes/DefaultTaskpane/DefaultTaskpaneFooter';
+import DefaultTaskpaneHeader from '../taskpanes/DefaultTaskpane/DefaultTaskpaneHeader';
 
 const ENCODINGS = [
     "utf_8",
@@ -126,18 +124,29 @@ const DELIMETER_TOOLTIP = 'The text that seperates one column from another.'
 const ENCODING_TOOLTIP = 'Set the encoding used to save this file.' // I can't think of anything better lol
 const ERROR_BAD_LINES_TOOLTIP = 'Turn on to skip any lines that are missing fields.'
 
+export const DEFAULT_DELIMETER = ',';
+export const DEFAULT_ENCODING = 'default';
+export const DEFAULT_ERROR_BAD_LINES = true;
 
-interface CSVImportProps {
+
+interface CSVImportConfigScreenProps {
     mitoAPI: MitoAPI;
     analysisData: AnalysisData;
-    fileName: string;
-    importState: ImportTaskpaneState;
-    setImportState: React.Dispatch<React.SetStateAction<ImportTaskpaneState>>;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
-    fileForImportWizard: FileElement | undefined,
-    setFileForImportWizard: React.Dispatch<React.SetStateAction<FileElement | undefined>>;
-    error: MitoError | undefined;
-    setError: React.Dispatch<React.SetStateAction<MitoError | undefined>>;
+    isUpdate: boolean;
+
+    fileName: string; // data.csv
+    filePath: string; // the/full/path/to/data.csv
+
+    params: CSVImportParams | undefined;
+    setParams: (updater: (prevParams: CSVImportParams) => CSVImportParams) => void;
+    edit: () => void;
+    editApplied: boolean;
+    loading: boolean;
+    error: string | undefined;
+
+    backCallback: () => void;
+    notCloseable?: boolean;
 }
 
 // This is our guesses about the metadata of the file
@@ -146,87 +155,63 @@ export interface CSVFileMetadata {
     encodings: string[]
 }
 
-interface CSVImportParams {
+export interface CSVImportParams {
     file_names: string[],
-    delimeters: string[],
-    encodings: string[],
-    error_bad_lines: boolean[],
+    delimeters?: string[],
+    encodings?: string[],
+    error_bad_lines?: boolean[],
 }
 
-const getDefaultParams = (fileName: string): CSVImportParams => {
-    return {
-        file_names: [fileName],
-        delimeters: [','],
-        encodings: ['default'],
-        error_bad_lines: [true]
-    }
-}
 
-const getButtonMessage = (fileElement: FileElement, loading: boolean): string => {
+const getButtonMessage = (fileName: string, loading: boolean, isUpdate: boolean): string => {
     if (loading) {
         return `Importing...`
+    } else if (isUpdate) {
+        return `Update to ${fileName}`
     }
-    return `Import ${fileElement.name}`;
+    return `Import ${fileName}`;
 }
 
 
-function getSuccessMessage(fileElement: FileElement): string {
-    return `Imported ${fileElement.name}`
+function getSuccessMessage(fileName: string): string {
+    return `Imported ${fileName}`
 }
 
 
 /* 
     Allows a user to configure the import for a specific CSV file
 */
-function CSVImport(props: CSVImportProps): JSX.Element {
+function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
 
-    // NOTE: this loading state is just for getting the metadata about the sheets
-    // and not for importing the file
-    const [fileMetadata, setFileMetadata] = useState<CSVFileMetadata | undefined>(undefined);
-    const {params, setParams, loading, edit, editApplied, error} = useSendEditOnClick(
-        () => getDefaultParams(props.fileName),
-        StepType.SimpleImport,
-        props.mitoAPI, props.analysisData,
-        {allowSameParamsToReapplyTwice: true}
-    )
-
-
-    useEffect(() => {
-        const loadMetadata = async () => {
-            const loadedFileMetadata = await props.mitoAPI.getCSVFilesMetadata(params?.file_names || []);
-
-            setFileMetadata(loadedFileMetadata);
-
-            setParams(prevParams => {
+    // Get the metadata of the CSV file
+    const [fileMetadata] = useStateFromAPIAsync<CSVFileMetadata | undefined, undefined>(
+        undefined,
+        () => {return props.mitoAPI.getCSVFilesMetadata(props.params?.file_names || [])},
+        (loadedData) => {
+            props.setParams(prevParams => {
                 return {
                     ...prevParams,
-                    delimeters: loadedFileMetadata?.delimeters || [','],
-                    encodings: loadedFileMetadata?.encodings || ['default']
+                    delimeters: loadedData?.delimeters || [DEFAULT_DELIMETER],
+                    encodings: loadedData?.encodings || [DEFAULT_ENCODING]
                 }
             })
-        }
+        },
+        []
+    );
 
-        void loadMetadata()
-    }, []);
-
-    useEffect(() => {
-        if (editApplied) {
-            props.setError(undefined);
-        }
-    }, [editApplied])
 
     const resetParams = () => {
-        setParams(prevParams => {
+        props.setParams(prevParams => {
             return {
                 ...prevParams,
-                delimeters: fileMetadata?.delimeters || [','],
-                encodings: fileMetadata?.encodings || ['default'],
-                error_bad_lines: [true]
+                delimeters: fileMetadata?.delimeters || [DEFAULT_DELIMETER],
+                encodings: fileMetadata?.encodings || [DEFAULT_ENCODING],
+                error_bad_lines: [DEFAULT_ERROR_BAD_LINES]
             }
         })
     }
 
-    if (params === undefined || props.fileForImportWizard === undefined) {
+    if (props.params === undefined || props.fileName === undefined || props.filePath === undefined) {
         return (
             <div className='text-body-1'>
                 There has been an error loading your CSV file encodings. Please try again, or contact support.
@@ -234,23 +219,25 @@ function CSVImport(props: CSVImportProps): JSX.Element {
         )
     }
 
-    const currentDelimeter = params.delimeters[0];
-    const currentEncoding = params.encodings[0] === 'default' ? 'utf-8' : params.encodings[0];
-    const currentErrorBadLines = params.error_bad_lines[0];
+    const delimeters = props.params.delimeters;
+    const encodings = props.params.encodings;
+    const error_bad_lines = props.params.error_bad_lines
+
+    const currentDelimeter = delimeters !== undefined ? delimeters[0] : DEFAULT_DELIMETER;
+    const currentEncoding = ((encodings !== undefined ? encodings[0] : DEFAULT_ENCODING) === 'default') ? 'utf-8' : (encodings !== undefined ? encodings[0] : 'utf-8');
+    const currentErrorBadLines = error_bad_lines !== undefined ? error_bad_lines[0] : DEFAULT_ERROR_BAD_LINES;
     
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader
-                header={`Import ${props.fileForImportWizard?.name}`}
+                header={!props.isUpdate ? `Import ${props.fileName}` : `Update to ${props.fileName}`}
                 setUIState={props.setUIState}
-                backCallback={() => props.setFileForImportWizard(undefined)}
+                backCallback={props.backCallback}
+                notCloseable={props.notCloseable}
             />
             <DefaultTaskpaneBody noScroll>
-                {isMitoError(props.error) && error === undefined &&
-                    <p className='text-color-error'> We were unable to automatically determine a delimeter and encoding. Please select a delimeter and encoding.</p>
-                }
-                {error !== undefined &&
-                    <p className='text-color-error'> This import configuration is invalid. Please select a delimeter and encoding, or skip invalid lines.</p>
+                {props.error !== undefined &&
+                    <p className='text-color-error'> {props.error} </p>
                 }
                 <Row justify='space-between' align='center' title={DELIMETER_TOOLTIP}>
                     <Col>
@@ -267,7 +254,7 @@ function CSVImport(props: CSVImportProps): JSX.Element {
                             value={currentDelimeter}
                             onChange={(e) => {
                                 const newDelimeter = e.target.value;
-                                setParams(prevParams => {
+                                props.setParams(prevParams => {
                                     return {
                                         ...prevParams,
                                         delimeters: [newDelimeter]
@@ -278,10 +265,11 @@ function CSVImport(props: CSVImportProps): JSX.Element {
                                 // If you press tab, we add it to the input, as this is very valid delimeter
                                 if (e.key === 'Tab') {
                                     e.preventDefault();
-                                    setParams(prevParams => {
+                                    props.setParams(prevParams => {
+                                        const delimeters = prevParams.delimeters;
                                         return {
                                             ...prevParams,
-                                            delimeters: [prevParams.delimeters[0] + '\t']
+                                            delimeters: [(delimeters !== undefined ? delimeters[0] : DEFAULT_DELIMETER) + '\t']
                                         }
                                     })
                                 }
@@ -304,7 +292,7 @@ function CSVImport(props: CSVImportProps): JSX.Element {
                             width='medium' 
                             value={currentEncoding} 
                             onChange={(newEncoding) => {
-                                setParams(prevParams => {
+                                props.setParams(prevParams => {
                                     return {
                                         ...prevParams,
                                         encodings: [newEncoding]
@@ -329,10 +317,11 @@ function CSVImport(props: CSVImportProps): JSX.Element {
                     </Col>
                     <Col>
                         <Toggle value={!currentErrorBadLines} onChange={() => {
-                            setParams(prevParams => {
+                            props.setParams(prevParams => {
+                                const error_bad_lines = prevParams.error_bad_lines;
                                 return {
                                     ...prevParams,
-                                    error_bad_lines: [!prevParams.error_bad_lines[0]]
+                                    error_bad_lines: [error_bad_lines !== undefined ? !error_bad_lines[0] : DEFAULT_ERROR_BAD_LINES]
                                 }
                             })
                         }}/>
@@ -347,18 +336,18 @@ function CSVImport(props: CSVImportProps): JSX.Element {
                     variant='dark'
                     width='block'
                     onClick={() => {
-                        edit();
+                        props.edit();
                     }}
                     autoFocus
                 >
-                    {getButtonMessage(props.fileForImportWizard, loading)}
+                    {getButtonMessage(props.fileName, props.loading, props.isUpdate)}
                 </TextButton>
-                {editApplied && !loading &&
+                {props.editApplied && !props.loading &&
                     <p className='text-subtext-1'>
-                        {getSuccessMessage(props.fileForImportWizard)} 
+                        {getSuccessMessage(props.fileName)} 
                     </p>
                 } 
-                {!editApplied && 
+                {!props.editApplied && 
                     <Spacer px={16}/>
                 }
             </DefaultTaskpaneFooter>
@@ -366,4 +355,4 @@ function CSVImport(props: CSVImportProps): JSX.Element {
     )
 }
 
-export default CSVImport;
+export default CSVImportConfigScreen;

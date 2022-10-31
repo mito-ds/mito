@@ -219,7 +219,7 @@ const MultiToggleBox = (props: {
     const { toggleAllIndexes } = props;
 
     return (
-        <div className={classNames('mutli-toggle-box-container', heightClass, widthClass, props.className)}>
+        <div className={classNames('multi-toggle-box-container', heightClass, widthClass, props.className)}>
             {props.searchable &&
                 <Input
                     value={searchString}

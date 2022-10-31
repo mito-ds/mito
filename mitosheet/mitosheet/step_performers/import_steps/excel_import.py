@@ -1,19 +1,22 @@
 #!/usr/bin/env python
 # coding: utf-8
-
+#
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from copy import copy
+
+import os
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
+
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.import_steps.excel_import_code_chunk import ExcelImportCodeChunk
-from mitosheet.step_performers.utils import get_param
-
-from mitosheet.utils import get_valid_dataframe_name
+from mitosheet.code_chunks.step_performers.import_steps.excel_import_code_chunk import \
+    ExcelImportCodeChunk
+from mitosheet.errors import make_file_not_found_error
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
+from mitosheet.step_performers.utils import get_param
+from mitosheet.utils import get_valid_dataframe_name
 
 
 class ExcelImportStepPerformer(StepPerformer):
@@ -47,6 +50,9 @@ class ExcelImportStepPerformer(StepPerformer):
         # Get rid of the headers if it doesn't have them
         if not has_headers:
             read_excel_params['header'] = None
+
+        if not os.path.exists(file_name):
+            raise make_file_not_found_error(file_name)
 
         pandas_start_time = perf_counter()
         df_dictonary = pd.read_excel(file_name, **read_excel_params, engine='openpyxl') 

@@ -14,7 +14,7 @@ import pandas as pd
 
 from mitosheet.data_in_mito import DataTypeInMito, get_data_type_in_mito
 from mitosheet.experiments.experiment_utils import get_current_experiment
-from mitosheet.step_performers.dataframe_import import DataframeImportStepPerformer
+from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
 from mitosheet.saved_analyses.save_utils import get_analysis_exists
@@ -30,6 +30,7 @@ from mitosheet.updates import UPDATES
 from mitosheet.user.utils import is_pro, is_running_test
 from mitosheet.utils import (NpEncoder, dfs_to_array_for_json, get_new_id,
                              is_default_df_names)
+from mitosheet.updates.update_existing_imports import UPDATE_EXISTING_IMPORTS_UPDATE_EVENT
 
 
 def get_step_indexes_to_skip(step_list: List[Step]) -> Set[int]:
@@ -204,20 +205,18 @@ class StepsManager:
         """
         To help with redo, we store a list of a list of the steps that 
         existed in the step manager before the user clicked undo or reset,
-        along with the type of operation
-        
-        An example of what this object contains:
-        1.  The user passes a dataframe df1, adds column A to df1, imports df2, and then
-            adds B and C to df2. steps=[add A to df1, import df2, add B to df2, add C to df2]
-        2.  The user presses undo. Thus, steps=[add A to df1, import df2, add B to df2],
-            and undone_step_list_store = [('undo', [add C to df2])].
-        3.  The user then presses clear. Thus, steps = [import df2], and 
-            undone_step_list_store = [('undo', [add C to df2]), ('clear', [add A to df1, import df2, add B to df2])]
-        
-        Note that for a undo, we only store the last step that has been undone, but for a clear, 
-        we store the entire step list that we are replacing. This makes it possible
-        to easily undo the clear after it's done, as we have the proper step list
-        around.
+        along with the type of operation.
+
+        This object contains two types of tuples:
+        1. ('append', Step)
+        2. ('reset', Step[])
+
+        If you undo a single step, an ('append', Step) will be added onto this 
+        list. If you then redo, this Step will be appended back onto the list. 
+
+        If you clear or update_existing_imports, then a ('reset', Step[]) will
+        be appended onto this list. If you then undo, this list will become the
+        entire list of steps.
         """
         self.undone_step_list_store: List[Tuple[str, List[Step]]] = []
 
@@ -403,6 +402,7 @@ class StepsManager:
         other types of new data coming from the frontend (e.g. the df names
         or some existing steps).
         """
+
         for update in UPDATES:
             if update_event["type"] == update["event_type"]:
                 # Get the params for this event
@@ -413,7 +413,6 @@ class StepsManager:
                 self.update_event_count += 1
                 # And then return
                 return
-
 
         raise Exception(f"{update_event} is not an update event!")
 
@@ -476,12 +475,12 @@ class StepsManager:
         entire analysis.
         """
 
-        # When a user's most recent action is a clear analysis, then the undone_step_list_store
-        # will end in an item that says ('clear', [...]).
+        # When a user's most recent action is a clear analysis or update_existing_imports, then the undone_step_list_store
+        # will end in an item that says ('reset', [...]).
         # In this case, if they press undo right after clearing, then we assume they probably
         # want to undo the clear, aka to redo all those steps
         if len(self.undone_step_list_store) > 0:
-            if self.undone_step_list_store[-1][0] == "clear":
+            if self.undone_step_list_store[-1][0] == "reset":
                 return self.execute_redo()
 
         # Otherwise, we just undo the most recent step that the user has created
@@ -495,7 +494,7 @@ class StepsManager:
         self.execute_and_update_steps(new_steps)
 
         # If this works, then let's add this step to the undo list!
-        self.undone_step_list_store.append(("undo", [undone_step]))
+        self.undone_step_list_store.append(("append", [undone_step]))
 
     def execute_redo(self) -> None:
         """
@@ -509,13 +508,13 @@ class StepsManager:
             return
 
         (undo_or_clear, step_list) = self.undone_step_list_store[-1]
-        if undo_or_clear == "undo":
+        if undo_or_clear == "append":
             # If it's an undo, just apply onto the end
             new_steps = copy(self.steps_including_skipped)
             new_steps.extend(step_list)
             self.execute_and_update_steps(new_steps)
 
-        elif undo_or_clear == "clear":
+        elif undo_or_clear == "reset":
             new_steps = step_list
             # Note: since we're breaking the invariant that the steps don't
             # move order, we have to execute from the very start
@@ -525,7 +524,7 @@ class StepsManager:
         # that we don't redo it again
         self.undone_step_list_store.pop()
 
-    def execute_clear(self):
+    def execute_clear(self) -> None:
         """
         A clear update, which removes all steps in the analysis
         that are not imports.
@@ -551,7 +550,7 @@ class StepsManager:
         # the step order
         self.execute_and_update_steps(new_steps, last_valid_index=0)
 
-        self.undone_step_list_store.append(("clear", old_steps))
+        self.undone_step_list_store.append(("reset", old_steps))
 
     def execute_and_update_steps(
         self, new_steps: List[Step], last_valid_index: int = None

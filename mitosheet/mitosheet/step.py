@@ -129,7 +129,7 @@ class Step:
         return self.post_state if self.post_state is not None else \
             (self.prev_state if self.prev_state is not None else State([]))
 
-    def set_prev_state_and_execute(self, new_prev_state: State) -> None:
+    def set_prev_state_and_execute(self, new_prev_state: State) -> bool:
         """
         Changes the prev_state of this step, which in turns triggers
         a reexecution with the same parameters. 
@@ -139,6 +139,9 @@ class Step:
 
         NOTE: this is the only function you should use to get a step
         to execute!
+
+        Returns True if the step returns a new post_state, meaning an
+        execution actually occured.
         """        
         # Saturate the event to get up to date parameters
         params = self.step_performer.saturate(new_prev_state, self.params)
@@ -161,6 +164,8 @@ class Step:
         self.post_state = new_post_state
         self.execution_data = execution_data if execution_data is not None else {}
         self.params = params
+
+        return post_state_and_execution_data is not None
     
 
     def step_indexes_to_skip(self, all_steps_before_this_step: List['Step']) -> Set[int]:

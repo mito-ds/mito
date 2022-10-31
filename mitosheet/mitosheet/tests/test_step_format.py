@@ -32,7 +32,7 @@ from mitosheet.step_performers import (
     GraphStepPerformer,
     ConcatStepPerformer
 )
-from mitosheet.step_performers.dataframe_import import DataframeImportStepPerformer
+from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
 from mitosheet.step_performers.delete_row import DeleteRowStepPerformer
 from mitosheet.step_performers.column_steps.split_text_to_columns import SplitTextToColumnsStepPerformer
 from mitosheet.step_performers.fill_na import FillNaStepPerformer

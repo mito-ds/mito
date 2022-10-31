@@ -21,9 +21,10 @@ from mitosheet.api import API
 from mitosheet.data_in_mito import DataTypeInMito
 from mitosheet.errors import (MitoError, get_recent_traceback,
                               make_execution_error)
+from mitosheet.mito_config import MitoConfig
 from mitosheet.saved_analyses import write_analysis
 from mitosheet.steps_manager import StepsManager
-from mitosheet.telemetry.telemetry_utils import (log, log_event_processed,
+from mitosheet.telemetry.telemetry_utils import (MITOSHEET_HELPER_PRIVATE, log, log_event_processed,
                                                  telemetry_turned_on)
 from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
 from mitosheet.user import is_local_deployment, should_upgrade_mitosheet
@@ -33,6 +34,11 @@ from mitosheet.user.location import is_in_google_colab, is_in_vs_code
 from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES, UJ_RECEIVED_CHECKLISTS,
                                     UJ_RECEIVED_TOURS, UJ_USER_EMAIL)
 from mitosheet.user.utils import is_excel_import_enabled, is_pro, is_running_test
+
+try:
+    from mitosheet_helper_config import MITO_ENTERPRISE_CONFIGURATION 
+except ImportError:
+    MITO_ENTERPRISE_CONFIGURATION = None
 
 
 class MitoWidget(DOMWidget):
@@ -61,6 +67,8 @@ class MitoWidget(DOMWidget):
             
         # Set up the state container to hold private widget state
         self.steps_manager = StepsManager(args, analysis_to_replay=analysis_to_replay)
+
+        self.mito_config = MitoConfig(MITO_ENTERPRISE_CONFIGURATION)
 
         # Set up message handler
         self.on_msg(self.receive_message)
@@ -104,6 +112,7 @@ class MitoWidget(DOMWidget):
             'isLocalDeployment': self.is_local_deployment,
             'shouldUpgradeMitosheet': self.should_upgrade_mitosheet,
             'numUsages': self.num_usages,
+            'mitoConfig': self.mito_config.get_mito_config()
         })
 
 
@@ -152,12 +161,17 @@ class MitoWidget(DOMWidget):
 
             # Update all state variables
             self.update_shared_state_variables()
-        except:
+        except Exception as e:
             # We handle the case of replaying the analysis specially, because we don't
             # want to display the error modal - we want to display something specific
             # in this case. Note that we include the updating of shared state variables
             # in the try catch, as this is sometimes where errors occur
             if event["type"] == REPLAY_ANALYSIS_UPDATE['event_type']:
+                # Propagate the Mito error if we can. We never want a replay analysis to open
+                # an error modal, so make sure to update the error if necessary
+                if isinstance(e, MitoError):
+                    e.error_modal = False
+                    raise e
                 raise make_execution_error(error_modal=False)
             raise
         # Also, write the analysis to a file!

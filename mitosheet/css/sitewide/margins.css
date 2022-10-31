@@ -8,14 +8,34 @@
     margin-top: .5vh;
 }
 
-.mt-1 {
-    margin-top: 1vh;
+.mt-1px {
+    margin-top: 1px;
+}
+.mb-1px {
+    margin-bottom: 1px;
+}
+.ml-1px {
+    margin-left: 1px;
+}
+.mr-1px {
+    margin-right: 1px;
 }
 
 .mt-2 {
     margin-top: 2vh;
 }
-
+.mt-3px {
+    margin-top: 3px;
+}
+.mb-3px {
+    margin-bottom: 3px;
+}
+.ml-3px {
+    margin-left: 3px;
+}
+.mr-3px {
+    margin-right: 3px;
+}
 .mt-2px {
     margin-top: 2px;
 }

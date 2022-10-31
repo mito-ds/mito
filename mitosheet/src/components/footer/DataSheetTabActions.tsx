@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import MitoAPI, { getRandomId } from '../../jupyter/api';
-import { GraphDataDict, GraphID, SheetData, UIState } from '../../types';
+import { DFSource, GraphDataDict, GraphID, SheetData, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
@@ -40,6 +40,8 @@ export default function SheetTabActions(props: {
     sheetDataArray: SheetData[]
     display: boolean
 }): JSX.Element {
+
+    const imported = props.sheetDataArray[props.sheetIndex]?.dfSource === DFSource.Imported;
 
     // Log opening the data sheet tab actions
     useEffect(() => {
@@ -82,17 +84,11 @@ export default function SheetTabActions(props: {
 
             await props.mitoAPI.editDataframeDelete(props.sheetIndex)
         }
-
-
-        
     }
 
     const onDuplicate = async (): Promise<void> => {
-        // Close 
         props.closeOpenEditingPopups();
-        
         await props.mitoAPI.editDataframeDuplicate(props.sheetIndex)
-        
     }
 
     /* Rename helper, which requires changes to the sheet tab itself */
@@ -124,45 +120,66 @@ export default function SheetTabActions(props: {
         })
     }
 
+    const dropdownItems: JSX.Element[] = [
+        <DropdownItem
+            key='Create graph'
+            title='Create graph'
+            onClick={(e) => {
+                // Stop propogation so that the onClick of the sheet tab div
+                // doesn't compete updating the uiState to this sheet instead of
+                // the new graphID that we're creating
+                e?.stopPropagation()
+                void graphData()
+            }}
+        />,
+        <DropdownItem 
+            key='Export'
+            title='Export'
+            onClick={openDownloadTaskpane}
+        />,
+        // if this dataframe is imported, then allow the user to change the import
+        imported ? <DropdownItem key='Change Import' title='Change Import' onClick={() => {
+            props.closeOpenEditingPopups();
+            props.setUIState(prevUIState => {
+                return {
+                    ...prevUIState,
+                    currOpenTaskpane: {
+                        type: TaskpaneType.UPDATEIMPORTS
+                    }
+                }
+            })
+        }}/> : undefined,
+        <DropdownSectionSeperator key='sep' isDropdownSectionSeperator={true} />,
+        <DropdownItem 
+            key='Duplicate'
+            title='Duplicate'
+            onClick={onDuplicate}
+        />,
+        <DropdownItem 
+            key='Rename'
+            title='Rename'
+            onClick={onRename}
+            supressFocusSettingOnClose
+        />,
+        <DropdownItem 
+            key='Delete'
+            title='Delete'
+            onClick={(e) => {
+                // Stop propogation so that the onClick of the sheet tab div
+                // doesn't compete updating the uiState to the graphID that is gettind deleted
+                e?.stopPropagation()
+                void onDelete()
+            }}
+        />
+    ].filter(element => element !== null && element !== undefined) as JSX.Element[];
+
     return (
         <Dropdown
             display={props.display}
             closeDropdown={() => props.setDisplayActions(false)}
-            width='small'
+            width='medium'
         >
-            <DropdownItem
-                title='Create graph'
-                onClick={(e) => {
-                    // Stop propogation so that the onClick of the sheet tab div
-                    // doesn't compete updating the uiState to this sheet instead of
-                    // the new graphID that we're creating
-                    e?.stopPropagation()
-                    void graphData()
-                }}
-            />
-            <DropdownItem 
-                title='Export'
-                onClick={openDownloadTaskpane}
-            />
-            <DropdownSectionSeperator isDropdownSectionSeperator={true} />
-            <DropdownItem 
-                title='Duplicate'
-                onClick={onDuplicate}
-            />
-            <DropdownItem 
-                title='Rename'
-                onClick={onRename}
-                supressFocusSettingOnClose
-            />
-            <DropdownItem 
-                title='Delete'
-                onClick={(e) => {
-                    // Stop propogation so that the onClick of the sheet tab div
-                    // doesn't compete updating the uiState to the graphID that is gettind deleted
-                    e?.stopPropagation()
-                    void onDelete()
-                }}
-            />
+            {dropdownItems}
         </Dropdown>
     )
 }

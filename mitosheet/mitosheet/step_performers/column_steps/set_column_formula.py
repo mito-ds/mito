@@ -9,11 +9,13 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.column_steps.set_column_formula_code_chunk import SetColumnFormulaCodeChunk
-from mitosheet.errors import (MitoError, make_circular_reference_error,
-                              make_execution_error, make_invalid_formula_after_update_error, make_no_column_error,
-                              make_operator_type_error,
-                              make_unsupported_function_error)
+from mitosheet.code_chunks.step_performers.column_steps.set_column_formula_code_chunk import \
+    SetColumnFormulaCodeChunk
+from mitosheet.errors import (MitoError, make_execution_error,
+                              make_invalid_formula_after_update_error,
+                              make_no_column_error, make_operator_type_error,
+                              make_unsupported_function_error,
+                              raise_error_if_column_ids_do_not_exist)
 from mitosheet.parser import parse_formula
 from mitosheet.sheet_functions import FUNCTIONS
 from mitosheet.state import State
@@ -63,21 +65,22 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         column_id: ColumnID = get_param(params, 'column_id')
         new_formula: str = get_param(params, 'new_formula')
 
+        raise_error_if_column_ids_do_not_exist(
+            'set column formula',
+            prev_state,
+            sheet_index,
+            column_id
+        )
+
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
         column_headers = prev_state.dfs[sheet_index].keys()
 
         # Then we try and parse the formula
-        _, new_functions, new_dependencies_column_headers = parse_formula(
+        _, new_functions, _ = parse_formula(
             new_formula, 
             column_header,
             column_headers
         )
-        new_dependencies = set(prev_state.column_ids.get_column_ids(sheet_index, new_dependencies_column_headers))
-
-        # We check that the formula doesn't reference any columns that don't exist
-        missing_columns = new_dependencies.difference(prev_state.column_ids.get_column_ids(sheet_index))
-        if any(missing_columns):
-            raise make_no_column_error(missing_columns, error_modal=False)
 
         # The formula can only reference known formulas
         missing_functions = new_functions.difference(set(FUNCTIONS.keys()))
@@ -216,6 +219,8 @@ def exec_column_formula(post_state: State, df: pd.DataFrame, sheet_index: int, c
     Helper function for refreshing the column when the formula is set
     """
 
+    df_name = post_state.df_names[sheet_index]
+
     if spreadsheet_code == '':
         return
 
@@ -251,7 +256,12 @@ def exec_column_formula(post_state: State, df: pd.DataFrame, sheet_index: int, c
         # If we have a column header that does not exist in the formula, we may
         # throw a name error, in which case we alert the user
         column_header = str(e).split('\'')[1]
-        raise make_no_column_error({column_header})
+        raise MitoError(
+            'no_column_error',
+            'No Column Exists',
+            f'Setting a column formula failed. The column "{str(column_header)}" referenced in the formula does not exist in {df_name}.',
+            error_modal=True
+        )
     except Exception as e:
         # If this is the same formula as before, then it used to be valid and is not,
         # and so we let the user know they must have made some other change that made 

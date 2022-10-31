@@ -1,13 +1,11 @@
 // Copyright (c) Mito
 import React, { useEffect, useState } from 'react';
-import { Action, ActionEnum, AnalysisData, SheetData, UserProfile } from '../../types';
+import { Action, ActionEnum, AnalysisData, SheetData, UIState, UserProfile } from '../../types';
 
 import LoadingIndicator from '../LoadingIndicator';
 import '../../../css/elements/BottomLeftPopup.css';
-import Checklist, { getRemainingChecklistItems } from '../checklists/Checklist';
 import MitoAPI from '../../jupyter/api';
-import { isVariantA } from '../../utils/experiments';
-import { ModalEnum, ModalInfo } from '../modals/modals';
+import { ModalInfo } from '../modals/modals';
 
 const BottomLeftPopup = (props: {
     analysisData: AnalysisData
@@ -17,6 +15,7 @@ const BottomLeftPopup = (props: {
     sheetDataArray: SheetData[],
     currOpenModal: ModalInfo,
     actions: Record<ActionEnum, Action>
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>,
 }): JSX.Element => {
     // We only display the loading indicator after .5 seconds, and we track
     // it in the popup component so that we can display something else if
@@ -35,11 +34,6 @@ const BottomLeftPopup = (props: {
         }
     }, [props.loading.length]);
 
-    // We only display the checklist if we are in variant a
-    const displayChecklist = isVariantA(props.analysisData) 
-        && getRemainingChecklistItems(props.userProfile).length > 0
-        && props.currOpenModal.type !== ModalEnum.SignUp;
-
     return (
         <>
             {displayLoadingIndicator && 
@@ -47,19 +41,7 @@ const BottomLeftPopup = (props: {
                     <LoadingIndicator loading={props.loading}/>
                 </div>
             }
-            {!displayLoadingIndicator && displayChecklist &&
-                <div className='bottom-left-popup-container'>
-                    <Checklist
-                        mitoAPI={props.mitoAPI}
-                        sheetDataArray={props.sheetDataArray}
-                        userProfile={props.userProfile}
-                        analysisData={props.analysisData}
-                        actions={props.actions}
-                    />
-                </div>    
-            }
         </>
-        
     )
 }
 

@@ -11,7 +11,9 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 from IPython import get_ipython
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.import_steps.dataframe_import_code_chunk import DataframeImportCodeChunk
+from mitosheet.code_chunks.step_performers.import_steps.dataframe_import_code_chunk import \
+    DataframeImportCodeChunk
+from mitosheet.errors import make_dataframe_not_found_error
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
@@ -70,7 +72,11 @@ class DataframeImportStepPerformer(StepPerformer):
         # Get the dataframe, and import it
 
         for df_name in df_names:
-            df = get_variable_with_name_from_caller(df_name)
+            try:
+                df = get_variable_with_name_from_caller(df_name)
+            except NameError:
+                raise make_dataframe_not_found_error(df_name)
+
             # TODO: There is a bug if you import the same dataframe twice, then you get
             # issues where the generated code does not match with the sheet. Do we want 
             # to insist on uniqueness here? Or do we want to automatically make a copy?

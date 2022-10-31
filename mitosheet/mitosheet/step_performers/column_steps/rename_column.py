@@ -10,7 +10,7 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.no_op_code_chunk import NoOpCodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.rename_columns_code_chunk import RenameColumnsCodeChunk
 
-from mitosheet.errors import make_column_exists_error
+from mitosheet.errors import make_column_exists_error, raise_error_if_column_ids_do_not_exist
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
@@ -40,6 +40,13 @@ class RenameColumnStepPerformer(StepPerformer):
         column_id: ColumnID = get_param(params, 'column_id')
         new_column_header: str = get_param(params, 'new_column_header')
         level: int = get_param(params, 'new_column_header')
+
+        raise_error_if_column_ids_do_not_exist(
+            'rename column',
+            prev_state,
+            sheet_index,
+            column_id
+        )
 
         if new_column_header in prev_state.dfs[sheet_index].keys():
             raise make_column_exists_error(new_column_header)
