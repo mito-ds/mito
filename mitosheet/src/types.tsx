@@ -713,11 +713,27 @@ export interface ExcelExportState { exportType: 'excel', sheetIndexes: number[] 
 
 export type ToolbarDropdowns = 'Edit' | 'Dataframes' | 'Columns' | 'Rows' | 'Graphs' | 'Format' | 'View' | 'Help';
 
+export enum PopupType {
+    EphemeralMessage = 'ephemeral_message',
+    None = 'none'
+} 
+
+export type PopupInfo = 
+    | {
+        type: PopupType.EphemeralMessage,
+        message: string
+    }
+    | {type: PopupType.None} 
+
+export enum PopupLocation {
+    TopRight = 'top_right',
+}
+
 /**
  * State of the UI, all in one place for ease.
  */
 export interface UIState {
-    loading: [string, string | undefined, string][]; // message id, step id (if it exists), message type
+    loading: [string, string | undefined, string][]
     currOpenModal: ModalInfo;
     currOpenTaskpane: TaskpaneInfo;
     selectedColumnControlPanelTab: ControlPanelTab;
@@ -727,6 +743,12 @@ export interface UIState {
     selectedTabType: 'data' | 'graph';
     currOpenToolbarDropdown: undefined | ToolbarDropdowns;
     toolbarDropdown: 'import' | 'format' | 'dtype' | undefined;
+    currOpenPopups: {
+        // This popup infrastructure allows us to easily separate the the placement logic from the content
+        // and ensure that in each popup location, only one popup is displayed at a time.
+        // TODO: Move the other popups (loading, tour, fast forward) to use this infrastructure
+        [PopupLocation.TopRight]: PopupInfo 
+    }
 }
 
 /**
