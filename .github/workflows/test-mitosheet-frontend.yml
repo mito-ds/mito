@@ -32,7 +32,7 @@ jobs:
     - name: Install dependencies
       run: |
         cd tests
-        bash dev-install.sh
+        bash dev-setup.sh
     - name: Start a server and run tests
       run: |
         cd tests
