@@ -45,9 +45,6 @@ class SimpleImportStepPerformer(StepPerformer):
         decimals: Optional[List[str]] = get_param(params, 'decimals')
         skiprows: Optional[List[int]] = get_param(params, 'skiprows')
         error_bad_lines: Optional[List[bool]] = get_param(params, 'error_bad_lines')
-
-        print(params)
-
         use_deprecated_id_algorithm: bool = get_param(params, 'use_deprecated_id_algorithm') if get_param(params, 'use_deprecated_id_algorithm') else False
 
         # If any of the files are directories, we throw an error to let
