@@ -6,6 +6,7 @@ pip install -r requirements.txt;
 
 # Install necessary node packages
 npm install
+npx playwright install
 
 # Install mitosheet
 cd ../mitosheet
