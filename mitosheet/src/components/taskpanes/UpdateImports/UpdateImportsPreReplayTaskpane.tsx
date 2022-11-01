@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import MitoAPI from "../../../jupyter/api";
 import { overwriteAnalysisToReplayToMitosheetCall } from "../../../jupyter/jupyterUtils";
-import { AnalysisData, UIState } from "../../../types";
+import { AnalysisData, PopupLocation, PopupType, UIState } from "../../../types";
 import { isMitoError } from "../../../utils/errors";
 import TextButton from "../../elements/TextButton";
 import Col from "../../layout/Col";
@@ -120,12 +120,14 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
                                     props.failedReplayData.analysisName,
                                     props.analysisData.analysisName,
                                     props.mitoAPI
-                                )
+                                ) 
+
+                                void props.mitoAPI.log('clicked_start_new_analysis_from_pre_replay_update_imports') 
                                 
                                 props.setUIState((prevUIState) => {
                                     return {
                                         ...prevUIState,
-                                        currOpenTaskpane: {type: TaskpaneType.NONE}
+                                        currOpenTaskpane: {type: TaskpaneType.NONE},
                                     }
                                 })}
                             }
@@ -149,6 +151,12 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
                                     }
                                     props.setPostUpdateInvalidImportMessages(_invalidImportIndexes);
 
+                                    void props.mitoAPI.log('clicked_update_from_pre_replay_update_imports') 
+                                    void props.mitoAPI.log('get_test_import_results', {
+                                        'num_invalid_imports': Object.keys(_invalidImportIndexes).length,
+                                        'open_due_to_replay_error': true
+                                    })
+
                                     // If there are no invalid indexes, then we can update. Since this is
                                     // pre replay, we are replaying the analysis
                                     if (Object.keys(_invalidImportIndexes).length === 0) {
@@ -163,7 +171,14 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
                                             props.setUIState((prevUIState) => {
                                                 return {
                                                     ...prevUIState,
-                                                    currOpenTaskpane: {type: TaskpaneType.NONE}
+                                                    currOpenTaskpane: {type: TaskpaneType.NONE},
+                                                    currOpenPopups: {
+                                                        ...prevUIState.currOpenPopups,
+                                                        [PopupLocation.TopRight]: {
+                                                            type: PopupType.EphemeralMessage, 
+                                                            message: 'Successfully replayed analysis on new data'
+                                                        }
+                                                    }
                                                 }
                                             })
                                         }

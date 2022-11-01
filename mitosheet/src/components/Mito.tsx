@@ -25,7 +25,7 @@ import '../../css/sitewide/widths.css';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import MitoAPI from '../jupyter/api';
 import { getArgs, getMetadataFromGeneratedCodeCell, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell, writeMetadataToGeneratedCodeCell as writeToGeneratedCodeCellMetadata } from '../jupyter/jupyterUtils';
-import { AnalysisData, DataTypeInMito, DFSource, EditorState, GridState, SavedAnalysis, SheetData, UIState, UserProfile } from '../types';
+import { AnalysisData, DataTypeInMito, DFSource, EditorState, GridState, PopupLocation, PopupType, SavedAnalysis, SheetData, UIState, UserProfile } from '../types';
 import { createActions } from '../utils/actions';
 import { classNames } from '../utils/classNames';
 import { isMitoError } from '../utils/errors';
@@ -69,6 +69,7 @@ import Toolbar from './toolbar/Toolbar';
 import Tour from './tour/Tour';
 import { TourName } from './tour/Tours';
 import ReplayAnalysisPermissionsModal from './modals/ReplayAnalysisPermissionsModal';
+import EphemeralMessage from './popups/EphemeralMessage';
 
 export type MitoProps = {
     model_id: string;
@@ -111,7 +112,10 @@ export const Mito = (props: MitoProps): JSX.Element => {
         selectedTabType: 'data',
         currOpenToolbarDropdown: undefined,
         toolbarDropdown: undefined,
-        exportConfiguration: {exportType: 'csv'}
+        exportConfiguration: {exportType: 'csv'},
+        currOpenPopups: {
+            [PopupLocation.TopRight]: {type: PopupType.None}
+        }
     })
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined);
 
@@ -751,6 +755,24 @@ export const Mito = (props: MitoProps): JSX.Element => {
         }
     }
 
+    const getCurrOpenPopup = (popupLocation: PopupLocation): JSX.Element => {
+        const popupLocationInfo = uiState.currOpenPopups[popupLocation]
+        switch(popupLocationInfo.type) {
+            case PopupType.EphemeralMessage: 
+                return (
+                    <EphemeralMessage 
+                        message={popupLocationInfo.message}
+                        setUIState={setUIState}
+                        popupLocation={popupLocation}
+                    />
+                )
+            case PopupType.None: return (
+                <Fragment/>
+            )
+        }
+    }
+            
+
     /*
         Actions that the user can choose to take. We abstract them into this dictionary so they can be used
         across the codebase without replicating functionality. 
@@ -902,7 +924,10 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     mitoAPI={props.mitoAPI}
                     currOpenModal={uiState.currOpenModal}
                     actions={actions}
+                    setUIState={setUIState}
                 />
+                {getCurrOpenPopup(PopupLocation.TopRight)}
+                
                 {/* 
                     If the step index of the last step isn't the current step,
                     then we are out of date, and we tell the user this.

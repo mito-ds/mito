@@ -582,7 +582,7 @@ export const createActions = (
                 if (userProfile.mitoConfig[MitoEnterpriseConfigKey.SUPPORT_EMAIL] === DEFAULT_SUPPORT_EMAIL) {
                     window.open(SLACK_INVITE_LINK, '_blank')
                 } else {
-                    window.open(`mailto:${userProfile.mitoConfig[MitoEnterpriseConfigKey.SUPPORT_EMAIL]}`)
+                    window.open(`mailto:${userProfile.mitoConfig[MitoEnterpriseConfigKey.SUPPORT_EMAIL]}?subject=Mito support request`)
                 }
                 
             },

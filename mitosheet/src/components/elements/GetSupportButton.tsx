@@ -28,7 +28,7 @@ const GetSupportButton = (props: GetSupportButtonProps): JSX.Element => {
             className={props.className}
             variant='dark'
             width={props.width || 'medium'}
-            href={props.userProfile.mitoConfig[MitoEnterpriseConfigKey.SUPPORT_EMAIL] === DEFAULT_SUPPORT_EMAIL ? SLACK_INVITE_LINK : `mailto:${props.userProfile.mitoConfig[MitoEnterpriseConfigKey.SUPPORT_EMAIL]}`}
+            href={props.userProfile.mitoConfig[MitoEnterpriseConfigKey.SUPPORT_EMAIL] === DEFAULT_SUPPORT_EMAIL ? SLACK_INVITE_LINK : `mailto:${props.userProfile.mitoConfig[MitoEnterpriseConfigKey.SUPPORT_EMAIL]}?subject=Mito support request`}
             target='_blank'
             onClick={props.onClick ? props.onClick : () => {
                 props.setUIState((prevUIState) => {
