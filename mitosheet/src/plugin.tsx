@@ -186,7 +186,11 @@ function activateWidgetExtension(
 
             // Finially, we make this cell read only
             if (writtenToCell !== undefined) {
-                writtenToCell.metadata.set('editable', false);
+                if (!isEmptyCell(writtenToCell)) {
+                    writtenToCell.metadata.set('editable', false);
+                } else {
+                    writtenToCell.metadata.set('editable', true);
+                }
             }
         }
     })

@@ -945,7 +945,7 @@ class MitoWidgetTestWrapper:
         analysis_name: str, 
         analysis: Optional[Dict[str, Any]]=None,
         step_import_data_list_to_overwrite: List[Dict[str, Any]]=[],
-        ignore_author_hash: bool=False
+        explicitly_trust_analysis_by_ignoring_author_hash: bool=False
     ) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
@@ -957,7 +957,7 @@ class MitoWidgetTestWrapper:
                     'analysis_name': analysis_name,
                     'analysis': analysis,
                     'step_import_data_list_to_overwrite': step_import_data_list_to_overwrite,
-                    'ignore_author_hash': ignore_author_hash
+                    'explicitly_trust_analysis_by_ignoring_author_hash': explicitly_trust_analysis_by_ignoring_author_hash
                 },
             }
         )

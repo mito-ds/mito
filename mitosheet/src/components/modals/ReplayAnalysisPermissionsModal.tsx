@@ -21,12 +21,14 @@ const getAnalysisSummary = (analysis: SavedAnalysis): JSX.Element => {
         <>
             {analysis.steps_data.map((step_data, idx) => {
                 return (
-                    <div key={idx} className='flexbox-row text-overflow-scroll'>
+                    <div key={idx} className='flexbox-row text-overflow-scroll pb-10px'>
                         <div>
-                            {step_data.step_type}:
+                            Step {idx}:{' '}
+                            <span className='text-color-gray-important'>{step_data.step_type}</span>&nbsp;
                         </div>
                         <div title={JSON.stringify(step_data.params)}>
-                            {JSON.stringify(step_data.params)}
+                            with params{' '}
+                            <span className='text-color-gray-important'>{JSON.stringify(step_data.params)}</span>
                         </div>
                     </div>
                 )
@@ -68,9 +70,12 @@ const ReplayAnalysisPermissionsModal = (
             viewComponent={
                 <>
                     <div className='text-align-left text-body-1' onClick={() => setViewSteps((viewTraceback) => !viewTraceback)}>
-                        The <span>analysis_to_replay</span> {props.analysisName} was last edited by someone else. Make sure you trust who sent you this notebook before running this analysis.
+                        The <span>analysis_to_replay</span> {props.analysisName} was last edited by someone else. Make sure you trust who sent you this notebook before running this analysis. You can {" "}
+                        <span className='text-body-1-link' onClick={e => e.stopPropagation()}>
+                            <a href='https://docs.trymito.io/how-to/mitos-security-model' target="_blank" rel="noreferrer"> read more about security</a>
+                        </span> {' '} or {' '}
                         <span className='text-body-1-link'>
-                            View all steps.
+                            view all steps.
                         </span>
                     </div>
                     {viewSteps &&
@@ -121,7 +126,7 @@ const ReplayAnalysisPermissionsModal = (
                                                 analysisName: props.analysisName,
                                                 analysis: props.analysis,
                                                 error: replayAnalysisError,
-                                                ignoreAuthorHash: true
+                                                explicitlyTrustAnalysisByIgnoringAuthorHash: true
                                             }
                                         },
                                         currOpenModal: {type: ModalEnum.None}

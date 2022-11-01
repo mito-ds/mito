@@ -12,6 +12,7 @@ interface GetSupportButtonProps {
     userProfile: UserProfile,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>,
     mitoAPI: MitoAPI
+    onClick?: () => void;
     className?: string
     width?: Width
 }
@@ -29,7 +30,7 @@ const GetSupportButton = (props: GetSupportButtonProps): JSX.Element => {
             width={props.width || 'medium'}
             href={props.userProfile.mitoConfig[MitoEnterpriseConfigKey.SUPPORT_EMAIL] === DEFAULT_SUPPORT_EMAIL ? SLACK_INVITE_LINK : `mailto:${props.userProfile.mitoConfig[MitoEnterpriseConfigKey.SUPPORT_EMAIL]}`}
             target='_blank'
-            onClick={() => {
+            onClick={props.onClick ? props.onClick : () => {
                 props.setUIState((prevUIState) => {
                     return {
                         ...prevUIState,

@@ -16,7 +16,7 @@ from mitosheet._version import __version__
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.types import StepsManagerType
 from mitosheet.user.utils import is_running_test
-from mitosheet.utils import NpEncoder
+from mitosheet.utils import NpEncoder, get_new_id
 from mitosheet.user import get_user_field, UJ_STATIC_USER_ID
 
 
@@ -143,7 +143,7 @@ def get_author_hash(steps_data:  List[Dict[str, Any]], user_id: Optional[str]=No
 
     To do this, we take a hash of the steps_data combined with the static_user_id, which is something 
     that is never shared with other users. Thus, the author_hash tells a user if some other user
-    has ever edited this analysis that is stored in the notebook, and thus we can prompt the user 
+    was the last user to edit this analysis that is stored in the notebook, and thus we can prompt the user 
     to review the saved analysis before running it.
     """
     global static_user_id
@@ -153,10 +153,10 @@ def get_author_hash(steps_data:  List[Dict[str, Any]], user_id: Optional[str]=No
     if user_id is None:
         user_id = static_user_id
 
-
+    # IF this is still none, then we log the error, and return a random hash
     if user_id is None:
-        # TODO: do we want to error check this?
-        return 'randohash'
+        log('get_user_id_in_author_hash_failed', failed=True)
+        return get_new_id()
 
     if is_running_test():
         return TEST_AUTHOR_HASH

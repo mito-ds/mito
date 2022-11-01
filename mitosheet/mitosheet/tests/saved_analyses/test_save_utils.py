@@ -392,7 +392,7 @@ def test_replay_analysis_pass_analysis_with_invalid_author_hash():
                 "steps_data": [{"step_version": 2, "step_type": "add_column", 'params': { "sheet_index": 0, "column_header": "B", "column_header_index": -1}}]
             },
             'step_import_data_list_to_overwrite': [],
-            'ignore_author_hash': False
+            'explicitly_trust_analysis_by_ignoring_author_hash': False
         },
     }
 
@@ -402,7 +402,7 @@ def test_replay_analysis_pass_analysis_with_invalid_author_hash():
     assert 'replay_analysis_permissions_error' in str(e_info)
 
     # Then, ignore the author hash, and make sure it replays
-    WRONG_AUTHOR_HASH_MESSAGE['params']['ignore_author_hash'] = True
+    WRONG_AUTHOR_HASH_MESSAGE['params']['explicitly_trust_analysis_by_ignoring_author_hash'] = True
     mito.mito_widget.steps_manager.handle_update_event(WRONG_AUTHOR_HASH_MESSAGE)
 
     assert mito.dfs[0].equals(

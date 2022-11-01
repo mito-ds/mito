@@ -55,7 +55,7 @@ export interface FailedReplayData {
     analysisName: string,
     analysis: SavedAnalysis | undefined,
     error: MitoError,
-    ignoreAuthorHash?: boolean
+    explicitlyTrustAnalysisByIgnoringAuthorHash?: boolean
 }
     
 
@@ -92,7 +92,12 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
             let invalidImportIndexes: Record<number, string> | undefined = undefined;
             
             if (failedReplayData !== undefined) {
-                importData = await props.mitoAPI.getImportedFilesAndDataframesFromAnalysisName(failedReplayData.analysisName);
+                // We get the analysis data from the saved analysis in the notebook if it exists
+                if (failedReplayData.analysis !== undefined) {
+                    importData = await props.mitoAPI.getImportedFilesAndDataframesFromSavedAnalysis(failedReplayData.analysis);
+                } else {
+                    importData = await props.mitoAPI.getImportedFilesAndDataframesFromAnalysisName(failedReplayData.analysisName);
+                }
                 invalidImportIndexes = await props.mitoAPI.getTestImports(importData || []);
             } else {
                 importData = await props.mitoAPI.getImportedFilesAndDataframesFromCurrentSteps();

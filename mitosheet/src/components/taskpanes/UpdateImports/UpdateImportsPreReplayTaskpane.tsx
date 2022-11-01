@@ -155,7 +155,7 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
 
                                         props.setInvalidReplayError(undefined) // Clear the error
 
-                                        const replayAnalysisError = await props.mitoAPI.updateReplayAnalysis(props.failedReplayData.analysisName, props.failedReplayData.analysis, props.updatedStepImportData, props.failedReplayData.ignoreAuthorHash);
+                                        const replayAnalysisError = await props.mitoAPI.updateReplayAnalysis(props.failedReplayData.analysisName, props.failedReplayData.analysis, props.updatedStepImportData, props.failedReplayData.explicitlyTrustAnalysisByIgnoringAuthorHash);
                                         // If there is an error replaying the analysis, we know it is not with 
                                         if (isMitoError(replayAnalysisError)) {
                                             props.setInvalidReplayError(getErrorTextFromToFix(replayAnalysisError.to_fix))

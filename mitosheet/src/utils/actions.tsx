@@ -42,10 +42,15 @@ export const createActions = (
     const startingColumnID = columnID;
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
 
-    // If the replay analysis taskpane is open due to a failed replay analysis, we pretty much disable all actions
-    // as the user needs to resolve these errors or start a new analysis
+    // We check for any default disabled reason
     const disabledDueToReplayAnalysis = uiState.currOpenTaskpane.type === TaskpaneType.UPDATEIMPORTS && uiState.currOpenTaskpane.failedReplayData !== undefined;
-    const defaultActionDisabledMessage = disabledDueToReplayAnalysis ? 'Please resolve issues with the failed replay analysis before making further edits.' : undefined;
+    const disabledDueToReplayAnalysisPermissions = uiState.currOpenModal.type === ModalEnum.ReplayAnalysisPermissions;
+    let defaultActionDisabledMessage: string | undefined = undefined;
+    if (disabledDueToReplayAnalysis) {
+        defaultActionDisabledMessage = 'Please resolve issues with the failed replay analysis before making further edits.';
+    } else if (disabledDueToReplayAnalysisPermissions) {
+        defaultActionDisabledMessage = 'Please trust this analysis or start a new analysis before making further edits.';
+    }
 
     /*
         All of the actions that can be taken from the Action Search Bar. 
@@ -1236,7 +1241,7 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return undefined},
+            isDisabled: () => {return defaultActionDisabledMessage},
             searchTerms: ['update', 'imports', 'replay', 'refresh', 'change'],
             tooltip: "Change imported data to rerun the same edits on new data."
         },

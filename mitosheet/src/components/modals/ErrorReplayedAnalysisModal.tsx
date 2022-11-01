@@ -60,6 +60,10 @@ const ErrorReplayedAnalysisModal = (
                         userProfile={props.userProfile} 
                         setUIState={props.setUIState} 
                         mitoAPI={props.mitoAPI}
+                        onClick={() => {
+                            void props.mitoAPI.log('clicked_get_support_button')
+                            return true;
+                        }}
                     />
                     <TextButton
                         variant='dark'

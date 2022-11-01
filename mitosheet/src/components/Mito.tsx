@@ -24,7 +24,7 @@ import '../../css/sitewide/text.css';
 import '../../css/sitewide/widths.css';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import MitoAPI from '../jupyter/api';
-import { getArgs, getNotebookMetadata, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell, writeToNotebookMetadata as writeToGeneratedCodeCellMetadata } from '../jupyter/jupyterUtils';
+import { getArgs, getMetadataFromGeneratedCodeCell, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell, writeMetadataToGeneratedCodeCell as writeToGeneratedCodeCellMetadata } from '../jupyter/jupyterUtils';
 import { AnalysisData, DataTypeInMito, DFSource, EditorState, GridState, SavedAnalysis, SheetData, UIState, UserProfile } from '../types';
 import { createActions } from '../utils/actions';
 import { classNames } from '../utils/classNames';
@@ -186,7 +186,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                  * this will be used to replay. Otherwise, the analysis on disk will be used
                  */
 
-                const analysisSavedInNotebookJSON = await getNotebookMetadata(analysisToReplayName, `saved_analyses:${analysisToReplayName}`);
+                const analysisSavedInNotebookJSON = await getMetadataFromGeneratedCodeCell(analysisToReplayName, `saved_analyses:${analysisToReplayName}`);
                 const analysisSavedInNotebook: SavedAnalysis | undefined = analysisSavedInNotebookJSON !== undefined ? JSON.parse(analysisSavedInNotebookJSON) : undefined;
                 
                 // If there is no analysis anywhere, then tell the user that
@@ -199,7 +199,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             currOpenModal: {
                                 type: ModalEnum.ErrorReplayedAnalysis,
                                 header: 'analysis_to_replay does not exist',
-                                message: `We're unable to replay ${analysisToReplayName}. This is likely because you deleted the cell that contained the generated code for this analysis.`,
+                                message: `We're unable to replay ${analysisToReplayName}. This is likely because the cell that contained the generated code for this analysis was deleted.`,
                                 error: undefined,
                                 oldAnalysisName: analysisToReplayName,
                                 newAnalysisName: analysisData.analysisName

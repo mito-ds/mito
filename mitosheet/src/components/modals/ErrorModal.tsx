@@ -66,7 +66,7 @@ const ErrorModal = (
                     <GetSupportButton 
                         userProfile={props.userProfile} 
                         setUIState={props.setUIState}
-                        mitoAPI={props.mitoAPI}                 
+                        mitoAPI={props.mitoAPI}     
                     />
                 </> 
             }

@@ -98,7 +98,7 @@ export const getArgs = (analysisToReplayName: string | undefined): Promise<strin
     })
 }
 
-export const writeToNotebookMetadata = (analysisName: string, key: string, value: string): void => {
+export const writeMetadataToGeneratedCodeCell = (analysisName: string, key: string, value: string): void => {
     if (isInJupyterLab()) {
         window.commands?.execute('set-generated-code-cell-metadata', {
             key: key,
@@ -112,7 +112,7 @@ export const writeToNotebookMetadata = (analysisName: string, key: string, value
     }
 }
 
-export const getNotebookMetadata = (analysisName: string, key: string): Promise<void | string> => {
+export const getMetadataFromGeneratedCodeCell = (analysisName: string, key: string): Promise<void | string> => {
     return new Promise((resolve) => {
         if (isInJupyterLab()) {
             window.commands?.execute('get-generated-code-cell-metadata', {key: key, analysisName: analysisName}).then(async (value: string) => {

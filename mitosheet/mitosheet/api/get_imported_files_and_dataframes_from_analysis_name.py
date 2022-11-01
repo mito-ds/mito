@@ -6,7 +6,7 @@
 from copy import copy
 import json
 import os
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 from mitosheet.types import StepsManagerType
@@ -15,9 +15,7 @@ from mitosheet.saved_analyses import read_and_upgrade_analysis
 from mitosheet.api.get_imported_files_and_dataframes_from_current_steps import get_import_data_with_single_import_list
 
 
-def get_step_import_data_from_saved_analysis(analysis_name: str) -> List[Dict[str, Any]]:
-    # Read in the data, and turn it into the correct format
-    saved_analysis = read_and_upgrade_analysis(analysis_name)
+def get_step_import_data_from_saved_analysis(saved_analysis: Optional[Dict[str, Any]]) -> List[Dict[str, Any]]:
     if saved_analysis is None:
         return []
     else:
@@ -51,6 +49,9 @@ def get_imported_files_and_dataframes_from_analysis_name(params: Dict[str, Any],
     """
     analysis_name = params["analysis_name"]
 
+    # Read in the data, and turn it into the correct format
+    saved_analysis = read_and_upgrade_analysis(analysis_name)
+
     # We turn import steps into a version of the step that just creates a single dataframe
     # as this is what is easiest to work with on the frontend
-    return json.dumps(get_step_import_data_from_saved_analysis(analysis_name))
+    return json.dumps(get_step_import_data_from_saved_analysis(saved_analysis))

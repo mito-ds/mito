@@ -84,7 +84,7 @@ def upgrade_saved_analysis_format_to_have_author_hash(saved_analysis: Optional[D
 
     {
         "version": "0.1.197",
-        "author": 'static user id',
+        "author_hash": 'a hash of the steps_data along with the static user id',
         "steps_data": [
             {
                 "step_version": 1,

@@ -26,7 +26,7 @@ REPLAY_ANALYSIS_UPDATE_PARAMS = [
     'analysis_name',
     'analysis',
     'step_import_data_list_to_overwrite',
-    'ignore_author_hash'
+    'explicitly_trust_analysis_by_ignoring_author_hash'
 ]
 
 def overwrite_import_data(analysis: Dict[str, Any], step_import_data_list_to_overwrite: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -75,7 +75,7 @@ def execute_replay_analysis_update(
         analysis_name: str,
         analysis: Optional[Dict[str, Any]],
         step_import_data_list_to_overwrite: List[Dict[str, Any]],
-        ignore_author_hash: Optional[bool]
+        explicitly_trust_analysis_by_ignoring_author_hash: Optional[bool]
     ) -> None:
     """
     This update function replays an analysis. There are two ways to replay
@@ -92,7 +92,8 @@ def execute_replay_analysis_update(
     
     If the author_hash does not pass, then we throw an auth error, and ask the user to
     explicitly trust this analysis on the frontend. In this case, they can call this 
-    function again with ignore_author_hash=True to bypass this authentication check.
+    function again with explicitly_trust_analysis_by_ignoring_author_hash=True to 
+    bypass this authentication check.
     
     If step_import_data_list_to_overwrite are passed, this it overwrites all the
     current import steps with the new updated import steps that are passed.
@@ -117,7 +118,7 @@ def execute_replay_analysis_update(
         # we verify it's author_hash to make sure to the user is replaying
         # their own edits. If not, we throw an error
         if get_author_hash(analysis['steps_data'], get_user_field(UJ_STATIC_USER_ID)) != analysis['author_hash']:
-            if ignore_author_hash != True:
+            if not explicitly_trust_analysis_by_ignoring_author_hash:
                 raise make_replay_analysis_permissions_error()
         
         # We also have to make sure that the analysis provided from
