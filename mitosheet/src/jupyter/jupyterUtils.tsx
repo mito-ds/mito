@@ -17,7 +17,7 @@
 
 
 import MitoAPI from "./api"
-import { getMetadataInNotebook as getGeneratedCodeCellMetadataInNotebook, notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteGeneratedCodeToCell, setMetadataInNotebook as setGeneratedCodeCellMetadataInNotebook } from "./notebook/pluginUtils"
+import { getMetadataFromGeneratedCodeCellInNotebook, notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteGeneratedCodeToCell, setMetadataFromGeneratedCodeCellInNotebook } from "./notebook/pluginUtils"
 
 
 /**
@@ -106,7 +106,7 @@ export const writeMetadataToGeneratedCodeCell = (analysisName: string, key: stri
             analysisName: analysisName
         });
     } else if (isInJupyterNotebook()) {
-        setGeneratedCodeCellMetadataInNotebook(analysisName, key, value);
+        setMetadataFromGeneratedCodeCellInNotebook(analysisName, key, value);
     } else {
         console.error("Not detected as in Jupyter Notebook or JupyterLab")
     }
@@ -120,7 +120,7 @@ export const getMetadataFromGeneratedCodeCell = (analysisName: string, key: stri
             })
             return;
         } else if (isInJupyterNotebook()) {
-            return resolve(getGeneratedCodeCellMetadataInNotebook(analysisName, key));
+            return resolve(getMetadataFromGeneratedCodeCellInNotebook(analysisName, key));
         } else {
             console.error("Not detected as in Jupyter Notebook or JupyterLab")
         }

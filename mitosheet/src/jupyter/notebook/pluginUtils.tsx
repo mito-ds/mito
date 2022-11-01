@@ -285,7 +285,7 @@ export const writeEmptyMitosheetCell = (): void => {
     }
 }
 
-export const setMetadataInNotebook = (analysisName: string, key: string, value: string): void => {
+export const setMetadataFromGeneratedCodeCellInNotebook = (analysisName: string, key: string, value: string): void => {
     const codeCell = getNotebookCellWithCodeForAnalysis(analysisName);
 
     if (codeCell === undefined) {
@@ -305,7 +305,7 @@ export const setMetadataInNotebook = (analysisName: string, key: string, value: 
     }
 }
 
-export const getMetadataInNotebook = (analysisName: string, key: string): string | undefined => {
+export const getMetadataFromGeneratedCodeCellInNotebook = (analysisName: string, key: string): string | undefined => {
     const codeCell = getNotebookCellWithCodeForAnalysis(analysisName);
 
     if (codeCell === undefined) {
