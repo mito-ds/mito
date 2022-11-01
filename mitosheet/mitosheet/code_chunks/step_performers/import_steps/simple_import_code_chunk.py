@@ -11,6 +11,7 @@ import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
 
+# Note: These defaults must be the same as the pandas.read_csv defaults
 DEFAULT_ENCODING = 'utf-8'
 DEFAULT_DELIMETER = ','
 DEFAULT_DECIMAL = '.'

@@ -46,6 +46,8 @@ class SimpleImportStepPerformer(StepPerformer):
         skiprows: Optional[List[int]] = get_param(params, 'skiprows')
         error_bad_lines: Optional[List[bool]] = get_param(params, 'error_bad_lines')
 
+        print(params)
+
         use_deprecated_id_algorithm: bool = get_param(params, 'use_deprecated_id_algorithm') if get_param(params, 'use_deprecated_id_algorithm') else False
 
         # If any of the files are directories, we throw an error to let
@@ -71,18 +73,27 @@ class SimpleImportStepPerformer(StepPerformer):
             partial_pandas_start_time = perf_counter()
 
             try:
-                # NOTE: if you specify one, specify them all!
-                if delimeters is not None and encodings is not None and decimals is not None and skiprows is not None and error_bad_lines is not None:
+                # We try to read the csv with the parameters that the user specified. 
+                # If the user has not specified parameters, then its because they did not go to the csv configure page, and instead
+                # are using Mito's defaults. In this case, we're able to make educated guesses for the delimiter and encoding, and use pandas defaults
+                # for the remainder of the parameters. 
+                if delimeters is not None and encodings is not None:
                     delimeter = delimeters[index]
                     encoding = encodings[index]
-                    decimal = decimals[index]
-                    _skiprows = skiprows[index]
-                    _error_bad_lines = error_bad_lines[index]
+                    
+                    # Given the Mito UI, we expect that if the user has specified the delimiter and ecoding, 
+                    # that the rest of the parameters are also defined. The only time that is not the case is when 
+                    # the user is replaying an old simple import that does not have these fields. To account for that, 
+                    # we just handle the None case here. This makes it easy to add new parameters without having to write 
+                    # step upgraders. 
+                    # This approach of handling optional step params instead of writing a step upgrader is also used in graphs.
+                    decimal = decimals[index] if decimals is not None else DEFAULT_DECIMAL
+                    _skiprows = skiprows[index] if skiprows is not None else DEFAULT_SKIPROWS
+                    _error_bad_lines = error_bad_lines[index] if error_bad_lines is not None else DEFAULT_ERROR_BAD_LINES
                     df = pd.read_csv(file_name, **get_read_csv_params(delimeter, encoding, decimal, _skiprows, _error_bad_lines))
                     pandas_processing_time += (perf_counter() - partial_pandas_start_time)
                 else:
-                    # If you don't specify all of the params, we guess the params we're able to and use 
-                    # the default values for the rest of them
+                    # If the user does not specify the delimiter and encoding, then we guess them and use default values for everything else.
                     df, delimeter, encoding = read_csv_get_delimiter_and_encoding(file_name)
                     decimal = DEFAULT_DECIMAL
                     _skiprows = DEFAULT_SKIPROWS
