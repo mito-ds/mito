@@ -36,6 +36,7 @@ jobs:
     - name: Start a server and run tests
       run: |
         cd tests
+        npm install
         source venv/bin/activate
         jupyter lab --config jupyter_server_test_config.py &
         jlpm playwrite test
