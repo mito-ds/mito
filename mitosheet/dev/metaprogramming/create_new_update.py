@@ -34,7 +34,7 @@ from mitosheet.types import StepsManagerType
 
 def execute_{name}_update(steps_manager: StepsManagerType, {get_update_call_python_code_params(params)}) -> None:
     pass
-    # TODO: impement the function
+    # TODO: implement the function
 
 {capital_name}_UPDATE = {OPEN_BRACKET}
     'event_type': {capital_name}_EVENT,
