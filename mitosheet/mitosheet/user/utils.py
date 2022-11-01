@@ -105,19 +105,18 @@ def should_upgrade_mitosheet() -> bool:
     mitosheet_last_upgraded_date = datetime.strptime(last_upgraded_date_stored, '%Y-%m-%d')
     return (datetime.now() - mitosheet_last_upgraded_date).days > 21
 
-def is_excel_import_enabled() -> bool:
+def get_pandas_version() -> str:
     """
-    Returns true if Python > 3.6 is installed, and Pandas > 0.25.0 is installed,
-    as this is when openpyxl works.
-
-    See here: https://pandas.pydata.org/pandas-docs/dev/whatsnew/v0.25.0.html
+    Returns the pandas version
     """
-    from mitosheet.saved_analyses.schema_utils import is_prev_version
+    return pd.__version__
 
-    python_version_valid = sys.version_info.minor > 6
-    pandas_version_valid = not is_prev_version(pd.__version__, '0.25.0')
 
-    return python_version_valid and pandas_version_valid
+def get_python_version() -> int:
+    """
+    Returns the Python version
+    """
+    return sys.version_info.minor
 
 
 def check_pro_acccess_code(access_code: Optional[str]) -> bool:

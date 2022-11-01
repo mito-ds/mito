@@ -8,8 +8,10 @@ Contains tests for existing import update events.
 """
 import pandas as pd
 import os
+import json
+from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL
 from mitosheet.tests.test_utils import create_mito_wrapper, create_mito_wrapper_dfs
-from mitosheet.tests.decorators import pandas_post_1_only, python_post_3_6_only
+from mitosheet.tests.decorators import pandas_post_1_only, pandas_post_1_4_only, python_post_3_6_only
 
 TEST_EXCEL_FILE = 'excel_file.xlsx'
 TEST_CSV_FILE = 'csv_file.csv'
@@ -33,7 +35,7 @@ def test_overwrite_multiple_imports():
     # Create with no dataframes
     mito = create_mito_wrapper_dfs()
     # And then import three sheets from the excel file
-    mito.excel_import(TEST_EXCEL_FILE, ['Sheet1', 'Sheet2', 'Sheet3'], True, 0)
+    mito.excel_import(TEST_EXCEL_FILE, ['Sheet1', 'Sheet2', 'Sheet3'], True, 0, DEFAULT_DECIMAL)
 
     step_id = mito.curr_step.step_id
 
@@ -58,6 +60,7 @@ def test_overwrite_multiple_imports():
                         'sheet_names': ['Sheet3'],
                         'has_headers': True,
                         'skiprows': 0,
+                        'decimal': '.'
                     }
                 },
                 {
@@ -127,6 +130,10 @@ def test_replay_steps_correctly():
     # Make sure the updates occured correctly 
     assert mito.dfs[0].equals(pd.DataFrame({'Unnamed: 0': [0, 1, 2], 'A': [10, 20, 30], 'B': [10, 20, 30]}))
 
+    # Remove the test files
+    os.remove(TEST_CSV_FILE)
+    os.remove(TEST_CSV_FILE_TWO)
+
 def test_undo_works():
     # Make dataframes and files for test
     df1 = pd.DataFrame(data={'A': [1, 2, 3]})
@@ -165,6 +172,10 @@ def test_undo_works():
 
     # Make sure the updates occured correctly 
     assert mito.dfs[0].equals(pd.DataFrame({'Unnamed: 0': [0, 1, 2], 'A': [1, 2, 3], 'B': [1, 2, 3]}, index=[0, 1, 2]))
+
+    # Remove the test files
+    os.remove(TEST_CSV_FILE)
+    os.remove(TEST_CSV_FILE_TWO)
 
 
 def test_redo_works():
@@ -206,6 +217,10 @@ def test_redo_works():
     # Make sure the updates occured correctly 
     assert mito.dfs[0].equals(pd.DataFrame({'Unnamed: 0': [0, 1, 2], 'A': [1, 2, 3], 'B': [1, 2, 3]}, index=[0, 1, 2]))
 
+    # Remove the test files
+    os.remove(TEST_CSV_FILE)
+    os.remove(TEST_CSV_FILE_TWO)
+
 
 @pandas_post_1_only
 @python_post_3_6_only
@@ -219,7 +234,7 @@ def test_update_imports_is_atomic():
     
     # Create with no dataframes
     mito = create_mito_wrapper_dfs()
-    mito.excel_import(TEST_EXCEL_FILE, ['Sheet1'], True, 0)
+    mito.excel_import(TEST_EXCEL_FILE, ['Sheet1'], True, 0, DEFAULT_DECIMAL)
     mito.simple_import([TEST_CSV_FILE])
 
     mito.update_existing_imports([
@@ -246,6 +261,10 @@ def test_update_imports_is_atomic():
     assert mito.dfs[0].equals(df)
     assert mito.dfs[1].equals(df1)
 
+    # Remove the test files
+    os.remove(TEST_CSV_FILE)
+    os.remove(TEST_EXCEL_FILE)
+
 
 @pandas_post_1_only
 @python_post_3_6_only
@@ -261,7 +280,7 @@ def test_update_imports_with_multiple_imports_per_step():
     # Create with no dataframes
     mito = create_mito_wrapper_dfs()
     mito.simple_import([TEST_CSV_FILE, TEST_CSV_FILE])
-    mito.excel_import(TEST_EXCEL_FILE, ['Sheet1'], True, 0)
+    mito.excel_import(TEST_EXCEL_FILE, ['Sheet1'], True, 0, DEFAULT_DECIMAL)
 
     mito.update_existing_imports([
         {
@@ -295,6 +314,10 @@ def test_update_imports_with_multiple_imports_per_step():
     assert mito.dfs[0].equals(df1)
     assert mito.dfs[1].equals(df1)
     assert mito.dfs[2].equals(df1)
+
+    # Remove the test files
+    os.remove(TEST_CSV_FILE)
+    os.remove(TEST_EXCEL_FILE)
 
 
 @pandas_post_1_only
@@ -339,7 +362,8 @@ def test_test_import_returns_good_data():
                     'file_name': TEST_EXCEL_FILE,
                     'sheet_names': ['Sheet1'],
                     'has_headers': True,
-                    'skiprows': 0
+                    'skiprows': 0,
+                    'decimal': '.'
                 }
             }]
         },
@@ -351,7 +375,8 @@ def test_test_import_returns_good_data():
                     'file_name': 'fake_file',
                     'sheet_names': ['Sheet1'],
                     'has_headers': True,
-                    'skiprows': 0
+                    'skiprows': 0,
+                    'decimal': '.'
                 }
             }]
         },
@@ -379,6 +404,10 @@ def test_test_import_returns_good_data():
     assert result["3"] == 'fake_file does not exist.'
     assert result["5"] == DATAFRAME_IMPORT_ERROR
     assert len(result) == 3
+
+    # Remove the test files
+    os.remove(TEST_CSV_FILE)
+    os.remove(TEST_EXCEL_FILE)
 
 
 @pandas_post_1_only
@@ -432,3 +461,103 @@ def test_test_import_correct_index_for_multiple_items_in_one_step():
     assert result["3"] == 'no such file does not exist.'
     assert len(result) == 2
 
+    # Remove the test files
+    os.remove(TEST_CSV_FILE)
+    os.remove(TEST_EXCEL_FILE)
+
+
+@pandas_post_1_4_only
+@python_post_3_6_only
+def test_update_imports_replays_unchanged_files_correctly_from_steps():
+    # Make dataframes and files for test
+    df1 = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+    df2 = pd.DataFrame(data={'A': ['1,23', '2,0', '3,5'], 'B': [2, 3, 4]})
+    df2_result = pd.DataFrame(data={'A': [1.23, 2.0, 3.5], 'B': [2, 3, 4]})
+
+    encoding = 'utf-16'
+    df2.to_csv(TEST_CSV_FILE, index=False, sep=',', encoding=encoding)
+    with pd.ExcelWriter(TEST_EXCEL_FILE) as writer:  
+        df2.to_excel(writer, sheet_name='Sheet1', index=False)
+    
+    # Create with no dataframes
+    mito = create_mito_wrapper_dfs(df1)
+    mito.simple_import([TEST_CSV_FILE], [','], [encoding], [','], [0], [False])
+    mito.excel_import(TEST_EXCEL_FILE, ['Sheet1'], True, 0, ',')
+
+    # Test that all parameters are handled properly from get_imported_files_and_dataframes_from_current_steps
+    # by making sure that the dataframes are the same when the import configuration is not changed
+    from mitosheet.api.get_imported_files_and_dataframes_from_current_steps import get_imported_files_and_dataframes_from_current_steps
+    import_data = get_imported_files_and_dataframes_from_current_steps({}, mito.mito_widget.steps_manager)
+    
+    import_data_json = json.loads(import_data)
+    assert import_data_json[0]['imports'][0]['params']['file_names'] == [TEST_CSV_FILE]
+    assert import_data_json[0]['imports'][0]['params']['delimeters'] == [',']
+    assert import_data_json[0]['imports'][0]['params']['encodings'] == [encoding]
+    assert import_data_json[0]['imports'][0]['params']['decimals'] == [","]
+    assert import_data_json[0]['imports'][0]['params']['skiprows'] == [0]
+    assert import_data_json[0]['imports'][0]['params']['error_bad_lines'] == [False]
+
+    assert import_data_json[1]['imports'][0]['params']['file_name'] == TEST_EXCEL_FILE
+    assert import_data_json[1]['imports'][0]['params']['sheet_names'] == ['Sheet1']
+    assert import_data_json[1]['imports'][0]['params']['has_headers'] == True
+    assert import_data_json[1]['imports'][0]['params']['skiprows'] == 0
+    assert import_data_json[1]['imports'][0]['params']['decimal'] == ','
+
+    mito.update_existing_imports(import_data)
+
+    assert mito.dfs[0].equals(df1)
+    assert mito.dfs[1].equals(df2_result)
+    assert mito.dfs[2].equals(df2_result)
+
+    # Remove the test files
+    os.remove(TEST_CSV_FILE)
+    os.remove(TEST_EXCEL_FILE)
+
+
+@pandas_post_1_4_only
+@python_post_3_6_only
+def test_update_imports_replays_unchanged_files_correctly_from_analysis_name():
+    # Make dataframes and files for test
+    df1 = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+    df2 = pd.DataFrame(data={'A': ['1,23', '2,0', '3,5'], 'B': [2, 3, 4]})
+    df2_result = pd.DataFrame(data={'A': [1.23, 2.0, 3.5], 'B': [2, 3, 4]})
+
+    encoding = 'utf-16'
+    df2.to_csv(TEST_CSV_FILE, index=False, sep=',', encoding=encoding)
+    with pd.ExcelWriter(TEST_EXCEL_FILE) as writer:  
+        df2.to_excel(writer, sheet_name='Sheet1', index=False)
+    
+    # Create with no dataframes
+    mito = create_mito_wrapper_dfs(df1)
+    mito.simple_import([TEST_CSV_FILE], [','], [encoding], [','], [0], [False])
+    mito.excel_import(TEST_EXCEL_FILE, ['Sheet1'], True, 0, ',')
+
+    # Test that all parameters are handled properly from get_imported_files_and_dataframes_from_current_steps
+    # by making sure that the dataframes are the same when the import configuration is not changed
+    from mitosheet.api.get_imported_files_and_dataframes_from_analysis_name import get_imported_files_and_dataframes_from_analysis_name
+    import_data = get_imported_files_and_dataframes_from_analysis_name({'analysis_name': mito.mito_widget.analysis_name}, mito.mito_widget.steps_manager)
+
+    import_data_json = json.loads(import_data)
+    assert import_data_json[0]['imports'][0]['params']['file_names'] == [TEST_CSV_FILE]
+    assert import_data_json[0]['imports'][0]['params']['delimeters'] == [',']
+    assert import_data_json[0]['imports'][0]['params']['encodings'] == [encoding]
+    assert import_data_json[0]['imports'][0]['params']['decimals'] == [","]
+    assert import_data_json[0]['imports'][0]['params']['skiprows'] == [0]
+    assert import_data_json[0]['imports'][0]['params']['error_bad_lines'] == [False]
+
+    assert import_data_json[1]['imports'][0]['params']['file_name'] == TEST_EXCEL_FILE
+    assert import_data_json[1]['imports'][0]['params']['sheet_names'] == ['Sheet1']
+    assert import_data_json[1]['imports'][0]['params']['has_headers'] == True
+    assert import_data_json[1]['imports'][0]['params']['skiprows'] == 0
+    assert import_data_json[1]['imports'][0]['params']['decimal'] == ','
+
+    mito.update_existing_imports(import_data)
+    
+    assert mito.dfs[0].equals(df1)
+    assert mito.dfs[1].equals(df2_result)
+    assert mito.dfs[2].equals(df2_result)
+
+
+    # Remove the test files
+    os.remove(TEST_CSV_FILE)
+    os.remove(TEST_EXCEL_FILE)

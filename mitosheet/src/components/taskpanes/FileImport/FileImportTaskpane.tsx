@@ -101,6 +101,7 @@ function FileImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
             <XLSXImportConfigTaskpane
                 mitoAPI={props.mitoAPI}
                 analysisData={props.analysisData}
+                userProfile={props.userProfile}
                 setUIState={props.setUIState}
                 
                 fileName={importState.fileName}
