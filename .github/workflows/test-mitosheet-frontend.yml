@@ -9,6 +9,7 @@ on:
     branches: [ dev ]
     paths:
       - 'mitosheet/**'
+      - 'tests/**'
 
 jobs:
   test-mitosheet-frontend:
