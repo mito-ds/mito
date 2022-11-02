@@ -1,4 +1,4 @@
-The Mito Pro(the Pro License”)
+The Mito Enterprise license (the “Enterprise License”)
 Copyright (c) 2022 Saga Inc.
 
 With regard to the Mito Software:

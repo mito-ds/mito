@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL, DEFAULT_DELIMETER, DEFAULT_ENCODING, DEFAULT_ERROR_BAD_LINES, DEFAULT_SKIPROWS
 from mitosheet.data_in_mito import DataTypeInMito
-from mitosheet.mito_config import DEFAULT_SUPPORT_EMAIL, MEC_CONFIG_KEY_SUPPORT_EMAIL, MEC_CONFIG_KEY_VERSION, MitoConfig
+from mitosheet.enterprise.mito_config import DEFAULT_SUPPORT_EMAIL, MEC_CONFIG_KEY_SUPPORT_EMAIL, MEC_CONFIG_KEY_VERSION, MitoConfig
 from mitosheet.state import (
     DATAFRAME_SOURCE_DUPLICATED,
     DATAFRAME_SOURCE_IMPORTED,

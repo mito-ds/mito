@@ -7,7 +7,7 @@ import pandas as pd
 import pytest
 import json
 
-from mitosheet.mito_config import MEC_CONFIG_KEY_SUPPORT_EMAIL, MEC_CONFIG_KEY_VERSION, MitoConfig
+from mitosheet.enterprise.mito_config import MEC_CONFIG_KEY_SUPPORT_EMAIL, MEC_CONFIG_KEY_VERSION, MitoConfig
 
 
 def test_none_works():

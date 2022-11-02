@@ -22,7 +22,7 @@ from mitosheet.api import API
 from mitosheet.data_in_mito import DataTypeInMito
 from mitosheet.errors import (MitoError, get_recent_traceback,
                               make_execution_error)
-from mitosheet.mito_config import MitoConfig
+from mitosheet.enterprise.mito_config import MitoConfig
 from mitosheet.saved_analyses import write_analysis
 from mitosheet.steps_manager import StepsManager
 from mitosheet.telemetry.telemetry_utils import (MITOSHEET_HELPER_PRIVATE, log, log_event_processed,
