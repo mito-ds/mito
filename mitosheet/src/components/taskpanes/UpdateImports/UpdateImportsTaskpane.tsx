@@ -373,6 +373,7 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
             <XLSXImportConfigScreen
                 mitoAPI={props.mitoAPI}
                 analysisData={props.analysisData}
+                userProfile={props.userProfile}
                 setUIState={props.setUIState}
                 isUpdate={true}
             

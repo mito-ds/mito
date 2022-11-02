@@ -5,9 +5,10 @@
 # Distributed under the terms of the GPL License.
 import os
 import pandas as pd
+from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL
 
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
-from mitosheet.tests.decorators import pandas_post_1_only, python_post_3_6_only
+from mitosheet.tests.decorators import pandas_post_1_only, pandas_post_1_4_only, python_post_3_6_only
 
 TEST_FILE = 'file.xlsx'
 
@@ -20,7 +21,7 @@ def test_can_import_a_single_excel():
     # Create with no dataframes
     mito = create_mito_wrapper_dfs()
     # And then import just a test file
-    mito.excel_import(TEST_FILE, ['Sheet1'], True, 0)
+    mito.excel_import(TEST_FILE, ['Sheet1'], True, 0, DEFAULT_DECIMAL)
 
     # Make sure a step has been created, and that the dataframe is the correct dataframe
     assert mito.curr_step.step_type == 'excel_import'
@@ -40,7 +41,7 @@ def test_can_import_with_no_headers_and_skiprows():
     # Create with no dataframes
     mito = create_mito_wrapper_dfs()
     # And then import just a test file
-    mito.excel_import(TEST_FILE, ['Sheet1'], False, 2)
+    mito.excel_import(TEST_FILE, ['Sheet1'], False, 2, DEFAULT_DECIMAL)
 
     # Make sure a step has been created, and that the dataframe is the correct dataframe
     assert mito.curr_step.step_type == 'excel_import'
@@ -178,6 +179,23 @@ def test_remove_multiple_one_by_one_does_not_optimize_till_all_gone():
     mito.delete_dataframe(1)
 
     assert mito.transpiled_code == []
+
+    # Remove the test file
+    os.remove(TEST_FILE)
+
+
+@pandas_post_1_4_only
+@python_post_3_6_only
+def test_comma_decimal_excel_import():
+    df_comma = pd.DataFrame({'KG': ['267,88', '458,99', '125,89', '1,55', '1']}) 
+    df_result = pd.DataFrame({'KG': [267.88, 458.99, 125.89, 1.55, 1]}) 
+    with pd.ExcelWriter(TEST_FILE) as writer:  
+        df_comma.to_excel(writer, sheet_name='Sheet1', index=False)
+
+    mito = create_mito_wrapper_dfs()
+    mito.excel_import(TEST_FILE, ['Sheet1'], True, 0, ',')
+    
+    assert mito.dfs[0].equals(df_result)
 
     # Remove the test file
     os.remove(TEST_FILE)

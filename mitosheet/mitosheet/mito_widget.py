@@ -9,6 +9,7 @@ Main file containing the mito widget.
 """
 import json
 import os
+from sysconfig import get_python_version
 import time
 from typing import Any, Dict, List, Optional, Union
 
@@ -24,7 +25,7 @@ from mitosheet.errors import (MitoError, get_recent_traceback,
 from mitosheet.mito_config import MitoConfig
 from mitosheet.saved_analyses import write_analysis
 from mitosheet.steps_manager import StepsManager
-from mitosheet.telemetry.telemetry_utils import (MITOSHEET_HELPER_PRIVATE, log, log_event_processed,
+from mitosheet.telemetry.telemetry_utils import (log, log_event_processed,
                                                  telemetry_turned_on)
 from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
 from mitosheet.user import is_local_deployment, should_upgrade_mitosheet
@@ -32,8 +33,8 @@ from mitosheet.user.create import try_create_user_json_file
 from mitosheet.user.db import USER_JSON_PATH, get_user_field
 from mitosheet.user.location import is_in_google_colab, is_in_vs_code
 from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES, UJ_RECEIVED_CHECKLISTS,
-                                    UJ_RECEIVED_TOURS, UJ_STATIC_USER_ID, UJ_USER_EMAIL)
-from mitosheet.user.utils import is_excel_import_enabled, is_pro, is_running_test
+                                    UJ_RECEIVED_TOURS, UJ_USER_EMAIL)
+from mitosheet.user.utils import get_pandas_version, is_pro, is_running_test
 
 try:
     from mitosheet_helper_config import MITO_ENTERPRISE_CONFIGURATION 
@@ -108,7 +109,8 @@ class MitoWidget(DOMWidget):
             'isPro': is_pro(),
             'telemetryEnabled': telemetry_turned_on(),
             # Static over a single analysis
-            'excelImportEnabled': is_excel_import_enabled(),
+            'pythonVersion': get_python_version(),
+            'pandasVersion': get_pandas_version(),
             'isLocalDeployment': self.is_local_deployment,
             'shouldUpgradeMitosheet': self.should_upgrade_mitosheet,
             'numUsages': self.num_usages,

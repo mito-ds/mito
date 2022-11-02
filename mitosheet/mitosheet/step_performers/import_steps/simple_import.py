@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import chardet
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DELIMETER, DEFAULT_ENCODING, SimpleImportCodeChunk, get_read_csv_params
+from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL, DEFAULT_DELIMETER, DEFAULT_ENCODING, DEFAULT_ERROR_BAD_LINES, DEFAULT_SKIPROWS, SimpleImportCodeChunk, get_read_csv_params
 from mitosheet.step_performers.utils import get_param
 
 from mitosheet.utils import get_valid_dataframe_names
@@ -42,8 +42,9 @@ class SimpleImportStepPerformer(StepPerformer):
         file_names: List[str] = get_param(params, 'file_names')
         delimeters: Optional[List[str]] = get_param(params, 'delimeters')
         encodings: Optional[List[str]] = get_param(params, 'encodings')
+        decimals: Optional[List[str]] = get_param(params, 'decimals')
+        skiprows: Optional[List[int]] = get_param(params, 'skiprows')
         error_bad_lines: Optional[List[bool]] = get_param(params, 'error_bad_lines')
-
         use_deprecated_id_algorithm: bool = get_param(params, 'use_deprecated_id_algorithm') if get_param(params, 'use_deprecated_id_algorithm') else False
 
         # If any of the files are directories, we throw an error to let
@@ -57,6 +58,8 @@ class SimpleImportStepPerformer(StepPerformer):
 
         file_delimeters = []
         file_encodings = []
+        file_decimals = []
+        file_skiprows = []
         file_error_bad_lines = []
 
         just_final_file_names = [basename(normpath(file_name)) for file_name in file_names]
@@ -66,17 +69,32 @@ class SimpleImportStepPerformer(StepPerformer):
             
             partial_pandas_start_time = perf_counter()
 
-            # NOTE: if you specify one, specify them all!
             try:
-                if delimeters is not None and encodings is not None and error_bad_lines is not None:
+                # We try to read the csv with the parameters that the user specified. 
+                # If the user has not specified parameters, then its because they did not go to the csv configure page, and instead
+                # are using Mito's defaults. In this case, we're able to make educated guesses for the delimiter and encoding, and use pandas defaults
+                # for the remainder of the parameters. 
+                if delimeters is not None and encodings is not None:
                     delimeter = delimeters[index]
                     encoding = encodings[index]
-                    _error_bad_lines = error_bad_lines[index]
-                    df = pd.read_csv(file_name, **get_read_csv_params(delimeter, encoding, _error_bad_lines))
+                    
+                    # Given the Mito UI, we expect that if the user has specified the delimiter and ecoding, 
+                    # that the rest of the parameters are also defined. The only time that is not the case is when 
+                    # the user is replaying an old simple import that does not have these fields. To account for that, 
+                    # we just handle the None case here. This makes it easy to add new parameters without having to write 
+                    # step upgraders. 
+                    # This approach of handling optional step params instead of writing a step upgrader is also used in graphs.
+                    decimal = decimals[index] if decimals is not None else DEFAULT_DECIMAL
+                    _skiprows = skiprows[index] if skiprows is not None else DEFAULT_SKIPROWS
+                    _error_bad_lines = error_bad_lines[index] if error_bad_lines is not None else DEFAULT_ERROR_BAD_LINES
+                    df = pd.read_csv(file_name, **get_read_csv_params(delimeter, encoding, decimal, _skiprows, _error_bad_lines))
                     pandas_processing_time += (perf_counter() - partial_pandas_start_time)
                 else:
-                    df, delimeter, encoding = read_csv_get_delimeter_and_encoding(file_name)
-                    _error_bad_lines = True
+                    # If the user does not specify the delimiter and encoding, then we guess them and use default values for everything else.
+                    df, delimeter, encoding = read_csv_get_delimiter_and_encoding(file_name)
+                    decimal = DEFAULT_DECIMAL
+                    _skiprows = DEFAULT_SKIPROWS
+                    _error_bad_lines = DEFAULT_ERROR_BAD_LINES
                     pandas_processing_time += (perf_counter() - partial_pandas_start_time)
             except:
                 if os.path.exists(file_name):
@@ -87,8 +105,10 @@ class SimpleImportStepPerformer(StepPerformer):
             # Save the delimeter and encodings for transpiling
             file_delimeters.append(delimeter)
             file_encodings.append(encoding)
+            file_decimals.append(decimal)
+            file_skiprows.append(_skiprows)
             file_error_bad_lines.append(_error_bad_lines)
-
+            
             post_state.add_df_to_state(
                 df, 
                 DATAFRAME_SOURCE_IMPORTED, 
@@ -101,6 +121,8 @@ class SimpleImportStepPerformer(StepPerformer):
         return post_state, {
             'file_delimeters': file_delimeters,
             'file_encodings': file_encodings,
+            'file_decimals': file_decimals,
+            'file_skiprows': file_skiprows,
             'file_error_bad_lines': file_error_bad_lines,
             'pandas_processing_time': pandas_processing_time
         }
@@ -124,10 +146,10 @@ class SimpleImportStepPerformer(StepPerformer):
 
 
 
-def read_csv_get_delimeter_and_encoding(file_name: str) -> Tuple[pd.DataFrame, str, str]:
+def read_csv_get_delimiter_and_encoding(file_name: str) -> Tuple[pd.DataFrame, str, str]:
     """
     Given a file_name, will read in the file as a CSV, and
-    return the df, delimeter, and encoding of the file
+    return the df, delimeter, decimal separator, and encoding of the file
     """
     encoding = DEFAULT_ENCODING
     delimeter = DEFAULT_DELIMETER

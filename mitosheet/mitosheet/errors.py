@@ -498,7 +498,7 @@ def make_invalid_simple_import_error(error_modal: bool=False) -> MitoError:
 
     Occurs when a user tries to simple import and it fails
     """
-    to_fix = f'We were unable to automatically determine a delimiter and encoding. Update import to select a delimiter and encoding.' 
+    to_fix = f'We were unable to automatically determine the import configurations, like delimiter and encoding. Update the import configuration.' 
     
     return MitoError(
         'invalid_simple_import_error', 
