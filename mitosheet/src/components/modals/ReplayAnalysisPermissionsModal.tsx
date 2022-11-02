@@ -99,6 +99,8 @@ const ReplayAnalysisPermissionsModal = (
                                 props.potentialNewAnalysisName,
                                 props.mitoAPI
                             )
+
+                            void props.mitoAPI.log('clicked_start_new_analysis_from_replay_analysis_permissions_modal')
                             
                             props.setUIState((prevUIState) => {
                                 return {
@@ -114,6 +116,8 @@ const ReplayAnalysisPermissionsModal = (
                         variant='dark'
                         width='medium'
                         onClick={async () => {  
+                            void props.mitoAPI.log('clicked_trust_analysis')
+
                             const replayAnalysisError = await props.mitoAPI.updateReplayAnalysis(props.analysisName, props.analysis, undefined, true);
 
                             if (isMitoError(replayAnalysisError)) {
