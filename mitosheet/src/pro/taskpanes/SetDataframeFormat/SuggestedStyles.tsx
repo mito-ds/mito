@@ -1,14 +1,14 @@
 import React from 'react';
-import { DataframeFormat, RecursivePartial } from '../../types';
-import { HEADER_TEXT_COLOR_DEFAULT } from '../../components/endo/ColumnHeader';
-import { EVEN_ROW_TEXT_COLOR_DEFAULT, ODD_ROW_TEXT_COLOR_DEFAULT } from '../../components/endo/GridData';
-import SuggestedStyle1Icon from '../../components/icons/SuggestedStyle1Icon';
-import SuggestedStyle2Icon from '../../components/icons/SuggestedStyle2Icon';
-import SuggestedStyle3Icon from '../../components/icons/SuggestedStyle3Icon';
-import SuggestedStyle4Icon from '../../components/icons/SuggestedStyle4Icon';
-import SuggestedStyle5Icon from '../../components/icons/SuggestedStyle5Icon';
-import Col from '../../components/layout/Col';
-import Row from '../../components/layout/Row';
+import { DataframeFormat, RecursivePartial } from '../../../types';
+import { HEADER_TEXT_COLOR_DEFAULT } from '../../../components/endo/ColumnHeader';
+import { EVEN_ROW_TEXT_COLOR_DEFAULT, ODD_ROW_TEXT_COLOR_DEFAULT } from '../../../components/endo/GridData';
+import SuggestedStyle1Icon from '../../../components/icons/SuggestedStyle1Icon';
+import SuggestedStyle2Icon from '../../../components/icons/SuggestedStyle2Icon';
+import SuggestedStyle3Icon from '../../../components/icons/SuggestedStyle3Icon';
+import SuggestedStyle4Icon from '../../../components/icons/SuggestedStyle4Icon';
+import SuggestedStyle5Icon from '../../../components/icons/SuggestedStyle5Icon';
+import Col from '../../../components/layout/Col';
+import Row from '../../../components/layout/Row';
 
 
 const SuggestedStyles = (props: {

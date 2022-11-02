@@ -1,23 +1,23 @@
 import React from 'react';
-import { ColumnID, ConditionalFormat, DataframeFormat, FilterType, RecursivePartial, SheetData } from '../../types';
-import '../../../css/taskpanes/ConditionalFormatting/ConditionalFormattingCard.css'
-import Row from '../../components/layout/Row';
-import Col from '../../components/layout/Col';
-import XIcon from '../../components/icons/XIcon';
-import { Filter } from '../../components/taskpanes/ControlPanel/FilterAndSortTab/filter/Filter';
-import MultiToggleBox from '../../components/elements/MultiToggleBox';
-import MultiToggleItem from '../../components/elements/MultiToggleItem';
-import { getDisplayColumnHeader, getFirstCharactersOfColumnHeaders } from '../../utils/columnHeaders';
-import { getDtypeValue } from '../../components/taskpanes/ControlPanel/FilterAndSortTab/DtypeCard';
-import { addIfAbsent, removeIfPresent, toggleInArray } from '../../utils/arrays';
-import LabelAndColor from '../graph/LabelAndColor';
-import { ODD_ROW_BACKGROUND_COLOR_DEFAULT, ODD_ROW_TEXT_COLOR_DEFAULT } from '../../components/endo/GridData';
-import { ALL_SELECT_OPTIONS, NUMBER_SELECT_OPTIONS } from '../../components/taskpanes/ControlPanel/FilterAndSortTab/filter/filterConditions';
-import { capitalizeFirstLetter } from '../../utils/strings';
-import ConditionalFormatIcon from '../../components/icons/ConditionalFormatIcon';
-import ConditionalFormatInvalidIcon from '../../components/icons/ConditionalFormatInvalidIcon';
-import UpArrowIcon from '../../components/icons/UpArrowIcon';
-import DownArrowIcon from '../../components/icons/DownArrowIcon';
+import { ColumnID, ConditionalFormat, DataframeFormat, FilterType, RecursivePartial, SheetData } from '../../../types';
+import '../../../../css/taskpanes/ConditionalFormatting/ConditionalFormattingCard.css'
+import Row from '../../../components/layout/Row';
+import Col from '../../../components/layout/Col';
+import XIcon from '../../../components/icons/XIcon';
+import { Filter } from '../../../components/taskpanes/ControlPanel/FilterAndSortTab/filter/Filter';
+import MultiToggleBox from '../../../components/elements/MultiToggleBox';
+import MultiToggleItem from '../../../components/elements/MultiToggleItem';
+import { getDisplayColumnHeader, getFirstCharactersOfColumnHeaders } from '../../../utils/columnHeaders';
+import { getDtypeValue } from '../../../components/taskpanes/ControlPanel/FilterAndSortTab/DtypeCard';
+import { addIfAbsent, removeIfPresent, toggleInArray } from '../../../utils/arrays';
+import LabelAndColor from '../../graph/LabelAndColor';
+import { ODD_ROW_BACKGROUND_COLOR_DEFAULT, ODD_ROW_TEXT_COLOR_DEFAULT } from '../../../components/endo/GridData';
+import { ALL_SELECT_OPTIONS, NUMBER_SELECT_OPTIONS } from '../../../components/taskpanes/ControlPanel/FilterAndSortTab/filter/filterConditions';
+import { capitalizeFirstLetter } from '../../../utils/strings';
+import ConditionalFormatIcon from '../../../components/icons/ConditionalFormatIcon';
+import ConditionalFormatInvalidIcon from '../../../components/icons/ConditionalFormatInvalidIcon';
+import UpArrowIcon from '../../../components/icons/UpArrowIcon';
+import DownArrowIcon from '../../../components/icons/DownArrowIcon';
 
 
 
