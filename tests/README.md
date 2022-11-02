@@ -5,14 +5,18 @@ To setup, run
 bash dev-setup.sh
 ```
 
+Then start the virtual enviornment by running:
+```
+source venv/bin/activate
+```
 ## Running tests
 
-Run
+Run 
 ```
 jupyter lab --config jupyter_server_test_config.py
 ```
 
-And then run
+And then in a separate terminal run 
 ```
 jlpm playwright test
 ```
