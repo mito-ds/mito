@@ -32,7 +32,7 @@ from mitosheet.saved_analyses.step_upgraders.merge import (
     upgrade_merge_1_to_merge_2, upgrade_merge_2_to_3, upgrade_merge_3_to_4)
 from mitosheet.saved_analyses.step_upgraders.pivot import (
     upgrade_group_1_to_pivot_2, upgrade_pivot_2_to_pivot_3,
-    upgrade_pivot_3_to_4, upgrade_pivot_4_to_5_and_rename, upgrade_pivot_5_to_6)
+    upgrade_pivot_3_to_4, upgrade_pivot_4_to_5_and_rename, upgrade_pivot_5_to_6, upgrade_pivot_6_to_7)
 from mitosheet.saved_analyses.step_upgraders.rename_column import \
     upgrade_rename_column_1_to_2
 from mitosheet.saved_analyses.step_upgraders.reorder_column import \
@@ -100,7 +100,8 @@ STEP_UPGRADES_FUNCTION_MAPPING_NEW_FORMAT = {
     'pivot': {
         3: upgrade_pivot_3_to_4,
         4: upgrade_pivot_4_to_5_and_rename,
-        5: upgrade_pivot_5_to_6
+        5: upgrade_pivot_5_to_6,
+        6: upgrade_pivot_6_to_7
     },
     'rename_column': {
         1: upgrade_rename_column_1_to_2

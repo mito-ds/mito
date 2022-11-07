@@ -42,7 +42,7 @@ class PivotStepPerformer(StepPerformer):
 
     @classmethod
     def step_version(cls) -> int:
-        return 6
+        return 7
 
     @classmethod
     def step_type(cls) -> str:
