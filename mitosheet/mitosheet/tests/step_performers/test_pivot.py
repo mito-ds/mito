@@ -16,7 +16,7 @@ from mitosheet.step_performers.graph_steps.graph_utils import BAR
 from mitosheet.step_performers.sort import SORT_DIRECTION_ASCENDING
 from mitosheet.tests.decorators import pandas_post_1_only, pandas_pre_1_only
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
-from mitosheet.types import PivotFilterColumnHeader
+from mitosheet.types import FilterOnColumnHeader
 from mitosheet.saved_analyses import read_and_upgrade_analysis
 
 
@@ -350,11 +350,11 @@ def test_edit_pivot_table_then_delete_optimizes():
     mito.delete_dataframe(1)
     assert len(mito.transpiled_code) == 0
 
-def test_pivot_table_with_pivot_filters_saves():
+def test_pivot_table_with_pivot_filters_():
     df = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
     mito = create_mito_wrapper_dfs(df)
 
-    pivot_filters: List[PivotFilterColumnHeader] = [
+    pivot_filters: List[FilterOnColumnHeader] = [
             {'column_header': 'Name', 
             'filter': {
                 'condition': FC_STRING_CONTAINS,
@@ -367,6 +367,8 @@ def test_pivot_table_with_pivot_filters_saves():
     # Check the saved analysis to make sure it's stored
     analysis = read_and_upgrade_analysis(mito.mito_widget.analysis_name)
     assert analysis is not None and len(analysis['steps_data'][0]['params']['pivot_filters']) == 1
+
+    assert len(mito.dfs[1]) ==0 and mito.dfs[1].columns.to_list() == ['Name']
     
 
     

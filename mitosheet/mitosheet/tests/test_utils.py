@@ -19,7 +19,7 @@ import pandas as pd
 from mitosheet.mito_widget import MitoWidget, sheet
 from mitosheet.parser import parse_formula
 from mitosheet.transpiler.transpile import transpile
-from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat, GraphID, MultiLevelColumnHeader, PivotFilter, PivotFilterColumnHeader
+from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat, GraphID, MultiLevelColumnHeader, FilterOnColumnID, FilterOnColumnHeader
 from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id
 
 
@@ -542,7 +542,7 @@ class MitoWidgetTestWrapper:
             pivot_rows: List[ColumnHeader],
             pivot_columns: List[ColumnHeader],
             values: Dict[ColumnHeader, List[str]],
-            pivot_filters: Optional[List[PivotFilterColumnHeader]]=None,
+            pivot_filters: Optional[List[FilterOnColumnHeader]]=None,
             flatten_column_headers: bool=True,
             destination_sheet_index: Optional[int]=None,
             step_id: Optional[str]=None
@@ -563,7 +563,7 @@ class MitoWidgetTestWrapper:
             for column_header, value in values.items()
         }
 
-        pivot_filters_ids: List[PivotFilter] = [
+        pivot_filters_ids: List[FilterOnColumnID] = [
             {'column_id': get_column_id_by_header(sheet_index, pf['column_header']), 'filter': pf['filter']} 
             for pf in pivot_filters
         ] if pivot_filters is not None else []

@@ -69,13 +69,18 @@ import sys
 if sys.version_info[:3] > (3, 8, 0):
     from typing import TypedDict
 
-    class PivotFilter(TypedDict):
+    class FilterOnColumnID(TypedDict):
         column_id: ColumnID
-        filter: Any
+        filter: Dict[str, Any]
 
-    class PivotFilterColumnHeader(TypedDict):
+    class FilterOnColumnHeader(TypedDict):
         column_header: ColumnHeader
-        filter: Any
+        filter: Dict[str, Any]
+
+    class FiltersOnColumnID(TypedDict):
+        column_id: Optional[ColumnID]
+        filters: List[Dict[str, Any]]
 else:
-    PivotFilter = Any
-    PivotFilterColumnHeader = Any
+    FilterOnColumnID = Any # type:ignore
+    FilterOnColumnHeader = Any # type:ignore
+    FiltersOnColumnID = Any # type:ignore
