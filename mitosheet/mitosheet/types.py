@@ -12,6 +12,7 @@ explicit and clear, and make sure to test the types in our
 continous integration
 """
 
+from collections import namedtuple
 from typing import TYPE_CHECKING, Dict, List, Optional, Union, Tuple, Any
 
 GraphID = str
@@ -63,3 +64,18 @@ ConditionalFormattingResult = Dict[str, Union[
     ]
 ]
 
+
+import sys
+if sys.version_info[:3] > (3, 8, 0):
+    from typing import TypedDict
+
+    class PivotFilter(TypedDict):
+        column_id: ColumnID
+        filter: Any
+
+    class PivotFilterColumnHeader(TypedDict):
+        column_header: ColumnHeader
+        filter: Any
+else:
+    PivotFilter = Any
+    PivotFilterColumnHeader = Any

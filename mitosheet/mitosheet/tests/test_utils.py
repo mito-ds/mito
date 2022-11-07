@@ -19,7 +19,7 @@ import pandas as pd
 from mitosheet.mito_widget import MitoWidget, sheet
 from mitosheet.parser import parse_formula
 from mitosheet.transpiler.transpile import transpile
-from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat, GraphID, MultiLevelColumnHeader
+from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat, GraphID, MultiLevelColumnHeader, PivotFilter, PivotFilterColumnHeader
 from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id
 
 
@@ -542,23 +542,31 @@ class MitoWidgetTestWrapper:
             pivot_rows: List[ColumnHeader],
             pivot_columns: List[ColumnHeader],
             values: Dict[ColumnHeader, List[str]],
+            pivot_filters: Optional[List[PivotFilterColumnHeader]]=None,
             flatten_column_headers: bool=True,
-            destination_sheet_index: int=None,
-            step_id: str=None
+            destination_sheet_index: Optional[int]=None,
+            step_id: Optional[str]=None
         ) -> bool:
 
+        get_column_id_by_header = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header
+
         rows_ids = [
-            self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index, column_header)
+            get_column_id_by_header(sheet_index, column_header)
             for column_header in pivot_rows
         ]
         columns_ids = [
-            self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index, column_header)
+            get_column_id_by_header(sheet_index, column_header)
             for column_header in pivot_columns
         ]
         values_column_ids_map = {
-            self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index, column_header): value
+            get_column_id_by_header(sheet_index, column_header): value
             for column_header, value in values.items()
         }
+
+        pivot_filters_ids: List[PivotFilter] = [
+            {'column_id': get_column_id_by_header(sheet_index, pf['column_header']), 'filter': pf['filter']} 
+            for pf in pivot_filters
+        ] if pivot_filters is not None else []
 
         return self.mito_widget.receive_message(
             self.mito_widget,
@@ -573,6 +581,7 @@ class MitoWidgetTestWrapper:
                     'pivot_columns_column_ids': columns_ids,
                     'values_column_ids_map': values_column_ids_map,
                     'destination_sheet_index': destination_sheet_index,
+                    'pivot_filters': pivot_filters_ids,
                     'flatten_column_headers': flatten_column_headers
                 }
             }
