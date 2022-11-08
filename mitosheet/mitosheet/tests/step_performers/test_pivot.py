@@ -401,7 +401,7 @@ PIVOT_FILTER_TESTS: List[Any] = [
     # Filter work with multiple aggregation methods
     (
         pd.DataFrame(data={'Name': ['Nate', 'bork'], 'Height': [4, 5]}),
-        ['Name'], [], {'Height': ['sum', 'mean']}, 
+        ['Name'], [], {'Height': ['sum', 'max']}, 
         [
             {
                 'column_header': 'Name', 
@@ -411,12 +411,12 @@ PIVOT_FILTER_TESTS: List[Any] = [
                 }
             }
         ],
-        pd.DataFrame({'Name': ['bork'], 'Height mean': [5.0], 'Height sum': [5]})
+        pd.DataFrame({'Name': ['bork'], 'Height max': [5], 'Height sum': [5]})
     ),
     # Filter works on multiple columns of same type, AND is true
     (
         pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Last': ['Rush', 'Diamond'], 'Height': [4, 5]}),
-        ['Name'], [], {'Height': ['sum', 'mean']}, 
+        ['Name'], [], {'Height': ['sum', 'max']}, 
         [
             {
                 'column_header': 'Name', 
@@ -433,12 +433,12 @@ PIVOT_FILTER_TESTS: List[Any] = [
                 }
             },
         ],
-        pd.DataFrame({'Name': ['Nate'], 'Height mean': [4.0], 'Height sum': [4]})
+        pd.DataFrame({'Name': ['Nate'], 'Height max': [4], 'Height sum': [4]})
     ),
     # Filter works on multiple columns of same type, AND is false
     (
         pd.DataFrame(data={'Name': ['Nate', 'Jake'], 'Last': ['Rush', 'Diamond'], 'Height': [4, 5]}),
-        ['Name'], [], {'Height': ['sum', 'mean']}, 
+        ['Name'], [], {'Height': ['sum', 'max']}, 
         [
             {
                 'column_header': 'Name', 
@@ -460,7 +460,7 @@ PIVOT_FILTER_TESTS: List[Any] = [
     # Filter works on multiple columns with different types, AND is true
     (
         pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Age': [1, 2], 'Height': [4, 5]}),
-        ['Name'], [], {'Height': ['sum', 'mean']}, 
+        ['Name'], [], {'Height': ['sum', 'max']}, 
         [
             {
                 'column_header': 'Name', 
@@ -477,12 +477,12 @@ PIVOT_FILTER_TESTS: List[Any] = [
                 }
             },
         ],
-        pd.DataFrame({'Name': ['Nate'], 'Height mean': [4.0], 'Height sum': [4]})
+        pd.DataFrame({'Name': ['Nate'], 'Height max': [4], 'Height sum': [4]})
     ),
     # Filter works on multiple columns with different types, AND is false
     (
         pd.DataFrame(data={'Name': ['Nate', 'Jake'], 'Age': [1, 2], 'Height': [4, 5]}),
-        ['Name'], [], {'Height': ['sum', 'mean']}, 
+        ['Name'], [], {'Height': ['sum', 'max']}, 
         [
             {
                 'column_header': 'Name', 
@@ -504,7 +504,7 @@ PIVOT_FILTER_TESTS: List[Any] = [
     # String condition
     (
         pd.DataFrame(data={'Name': ['Nate', 'Jake'], 'Age': [1, 2], 'Is Cool': [True, False], 'DOB': pd.to_datetime(['1-1-2000', '1-1-1999']), 'Height': [4, 5]}),
-        ['Name'], [], {'Height': ['sum', 'mean']}, 
+        ['Name'], [], {'Height': ['sum', 'max']}, 
         [
             {
                 'column_header': 'Name', 
@@ -514,12 +514,12 @@ PIVOT_FILTER_TESTS: List[Any] = [
                 }
             },
         ],
-        pd.DataFrame({'Name': ['Nate'], 'Height mean': [4.0], 'Height sum': [4]})
+        pd.DataFrame({'Name': ['Nate'], 'Height max': [4], 'Height sum': [4]})
     ),
     # Number condition
     (
         pd.DataFrame(data={'Name': ['Nate', 'Jake'], 'Age': [1, 2], 'Is Cool': [True, False], 'DOB': pd.to_datetime(['1-1-2000', '1-1-1999']), 'Height': [4, 5]}),
-        ['Name'], [], {'Height': ['sum', 'mean']}, 
+        ['Name'], [], {'Height': ['sum', 'max']}, 
         [
             {
                 'column_header': 'Age', 
@@ -529,12 +529,12 @@ PIVOT_FILTER_TESTS: List[Any] = [
                 }
             },
         ],
-        pd.DataFrame({'Name': ['Nate'], 'Height mean': [4.0], 'Height sum': [4]})
+        pd.DataFrame({'Name': ['Nate'], 'Height max': [4], 'Height sum': [4]})
     ),
     # Boolean condition
     (
         pd.DataFrame(data={'Name': ['Nate', 'Jake'], 'Age': [1, 2], 'Is Cool': [True, False], 'DOB': pd.to_datetime(['1-1-2000', '1-1-1999']), 'Height': [4, 5]}),
-        ['Name'], [], {'Height': ['sum', 'mean']}, 
+        ['Name'], [], {'Height': ['sum', 'max']}, 
         [
             {
                 'column_header': 'Is Cool', 
@@ -544,12 +544,12 @@ PIVOT_FILTER_TESTS: List[Any] = [
                 }
             },
         ],
-        pd.DataFrame({'Name': ['Nate'], 'Height mean': [4.0], 'Height sum': [4]})
+        pd.DataFrame({'Name': ['Nate'], 'Height max': [4], 'Height sum': [4]})
     ),
     # Datetime condition
     (
         pd.DataFrame(data={'Name': ['Nate', 'Jake'], 'Age': [1, 2], 'Is Cool': [True, False], 'DOB': pd.to_datetime(['1-1-2000', '1-1-1999']), 'Height': [4, 5]}),
-        ['Name'], [], {'Height': ['sum', 'mean']}, 
+        ['Name'], [], {'Height': ['sum', 'max']}, 
         [
             {
                 'column_header': 'DOB', 
@@ -559,7 +559,7 @@ PIVOT_FILTER_TESTS: List[Any] = [
                 }
             },
         ],
-        pd.DataFrame({'Name': ['Nate'], 'Height mean': [4.0], 'Height sum': [4]})
+        pd.DataFrame({'Name': ['Nate'], 'Height max': [4], 'Height sum': [4]})
     ),
     # Anything else?
 ]
@@ -572,6 +572,8 @@ def test_pivot_filter(original_df, pivot_rows, pivot_columns, values, pivot_filt
     # For some reason, we need to check if dataframes are equal differently if
     # they are empty, due to bugs in pandas .equals
     if len(pivoted_df) > 0:
+        print(mito.dfs[1])
+        print(pivoted_df)
         assert mito.dfs[1].equals(pivoted_df)
     else:
         assert len(mito.dfs[1]) == 0
