@@ -7,8 +7,6 @@
 from typing import Any, Dict, Optional
 import os
 
-# These variables must match the variables defined in 
-# mito_config.py of the mitosheet_helper_config package.
 # Note: Do not change these keys, we need them for looking up 
 # the environment variables from previous mito_config_versions.
 MITO_CONFIG_VERSION_KEY = 'MITO_CONFIG_VERSION'
@@ -19,7 +17,7 @@ DEFAULT_SUPPORT_EMAIL = 'founders@sagacollab.com'
 
 # When updating the MEC_VERSION, add a function here 
 # to update the previous mec to the new version. For example, 
-# if mec_version=3, mec_upgrade_functions should look like:
+# if mec_version='3', mec_upgrade_functions should look like:
 # {
 #    '1': upgrade_mec_1_to_2,
 #    '2': upgrade_mec_2_to_3
@@ -62,20 +60,17 @@ def create_mec_from_environment_variables() -> Optional[Dict[str, Any]]:
 class MitoConfig:
     """
     The MitoConfig class is repsonsible for 1) reading the settings from the 
-    mito_helper_config package if it is installed and 2) returning the configuration variables
+    environment variables 2) returning them as a mito_enterprise_configuration object
     used by the rest of the app. 
 
-    If the mito_helper_configuration package does not exist or does not set every configuration option, 
+    If the enviornment variables does not exist or does not set every configuration option, 
     the MitoConfig class sets defaults. 
-
-    See https://github.com/mito-ds/mitosheet_helper_config/blob/main/mitosheet_helper_config/README.md for
-    information about developing with the mito_helper_config package.
     """
     def __init__(self):
         mito_enterprise_configuration: Optional[Dict[str, Any]] = create_mec_from_environment_variables()
         self.mec = upgrade_mito_enterprise_configuration(mito_enterprise_configuration)
 
-    def get_version(self) -> Optional[int] :
+    def get_version(self) -> Optional[int]:
         if self.mec is None:
             return '1' # NOTE: update this to be the most recent version, when we bump the version
         return self.mec[MITO_CONFIG_VERSION_KEY]
