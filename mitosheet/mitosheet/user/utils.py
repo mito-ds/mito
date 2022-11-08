@@ -33,9 +33,9 @@ def is_running_test() -> bool:
     inside of a test, which is useful for making sure we don't generate 
     tons of logs.
     """
-    # Pytest injects PYTEST_CURRENT_TEST into the current enviornment when running
+    # Pytest injects PYTEST_CURRENT_TEST into the current environment when running
     running_pytests = "PYTEST_CURRENT_TEST" in os.environ
-    # Github injects CI into the enviornment when running
+    # Github injects CI into the environment when running
     running_ci = 'CI' in os.environ and os.environ['CI'] is not None
 
     return running_pytests or running_ci

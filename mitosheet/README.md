@@ -31,7 +31,7 @@ jupyter lab
 
 ### For Windows
 
-First, delete any existing virtual enviornment that you have in this folder, and create a new virtual enviornment. 
+First, delete any existing virtual environment that you have in this folder, and create a new virtual environment. 
 
 On Windows (in command prompt, not powershell):
 ```
@@ -60,7 +60,7 @@ npm install
 jlpm run watch
 ```
 
-NOTE: On Windows, this seperate terminal _must_ be a Adminstrator terminal. To launch an admin terminal, search for Command Prompt, and then right click on the app and click Run as adminstrator. Then navigate to the virtual enviornment, start it, and then run `jlpm run watch`. 
+NOTE: On Windows, this seperate terminal _must_ be a Adminstrator terminal. To launch an admin terminal, search for Command Prompt, and then right click on the app and click Run as adminstrator. Then navigate to the virtual environment, start it, and then run `jlpm run watch`. 
 
 Furthermore, if the final `jlpm run watch` or `npm install` command fails, you may need to run `export NODE_OPTIONS=--openssl-legacy-provider`. 
 
@@ -83,7 +83,7 @@ deactivate; rm -rf venv; python3 -m venv venv && source venv/bin/activate && pyt
 
 ## Mitosheet with JupyterLab 2.0
 
-First, delete any existing virtual enviornment that you have in this folder, and create a new virtual enviornment.
+First, delete any existing virtual environment that you have in this folder, and create a new virtual environment.
 
 On Mac:
 ```

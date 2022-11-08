@@ -1,5 +1,5 @@
 """
-The switch.py package is responsible for switching the enviornment
+The switch.py package is responsible for switching the environment
 between mitosheet, mitosheet2, and mitosheet3. Usage is:
 ```
 python switch.py [mitosheet | mitosheet2 | mitosheet3]

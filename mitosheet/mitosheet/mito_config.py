@@ -63,14 +63,14 @@ class MitoConfig:
     environment variables 2) returning them as a mito_enterprise_configuration object
     used by the rest of the app. 
 
-    If the enviornment variables does not exist or does not set every configuration option, 
+    If the environment variables does not exist or does not set every configuration option, 
     the MitoConfig class sets defaults. 
     """
     def __init__(self):
         mito_enterprise_configuration: Optional[Dict[str, Any]] = create_mec_from_environment_variables()
         self.mec = upgrade_mito_enterprise_configuration(mito_enterprise_configuration)
 
-    def get_version(self) -> Optional[int]:
+    def get_version(self) -> Optional[str]:
         if self.mec is None:
             return '1' # NOTE: update this to be the most recent version, when we bump the version
         return self.mec[MITO_CONFIG_VERSION_KEY]
