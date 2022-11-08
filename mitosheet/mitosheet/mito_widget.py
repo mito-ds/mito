@@ -36,11 +36,6 @@ from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES, UJ_RECEIVED_
                                     UJ_RECEIVED_TOURS, UJ_USER_EMAIL)
 from mitosheet.user.utils import get_pandas_version, is_pro, is_running_test
 
-try:
-    from mitosheet_helper_config import MITO_ENTERPRISE_CONFIGURATION 
-except ImportError:
-    MITO_ENTERPRISE_CONFIGURATION = None
-
 
 class MitoWidget(DOMWidget):
     """
@@ -69,7 +64,7 @@ class MitoWidget(DOMWidget):
         # Set up the state container to hold private widget state
         self.steps_manager = StepsManager(args, analysis_to_replay=analysis_to_replay)
 
-        self.mito_config = MitoConfig(MITO_ENTERPRISE_CONFIGURATION)
+        self.mito_config = MitoConfig()
 
         # Set up message handler
         self.on_msg(self.receive_message)

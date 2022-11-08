@@ -1,7 +1,7 @@
 #!/bin/bash -eu
 
 # realinstall.sh: this is a script that you can run from anywhere on your 
-# computer, and it will create a new folder, a clean virtual enviornment,
+# computer, and it will create a new folder, a clean virtual environment,
 # and install the `mitosheet` package on it. 
 
 # Create a folder name
