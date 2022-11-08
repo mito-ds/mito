@@ -5,11 +5,14 @@
 # Distributed under the terms of the GPL License.
 
 from typing import Any, Dict, Optional
+import os
 
 # These variables must match the variables defined in 
-# mito_config.py of the mitosheet_helper_config package
-MEC_CONFIG_KEY_VERSION = 'mec_version'
-MEC_CONFIG_KEY_SUPPORT_EMAIL = 'support_email'
+# mito_config.py of the mitosheet_helper_config package.
+# Note: Do not change these keys, we need them for looking up 
+# the environment variables from previous mito_config_versions.
+MITO_CONFIG_VERSION_KEY = 'MITO_CONFIG_VERSION'
+MITO_CONFIG_SUPPORT_EMAIL_KEY = 'MITO_CONFIG_SUPPORT_EMAIL'
 
 # The default values to use if the mec does not define them
 DEFAULT_SUPPORT_EMAIL = 'founders@sagacollab.com'
@@ -18,10 +21,10 @@ DEFAULT_SUPPORT_EMAIL = 'founders@sagacollab.com'
 # to update the previous mec to the new version. For example, 
 # if mec_version=3, mec_upgrade_functions should look like:
 # {
-#    1: upgrade_mec_1_to_2,
-#    2: upgrade_mec_2_to_3
+#    '1': upgrade_mec_1_to_2,
+#    '2': upgrade_mec_2_to_3
 # }
-mec_upgrade_functions: Dict[int, Any] = {}	
+mec_upgrade_functions: Dict[int, Any] = {}
 
 def upgrade_mito_enterprise_configuration(mec: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
     if mec is None:
@@ -29,10 +32,32 @@ def upgrade_mito_enterprise_configuration(mec: Optional[Dict[str, Any]]) -> Opti
 
     # So mypy tests recognize that mec is not None
     _mec = mec
-    while _mec[MEC_CONFIG_KEY_VERSION] in mec_upgrade_functions:
-        _mec = mec_upgrade_functions[_mec[MEC_CONFIG_KEY_VERSION]](_mec)
+    while _mec[MITO_CONFIG_VERSION_KEY] in mec_upgrade_functions:
+        _mec = mec_upgrade_functions[_mec[MITO_CONFIG_VERSION_KEY]](_mec)
 
     return _mec
+
+# Since Mito needs to look up indivdual environment variables, we need to 
+# know the names of the variables associated with each mito congif version,
+# so we store them as a list here. 
+mec_version_keys = {
+    '1': [MITO_CONFIG_VERSION_KEY, MITO_CONFIG_SUPPORT_EMAIL_KEY]
+}
+
+def create_mec_from_environment_variables() -> Optional[Dict[str, Any]]:
+    """
+    Creates a Mito Enterprise Config object from the environment variables
+    """
+    config_version = os.environ.get(MITO_CONFIG_VERSION_KEY)
+
+    if config_version is None:
+        return None
+
+    mec: Dict[str, Any] = {}
+    for key in mec_version_keys[config_version]:
+        mec[key] = os.environ.get(key)
+
+    return mec
 
 class MitoConfig:
     """
@@ -46,24 +71,25 @@ class MitoConfig:
     See https://github.com/mito-ds/mitosheet_helper_config/blob/main/mitosheet_helper_config/README.md for
     information about developing with the mito_helper_config package.
     """
-    def __init__(self, mito_enterprise_configuration: Optional[Dict[str, Any]]):
+    def __init__(self):
+        mito_enterprise_configuration: Optional[Dict[str, Any]] = create_mec_from_environment_variables()
         self.mec = upgrade_mito_enterprise_configuration(mito_enterprise_configuration)
 
     def get_version(self) -> Optional[int] :
         if self.mec is None:
-            return 1 # NOTE: update this to be the most recent version, when we bump the version
-        return self.mec[MEC_CONFIG_KEY_VERSION]
+            return '1' # NOTE: update this to be the most recent version, when we bump the version
+        return self.mec[MITO_CONFIG_VERSION_KEY]
 
     def get_support_email(self) -> str:
-        if self.mec is None or self.mec[MEC_CONFIG_KEY_SUPPORT_EMAIL] is None:
+        if self.mec is None or self.mec[MITO_CONFIG_SUPPORT_EMAIL_KEY] is None:
             return DEFAULT_SUPPORT_EMAIL
-        return self.mec[MEC_CONFIG_KEY_SUPPORT_EMAIL]
+        return self.mec[MITO_CONFIG_SUPPORT_EMAIL_KEY]
 
     # Add new mito configuration options here ...
 
     def get_mito_config(self) -> Dict[str, Any]:
         return {
-            MEC_CONFIG_KEY_VERSION: self.get_version(),
-            MEC_CONFIG_KEY_SUPPORT_EMAIL: self.get_support_email()
+            MITO_CONFIG_VERSION_KEY: self.get_version(),
+            MITO_CONFIG_SUPPORT_EMAIL_KEY: self.get_support_email()
         }
 

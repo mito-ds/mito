@@ -626,8 +626,8 @@ interface Experiment {
 }
 
 export enum MitoEnterpriseConfigKey {
-    MEC_VERSION = 'mec_version',
-    SUPPORT_EMAIL = 'support_email'
+    MEC_VERSION = 'MITO_CONFIG_VERSION',
+    SUPPORT_EMAIL = 'MITO_CONFIG_SUPPORT_EMAIL'
 }
 
 

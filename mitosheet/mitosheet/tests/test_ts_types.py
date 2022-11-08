@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL, DEFAULT_DELIMETER, DEFAULT_ENCODING, DEFAULT_ERROR_BAD_LINES, DEFAULT_SKIPROWS
 from mitosheet.data_in_mito import DataTypeInMito
-from mitosheet.mito_config import DEFAULT_SUPPORT_EMAIL, MEC_CONFIG_KEY_SUPPORT_EMAIL, MEC_CONFIG_KEY_VERSION, MitoConfig
+from mitosheet.mito_config import DEFAULT_SUPPORT_EMAIL, MitoConfig
 from mitosheet.state import (
     DATAFRAME_SOURCE_DUPLICATED,
     DATAFRAME_SOURCE_IMPORTED,
@@ -198,7 +198,7 @@ def test_graph_safety_filter_cutoff_matches():
 
 def test_mito_enterprise_keys_match():
     mito_enterprise_config_keys = get_enum_from_ts_file("./src/types.tsx", "MitoEnterpriseConfigKey")
-    assert set(mito_enterprise_config_keys.values()) == set(MitoConfig(None).get_mito_config().keys())
+    assert set(mito_enterprise_config_keys.values()) == set(MitoConfig().get_mito_config().keys())
 
 def test_user_profile_defaults_matches():
     user_profile_support_email = get_constant_from_ts_file(
