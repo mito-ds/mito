@@ -7,6 +7,8 @@
 from typing import Any, Dict, Optional
 import os
 
+from mitosheet.telemetry.telemetry_utils import log
+
 # Note: Do not change these keys, we need them for looking up 
 # the environment variables from previous mito_config_versions.
 MITO_CONFIG_VERSION_KEY = 'MITO_CONFIG_VERSION'
@@ -72,6 +74,7 @@ class MitoConfig:
 
     def get_version(self) -> str:
         if self.mec is None or self.mec[MITO_CONFIG_VERSION_KEY] is None:
+            log('loaded_mito_enterprise_config')
             return '1' # NOTE: update this to be the most recent version, when we bump the version
         return self.mec[MITO_CONFIG_VERSION_KEY]
 
