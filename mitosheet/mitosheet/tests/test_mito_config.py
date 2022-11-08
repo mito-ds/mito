@@ -60,4 +60,3 @@ def test_version_1_works():
     delete_env_var_if_exists(MITO_CONFIG_SUPPORT_EMAIL_KEY)
     delete_env_var_if_exists(MITO_CONFIG_VERSION_KEY)
 
-
