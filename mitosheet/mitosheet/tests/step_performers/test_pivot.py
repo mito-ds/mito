@@ -353,21 +353,6 @@ def test_edit_pivot_table_then_delete_optimizes():
 
 
 PIVOT_FILTER_TESTS: List[Any] = [
-    # Filter to nothing
-    (
-        pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]}),
-        ['Name'], [], {'Height': ['sum']}, 
-        [
-            {
-                'column_header': 'Name', 
-                'filter': {
-                    'condition': FC_STRING_CONTAINS,
-                    'value': 'bork'
-                }
-            }
-        ],
-        pd.DataFrame({'Name': []})
-    ),
     # Filter does not remove rows
     (
         pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]}),
@@ -435,28 +420,7 @@ PIVOT_FILTER_TESTS: List[Any] = [
         ],
         pd.DataFrame({'Name': ['Nate'], 'Height max': [4], 'Height sum': [4]})
     ),
-    # Filter works on multiple columns of same type, AND is false
-    (
-        pd.DataFrame(data={'Name': ['Nate', 'Jake'], 'Last': ['Rush', 'Diamond'], 'Height': [4, 5]}),
-        ['Name'], [], {'Height': ['sum', 'max']}, 
-        [
-            {
-                'column_header': 'Name', 
-                'filter': {
-                    'condition': FC_STRING_CONTAINS,
-                    'value': 'Nate'
-                }
-            },
-            {
-                'column_header': 'Last', 
-                'filter': {
-                    'condition': FC_STRING_CONTAINS,
-                    'value': 'Diamond'
-                }
-            },
-        ],
-        pd.DataFrame({'Name': []})
-    ),
+    
     # Filter works on multiple columns with different types, AND is true
     (
         pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Age': [1, 2], 'Height': [4, 5]}),
@@ -479,28 +443,7 @@ PIVOT_FILTER_TESTS: List[Any] = [
         ],
         pd.DataFrame({'Name': ['Nate'], 'Height max': [4], 'Height sum': [4]})
     ),
-    # Filter works on multiple columns with different types, AND is false
-    (
-        pd.DataFrame(data={'Name': ['Nate', 'Jake'], 'Age': [1, 2], 'Height': [4, 5]}),
-        ['Name'], [], {'Height': ['sum', 'max']}, 
-        [
-            {
-                'column_header': 'Name', 
-                'filter': {
-                    'condition': FC_STRING_CONTAINS,
-                    'value': 'Nate'
-                }
-            },
-            {
-                'column_header': 'Age', 
-                'filter': {
-                    'condition': FC_NUMBER_EXACTLY,
-                    'value': 2
-                }
-            },
-        ],
-        pd.DataFrame({'Name': []})
-    ),
+
     # String condition
     (
         pd.DataFrame(data={'Name': ['Nate', 'Jake'], 'Age': [1, 2], 'Is Cool': [True, False], 'DOB': pd.to_datetime(['1-1-2000', '1-1-1999']), 'Height': [4, 5]}),
@@ -563,6 +506,74 @@ PIVOT_FILTER_TESTS: List[Any] = [
     ),
     # Anything else?
 ]
+
+# On pre Pandas 1.0 versions, if you filter to _no_ data, we get an error. This is literally 
+# almost none of our users, in a flow that is extremly rare, so rather than complicating the 
+# pivot code to handle it, we just throw an error, and dont' run this test
+PIVOT_FILTER_TESTS_EMPTY: List[Any] = [
+    # Filter to nothing
+    (
+        pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]}),
+        ['Name'], [], {'Height': ['sum']}, 
+        [
+            {
+                'column_header': 'Name', 
+                'filter': {
+                    'condition': FC_STRING_CONTAINS,
+                    'value': 'bork'
+                }
+            }
+        ],
+        pd.DataFrame({'Name': []})
+    ),
+    # Filter works on multiple columns of same type, AND is false
+    (
+        pd.DataFrame(data={'Name': ['Nate', 'Jake'], 'Last': ['Rush', 'Diamond'], 'Height': [4, 5]}),
+        ['Name'], [], {'Height': ['sum', 'max']}, 
+        [
+            {
+                'column_header': 'Name', 
+                'filter': {
+                    'condition': FC_STRING_CONTAINS,
+                    'value': 'Nate'
+                }
+            },
+            {
+                'column_header': 'Last', 
+                'filter': {
+                    'condition': FC_STRING_CONTAINS,
+                    'value': 'Diamond'
+                }
+            },
+        ],
+        pd.DataFrame({'Name': []})
+    ),
+    # Filter works on multiple columns with different types, AND is false
+    (
+        pd.DataFrame(data={'Name': ['Nate', 'Jake'], 'Age': [1, 2], 'Height': [4, 5]}),
+        ['Name'], [], {'Height': ['sum', 'max']}, 
+        [
+            {
+                'column_header': 'Name', 
+                'filter': {
+                    'condition': FC_STRING_CONTAINS,
+                    'value': 'Nate'
+                }
+            },
+            {
+                'column_header': 'Age', 
+                'filter': {
+                    'condition': FC_NUMBER_EXACTLY,
+                    'value': 2
+                }
+            },
+        ],
+        pd.DataFrame({'Name': []})
+    ),
+]
+if tuple([int(i) for i in pd.__version__.split('.')]) > (1, 0, 0):
+    PIVOT_FILTER_TESTS = PIVOT_FILTER_TESTS + PIVOT_FILTER_TESTS_EMPTY
+
 @pytest.mark.parametrize("original_df, pivot_rows, pivot_columns, values, pivot_filters, pivoted_df", PIVOT_FILTER_TESTS)
 def test_pivot_filter(original_df, pivot_rows, pivot_columns, values, pivot_filters, pivoted_df):
     mito = create_mito_wrapper_dfs(original_df)
