@@ -12,9 +12,13 @@ from mitosheet.code_chunks.step_performers.filter_code_chunk import combine_filt
 from mitosheet.transpiler.transpile_utils import NEWLINE_TAB, column_header_list_to_transpiled_code
 from mitosheet.types import ColumnHeader, FilterOnColumnHeader, FilterOnColumnID
 
+USE_INPLACE_PIVOT = tuple([int(i) for i in pd.__version__.split('.')]) < (1, 5, 0)
+
 # Helpful constants for code formatting. The in_place parameter was depricated
-# since 1.5.0, so we use a different method for formatting in this case
-if tuple([int(i) for i in pd.__version__.split('.')]) < (1, 5, 0):
+# since 1.5.0, so we use a different method for formatting in this case. We keep
+# it for earlier versions, as the set_axis functioned required this on pre 1.0 to
+# avoid ending up with a dataframe with no axis
+if USE_INPLACE_PIVOT:
     FLATTEN_CODE = f'pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1, inplace=True)'
 else:
     FLATTEN_CODE = f'pivot_table = pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1)'
@@ -95,25 +99,27 @@ class PivotCodeChunk(CodeChunk):
             for pf in pivot_filters_ids
         ]
 
-        
         # If there are no keys or values to aggregate on we return an empty dataframe. 
         if len(pivot_rows) == 0 and len(pivot_columns) == 0 or len(values) == 0:
             return [f'{new_df_name} = pd.DataFrame(data={{}})']
 
         transpiled_code = []
 
+        # First, filter down to the rows of the original dataframe that we need
+        if len(pivot_filters) > 0:
+            filter_strings = [
+                get_single_filter_string(old_df_name, pf['column_header'], pf['filter'])
+                for pf in pivot_filters
+            ]
+            full_filter_string = combine_filter_strings('And', filter_strings)
+            transpiled_code.append(f'tmp_df = {old_df_name}[{full_filter_string}]')
+            old_df_name = 'tmp_df' # update the old_df name, for the step below
+
         # Drop any columns we don't need, to avoid issues where pandas freaks out
         # and says there is a non-1-dimensional grouper
         column_headers_list = column_header_list_to_transpiled_code(list(set(pivot_rows + pivot_columns + list(values.keys()))))
         transpiled_code.append(f'tmp_df = {old_df_name}[{column_headers_list}]')
 
-        if len(pivot_filters) > 0:
-            filter_strings = [
-                get_single_filter_string('tmp_df', pf['column_header'], pf['filter'])
-                for pf in pivot_filters
-            ]
-            full_filter_string = combine_filter_strings('And', filter_strings)
-            transpiled_code.append(f'tmp_df = tmp_df[{full_filter_string}]')
 
         # Do the actual pivot
         pivot_table_args = build_args_code(pivot_rows, pivot_columns, values)

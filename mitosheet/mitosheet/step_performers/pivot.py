@@ -8,17 +8,20 @@ from time import perf_counter
 from typing import Any, Callable, Collection, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
+
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.pivot_code_chunk import \
-    PivotCodeChunk
+from mitosheet.code_chunks.step_performers.pivot_code_chunk import (
+    USE_INPLACE_PIVOT, PivotCodeChunk)
 from mitosheet.column_headers import flatten_column_header
 from mitosheet.errors import make_invalid_pivot_error, make_no_column_error
 from mitosheet.state import DATAFRAME_SOURCE_PIVOTED, State
-from mitosheet.step_performers.filter import combine_filters, get_applied_filter, get_full_applied_filter
+from mitosheet.step_performers.filter import (combine_filters,
+                                              get_applied_filter)
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
 from mitosheet.telemetry.telemetry_utils import log
-from mitosheet.types import ColumnHeader, ColumnID, FilterOnColumnID, FilterOnColumnHeader
+from mitosheet.types import (ColumnHeader, ColumnID, FilterOnColumnHeader,
+                             FilterOnColumnID)
 
 # Aggregation types pivot supports
 PA_COUNT_UNIQUE = 'count unique'
@@ -207,14 +210,7 @@ def _execute_pivot(
         args['values'] = values_keys
         args['aggfunc'] = values_to_functions(values)
 
-
-    # Before execution, we make a temp dataframe that does not have the columns 
-    # we do not need, as this allows us to avoid a bug in pandas where these extra
-    # columns cause a data
-    unused_columns = df.columns.difference(set(pivot_rows).union(set(pivot_columns)).union(set(values_keys)))
-    df = df.drop(unused_columns, axis=1)
-
-    # Then, we do the filtering on the initial dataframe, according to the pivot_filters
+    # First, we do the filtering on the initial dataframe, according to the pivot_filters
     if len(pivot_filters) > 0:
         filters = [
             get_applied_filter(df, pf['column_header'], pf['filter'])
@@ -222,6 +218,13 @@ def _execute_pivot(
         ]
         full_filter = combine_filters('And', filters)
         df = df[full_filter] # TODO: do we have to make a copy
+
+    # Then, we make a temp dataframe that does not have the columns 
+    # we do not need, as this allows us to avoid a bug in pandas where these extra
+    # columns cause a data
+    unused_columns = df.columns.difference(set(pivot_rows).union(set(pivot_columns)).union(set(values_keys)))
+    df = df.drop(unused_columns, axis=1)
+
 
     # While performing the pivot table, catch warnings that are created
     # by pandas so that we can log them.
@@ -242,7 +245,12 @@ def _execute_pivot(
         was_series = True
 
     if flatten_column_headers:
-        pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1, inplace=True)
+        # See comment in pivot_code_chunk, we avoid using inplace=True post pandas 1.5.0, as
+        # it is depricated
+        if USE_INPLACE_PIVOT:
+            pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1, inplace=True)
+        else:
+            pivot_table = pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1)
 
     # Reset the indexes of the pivot table
     pivot_table = pivot_table.reset_index()

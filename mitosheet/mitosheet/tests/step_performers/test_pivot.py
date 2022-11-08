@@ -6,12 +6,13 @@
 """
 Contains tests for edit events.
 """
-from typing import List
+from typing import Any, List
 import numpy as np
 import pandas as pd
+import pytest
 
-from mitosheet.step_performers.filter import (FC_NUMBER_EXACTLY,
-                                              FC_STRING_CONTAINS)
+from mitosheet.step_performers.filter import (FC_BOOLEAN_IS_TRUE, FC_DATETIME_EXACTLY, FC_NUMBER_EXACTLY,
+                                              FC_STRING_CONTAINS, FC_STRING_STARTS_WITH)
 from mitosheet.step_performers.graph_steps.graph_utils import BAR
 from mitosheet.step_performers.sort import SORT_DIRECTION_ASCENDING
 from mitosheet.tests.decorators import pandas_post_1_only, pandas_pre_1_only
@@ -350,25 +351,228 @@ def test_edit_pivot_table_then_delete_optimizes():
     mito.delete_dataframe(1)
     assert len(mito.transpiled_code) == 0
 
-def test_pivot_table_with_pivot_filters_():
-    df = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df)
 
-    pivot_filters: List[FilterOnColumnHeader] = [
-            {'column_header': 'Name', 
-            'filter': {
-                'condition': FC_STRING_CONTAINS,
-                'value': 'bork'
-            }}
-        ]
+PIVOT_FILTER_TESTS: List[Any] = [
+    # Filter to nothing
+    (
+        pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]}),
+        ['Name'], [], {'Height': ['sum']}, 
+        [
+            {
+                'column_header': 'Name', 
+                'filter': {
+                    'condition': FC_STRING_CONTAINS,
+                    'value': 'bork'
+                }
+            }
+        ],
+        pd.DataFrame({'Name': []})
+    ),
+    # Filter does not remove rows
+    (
+        pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]}),
+        ['Name'], [], {'Height': ['sum']}, 
+        [
+            {
+                'column_header': 'Name', 
+                'filter': {
+                    'condition': FC_STRING_CONTAINS,
+                    'value': 'Nate'
+                }
+            }
+        ],
+        pd.DataFrame({'Name': ['Nate'], 'Height sum': [9]})
+    ),
+    # Filter to half of the dataframe
+    (
+        pd.DataFrame(data={'Name': ['Nate', 'bork'], 'Height': [4, 5]}),
+        ['Name'], [], {'Height': ['sum']}, 
+        [
+            {
+                'column_header': 'Name', 
+                'filter': {
+                    'condition': FC_STRING_CONTAINS,
+                    'value': 'bork'
+                }
+            }
+        ],
+        pd.DataFrame({'Name': ['bork'], 'Height sum': [5]})
+    ),
+    # Filter work with multiple aggregation methods
+    (
+        pd.DataFrame(data={'Name': ['Nate', 'bork'], 'Height': [4, 5]}),
+        ['Name'], [], {'Height': ['sum', 'mean']}, 
+        [
+            {
+                'column_header': 'Name', 
+                'filter': {
+                    'condition': FC_STRING_CONTAINS,
+                    'value': 'bork'
+                }
+            }
+        ],
+        pd.DataFrame({'Name': ['bork'], 'Height mean': [5.0], 'Height sum': [5]})
+    ),
+    # Filter works on multiple columns of same type, AND is true
+    (
+        pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Last': ['Rush', 'Diamond'], 'Height': [4, 5]}),
+        ['Name'], [], {'Height': ['sum', 'mean']}, 
+        [
+            {
+                'column_header': 'Name', 
+                'filter': {
+                    'condition': FC_STRING_CONTAINS,
+                    'value': 'Nate'
+                }
+            },
+            {
+                'column_header': 'Last', 
+                'filter': {
+                    'condition': FC_STRING_CONTAINS,
+                    'value': 'Rush'
+                }
+            },
+        ],
+        pd.DataFrame({'Name': ['Nate'], 'Height mean': [4.0], 'Height sum': [4]})
+    ),
+    # Filter works on multiple columns of same type, AND is false
+    (
+        pd.DataFrame(data={'Name': ['Nate', 'Jake'], 'Last': ['Rush', 'Diamond'], 'Height': [4, 5]}),
+        ['Name'], [], {'Height': ['sum', 'mean']}, 
+        [
+            {
+                'column_header': 'Name', 
+                'filter': {
+                    'condition': FC_STRING_CONTAINS,
+                    'value': 'Nate'
+                }
+            },
+            {
+                'column_header': 'Last', 
+                'filter': {
+                    'condition': FC_STRING_CONTAINS,
+                    'value': 'Diamond'
+                }
+            },
+        ],
+        pd.DataFrame({'Name': []})
+    ),
+    # Filter works on multiple columns with different types, AND is true
+    (
+        pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Age': [1, 2], 'Height': [4, 5]}),
+        ['Name'], [], {'Height': ['sum', 'mean']}, 
+        [
+            {
+                'column_header': 'Name', 
+                'filter': {
+                    'condition': FC_STRING_CONTAINS,
+                    'value': 'Nate'
+                }
+            },
+            {
+                'column_header': 'Age', 
+                'filter': {
+                    'condition': FC_NUMBER_EXACTLY,
+                    'value': 1
+                }
+            },
+        ],
+        pd.DataFrame({'Name': ['Nate'], 'Height mean': [4.0], 'Height sum': [4]})
+    ),
+    # Filter works on multiple columns with different types, AND is false
+    (
+        pd.DataFrame(data={'Name': ['Nate', 'Jake'], 'Age': [1, 2], 'Height': [4, 5]}),
+        ['Name'], [], {'Height': ['sum', 'mean']}, 
+        [
+            {
+                'column_header': 'Name', 
+                'filter': {
+                    'condition': FC_STRING_CONTAINS,
+                    'value': 'Nate'
+                }
+            },
+            {
+                'column_header': 'Age', 
+                'filter': {
+                    'condition': FC_NUMBER_EXACTLY,
+                    'value': 2
+                }
+            },
+        ],
+        pd.DataFrame({'Name': []})
+    ),
+    # String condition
+    (
+        pd.DataFrame(data={'Name': ['Nate', 'Jake'], 'Age': [1, 2], 'Is Cool': [True, False], 'DOB': pd.to_datetime(['1-1-2000', '1-1-1999']), 'Height': [4, 5]}),
+        ['Name'], [], {'Height': ['sum', 'mean']}, 
+        [
+            {
+                'column_header': 'Name', 
+                'filter': {
+                    'condition': FC_STRING_CONTAINS,
+                    'value': 'Nate'
+                }
+            },
+        ],
+        pd.DataFrame({'Name': ['Nate'], 'Height mean': [4.0], 'Height sum': [4]})
+    ),
+    # Number condition
+    (
+        pd.DataFrame(data={'Name': ['Nate', 'Jake'], 'Age': [1, 2], 'Is Cool': [True, False], 'DOB': pd.to_datetime(['1-1-2000', '1-1-1999']), 'Height': [4, 5]}),
+        ['Name'], [], {'Height': ['sum', 'mean']}, 
+        [
+            {
+                'column_header': 'Age', 
+                'filter': {
+                    'condition': FC_NUMBER_EXACTLY,
+                    'value': 1
+                }
+            },
+        ],
+        pd.DataFrame({'Name': ['Nate'], 'Height mean': [4.0], 'Height sum': [4]})
+    ),
+    # Boolean condition
+    (
+        pd.DataFrame(data={'Name': ['Nate', 'Jake'], 'Age': [1, 2], 'Is Cool': [True, False], 'DOB': pd.to_datetime(['1-1-2000', '1-1-1999']), 'Height': [4, 5]}),
+        ['Name'], [], {'Height': ['sum', 'mean']}, 
+        [
+            {
+                'column_header': 'Is Cool', 
+                'filter': {
+                    'condition': FC_BOOLEAN_IS_TRUE,
+                    'value': True
+                }
+            },
+        ],
+        pd.DataFrame({'Name': ['Nate'], 'Height mean': [4.0], 'Height sum': [4]})
+    ),
+    # Datetime condition
+    (
+        pd.DataFrame(data={'Name': ['Nate', 'Jake'], 'Age': [1, 2], 'Is Cool': [True, False], 'DOB': pd.to_datetime(['1-1-2000', '1-1-1999']), 'Height': [4, 5]}),
+        ['Name'], [], {'Height': ['sum', 'mean']}, 
+        [
+            {
+                'column_header': 'DOB', 
+                'filter': {
+                    'condition': FC_DATETIME_EXACTLY,
+                    'value': pd.to_datetime('1-1-2000')
+                }
+            },
+        ],
+        pd.DataFrame({'Name': ['Nate'], 'Height mean': [4.0], 'Height sum': [4]})
+    ),
+    # Anything else?
+]
+@pytest.mark.parametrize("original_df, pivot_rows, pivot_columns, values, pivot_filters, pivoted_df", PIVOT_FILTER_TESTS)
+def test_pivot_filter(original_df, pivot_rows, pivot_columns, values, pivot_filters, pivoted_df):
+    mito = create_mito_wrapper_dfs(original_df)
+    mito.pivot_sheet(0, pivot_rows, pivot_columns, values, pivot_filters=pivot_filters)
 
-    mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']}, pivot_filters=pivot_filters)
-
-    # Check the saved analysis to make sure it's stored
-    analysis = read_and_upgrade_analysis(mito.mito_widget.analysis_name)
-    assert analysis is not None and len(analysis['steps_data'][0]['params']['pivot_filters']) == 1
-
-    assert len(mito.dfs[1]) ==0 and mito.dfs[1].columns.to_list() == ['Name']
-    
-
-    
+    assert mito.dfs[0].equals(original_df)
+    # For some reason, we need to check if dataframes are equal differently if
+    # they are empty, due to bugs in pandas .equals
+    if len(pivoted_df) > 0:
+        assert mito.dfs[1].equals(pivoted_df)
+    else:
+        assert len(mito.dfs[1]) == 0
+        assert mito.dfs[1].columns.to_list() == pivoted_df.columns.to_list() 
