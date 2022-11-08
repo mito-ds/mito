@@ -26,6 +26,21 @@ def test_rename_to_empty_is_no_op():
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1]}))
     assert len(mito.transpiled_code) == 0
 
+def test_rename_with_nan_column_headers():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'nan': [1], 'NaN': [1], '': [1], None: [1]}))
+    mito.rename_column(0, 'nan', 'A')
+    mito.rename_column(0, 'NaN', 'B')
+    mito.rename_column(0, '', 'C')
+    mito.rename_column(0, None, 'D')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1], 'B': [1], 'C': [1], 'D': [1]}))
+
+def test_rename_with_none_column_header():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'None': [1], 'B': [1]}))
+    mito.rename_column(0, 'None', 'A')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1], 'B': [1]}))
+
 def test_rename_updates_creation_step():
     mito = create_mito_wrapper([1])
     mito.set_formula('=A', 0, 'B', add_column=True)
