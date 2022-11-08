@@ -12,7 +12,7 @@ from mitosheet.state import NUMBER_FORMAT_ACCOUNTING, NUMBER_FORMAT_CURRENCY, NU
 from mitosheet.transpiler.transpile_utils import TAB, column_header_list_to_transpiled_code, column_header_to_transpiled_code
 from mitosheet.types import ColumnFormat, ColumnHeader
 from mitosheet.utils import MAX_ROWS
-from mitosheet.pro.utils import get_conditonal_formatting_result
+from mitosheet.pro.conditional_formatting_utils import get_conditonal_formatting_result
 from mitosheet.sheet_functions.types import is_float_dtype
 
 OPEN_BRACKET = "{"
