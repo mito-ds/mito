@@ -6,14 +6,18 @@
 
 from typing import Collection, Dict, List, Optional, Union
 
+import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.filter_code_chunk import combine_filter_strings, get_single_filter_string
 from mitosheet.transpiler.transpile_utils import NEWLINE_TAB, column_header_list_to_transpiled_code
 from mitosheet.types import ColumnHeader, FilterOnColumnHeader, FilterOnColumnID
 
-# Helpful constants for code formatting
-
-FLATTEN_CODE = f'pivot_table = pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1)'
+# Helpful constants for code formatting. The in_place parameter was depricated
+# since 1.5.0, so we use a different method for formatting in this case
+if tuple([int(i) for i in pd.__version__.split('.')]) < (1, 5, 0):
+    FLATTEN_CODE = f'pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1, inplace=True)'
+else:
+    FLATTEN_CODE = f'pivot_table = pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1)'
 
 def values_to_functions_code(values: Dict[ColumnHeader, Collection[str]]) -> str:
     """
