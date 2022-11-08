@@ -13,7 +13,7 @@ MITO_CONFIG_VERSION_KEY = 'MITO_CONFIG_VERSION'
 MITO_CONFIG_SUPPORT_EMAIL_KEY = 'MITO_CONFIG_SUPPORT_EMAIL'
 
 # The default values to use if the mec does not define them
-DEFAULT_SUPPORT_EMAIL = 'founders@sagacollab.com'
+DEFAULT_MITO_CONFIG_SUPPORT_EMAIL = 'founders@sagacollab.com'
 
 # When updating the MEC_VERSION, add a function here 
 # to update the previous mec to the new version. For example, 
@@ -36,8 +36,8 @@ def upgrade_mito_enterprise_configuration(mec: Optional[Dict[str, Any]]) -> Opti
     return _mec
 
 # Since Mito needs to look up indivdual environment variables, we need to 
-# know the names of the variables associated with each mito congif version,
-# so we store them as a list here. 
+# know the names of the variables associated with each mito config version. 
+# To do so we store them as a list here. 
 mec_version_keys = {
     '1': [MITO_CONFIG_VERSION_KEY, MITO_CONFIG_SUPPORT_EMAIL_KEY]
 }
@@ -59,25 +59,25 @@ def create_mec_from_environment_variables() -> Optional[Dict[str, Any]]:
 
 class MitoConfig:
     """
-    The MitoConfig class is repsonsible for 1) reading the settings from the 
-    environment variables 2) returning them as a mito_enterprise_configuration object
-    used by the rest of the app. 
+    The MitoConfig class is repsonsible for reading the settings from the 
+    environment variables and returning them as the most updated version of the 
+    mito_enterprise_configuration object that is used by the rest of the app. 
 
     If the environment variables does not exist or does not set every configuration option, 
     the MitoConfig class sets defaults. 
     """
     def __init__(self):
-        mito_enterprise_configuration: Optional[Dict[str, Any]] = create_mec_from_environment_variables()
-        self.mec = upgrade_mito_enterprise_configuration(mito_enterprise_configuration)
+        mec_potentially_outdated = create_mec_from_environment_variables()
+        self.mec = upgrade_mito_enterprise_configuration(mec_potentially_outdated)
 
-    def get_version(self) -> Optional[str]:
-        if self.mec is None:
+    def get_version(self) -> str:
+        if self.mec is None or self.mec[MITO_CONFIG_VERSION_KEY] is None:
             return '1' # NOTE: update this to be the most recent version, when we bump the version
         return self.mec[MITO_CONFIG_VERSION_KEY]
 
     def get_support_email(self) -> str:
         if self.mec is None or self.mec[MITO_CONFIG_SUPPORT_EMAIL_KEY] is None:
-            return DEFAULT_SUPPORT_EMAIL
+            return DEFAULT_MITO_CONFIG_SUPPORT_EMAIL
         return self.mec[MITO_CONFIG_SUPPORT_EMAIL_KEY]
 
     # Add new mito configuration options here ...

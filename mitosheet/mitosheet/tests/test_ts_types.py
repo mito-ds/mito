@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL, DEFAULT_DELIMETER, DEFAULT_ENCODING, DEFAULT_ERROR_BAD_LINES, DEFAULT_SKIPROWS
 from mitosheet.data_in_mito import DataTypeInMito
-from mitosheet.mito_config import DEFAULT_SUPPORT_EMAIL, MitoConfig
+from mitosheet.mito_config import DEFAULT_MITO_CONFIG_SUPPORT_EMAIL, MitoConfig
 from mitosheet.state import (
     DATAFRAME_SOURCE_DUPLICATED,
     DATAFRAME_SOURCE_IMPORTED,
@@ -206,7 +206,7 @@ def test_user_profile_defaults_matches():
         'DEFAULT_SUPPORT_EMAIL'
     )
 
-    assert user_profile_support_email == f"\'{DEFAULT_SUPPORT_EMAIL}\'"
+    assert user_profile_support_email == f"\'{DEFAULT_MITO_CONFIG_SUPPORT_EMAIL}\'"
 
 def test_update_events_enum_defined():
     update_types = get_enum_from_ts_file("./src/types.tsx", "UpdateType")

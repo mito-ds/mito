@@ -15,6 +15,10 @@ def delete_env_var_if_exists(env_var: str) -> None:
         del os.environ[env_var]
 
 def test_keys_did_not_change():
+    # We must not change these keys so we can still read old 
+    # mito configs that users have not upgraded to the most 
+    # recent config version. If we don't preserve these keys, 
+    # we won't know which environment variables to read.
     assert MITO_CONFIG_VERSION_KEY == 'MITO_CONFIG_VERSION'
     assert MITO_CONFIG_SUPPORT_EMAIL_KEY == 'MITO_CONFIG_SUPPORT_EMAIL'
 
