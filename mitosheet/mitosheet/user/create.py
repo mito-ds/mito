@@ -55,7 +55,7 @@ def try_create_user_json_file() -> None:
         with open(USER_JSON_PATH, 'w+') as f:
             f.write(json.dumps(USER_JSON_DEFAULT))
 
-        # Then, we take special care to put all the testing/CI enviornments 
+        # Then, we take special care to put all the testing/CI environments 
         # (e.g. Github actions) under one ID and email
         from mitosheet.user.utils import is_running_test
         if is_running_test():

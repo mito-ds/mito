@@ -12,6 +12,7 @@ Icon
 ## Thumbnails
 ._*
 
+
 ## Files that might appear in the root of a volume
 .DocumentRevisions-V100
 .fseventsd
@@ -81,6 +82,7 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+node_modules/
 
 # Installer logs
 pip-log.txt

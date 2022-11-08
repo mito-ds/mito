@@ -203,9 +203,9 @@ except:
 
 location = None
 
-def _get_enviornment_params() -> Dict[str, Any]:
+def _get_environment_params() -> Dict[str, Any]:
     """
-    Get data relevant for tracking the enviornment, so we can 
+    Get data relevant for tracking the environment, so we can 
     ensure Mitosheet compatibility with any system
     """
     global location
@@ -213,7 +213,7 @@ def _get_enviornment_params() -> Dict[str, Any]:
         location = get_location()
     
     # Add the python properties to every log event we can
-    enviornment_params = {
+    environment_params = {
         'version_python': sys.version_info,
         'version_pandas': pandas_version,
         'version_ipywidgets': ipywidgets_version,
@@ -225,7 +225,7 @@ def _get_enviornment_params() -> Dict[str, Any]:
         'is_docker': is_docker()
     }
 
-    return enviornment_params
+    return environment_params
 
 experiment = None
 def _get_experiment_params() -> Dict[str, Any]:
@@ -370,8 +370,8 @@ def log(log_event: str, params: Dict[str, Any]=None, steps_manager: StepsManager
     # Then, get the logs for the processing time of the operation
     final_params = {**final_params, **_get_processing_time_log_params(steps_manager=steps_manager, start_time=start_time)}
 
-    # Then, get the params for the enviornment 
-    final_params = {**final_params, **_get_enviornment_params()}
+    # Then, get the params for the environment 
+    final_params = {**final_params, **_get_environment_params()}
 
     # Then, get the params for the all experiments
     final_params = {**final_params, **_get_experiment_params()}
