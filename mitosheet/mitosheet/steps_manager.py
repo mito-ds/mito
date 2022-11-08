@@ -8,7 +8,7 @@ import json
 import random
 import string
 from copy import copy, deepcopy
-from typing import Any, Collection, Dict, List, Set, Tuple, Union
+from typing import Any, Collection, Dict, List, Optional, Set, Tuple, Union
 
 import pandas as pd
 
@@ -49,7 +49,7 @@ def get_step_indexes_to_skip(step_list: List[Step]) -> Set[int]:
 
 
 def execute_step_list_from_index(
-    step_list: List[Step], start_index: int = None
+    step_list: List[Step], start_index: Optional[int]=None
 ) -> List[Step]:
     """
     Given a list of steps, and a specific index to start from, will assume that
@@ -165,7 +165,7 @@ class StepsManager:
     and parameters stay the same and are append-only.
     """
 
-    def __init__(self, args: Collection[Union[pd.DataFrame, str]], analysis_to_replay: str=None):
+    def __init__(self, args: Collection[Union[pd.DataFrame, str]], analysis_to_replay: Optional[str]=None):
         """
         When initalizing the StepsManager, we also do preprocessing
         of the arguments that were passed to the mitosheet.
@@ -553,7 +553,7 @@ class StepsManager:
         self.undone_step_list_store.append(("reset", old_steps))
 
     def execute_and_update_steps(
-        self, new_steps: List[Step], last_valid_index: int = None
+        self, new_steps: List[Step], last_valid_index: Optional[int] = None
     ) -> None:
         """
         Given a list of new_steps, runs them from the last valid index,
@@ -578,7 +578,7 @@ class StepsManager:
         self.steps_including_skipped = final_steps
         self.curr_step_idx = len(self.steps_including_skipped) - 1
 
-    def execute_steps_data(self, new_steps_data: List[Dict[str, Any]] = None) -> None:
+    def execute_steps_data(self, new_steps_data: Optional[List[Dict[str, Any]]] = None) -> None:
         """
         Given steps data (e.g. from a saved analysis), will turn
         this data  into steps and try to run them. If any of them

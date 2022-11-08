@@ -658,7 +658,7 @@ class MitoWidgetTestWrapper:
             sheet_index: int, 
             column_header: ColumnHeader,
             sort_direction: str,
-            step_id: str=None
+            step_id: Optional[str]=None
         ) -> bool:
 
         column_id = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
@@ -710,7 +710,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def rename_column(self, sheet_index: int, old_column_header: ColumnHeader, new_column_header: ColumnHeader, level: int=None) -> bool:
+    def rename_column(self, sheet_index: int, old_column_header: ColumnHeader, new_column_header: ColumnHeader, level: Optional[int]=None) -> bool:
 
         column_id = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
             sheet_index,
@@ -960,7 +960,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def replay_analysis(self, analysis_name: str, step_import_data_list_to_overwrite: List[Dict[str, Any]]=None) -> bool:
+    def replay_analysis(self, analysis_name: str, step_import_data_list_to_overwrite: Optional[List[Dict[str, Any]]]=None) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
             {
@@ -1042,7 +1042,7 @@ class MitoWidgetTestWrapper:
         legend_orientation: Optional[str]='v',
         legend_x: Optional[number]=None,
         legend_y: Optional[number]=None,
-        step_id: str=None,
+        step_id: Optional[str]=None,
         paper_bgcolor: str=DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT,
         plot_bgcolor: str=DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT,
         barmode: Optional[str]=None,
@@ -1378,7 +1378,7 @@ class MitoWidgetTestWrapper:
         return self.mito_widget.steps_manager.curr_step.final_defined_state.df_formats[sheet_index]
         
 
-def create_mito_wrapper(sheet_one_A_data: List[Any], sheet_two_A_data: List[Any]=None) -> MitoWidgetTestWrapper:
+def create_mito_wrapper(sheet_one_A_data: List[Any], sheet_two_A_data: Optional[List[Any]]=None) -> MitoWidgetTestWrapper:
     """
     Returns a MitoWidgetTestWrapper instance wrapped around a MitoWidget
     that contains just a column A, containing sheet_one_A_data.
@@ -1402,7 +1402,7 @@ def create_mito_wrapper_dfs(*args: pd.DataFrame) -> MitoWidgetTestWrapper:
     mito_widget = sheet(*args)
     return MitoWidgetTestWrapper(mito_widget)
 
-def make_multi_index_header_df(data: Dict[Union[str, int], List[Any]], column_headers: List[ColumnHeader], index: List[Any]=None) -> pd.DataFrame:
+def make_multi_index_header_df(data: Dict[Union[str, int], List[Any]], column_headers: List[ColumnHeader], index: Optional[List[Any]]=None) -> pd.DataFrame:
     """
     A helper function that allows you to easily create a multi-index
     header dataframe. 
