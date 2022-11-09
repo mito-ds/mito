@@ -47,8 +47,11 @@ def column_header_to_transpiled_code(column_header: ColumnHeader) -> str:
         return f'pd.to_datetime(\'{column_header.strftime("%Y-%m-%d %X")}\')'
     elif isinstance(column_header, pd.Timedelta):
         return f'pd.to_timedelta(\'{str(column_header)}\')'
-
-
+    elif column_header is pd.NaT:
+        return 'pd.NaT'
+    elif column_header is pd.NA:
+        return 'pd.NA'
+        
     return repr(column_header)
 
 def list_to_string_without_internal_quotes(list: List[Any]) -> str:
