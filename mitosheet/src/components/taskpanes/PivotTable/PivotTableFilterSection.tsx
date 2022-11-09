@@ -3,7 +3,7 @@
 import React from 'react';
 import '../../../../css/layout/CollapsibleSection.css';
 import MitoAPI from '../../../jupyter/api';
-import { ColumnID, FrontendPivotParams, SheetData } from '../../../types';
+import { ColumnID, FilterType, FrontendPivotParams, SheetData } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import DropdownButton from '../../elements/DropdownButton';
 import DropdownItem from '../../elements/DropdownItem';
@@ -49,14 +49,16 @@ const PivotTableFilterSection = (props: {
                                     title={getDisplayColumnHeader(columnHeader)}
                                     onClick={() => {
                                         props.setParams((prevParams) => {
-                                            const newFilters = [...prevParams.pivotFilters];
-                                            newFilters.push({
+                                            // We append to the start of the array so the filter is immediately visible to the user
+                                            const newFiltersArray: {column_id: ColumnID, filter: FilterType}[] = [{
                                                 'column_id': columnID,
                                                 'filter': {
                                                     'condition': 'not_empty',
                                                     'value': ''
                                                 }
-                                            })
+                                            }];
+                                            const newFilters = newFiltersArray.concat(prevParams.pivotFilters)
+
                                             return {
                                                 ...prevParams,
                                                 pivotFilters: newFilters
@@ -108,7 +110,7 @@ const PivotTableFilterSection = (props: {
                                     selectableValues={allColumnIDs}
                                 />
                             </Row>
-                            <Row>
+                            <Row suppressTopBottomMargin>
                                 <Filter
                                     filter={filter}
                                     operator={'And'}
