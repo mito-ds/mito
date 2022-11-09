@@ -41,6 +41,13 @@ def test_rename_with_none_column_header():
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1], 'B': [1]}))
 
+def test_rename_column_with_nat_and_nan():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({pd.NA: [1], pd.NaT: [1]}))
+    mito.rename_column(0, pd.NA, 'A')
+    mito.rename_column(0, pd.NaT, 'B')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1], 'B': [1]}))
+
 def test_rename_updates_creation_step():
     mito = create_mito_wrapper([1])
     mito.set_formula('=A', 0, 'B', add_column=True)
