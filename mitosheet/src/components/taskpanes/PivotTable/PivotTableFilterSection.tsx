@@ -80,7 +80,7 @@ const PivotTableFilterSection = (props: {
                     const columnDtype = props.sheetData?.columnDtypeMap[column_id] || '';
 
                     return (
-                        <div className='mito-blue-container mb-5px'>
+                        <div className='mito-blue-container mb-5px' key={index}>
                             <Row>
                                 <SelectAndXIconCard
                                     value={column_id}

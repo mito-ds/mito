@@ -110,7 +110,7 @@ export const checkFilterShouldHaveNumberValue = (filter: FilterType): filter is 
     1. It should have an input, and it does not
     2. It is a number filter with a string input, or with a non-valid number input        
 */
-export const isValidFilter = (filter: FilterType, columnDtype: string): boolean => {
+const isValidFilter = (filter: FilterType, columnDtype: string): boolean => {
     if (CONDITIONS_WITH_NO_INPUT.includes(filter.condition)) {
         return true;
     }
@@ -131,7 +131,7 @@ export const isValidFilter = (filter: FilterType, columnDtype: string): boolean 
     The frontend stores number filters as strings, and so we parse them to
     numbers before sending them to the backend
 */
-export const parseFilter = (filter: FilterType): FilterType => {
+const parseFilter = (filter: FilterType): FilterType => {
     if (checkFilterShouldHaveNumberValue(filter)) {
         return {
             condition: filter.condition,
@@ -141,6 +141,11 @@ export const parseFilter = (filter: FilterType): FilterType => {
     return filter;
 }
 
+/**
+ *  Given filters that are stored in the frontend, this function parses the filters, removes
+ *  any filters that cannot be parsed or are invalid, and gets them ready to be sent to the 
+ *  backend.
+ */
 export const getFiltersToApply = (filters: (FilterType | FilterGroupType)[], columnDtype: string): (FilterType | FilterGroupType)[] => {
     // To handle decimals, we allow decimals to be submitted, and then just
     // parse them before they are sent to the back-end

@@ -38,7 +38,8 @@ export const getPivotFrontendParamsFromBackendParams = (pivotParams: BackendPivo
 export const getPivotBackendParamsFromFrontendParams = (params: FrontendPivotParams, sheetDataArray?: SheetData[]): BackendPivotParams => {
 
     // Before sending the parameters to the backend, we have to parse the filters
-    // and make sure they are valid
+    // and make sure they are parsable, valid, etc. We filter out any pivotFilters
+    // that aren't
     const columnDtypeMap = sheetDataArray !== undefined ? sheetDataArray[params.sourceSheetIndex]?.columnDtypeMap || {} : {};
     const pivotFiltersToApply: {column_id: ColumnID, filter: FilterType}[] = params.pivotFilters.map(({column_id, filter}) => {
         const columnDtype = columnDtypeMap[column_id] || '';
