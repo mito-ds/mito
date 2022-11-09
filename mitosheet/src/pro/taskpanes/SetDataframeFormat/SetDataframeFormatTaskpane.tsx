@@ -2,24 +2,24 @@ import React from "react";
 import MitoAPI from "../../../jupyter/api";
 import { AnalysisData, DataframeFormat, RecursivePartial, SheetData, StepType, UIState, UserProfile } from "../../../types"
 import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
-import Select from '../../elements/Select';
-import DropdownItem from '../../elements/DropdownItem';
-import Col from '../../layout/Col';
-import Row from '../../layout/Row';
-import Spacer from '../../layout/Spacer';
+import Select from '../../../components/elements/Select';
+import DropdownItem from '../../../components/elements/DropdownItem';
+import Col from '../../../components/layout/Col';
+import Row from '../../../components/layout/Row';
+import Spacer from '../../../components/layout/Spacer';
 
-import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
-import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
-import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
-import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
-import CollapsibleSection from "../../layout/CollapsibleSection";
-import LabelAndColor from "../../../pro/graph/LabelAndColor";
+import DefaultTaskpane from "../../../components/taskpanes/DefaultTaskpane/DefaultTaskpane";
+import DefaultTaskpaneBody from "../../../components/taskpanes/DefaultTaskpane/DefaultTaskpaneBody";
+import DefaultTaskpaneHeader from "../../../components/taskpanes/DefaultTaskpane/DefaultTaskpaneHeader";
+import DefaultEmptyTaskpane from "../../../components/taskpanes/DefaultTaskpane/DefaultEmptyTaskpane";
+import CollapsibleSection from "../../../components/layout/CollapsibleSection";
+import LabelAndColor from "../../graph/LabelAndColor";
 import { updateObjectWithPartialObject } from "../../../utils/objects";
-import { HEADER_BACKGROUND_COLOR_DEFAULT, HEADER_TEXT_COLOR_DEFAULT } from "../../endo/ColumnHeader";
-import { EVEN_ROW_BACKGROUND_COLOR_DEFAULT, EVEN_ROW_TEXT_COLOR_DEFAULT, ODD_ROW_BACKGROUND_COLOR_DEFAULT, ODD_ROW_TEXT_COLOR_DEFAULT } from "../../endo/GridData";
-import Tooltip from "../../elements/Tooltip";
+import { HEADER_BACKGROUND_COLOR_DEFAULT, HEADER_TEXT_COLOR_DEFAULT } from "../../../components/endo/ColumnHeader";
+import { EVEN_ROW_BACKGROUND_COLOR_DEFAULT, EVEN_ROW_TEXT_COLOR_DEFAULT, ODD_ROW_BACKGROUND_COLOR_DEFAULT, ODD_ROW_TEXT_COLOR_DEFAULT } from "../../../components/endo/GridData";
+import Tooltip from "../../../components/elements/Tooltip";
 import SuggestedStyles from "./SuggestedStyles";
-import DataframeSelect from "../../elements/DataframeSelect";
+import DataframeSelect from "../../../components/elements/DataframeSelect";
 
 const BORDER_COLOR_DEFAULT = '#FFFFFF'; 
 

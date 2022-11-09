@@ -4,8 +4,8 @@
 # Copyright (c) Mito.
 # Distributed under the terms of the Modified BSD License.
 
-from mitosheet.mito_config import MITO_CONFIG_SUPPORT_EMAIL_KEY, MITO_CONFIG_VERSION_KEY, MitoConfig
 import os
+from mitosheet.enterprise.mito_config import MITO_CONFIG_SUPPORT_EMAIL_KEY, MITO_CONFIG_VERSION_KEY, MitoConfig
 
 def delete_env_var_if_exists(env_var: str) -> None: 
     """
@@ -59,5 +59,4 @@ def test_version_1_works():
     # Delete the environmnet variables for the next test
     delete_env_var_if_exists(MITO_CONFIG_SUPPORT_EMAIL_KEY)
     delete_env_var_if_exists(MITO_CONFIG_VERSION_KEY)
-
 

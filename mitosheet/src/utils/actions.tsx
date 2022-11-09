@@ -13,7 +13,7 @@ import { Action, DFSource, EditorState, GridState, SheetData, UIState, ActionEnu
 import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { decreasePrecision, FORMAT_DISABLED_MESSAGE, increasePrecision } from "./format";
 import { writeTextToClipboard, getCopyStringForClipboard } from "./copy";
-import { getDefaultDataframeFormat } from "../components/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
+import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
 import { DEFAULT_SUPPORT_EMAIL } from "../components/elements/GetSupportButton";
 
 
