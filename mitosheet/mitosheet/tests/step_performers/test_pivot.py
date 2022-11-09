@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from mitosheet.step_performers.filter import (FC_BOOLEAN_IS_TRUE, FC_DATETIME_EXACTLY, FC_NUMBER_EXACTLY,
+from mitosheet.step_performers.filter import (FC_BOOLEAN_IS_TRUE, FC_DATETIME_EXACTLY, FC_NUMBER_EXACTLY, FC_NUMBER_GREATER, FC_NUMBER_LESS,
                                               FC_STRING_CONTAINS, FC_STRING_STARTS_WITH)
 from mitosheet.step_performers.graph_steps.graph_utils import BAR
 from mitosheet.step_performers.sort import SORT_DIRECTION_ASCENDING
@@ -351,6 +351,24 @@ def test_edit_pivot_table_then_delete_optimizes():
     mito.delete_dataframe(1)
     assert len(mito.transpiled_code) == 0
 
+def test_pivot_with_filter_no_effect_on_source_data():
+    df1 = pd.DataFrame(data={'Name': ['ADR', 'Nate'], 'Height': [4, 5]})
+    mito = create_mito_wrapper_dfs(df1)
+
+    mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']}, pivot_filters=[
+            {
+                'column_header': 'Height', 
+                'filter': {
+                    'condition': FC_NUMBER_GREATER,
+                    'value': 4
+                }
+            }
+        ]
+    )
+
+    assert len(mito.dfs[0]) == 2
+    assert len(mito.dfs[1]) == 1
+
 
 PIVOT_FILTER_TESTS: List[Any] = [
     # Filter does not remove rows
@@ -363,6 +381,21 @@ PIVOT_FILTER_TESTS: List[Any] = [
                 'filter': {
                     'condition': FC_STRING_CONTAINS,
                     'value': 'Nate'
+                }
+            }
+        ],
+        pd.DataFrame({'Name': ['Nate'], 'Height sum': [9]})
+    ),
+    # Filter does not remove numbers
+    (
+        pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]}),
+        ['Name'], [], {'Height': ['sum']}, 
+        [
+            {
+                'column_header': 'Height', 
+                'filter': {
+                    'condition': FC_NUMBER_LESS,
+                    'value': 10
                 }
             }
         ],
@@ -442,6 +475,29 @@ PIVOT_FILTER_TESTS: List[Any] = [
             },
         ],
         pd.DataFrame({'Name': ['Nate'], 'Height max': [4], 'Height sum': [4]})
+    ),
+
+    # Filter applied to all pivot table columns
+    (
+        pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Last': ['Rush', 'Diamond'], 'Height': [4, 5]}),
+        ['Name'], [], {'Height': ['sum', 'max']}, 
+        [
+            {
+                'column_header': 'Name', 
+                'filter': {
+                    'condition': FC_STRING_CONTAINS,
+                    'value': 'Nate'
+                }
+            },
+            {
+                'column_header': 'Height', 
+                'filter': {
+                    'condition': FC_NUMBER_EXACTLY,
+                    'value': 5
+                }
+            },
+        ],
+        pd.DataFrame({'Name': ['Nate'], 'Height max': [5], 'Height sum': [5]})
     ),
 
     # String condition
@@ -583,8 +639,6 @@ def test_pivot_filter(original_df, pivot_rows, pivot_columns, values, pivot_filt
     # For some reason, we need to check if dataframes are equal differently if
     # they are empty, due to bugs in pandas .equals
     if len(pivoted_df) > 0:
-        print(mito.dfs[1])
-        print(pivoted_df)
         assert mito.dfs[1].equals(pivoted_df)
     else:
         assert len(mito.dfs[1]) == 0
