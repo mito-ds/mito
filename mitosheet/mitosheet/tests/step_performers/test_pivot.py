@@ -358,7 +358,7 @@ def test_pivot_with_filter_no_effect_on_source_data():
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']}, pivot_filters=[
             {
                 'column_header': 'Height', 
-                'filter': {
+                'filter_': {
                     'condition': FC_NUMBER_GREATER,
                     'value': 4
                 }
@@ -376,7 +376,7 @@ def test_pivot_with_filter_reaplies ():
 
     pivot_filters = [{
             'column_header': 'Height', 
-            'filter': {
+            'filter_': {
                 'condition': FC_NUMBER_GREATER,
                 'value': 4
             }
@@ -399,7 +399,7 @@ PIVOT_FILTER_TESTS: List[Any] = [
         [
             {
                 'column_header': 'Name', 
-                'filter': {
+                'filter_': {
                     'condition': FC_STRING_CONTAINS,
                     'value': 'Nate'
                 }
@@ -414,7 +414,7 @@ PIVOT_FILTER_TESTS: List[Any] = [
         [
             {
                 'column_header': 'Height', 
-                'filter': {
+                'filter_': {
                     'condition': FC_NUMBER_LESS,
                     'value': 10
                 }
@@ -429,7 +429,7 @@ PIVOT_FILTER_TESTS: List[Any] = [
         [
             {
                 'column_header': 'Name', 
-                'filter': {
+                'filter_': {
                     'condition': FC_STRING_CONTAINS,
                     'value': 'bork'
                 }
@@ -444,7 +444,7 @@ PIVOT_FILTER_TESTS: List[Any] = [
         [
             {
                 'column_header': 'Name', 
-                'filter': {
+                'filter_': {
                     'condition': FC_STRING_CONTAINS,
                     'value': 'bork'
                 }
@@ -459,14 +459,14 @@ PIVOT_FILTER_TESTS: List[Any] = [
         [
             {
                 'column_header': 'Name', 
-                'filter': {
+                'filter_': {
                     'condition': FC_STRING_CONTAINS,
                     'value': 'Nate'
                 }
             },
             {
                 'column_header': 'Last', 
-                'filter': {
+                'filter_': {
                     'condition': FC_STRING_CONTAINS,
                     'value': 'Rush'
                 }
@@ -482,14 +482,14 @@ PIVOT_FILTER_TESTS: List[Any] = [
         [
             {
                 'column_header': 'Name', 
-                'filter': {
+                'filter_': {
                     'condition': FC_STRING_CONTAINS,
                     'value': 'Nate'
                 }
             },
             {
                 'column_header': 'Age', 
-                'filter': {
+                'filter_': {
                     'condition': FC_NUMBER_EXACTLY,
                     'value': 1
                 }
@@ -505,14 +505,14 @@ PIVOT_FILTER_TESTS: List[Any] = [
         [
             {
                 'column_header': 'Name', 
-                'filter': {
+                'filter_': {
                     'condition': FC_STRING_CONTAINS,
                     'value': 'Nate'
                 }
             },
             {
                 'column_header': 'Height', 
-                'filter': {
+                'filter_': {
                     'condition': FC_NUMBER_EXACTLY,
                     'value': 5
                 }
@@ -528,7 +528,7 @@ PIVOT_FILTER_TESTS: List[Any] = [
         [
             {
                 'column_header': 'Name', 
-                'filter': {
+                'filter_': {
                     'condition': FC_STRING_CONTAINS,
                     'value': 'Nate'
                 }
@@ -543,7 +543,7 @@ PIVOT_FILTER_TESTS: List[Any] = [
         [
             {
                 'column_header': 'Age', 
-                'filter': {
+                'filter_': {
                     'condition': FC_NUMBER_EXACTLY,
                     'value': 1
                 }
@@ -558,7 +558,7 @@ PIVOT_FILTER_TESTS: List[Any] = [
         [
             {
                 'column_header': 'Is Cool', 
-                'filter': {
+                'filter_': {
                     'condition': FC_BOOLEAN_IS_TRUE,
                     'value': True
                 }
@@ -573,7 +573,7 @@ PIVOT_FILTER_TESTS: List[Any] = [
         [
             {
                 'column_header': 'DOB', 
-                'filter': {
+                'filter_': {
                     'condition': FC_DATETIME_EXACTLY,
                     'value': pd.to_datetime('1-1-2000')
                 }
@@ -595,7 +595,7 @@ PIVOT_FILTER_TESTS_EMPTY: List[Any] = [
         [
             {
                 'column_header': 'Name', 
-                'filter': {
+                'filter_': {
                     'condition': FC_STRING_CONTAINS,
                     'value': 'bork'
                 }
@@ -610,14 +610,14 @@ PIVOT_FILTER_TESTS_EMPTY: List[Any] = [
         [
             {
                 'column_header': 'Name', 
-                'filter': {
+                'filter_': {
                     'condition': FC_STRING_CONTAINS,
                     'value': 'Nate'
                 }
             },
             {
                 'column_header': 'Last', 
-                'filter': {
+                'filter_': {
                     'condition': FC_STRING_CONTAINS,
                     'value': 'Diamond'
                 }
@@ -632,14 +632,14 @@ PIVOT_FILTER_TESTS_EMPTY: List[Any] = [
         [
             {
                 'column_header': 'Name', 
-                'filter': {
+                'filter_': {
                     'condition': FC_STRING_CONTAINS,
                     'value': 'Nate'
                 }
             },
             {
                 'column_header': 'Age', 
-                'filter': {
+                'filter_': {
                     'condition': FC_NUMBER_EXACTLY,
                     'value': 2
                 }

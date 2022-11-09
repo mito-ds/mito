@@ -564,7 +564,7 @@ class MitoWidgetTestWrapper:
         }
 
         pivot_filters_ids: List[FilterOnColumnID] = [
-            {'column_id': get_column_id_by_header(sheet_index, pf['column_header']), 'filter': pf['filter']} 
+            {'column_id': get_column_id_by_header(sheet_index, pf['column_header']), 'filter_': pf['filter_']} 
             for pf in pivot_filters
         ] if pivot_filters is not None else []
 

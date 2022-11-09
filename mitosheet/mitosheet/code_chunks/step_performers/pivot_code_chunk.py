@@ -95,7 +95,7 @@ class PivotCodeChunk(CodeChunk):
             for column_id, value in values_column_ids_map.items()
         }
         pivot_filters: List[FilterOnColumnHeader] = [
-            {'column_header': self.prev_state.column_ids.get_column_header_by_id(sheet_index, pf['column_id']), 'filter': pf['filter']}
+            {'column_header': self.prev_state.column_ids.get_column_header_by_id(sheet_index, pf['column_id']), 'filter_': pf['filter_']}
             for pf in pivot_filters_ids
         ]
 
@@ -108,7 +108,7 @@ class PivotCodeChunk(CodeChunk):
         # First, filter down to the rows of the original dataframe that we need
         if len(pivot_filters) > 0:
             filter_strings = [
-                get_single_filter_string(old_df_name, pf['column_header'], pf['filter'])
+                get_single_filter_string(old_df_name, pf['column_header'], pf['filter_'])
                 for pf in pivot_filters
             ]
             full_filter_string = combine_filter_strings('And', filter_strings)

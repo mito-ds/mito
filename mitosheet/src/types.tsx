@@ -427,7 +427,7 @@ export interface FrontendPivotParams {
     // NOTE: storing these values as an array makes keeping an order of them
     // much much easier, and generally is the way to do it!
     pivotValuesColumnIDsArray: [ColumnID, AggregationType][],
-    pivotFilters: {column_id: ColumnID, filter: FilterType}[],
+    pivotFilters: {column_id: ColumnID, filter_: FilterType}[],
     flattenColumnHeaders: boolean,
     destinationSheetIndex?: number
 }
