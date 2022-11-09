@@ -9,7 +9,7 @@ This file contains utilities for anonyimizing data. See the README.md in
 this folder for more details on our approach to private telemetry.
 """
 
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from mitosheet.parser import parse_formula
 from mitosheet.telemetry.private_params_map import LOG_PARAMS_FORMULAS, LOG_PARAMS_MAP_KEYS_TO_MAKE_PRIVATE, LOG_PARAMS_TO_LINEARIZE, LOG_PARAMS_PUBLIC
 from mitosheet.types import StepsManagerType
@@ -49,7 +49,7 @@ def anonymize_as_string(word: Any) -> str:
     return valid_words[index_one] + valid_words[index_two] + valid_words[index_three]
 
 
-def anonymize_formula(formula: str, sheet_index: int, steps_manager: StepsManagerType=None) -> str:
+def anonymize_formula(formula: str, sheet_index: int, steps_manager: Optional[StepsManagerType]=None) -> str:
     """
     Helper function that anonymizes formula to 
     make sure that no private data is included in it.
@@ -88,7 +88,7 @@ def anonymize_object(obj: Any, anonymize_key: bool=False) -> Any:
     
     return anonymize_as_string(obj)
 
-def get_final_private_params_for_single_kv(key: str, value: Any, params: Dict[str, Any], steps_manager: StepsManagerType=None) -> Dict[str, Any]:
+def get_final_private_params_for_single_kv(key: str, value: Any, params: Dict[str, Any], steps_manager: Optional[StepsManagerType]=None) -> Dict[str, Any]:
     """
     Given a single key, value pair for a set of params, this function will 
     turn them into a totally anonyimized version of the parameter. 

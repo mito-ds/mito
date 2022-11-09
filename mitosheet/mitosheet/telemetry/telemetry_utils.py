@@ -14,7 +14,7 @@ import platform
 import sys
 import time
 from copy import copy
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from mitosheet.errors import MitoError, get_recent_traceback_as_list
 from mitosheet.telemetry.anonymization_utils import anonymize_object, get_final_private_params_for_single_kv
@@ -69,7 +69,7 @@ def telemetry_turned_on() -> bool:
     return telemetry if telemetry is not None else False
 
 
-def _get_anonymized_log_params(params: Dict[str, Any], steps_manager: StepsManagerType=None) -> Dict[str, Any]:
+def _get_anonymized_log_params(params: Dict[str, Any], steps_manager: Optional[StepsManagerType]=None) -> Dict[str, Any]:
     """
     Private params are where we _make sure_ that no private
     user data leaves the user's machine. We replace any potentially
@@ -89,7 +89,7 @@ def _get_anonymized_log_params(params: Dict[str, Any], steps_manager: StepsManag
     return private_params
 
 
-def _get_execution_data_log_params(steps_manager: StepsManagerType=None) -> Dict[str, Any]:
+def _get_execution_data_log_params(steps_manager: Optional[StepsManagerType]=None) -> Dict[str, Any]:
     """
     Get the execution params as well, again making sure
     to remove any private data.
@@ -108,7 +108,7 @@ def _get_execution_data_log_params(steps_manager: StepsManagerType=None) -> Dict
 
     return execution_data_params
 
-def _get_wsc_log_params(steps_manager: StepsManagerType=None) -> Dict[str, Any]:
+def _get_wsc_log_params(steps_manager: Optional[StepsManagerType]=None) -> Dict[str, Any]:
     """
     Get data from the widget state container that is useful for any
     log event. Note that none of this is private data.
@@ -129,7 +129,7 @@ def _get_wsc_log_params(steps_manager: StepsManagerType=None) -> Dict[str, Any]:
     else:
         return {}
 
-def _get_error_log_params(failed: bool=False, mito_error: MitoError=None)-> Dict[str, Any]:
+def _get_error_log_params(failed: bool=False, mito_error: Optional[MitoError]=None)-> Dict[str, Any]:
     """
     Get relevant logging data from any recently thrown error
     """
@@ -147,7 +147,7 @@ def _get_error_log_params(failed: bool=False, mito_error: MitoError=None)-> Dict
     else:
         return {}
 
-def _get_processing_time_log_params(steps_manager: StepsManagerType=None, start_time: float=None)-> Dict[str, Any]:
+def _get_processing_time_log_params(steps_manager: Optional[StepsManagerType]=None, start_time: Optional[float]=None)-> Dict[str, Any]:
     """
     Get data relevant for measuring performance impact
     """
@@ -251,7 +251,7 @@ def _get_experiment_params() -> Dict[str, Any]:
 
     return experiment_params
 
-def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, failed: bool=False, mito_error: MitoError=None, start_time: float=None) -> None:
+def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, failed: bool=False, mito_error: Optional[MitoError]=None, start_time: Optional[float]=None) -> None:
     """
     Helper function for logging when an event is processed by the backend,
     including an edit event, an api call, or an update event. 
@@ -340,7 +340,7 @@ def identify() -> None:
         })
 
 
-def log(log_event: str, params: Dict[str, Any]=None, steps_manager: StepsManagerType=None, failed: bool=False, mito_error: MitoError=None, start_time: float=None) -> None:
+def log(log_event: str, params: Optional[Dict[str, Any]]=None, steps_manager: Optional[StepsManagerType]=None, failed: bool=False, mito_error: Optional[MitoError]=None, start_time: Optional[float]=None) -> None:
     """
     This function is the entry point for all logging. It collects
     all relevant parameters, exeuction data, and more info while

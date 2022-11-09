@@ -14,7 +14,7 @@ in more detail in docs/README.md.
 NOTE: This file is alphabetical order!
 """
 import functools
-from typing import Tuple, Union
+from typing import Optional, Tuple, Union
 import pandas as pd
 import numpy as np
 
@@ -221,7 +221,7 @@ def KURT(series: pd.Series) -> pd.Series:
     'error',
     ('default', np.NaN)
 )
-def LOG(series: pd.Series, base: Union[int, float]=None) -> pd.Series:
+def LOG(series: pd.Series, base: Optional[Union[int, float]]=None) -> pd.Series:
     """
     {
         "function": "LOG",

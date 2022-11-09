@@ -6,13 +6,22 @@
 
 from typing import Collection, Dict, List, Optional, Union
 
+import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.filter_code_chunk import combine_filter_strings, get_single_filter_string
 from mitosheet.transpiler.transpile_utils import NEWLINE_TAB, column_header_list_to_transpiled_code
-from mitosheet.types import ColumnHeader
+from mitosheet.types import ColumnHeader, FilterOnColumnHeader, FilterOnColumnID
 
-# Helpful constants for code formatting
+USE_INPLACE_PIVOT = tuple([int(i) for i in pd.__version__.split('.')]) < (1, 5, 0)
 
-FLATTEN_CODE = f'pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1, inplace=True)'
+# Helpful constants for code formatting. The in_place parameter was depricated
+# since 1.5.0, so we use a different method for formatting in this case. We keep
+# it for earlier versions, as the set_axis functioned required this on pre 1.0 to
+# avoid ending up with a dataframe with no axis
+if USE_INPLACE_PIVOT:
+    FLATTEN_CODE = f'pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1, inplace=True)'
+else:
+    FLATTEN_CODE = f'pivot_table = pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1)'
 
 def values_to_functions_code(values: Dict[ColumnHeader, Collection[str]]) -> str:
     """
@@ -65,6 +74,7 @@ class PivotCodeChunk(CodeChunk):
         destination_sheet_index = self.get_param('destination_sheet_index')
         pivot_rows_column_ids = self.get_param('pivot_rows_column_ids')
         pivot_columns_column_ids = self.get_param('pivot_columns_column_ids')
+        pivot_filters_ids: List[FilterOnColumnID] = self.get_param('pivot_filters')
         values_column_ids_map = self.get_param('values_column_ids_map')
         flatten_column_headers = self.get_param('flatten_column_headers')
         was_series = self.get_execution_data('was_series')
@@ -84,17 +94,32 @@ class PivotCodeChunk(CodeChunk):
             self.prev_state.column_ids.get_column_header_by_id(sheet_index, column_id): value 
             for column_id, value in values_column_ids_map.items()
         }
-        
+        pivot_filters: List[FilterOnColumnHeader] = [
+            {'column_header': self.prev_state.column_ids.get_column_header_by_id(sheet_index, pf['column_id']), 'filter': pf['filter']}
+            for pf in pivot_filters_ids
+        ]
+
         # If there are no keys or values to aggregate on we return an empty dataframe. 
         if len(pivot_rows) == 0 and len(pivot_columns) == 0 or len(values) == 0:
             return [f'{new_df_name} = pd.DataFrame(data={{}})']
 
         transpiled_code = []
 
+        # First, filter down to the rows of the original dataframe that we need
+        if len(pivot_filters) > 0:
+            filter_strings = [
+                get_single_filter_string(old_df_name, pf['column_header'], pf['filter'])
+                for pf in pivot_filters
+            ]
+            full_filter_string = combine_filter_strings('And', filter_strings)
+            transpiled_code.append(f'tmp_df = {old_df_name}[{full_filter_string}]')
+            old_df_name = 'tmp_df' # update the old_df name, for the step below
+
         # Drop any columns we don't need, to avoid issues where pandas freaks out
         # and says there is a non-1-dimensional grouper
         column_headers_list = column_header_list_to_transpiled_code(list(set(pivot_rows + pivot_columns + list(values.keys()))))
         transpiled_code.append(f'tmp_df = {old_df_name}[{column_headers_list}]')
+
 
         # Do the actual pivot
         pivot_table_args = build_args_code(pivot_rows, pivot_columns, values)

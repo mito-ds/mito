@@ -321,9 +321,9 @@ def test_filter(df, condition, value, filtered_df):
 
     # if both dataframes are empty, then it passes
     if filtered_df.empty and mito.dfs[0].empty:
-        return True
-
-    assert mito.dfs[0].equals(filtered_df)
+        return
+    else:
+        assert mito.dfs[0].equals(filtered_df)
 
 
 # For speed, we only take 25 random filter tests.

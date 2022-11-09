@@ -11,11 +11,11 @@ all the files where it needs to be bumped.
 
 import json
 from sys import argv
-from typing import Tuple, Union
+from typing import Optional, Tuple, Union
 import urllib.request
 
 
-def get_pypi_version(package_name: str, on_dev: bool=None) -> str:
+def get_pypi_version(package_name: str, on_dev: Optional[bool]=None) -> str:
     """
     Utilities for getting the most recently deployed
     version of a Python package on a specific PyPi index.
@@ -64,7 +64,7 @@ def bump_version_mitoinstaller(on_dev: bool) -> None:
     with open('mitoinstaller/__init__.py', 'w+') as f:
         f.write(f'__version__ = \'{".".join(map(str, new_version))}\'')
 
-def bump_version(package: str, deploy_location: str, new_version: Tuple[int, int, int]=None) -> None:
+def bump_version(package: str, deploy_location: str, new_version: Optional[Tuple[int, int, int]]=None) -> None:
     """
     Bumps the version of the Mito project to the next minor logical version. Must pass
     the package as `mitosheet`, `mitosheet2`, or `mitosheet3`, so we know which version to bump.
