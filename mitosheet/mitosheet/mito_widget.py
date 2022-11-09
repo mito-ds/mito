@@ -64,7 +64,7 @@ class MitoWidget(DOMWidget):
         # Set up the state container to hold private widget state
         self.steps_manager = StepsManager(args, analysis_to_replay=analysis_to_replay)
 
-        self.mito_config = MitoConfig()
+        self.mito_config = MitoConfig() # type: ignore
 
         # Set up message handler
         self.on_msg(self.receive_message)
