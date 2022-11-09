@@ -4,6 +4,7 @@ import { AnalysisData } from "../types";
 import { isMitoError } from "../utils/errors";
 import { useDebouncedEffect } from "./useDebouncedEffect";
 import { useEffectOnUpdateEvent } from "./useEffectOnUpdateEvent";
+import { SheetData } from '../types' 
 
 /* 
     This is the first really cool custom hook. Generally, it allows you 
@@ -36,12 +37,13 @@ function useLiveUpdatingParams<FrontendParamType, BackendParamType>(
     analysisData: AnalysisData,
     debounceDelay: number,
     frontendToBackendConverters?: {
-        getBackendFromFrontend: (params: FrontendParamType) => BackendParamType,
-        getFrontendFromBackend: (params: BackendParamType) => FrontendParamType,
+        getBackendFromFrontend: (params: FrontendParamType, sheetDataArray?: SheetData[]) => BackendParamType,
+        getFrontendFromBackend: (params: BackendParamType, sheetDataArray?: SheetData[]) => FrontendParamType,
     },
     options?: {
         doNotSendDefaultParams: boolean,
     },
+    sheetDataArray?: SheetData[]
 ): {
         params: FrontendParamType | undefined, // If this is undefined, no messages will be sent to the backend
         setParams: React.Dispatch<React.SetStateAction<FrontendParamType>>, 
@@ -100,7 +102,7 @@ function useLiveUpdatingParams<FrontendParamType, BackendParamType>(
         }
 
         // Convert the frontend params to the backend params
-        const finalParams = converters.getBackendFromFrontend(params);
+        const finalParams = converters.getBackendFromFrontend(params, sheetDataArray);
 
         setLoading(true);
         const stepIDToSend = stepID || getRandomId();
@@ -126,7 +128,7 @@ function useLiveUpdatingParams<FrontendParamType, BackendParamType>(
 
         const newBackendParams = await mitoAPI.getParams<BackendParamType>(stepType, stepID, {});
         if (newBackendParams !== undefined) {
-            _setParams(converters.getFrontendFromBackend(newBackendParams));
+            _setParams(converters.getFrontendFromBackend(newBackendParams, sheetDataArray));
         } else {
             _setParams(defaultParams);
         }

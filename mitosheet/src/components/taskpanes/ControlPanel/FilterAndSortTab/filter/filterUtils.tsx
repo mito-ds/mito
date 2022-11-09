@@ -141,6 +141,46 @@ export const parseFilter = (filter: FilterType): FilterType => {
     return filter;
 }
 
+export const getFiltersToApply = (filters: (FilterType | FilterGroupType)[], columnDtype: string): (FilterType | FilterGroupType)[] => {
+    // To handle decimals, we allow decimals to be submitted, and then just
+    // parse them before they are sent to the back-end
+    const parsedFilters: (FilterType | FilterGroupType)[] = filters.map((filterOrGroup): FilterType | FilterGroupType => {
+        if (isFilterGroup(filterOrGroup)) {
+            return {
+                filters: filterOrGroup.filters.map((filter) => {
+                    return parseFilter(filter);
+                }),
+                operator: filterOrGroup.operator
+            }
+        } else {
+            return parseFilter(filterOrGroup)
+        }
+    })
+
+    const filtersToApply: (FilterType | FilterGroupType)[] = parsedFilters.map((filterOrGroup): FilterType | FilterGroupType => {
+        // Filter out these incomplete filters from the group
+        if (isFilterGroup(filterOrGroup)) {
+            return {
+                filters: filterOrGroup.filters.filter((filter) => {
+                    return isValidFilter(filter, columnDtype)
+                }),
+                operator: filterOrGroup.operator
+            }
+        } else {
+            return filterOrGroup
+        }
+    }).filter((filterOrGroup) => {
+        // Filter out the groups if they have no valid filters in them
+        if (isFilterGroup(filterOrGroup)) {
+            return filterOrGroup.filters.length > 0;
+        }
+        // And then we filter the non group filters to be non-empty
+        return isValidFilter(filterOrGroup, columnDtype)
+    });
+
+    return filtersToApply;
+}
+
 /*
     Returns all of the values that are filtered out through a does not contain filter 
 */

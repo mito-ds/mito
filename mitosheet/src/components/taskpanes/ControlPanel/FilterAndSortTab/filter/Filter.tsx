@@ -9,7 +9,7 @@ import XIcon from '../../../../icons/XIcon';
 import {  DatetimeFilterCondition, FilterType, Operator} from '../../../../../types';
 import DropdownItem from '../../../../elements/DropdownItem';
 import { isDatetimeDtype } from '../../../../../utils/dtypes';
-import { getFilterOptions } from './utils';
+import { getFilterOptions } from './filterUtils';
 
 
 export function Filter(

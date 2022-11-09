@@ -48,7 +48,8 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
             // If we have a destination sheet index, we make sure to not overwrite the pivot
             // that is there by default
             doNotSendDefaultParams: props.destinationSheetIndex !== undefined,
-        }
+        },
+        props.sheetDataArray
     )
 
 
