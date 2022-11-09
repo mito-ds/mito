@@ -174,7 +174,7 @@ def read_csv_get_delimiter_and_encoding(file_name: str) -> Tuple[pd.DataFrame, s
     return df, delimeter, encoding
 
 
-def guess_delimeter(file_name: str, encoding: str=None) -> str:
+def guess_delimeter(file_name: str, encoding: Optional[str]=None) -> str:
     """
     Given a path to a file that is assumed to exist and be a CSV, this
     function guesses the delimeter that is used by that file

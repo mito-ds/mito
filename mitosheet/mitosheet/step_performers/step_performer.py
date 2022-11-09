@@ -68,6 +68,7 @@ class StepPerformer(ABC, object):
         pass
 
     @classmethod
+    @abstractmethod
     def transpile(
         cls,
         prev_state: State,

@@ -12,6 +12,7 @@ explicit and clear, and make sure to test the types in our
 continous integration
 """
 
+from collections import namedtuple
 from typing import TYPE_CHECKING, Dict, List, Optional, Union, Tuple, Any
 
 GraphID = str
@@ -63,3 +64,23 @@ ConditionalFormattingResult = Dict[str, Union[
     ]
 ]
 
+
+import sys
+if sys.version_info[:3] > (3, 8, 0):
+    from typing import TypedDict
+
+    class FilterOnColumnID(TypedDict):
+        column_id: ColumnID
+        filter: Dict[str, Any]
+
+    class FilterOnColumnHeader(TypedDict):
+        column_header: ColumnHeader
+        filter: Dict[str, Any]
+
+    class FiltersOnColumnID(TypedDict):
+        column_id: Optional[ColumnID]
+        filters: List[Dict[str, Any]]
+else:
+    FilterOnColumnID = Any # type:ignore
+    FilterOnColumnHeader = Any # type:ignore
+    FiltersOnColumnID = Any # type:ignore

@@ -7,6 +7,7 @@
 Contains tests for edit events.
 """
 import random
+from typing import Type
 
 from mitosheet.step_performers import (
     STEP_PERFORMERS,
@@ -46,7 +47,7 @@ from mitosheet.step_performers.set_dataframe_format import SetDataframeFormatSte
 from mitosheet.step_performers.transpose import TransposeStepPerformer
 
 def check_step(
-        step_performer: StepPerformer, 
+        step_performer: Type[StepPerformer], 
         step_version: int, 
         step_type: str
     ) -> None:
@@ -104,7 +105,7 @@ def test_params_static():
     
     check_step(
         PivotStepPerformer,
-        6,
+        7,
         'pivot'
     )
 

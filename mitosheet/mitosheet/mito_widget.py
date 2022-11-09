@@ -53,7 +53,7 @@ class MitoWidget(DOMWidget):
     analysis_data_json = t.Unicode('').tag(sync=True) # type: ignore
     user_profile_json = t.Unicode('').tag(sync=True) # type: ignore
     
-    def __init__(self, *args: List[Union[pd.DataFrame, str]], analysis_to_replay: str=None):
+    def __init__(self, *args: List[Union[pd.DataFrame, str]], analysis_to_replay: Optional[str]=None):
         """
         Takes a list of dataframes and strings that are paths to CSV files
         passed through *args.
@@ -271,7 +271,7 @@ class MitoWidget(DOMWidget):
 
 def sheet(
         *args: Any,
-        analysis_to_replay: str=None, # This is the parameter that tracks the analysis that you want to replay (NOTE: requires a frontend to be replayed!)
+        analysis_to_replay: Optional[str]=None, # This is the parameter that tracks the analysis that you want to replay (NOTE: requires a frontend to be replayed!)
         view_df: bool=False, # We use this param to log if the mitosheet.sheet call is created from the df output button,
         # NOTE: if you add named variables to this function, make sure argument parsing on the front-end still
         # works by updating the getArgsFromCellContent function.

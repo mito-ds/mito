@@ -207,3 +207,44 @@ def upgrade_pivot_5_to_6(step: Dict[str, Any], later_steps: List[Dict[str, Any]]
     
     return [step] + later_steps
 
+def upgrade_pivot_6_to_7(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    When moving from pivot 6 to 7, we added the pivot_filters key, which contains
+    a list of filters. Each filter is applied to a specific column.
+
+    Old format: [
+        {
+            "step_version": 6, 
+            "step_type": "pivot", 
+            "params": {
+                sheet_index: 0,
+                pivot_rows_column_ids: List[_id_],
+                pivot_columns_column_ids: List[_id_],
+                values_column_ids_map: Dict[_id_, List[str]],
+                destination_sheet_index: 1,
+                flatten_column_headers: True
+            }
+        },
+    ]
+
+    New format: [
+        {
+            "step_version": 7, 
+            "step_type": "pivot", 
+            "params": {
+                sheet_index: 0,
+                pivot_rows_column_ids: List[_id_],
+                pivot_columns_column_ids: List[_id_],
+                values_column_ids_map: Dict[_id_, List[str]],
+                pivot_filters: {columnID: ColumnID, filter: FilterType}[]
+                destination_sheet_index: 1,
+                flatten_column_headers: True
+            }
+        },
+    ]
+    """
+    step['step_version'] = 7
+    step['params']['pivot_filters'] = []
+    
+    return [step] + later_steps
+
