@@ -71,11 +71,11 @@ if sys.version_info[:3] > (3, 8, 0):
 
     class FilterOnColumnID(TypedDict):
         column_id: ColumnID
-        filter_: Dict[str, Any]
+        filter: Dict[str, Any]
 
     class FilterOnColumnHeader(TypedDict):
         column_header: ColumnHeader
-        filter_: Dict[str, Any]
+        filter: Dict[str, Any]
 
     class FiltersOnColumnID(TypedDict):
         column_id: Optional[ColumnID]

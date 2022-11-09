@@ -95,7 +95,7 @@ class PivotStepPerformer(StepPerformer):
             for column_id, value in values_column_ids_map.items()
         }
         pivot_filters: List[FilterOnColumnHeader] = [
-            {'column_header': prev_state.column_ids.get_column_header_by_id(sheet_index, pf['column_id']), 'filter_': pf['filter_']}
+            {'column_header': prev_state.column_ids.get_column_header_by_id(sheet_index, pf['column_id']), 'filter': pf['filter']}
             for pf in pivot_filters_ids
         ]
 
@@ -213,7 +213,7 @@ def _execute_pivot(
     # First, we do the filtering on the initial dataframe, according to the pivot_filters
     if len(pivot_filters) > 0:
         filters = [
-            get_applied_filter(df, pf['column_header'], pf['filter_'])
+            get_applied_filter(df, pf['column_header'], pf['filter'])
             for pf in pivot_filters
         ]
         full_filter = combine_filters('And', filters)
