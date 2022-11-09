@@ -366,8 +366,29 @@ def test_pivot_with_filter_no_effect_on_source_data():
         ]
     )
 
-    assert len(mito.dfs[0]) == 2
-    assert len(mito.dfs[1]) == 1
+    assert mito.dfs[0].equals(df1)
+    assert mito.dfs[1].equals(pd.DataFrame({'Name': ['Nate'], 'Height sum': [5]}))
+
+
+def test_pivot_with_filter_reaplies ():
+    df1 = pd.DataFrame(data={'Name': ['ADR', 'Nate', 'Jake'], 'Height': [4, 5, 6]})
+    mito = create_mito_wrapper_dfs(df1)
+
+    pivot_filters = [{
+            'column_header': 'Height', 
+            'filter': {
+                'condition': FC_NUMBER_GREATER,
+                'value': 4
+            }
+        }
+    ]
+
+    mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']}, pivot_filters=pivot_filters)
+    mito.filter(0, 'Height', 'AND', FC_NUMBER_LESS, 6)
+    mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']}, pivot_filters=pivot_filters, destination_sheet_index=1)
+
+    assert mito.dfs[0].equals(pd.DataFrame({'Name': ['ADR', 'Nate'], 'Height': [4,5]}))
+    assert mito.dfs[1].equals(pd.DataFrame({'Name': ['Nate'], 'Height sum': [5]}))
 
 
 PIVOT_FILTER_TESTS: List[Any] = [
