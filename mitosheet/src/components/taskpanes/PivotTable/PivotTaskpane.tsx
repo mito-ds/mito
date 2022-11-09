@@ -12,6 +12,7 @@ import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import DataframeSelect from '../../elements/DataframeSelect';
 import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
+import PivotTableFilterSection from './PivotTableFilterSection';
 
 
 export type PivotTaskpaneProps = {
@@ -192,6 +193,14 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
                         addPivotValueAggregation={addPivotValueAggregation}
                         removePivotValueAggregation={removePivotValueAggregation}
                         editPivotValueAggregation={editPivotValueAggregation}
+                        mitoAPI={props.mitoAPI}
+                    />
+                </div>
+                <div className='default-taskpane-body-section-div'>
+                    <PivotTableFilterSection
+                        sheetData={sheetData}
+                        params={params}
+                        setParams={setParams}
                         mitoAPI={props.mitoAPI}
                     />
                 </div>
