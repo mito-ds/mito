@@ -17,9 +17,14 @@ from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.types import StepsManagerType
 from mitosheet.utils import NpEncoder
 
+MITO_CONFIG_KEY_HOME_FOLDER = 'MITO_HOME_FOLDER'
+if MITO_CONFIG_KEY_HOME_FOLDER in os.environ:
+    HOME_FOLDER = os.environ[MITO_CONFIG_KEY_HOME_FOLDER]
+else:
+    HOME_FOLDER = os.path.expanduser('~')
 
 # Where all global .mito files are stored
-MITO_FOLDER = os.path.expanduser("~/.mito")
+MITO_FOLDER = os.path.join(HOME_FOLDER, ".mito")
 
 # The current version of the saved Mito analysis
 # where we save all the analyses for this version
