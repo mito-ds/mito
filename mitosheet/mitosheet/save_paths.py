@@ -8,7 +8,7 @@ import os
 
 MITO_CONFIG_KEY_HOME_FOLDER = 'MITO_HOME_FOLDER'
 if MITO_CONFIG_KEY_HOME_FOLDER in os.environ:
-    HOME_FOLDER = os.environ[MITO_CONFIG_KEY_HOME_FOLDER]
+    HOME_FOLDER = os.path.expanduser(os.environ[MITO_CONFIG_KEY_HOME_FOLDER])
 else:
     HOME_FOLDER = os.path.expanduser('~')
 
