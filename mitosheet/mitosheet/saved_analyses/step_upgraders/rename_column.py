@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from copy import copy
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from mitosheet.saved_analyses.step_upgraders.utils_column_header_to_column_id import \
     replace_headers_with_id
 
@@ -13,7 +13,7 @@ def replace_column_header_in_params(
         old_column_header: str, 
         new_column_header: str, 
         params: Dict[str, Any],
-        keys: List[str]=None
+        keys: Optional[List[str]]=None
     ) -> Dict[str, Any]:
     """
     Replaces old_column_header with new_column_header wherever it occurs in params.

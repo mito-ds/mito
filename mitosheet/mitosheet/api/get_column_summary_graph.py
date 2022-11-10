@@ -6,7 +6,7 @@
 
 import json
 import pandas as pd
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 import plotly.express as px
 import plotly.graph_objects as go
 from mitosheet.step_performers.graph_steps.graph_utils import (
@@ -146,7 +146,7 @@ def filter_df_to_safe_size(
     graph_type: str,
     df: pd.DataFrame,
     column_headers: List[ColumnHeader],
-    other_axis_column_headers: List[ColumnHeader] = None,
+    other_axis_column_headers: Optional[List[ColumnHeader]] = None,
 ) -> pd.DataFrame:
     """
     A helper function that filters a dataframe down to a safe size

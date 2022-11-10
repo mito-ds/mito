@@ -13,6 +13,7 @@ export const getDefaultPivotParams = (sheetDataArray: SheetData[], sourceSheetIn
             pivotRowColumnIDs: [],
             pivotColumnsColumnIDs: [],
             pivotValuesColumnIDsArray: [],
+            pivotFilters: [],
             flattenColumnHeaders: true,
             destinationSheetIndex: undefined
         }
@@ -27,6 +28,7 @@ export const getPivotFrontendParamsFromBackendParams = (pivotParams: BackendPivo
         pivotRowColumnIDs: pivotParams.pivot_rows_column_ids,
         pivotColumnsColumnIDs: pivotParams.pivot_columns_column_ids,
         pivotValuesColumnIDsArray: valuesRecordToArray(pivotParams.values_column_ids_map),
+        pivotFilters: pivotParams.pivot_filters,
         flattenColumnHeaders: pivotParams.flatten_column_headers,
         destinationSheetIndex: pivotParams.destination_sheet_index
     };
@@ -40,6 +42,7 @@ export const getPivotBackendParamsFromFrontendParams = (params: FrontendPivotPar
         pivot_rows_column_ids: getDeduplicatedArray(params.pivotRowColumnIDs),
         pivot_columns_column_ids: getDeduplicatedArray(params.pivotColumnsColumnIDs),
         values_column_ids_map: valuesArrayToRecord(params.pivotValuesColumnIDsArray),
+        pivot_filters: params.pivotFilters,
         flatten_column_headers: params.flattenColumnHeaders,
         destination_sheet_index: params.destinationSheetIndex,
     }

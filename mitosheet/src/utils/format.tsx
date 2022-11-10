@@ -5,7 +5,7 @@ import { getNumberColumnIDs } from "../components/endo/selectionUtils"
 import { ColumnFormatType, ColumnID, NumberColumnFormatEnum, SheetData } from "../types"
 import DropdownCheckmark from '../components/icons/DropdownCheckmark'
 import { isFloatDtype, isIntDtype } from "./dtypes"
-import { getDefaultDataframeFormat } from "../components/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane"
+import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane"
 import DropdownSectionSeperator from "../components/elements/DropdownSectionSeperator"
 
 export const FORMAT_DISABLED_MESSAGE = 'You must have at least one number column selected to adjust the formatting.'

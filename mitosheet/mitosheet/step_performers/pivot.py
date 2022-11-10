@@ -8,16 +8,20 @@ from time import perf_counter
 from typing import Any, Callable, Collection, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
+
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.pivot_code_chunk import \
-    PivotCodeChunk
+from mitosheet.code_chunks.step_performers.pivot_code_chunk import (
+    USE_INPLACE_PIVOT, PivotCodeChunk)
 from mitosheet.column_headers import flatten_column_header
 from mitosheet.errors import make_invalid_pivot_error, make_no_column_error
 from mitosheet.state import DATAFRAME_SOURCE_PIVOTED, State
+from mitosheet.step_performers.filter import (combine_filters,
+                                              get_applied_filter)
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
 from mitosheet.telemetry.telemetry_utils import log
-from mitosheet.types import ColumnHeader, ColumnID
+from mitosheet.types import (ColumnHeader, ColumnID, FilterOnColumnHeader,
+                             FilterOnColumnID)
 
 # Aggregation types pivot supports
 PA_COUNT_UNIQUE = 'count unique'
@@ -42,7 +46,7 @@ class PivotStepPerformer(StepPerformer):
 
     @classmethod
     def step_version(cls) -> int:
-        return 6
+        return 7
 
     @classmethod
     def step_type(cls) -> str:
@@ -79,6 +83,7 @@ class PivotStepPerformer(StepPerformer):
         pivot_rows_column_ids: List[ColumnID] = get_param(params, 'pivot_rows_column_ids')
         pivot_columns_column_ids: List[ColumnID] = get_param(params, 'pivot_columns_column_ids')
         values_column_ids_map: Dict[ColumnID, Collection[str]] = get_param(params, 'values_column_ids_map')
+        pivot_filters_ids: List[FilterOnColumnID] = get_param(params, 'pivot_filters')
         flatten_column_headers: bool = get_param(params, 'flatten_column_headers')
         destination_sheet_index: Optional[int] = get_param(params, 'destination_sheet_index')
         use_deprecated_id_algorithm: bool = get_param(params, 'use_deprecated_id_algorithm') if get_param(params, 'use_deprecated_id_algorithm') else False
@@ -89,6 +94,10 @@ class PivotStepPerformer(StepPerformer):
             prev_state.column_ids.get_column_header_by_id(sheet_index, column_id): value 
             for column_id, value in values_column_ids_map.items()
         }
+        pivot_filters: List[FilterOnColumnHeader] = [
+            {'column_header': prev_state.column_ids.get_column_header_by_id(sheet_index, pf['column_id']), 'filter': pf['filter']}
+            for pf in pivot_filters_ids
+        ]
 
         # We check that the pivot by doesn't use any columns that don't exist
         columns_used = set(pivot_rows).union(set(pivot_columns)).union(set(values.keys()))
@@ -106,6 +115,7 @@ class PivotStepPerformer(StepPerformer):
             pivot_rows,
             pivot_columns,
             values,
+            pivot_filters,
             flatten_column_headers
         )
         pandas_processing_time = perf_counter() - pandas_start_time
@@ -173,6 +183,7 @@ def _execute_pivot(
         pivot_rows: List[ColumnHeader], 
         pivot_columns: List[ColumnHeader], 
         values: Dict[ColumnHeader, Collection[str]],
+        pivot_filters: List[FilterOnColumnHeader],
         flatten_column_headers: bool
     ) -> Tuple[pd.DataFrame, bool]:
     """
@@ -199,12 +210,21 @@ def _execute_pivot(
         args['values'] = values_keys
         args['aggfunc'] = values_to_functions(values)
 
+    # First, we do the filtering on the initial dataframe, according to the pivot_filters
+    if len(pivot_filters) > 0:
+        filters = [
+            get_applied_filter(df, pf['column_header'], pf['filter'])
+            for pf in pivot_filters
+        ]
+        full_filter = combine_filters('And', filters)
+        df = df[full_filter] # TODO: do we have to make a copy
 
-    # Before execution, we make a temp dataframe that does not have the columns 
+    # Then, we make a temp dataframe that does not have the columns 
     # we do not need, as this allows us to avoid a bug in pandas where these extra
     # columns cause a data
     unused_columns = df.columns.difference(set(pivot_rows).union(set(pivot_columns)).union(set(values_keys)))
     df = df.drop(unused_columns, axis=1)
+
 
     # While performing the pivot table, catch warnings that are created
     # by pandas so that we can log them.
@@ -225,7 +245,12 @@ def _execute_pivot(
         was_series = True
 
     if flatten_column_headers:
-        pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1, inplace=True)
+        # See comment in pivot_code_chunk, we avoid using inplace=True post pandas 1.5.0, as
+        # it is depricated
+        if USE_INPLACE_PIVOT:
+            pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1, inplace=True)
+        else:
+            pivot_table = pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1)
 
     # Reset the indexes of the pivot table
     pivot_table = pivot_table.reset_index()

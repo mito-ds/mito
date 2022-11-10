@@ -412,6 +412,7 @@ export interface BackendPivotParams {
     pivot_rows_column_ids: ColumnID[],
     pivot_columns_column_ids: ColumnID[],
     values_column_ids_map: Record<ColumnID, AggregationType[]>,
+    pivot_filters: {column_id: ColumnID, filter: FilterType}[],
     flatten_column_headers: boolean;
     destination_sheet_index?: number;
 }
@@ -426,6 +427,7 @@ export interface FrontendPivotParams {
     // NOTE: storing these values as an array makes keeping an order of them
     // much much easier, and generally is the way to do it!
     pivotValuesColumnIDsArray: [ColumnID, AggregationType][],
+    pivotFilters: {column_id: ColumnID, filter: FilterType}[],
     flattenColumnHeaders: boolean,
     destinationSheetIndex?: number
 }
@@ -626,8 +628,8 @@ interface Experiment {
 }
 
 export enum MitoEnterpriseConfigKey {
-    MEC_VERSION = 'mec_version',
-    SUPPORT_EMAIL = 'support_email'
+    MEC_VERSION = 'MITO_CONFIG_VERSION',
+    SUPPORT_EMAIL = 'MITO_CONFIG_SUPPORT_EMAIL'
 }
 
 
@@ -672,7 +674,8 @@ export interface AnalysisData {
  * @param userEmail - the email of the user. May be an empty string if they have not signed up yet
  * @param receivedTours - a list of the tours they have received
  * @param isPro - if the user is a pro user
- * @param excelImportEnabled - if the user has the necessary packages optional dependencies, and Python and Pandas version to import Excel files.
+ * @param pythonVersion - the version of the user's python installation
+ * @param pandasVersion - ther version of th user's pandas isntallation
  * @param telemetryEnabled - if the user has telemetry enabled
  * @param isLocalDeployment - if the user is deployed locally or not
  * @param shouldUpgradeMitosheet - if the user should upgrade their mitosheet
@@ -685,7 +688,8 @@ export interface UserProfile {
     receivedChecklists: Record<ChecklistID, string[] | undefined>;
 
     isPro: boolean;
-    excelImportEnabled: boolean;
+    pandasVersion: string;
+    pythonVersion: string;
     telemetryEnabled: boolean;
     isLocalDeployment: boolean;
     shouldUpgradeMitosheet: boolean;

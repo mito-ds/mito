@@ -184,7 +184,7 @@ def make_steps_json_obj(
 
     return steps_json_obj
 
-def write_analysis(steps_manager: StepsManagerType, analysis_name: str=None) -> None:
+def write_analysis(steps_manager: StepsManagerType, analysis_name: Optional[str]=None) -> None:
     """
     Writes the analysis saved in steps_manager to
     ~/.mito/{analysis_name}. If analysis_name is none, gets the temporary
