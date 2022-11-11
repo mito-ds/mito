@@ -843,8 +843,8 @@ export default class MitoAPI {
                 sheet_index: pivotParams.sourceSheetIndex,
                 // Deduplicate the rows and columns before sending them to the backend
                 // as otherwise this generates errors if you have duplicated key
-                pivot_rows_column_ids: getDeduplicatedArray(pivotParams.pivotRowColumnIDs),
-                pivot_columns_column_ids: getDeduplicatedArray(pivotParams.pivotColumnsColumnIDs),
+                pivot_rows_column_ids: getDeduplicatedArray(pivotParams.pivotRowColumnIDsWithTransforms),
+                pivot_columns_column_ids: getDeduplicatedArray(pivotParams.pivotColumnsColumnIDsWithTransforms),
                 values_column_ids_map: valuesArrayToRecord(pivotParams.pivotValuesColumnIDsArray),
                 flatten_column_headers: pivotParams.flattenColumnHeaders,
                 // Pass the optional destination_sheet_index, which will be removed

@@ -6,7 +6,7 @@ import MitoAPI from '../../../jupyter/api';
 import DropdownButton from '../../elements/DropdownButton';
 import Row from '../../layout/Row';
 import Col from '../../layout/Col';
-import { ColumnID, ColumnIDsMap } from '../../../types';
+import { ColumnID, ColumnIDsMap, ColumnIDWithPivotTransform } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import { columnIDMapToDisplayHeadersMap, getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import SelectAndXIconCard from '../../elements/SelectAndXIconCard';
@@ -20,18 +20,18 @@ const PivotTableKeySelection = (props: {
     sectionSubtext?: string;
     rowOrColumn: 'row' | 'column';
     columnIDsMap: ColumnIDsMap;
-    selectedColumnIDs: ColumnID[];
+    selectedColumnIDsWithTransforms: ColumnIDWithPivotTransform[];
     addKey: (columnID: ColumnID) => void;
     removeKey: (keyIndex: number) => void;
     editKey: (keyIndex: number, newColumnID: ColumnID) => void;
     mitoAPI: MitoAPI;
 }): JSX.Element => {
 
-    const pivotTableColumnIDsCards: JSX.Element[] = props.selectedColumnIDs.map((columnID, keyIndex) => {
+    const pivotTableColumnIDsCards: JSX.Element[] = props.selectedColumnIDsWithTransforms.map(({column_id}, keyIndex) => {
         return (
             <SelectAndXIconCard 
                 key={keyIndex}
-                value={columnID}
+                value={column_id}
                 titleMap={columnIDMapToDisplayHeadersMap(props.columnIDsMap)}
                 onChange={(columnID) => props.editKey(keyIndex, columnID)}
                 onDelete={() => props.removeKey(keyIndex)}
@@ -75,7 +75,7 @@ const PivotTableKeySelection = (props: {
             }
             <PivotInvalidSelectedColumnsError
                 columnIDsMap={props.columnIDsMap}
-                selectedColumnIDs={props.selectedColumnIDs}
+                selectedColumnIDs={props.selectedColumnIDsWithTransforms.map(({column_id}) => column_id)}
                 pivotSection={props.rowOrColumn}
                 mitoAPI={props.mitoAPI}
             />

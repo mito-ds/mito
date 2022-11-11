@@ -11,8 +11,8 @@ export const getDefaultPivotParams = (sheetDataArray: SheetData[], sourceSheetIn
     if (existingPivotParams === undefined) {
         return {
             sourceSheetIndex: sourceSheetIndex,
-            pivotRowColumnIDs: [],
-            pivotColumnsColumnIDs: [],
+            pivotRowColumnIDsWithTransforms: [],
+            pivotColumnsColumnIDsWithTransforms: [],
             pivotValuesColumnIDsArray: [],
             pivotFilters: [],
             flattenColumnHeaders: true,
@@ -26,8 +26,8 @@ export const getDefaultPivotParams = (sheetDataArray: SheetData[], sourceSheetIn
 export const getPivotFrontendParamsFromBackendParams = (pivotParams: BackendPivotParams): FrontendPivotParams => {
     return {
         sourceSheetIndex: pivotParams.sheet_index,
-        pivotRowColumnIDs: pivotParams.pivot_rows_column_ids,
-        pivotColumnsColumnIDs: pivotParams.pivot_columns_column_ids,
+        pivotRowColumnIDsWithTransforms: pivotParams.pivot_rows_column_ids_with_transforms,
+        pivotColumnsColumnIDsWithTransforms: pivotParams.pivot_columns_column_ids_with_transforms,
         pivotValuesColumnIDsArray: valuesRecordToArray(pivotParams.values_column_ids_map),
         pivotFilters: pivotParams.pivot_filters,
         flattenColumnHeaders: pivotParams.flatten_column_headers,
@@ -60,8 +60,8 @@ export const getPivotBackendParamsFromFrontendParams = (params: FrontendPivotPar
         sheet_index: params.sourceSheetIndex,
         // Deduplicate the rows and columns before sending them to the backend
         // as otherwise this generates errors if you have duplicated key
-        pivot_rows_column_ids: getDeduplicatedArray(params.pivotRowColumnIDs),
-        pivot_columns_column_ids: getDeduplicatedArray(params.pivotColumnsColumnIDs),
+        pivot_rows_column_ids_with_transforms: getDeduplicatedArray(params.pivotRowColumnIDsWithTransforms),
+        pivot_columns_column_ids_with_transforms: getDeduplicatedArray(params.pivotColumnsColumnIDsWithTransforms),
         values_column_ids_map: valuesArrayToRecord(params.pivotValuesColumnIDsArray),
         pivot_filters: pivotFiltersToApply,
         flatten_column_headers: params.flattenColumnHeaders,

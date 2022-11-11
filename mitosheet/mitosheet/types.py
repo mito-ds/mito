@@ -64,23 +64,32 @@ ConditionalFormattingResult = Dict[str, Union[
     ]
 ]
 
+PivotColumnTransformation = str
+
+
 
 import sys
 if sys.version_info[:3] > (3, 8, 0):
     from typing import TypedDict
 
-    class FilterOnColumnID(TypedDict):
+    class ColumnIDWithFilter(TypedDict):
         column_id: ColumnID
         filter: Dict[str, Any]
 
-    class FilterOnColumnHeader(TypedDict):
+    class ColumnHeaderWithFilter(TypedDict):
         column_header: ColumnHeader
         filter: Dict[str, Any]
 
-    class FiltersOnColumnID(TypedDict):
-        column_id: Optional[ColumnID]
-        filters: List[Dict[str, Any]]
+    class ColumnIDWithPivotTransform(TypedDict):
+        column_id: ColumnID
+        transformation: PivotColumnTransformation
+
+    class ColumnHeaderWithPivotTransform(TypedDict):
+        column_header: ColumnHeader
+        transformation: PivotColumnTransformation
+
 else:
-    FilterOnColumnID = Any # type:ignore
-    FilterOnColumnHeader = Any # type:ignore
-    FiltersOnColumnID = Any # type:ignore
+    ColumnIDWithFilter = Any # type:ignore
+    ColumnHeaderWithFilter = Any # type:ignore
+    ColumnIDWithPivotTransform = Any # type:ignore
+    ColumnHeaderWithPivotTransform = Any # type:ignore

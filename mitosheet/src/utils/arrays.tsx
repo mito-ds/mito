@@ -27,7 +27,9 @@ export function arraysContainSameValues<T>(array1: T[], array2: T[]): boolean {
 
 
 function onlyUnique<T>(value: T, index: number, self: T[]): boolean {
+    // TODO: make this work with deep compare with nested object
     return self.indexOf(value) === index;
+    
 }
 
 /* 
