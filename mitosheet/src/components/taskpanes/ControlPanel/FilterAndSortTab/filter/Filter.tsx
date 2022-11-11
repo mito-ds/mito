@@ -22,7 +22,8 @@ export function Filter(
         deleteFilter?: () => void;
         inGroup?: boolean;
         columnDtype: string | undefined; // Undefined displays all filter options!
-        nameLength: 'long_name' | 'short_name'
+        nameLength: 'long_name' | 'short_name',
+        suppressTopBottomMargin?: boolean;
     }): JSX.Element {
 
     // We hide the input if it is not necessary
@@ -36,7 +37,7 @@ export function Filter(
         (props.columnDtype === undefined && DATETIME_SELECT_OPTIONS[props.filter.condition as DatetimeFilterCondition] !== undefined)
 
     return (
-        <Row justify='space-between' align='center'>
+        <Row justify='space-between' align='center' suppressTopBottomMargin={props.suppressTopBottomMargin}>
             <Col span={!props.inGroup ? 4 : 5}>
                 {setOperator === undefined && 
                     <p className='text-body-1'>

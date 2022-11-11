@@ -83,7 +83,7 @@ const PivotTableFilterSection = (props: {
 
                     return (
                         <div className='mito-blue-container mb-5px' key={index}>
-                            <Row>
+                            <Row suppressTopBottomMargin>
                                 <SelectAndXIconCard
                                     value={column_id}
                                     titleMap={columnIDsToDisplayHeaders}
@@ -113,7 +113,7 @@ const PivotTableFilterSection = (props: {
                             <Row suppressTopBottomMargin>
                                 <Filter
                                     filter={filter}
-                                    operator={'And'}
+                                    operator='And'
                                     displayOperator={false}
                                     setFilter={(newFilter) => {
                                         props.setParams((prevParams) => {
@@ -126,8 +126,12 @@ const PivotTableFilterSection = (props: {
                                         })
                                     }}
                                     columnDtype={columnDtype}
-                                    nameLength={'long_name'}
+                                    nameLength='short_name'
+                                    suppressTopBottomMargin
                                 />
+                                {/** Space so it lines up well with SelectAndX */}
+                                <Col span={3.5}>
+                                </Col>
                             </Row>
                         </div>
                     )
