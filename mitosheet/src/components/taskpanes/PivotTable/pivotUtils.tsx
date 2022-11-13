@@ -54,14 +54,11 @@ export const getPivotBackendParamsFromFrontendParams = (params: FrontendPivotPar
             'filter': finalFilters[0]
         }
     }).filter((pf) => pf !== undefined) as {column_id: ColumnID, filter: FilterType}[];
-    console.log(params.pivotFilters, pivotFiltersToApply);
 
     return {
         sheet_index: params.sourceSheetIndex,
-        // Deduplicate the rows and columns before sending them to the backend
-        // as otherwise this generates errors if you have duplicated key
-        pivot_rows_column_ids_with_transforms: getDeduplicatedArray(params.pivotRowColumnIDsWithTransforms),
-        pivot_columns_column_ids_with_transforms: getDeduplicatedArray(params.pivotColumnsColumnIDsWithTransforms),
+        pivot_rows_column_ids_with_transforms: params.pivotRowColumnIDsWithTransforms,
+        pivot_columns_column_ids_with_transforms: params.pivotColumnsColumnIDsWithTransforms,
         values_column_ids_map: valuesArrayToRecord(params.pivotValuesColumnIDsArray),
         pivot_filters: pivotFiltersToApply,
         flatten_column_headers: params.flattenColumnHeaders,

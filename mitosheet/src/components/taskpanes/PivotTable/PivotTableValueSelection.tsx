@@ -1,14 +1,14 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { AggregationType, SheetData } from '../../../types';
+import { AggregationType, FrontendPivotParams, SheetData } from '../../../types';
 import PivotTableValueAggregationCard from './PivotTableValueAggregationCard';
 import PivotInvalidSelectedColumnsError from './PivotInvalidSelectedColumnsError';
 import MitoAPI from '../../../jupyter/api';
 import DropdownButton from '../../elements/DropdownButton';
 import Row from '../../layout/Row';
 import Col from '../../layout/Col';
-import { ColumnID, ColumnIDsMap } from '../../../types';
+import { ColumnID } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 
@@ -17,14 +17,13 @@ import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
   user select column headers to add to the row or column keys
 */
 const PivotTableValueSelection = (props: {
+    mitoAPI: MitoAPI,
     sheetData: SheetData | undefined,
-    columnIDsMap: ColumnIDsMap,
-    pivotValuesColumnIDsArray: [ColumnID, AggregationType][];
-    addPivotValueAggregation: (columnID: ColumnID) => void;
-    removePivotValueAggregation: (valueIndex: number) => void;
-    editPivotValueAggregation: (valueIndex: number, newAggregationType: AggregationType, newColumnID: string) => void;
-    mitoAPI: MitoAPI;
+    params: FrontendPivotParams,
+    setParams: React.Dispatch<React.SetStateAction<FrontendPivotParams>>
 }): JSX.Element => {
+
+    const columnIDsMap = props.sheetData?.columnIDsMap || {};
 
     return (
         <div>
@@ -40,13 +39,20 @@ const PivotTableValueSelection = (props: {
                         width='small'
                         searchable
                     >
-                        {Object.entries(props.columnIDsMap).map(([columnID, columnHeader]) => {
+                        {Object.entries(columnIDsMap).map(([columnID, columnHeader]) => {
                             return (
                                 <DropdownItem
                                     key={columnID}
                                     title={getDisplayColumnHeader(columnHeader)}
                                     onClick={() => {
-                                        props.addPivotValueAggregation(columnID)
+                                        props.setParams(oldPivotParams => {
+                                            const newPivotValuesIDs = [...oldPivotParams.pivotValuesColumnIDsArray];
+                                            newPivotValuesIDs.push([columnID, AggregationType.COUNT]);
+                                            return {
+                                                ...oldPivotParams,
+                                                pivotValuesColumnIDsArray: newPivotValuesIDs,
+                                            }
+                                        })
                                     }}
                                 />
                             )
@@ -55,27 +61,43 @@ const PivotTableValueSelection = (props: {
                 </Col>
             </Row>
             <PivotInvalidSelectedColumnsError
-                columnIDsMap={props.columnIDsMap}
+                columnIDsMap={columnIDsMap}
                 pivotSection={'values'}
-                selectedColumnIDs={props.pivotValuesColumnIDsArray.map(([columnID, ]) => columnID)}
+                selectedColumnIDs={props.params.pivotValuesColumnIDsArray.map(([columnID, ]) => columnID)}
                 mitoAPI={props.mitoAPI}
             />
             {
-                props.pivotValuesColumnIDsArray.map(([columnID, aggregationType], valueIndex) => {
+                props.params.pivotValuesColumnIDsArray.map(([columnID, aggregationType], valueIndex) => {
                     const columnDtype = props.sheetData?.columnDtypeMap[columnID] || '';
 
                     return (
                         <PivotTableValueAggregationCard
                             key={columnID + valueIndex + aggregationType}
-                            columnIDsMap={props.columnIDsMap}
+                            columnIDsMap={columnIDsMap}
                             columnID={columnID}
                             columnDtype={columnDtype}
                             aggregationType={aggregationType}
                             removePivotValueAggregation={() => {
-                                props.removePivotValueAggregation(valueIndex);
+                                props.setParams(oldPivotParams => {
+                                    const newPivotValuesIDs = [...oldPivotParams.pivotValuesColumnIDsArray];
+                                    newPivotValuesIDs.splice(valueIndex, 1);
+                        
+                                    return {
+                                        ...oldPivotParams,
+                                        pivotValuesColumnIDsArray: newPivotValuesIDs,
+                                    }
+                                })
                             }}
                             editPivotValueAggregation={(newAggregationType: AggregationType, newColumnID: ColumnID) => {
-                                props.editPivotValueAggregation(valueIndex, newAggregationType, newColumnID);
+                                props.setParams(oldPivotParams => {
+                                    const newPivotValuesIDs = [...oldPivotParams.pivotValuesColumnIDsArray];
+                                    newPivotValuesIDs[valueIndex] = [newColumnID, newAggregationType];
+                        
+                                    return {
+                                        ...oldPivotParams,
+                                        pivotValuesColumnIDsArray: newPivotValuesIDs,
+                                    }
+                                })
                             }}
                         />
                     )

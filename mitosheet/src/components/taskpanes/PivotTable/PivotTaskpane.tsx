@@ -6,7 +6,7 @@ import PivotTableKeySelection from './PivotTableKeySelection';
 import PivotTableValueSelection from './PivotTableValueSelection';
 import MitoAPI from '../../../jupyter/api';
 import { getPivotFrontendParamsFromBackendParams, getPivotBackendParamsFromFrontendParams, getDefaultPivotParams } from './pivotUtils';
-import { AggregationType, AnalysisData, BackendPivotParams, ColumnID, ColumnIDsMap, ColumnIDWithPivotTransform, SheetData, StepType, UIState } from '../../../types';
+import { AnalysisData, BackendPivotParams, ColumnIDsMap, SheetData, StepType, UIState } from '../../../types';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
@@ -51,95 +51,12 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
         },
         props.sheetDataArray
     )
-
-
+    
     if (params === undefined) {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
     }
 
-
-    const addPivotValueAggregation = (columnID: ColumnID): void => {
-        setParams(oldPivotParams => {
-            const newPivotValuesIDs = [...oldPivotParams.pivotValuesColumnIDsArray];
-            newPivotValuesIDs.push([columnID, AggregationType.COUNT]);
-            return {
-                ...oldPivotParams,
-                pivotValuesColumnIDsArray: newPivotValuesIDs,
-            }
-        })
-    }
-
-    const removePivotValueAggregation = (valueIndex: number): void => {
-        setParams(oldPivotParams => {
-            const newPivotValuesIDs = [...oldPivotParams.pivotValuesColumnIDsArray];
-            newPivotValuesIDs.splice(valueIndex, 1);
-
-            return {
-                ...oldPivotParams,
-                pivotValuesColumnIDsArray: newPivotValuesIDs,
-            }
-        })
-    }
-
-    const editPivotValueAggregation = (valueIndex: number, newAggregationType: AggregationType, newColumnID: ColumnID): void => {
-        setParams(oldPivotParams => {
-            const newPivotValuesIDs = [...oldPivotParams.pivotValuesColumnIDsArray];
-            newPivotValuesIDs[valueIndex] = [newColumnID, newAggregationType];
-
-            return {
-                ...oldPivotParams,
-                pivotValuesColumnIDsArray: newPivotValuesIDs,
-            }
-        })
-    }
-
-    const addKey = (rowOrColumn: 'row' | 'column', columnID: ColumnID): void => {
-        setParams(oldPivotParams => {
-            const newColumnIDs: ColumnIDWithPivotTransform[] = rowOrColumn === 'row' ? [...params.pivotRowColumnIDsWithTransforms] : [...params.pivotColumnsColumnIDsWithTransforms];
-            const key = rowOrColumn === 'row' ? 'pivotRowColumnIDsWithTransforms' : 'pivotColumnsColumnIDsWithTransforms';
-            
-            newColumnIDs.push({
-                'column_id': columnID,
-                'transformation': 'no-op'
-            })
-    
-            return {
-                ...oldPivotParams,
-                [key]: newColumnIDs,
-            }
-        })
-    }
-
-    const removeKey = (rowOrColumn: 'row' | 'column', keyIndex: number): void => {
-        setParams(oldPivotParams => {
-            const newColumnIDsWithTransforms: ColumnIDWithPivotTransform[] = rowOrColumn === 'row' ? [...params.pivotRowColumnIDsWithTransforms] : [...params.pivotColumnsColumnIDsWithTransforms];
-            const key = rowOrColumn === 'row' ? 'pivotRowColumnIDsWithTransforms' : 'pivotColumnsColumnIDsWithTransforms';
-            
-            newColumnIDsWithTransforms.splice(keyIndex, 1);
-    
-            return {
-                ...oldPivotParams,
-                [key]: newColumnIDsWithTransforms,
-            }
-        })
-    }
-
-    const editKey = (rowOrColumn: 'row' | 'column', keyIndex: number, newColumnID: ColumnID): void => {
-        setParams(oldPivotParams => {
-            const newColumnIDs: ColumnIDWithPivotTransform[] = rowOrColumn === 'row' ? [...params.pivotRowColumnIDsWithTransforms] : [...params.pivotColumnsColumnIDsWithTransforms];
-            const key = rowOrColumn === 'row' ? 'pivotRowColumnIDsWithTransforms' : 'pivotColumnsColumnIDsWithTransforms';
-            
-            newColumnIDs[keyIndex].column_id = newColumnID;
-    
-            return {
-                ...oldPivotParams,
-                [key]: newColumnIDs,
-            }
-        })
-    }
-
     const sheetData: SheetData | undefined = props.sheetDataArray[params.sourceSheetIndex];
-    const columnIDsMap = props.columnIDsMapArray[params.sourceSheetIndex] || {}; // Make sure it's not undefined
     
     return (
         <DefaultTaskpane>
@@ -166,38 +83,31 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
                 />
                 <div className = 'default-taskpane-body-section-div'>
                     <PivotTableKeySelection
-                        sectionTitle='Rows'
-                        columnIDsMap={columnIDsMap}
-                        selectedColumnIDsWithTransforms={params.pivotRowColumnIDsWithTransforms}
-                        addKey={(columnID) => {addKey('row', columnID)}}
-                        removeKey={(keyIndex) => {removeKey('row', keyIndex)}}
-                        editKey={(keyIndex, newColumnID) => {editKey('row', keyIndex, newColumnID)}}
                         mitoAPI={props.mitoAPI}
-                        rowOrColumn='row'
+                        sheetData={sheetData}
+                        sectionTitle='Rows'
+                        params={params}
+                        setParams={setParams}
+                        rowOrColumn='pivotRowColumnIDsWithTransforms'
                     />
                 </div>
                 <div className = 'default-taskpane-body-section-div'>
                     <PivotTableKeySelection
-                        sectionTitle='Columns'
-                        sectionSubtext={'For best performance, select columns with a small number of unique values.'}
-                        columnIDsMap={columnIDsMap}
-                        selectedColumnIDsWithTransforms={params.pivotColumnsColumnIDsWithTransforms}
-                        addKey={(columnID) => {addKey('column', columnID)}}
-                        removeKey={(keyIndex) => {removeKey('column', keyIndex)}}
-                        editKey={(keyIndex, newColumnID) => {editKey('column', keyIndex, newColumnID)}}
                         mitoAPI={props.mitoAPI}
-                        rowOrColumn='column'
+                        sheetData={sheetData}
+                        sectionTitle='Columns'
+                        sectionSubtext='For best performance, select columns with a small number of unique values.'
+                        params={params}
+                        setParams={setParams}
+                        rowOrColumn='pivotColumnsColumnIDsWithTransforms'
                     />
                 </div>
                 <div className='default-taskpane-body-section-div'>
                     <PivotTableValueSelection
-                        sheetData={sheetData}
-                        columnIDsMap={columnIDsMap}
-                        pivotValuesColumnIDsArray={params.pivotValuesColumnIDsArray}
-                        addPivotValueAggregation={addPivotValueAggregation}
-                        removePivotValueAggregation={removePivotValueAggregation}
-                        editPivotValueAggregation={editPivotValueAggregation}
                         mitoAPI={props.mitoAPI}
+                        sheetData={sheetData}
+                        params={params}
+                        setParams={setParams}
                     />
                 </div>
                 <div className='default-taskpane-body-section-div'>
