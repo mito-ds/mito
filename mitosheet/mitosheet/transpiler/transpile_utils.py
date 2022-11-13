@@ -41,7 +41,10 @@ def column_header_to_transpiled_code(column_header: ColumnHeader) -> str:
         column_header_parts_joined = ', '.join(column_header_parts)
         return f'({column_header_parts_joined})'
 
-    if isinstance(column_header, int) or isinstance(column_header, float) or isinstance(column_header, bool):
+    # We must handle np.nan first because isinstance(np.nan, float) evaluates to True
+    if column_header is pd.np.nan:
+        return 'pd.np.nan'
+    elif isinstance(column_header, int) or isinstance(column_header, float) or isinstance(column_header, bool):
         return str(column_header)
     elif isinstance(column_header, pd.Timestamp):
         return f'pd.to_datetime(\'{column_header.strftime("%Y-%m-%d %X")}\')'
