@@ -42,7 +42,8 @@ def column_header_to_transpiled_code(column_header: ColumnHeader) -> str:
         return f'({column_header_parts_joined})'
 
     # We must handle np.nan first because isinstance(np.nan, float) evaluates to True
-    if column_header is pd.np.nan:
+    from mitosheet.saved_analyses.schema_utils import is_prev_version
+    if not is_prev_version(pd.__version__, '0.24.0') and column_header is pd.np.nan:
         return 'pd.np.nan'
     elif isinstance(column_header, int) or isinstance(column_header, float) or isinstance(column_header, bool):
         return str(column_header)
