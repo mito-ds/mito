@@ -17,11 +17,7 @@ import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap, get_column_header_display
 from mitosheet.sheet_functions.types.utils import get_float_dt_td_columns
-from mitosheet.types import (ColumnHeader, ColumnID,
-                             ConditionalFormattingCellResults,
-                             ConditionalFormattingInvalidResults,
-                             ConditionalFormattingResult, DataframeFormat,
-                             StateType)
+from mitosheet.types import (ColumnHeader, ColumnID, DataframeFormat, StateType)
 
 # We only send the first 1500 rows of a dataframe; note that this
 # must match this variable defined on the front-end
@@ -87,63 +83,6 @@ def is_default_df_names(df_names: List[str]) -> bool:
     """
     return len(df_names) > 0 and df_names == [f'df{i + 1}' for i in range(len(df_names))]
 
-
-def get_conditonal_formatting_result(
-        state: StateType,
-        sheet_index: int,
-        df: pd.DataFrame,
-        conditional_formatting_rules: List[Dict[str, Any]],
-        max_rows: Optional[int]=MAX_ROWS,
-    ) -> ConditionalFormattingResult: 
-    from mitosheet.step_performers.filter import check_filters_contain_condition_that_needs_full_df
-
-    invalid_conditional_formats: ConditionalFormattingInvalidResults = dict()
-    formatted_result: ConditionalFormattingCellResults = dict()
-
-    for conditional_format in conditional_formatting_rules:
-        try:
-
-            format_uuid = conditional_format["format_uuid"]
-            column_ids = conditional_format["columnIDs"]
-
-            for column_id in column_ids:
-                if column_id not in formatted_result:
-                    formatted_result[column_id] = dict()
-
-                filters  = conditional_format["filters"]
-                backgroundColor = conditional_format.get("backgroundColor", None)
-                color = conditional_format.get("color", None)
-                
-                # Certain filter conditions require the entire dataframe to be present, as they calculate based
-                # on the full dataframe. In other cases, we only operate on the first 1500 rows, for speed
-                _df = df
-                if not check_filters_contain_condition_that_needs_full_df(filters):
-                    df = df.head(max_rows)
-
-                column_header = state.column_ids.get_column_header_by_id(sheet_index, column_id)
-
-                # Use the get_applied_filter function from our filtering infrastructure
-                from mitosheet.step_performers.filter import \
-                    get_full_applied_filter
-                full_applied_filter, _ = get_full_applied_filter(_df, column_header, 'And', filters)
-
-                # We can only take the first max_rows here, as this is all we need
-                applied_indexes = _df[full_applied_filter].head(max_rows).index.tolist()
-
-                for index in applied_indexes:
-                    # We need to make this index valid json, and do so in a way that is consistent with how indexes
-                    # are sent to the frontend
-                    json_index = json.dumps(index, cls=NpEncoder)
-                    formatted_result[column_id][json_index] = {'backgroundColor': backgroundColor, 'color': color}
-        except Exception as e:
-            if format_uuid not in invalid_conditional_formats:
-                invalid_conditional_formats[format_uuid] = []
-            invalid_conditional_formats[format_uuid].append(column_id)
-
-    return {
-        'invalid_conditional_formats': invalid_conditional_formats,
-        'results': formatted_result
-    }
 
 def dfs_to_array_for_json(
         state: StateType,
@@ -244,6 +183,9 @@ def df_to_json_dumpsable(
             column_final_data['columnData'].append(row[column_index] if column_index < MAX_COLUMNS else None)
         
         final_data.append(column_final_data) 
+
+    # Import just before we use it to avoid circular imports
+    from mitosheet.pro.conditional_formatting_utils import get_conditonal_formatting_result
     
     return {
         "dfName": df_name,

@@ -9,10 +9,8 @@ Contains tests for a column rename.
 
 import pandas as pd
 import numpy as np
-import pytest
 
 from mitosheet.tests.test_utils import create_mito_wrapper, create_mito_wrapper_dfs
-from mitosheet.column_headers import get_column_header_id
 
 def test_rename_works():
     mito = create_mito_wrapper([1])

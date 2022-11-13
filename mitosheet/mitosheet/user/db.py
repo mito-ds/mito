@@ -10,9 +10,7 @@ Helpers for accessing the user.json file
 import os
 import json
 from typing import Any, Dict, Optional
-
-# Where all global .mito files are stored
-MITO_FOLDER = os.path.join(os.path.expanduser("~"), '.mito')
+from mitosheet.save_paths import MITO_FOLDER
 
 # The path of the user.json file
 USER_JSON_PATH = os.path.join(MITO_FOLDER, 'user.json')

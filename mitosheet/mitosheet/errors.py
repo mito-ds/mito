@@ -155,7 +155,7 @@ def make_columns_exists_error(column_headers: Iterable[ColumnHeader]) -> MitoErr
         f'{(", ").join(map(str, column_headers))} alread exist. Try renaming these columns!'
     )
 
-def make_invalid_formula_error(formula: str, to_fix: str=None, error_modal: bool=True) -> MitoError:
+def make_invalid_formula_error(formula: str, to_fix: Optional[str]=None, error_modal: bool=True) -> MitoError:
     """
     Helper function for creating a invalid_formula_error.
 

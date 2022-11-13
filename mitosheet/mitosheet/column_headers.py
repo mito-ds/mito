@@ -18,7 +18,7 @@ of the column header. For string column headers, they are just
 themselves.
 """
 import random
-from typing import Any, Collection, Dict, List
+from typing import Any, Collection, Dict, List, Optional
 
 import pandas as pd
 
@@ -151,7 +151,7 @@ class ColumnIDMap():
         self.column_id_to_column_header[sheet_index][column_id] = column_header
         self.column_header_to_column_id[sheet_index][column_header] = column_id
 
-    def add_df(self, df: pd.DataFrame, sheet_index: int=None, use_deprecated_id_algorithm: bool=False) -> Dict[str, ColumnHeader]:
+    def add_df(self, df: pd.DataFrame, sheet_index: Optional[int]=None, use_deprecated_id_algorithm: bool=False) -> Dict[str, ColumnHeader]:
         """
         Adds all of the keys for the new dataframe to the column id 
         mappings.
@@ -207,7 +207,7 @@ class ColumnIDMap():
         del self.column_id_to_column_header[sheet_index][column_id]
         self.column_header_to_column_id[sheet_index][column_header]
 
-    def get_column_ids(self, sheet_index: int, column_headers: Collection[ColumnHeader]=None) -> List[str]:
+    def get_column_ids(self, sheet_index: int, column_headers: Optional[Collection[ColumnHeader]]=None) -> List[str]:
         if column_headers is None:
             return list(self.column_id_to_column_header[sheet_index].keys())
         try:

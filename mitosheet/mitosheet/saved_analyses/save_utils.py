@@ -16,10 +16,7 @@ from mitosheet._version import __version__
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.types import StepsManagerType
 from mitosheet.utils import NpEncoder
-
-
-# Where all global .mito files are stored
-MITO_FOLDER = os.path.expanduser("~/.mito")
+from mitosheet.save_paths import MITO_FOLDER
 
 # The current version of the saved Mito analysis
 # where we save all the analyses for this version
@@ -184,7 +181,7 @@ def make_steps_json_obj(
 
     return steps_json_obj
 
-def write_analysis(steps_manager: StepsManagerType, analysis_name: str=None) -> None:
+def write_analysis(steps_manager: StepsManagerType, analysis_name: Optional[str]=None) -> None:
     """
     Writes the analysis saved in steps_manager to
     ~/.mito/{analysis_name}. If analysis_name is none, gets the temporary

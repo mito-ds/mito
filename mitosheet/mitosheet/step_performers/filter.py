@@ -234,7 +234,7 @@ def get_applied_filter(
     raise Exception(f"Invalid type passed in filter {filter_}")
 
 
-def combine_filters(operator: str, filters: pd.Series) -> pd.Series:
+def combine_filters(operator: str, filters: List[pd.Series]) -> pd.Series:
     def filter_reducer(filter_one: pd.Series, filter_two: pd.Series) -> pd.Series:
         # Helper for combining filters based on the operations
         if operator == "Or":

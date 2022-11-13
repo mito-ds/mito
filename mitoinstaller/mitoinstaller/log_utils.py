@@ -10,7 +10,7 @@ import platform
 import re
 import sys
 import traceback
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import analytics
 
@@ -67,7 +67,7 @@ def get_recent_traceback() -> str:
     """
     return re.sub(r'File ".*[\\/]([^\\/]+.py)"', r'File "\1"', traceback.format_exc())
 
-def log_error(event: str, params: Dict[str, Any]=None) -> None:
+def log_error(event: str, params: Optional[Dict[str, Any]]=None) -> None:
     """
     Logs an error by adding the traceback to the error, for easier 
     debugging.
@@ -113,7 +113,7 @@ def _get_experiment_params() -> Dict[str, Any]:
     return experiment_params
 
 
-def log(event: str, params: Dict[str, Any]=None) -> None:
+def log(event: str, params: Optional[Dict[str, Any]]=None) -> None:
     """
     A utility that all logging should pass through
     """

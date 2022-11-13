@@ -57,13 +57,13 @@ class State:
     def __init__(
         self,
         dfs: Collection[pd.DataFrame],
-        df_names: List[str] = None,
-        df_sources: List[str] = None,
-        column_ids: ColumnIDMap = None,
-        column_spreadsheet_code: List[Dict[ColumnID, str]] = None,
-        column_filters: List[Dict[ColumnID, Any]] = None,
-        df_formats: List[DataframeFormat] = None,
-        graph_data_dict: "OrderedDict[str, Dict[str, Any]]" = None
+        df_names: Optional[List[str]]=None,
+        df_sources: Optional[List[str]]=None,
+        column_ids: Optional[ColumnIDMap]=None,
+        column_spreadsheet_code: Optional[List[Dict[ColumnID, str]]]=None,
+        column_filters: Optional[List[Dict[ColumnID, Any]]]=None,
+        df_formats: Optional[List[DataframeFormat]]=None,
+        graph_data_dict: "Optional[OrderedDict[str, Dict[str, Any]]]"=None
     ):
 
         # The dataframes that are in the state
@@ -156,10 +156,10 @@ class State:
         self,
         new_df: pd.DataFrame,
         df_source: str,
-        sheet_index: int = None,
-        df_name: str = None,
-        df_format: DataframeFormat = None,
-        use_deprecated_id_algorithm: bool = False, 
+        sheet_index: Optional[int]=None,
+        df_name: Optional[str]=None,
+        df_format: Optional[DataframeFormat]=None,
+        use_deprecated_id_algorithm: bool=False, 
     ) -> int:
         """
         Helper function for adding a new dataframe to this state,
