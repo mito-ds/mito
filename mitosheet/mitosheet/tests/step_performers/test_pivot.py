@@ -50,7 +50,6 @@ def test_simple_pivot_does_not_let_spaces_stay_in_columns():
     mito = create_mito_wrapper_dfs(df1)
     mito.pivot_sheet(0, [], ['Name'], {'Height': ['sum']})
 
-    print(mito.dfs[1])
     assert mito.dfs[1].equals(
         pd.DataFrame(data={'level_0': ['Height'], 'level_1': ['sum'], 'Nate Rush': [4]})
     )
@@ -373,6 +372,9 @@ def test_pivot_deduplicates_multiple_keys():
     mito.pivot_sheet(0, [], ['Name', 'Name', 'Name'], {'Height': ['sum']})
     
     assert len(mito.dfs) == 3
+    assert mito.dfs[0].equals(df1)
+    assert mito.dfs[1].equals(pd.DataFrame({'Name': ['ADR', 'Nate'], 'Height sum': [4, 5]}))
+    assert mito.dfs[2].equals(pd.DataFrame({'level_0': ['Height'], 'level_1': ['sum'], 'ADR': [4], 'Nate': [5]}))
 
 def test_pivot_with_filter_no_effect_on_source_data():
     df1 = pd.DataFrame(data={'Name': ['ADR', 'Nate'], 'Height': [4, 5]})
@@ -830,7 +832,6 @@ def test_pivot_transform(original_df, pivot_rows, pivot_columns, values, pivoted
     mito.pivot_sheet(0, pivot_rows, pivot_columns, values)
 
     assert mito.dfs[0].equals(original_df)
-    print(mito.dfs[1])
     assert mito.dfs[1].equals(pivoted_df)
 
 

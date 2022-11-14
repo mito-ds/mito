@@ -9,12 +9,10 @@ import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Gra
 import { CSVFileMetadata } from "../components/import/CSVImportConfigScreen";
 import { FileElement } from "../components/taskpanes/FileImport/FileImportTaskpane";
 import { ExcelFileMetadata } from "../components/import/XLSXImportConfigScreen";
-import { valuesArrayToRecord } from "../components/taskpanes/PivotTable/pivotUtils";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
-import { BackendPivotParams, DataframeFormat, FrontendPivotParams } from "../types";
+import { BackendPivotParams, DataframeFormat } from "../types";
 import { ColumnID, FeedbackID, FilterGroupType, FilterType, GraphID, MitoError, GraphParamsFrontend } from "../types";
-import { getDeduplicatedArray } from "../utils/arrays";
 
 
 /*

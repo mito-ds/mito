@@ -1,5 +1,4 @@
 import { AggregationType, BackendPivotParams, ColumnID, FilterType, FrontendPivotParams, SheetData } from "../../../types";
-import { getDeduplicatedArray } from "../../../utils/arrays";
 import { getFiltersToApply } from "../ControlPanel/FilterAndSortTab/filter/filterUtils";
 
 

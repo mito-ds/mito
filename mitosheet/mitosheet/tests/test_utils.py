@@ -549,8 +549,9 @@ class MitoWidgetTestWrapper:
     def pivot_sheet(
             self, 
             sheet_index: int, 
-            # you can use this API to either pass just column headers, or optionally
-            # column headers with 
+            # For convenience, you can use this testing API to either pass just column headers, or optionally
+            # column headers with transforms attached to them. This function turns them
+            # into the correct format before passing them to the backend
             pivot_rows: Union[List[ColumnHeader], List[ColumnHeaderWithPivotTransform]],
             pivot_columns: Union[List[ColumnHeader], List[ColumnHeaderWithPivotTransform]],
             values: Dict[ColumnHeader, List[str]],
