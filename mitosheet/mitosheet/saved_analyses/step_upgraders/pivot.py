@@ -253,7 +253,8 @@ def upgrade_pivot_7_to_8(step: Dict[str, Any], later_steps: List[Dict[str, Any]]
     """
     When moving from pivot 7 to 8, we change the type of pivot_rows_column_ids and pivot_columns_column_ids
     from ColumnID[] => {column_id: ColumnID, transformation: PivotColumnTransformation}[]. For now, all of
-    them are defaulted to `no-op`. It also renames their keys to be more clear.
+    them are defaulted to `no-op`. It also renames their keys to pivot_rows_column_ids and pivot_columns_column_ids 
+    to be more clear what they are.
 
     Old format: [
         {

@@ -23,7 +23,8 @@ from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.types import (ColumnHeader, ColumnHeaderWithFilter,
                              ColumnHeaderWithPivotTransform, ColumnID,
                              ColumnIDWithFilter, ColumnIDWithPivotTransform)
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+from mitosheet.array_utils import deduplicate_array
+
 
 # Aggregation types pivot supports
 PA_COUNT_UNIQUE = 'count unique'
@@ -40,11 +41,9 @@ PIVOT_AGGREGATION_TYPES = [
     PA_COUNT_UNIQUE
 ]
 
-# Pivot Column Transformations: if the user specifies a transformation before the pivot (e.g. 
-# getting the months from a date), then we 
+# Pivot Column Transformations: if the user does not specify a transformation before the pivot (e.g. 
+# getting the months from a date), then we call this a no-op
 PCT_NO_OP = 'no-op'
-
-# DATE
 PCT_DATE_YEAR = 'year'
 PCT_DATE_QUARTER = 'quarter'
 PCT_DATE_MONTH = 'month'
@@ -309,15 +308,16 @@ def _execute_pivot(
     df = add_transform_columns_to_dataframe(df, pivot_columns_with_transforms)
 
     # Create the final pivot_rows and pivot_columns, which might be the temporary columns
-    # created above by the transformations
-    final_pivot_rows = [
+    # created above by the transformations. NOTE: we need to deduplicate these here, as
+    # having multiple rows or columns results in errors in the pandas pivot function
+    final_pivot_rows = deduplicate_array([
         get_new_column_header_from_column_header_with_pivot_transform(chwpt)
         for chwpt in pivot_rows_with_transforms
-    ]
-    final_pivot_columns = [
+    ])
+    final_pivot_columns = deduplicate_array([
         get_new_column_header_from_column_header_with_pivot_transform(chwpt)
         for chwpt in pivot_columns_with_transforms
-    ]
+    ])
 
     # Built the args, leaving out any unused values
     args: Dict[str, Any] = {}

@@ -4,10 +4,11 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Collection, Dict, List, Optional, Union
+from typing import Collection, Dict, List, Optional
 
 import pandas as pd
 
+from mitosheet.array_utils import deduplicate_array
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.filter_code_chunk import (
     combine_filter_strings, get_single_filter_string)
@@ -17,7 +18,6 @@ from mitosheet.transpiler.transpile_utils import (
 from mitosheet.types import (ColumnHeader, ColumnHeaderWithFilter,
                              ColumnHeaderWithPivotTransform,
                              ColumnIDWithFilter, ColumnIDWithPivotTransform)
-from mitosheet.code_chunks.postprocessing.set_dataframe_format_code_chunk import OPEN_BRACKET, CLOSE_BRACKET
 
 USE_INPLACE_PIVOT = tuple([int(i) for i in pd.__version__.split('.')]) < (1, 5, 0)
 
@@ -54,9 +54,10 @@ def build_args_code(
         get_new_column_header_from_column_header_with_pivot_transform
 
     # Because there might have been temporary columns created by the pivot
-    # transformations, we need to use these in our final args usage
-    final_pivot_rows = [get_new_column_header_from_column_header_with_pivot_transform(chwpt) for chwpt in pivot_rows_with_transforms]
-    final_pivot_columns = [get_new_column_header_from_column_header_with_pivot_transform(chwpt) for chwpt in pivot_columns_with_transforms]
+    # transformations, we need to use these in our final args usage. NOTE: as in 
+    # execution, we have to deduplicate
+    final_pivot_rows = deduplicate_array([get_new_column_header_from_column_header_with_pivot_transform(chwpt) for chwpt in pivot_rows_with_transforms])
+    final_pivot_columns = deduplicate_array([get_new_column_header_from_column_header_with_pivot_transform(chwpt) for chwpt in pivot_columns_with_transforms])
 
     args = []
     if len(final_pivot_rows) > 0:
@@ -183,11 +184,12 @@ class PivotCodeChunk(CodeChunk):
 
 def get_code_for_transform_columns(df_name, column_headers_with_transforms: List[ColumnHeaderWithPivotTransform]) -> List[str]:
     from mitosheet.step_performers.pivot import (
-        PCT_DATE_DAY_OF_MONTH, PCT_DATE_HOUR, PCT_DATE_MINUTE, PCT_DATE_MONTH,
-        PCT_DATE_SECOND, PCT_DATE_WEEK, PCT_DATE_YEAR, PCT_DATE_YEAR_MONTH,
-        PCT_DATE_YEAR_MONTH_DAY, PCT_DATE_YEAR_MONTH_DAY_HOUR, PCT_DATE_MONTH_DAY, PCT_DATE_DAY_OF_WEEK,
-        PCT_DATE_DAY_HOUR, PCT_DATE_HOUR_MINUTE, PCT_DATE_QUARTER,
-        PCT_DATE_YEAR_MONTH_DAY_HOUR_MINUTE, PCT_NO_OP, PCT_DATE_YEAR_QUARTER,
+        PCT_DATE_DAY_HOUR, PCT_DATE_DAY_OF_MONTH, PCT_DATE_DAY_OF_WEEK,
+        PCT_DATE_HOUR, PCT_DATE_HOUR_MINUTE, PCT_DATE_MINUTE, PCT_DATE_MONTH,
+        PCT_DATE_MONTH_DAY, PCT_DATE_QUARTER, PCT_DATE_SECOND, PCT_DATE_WEEK,
+        PCT_DATE_YEAR, PCT_DATE_YEAR_MONTH, PCT_DATE_YEAR_MONTH_DAY,
+        PCT_DATE_YEAR_MONTH_DAY_HOUR, PCT_DATE_YEAR_MONTH_DAY_HOUR_MINUTE,
+        PCT_DATE_YEAR_QUARTER, PCT_NO_OP,
         get_new_column_header_from_column_header_with_pivot_transform)        
 
     code = []

@@ -366,6 +366,14 @@ def test_edit_pivot_table_then_delete_optimizes():
     mito.delete_dataframe(1)
     assert len(mito.transpiled_code) == 0
 
+def test_pivot_deduplicates_multiple_keys():
+    df1 = pd.DataFrame(data={'Name': ['ADR', 'Nate'], 'Height': [4, 5]})
+    mito = create_mito_wrapper_dfs(df1)
+    mito.pivot_sheet(0, ['Name', 'Name', 'Name'], [], {'Height': ['sum']})
+    mito.pivot_sheet(0, [], ['Name', 'Name', 'Name'], {'Height': ['sum']})
+    
+    assert len(mito.dfs) == 3
+
 def test_pivot_with_filter_no_effect_on_source_data():
     df1 = pd.DataFrame(data={'Name': ['ADR', 'Nate'], 'Height': [4, 5]})
     mito = create_mito_wrapper_dfs(df1)
