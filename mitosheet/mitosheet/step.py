@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 from typing import Any, Dict, List, Optional, Set, Type
-
+import json
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.column_steps.set_column_formula import SetColumnFormulaStepPerformer
 from mitosheet.step_performers.filter import FilterStepPerformer
@@ -225,4 +225,8 @@ class Step:
         """
         return self.final_defined_state.column_ids.get_column_id_by_header(sheet_index, column_header)
 
-
+    def __repr__(self) -> str:
+        return json.dumps({
+            'step_type': self.step_type,
+            'params': self.params
+        })

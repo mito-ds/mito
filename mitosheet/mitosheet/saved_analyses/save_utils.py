@@ -16,10 +16,7 @@ from mitosheet._version import __version__
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.types import StepsManagerType
 from mitosheet.utils import NpEncoder
-
-
-# Where all global .mito files are stored
-MITO_FOLDER = os.path.expanduser("~/.mito")
+from mitosheet.save_paths import MITO_FOLDER
 
 # The current version of the saved Mito analysis
 # where we save all the analyses for this version
