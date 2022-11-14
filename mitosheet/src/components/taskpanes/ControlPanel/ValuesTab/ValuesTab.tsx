@@ -7,7 +7,7 @@ import Select from '../../../elements/Select';
 import { FilterType, FilterGroupType, ColumnID, UIState, ColumnFormatType } from '../../../../types';
 import Col from '../../../layout/Col';
 import Row from '../../../layout/Row';
-import { areFiltersEqual, getAllDoesNotContainsFilterValues, getExclusiveFilterData, getFilterDisabledMessage } from '../FilterAndSortTab/filter/utils';
+import { areFiltersEqual, getAllDoesNotContainsFilterValues, getExclusiveFilterData, getFilterDisabledMessage } from '../FilterAndSortTab/filter/filterUtils';
 import MultiToggleItem from '../../../elements/MultiToggleItem';
 import DropdownItem from '../../../elements/DropdownItem';
 import { useDebouncedEffect } from '../../../../hooks/useDebouncedEffect';

@@ -12,7 +12,7 @@ import Col from '../../../../layout/Col';
 import '../../../../../../css/taskpanes/ControlPanel/FilterCard.css';
 import { FilterType, Operator, FilterGroupType, ColumnID } from '../../../../../types';
 import DropdownItem from '../../../../elements/DropdownItem';
-import { getEmptyFilterData } from './utils';
+import { getEmptyFilterData } from './filterUtils';
 
 
 interface FilterCardProps {

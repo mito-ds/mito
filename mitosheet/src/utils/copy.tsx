@@ -1,5 +1,5 @@
 import { MAX_ROWS } from "../components/endo/EndoGrid";
-import { isValueNone } from "../components/taskpanes/ControlPanel/FilterAndSortTab/filter/utils";
+import { isValueNone } from "../components/taskpanes/ControlPanel/FilterAndSortTab/filter/filterUtils";
 import { ColumnFormatType, MitoSelection, SheetData } from "../types";
 import { getColumnIDByIndex, getDisplayColumnHeader } from "./columnHeaders";
 import { formatCellData } from "./format";
