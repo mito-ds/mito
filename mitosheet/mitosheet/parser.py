@@ -239,7 +239,7 @@ def get_column_header_match_tuples(
 
     # First, we go through and replace all the column headers
     for column_header in column_headers_sorted:
-        def find_column_headers(match):
+        def find_column_headers(match: Any) -> Any:
             found_column_header: str = match.group() # type:ignore
             start = match.start()
             end = match.end()

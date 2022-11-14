@@ -9,14 +9,15 @@ For going to a string series.
 
 import pandas as pd
 import numpy as np
+from typing import Any
 
 from mitosheet.sheet_functions.types.utils import is_bool_dtype, is_datetime_dtype, is_number_dtype, is_string_dtype, is_timedelta_dtype
 
 
 def to_string_series(
-        unknown_object,
-        on_uncastable_arg_element=('default', np.NaN), #Union[Literal['error'], Tuple[Literal['default'], any]]
-    ):
+        unknown_object: Any,
+        on_uncastable_arg_element: Any=('default', np.NaN), #Union[Literal['error'], Tuple[Literal['default'], any]]
+    ) -> pd.Series:
     """
     Converts the given object to a string series. Note that on_uncastable_arg_element
     is irrelevant here, as anything can be turned into a string!

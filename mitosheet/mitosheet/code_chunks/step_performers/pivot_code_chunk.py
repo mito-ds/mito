@@ -182,7 +182,7 @@ class PivotCodeChunk(CodeChunk):
         return []
 
 
-def get_code_for_transform_columns(df_name, column_headers_with_transforms: List[ColumnHeaderWithPivotTransform]) -> List[str]:
+def get_code_for_transform_columns(df_name: str, column_headers_with_transforms: List[ColumnHeaderWithPivotTransform]) -> List[str]:
     from mitosheet.step_performers.pivot import (
         PCT_DATE_DAY_HOUR, PCT_DATE_DAY_OF_MONTH, PCT_DATE_DAY_OF_WEEK,
         PCT_DATE_HOUR, PCT_DATE_HOUR_MINUTE, PCT_DATE_MINUTE, PCT_DATE_MONTH,
