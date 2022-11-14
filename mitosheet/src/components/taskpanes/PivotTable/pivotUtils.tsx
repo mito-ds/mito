@@ -54,7 +54,6 @@ export const getPivotBackendParamsFromFrontendParams = (params: FrontendPivotPar
             'filter': finalFilters[0]
         }
     }).filter((pf) => pf !== undefined) as {column_id: ColumnID, filter: FilterType}[];
-    console.log(params.pivotFilters, pivotFiltersToApply);
 
     return {
         sheet_index: params.sourceSheetIndex,
