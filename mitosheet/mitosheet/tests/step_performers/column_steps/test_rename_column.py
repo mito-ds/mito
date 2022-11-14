@@ -10,14 +10,14 @@ Contains tests for a column rename.
 import pandas as pd
 import numpy as np
 
-from mitosheet.tests.decorators import pandas_post_0_24_0_only
+from mitosheet.tests.decorators import pandas_post_1_only
 from mitosheet.tests.test_utils import create_mito_wrapper, create_mito_wrapper_dfs
 
 def test_rename_works():
     mito = create_mito_wrapper([1])
     mito.rename_column(0, 'A', 'B')
 
-    assert mito.dfs[0].equals(pd.DataFrame({'B': [1]}))
+    assert mito.dfs[0].equals(pd.DataFrame({'E': [1]}))
 
 def test_rename_to_empty_is_no_op():
     mito = create_mito_wrapper([1])
@@ -41,7 +41,7 @@ def test_rename_with_none_column_header():
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1], 'B': [1]}))
 
-@pandas_post_0_24_0_only
+@pandas_post_1_only
 def test_rename_column_with_nat_and_nan():
     mito = create_mito_wrapper_dfs(pd.DataFrame({pd.NA: [1], pd.NaT: [1], np.NaN: [1]}))
     mito.rename_column(0, pd.NA, 'A')
