@@ -41,14 +41,21 @@ def column_header_to_transpiled_code(column_header: ColumnHeader) -> str:
         column_header_parts_joined = ', '.join(column_header_parts)
         return f'({column_header_parts_joined})'
 
-    if isinstance(column_header, int) or isinstance(column_header, float) or isinstance(column_header, bool):
+    # We must handle np.nan first because isinstance(np.nan, float) evaluates to True
+    from mitosheet.saved_analyses.schema_utils import is_prev_version
+    if not is_prev_version(pd.__version__, '1.0.0') and column_header is pd.np.nan:
+        return 'pd.np.nan'
+    elif isinstance(column_header, int) or isinstance(column_header, float) or isinstance(column_header, bool):
         return str(column_header)
     elif isinstance(column_header, pd.Timestamp):
         return f'pd.to_datetime(\'{column_header.strftime("%Y-%m-%d %X")}\')'
     elif isinstance(column_header, pd.Timedelta):
         return f'pd.to_timedelta(\'{str(column_header)}\')'
-
-
+    elif column_header is pd.NaT:
+        return 'pd.NaT'
+    elif not is_prev_version(pd.__version__, '1.0.0') and column_header is pd.NA:
+        return 'pd.NA'
+        
     return repr(column_header)
 
 def list_to_string_without_internal_quotes(list: List[Any]) -> str:
