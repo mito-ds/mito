@@ -17,7 +17,7 @@ def test_rename_works():
     mito = create_mito_wrapper([1])
     mito.rename_column(0, 'A', 'B')
 
-    assert mito.dfs[0].equals(pd.DataFrame({'A': [1]}))
+    assert mito.dfs[0].equals(pd.DataFrame({'B': [1]}))
 
 def test_rename_to_empty_is_no_op():
     mito = create_mito_wrapper([1])
