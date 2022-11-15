@@ -12,8 +12,8 @@ import { columnIDMapToDisplayHeadersMap, getDisplayColumnHeader } from '../../..
 import SelectAndXIconCard from '../../elements/SelectAndXIconCard';
 import LabelAndTooltip from '../../elements/LabelAndTooltip';
 
-const ROWS_TOOLTIP = 'If rows are selected, then unique values from this column in the source dataset are placed in the first column of the resulting pivot table. All row values are unique and duplicates are removed.'
-const COLUMNS_TOOLTIP = 'If columns are selected, then the unique values from each column are placed across the top of the resulting pivot table. For the best performance, select columns with a small number of unique values.'
+const ROWS_TOOLTIP = "Rows are used to group your source data into distinct buckets. The unique values that create the buckets are placed in the first column of the resulting pivot table."
+const COLUMNS_TOOLTIP = 'Columns are used to group your source data into distinct buckets. The unique values that create the buckets are placed across the top of the resulting pivot table. For the best performance, select columns with a small number of unique values.'
 
 /* 
   A custom component used in the pivot table which lets the

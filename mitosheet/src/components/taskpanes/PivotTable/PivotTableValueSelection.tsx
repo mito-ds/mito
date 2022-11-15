@@ -12,7 +12,7 @@ import PivotInvalidSelectedColumnsError from './PivotInvalidSelectedColumnsError
 import PivotTableValueAggregationCard from './PivotTableValueAggregationCard';
 import LabelAndTooltip from '../../elements/LabelAndTooltip';
 
-const VALUES_TOOLTIP = 'Values are the columns from the source dataset that are aggregated within the groups. These groups are created by the rows and/or columns selected above.'
+const VALUES_TOOLTIP = 'Values are used to summarize your source data for each of the pivot table buckets. These buckets are created by the rows and/or columns selected above.'
 
 /* 
   A custom component used in the pivot table which lets the

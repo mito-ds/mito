@@ -28,7 +28,7 @@ const LabelAndTooltip = (props: {
 }): JSX.Element => {
 
     return (
-        <Row justify='start' align='center' suppressTopBottomMargin>
+        <Row justify='start' align='center' title={props.tooltip} suppressTopBottomMargin>
             <Col>
                 <p className={props.textBody ? 'text-body-1' : 'text-header-3'}>
                     {props.children}

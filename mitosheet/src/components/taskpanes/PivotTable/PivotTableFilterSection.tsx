@@ -14,7 +14,7 @@ import { Filter } from '../ControlPanel/FilterAndSortTab/filter/Filter';
 import PivotInvalidSelectedColumnsError from './PivotInvalidSelectedColumnsError';
 import LabelAndTooltip from '../../elements/LabelAndTooltip';
 
-const FILTERS_TOOLTIP = 'Filters are applied to the source dataframe. If you want to pivot using a subset of the source dataframe, apply filters to that dataframe here.'
+const FILTERS_TOOLTIP = 'Filters are used to only include a subset of the source data in the pivot table.'
 
 const PivotTableFilterSection = (props: {
     mitoAPI: MitoAPI;
