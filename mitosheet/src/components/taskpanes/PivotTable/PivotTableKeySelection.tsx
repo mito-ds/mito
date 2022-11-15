@@ -2,18 +2,18 @@
 
 import React from 'react';
 import '../../../../css/layout/CollapsibleSection.css';
-import PivotInvalidSelectedColumnsError from './PivotInvalidSelectedColumnsError';
 import MitoAPI from '../../../jupyter/api';
-import DropdownButton from '../../elements/DropdownButton';
-import Row from '../../layout/Row';
-import Col from '../../layout/Col';
-import { ColumnIDWithPivotTransform, FrontendPivotParams, SheetData, PivotColumnTransformation } from '../../../types';
-import DropdownItem from '../../elements/DropdownItem';
+import { ColumnIDWithPivotTransform, FrontendPivotParams, PivotColumnTransformation, SheetData } from '../../../types';
 import { columnIDMapToDisplayHeadersMap, getDisplayColumnHeader } from '../../../utils/columnHeaders';
-import SelectAndXIconCard from '../../elements/SelectAndXIconCard';
 import { isDatetimeDtype } from '../../../utils/dtypes';
-import Tooltip from '../../elements/Tooltip';
+import DropdownButton from '../../elements/DropdownButton';
+import DropdownItem from '../../elements/DropdownItem';
+import LabelAndTooltip from '../../elements/LabelAndTooltip';
 import Select from '../../elements/Select';
+import SelectAndXIconCard from '../../elements/SelectAndXIconCard';
+import Col from '../../layout/Col';
+import Row from '../../layout/Row';
+import PivotInvalidSelectedColumnsError from './PivotInvalidSelectedColumnsError';
 
 const PIVOT_COLUMN_TRANSFORM_TITLES: Record<PivotColumnTransformation, string> = {
     'no-op': 'exact time',
@@ -36,6 +36,9 @@ const PIVOT_COLUMN_TRANSFORM_TITLES: Record<PivotColumnTransformation, string> =
     'hour-minute': 'hour-minute'
 } 
 
+const GROUP_DATE_BY_TOOLTIP = 'Date columns can be further processed before being aggregated. For example, if you want to compare the aggregated values across months, then select `months` in this dropdown.';
+const ROWS_TOOLTIP = "Rows are used to group your source data into distinct buckets. The unique values that create the buckets are placed in the first column of the resulting pivot table."
+const COLUMNS_TOOLTIP = 'Columns are used to group your source data into distinct buckets. The unique values that create the buckets are placed across the top of the resulting pivot table. For the best performance, select columns with a small number of unique values.'
 /* 
   A custom component used in the pivot table which lets the
   user select column headers to add to the row or column keys
@@ -44,7 +47,6 @@ const PivotTableKeySelection = (props: {
     mitoAPI: MitoAPI;
     sheetData: SheetData | undefined;
     sectionTitle: string;
-    sectionSubtext?: string;
     params: FrontendPivotParams;
     setParams: React.Dispatch<React.SetStateAction<FrontendPivotParams>>;
     rowOrColumn: 'pivotRowColumnIDsWithTransforms' | 'pivotColumnsColumnIDsWithTransforms';
@@ -96,14 +98,9 @@ const PivotTableKeySelection = (props: {
                     {selectAndXIcon}
                     <Row justify='space-between' align='center'>
                         <Col offset={.25}>
-                            <Row suppressTopBottomMargin align='center'>
-                                <Col>
-                                    group date by
-                                </Col>
-                                <Col>
-                                    <Tooltip title='Date columns can be further processed before being aggregated. For example, if you want to compare the aggregated values across months, then select `months` in this dropdown.'/>
-                                </Col>
-                            </Row>
+                            <LabelAndTooltip tooltip={GROUP_DATE_BY_TOOLTIP}>
+                                group date by
+                            </LabelAndTooltip>
                         </Col>
                         <Col offsetRight={3}>
                             <Select
@@ -147,9 +144,9 @@ const PivotTableKeySelection = (props: {
         <div>
             <Row justify='space-between' align='center'>
                 <Col>
-                    <p className='text-header-3'>
+                    <LabelAndTooltip tooltip={props.rowOrColumn === 'pivotRowColumnIDsWithTransforms' ? ROWS_TOOLTIP : COLUMNS_TOOLTIP}>
                         {props.sectionTitle}
-                    </p>
+                    </LabelAndTooltip>
                 </Col>
                 <Col>
                     <DropdownButton
@@ -183,11 +180,6 @@ const PivotTableKeySelection = (props: {
                     </DropdownButton>
                 </Col>
             </Row>
-            {props.sectionSubtext !== undefined &&
-                <p className='text-subtext-1'>
-                    {props.sectionSubtext}
-                </p>
-            }
             <PivotInvalidSelectedColumnsError
                 columnIDsMap={columnIDsMap}
                 selectedColumnIDs={columnIdsWithTransforms.map(({column_id}) => column_id)}

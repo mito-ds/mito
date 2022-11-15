@@ -96,7 +96,6 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
                         mitoAPI={props.mitoAPI}
                         sheetData={sheetData}
                         sectionTitle='Columns'
-                        sectionSubtext='For best performance, select columns with a small number of unique values.'
                         params={params}
                         setParams={setParams}
                         rowOrColumn='pivotColumnsColumnIDsWithTransforms'

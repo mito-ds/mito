@@ -27,7 +27,7 @@ PREV_TESTS = [
 ]
 @pytest.mark.parametrize("prev, curr, result", PREV_TESTS)
 def test_prev_analysis_returns_correct_results(prev, curr, result):
-    assert is_prev_version(prev, curr_version=curr) == result
+    assert is_prev_version(prev, curr) == result
 
 TEST_ANALYSIS_NAME = 'UUID-test_analysis'
 TEST_FILE = f'{SAVED_ANALYSIS_FOLDER}/{TEST_ANALYSIS_NAME}.json'

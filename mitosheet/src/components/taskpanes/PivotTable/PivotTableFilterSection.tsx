@@ -12,7 +12,9 @@ import Col from '../../layout/Col';
 import Row from '../../layout/Row';
 import { Filter } from '../ControlPanel/FilterAndSortTab/filter/Filter';
 import PivotInvalidSelectedColumnsError from './PivotInvalidSelectedColumnsError';
+import LabelAndTooltip from '../../elements/LabelAndTooltip';
 
+const FILTERS_TOOLTIP = 'Filters are used to only include a subset of the source data in the pivot table.'
 
 const PivotTableFilterSection = (props: {
     mitoAPI: MitoAPI;
@@ -32,9 +34,9 @@ const PivotTableFilterSection = (props: {
         <div>
             <Row justify='space-between' align='center'>
                 <Col>
-                    <p className='text-header-3'>
+                    <LabelAndTooltip tooltip={FILTERS_TOOLTIP}>
                         Filters
-                    </p>
+                    </LabelAndTooltip>
                 </Col>
                 <Col>
                     <DropdownButton
