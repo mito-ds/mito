@@ -11,7 +11,7 @@ import Input from '../elements/Input';
 import Select from '../elements/Select';
 import TextButton from '../elements/TextButton';
 import Toggle from '../elements/Toggle';
-import Tooltip from '../elements/Tooltip';
+import LabelAndTooltip from '../elements/LabelAndTooltip';
 import Col from '../layout/Col';
 import Row from '../layout/Row';
 import Spacer from '../layout/Spacer';
@@ -265,12 +265,9 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                 }
                 <Row justify='space-between' align='center' title={DELIMETER_TOOLTIP}>
                     <Col>
-                        <Row justify='start' align='center' suppressTopBottomMargin>
-                            <p className='text-body-1'>
-                                Delimeter
-                            </p>
-                            <Tooltip title={DELIMETER_TOOLTIP}/>
-                        </Row>
+                        <LabelAndTooltip tooltip={DELIMETER_TOOLTIP}>
+                            Delimeter
+                        </LabelAndTooltip>
                     </Col>
                     <Col>
                         <Input
@@ -303,12 +300,9 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                 </Row>
                 <Row justify='space-between' align='center' title={ENCODING_TOOLTIP}>
                     <Col>
-                        <Row justify='start' align='center' suppressTopBottomMargin>
-                            <p className='text-body-1'>
-                                Encoding
-                            </p>
-                            <Tooltip title={ENCODING_TOOLTIP}/>
-                        </Row>
+                        <LabelAndTooltip tooltip={ENCODING_TOOLTIP}>
+                            Encoding
+                        </LabelAndTooltip>
                     </Col>
                     <Col>
                         <Select 
@@ -331,12 +325,9 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                 </Row>
                 <Row justify='space-between' align='center' title={DECIMAL_TOOLTIP}>
                     <Col>
-                        <Row justify='start' align='center' suppressTopBottomMargin>
-                            <p className='text-body-1'>
-                                Decimal Separator
-                            </p>
-                            <Tooltip title={DECIMAL_TOOLTIP}/>
-                        </Row>
+                        <LabelAndTooltip tooltip={DECIMAL_TOOLTIP}>
+                            Decimal Separator
+                        </LabelAndTooltip>
                     </Col>
                     <Col>
                         <Select 
@@ -360,12 +351,9 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                 </Row>
                 <Row justify='space-between' align='center' title={SKIP_ROWS_TOOLTIP}>
                     <Col>
-                        <Row justify='start' align='center' suppressTopBottomMargin>
-                            <p className='text-body-1'>
-                                Number of Rows to Skip
-                            </p>
-                            <Tooltip title={SKIP_ROWS_TOOLTIP}/>
-                        </Row>
+                        <LabelAndTooltip tooltip={SKIP_ROWS_TOOLTIP}>
+                            Number of Rows to Skip
+                        </LabelAndTooltip>
                     </Col>
                     <Col>
                         <Input
@@ -390,12 +378,9 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                 </Row>
                 <Row justify='space-between' align='center' title={ERROR_BAD_LINES_TOOLTIP}>
                     <Col>
-                        <Row justify='start' align='center' suppressTopBottomMargin>
-                            <p className='text-body-1'>
-                                Skip Invalid Lines
-                            </p>
-                            <Tooltip title={ERROR_BAD_LINES_TOOLTIP}/>
-                        </Row>
+                        <LabelAndTooltip tooltip={ERROR_BAD_LINES_TOOLTIP}>
+                            Skip Invalid Lines
+                        </LabelAndTooltip>
                     </Col>
                     <Col>
                         <Toggle value={!currentErrorBadLines} onChange={() => {

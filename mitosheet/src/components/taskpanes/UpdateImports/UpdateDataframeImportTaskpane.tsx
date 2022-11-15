@@ -5,7 +5,7 @@ import { AnalysisData, UIState } from "../../../types";
 import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
 import RadioButtonBox from "../../elements/RadioButtonBox";
 import TextButton from "../../elements/TextButton";
-import Tooltip from "../../elements/Tooltip";
+import LabelAndTooltip from "../../elements/LabelAndTooltip";
 import Col from "../../layout/Col";
 import Row from "../../layout/Row";
 import DefaultTaskpane from "../../taskpanes/DefaultTaskpane/DefaultTaskpane";
@@ -89,16 +89,9 @@ const UpdateDataframeImportScreen = (props: UpdateDataframeImportTaskpaneProps):
             <DefaultTaskpaneBody>
                 <Row justify='start' align='center'>
                     <Col>
-                        <Row justify="start" align="center">
-                            <Col>
-                                <p className='text-header-3'>
-                                    Dataframes to Import
-                                </p>
-                            </Col>
-                            <Col>
-                                <Tooltip title={"Dataframes that have been created elsewhere in this notebook can be imported through this taskpane."} />
-                            </Col>
-                        </Row>
+                        <LabelAndTooltip tooltip="Dataframes that have been created elsewhere in this notebook can be imported through this taskpane.">
+                            Dataframes to Import
+                        </LabelAndTooltip>
                     </Col>
                 </Row>
                 {radioButtonBox}
