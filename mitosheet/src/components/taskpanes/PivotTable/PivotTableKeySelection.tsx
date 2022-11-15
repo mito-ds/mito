@@ -10,6 +10,10 @@ import { ColumnID, ColumnIDsMap } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import { columnIDMapToDisplayHeadersMap, getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import SelectAndXIconCard from '../../elements/SelectAndXIconCard';
+import Tooltip from '../../elements/Tooltip';
+
+const ROWS_TOOLTIP = 'If rows are selected, then unique values from this column in the source dataset are placed in the first column of the resulting pivot table. All row values are unique and duplicates are removed.'
+const COLUMNS_TOOLTIP = 'If columns are selected, then the unique values from each column are placed across the top of the resulting pivot table. For the best performance, select columns with a small number of unique values.'
 
 /* 
   A custom component used in the pivot table which lets the
@@ -17,7 +21,6 @@ import SelectAndXIconCard from '../../elements/SelectAndXIconCard';
 */
 const PivotTableKeySelection = (props: {
     sectionTitle: string;
-    sectionSubtext?: string;
     rowOrColumn: 'row' | 'column';
     columnIDsMap: ColumnIDsMap;
     selectedColumnIDs: ColumnID[];
@@ -44,9 +47,16 @@ const PivotTableKeySelection = (props: {
         <div>
             <Row justify='space-between' align='center'>
                 <Col>
-                    <p className='text-header-3'>
-                        {props.sectionTitle}
-                    </p>
+                    <Row align='center' suppressTopBottomMargin>
+                        <Col>
+                            <p className='text-header-3'>
+                                {props.sectionTitle}
+                            </p>
+                        </Col>
+                        <Col>
+                            <Tooltip title={props.rowOrColumn === 'row' ? ROWS_TOOLTIP : COLUMNS_TOOLTIP}/>
+                        </Col>
+                    </Row>
                 </Col>
                 <Col>
                     <DropdownButton
@@ -68,11 +78,6 @@ const PivotTableKeySelection = (props: {
                     </DropdownButton>
                 </Col>
             </Row>
-            {props.sectionSubtext !== undefined &&
-                <p className='text-subtext-1'>
-                    {props.sectionSubtext}
-                </p>
-            }
             <PivotInvalidSelectedColumnsError
                 columnIDsMap={props.columnIDsMap}
                 selectedColumnIDs={props.selectedColumnIDs}

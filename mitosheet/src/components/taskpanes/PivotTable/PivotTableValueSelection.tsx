@@ -1,16 +1,18 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { AggregationType, SheetData } from '../../../types';
-import PivotTableValueAggregationCard from './PivotTableValueAggregationCard';
-import PivotInvalidSelectedColumnsError from './PivotInvalidSelectedColumnsError';
 import MitoAPI from '../../../jupyter/api';
-import DropdownButton from '../../elements/DropdownButton';
-import Row from '../../layout/Row';
-import Col from '../../layout/Col';
-import { ColumnID, ColumnIDsMap } from '../../../types';
-import DropdownItem from '../../elements/DropdownItem';
+import { AggregationType, ColumnID, ColumnIDsMap, SheetData } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
+import DropdownButton from '../../elements/DropdownButton';
+import DropdownItem from '../../elements/DropdownItem';
+import Col from '../../layout/Col';
+import Row from '../../layout/Row';
+import PivotInvalidSelectedColumnsError from './PivotInvalidSelectedColumnsError';
+import PivotTableValueAggregationCard from './PivotTableValueAggregationCard';
+import Tooltip from '../../elements/Tooltip';
+
+const VALUES_TOOLTIP = 'Values are the columns from the source dataset that are aggregated within the groups. These groups are created by the rows and/or columns selected above.'
 
 /* 
   A custom component used in the pivot table which lets the
@@ -30,9 +32,16 @@ const PivotTableValueSelection = (props: {
         <div>
             <Row justify='space-between' align='center'>
                 <Col>
-                    <p className='text-header-3'>
-                        Values
-                    </p>
+                    <Row align='center' suppressTopBottomMargin>
+                        <Col>
+                            <p className='text-header-3'>
+                                Values
+                            </p>
+                        </Col>
+                        <Col>
+                            <Tooltip title={VALUES_TOOLTIP}/>
+                        </Col>
+                    </Row>
                 </Col>
                 <Col>
                     <DropdownButton
