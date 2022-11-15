@@ -85,7 +85,6 @@ def BOOL(series: pd.Series) -> pd.Series:
 
 
 @handle_sheet_function_errors
-@filter_nans
 @convert_arg_to_series_type(
     0,
     'bool',
@@ -96,13 +95,13 @@ def BOOL(series: pd.Series) -> pd.Series:
     1,
     'series',
     'error',
-    'error'
+    'error',
 )
 @convert_arg_to_series_type(
     2,
     'series',
     'error',
-    'error'
+    'error',
 )
 def IF(condition: pd.Series, true_series: pd.Series, false_series: pd.Series) -> pd.Series:
     """

@@ -10,6 +10,10 @@ import { ColumnID, ColumnIDsMap } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import { columnIDMapToDisplayHeadersMap, getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import SelectAndXIconCard from '../../elements/SelectAndXIconCard';
+import LabelAndTooltip from '../../elements/LabelAndTooltip';
+
+const ROWS_TOOLTIP = "Rows are used to group your source data into distinct buckets. The unique values that create the buckets are placed in the first column of the resulting pivot table."
+const COLUMNS_TOOLTIP = 'Columns are used to group your source data into distinct buckets. The unique values that create the buckets are placed across the top of the resulting pivot table. For the best performance, select columns with a small number of unique values.'
 
 /* 
   A custom component used in the pivot table which lets the
@@ -17,7 +21,6 @@ import SelectAndXIconCard from '../../elements/SelectAndXIconCard';
 */
 const PivotTableKeySelection = (props: {
     sectionTitle: string;
-    sectionSubtext?: string;
     rowOrColumn: 'row' | 'column';
     columnIDsMap: ColumnIDsMap;
     selectedColumnIDs: ColumnID[];
@@ -44,9 +47,9 @@ const PivotTableKeySelection = (props: {
         <div>
             <Row justify='space-between' align='center'>
                 <Col>
-                    <p className='text-header-3'>
+                    <LabelAndTooltip tooltip={props.rowOrColumn === 'row' ? ROWS_TOOLTIP : COLUMNS_TOOLTIP}>
                         {props.sectionTitle}
-                    </p>
+                    </LabelAndTooltip>
                 </Col>
                 <Col>
                     <DropdownButton
@@ -68,11 +71,6 @@ const PivotTableKeySelection = (props: {
                     </DropdownButton>
                 </Col>
             </Row>
-            {props.sectionSubtext !== undefined &&
-                <p className='text-subtext-1'>
-                    {props.sectionSubtext}
-                </p>
-            }
             <PivotInvalidSelectedColumnsError
                 columnIDsMap={props.columnIDsMap}
                 selectedColumnIDs={props.selectedColumnIDs}

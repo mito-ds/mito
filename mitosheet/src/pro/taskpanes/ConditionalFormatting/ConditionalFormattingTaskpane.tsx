@@ -8,7 +8,7 @@ import { updateObjectWithPartialObject } from "../../../utils/objects";
 import TextButton from "../../../components/elements/TextButton";
 import Col from "../../../components/layout/Col";
 import Row from "../../../components/layout/Row";
-import { checkFilterShouldHaveNumberValue } from "../../../components/taskpanes/ControlPanel/FilterAndSortTab/filter/utils";
+import { checkFilterShouldHaveNumberValue } from "../../../components/taskpanes/ControlPanel/FilterAndSortTab/filter/filterUtils";
 import DefaultEmptyTaskpane from "../../../components/taskpanes/DefaultTaskpane/DefaultEmptyTaskpane";
 import DefaultTaskpane from "../../../components/taskpanes/DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../../../components/taskpanes/DefaultTaskpane/DefaultTaskpaneBody";

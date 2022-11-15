@@ -1,25 +1,24 @@
 import React from "react";
-import MitoAPI from "../../../jupyter/api";
-import { AnalysisData, DataframeFormat, RecursivePartial, SheetData, StepType, UIState, UserProfile } from "../../../types"
-import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
-import Select from '../../../components/elements/Select';
+import DataframeSelect from "../../../components/elements/DataframeSelect";
 import DropdownItem from '../../../components/elements/DropdownItem';
+import LabelAndTooltip from "../../../components/elements/LabelAndTooltip";
+import Select from '../../../components/elements/Select';
+import { HEADER_BACKGROUND_COLOR_DEFAULT, HEADER_TEXT_COLOR_DEFAULT } from "../../../components/endo/ColumnHeader";
+import { EVEN_ROW_BACKGROUND_COLOR_DEFAULT, EVEN_ROW_TEXT_COLOR_DEFAULT, ODD_ROW_BACKGROUND_COLOR_DEFAULT, ODD_ROW_TEXT_COLOR_DEFAULT } from "../../../components/endo/GridData";
 import Col from '../../../components/layout/Col';
+import CollapsibleSection from "../../../components/layout/CollapsibleSection";
 import Row from '../../../components/layout/Row';
 import Spacer from '../../../components/layout/Spacer';
-
+import DefaultEmptyTaskpane from "../../../components/taskpanes/DefaultTaskpane/DefaultEmptyTaskpane";
 import DefaultTaskpane from "../../../components/taskpanes/DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../../../components/taskpanes/DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../../../components/taskpanes/DefaultTaskpane/DefaultTaskpaneHeader";
-import DefaultEmptyTaskpane from "../../../components/taskpanes/DefaultTaskpane/DefaultEmptyTaskpane";
-import CollapsibleSection from "../../../components/layout/CollapsibleSection";
-import LabelAndColor from "../../graph/LabelAndColor";
+import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
+import MitoAPI from "../../../jupyter/api";
+import { AnalysisData, DataframeFormat, RecursivePartial, SheetData, StepType, UIState, UserProfile } from "../../../types";
 import { updateObjectWithPartialObject } from "../../../utils/objects";
-import { HEADER_BACKGROUND_COLOR_DEFAULT, HEADER_TEXT_COLOR_DEFAULT } from "../../../components/endo/ColumnHeader";
-import { EVEN_ROW_BACKGROUND_COLOR_DEFAULT, EVEN_ROW_TEXT_COLOR_DEFAULT, ODD_ROW_BACKGROUND_COLOR_DEFAULT, ODD_ROW_TEXT_COLOR_DEFAULT } from "../../../components/endo/GridData";
-import Tooltip from "../../../components/elements/Tooltip";
+import LabelAndColor from "../../graph/LabelAndColor";
 import SuggestedStyles from "./SuggestedStyles";
-import DataframeSelect from "../../../components/elements/DataframeSelect";
 
 const BORDER_COLOR_DEFAULT = '#FFFFFF'; 
 
@@ -175,13 +174,9 @@ const SetDataframeFormatTaskpane = (props: SetDataframeFormatTaskpaneProps): JSX
                 <CollapsibleSection title="Dataframe Border">
                     <Row justify="space-between" align="center">
                         <Col>
-                            <Row justify="start" align="center">
-                                <p>
-                                    Border Style
-                                </p>
-                                <Tooltip title="The border line will be displayed when the dataframe styling object is printed out." />
-                            </Row>
-                            <></>
+                            <LabelAndTooltip tooltip="The border line will be displayed when the dataframe styling object is printed out." textBody>
+                                Border Style
+                            </LabelAndTooltip>
                         </Col>
                         <Col></Col>
                         <Select 
