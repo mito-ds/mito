@@ -832,8 +832,6 @@ def test_pivot_transform(original_df, pivot_rows, pivot_columns, values, pivoted
     mito.pivot_sheet(0, pivot_rows, pivot_columns, values)
 
     assert mito.dfs[0].equals(original_df)
-    print(mito.dfs[1])
-    print(pivoted_df)
     assert mito.dfs[1].equals(pivoted_df)
 
 
