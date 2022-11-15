@@ -12,7 +12,7 @@ import Col from '../../layout/Col';
 import Row from '../../layout/Row';
 import { Filter } from '../ControlPanel/FilterAndSortTab/filter/Filter';
 import PivotInvalidSelectedColumnsError from './PivotInvalidSelectedColumnsError';
-import Tooltip from '../../elements/Tooltip';
+import LabelAndTooltip from '../../elements/LabelAndTooltip';
 
 const FILTERS_TOOLTIP = 'Filters are applied to the source dataframe. If you want to pivot using a subset of the source dataframe, apply filters to that dataframe here.'
 
@@ -34,16 +34,9 @@ const PivotTableFilterSection = (props: {
         <div>
             <Row justify='space-between' align='center'>
                 <Col>
-                    <Row align='center' suppressTopBottomMargin>
-                        <Col>
-                            <p className='text-header-3'>
-                                Filters
-                            </p>
-                        </Col>
-                        <Col>
-                            <Tooltip title={FILTERS_TOOLTIP}/>
-                        </Col>
-                    </Row>
+                    <LabelAndTooltip tooltip={FILTERS_TOOLTIP}>
+                        Filters
+                    </LabelAndTooltip>
                 </Col>
                 <Col>
                     <DropdownButton

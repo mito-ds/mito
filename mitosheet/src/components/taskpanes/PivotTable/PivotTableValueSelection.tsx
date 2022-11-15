@@ -10,7 +10,7 @@ import Col from '../../layout/Col';
 import Row from '../../layout/Row';
 import PivotInvalidSelectedColumnsError from './PivotInvalidSelectedColumnsError';
 import PivotTableValueAggregationCard from './PivotTableValueAggregationCard';
-import Tooltip from '../../elements/Tooltip';
+import LabelAndTooltip from '../../elements/LabelAndTooltip';
 
 const VALUES_TOOLTIP = 'Values are the columns from the source dataset that are aggregated within the groups. These groups are created by the rows and/or columns selected above.'
 
@@ -32,16 +32,9 @@ const PivotTableValueSelection = (props: {
         <div>
             <Row justify='space-between' align='center'>
                 <Col>
-                    <Row align='center' suppressTopBottomMargin>
-                        <Col>
-                            <p className='text-header-3'>
-                                Values
-                            </p>
-                        </Col>
-                        <Col>
-                            <Tooltip title={VALUES_TOOLTIP}/>
-                        </Col>
-                    </Row>
+                    <LabelAndTooltip tooltip={VALUES_TOOLTIP}>
+                        Values
+                    </LabelAndTooltip>
                 </Col>
                 <Col>
                     <DropdownButton
