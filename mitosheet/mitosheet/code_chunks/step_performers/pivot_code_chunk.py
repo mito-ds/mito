@@ -204,11 +204,15 @@ def get_code_for_transform_columns(df_name: str, column_headers_with_transforms:
         if transformation == PCT_DATE_YEAR:
             code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.year')
         if transformation == PCT_DATE_QUARTER:
-            code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = "Q" + {df_name}[{column_header_to_transpiled_code(column_header)}].dt.quarter')
+            code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.quarter')
         if transformation == PCT_DATE_MONTH:
             code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.month')
         if transformation == PCT_DATE_WEEK:
-            code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.isocalendar().week')
+            from mitosheet.saved_analyses.schema_utils import is_prev_version
+            if is_prev_version(pd.__version__, '1.0.0'):
+                code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.week')
+            else:
+                code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.isocalendar().week.astype(int)')
         if transformation == PCT_DATE_DAY_OF_MONTH:
             code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.day')
         if transformation == PCT_DATE_DAY_OF_WEEK:

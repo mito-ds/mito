@@ -26,6 +26,7 @@ from mitosheet.types import (ColumnHeader, ColumnHeaderWithFilter,
 from mitosheet.array_utils import deduplicate_array
 
 
+
 # Aggregation types pivot supports
 PA_COUNT_UNIQUE = 'count unique'
 PIVOT_AGGREGATION_TYPES = [
@@ -227,11 +228,15 @@ def add_transform_columns_to_dataframe(df: pd.DataFrame, column_headers_with_tra
         if transformation == PCT_DATE_YEAR:
             df[new_column_header] = df[column_header].dt.year
         if transformation == PCT_DATE_QUARTER:
-            df[new_column_header] = "Q" + df[column_header].dt.quarter
+            df[new_column_header] = df[column_header].dt.quarter
         if transformation == PCT_DATE_MONTH:
             df[new_column_header] = df[column_header].dt.month
         if transformation == PCT_DATE_WEEK:
-            df[new_column_header] = df[column_header].dt.isocalendar().week
+            from mitosheet.saved_analyses.schema_utils import is_prev_version
+            if is_prev_version(pd.__version__, '1.0.0'):
+                df[new_column_header] = df[column_header].dt.week
+            else:
+                df[new_column_header] = df[column_header].dt.isocalendar().week.astype(int)
         if transformation == PCT_DATE_DAY_OF_MONTH:
             df[new_column_header] = df[column_header].dt.day
         if transformation == PCT_DATE_DAY_OF_WEEK:
@@ -251,7 +256,7 @@ def add_transform_columns_to_dataframe(df: pd.DataFrame, column_headers_with_tra
         if transformation == PCT_DATE_YEAR_MONTH:
             df[new_column_header] = df[column_header].dt.strftime("%Y-%m")
         if transformation == PCT_DATE_YEAR_QUARTER:
-            df[new_column_header] = df['date'].dt.year.astype(str) + "-Q" + df['date'].dt.quarter.astype(str)
+            df[new_column_header] = df[column_header].dt.year.astype(str) + "-Q" + df[column_header].dt.quarter.astype(str)
         if transformation == PCT_DATE_MONTH_DAY:
             df[new_column_header] = df[column_header].dt.strftime("%m-%d")
         if transformation == PCT_DATE_DAY_HOUR:
