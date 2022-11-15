@@ -27,7 +27,6 @@ IF_TESTS = [
 ]
 @pytest.mark.parametrize("condition,true_series,false_series,result", IF_TESTS)
 def test_if_direct(condition,true_series,false_series,result):
-    print(IF(condition,true_series,false_series))
     assert IF(condition,true_series,false_series).equals(result)
 
 
