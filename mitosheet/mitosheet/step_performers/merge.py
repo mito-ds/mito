@@ -126,9 +126,9 @@ def _execute_merge(
         temp_df = dfs[sheet_index_two]
         how_to_use = how
 
-    # Then we delete all the columns from each we don't wanna keep
-    deleted_columns_one = set(dfs[sheet_index_one].keys()).difference(set(selected_columns_one))
-    deleted_columns_two = set(dfs[sheet_index_two].keys()).difference(set(selected_columns_two))
+    # Then we delete all the columns from each we don't wanna keep (making sure to keep the merge keys)
+    deleted_columns_one = set(dfs[sheet_index_one].keys()).difference(set(selected_columns_one).union(set(merge_keys_one)))
+    deleted_columns_two = set(dfs[sheet_index_two].keys()).difference(set(selected_columns_two).union(set(merge_keys_two)))
 
     df_one_cleaned = dfs[sheet_index_one].drop(deleted_columns_one, axis=1)
     df_two_cleaned = temp_df.drop(deleted_columns_two, axis=1)
