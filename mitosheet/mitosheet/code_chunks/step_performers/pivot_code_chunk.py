@@ -195,16 +195,16 @@ def get_code_for_transform_columns(df_name: str, column_headers_with_transforms:
     code = []
     for chwpt in column_headers_with_transforms:
         column_header, transformation = chwpt['column_header'], chwpt['transformation']
-        # We need to turn the column header into a string before creating the new one, so that we can
-        # append to it for the new temporary transformation column
         if transformation == PCT_NO_OP:
             continue
 
+        # We need to turn the column header into a string before creating the new one, so that we can
+        # append to it for the new temporary transformation column
         new_column_header = get_new_column_header_from_column_header_with_pivot_transform(chwpt)
         if transformation == PCT_DATE_YEAR:
             code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.year')
         if transformation == PCT_DATE_QUARTER:
-            code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.quarter')
+            code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = "Q" + {df_name}[{column_header_to_transpiled_code(column_header)}].dt.quarter')
         if transformation == PCT_DATE_MONTH:
             code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.month')
         if transformation == PCT_DATE_WEEK:

@@ -1,5 +1,33 @@
 import { AggregationType, BackendPivotParams, ColumnID, FilterType, FrontendPivotParams, SheetData } from "../../../types";
+import { isDatetimeDtype, isStringDtype, isTimedeltaDtype } from '../../../utils/dtypes';
 import { getFiltersToApply } from "../ControlPanel/FilterAndSortTab/filter/filterUtils";
+
+/**
+ * Not every aggregation method works on all datatypes. 
+ * We cover the most common cases when string, datetime, 
+ * or timedelta columns are present.
+ */
+ const STRING_AGGREGATIONS = [
+    AggregationType.COUNT,
+    AggregationType.COUNT_UNIQUE,
+]
+const DATETIME_AGGREGATIONS = [
+    AggregationType.COUNT, 
+    AggregationType.COUNT_UNIQUE,
+    AggregationType.MEAN,
+    AggregationType.MEDIAN,
+    AggregationType.MIN,
+    AggregationType.MAX
+]
+const TIMEDELTA_AGGREGATIONS = [
+    AggregationType.COUNT, 
+    AggregationType.COUNT_UNIQUE,
+    AggregationType.SUM,
+    AggregationType.MEAN,
+    AggregationType.MEDIAN,
+    AggregationType.MIN,
+    AggregationType.MAX
+]
 
 
 export const getDefaultPivotParams = (sheetDataArray: SheetData[], sourceSheetIndex: number, existingPivotParams: BackendPivotParams | undefined): FrontendPivotParams | undefined => {
@@ -97,4 +125,17 @@ export const valuesArrayToRecord = (valuesArray: [string, AggregationType][]): R
         valuesRecord[columnHeader].push(aggregationType);
     }
     return valuesRecord;
+}
+
+export const getPivotAggregationDisabledMessage = (aggregationType: AggregationType, columnDtype: string): string | undefined =>  {
+    if (isStringDtype(columnDtype) && !STRING_AGGREGATIONS.includes(aggregationType)) {
+        return `Not valid for string column`
+    } else if (isDatetimeDtype(columnDtype) && !DATETIME_AGGREGATIONS.includes(aggregationType)) {
+        return `Not valid for datetime column`;
+    } else if (isTimedeltaDtype(columnDtype) && !TIMEDELTA_AGGREGATIONS.includes(aggregationType)) {
+        return `Not valid for timedelta column`
+    }
+
+    return undefined;
+
 }

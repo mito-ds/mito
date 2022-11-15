@@ -227,7 +227,7 @@ def add_transform_columns_to_dataframe(df: pd.DataFrame, column_headers_with_tra
         if transformation == PCT_DATE_YEAR:
             df[new_column_header] = df[column_header].dt.year
         if transformation == PCT_DATE_QUARTER:
-            df[new_column_header] = df[column_header].dt.quarter
+            df[new_column_header] = "Q" + df[column_header].dt.quarter
         if transformation == PCT_DATE_MONTH:
             df[new_column_header] = df[column_header].dt.month
         if transformation == PCT_DATE_WEEK:

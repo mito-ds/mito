@@ -92,7 +92,7 @@ const PivotTableKeySelection = (props: {
 
         if (isDatetimeDtype(columnID)) {
             return (
-                <div className='mito-blue-container'>
+                <div className='mito-blue-container mt-4px mb-4px'>
                     {selectAndXIcon}
                     <Row justify='space-between' align='center'>
                         <Col offset={.25}>

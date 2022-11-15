@@ -703,7 +703,7 @@ PIVOT_TRANSFORM_TESTS: List[Any] = [
     (
         pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000', '12-2-2000', '1-1-2001', '12-2-2001']), 'value': [1, 2, 3, 4]}),
         [{'column_header': 'date', 'transformation': PCT_DATE_QUARTER}], [], {'value': ['sum']}, 
-        pd.DataFrame({'date (quarter)': [1, 4], 'value sum': [4, 6]})
+        pd.DataFrame({'date (quarter)': ["Q1", "Q4"], 'value sum': [4, 6]})
     ),
     # Month transform
     (

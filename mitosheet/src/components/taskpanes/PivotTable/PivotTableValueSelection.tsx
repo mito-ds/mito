@@ -11,6 +11,7 @@ import Col from '../../layout/Col';
 import { ColumnID } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
+import { getPivotAggregationDisabledMessage } from './pivotUtils';
 
 /* 
   A custom component used in the pivot table which lets the
@@ -24,6 +25,7 @@ const PivotTableValueSelection = (props: {
 }): JSX.Element => {
 
     const columnIDsMap = props.sheetData?.columnIDsMap || {};
+    const columnDtypeMap = props.sheetData?.columnDtypeMap || {};
 
     return (
         <div>
@@ -91,6 +93,14 @@ const PivotTableValueSelection = (props: {
                             editPivotValueAggregation={(newAggregationType: AggregationType, newColumnID: ColumnID) => {
                                 props.setParams(oldPivotParams => {
                                     const newPivotValuesIDs = [...oldPivotParams.pivotValuesColumnIDsArray];
+                                    
+                                    // We check if this is a valid aggregation for the column type. If not, we default it back to count
+                                    const columnDtype = columnDtypeMap[newColumnID] || '';
+                                    const isInvalidAggregation = getPivotAggregationDisabledMessage(aggregationType, columnDtype) !== undefined;
+                                    if (isInvalidAggregation) {
+                                        newAggregationType = AggregationType.COUNT
+                                    }
+
                                     newPivotValuesIDs[valueIndex] = [newColumnID, newAggregationType];
                         
                                     return {

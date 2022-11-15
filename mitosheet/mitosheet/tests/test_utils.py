@@ -85,7 +85,6 @@ def check_dataframes_equal(test_wrapper):
             }, 
             original_dfs
         )
-        print(code)
     except:
         from mitosheet.errors import get_recent_traceback
         print("Error executing code")

@@ -1,42 +1,14 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { AggregationType } from '../../../types';
+import { AggregationType, ColumnID, ColumnIDsMap } from '../../../types';
+import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
+import DropdownItem from '../../elements/DropdownItem';
 import Select from '../../elements/Select';
 import XIcon from '../../icons/XIcon';
-import Row from '../../layout/Row';
 import Col from '../../layout/Col';
-import { ColumnID, ColumnIDsMap } from '../../../types';
-import DropdownItem from '../../elements/DropdownItem';
-import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
-import { isDatetimeDtype, isStringDtype, isTimedeltaDtype } from '../../../utils/dtypes';
-
-/**
- * Not every aggregation method works on all datatypes. 
- * We cover the most common cases when string, datetime, 
- * or timedelta columns are present.
- */
-const STRING_AGGREGATIONS = [
-    AggregationType.COUNT,
-    AggregationType.COUNT_UNIQUE,
-]
-const DATETIME_AGGREGATIONS = [
-    AggregationType.COUNT, 
-    AggregationType.COUNT_UNIQUE,
-    AggregationType.MEAN,
-    AggregationType.MEDIAN,
-    AggregationType.MIN,
-    AggregationType.MAX
-]
-const TIMEDELTA_AGGREGATIONS = [
-    AggregationType.COUNT, 
-    AggregationType.COUNT_UNIQUE,
-    AggregationType.SUM,
-    AggregationType.MEAN,
-    AggregationType.MEDIAN,
-    AggregationType.MIN,
-    AggregationType.MAX
-]
+import Row from '../../layout/Row';
+import { getPivotAggregationDisabledMessage } from './pivotUtils';
 
 /* 
   A custom component that displays the column headers chosen as the key for the pivot table. 
@@ -71,26 +43,14 @@ const PivotTableValueAggregationCard = (props: {
                     dropdownWidth='medium'
                 >
                     {aggregationTypeList.map(aggregationType => {
-
-                        let disabled = false
-                        let columnDtypeLabel = ''
-                        if (isStringDtype(props.columnDtype) && !STRING_AGGREGATIONS.includes(aggregationType)) {
-                            disabled = true
-                            columnDtypeLabel = 'string'
-                        } else if (isDatetimeDtype(props.columnDtype) && !DATETIME_AGGREGATIONS.includes(aggregationType)) {
-                            disabled = true
-                            columnDtypeLabel = 'datetime'
-                        } else if (isTimedeltaDtype(props.columnDtype) && !TIMEDELTA_AGGREGATIONS.includes(aggregationType)) {
-                            disabled = true
-                            columnDtypeLabel = 'timedelta'
-                        }
+                        const disabledMessage = getPivotAggregationDisabledMessage(aggregationType, props.columnDtype);
 
                         return (
                             <DropdownItem
                                 key={aggregationType}
                                 title={aggregationType}
-                                disabled={disabled}
-                                subtext={disabled ? `Not valid for ${columnDtypeLabel} column`: undefined}
+                                disabled={disabledMessage !== undefined}
+                                subtext={disabledMessage}
                                 hideSubtext={true}
                                 displaySubtextOnHover={true}
                             />
