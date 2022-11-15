@@ -711,12 +711,12 @@ PIVOT_TRANSFORM_TESTS: List[Any] = [
         [{'column_header': 'date', 'transformation': PCT_DATE_MONTH}], [], {'value': ['sum']}, 
         pd.DataFrame({'date (month)': [1, 2], 'value sum': [4, 6]})
     ),
-    # Week transform: TODO: this isn't passing, I can't tell why. Bug in pandas b/c the dataframes look identical? Something to do with isocalendar...
-    #(
-    #    pd.DataFrame(data={'date': pd.to_datetime(['1-3-2000', '2-2-2000', '1-2-2001', '2-2-2001']), 'value': [1, 2, 3, 4]}),
-    #    [{'column_header': 'date', 'transformation': PCT_DATE_WEEK}], [], {'value': ['sum']}, 
-    #    pd.DataFrame({'date (week)': [1, 5], 'value sum': [4, 6]})
-    #),
+    # Week transform
+    (
+        pd.DataFrame(data={'date': pd.to_datetime(['1-3-2000', '2-2-2000', '1-2-2001', '2-2-2001']), 'value': [1, 2, 3, 4]}),
+        [{'column_header': 'date', 'transformation': PCT_DATE_WEEK}], [], {'value': ['sum']}, 
+        pd.DataFrame({'date (week)': [1, 5], 'value sum': [4, 6]})
+    ),
     # Day of month transform
     (
         pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000', '2-2-2000', '1-1-2001', '2-2-2001']), 'value': [1, 2, 3, 4]}),
@@ -832,6 +832,8 @@ def test_pivot_transform(original_df, pivot_rows, pivot_columns, values, pivoted
     mito.pivot_sheet(0, pivot_rows, pivot_columns, values)
 
     assert mito.dfs[0].equals(original_df)
+    print(mito.dfs[1])
+    print(pivoted_df)
     assert mito.dfs[1].equals(pivoted_df)
 
 

@@ -208,7 +208,7 @@ def get_code_for_transform_columns(df_name: str, column_headers_with_transforms:
         if transformation == PCT_DATE_MONTH:
             code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.month')
         if transformation == PCT_DATE_WEEK:
-            code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.isocalendar().week')
+            code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.isocalendar().week.astype(int)')
         if transformation == PCT_DATE_DAY_OF_MONTH:
             code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.day')
         if transformation == PCT_DATE_DAY_OF_WEEK:
