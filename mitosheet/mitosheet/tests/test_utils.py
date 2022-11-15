@@ -18,8 +18,10 @@ from numpy import number
 import pandas as pd
 from mitosheet.mito_widget import MitoWidget, sheet
 from mitosheet.parser import parse_formula
+from mitosheet.step_performers.pivot import PCT_NO_OP
 from mitosheet.transpiler.transpile import transpile
-from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat, GraphID, MultiLevelColumnHeader, FilterOnColumnID, FilterOnColumnHeader
+from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code, column_header_list_to_transpiled_code
+from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat, GraphID, MultiLevelColumnHeader, ColumnIDWithFilter, ColumnHeaderWithFilter, ColumnHeaderWithPivotTransform, ColumnIDWithPivotTransform
 from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id
 
 
@@ -72,16 +74,23 @@ def check_dataframes_equal(test_wrapper):
     )
 
     import mitosheet
-    exec(code, 
-        {
-            'check_final_dataframe': check_final_dataframe,
-            # Make sure all the mitosheet functions are defined, which replaces the
-            # `from mitosheet import *` code that is at the top of all
-            # transpiled code 
-            **mitosheet.__dict__,
-        }, 
-        original_dfs
-    )
+    try:
+        exec(code, 
+            {
+                'check_final_dataframe': check_final_dataframe,
+                # Make sure all the mitosheet functions are defined, which replaces the
+                # `from mitosheet import *` code that is at the top of all
+                # transpiled code 
+                **mitosheet.__dict__,
+            }, 
+            original_dfs
+        )
+    except:
+        from mitosheet.errors import get_recent_traceback
+        print("Error executing code")
+        print(get_recent_traceback())
+        print("\nCode:")
+        print(code)
 
     # We then check that the sheet data json that is saved by the widget, which 
     # notably uses caching, does not get incorrectly cached and is written correctly
@@ -539,10 +548,13 @@ class MitoWidgetTestWrapper:
     def pivot_sheet(
             self, 
             sheet_index: int, 
-            pivot_rows: List[ColumnHeader],
-            pivot_columns: List[ColumnHeader],
+            # For convenience, you can use this testing API to either pass just column headers, or optionally
+            # column headers with transforms attached to them. This function turns them
+            # into the correct format before passing them to the backend
+            pivot_rows: Union[List[ColumnHeader], List[ColumnHeaderWithPivotTransform]],
+            pivot_columns: Union[List[ColumnHeader], List[ColumnHeaderWithPivotTransform]],
             values: Dict[ColumnHeader, List[str]],
-            pivot_filters: Optional[List[FilterOnColumnHeader]]=None,
+            pivot_filters: Optional[List[ColumnHeaderWithFilter]]=None,
             flatten_column_headers: bool=True,
             destination_sheet_index: Optional[int]=None,
             step_id: Optional[str]=None
@@ -550,20 +562,37 @@ class MitoWidgetTestWrapper:
 
         get_column_id_by_header = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header
 
-        rows_ids = [
-            get_column_id_by_header(sheet_index, column_header)
-            for column_header in pivot_rows
-        ]
-        columns_ids = [
-            get_column_id_by_header(sheet_index, column_header)
-            for column_header in pivot_columns
-        ]
+        rows_ids_with_transforms: List[ColumnIDWithPivotTransform] = []
+        if len(pivot_rows) > 0 and isinstance(pivot_rows[0], str):
+            rows_ids_with_transforms = [{
+                'column_id': get_column_id_by_header(sheet_index, column_header), # type: ignore
+                'transformation': PCT_NO_OP
+            } for column_header in pivot_rows]
+        elif len(pivot_rows) > 0:
+            rows_ids_with_transforms = [{
+                'column_id': get_column_id_by_header(sheet_index, chwpt['column_header']), # type: ignore
+                'transformation': chwpt['transformation'] # type: ignore
+            } for chwpt in pivot_rows]
+        
+        column_ids_with_transforms: List[ColumnIDWithPivotTransform] = []
+        if len(pivot_columns) > 0 and isinstance(pivot_columns[0], str):
+            column_ids_with_transforms = [{
+                'column_id': get_column_id_by_header(sheet_index, column_header), # type: ignore
+                'transformation': PCT_NO_OP
+            } for column_header in pivot_columns]
+        elif len(pivot_columns) > 0:
+            column_ids_with_transforms = [{
+                'column_id': get_column_id_by_header(sheet_index, chwpt['column_header']), # type: ignore
+                'transformation': chwpt['transformation'] # type: ignore
+            } for chwpt in pivot_columns]
+
+
         values_column_ids_map = {
             get_column_id_by_header(sheet_index, column_header): value
             for column_header, value in values.items()
         }
 
-        pivot_filters_ids: List[FilterOnColumnID] = [
+        pivot_filters_ids: List[ColumnIDWithFilter] = [
             {'column_id': get_column_id_by_header(sheet_index, pf['column_header']), 'filter': pf['filter']} 
             for pf in pivot_filters
         ] if pivot_filters is not None else []
@@ -577,8 +606,8 @@ class MitoWidgetTestWrapper:
                 'step_id': get_new_id() if step_id is None else step_id,
                 'params': {
                     'sheet_index': sheet_index,
-                    'pivot_rows_column_ids': rows_ids,
-                    'pivot_columns_column_ids': columns_ids,
+                    'pivot_rows_column_ids_with_transforms': rows_ids_with_transforms,
+                    'pivot_columns_column_ids_with_transforms': column_ids_with_transforms,
                     'values_column_ids_map': values_column_ids_map,
                     'destination_sheet_index': destination_sheet_index,
                     'pivot_filters': pivot_filters_ids,
@@ -1434,3 +1463,22 @@ def make_multi_index_header_df(data: Dict[Union[str, int], List[Any]], column_he
     if index is not None:
         df.index = index
     return df
+
+def get_dataframe_generation_code(df: pd.DataFrame) -> str:
+    """
+    Given a dataframe like:
+
+        date (year)      value sum
+    0         2000             1.0
+    1         2001             NaN
+
+    Will return the string:
+    pd.DataFrame({'date (year)': [2000, 2001], 'value sum: [1.0, np.NaN]})
+
+    This is useful when you have a dataframe you want to create at runtime and then put into a test.
+    """
+    OPEN_BRACKET = "{"
+    CLOSE_BRACKET = "}"
+
+    data = ", ".join([f"{column_header_to_transpiled_code(column_header)}: {column_header_list_to_transpiled_code(df[column_header].to_list())}" for column_header in df.columns])
+    return f'pd.DataFrame({OPEN_BRACKET}{data}{CLOSE_BRACKET})'

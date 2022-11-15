@@ -2,31 +2,33 @@
 
 import React from 'react';
 import MitoAPI from '../../../jupyter/api';
-import { AggregationType, ColumnID, ColumnIDsMap, SheetData } from '../../../types';
+import { AggregationType, ColumnID, FrontendPivotParams, SheetData } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import DropdownButton from '../../elements/DropdownButton';
 import DropdownItem from '../../elements/DropdownItem';
+import LabelAndTooltip from '../../elements/LabelAndTooltip';
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
 import PivotInvalidSelectedColumnsError from './PivotInvalidSelectedColumnsError';
 import PivotTableValueAggregationCard from './PivotTableValueAggregationCard';
-import LabelAndTooltip from '../../elements/LabelAndTooltip';
+import { getPivotAggregationDisabledMessage } from './pivotUtils';
 
 const VALUES_TOOLTIP = 'Values are used to summarize your source data for each of the pivot table buckets. These buckets are created by the rows and/or columns selected above.'
+
 
 /* 
   A custom component used in the pivot table which lets the
   user select column headers to add to the row or column keys
 */
 const PivotTableValueSelection = (props: {
+    mitoAPI: MitoAPI,
     sheetData: SheetData | undefined,
-    columnIDsMap: ColumnIDsMap,
-    pivotValuesColumnIDsArray: [ColumnID, AggregationType][];
-    addPivotValueAggregation: (columnID: ColumnID) => void;
-    removePivotValueAggregation: (valueIndex: number) => void;
-    editPivotValueAggregation: (valueIndex: number, newAggregationType: AggregationType, newColumnID: string) => void;
-    mitoAPI: MitoAPI;
+    params: FrontendPivotParams,
+    setParams: React.Dispatch<React.SetStateAction<FrontendPivotParams>>
 }): JSX.Element => {
+
+    const columnIDsMap = props.sheetData?.columnIDsMap || {};
+    const columnDtypeMap = props.sheetData?.columnDtypeMap || {};
 
     return (
         <div>
@@ -42,13 +44,20 @@ const PivotTableValueSelection = (props: {
                         width='small'
                         searchable
                     >
-                        {Object.entries(props.columnIDsMap).map(([columnID, columnHeader]) => {
+                        {Object.entries(columnIDsMap).map(([columnID, columnHeader]) => {
                             return (
                                 <DropdownItem
                                     key={columnID}
                                     title={getDisplayColumnHeader(columnHeader)}
                                     onClick={() => {
-                                        props.addPivotValueAggregation(columnID)
+                                        props.setParams(oldPivotParams => {
+                                            const newPivotValuesIDs = [...oldPivotParams.pivotValuesColumnIDsArray];
+                                            newPivotValuesIDs.push([columnID, AggregationType.COUNT]);
+                                            return {
+                                                ...oldPivotParams,
+                                                pivotValuesColumnIDsArray: newPivotValuesIDs,
+                                            }
+                                        })
                                     }}
                                 />
                             )
@@ -57,27 +66,51 @@ const PivotTableValueSelection = (props: {
                 </Col>
             </Row>
             <PivotInvalidSelectedColumnsError
-                columnIDsMap={props.columnIDsMap}
+                columnIDsMap={columnIDsMap}
                 pivotSection={'values'}
-                selectedColumnIDs={props.pivotValuesColumnIDsArray.map(([columnID, ]) => columnID)}
+                selectedColumnIDs={props.params.pivotValuesColumnIDsArray.map(([columnID, ]) => columnID)}
                 mitoAPI={props.mitoAPI}
             />
             {
-                props.pivotValuesColumnIDsArray.map(([columnID, aggregationType], valueIndex) => {
+                props.params.pivotValuesColumnIDsArray.map(([columnID, aggregationType], valueIndex) => {
                     const columnDtype = props.sheetData?.columnDtypeMap[columnID] || '';
 
                     return (
                         <PivotTableValueAggregationCard
                             key={columnID + valueIndex + aggregationType}
-                            columnIDsMap={props.columnIDsMap}
+                            columnIDsMap={columnIDsMap}
                             columnID={columnID}
                             columnDtype={columnDtype}
                             aggregationType={aggregationType}
                             removePivotValueAggregation={() => {
-                                props.removePivotValueAggregation(valueIndex);
+                                props.setParams(oldPivotParams => {
+                                    const newPivotValuesIDs = [...oldPivotParams.pivotValuesColumnIDsArray];
+                                    newPivotValuesIDs.splice(valueIndex, 1);
+                        
+                                    return {
+                                        ...oldPivotParams,
+                                        pivotValuesColumnIDsArray: newPivotValuesIDs,
+                                    }
+                                })
                             }}
                             editPivotValueAggregation={(newAggregationType: AggregationType, newColumnID: ColumnID) => {
-                                props.editPivotValueAggregation(valueIndex, newAggregationType, newColumnID);
+                                props.setParams(oldPivotParams => {
+                                    const newPivotValuesIDs = [...oldPivotParams.pivotValuesColumnIDsArray];
+                                    
+                                    // We check if this is a valid aggregation for the column type. If not, we default it back to count
+                                    const columnDtype = columnDtypeMap[newColumnID] || '';
+                                    const isInvalidAggregation = getPivotAggregationDisabledMessage(aggregationType, columnDtype) !== undefined;
+                                    if (isInvalidAggregation) {
+                                        newAggregationType = AggregationType.COUNT
+                                    }
+
+                                    newPivotValuesIDs[valueIndex] = [newColumnID, newAggregationType];
+                        
+                                    return {
+                                        ...oldPivotParams,
+                                        pivotValuesColumnIDsArray: newPivotValuesIDs,
+                                    }
+                                })
                             }}
                         />
                     )

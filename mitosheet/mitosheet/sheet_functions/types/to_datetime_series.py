@@ -8,8 +8,11 @@ For going to a datetime series.
 """
 
 
+from typing import Any
+
 import numpy as np
 import pandas as pd
+
 from mitosheet.sheet_functions.types.utils import (get_datetime_format,
                                                    is_bool_dtype,
                                                    is_datetime_dtype,
@@ -18,9 +21,9 @@ from mitosheet.sheet_functions.types.utils import (get_datetime_format,
 
 
 def to_datetime_series(
-        unknown_object,
-        on_uncastable_arg_element=('default', np.NaN), # Union[Literal['error'], Tuple[Literal['default'], any]]
-    ):
+        unknown_object: Any,
+        on_uncastable_arg_element: Any=('default', np.NaN), # Union[Literal['error'], Tuple[Literal['default'], any]]
+    ) -> pd.Series:
     """
     Converts the given object to a datetime series.
     """

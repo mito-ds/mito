@@ -7,18 +7,32 @@
 Contains tests for edit events.
 """
 from typing import Any, List
+
 import numpy as np
 import pandas as pd
 import pytest
 
-from mitosheet.step_performers.filter import (FC_BOOLEAN_IS_TRUE, FC_DATETIME_EXACTLY, FC_NUMBER_EXACTLY, FC_NUMBER_GREATER, FC_NUMBER_LESS,
-                                              FC_STRING_CONTAINS, FC_STRING_STARTS_WITH)
+from mitosheet.saved_analyses import read_and_upgrade_analysis
+from mitosheet.step_performers.filter import (FC_BOOLEAN_IS_TRUE,
+                                              FC_DATETIME_EXACTLY,
+                                              FC_NUMBER_EXACTLY,
+                                              FC_NUMBER_GREATER,
+                                              FC_NUMBER_LESS,
+                                              FC_STRING_CONTAINS,
+                                              FC_STRING_STARTS_WITH)
 from mitosheet.step_performers.graph_steps.graph_utils import BAR
+from mitosheet.step_performers.pivot import (
+    PCT_DATE_DAY_HOUR, PCT_DATE_DAY_OF_MONTH, PCT_DATE_DAY_OF_WEEK,
+    PCT_DATE_HOUR, PCT_DATE_HOUR_MINUTE, PCT_DATE_MINUTE, PCT_DATE_MONTH,
+    PCT_DATE_MONTH_DAY, PCT_DATE_QUARTER, PCT_DATE_SECOND, PCT_DATE_WEEK,
+    PCT_DATE_YEAR, PCT_DATE_YEAR_MONTH, PCT_DATE_YEAR_MONTH_DAY,
+    PCT_DATE_YEAR_MONTH_DAY_HOUR, PCT_DATE_YEAR_MONTH_DAY_HOUR_MINUTE,
+    PCT_NO_OP, PCT_DATE_YEAR_QUARTER)
 from mitosheet.step_performers.sort import SORT_DIRECTION_ASCENDING
 from mitosheet.tests.decorators import pandas_post_1_only, pandas_pre_1_only
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
-from mitosheet.types import FilterOnColumnHeader
-from mitosheet.saved_analyses import read_and_upgrade_analysis
+from mitosheet.tests.test_utils import (create_mito_wrapper_dfs,
+                                        get_dataframe_generation_code)
+from mitosheet.types import ColumnHeaderWithPivotTransform
 
 
 def test_simple_pivot():
@@ -351,6 +365,17 @@ def test_edit_pivot_table_then_delete_optimizes():
     mito.delete_dataframe(1)
     assert len(mito.transpiled_code) == 0
 
+def test_pivot_deduplicates_multiple_keys():
+    df1 = pd.DataFrame(data={'Name': ['ADR', 'Nate'], 'Height': [4, 5]})
+    mito = create_mito_wrapper_dfs(df1)
+    mito.pivot_sheet(0, ['Name', 'Name', 'Name'], [], {'Height': ['sum']})
+    mito.pivot_sheet(0, [], ['Name', 'Name', 'Name'], {'Height': ['sum']})
+    
+    assert len(mito.dfs) == 3
+    assert mito.dfs[0].equals(df1)
+    assert mito.dfs[1].equals(pd.DataFrame({'Name': ['ADR', 'Nate'], 'Height sum': [4, 5]}))
+    assert mito.dfs[2].equals(pd.DataFrame({'level_0': ['Height'], 'level_1': ['sum'], 'ADR': [4], 'Nate': [5]}))
+
 def test_pivot_with_filter_no_effect_on_source_data():
     df1 = pd.DataFrame(data={'Name': ['ADR', 'Nate'], 'Height': [4, 5]})
     mito = create_mito_wrapper_dfs(df1)
@@ -664,3 +689,165 @@ def test_pivot_filter(original_df, pivot_rows, pivot_columns, values, pivot_filt
     else:
         assert len(mito.dfs[1]) == 0
         assert mito.dfs[1].columns.to_list() == pivoted_df.columns.to_list() 
+
+
+
+PIVOT_TRANSFORM_TESTS: List[Any] = [
+    # Year transform
+    (
+        pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000', '1-2-2000', '2-1-2001', '2-2-2001']), 'value': [1, 2, 3, 4]}),
+        [{'column_header': 'date', 'transformation': PCT_DATE_YEAR}], [], {'value': ['sum']}, 
+        pd.DataFrame({'date (year)': [2000, 2001], 'value sum': [3, 7]})
+    ),
+    # Quarter transform
+    (
+        pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000', '12-2-2000', '1-1-2001', '12-2-2001']), 'value': [1, 2, 3, 4]}),
+        [{'column_header': 'date', 'transformation': PCT_DATE_QUARTER}], [], {'value': ['sum']}, 
+        pd.DataFrame({'date (quarter)': [1, 4], 'value sum': [4, 6]})
+    ),
+    # Month transform
+    (
+        pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000', '2-2-2000', '1-1-2001', '2-2-2001']), 'value': [1, 2, 3, 4]}),
+        [{'column_header': 'date', 'transformation': PCT_DATE_MONTH}], [], {'value': ['sum']}, 
+        pd.DataFrame({'date (month)': [1, 2], 'value sum': [4, 6]})
+    ),
+    # Week transform
+    (
+        pd.DataFrame(data={'date': pd.to_datetime(['1-3-2000', '2-2-2000', '1-2-2001', '2-2-2001']), 'value': [1, 2, 3, 4]}),
+        [{'column_header': 'date', 'transformation': PCT_DATE_WEEK}], [], {'value': ['sum']}, 
+        pd.DataFrame({'date (week)': [1, 5], 'value sum': [4, 6]})
+    ),
+    # Day of month transform
+    (
+        pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000', '2-2-2000', '1-1-2001', '2-2-2001']), 'value': [1, 2, 3, 4]}),
+        [{'column_header': 'date', 'transformation': PCT_DATE_DAY_OF_MONTH}], [], {'value': ['sum']}, 
+        pd.DataFrame({'date (day of month)': [1, 2], 'value sum': [4, 6]})
+    ),
+    # Day of week transform
+    (
+        pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000', '2-2-2000', '1-6-2001', '1-31-2001']), 'value': [1, 2, 3, 4]}),
+        [{'column_header': 'date', 'transformation': PCT_DATE_DAY_OF_WEEK}], [], {'value': ['sum']}, 
+        pd.DataFrame({'date (day of week)': [2, 5], 'value sum': [6, 4]})
+    ),
+    # Hour transform
+    (
+        pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000 00:00:00', '2-2-2000 00:00:00', '1-1-2001 01:00:00', '2-2-2001 01:00:00']), 'value': [1, 2, 3, 4]}),
+        [{'column_header': 'date', 'transformation': PCT_DATE_HOUR}], [], {'value': ['sum']}, 
+        pd.DataFrame({'date (hour)': [0, 1], 'value sum': [3, 7]})
+    ),
+    # Minute transform
+    (
+        pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000 00:00:00', '2-2-2000 00:00:00', '1-1-2001 00:01:00', '2-2-2001 00:01:00']), 'value': [1, 2, 3, 4]}),
+        [{'column_header': 'date', 'transformation': PCT_DATE_MINUTE}], [], {'value': ['sum']}, 
+        pd.DataFrame({'date (minute)': [0, 1], 'value sum': [3, 7]})
+    ),
+    # Second transform
+    (
+        pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000 00:00:00', '2-2-2000 00:00:00', '1-1-2001 00:00:01', '2-2-2001 00:00:01']), 'value': [1, 2, 3, 4]}),
+        [{'column_header': 'date', 'transformation': PCT_DATE_SECOND}], [], {'value': ['sum']}, 
+        pd.DataFrame({'date (second)': [0, 1], 'value sum': [3, 7]})
+    ),
+    # year-month-day-hour-minute  transform
+    (
+        pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000 00:00:00', '2-2-2000 00:00:00', '1-1-2000 00:00:01', '2-2-2000 00:00:01']), 'value': [1, 2, 3, 4]}),
+        [{'column_header': 'date', 'transformation': PCT_DATE_YEAR_MONTH_DAY_HOUR_MINUTE}], [], {'value': ['sum']}, 
+        pd.DataFrame({'date (year-month-day-hour-minute)': ['2000-01-01 00:00', '2000-02-02 00:00'], 'value sum': [4, 6]})
+    ),
+    # year-month-day-hour transform
+    (
+        pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000 00:00:00', '2-2-2000 00:00:00', '1-1-2000 00:01:01', '2-2-2000 00:01:01']), 'value': [1, 2, 3, 4]}),
+        [{'column_header': 'date', 'transformation': PCT_DATE_YEAR_MONTH_DAY_HOUR}], [], {'value': ['sum']}, 
+        pd.DataFrame({'date (year-month-day-hour)': ['2000-01-01 00', '2000-02-02 00'], 'value sum': [4, 6]})
+    ),
+    # year-month-day transform
+    (
+        pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000 00:00:00', '2-2-2000 00:00:00', '1-1-2000 01:01:01', '2-2-2000 01:01:01']), 'value': [1, 2, 3, 4]}),
+        [{'column_header': 'date', 'transformation': PCT_DATE_YEAR_MONTH_DAY}], [], {'value': ['sum']}, 
+        pd.DataFrame({'date (year-month-day)': ['2000-01-01', '2000-02-02'], 'value sum': [4, 6]})
+    ),
+    # year-month transform
+    (
+        pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000 00:00:00', '2-2-2000 00:00:00', '1-1-2000 01:01:01', '2-2-2000 01:01:01']), 'value': [1, 2, 3, 4]}),
+        [{'column_header': 'date', 'transformation': PCT_DATE_YEAR_MONTH}], [], {'value': ['sum']}, 
+        pd.DataFrame({'date (year-month)': ['2000-01', '2000-02'], 'value sum': [4, 6]})
+    ),
+    # year-quarter transform
+    (
+        pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000 00:00:00', '2-2-2000 00:00:00', '10-1-2000 01:01:01', '10-2-2000 01:01:01']), 'value': [1, 2, 3, 4]}),
+        [{'column_header': 'date', 'transformation': PCT_DATE_YEAR_QUARTER}], [], {'value': ['sum']}, 
+        pd.DataFrame({'date (year-quarter)': ['2000-Q1', '2000-Q4'], 'value sum': [3, 7]})
+    ),
+    # month-day transform
+    (
+        pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000 00:00:00', '2-2-2000 00:00:00', '1-1-2001 01:01:01', '2-2-2001 01:01:01']), 'value': [1, 2, 3, 4]}),
+        [{'column_header': 'date', 'transformation': PCT_DATE_MONTH_DAY}], [], {'value': ['sum']}, 
+        pd.DataFrame({'date (month-day)': ['01-01', '02-02'], 'value sum': [4, 6]})
+    ),
+    # day-hour transform
+    (
+        pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000 01:00:00', '2-2-2000 00:00:00', '1-1-2000 01:01:01', '2-2-2000 00:01:01']), 'value': [1, 2, 3, 4]}),
+        [{'column_header': 'date', 'transformation': PCT_DATE_DAY_HOUR}], [], {'value': ['sum']}, 
+        pd.DataFrame({'date (day-hour)': ['01 01', '02 00'], 'value sum': [4, 6]})
+    ),
+    # hour-minute transform
+    (
+        pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000 00:00:00', '2-2-2000 00:00:00', '1-1-2000 01:01:01', '2-2-2000 01:01:01']), 'value': [1, 2, 3, 4]}),
+        [{'column_header': 'date', 'transformation': PCT_DATE_HOUR_MINUTE}], [], {'value': ['sum']}, 
+        pd.DataFrame({'date (hour-minute)': ['00:00', '01:01'], 'value sum': [3, 7]})
+    ),
+    # Simple transform in column
+    (
+        pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000', '1-2-2000', '2-1-2001', '2-2-2001']), 'value': [1, 2, 3, 4]}),
+        [], [{'column_header': 'date', 'transformation': PCT_DATE_YEAR}], {'value': ['sum']}, 
+        pd.DataFrame({'level_0': ['value'], 'level_1': ['sum'], 2000: [3], 2001: [7]})
+    ),
+    # Multiple of same type of transforms in one section
+    (
+        pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000', '1-2-2000', '2-1-2001', '2-2-2001']), 'date new': pd.to_datetime(['1-1-2004', '1-2-2005', '2-1-2006', '2-2-2007']), 'value': [1, 2, 3, 4]}),
+        [{'column_header': 'date', 'transformation': PCT_DATE_YEAR}, {'column_header': 'date new', 'transformation': PCT_DATE_YEAR}], [], {'value': ['sum']}, 
+        pd.DataFrame({'date (year)': [2000, 2000, 2001, 2001], 'date new (year)': [2004, 2005, 2006, 2007], 'value sum': [1, 2, 3, 4]})
+    ),
+    # Multiple of same type of transforms in different sections
+    (
+        pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000', '1-2-2000', '2-1-2001', '2-2-2001']), 'date new': pd.to_datetime(['1-1-2004', '1-2-2005', '2-1-2006', '2-2-2007']), 'value': [1, 2, 3, 4]}),
+        [{'column_header': 'date', 'transformation': PCT_DATE_YEAR}], [{'column_header': 'date new', 'transformation': PCT_DATE_YEAR}], {'value': ['sum']}, 
+        pd.DataFrame({'date (year)': [2000, 2001], 'value sum 2004': [1.0, np.NaN], 'value sum 2005': [2.0, np.NaN], 'value sum 2006': [np.NaN, 3.0], 'value sum 2007': [np.NaN, 4.0]})
+    ),
+    # Multiple of different types of transforms in same section
+    (
+        pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000', '1-2-2000', '2-1-2001', '2-2-2001']), 'date new': pd.to_datetime(['1-1-2004', '1-2-2005', '2-1-2006', '2-2-2007']), 'value': [1, 2, 3, 4]}),
+        [{'column_header': 'date', 'transformation': PCT_DATE_YEAR}, {'column_header': 'date new', 'transformation': PCT_DATE_MONTH}], [], {'value': ['sum']}, 
+        pd.DataFrame({'date (year)': [2000, 2001], 'date new (month)': [1, 2], 'value sum': [3, 7]})
+    ),
+    # Multiple of same type of transforms in different sections
+    (
+        pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000', '1-2-2000', '2-1-2001', '2-2-2001']), 'date new': pd.to_datetime(['1-1-2004', '1-2-2005', '2-1-2006', '2-2-2007']), 'value': [1, 2, 3, 4]}),
+        [{'column_header': 'date', 'transformation': PCT_DATE_YEAR}], [{'column_header': 'date new', 'transformation': PCT_DATE_MONTH}], {'value': ['sum']}, 
+        pd.DataFrame({'date (year)': [2000, 2001], 'value sum 1': [3.0, np.NaN], 'value sum 2': [np.NaN, 7.0]})
+    ),
+]
+@pytest.mark.parametrize("original_df, pivot_rows, pivot_columns, values, pivoted_df", PIVOT_TRANSFORM_TESTS)
+def test_pivot_transform(original_df, pivot_rows, pivot_columns, values, pivoted_df):
+    mito = create_mito_wrapper_dfs(original_df)
+    mito.pivot_sheet(0, pivot_rows, pivot_columns, values)
+
+    assert mito.dfs[0].equals(original_df)
+    assert mito.dfs[1].equals(pivoted_df)
+
+
+def test_pivot_transform_with_filter_source_column():
+    df = pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000', '1-2-2000', '2-1-2001', '2-2-2001']), 'value': [1, 2, 3, 4]})
+    mito = create_mito_wrapper_dfs(df)
+    pivot_rows_with_transforms: List[ColumnHeaderWithPivotTransform] = [{'column_header': 'date', 'transformation': PCT_DATE_YEAR}]
+    mito.pivot_sheet(0, pivot_rows_with_transforms, [], {'value': ['sum']}, pivot_filters=[
+        {
+            'column_header': 'date', 
+            'filter': {
+                'condition': FC_DATETIME_EXACTLY,
+                'value': pd.to_datetime('1-1-2000')
+            }
+        },
+    ])
+
+    assert mito.dfs[0].equals(df)
+    assert mito.dfs[1].equals(pd.DataFrame({'date (year)': [2000], 'value sum': [1]}))

@@ -406,11 +406,37 @@ export enum AggregationType {
     MAX = 'max', 
 }
 
+export type PivotColumnTransformation = 
+    | 'no-op'
+    | 'year'
+    | 'quarter'
+    | 'month'
+    | 'week'
+    | 'day of month'
+    | 'day of week'
+    | 'hour'
+    | 'minute'
+    | 'second'
+    | 'year-month-day-hour-minute'
+    | 'year-month-day-hour'
+    | 'year-month-day'
+    | 'year-month'
+    | 'year-quarter'
+    | 'month-day'
+    | 'day-hour'
+    | 'hour-minute'
+
+export type ColumnIDWithPivotTransform = {
+    column_id: ColumnID,
+    transformation: PivotColumnTransformation
+}
+
+
 // The parameters saved on the backend
 export interface BackendPivotParams {
     sheet_index: number,
-    pivot_rows_column_ids: ColumnID[],
-    pivot_columns_column_ids: ColumnID[],
+    pivot_rows_column_ids_with_transforms: ColumnIDWithPivotTransform[],
+    pivot_columns_column_ids_with_transforms: ColumnIDWithPivotTransform[],
     values_column_ids_map: Record<ColumnID, AggregationType[]>,
     pivot_filters: {column_id: ColumnID, filter: FilterType}[],
     flatten_column_headers: boolean;
@@ -422,8 +448,8 @@ export interface BackendPivotParams {
 // frontend while keeping the ordering for values
 export interface FrontendPivotParams {
     sourceSheetIndex: number,
-    pivotRowColumnIDs: ColumnID[],
-    pivotColumnsColumnIDs: ColumnID[],
+    pivotRowColumnIDsWithTransforms: ColumnIDWithPivotTransform[],
+    pivotColumnsColumnIDsWithTransforms: ColumnIDWithPivotTransform[],
     // NOTE: storing these values as an array makes keeping an order of them
     // much much easier, and generally is the way to do it!
     pivotValuesColumnIDsArray: [ColumnID, AggregationType][],

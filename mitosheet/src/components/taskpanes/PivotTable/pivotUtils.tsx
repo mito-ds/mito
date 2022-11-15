@@ -1,6 +1,33 @@
 import { AggregationType, BackendPivotParams, ColumnID, FilterType, FrontendPivotParams, SheetData } from "../../../types";
-import { getDeduplicatedArray } from "../../../utils/arrays";
+import { isDatetimeDtype, isStringDtype, isTimedeltaDtype } from '../../../utils/dtypes';
 import { getFiltersToApply } from "../ControlPanel/FilterAndSortTab/filter/filterUtils";
+
+/**
+ * Not every aggregation method works on all datatypes. 
+ * We cover the most common cases when string, datetime, 
+ * or timedelta columns are present.
+ */
+ const STRING_AGGREGATIONS = [
+    AggregationType.COUNT,
+    AggregationType.COUNT_UNIQUE,
+]
+const DATETIME_AGGREGATIONS = [
+    AggregationType.COUNT, 
+    AggregationType.COUNT_UNIQUE,
+    AggregationType.MEAN,
+    AggregationType.MEDIAN,
+    AggregationType.MIN,
+    AggregationType.MAX
+]
+const TIMEDELTA_AGGREGATIONS = [
+    AggregationType.COUNT, 
+    AggregationType.COUNT_UNIQUE,
+    AggregationType.SUM,
+    AggregationType.MEAN,
+    AggregationType.MEDIAN,
+    AggregationType.MIN,
+    AggregationType.MAX
+]
 
 
 export const getDefaultPivotParams = (sheetDataArray: SheetData[], sourceSheetIndex: number, existingPivotParams: BackendPivotParams | undefined): FrontendPivotParams | undefined => {
@@ -11,8 +38,8 @@ export const getDefaultPivotParams = (sheetDataArray: SheetData[], sourceSheetIn
     if (existingPivotParams === undefined) {
         return {
             sourceSheetIndex: sourceSheetIndex,
-            pivotRowColumnIDs: [],
-            pivotColumnsColumnIDs: [],
+            pivotRowColumnIDsWithTransforms: [],
+            pivotColumnsColumnIDsWithTransforms: [],
             pivotValuesColumnIDsArray: [],
             pivotFilters: [],
             flattenColumnHeaders: true,
@@ -26,8 +53,8 @@ export const getDefaultPivotParams = (sheetDataArray: SheetData[], sourceSheetIn
 export const getPivotFrontendParamsFromBackendParams = (pivotParams: BackendPivotParams): FrontendPivotParams => {
     return {
         sourceSheetIndex: pivotParams.sheet_index,
-        pivotRowColumnIDs: pivotParams.pivot_rows_column_ids,
-        pivotColumnsColumnIDs: pivotParams.pivot_columns_column_ids,
+        pivotRowColumnIDsWithTransforms: pivotParams.pivot_rows_column_ids_with_transforms,
+        pivotColumnsColumnIDsWithTransforms: pivotParams.pivot_columns_column_ids_with_transforms,
         pivotValuesColumnIDsArray: valuesRecordToArray(pivotParams.values_column_ids_map),
         pivotFilters: pivotParams.pivot_filters,
         flattenColumnHeaders: pivotParams.flatten_column_headers,
@@ -57,10 +84,8 @@ export const getPivotBackendParamsFromFrontendParams = (params: FrontendPivotPar
 
     return {
         sheet_index: params.sourceSheetIndex,
-        // Deduplicate the rows and columns before sending them to the backend
-        // as otherwise this generates errors if you have duplicated key
-        pivot_rows_column_ids: getDeduplicatedArray(params.pivotRowColumnIDs),
-        pivot_columns_column_ids: getDeduplicatedArray(params.pivotColumnsColumnIDs),
+        pivot_rows_column_ids_with_transforms: params.pivotRowColumnIDsWithTransforms,
+        pivot_columns_column_ids_with_transforms: params.pivotColumnsColumnIDsWithTransforms,
         values_column_ids_map: valuesArrayToRecord(params.pivotValuesColumnIDsArray),
         pivot_filters: pivotFiltersToApply,
         flatten_column_headers: params.flattenColumnHeaders,
@@ -100,4 +125,17 @@ export const valuesArrayToRecord = (valuesArray: [string, AggregationType][]): R
         valuesRecord[columnHeader].push(aggregationType);
     }
     return valuesRecord;
+}
+
+export const getPivotAggregationDisabledMessage = (aggregationType: AggregationType, columnDtype: string): string | undefined =>  {
+    if (isStringDtype(columnDtype) && !STRING_AGGREGATIONS.includes(aggregationType)) {
+        return `Not valid for string column`
+    } else if (isDatetimeDtype(columnDtype) && !DATETIME_AGGREGATIONS.includes(aggregationType)) {
+        return `Not valid for datetime column`;
+    } else if (isTimedeltaDtype(columnDtype) && !TIMEDELTA_AGGREGATIONS.includes(aggregationType)) {
+        return `Not valid for timedelta column`
+    }
+
+    return undefined;
+
 }

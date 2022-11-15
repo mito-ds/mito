@@ -465,7 +465,7 @@ class StepsManager:
 
         return last_valid_index
 
-    def execute_undo(self):
+    def execute_undo(self) -> None:
         """
         This function attempts to undo the most recent step, and if there
         is no most recent step, does nothing.
