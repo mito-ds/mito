@@ -51,6 +51,9 @@
     "build:all": "npm run build:lib && npm run build:labextension && npm run build:nbextension",
     "build": "npm run build:all",
 
+    "build:docs:update_frontend": "python docs/make_function_docs.py update_frontend",
+    "build:docs:generate_markdown": "python docs/make_function_docs.py generate_markdown",
+
     "watch:lib": "tsc -w",
     "watch:nbextension": "webpack --watch --mode=development",
     "watch:labextension": "jupyter labextension watch .",
