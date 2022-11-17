@@ -12,8 +12,6 @@ export const fuzzyMatch = (stringOne: string, stringTwo: string): number => {
     stringOne = stringOne.toLowerCase();
     stringTwo = stringTwo.toLowerCase();
 
-    console.log(stringOne, stringTwo)
-
     // TODO: for now, we just search for the string, the string with spaces removed
     // and the string with underscores and dashes. In the future, we can make this 
     // handle more common typos using some existing fuzzy match algorithm
