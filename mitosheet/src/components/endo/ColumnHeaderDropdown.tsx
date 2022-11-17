@@ -107,10 +107,13 @@ export default function ColumnHeaderDropdown(props: {
             <DropdownItem 
                 title='Fill NaN Values'
                 onClick={() => {
+                    const columnIndexesSelected = getColumnIndexesInSelections(props.gridState.selections);
+                    const columnIDsToFillNaN = columnIndexesSelected.map(colIdx => props.sheetData?.data[colIdx]?.columnID || '').filter(columnID => columnID !== '')
+
                     props.setUIState(prevUIState => {
                         return {
                             ...prevUIState,
-                            currOpenTaskpane: {type: TaskpaneType.FILL_NA, startingColumnIDs: [props.columnID]},
+                            currOpenTaskpane: {type: TaskpaneType.FILL_NA, startingColumnIDs: columnIDsToFillNaN},
                         }
                     })
                 }}
