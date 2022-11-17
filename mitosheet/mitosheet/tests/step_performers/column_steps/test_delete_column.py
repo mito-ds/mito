@@ -142,6 +142,40 @@ def test_delete_diffrent_sheets_does_optimize():
 
     assert len(mito.optimized_code_chunks) >= 3
 
+def test_add_column_then_delete_optimizes():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'B': [1234]}))
+    mito.add_column(0, 'A', -1)
+    mito.delete_columns(0, ['A'])
+
+    assert len(mito.transpiled_code) == 0
+    assert len(mito.optimized_code_chunks) == 1
+
+    assert mito.dfs[0].equals(pd.DataFrame({'B': [1234]}))
+
+def test_add_column_then_delete_multiple_optimizes():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'B': [1234]}))
+    mito.add_column(0, 'A', -1)
+    mito.delete_columns(0, ['A', 'B'])
+
+    assert len(mito.transpiled_code) == 1
+    assert len(mito.optimized_code_chunks) == 1
+
+    assert mito.dfs[0].empty
+
+def test_add_multiple_column_then_delete_multiple_optimizes():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'B': [1234]}))
+    mito.add_column(0, 'A', -1)
+    mito.add_column(0, 'C', -1)
+    mito.add_column(0, 'D', -1)
+    mito.delete_columns(0, ['A'])
+    mito.delete_columns(0, ['C'])
+    mito.delete_columns(0, ['D'])
+
+    assert len(mito.transpiled_code) == 0
+    assert len(mito.optimized_code_chunks) == 1
+
+    assert mito.dfs[0].equals(pd.DataFrame({'B': [1234]}))
+
 def test_reorder_column_then_delete_optimizes():
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123], 'B': [1234]}))
     mito.reorder_column(0, 'A', -1)

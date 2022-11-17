@@ -5,12 +5,19 @@
 # Distributed under the terms of the GPL License.
 
 from copy import copy
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING, Any
 
+from mitosheet.types import ColumnID
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.transpiler.transpile_utils import \
     column_header_list_to_transpiled_code
 from mitosheet.code_chunks.step_performers.column_steps.reorder_column_code_chunk import ReorderColumnCodeChunk
+from mitosheet.code_chunks.no_op_code_chunk import NoOpCodeChunk
+
+if TYPE_CHECKING:
+    from mitosheet.code_chunks.step_performers.column_steps.add_column_code_chunk import AddColumnCodeChunk
+else:
+    AddColumnCodeChunk = Any
 
 
 class DeleteColumnsCodeChunk(CodeChunk):
@@ -85,9 +92,49 @@ class DeleteColumnsCodeChunk(CodeChunk):
 
         return None
 
+    def _combine_left_add_column_code_chunk(self, other_code_chunk: "AddColumnCodeChunk") -> Optional["CodeChunk"]:
+        if not self.params_match(other_code_chunk, ['sheet_index']):
+            return None
+
+        added_column_id = other_code_chunk.get_param('column_id')
+        column_ids: List[ColumnID] = self.get_param('column_ids')
+
+        if added_column_id in column_ids:
+
+            # Remove the added column, as we can just skip and no longer need to delete
+            new_column_ids = copy(column_ids)
+            column_ids.remove(added_column_id)
+
+            # If there's nothing new, then we return a noop
+            if len(new_column_ids) == 0:
+                return NoOpCodeChunk(
+                    other_code_chunk.prev_state,
+                    self.post_state,
+                    {},
+                    {}
+                )
+            else:
+                # Otherwise, just delete what else is deleted in this step
+                new_params = {
+                    **self.params,
+                    'column_ids': new_column_ids
+                }
+
+                return DeleteColumnsCodeChunk(
+                    other_code_chunk.prev_state,
+                    self.post_state,
+                    new_params,
+                    self.execution_data
+                )
+
+        return None
+
     def combine_left(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:
         if isinstance(other_code_chunk, ReorderColumnCodeChunk):
             return self._combine_left_reorder_column_code_chunk(other_code_chunk)
+        from mitosheet.code_chunks.step_performers.column_steps.add_column_code_chunk import AddColumnCodeChunk
+        if isinstance(other_code_chunk, AddColumnCodeChunk):
+            return self._combine_left_add_column_code_chunk(other_code_chunk)
 
 
         return None
