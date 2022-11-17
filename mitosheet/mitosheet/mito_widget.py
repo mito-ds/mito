@@ -225,6 +225,7 @@ class MitoWidget(DOMWidget):
             return True
         except MitoError as e:
             if is_running_test():
+                print(get_recent_traceback())
                 print(e)
 
             # Log processing this event failed

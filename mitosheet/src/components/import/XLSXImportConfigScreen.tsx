@@ -14,7 +14,7 @@ import MultiToggleItem from '../elements/MultiToggleItem';
 import RadioButtonBox from '../elements/RadioButtonBox';
 import Select from '../elements/Select';
 import TextButton from '../elements/TextButton';
-import Tooltip from '../elements/Tooltip';
+import LabelAndTooltip from '../elements/LabelAndTooltip';
 import Col from '../layout/Col';
 import Row from '../layout/Row';
 import Spacer from '../layout/Spacer';
@@ -195,12 +195,9 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
                     }
                     <Row justify='space-between' align='center' title={HAS_HEADER_ROW_TOOLTIP}>
                         <Col>
-                            <Row justify='start' align='center' suppressTopBottomMargin>
-                                <p className='text-body-1'>
-                                    Has Header Row
-                                </p>
-                                <Tooltip title={HAS_HEADER_ROW_TOOLTIP}/>
-                            </Row>
+                            <LabelAndTooltip tooltip={HAS_HEADER_ROW_TOOLTIP}>
+                                Has Header Row
+                            </LabelAndTooltip>
                         </Col>
                         <Col>
                             <Select
@@ -226,12 +223,9 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
 
                     <Row justify='space-between' align='center' title={SKIP_ROWS_TOOLTIP}>
                         <Col>
-                            <Row justify='start' align='center' suppressTopBottomMargin>
-                                <p className='text-body-1'>
-                                    Number of Rows to Skip
-                                </p>
-                                <Tooltip title={SKIP_ROWS_TOOLTIP} />
-                            </Row>
+                            <LabelAndTooltip tooltip={SKIP_ROWS_TOOLTIP}>
+                                Number of Rows to Skip
+                            </LabelAndTooltip>
                         </Col>
                         <Col>
                             <Input
@@ -258,12 +252,9 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
                     {isAtLeastBenchmarkVersion(props.userProfile.pandasVersion, '1.4.0') && 
                         <Row justify='space-between' align='center' title={DECIMAL_TOOLTIP}>
                             <Col>
-                                <Row justify='start' align='center' suppressTopBottomMargin>
-                                    <p className='text-body-1'>
-                                        Decimal Separator
-                                    </p>
-                                    <Tooltip title={DECIMAL_TOOLTIP} />
-                                </Row>
+                                <LabelAndTooltip tooltip={DECIMAL_TOOLTIP}>
+                                    Decimal Separator
+                                </LabelAndTooltip>
                             </Col>
                             <Col>
                                 <Select 

@@ -7,7 +7,7 @@ import DropdownButton from "../elements/DropdownButton";
 import DropdownItem from "../elements/DropdownItem";
 import SelectAndXIconCard from "../elements/SelectAndXIconCard";
 import TextButton from "../elements/TextButton";
-import Tooltip from "../elements/Tooltip";
+import LabelAndTooltip from "../elements/LabelAndTooltip";
 import Col from "../layout/Col";
 import Row from "../layout/Row";
 import DefaultTaskpane from "../taskpanes/DefaultTaskpane/DefaultTaskpane";
@@ -104,16 +104,9 @@ const DataframeImportScreen = (props: DataframeImportTaskpaneProps): JSX.Element
             <DefaultTaskpaneBody>
                 <Row justify='space-between' align='center'>
                     <Col>
-                        <Row justify="start" align="center">
-                            <Col>
-                                <p className='text-header-3'>
-                                    Dataframes to Import
-                                </p>
-                            </Col>
-                            <Col>
-                                <Tooltip title={"Dataframes that have been created elsewhere in this notebook can be imported through this taskpane."} />
-                            </Col>
-                        </Row>
+                        <LabelAndTooltip tooltip={"Dataframes that have been created elsewhere in this notebook can be imported through this taskpane."}>
+                            Dataframes to Import
+                        </LabelAndTooltip>
                     </Col>
                     <Col>
                         <DropdownButton

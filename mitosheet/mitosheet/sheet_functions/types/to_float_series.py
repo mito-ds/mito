@@ -13,12 +13,13 @@ import pandas as pd
 from mitosheet.sheet_functions.types.utils import (
     get_billion_identifier_in_string, get_million_identifier_in_string,
     is_bool_dtype, is_datetime_dtype, is_number_dtype, is_string_dtype)
+from typing import Any
 
 
 def convert_string_to_float(
-        s, 
-        on_uncastable_arg_element, #Union[Literal['error'], Tuple[Literal['default'], any]]
-    ):
+        s: str, 
+        on_uncastable_arg_element: Any, #Union[Literal['error'], Tuple[Literal['default'], any]]
+    ) -> pd.Series:
     """
     NOTE: The approach for this function is to start as a string, and then we try
     and turn each element into a number 1-by-1. We attempt to handle:
@@ -75,11 +76,11 @@ def convert_string_to_float(
 
         if million_identifer != None:
             multiplier = 1000000
-            s = s.replace(million_identifer, '')
+            s = s.replace(million_identifer, '') # type: ignore
 
         if billion_identifier != None:
             multiplier = 1000000000
-            s = s.replace(billion_identifier, '')
+            s = s.replace(billion_identifier, '') # type: ignore
 
         try:
             return float(s) * (-1 if is_negative else 1) * multiplier

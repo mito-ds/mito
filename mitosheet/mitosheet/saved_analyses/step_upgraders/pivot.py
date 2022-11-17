@@ -8,6 +8,7 @@ from mitosheet.saved_analyses.step_upgraders.utils_column_header_to_column_id im
     replace_headers_with_id
 from mitosheet.saved_analyses.step_upgraders.utils_rename_column_headers import \
     BULK_OLD_RENAME_STEP
+from mitosheet.step_performers.pivot import PCT_NO_OP
 
 
 def upgrade_group_1_to_pivot_2(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -245,6 +246,57 @@ def upgrade_pivot_6_to_7(step: Dict[str, Any], later_steps: List[Dict[str, Any]]
     """
     step['step_version'] = 7
     step['params']['pivot_filters'] = []
+    
+    return [step] + later_steps
+
+def upgrade_pivot_7_to_8(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    When moving from pivot 7 to 8, we change the type of pivot_rows_column_ids and pivot_columns_column_ids
+    from ColumnID[] => {column_id: ColumnID, transformation: PivotColumnTransformation}[]. For now, all of
+    them are defaulted to `no-op`. It also renames their keys to pivot_rows_column_ids_with_transforms and 
+    pivot_columns_column_ids_with_transforms to be more clear what they are.
+
+    Old format: [
+        {
+            "step_version": 7, 
+            "step_type": "pivot", 
+            "params": {
+                sheet_index: 0,
+                pivot_rows_column_ids: List[_id_],
+                pivot_columns_column_ids: List[_id_],
+                values_column_ids_map: Dict[_id_, List[str]],
+                pivot_filters: {columnID: ColumnID, filter: FilterType}[]
+                destination_sheet_index: 1,
+                flatten_column_headers: True
+            }
+        },
+    ]
+    Old format: [
+        {
+            "step_version": 8, 
+            "step_type": "pivot", 
+            "params": {
+                sheet_index: 0,
+                pivot_rows_column_ids_with_transforms: {column_id: ColumnID, transformation: PivotColumnTransformation}[],
+                pivot_columns_column_ids_with_transforms: {column_id: ColumnID, transformation: PivotColumnTransformation}[],
+                values_column_ids_map: Dict[_id_, List[str]],
+                pivot_filters: {columnID: ColumnID, filter: FilterType}[]
+                destination_sheet_index: 1,
+                flatten_column_headers: True
+            }
+        },
+    ]
+    """
+    step['step_version'] = 8
+    step['params']['pivot_rows_column_ids_with_transforms'] = [{
+        'column_id': column_id, 'transformation': PCT_NO_OP 
+    } for column_id in step['params']['pivot_rows_column_ids']]
+    step['params']['pivot_columns_column_ids_with_transforms'] = [{
+        'column_id': column_id, 'transformation': PCT_NO_OP
+    } for column_id in step['params']['pivot_columns_column_ids']]
+
+    del step['params']['pivot_rows_column_ids']
+    del step['params']['pivot_columns_column_ids']
     
     return [step] + later_steps
 
