@@ -10,6 +10,7 @@ from typing import List, Optional
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.transpiler.transpile_utils import \
     column_header_list_to_transpiled_code
+from mitosheet.code_chunks.step_performers.column_steps.reorder_column_code_chunk import ReorderColumnCodeChunk
 
 
 class DeleteColumnsCodeChunk(CodeChunk):
@@ -65,4 +66,28 @@ class DeleteColumnsCodeChunk(CodeChunk):
         if isinstance(other_code_chunk, DeleteColumnsCodeChunk):
             return self._combine_right_with_delete_columns_code_chunk(other_code_chunk)
             
+        return None
+
+    def _combine_left_reorder_column_code_chunk(self, other_code_chunk: ReorderColumnCodeChunk) -> Optional["CodeChunk"]:
+        if not self.params_match(other_code_chunk, ['sheet_index']):
+            return None
+
+        reordered_column_id = other_code_chunk.get_param('column_id')
+        column_ids = self.get_param('column_ids')
+
+        if reordered_column_id in column_ids:
+            return DeleteColumnsCodeChunk(
+                other_code_chunk.prev_state,
+                self.post_state,
+                self.params,
+                self.execution_data
+            )
+
+        return None
+
+    def combine_left(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:
+        if isinstance(other_code_chunk, ReorderColumnCodeChunk):
+            return self._combine_left_reorder_column_code_chunk(other_code_chunk)
+
+
         return None
