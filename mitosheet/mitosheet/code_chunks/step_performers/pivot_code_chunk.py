@@ -177,8 +177,17 @@ class PivotCodeChunk(CodeChunk):
 
         # If both of the pivots are overwriting the same destination sheet index, and they are both defined
         if destination_sheet_index is not None and destination_sheet_index == other_destination_sheet_index:
+            return PivotCodeChunk(
+                self.prev_state,
+                pivot_code_chunk.post_state,
+                pivot_code_chunk.params,
+                pivot_code_chunk.execution_data
+            )
 
-            # First, we rename the params
+        # If one of the pivots if creating the code chunk that the new one is overwriting, then we can optimize
+        # this as well
+        created_sheet_index = self.get_created_sheet_indexes()
+        if created_sheet_index is not None and created_sheet_index[0] == other_destination_sheet_index:
             return PivotCodeChunk(
                 self.prev_state,
                 pivot_code_chunk.post_state,

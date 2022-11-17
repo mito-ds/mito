@@ -852,6 +852,18 @@ def test_pivot_transform_with_filter_source_column():
     assert mito.dfs[0].equals(df)
     assert mito.dfs[1].equals(pd.DataFrame({'date (year)': [2000], 'value sum': [1]}))
 
+def test_pivot_followed_by_edit_optimizes_creation_one():
+    df = pd.DataFrame(data={'date': ['1-1-2000', '1-1-2000', '1-1-2000'], 'value': [2, 2, 2]})
+    mito = create_mito_wrapper_dfs(df)
+    mito.pivot_sheet(0, ['date'], [], {'value': ['sum']})
+    mito.pivot_sheet(0, ['date'], [], {'value': ['count']}, destination_sheet_index=1)
+
+    assert mito.dfs[0].equals(df)
+    assert mito.dfs[1].equals(pd.DataFrame({'date': ['1-1-2000'], 'value count': [3]}))
+
+    # There should be one
+    assert len(mito.optimized_code_chunks) == 1
+
 
 def test_pivot_optimizes_with_two_destination_sheet_indexes_the_same():
     df = pd.DataFrame(data={'date': ['1-1-2000', '1-1-2000', '1-1-2000'], 'value': [2, 2, 2]})
@@ -863,8 +875,8 @@ def test_pivot_optimizes_with_two_destination_sheet_indexes_the_same():
     assert mito.dfs[0].equals(df)
     assert mito.dfs[1].equals(pd.DataFrame({'date': ['1-1-2000'], 'value nunique': [1]}))
 
-    # There should be two code chunks, not three
-    assert len(mito.optimized_code_chunks) == 2
+    # There should be one
+    assert len(mito.optimized_code_chunks) == 1
 
 def test_pivot_not_optimizes_with_two_destination_sheet_indexes_not_the_same():
     df = pd.DataFrame(data={'date': ['1-1-2000', '1-1-2000', '1-1-2000'], 'value': [2, 2, 2]})
@@ -878,7 +890,6 @@ def test_pivot_not_optimizes_with_two_destination_sheet_indexes_not_the_same():
     assert mito.dfs[1].equals(pd.DataFrame({'date': ['1-1-2000'], 'value count': [3]}))
     assert mito.dfs[2].equals(pd.DataFrame({'date': ['1-1-2000'], 'value nunique': [1]}))
 
-    # There should be two code chunks, not three
     assert len(mito.optimized_code_chunks) == 4
 
 def test_pivot_not_optimizes_with_pivot_with_no_destination_sheet():
@@ -892,5 +903,4 @@ def test_pivot_not_optimizes_with_pivot_with_no_destination_sheet():
     assert mito.dfs[1].equals(pd.DataFrame({'date': ['1-1-2000'], 'value count': [3]}))
     assert mito.dfs[2].equals(pd.DataFrame({'date': ['1-1-2000'], 'value sum': [6]}))
 
-    # There should be two code chunks, not three
-    assert len(mito.optimized_code_chunks) == 3
+    assert len(mito.optimized_code_chunks) == 2
