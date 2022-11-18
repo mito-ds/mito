@@ -14,6 +14,7 @@ import { DEFAULT_HEIGHT } from './EndoGrid';
 import { ControlPanelTab } from '../taskpanes/ControlPanel/ControlPanelTaskpane'
 import { submitRenameColumnHeader } from './columnHeaderUtils';
 import ColumnHeaderDropdown from './ColumnHeaderDropdown';
+import { changeColumnWidthDataArray, guessFullWidth } from './widthUtils';
 
 
 export const HEADER_BACKGROUND_COLOR_DEFAULT = '#E8EBF8' // This is var(--mito-light-blue) - update this if we change this variable
@@ -46,6 +47,7 @@ export const HEADER_TEXT_COLOR_DEFAULT = '#494650' // This is var(--mito-gray) -
 */
 const ColumnHeader = (props: {
     gridState: GridState,
+    setGridState: React.Dispatch<React.SetStateAction<GridState>>
     sheetData: SheetData,
     editorState: EditorState | undefined;
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
@@ -108,6 +110,16 @@ const ColumnHeader = (props: {
                 props.setColumnHeaderOperation(undefined);
             }}
             draggable="true"
+            onDoubleClick={() => {
+
+                const fullWidth = guessFullWidth(props.sheetData, props.columnIndex, getDisplayColumnHeader(finalColumnHeader))
+                props.setGridState((gridState) => {
+                    return {
+                        ...gridState,
+                        widthDataArray: changeColumnWidthDataArray(props.gridState.sheetIndex, props.gridState.widthDataArray, props.columnIndex, fullWidth)
+                    }
+                })
+            }}
         />
     )
 

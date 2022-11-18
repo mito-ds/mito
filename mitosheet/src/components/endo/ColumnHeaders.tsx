@@ -196,6 +196,7 @@ const ColumnHeaders = (props: {
                                     columnIndex={columnIndex}
                                     sheetData={props.sheetData}
                                     gridState={props.gridState}
+                                    setGridState={props.setGridState}
                                     editorState={props.editorState}
                                     setEditorState={props.setEditorState}
                                     containerRef={props.containerRef}

@@ -117,3 +117,20 @@ export const reconciliateWidthData = (prevWidthData: WidthData | undefined, oldC
 
     return getWidthData(sheetData, oldWidths);
 }
+
+/*
+    Guess the minimum column width such that the entire column header and each cell is displayed
+    completely withour wrapping.
+
+    Returns a number of pixels 
+*/
+export const guessFullWidth = (sheetData: SheetData, columnIndex: number, displayColumnHeader: string): number => {
+    // Estimate the column header required width as 10px per character and 20 px of spacing 
+    const displayColumnHeaderPx = displayColumnHeader.length * 10 + 20
+
+    // Estimate the data length as 10px per character in the cell with the longest data
+    const dataMaxLength = Math.max(...(sheetData.data[columnIndex].columnData.map(el => String(el).length))) * 10
+
+    // Return the max 
+    return Math.max(displayColumnHeaderPx, dataMaxLength)
+}
