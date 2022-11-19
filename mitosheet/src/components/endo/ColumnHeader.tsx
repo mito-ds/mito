@@ -14,7 +14,7 @@ import { DEFAULT_HEIGHT } from './EndoGrid';
 import { ControlPanelTab } from '../taskpanes/ControlPanel/ControlPanelTaskpane'
 import { submitRenameColumnHeader } from './columnHeaderUtils';
 import ColumnHeaderDropdown from './ColumnHeaderDropdown';
-import { changeColumnWidthDataArray, guessFullWidth } from './widthUtils';
+import { clickedOnClass } from '../../hooks/useCallOnAnyClick';
 
 
 export const HEADER_BACKGROUND_COLOR_DEFAULT = '#E8EBF8' // This is var(--mito-light-blue) - update this if we change this variable
@@ -58,6 +58,7 @@ const ColumnHeader = (props: {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI;
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
+    setSelectedColumnsFullWidth: () => void;
 }): JSX.Element => {
 
     const [openColumnHeaderDropdown, setOpenColumnHeaderDropdown] = useState(false);
@@ -110,16 +111,7 @@ const ColumnHeader = (props: {
                 props.setColumnHeaderOperation(undefined);
             }}
             draggable="true"
-            onDoubleClick={() => {
-
-                const fullWidth = guessFullWidth(props.sheetData, props.columnIndex, getDisplayColumnHeader(finalColumnHeader))
-                props.setGridState((gridState) => {
-                    return {
-                        ...gridState,
-                        widthDataArray: changeColumnWidthDataArray(props.gridState.sheetIndex, props.gridState.widthDataArray, props.columnIndex, fullWidth)
-                    }
-                })
-            }}
+            onDoubleClick={() => {props.setSelectedColumnsFullWidth()}}
         />
     )
 
@@ -261,7 +253,13 @@ const ColumnHeader = (props: {
                 })}
                 mito-row-index={'-1'}
                 mito-col-index={props.columnIndex}
-                onClick={() => {
+                onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+
+                    // Don't select if the click was on the resizer (the div with class column-header-resizer)
+                    const targetNode = e.currentTarget
+                    if (clickedOnClass(targetNode, 'column-header-resizer')) {
+                        return;
+                    }
                     // Don't open the control panel if we're editing, user is selecting column
                     if (editingFinalColumnHeader) {
                         return;
@@ -291,7 +289,13 @@ const ColumnHeader = (props: {
                     <>
                         <div
                             className='column-header-final-text'
-                            onClick={(e) => {
+                            onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+
+                                // Don't select if the click was on the resizer (the div with class column-header-resizer)
+                                const targetNode = e.currentTarget
+                                if (clickedOnClass(targetNode, 'column-header-resizer')) {
+                                    return;
+                                }
                                 e.stopPropagation(); // Stop prop, so we don't call the onclick the header container
                             }}
                             onDoubleClick={(e) => {
@@ -398,3 +402,4 @@ const ColumnHeader = (props: {
 }
 
 export default React.memo(ColumnHeader);
+

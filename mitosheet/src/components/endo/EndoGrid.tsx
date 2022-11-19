@@ -17,6 +17,7 @@ import { firstNonNullOrUndefined, getColumnIDsArrayFromSheetDataArray } from "./
 import { ensureCellVisible } from "./visibilityUtils";
 import { reconciliateWidthDataArray } from "./widthUtils";
 import FloatingCellEditor from "./celleditor/FloatingCellEditor";
+import { clickedOnClass } from "../../hooks/useCallOnAnyClick";
 
 // NOTE: these should match the css
 export const DEFAULT_WIDTH = 123;
@@ -380,6 +381,14 @@ function EndoGrid(props: {
                     })
                 } else {
                     // Clear the entire selection, and create a new one. 
+                    
+                    // Don't select if the click was on the resizer (the div with class column-header-resizer)
+                    const targetNode = e.currentTarget
+                    if (clickedOnClass(targetNode, 'column-header-resizer')) {
+                        console.log("RETURN EARLY")
+                        return;
+                    }
+
                     setGridState((gridState) => {
                         return {
                             ...gridState,
