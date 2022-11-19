@@ -11,8 +11,12 @@ import { FileElement } from "../components/taskpanes/FileImport/FileImportTaskpa
 import { ExcelFileMetadata } from "../components/import/XLSXImportConfigScreen";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
-import { BackendPivotParams, DataframeFormat } from "../types";
+import { AnalysisData, BackendPivotParams, DataframeFormat, SheetData, UIState, UserProfile } from "../types";
 import { ColumnID, FeedbackID, FilterGroupType, FilterType, GraphID, MitoError, GraphParamsFrontend } from "../types";
+import { useState } from "react";
+import { ModalEnum } from "../components/modals/modals";
+import { WidgetModel } from "@jupyter-widgets/base";
+import { getAnalysisData, getSheetDataArray, getUserProfile } from "./jupyterUtils";
 
 
 /*
@@ -63,6 +67,55 @@ export enum UserJsonFields {
     UJ_RECEIVED_CHECKLISTS = 'received_checklists',
 }
 
+export const useMitoAPI = (
+    model: WidgetModel,
+    send: (msg: Record<string, unknown>) => void,
+    registerReceiveHandler: (handler: (msg: Record<string, unknown>) => void) => void,
+    setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>,
+    setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>,
+    setUserProfile: React.Dispatch<React.SetStateAction<UserProfile>>,
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>
+): MitoAPI => {
+
+    const [mitoAPI] = useState<MitoAPI>(
+        () => {
+            const updateMitoState = (): void => {
+                const sheetDataArray = getSheetDataArray(model);
+                const analysisData = getAnalysisData(model);
+                const userProfile = getUserProfile(model);
+                
+                setSheetDataArray(sheetDataArray);
+                setAnalysisData(analysisData);
+                setUserProfile(userProfile);
+            }
+
+            const setErrorModal = (error: MitoError): void => {
+                setUIState((prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenModal: {
+                            type: ModalEnum.Error,
+                            error: error
+                        }
+                    }
+                }))
+            }
+
+            return new MitoAPI(
+                send,
+                registerReceiveHandler,
+                updateMitoState,
+                setErrorModal,
+                setUIState
+            )
+        }
+
+    )
+
+    return mitoAPI;
+}
+
+
 /*
     The MitoAPI class contains functions for interacting with the Mito backend. 
     
@@ -91,23 +144,26 @@ export enum UserJsonFields {
         3. Stopping waiting and returning control to the caller.
 */
 export default class MitoAPI {
-    model_id: string;
     _send: (msg: Record<string, unknown>) => void;
     updateMitoState: () => void;
     setErrorModal: (error: MitoError) => void;
     unconsumedResponses: Record<string, unknown>[];
-
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>
+    
     constructor(
-        model_id: string,
         send: (msg: Record<string, unknown>) => void,
+        registerReceiveHandler: (handler: (msg: Record<string, unknown>) => void) => void,
         updateMitoState: () => void,
         setErrorModal: (error: MitoError) => void,
+        setUIState: React.Dispatch<React.SetStateAction<UIState>>
     ) {
-        this.model_id = model_id;
         this._send = send;
         this.updateMitoState = updateMitoState;
         this.setErrorModal = setErrorModal;
-
+        this.setUIState = setUIState;
+        
+        // Watch for any response
+        registerReceiveHandler(this.receiveResponse.bind(this))
         this.unconsumedResponses = [];
     }
 
@@ -134,12 +190,11 @@ export default class MitoAPI {
         // Send the message
         this._send(msg);
 
-        const stateUpdaters = window.setMitoStateMap?.get(this.model_id);
 
         // Only set loading to true after half a second, so we don't set it for no reason
         let loadingUpdated = false;
         const timeout: NodeJS.Timeout = setTimeout(() => {
-            stateUpdaters?.setUIState((prevUIState) => {
+            this.setUIState((prevUIState) => {
                 loadingUpdated = true;
                 const newLoadingCalls = [...prevUIState.loading];
                 newLoadingCalls.push([id, msg['step_id'] as string | undefined, msg['type'] as string])
@@ -161,7 +216,7 @@ export default class MitoAPI {
 
         // If loading has been updated, then we remove the loading with this value
         if (loadingUpdated) {
-            stateUpdaters?.setUIState((prevUIState) => {
+            this.setUIState((prevUIState) => {
                 const newLoadingCalls = [...prevUIState.loading];
                 const messageIndex = newLoadingCalls.findIndex((value) => {return value[0] === id})
                 newLoadingCalls.splice(messageIndex, 1);
