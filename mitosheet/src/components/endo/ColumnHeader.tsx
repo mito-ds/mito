@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FilterIcon } from '../icons/FilterIcons';
 import '../../../css/endo/ColumnHeaders.css';
 import { DEFAULT_BORDER_STYLE, getBorderStyle, getIsCellSelected, getColumnIndexesInSelections} from './selectionUtils';
-import { EditorState, GridState, SheetData, UIState } from '../../types';
+import { EditorState, GridState, SheetData, UIState, WidthData } from '../../types';
 import { getCellDataFromCellIndexes, getTypeIdentifier } from './utils';
 import MitoAPI from '../../jupyter/api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
@@ -97,7 +97,7 @@ const ColumnHeader = (props: {
         setTimeout(() => focusGrid(props.containerRef.current), 100);
     }
 
-    const setColumnIndexesFullWidth = (columnIndexes: number[]): void  => {
+    const getColumnIndexesFullWidthArray = (columnIndexes: number[]): WidthData[]  => {
         let widthDataArray = props.gridState.widthDataArray
         columnIndexes.forEach(columnIndex => {
             const columnHeader = getCellDataFromCellIndexes(props.sheetData, -1, columnIndex).columnHeader;
@@ -112,13 +112,7 @@ const ColumnHeader = (props: {
             const fullWidth = guessFullWidth(props.sheetData, columnIndex, displayColumnHeader)
             widthDataArray = changeColumnWidthDataArray(props.gridState.sheetIndex, widthDataArray, columnIndex, fullWidth)
         })
-
-        props.setGridState((gridState) => {
-            return {
-                ...gridState,
-                widthDataArray: widthDataArray
-            }
-        })
+        return widthDataArray
     }
 
     const ColumnHeaderResizer = (
@@ -149,13 +143,28 @@ const ColumnHeader = (props: {
             draggable="true"
             onDoubleClick={() => {
                 // First make sure this column header is part of the selection
-                const columnIndexes = getColumnIndexesInSelections(props.gridState.selections)
-                if (!columnIndexes.includes(props.columnIndex)) {
-                    columnIndexes.push(props.columnIndex)
+                const selectionsCopy = [...props.gridState.selections]
+                const isColumnSelected = getIsCellSelected(selectionsCopy, -1, props.columnIndex)
+                if (!isColumnSelected) {
+                    selectionsCopy.push({
+                        startingRowIndex: -1,
+                        endingRowIndex: -1,
+                        startingColumnIndex: props.columnIndex,
+                        endingColumnIndex: props.columnIndex,
+                    })
                 }
 
+                const columnIndexes = getColumnIndexesInSelections(selectionsCopy)
                 // Then set the full column width of all the selected columns
-                setColumnIndexesFullWidth(columnIndexes)
+                const widthData = getColumnIndexesFullWidthArray(columnIndexes)
+
+                props.setGridState(prevGridState => {
+                    return {
+                        ...prevGridState,
+                        selections: selectionsCopy,
+                        widthDataArray: widthData
+                    }
+                })
             }}
         />
     )
