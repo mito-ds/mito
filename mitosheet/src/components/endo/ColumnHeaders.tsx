@@ -2,16 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import '../../../css/endo/ColumnHeaders.css';
 import { getChildrenWithQuery } from './domUtils';
 import { MIN_WIDTH } from './EndoGrid';
-import { getColumnIndexesInSelections, getIndexesFromXAndY } from './selectionUtils';
+import { getIndexesFromXAndY } from './selectionUtils';
 import { calculateCurrentSheetView, calculateTranslate } from './sheetViewUtils';
 import { EditorState, GridState, SheetData, UIState } from '../../types';
 import MitoAPI from '../../jupyter/api';
 import { classNames } from '../../utils/classNames';
 import ColumnHeader from './ColumnHeader';
-import { getColumnHeaderParts, getDisplayColumnHeader } from "../../utils/columnHeaders";
-import { changeColumnWidthDataArray, guessFullWidth } from './widthUtils';
+import { changeColumnWidthDataArray } from './widthUtils';
 import { TaskpaneType } from '../taskpanes/taskpanes';
-import { getCellDataFromCellIndexes } from './utils';
 
 
 /* 
@@ -62,33 +60,6 @@ const ColumnHeaders = (props: {
     const currentSheetView = calculateCurrentSheetView(props.gridState);
     const translate = calculateTranslate(props.gridState);
     const columnHeaderStyle = {transform: `translateX(${-translate.x}px)`}
-
-    const setSelectedColumnsFullWidth = (): void  => {
-        console.log(props.gridState.selections)
-        const columnIndexesInSelections = getColumnIndexesInSelections(props.gridState.selections)
-
-        let widthDataArray = props.gridState.widthDataArray
-        columnIndexesInSelections.forEach(columnIndex => {
-            const columnHeader = getCellDataFromCellIndexes(props.sheetData, -1, columnIndex).columnHeader;
-
-            if (columnHeader === undefined) {
-                return
-            }
-
-            const finalColumnHeader  = getColumnHeaderParts(columnHeader).finalColumnHeader
-            const displayColumnHeader = getDisplayColumnHeader(finalColumnHeader)
-
-            const fullWidth = guessFullWidth(props.sheetData, columnIndex, displayColumnHeader)
-            widthDataArray = changeColumnWidthDataArray(props.gridState.sheetIndex, widthDataArray, columnIndex, fullWidth)
-        })
-
-        props.setGridState((gridState) => {
-            return {
-                ...gridState,
-                widthDataArray: widthDataArray
-            }
-        })
-    }
 
     return (
         <>
@@ -233,7 +204,6 @@ const ColumnHeaders = (props: {
                                     setUIState={props.setUIState}
                                     mitoAPI={props.mitoAPI}
                                     closeOpenEditingPopups={props.closeOpenEditingPopups}
-                                    setSelectedColumnsFullWidth={setSelectedColumnsFullWidth}
                                 />
                             )
                         })}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FilterIcon } from '../icons/FilterIcons';
 import '../../../css/endo/ColumnHeaders.css';
-import { DEFAULT_BORDER_STYLE, getBorderStyle, getIsCellSelected } from './selectionUtils';
+import { DEFAULT_BORDER_STYLE, getBorderStyle, getIsCellSelected, getColumnIndexesInSelections} from './selectionUtils';
 import { EditorState, GridState, SheetData, UIState } from '../../types';
 import { getCellDataFromCellIndexes, getTypeIdentifier } from './utils';
 import MitoAPI from '../../jupyter/api';
@@ -15,6 +15,7 @@ import { ControlPanelTab } from '../taskpanes/ControlPanel/ControlPanelTaskpane'
 import { submitRenameColumnHeader } from './columnHeaderUtils';
 import ColumnHeaderDropdown from './ColumnHeaderDropdown';
 import { clickedOnClass } from '../../hooks/useCallOnAnyClick';
+import { changeColumnWidthDataArray, guessFullWidth } from './widthUtils';
 
 
 export const HEADER_BACKGROUND_COLOR_DEFAULT = '#E8EBF8' // This is var(--mito-light-blue) - update this if we change this variable
@@ -58,7 +59,6 @@ const ColumnHeader = (props: {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI;
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
-    setSelectedColumnsFullWidth: () => void;
 }): JSX.Element => {
 
     const [openColumnHeaderDropdown, setOpenColumnHeaderDropdown] = useState(false);
@@ -97,6 +97,30 @@ const ColumnHeader = (props: {
         setTimeout(() => focusGrid(props.containerRef.current), 100);
     }
 
+    const setColumnIndexesFullWidth = (columnIndexes: number[]): void  => {
+        let widthDataArray = props.gridState.widthDataArray
+        columnIndexes.forEach(columnIndex => {
+            const columnHeader = getCellDataFromCellIndexes(props.sheetData, -1, columnIndex).columnHeader;
+
+            if (columnHeader === undefined) {
+                return
+            }
+
+            const finalColumnHeader  = getColumnHeaderParts(columnHeader).finalColumnHeader
+            const displayColumnHeader = getDisplayColumnHeader(finalColumnHeader)
+
+            const fullWidth = guessFullWidth(props.sheetData, columnIndex, displayColumnHeader)
+            widthDataArray = changeColumnWidthDataArray(props.gridState.sheetIndex, widthDataArray, columnIndex, fullWidth)
+        })
+
+        props.setGridState((gridState) => {
+            return {
+                ...gridState,
+                widthDataArray: widthDataArray
+            }
+        })
+    }
+
     const ColumnHeaderResizer = (
         <div
             className='column-header-resizer'
@@ -110,8 +134,29 @@ const ColumnHeader = (props: {
             onDragEnd={() => {
                 props.setColumnHeaderOperation(undefined);
             }}
+            onMouseDown={(e) => {
+                console.log('stop prop of onMouseDown')
+                e.stopPropagation();
+            }}
+            onMouseUp={(e) => {
+                console.log('stop prop of onMouseUp')
+                e.stopPropagation();
+            }}
+            onClick={(e) => {
+                e.stopPropagation();
+                console.log("stop prop of onClick")
+            }}
             draggable="true"
-            onDoubleClick={() => {props.setSelectedColumnsFullWidth()}}
+            onDoubleClick={() => {
+                // First make sure this column header is part of the selection
+                const columnIndexes = getColumnIndexesInSelections(props.gridState.selections)
+                if (!columnIndexes.includes(props.columnIndex)) {
+                    columnIndexes.push(props.columnIndex)
+                }
+
+                // Then set the full column width of all the selected columns
+                setColumnIndexesFullWidth(columnIndexes)
+            }}
         />
     )
 
