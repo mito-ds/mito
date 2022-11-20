@@ -12,11 +12,15 @@ import os
 from sysconfig import get_python_version
 import time
 from typing import Any, Dict, List, Optional, Union
+from IPython import get_ipython
+from ipykernel.comm import Comm
+
 
 import pandas as pd
 import traitlets as t
 from ipywidgets import DOMWidget
 
+from mitosheet.utils import get_new_id
 from mitosheet._frontend import module_name, module_version
 from mitosheet.api import API
 from mitosheet.data_in_mito import DataTypeInMito
@@ -49,11 +53,13 @@ class MitoWidget(DOMWidget):
     _view_module = t.Unicode(module_name).tag(sync=True) # type: ignore
     _view_module_version = t.Unicode(module_version).tag(sync=True) # type: ignore
 
+    mito_comm: Optional[Comm] = None
+    comm_target_id = t.Unicode('').tag(sync=True) # type: ignore
     sheet_data_json = t.Unicode('').tag(sync=True) # type: ignore
     analysis_data_json = t.Unicode('').tag(sync=True) # type: ignore
     user_profile_json = t.Unicode('').tag(sync=True) # type: ignore
     
-    def __init__(self, *args: List[Union[pd.DataFrame, str]], analysis_to_replay: Optional[str]=None):
+    def __init__(self, *args: List[Union[pd.DataFrame, str]], comm_target_id: str='', analysis_to_replay: Optional[str]=None):
         """
         Takes a list of dataframes and strings that are paths to CSV files
         passed through *args.
@@ -64,13 +70,12 @@ class MitoWidget(DOMWidget):
         # Set up the state container to hold private widget state
         self.steps_manager = StepsManager(args, analysis_to_replay=analysis_to_replay)
 
+        self.comm_target_id = comm_target_id
+
         self.mito_config = MitoConfig() # type: ignore
 
-        # Set up message handler
-        self.on_msg(self.receive_message)
-
         # And the api
-        self.api = API(self.steps_manager, self.send)
+        self.api = API(self.steps_manager, self)
 
         # We store static variables to make writing the shared
         # state variables quicker; we store them so we don't 
@@ -90,7 +95,16 @@ class MitoWidget(DOMWidget):
     def analysis_name(self):
         return self.steps_manager.analysis_name
 
-    
+    @property
+    def mito_send(self):
+        if self.mito_comm:
+            return self.mito_comm.send
+        else:
+            # If we don't have a comm defined, this is because we are running a test, and so 
+            # we simply don't do anything with messages that are tried to send. In the future, 
+            # we can save them somewhere, and then make assertions about them -- cool!
+            return lambda _: _
+
     def update_shared_state_variables(self) -> None:
         """
         Helper function for updating all the variables that are shared
@@ -161,7 +175,7 @@ class MitoWidget(DOMWidget):
         # Tell the front-end to render the new sheet and new code with an empty
         # response. NOTE: in the future, we can actually send back some data
         # with the response (like an error), to get this response in-place!        
-        self.send({
+        self.mito_send({
             'event': 'response',
             'id': event['id'],
             'shared_variables': self.get_shared_state_variables()
@@ -199,7 +213,7 @@ class MitoWidget(DOMWidget):
 
         # Tell the front-end to render the new sheet and new code with an empty
         # response. 
-        self.send({
+        self.mito_send({
             'event': 'response',
             'id': event['id'],
             'shared_variables': self.get_shared_state_variables()
@@ -274,14 +288,14 @@ class MitoWidget(DOMWidget):
                 }
 
             # Report it to the user, and then return
-            self.send(response)
+            self.mito_send(response)
         except:
             if is_running_test():
                 print(get_recent_traceback())
             # We log that processing failed, but have no edit error
             log_event_processed(event, self.steps_manager, failed=True, start_time=start_time)
             # Report it to the user, and then return
-            self.send({
+            self.mito_send({
                 'event': 'edit_error',
                 'id': event['id'],
                 'type': 'execution_error',
@@ -330,8 +344,28 @@ def sheet(
         try_create_user_json_file()
 
     try:
+
+        # Every Mitosheet has a different comm target, so they each create
+        # a different channel to communicate over
+        comm_target_id = get_new_id()
+
         # We pass in the dataframes directly to the widget
-        widget = MitoWidget(*args, analysis_to_replay=analysis_to_replay) 
+        widget = MitoWidget(*args, comm_target_id=comm_target_id, analysis_to_replay=analysis_to_replay) 
+
+        # We create a callback that runs when the comm is actually created on the frontend
+        def on_comm_creation(comm: Comm, open_msg: Dict[str, Any]) -> None:
+            @comm.on_msg
+            def _recv(msg):
+                # Register handler for any incoming messages
+                widget.receive_message(widget, msg['content']['data'])
+            
+            # Save the comm in the mito widget, so we can use this .send function
+            widget.mito_comm = comm
+
+        # Register the comm target - so the callback gets called
+        ipython = get_ipython()
+        if ipython:
+            ipython.kernel.comm_manager.register_target(comm_target_id, on_comm_creation)
 
         # Log they have personal data in the tool if they passed a dataframe
         # that is not tutorial data or sample data from import docs
@@ -341,6 +375,8 @@ def sheet(
     except:
         log('mitosheet_sheet_call_failed', failed=True)
         raise
+
+
 
     # Then, we log that the call was successful, along with all of it's params
     log(

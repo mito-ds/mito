@@ -28,10 +28,13 @@ ColumnHeader = Union[PrimativeColumnHeader, MultiLevelColumnHeader]
 if TYPE_CHECKING:
     from mitosheet.steps_manager import StepsManager
     StepsManagerType = StepsManager
+    from mitosheet.mito_widget import MitoWidget
+    MitoWidgetType = MitoWidget
     from mitosheet.state import State
     StateType = State
 else:
     StepsManagerType = Any
+    MitoWidgetType = Any
     StateType = Any
 
 IndexType = Union[str, int, bool, float]

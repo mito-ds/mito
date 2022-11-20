@@ -54,10 +54,6 @@ export class ExampleView extends DOMWidgetView {
 
     initialize(parameters: WidgetView.InitializeParameters): void {
         super.initialize(parameters);
-
-        // Bind the functions we pass down to other classes
-        this.send = this.send.bind(this);
-        this.model.on = this.model.on.bind(this.model);
     }
 
     render(): void {
@@ -73,12 +69,13 @@ export class ExampleView extends DOMWidgetView {
         const analysisData = getAnalysisData(this.model);
         const userProfile = getUserProfile(this.model);
 
+        // We create a distinct comm channel for each Mito instance, so that they can 
+        // each communicate with the backend seperately
+        const comm_target_id = this.model.get('comm_target_id');
+        
         ReactDOM.render(
             <Mito
-                send={this.send}
-                registerReceiveHandler={(handler) => {
-                    this.model.on('msg:custom', handler, this);
-                }}
+                comm_target_id={comm_target_id}
                 sheetDataArray={sheetDataArray}
                 analysisData={analysisData}
                 userProfile={userProfile}
