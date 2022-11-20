@@ -14,9 +14,8 @@ import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImpo
 import { AnalysisData, BackendPivotParams, DataframeFormat, SheetData, UIState, UserProfile } from "../types";
 import { ColumnID, FeedbackID, FilterGroupType, FilterType, GraphID, MitoError, GraphParamsFrontend } from "../types";
 import { useState } from "react";
+import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "./jupyterUtils";
 import { ModalEnum } from "../components/modals/modals";
-import { WidgetModel } from "@jupyter-widgets/base";
-import { getAnalysisData, getSheetDataArray, getUserProfile } from "./jupyterUtils";
 
 
 /*
@@ -67,8 +66,29 @@ export enum UserJsonFields {
     UJ_RECEIVED_CHECKLISTS = 'received_checklists',
 }
 
+interface MitoSuccessOrInplaceErrorResponse {
+    'event': 'response',
+    'id': string,
+    'shared_variables': {
+        'sheet_data_json': string,
+        'analysis_data_json': string,
+        'user_profile_json': string
+    }
+    'data': unknown
+}
+interface MitoErrorModalResponse {
+    event: 'edit_error'
+    id: string,
+    type: string;
+    header: string;
+    to_fix: string;
+    traceback?: string;
+    data: undefined;
+}
+
+type MitoResponse = MitoSuccessOrInplaceErrorResponse | MitoErrorModalResponse
+
 export const useMitoAPI = (
-    model: WidgetModel,
     send: (msg: Record<string, unknown>) => void,
     registerReceiveHandler: (handler: (msg: Record<string, unknown>) => void) => void,
     setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>,
@@ -79,34 +99,13 @@ export const useMitoAPI = (
 
     const [mitoAPI] = useState<MitoAPI>(
         () => {
-            const updateMitoState = (): void => {
-                const sheetDataArray = getSheetDataArray(model);
-                const analysisData = getAnalysisData(model);
-                const userProfile = getUserProfile(model);
-                
-                setSheetDataArray(sheetDataArray);
-                setAnalysisData(analysisData);
-                setUserProfile(userProfile);
-            }
-
-            const setErrorModal = (error: MitoError): void => {
-                setUIState((prevUIState => {
-                    return {
-                        ...prevUIState,
-                        currOpenModal: {
-                            type: ModalEnum.Error,
-                            error: error
-                        }
-                    }
-                }))
-            }
-
             return new MitoAPI(
                 send,
                 registerReceiveHandler,
-                updateMitoState,
-                setErrorModal,
-                setUIState
+                setSheetDataArray,
+                setAnalysisData,
+                setUserProfile,
+                setUIState,
             )
         }
 
@@ -135,7 +134,9 @@ export const useMitoAPI = (
            'id' as the 'add_column_edit' message it received. 
         2. If it fails, it sends an error message that also includes this 
            'id'. 
-    4. The frontend checks periodically if it has gotten any response with the 'id'
+    4.  This response includes the data necessary to update the frontend, either
+        the sheet_data_array, etc or the error.
+    5. The frontend checks periodically if it has gotten any response with the 'id'
        of the message that it sent. If a response with this 'id' has been received,
        then it processes that response by:
         1. Updating the sheet/code on success
@@ -145,21 +146,25 @@ export const useMitoAPI = (
 */
 export default class MitoAPI {
     _send: (msg: Record<string, unknown>) => void;
-    updateMitoState: () => void;
-    setErrorModal: (error: MitoError) => void;
-    unconsumedResponses: Record<string, unknown>[];
+    unconsumedResponses: MitoResponse[];
+    
+    setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>
+    setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>
+    setUserProfile: React.Dispatch<React.SetStateAction<UserProfile>>
     setUIState: React.Dispatch<React.SetStateAction<UIState>>
     
     constructor(
         send: (msg: Record<string, unknown>) => void,
         registerReceiveHandler: (handler: (msg: Record<string, unknown>) => void) => void,
-        updateMitoState: () => void,
-        setErrorModal: (error: MitoError) => void,
+        setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>,
+        setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>,
+        setUserProfile: React.Dispatch<React.SetStateAction<UserProfile>>,
         setUIState: React.Dispatch<React.SetStateAction<UIState>>
     ) {
         this._send = send;
-        this.updateMitoState = updateMitoState;
-        this.setErrorModal = setErrorModal;
+        this.setSheetDataArray = setSheetDataArray;
+        this.setAnalysisData = setAnalysisData; 
+        this.setUserProfile = setUserProfile;
         this.setUIState = setUIState;
         
         // Watch for any response
@@ -234,27 +239,38 @@ export default class MitoAPI {
     /*
         The receiveResponse function is the entry point for all responses from the backend
         into the MitoAPI class. It stores this response, so that it can be consumed by the
-        original call in a continuation. Furthermore, it updates the sheet (if the response
-        is a `response`, which updates the sheet, or an `error`, which also updates the 
-        sheet).
+        original call in a continuation. Furthermore, it updates the sheet if the response
+        is a `response`. If it's an error, it opens an error modal.
 
         The receive response function is a workaround to the fact that we _do not_ have
         a real API in practice. If/when we do have a real API, we'll get rid of this function, 
         and allow the API to just make a call to a server, and wait on a response
     */
-    receiveResponse(response: Record<string, unknown>): void {
+    receiveResponse(rawResponse: Record<string, unknown>): void {
+        const response = (rawResponse as unknown) as MitoResponse;
+
         this.unconsumedResponses.push(response);
 
-        // If the response is a "response", then we update the sheet and the code
-        // as this means there was a successful response
         if (response['event'] == 'response') {
-            this.updateMitoState();
+            // If this is a response, then we update the state of the sheet
+            this.setSheetDataArray(getSheetDataArrayFromString(response.shared_variables.sheet_data_json));
+            this.setAnalysisData(getAnalysisDataFromString(response.shared_variables.analysis_data_json));
+            this.setUserProfile(getUserProfileFromString(response.shared_variables.user_profile_json));
+
         } else if (response['event'] == 'edit_error') {
             // If the backend sets the data field of the error, then we know
             // that this is an error that we want to only pass through, without 
             // displaying an error modal
             if (response['data'] === undefined) {
-                this.setErrorModal((response as unknown) as MitoError);
+                this.setUIState((prevUIState) => {
+                    return {
+                        ...prevUIState,
+                        currOpenModal: {
+                            type: ModalEnum.Error,
+                            error: (response as unknown) as MitoError
+                        }
+                    }
+                })
             }
         }
     }

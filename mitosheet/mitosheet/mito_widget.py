@@ -81,14 +81,16 @@ class MitoWidget(DOMWidget):
         self.should_upgrade_mitosheet = should_upgrade_mitosheet()
         self.received_tours = get_user_field(UJ_RECEIVED_TOURS)
 
-        # Set up starting shared state variables
+        # Update shared state varibles. See comment in widget.tsx -- this is being removed
+        # in the upcoming move away from the widget infrastructure
         self.update_shared_state_variables()
+
 
     @property
     def analysis_name(self):
         return self.steps_manager.analysis_name
 
-
+    
     def update_shared_state_variables(self) -> None:
         """
         Helper function for updating all the variables that are shared
@@ -97,20 +99,46 @@ class MitoWidget(DOMWidget):
         self.sheet_data_json = self.steps_manager.sheet_data_json
         self.analysis_data_json = self.steps_manager.analysis_data_json
         self.user_profile_json = json.dumps({
-            # Dynamic, update each time
-            'userEmail': get_user_field(UJ_USER_EMAIL),
-            'receivedTours': get_user_field(UJ_RECEIVED_TOURS),
-            'receivedChecklists': get_user_field(UJ_RECEIVED_CHECKLISTS),
-            'isPro': is_pro(),
-            'telemetryEnabled': telemetry_turned_on(),
-            # Static over a single analysis
-            'pythonVersion': get_python_version(),
-            'pandasVersion': get_pandas_version(),
-            'isLocalDeployment': self.is_local_deployment,
-            'shouldUpgradeMitosheet': self.should_upgrade_mitosheet,
-            'numUsages': self.num_usages,
-            'mitoConfig': self.mito_config.get_mito_config()
-        })
+                # Dynamic, update each time
+                'userEmail': get_user_field(UJ_USER_EMAIL),
+                'receivedTours': get_user_field(UJ_RECEIVED_TOURS),
+                'receivedChecklists': get_user_field(UJ_RECEIVED_CHECKLISTS),
+                'isPro': is_pro(),
+                'telemetryEnabled': telemetry_turned_on(),
+                # Static over a single analysis
+                'pythonVersion': get_python_version(),
+                'pandasVersion': get_pandas_version(),
+                'isLocalDeployment': self.is_local_deployment,
+                'shouldUpgradeMitosheet': self.should_upgrade_mitosheet,
+                'numUsages': self.num_usages,
+                'mitoConfig': self.mito_config.get_mito_config()
+            })
+
+
+    def get_shared_state_variables(self) -> Dict[str, Any]:
+        """
+        Helper function for updating all the variables that are shared
+        between the backend and the frontend through trailets.
+        """
+        return {
+            'sheet_data_json': self.steps_manager.sheet_data_json,
+            'analysis_data_json': self.steps_manager.analysis_data_json,
+            'user_profile_json': json.dumps({
+                # Dynamic, update each time
+                'userEmail': get_user_field(UJ_USER_EMAIL),
+                'receivedTours': get_user_field(UJ_RECEIVED_TOURS),
+                'receivedChecklists': get_user_field(UJ_RECEIVED_CHECKLISTS),
+                'isPro': is_pro(),
+                'telemetryEnabled': telemetry_turned_on(),
+                # Static over a single analysis
+                'pythonVersion': get_python_version(),
+                'pandasVersion': get_pandas_version(),
+                'isLocalDeployment': self.is_local_deployment,
+                'shouldUpgradeMitosheet': self.should_upgrade_mitosheet,
+                'numUsages': self.num_usages,
+                'mitoConfig': self.mito_config.get_mito_config()
+            })
+        }
 
 
     def handle_edit_event(self, event: Dict[str, Any]) -> None:
@@ -127,9 +155,6 @@ class MitoWidget(DOMWidget):
         # First, we send this new edit to the evaluator
         self.steps_manager.handle_edit_event(event)
 
-        # We update the state variables 
-        self.update_shared_state_variables()
-
         # Also, write the analysis to a file!
         write_analysis(self.steps_manager)
 
@@ -138,7 +163,8 @@ class MitoWidget(DOMWidget):
         # with the response (like an error), to get this response in-place!        
         self.send({
             'event': 'response',
-            'id': event['id']
+            'id': event['id'],
+            'shared_variables': self.get_shared_state_variables()
         })
 
 
@@ -155,9 +181,6 @@ class MitoWidget(DOMWidget):
 
         try:
             self.steps_manager.handle_update_event(event)
-
-            # Update all state variables
-            self.update_shared_state_variables()
         except Exception as e:
             # We handle the case of replaying the analysis specially, because we don't
             # want to display the error modal - we want to display something specific
@@ -175,11 +198,11 @@ class MitoWidget(DOMWidget):
         write_analysis(self.steps_manager)
 
         # Tell the front-end to render the new sheet and new code with an empty
-        # response. NOTE: in the future, we can actually send back some data
-        # with the response (like an error), to get this response in-place!
+        # response. 
         self.send({
             'event': 'response',
             'id': event['id'],
+            'shared_variables': self.get_shared_state_variables()
         })
 
     def receive_message(self, widget: Any, content: Dict[str, Any], buffers: Any=None) -> bool:
@@ -214,7 +237,6 @@ class MitoWidget(DOMWidget):
                 # time are not valid, and so we don't even log the start time to not be confusing
                 start_time = None
 
-            
             if event['event'] != 'api_call':
                 # NOTE: we don't need to case on log_event above because it always gets
                 # passed to this function, and thus is logged. We also don't log in the
