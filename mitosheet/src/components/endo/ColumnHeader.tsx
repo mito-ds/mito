@@ -14,7 +14,6 @@ import { DEFAULT_HEIGHT } from './EndoGrid';
 import { ControlPanelTab } from '../taskpanes/ControlPanel/ControlPanelTaskpane'
 import { submitRenameColumnHeader } from './columnHeaderUtils';
 import ColumnHeaderDropdown from './ColumnHeaderDropdown';
-import { clickedOnClass } from '../../hooks/useCallOnAnyClick';
 import { changeColumnWidthDataArray, guessFullWidth } from './widthUtils';
 
 
@@ -129,16 +128,16 @@ const ColumnHeader = (props: {
                 props.setColumnHeaderOperation(undefined);
             }}
             onMouseDown={(e) => {
-                console.log('stop prop of onMouseDown')
+                // Prevent the onMouseDown event in EndoGrid.tsx from resetting the selected indexes
                 e.stopPropagation();
             }}
             onMouseUp={(e) => {
-                console.log('stop prop of onMouseUp')
+                // Prevent the onMouseUp event in EndoGrid.tsx from resetting the selected indexes
                 e.stopPropagation();
             }}
             onClick={(e) => {
+                // Prevent the onClick event in ColumnHeader from opening the column control panel
                 e.stopPropagation();
-                console.log("stop prop of onClick")
             }}
             draggable="true"
             onDoubleClick={() => {
@@ -307,13 +306,7 @@ const ColumnHeader = (props: {
                 })}
                 mito-row-index={'-1'}
                 mito-col-index={props.columnIndex}
-                onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-
-                    // Don't select if the click was on the resizer (the div with class column-header-resizer)
-                    const targetNode = e.currentTarget
-                    if (clickedOnClass(targetNode, 'column-header-resizer')) {
-                        return;
-                    }
+                onClick={() => {
                     // Don't open the control panel if we're editing, user is selecting column
                     if (editingFinalColumnHeader) {
                         return;
@@ -343,13 +336,7 @@ const ColumnHeader = (props: {
                     <>
                         <div
                             className='column-header-final-text'
-                            onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-
-                                // Don't select if the click was on the resizer (the div with class column-header-resizer)
-                                const targetNode = e.currentTarget
-                                if (clickedOnClass(targetNode, 'column-header-resizer')) {
-                                    return;
-                                }
+                            onClick={(e) => {
                                 e.stopPropagation(); // Stop prop, so we don't call the onclick the header container
                             }}
                             onDoubleClick={(e) => {

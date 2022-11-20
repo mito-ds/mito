@@ -380,17 +380,6 @@ function EndoGrid(props: {
                     })
                 } else {
                     // Clear the entire selection, and create a new one. 
-                    
-                    // Don't select if the click was on the resizer (the div with class column-header-resizer)
-                    /*
-                    const targetNode = e.currentTarget
-                    console.log('target node: ', targetNode)
-                    if (clickedOnClass(targetNode, 'column-header-resizer')) {
-                        console.log("RETURN EARLY")
-                        return;
-                    }
-                    */
-
                     setGridState((gridState) => {
                         return {
                             ...gridState,

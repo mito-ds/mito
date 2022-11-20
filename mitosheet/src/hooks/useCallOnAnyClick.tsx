@@ -3,7 +3,6 @@ import { useEffect } from "react";
 
 export const clickedOnClass = (targetNode: EventTarget | null | undefined, className: string | undefined): boolean => {
     if (targetNode !== null && targetNode instanceof Node && targetNode.nodeType === Node.ELEMENT_NODE && className !== undefined) {
-        const originalElement = targetNode as (HTMLElement | null);
         let currentElement = targetNode as (HTMLElement | null);
 
         // First check all of the parent elements
@@ -12,25 +11,6 @@ export const clickedOnClass = (targetNode: EventTarget | null | undefined, class
                 return true;
             }
             currentElement = currentElement.parentElement;
-        }
-
-        // Then check all of the child elements
-        currentElement = originalElement
-        let childElements: (HTMLElement | Element | null)[] = [currentElement]
-        while (childElements.length > 0) {
-            const childElement = childElements.pop()
-
-            if (childElement === null || childElement === undefined) {
-                continue
-            } 
-
-            if (childElement.classList.contains(className)) {
-                return true;
-            }
-
-            // Add the new children to list of nodes to search
-            const newChildElements = Array.from(childElement.children)
-            childElements = childElements.concat(newChildElements)
         }
     }
     return false;
