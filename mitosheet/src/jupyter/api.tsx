@@ -66,6 +66,28 @@ export enum UserJsonFields {
     UJ_RECEIVED_CHECKLISTS = 'received_checklists',
 }
 
+interface MitoSuccessResponse {
+    'event': 'response',
+    'id': string,
+    'shared_variables': {
+        'sheet_data_json': string,
+        'analysis_data_json': string,
+        'user_profile_json': string
+    }
+    'data': unknown
+}
+interface MitoErrorResponse {
+    event: 'edit_error'
+    id: string,
+    type: string;
+    header: string;
+    to_fix: string;
+    traceback?: string;
+    data: undefined;
+}
+
+type MitoResponse = MitoSuccessResponse | MitoErrorResponse
+
 export const useMitoAPI = (
     send: (msg: Record<string, unknown>) => void,
     registerReceiveHandler: (handler: (msg: Record<string, unknown>) => void) => void,
@@ -124,7 +146,7 @@ export const useMitoAPI = (
 */
 export default class MitoAPI {
     _send: (msg: Record<string, unknown>) => void;
-    unconsumedResponses: Record<string, unknown>[];
+    unconsumedResponses: MitoResponse[];
     
     setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>
     setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>
@@ -224,15 +246,16 @@ export default class MitoAPI {
         a real API in practice. If/when we do have a real API, we'll get rid of this function, 
         and allow the API to just make a call to a server, and wait on a response
     */
-    receiveResponse(response: Record<string, unknown>): void {
+    receiveResponse(rawResponse: Record<string, unknown>): void {
+        const response = (rawResponse as unknown) as MitoResponse;
+
         this.unconsumedResponses.push(response);
 
         if (response['event'] == 'response') {
             // If this is a response, then we update the state of the sheet
-            const sharedVariables: Record<string, string> = response['shared_variables'] as Record<string, string>;
-            this.setSheetDataArray(getSheetDataArrayFromString(sharedVariables['sheet_data_json']));
-            this.setAnalysisData(getAnalysisDataFromString(sharedVariables['analysis_data_json']));
-            this.setUserProfile(getUserProfileFromString(sharedVariables['user_profile_json']));
+            this.setSheetDataArray(getSheetDataArrayFromString(response.shared_variables.sheet_data_json));
+            this.setAnalysisData(getAnalysisDataFromString(response.shared_variables.analysis_data_json));
+            this.setUserProfile(getUserProfileFromString(response.shared_variables.user_profile_json));
 
         } else if (response['event'] == 'edit_error') {
             // If the backend sets the data field of the error, then we know
