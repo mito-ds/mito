@@ -81,8 +81,9 @@ class MitoWidget(DOMWidget):
         self.should_upgrade_mitosheet = should_upgrade_mitosheet()
         self.received_tours = get_user_field(UJ_RECEIVED_TOURS)
 
-        # Update shared state varibles
-        self.updated_shared_state_variables()
+        # Update shared state varibles. See comment in widget.tsx -- this is being removed
+        # in the upcoming move away from the widget infrastructure
+        self.update_shared_state_variables()
 
 
     @property
@@ -90,7 +91,7 @@ class MitoWidget(DOMWidget):
         return self.steps_manager.analysis_name
 
     
-    def updated_shared_state_variables(self) -> None:
+    def update_shared_state_variables(self) -> None:
         """
         Helper function for updating all the variables that are shared
         between the backend and the frontend through trailets.

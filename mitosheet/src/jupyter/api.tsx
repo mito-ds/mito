@@ -66,7 +66,7 @@ export enum UserJsonFields {
     UJ_RECEIVED_CHECKLISTS = 'received_checklists',
 }
 
-interface MitoSuccessResponse {
+interface MitoSuccessOrInplaceErrorResponse {
     'event': 'response',
     'id': string,
     'shared_variables': {
@@ -76,7 +76,7 @@ interface MitoSuccessResponse {
     }
     'data': unknown
 }
-interface MitoErrorResponse {
+interface MitoErrorModalResponse {
     event: 'edit_error'
     id: string,
     type: string;
@@ -86,7 +86,7 @@ interface MitoErrorResponse {
     data: undefined;
 }
 
-type MitoResponse = MitoSuccessResponse | MitoErrorResponse
+type MitoResponse = MitoSuccessOrInplaceErrorResponse | MitoErrorModalResponse
 
 export const useMitoAPI = (
     send: (msg: Record<string, unknown>) => void,
