@@ -16,6 +16,9 @@
  */
 
 
+import { WidgetModel } from "@jupyter-widgets/base"
+import { convertBackendtoFrontendGraphParams } from "../components/taskpanes/Graph/graphUtils"
+import { AnalysisData, GraphDataBackend, GraphDataDict, GraphParamsBackend, SheetData, UserProfile } from "../types"
 import MitoAPI from "./api"
 import { notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteGeneratedCodeToCell } from "./notebook/pluginUtils"
 
@@ -96,4 +99,41 @@ export const getArgs = (analysisToReplayName: string | undefined): Promise<strin
         }
         return resolve([]);
     })
+}
+
+
+
+export const getSheetDataArray = (model: WidgetModel): SheetData[] => {
+    const unparsed = model.get('sheet_data_json')
+    return JSON.parse(unparsed)
+}
+
+export const getUserProfile = (model: WidgetModel): UserProfile => {
+    const unparsed = model.get('user_profile_json')
+    const userProfile = JSON.parse(unparsed)
+    if (userProfile['usageTriggeredFeedbackID'] == '') {
+        userProfile['usageTriggeredFeedbackID'] = undefined
+    }
+    return userProfile;
+}
+
+export const getAnalysisData = (model: WidgetModel): AnalysisData =>  {
+    const unparsed = model.get('analysis_data_json')
+    const parsed = JSON.parse(unparsed)
+
+    // Convert the graphData from backend to frontend form.
+    const graphDataDict: GraphDataDict = {} 
+    Object.entries(parsed['graphDataDict']).map(([graphID, graphDataBackend]) => {
+        const graphDataBackendTyped = graphDataBackend as GraphDataBackend
+        const graphParamsBackend: GraphParamsBackend = graphDataBackendTyped['graphParams']
+        const graphParamsFrontend = convertBackendtoFrontendGraphParams(graphParamsBackend)
+        graphDataDict[graphID] = {
+            ...graphDataBackendTyped,
+            graphParams: graphParamsFrontend
+        }
+    })
+
+    parsed['graphDataDict'] = graphDataDict
+
+    return JSON.parse(unparsed);
 }
