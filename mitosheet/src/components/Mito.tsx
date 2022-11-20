@@ -24,7 +24,7 @@ import '../../css/sitewide/text.css';
 import '../../css/sitewide/widths.css';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { useMitoAPI } from '../jupyter/api';
-import { getAnalysisData, getArgs, getSheetDataArray, getUserProfile, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell } from '../jupyter/jupyterUtils';
+import { getArgs, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell } from '../jupyter/jupyterUtils';
 import ConditionalFormattingTaskpane from '../pro/taskpanes/ConditionalFormatting/ConditionalFormattingTaskpane';
 import SetDataframeFormatTaskpane from '../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane';
 import { AnalysisData, DataTypeInMito, DFSource, EditorState, GridState, PopupLocation, PopupType, SheetData, UIState, UserProfile } from '../types';
@@ -75,16 +75,18 @@ export type MitoProps = {
     model: WidgetModel,
     send: (msg: Record<string, unknown>) => void,
     registerReceiveHandler: (handler: (msg: Record<string, unknown>) => void) => void
+    sheetDataArray: SheetData[],
+    analysisData: AnalysisData,
+    userProfile: UserProfile,
 };
-
 
 export const Mito = (props: MitoProps): JSX.Element => {
 
     const mitoContainerRef = useRef<HTMLDivElement>(null);
 
-    const [sheetDataArray, setSheetDataArray] = useState<SheetData[]>(getSheetDataArray(props.model));
-    const [analysisData, setAnalysisData] = useState<AnalysisData>(getAnalysisData(props.model));
-    const [userProfile, setUserProfile] = useState<UserProfile>(getUserProfile(props.model));
+    const [sheetDataArray, setSheetDataArray] = useState<SheetData[]>(props.sheetDataArray);
+    const [analysisData, setAnalysisData] = useState<AnalysisData>(props.analysisData);
+    const [userProfile, setUserProfile] = useState<UserProfile>(props.userProfile);
 
     const [gridState, setGridState] = useState<GridState>(() => getDefaultGridState(sheetDataArray, 0))
     // Set reasonable default values for the UI state

@@ -12,6 +12,7 @@ import { MODULE_NAME, MODULE_VERSION } from '../version';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Mito from '../components/Mito';
+import { getAnalysisData, getSheetDataArray, getUserProfile } from './jupyterUtils';
 
 
 export class ExampleModel extends DOMWidgetModel {
@@ -60,6 +61,18 @@ export class ExampleView extends DOMWidgetView {
     }
 
     render(): void {
+        /**
+         * This is the final location where we use the shared variables. When we transition away from being
+         * a widget and to just a display() call, we will instead write these variables directly to the JS
+         * so that Mito can still be created with them.
+         * 
+         * We do this instead of making Mito creatable without these variables, because we assume that they 
+         * exist currently, and allowing them to be undefined is a big refactor.
+         */
+        const sheetDataArray = getSheetDataArray(this.model);
+        const analysisData = getAnalysisData(this.model);
+        const userProfile = getUserProfile(this.model);
+
         ReactDOM.render(
             <Mito
                 model={this.model}
@@ -67,6 +80,9 @@ export class ExampleView extends DOMWidgetView {
                 registerReceiveHandler={(handler) => {
                     this.model.on('msg:custom', handler, this);
                 }}
+                sheetDataArray={sheetDataArray}
+                analysisData={analysisData}
+                userProfile={userProfile}
             />,
             this.el
         )   
