@@ -4,6 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
+from copy import deepcopy
 from typing import Collection, Dict, List, Optional
 
 import pandas as pd
@@ -165,6 +166,41 @@ class PivotCodeChunk(CodeChunk):
         transpiled_code.append(f'{new_df_name} = pivot_table.reset_index()')
 
         return transpiled_code
+
+    def _combine_right_with_pivot_code_chunk(self, pivot_code_chunk: "PivotCodeChunk") -> Optional["CodeChunk"]:
+        """
+        We can combine a pivot code chunk with the one before it if the destination
+        sheet index of the is the created code index of this step.
+        """
+        destination_sheet_index = self.get_param('destination_sheet_index')
+        other_destination_sheet_index = pivot_code_chunk.get_param('destination_sheet_index')
+
+        # If both of the pivots are overwriting the same destination sheet index, and they are both defined
+        if destination_sheet_index is not None and destination_sheet_index == other_destination_sheet_index:
+            return PivotCodeChunk(
+                self.prev_state,
+                pivot_code_chunk.post_state,
+                pivot_code_chunk.params,
+                pivot_code_chunk.execution_data
+            )
+
+        # If one of the pivots if creating the code chunk that the new one is overwriting, then we can optimize
+        # this as well
+        created_sheet_index = self.get_created_sheet_indexes()
+        if created_sheet_index is not None and created_sheet_index[0] == other_destination_sheet_index:
+            return PivotCodeChunk(
+                self.prev_state,
+                pivot_code_chunk.post_state,
+                pivot_code_chunk.params,
+                pivot_code_chunk.execution_data
+            )
+
+        return None
+
+    def combine_right(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:
+        if isinstance(other_code_chunk, PivotCodeChunk):
+            return self._combine_right_with_pivot_code_chunk(other_code_chunk)
+        return None
 
     def get_created_sheet_indexes(self) -> Optional[List[int]]:
         destination_sheet_index = self.get_param('destination_sheet_index')
