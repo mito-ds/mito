@@ -75,7 +75,6 @@ export class ExampleView extends DOMWidgetView {
 
         ReactDOM.render(
             <Mito
-                model={this.model}
                 send={this.send}
                 registerReceiveHandler={(handler) => {
                     this.model.on('msg:custom', handler, this);

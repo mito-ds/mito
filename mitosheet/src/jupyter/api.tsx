@@ -14,7 +14,6 @@ import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImpo
 import { AnalysisData, BackendPivotParams, DataframeFormat, SheetData, UIState, UserProfile } from "../types";
 import { ColumnID, FeedbackID, FilterGroupType, FilterType, GraphID, MitoError, GraphParamsFrontend } from "../types";
 import { useState } from "react";
-import { WidgetModel } from "@jupyter-widgets/base";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "./jupyterUtils";
 import { ModalEnum } from "../components/modals/modals";
 
@@ -68,7 +67,6 @@ export enum UserJsonFields {
 }
 
 export const useMitoAPI = (
-    model: WidgetModel,
     send: (msg: Record<string, unknown>) => void,
     registerReceiveHandler: (handler: (msg: Record<string, unknown>) => void) => void,
     setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>,

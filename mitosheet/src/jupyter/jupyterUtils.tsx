@@ -108,7 +108,6 @@ export const getSheetDataArray = (model: WidgetModel): SheetData[] => {
     return getSheetDataArrayFromString(unparsed);
 }
 export const getSheetDataArrayFromString = (sheet_data_json: string): SheetData[] => {
-    console.log("Sheet data array", sheet_data_json);
     return JSON.parse(sheet_data_json);
 }
 
@@ -117,8 +116,6 @@ export const getUserProfile = (model: WidgetModel): UserProfile => {
     return getUserProfileFromString(unparsed);
 }
 export const getUserProfileFromString = (user_profile_json: string): UserProfile => {
-    console.log("user_profile_json", user_profile_json);
-
     const userProfile = JSON.parse(user_profile_json)
     if (userProfile['usageTriggeredFeedbackID'] == '') {
         userProfile['usageTriggeredFeedbackID'] = undefined
