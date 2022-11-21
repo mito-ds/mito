@@ -97,11 +97,8 @@ const CellEditor = (props: {
     }, [props.editorState.pendingSelectedColumns]);
 
     useEffect(() => {
-        console.log("Swtich editing mode")
-
         const openCellEditor = (editorState: EditorState | undefined): void => {
             props.setEditorState(prevEditingState => {
-                console.log("Prev Editing State: ", prevEditingState)
                 if (prevEditingState === undefined) {
                     return prevEditingState;
                 } 
@@ -109,7 +106,6 @@ const CellEditor = (props: {
                 // If there is already a formula in the cell editor state, then use that (ie: if you edit the floating cell editor
                 // and switch to the formula bar). Otherwise get the starting formula. 
                 const startingColumnFormula = editorState?.formula || getStartingFormula(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex, props.editorState.editingMode).startingColumnFormula
-                console.log("starting column formula: ", startingColumnFormula)
                 return {
                     ...prevEditingState,
                     formula: startingColumnFormula
@@ -151,7 +147,6 @@ const CellEditor = (props: {
                 }]
             }
         })
-        console.log("reseting editor state")
         props.setEditorState(undefined);
         
         ensureCellVisible(
@@ -492,7 +487,6 @@ const CellEditor = (props: {
                             arrowKeysScrollInFormula = props.editorState.arrowKeysScrollInFormula !== undefined && !endsInResetCharacter && !isEmpty; 
                         }
                         
-                        console.log('on change: ', e.target.value)
                         props.setEditorState({
                             ...props.editorState,
                             formula: e.target.value,
@@ -515,7 +509,6 @@ const CellEditor = (props: {
                             className='mr-5px'
                             value={props.editorState.editingMode === 'set_column_formula' ? true : false}
                             onChange={() => {
-                                console.log("on change undefined")
                                 props.setEditorState(prevEditorState => {
                                     if (prevEditorState === undefined) {
                                         return undefined
@@ -571,7 +564,6 @@ const CellEditor = (props: {
                                 <div 
                                     onMouseEnter={() => setSavedSelectedSuggestionIndex(idx)}
                                     onClick={() => {
-                                        console.log('on click')
                                         // Take a suggestion if you click on it
                                         takeSuggestion(idx);
                                         // Make sure we're focused
