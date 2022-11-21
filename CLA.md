@@ -4,7 +4,7 @@ Thank you for your interest in contributing to Mito. This page describes the est
 
 In order to clarify the intellectual property license granted with contributions from any person or entity, Mito must have a Contributor License Agreement (CLA) on file that has been signed by each Contributor, indicating agreement to certain license terms. This license is not only for the protection of the contributors themselves, but also for the protection of the project and its users; it does not change your rights to use your own Contributions for any other purpose.
 
-All past and future contributors of non-trivial amounts of code (more than just a line or two) to Mito are required to sign the CLA. If somebody is unable to sign the document, their contribution will not be accepted or will be removed from Audacity.
+All past and future contributors of non-trivial amounts of code (more than just a line or two) to Mito are required to sign the CLA. If somebody is unable to sign the document, their contribution will not be accepted or will be removed from Mito.
 
 ### You and Mito agree:
 
