@@ -82,11 +82,20 @@ const KEYS_TO_ENTER_CELL_EDITING_MODE_EMPTY = [
  */
 export const getStartingFormula = (
     sheetData: SheetData | undefined, 
+    editorState: EditorState | undefined,
     rowIndex: number, 
     columnIndex: number, 
     editingMode: 'set_column_formula' | 'set_cell_value',
     e?: KeyboardEvent
 ): {startingColumnFormula: string, arrowKeysScrollInFormula: boolean} => {
+    // Preserve the formula if setting the same column's formula and you're just switching cell editors.
+    // ie: from the floating cell editor to the formula bar.
+    if (editorState !== undefined && editorState.columnIndex === columnIndex) {
+        return {
+            startingColumnFormula: editorState.formula,
+            arrowKeysScrollInFormula: true
+        }
+    }
   
     const {columnFormula, cellValue, columnHeader} = getCellDataFromCellIndexes(sheetData, rowIndex, columnIndex);
 

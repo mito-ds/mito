@@ -97,24 +97,17 @@ const CellEditor = (props: {
     }, [props.editorState.pendingSelectedColumns]);
 
     useEffect(() => {
-        const openCellEditor = (editorState: EditorState | undefined): void => {
-            props.setEditorState(prevEditingState => {
-                if (prevEditingState === undefined) {
-                    return prevEditingState;
-                } 
-                
-                // If there is already a formula in the cell editor state, then use that (ie: if you edit the floating cell editor
-                // and switch to the formula bar). Otherwise get the starting formula. 
-                const startingColumnFormula = editorState?.formula || getStartingFormula(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex, props.editorState.editingMode).startingColumnFormula
-                return {
-                    ...prevEditingState,
-                    formula: startingColumnFormula
-                }
-            })
-        }
-
-        openCellEditor(props.editorState)
-        
+        props.setEditorState(prevEditingState => {
+            if (prevEditingState === undefined) {
+                return prevEditingState;
+            } 
+            
+            const startingColumnFormula = getStartingFormula(props.sheetData, prevEditingState, props.editorState.rowIndex, props.editorState.columnIndex, props.editorState.editingMode).startingColumnFormula
+            return {
+                ...prevEditingState,
+                formula: startingColumnFormula
+            }
+        })
     }, [props.editorState.editingMode])
 
     if (columnID === undefined || columnHeader === undefined) {
