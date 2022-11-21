@@ -39,23 +39,19 @@ const FormulaBar = (props: {
     const cellEditingCellData = props.editorState === undefined ? undefined : getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
     const formulaBarColumnHeader = props.editorState === undefined ? columnHeader : cellEditingCellData?.columnHeader;
 
-    const getFormulaBarValue = (): string => {
-        if (props.editorState === undefined) {
-            // If the formula bar is a cell, display the cell value. If it is a column header, display the column header
-            if (rowIndex == -1 && columnHeader !== undefined) {
-                return getDisplayColumnHeader(columnHeader)
-            } else {
-                return originalFormulaBarValue;
-            }
+    let formulaBarValue = ''
+    if (props.editorState === undefined) {
+        // If the formula bar is a cell, display the cell value. If it is a column header, display the column header
+        if (rowIndex == -1 && columnHeader !== undefined) {
+            formulaBarValue =  getDisplayColumnHeader(columnHeader)
         } else {
-            // If we're editing, display the formula
-            const fullFormula = getFullFormula(props.editorState.formula, formulaBarColumnHeader || '', props.editorState.pendingSelectedColumns);
-            console.log('Full Formula: ', fullFormula)
-            return fullFormula
+            formulaBarValue =  originalFormulaBarValue;
         }
+    } else {
+        // If we're editing, display the formula
+        formulaBarValue = getFullFormula(props.editorState.formula, formulaBarColumnHeader || '', props.editorState.pendingSelectedColumns);
     }
 
-    const formulaBarValue = getFormulaBarValue()
     const currentSheetView = calculateCurrentSheetView(props.gridState);
 
     return(
