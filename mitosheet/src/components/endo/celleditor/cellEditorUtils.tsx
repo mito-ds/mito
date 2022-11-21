@@ -1,7 +1,7 @@
 // Utilities for the cell editor
 
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../../../data/function_documentation";
-import { ColumnHeader, ColumnID, SheetData } from "../../../types";
+import { ColumnHeader, ColumnID, EditorState, SheetData } from "../../../types";
 import { getDisplayColumnHeader, isPrimitiveColumnHeader, rowIndexToColumnHeaderLevel } from "../../../utils/columnHeaders";
 import { getCellDataFromCellIndexes } from "../utils";
 
@@ -80,7 +80,22 @@ const KEYS_TO_ENTER_CELL_EDITING_MODE_EMPTY = [
  * @param e - optionally, if cell editing mode is being entered into by a keypress, pass the event here
  * @returns the formula or value that the cell editor should default to
  */
-export const getStartingFormula = (sheetData: SheetData | undefined, rowIndex: number, columnIndex: number, editingMode: 'set_column_formula' | 'set_cell_value', e?: KeyboardEvent): {startingColumnFormula: string, arrowKeysScrollInFormula: boolean} => {
+export const getStartingFormula = (
+    sheetData: SheetData | undefined, 
+    editorState: EditorState | undefined,
+    rowIndex: number, 
+    columnIndex: number, 
+    editingMode: 'set_column_formula' | 'set_cell_value',
+    e?: KeyboardEvent
+): {startingColumnFormula: string, arrowKeysScrollInFormula: boolean} => {
+    // Preserve the formula if setting the same column's formula and you're just switching cell editors.
+    // ie: from the floating cell editor to the formula bar.
+    if (editorState !== undefined && editorState.columnIndex === columnIndex) {
+        return {
+            startingColumnFormula: editorState.formula,
+            arrowKeysScrollInFormula: true
+        }
+    }
   
     const {columnFormula, cellValue, columnHeader} = getCellDataFromCellIndexes(sheetData, rowIndex, columnIndex);
 

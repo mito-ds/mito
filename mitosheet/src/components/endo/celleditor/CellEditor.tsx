@@ -97,11 +97,12 @@ const CellEditor = (props: {
     }, [props.editorState.pendingSelectedColumns]);
 
     useEffect(() => {
-        const {startingColumnFormula} = getStartingFormula(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex, props.editorState.editingMode);
         props.setEditorState(prevEditingState => {
             if (prevEditingState === undefined) {
                 return prevEditingState;
-            }
+            } 
+            
+            const startingColumnFormula = getStartingFormula(props.sheetData, prevEditingState, props.editorState.rowIndex, props.editorState.columnIndex, props.editorState.editingMode).startingColumnFormula
             return {
                 ...prevEditingState,
                 formula: startingColumnFormula

@@ -38,7 +38,7 @@ export const createActions = (
     const startingRowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex;
     const startingColumnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
     const {columnID} = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
-    const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, startingRowIndex, startingColumnIndex, 'set_column_formula');
+    const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, undefined, startingRowIndex, startingColumnIndex, 'set_column_formula');
     const startingColumnID = columnID;
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
 
