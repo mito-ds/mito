@@ -53,4 +53,4 @@ We also thank the maintainers of [SerenityOS](https://github.com/SerenityOS/sere
 
 ## Contributor Agreement
 
-**Coming soon**
+Read our Contribute Liscence Agreement [here](https://github.com/mito-ds/monorepo/blob/main/CLA.md)
