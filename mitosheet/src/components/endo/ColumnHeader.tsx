@@ -89,6 +89,7 @@ const ColumnHeader = (props: {
     }
 
     const closeColumnHeaderEditor = () => {
+        console.log("closing column header editor")
         props.setEditorState(undefined);
         // We then focus on the grid, as we are no longer focused on the editor
         setTimeout(() => focusGrid(props.containerRef.current), 100);
@@ -222,6 +223,7 @@ const ColumnHeader = (props: {
                                         const newHeader = e.target.value;
 
                                         props.setEditorState((prevEditorState => {
+                                            console.log("undefined 2")
                                             if (prevEditorState === undefined) return undefined;
                                             return {
                                                 ...prevEditorState,
@@ -344,6 +346,7 @@ const ColumnHeader = (props: {
                                 const newHeader = e.target.value;
 
                                 props.setEditorState((prevEditorState => {
+                                    console.log("undefined 3")
                                     if (prevEditorState === undefined) return undefined;
                                     return {
                                         ...prevEditorState,
