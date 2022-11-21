@@ -125,11 +125,11 @@ export const reconciliateWidthData = (prevWidthData: WidthData | undefined, oldC
     Returns a number of pixels 
 */
 export const guessFullWidth = (sheetData: SheetData, columnIndex: number, displayColumnHeader: string): number => {
-    // Estimate the column header required width as 8px per character and 5px of spacing 
-    const displayColumnHeaderPx = displayColumnHeader.length * 8 + 5
+    // Estimate the column header required width as 9px per character and 10px of spacing 
+    const displayColumnHeaderPx = displayColumnHeader.length * 9 + 10
 
-    // Estimate the data length as 7px per character in the cell with the longest data
-    const dataMaxLength = Math.max(...(sheetData.data[columnIndex].columnData.map(el => String(el).length))) * 7
+    // Estimate the data length as 8px per character in the cell with the longest data
+    const dataMaxLength = Math.max(...(sheetData.data[columnIndex].columnData.map(el => String(el).length))) * 8
 
     // Return the max 
     return Math.max(displayColumnHeaderPx, dataMaxLength)
