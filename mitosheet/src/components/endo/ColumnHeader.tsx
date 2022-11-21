@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FilterIcon } from '../icons/FilterIcons';
 import '../../../css/endo/ColumnHeaders.css';
 import { DEFAULT_BORDER_STYLE, getBorderStyle, getIsCellSelected, getColumnIndexesInSelections} from './selectionUtils';
-import { EditorState, GridState, SheetData, UIState, WidthData } from '../../types';
+import { EditorState, GridState, SheetData, UIState } from '../../types';
 import { getCellDataFromCellIndexes, getTypeIdentifier } from './utils';
 import MitoAPI from '../../jupyter/api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
@@ -14,7 +14,7 @@ import { DEFAULT_HEIGHT } from './EndoGrid';
 import { ControlPanelTab } from '../taskpanes/ControlPanel/ControlPanelTaskpane'
 import { submitRenameColumnHeader } from './columnHeaderUtils';
 import ColumnHeaderDropdown from './ColumnHeaderDropdown';
-import { changeColumnWidthDataArray, guessFullWidth } from './widthUtils';
+import { getWidthArrayAtFullWidthForColumnIndexes } from './widthUtils';
 
 
 export const HEADER_BACKGROUND_COLOR_DEFAULT = '#E8EBF8' // This is var(--mito-light-blue) - update this if we change this variable
@@ -96,24 +96,6 @@ const ColumnHeader = (props: {
         setTimeout(() => focusGrid(props.containerRef.current), 100);
     }
 
-    const getColumnIndexesFullWidthArray = (columnIndexes: number[]): WidthData[]  => {
-        let widthDataArray = props.gridState.widthDataArray
-        columnIndexes.forEach(columnIndex => {
-            const columnHeader = getCellDataFromCellIndexes(props.sheetData, -1, columnIndex).columnHeader;
-
-            if (columnHeader === undefined) {
-                return
-            }
-
-            const finalColumnHeader  = getColumnHeaderParts(columnHeader).finalColumnHeader
-            const displayColumnHeader = getDisplayColumnHeader(finalColumnHeader)
-
-            const fullWidth = guessFullWidth(props.sheetData, columnIndex, displayColumnHeader)
-            widthDataArray = changeColumnWidthDataArray(props.gridState.sheetIndex, widthDataArray, columnIndex, fullWidth)
-        })
-        return widthDataArray
-    }
-
     const ColumnHeaderResizer = (
         <div
             className='column-header-resizer'
@@ -155,7 +137,9 @@ const ColumnHeader = (props: {
 
                 const columnIndexes = getColumnIndexesInSelections(selectionsCopy)
                 // Then set the full column width of all the selected columns
-                const widthData = getColumnIndexesFullWidthArray(columnIndexes)
+                const widthData = getWidthArrayAtFullWidthForColumnIndexes(columnIndexes, props.gridState, props.sheetData)
+
+                // TODO: Do I need to reconcile this with the existing width Data instead of just overwriting it?
 
                 props.setGridState(prevGridState => {
                     return {
