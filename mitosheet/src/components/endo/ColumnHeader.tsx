@@ -139,8 +139,6 @@ const ColumnHeader = (props: {
                 // Then set the full column width of all the selected columns
                 const widthData = getWidthArrayAtFullWidthForColumnIndexes(columnIndexes, props.gridState, props.sheetData)
 
-                // TODO: Do I need to reconcile this with the existing width Data instead of just overwriting it?
-
                 props.setGridState(prevGridState => {
                     return {
                         ...prevGridState,
