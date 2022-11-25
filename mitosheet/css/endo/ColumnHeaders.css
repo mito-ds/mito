@@ -23,7 +23,7 @@
 .column-header-resizer {
     /* We make the cursor appear to the user as something you can use to resize */
     cursor: col-resize;
-    width: 10px;
+    width: 5px;
     height: 100%;
 }
 
@@ -125,6 +125,7 @@
 }
 
 .column-header-final-icons {
+    padding-right: 5px; /* To give some additional separation with the resizer */
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;

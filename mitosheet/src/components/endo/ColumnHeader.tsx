@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FilterIcon } from '../icons/FilterIcons';
 import '../../../css/endo/ColumnHeaders.css';
-import { DEFAULT_BORDER_STYLE, getBorderStyle, getIsCellSelected } from './selectionUtils';
+import { DEFAULT_BORDER_STYLE, getBorderStyle, getIsCellSelected, getColumnIndexesInSelections} from './selectionUtils';
 import { EditorState, GridState, SheetData, UIState } from '../../types';
 import { getCellDataFromCellIndexes, getTypeIdentifier } from './utils';
 import MitoAPI from '../../jupyter/api';
@@ -14,6 +14,7 @@ import { DEFAULT_HEIGHT } from './EndoGrid';
 import { ControlPanelTab } from '../taskpanes/ControlPanel/ControlPanelTaskpane'
 import { submitRenameColumnHeader } from './columnHeaderUtils';
 import ColumnHeaderDropdown from './ColumnHeaderDropdown';
+import { getWidthArrayAtFullWidthForColumnIndexes } from './widthUtils';
 
 
 export const HEADER_BACKGROUND_COLOR_DEFAULT = '#E8EBF8' // This is var(--mito-light-blue) - update this if we change this variable
@@ -46,6 +47,7 @@ export const HEADER_TEXT_COLOR_DEFAULT = '#494650' // This is var(--mito-gray) -
 */
 const ColumnHeader = (props: {
     gridState: GridState,
+    setGridState: React.Dispatch<React.SetStateAction<GridState>>
     sheetData: SheetData,
     editorState: EditorState | undefined;
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
@@ -107,7 +109,44 @@ const ColumnHeader = (props: {
             onDragEnd={() => {
                 props.setColumnHeaderOperation(undefined);
             }}
+            onMouseDown={(e) => {
+                // Prevent the onMouseDown event in EndoGrid.tsx from resetting the selected indexes
+                e.stopPropagation();
+            }}
+            onMouseUp={(e) => {
+                // Prevent the onMouseUp event in EndoGrid.tsx from resetting the selected indexes
+                e.stopPropagation();
+            }}
+            onClick={(e) => {
+                // Prevent the onClick event in ColumnHeader from opening the column control panel
+                e.stopPropagation();
+            }}
             draggable="true"
+            onDoubleClick={() => {
+                // First make sure this column header is part of the selection
+                const selectionsCopy = [...props.gridState.selections]
+                const isColumnSelected = getIsCellSelected(selectionsCopy, -1, props.columnIndex)
+                if (!isColumnSelected) {
+                    selectionsCopy.push({
+                        startingRowIndex: -1,
+                        endingRowIndex: -1,
+                        startingColumnIndex: props.columnIndex,
+                        endingColumnIndex: props.columnIndex,
+                    })
+                }
+
+                const columnIndexes = getColumnIndexesInSelections(selectionsCopy)
+                // Then set the full column width of all the selected columns
+                const widthData = getWidthArrayAtFullWidthForColumnIndexes(columnIndexes, props.gridState, props.sheetData)
+
+                props.setGridState(prevGridState => {
+                    return {
+                        ...prevGridState,
+                        selections: selectionsCopy,
+                        widthDataArray: widthData
+                    }
+                })
+            }}
         />
     )
 
@@ -386,3 +425,4 @@ const ColumnHeader = (props: {
 }
 
 export default React.memo(ColumnHeader);
+

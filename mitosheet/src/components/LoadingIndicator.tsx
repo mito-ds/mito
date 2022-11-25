@@ -278,7 +278,7 @@ const LoadingIndicator = (props: {loading: [string, string | undefined, string][
                     const slowLoadingMessage = getSlowLoadingMessage(currentLoadingMessage, message_id);
 
                     return (messageType !== undefined && 
-                        <div className={classNames('mb-5px', 'mt-5px', {'text-color-medium-gray-important': index !== 0})}>
+                        <div key={index} className={classNames('mb-5px', 'mt-5px', {'text-color-medium-gray-important': index !== 0})}>
                             <div 
                                 key={index} 
                                 className={classNames('loading-indicator-item')}

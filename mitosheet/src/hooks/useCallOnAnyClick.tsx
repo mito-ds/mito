@@ -4,6 +4,8 @@ import { useEffect } from "react";
 export const clickedOnClass = (targetNode: EventTarget | null | undefined, className: string | undefined): boolean => {
     if (targetNode !== null && targetNode instanceof Node && targetNode.nodeType === Node.ELEMENT_NODE && className !== undefined) {
         let currentElement = targetNode as (HTMLElement | null);
+
+        // First check all of the parent elements
         while (currentElement) {
             if (currentElement.classList.contains(className)) {
                 return true;

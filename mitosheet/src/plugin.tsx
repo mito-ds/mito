@@ -84,6 +84,19 @@ function activateWidgetExtension(
     // Add the Create New Mitosheet button
     addButton(tracker);
 
+    app.commands.addCommand('create-mitosheet-comm', {
+        label: 'Create Comm',
+        execute: (args: any) => {
+            const comm_target_id = args.comm_target_id;
+            const currentKernel = tracker.currentWidget?.context.sessionContext?.session?.kernel;
+            const comm = currentKernel?.createComm(comm_target_id);
+
+            // On lab, we need to open the comm after creating it to have it function
+            comm?.open()
+            return comm;
+        }
+    })
+
 
     app.commands.addCommand('write-analysis-to-replay-to-mitosheet-call', {
         label: 'Given an analysisName, writes it to the mitosheet.sheet() call that created this mitosheet, if it is not already written to this cell.',

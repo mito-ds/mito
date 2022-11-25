@@ -99,6 +99,7 @@ export const getToolbarItemIcon = (toolbarButtonType: ToolbarButtonType): JSX.El
 export const makeToolbarDropdownItem = (action: Action, supressFocusSettingOnClose?: boolean): JSX.Element => {
     return (
         <DropdownItem 
+            key={action.longTitle}
             title={action.longTitle}
             onClick={action.actionFunction}
             disabled={action.isDisabled() !== undefined}                   
