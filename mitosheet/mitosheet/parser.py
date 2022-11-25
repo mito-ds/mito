@@ -239,8 +239,8 @@ def get_column_header_match_tuples(
 
     # First, we go through and replace all the column headers
     for column_header in column_headers_sorted:
-        def find_column_headers(match):
-            found_column_header: str = match.group()
+        def find_column_headers(match: Any) -> Any:
+            found_column_header: str = match.group() # type:ignore
             start = match.start()
             end = match.end()
 
@@ -336,8 +336,8 @@ def replace_functions(
 
     def replace_functions_internal(match):
 
-        word: str = match.group()
-        end = match.end() # this is +1 after the last char of the string
+        word: str = match.group() # type:ignore
+        end = match.end() # type:ignore # this is +1 after the last char of the string
 
         # If this is to_datetime or to_timedelta we skip this, as this is us casting to a datetime or 
         # timedetla for a column header

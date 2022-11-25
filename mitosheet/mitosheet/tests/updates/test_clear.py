@@ -7,6 +7,7 @@ import os
 import sys
 import pandas as pd
 import pytest
+from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL
 
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 from mitosheet.tests.decorators import pandas_post_1_only, python_post_3_6_only
@@ -108,7 +109,7 @@ def test_clear_resets_excel_imports():
     df1 = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
     df1.to_excel('test.xlsx', index=False)
 
-    mito.excel_import('test.xlsx', sheet_names=['Sheet1'], has_headers=True, skiprows=0)
+    mito.excel_import('test.xlsx', sheet_names=['Sheet1'], has_headers=True, skiprows=0, decimal=DEFAULT_DECIMAL)
     mito.add_column(1, 'C')
     mito.add_column(1, 'D')
 

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import MitoAPI from "../../../jupyter/api";
-import { SheetData, UIState } from "../../../types";
+import { PopupLocation, PopupType, SheetData, UIState } from "../../../types";
 import { isMitoError } from "../../../utils/errors";
 import TextButton from "../../elements/TextButton";
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
@@ -117,7 +117,14 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
                             if (_invalidImportIndexes === undefined) {
                                 return;
                             }
+
                             props.setInvalidImportMessages(_invalidImportIndexes);
+
+                            void props.mitoAPI.log('clicked_update_from_post_replay_update_imports') 
+                            void props.mitoAPI.log('get_test_import_results', {
+                                'open_due_to_replay_error': false,
+                                'num_invalid_imports': Object.keys(_invalidImportIndexes).length,
+                            })
 
                             // If there are no invalid indexes, then we can update. Since this is
                             // post replay, we are updating the existing imports
@@ -129,7 +136,14 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
                                     props.setUIState((prevUIState) => {
                                         return {
                                             ...prevUIState,
-                                            currOpenTaskpane: {type: TaskpaneType.NONE}
+                                            currOpenTaskpane: {type: TaskpaneType.NONE},
+                                            currOpenPopups: {
+                                                ...prevUIState.currOpenPopups,
+                                                [PopupLocation.TopRight]: {
+                                                    type: PopupType.EphemeralMessage, 
+                                                    message: 'Successfully replayed analysis on new data'
+                                                }
+                                            }
                                         }
                                     })
                                 }

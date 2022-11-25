@@ -61,7 +61,6 @@ const ColumnHeaders = (props: {
     const translate = calculateTranslate(props.gridState);
     const columnHeaderStyle = {transform: `translateX(${-translate.x}px)`}
 
-
     return (
         <>
             {props.sheetData.numColumns > 0 && 
@@ -196,6 +195,7 @@ const ColumnHeaders = (props: {
                                     columnIndex={columnIndex}
                                     sheetData={props.sheetData}
                                     gridState={props.gridState}
+                                    setGridState={props.setGridState}
                                     editorState={props.editorState}
                                     setEditorState={props.setEditorState}
                                     containerRef={props.containerRef}

@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.import_steps.excel_import_code_chunk import \
-    ExcelImportCodeChunk
+    ExcelImportCodeChunk, build_read_excel_params
 from mitosheet.errors import make_file_not_found_error
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
@@ -36,21 +36,11 @@ class ExcelImportStepPerformer(StepPerformer):
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         file_name: str = get_param(params, 'file_name')
-        sheet_names: List[str] = get_param(params, 'sheet_names')
-        has_headers: bool = get_param(params, 'has_headers')
-        skiprows: int = get_param(params, 'skiprows')
+
+        read_excel_params = build_read_excel_params(params)
 
         post_state = prev_state.copy()
-
-        read_excel_params = {
-            'sheet_name': sheet_names,
-            'skiprows': skiprows
-        }
-
-        # Get rid of the headers if it doesn't have them
-        if not has_headers:
-            read_excel_params['header'] = None
-
+        
         if not os.path.exists(file_name):
             raise make_file_not_found_error(file_name)
 

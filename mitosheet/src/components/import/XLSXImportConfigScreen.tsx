@@ -4,8 +4,9 @@ import React from 'react';
 
 import { useStateFromAPIAsync } from '../../hooks/useStateFromAPIAsync';
 import MitoAPI from '../../jupyter/api';
-import { AnalysisData, UIState } from '../../types';
+import { AnalysisData, UIState, UserProfile } from '../../types';
 import { toggleInArray } from '../../utils/arrays';
+import { isAtLeastBenchmarkVersion } from '../../utils/packageVersion';
 import DropdownItem from '../elements/DropdownItem';
 import Input from '../elements/Input';
 import MultiToggleBox from '../elements/MultiToggleBox';
@@ -13,16 +14,21 @@ import MultiToggleItem from '../elements/MultiToggleItem';
 import RadioButtonBox from '../elements/RadioButtonBox';
 import Select from '../elements/Select';
 import TextButton from '../elements/TextButton';
+import LabelAndTooltip from '../elements/LabelAndTooltip';
+import Col from '../layout/Col';
+import Row from '../layout/Row';
 import Spacer from '../layout/Spacer';
 import DefaultTaskpane from '../taskpanes/DefaultTaskpane/DefaultTaskpane';
 import DefaultTaskpaneBody from '../taskpanes/DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultTaskpaneFooter from '../taskpanes/DefaultTaskpane/DefaultTaskpaneFooter';
 import DefaultTaskpaneHeader from '../taskpanes/DefaultTaskpane/DefaultTaskpaneHeader';
+import { Decimal, decimalCharToTitle, DECIMAL_TOOLTIP, DEFAULT_DECIMAL, SKIP_ROWS_TOOLTIP } from './CSVImportConfigScreen';
 
 
 interface XLSXImportConfigScreenProps {
     mitoAPI: MitoAPI;
     analysisData: AnalysisData;
+    userProfile: UserProfile;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     isUpdate: boolean;
 
@@ -49,6 +55,7 @@ export interface ExcelImportParams {
     sheet_names: string[],
     has_headers: boolean,
     skiprows: number | string,
+    decimal: Decimal
 }
 
 export const getDefaultParams = (filePath: string): ExcelImportParams => {
@@ -57,6 +64,7 @@ export const getDefaultParams = (filePath: string): ExcelImportParams => {
         sheet_names: [],
         has_headers: true,
         skiprows: 0,
+        decimal: DEFAULT_DECIMAL
     }
 }
 
@@ -75,6 +83,8 @@ const getButtonMessage = (params: ExcelImportParams, loading: boolean, isUpdate:
 function getSuccessMessage(params: ExcelImportParams): string {
     return `Imported ${params.sheet_names.length} sheet${params.sheet_names.length === 1 ? '' : 's'}.`
 }
+
+const HAS_HEADER_ROW_TOOLTIP = 'Select "Yes" if Mito should set the first non-skipped row as the column headers. Select "No" if Mito should generate column headers'
 
 
 /* 
@@ -124,7 +134,7 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
                 backCallback={props.backCallback}
                 notCloseable={props.notCloseable}
             />
-            <DefaultTaskpaneBody noScroll>
+            <DefaultTaskpaneBody>
                 <div> 
                     {!props.isUpdate &&
                         <MultiToggleBox
@@ -183,43 +193,89 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
                             loading={loading}
                         />
                     }
-                    
-                    <p className='text-body-1 mt-20px'>
-                        Has Header Row
-                    </p>
-                    <Select
-                        value={params.has_headers ? 'Yes' : 'No'}
-                        onChange={(newValue: string) => props.setParams(prevParams => {
-                            return {
-                                ...prevParams,
-                                has_headers: newValue === 'Yes'
-                            }
-                        })}
-                    >
-                        <DropdownItem
-                            title='Yes'
-                        />
-                        <DropdownItem
-                            title='No'
-                        />
-                    </Select>
-                    <p className='text-body-1 mt-20px'>
-                        Number of Rows to Skip
-                    </p>
-                    <Input
-                        value={"" + params.skiprows}
-                        type='number'
-                        onChange={(e) => {
-                            const newValue = e.target.value;
+                    <Row justify='space-between' align='center' title={HAS_HEADER_ROW_TOOLTIP}>
+                        <Col>
+                            <LabelAndTooltip tooltip={HAS_HEADER_ROW_TOOLTIP}>
+                                Has Header Row
+                            </LabelAndTooltip>
+                        </Col>
+                        <Col>
+                            <Select
+                                value={params.has_headers ? 'Yes' : 'No'}
+                                width='medium'
+                                onChange={(newValue: string) => props.setParams(prevParams => {
+                                    return {
+                                        ...prevParams,
+                                        has_headers: newValue === 'Yes'
+                                    }
+                                })}
+                            >
+                                <DropdownItem
+                                    title='Yes'
+                                />
+                                <DropdownItem
+                                    title='No'
+                                />
+                            </Select>
+                        </Col>
+                        
+                    </Row>
 
-                            props.setParams(prevParams => {
-                                return {
-                                    ...prevParams,
-                                    skiprows: newValue
-                                }
-                            })
-                        }}
-                    />
+                    <Row justify='space-between' align='center' title={SKIP_ROWS_TOOLTIP}>
+                        <Col>
+                            <LabelAndTooltip tooltip={SKIP_ROWS_TOOLTIP}>
+                                Number of Rows to Skip
+                            </LabelAndTooltip>
+                        </Col>
+                        <Col>
+                            <Input
+                                value={"" + params.skiprows}
+                                type='number'
+                                width='medium'
+                                onChange={(e) => {
+                                    const newValue = e.target.value;
+
+                                    props.setParams(prevParams => {
+                                        return {
+                                            ...prevParams,
+                                            skiprows: newValue
+                                        }
+                                    })
+                                }}
+                            />
+                        </Col>
+                    </Row>
+                    {/*
+                        Decimal was only added to the read_excel pandas api in version 1.4, so 
+                        if the user is on a previous version, we don't show it.
+                    */}
+                    {isAtLeastBenchmarkVersion(props.userProfile.pandasVersion, '1.4.0') && 
+                        <Row justify='space-between' align='center' title={DECIMAL_TOOLTIP}>
+                            <Col>
+                                <LabelAndTooltip tooltip={DECIMAL_TOOLTIP}>
+                                    Decimal Separator
+                                </LabelAndTooltip>
+                            </Col>
+                            <Col>
+                                <Select 
+                                    width='medium' 
+                                    value={decimalCharToTitle[params.decimal]} 
+                                    onChange={(newDecimalSeparator) => {
+                                        props.setParams(prevParams => {
+                                            return {
+                                                ...prevParams,
+                                                decimals: [newDecimalSeparator as Decimal]
+                                            }
+                                        })
+                                    }}>
+                                    {(Object.keys(decimalCharToTitle)).map(decimalCharacter => {
+                                        const decimalTitle = decimalCharToTitle[decimalCharacter as Decimal]
+                                        return <DropdownItem key={decimalTitle} title={decimalTitle} id={decimalCharacter}/>
+                                    })}
+                                </Select>
+                            </Col>
+                        </Row>
+                    }
                     {/* 
                         We note that we might have to adjust these size checks, depending
                         on feedback from users going forward.

@@ -3,7 +3,9 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
+from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL, DEFAULT_DELIMETER, DEFAULT_ENCODING, DEFAULT_ERROR_BAD_LINES, DEFAULT_SKIPROWS
 from mitosheet.data_in_mito import DataTypeInMito
+from mitosheet.enterprise.mito_config import DEFAULT_MITO_CONFIG_SUPPORT_EMAIL, MitoConfig
 from mitosheet.state import (
     DATAFRAME_SOURCE_DUPLICATED,
     DATAFRAME_SOURCE_IMPORTED,
@@ -76,6 +78,58 @@ def get_enum_from_ts_file(path, enum_name):
         enum_items[name] = value
 
     return enum_items
+
+
+def get_string_list_from_type(path, type_name):
+    """
+    Helper function that retuns an type from a TS
+    file, parsed as a list of strings.
+
+    NOTE: this only works for types that are spread
+    out across mulitple lines :-)
+    """
+    with open(path, "r+") as f:
+        all_code_lines = f.readlines()
+
+    # First, we find where the enum starts and ends
+    start_line_index = None
+    end_line_index = None
+    for index, code_line in enumerate(all_code_lines):
+        if f"type {type_name}" in code_line:
+            start_line_index = index
+        elif start_line_index is not None and "}" in code_line:
+            end_line_index = index
+            break
+
+    if start_line_index is None:
+        raise Exception(f"{type_name} is not in {path}, did you move it or rename it?")
+
+    items = []
+    for type_code_line in all_code_lines[start_line_index + 1:]:
+        type_code_line = type_code_line.strip()
+        # Remove starting |
+        if type_code_line.startswith("|"):
+            type_code_line = type_code_line[1:]
+        elif type_code_line.startswith('//'):
+            # If it's a comment, ignore it
+            continue
+        else:
+            # If there isn't one, then quit the loop
+            break
+        
+        value = type_code_line.strip()
+        # If the value is a string and has quotes around it,
+        # take them off
+        if value.startswith("'") or value.startswith('"'):
+            value = value[1:]
+        if value.endswith("'") or value.endswith('"'):
+            value = value[:-1]
+
+        items.append(value)
+
+
+
+    return items
 
 
 def get_constant_from_ts_file(path, constant_name):
@@ -194,6 +248,17 @@ def test_graph_safety_filter_cutoff_matches():
 
     assert int(graph_safety_filter_cutoff) == GRAPH_SAFETY_FILTER_CUTOFF
 
+def test_mito_enterprise_keys_match():
+    mito_enterprise_config_keys = get_enum_from_ts_file("./src/types.tsx", "MitoEnterpriseConfigKey")
+    assert set(mito_enterprise_config_keys.values()) == set(MitoConfig().get_mito_config().keys())
+
+def test_user_profile_defaults_matches():
+    user_profile_support_email = get_constant_from_ts_file(
+        "./src/components/elements/GetSupportButton.tsx",
+        'DEFAULT_SUPPORT_EMAIL'
+    )
+
+    assert user_profile_support_email == f"\'{DEFAULT_MITO_CONFIG_SUPPORT_EMAIL}\'"
 
 def test_update_events_enum_defined():
     update_types = get_enum_from_ts_file("./src/types.tsx", "UpdateType")
@@ -201,4 +266,68 @@ def test_update_events_enum_defined():
 
     for UPDATE in UPDATES:
         assert UPDATE['event_type'] in update_types.values()
+        
+def test_pivot_column_transformation_type_defined():
+    pcts = get_string_list_from_type("./src/types.tsx", "PivotColumnTransformation")
+    from mitosheet.step_performers.pivot import (
+        PCT_NO_OP,
+        PCT_DATE_YEAR,
+        PCT_DATE_QUARTER,
+        PCT_DATE_MONTH,
+        PCT_DATE_WEEK,
+        PCT_DATE_DAY_OF_MONTH,
+        PCT_DATE_DAY_OF_WEEK,
+        PCT_DATE_HOUR,
+        PCT_DATE_MINUTE,
+        PCT_DATE_SECOND,
+        PCT_DATE_YEAR_MONTH_DAY_HOUR_MINUTE,
+        PCT_DATE_YEAR_MONTH_DAY_HOUR,
+        PCT_DATE_YEAR_MONTH_DAY,
+        PCT_DATE_YEAR_MONTH,
+        PCT_DATE_YEAR_QUARTER,
+        PCT_DATE_MONTH_DAY,
+        PCT_DATE_DAY_HOUR,
+        PCT_DATE_HOUR_MINUTE,
+    )
+
+    PCTS = [
+        PCT_NO_OP,
+        PCT_DATE_YEAR,
+        PCT_DATE_QUARTER,
+        PCT_DATE_MONTH,
+        PCT_DATE_WEEK,
+        PCT_DATE_DAY_OF_MONTH,
+        PCT_DATE_DAY_OF_WEEK,
+        PCT_DATE_HOUR,
+        PCT_DATE_MINUTE,
+        PCT_DATE_SECOND,
+        PCT_DATE_YEAR_MONTH_DAY_HOUR_MINUTE,
+        PCT_DATE_YEAR_MONTH_DAY_HOUR,
+        PCT_DATE_YEAR_MONTH_DAY,
+        PCT_DATE_YEAR_MONTH,
+        PCT_DATE_YEAR_QUARTER,
+        PCT_DATE_MONTH_DAY,
+        PCT_DATE_DAY_HOUR,
+        PCT_DATE_HOUR_MINUTE,
+    ]
+
+    assert PCTS == pcts
+
+
+def test_update_events_default_import_decimal():
+    default_delimiter = get_constant_from_ts_file("./src/components/import/CSVImportConfigScreen.tsx", "DEFAULT_DELIMETER")
+    default_encoding = get_constant_from_ts_file("./src/components/import/CSVImportConfigScreen.tsx", "DEFAULT_ENCODING")
+    _default_decimal = get_constant_from_ts_file("./src/components/import/CSVImportConfigScreen.tsx", "DEFAULT_DECIMAL")
+    default_skiprows = get_constant_from_ts_file("./src/components/import/CSVImportConfigScreen.tsx", "DEFAULT_SKIPROWS")
+    default_error_bad_lines = get_constant_from_ts_file("./src/components/import/CSVImportConfigScreen.tsx", "DEFAULT_ERROR_BAD_LINES")
+
+    # We must make sure the DEFAULT_DECIMAL reference to the Decimal enum is correct.
+    decimalEnum = get_enum_from_ts_file("./src/components/import/CSVImportConfigScreen.tsx", "Decimal")
+    default_decimal = decimalEnum[_default_decimal.split('.')[1]]
+    
+    assert default_delimiter == f'"{DEFAULT_DELIMETER}"'
+    assert default_encoding == f'"{DEFAULT_ENCODING}"'
+    assert default_decimal == f'{DEFAULT_DECIMAL}'
+    assert int(default_skiprows) == DEFAULT_SKIPROWS
+    assert bool(default_error_bad_lines) == DEFAULT_ERROR_BAD_LINES
 

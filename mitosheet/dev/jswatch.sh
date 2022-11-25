@@ -3,7 +3,7 @@
 # checktestpypi.sh: this script should be run in the monorepo/mitosheet folder
 # and will just run the javascript watch command
 
-# Activate the enviornment
+# Activate the environment
 source venv/bin/activate
 
 # Make sure the Node options are set properly, or later build commands fail

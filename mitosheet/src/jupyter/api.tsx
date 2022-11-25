@@ -9,12 +9,13 @@ import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Gra
 import { CSVFileMetadata } from "../components/import/CSVImportConfigScreen";
 import { FileElement } from "../components/taskpanes/FileImport/FileImportTaskpane";
 import { ExcelFileMetadata } from "../components/import/XLSXImportConfigScreen";
-import { valuesArrayToRecord } from "../components/taskpanes/PivotTable/pivotUtils";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
-import { BackendPivotParams, DataframeFormat, FrontendPivotParams } from "../types";
+import { AnalysisData, BackendPivotParams, DataframeFormat, SheetData, UIState, UserProfile } from "../types";
 import { ColumnID, FeedbackID, FilterGroupType, FilterType, GraphID, MitoError, GraphParamsFrontend } from "../types";
-import { getDeduplicatedArray } from "../utils/arrays";
+import { useEffect, useState } from "react";
+import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString, isInJupyterLab, isInJupyterNotebook } from "./jupyterUtils";
+import { ModalEnum } from "../components/modals/modals";
 
 
 /*
@@ -65,6 +66,124 @@ export enum UserJsonFields {
     UJ_RECEIVED_CHECKLISTS = 'received_checklists',
 }
 
+interface MitoSuccessOrInplaceErrorResponse {
+    'event': 'response',
+    'id': string,
+    'shared_variables': {
+        'sheet_data_json': string,
+        'analysis_data_json': string,
+        'user_profile_json': string
+    }
+    'data': unknown
+}
+interface MitoErrorModalResponse {
+    event: 'edit_error'
+    id: string,
+    type: string;
+    header: string;
+    to_fix: string;
+    traceback?: string;
+    data: undefined;
+}
+
+type MitoResponse = MitoSuccessOrInplaceErrorResponse | MitoErrorModalResponse
+
+export const useMitoAPI = (
+    comm_target_id: string,
+    setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>,
+    setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>,
+    setUserProfile: React.Dispatch<React.SetStateAction<UserProfile>>,
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>
+): MitoAPI => {
+
+    const [mitoAPI] = useState<MitoAPI>(
+        () => {
+            return new MitoAPI(
+                setSheetDataArray,
+                setAnalysisData,
+                setUserProfile,
+                setUIState,
+            )
+        }
+    )
+
+    useEffect(() => {
+        /**
+         * From the render() function of the widget, through the above useState state call, 
+         * there is no where we can do an async call to get the commContainer.
+         * 
+         * As such, for now, while we're inside of the widget logic, we have to do this init
+         * of the API comms seperate from the actual construction of the API in the lines above.
+         * 
+         * This leads to some grossness, where the API we might not have a ._send function that
+         * is defined. We'll be able to address this when we move out of the widget framework, and
+         * can move comm creation up to one of the first thing that happens before the Mitosheet
+         * is even rendered.
+         * 
+         */
+
+        const init = async () => {
+            const commContainer = await getCommContainer(comm_target_id)
+            void mitoAPI.init(commContainer);
+        }
+
+        void init()
+    }, [])
+
+    return mitoAPI;
+}
+
+/**
+ * Note the difference between the Lab and Notebook comm interfaces. 
+ * 
+ * To work, Lab needs to have .open() called on it before sending any messages,
+ * and you set the onMsg handler directly. 
+ * 
+ * Notebook does not need any .open() to be called, and also requires 
+ * the message handler to be passed to as on_msg((msg) => handle it).
+ * 
+ * We need to take special care to ensure we treat any new comms interface how it 
+ * expects to be treated, as they are all likely slighly different.
+ */
+interface LabComm {
+    send: (msg: Record<string, unknown>) => void,
+    onMsg: (msg: Record<string, unknown>) => void,
+    open: () => void;
+}
+interface NotebookComm {
+    send: (msg: Record<string, unknown>) => void,
+    on_msg: (handler: (msg: Record<string, unknown>) => void) => void,
+}
+
+type CommComtainer = {
+    'type': 'lab',
+    'comm': LabComm
+} | {
+    'type': 'notebook',
+    'comm': NotebookComm
+}
+
+// Creates a comm that is open and ready to send messages on, and
+// returns it with a label so we know what sort of comm it is
+export const getCommContainer = async (comm_target_id: string): Promise<CommComtainer | undefined> => {
+    if (isInJupyterNotebook()) {
+        const comm: NotebookComm = (window as any).Jupyter?.notebook.kernel.comm_manager.new_comm(comm_target_id);
+        return {
+            'type': 'notebook',
+            'comm': comm
+        };
+    } else if (isInJupyterLab()) {
+        const comm: LabComm = await window.commands?.execute('create-mitosheet-comm', {comm_target_id: comm_target_id});
+        return {
+            'type': 'lab',
+            'comm': comm
+        };
+    }
+
+    return undefined;
+}
+
+
 /*
     The MitoAPI class contains functions for interacting with the Mito backend. 
     
@@ -84,7 +203,9 @@ export enum UserJsonFields {
            'id' as the 'add_column_edit' message it received. 
         2. If it fails, it sends an error message that also includes this 
            'id'. 
-    4. The frontend checks periodically if it has gotten any response with the 'id'
+    4.  This response includes the data necessary to update the frontend, either
+        the sheet_data_array, etc or the error.
+    5. The frontend checks periodically if it has gotten any response with the 'id'
        of the message that it sent. If a response with this 'id' has been received,
        then it processes that response by:
         1. Updating the sheet/code on success
@@ -93,24 +214,45 @@ export enum UserJsonFields {
         3. Stopping waiting and returning control to the caller.
 */
 export default class MitoAPI {
-    model_id: string;
-    _send: (msg: Record<string, unknown>) => void;
-    updateMitoState: () => void;
-    setErrorModal: (error: MitoError) => void;
-    unconsumedResponses: Record<string, unknown>[];
-
+    _send: ((msg: Record<string, unknown>) => void) | undefined;
+    unconsumedResponses: MitoResponse[];
+    commContainer: CommComtainer;
+    
+    setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>
+    setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>
+    setUserProfile: React.Dispatch<React.SetStateAction<UserProfile>>
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>
+    
     constructor(
-        model_id: string,
-        send: (msg: Record<string, unknown>) => void,
-        updateMitoState: () => void,
-        setErrorModal: (error: MitoError) => void,
+        setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>,
+        setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>,
+        setUserProfile: React.Dispatch<React.SetStateAction<UserProfile>>,
+        setUIState: React.Dispatch<React.SetStateAction<UIState>>
     ) {
-        this.model_id = model_id;
-        this._send = send;
-        this.updateMitoState = updateMitoState;
-        this.setErrorModal = setErrorModal;
-
+        this.setSheetDataArray = setSheetDataArray;
+        this.setAnalysisData = setAnalysisData; 
+        this.setUserProfile = setUserProfile;
+        this.setUIState = setUIState;
+        
+        // Watch for any response
         this.unconsumedResponses = [];
+    }
+
+    // NOTE: see comment in useMitoAPI above. We will get rid of this function
+    // when we move away from the widget framework and have a better place to
+    // call async functions
+    async init(commContainer: CommComtainer | undefined): Promise<void> {
+        if (commContainer === undefined) {
+            // TODO: display an error here. Notably, 
+            return
+        }
+        this.commContainer = commContainer;
+        this._send = commContainer.comm.send;
+        if (commContainer.type === 'notebook') {
+            commContainer.comm.on_msg((msg) => this.receiveResponse(msg));
+        } else {
+            commContainer.comm.onMsg = (msg) => this.receiveResponse(msg);
+        }
     }
 
     /* 
@@ -133,15 +275,27 @@ export default class MitoAPI {
         // NOTE: we keep this here on purpose, so we can always monitor outgoing messages
         console.log("Sending", msg['type'])
 
-        // Send the message
-        this._send(msg);
+        // Send the message. 
+        // NOTE: see comment in useMitoAPI above. We will get rid of this wait if the comms don't
+        // yet exist, once we move away from the widget framework. For now, it might happen that 
+        // we send a message before the comm is created, but this timeout and wait should be
+        // enough to make this not a problem
+        if (this._send === undefined) {
+            console.log("Send not yet defined, waiting");
+            await new Promise(resolve => setTimeout(resolve, 5000));
+        } 
+        // If we still haven't created the comm, then still return
+        if (this._send === undefined) {return;}
 
-        const stateUpdaters = window.setMitoStateMap?.get(this.model_id);
+        // We notably need to .call so that we can actually bind the comm.send function
+        // to the correct `this`. We don't want `this` to be the MitoAPI object running 
+        // this code, so we bind the comm object
+        this._send.call(this.commContainer.comm, msg);
 
         // Only set loading to true after half a second, so we don't set it for no reason
         let loadingUpdated = false;
         const timeout: NodeJS.Timeout = setTimeout(() => {
-            stateUpdaters?.setUIState((prevUIState) => {
+            this.setUIState((prevUIState) => {
                 loadingUpdated = true;
                 const newLoadingCalls = [...prevUIState.loading];
                 newLoadingCalls.push([id, msg['step_id'] as string | undefined, msg['type'] as string])
@@ -163,7 +317,7 @@ export default class MitoAPI {
 
         // If loading has been updated, then we remove the loading with this value
         if (loadingUpdated) {
-            stateUpdaters?.setUIState((prevUIState) => {
+            this.setUIState((prevUIState) => {
                 const newLoadingCalls = [...prevUIState.loading];
                 const messageIndex = newLoadingCalls.findIndex((value) => {return value[0] === id})
                 newLoadingCalls.splice(messageIndex, 1);
@@ -181,27 +335,38 @@ export default class MitoAPI {
     /*
         The receiveResponse function is the entry point for all responses from the backend
         into the MitoAPI class. It stores this response, so that it can be consumed by the
-        original call in a continuation. Furthermore, it updates the sheet (if the response
-        is a `response`, which updates the sheet, or an `error`, which also updates the 
-        sheet).
+        original call in a continuation. Furthermore, it updates the sheet if the response
+        is a `response`. If it's an error, it opens an error modal.
 
         The receive response function is a workaround to the fact that we _do not_ have
         a real API in practice. If/when we do have a real API, we'll get rid of this function, 
         and allow the API to just make a call to a server, and wait on a response
     */
-    receiveResponse(response: Record<string, unknown>): void {
+    receiveResponse(rawResponse: Record<string, unknown>): void {
+        const response = (rawResponse as any).content.data as MitoResponse;
+
         this.unconsumedResponses.push(response);
 
-        // If the response is a "response", then we update the sheet and the code
-        // as this means there was a successful response
         if (response['event'] == 'response') {
-            this.updateMitoState();
+            // If this is a response, then we update the state of the sheet
+            this.setSheetDataArray(getSheetDataArrayFromString(response.shared_variables.sheet_data_json));
+            this.setAnalysisData(getAnalysisDataFromString(response.shared_variables.analysis_data_json));
+            this.setUserProfile(getUserProfileFromString(response.shared_variables.user_profile_json));
+
         } else if (response['event'] == 'edit_error') {
             // If the backend sets the data field of the error, then we know
             // that this is an error that we want to only pass through, without 
             // displaying an error modal
             if (response['data'] === undefined) {
-                this.setErrorModal((response as unknown) as MitoError);
+                this.setUIState((prevUIState) => {
+                    return {
+                        ...prevUIState,
+                        currOpenModal: {
+                            type: ModalEnum.Error,
+                            error: (response as unknown) as MitoError
+                        }
+                    }
+                })
             }
         }
     }
@@ -815,46 +980,6 @@ export default class MitoAPI {
     }
     
     // AUTOGENERATED LINE: API EDIT (DO NOT DELETE)
-    
-    
-    
-    
-
-    /*
-        Does a pivot with the passed parameters, returning the ID of the edit
-        event that was generated (in case you want to overwrite it).
-    */
-    async editPivot(
-        pivotParams: FrontendPivotParams,
-        destinationSheetIndex: number | undefined,
-        stepID?: string
-    ): Promise<string> {
-        // If this is overwriting a pivot event, then we do not need to
-        // create a new id, as we already have it!
-        if (stepID === undefined || stepID === '') {
-            stepID = getRandomId();
-        }
-
-        await this.send({
-            event: 'edit_event',
-            type: 'pivot_edit',
-            'step_id': stepID,
-            'params': {
-                sheet_index: pivotParams.sourceSheetIndex,
-                // Deduplicate the rows and columns before sending them to the backend
-                // as otherwise this generates errors if you have duplicated key
-                pivot_rows_column_ids: getDeduplicatedArray(pivotParams.pivotRowColumnIDs),
-                pivot_columns_column_ids: getDeduplicatedArray(pivotParams.pivotColumnsColumnIDs),
-                values_column_ids_map: valuesArrayToRecord(pivotParams.pivotValuesColumnIDsArray),
-                flatten_column_headers: pivotParams.flattenColumnHeaders,
-                // Pass the optional destination_sheet_index, which will be removed
-                // automatically if it is undefined
-                destination_sheet_index: destinationSheetIndex,
-            }
-        }, {});
-
-        return stepID;
-    }
 
     /*
         Adds a delete column message with the passed parameters

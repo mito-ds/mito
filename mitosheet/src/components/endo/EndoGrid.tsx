@@ -201,6 +201,7 @@ function EndoGrid(props: {
 
 
     const onMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+
         if (editorState !== undefined) {
             // EDITING MODE
 
@@ -496,7 +497,7 @@ function EndoGrid(props: {
             return;
         }
 
-        const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, rowIndex, columnIndex, 'set_column_formula');
+        const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, props.editorState, rowIndex, columnIndex, 'set_column_formula');
 
         setEditorState({
             rowIndex: rowIndex,
@@ -563,7 +564,7 @@ function EndoGrid(props: {
                 setGridState((gridState) => {
                     const lastSelection = gridState.selections[gridState.selections.length - 1]
 
-                    const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, lastSelection.startingRowIndex, lastSelection.startingColumnIndex, 'set_column_formula', e);
+                    const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, undefined, lastSelection.startingRowIndex, lastSelection.startingColumnIndex, 'set_column_formula', e);
                     
                     setEditorState({
                         rowIndex: lastSelection.startingRowIndex,

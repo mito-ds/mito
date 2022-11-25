@@ -20,6 +20,7 @@ export const fuzzyMatch = (stringOne: string, stringTwo: string): number => {
         return 1;
     } 
     const possibleTypos = [
+        stringTwo,
         stringTwo.replace(' ', '-'),
         stringTwo.replace(' ', '_'),
         stringTwo.replace(' ', '.'),
@@ -28,9 +29,19 @@ export const fuzzyMatch = (stringOne: string, stringTwo: string): number => {
         stringTwo.replace('-', ' '),
         stringTwo.replace('.', ' '),
     ]
+
+    // For now, we ignore commas in string one so the most common number
+    // formatting does not mess up search.
+    const stringOneIgnoredCharacters = [
+        stringOne,
+        stringOne.replace(',', '')
+    ]
+
     for (let i = 0; i < possibleTypos.length; i++) {
-        if (stringOne.includes(possibleTypos[i])) {
-            return 1;
+        for (let j = 0; j < stringOneIgnoredCharacters.length; j++) {
+            if (stringOneIgnoredCharacters[j].includes(possibleTypos[i])) {
+                return 1;
+            }
         }
     }
     

@@ -27,7 +27,7 @@ PREV_TESTS = [
 ]
 @pytest.mark.parametrize("prev, curr, result", PREV_TESTS)
 def test_prev_analysis_returns_correct_results(prev, curr, result):
-    assert is_prev_version(prev, curr_version=curr) == result
+    assert is_prev_version(prev, curr) == result
 
 TEST_ANALYSIS_NAME = 'UUID-test_analysis'
 TEST_FILE = f'{SAVED_ANALYSIS_FOLDER}/{TEST_ANALYSIS_NAME}.json'
@@ -119,7 +119,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
-            "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 6, "step_type": "pivot", 'params': {"flatten_column_headers": True, "use_deprecated_id_algorithm": True, "sheet_index": 0, "pivot_rows_column_ids": get_column_header_ids(["Name"]), "pivot_columns_column_ids": [], "values_column_ids_map": {get_column_header_id("Height"): ["sum"]}}}, {'params': {}, 'step_type': 'bulk_old_rename', 'step_version': 1}]
+            "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 8, "step_type": "pivot", 'params': {"flatten_column_headers": True, "use_deprecated_id_algorithm": True, "sheet_index": 0, "pivot_rows_column_ids_with_transforms": [{'column_id': get_column_header_id("Name"), 'transformation': 'no-op'}], "pivot_columns_column_ids_with_transforms": [], "values_column_ids_map": {get_column_header_id("Height"): ["sum"]}, 'pivot_filters': []}}, {'params': {}, 'step_type': 'bulk_old_rename', 'step_version': 1}]
         }
     ), 
     # Ends in a group step, should be upgraded to a pivot
@@ -131,7 +131,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
-            "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "add_column", 'params': {"sheet_index": 0, "column_header": "B", "column_header_index": -1}}, {"step_version": 2, "step_type": "set_column_formula", 'params': {"sheet_index": 0, "column_id": get_column_header_id("B"), "old_formula": "=0", "new_formula": "=1"}}, {"step_version": 6, "step_type": "pivot", 'params': {"flatten_column_headers": True, "use_deprecated_id_algorithm": True, "sheet_index": 0, "pivot_rows_column_ids": get_column_header_ids(["Name"]), "pivot_columns_column_ids": get_column_header_ids(["DORK"]), "values_column_ids_map": {get_column_header_id("Height"): ["sum"]}}}, {'params': {}, 'step_type': 'bulk_old_rename', 'step_version': 1}, ]
+            "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "add_column", 'params': {"sheet_index": 0, "column_header": "B", "column_header_index": -1}}, {"step_version": 2, "step_type": "set_column_formula", 'params': {"sheet_index": 0, "column_id": get_column_header_id("B"), "old_formula": "=0", "new_formula": "=1"}}, {"step_version": 8, "step_type": "pivot", 'params': {"flatten_column_headers": True, "use_deprecated_id_algorithm": True, "sheet_index": 0, "pivot_rows_column_ids_with_transforms": [{'column_id': get_column_header_id("Name"), 'transformation': 'no-op'}], "pivot_columns_column_ids_with_transforms": [{'column_id': get_column_header_id("DORK"), 'transformation': 'no-op'}], "values_column_ids_map": {get_column_header_id("Height"): ["sum"]}, 'pivot_filters': []}}, {'params': {}, 'step_type': 'bulk_old_rename', 'step_version': 1}, ]
         },
     ), 
     # An add_column step version 1 should be upgraded to add_column step version 2
@@ -221,8 +221,8 @@ UPGRADE_TESTS = [
             "steps_data": [
                 {"step_version": 2, "step_type": "rename_column", "params": {"sheet_index": 0, "column_id": get_column_header_id("old"), "new_column_header": "new"}}, 
                 {"step_version": 4, "step_type": "merge", 'params': {"how": 'lookup', "sheet_index_one": 0, "sheet_index_two": 1, "merge_key_column_ids": [[get_column_header_id("old"), get_column_header_id("new")]], "selected_column_ids_one": [get_column_header_id("old")], "selected_column_ids_two": [get_column_header_id("new")]}},
-                {"step_version": 6, "step_type": "pivot", "params": {"flatten_column_headers": True, "use_deprecated_id_algorithm": True, 'sheet_index': 0, 'pivot_rows_column_ids': get_column_header_ids(['old']), 'pivot_columns_column_ids': get_column_header_ids(['old']), 'values_column_ids_map': {get_column_header_id('old'): ['sum']}, 'destination_sheet_index': 1}}, BULK_OLD_RENAME_STEP,
-                {"step_version": 6, "step_type": "pivot", "params": {"flatten_column_headers": True, "use_deprecated_id_algorithm": True, 'sheet_index': 1, 'pivot_rows_column_ids': get_column_header_ids(['new']), 'pivot_columns_column_ids': get_column_header_ids(['new']), 'values_column_ids_map': {get_column_header_id('new'): ['sum']}, 'destination_sheet_index': 1}}, BULK_OLD_RENAME_STEP,
+                {"step_version": 8, "step_type": "pivot", "params": {"flatten_column_headers": True, "use_deprecated_id_algorithm": True, 'sheet_index': 0, 'pivot_rows_column_ids_with_transforms': [{'column_id': get_column_header_id("old"), 'transformation': 'no-op'}], 'pivot_columns_column_ids_with_transforms': [{'column_id': get_column_header_id("old"), 'transformation': 'no-op'}], 'values_column_ids_map': {get_column_header_id('old'): ['sum']}, 'destination_sheet_index': 1, 'pivot_filters': []}}, BULK_OLD_RENAME_STEP,
+                {"step_version": 8, "step_type": "pivot", "params": {"flatten_column_headers": True, "use_deprecated_id_algorithm": True, 'sheet_index': 1, 'pivot_rows_column_ids_with_transforms': [{'column_id': get_column_header_id("new"), 'transformation': 'no-op'}], 'pivot_columns_column_ids_with_transforms': [{'column_id': get_column_header_id("new"), 'transformation': 'no-op'}], 'values_column_ids_map': {get_column_header_id('new'): ['sum']}, 'destination_sheet_index': 1, 'pivot_filters': []}}, BULK_OLD_RENAME_STEP,
                 {'step_version': 2, 'step_type': "set_column_formula", 'params': {'sheet_index': 0,'column_id': get_column_header_id('old'), 'old_formula': '=A', 'new_formula': '=B'}},
                 {'step_version': 2, 'step_type': "set_column_formula", 'params': {'sheet_index': 1,'column_id': get_column_header_id('new'), 'old_formula': '=A', 'new_formula': '=B'}},
                 {"step_version": 2, "step_type": "rename_column", "params": {"sheet_index": 0, "column_id": get_column_header_id("old"), "new_column_header": "newer"}}, 
@@ -273,8 +273,8 @@ UPGRADE_TESTS = [
                 {"step_version": 2, "step_type": "rename_column", "params": {"sheet_index": 0, "column_id": get_column_header_id("old"), "new_column_header": "new"}}, 
                 {"step_version": 2, "step_type": "rename_column", "params": {"sheet_index": 0, "column_id": get_column_header_id("old"), "new_column_header": "newer"}}, 
                 {"step_version": 4, "step_type": "merge", 'params': {"how": 'lookup', "sheet_index_one": 0, "sheet_index_two": 1, "merge_key_column_ids": [[get_column_header_id("old"), get_column_header_id("newer")]], "selected_column_ids_one": [get_column_header_id("old")], "selected_column_ids_two": [get_column_header_id("newer")]}},
-                {"step_version": 6, "step_type": "pivot", "params": {"flatten_column_headers": True, "use_deprecated_id_algorithm": True, 'sheet_index': 0, 'pivot_rows_column_ids': get_column_header_ids(['old']), 'pivot_columns_column_ids': get_column_header_ids(['old']), 'values_column_ids_map': {get_column_header_id('old'): ['sum']}, 'destination_sheet_index': 1}}, BULK_OLD_RENAME_STEP,
-                {"step_version": 6, "step_type": "pivot", "params": {"flatten_column_headers": True, "use_deprecated_id_algorithm": True, 'sheet_index': 1, 'pivot_rows_column_ids': get_column_header_ids(['newer']), 'pivot_columns_column_ids': get_column_header_ids(['newer']), 'values_column_ids_map': {get_column_header_id('newer'): ['sum']}, 'destination_sheet_index': 1}}, BULK_OLD_RENAME_STEP,
+                {"step_version": 8, "step_type": "pivot", "params": {"flatten_column_headers": True, "use_deprecated_id_algorithm": True, 'sheet_index': 0, 'pivot_rows_column_ids_with_transforms': [{'column_id': get_column_header_id("old"), 'transformation': 'no-op'}], 'pivot_columns_column_ids_with_transforms': [{'column_id': get_column_header_id("old"), 'transformation': 'no-op'}], 'values_column_ids_map': {get_column_header_id('old'): ['sum']}, 'destination_sheet_index': 1, 'pivot_filters': []}}, BULK_OLD_RENAME_STEP,
+                {"step_version": 8, "step_type": "pivot", "params": {"flatten_column_headers": True, "use_deprecated_id_algorithm": True, 'sheet_index': 1, 'pivot_rows_column_ids_with_transforms': [{'column_id': get_column_header_id("newer"), 'transformation': 'no-op'}], 'pivot_columns_column_ids_with_transforms': [{'column_id': get_column_header_id("newer"), 'transformation': 'no-op'}], 'values_column_ids_map': {get_column_header_id('newer'): ['sum']}, 'destination_sheet_index': 1, 'pivot_filters': []}}, BULK_OLD_RENAME_STEP,
                 {'step_version': 2, 'step_type': "set_column_formula", 'params': {'sheet_index': 0,'column_id': get_column_header_id('old'), 'old_formula': '=A', 'new_formula': '=B'}},
                 {'step_version': 2, 'step_type': "set_column_formula", 'params': {'sheet_index': 1,'column_id': get_column_header_id('newer'), 'old_formula': '=A', 'new_formula': '=B'}},
             ]
@@ -311,7 +311,18 @@ UPGRADE_TESTS = [
             "version": __version__, 
             "steps_data": [{"step_version": 1, "step_type": "excel_import", "params": {"file_name": "/Users/nathanrush/monorepo/mitosheet/datasets/small-datasets/small-excel.xlsx", "sheet_names": ["Sheet1"], "has_headers": True, "skiprows": 0}}, {"step_version": 2, "step_type": "simple_import", "params": {"file_names": ["Tesla.csv"]}}]
         },
-    )
+    ),
+    # Upgrades the set dataframe format
+    (
+        {
+            "version": "0.2.4", 
+            "steps_data": [{"step_version": 2, "step_type": "simple_import", "params": {"file_names": ["tesla stock new.csv"]}}, {"step_version": 3, "step_type": "delete_column", "params": {"sheet_index": 0, "column_ids": ["Open New"]}}, {"step_version": 3, "step_type": "delete_column", "params": {"sheet_index": 0, "column_ids": ["Close"]}}, {"step_version": 1, "step_type": "set_dataframe_format", "params": {"sheet_index": 0, "df_format": {"columns": {}, "headers": {"color": "#FFFFFF", "backgroundColor": "#549D3A"}, "rows": {"even": {"color": "#494650", "backgroundColor": "#D0E3C9"}, "odd": {"color": "#494650"}}, "border": {}}}}]
+        },
+        {
+            "version": __version__, 
+            "steps_data": [{"step_version": 2, "step_type": "simple_import", "params": {"file_names": ["tesla stock new.csv"]}}, {"step_version": 3, "step_type": "delete_column", "params": {"sheet_index": 0, "column_ids": ["Open New"]}}, {"step_version": 3, "step_type": "delete_column", "params": {"sheet_index": 0, "column_ids": ["Close"]}}, {"step_version": 2, "step_type": "set_dataframe_format", "params": {"sheet_index": 0, "df_format": {"conditional_formats": [], "columns": {}, "headers": {"color": "#FFFFFF", "backgroundColor": "#549D3A"}, "rows": {"even": {"color": "#494650", "backgroundColor": "#D0E3C9"}, "odd": {"color": "#494650"}}, "border": {}}}}]
+        }
+    ),
 ]
 @pytest.mark.parametrize("old, new", UPGRADE_TESTS)
 def test_upgrades_saved_analysis_properly(old, new):

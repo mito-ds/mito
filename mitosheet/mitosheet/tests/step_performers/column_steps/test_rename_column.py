@@ -8,10 +8,10 @@ Contains tests for a column rename.
 """
 
 import pandas as pd
-import pytest
+import numpy as np
 
+from mitosheet.tests.decorators import pandas_post_1_only
 from mitosheet.tests.test_utils import create_mito_wrapper, create_mito_wrapper_dfs
-from mitosheet.column_headers import get_column_header_id
 
 def test_rename_works():
     mito = create_mito_wrapper([1])
@@ -25,6 +25,30 @@ def test_rename_to_empty_is_no_op():
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1]}))
     assert len(mito.transpiled_code) == 0
+
+def test_rename_with_nan_column_headers():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'nan': [1], 'NaN': [1], '': [1], None: [1]}))
+    mito.rename_column(0, 'nan', 'A')
+    mito.rename_column(0, 'NaN', 'B')
+    mito.rename_column(0, '', 'C')
+    mito.rename_column(0, None, 'D')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1], 'B': [1], 'C': [1], 'D': [1]}))
+
+def test_rename_with_none_column_header():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'None': [1], 'B': [1]}))
+    mito.rename_column(0, 'None', 'A')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1], 'B': [1]}))
+
+@pandas_post_1_only
+def test_rename_column_with_nat_and_nan():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({pd.NA: [1], pd.NaT: [1], np.NaN: [1]}))
+    mito.rename_column(0, pd.NA, 'A')
+    mito.rename_column(0, pd.NaT, 'B')
+    mito.rename_column(0, np.NaN, 'C')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1], 'B': [1], 'C': [1]}))
 
 def test_rename_updates_creation_step():
     mito = create_mito_wrapper([1])

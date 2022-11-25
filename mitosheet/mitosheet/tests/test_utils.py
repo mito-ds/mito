@@ -18,8 +18,10 @@ from numpy import number
 import pandas as pd
 from mitosheet.mito_widget import MitoWidget, sheet
 from mitosheet.parser import parse_formula
+from mitosheet.step_performers.pivot import PCT_NO_OP
 from mitosheet.transpiler.transpile import transpile
-from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat, GraphID, MultiLevelColumnHeader
+from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code, column_header_list_to_transpiled_code
+from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat, GraphID, MultiLevelColumnHeader, ColumnIDWithFilter, ColumnHeaderWithFilter, ColumnHeaderWithPivotTransform, ColumnIDWithPivotTransform
 from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id
 
 
@@ -72,20 +74,27 @@ def check_dataframes_equal(test_wrapper):
     )
 
     import mitosheet
-    exec(code, 
-        {
-            'check_final_dataframe': check_final_dataframe,
-            # Make sure all the mitosheet functions are defined, which replaces the
-            # `from mitosheet import *` code that is at the top of all
-            # transpiled code 
-            **mitosheet.__dict__,
-        }, 
-        original_dfs
-    )
+    try:
+        exec(code, 
+            {
+                'check_final_dataframe': check_final_dataframe,
+                # Make sure all the mitosheet functions are defined, which replaces the
+                # `from mitosheet import *` code that is at the top of all
+                # transpiled code 
+                **mitosheet.__dict__,
+            }, 
+            original_dfs
+        )
+    except:
+        from mitosheet.errors import get_recent_traceback
+        print("Error executing code")
+        print(get_recent_traceback())
+        print("\nCode:")
+        print(code)
 
     # We then check that the sheet data json that is saved by the widget, which 
     # notably uses caching, does not get incorrectly cached and is written correctly
-    assert test_wrapper.mito_widget.sheet_data_json == json.dumps(dfs_to_array_for_json(
+    assert test_wrapper.mito_widget.get_shared_state_variables()['sheet_data_json'] == json.dumps(dfs_to_array_for_json(
         test_wrapper.mito_widget.steps_manager.curr_step.final_defined_state, 
         set(i for i in range(len(test_wrapper.mito_widget.steps_manager.curr_step.dfs))),
         [],
@@ -539,26 +548,54 @@ class MitoWidgetTestWrapper:
     def pivot_sheet(
             self, 
             sheet_index: int, 
-            pivot_rows: List[ColumnHeader],
-            pivot_columns: List[ColumnHeader],
+            # For convenience, you can use this testing API to either pass just column headers, or optionally
+            # column headers with transforms attached to them. This function turns them
+            # into the correct format before passing them to the backend
+            pivot_rows: Union[List[ColumnHeader], List[ColumnHeaderWithPivotTransform]],
+            pivot_columns: Union[List[ColumnHeader], List[ColumnHeaderWithPivotTransform]],
             values: Dict[ColumnHeader, List[str]],
+            pivot_filters: Optional[List[ColumnHeaderWithFilter]]=None,
             flatten_column_headers: bool=True,
-            destination_sheet_index: int=None,
-            step_id: str=None
+            destination_sheet_index: Optional[int]=None,
+            step_id: Optional[str]=None
         ) -> bool:
 
-        rows_ids = [
-            self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index, column_header)
-            for column_header in pivot_rows
-        ]
-        columns_ids = [
-            self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index, column_header)
-            for column_header in pivot_columns
-        ]
+        get_column_id_by_header = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header
+
+        rows_ids_with_transforms: List[ColumnIDWithPivotTransform] = []
+        if len(pivot_rows) > 0 and isinstance(pivot_rows[0], str):
+            rows_ids_with_transforms = [{
+                'column_id': get_column_id_by_header(sheet_index, column_header), # type: ignore
+                'transformation': PCT_NO_OP
+            } for column_header in pivot_rows]
+        elif len(pivot_rows) > 0:
+            rows_ids_with_transforms = [{
+                'column_id': get_column_id_by_header(sheet_index, chwpt['column_header']), # type: ignore
+                'transformation': chwpt['transformation'] # type: ignore
+            } for chwpt in pivot_rows]
+        
+        column_ids_with_transforms: List[ColumnIDWithPivotTransform] = []
+        if len(pivot_columns) > 0 and isinstance(pivot_columns[0], str):
+            column_ids_with_transforms = [{
+                'column_id': get_column_id_by_header(sheet_index, column_header), # type: ignore
+                'transformation': PCT_NO_OP
+            } for column_header in pivot_columns]
+        elif len(pivot_columns) > 0:
+            column_ids_with_transforms = [{
+                'column_id': get_column_id_by_header(sheet_index, chwpt['column_header']), # type: ignore
+                'transformation': chwpt['transformation'] # type: ignore
+            } for chwpt in pivot_columns]
+
+
         values_column_ids_map = {
-            self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index, column_header): value
+            get_column_id_by_header(sheet_index, column_header): value
             for column_header, value in values.items()
         }
+
+        pivot_filters_ids: List[ColumnIDWithFilter] = [
+            {'column_id': get_column_id_by_header(sheet_index, pf['column_header']), 'filter': pf['filter']} 
+            for pf in pivot_filters
+        ] if pivot_filters is not None else []
 
         return self.mito_widget.receive_message(
             self.mito_widget,
@@ -569,10 +606,11 @@ class MitoWidgetTestWrapper:
                 'step_id': get_new_id() if step_id is None else step_id,
                 'params': {
                     'sheet_index': sheet_index,
-                    'pivot_rows_column_ids': rows_ids,
-                    'pivot_columns_column_ids': columns_ids,
+                    'pivot_rows_column_ids_with_transforms': rows_ids_with_transforms,
+                    'pivot_columns_column_ids_with_transforms': column_ids_with_transforms,
                     'values_column_ids_map': values_column_ids_map,
                     'destination_sheet_index': destination_sheet_index,
+                    'pivot_filters': pivot_filters_ids,
                     'flatten_column_headers': flatten_column_headers
                 }
             }
@@ -649,7 +687,7 @@ class MitoWidgetTestWrapper:
             sheet_index: int, 
             column_header: ColumnHeader,
             sort_direction: str,
-            step_id: str=None
+            step_id: Optional[str]=None
         ) -> bool:
 
         column_id = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
@@ -701,7 +739,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def rename_column(self, sheet_index: int, old_column_header: ColumnHeader, new_column_header: ColumnHeader, level: int=None) -> bool:
+    def rename_column(self, sheet_index: int, old_column_header: ColumnHeader, new_column_header: ColumnHeader, level: Optional[int]=None) -> bool:
 
         column_id = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
             sheet_index,
@@ -769,7 +807,15 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def simple_import(self, file_names: List[str], delimeters: Optional[List[str]]=None, encodings: Optional[List[str]]=None, error_bad_lines: Optional[List[bool]]=None) -> bool:
+    def simple_import(
+        self, 
+        file_names: List[str], 
+        delimeters: Optional[List[str]]=None, 
+        encodings: Optional[List[str]]=None, 
+        decimals: Optional[List[str]]=None, 
+        skiprows: Optional[List[int]]=None,
+        error_bad_lines: Optional[List[bool]]=None
+    ) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
             {
@@ -781,13 +827,15 @@ class MitoWidgetTestWrapper:
                     'file_names': file_names,
                     'delimeters': delimeters,
                     'encodings': encodings,
+                    'decimals': decimals,
+                    'skiprows': skiprows,
                     'error_bad_lines': error_bad_lines,
                 }
             }
         )
 
     @check_transpiled_code_after_call
-    def excel_import(self, file_name: str, sheet_names: List[str], has_headers: bool, skiprows: int) -> bool:
+    def excel_import(self, file_name: str, sheet_names: List[str], has_headers: bool, skiprows: int, decimal: Optional[str]=None) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
             {
@@ -800,6 +848,7 @@ class MitoWidgetTestWrapper:
                     'sheet_names': sheet_names,
                     'has_headers': has_headers,
                     'skiprows': skiprows,
+                    'decimal': decimal
                 }   
             }
         )
@@ -940,7 +989,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def replay_analysis(self, analysis_name: str, step_import_data_list_to_overwrite: List[Dict[str, Any]]=None) -> bool:
+    def replay_analysis(self, analysis_name: str, step_import_data_list_to_overwrite: Optional[List[Dict[str, Any]]]=None) -> bool:
         return self.mito_widget.receive_message(
             self.mito_widget,
             {
@@ -1022,7 +1071,7 @@ class MitoWidgetTestWrapper:
         legend_orientation: Optional[str]='v',
         legend_x: Optional[number]=None,
         legend_y: Optional[number]=None,
-        step_id: str=None,
+        step_id: Optional[str]=None,
         paper_bgcolor: str=DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT,
         plot_bgcolor: str=DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT,
         barmode: Optional[str]=None,
@@ -1358,7 +1407,7 @@ class MitoWidgetTestWrapper:
         return self.mito_widget.steps_manager.curr_step.final_defined_state.df_formats[sheet_index]
         
 
-def create_mito_wrapper(sheet_one_A_data: List[Any], sheet_two_A_data: List[Any]=None) -> MitoWidgetTestWrapper:
+def create_mito_wrapper(sheet_one_A_data: List[Any], sheet_two_A_data: Optional[List[Any]]=None) -> MitoWidgetTestWrapper:
     """
     Returns a MitoWidgetTestWrapper instance wrapped around a MitoWidget
     that contains just a column A, containing sheet_one_A_data.
@@ -1382,7 +1431,7 @@ def create_mito_wrapper_dfs(*args: pd.DataFrame) -> MitoWidgetTestWrapper:
     mito_widget = sheet(*args)
     return MitoWidgetTestWrapper(mito_widget)
 
-def make_multi_index_header_df(data: Dict[Union[str, int], List[Any]], column_headers: List[ColumnHeader], index: List[Any]=None) -> pd.DataFrame:
+def make_multi_index_header_df(data: Dict[Union[str, int], List[Any]], column_headers: List[ColumnHeader], index: Optional[List[Any]]=None) -> pd.DataFrame:
     """
     A helper function that allows you to easily create a multi-index
     header dataframe. 
@@ -1414,3 +1463,22 @@ def make_multi_index_header_df(data: Dict[Union[str, int], List[Any]], column_he
     if index is not None:
         df.index = index
     return df
+
+def get_dataframe_generation_code(df: pd.DataFrame) -> str:
+    """
+    Given a dataframe like:
+
+        date (year)      value sum
+    0         2000             1.0
+    1         2001             NaN
+
+    Will return the string:
+    pd.DataFrame({'date (year)': [2000, 2001], 'value sum: [1.0, np.NaN]})
+
+    This is useful when you have a dataframe you want to create at runtime and then put into a test.
+    """
+    OPEN_BRACKET = "{"
+    CLOSE_BRACKET = "}"
+
+    data = ", ".join([f"{column_header_to_transpiled_code(column_header)}: {column_header_list_to_transpiled_code(df[column_header].to_list())}" for column_header in df.columns])
+    return f'pd.DataFrame({OPEN_BRACKET}{data}{CLOSE_BRACKET})'

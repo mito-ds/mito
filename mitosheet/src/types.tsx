@@ -406,12 +406,39 @@ export enum AggregationType {
     MAX = 'max', 
 }
 
+export type PivotColumnTransformation = 
+    | 'no-op'
+    | 'year'
+    | 'quarter'
+    | 'month'
+    | 'week'
+    | 'day of month'
+    | 'day of week'
+    | 'hour'
+    | 'minute'
+    | 'second'
+    | 'year-month-day-hour-minute'
+    | 'year-month-day-hour'
+    | 'year-month-day'
+    | 'year-month'
+    | 'year-quarter'
+    | 'month-day'
+    | 'day-hour'
+    | 'hour-minute'
+
+export type ColumnIDWithPivotTransform = {
+    column_id: ColumnID,
+    transformation: PivotColumnTransformation
+}
+
+
 // The parameters saved on the backend
 export interface BackendPivotParams {
     sheet_index: number,
-    pivot_rows_column_ids: ColumnID[],
-    pivot_columns_column_ids: ColumnID[],
+    pivot_rows_column_ids_with_transforms: ColumnIDWithPivotTransform[],
+    pivot_columns_column_ids_with_transforms: ColumnIDWithPivotTransform[],
     values_column_ids_map: Record<ColumnID, AggregationType[]>,
+    pivot_filters: {column_id: ColumnID, filter: FilterType}[],
     flatten_column_headers: boolean;
     destination_sheet_index?: number;
 }
@@ -421,11 +448,12 @@ export interface BackendPivotParams {
 // frontend while keeping the ordering for values
 export interface FrontendPivotParams {
     sourceSheetIndex: number,
-    pivotRowColumnIDs: ColumnID[],
-    pivotColumnsColumnIDs: ColumnID[],
+    pivotRowColumnIDsWithTransforms: ColumnIDWithPivotTransform[],
+    pivotColumnsColumnIDsWithTransforms: ColumnIDWithPivotTransform[],
     // NOTE: storing these values as an array makes keeping an order of them
     // much much easier, and generally is the way to do it!
     pivotValuesColumnIDsArray: [ColumnID, AggregationType][],
+    pivotFilters: {column_id: ColumnID, filter: FilterType}[],
     flattenColumnHeaders: boolean,
     destinationSheetIndex?: number
 }
@@ -617,14 +645,17 @@ export enum DataTypeInMito {
     PERSONAL = 'personal',
 }
 
-
-
 export type ExperimentID = 
     | 'title_name';
 
 interface Experiment {
     experiment_id: ExperimentID;
     variant: "A" | "B";
+}
+
+export enum MitoEnterpriseConfigKey {
+    MEC_VERSION = 'MITO_CONFIG_VERSION',
+    SUPPORT_EMAIL = 'MITO_CONFIG_SUPPORT_EMAIL'
 }
 
 
@@ -669,7 +700,8 @@ export interface AnalysisData {
  * @param userEmail - the email of the user. May be an empty string if they have not signed up yet
  * @param receivedTours - a list of the tours they have received
  * @param isPro - if the user is a pro user
- * @param excelImportEnabled - if the user has the necessary packages optional dependencies, and Python and Pandas version to import Excel files.
+ * @param pythonVersion - the version of the user's python installation
+ * @param pandasVersion - ther version of th user's pandas isntallation
  * @param telemetryEnabled - if the user has telemetry enabled
  * @param isLocalDeployment - if the user is deployed locally or not
  * @param shouldUpgradeMitosheet - if the user should upgrade their mitosheet
@@ -682,11 +714,16 @@ export interface UserProfile {
     receivedChecklists: Record<ChecklistID, string[] | undefined>;
 
     isPro: boolean;
-    excelImportEnabled: boolean;
+    pandasVersion: string;
+    pythonVersion: string;
     telemetryEnabled: boolean;
     isLocalDeployment: boolean;
     shouldUpgradeMitosheet: boolean;
     numUsages: number;
+    mitoConfig: {
+        [MitoEnterpriseConfigKey.MEC_VERSION]: number | undefined
+        [MitoEnterpriseConfigKey.SUPPORT_EMAIL]: string
+    };
 }
 
 
@@ -706,11 +743,27 @@ export interface ExcelExportState { exportType: 'excel', sheetIndexes: number[] 
 
 export type ToolbarDropdowns = 'Edit' | 'Dataframes' | 'Columns' | 'Rows' | 'Graphs' | 'Format' | 'View' | 'Help';
 
+export enum PopupType {
+    EphemeralMessage = 'ephemeral_message',
+    None = 'none'
+} 
+
+export type PopupInfo = 
+    | {
+        type: PopupType.EphemeralMessage,
+        message: string
+    }
+    | {type: PopupType.None} 
+
+export enum PopupLocation {
+    TopRight = 'top_right',
+}
+
 /**
  * State of the UI, all in one place for ease.
  */
 export interface UIState {
-    loading: [string, string | undefined, string][]; // message id, step id (if it exists), message type
+    loading: [string, string | undefined, string][]
     currOpenModal: ModalInfo;
     currOpenTaskpane: TaskpaneInfo;
     selectedColumnControlPanelTab: ControlPanelTab;
@@ -720,6 +773,12 @@ export interface UIState {
     selectedTabType: 'data' | 'graph';
     currOpenToolbarDropdown: undefined | ToolbarDropdowns;
     toolbarDropdown: 'import' | 'format' | 'dtype' | undefined;
+    currOpenPopups: {
+        // This popup infrastructure allows us to easily separate the the placement logic from the content
+        // and ensure that in each popup location, only one popup is displayed at a time.
+        // TODO: Move the other popups (loading, tour, fast forward) to use this infrastructure
+        [PopupLocation.TopRight]: PopupInfo 
+    }
 }
 
 /**

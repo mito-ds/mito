@@ -8,16 +8,24 @@ from time import perf_counter
 from typing import Any, Callable, Collection, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
+
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.pivot_code_chunk import \
-    PivotCodeChunk
+from mitosheet.code_chunks.step_performers.pivot_code_chunk import (
+    USE_INPLACE_PIVOT, PivotCodeChunk)
 from mitosheet.column_headers import flatten_column_header
 from mitosheet.errors import make_invalid_pivot_error, make_no_column_error
 from mitosheet.state import DATAFRAME_SOURCE_PIVOTED, State
+from mitosheet.step_performers.filter import (combine_filters,
+                                              get_applied_filter)
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
 from mitosheet.telemetry.telemetry_utils import log
-from mitosheet.types import ColumnHeader, ColumnID
+from mitosheet.types import (ColumnHeader, ColumnHeaderWithFilter,
+                             ColumnHeaderWithPivotTransform, ColumnID,
+                             ColumnIDWithFilter, ColumnIDWithPivotTransform)
+from mitosheet.array_utils import deduplicate_array
+
+
 
 # Aggregation types pivot supports
 PA_COUNT_UNIQUE = 'count unique'
@@ -34,6 +42,28 @@ PIVOT_AGGREGATION_TYPES = [
     PA_COUNT_UNIQUE
 ]
 
+# Pivot Column Transformations: if the user does not specify a transformation before the pivot (e.g. 
+# getting the months from a date), then we call this a no-op
+PCT_NO_OP = 'no-op'
+PCT_DATE_YEAR = 'year'
+PCT_DATE_QUARTER = 'quarter'
+PCT_DATE_MONTH = 'month'
+PCT_DATE_WEEK = 'week'
+PCT_DATE_DAY_OF_MONTH = 'day of month'
+PCT_DATE_DAY_OF_WEEK = 'day of week'
+PCT_DATE_HOUR = 'hour'
+PCT_DATE_MINUTE = 'minute'
+PCT_DATE_SECOND = 'second'
+PCT_DATE_YEAR_MONTH_DAY_HOUR_MINUTE = 'year-month-day-hour-minute'
+PCT_DATE_YEAR_MONTH_DAY_HOUR = 'year-month-day-hour'
+PCT_DATE_YEAR_MONTH_DAY = 'year-month-day'
+PCT_DATE_YEAR_MONTH = 'year-month'
+PCT_DATE_YEAR_QUARTER = 'year-quarter'
+PCT_DATE_MONTH_DAY = 'month-day'
+PCT_DATE_DAY_HOUR = 'day-hour'
+PCT_DATE_HOUR_MINUTE = 'hour-minute'
+
+
 class PivotStepPerformer(StepPerformer):
     """
     A pivot, which allows you to pivot data from an existing dataframe 
@@ -42,7 +72,7 @@ class PivotStepPerformer(StepPerformer):
 
     @classmethod
     def step_version(cls) -> int:
-        return 6
+        return 8
 
     @classmethod
     def step_type(cls) -> str:
@@ -51,18 +81,9 @@ class PivotStepPerformer(StepPerformer):
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Saturates the pivot table with just a `created_non_empty_dataframe` key, which
-        is useful for logging.
-
-        Furthermore, we filter out any duplicated aggregation keys, as they
+        We filter out any duplicated aggregation keys, as they
         result in errors without adding any data to the pivot.
         """
-        # Case 1 - we have at least one row and at least one value
-        created_case_1 = len(params['pivot_rows_column_ids']) > 0 and len(params['values_column_ids_map']) > 0
-        # Case 2 - we have at least one column and at least one value
-        created_case_2 = len(params['pivot_columns_column_ids']) > 0 and len(params['values_column_ids_map']) > 0
-        params['created_non_empty_dataframe'] = created_case_1 or created_case_2
-
         # Filter out any duplicate aggregation functions
         for column_id, aggregation_function_names in params['values_column_ids_map'].items():
             new_aggregation_function_names = []
@@ -76,19 +97,35 @@ class PivotStepPerformer(StepPerformer):
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         sheet_index: int = get_param(params, 'sheet_index')
-        pivot_rows_column_ids: List[ColumnID] = get_param(params, 'pivot_rows_column_ids')
-        pivot_columns_column_ids: List[ColumnID] = get_param(params, 'pivot_columns_column_ids')
+        pivot_rows_column_ids_with_transforms: List[ColumnIDWithPivotTransform] = get_param(params, 'pivot_rows_column_ids_with_transforms')
+        pivot_columns_column_ids_with_transforms: List[ColumnIDWithPivotTransform] = get_param(params, 'pivot_columns_column_ids_with_transforms')
         values_column_ids_map: Dict[ColumnID, Collection[str]] = get_param(params, 'values_column_ids_map')
+        pivot_filters_ids: List[ColumnIDWithFilter] = get_param(params, 'pivot_filters')
         flatten_column_headers: bool = get_param(params, 'flatten_column_headers')
         destination_sheet_index: Optional[int] = get_param(params, 'destination_sheet_index')
         use_deprecated_id_algorithm: bool = get_param(params, 'use_deprecated_id_algorithm') if get_param(params, 'use_deprecated_id_algorithm') else False
+        
+        # Get just the column headers in a list, for convenience
+        pivot_rows = [prev_state.column_ids.get_column_header_by_id(sheet_index, cit['column_id']) for cit in pivot_rows_column_ids_with_transforms]
+        pivot_columns = [prev_state.column_ids.get_column_header_by_id(sheet_index, cit['column_id']) for cit in pivot_columns_column_ids_with_transforms]
 
-        pivot_rows = prev_state.column_ids.get_column_headers_by_ids(sheet_index, pivot_rows_column_ids)
-        pivot_columns = prev_state.column_ids.get_column_headers_by_ids(sheet_index, pivot_columns_column_ids)
+        # Make new objects with all columns headers
+        pivot_rows_with_transforms: List[ColumnHeaderWithPivotTransform] = [{
+            'column_header': prev_state.column_ids.get_column_header_by_id(sheet_index, chwpt['column_id']),
+            'transformation': chwpt['transformation']
+        } for chwpt in pivot_rows_column_ids_with_transforms]
+        pivot_columns_with_transforms: List[ColumnHeaderWithPivotTransform] = [{
+            'column_header': prev_state.column_ids.get_column_header_by_id(sheet_index, chwpt['column_id']),
+            'transformation': chwpt['transformation']
+        } for chwpt in pivot_columns_column_ids_with_transforms]
         values = {
             prev_state.column_ids.get_column_header_by_id(sheet_index, column_id): value 
             for column_id, value in values_column_ids_map.items()
         }
+        pivot_filters: List[ColumnHeaderWithFilter] = [
+            {'column_header': prev_state.column_ids.get_column_header_by_id(sheet_index, pf['column_id']), 'filter': pf['filter']}
+            for pf in pivot_filters_ids
+        ]
 
         # We check that the pivot by doesn't use any columns that don't exist
         columns_used = set(pivot_rows).union(set(pivot_columns)).union(set(values.keys()))
@@ -103,9 +140,10 @@ class PivotStepPerformer(StepPerformer):
         pandas_start_time = perf_counter()
         new_df, was_series = _execute_pivot(
             prev_state.dfs[sheet_index], 
-            pivot_rows,
-            pivot_columns,
+            pivot_rows_with_transforms,
+            pivot_columns_with_transforms,
             values,
+            pivot_filters,
             flatten_column_headers
         )
         pandas_processing_time = perf_counter() - pandas_start_time
@@ -168,11 +206,74 @@ def values_to_functions(values: Dict[ColumnHeader, Collection[str]]) -> Dict[Col
     
     return new_values
 
+
+def get_new_column_header_from_column_header_with_pivot_transform(chwpt: ColumnHeaderWithPivotTransform) -> ColumnHeader:
+    column_header, transformation = chwpt['column_header'], chwpt['transformation']
+    # We need to turn the column header into a string before creating the new one, so that we can
+    # append to it for the new temporary transformation column
+    if transformation == PCT_NO_OP:
+        return column_header
+
+    return f'{str(column_header)} ({transformation})'
+
+def add_transform_columns_to_dataframe(df: pd.DataFrame, column_headers_with_transforms: List[ColumnHeaderWithPivotTransform]) -> pd.DataFrame:
+    for chwpt in column_headers_with_transforms:
+        column_header, transformation = chwpt['column_header'], chwpt['transformation']
+        # We need to turn the column header into a string before creating the new one, so that we can
+        # append to it for the new temporary transformation column
+        if transformation == PCT_NO_OP:
+            continue
+
+        new_column_header = get_new_column_header_from_column_header_with_pivot_transform(chwpt)
+        if transformation == PCT_DATE_YEAR:
+            df[new_column_header] = df[column_header].dt.year
+        if transformation == PCT_DATE_QUARTER:
+            df[new_column_header] = df[column_header].dt.quarter
+        if transformation == PCT_DATE_MONTH:
+            df[new_column_header] = df[column_header].dt.month
+        if transformation == PCT_DATE_WEEK:
+            from mitosheet.saved_analyses.schema_utils import is_prev_version
+            if is_prev_version(pd.__version__, '1.0.0'):
+                df[new_column_header] = df[column_header].dt.week
+            else:
+                df[new_column_header] = df[column_header].dt.isocalendar().week.astype(int)
+        if transformation == PCT_DATE_DAY_OF_MONTH:
+            df[new_column_header] = df[column_header].dt.day
+        if transformation == PCT_DATE_DAY_OF_WEEK:
+            df[new_column_header] = df[column_header].dt.weekday
+        if transformation == PCT_DATE_HOUR:
+            df[new_column_header] = df[column_header].dt.hour
+        if transformation == PCT_DATE_MINUTE:
+            df[new_column_header] = df[column_header].dt.minute
+        if transformation == PCT_DATE_SECOND:
+            df[new_column_header] = df[column_header].dt.second
+        if transformation == PCT_DATE_YEAR_MONTH_DAY_HOUR_MINUTE:
+            df[new_column_header] = df[column_header].dt.strftime("%Y-%m-%d %H:%M")
+        if transformation == PCT_DATE_YEAR_MONTH_DAY_HOUR:
+            df[new_column_header] = df[column_header].dt.strftime("%Y-%m-%d %H")
+        if transformation == PCT_DATE_YEAR_MONTH_DAY:
+            df[new_column_header] = df[column_header].dt.strftime("%Y-%m-%d")
+        if transformation == PCT_DATE_YEAR_MONTH:
+            df[new_column_header] = df[column_header].dt.strftime("%Y-%m")
+        if transformation == PCT_DATE_YEAR_QUARTER:
+            df[new_column_header] = df[column_header].dt.year.astype(str) + "-Q" + df[column_header].dt.quarter.astype(str)
+        if transformation == PCT_DATE_MONTH_DAY:
+            df[new_column_header] = df[column_header].dt.strftime("%m-%d")
+        if transformation == PCT_DATE_DAY_HOUR:
+            df[new_column_header] = df[column_header].dt.strftime("%d %H")
+        if transformation == PCT_DATE_HOUR_MINUTE:
+            df[new_column_header] = df[column_header].dt.strftime("%H:%M")
+
+    
+    return df
+
+
 def _execute_pivot(
         df: pd.DataFrame, 
-        pivot_rows: List[ColumnHeader], 
-        pivot_columns: List[ColumnHeader], 
+        pivot_rows_with_transforms: List[ColumnHeaderWithPivotTransform], 
+        pivot_columns_with_transforms: List[ColumnHeaderWithPivotTransform], 
         values: Dict[ColumnHeader, Collection[str]],
+        pivot_filters: List[ColumnHeaderWithFilter],
         flatten_column_headers: bool
     ) -> Tuple[pd.DataFrame, bool]:
     """
@@ -180,31 +281,61 @@ def _execute_pivot(
     and then aggregating the values with the passed values mapping
     """
 
+    pivot_rows = [cit['column_header'] for cit in pivot_rows_with_transforms]
+    pivot_columns = [cit['column_header'] for cit in pivot_columns_with_transforms]
+
     # If there are no keys to aggregate on, we return an empty dataframe
     if (len(pivot_rows) == 0 and len(pivot_columns) == 0) or len(values) == 0:
         return pd.DataFrame(data={}), False
 
     values_keys = list(values.keys())
 
+    # First, we do the filtering on the initial dataframe, according to the pivot_filters
+    if len(pivot_filters) > 0:
+        filters = [
+            get_applied_filter(df, pf['column_header'], pf['filter'])
+            for pf in pivot_filters
+        ]
+        full_filter = combine_filters('And', filters)
+        df = df[full_filter] # TODO: do we have to make a copy
+
+    # Then, we make a temp dataframe that does not have the columns 
+    # we do not need, as this allows us to avoid a bug in pandas where these extra
+    # columns cause a data
+    unused_columns = df.columns.difference(set(pivot_rows).union(set(pivot_columns)).union(set(values_keys)))
+    # NOTE: We need to make a copy, so that we can set columns on a full dataframe rather than
+    # just a view of a different dataframe. This is just a shallow copy
+    df = df.drop(unused_columns, axis=1).copy() 
+
+    # Then, we create the new columns that are a function of the transforms that are passed
+    # with the pivot params
+    df = add_transform_columns_to_dataframe(df, pivot_rows_with_transforms)
+    df = add_transform_columns_to_dataframe(df, pivot_columns_with_transforms)
+
+    # Create the final pivot_rows and pivot_columns, which might be the temporary columns
+    # created above by the transformations. NOTE: we need to deduplicate these here, as
+    # having multiple rows or columns results in errors in the pandas pivot function
+    final_pivot_rows = deduplicate_array([
+        get_new_column_header_from_column_header_with_pivot_transform(chwpt)
+        for chwpt in pivot_rows_with_transforms
+    ])
+    final_pivot_columns = deduplicate_array([
+        get_new_column_header_from_column_header_with_pivot_transform(chwpt)
+        for chwpt in pivot_columns_with_transforms
+    ])
+
     # Built the args, leaving out any unused values
     args: Dict[str, Any] = {}
+    if len(final_pivot_rows) > 0:
+        args['index'] = final_pivot_rows
 
-    if len(pivot_rows) > 0:
-        args['index'] = pivot_rows
-
-    if len(pivot_columns) > 0:
-        args['columns'] = pivot_columns
+    if len(final_pivot_columns) > 0:
+        args['columns'] = final_pivot_columns
 
     if len(values) > 0:
         args['values'] = values_keys
         args['aggfunc'] = values_to_functions(values)
-
-
-    # Before execution, we make a temp dataframe that does not have the columns 
-    # we do not need, as this allows us to avoid a bug in pandas where these extra
-    # columns cause a data
-    unused_columns = df.columns.difference(set(pivot_rows).union(set(pivot_columns)).union(set(values_keys)))
-    df = df.drop(unused_columns, axis=1)
+        
 
     # While performing the pivot table, catch warnings that are created
     # by pandas so that we can log them.
@@ -225,7 +356,12 @@ def _execute_pivot(
         was_series = True
 
     if flatten_column_headers:
-        pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1, inplace=True)
+        # See comment in pivot_code_chunk, we avoid using inplace=True post pandas 1.5.0, as
+        # it is depricated
+        if USE_INPLACE_PIVOT:
+            pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1, inplace=True)
+        else:
+            pivot_table = pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1)
 
     # Reset the indexes of the pivot table
     pivot_table = pivot_table.reset_index()

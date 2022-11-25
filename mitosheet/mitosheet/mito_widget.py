@@ -9,21 +9,27 @@ Main file containing the mito widget.
 """
 import json
 import os
+from sysconfig import get_python_version
 import time
 from typing import Any, Dict, List, Optional, Union
+from IPython import get_ipython
+from ipykernel.comm import Comm
+
 
 import pandas as pd
 import traitlets as t
 from ipywidgets import DOMWidget
 
+from mitosheet.utils import get_new_id
 from mitosheet._frontend import module_name, module_version
 from mitosheet.api import API
 from mitosheet.data_in_mito import DataTypeInMito
 from mitosheet.errors import (MitoError, get_recent_traceback,
                               make_execution_error)
+from mitosheet.enterprise.mito_config import MitoConfig
 from mitosheet.saved_analyses import write_analysis
 from mitosheet.steps_manager import StepsManager
-from mitosheet.telemetry.telemetry_utils import (log, log_event_processed,
+from mitosheet.telemetry.telemetry_utils import (MITOSHEET_HELPER_PRIVATE, log, log_event_processed,
                                                  telemetry_turned_on)
 from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
 from mitosheet.user import is_local_deployment, should_upgrade_mitosheet
@@ -32,7 +38,7 @@ from mitosheet.user.db import USER_JSON_PATH, get_user_field
 from mitosheet.user.location import is_in_google_colab, is_in_vs_code
 from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES, UJ_RECEIVED_CHECKLISTS,
                                     UJ_RECEIVED_TOURS, UJ_USER_EMAIL)
-from mitosheet.user.utils import is_excel_import_enabled, is_pro, is_running_test
+from mitosheet.user.utils import get_pandas_version, is_pro, is_running_test
 
 
 class MitoWidget(DOMWidget):
@@ -47,11 +53,13 @@ class MitoWidget(DOMWidget):
     _view_module = t.Unicode(module_name).tag(sync=True) # type: ignore
     _view_module_version = t.Unicode(module_version).tag(sync=True) # type: ignore
 
+    mito_comm: Optional[Comm] = None
+    comm_target_id = t.Unicode('').tag(sync=True) # type: ignore
     sheet_data_json = t.Unicode('').tag(sync=True) # type: ignore
     analysis_data_json = t.Unicode('').tag(sync=True) # type: ignore
     user_profile_json = t.Unicode('').tag(sync=True) # type: ignore
     
-    def __init__(self, *args: List[Union[pd.DataFrame, str]], analysis_to_replay: str=None):
+    def __init__(self, *args: List[Union[pd.DataFrame, str]], comm_target_id: str='', analysis_to_replay: Optional[str]=None):
         """
         Takes a list of dataframes and strings that are paths to CSV files
         passed through *args.
@@ -62,11 +70,12 @@ class MitoWidget(DOMWidget):
         # Set up the state container to hold private widget state
         self.steps_manager = StepsManager(args, analysis_to_replay=analysis_to_replay)
 
-        # Set up message handler
-        self.on_msg(self.receive_message)
+        self.comm_target_id = comm_target_id
+
+        self.mito_config = MitoConfig() # type: ignore
 
         # And the api
-        self.api = API(self.steps_manager, self.send)
+        self.api = API(self.steps_manager, self)
 
         # We store static variables to make writing the shared
         # state variables quicker; we store them so we don't 
@@ -77,13 +86,24 @@ class MitoWidget(DOMWidget):
         self.should_upgrade_mitosheet = should_upgrade_mitosheet()
         self.received_tours = get_user_field(UJ_RECEIVED_TOURS)
 
-        # Set up starting shared state variables
+        # Update shared state varibles. See comment in widget.tsx -- this is being removed
+        # in the upcoming move away from the widget infrastructure
         self.update_shared_state_variables()
+
 
     @property
     def analysis_name(self):
         return self.steps_manager.analysis_name
 
+    @property
+    def mito_send(self):
+        if self.mito_comm:
+            return self.mito_comm.send
+        else:
+            # If we don't have a comm defined, this is because we are running a test, and so 
+            # we simply don't do anything with messages that are tried to send. In the future, 
+            # we can save them somewhere, and then make assertions about them -- cool!
+            return lambda _: _
 
     def update_shared_state_variables(self) -> None:
         """
@@ -93,18 +113,46 @@ class MitoWidget(DOMWidget):
         self.sheet_data_json = self.steps_manager.sheet_data_json
         self.analysis_data_json = self.steps_manager.analysis_data_json
         self.user_profile_json = json.dumps({
-            # Dynamic, update each time
-            'userEmail': get_user_field(UJ_USER_EMAIL),
-            'receivedTours': get_user_field(UJ_RECEIVED_TOURS),
-            'receivedChecklists': get_user_field(UJ_RECEIVED_CHECKLISTS),
-            'isPro': is_pro(),
-            'telemetryEnabled': telemetry_turned_on(),
-            # Static over a single analysis
-            'excelImportEnabled': is_excel_import_enabled(),
-            'isLocalDeployment': self.is_local_deployment,
-            'shouldUpgradeMitosheet': self.should_upgrade_mitosheet,
-            'numUsages': self.num_usages,
-        })
+                # Dynamic, update each time
+                'userEmail': get_user_field(UJ_USER_EMAIL),
+                'receivedTours': get_user_field(UJ_RECEIVED_TOURS),
+                'receivedChecklists': get_user_field(UJ_RECEIVED_CHECKLISTS),
+                'isPro': is_pro(),
+                'telemetryEnabled': telemetry_turned_on(),
+                # Static over a single analysis
+                'pythonVersion': get_python_version(),
+                'pandasVersion': get_pandas_version(),
+                'isLocalDeployment': self.is_local_deployment,
+                'shouldUpgradeMitosheet': self.should_upgrade_mitosheet,
+                'numUsages': self.num_usages,
+                'mitoConfig': self.mito_config.get_mito_config()
+            })
+
+
+    def get_shared_state_variables(self) -> Dict[str, Any]:
+        """
+        Helper function for updating all the variables that are shared
+        between the backend and the frontend through trailets.
+        """
+        return {
+            'sheet_data_json': self.steps_manager.sheet_data_json,
+            'analysis_data_json': self.steps_manager.analysis_data_json,
+            'user_profile_json': json.dumps({
+                # Dynamic, update each time
+                'userEmail': get_user_field(UJ_USER_EMAIL),
+                'receivedTours': get_user_field(UJ_RECEIVED_TOURS),
+                'receivedChecklists': get_user_field(UJ_RECEIVED_CHECKLISTS),
+                'isPro': is_pro(),
+                'telemetryEnabled': telemetry_turned_on(),
+                # Static over a single analysis
+                'pythonVersion': get_python_version(),
+                'pandasVersion': get_pandas_version(),
+                'isLocalDeployment': self.is_local_deployment,
+                'shouldUpgradeMitosheet': self.should_upgrade_mitosheet,
+                'numUsages': self.num_usages,
+                'mitoConfig': self.mito_config.get_mito_config()
+            })
+        }
 
 
     def handle_edit_event(self, event: Dict[str, Any]) -> None:
@@ -121,18 +169,16 @@ class MitoWidget(DOMWidget):
         # First, we send this new edit to the evaluator
         self.steps_manager.handle_edit_event(event)
 
-        # We update the state variables 
-        self.update_shared_state_variables()
-
         # Also, write the analysis to a file!
         write_analysis(self.steps_manager)
 
         # Tell the front-end to render the new sheet and new code with an empty
         # response. NOTE: in the future, we can actually send back some data
         # with the response (like an error), to get this response in-place!        
-        self.send({
+        self.mito_send({
             'event': 'response',
-            'id': event['id']
+            'id': event['id'],
+            'shared_variables': self.get_shared_state_variables()
         })
 
 
@@ -149,9 +195,6 @@ class MitoWidget(DOMWidget):
 
         try:
             self.steps_manager.handle_update_event(event)
-
-            # Update all state variables
-            self.update_shared_state_variables()
         except Exception as e:
             # We handle the case of replaying the analysis specially, because we don't
             # want to display the error modal - we want to display something specific
@@ -169,11 +212,11 @@ class MitoWidget(DOMWidget):
         write_analysis(self.steps_manager)
 
         # Tell the front-end to render the new sheet and new code with an empty
-        # response. NOTE: in the future, we can actually send back some data
-        # with the response (like an error), to get this response in-place!
-        self.send({
+        # response. 
+        self.mito_send({
             'event': 'response',
             'id': event['id'],
+            'shared_variables': self.get_shared_state_variables()
         })
 
     def receive_message(self, widget: Any, content: Dict[str, Any], buffers: Any=None) -> bool:
@@ -208,7 +251,6 @@ class MitoWidget(DOMWidget):
                 # time are not valid, and so we don't even log the start time to not be confusing
                 start_time = None
 
-            
             if event['event'] != 'api_call':
                 # NOTE: we don't need to case on log_event above because it always gets
                 # passed to this function, and thus is logged. We also don't log in the
@@ -219,6 +261,7 @@ class MitoWidget(DOMWidget):
             return True
         except MitoError as e:
             if is_running_test():
+                print(get_recent_traceback())
                 print(e)
 
             # Log processing this event failed
@@ -245,14 +288,14 @@ class MitoWidget(DOMWidget):
                 }
 
             # Report it to the user, and then return
-            self.send(response)
+            self.mito_send(response)
         except:
             if is_running_test():
                 print(get_recent_traceback())
             # We log that processing failed, but have no edit error
             log_event_processed(event, self.steps_manager, failed=True, start_time=start_time)
             # Report it to the user, and then return
-            self.send({
+            self.mito_send({
                 'event': 'edit_error',
                 'id': event['id'],
                 'type': 'execution_error',
@@ -265,7 +308,7 @@ class MitoWidget(DOMWidget):
 
 def sheet(
         *args: Any,
-        analysis_to_replay: str=None, # This is the parameter that tracks the analysis that you want to replay (NOTE: requires a frontend to be replayed!)
+        analysis_to_replay: Optional[str]=None, # This is the parameter that tracks the analysis that you want to replay (NOTE: requires a frontend to be replayed!)
         view_df: bool=False, # We use this param to log if the mitosheet.sheet call is created from the df output button,
         # NOTE: if you add named variables to this function, make sure argument parsing on the front-end still
         # works by updating the getArgsFromCellContent function.
@@ -301,8 +344,28 @@ def sheet(
         try_create_user_json_file()
 
     try:
+
+        # Every Mitosheet has a different comm target, so they each create
+        # a different channel to communicate over
+        comm_target_id = get_new_id()
+
         # We pass in the dataframes directly to the widget
-        widget = MitoWidget(*args, analysis_to_replay=analysis_to_replay) 
+        widget = MitoWidget(*args, comm_target_id=comm_target_id, analysis_to_replay=analysis_to_replay) 
+
+        # We create a callback that runs when the comm is actually created on the frontend
+        def on_comm_creation(comm: Comm, open_msg: Dict[str, Any]) -> None:
+            @comm.on_msg
+            def _recv(msg):
+                # Register handler for any incoming messages
+                widget.receive_message(widget, msg['content']['data'])
+            
+            # Save the comm in the mito widget, so we can use this .send function
+            widget.mito_comm = comm
+
+        # Register the comm target - so the callback gets called
+        ipython = get_ipython()
+        if ipython:
+            ipython.kernel.comm_manager.register_target(comm_target_id, on_comm_creation)
 
         # Log they have personal data in the tool if they passed a dataframe
         # that is not tutorial data or sample data from import docs
@@ -312,6 +375,8 @@ def sheet(
     except:
         log('mitosheet_sheet_call_failed', failed=True)
         raise
+
+
 
     # Then, we log that the call was successful, along with all of it's params
     log(

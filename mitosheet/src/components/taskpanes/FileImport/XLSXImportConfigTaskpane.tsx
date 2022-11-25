@@ -4,7 +4,8 @@ import React from 'react';
 
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import MitoAPI from '../../../jupyter/api';
-import { AnalysisData, StepType, UIState } from '../../../types';
+import { AnalysisData, StepType, UIState, UserProfile } from '../../../types';
+import { DEFAULT_DECIMAL } from '../../import/CSVImportConfigScreen';
 import XLSXImportConfigScreen, { ExcelImportParams } from '../../import/XLSXImportConfigScreen';
 import { ImportState } from './FileImportTaskpane';
 
@@ -12,6 +13,7 @@ import { ImportState } from './FileImportTaskpane';
 interface XLSXImportConfigTaskpaneProps {
     mitoAPI: MitoAPI;
     analysisData: AnalysisData;
+    userProfile: UserProfile;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
 
     fileName: string;
@@ -25,6 +27,7 @@ export const getDefaultXLSXParams = (filePath: string): ExcelImportParams => {
         file_name: filePath,
         sheet_names: [],
         has_headers: true,
+        decimal: DEFAULT_DECIMAL,
         skiprows: 0,
     }
 }
@@ -48,6 +51,7 @@ function XLSXImportConfigTaskpane(props: XLSXImportConfigTaskpaneProps): JSX.Ele
         <XLSXImportConfigScreen
             mitoAPI={props.mitoAPI}
             analysisData={props.analysisData}
+            userProfile={props.userProfile}
             setUIState={props.setUIState}
             isUpdate={false}
 

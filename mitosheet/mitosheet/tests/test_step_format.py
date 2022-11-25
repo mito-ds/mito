@@ -7,6 +7,7 @@
 Contains tests for edit events.
 """
 import random
+from typing import Type
 
 from mitosheet.step_performers import (
     STEP_PERFORMERS,
@@ -40,13 +41,13 @@ from mitosheet.step_performers.graph_steps.graph_delete import GraphDeleteStepPe
 from mitosheet.step_performers.graph_steps.graph_duplicate import GraphDuplicateStepPerformer
 from mitosheet.step_performers.graph_steps.graph_rename import GraphRenameStepPerformer
 from mitosheet.step_performers.melt import MeltStepPerformer
-from mitosheet.step_performers.one_hot_encoding import OneHotEncodingStepPerformer
+from mitosheet.enterprise.step_performers.one_hot_encoding import OneHotEncodingStepPerformer
 from mitosheet.step_performers.promote_row_to_header import PromoteRowToHeaderStepPerformer
-from mitosheet.step_performers.set_dataframe_format import SetDataframeFormatStepPerformer
+from mitosheet.pro.step_performers.set_dataframe_format import SetDataframeFormatStepPerformer
 from mitosheet.step_performers.transpose import TransposeStepPerformer
 
 def check_step(
-        step_performer: StepPerformer, 
+        step_performer: Type[StepPerformer], 
         step_version: int, 
         step_type: str
     ) -> None:
@@ -104,7 +105,7 @@ def test_params_static():
     
     check_step(
         PivotStepPerformer,
-        6,
+        8,
         'pivot'
     )
 
@@ -141,7 +142,7 @@ def test_params_static():
 
     check_step(
         SetDataframeFormatStepPerformer,
-        1,
+        2,
         'set_dataframe_format'
     )
 

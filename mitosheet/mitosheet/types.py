@@ -12,6 +12,7 @@ explicit and clear, and make sure to test the types in our
 continous integration
 """
 
+from collections import namedtuple
 from typing import TYPE_CHECKING, Dict, List, Optional, Union, Tuple, Any
 
 GraphID = str
@@ -27,10 +28,13 @@ ColumnHeader = Union[PrimativeColumnHeader, MultiLevelColumnHeader]
 if TYPE_CHECKING:
     from mitosheet.steps_manager import StepsManager
     StepsManagerType = StepsManager
+    from mitosheet.mito_widget import MitoWidget
+    MitoWidgetType = MitoWidget
     from mitosheet.state import State
     StateType = State
 else:
     StepsManagerType = Any
+    MitoWidgetType = Any
     StateType = Any
 
 IndexType = Union[str, int, bool, float]
@@ -63,3 +67,32 @@ ConditionalFormattingResult = Dict[str, Union[
     ]
 ]
 
+PivotColumnTransformation = str
+
+
+
+import sys
+if sys.version_info[:3] > (3, 8, 0):
+    from typing import TypedDict
+
+    class ColumnIDWithFilter(TypedDict):
+        column_id: ColumnID
+        filter: Dict[str, Any]
+
+    class ColumnHeaderWithFilter(TypedDict):
+        column_header: ColumnHeader
+        filter: Dict[str, Any]
+
+    class ColumnIDWithPivotTransform(TypedDict):
+        column_id: ColumnID
+        transformation: PivotColumnTransformation
+
+    class ColumnHeaderWithPivotTransform(TypedDict):
+        column_header: ColumnHeader
+        transformation: PivotColumnTransformation
+
+else:
+    ColumnIDWithFilter = Any # type:ignore
+    ColumnHeaderWithFilter = Any # type:ignore
+    ColumnIDWithPivotTransform = Any # type:ignore
+    ColumnHeaderWithPivotTransform = Any # type:ignore

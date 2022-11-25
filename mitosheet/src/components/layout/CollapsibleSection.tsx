@@ -41,7 +41,7 @@ const CollapsibleSection = (props: CollapsibleSectionProps): JSX.Element => {
     if (open) {
         return (
             <div
-                className='mito-collapsible-section' 
+                className='mito-blue-container' 
             >
                 <Row justify='space-between' align='center' onClick={() => {setOpen(false)}}>
                     <Col>
@@ -62,7 +62,7 @@ const CollapsibleSection = (props: CollapsibleSectionProps): JSX.Element => {
     } else {
         return (
             <div 
-                className='mito-collapsible-section'
+                className='mito-blue-container'
                 onClick={() => {setOpen(true)}}
             >
                 <Row justify='space-between' align='center'>

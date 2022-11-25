@@ -1,21 +1,21 @@
 // Copyright (c) Mito
 
 import React, { Fragment } from 'react';
-import { ColumnID, ColumnIDsMap, GraphParamsFrontend, RecursivePartial, SheetData, UIState } from '../../../types';
 import MitoAPI from '../../../jupyter/api';
-import Row from '../../layout/Row';
-import Col from '../../layout/Col';
-import Select from '../../elements/Select';
-import DropdownItem from '../../elements/DropdownItem';
-import AxisSection, { GraphAxisType } from './AxisSection';
-import Toggle from '../../elements/Toggle';
-import { getColorDropdownItems, getDefaultGraphParams, getDefaultSafetyFilter, getGraphTypeFullName } from './graphUtils';
+import { ColumnID, ColumnIDsMap, GraphParamsFrontend, RecursivePartial, SheetData, UIState } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
-import Tooltip from '../../elements/Tooltip';
-import DataframeSelect from '../../elements/DataframeSelect';
-import CollapsibleSection from '../../layout/CollapsibleSection';
-import Input from '../../elements/Input';
 import { updateObjectWithPartialObject } from '../../../utils/objects';
+import DataframeSelect from '../../elements/DataframeSelect';
+import DropdownItem from '../../elements/DropdownItem';
+import Input from '../../elements/Input';
+import LabelAndTooltip from '../../elements/LabelAndTooltip';
+import Select from '../../elements/Select';
+import Toggle from '../../elements/Toggle';
+import Col from '../../layout/Col';
+import CollapsibleSection from '../../layout/CollapsibleSection';
+import Row from '../../layout/Row';
+import AxisSection, { GraphAxisType } from './AxisSection';
+import { getColorDropdownItems, getDefaultGraphParams, getDefaultSafetyFilter, getGraphTypeFullName } from './graphUtils';
 
 export enum GraphType {
     BAR = 'bar',
@@ -37,7 +37,7 @@ export const GRAPH_SAFETY_FILTER_CUTOFF = 1000;
 
 // Tooltips used to explain the Safety filter toggle
 const SAFETY_FILTER_DISABLED_MESSAGE = `Because you’re graphing less than ${GRAPH_SAFETY_FILTER_CUTOFF} rows of data, you can safely graph your data without applying a filter first.`
-const SAFETY_FILTER_ENABLED_MESSAGE = `Turning on Filter to Safe Size only graphs the first ${GRAPH_SAFETY_FILTER_CUTOFF} rows of your dataframe, ensuring that your browser tab won’t crash. Turning off Filter to Safe Size graphs the entire dataframe and may slow or crash your browser tab.`
+const SAFETY_FILTER_ENABLED_MESSAGE = `Turning on Limit ${GRAPH_SAFETY_FILTER_CUTOFF} rows only graphs the first ${GRAPH_SAFETY_FILTER_CUTOFF} rows of your dataframe, ensuring that your browser tab won’t crash. Turning it off graphs the entire dataframe and may slow or crash your browser tab.`
 
 const GRAPHS_THAT_DONT_SUPPORT_COLOR = [GraphType.DENSITY_HEATMAP]
 
@@ -190,7 +190,7 @@ function GraphSetupTab(
         props.setGraphUpdatedNumber(old => old + 1)
     }
 
-    const colorByColumnTitle = GRAPHS_THAT_DONT_SUPPORT_COLOR.includes(props.graphParams.graphCreation.graph_type)
+    const colorByColumnTooltip = GRAPHS_THAT_DONT_SUPPORT_COLOR.includes(props.graphParams.graphCreation.graph_type)
         ? `${props.graphParams.graphCreation.graph_type} does not support further breaking down data using color.`
         : 'Use an additional column to further breakdown the data by color.';
 
@@ -286,16 +286,13 @@ function GraphSetupTab(
                     <Row 
                         justify='space-between' 
                         align='center' 
-                        title={colorByColumnTitle}
+                        title={colorByColumnTooltip}
                         suppressTopBottomMargin
                     >
                         <Col>
-                            <Row justify='space-between' align='center' suppressTopBottomMargin>
-                                <div className='text-header-3'>
-                                    Color By Column &nbsp;
-                                </div>
-                                <Tooltip title={colorByColumnTitle}/>
-                            </Row>
+                            <LabelAndTooltip tooltip={colorByColumnTooltip}>
+                                Color By Column
+                            </LabelAndTooltip>
                         </Col>
                         <Col>
                             <Select 
@@ -314,12 +311,9 @@ function GraphSetupTab(
                     align='center'
                     title={getDefaultSafetyFilter(props.sheetDataArray, graphSheetIndex) ? SAFETY_FILTER_ENABLED_MESSAGE : SAFETY_FILTER_DISABLED_MESSAGE}>
                     <Col>
-                        <Row justify='space-between' align='center' suppressTopBottomMargin> 
-                            <p className='text-header-3' >
-                                Filter to safe size &nbsp;
-                            </p>
-                            <Tooltip title={getDefaultSafetyFilter(props.sheetDataArray, graphSheetIndex) ? SAFETY_FILTER_ENABLED_MESSAGE : SAFETY_FILTER_DISABLED_MESSAGE}/>
-                        </Row>
+                        <LabelAndTooltip tooltip={getDefaultSafetyFilter(props.sheetDataArray, graphSheetIndex) ? SAFETY_FILTER_ENABLED_MESSAGE : SAFETY_FILTER_DISABLED_MESSAGE}>
+                            {`Limit ${GRAPH_SAFETY_FILTER_CUTOFF} rows`}
+                        </LabelAndTooltip>
                     </Col>
                     <Col>
                         <Toggle
@@ -355,12 +349,9 @@ function GraphSetupTab(
                         {GRAPHS_THAT_HAVE_BARMODE.includes(props.graphParams.graphCreation.graph_type) && 
                             <Row justify='space-between' align='center' title='How bars are grouped together when there are multiple'>
                                 <Col>
-                                    <Row justify='space-between' align='center' suppressTopBottomMargin>
-                                        <p>
-                                            Bar mode
-                                        </p>
-                                        <Tooltip title='How bars are grouped together when there are multiple'/>
-                                    </Row>
+                                    <LabelAndTooltip tooltip='How bars are grouped together when there are multiple' textBody>
+                                        Bar mode
+                                    </LabelAndTooltip>
                                 </Col>
                                 <Select
                                     value={props.graphParams.graphStyling.barmode || 'group'}
@@ -389,12 +380,9 @@ function GraphSetupTab(
                         {GRAPHS_THAT_HAVE_BARNORM.includes(props.graphParams.graphCreation.graph_type) && 
                             <Row justify='space-between' align='center' title="Normalize strategy used for each group of bars at a specific location on the graph's domain">
                                 <Col>
-                                    <Row justify='space-between' align='center' suppressTopBottomMargin>
-                                        <p>
-                                            Bar normalization
-                                        </p>
-                                        <Tooltip title="Normalize strategy used for each group of bars at a specific location on the graph's domain"/>
-                                    </Row>
+                                    <LabelAndTooltip tooltip="Normalize strategy used for each group of bars at a specific location on the graph's domain" textBody>
+                                        Bar normalization
+                                    </LabelAndTooltip>
                                 </Col>
                                 <Select
                                     value={props.graphParams.graphStyling.barnorm || 'none'}
@@ -425,12 +413,9 @@ function GraphSetupTab(
                         {GRAPHS_THAT_HAVE_HISTNORM.includes(props.graphParams.graphCreation.graph_type) && 
                             <Row justify='space-between' align='center' title='Normalization strategy used for each graphed series in the histogram'>
                                 <Col>
-                                    <Row justify='space-between' align='center' suppressTopBottomMargin>
-                                        <p>
-                                            Hist normalization
-                                        </p>
-                                        <Tooltip title='Normalization strategy used for each graphed series in the histogram'/>
-                                    </Row>
+                                    <LabelAndTooltip tooltip='Normalization strategy used for each graphed series in the histogram' textBody>
+                                        Hist normalization
+                                    </LabelAndTooltip>
                                 </Col>
                                 <Select
                                     value={props.graphParams.graphCreation.histnorm || 'none'}
@@ -469,12 +454,9 @@ function GraphSetupTab(
                         {GRAPHS_THAT_HAVE_HISTFUNC.includes(props.graphParams.graphCreation.graph_type) && 
                             <Row justify='space-between' align='center' title='The metric displayed for each bin of data'>
                                 <Col>
-                                    <Row justify='space-between' align='center' suppressTopBottomMargin>
-                                        <p>
-                                            Hist function
-                                        </p>
-                                        <Tooltip title='The metric displayed for each bin of data'/>
-                                    </Row>
+                                    <LabelAndTooltip tooltip='The metric displayed for each bin of data' textBody>
+                                        Hist Function
+                                    </LabelAndTooltip>
                                 </Col>
                                 <Select
                                     value={props.graphParams.graphCreation.histfunc || 'count'}
@@ -597,12 +579,9 @@ function GraphSetupTab(
                             title={"Create subplots based on this attribute"}
                         >
                             <Col>
-                                <Row justify='space-between' align='center' suppressTopBottomMargin>
-                                    <p>
-                                        Facet Column &nbsp;
-                                    </p>
-                                    <Tooltip title={"Create subplots based on this attribute"}/>
-                                </Row>
+                                <LabelAndTooltip tooltip="Create subplots based on this attribute" textBody>
+                                    Facet Column
+                                </LabelAndTooltip>
                             </Col>
                             <Col>
                                 <Select 
@@ -641,12 +620,9 @@ function GraphSetupTab(
                             title={"Create subplots based on this attribute"}
                         >
                             <Col>
-                                <Row justify='space-between' align='center' suppressTopBottomMargin>
-                                    <p>
-                                        Facet Row &nbsp;
-                                    </p>
-                                    <Tooltip title={"Create subplots based on this attribute"}/>
-                                </Row>
+                                <LabelAndTooltip tooltip="Create subplots based on this attribute" textBody>
+                                    Facet row
+                                </LabelAndTooltip>
                             </Col>
                             <Col>
                                 <Select 

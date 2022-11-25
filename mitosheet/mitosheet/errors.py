@@ -155,7 +155,7 @@ def make_columns_exists_error(column_headers: Iterable[ColumnHeader]) -> MitoErr
         f'{(", ").join(map(str, column_headers))} alread exist. Try renaming these columns!'
     )
 
-def make_invalid_formula_error(formula: str, to_fix: str=None, error_modal: bool=True) -> MitoError:
+def make_invalid_formula_error(formula: str, to_fix: Optional[str]=None, error_modal: bool=True) -> MitoError:
     """
     Helper function for creating a invalid_formula_error.
 
@@ -498,7 +498,7 @@ def make_invalid_simple_import_error(error_modal: bool=False) -> MitoError:
 
     Occurs when a user tries to simple import and it fails
     """
-    to_fix = f'We were unable to automatically determine a delimiter and encoding. Update import to select a delimiter and encoding.' 
+    to_fix = f'We were unable to automatically determine the import configurations, like delimiter and encoding. Update the import configuration.' 
     
     return MitoError(
         'invalid_simple_import_error', 

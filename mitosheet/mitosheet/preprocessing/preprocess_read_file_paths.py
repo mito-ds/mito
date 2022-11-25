@@ -13,7 +13,7 @@ from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.preprocessing.preprocess_step_performer import \
     PreprocessStepPerformer
 from mitosheet.step_performers.import_steps.simple_import import (
-    get_valid_dataframe_names, read_csv_get_delimeter_and_encoding)
+    get_valid_dataframe_names, read_csv_get_delimiter_and_encoding)
 from mitosheet.types import StepsManagerType
 
 
@@ -46,7 +46,7 @@ class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
                 # If it is a string, we try and read it in as a dataframe
                 try:
                     # We use the simple import 
-                    df, delimeter, encoding = read_csv_get_delimeter_and_encoding(arg)
+                    df, delimeter, encoding = read_csv_get_delimiter_and_encoding(arg)
 
                     df_args.append(
                         df
@@ -67,7 +67,7 @@ class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
                 
         return df_args, {
             'delimeters': delimeters,
-            'encodings': encodings
+            'encodings': encodings,
         }
 
     @classmethod
@@ -98,7 +98,7 @@ class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
                 num_strs += 1
 
                 read_csv_code = generate_read_csv_code(
-                    arg, df_name, delimeters[arg_index], encodings[arg_index], True
+                    arg, df_name, delimeters[arg_index], encodings[arg_index], None, None, None
                 )
 
                 code.append(

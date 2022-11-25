@@ -10,8 +10,7 @@ import { TaskpaneType } from '../taskpanes';
 import ControlPanelTaskpaneTabs from './ControlPanelTaskpaneTabs';
 import DtypeCard from './FilterAndSortTab/DtypeCard';
 import FilterCard from './FilterAndSortTab/filter/FilterCard';
-import { isFilterGroup } from './FilterAndSortTab/filter/filterTypes';
-import { isValidFilter, parseFilter } from './FilterAndSortTab/filter/utils';
+import { getFiltersToApply } from './FilterAndSortTab/filter/filterUtils';
 import SortCard from './FilterAndSortTab/SortCard';
 import ColumnSummaryGraph from './SummaryStatsTab/ColumnSummaryGraph';
 import ColumnSummaryStatistics from './SummaryStatsTab/ColumnSummaryStatistics';
@@ -116,39 +115,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
 
         // To handle decimals, we allow decimals to be submitted, and then just
         // parse them before they are sent to the back-end
-        const parsedFilters: (FilterType | FilterGroupType)[] = filters.map((filterOrGroup): FilterType | FilterGroupType => {
-            if (isFilterGroup(filterOrGroup)) {
-                return {
-                    filters: filterOrGroup.filters.map((filter) => {
-                        return parseFilter(filter);
-                    }),
-                    operator: filterOrGroup.operator
-                }
-            } else {
-                return parseFilter(filterOrGroup)
-            }
-        })
-
-        const filtersToApply: (FilterType | FilterGroupType)[] = parsedFilters.map((filterOrGroup): FilterType | FilterGroupType => {
-            // Filter out these incomplete filters from the group
-            if (isFilterGroup(filterOrGroup)) {
-                return {
-                    filters: filterOrGroup.filters.filter((filter) => {
-                        return isValidFilter(filter, columnDtype)
-                    }),
-                    operator: filterOrGroup.operator
-                }
-            } else {
-                return filterOrGroup
-            }
-        }).filter((filterOrGroup) => {
-            // Filter out the groups if they have no valid filters in them
-            if (isFilterGroup(filterOrGroup)) {
-                return filterOrGroup.filters.length > 0;
-            }
-            // And then we filter the non group filters to be non-empty
-            return isValidFilter(filterOrGroup, columnDtype)
-        });
+        const filtersToApply = getFiltersToApply(filters, columnDtype)
 
         // If we're applying 0 filters, and we currently have 0 filters, then
         // we aren't actually doing anything, so we don't need to send a message

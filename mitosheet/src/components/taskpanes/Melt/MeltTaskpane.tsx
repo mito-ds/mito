@@ -7,7 +7,6 @@ import { getDtypeValue } from "../ControlPanel/FilterAndSortTab/DtypeCard";
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders";
 import { addIfAbsent, removeIfPresent } from "../../../utils/arrays";
 import Row from '../../layout/Row';
-import Col from '../../layout/Col';
 import MultiToggleItem from '../../elements/MultiToggleItem';
 import MultiToggleBox from '../../elements/MultiToggleBox';
 
@@ -16,7 +15,7 @@ import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 import Spacer from "../../layout/Spacer";
-import Tooltip from "../../elements/Tooltip";
+import LabelAndTooltip from "../../elements/LabelAndTooltip";
 import DataframeSelect from "../../elements/DataframeSelect";
 
 
@@ -119,14 +118,9 @@ const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
                     }}
                 />
                 <Row justify='start' align='center' title='Column to use as identifier variables.'>
-                    <Col>
-                        <p className='text-header-3'>
-                            ID Variables
-                        </p>
-                    </Col>
-                    <Col offset={.5}>
-                        <Tooltip title={"Column to use as identifier variables. These columns will be present in the unpivoted dataframe."}/>
-                    </Col>
+                    <LabelAndTooltip tooltip="Column to use as identifier variables. These columns will be present in the unpivoted dataframe.">
+                        ID Variables
+                    </LabelAndTooltip>
                 </Row>
                 <MultiToggleBox
                     searchable
@@ -156,14 +150,9 @@ const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
                 </MultiToggleBox>
                 <Spacer px={10}/>
                 <Row justify='start' align='center' title='Columns to unpivot.'>
-                    <Col>
-                        <p className='text-header-3'>
-                            Values
-                        </p>
-                    </Col>
-                    <Col offset={.5}>
-                        <Tooltip title={"Column to unpivot. Each column header will go in the variables column, and the column values will go in the values column."}/>
-                    </Col>
+                    <LabelAndTooltip tooltip="Column to unpivot. Each column header will go in the variables column, and the column values will go in the values column.">
+                        Values
+                    </LabelAndTooltip>
                 </Row>
                 <MultiToggleBox
                     searchable

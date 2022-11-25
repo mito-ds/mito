@@ -1,20 +1,20 @@
 import React, { useState } from "react";
-import MitoAPI from "../../../jupyter/api";
 import useLiveUpdatingParams from "../../../hooks/useLiveUpdatingParams";
-import { AnalysisData, ColumnHeader, ConcatParams, SheetData, StepType, UIState } from "../../../types"
+import MitoAPI from "../../../jupyter/api";
+import { AnalysisData, ColumnHeader, ConcatParams, SheetData, StepType, UIState } from "../../../types";
+import { getFirstCharactersOfColumnHeaders } from "../../../utils/columnHeaders";
 import DropdownButton from "../../elements/DropdownButton";
 import DropdownItem from "../../elements/DropdownItem";
+import LabelAndTooltip from "../../elements/LabelAndTooltip";
 import Select from "../../elements/Select";
 import SelectAndXIconCard from "../../elements/SelectAndXIconCard";
 import Toggle from "../../elements/Toggle";
-import Tooltip from "../../elements/Tooltip";
 import Col from "../../layout/Col";
 import Row from "../../layout/Row";
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
-import { getFirstCharactersOfColumnHeaders } from "../../../utils/columnHeaders";
 
 
 
@@ -158,13 +158,9 @@ const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
                 </Row>
                 <Row justify='space-between' align='center'>
                     <Col>
-                        <Row align='center' suppressTopBottomMargin>
-                            <p className='text-header-3'>
-                                Ignore Existing Indexes &nbsp;
-                            </p>
-                            <Tooltip title={"When on, the resulting dataframe will have indexes 0, 1, 2, etc.. This is useful if you're concatenating objects that don't have meaningful index information."}/>
-                        </Row>
-                        
+                        <LabelAndTooltip tooltip="When on, the resulting dataframe will have indexes 0, 1, 2, etc.. This is useful if you're concatenating objects that don't have meaningful index information.">
+                            Ignore Existing Indexes
+                        </LabelAndTooltip>
                     </Col>
                     <Col>
                         <Toggle 
