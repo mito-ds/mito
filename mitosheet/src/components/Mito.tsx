@@ -71,8 +71,7 @@ import Tour from './tour/Tour';
 import { TourName } from './tour/Tours';
 
 export type MitoProps = {
-    send: (msg: Record<string, unknown>) => void,
-    registerReceiveHandler: (handler: (msg: Record<string, unknown>) => void) => void
+    comm_target_id: string,
     sheetDataArray: SheetData[],
     analysisData: AnalysisData,
     userProfile: UserProfile,
@@ -117,11 +116,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const [currPathParts, setCurrPathParts] = useState<string[]>(['.']);
 
     // Create the Mito API
-    const mitoAPI = useMitoAPI(
-        props.send, 
-        props.registerReceiveHandler, 
-        setSheetDataArray, setAnalysisData, setUserProfile, setUIState
-    )
+    const mitoAPI = useMitoAPI(props.comm_target_id, setSheetDataArray, setAnalysisData, setUserProfile, setUIState)
 
     useEffect(() => {
         // We log that the mitosheet has rendered explicitly, so that we can
