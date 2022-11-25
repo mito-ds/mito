@@ -305,7 +305,7 @@ def _execute_pivot(
     unused_columns = df.columns.difference(set(pivot_rows).union(set(pivot_columns)).union(set(values_keys)))
     # NOTE: We need to make a copy, so that we can set columns on a full dataframe rather than
     # just a view of a different dataframe. This is just a shallow copy
-    df = df.drop(unused_columns, axis=1).copy() 
+    df = df.drop(unused_columns, axis=1).copy()
 
     # Then, we create the new columns that are a function of the transforms that are passed
     # with the pivot params

@@ -5,69 +5,17 @@
 // only our package.json, we can change what packages we import, without 
 // having to change what we import in code. This allows us to support 
 // jlab2 and jlab3
-import { IJupyterWidgetRegistry } from '@jupyter-widgets/base';
-import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
-import { Application, IPlugin } from 'application';
-import { Widget } from "@lumino/widgets";
-import MitoAPI from './jupyter/api';
-import { getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell } from './jupyter/lab/pluginUtils';
-import { containsGeneratedCodeOfAnalysis, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine } from './utils/code';
-import { MODULE_NAME, MODULE_VERSION } from './version';
-import * as widgetExports from './jupyter/widget';
-import { mitoJLabIcon } from './components/icons/JLabIcon/MitoIcon';
-
 import {
-    ToolbarButton,
-} from '@jupyterlab/apputils';
+    JupyterFrontEnd,
+    JupyterFrontEndPlugin
+} from '@jupyterlab/application';
+import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
+import MitoAPI from './jupyter/api';
+import {
+    getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell
+} from './jupyter/lab/extensionUtils';
+import { containsGeneratedCodeOfAnalysis, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine } from './utils/code';
 
-
-const EXTENSION_ID = 'mitosheet:plugin';
-
-const addButton = (tracker: INotebookTracker) => {
-
-    // We try and add the button every 3 seconds for 20 seconds, in case
-    // the panel takes a while to load
-    let buttonLoaded = false;
-
-    for (let i = 0; i < 20; i += 3) {
-        setTimeout(() => {
-            if (buttonLoaded) {
-                return 
-            }
-
-            const button = new ToolbarButton({
-                className: 'toolbar-mito-button-class',
-                icon: mitoJLabIcon,
-                onClick: (): void => {
-                    window.commands?.execute('create-empty-mitosheet');
-                },
-                tooltip: 'Create a blank Mitosheet below the active code cell',
-                label: 'Create New Mitosheet',
-            });
-
-            const panel = tracker.currentWidget;
-
-            if (panel && !buttonLoaded) {
-                panel.toolbar.insertAfter('cellType', 'Create Mito Button', button);
-                buttonLoaded = true;
-            } 
-        }, i * 1000)
-    }
-}
-
-/**
- * The example plugin.
- */
-const mitosheetJupyterLabPlugin: IPlugin<Application<Widget>, void> = ({
-    id: EXTENSION_ID,
-    requires: [IJupyterWidgetRegistry, INotebookTracker],
-    activate: activateWidgetExtension,
-    autoStart: true,
-} as unknown) as IPlugin<Application<Widget>, void>;
-// The "as unknown as ..." typecast above is solely to support JupyterLab 1
-// and 2 in the same codebase and should be removed when we migrate to Lumino.
-
-export default mitosheetJupyterLabPlugin;
 
 /**
  * Activate the widget extension.
@@ -75,14 +23,10 @@ export default mitosheetJupyterLabPlugin;
  * This gets executed when Jupyter Lab turns activates the Mito extension, which 
  * happens when the Jupyter Lab server is started. 
  */
-function activateWidgetExtension(
-    app: Application<Widget>,
-    registry: IJupyterWidgetRegistry,
+function activateMitosheetExtension(
+    app: JupyterFrontEnd,
     tracker: INotebookTracker
 ): void {
-
-    // Add the Create New Mitosheet button
-    addButton(tracker);
 
     app.commands.addCommand('create-mitosheet-comm', {
         label: 'Create Comm',
@@ -96,7 +40,6 @@ function activateWidgetExtension(
             return comm;
         }
     })
-
 
     app.commands.addCommand('write-analysis-to-replay-to-mitosheet-call', {
         label: 'Given an analysisName, writes it to the mitosheet.sheet() call that created this mitosheet, if it is not already written to this cell.',
@@ -369,9 +312,13 @@ function activateWidgetExtension(
     });
 
     window.commands = app.commands; // So we can write to it elsewhere
-    registry.registerWidget({
-        name: MODULE_NAME,
-        version: MODULE_VERSION,
-        exports: widgetExports,
-    });
 }
+
+const mitosheetJupyterLabPlugin: JupyterFrontEndPlugin<void> = {
+    id: 'mitosheet:plugin',
+    requires: [INotebookTracker],
+    activate: activateMitosheetExtension,
+    autoStart: true,
+};
+
+export default mitosheetJupyterLabPlugin;

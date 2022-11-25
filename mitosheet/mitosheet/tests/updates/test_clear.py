@@ -83,7 +83,7 @@ def test_clear_keeps_simple_imports_then_resets():
 
 
     mito.undo()
-    assert mito.mito_widget.steps_manager.curr_step.step_type == 'add_column'
+    assert mito.mito_backend.steps_manager.curr_step.step_type == 'add_column'
     assert mito.dfs[0].equals(pd.DataFrame({
         'A': [1, 2, 3],
         'B': [0, 0, 0],

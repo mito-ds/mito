@@ -16,11 +16,10 @@
  */
 
 
-import { WidgetModel } from "@jupyter-widgets/base"
 import { convertBackendtoFrontendGraphParams } from "../components/taskpanes/Graph/graphUtils"
 import { AnalysisData, GraphDataBackend, GraphDataDict, GraphParamsBackend, SheetData, UserProfile } from "../types"
 import MitoAPI from "./api"
-import { notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteGeneratedCodeToCell } from "./notebook/pluginUtils"
+import { notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteGeneratedCodeToCell } from "./notebook/extensionUtils"
 
 
 /**
@@ -103,18 +102,10 @@ export const getArgs = (analysisToReplayName: string | undefined): Promise<strin
 
 
 
-export const getSheetDataArray = (model: WidgetModel): SheetData[] => {
-    const unparsed = model.get('sheet_data_json')
-    return getSheetDataArrayFromString(unparsed);
-}
 export const getSheetDataArrayFromString = (sheet_data_json: string): SheetData[] => {
     return JSON.parse(sheet_data_json);
 }
 
-export const getUserProfile = (model: WidgetModel): UserProfile => {
-    const unparsed = model.get('user_profile_json')
-    return getUserProfileFromString(unparsed);
-}
 export const getUserProfileFromString = (user_profile_json: string): UserProfile => {
     const userProfile = JSON.parse(user_profile_json)
     if (userProfile['usageTriggeredFeedbackID'] == '') {
@@ -122,12 +113,6 @@ export const getUserProfileFromString = (user_profile_json: string): UserProfile
     }
     return userProfile;
 }
-
-export const getAnalysisData = (model: WidgetModel): AnalysisData =>  {
-    const unparsed = model.get('analysis_data_json');
-    return getAnalysisDataFromString(unparsed);
-}
-
 export const getAnalysisDataFromString = (analysis_data_json: string): AnalysisData =>  {
     const parsed = JSON.parse(analysis_data_json)
 

@@ -160,13 +160,13 @@ def test_twice_sort(df, ascending, descending):
     mito1.sort(0, 'A', SORT_DIRECTION_ASCENDING)
     mito1.sort(0, 'A', SORT_DIRECTION_DESCENDING)
 
-    assert mito1.mito_widget.steps_manager.dfs[0].equals(descending)
+    assert mito1.mito_backend.steps_manager.dfs[0].equals(descending)
 
     # sort descending then ascending
     mito2 = create_mito_wrapper_dfs(df)
     mito2.sort(0, 'A', SORT_DIRECTION_DESCENDING)
     mito2.sort(0, 'A', SORT_DIRECTION_ASCENDING)
-    assert mito2.mito_widget.steps_manager.dfs[0].equals(ascending)
+    assert mito2.mito_backend.steps_manager.dfs[0].equals(ascending)
 
 def test_transpile_sort_ascending_valid():
     df1 = pd.DataFrame(data={'A': [1, 2, 3, 4, 5]})

@@ -9,68 +9,53 @@ Main file containing the mito widget.
 """
 import json
 import os
-from sysconfig import get_python_version
 import time
+from sysconfig import get_python_version
 from typing import Any, Dict, List, Optional, Union
-from IPython import get_ipython
-from ipykernel.comm import Comm
-
 
 import pandas as pd
-import traitlets as t
-from ipywidgets import DOMWidget
+from ipykernel.comm import Comm
+from IPython import get_ipython
+from IPython.display import HTML, DisplayHandle, display
 
-from mitosheet.utils import get_new_id
-from mitosheet._frontend import module_name, module_version
 from mitosheet.api import API
 from mitosheet.data_in_mito import DataTypeInMito
+from mitosheet.enterprise.mito_config import MitoConfig
 from mitosheet.errors import (MitoError, get_recent_traceback,
                               make_execution_error)
-from mitosheet.enterprise.mito_config import MitoConfig
 from mitosheet.saved_analyses import write_analysis
 from mitosheet.steps_manager import StepsManager
-from mitosheet.telemetry.telemetry_utils import (MITOSHEET_HELPER_PRIVATE, log, log_event_processed,
+from mitosheet.telemetry.telemetry_utils import (log, log_event_processed,
                                                  telemetry_turned_on)
 from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
 from mitosheet.user import is_local_deployment, should_upgrade_mitosheet
 from mitosheet.user.create import try_create_user_json_file
 from mitosheet.user.db import USER_JSON_PATH, get_user_field
 from mitosheet.user.location import is_in_google_colab, is_in_vs_code
-from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES, UJ_RECEIVED_CHECKLISTS,
-                                    UJ_RECEIVED_TOURS, UJ_USER_EMAIL)
+from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES,
+                                    UJ_RECEIVED_CHECKLISTS, UJ_RECEIVED_TOURS,
+                                    UJ_USER_EMAIL)
 from mitosheet.user.utils import get_pandas_version, is_pro, is_running_test
+from mitosheet.utils import get_new_id
 
 
-class MitoWidget(DOMWidget):
+class MitoBackend():
     """
         The MitoWidget holds all of the backend state for the Mito extension, and syncs
         the state with the frontend widget. 
     """
-    _model_name = t.Unicode('ExampleModel').tag(sync=True) # type: ignore
-    _model_module = t.Unicode(module_name).tag(sync=True) # type: ignore
-    _model_module_version = t.Unicode(module_version).tag(sync=True) # type: ignore
-    _view_name = t.Unicode('ExampleView').tag(sync=True) # type: ignore
-    _view_module = t.Unicode(module_name).tag(sync=True) # type: ignore
-    _view_module_version = t.Unicode(module_version).tag(sync=True) # type: ignore
-
     mito_comm: Optional[Comm] = None
-    comm_target_id = t.Unicode('').tag(sync=True) # type: ignore
-    sheet_data_json = t.Unicode('').tag(sync=True) # type: ignore
-    analysis_data_json = t.Unicode('').tag(sync=True) # type: ignore
-    user_profile_json = t.Unicode('').tag(sync=True) # type: ignore
     
-    def __init__(self, *args: List[Union[pd.DataFrame, str]], comm_target_id: str='', analysis_to_replay: Optional[str]=None):
+    def __init__(self, *args: List[Union[pd.DataFrame, str]], analysis_to_replay: Optional[str]=None):
         """
         Takes a list of dataframes and strings that are paths to CSV files
         passed through *args.
         """
         # Call the DOMWidget constructor to set up the widget properly
-        super(MitoWidget, self).__init__()
+        super(MitoBackend, self).__init__()
             
         # Set up the state container to hold private widget state
         self.steps_manager = StepsManager(args, analysis_to_replay=analysis_to_replay)
-
-        self.comm_target_id = comm_target_id
 
         self.mito_config = MitoConfig() # type: ignore
 
@@ -137,22 +122,25 @@ class MitoWidget(DOMWidget):
         return {
             'sheet_data_json': self.steps_manager.sheet_data_json,
             'analysis_data_json': self.steps_manager.analysis_data_json,
-            'user_profile_json': json.dumps({
-                # Dynamic, update each time
-                'userEmail': get_user_field(UJ_USER_EMAIL),
-                'receivedTours': get_user_field(UJ_RECEIVED_TOURS),
-                'receivedChecklists': get_user_field(UJ_RECEIVED_CHECKLISTS),
-                'isPro': is_pro(),
-                'telemetryEnabled': telemetry_turned_on(),
-                # Static over a single analysis
-                'pythonVersion': get_python_version(),
-                'pandasVersion': get_pandas_version(),
-                'isLocalDeployment': self.is_local_deployment,
-                'shouldUpgradeMitosheet': self.should_upgrade_mitosheet,
-                'numUsages': self.num_usages,
-                'mitoConfig': self.mito_config.get_mito_config()
-            })
+            'user_profile_json': self.get_user_profile_json()
         }
+
+    def get_user_profile_json(self) -> str:
+        return json.dumps({
+            # Dynamic, update each time
+            'userEmail': get_user_field(UJ_USER_EMAIL),
+            'receivedTours': get_user_field(UJ_RECEIVED_TOURS),
+            'receivedChecklists': get_user_field(UJ_RECEIVED_CHECKLISTS),
+            'isPro': is_pro(),
+            'telemetryEnabled': telemetry_turned_on(),
+            # Static over a single analysis
+            'pythonVersion': get_python_version(),
+            'pandasVersion': get_pandas_version(),
+            'isLocalDeployment': self.is_local_deployment,
+            'shouldUpgradeMitosheet': self.should_upgrade_mitosheet,
+            'numUsages': self.num_usages,
+            'mitoConfig': self.mito_config.get_mito_config()
+        })
 
 
     def handle_edit_event(self, event: Dict[str, Any]) -> None:
@@ -306,13 +294,46 @@ class MitoWidget(DOMWidget):
 
         return False
 
+with open(os.path.normpath(os.path.join(__file__, '..', 'out.js'))) as f:
+    js_code_from_file = f.read()
+with open(os.path.normpath(os.path.join(__file__, '..', 'out.css'))) as f:
+    css_code_from_file = f.read()
+
+
+def get_mito_backend(
+        *args: Any,
+        comm_target_id: str='',
+        analysis_to_replay: Optional[str]=None, # This is the parameter that tracks the analysis that you want to replay (NOTE: requires a frontend to be replayed!)
+    ) -> MitoBackend:
+
+    # We pass in the dataframes directly to the widget
+    mito_backend = MitoBackend(*args, analysis_to_replay=analysis_to_replay) 
+
+    # We create a callback that runs when the comm is actually created on the frontend
+    def on_comm_creation(comm: Comm, open_msg: Dict[str, Any]) -> None:
+        @comm.on_msg
+        def _recv(msg):
+            # Register handler for any incoming messages
+            mito_backend.receive_message(mito_backend, msg['content']['data'])
+        
+        # Save the comm in the mito widget, so we can use this .send function
+        mito_backend.mito_comm = comm
+
+    # Register the comm target - so the callback gets called
+    ipython = get_ipython()
+    if ipython:
+        ipython.kernel.comm_manager.register_target(comm_target_id, on_comm_creation)
+
+    return mito_backend
+
+
 def sheet(
         *args: Any,
         analysis_to_replay: Optional[str]=None, # This is the parameter that tracks the analysis that you want to replay (NOTE: requires a frontend to be replayed!)
         view_df: bool=False, # We use this param to log if the mitosheet.sheet call is created from the df output button,
         # NOTE: if you add named variables to this function, make sure argument parsing on the front-end still
         # works by updating the getArgsFromCellContent function.
-    ) -> MitoWidget:
+    ) -> Union[DisplayHandle, None]:
     """
     Renders a Mito sheet. If no arguments are passed, renders an empty sheet. Otherwise, renders
     any dataframes that are passed. Errors if any given arguments are not dataframes or paths to
@@ -349,27 +370,11 @@ def sheet(
         # a different channel to communicate over
         comm_target_id = get_new_id()
 
-        # We pass in the dataframes directly to the widget
-        widget = MitoWidget(*args, comm_target_id=comm_target_id, analysis_to_replay=analysis_to_replay) 
-
-        # We create a callback that runs when the comm is actually created on the frontend
-        def on_comm_creation(comm: Comm, open_msg: Dict[str, Any]) -> None:
-            @comm.on_msg
-            def _recv(msg):
-                # Register handler for any incoming messages
-                widget.receive_message(widget, msg['content']['data'])
-            
-            # Save the comm in the mito widget, so we can use this .send function
-            widget.mito_comm = comm
-
-        # Register the comm target - so the callback gets called
-        ipython = get_ipython()
-        if ipython:
-            ipython.kernel.comm_manager.register_target(comm_target_id, on_comm_creation)
+        mito_backend = get_mito_backend(*args, comm_target_id=comm_target_id, analysis_to_replay=analysis_to_replay)
 
         # Log they have personal data in the tool if they passed a dataframe
         # that is not tutorial data or sample data from import docs
-        if widget.steps_manager.data_type_in_mito == DataTypeInMito.PERSONAL:
+        if mito_backend.steps_manager.data_type_in_mito == DataTypeInMito.PERSONAL:
             log('used_personal_data') 
 
     except:
@@ -377,13 +382,12 @@ def sheet(
         raise
 
 
-
     # Then, we log that the call was successful, along with all of it's params
     log(
         'mitosheet_sheet_call',
         {
             # NOTE: analysis name is the UUID that mito saves the analysis under
-            'steps_manager_analysis_name': widget.steps_manager.analysis_name,
+            'steps_manager_analysis_name': mito_backend.steps_manager.analysis_name,
             'num_args': len(args),
             'num_str_args': len([arg for arg in args if isinstance(arg, str)]),
             'num_df_args': len([arg for arg in args if isinstance(arg, pd.DataFrame)]),
@@ -392,4 +396,17 @@ def sheet(
         }
     )
 
-    return widget
+    div_id = get_new_id()
+
+    js_code = js_code_from_file.replace('REPLACE_THIS_WITH_ID', div_id)
+    js_code = js_code.replace('REPLACE_THIS_WITH_COMM_TARGET_ID', comm_target_id)
+    js_code = js_code.replace('REPLACE_THIS_WITH_SHEET_DATA_ARRAY', mito_backend.steps_manager.sheet_data_json)
+    js_code = js_code.replace('REPLACE_THIS_WITH_ANALYSIS_DATA', mito_backend.steps_manager.analysis_data_json)
+    js_code = js_code.replace('REPLACE_THIS_WITH_USER_PROFILE', mito_backend.get_user_profile_json())
+    js_code = js_code.replace('REPLACE_THIS_WITH_CSS', css_code_from_file)
+
+    return display(HTML(f"""<div id={div_id} class="mito-container-container">
+        <script>
+            {js_code}
+        </script>
+    </div>"""))

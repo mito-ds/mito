@@ -66,7 +66,7 @@ def test_type_errors(formula, error):
     if error is not None:
         with pytest.raises(MitoError) as e:
             # We call the event handler directly, so we can catch the error
-            mito.mito_widget.steps_manager.handle_edit_event({
+            mito.mito_backend.steps_manager.handle_edit_event({
                 'event': 'edit_event',
                 'type': 'set_column_formula_edit',
                 'step_id': get_new_id(),

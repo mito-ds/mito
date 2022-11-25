@@ -16,7 +16,7 @@ from mitosheet.step_performers.graph_steps.plotly_express_graphs import DO_NOT_C
 from numpy import number
 
 import pandas as pd
-from mitosheet.mito_widget import MitoWidget, sheet
+from mitosheet.mito_backend import MitoBackend, get_mito_backend
 from mitosheet.parser import parse_formula
 from mitosheet.step_performers.pivot import PCT_NO_OP
 from mitosheet.transpiler.transpile import transpile
@@ -48,15 +48,15 @@ def check_dataframes_equal(test_wrapper):
     original_dfs = {
         df_name: df.copy(deep=True) for df, df_name in 
         zip(
-            test_wrapper.mito_widget.steps_manager.original_args,
-            test_wrapper.mito_widget.steps_manager.steps_including_skipped[0].df_names
+            test_wrapper.mito_backend.steps_manager.original_args,
+            test_wrapper.mito_backend.steps_manager.steps_including_skipped[0].df_names
         )
     }
     final_dfs = {
         df_name: df.copy(deep=True) for df, df_name in 
         zip(
-            test_wrapper.mito_widget.steps_manager.curr_step.dfs,
-            test_wrapper.mito_widget.steps_manager.curr_step.df_names
+            test_wrapper.mito_backend.steps_manager.curr_step.dfs,
+            test_wrapper.mito_backend.steps_manager.curr_step.df_names
         )
     }
 
@@ -69,7 +69,7 @@ def check_dataframes_equal(test_wrapper):
         test_wrapper.transpiled_code +
         [
             f'check_final_dataframe(\'{df_name}\', {df_name})'
-            for df_name in test_wrapper.mito_widget.steps_manager.curr_step.df_names
+            for df_name in test_wrapper.mito_backend.steps_manager.curr_step.df_names
         ]
     )
 
@@ -94,17 +94,17 @@ def check_dataframes_equal(test_wrapper):
 
     # We then check that the sheet data json that is saved by the widget, which 
     # notably uses caching, does not get incorrectly cached and is written correctly
-    assert test_wrapper.mito_widget.get_shared_state_variables()['sheet_data_json'] == json.dumps(dfs_to_array_for_json(
-        test_wrapper.mito_widget.steps_manager.curr_step.final_defined_state, 
-        set(i for i in range(len(test_wrapper.mito_widget.steps_manager.curr_step.dfs))),
+    assert test_wrapper.mito_backend.get_shared_state_variables()['sheet_data_json'] == json.dumps(dfs_to_array_for_json(
+        test_wrapper.mito_backend.steps_manager.curr_step.final_defined_state, 
+        set(i for i in range(len(test_wrapper.mito_backend.steps_manager.curr_step.dfs))),
         [],
-        test_wrapper.mito_widget.steps_manager.curr_step.dfs,
-        test_wrapper.mito_widget.steps_manager.curr_step.df_names,
-        test_wrapper.mito_widget.steps_manager.curr_step.df_sources,
-        test_wrapper.mito_widget.steps_manager.curr_step.column_spreadsheet_code,
-        test_wrapper.mito_widget.steps_manager.curr_step.column_filters,
-        test_wrapper.mito_widget.steps_manager.curr_step.column_ids,
-        test_wrapper.mito_widget.steps_manager.curr_step.df_formats
+        test_wrapper.mito_backend.steps_manager.curr_step.dfs,
+        test_wrapper.mito_backend.steps_manager.curr_step.df_names,
+        test_wrapper.mito_backend.steps_manager.curr_step.df_sources,
+        test_wrapper.mito_backend.steps_manager.curr_step.column_spreadsheet_code,
+        test_wrapper.mito_backend.steps_manager.curr_step.column_filters,
+        test_wrapper.mito_backend.steps_manager.curr_step.column_ids,
+        test_wrapper.mito_backend.steps_manager.curr_step.df_formats
     ), cls=NpEncoder)
 
 
@@ -117,48 +117,48 @@ class MitoWidgetTestWrapper:
     set formulas, and get values to check the result.
     """
 
-    def __init__(self, mito_widget: MitoWidget):
-        self.mito_widget = mito_widget
+    def __init__(self, mito_backend: MitoBackend):
+        self.mito_backend = mito_backend
 
     @property
     def transpiled_code(self):
         # NOTE: we don't add comments to this testing functionality, so that 
         # we don't have to change tests if we update comments
-        return transpile(self.mito_widget.steps_manager, add_comments=False)
+        return transpile(self.mito_backend.steps_manager, add_comments=False)
     
     @property
     def optimized_code_chunks(self):
         # NOTE: we don't add comments to this testing functionality, so that 
         # we don't have to change tests if we update comments
-        return get_code_chunks(self.mito_widget.steps_manager.steps_including_skipped, optimize=True)
+        return get_code_chunks(self.mito_backend.steps_manager.steps_including_skipped, optimize=True)
 
     @property
     def curr_step_idx(self):
-        return self.mito_widget.steps_manager.curr_step_idx
+        return self.mito_backend.steps_manager.curr_step_idx
     
     @property
     def steps_including_skipped(self):
-        return self.mito_widget.steps_manager.steps_including_skipped
+        return self.mito_backend.steps_manager.steps_including_skipped
 
     @property
     def curr_step(self):
-        return self.mito_widget.steps_manager.curr_step
+        return self.mito_backend.steps_manager.curr_step
     
     @property
     def dfs(self):
-        return self.mito_widget.steps_manager.dfs
+        return self.mito_backend.steps_manager.dfs
 
     @property
     def df_names(self):
-        return self.mito_widget.steps_manager.curr_step.df_names
+        return self.mito_backend.steps_manager.curr_step.df_names
 
     @property
     def df_formats(self):
-        return self.mito_widget.steps_manager.curr_step.df_formats
+        return self.mito_backend.steps_manager.curr_step.df_formats
 
     @property
     def column_format_types(self):
-        return self.mito_widget.steps_manager.curr_step.column_format_types
+        return self.mito_backend.steps_manager.curr_step.column_format_types
 
     @check_transpiled_code_after_call
     def add_column(self, sheet_index: int, column_header: str, column_header_index: int=-1) -> bool:
@@ -166,7 +166,7 @@ class MitoWidgetTestWrapper:
         Adds a column.
         """
 
-        return self.mito_widget.receive_message(self.mito_widget, {
+        return self.mito_backend.receive_message(self.mito_backend, {
             'event': 'edit_event',
             'id': get_new_id(),
             'type': 'add_column_edit',
@@ -193,13 +193,13 @@ class MitoWidgetTestWrapper:
         if add_column:
             self.add_column(sheet_index, column_header)
 
-        column_id = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
+        column_id = self.mito_backend.steps_manager.curr_step.column_ids.get_column_id_by_header(
             sheet_index,
             column_header
         )
 
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -225,21 +225,21 @@ class MitoWidgetTestWrapper:
         ) -> bool:
 
         merge_key_column_ids = list(map(lambda x: [
-            self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index_one, x[0]),
-            self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index_two, x[1]),
+            self.mito_backend.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index_one, x[0]),
+            self.mito_backend.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index_two, x[1]),
         ], merge_key_columns))
 
         selected_column_ids_one = [
-            self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index_one, column_header)
+            self.mito_backend.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index_one, column_header)
             for column_header in selected_columns_one
         ]
         selected_column_ids_two = [
-            self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index_two, column_header)
+            self.mito_backend.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index_two, column_header)
             for column_header in selected_columns_two
         ]
 
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -264,8 +264,8 @@ class MitoWidgetTestWrapper:
             sheet_indexes: int
         ) -> bool:
 
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -288,12 +288,12 @@ class MitoWidgetTestWrapper:
         ) -> bool:
 
         column_ids = [
-            self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index, column_header)
+            self.mito_backend.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index, column_header)
             for column_header in column_headers
         ]
 
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -315,8 +315,8 @@ class MitoWidgetTestWrapper:
             labels: List[Union[int, str]],
         ) -> bool:        
 
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -338,8 +338,8 @@ class MitoWidgetTestWrapper:
         ) -> bool:
         
 
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -362,8 +362,8 @@ class MitoWidgetTestWrapper:
 
         
 
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -386,16 +386,16 @@ class MitoWidgetTestWrapper:
         ) -> bool:
 
         id_var_column_ids = [
-            self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index, column_header)
+            self.mito_backend.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index, column_header)
             for column_header in id_var_column_headers
         ]
         value_var_column_ids = [
-            self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index, column_header)
+            self.mito_backend.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index, column_header)
             for column_header in value_var_column_headers
         ]
 
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -418,14 +418,14 @@ class MitoWidgetTestWrapper:
             column_header: ColumnHeader,
         ) -> bool:
 
-        column_id =self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
+        column_id =self.mito_backend.steps_manager.curr_step.column_ids.get_column_id_by_header(
             sheet_index,
             column_header
         )
 
 
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -449,8 +449,8 @@ class MitoWidgetTestWrapper:
 
         
 
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -474,8 +474,8 @@ class MitoWidgetTestWrapper:
         ) -> bool:
 
         
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -498,10 +498,10 @@ class MitoWidgetTestWrapper:
             new_column_header_suffix: str
         ) -> bool:
 
-        column_id = self.mito_widget.steps_manager.curr_step.get_column_id_by_header(sheet_index, column_header)
+        column_id = self.mito_backend.steps_manager.curr_step.get_column_id_by_header(sheet_index, column_header)
 
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -525,12 +525,12 @@ class MitoWidgetTestWrapper:
         ) -> bool:
 
         column_ids = [
-            self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index, column_header)
+            self.mito_backend.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index, column_header)
             for column_header in column_headers
         ]
 
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -560,7 +560,7 @@ class MitoWidgetTestWrapper:
             step_id: Optional[str]=None
         ) -> bool:
 
-        get_column_id_by_header = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header
+        get_column_id_by_header = self.mito_backend.steps_manager.curr_step.column_ids.get_column_id_by_header
 
         rows_ids_with_transforms: List[ColumnIDWithPivotTransform] = []
         if len(pivot_rows) > 0 and isinstance(pivot_rows[0], str):
@@ -597,8 +597,8 @@ class MitoWidgetTestWrapper:
             for pf in pivot_filters
         ] if pivot_filters is not None else []
 
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -626,13 +626,13 @@ class MitoWidgetTestWrapper:
             value: Any
         ) -> bool:
 
-        column_id = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
+        column_id = self.mito_backend.steps_manager.curr_step.column_ids.get_column_id_by_header(
             sheet_index,
             column_header
         )
 
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -660,13 +660,13 @@ class MitoWidgetTestWrapper:
             filters: List[Dict[str, Any]]
         ) -> bool:
 
-        column_id = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
+        column_id = self.mito_backend.steps_manager.curr_step.column_ids.get_column_id_by_header(
             sheet_index,
             column_header
         )
 
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -690,13 +690,13 @@ class MitoWidgetTestWrapper:
             step_id: Optional[str]=None
         ) -> bool:
 
-        column_id = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
+        column_id = self.mito_backend.steps_manager.curr_step.column_ids.get_column_id_by_header(
             sheet_index,
             column_header
         )
 
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -718,13 +718,13 @@ class MitoWidgetTestWrapper:
             new_column_index: int
         ) -> bool:
 
-        column_id = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
+        column_id = self.mito_backend.steps_manager.curr_step.column_ids.get_column_id_by_header(
             sheet_index,
             column_header
         )
 
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -741,13 +741,13 @@ class MitoWidgetTestWrapper:
     @check_transpiled_code_after_call
     def rename_column(self, sheet_index: int, old_column_header: ColumnHeader, new_column_header: ColumnHeader, level: Optional[int]=None) -> bool:
 
-        column_id = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
+        column_id = self.mito_backend.steps_manager.curr_step.column_ids.get_column_id_by_header(
             sheet_index,
             old_column_header
         )
 
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -764,13 +764,13 @@ class MitoWidgetTestWrapper:
 
     @check_transpiled_code_after_call
     def delete_columns(self, sheet_index: int, column_headers: List[ColumnHeader]) -> bool:
-        column_ids = [self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
+        column_ids = [self.mito_backend.steps_manager.curr_step.column_ids.get_column_id_by_header(
             sheet_index,
             column_header 
         ) for column_header in column_headers]
 
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -786,13 +786,13 @@ class MitoWidgetTestWrapper:
     @check_transpiled_code_after_call
     def change_column_dtype(self, sheet_index: int, column_headers: List[ColumnHeader], new_dtype: str) -> bool:
 
-        column_ids = self.mito_widget.steps_manager.curr_step.column_ids.get_column_ids_by_headers(
+        column_ids = self.mito_backend.steps_manager.curr_step.column_ids.get_column_ids_by_headers(
             sheet_index,
             column_headers
         )
 
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -816,8 +816,8 @@ class MitoWidgetTestWrapper:
         skiprows: Optional[List[int]]=None,
         error_bad_lines: Optional[List[bool]]=None
     ) -> bool:
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -836,8 +836,8 @@ class MitoWidgetTestWrapper:
 
     @check_transpiled_code_after_call
     def excel_import(self, file_name: str, sheet_names: List[str], has_headers: bool, skiprows: int, decimal: Optional[str]=None) -> bool:
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -855,8 +855,8 @@ class MitoWidgetTestWrapper:
 
     @check_transpiled_code_after_call
     def bulk_old_rename(self, move_to_deprecated_id_algorithm: bool=False) -> bool:
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -870,8 +870,8 @@ class MitoWidgetTestWrapper:
 
     @check_transpiled_code_after_call
     def undo(self) -> bool:
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'update_event',
                 'id': get_new_id(),
@@ -882,8 +882,8 @@ class MitoWidgetTestWrapper:
 
     @check_transpiled_code_after_call
     def redo(self) -> bool:
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'update_event',
                 'id': get_new_id(),
@@ -894,8 +894,8 @@ class MitoWidgetTestWrapper:
 
     @check_transpiled_code_after_call
     def clear(self) -> bool:
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'update_event',
                 'id': get_new_id(),
@@ -906,8 +906,8 @@ class MitoWidgetTestWrapper:
     
 
     def save_analysis(self, analysis_name: str) -> bool:
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'update_event',
                 'id': get_new_id(),
@@ -921,8 +921,8 @@ class MitoWidgetTestWrapper:
 
     @check_transpiled_code_after_call
     def delete_dataframe(self, sheet_index: int) -> bool:
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -936,8 +936,8 @@ class MitoWidgetTestWrapper:
 
     @check_transpiled_code_after_call
     def duplicate_dataframe(self, sheet_index: int) -> bool:
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -951,8 +951,8 @@ class MitoWidgetTestWrapper:
 
     @check_transpiled_code_after_call
     def rename_dataframe(self, sheet_index: int, new_dataframe_name: str) -> bool:
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -967,13 +967,13 @@ class MitoWidgetTestWrapper:
 
     @check_transpiled_code_after_call
     def set_cell_value(self, sheet_index: int, column_header: ColumnHeader, row_index: int, new_value: Any) -> bool:
-        column_id = self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
+        column_id = self.mito_backend.steps_manager.curr_step.column_ids.get_column_id_by_header(
             sheet_index,
             column_header
         )
 
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -990,8 +990,8 @@ class MitoWidgetTestWrapper:
 
     @check_transpiled_code_after_call
     def replay_analysis(self, analysis_name: str, step_import_data_list_to_overwrite: Optional[List[Dict[str, Any]]]=None) -> bool:
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'update_event',
                 'id': get_new_id(),
@@ -1005,8 +1005,8 @@ class MitoWidgetTestWrapper:
 
     @check_transpiled_code_after_call
     def checkout_step_by_idx(self, index: int) -> bool:
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'update_event',
                 'id': get_new_id(),
@@ -1019,8 +1019,8 @@ class MitoWidgetTestWrapper:
     
     @check_transpiled_code_after_call
     def checklist_update(self, checklist_id: str, completed_items: List[str], clear_other_items: bool) -> bool:
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'update_event',
                 'id': get_new_id(),
@@ -1170,8 +1170,8 @@ class MitoWidgetTestWrapper:
         if nbins is not None:
             params['graph_creation']['nbins'] = nbins
 
-        return self.mito_widget.receive_message(
-            self.mito_widget, 
+        return self.mito_backend.receive_message(
+            self.mito_backend, 
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -1182,8 +1182,8 @@ class MitoWidgetTestWrapper:
         )
 
     def delete_graph(self, graph_id: GraphID) -> bool:
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -1196,8 +1196,8 @@ class MitoWidgetTestWrapper:
         )
 
     def duplicate_graph(self, old_graph_id: GraphID, new_graph_id: GraphID) -> bool:
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -1212,8 +1212,8 @@ class MitoWidgetTestWrapper:
 
 
     def rename_graph(self, graph_id: GraphID, new_graph_tab_name: str) -> bool:
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -1227,8 +1227,8 @@ class MitoWidgetTestWrapper:
         )
 
     def update_existing_imports(self, updated_import_objs: List[Dict[str, Any]]) -> bool:
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
+            self.mito_backend,
             {
                 'event': 'update_event',
                 'type': 'update_existing_import_update',
@@ -1244,22 +1244,22 @@ class MitoWidgetTestWrapper:
         Gets the formula for a given column. Returns an empty
         string if nothing exists.
         """
-        column_id = self.mito_widget.steps_manager.curr_step.get_column_id_by_header(
+        column_id = self.mito_backend.steps_manager.curr_step.get_column_id_by_header(
             sheet_index, column_header
         )
-        if column_id not in self.mito_widget.steps_manager.curr_step.column_spreadsheet_code[sheet_index]:
+        if column_id not in self.mito_backend.steps_manager.curr_step.column_spreadsheet_code[sheet_index]:
             return ''
-        return self.mito_widget.steps_manager.curr_step.column_spreadsheet_code[sheet_index][column_id]
+        return self.mito_backend.steps_manager.curr_step.column_spreadsheet_code[sheet_index][column_id]
 
     def get_python_formula(self, sheet_index: int, column_header: ColumnHeader) -> str:
         """
         Gets the formula for a given column. Returns an empty
         string if nothing exists.
         """
-        column_id = self.mito_widget.steps_manager.curr_step.get_column_id_by_header(
+        column_id = self.mito_backend.steps_manager.curr_step.get_column_id_by_header(
             sheet_index, column_header
         )
-        if column_id not in self.mito_widget.steps_manager.curr_step.column_spreadsheet_code[sheet_index]:
+        if column_id not in self.mito_backend.steps_manager.curr_step.column_spreadsheet_code[sheet_index]:
             return ''
 
         column_headers = self.curr_step.post_state.dfs[sheet_index].keys()
@@ -1280,7 +1280,7 @@ class MitoWidgetTestWrapper:
 
         Errors if the value does not exist
         """
-        return self.mito_widget.steps_manager.curr_step.dfs[sheet_index].at[row - 1, column_header]
+        return self.mito_backend.steps_manager.curr_step.dfs[sheet_index].at[row - 1, column_header]
 
     def get_column(self, sheet_index: int, column_header: ColumnHeader, as_list: bool) -> Union[pd.Series, List]:
         """
@@ -1290,15 +1290,15 @@ class MitoWidgetTestWrapper:
         Errors if the column does not exist. 
         """
         if as_list:
-            return self.mito_widget.steps_manager.dfs[sheet_index][column_header].tolist()
-        return self.mito_widget.steps_manager.dfs[sheet_index][column_header]
+            return self.mito_backend.steps_manager.dfs[sheet_index][column_header].tolist()
+        return self.mito_backend.steps_manager.dfs[sheet_index][column_header]
 
     def get_graph_data(self, graph_id: str) -> Dict[str, Dict[str, Any]]: 
         """
         Returns the graph_data object 
         """
-        if graph_id in self.mito_widget.steps_manager.curr_step.final_defined_state.graph_data_dict.keys():
-            return self.mito_widget.steps_manager.curr_step.final_defined_state.graph_data_dict[graph_id]
+        if graph_id in self.mito_backend.steps_manager.curr_step.final_defined_state.graph_data_dict.keys():
+            return self.mito_backend.steps_manager.curr_step.final_defined_state.graph_data_dict[graph_id]
         else:
             return {}
 
@@ -1404,7 +1404,7 @@ class MitoWidgetTestWrapper:
         """
         Returns the DataframeFormat object for a specific sheet
         """
-        return self.mito_widget.steps_manager.curr_step.final_defined_state.df_formats[sheet_index]
+        return self.mito_backend.steps_manager.curr_step.final_defined_state.df_formats[sheet_index]
         
 
 def create_mito_wrapper(sheet_one_A_data: List[Any], sheet_two_A_data: Optional[List[Any]]=None) -> MitoWidgetTestWrapper:
@@ -1420,16 +1420,16 @@ def create_mito_wrapper(sheet_one_A_data: List[Any], sheet_two_A_data: Optional[
     if sheet_two_A_data is not None:
         dfs.append(pd.DataFrame(data={'A': sheet_two_A_data}))
 
-    mito_widget = sheet(*dfs)
-    return MitoWidgetTestWrapper(mito_widget)
+    mito_backend = get_mito_backend(*dfs)
+    return MitoWidgetTestWrapper(mito_backend)
 
 def create_mito_wrapper_dfs(*args: pd.DataFrame) -> MitoWidgetTestWrapper:
     """
     Creates a MitoWidgetTestWrapper with a mito instance with the given
     data frames.
     """
-    mito_widget = sheet(*args)
-    return MitoWidgetTestWrapper(mito_widget)
+    mito_backend = get_mito_backend(*args)
+    return MitoWidgetTestWrapper(mito_backend)
 
 def make_multi_index_header_df(data: Dict[Union[str, int], List[Any]], column_headers: List[ColumnHeader], index: Optional[List[Any]]=None) -> pd.DataFrame:
     """

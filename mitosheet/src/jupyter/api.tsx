@@ -163,6 +163,10 @@ type CommComtainer = {
     'comm': NotebookComm
 }
 
+declare global {
+    interface Window { commands: any }
+}
+
 // Creates a comm that is open and ready to send messages on, and
 // returns it with a label so we know what sort of comm it is
 export const getCommContainer = async (comm_target_id: string): Promise<CommComtainer | undefined> => {
@@ -174,6 +178,7 @@ export const getCommContainer = async (comm_target_id: string): Promise<CommComt
         };
     } else if (isInJupyterLab()) {
         const comm: LabComm = await window.commands?.execute('create-mitosheet-comm', {comm_target_id: comm_target_id});
+        console.log("Made comm", comm)
         return {
             'type': 'lab',
             'comm': comm

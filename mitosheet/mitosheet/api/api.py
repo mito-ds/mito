@@ -55,20 +55,20 @@ class API:
         See here: https://stackoverflow.com/questions/18234469/python-multithreaded-print-statements-delayed-until-all-threads-complete-executi
     """
 
-    def __init__(self, steps_manager: StepsManager, mito_widget: MitoWidgetType):
+    def __init__(self, steps_manager: StepsManager, mito_backend: MitoWidgetType):
         self.api_queue: Queue = Queue(MAX_QUEUED_API_CALLS)
         # Note that we make the thread a daemon thread, which practically means that when
         # The process that starts this thread terminate, our API will terminate as well.
         self.thread = Thread(
             target=handle_api_event_thread,
-            args=(self.api_queue, steps_manager, mito_widget),
+            args=(self.api_queue, steps_manager, mito_backend),
             daemon=True,
         )
         self.thread.start()
 
         # Save some variables for ease
         self.steps_manager = steps_manager
-        self.mito_widget = mito_widget
+        self.mito_backend = mito_backend
 
     def process_new_api_call(self, event: Dict[str, Any]) -> None:
         """
@@ -87,15 +87,15 @@ class API:
                 # If the queue is full, we drop the first event, and just return a None
                 lost_event = self.api_queue.get()
 
-                self.mito_widget.mito_send({"event": "api_response", "id": lost_event["id"], "data": None})
+                self.mito_backend.mito_send({"event": "api_response", "id": lost_event["id"], "data": None})
 
             self.api_queue.put(event)
         else:
-            handle_api_event(self.mito_widget.mito_send, event, self.steps_manager)
+            handle_api_event(self.mito_backend.mito_send, event, self.steps_manager)
 
 
 def handle_api_event_thread(
-    queue: Queue, steps_manager: StepsManager, mito_widget: MitoWidgetType
+    queue: Queue, steps_manager: StepsManager, mito_backend: MitoWidgetType
 ) -> NoReturn:
     """
     This is the worker thread function, that actually is
@@ -113,7 +113,7 @@ def handle_api_event_thread(
         # because otherwise if an error is thrown, then the entire thread crashes,
         # and then the API never works again
         try:
-            handle_api_event(mito_widget.mito_send, event, steps_manager)
+            handle_api_event(mito_backend.mito_send, event, steps_manager)
         except:
             # Log in error if it occurs
             log_event_processed(event, steps_manager, failed=True)
