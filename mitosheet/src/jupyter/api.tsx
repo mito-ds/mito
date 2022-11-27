@@ -13,7 +13,7 @@ import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToCol
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
 import { AnalysisData, BackendPivotParams, DataframeFormat, SheetData, UIState, UserProfile } from "../types";
 import { ColumnID, FeedbackID, FilterGroupType, FilterType, GraphID, MitoError, GraphParamsFrontend } from "../types";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString, isInJupyterLab, isInJupyterNotebook } from "./jupyterUtils";
 import { ModalEnum } from "../components/modals/modals";
 
@@ -89,7 +89,7 @@ interface MitoErrorModalResponse {
 type MitoResponse = MitoSuccessOrInplaceErrorResponse | MitoErrorModalResponse
 
 export const useMitoAPI = (
-    comm_target_id: string,
+    commContainer: CommContainer | undefined,
     setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>,
     setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>,
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile>>,
@@ -99,6 +99,7 @@ export const useMitoAPI = (
     const [mitoAPI] = useState<MitoAPI>(
         () => {
             return new MitoAPI(
+                commContainer,
                 setSheetDataArray,
                 setAnalysisData,
                 setUserProfile,
@@ -106,29 +107,6 @@ export const useMitoAPI = (
             )
         }
     )
-
-    useEffect(() => {
-        /**
-         * From the render() function of the widget, through the above useState state call, 
-         * there is no where we can do an async call to get the commContainer.
-         * 
-         * As such, for now, while we're inside of the widget logic, we have to do this init
-         * of the API comms seperate from the actual construction of the API in the lines above.
-         * 
-         * This leads to some grossness, where the API we might not have a ._send function that
-         * is defined. We'll be able to address this when we move out of the widget framework, and
-         * can move comm creation up to one of the first thing that happens before the Mitosheet
-         * is even rendered.
-         * 
-         */
-
-        const init = async () => {
-            const commContainer = await getCommContainer(comm_target_id)
-            void mitoAPI.init(commContainer);
-        }
-
-        void init()
-    }, [])
 
     return mitoAPI;
 }
@@ -155,7 +133,7 @@ interface NotebookComm {
     on_msg: (handler: (msg: Record<string, unknown>) => void) => void,
 }
 
-type CommComtainer = {
+export type CommContainer = {
     'type': 'lab',
     'comm': LabComm
 } | {
@@ -169,7 +147,7 @@ declare global {
 
 // Creates a comm that is open and ready to send messages on, and
 // returns it with a label so we know what sort of comm it is
-export const getCommContainer = async (comm_target_id: string): Promise<CommComtainer | undefined> => {
+export const getCommContainer = async (comm_target_id: string): Promise<CommContainer | undefined> => {
     if (isInJupyterNotebook()) {
         const comm: NotebookComm = (window as any).Jupyter?.notebook.kernel.comm_manager.new_comm(comm_target_id);
         return {
@@ -221,7 +199,7 @@ export const getCommContainer = async (comm_target_id: string): Promise<CommComt
 export default class MitoAPI {
     _send: ((msg: Record<string, unknown>) => void) | undefined;
     unconsumedResponses: MitoResponse[];
-    commContainer: CommComtainer;
+    commContainer: CommContainer | undefined;
     
     setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>
     setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>
@@ -229,6 +207,7 @@ export default class MitoAPI {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>
     
     constructor(
+        commContainer: CommContainer | undefined,
         setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>,
         setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>,
         setUserProfile: React.Dispatch<React.SetStateAction<UserProfile>>,
@@ -238,26 +217,11 @@ export default class MitoAPI {
         this.setAnalysisData = setAnalysisData; 
         this.setUserProfile = setUserProfile;
         this.setUIState = setUIState;
+        this.commContainer = commContainer;
+        this._send = commContainer?.comm.send;
         
         // Watch for any response
         this.unconsumedResponses = [];
-    }
-
-    // NOTE: see comment in useMitoAPI above. We will get rid of this function
-    // when we move away from the widget framework and have a better place to
-    // call async functions
-    async init(commContainer: CommComtainer | undefined): Promise<void> {
-        if (commContainer === undefined) {
-            // TODO: display an error here. Notably, 
-            return
-        }
-        this.commContainer = commContainer;
-        this._send = commContainer.comm.send;
-        if (commContainer.type === 'notebook') {
-            commContainer.comm.on_msg((msg) => this.receiveResponse(msg));
-        } else {
-            commContainer.comm.onMsg = (msg) => this.receiveResponse(msg);
-        }
     }
 
     /* 
@@ -280,17 +244,8 @@ export default class MitoAPI {
         // NOTE: we keep this here on purpose, so we can always monitor outgoing messages
         console.log("Sending", msg['type'])
 
-        // Send the message. 
-        // NOTE: see comment in useMitoAPI above. We will get rid of this wait if the comms don't
-        // yet exist, once we move away from the widget framework. For now, it might happen that 
-        // we send a message before the comm is created, but this timeout and wait should be
-        // enough to make this not a problem
-        if (this._send === undefined) {
-            console.log("Send not yet defined, waiting");
-            await new Promise(resolve => setTimeout(resolve, 5000));
-        } 
         // If we still haven't created the comm, then still return
-        if (this._send === undefined) {return;}
+        if (this.commContainer === undefined || this._send === undefined) {console.error(`Cannot send ${msg['type']}, as comm is not defined`); return}
 
         // We notably need to .call so that we can actually bind the comm.send function
         // to the correct `this`. We don't want `this` to be the MitoAPI object running 
