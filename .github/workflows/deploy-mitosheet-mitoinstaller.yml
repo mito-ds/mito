@@ -55,7 +55,7 @@ jobs:
           python ../deployment/deploy.py ${{ steps.extract_branch.outputs.branch }}
   deploy-mitosheet:
     name: Deploy mitosheet
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         python-version: [3.8]
