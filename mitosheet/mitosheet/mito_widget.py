@@ -349,6 +349,8 @@ def sheet(
         # a different channel to communicate over
         comm_target_id = get_new_id()
 
+        read_code_snippets()
+
         # We pass in the dataframes directly to the widget
         widget = MitoWidget(*args, comm_target_id=comm_target_id, analysis_to_replay=analysis_to_replay) 
 
@@ -393,3 +395,12 @@ def sheet(
     )
 
     return widget
+
+
+MITO_CONFIG_PATH_TO_CODE_SNIPPETS = '/Users/aarondiamond-reivich/Documents/saga/monorepo/mito-config/code-snippets/code-snippets.json'
+def read_code_snippets(): 
+    import json
+    f = open(MITO_CONFIG_PATH_TO_CODE_SNIPPETS)
+    code_snippets = json.load(f)
+    print(code_snippets)
+    f.close()
