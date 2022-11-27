@@ -23,7 +23,7 @@ import '../../css/sitewide/scroll.css';
 import '../../css/sitewide/text.css';
 import '../../css/sitewide/widths.css';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
-import { useMitoAPI } from '../jupyter/api';
+import { useMitoAPI, CommContainer } from '../jupyter/api';
 import { getArgs, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell } from '../jupyter/jupyterUtils';
 import ConditionalFormattingTaskpane from '../pro/taskpanes/ConditionalFormatting/ConditionalFormattingTaskpane';
 import SetDataframeFormatTaskpane from '../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane';
@@ -71,7 +71,7 @@ import Tour from './tour/Tour';
 import { TourName } from './tour/Tours';
 
 export type MitoProps = {
-    comm_target_id: string,
+    commContainer: CommContainer | undefined,
     sheetDataArray: SheetData[],
     analysisData: AnalysisData,
     userProfile: UserProfile,
@@ -89,12 +89,12 @@ export const Mito = (props: MitoProps): JSX.Element => {
     // Set reasonable default values for the UI state
     const [uiState, setUIState] = useState<UIState>({
         loading: [],
-        currOpenModal: userProfile.userEmail == '' && userProfile.telemetryEnabled // no signup if no logs
+        currOpenModal: props.commContainer !== undefined && userProfile.userEmail == '' && userProfile.telemetryEnabled // no signup if no logs
             ? {type: ModalEnum.SignUp} 
             : (userProfile.shouldUpgradeMitosheet 
                 ? {type: ModalEnum.Upgrade} : {type: ModalEnum.None}
             ),
-        currOpenTaskpane: {type: TaskpaneType.NONE},
+        currOpenTaskpane: {type: TaskpaneType.NONE}, // TODO: if the comm container is undefined, then open the invalid install taskpane
         selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
         selectedSheetIndex: 0,
         selectedGraphID: Object.keys(analysisData.graphDataDict || {}).length === 0 ? undefined : Object.keys(analysisData.graphDataDict)[0],
@@ -116,7 +116,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const [currPathParts, setCurrPathParts] = useState<string[]>(['.']);
 
     // Create the Mito API
-    const mitoAPI = useMitoAPI(props.comm_target_id, setSheetDataArray, setAnalysisData, setUserProfile, setUIState)
+    const mitoAPI = useMitoAPI(props.commContainer, setSheetDataArray, setAnalysisData, setUserProfile, setUIState)
 
     useEffect(() => {
         // We log that the mitosheet has rendered explicitly, so that we can

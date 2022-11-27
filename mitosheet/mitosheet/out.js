@@ -1077,7 +1077,7 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useRef(initialValue);
           }
-          function useEffect40(create, deps) {
+          function useEffect39(create, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useEffect(create, deps);
           }
@@ -1647,7 +1647,7 @@
           exports.useCallback = useCallback10;
           exports.useContext = useContext;
           exports.useDebugValue = useDebugValue;
-          exports.useEffect = useEffect40;
+          exports.useEffect = useEffect39;
           exports.useImperativeHandle = useImperativeHandle;
           exports.useLayoutEffect = useLayoutEffect;
           exports.useMemo = useMemo2;
@@ -4366,7 +4366,7 @@
             }
           }
           function setValueForStyles(node, styles) {
-            var style3 = node.style;
+            var style2 = node.style;
             for (var styleName in styles) {
               if (!styles.hasOwnProperty(styleName)) {
                 continue;
@@ -4382,9 +4382,9 @@
                 styleName = "cssFloat";
               }
               if (isCustomProperty) {
-                style3.setProperty(styleName, styleValue);
+                style2.setProperty(styleName, styleValue);
               } else {
-                style3[styleName] = styleValue;
+                style2[styleName] = styleValue;
               }
             }
           }
@@ -6138,9 +6138,9 @@
             transitionend: makePrefixMap("Transition", "TransitionEnd")
           };
           var prefixedEventNames = {};
-          var style2 = {};
+          var style = {};
           if (canUseDOM) {
-            style2 = document.createElement("div").style;
+            style = document.createElement("div").style;
             if (!("AnimationEvent" in window)) {
               delete vendorPrefixes.animationend.animation;
               delete vendorPrefixes.animationiteration.animation;
@@ -6158,7 +6158,7 @@
             }
             var prefixMap = vendorPrefixes[eventName];
             for (var styleProp in prefixMap) {
-              if (prefixMap.hasOwnProperty(styleProp) && styleProp in style2) {
+              if (prefixMap.hasOwnProperty(styleProp) && styleProp in style) {
                 return prefixedEventNames[eventName] = prefixMap[styleProp];
               }
             }
@@ -8624,10 +8624,10 @@
                 }
               }
               if (type === "script") {
-                var div2 = ownerDocument.createElement("div");
-                div2.innerHTML = "<script><\/script>";
-                var firstChild = div2.firstChild;
-                domElement = div2.removeChild(firstChild);
+                var div = ownerDocument.createElement("div");
+                div.innerHTML = "<script><\/script>";
+                var firstChild = div.firstChild;
+                domElement = div.removeChild(firstChild);
               } else if (typeof props.is === "string") {
                 domElement = ownerDocument.createElement(type, {
                   is: props.is
@@ -9577,11 +9577,11 @@
           }
           function hideInstance(instance) {
             instance = instance;
-            var style3 = instance.style;
-            if (typeof style3.setProperty === "function") {
-              style3.setProperty("display", "none", "important");
+            var style2 = instance.style;
+            if (typeof style2.setProperty === "function") {
+              style2.setProperty("display", "none", "important");
             } else {
-              style3.display = "none";
+              style2.display = "none";
             }
           }
           function hideTextInstance(textInstance) {
@@ -22904,10 +22904,11 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   var getRandomId = () => {
     return "_" + Math.random().toString(36).substr(2, 9);
   };
-  var useMitoAPI = (comm_target_id, setSheetDataArray, setAnalysisData, setUserProfile, setUIState) => {
+  var useMitoAPI = (commContainer, setSheetDataArray, setAnalysisData, setUserProfile, setUIState) => {
     const [mitoAPI] = (0, import_react25.useState)(
       () => {
         return new MitoAPI(
+          commContainer,
           setSheetDataArray,
           setAnalysisData,
           setUserProfile,
@@ -22915,13 +22916,6 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         );
       }
     );
-    (0, import_react25.useEffect)(() => {
-      const init = async () => {
-        const commContainer = await getCommContainer(comm_target_id);
-        void mitoAPI.init(commContainer);
-      };
-      void init();
-    }, []);
     return mitoAPI;
   };
   var getCommContainer = async (comm_target_id) => {
@@ -22943,34 +22937,21 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     return void 0;
   };
   var MitoAPI = class {
-    constructor(setSheetDataArray, setAnalysisData, setUserProfile, setUIState) {
+    constructor(commContainer, setSheetDataArray, setAnalysisData, setUserProfile, setUIState) {
       this.setSheetDataArray = setSheetDataArray;
       this.setAnalysisData = setAnalysisData;
       this.setUserProfile = setUserProfile;
       this.setUIState = setUIState;
-      this.unconsumedResponses = [];
-    }
-    async init(commContainer) {
-      if (commContainer === void 0) {
-        return;
-      }
       this.commContainer = commContainer;
-      this._send = commContainer.comm.send;
-      if (commContainer.type === "notebook") {
-        commContainer.comm.on_msg((msg) => this.receiveResponse(msg));
-      } else {
-        commContainer.comm.onMsg = (msg) => this.receiveResponse(msg);
-      }
+      this._send = commContainer == null ? void 0 : commContainer.comm.send;
+      this.unconsumedResponses = [];
     }
     async send(msg, { maxRetries = MAX_RETRIES, doNotWaitForReply = false }) {
       const id = getRandomId();
       msg["id"] = id;
       console.log("Sending", msg["type"]);
-      if (this._send === void 0) {
-        console.log("Send not yet defined, waiting");
-        await new Promise((resolve) => setTimeout(resolve, 5e3));
-      }
-      if (this._send === void 0) {
+      if (this.commContainer === void 0 || this._send === void 0) {
+        console.error(`Cannot send ${msg["type"]}, as comm is not defined`);
         return;
       }
       this._send.call(this.commContainer.comm, msg);
@@ -25852,11 +25833,11 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         "mito-grid-row-even": rowIndex % 2 === 0,
         "mito-grid-row-odd": rowIndex % 2 !== 0
       });
-      const style2 = rowIndex % 2 === 0 ? { backgroundColor: evenRowBackgroundColor, color: evenRowTextColor } : { backgroundColor: oddRowBackgroundColor, color: oddRowTextColor };
+      const style = rowIndex % 2 === 0 ? { backgroundColor: evenRowBackgroundColor, color: evenRowTextColor } : { backgroundColor: oddRowBackgroundColor, color: oddRowTextColor };
       return /* @__PURE__ */ import_react46.default.createElement("div", {
         className: rowClassNames,
         key: rowIndex,
-        style: style2
+        style
       }, Array(currentSheetView.numColumnsRendered).fill(0).map((_2, _colIndex) => {
         var _a2, _b2, _c2, _d2, _e2, _f2;
         const columnIndex = currentSheetView.startingColumnIndex + _colIndex;
@@ -40914,7 +40895,7 @@ fig.write_html("${props.graphTabName}.html")`
     const [gridState, setGridState] = (0, import_react208.useState)(() => getDefaultGridState(sheetDataArray2, 0));
     const [uiState, setUIState] = (0, import_react208.useState)({
       loading: [],
-      currOpenModal: userProfile2.userEmail == "" && userProfile2.telemetryEnabled ? { type: "SignUp" /* SignUp */ } : userProfile2.shouldUpgradeMitosheet ? { type: "Upgrade" /* Upgrade */ } : { type: "None" /* None */ },
+      currOpenModal: props.commContainer !== void 0 && userProfile2.userEmail == "" && userProfile2.telemetryEnabled ? { type: "SignUp" /* SignUp */ } : userProfile2.shouldUpgradeMitosheet ? { type: "Upgrade" /* Upgrade */ } : { type: "None" /* None */ },
       currOpenTaskpane: { type: "none" /* NONE */ },
       selectedColumnControlPanelTab: "filter_sort" /* FilterSort */,
       selectedSheetIndex: 0,
@@ -40931,7 +40912,7 @@ fig.write_html("${props.graphTabName}.html")`
     const [highlightPivotTableButton, setHighlightPivotTableButton] = (0, import_react208.useState)(false);
     const [highlightAddColButton, setHighlightAddColButton] = (0, import_react208.useState)(false);
     const [currPathParts, setCurrPathParts] = (0, import_react208.useState)(["."]);
-    const mitoAPI = useMitoAPI(props.comm_target_id, setSheetDataArray, setAnalysisData, setUserProfile, setUIState);
+    const mitoAPI = useMitoAPI(props.commContainer, setSheetDataArray, setAnalysisData, setUserProfile, setUIState);
     (0, import_react208.useEffect)(() => {
       void mitoAPI.log("mitosheet_rendered");
     }, []);
@@ -41462,19 +41443,23 @@ fig.write_html("${props.graphTabName}.html")`
   var commTargetID = "REPLACE_THIS_WITH_COMM_TARGET_ID";
   var divID = "REPLACE_THIS_WITH_ID";
   var css = `REPLACE_THIS_WITH_CSS`;
-  var style = document.createElement("style");
-  style.appendChild(document.createTextNode(css));
-  document.head.append(style);
-  var div = document.getElementById(divID);
-  import_react_dom2.default.render(
-    /* @__PURE__ */ React200.createElement(Mito_default, {
-      comm_target_id: commTargetID,
-      sheetDataArray,
-      analysisData,
-      userProfile
-    }),
-    div
-  );
+  var renderMito = async () => {
+    const style = document.createElement("style");
+    style.appendChild(document.createTextNode(css));
+    document.head.append(style);
+    const commContainer = await getCommContainer(commTargetID);
+    const div = document.getElementById(divID);
+    import_react_dom2.default.render(
+      /* @__PURE__ */ React200.createElement(Mito_default, {
+        commContainer,
+        sheetDataArray,
+        analysisData,
+        userProfile
+      }),
+      div
+    );
+  };
+  void renderMito();
 })();
 /*
 object-assign
