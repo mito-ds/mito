@@ -46,7 +46,7 @@ const CellEditor = (props: {
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
 }): JSX.Element => {
 
-    const cellEditorInputRef = useRef<HTMLInputElement | null>(null);
+    const cellEditorTextAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
     const [selectedSuggestionIndex, setSavedSelectedSuggestionIndex] = useState(-1);
     const [loading, setLoading] = useState(false);
@@ -55,15 +55,15 @@ const CellEditor = (props: {
     const {columnID, columnHeader} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
 
     // When we first render the cell editor input, make sure to save it and focus on it
-    const setRef = useCallback((unsavedInputAnchor: HTMLInputElement) => {
-        if (unsavedInputAnchor !== null) {
+    const setRef = useCallback((unsavedTextAreaAnchor: HTMLTextAreaElement) => {
+        if (unsavedTextAreaAnchor !== null) {
             // Save this node, so that we can update 
-            cellEditorInputRef.current = unsavedInputAnchor;
+            cellEditorTextAreaRef.current = unsavedTextAreaAnchor;
 
             // Focus on the input after a tiny delay. I'm not sure why we need this delay, 
             // it is only requred when the cell editor is in the grid, not in the formula bar.
             setTimeout(() => {
-                cellEditorInputRef.current?.focus()
+                cellEditorTextAreaRef.current?.focus()
             }, 50);
         }
     },[]);
@@ -82,13 +82,13 @@ const CellEditor = (props: {
     useEffect(() => {
         setTimeout(() => {
             // Focus the input
-            cellEditorInputRef.current?.focus();
+            cellEditorTextAreaRef.current?.focus();
 
             // If there is a pendingSelectedColumns, then we set the selection to be 
             // at the _end_ of them!
             if (props.editorState.pendingSelectedColumns !== undefined) {
                 const index = props.editorState.pendingSelectedColumns.selectionStart + props.editorState.pendingSelectedColumns.columnHeaders.map(ch => getDisplayColumnHeader(ch)).join(', ').length;
-                cellEditorInputRef.current?.setSelectionRange(
+                cellEditorTextAreaRef.current?.setSelectionRange(
                     index, index
                 )
             }
@@ -193,15 +193,15 @@ const CellEditor = (props: {
         })
 
         // Make sure we jump to the end of the input, as we took the suggestion
-        cellEditorInputRef.current?.setSelectionRange(
+        cellEditorTextAreaRef.current?.setSelectionRange(
             fullFormula.length, fullFormula.length
         )
     }
 
-    const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         // Don't let the key down go anywhere else
         e.stopPropagation();
-
+        
         // Keep the event around, so that we can use it in later callbacks
         // and pass it through to callbacks
         e.persist()
@@ -217,7 +217,7 @@ const CellEditor = (props: {
         const arrowKeysScrollInFormula = props.editorState.arrowKeysScrollInFormula === true;
 
         /* 
-            If the user presses a key in the input, there are a few cases that we need to handle. 
+            If the user presses a key in the text area, there are a few cases that we need to handle. 
 
             1.  The user presses a navigation key. In this case, we check if they are:
                 (A) navigating within the suggestion box 
@@ -231,6 +231,8 @@ const CellEditor = (props: {
                 after selecting some column headers, we take insert these headers into the formula.
         */
         if (isNavigationKeyPressed(e.key) && !altPressed) {
+            console.log(2)
+
             // If the user presses an up or down arrow, and there are suggested headers or functions,
             // then we scroll up and down
             const arrowUp = e.key === 'Up' || e.key === 'ArrowUp';
@@ -260,6 +262,8 @@ const CellEditor = (props: {
                 })
 
             } else if (e.key === 'Tab') {
+                console.log(3)
+
                 // (B) accepting a suggestion from the selection box. Note that this is also done
                 // in the onSubmit of the input form, as onKeyDown for an input does not detect
                 // the enter, for some reason...
@@ -272,6 +276,7 @@ const CellEditor = (props: {
 
             } else if (!arrowKeysScrollInFormula) {
                 // (C) navigating inside the sheet
+                console.log(4)
 
                 // Prevent the default, so arrow keys don't scroll in formula
                 e.preventDefault();
@@ -289,12 +294,12 @@ const CellEditor = (props: {
                     // exist, than take the selection range in the input currently
                     const newSelectionStart = firstNonNullOrUndefined(
                         props.editorState.pendingSelectedColumns?.selectionStart,
-                        cellEditorInputRef.current?.selectionStart,
+                        cellEditorTextAreaRef.current?.selectionStart,
                         0
                     )
                     const newSelectionEnd = firstNonNullOrUndefined(
                         props.editorState.pendingSelectedColumns?.selectionEnd,
-                        cellEditorInputRef.current?.selectionEnd,
+                        cellEditorTextAreaRef.current?.selectionEnd,
                         0
                     )
 
@@ -325,6 +330,8 @@ const CellEditor = (props: {
             // 2) Close if escape is pressed
             closeCellEditor()
         } else if (e.key !== 'Enter') {
+            console.log(5)
+
             // 3) Case where they press any non-navigation key, except Enter. 
             // We don't handle Enter because its handled by the onSubmit listener, 
             // and it can either be used to take a selectedSuggestion or submit the formula.
@@ -364,12 +371,18 @@ const CellEditor = (props: {
                 formula: fullFormula,
                 pendingSelectedColumns: undefined
             })
+        } else if (e.key === 'Enter') {
+            // Prevents the addition of a new line in the text field (not needed in a lot of cases)
+            e.preventDefault();
+            const cellEditorForm = document.getElementById('cell-editor-form-id')
+            cellEditorForm?.dispatchEvent(new Event("submit", {cancelable: false}));
+            return true
         }
     }
 
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-
+        console.log('in the on submit call')
         // Don't refresh the page
         e.preventDefault();
 
@@ -401,6 +414,7 @@ const CellEditor = (props: {
             submitRenameColumnHeader(columnHeader, finalColumnHeader, columnID, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI)
         } else {
             if (props.editorState.editingMode === 'set_column_formula') {
+                console.log("setting column formula")
                 // Change of formula
                 errorMessage = await props.mitoAPI.editSetColumnFormula(
                     props.sheetIndex,
@@ -439,11 +453,13 @@ const CellEditor = (props: {
         <div className='cell-editor'>
             <form
                 className='cell-editor-form'
+                id='cell-editor-form-id'
                 onSubmit={onSubmit}
                 autoComplete='off' // Turn off autocomplete so the html suggestion box doesn't cover Mito's suggestion box.
             >
-                <input
+                <textarea
                     ref={setRef}
+                    style={{resize: 'vertical', maxHeight: '300px'}}
                     id='cell-editor-input'
                     className='cell-editor-input'
                     onClick={() => {
@@ -458,6 +474,7 @@ const CellEditor = (props: {
                     value={getFullFormula(props.editorState.formula, columnHeader, props.editorState.pendingSelectedColumns)}
                     onKeyDown={onKeyDown}
                     onChange={(e) => {
+                        console.log('on change')
 
                         const CHARS_TO_REMOVE_SCROLL_IN_FORMULA = [
                             ' ',
@@ -486,7 +503,8 @@ const CellEditor = (props: {
                             arrowKeysScrollInFormula: arrowKeysScrollInFormula
                         })}
                     }
-                />
+                >
+                </textarea>
             </form>
             {/* 
                 In the dropdown box, we either show an error, a loading message, suggestions
@@ -560,7 +578,7 @@ const CellEditor = (props: {
                                         // Take a suggestion if you click on it
                                         takeSuggestion(idx);
                                         // Make sure we're focused
-                                        cellEditorInputRef.current?.focus();
+                                        cellEditorTextAreaRef.current?.focus();
                                     }}
                                     className={suggestionClassNames} 
                                     key={suggestion}
