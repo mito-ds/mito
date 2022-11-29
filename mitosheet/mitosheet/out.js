@@ -23018,6 +23018,11 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       this.setUIState = setUIState;
       this.commContainer = commContainer;
       this._send = commContainer == null ? void 0 : commContainer.comm.send;
+      if ((commContainer == null ? void 0 : commContainer.type) === "lab") {
+        commContainer.comm.onMsg = this.receiveResponse.bind(this);
+      } else if ((commContainer == null ? void 0 : commContainer.type) === "notebook") {
+        commContainer.comm.on_msg(this.receiveResponse.bind(this));
+      }
       this.unconsumedResponses = [];
     }
     async send(msg, { maxRetries = MAX_RETRIES, doNotWaitForReply = false }) {
@@ -23060,6 +23065,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       return response;
     }
     receiveResponse(rawResponse) {
+      console.log("GOT RESPONSE", rawResponse);
       const response = rawResponse.content.data;
       this.unconsumedResponses.push(response);
       if (response["event"] == "response") {

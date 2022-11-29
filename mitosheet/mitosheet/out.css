@@ -1379,13 +1379,12 @@ a.text-button {
 .jp-RenderedHTMLCommon > .mito-container-container {
   margin-right: -20px;
 }
-.jp-RenderedHTMLCommon > .mito-container > p {
+.jp-RenderedHTMLCommon .mito-container p {
   margin: initial;
-  text-align: initial;
+  text-align: center;
 }
-.jp-RenderedHTMLCommon > .mito-container > a:link a:visited {
-  color: initial;
-  text-decoration: initial;
+.jp-RenderedHTMLCommon .mito-container a:link,
+a:visited {
   color: initial;
   text-decoration: initial;
 }

@@ -166,7 +166,7 @@ class MitoWidgetTestWrapper:
         Adds a column.
         """
 
-        return self.mito_backend.receive_message(self.mito_backend, {
+        return self.mito_backend.receive_message({
             'event': 'edit_event',
             'id': get_new_id(),
             'type': 'add_column_edit',
@@ -199,7 +199,6 @@ class MitoWidgetTestWrapper:
         )
 
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -239,7 +238,6 @@ class MitoWidgetTestWrapper:
         ]
 
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -265,7 +263,6 @@ class MitoWidgetTestWrapper:
         ) -> bool:
 
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -293,7 +290,6 @@ class MitoWidgetTestWrapper:
         ]
 
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -316,7 +312,6 @@ class MitoWidgetTestWrapper:
         ) -> bool:        
 
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -339,7 +334,6 @@ class MitoWidgetTestWrapper:
         
 
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -363,7 +357,6 @@ class MitoWidgetTestWrapper:
         
 
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -395,7 +388,6 @@ class MitoWidgetTestWrapper:
         ]
 
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -425,7 +417,6 @@ class MitoWidgetTestWrapper:
 
 
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -450,7 +441,6 @@ class MitoWidgetTestWrapper:
         
 
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -475,7 +465,6 @@ class MitoWidgetTestWrapper:
 
         
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -501,7 +490,6 @@ class MitoWidgetTestWrapper:
         column_id = self.mito_backend.steps_manager.curr_step.get_column_id_by_header(sheet_index, column_header)
 
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -530,7 +518,6 @@ class MitoWidgetTestWrapper:
         ]
 
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -598,7 +585,6 @@ class MitoWidgetTestWrapper:
         ] if pivot_filters is not None else []
 
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -632,7 +618,6 @@ class MitoWidgetTestWrapper:
         )
 
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -666,7 +651,6 @@ class MitoWidgetTestWrapper:
         )
 
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -696,7 +680,6 @@ class MitoWidgetTestWrapper:
         )
 
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -724,7 +707,6 @@ class MitoWidgetTestWrapper:
         )
 
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -747,7 +729,6 @@ class MitoWidgetTestWrapper:
         )
 
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -770,7 +751,6 @@ class MitoWidgetTestWrapper:
         ) for column_header in column_headers]
 
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -792,7 +772,6 @@ class MitoWidgetTestWrapper:
         )
 
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -817,7 +796,6 @@ class MitoWidgetTestWrapper:
         error_bad_lines: Optional[List[bool]]=None
     ) -> bool:
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -837,7 +815,6 @@ class MitoWidgetTestWrapper:
     @check_transpiled_code_after_call
     def excel_import(self, file_name: str, sheet_names: List[str], has_headers: bool, skiprows: int, decimal: Optional[str]=None) -> bool:
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -856,7 +833,6 @@ class MitoWidgetTestWrapper:
     @check_transpiled_code_after_call
     def bulk_old_rename(self, move_to_deprecated_id_algorithm: bool=False) -> bool:
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -871,7 +847,6 @@ class MitoWidgetTestWrapper:
     @check_transpiled_code_after_call
     def undo(self) -> bool:
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'update_event',
                 'id': get_new_id(),
@@ -883,7 +858,6 @@ class MitoWidgetTestWrapper:
     @check_transpiled_code_after_call
     def redo(self) -> bool:
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'update_event',
                 'id': get_new_id(),
@@ -895,7 +869,6 @@ class MitoWidgetTestWrapper:
     @check_transpiled_code_after_call
     def clear(self) -> bool:
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'update_event',
                 'id': get_new_id(),
@@ -907,7 +880,6 @@ class MitoWidgetTestWrapper:
 
     def save_analysis(self, analysis_name: str) -> bool:
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'update_event',
                 'id': get_new_id(),
@@ -922,7 +894,6 @@ class MitoWidgetTestWrapper:
     @check_transpiled_code_after_call
     def delete_dataframe(self, sheet_index: int) -> bool:
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -937,7 +908,6 @@ class MitoWidgetTestWrapper:
     @check_transpiled_code_after_call
     def duplicate_dataframe(self, sheet_index: int) -> bool:
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -952,7 +922,6 @@ class MitoWidgetTestWrapper:
     @check_transpiled_code_after_call
     def rename_dataframe(self, sheet_index: int, new_dataframe_name: str) -> bool:
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -973,7 +942,6 @@ class MitoWidgetTestWrapper:
         )
 
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -991,7 +959,6 @@ class MitoWidgetTestWrapper:
     @check_transpiled_code_after_call
     def replay_analysis(self, analysis_name: str, step_import_data_list_to_overwrite: Optional[List[Dict[str, Any]]]=None) -> bool:
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'update_event',
                 'id': get_new_id(),
@@ -1006,7 +973,6 @@ class MitoWidgetTestWrapper:
     @check_transpiled_code_after_call
     def checkout_step_by_idx(self, index: int) -> bool:
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'update_event',
                 'id': get_new_id(),
@@ -1020,7 +986,6 @@ class MitoWidgetTestWrapper:
     @check_transpiled_code_after_call
     def checklist_update(self, checklist_id: str, completed_items: List[str], clear_other_items: bool) -> bool:
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'update_event',
                 'id': get_new_id(),
@@ -1170,8 +1135,7 @@ class MitoWidgetTestWrapper:
         if nbins is not None:
             params['graph_creation']['nbins'] = nbins
 
-        return self.mito_backend.receive_message(
-            self.mito_backend, 
+        return self.mito_backend.receive_message( 
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -1183,7 +1147,6 @@ class MitoWidgetTestWrapper:
 
     def delete_graph(self, graph_id: GraphID) -> bool:
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -1197,7 +1160,6 @@ class MitoWidgetTestWrapper:
 
     def duplicate_graph(self, old_graph_id: GraphID, new_graph_id: GraphID) -> bool:
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -1213,7 +1175,6 @@ class MitoWidgetTestWrapper:
 
     def rename_graph(self, graph_id: GraphID, new_graph_tab_name: str) -> bool:
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
@@ -1228,7 +1189,6 @@ class MitoWidgetTestWrapper:
 
     def update_existing_imports(self, updated_import_objs: List[Dict[str, Any]]) -> bool:
         return self.mito_backend.receive_message(
-            self.mito_backend,
             {
                 'event': 'update_event',
                 'type': 'update_existing_import_update',

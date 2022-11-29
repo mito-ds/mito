@@ -220,7 +220,13 @@ export default class MitoAPI {
         this.commContainer = commContainer;
         this._send = commContainer?.comm.send;
         
-        // Watch for any response
+        // Watch for any response, taking special care to register the event
+        // handlers in the correct way for each type of comm
+        if (commContainer?.type === 'lab') {
+            commContainer.comm.onMsg = this.receiveResponse.bind(this)
+        } else if (commContainer?.type === 'notebook') {
+            commContainer.comm.on_msg(this.receiveResponse.bind(this))
+        }
         this.unconsumedResponses = [];
     }
 
@@ -303,6 +309,8 @@ export default class MitoAPI {
         and allow the API to just make a call to a server, and wait on a response
     */
     receiveResponse(rawResponse: Record<string, unknown>): void {
+        console.log("GOT RESPONSE", rawResponse)
+
         const response = (rawResponse as any).content.data as MitoResponse;
 
         this.unconsumedResponses.push(response);

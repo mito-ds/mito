@@ -207,7 +207,7 @@ class MitoBackend():
             'shared_variables': self.get_shared_state_variables()
         })
 
-    def receive_message(self, widget: Any, content: Dict[str, Any], buffers: Any=None) -> bool:
+    def receive_message(self, content: Dict[str, Any]) -> bool:
         """
         Handles all incoming messages from the JS widget. There are three main
         types of events:
@@ -225,7 +225,7 @@ class MitoBackend():
         4. A log_event is just an event that should get logged on the backend.
         """
 
-        print("GOT MESSAGE", self, content)
+        print("GOT MESSAGE", content)
 
         start_time: Optional[float] = time.perf_counter()
         event = content
@@ -316,7 +316,7 @@ def get_mito_backend(
         @comm.on_msg
         def _recv(msg):
             # Register handler for any incoming messages
-            mito_backend.receive_message(mito_backend, msg['content']['data'])
+            mito_backend.receive_message(msg['content']['data'])
         
         # Save the comm in the mito widget, so we can use this .send function
         mito_backend.mito_comm = comm

@@ -21,9 +21,14 @@
     margin-right: -20px;
 }
 /* We overwrite rendering rules that give us problems in HTML output*/
-.jp-RenderedHTMLCommon > .mito-container > p {}
-.jp-RenderedHTMLCommon > .mito-container > a:link {}
-.jp-RenderedHTMLCommon > .mito-container > a:visited {}
+.jp-RenderedHTMLCommon .mito-container p {
+    margin: initial;
+    text-align: center;
+}
+.jp-RenderedHTMLCommon .mito-container a:link,a:visited {
+    color: initial;
+    text-decoration: initial;
+}
 
 /* 
     We override the the overflow behavior on the jupyter-widgets class, which 
