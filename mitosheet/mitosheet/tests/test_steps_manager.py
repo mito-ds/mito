@@ -61,7 +61,7 @@ def test_overwrites_step_valid():
     mito = create_mito_wrapper([1, 2, 3])
     mito.add_column(0, 'B')
 
-    mito.mito_backend.receive_message(mito.mito_backend, {
+    mito.mito_backend.receive_message({
         'event': 'edit_event',
         'id': get_new_id(),
         'type': 'add_column_edit',
@@ -81,7 +81,7 @@ def test_failed_overwrite_rolls_back_to_previous_state():
     mito = create_mito_wrapper([1, 2, 3])
     mito.add_column(0, 'B')
 
-    mito.mito_backend.receive_message(mito.mito_backend, {
+    mito.mito_backend.receive_message({
         'event': 'edit_event',
         'id': get_new_id(),
         'type': 'add_column_edit',

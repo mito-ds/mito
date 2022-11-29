@@ -37,7 +37,7 @@ def test_double_set_does_not_error():
     mito.add_column(0, 'B')
     mito.set_formula('=A', 0, 'B')
 
-    mito.mito_backend.receive_message(mito, {
+    mito.mito_backend.receive_message({
         'event': 'edit_event',
         'id': get_new_id(),
         'type': 'set_column_formula_edit',

@@ -220,8 +220,7 @@ MITOSHEET_PACKAGE_JSON = """{
     "npm-run-all": "^4.1.5",
     "prettier": "^2.1.1",
     "rimraf": "^3.0.2",
-    "typescript": "^4.4.3",
-    "@lumino/widgets": "^1.16.1"
+    "typescript": "^4.4.3"
   },
   "main": "lib/index.js",
   "homepage": "https://trymito.io",
