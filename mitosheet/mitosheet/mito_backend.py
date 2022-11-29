@@ -197,8 +197,6 @@ class MitoBackend():
         4. A log_event is just an event that should get logged on the backend.
         """
 
-        print("GOT MESSAGE", content)
-
         start_time: Optional[float] = time.perf_counter()
         event = content
 

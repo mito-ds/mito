@@ -23005,7 +23005,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       };
     } else if (isInJupyterLab()) {
       let comm = void 0;
-      for (let i = 0; i < 0; i++) {
+      for (let i = 0; i < 10; i++) {
         comm = await ((_b = window.commands) == null ? void 0 : _b.execute("mitosheet:create-mitosheet-comm", { comm_target_id }));
         if (comm !== void 0) {
           break;
