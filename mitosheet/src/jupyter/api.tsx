@@ -149,14 +149,38 @@ declare global {
 // returns it with a label so we know what sort of comm it is
 export const getCommContainer = async (comm_target_id: string): Promise<CommContainer | undefined> => {
     if (isInJupyterNotebook()) {
-        const comm: NotebookComm = (window as any).Jupyter?.notebook.kernel.comm_manager.new_comm(comm_target_id);
+        const comm: NotebookComm | undefined = (window as any).Jupyter?.notebook.kernel.comm_manager.new_comm(comm_target_id);
+        if (comm === undefined) {
+            return undefined;
+        }
         return {
             'type': 'notebook',
             'comm': comm
         };
     } else if (isInJupyterLab()) {
-        const comm: LabComm = await window.commands?.execute('create-mitosheet-comm', {comm_target_id: comm_target_id});
-        console.log("Made comm", comm)
+        let comm: LabComm | 'Returned Undefined' | undefined = undefined;
+        for (let i = 0; i < 10; i++) {
+            comm = await window.commands?.execute('create-mitosheet-comm', {comm_target_id: comm_target_id});
+            // If the function has run, then we eventually return
+            if (comm !== undefined) {
+                break;
+            }
+
+            // See where command is registered for explination of strange return type
+            // But, TLDR: f the comm is undefined, then we know that the create-mitosheet-comm did not
+            // run, and so we must still be waiting for lab to run. So we wait for 2 seconds at a time,
+            // for a total of 10 seconds, trying again and again to get the comm
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+
+
+        console.log("Check comm", comm)
+        
+        // If the comm is still undefined, we give up, and just return undefined
+        if (comm === undefined || comm === "Returned Undefined") {
+            return undefined;
+        }
+        
         return {
             'type': 'lab',
             'comm': comm
@@ -309,8 +333,6 @@ export default class MitoAPI {
         and allow the API to just make a call to a server, and wait on a response
     */
     receiveResponse(rawResponse: Record<string, unknown>): void {
-        console.log("GOT RESPONSE", rawResponse)
-
         const response = (rawResponse as any).content.data as MitoResponse;
 
         this.unconsumedResponses.push(response);

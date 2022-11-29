@@ -22996,13 +22996,26 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     var _a, _b;
     if (isInJupyterNotebook()) {
       const comm = (_a = window.Jupyter) == null ? void 0 : _a.notebook.kernel.comm_manager.new_comm(comm_target_id);
+      if (comm === void 0) {
+        return void 0;
+      }
       return {
         "type": "notebook",
         "comm": comm
       };
     } else if (isInJupyterLab()) {
-      const comm = await ((_b = window.commands) == null ? void 0 : _b.execute("create-mitosheet-comm", { comm_target_id }));
-      console.log("Made comm", comm);
+      let comm = void 0;
+      for (let i = 0; i < 10; i++) {
+        comm = await ((_b = window.commands) == null ? void 0 : _b.execute("create-mitosheet-comm", { comm_target_id }));
+        if (comm !== void 0) {
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1e3));
+      }
+      console.log("Check comm", comm);
+      if (comm === void 0 || comm === "Returned Undefined") {
+        return void 0;
+      }
       return {
         "type": "lab",
         "comm": comm
@@ -23065,7 +23078,6 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       return response;
     }
     receiveResponse(rawResponse) {
-      console.log("GOT RESPONSE", rawResponse);
       const response = rawResponse.content.data;
       this.unconsumedResponses.push(response);
       if (response["event"] == "response") {

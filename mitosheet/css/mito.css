@@ -21,11 +21,21 @@
     margin-right: -20px;
 }
 /* We overwrite rendering rules that give us problems in HTML output*/
+/* In Lab */
 .jp-RenderedHTMLCommon .mito-container p {
     margin: initial;
     text-align: center;
 }
 .jp-RenderedHTMLCommon .mito-container a:link,a:visited {
+    color: initial;
+    text-decoration: initial;
+}
+/* In Notebook */
+.rendered_html .mito-container p {
+    margin: initial;
+    text-align: center;
+}
+.jp-rendered_html .mito-container a:link,a:visited {
     color: initial;
     text-decoration: initial;
 }

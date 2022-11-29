@@ -1388,6 +1388,15 @@ a:visited {
   color: initial;
   text-decoration: initial;
 }
+.rendered_html .mito-container p {
+  margin: initial;
+  text-align: center;
+}
+.jp-rendered_html .mito-container a:link,
+a:visited {
+  color: initial;
+  text-decoration: initial;
+}
 .jupyter-widgets {
   overflow: hidden !important;
 }

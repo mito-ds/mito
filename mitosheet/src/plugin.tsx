@@ -64,15 +64,37 @@ function activateMitosheetExtension(
     // Add the Create New Mitosheet button
     addButton(tracker);
 
+    // TODO: move all of these to be prefixed with mitosheet:
+
+    /**
+     * This command creates a new comm for the mitosheet to talk to the mito backend. 
+     * 
+     * On a page being refreshed, the script that creates the mitosheet is run again,
+     * and so this code is called again. However, this might happen before the command
+     * is fully registered, despite commands.hasCommand('create-mitosheet-comm') returning
+     * true. 
+     * 
+     * In this case, this function does not run when called. Thus, we add an explicit return
+     * value of 'Returned Undefined' to let the other code know that it's not ready yet -- rather than
+     * the command just not running yet.
+     */
     app.commands.addCommand('create-mitosheet-comm', {
         label: 'Create Comm',
         execute: (args: any) => {
+            console.log("EXECUTING")
             const comm_target_id = args.comm_target_id;
+            console.log("Tracker", tracker)
             const currentKernel = tracker.currentWidget?.context.sessionContext?.session?.kernel;
             const comm = currentKernel?.createComm(comm_target_id);
 
             // On lab, we need to open the comm after creating it to have it function
             comm?.open()
+
+            if (comm === undefined) {
+                return 'Returned Undefined'
+            }
+
+
             return comm;
         }
     })
