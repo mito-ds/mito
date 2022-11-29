@@ -71,10 +71,6 @@ class MitoBackend():
         self.should_upgrade_mitosheet = should_upgrade_mitosheet()
         self.received_tours = get_user_field(UJ_RECEIVED_TOURS)
 
-        # Update shared state varibles. See comment in widget.tsx -- this is being removed
-        # in the upcoming move away from the widget infrastructure
-        self.update_shared_state_variables()
-
 
     @property
     def analysis_name(self):
@@ -89,30 +85,6 @@ class MitoBackend():
             # we simply don't do anything with messages that are tried to send. In the future, 
             # we can save them somewhere, and then make assertions about them -- cool!
             return lambda _: _
-
-    def update_shared_state_variables(self) -> None:
-        """
-        Helper function for updating all the variables that are shared
-        between the backend and the frontend through trailets.
-        """
-        self.sheet_data_json = self.steps_manager.sheet_data_json
-        self.analysis_data_json = self.steps_manager.analysis_data_json
-        self.user_profile_json = json.dumps({
-                # Dynamic, update each time
-                'userEmail': get_user_field(UJ_USER_EMAIL),
-                'receivedTours': get_user_field(UJ_RECEIVED_TOURS),
-                'receivedChecklists': get_user_field(UJ_RECEIVED_CHECKLISTS),
-                'isPro': is_pro(),
-                'telemetryEnabled': telemetry_turned_on(),
-                # Static over a single analysis
-                'pythonVersion': get_python_version(),
-                'pandasVersion': get_pandas_version(),
-                'isLocalDeployment': self.is_local_deployment,
-                'shouldUpgradeMitosheet': self.should_upgrade_mitosheet,
-                'numUsages': self.num_usages,
-                'mitoConfig': self.mito_config.get_mito_config()
-            })
-
 
     def get_shared_state_variables(self) -> Dict[str, Any]:
         """
@@ -296,9 +268,9 @@ class MitoBackend():
 
         return False
 
-with open(os.path.normpath(os.path.join(__file__, '..', 'out.js'))) as f:
+with open(os.path.normpath(os.path.join(__file__, '..', 'mito_frontend.js'))) as f:
     js_code_from_file = f.read()
-with open(os.path.normpath(os.path.join(__file__, '..', 'out.css'))) as f:
+with open(os.path.normpath(os.path.join(__file__, '..', 'mito_frontend.css'))) as f:
     css_code_from_file = f.read()
 
 
@@ -335,7 +307,7 @@ def sheet(
         view_df: bool=False, # We use this param to log if the mitosheet.sheet call is created from the df output button,
         # NOTE: if you add named variables to this function, make sure argument parsing on the front-end still
         # works by updating the getArgsFromCellContent function.
-    ) -> Union[DisplayHandle, None]:
+    ) -> None:
     """
     Renders a Mito sheet. If no arguments are passed, renders an empty sheet. Otherwise, renders
     any dataframes that are passed. Errors if any given arguments are not dataframes or paths to
@@ -407,7 +379,7 @@ def sheet(
     js_code = js_code.replace('REPLACE_THIS_WITH_USER_PROFILE', mito_backend.get_user_profile_json())
     js_code = js_code.replace('REPLACE_THIS_WITH_CSS', css_code_from_file)
 
-    return display(HTML(f"""<div id={div_id} class="mito-container-container">
+    display(HTML(f"""<div id={div_id} class="mito-container-container">
         <script>
             {js_code}
         </script>

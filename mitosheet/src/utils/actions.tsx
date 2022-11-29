@@ -44,8 +44,14 @@ export const createActions = (
 
     // If the replay analysis taskpane is open due to a failed replay analysis, we pretty much disable all actions
     // as the user needs to resolve these errors or start a new analysis
+    let defaultActionDisabledMessage: string | undefined = undefined;
     const disabledDueToReplayAnalysis = uiState.currOpenTaskpane.type === TaskpaneType.UPDATEIMPORTS && uiState.currOpenTaskpane.failedReplayData !== undefined;
-    const defaultActionDisabledMessage = disabledDueToReplayAnalysis ? 'Please resolve issues with the failed replay analysis before making further edits.' : undefined;
+    const disabledDueToNoComms = uiState.currOpenTaskpane.type === TaskpaneType.CANNOTCREATECOMM;
+    if (disabledDueToReplayAnalysis) {
+        defaultActionDisabledMessage = 'Please resolve issues with the failed replay analysis before making further edits.';
+    } else if (disabledDueToNoComms) {
+        defaultActionDisabledMessage = 'Cannot connect to backend. Please fix installation before making any changes.';
+    }
 
     /*
         All of the actions that can be taken from the Action Search Bar. 

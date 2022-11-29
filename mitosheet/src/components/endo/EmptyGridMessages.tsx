@@ -49,28 +49,28 @@ const EmptyGridMessages = (props: {sheetData: SheetData | undefined, setUIState:
                             Import Files
                         </TextButton>
                     </div>
-                    <p className='mt-5px text-body-1'>
+                    <p className='mt-5px text-body-1' style={{textAlign: 'center'}}>
                         Or import dataframes using the syntax <code>mitosheet.sheet(df1, df2)</code> in the code above.
                     </p>
                 </GridDataEmptyContainer>
             }
             {props.sheetData !== undefined && props.sheetData.numRows === 0 && props.sheetData.numColumns === 0 &&
                 <GridDataEmptyContainer>
-                    <p className='text-body-1'>
+                    <p className='text-body-1' style={{textAlign: 'center'}}>
                         No data in dataframe.
                     </p>
                 </GridDataEmptyContainer>
             }
             {props.sheetData !== undefined && props.sheetData.numRows > 0 && props.sheetData.numColumns === 0 &&
                 <GridDataEmptyContainer>
-                    <p className='text-body-1'>
+                    <p className='text-body-1' style={{textAlign: 'center'}}>
                         No columns in dataframe.
                     </p>
                 </GridDataEmptyContainer>
             }
             {props.sheetData !== undefined && props.sheetData.numRows === 0 && props.sheetData.numColumns > 0 &&
                 <GridDataEmptyContainer>
-                    <p className='text-body-1'>
+                    <p className='text-body-1' style={{textAlign: 'center'}}>
                         No rows in dataframe.
                     </p>
                 </GridDataEmptyContainer>

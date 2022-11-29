@@ -1334,7 +1334,7 @@ a.text-button {
 .endo-grid-empty-text-container {
   height: 100%;
   width: 100%;
-  text-align: center;
+  text-align: center !important;
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -1381,7 +1381,7 @@ a.text-button {
 }
 .jp-RenderedHTMLCommon .mito-container p {
   margin: initial;
-  text-align: center;
+  text-align: initial;
 }
 .jp-RenderedHTMLCommon .mito-container a:link,
 a:visited {
@@ -1390,7 +1390,7 @@ a:visited {
 }
 .rendered_html .mito-container p {
   margin: initial;
-  text-align: center;
+  text-align: initial;
 }
 .jp-rendered_html .mito-container a:link,
 a:visited {

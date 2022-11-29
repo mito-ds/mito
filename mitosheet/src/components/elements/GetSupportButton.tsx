@@ -11,7 +11,7 @@ export const DEFAULT_SUPPORT_EMAIL = 'founders@sagacollab.com'
 interface GetSupportButtonProps {
     userProfile: UserProfile,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>,
-    mitoAPI: MitoAPI
+    mitoAPI?: MitoAPI
     className?: string
     width?: Width
 }
@@ -36,7 +36,7 @@ const GetSupportButton = (props: GetSupportButtonProps): JSX.Element => {
                         currOpenModal: {type: ModalEnum.None}
                     }
                 })
-                void props.mitoAPI.log('clicked_get_support_button')
+                void props.mitoAPI?.log('clicked_get_support_button')
                 return true;
             }}
         >

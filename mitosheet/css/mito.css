@@ -24,7 +24,7 @@
 /* In Lab */
 .jp-RenderedHTMLCommon .mito-container p {
     margin: initial;
-    text-align: center;
+    text-align: initial;
 }
 .jp-RenderedHTMLCommon .mito-container a:link,a:visited {
     color: initial;
@@ -33,7 +33,7 @@
 /* In Notebook */
 .rendered_html .mito-container p {
     margin: initial;
-    text-align: center;
+    text-align: initial;
 }
 .jp-rendered_html .mito-container a:link,a:visited {
     color: initial;

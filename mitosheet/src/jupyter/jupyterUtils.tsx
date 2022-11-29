@@ -44,7 +44,7 @@ export const isInJupyterNotebook = (): boolean => {
 
 export const writeAnalysisToReplayToMitosheetCall = (analysisName: string, mitoAPI: MitoAPI): void => {
     if (isInJupyterLab()) {
-        window.commands?.execute('write-analysis-to-replay-to-mitosheet-call', {
+        window.commands?.execute('mitosheet:write-analysis-to-replay-to-mitosheet-call', {
             analysisName: analysisName,
             mitoAPI: mitoAPI
         });
@@ -56,7 +56,7 @@ export const writeAnalysisToReplayToMitosheetCall = (analysisName: string, mitoA
 }
 export const overwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName: string, newAnalysisName: string, mitoAPI: MitoAPI): void => {
     if (isInJupyterLab()) {
-        window.commands?.execute('overwrite-analysis-to-replay-to-mitosheet-call', {
+        window.commands?.execute('mitosheet:overwrite-analysis-to-replay-to-mitosheet-call', {
             oldAnalysisName: oldAnalysisName,
             newAnalysisName: newAnalysisName,
             mitoAPI: mitoAPI
@@ -71,7 +71,7 @@ export const overwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName: string
 
 export const writeGeneratedCodeToCell = (analysisName: string, code: string[], telemetryEnabled: boolean): void => {
     if (isInJupyterLab()) {
-        window.commands?.execute('write-generated-code-cell', {
+        window.commands?.execute('mitosheet:write-generated-code-cell', {
             analysisName: analysisName,
             code: code,
             telemetryEnabled: telemetryEnabled,
@@ -87,7 +87,7 @@ export const writeGeneratedCodeToCell = (analysisName: string, code: string[], t
 export const getArgs = (analysisToReplayName: string | undefined): Promise<string[]> => {
     return new Promise((resolve) => {
         if (isInJupyterLab()) {
-            window.commands?.execute('get-args', {analysisToReplayName: analysisToReplayName}).then(async (args: string[]) => {
+            window.commands?.execute('mitosheet:get-args', {analysisToReplayName: analysisToReplayName}).then(async (args: string[]) => {
                 return resolve(args);
             })
             return;

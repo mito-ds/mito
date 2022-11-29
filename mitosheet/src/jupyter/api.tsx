@@ -160,7 +160,7 @@ export const getCommContainer = async (comm_target_id: string): Promise<CommCont
     } else if (isInJupyterLab()) {
         let comm: LabComm | 'Returned Undefined' | undefined = undefined;
         for (let i = 0; i < 10; i++) {
-            comm = await window.commands?.execute('create-mitosheet-comm', {comm_target_id: comm_target_id});
+            comm = await window.commands?.execute('mitosheet:create-mitosheet-comm', {comm_target_id: comm_target_id});
             // If the function has run, then we eventually return
             if (comm !== undefined) {
                 break;
@@ -172,9 +172,6 @@ export const getCommContainer = async (comm_target_id: string): Promise<CommCont
             // for a total of 10 seconds, trying again and again to get the comm
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
-
-
-        console.log("Check comm", comm)
         
         // If the comm is still undefined, we give up, and just return undefined
         if (comm === undefined || comm === "Returned Undefined") {

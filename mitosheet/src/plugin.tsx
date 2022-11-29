@@ -34,7 +34,7 @@ const addButton = (tracker: INotebookTracker) => {
                 className: 'toolbar-mito-button-class',
                 icon: mitoJLabIcon,
                 onClick: (): void => {
-                    window.commands?.execute('create-empty-mitosheet');
+                    window.commands?.execute('mitosheet:create-empty-mitosheet');
                 },
                 tooltip: 'Create a blank Mitosheet below the active code cell',
                 label: 'Create New Mitosheet',
@@ -64,8 +64,6 @@ function activateMitosheetExtension(
     // Add the Create New Mitosheet button
     addButton(tracker);
 
-    // TODO: move all of these to be prefixed with mitosheet:
-
     /**
      * This command creates a new comm for the mitosheet to talk to the mito backend. 
      * 
@@ -78,12 +76,10 @@ function activateMitosheetExtension(
      * value of 'Returned Undefined' to let the other code know that it's not ready yet -- rather than
      * the command just not running yet.
      */
-    app.commands.addCommand('create-mitosheet-comm', {
+    app.commands.addCommand('mitosheet:create-mitosheet-comm', {
         label: 'Create Comm',
         execute: (args: any) => {
-            console.log("EXECUTING")
             const comm_target_id = args.comm_target_id;
-            console.log("Tracker", tracker)
             const currentKernel = tracker.currentWidget?.context.sessionContext?.session?.kernel;
             const comm = currentKernel?.createComm(comm_target_id);
 
@@ -99,7 +95,7 @@ function activateMitosheetExtension(
         }
     })
 
-    app.commands.addCommand('write-analysis-to-replay-to-mitosheet-call', {
+    app.commands.addCommand('mitosheet:write-analysis-to-replay-to-mitosheet-call', {
         label: 'Given an analysisName, writes it to the mitosheet.sheet() call that created this mitosheet, if it is not already written to this cell.',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         execute: (args: any) => {
@@ -120,7 +116,7 @@ function activateMitosheetExtension(
         }
     })
 
-    app.commands.addCommand('overwrite-analysis-to-replay-to-mitosheet-call', {
+    app.commands.addCommand('mitosheet:overwrite-analysis-to-replay-to-mitosheet-call', {
         label: 'Given an oldAnalysisName and newAnalysisName, writes the newAnalysisName to the mitosheet.sheet() call that has the oldAnalysisName.',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         execute: (args: any) => {
@@ -142,7 +138,7 @@ function activateMitosheetExtension(
         }
     })
 
-    app.commands.addCommand('write-generated-code-cell', {
+    app.commands.addCommand('mitosheet:write-generated-code-cell', {
         label: 'Writes the generated code for a mito analysis to the cell below the mitosheet.sheet() call that generated this analysis. NOTE: this should only be called after the analysis_to_replay has been written in the mitosheet.sheet() call, so this cell can be found correctly.',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         execute: (args: any) => {
@@ -197,7 +193,7 @@ function activateMitosheetExtension(
         }
     })
 
-    app.commands.addCommand('get-args', {
+    app.commands.addCommand('mitosheet:get-args', {
         label: 'Reads the arguments passed to the mitosheet.sheet call.',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         execute: (args: any): string[] => {
@@ -212,7 +208,7 @@ function activateMitosheetExtension(
         }
     });
 
-    app.commands.addCommand('create-mitosheet-from-dataframe-output', {
+    app.commands.addCommand('mitosheet:create-mitosheet-from-dataframe-output', {
         label: 'creates a new mitosheet from the dataframe that is printed',
         execute: async (): Promise<void> => {
 
@@ -252,7 +248,7 @@ function activateMitosheetExtension(
         }
     });
 
-    app.commands.addCommand('create-empty-mitosheet', {
+    app.commands.addCommand('mitosheet:create-empty-mitosheet', {
         label: 'Creates a new empty mitosheet',
         execute: async (): Promise<void> => {
 
@@ -292,12 +288,12 @@ function activateMitosheetExtension(
         focus on it, so the user can just starting typing in it!
     */
     app.commands.addKeyBinding({
-        command: 'focus-on-search',
+        command: 'mitosheet:focus-on-search',
         args: {},
         keys: ['Accel F'],
         selector: '.mito-container'
     });
-    app.commands.addCommand('focus-on-search', {
+    app.commands.addCommand('mitosheet:focus-on-search', {
         label: 'Focuses on search of the currently selected mito notebook',
         execute: async (): Promise<void> => {
             // First, get the mito container that this element is a part of
@@ -312,12 +308,12 @@ function activateMitosheetExtension(
     });
 
     app.commands.addKeyBinding({
-        command: 'mito-undo',
+        command: 'mitosheet:mito-undo',
         args: {},
         keys: ['Accel Z'],
         selector: '.mito-container'
     });
-    app.commands.addCommand('mito-undo', {
+    app.commands.addCommand('mitosheet:mito-undo', {
         label: 'Clicks the undo button once',
         execute: async (): Promise<void> => {
             // First, get the mito container that this element is a part of
@@ -330,12 +326,12 @@ function activateMitosheetExtension(
     });
 
     app.commands.addKeyBinding({
-        command: 'mito-redo',
+        command: 'mitosheet:mito-redo',
         args: {},
         keys: ['Accel Y'],
         selector: '.mito-container'
     });
-    app.commands.addCommand('mito-redo', {
+    app.commands.addCommand('mitosheet:mito-redo', {
         label: 'Clicks the redo button once',
         execute: async (): Promise<void> => {
             // First, get the mito container that this element is a part of
@@ -357,12 +353,12 @@ function activateMitosheetExtension(
         annoying.
     */
     app.commands.addKeyBinding({
-        command: 'do-nothing',
+        command: 'mitosheet:do-nothing',
         args: {},
         keys: ['Shift Enter'],
         selector: '.mito-container'
     });
-    app.commands.addCommand('do-nothing', {
+    app.commands.addCommand('mitosheet:do-nothing', {
         label: 'Does nothing',
         execute: async (): Promise<void> => {
             // Do nothing, doh
