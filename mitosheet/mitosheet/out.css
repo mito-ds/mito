@@ -1380,10 +1380,14 @@ a.text-button {
   margin-right: -20px;
 }
 .jp-RenderedHTMLCommon > .mito-container > p {
+  margin: initial;
+  text-align: initial;
 }
-.jp-RenderedHTMLCommon > .mito-container > a:link {
-}
-.jp-RenderedHTMLCommon > .mito-container > a:visited {
+.jp-RenderedHTMLCommon > .mito-container > a:link a:visited {
+  color: initial;
+  text-decoration: initial;
+  color: initial;
+  text-decoration: initial;
 }
 .jupyter-widgets {
   overflow: hidden !important;

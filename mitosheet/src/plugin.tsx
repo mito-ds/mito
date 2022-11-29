@@ -9,13 +9,46 @@ import {
     JupyterFrontEnd,
     JupyterFrontEndPlugin
 } from '@jupyterlab/application';
+import { ToolbarButton } from '@jupyterlab/apputils';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
+import { mitoJLabIcon } from './components/icons/JLabIcon/MitoIcon';
 import MitoAPI from './jupyter/api';
 import {
     getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell
 } from './jupyter/lab/extensionUtils';
 import { containsGeneratedCodeOfAnalysis, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine } from './utils/code';
 
+const addButton = (tracker: INotebookTracker) => {
+
+    // We try and add the button every 3 seconds for 20 seconds, in case
+    // the panel takes a while to load
+    let buttonLoaded = false;
+
+    for (let i = 0; i < 20; i += 3) {
+        setTimeout(() => {
+            if (buttonLoaded) {
+                return 
+            }
+
+            const button = new ToolbarButton({
+                className: 'toolbar-mito-button-class',
+                icon: mitoJLabIcon,
+                onClick: (): void => {
+                    window.commands?.execute('create-empty-mitosheet');
+                },
+                tooltip: 'Create a blank Mitosheet below the active code cell',
+                label: 'Create New Mitosheet',
+            });
+
+            const panel = tracker.currentWidget;
+
+            if (panel && !buttonLoaded) {
+                panel.toolbar.insertAfter('cellType', 'Create Mito Button', button);
+                buttonLoaded = true;
+            } 
+        }, i * 1000)
+    }
+}
 
 /**
  * Activate the widget extension.
@@ -25,8 +58,11 @@ import { containsGeneratedCodeOfAnalysis, getArgsFromMitosheetCallCode, getCodeS
  */
 function activateMitosheetExtension(
     app: JupyterFrontEnd,
-    tracker: INotebookTracker
+    tracker: INotebookTracker,
 ): void {
+
+    // Add the Create New Mitosheet button
+    addButton(tracker);
 
     app.commands.addCommand('create-mitosheet-comm', {
         label: 'Create Comm',
