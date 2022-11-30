@@ -199,7 +199,6 @@ const CellEditor = (props: {
     }
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement> | undefined) => {
-        console.log('in the on submit call')
         // Don't refresh the page
         e?.preventDefault();
 
@@ -231,7 +230,6 @@ const CellEditor = (props: {
             submitRenameColumnHeader(columnHeader, finalColumnHeader, columnID, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI)
         } else {
             if (props.editorState.editingMode === 'set_column_formula') {
-                console.log("setting column formula")
                 // Change of formula
                 errorMessage = await props.mitoAPI.editSetColumnFormula(
                     props.sheetIndex,
@@ -300,8 +298,6 @@ const CellEditor = (props: {
                 after selecting some column headers, we take insert these headers into the formula.
         */
         if (isNavigationKeyPressed(e.key) && !altPressed) {
-            console.log(2)
-
             // If the user presses an up or down arrow, and there are suggested headers or functions,
             // then we scroll up and down
             const arrowUp = e.key === 'Up' || e.key === 'ArrowUp';
@@ -331,8 +327,6 @@ const CellEditor = (props: {
                 })
 
             } else if (e.key === 'Tab') {
-                console.log(3)
-
                 // (B) accepting a suggestion from the selection box. Note that this is also done
                 // in the onSubmit of the input form, as onKeyDown for an input does not detect
                 // the enter, for some reason...
@@ -345,7 +339,6 @@ const CellEditor = (props: {
 
             } else if (!arrowKeysScrollInFormula) {
                 // (C) navigating inside the sheet
-                console.log(4)
 
                 // Prevent the default, so arrow keys don't scroll in formula
                 e.preventDefault();
@@ -399,8 +392,6 @@ const CellEditor = (props: {
             // 2) Close if escape is pressed
             closeCellEditor()
         } else if (e.key !== 'Enter') {
-            console.log(5)
-
             // 3) Case where they press any non-navigation key, except Enter. 
             // We don't handle Enter because its handled by the onSubmit listener, 
             // and it can either be used to take a selectedSuggestion or submit the formula.
@@ -443,7 +434,8 @@ const CellEditor = (props: {
         } else if (e.key === 'Enter') {
             // Prevents the addition of a new line in the text field (not needed in a lot of cases)
             e.preventDefault();
-
+            // We just call the onSubmit function directly instead of creating and dispatching a 
+            // Submit event becuase I can't figure out how to do it. 
             void onSubmit(undefined)
         }
     }
@@ -458,8 +450,7 @@ const CellEditor = (props: {
                 <textarea
                     ref={setRef}
                     style={{resize: 'vertical', maxHeight: '300px'}}
-                    id='cell-editor-input'
-                    className='cell-editor-input'
+                    className='cell-editor-text-area'
                     onClick={() => {
                         // As in Excel or Google Sheets, if you click the input, then
                         // the arrow keys now navigate within the formula, rather than
@@ -472,7 +463,6 @@ const CellEditor = (props: {
                     value={getFullFormula(props.editorState.formula, columnHeader, props.editorState.pendingSelectedColumns)}
                     onKeyDown={onKeyDown}
                     onChange={(e) => {
-                        console.log('on change')
 
                         const CHARS_TO_REMOVE_SCROLL_IN_FORMULA = [
                             ' ',

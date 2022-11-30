@@ -42,7 +42,7 @@ export const getFullFormula = (
  */
 export const getCellEditorInputCurrentSelection = (containerDiv: HTMLDivElement | null): {selectionStart: number, selectionEnd: number} => {
 
-    const cellEditorElement = containerDiv?.querySelector('.cell-editor-input');
+    const cellEditorElement = containerDiv?.querySelector('.cell-editor-text-area');
     if (cellEditorElement === null) {
         return {
             selectionStart: 0,

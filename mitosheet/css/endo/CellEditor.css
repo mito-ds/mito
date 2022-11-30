@@ -16,7 +16,7 @@
     box-sizing: border-box;
 }
 
-.cell-editor-input {
+.cell-editor-text-area {
     height: 23px;
     width: 100%;
     border: none;
