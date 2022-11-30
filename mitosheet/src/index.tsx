@@ -6,7 +6,7 @@ export * from './version';
  * This export of the widgets into the main namespace is
  * how JNotebooks finds them, and displays them.
  */
-export * from './jupyter/widget';
+// TODO: what do we need to export as a plugin now?
 
 /**
  * By exporting this plugin directly, JLab 3 can get access 

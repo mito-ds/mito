@@ -154,7 +154,7 @@ MITOSHEET_PACKAGE_JSON = """{
   },
   "version": "0.3.131",
   "dependencies": {
-    "@jupyter-widgets/base": "^4",
+    "@jupyterlab/application": "^3.5.0",
     "@jupyterlab/notebook": "^3.0.6",
     "@types/fscreen": "^1.0.1",
     "@types/react-dom": "^17.0.2",
@@ -209,6 +209,7 @@ MITOSHEET_PACKAGE_JSON = """{
     "@typescript-eslint/parser": "^4.8.1",
     "acorn": "^8.5.0",
     "application": "npm:@lumino/application@^1.13.1",
+    "esbuild": "^0.15.16",
     "eslint": "^7.14.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-office-addins": "^1.0.3",
