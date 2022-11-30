@@ -18,6 +18,11 @@ import PivotInvalidSelectedColumnsError from './PivotInvalidSelectedColumnsError
 const PIVOT_COLUMN_TRANSFORM_TITLES: Record<PivotColumnTransformation, string> = {
     'no-op': 'exact time',
     'year': 'year',
+    'year-quarter': 'year-quarter',
+    'year-month': 'year-month',
+    'year-month-day': 'year-month-day',
+    'year-month-day-hour': 'year-month-day-hour',
+    'year-month-day-hour-minute': 'year-month-day-hour-minute',
     'quarter': 'quarter',
     'month': 'month',
     'week': 'week',
@@ -26,11 +31,6 @@ const PIVOT_COLUMN_TRANSFORM_TITLES: Record<PivotColumnTransformation, string> =
     'hour': 'hour',
     'minute': 'minute',
     'second': 'second',
-    'year-month-day-hour-minute': 'year-month-day-hour-minute',
-    'year-month-day-hour': 'year-month-day-hour',
-    'year-month-day': 'year-month-day',
-    'year-month': 'year-month',
-    'year-quarter': 'year-quarter',
     'month-day': 'month-day',
     'day-hour': 'day-hour',
     'hour-minute': 'hour-minute'
