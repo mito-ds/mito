@@ -198,6 +198,75 @@ const CellEditor = (props: {
         )
     }
 
+    const onSubmit = async (e: React.FormEvent<HTMLFormElement> | undefined) => {
+        console.log('in the on submit call')
+        // Don't refresh the page
+        e?.preventDefault();
+
+        // If we have a suggested item selected, then this should be handled by the onKeyDown
+        // above, as we want to take the suggestion, so we actually don't submit here
+        if (selectedSuggestionIndex !== -1) {
+            takeSuggestion(selectedSuggestionIndex);
+
+            // Then, reset the suggestion index that is selected back to -1, 
+            // so that nothing is selected
+            setSavedSelectedSuggestionIndex(-1);
+
+            return;
+        }
+
+        const columnID = props.sheetData.data[props.editorState.columnIndex].columnID;
+        const columnHeader = props.sheetData.data[props.editorState.columnIndex].columnHeader;
+        const formula = getFullFormula(props.editorState.formula, columnHeader, props.editorState.pendingSelectedColumns)
+
+        // Mark this as loading
+        setLoading(true);
+        
+        let errorMessage: MitoError | undefined = undefined;
+
+        // Make sure to send the write type of message, depending on the editor
+        if (props.editorState.rowIndex == -1) {
+            // Change of column header
+            const finalColumnHeader = getColumnHeaderParts(columnHeader).finalColumnHeader;
+            submitRenameColumnHeader(columnHeader, finalColumnHeader, columnID, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI)
+        } else {
+            if (props.editorState.editingMode === 'set_column_formula') {
+                console.log("setting column formula")
+                // Change of formula
+                errorMessage = await props.mitoAPI.editSetColumnFormula(
+                    props.sheetIndex,
+                    columnID,
+                    formula,
+                    props.editorState.editorLocation
+                )
+            } else {
+                // Change of data
+                // Get the index of the edited row in the dataframe. This isn't the same as the editorState.rowIndex
+                // because the editorState.rowIndex is simply the row number in the Mito Spreadsheet which is affected by sorts, etc.
+                const rowIndex = props.sheetData.index[props.editorState.rowIndex];
+                errorMessage = await props.mitoAPI.editSetCellValue(
+                    props.sheetIndex,
+                    columnID,
+                    rowIndex,
+                    formula,
+                    props.editorState.editorLocation
+                )
+            } 
+        }
+        
+        setLoading(false);
+
+        // Don't let the user close the editor if this is an invalid formula
+        // TODO: do we want a loading message?
+        if (isMitoError(errorMessage)) {
+            setCellEditorError(errorMessage.to_fix);
+        } else {
+            closeCellEditor();
+            props.closeOpenEditingPopups();
+        }
+    }
+
+
     const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         // Don't let the key down go anywhere else
         e.stopPropagation();
@@ -374,78 +443,8 @@ const CellEditor = (props: {
         } else if (e.key === 'Enter') {
             // Prevents the addition of a new line in the text field (not needed in a lot of cases)
             e.preventDefault();
-            const cellEditorForm = document.getElementById('cell-editor-form-id')
-            cellEditorForm?.dispatchEvent(new Event("submit", {cancelable: false}));
-            return true
-        }
-    }
 
-
-    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        console.log('in the on submit call')
-        // Don't refresh the page
-        e.preventDefault();
-
-        // If we have a suggested item selected, then this should be handled by the onKeyDown
-        // above, as we want to take the suggestion, so we actually don't submit here
-        if (selectedSuggestionIndex !== -1) {
-            takeSuggestion(selectedSuggestionIndex);
-
-            // Then, reset the suggestion index that is selected back to -1, 
-            // so that nothing is selected
-            setSavedSelectedSuggestionIndex(-1);
-
-            return;
-        }
-
-        const columnID = props.sheetData.data[props.editorState.columnIndex].columnID;
-        const columnHeader = props.sheetData.data[props.editorState.columnIndex].columnHeader;
-        const formula = getFullFormula(props.editorState.formula, columnHeader, props.editorState.pendingSelectedColumns)
-
-        // Mark this as loading
-        setLoading(true);
-        
-        let errorMessage: MitoError | undefined = undefined;
-
-        // Make sure to send the write type of message, depending on the editor
-        if (props.editorState.rowIndex == -1) {
-            // Change of column header
-            const finalColumnHeader = getColumnHeaderParts(columnHeader).finalColumnHeader;
-            submitRenameColumnHeader(columnHeader, finalColumnHeader, columnID, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI)
-        } else {
-            if (props.editorState.editingMode === 'set_column_formula') {
-                console.log("setting column formula")
-                // Change of formula
-                errorMessage = await props.mitoAPI.editSetColumnFormula(
-                    props.sheetIndex,
-                    columnID,
-                    formula,
-                    props.editorState.editorLocation
-                )
-            } else {
-                // Change of data
-                // Get the index of the edited row in the dataframe. This isn't the same as the editorState.rowIndex
-                // because the editorState.rowIndex is simply the row number in the Mito Spreadsheet which is affected by sorts, etc.
-                const rowIndex = props.sheetData.index[props.editorState.rowIndex];
-                errorMessage = await props.mitoAPI.editSetCellValue(
-                    props.sheetIndex,
-                    columnID,
-                    rowIndex,
-                    formula,
-                    props.editorState.editorLocation
-                )
-            } 
-        }
-        
-        setLoading(false);
-
-        // Don't let the user close the editor if this is an invalid formula
-        // TODO: do we want a loading message?
-        if (isMitoError(errorMessage)) {
-            setCellEditorError(errorMessage.to_fix);
-        } else {
-            closeCellEditor();
-            props.closeOpenEditingPopups();
+            void onSubmit(undefined)
         }
     }
 
@@ -453,7 +452,6 @@ const CellEditor = (props: {
         <div className='cell-editor'>
             <form
                 className='cell-editor-form'
-                id='cell-editor-form-id'
                 onSubmit={onSubmit}
                 autoComplete='off' // Turn off autocomplete so the html suggestion box doesn't cover Mito's suggestion box.
             >
