@@ -40,3 +40,8 @@ export const getLastModifiedString = (timestamp: number | null | undefined): str
         return `${numYears} years ago`
     }
 }
+
+// A helper function for sleeping for a number of seconds
+export const sleep = async (ms: number): Promise<void> => {
+    await new Promise(resolve => setTimeout(resolve, ms));
+}

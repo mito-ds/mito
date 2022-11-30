@@ -1077,7 +1077,7 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useRef(initialValue);
           }
-          function useEffect39(create, deps) {
+          function useEffect40(create, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useEffect(create, deps);
           }
@@ -1647,7 +1647,7 @@
           exports.useCallback = useCallback10;
           exports.useContext = useContext;
           exports.useDebugValue = useDebugValue;
-          exports.useEffect = useEffect39;
+          exports.useEffect = useEffect40;
           exports.useImperativeHandle = useImperativeHandle;
           exports.useLayoutEffect = useLayoutEffect;
           exports.useMemo = useMemo2;
@@ -4366,7 +4366,7 @@
             }
           }
           function setValueForStyles(node, styles) {
-            var style2 = node.style;
+            var style3 = node.style;
             for (var styleName in styles) {
               if (!styles.hasOwnProperty(styleName)) {
                 continue;
@@ -4382,9 +4382,9 @@
                 styleName = "cssFloat";
               }
               if (isCustomProperty) {
-                style2.setProperty(styleName, styleValue);
+                style3.setProperty(styleName, styleValue);
               } else {
-                style2[styleName] = styleValue;
+                style3[styleName] = styleValue;
               }
             }
           }
@@ -6138,9 +6138,9 @@
             transitionend: makePrefixMap("Transition", "TransitionEnd")
           };
           var prefixedEventNames = {};
-          var style = {};
+          var style2 = {};
           if (canUseDOM) {
-            style = document.createElement("div").style;
+            style2 = document.createElement("div").style;
             if (!("AnimationEvent" in window)) {
               delete vendorPrefixes.animationend.animation;
               delete vendorPrefixes.animationiteration.animation;
@@ -6158,7 +6158,7 @@
             }
             var prefixMap = vendorPrefixes[eventName];
             for (var styleProp in prefixMap) {
-              if (prefixMap.hasOwnProperty(styleProp) && styleProp in style) {
+              if (prefixMap.hasOwnProperty(styleProp) && styleProp in style2) {
                 return prefixedEventNames[eventName] = prefixMap[styleProp];
               }
             }
@@ -8624,10 +8624,10 @@
                 }
               }
               if (type === "script") {
-                var div = ownerDocument.createElement("div");
-                div.innerHTML = "<script><\/script>";
-                var firstChild = div.firstChild;
-                domElement = div.removeChild(firstChild);
+                var div2 = ownerDocument.createElement("div");
+                div2.innerHTML = "<script><\/script>";
+                var firstChild = div2.firstChild;
+                domElement = div2.removeChild(firstChild);
               } else if (typeof props.is === "string") {
                 domElement = ownerDocument.createElement(type, {
                   is: props.is
@@ -9577,11 +9577,11 @@
           }
           function hideInstance(instance) {
             instance = instance;
-            var style2 = instance.style;
-            if (typeof style2.setProperty === "function") {
-              style2.setProperty("display", "none", "important");
+            var style3 = instance.style;
+            if (typeof style3.setProperty === "function") {
+              style3.setProperty("display", "none", "important");
             } else {
-              style2.display = "none";
+              style3.display = "none";
             }
           }
           function hideTextInstance(textInstance) {
@@ -22972,17 +22972,81 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
 
   // src/jupyter/api.tsx
   var import_react25 = __toESM(require_react());
+
+  // src/components/taskpanes/taskpanes.tsx
+  var EDITING_TASKPANES = [
+    "pivot" /* PIVOT */,
+    "merge" /* MERGE */,
+    "concat" /* CONCAT */,
+    "drop_duplicates" /* DROP_DUPLICATES */,
+    "import files" /* IMPORT_FILES */,
+    "download" /* DOWNLOAD */,
+    "split_text_to_columns" /* SPLIT_TEXT_TO_COLUMNS */,
+    "fill_na" /* FILL_NA */,
+    "melt" /* MELT */,
+    "set_dataframe_format" /* SET_DATAFRAME_FORMAT */
+  ];
+  var ALLOW_UNDO_REDO_EDITING_TASKPANES = [
+    "pivot" /* PIVOT */,
+    "merge" /* MERGE */,
+    "concat" /* CONCAT */,
+    "drop_duplicates" /* DROP_DUPLICATES */,
+    "import files" /* IMPORT_FILES */,
+    "split_text_to_columns" /* SPLIT_TEXT_TO_COLUMNS */,
+    "fill_na" /* FILL_NA */,
+    "melt" /* MELT */,
+    "set_dataframe_format" /* SET_DATAFRAME_FORMAT */,
+    "ConditionalFormatting" /* CONDITIONALFORMATTING */,
+    "UpdateImports" /* UPDATEIMPORTS */
+  ];
+
+  // src/utils/time.tsx
+  var MINUTE = 60;
+  var HOUR = 60 * MINUTE;
+  var DAY = 24 * HOUR;
+  var WEEK = 7 * DAY;
+  var MONTH = 4 * WEEK;
+  var YEAR = 365 * DAY;
+  var getLastModifiedString = (timestamp) => {
+    if (timestamp === null || timestamp === void 0) {
+      return "--";
+    }
+    const delta = Math.floor(Date.now() / 1e3) - timestamp;
+    if (delta < HOUR) {
+      const numMinutes = Math.round(delta / MINUTE);
+      return `${numMinutes} minutes ago`;
+    } else if (delta < DAY) {
+      const numHours = Math.round(delta / HOUR);
+      return `${numHours} hours ago`;
+    } else if (delta < WEEK) {
+      const numDays = Math.round(delta / DAY);
+      return `${numDays} days ago`;
+    } else if (delta < MONTH) {
+      const numWeeks = Math.round(delta / WEEK);
+      return `${numWeeks} weeks ago`;
+    } else if (delta < YEAR) {
+      const numMonths = Math.round(delta / MONTH);
+      return `${numMonths} months ago`;
+    } else {
+      const numYears = Math.round(delta / YEAR);
+      return `${numYears} years ago`;
+    }
+  };
+  var sleep = async (ms2) => {
+    await new Promise((resolve) => setTimeout(resolve, ms2));
+  };
+
+  // src/jupyter/api.tsx
   var MAX_DELAY = 5 * 6e4;
   var RETRY_DELAY = 250;
   var MAX_RETRIES = MAX_DELAY / RETRY_DELAY;
   var getRandomId = () => {
     return "_" + Math.random().toString(36).substr(2, 9);
   };
-  var useMitoAPI = (commContainer, setSheetDataArray, setAnalysisData, setUserProfile, setUIState) => {
+  var useMitoAPI = (comm_target_id, setSheetDataArray, setAnalysisData, setUserProfile, setUIState) => {
     const [mitoAPI] = (0, import_react25.useState)(
       () => {
         return new MitoAPI(
-          commContainer,
           setSheetDataArray,
           setAnalysisData,
           setUserProfile,
@@ -22990,8 +23054,17 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         );
       }
     );
+    (0, import_react25.useEffect)(() => {
+      const init = async () => {
+        const commContainer = await getCommContainer(comm_target_id);
+        void mitoAPI.init(commContainer);
+      };
+      void init();
+    }, []);
     return mitoAPI;
   };
+  var MAX_WAIT_FOR_COMM_CREATION = 1e4;
+  var NUM_TRIES_FOR_COMM_CREATION = 10;
   var getCommContainer = async (comm_target_id) => {
     var _a, _b;
     if (isInJupyterNotebook()) {
@@ -23005,14 +23078,14 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       };
     } else if (isInJupyterLab()) {
       let comm = void 0;
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < NUM_TRIES_FOR_COMM_CREATION; i++) {
         comm = await ((_b = window.commands) == null ? void 0 : _b.execute("mitosheet:create-mitosheet-comm", { comm_target_id }));
         if (comm !== void 0) {
           break;
         }
-        await new Promise((resolve) => setTimeout(resolve, 1e3));
+        await sleep(MAX_WAIT_FOR_COMM_CREATION / NUM_TRIES_FOR_COMM_CREATION);
       }
-      if (comm === void 0 || comm === "Returned Undefined") {
+      if (comm === void 0) {
         return void 0;
       }
       return {
@@ -23023,26 +23096,41 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     return void 0;
   };
   var MitoAPI = class {
-    constructor(commContainer, setSheetDataArray, setAnalysisData, setUserProfile, setUIState) {
+    constructor(setSheetDataArray, setAnalysisData, setUserProfile, setUIState) {
       this.setSheetDataArray = setSheetDataArray;
       this.setAnalysisData = setAnalysisData;
       this.setUserProfile = setUserProfile;
       this.setUIState = setUIState;
-      this.commContainer = commContainer;
-      this._send = commContainer == null ? void 0 : commContainer.comm.send;
-      if ((commContainer == null ? void 0 : commContainer.type) === "lab") {
-        commContainer.comm.onMsg = this.receiveResponse.bind(this);
-      } else if ((commContainer == null ? void 0 : commContainer.type) === "notebook") {
-        commContainer.comm.on_msg(this.receiveResponse.bind(this));
-      }
       this.unconsumedResponses = [];
+    }
+    async init(commContainer) {
+      console.log("Calling init");
+      if (commContainer === void 0) {
+        console.log("Got comm container, not defined", commContainer);
+        this.setUIState((prevUIState) => {
+          return __spreadProps(__spreadValues({}, prevUIState), {
+            currOpenTaskpane: { type: "CannotCreateComm" /* CANNOTCREATECOMM */ }
+          });
+        });
+        return;
+      }
+      this.commContainer = commContainer;
+      this._send = commContainer.comm.send;
+      if (commContainer.type === "notebook") {
+        commContainer.comm.on_msg((msg) => this.receiveResponse(msg));
+      } else {
+        commContainer.comm.onMsg = (msg) => this.receiveResponse(msg);
+      }
     }
     async send(msg, { maxRetries = MAX_RETRIES, doNotWaitForReply = false }) {
       const id = getRandomId();
       msg["id"] = id;
       console.log("Sending", msg["type"]);
+      for (let i = 0; i < NUM_TRIES_FOR_COMM_CREATION && (this.commContainer === void 0 || this._send === void 0); i++) {
+        await sleep(MAX_WAIT_FOR_COMM_CREATION / NUM_TRIES_FOR_COMM_CREATION);
+      }
       if (this.commContainer === void 0 || this._send === void 0) {
-        console.error(`Cannot send ${msg["type"]}, as comm is not defined`);
+        console.error(`Cannot send ${msg["type"]}, as comm was never defined`);
         return;
       }
       this._send.call(this.commContainer.comm, msg);
@@ -24309,33 +24397,6 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
 
   // src/components/taskpanes/DefaultTaskpane/DefaultEmptyTaskpane.tsx
   var import_react36 = __toESM(require_react());
-
-  // src/components/taskpanes/taskpanes.tsx
-  var EDITING_TASKPANES = [
-    "pivot" /* PIVOT */,
-    "merge" /* MERGE */,
-    "concat" /* CONCAT */,
-    "drop_duplicates" /* DROP_DUPLICATES */,
-    "import files" /* IMPORT_FILES */,
-    "download" /* DOWNLOAD */,
-    "split_text_to_columns" /* SPLIT_TEXT_TO_COLUMNS */,
-    "fill_na" /* FILL_NA */,
-    "melt" /* MELT */,
-    "set_dataframe_format" /* SET_DATAFRAME_FORMAT */
-  ];
-  var ALLOW_UNDO_REDO_EDITING_TASKPANES = [
-    "pivot" /* PIVOT */,
-    "merge" /* MERGE */,
-    "concat" /* CONCAT */,
-    "drop_duplicates" /* DROP_DUPLICATES */,
-    "import files" /* IMPORT_FILES */,
-    "split_text_to_columns" /* SPLIT_TEXT_TO_COLUMNS */,
-    "fill_na" /* FILL_NA */,
-    "melt" /* MELT */,
-    "set_dataframe_format" /* SET_DATAFRAME_FORMAT */,
-    "ConditionalFormatting" /* CONDITIONALFORMATTING */,
-    "UpdateImports" /* UPDATEIMPORTS */
-  ];
 
   // src/components/taskpanes/DefaultTaskpane/DefaultTaskpane.tsx
   var import_react31 = __toESM(require_react());
@@ -25853,8 +25914,8 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         "mito-grid-row-even": rowIndex % 2 === 0,
         "mito-grid-row-odd": rowIndex % 2 !== 0
       });
-      const style = rowIndex % 2 === 0 ? { backgroundColor: evenRowBackgroundColor, color: evenRowTextColor } : { backgroundColor: oddRowBackgroundColor, color: oddRowTextColor };
-      return /* @__PURE__ */ import_react46.default.createElement("div", { className: rowClassNames, key: rowIndex, style }, Array(currentSheetView.numColumnsRendered).fill(0).map((_2, _colIndex) => {
+      const style2 = rowIndex % 2 === 0 ? { backgroundColor: evenRowBackgroundColor, color: evenRowTextColor } : { backgroundColor: oddRowBackgroundColor, color: oddRowTextColor };
+      return /* @__PURE__ */ import_react46.default.createElement("div", { className: rowClassNames, key: rowIndex, style: style2 }, Array(currentSheetView.numColumnsRendered).fill(0).map((_2, _colIndex) => {
         var _a2, _b2, _c2, _d2, _e2, _f2;
         const columnIndex = currentSheetView.startingColumnIndex + _colIndex;
         const columnID = columnIDs[columnIndex];
@@ -33577,39 +33638,6 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   // src/components/import/FileBrowser/FileBrowserElement.tsx
   var import_react121 = __toESM(require_react());
 
-  // src/utils/time.tsx
-  var MINUTE = 60;
-  var HOUR = 60 * MINUTE;
-  var DAY = 24 * HOUR;
-  var WEEK = 7 * DAY;
-  var MONTH = 4 * WEEK;
-  var YEAR = 365 * DAY;
-  var getLastModifiedString = (timestamp) => {
-    if (timestamp === null || timestamp === void 0) {
-      return "--";
-    }
-    const delta = Math.floor(Date.now() / 1e3) - timestamp;
-    if (delta < HOUR) {
-      const numMinutes = Math.round(delta / MINUTE);
-      return `${numMinutes} minutes ago`;
-    } else if (delta < DAY) {
-      const numHours = Math.round(delta / HOUR);
-      return `${numHours} hours ago`;
-    } else if (delta < WEEK) {
-      const numDays = Math.round(delta / DAY);
-      return `${numDays} days ago`;
-    } else if (delta < MONTH) {
-      const numWeeks = Math.round(delta / WEEK);
-      return `${numWeeks} weeks ago`;
-    } else if (delta < YEAR) {
-      const numMonths = Math.round(delta / MONTH);
-      return `${numMonths} months ago`;
-    } else {
-      const numYears = Math.round(delta / YEAR);
-      return `${numYears} years ago`;
-    }
-  };
-
   // src/components/icons/CSVFileIcon.tsx
   var import_react118 = __toESM(require_react());
   var CSVFileIcon = () => {
@@ -39369,8 +39397,8 @@ fig.write_html("${props.graphTabName}.html")`
     const [gridState, setGridState] = (0, import_react209.useState)(() => getDefaultGridState(sheetDataArray2, 0));
     const [uiState, setUIState] = (0, import_react209.useState)({
       loading: [],
-      currOpenModal: props.commContainer !== void 0 && userProfile2.userEmail == "" && userProfile2.telemetryEnabled ? { type: "SignUp" /* SignUp */ } : userProfile2.shouldUpgradeMitosheet ? { type: "Upgrade" /* Upgrade */ } : { type: "None" /* None */ },
-      currOpenTaskpane: { type: props.commContainer !== void 0 ? "none" /* NONE */ : "CannotCreateComm" /* CANNOTCREATECOMM */ },
+      currOpenModal: userProfile2.userEmail == "" && userProfile2.telemetryEnabled ? { type: "SignUp" /* SignUp */ } : userProfile2.shouldUpgradeMitosheet ? { type: "Upgrade" /* Upgrade */ } : { type: "None" /* None */ },
+      currOpenTaskpane: { type: "none" /* NONE */ },
       selectedColumnControlPanelTab: "filter_sort" /* FilterSort */,
       selectedSheetIndex: 0,
       selectedGraphID: Object.keys(analysisData2.graphDataDict || {}).length === 0 ? void 0 : Object.keys(analysisData2.graphDataDict)[0],
@@ -39386,16 +39414,13 @@ fig.write_html("${props.graphTabName}.html")`
     const [highlightPivotTableButton, setHighlightPivotTableButton] = (0, import_react209.useState)(false);
     const [highlightAddColButton, setHighlightAddColButton] = (0, import_react209.useState)(false);
     const [currPathParts, setCurrPathParts] = (0, import_react209.useState)(["."]);
-    const mitoAPI = useMitoAPI(props.commContainer, setSheetDataArray, setAnalysisData, setUserProfile, setUIState);
+    const mitoAPI = useMitoAPI(props.commTargetID, setSheetDataArray, setAnalysisData, setUserProfile, setUIState);
     (0, import_react209.useEffect)(() => {
       void mitoAPI.log("mitosheet_rendered");
     }, []);
     (0, import_react209.useEffect)(() => {
       const updateMitosheetCallCellOnFirstRender = async () => {
         var _a, _b;
-        if (props.commContainer === void 0) {
-          return;
-        }
         const args = await getArgs((_a = analysisData2.analysisToReplay) == null ? void 0 : _a.analysisName);
         await mitoAPI.updateArgs(args);
         if (analysisData2.analysisToReplay) {
@@ -40007,26 +40032,22 @@ fig.write_html("${props.graphTabName}.html")`
   var commTargetID = "REPLACE_THIS_WITH_COMM_TARGET_ID";
   var divID = "REPLACE_THIS_WITH_ID";
   var css = `REPLACE_THIS_WITH_CSS`;
-  var renderMito = async () => {
-    const style = document.createElement("style");
-    style.appendChild(document.createTextNode(css));
-    document.head.append(style);
-    const commContainer = await getCommContainer(commTargetID);
-    const div = document.getElementById(divID);
-    import_react_dom2.default.render(
-      /* @__PURE__ */ React201.createElement(
-        Mito_default,
-        {
-          commContainer,
-          sheetDataArray,
-          analysisData,
-          userProfile
-        }
-      ),
-      div
-    );
-  };
-  void renderMito();
+  var style = document.createElement("style");
+  style.appendChild(document.createTextNode(css));
+  document.head.append(style);
+  var div = document.getElementById(divID);
+  import_react_dom2.default.render(
+    /* @__PURE__ */ React201.createElement(
+      Mito_default,
+      {
+        commTargetID,
+        sheetDataArray,
+        analysisData,
+        userProfile
+      }
+    ),
+    div
+  );
 })();
 /*
 object-assign

@@ -1,7 +1,6 @@
 import * as React from 'react'
 import ReactDOM from 'react-dom';
 import Mito from './components/Mito';
-import { getCommContainer } from './jupyter/api';
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from './jupyter/jupyterUtils';
 
 // We replace all of the following REPLACE_THIS_WITH... variables with 
@@ -19,31 +18,20 @@ const divID = 'REPLACE_THIS_WITH_ID';
 
 const css = `REPLACE_THIS_WITH_CSS`;
 
+// Append the style to the head. Note that we need to do this in the JS
+// because style tags can only be childen of the head element
+const style = document.createElement('style');
+style.appendChild(document.createTextNode(css));
+document.head.append(style)
 
-// We render in an async function so that we can create the comm container
-// before creating Mito
-const renderMito = async () => {
-
-    // Append the style to the head. Note that we need to do this in the JS
-    // because style tags can only be childen of the head element
-    const style = document.createElement('style');
-    style.appendChild(document.createTextNode(css));
-    document.head.append(style)
-
-    // Then, create the comm channel
-    const commContainer = await getCommContainer(commTargetID);
-
-    // Then, render the mitosheet to the div id
-    const div = document.getElementById(divID);
-    ReactDOM.render(
-        <Mito
-            commContainer={commContainer}
-            sheetDataArray={sheetDataArray}
-            analysisData={analysisData}
-            userProfile={userProfile}
-        />,
-        div
-    )   
-}
-
-void renderMito()
+// Then, render the mitosheet to the div id
+const div = document.getElementById(divID);
+ReactDOM.render(
+    <Mito
+        commTargetID={commTargetID}
+        sheetDataArray={sheetDataArray}
+        analysisData={analysisData}
+        userProfile={userProfile}
+    />,
+    div
+)
