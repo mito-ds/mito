@@ -23032,8 +23032,20 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       return `${numYears} years ago`;
     }
   };
-  var sleep = async (ms2) => {
-    await new Promise((resolve) => setTimeout(resolve, ms2));
+  var sleep = async (timeoutInMilliseconds) => {
+    await new Promise((resolve) => setTimeout(resolve, timeoutInMilliseconds));
+  };
+  var sleepUntilTrueOrTimeout = async (condition, timeoutInMilliseconds) => {
+    let isConditionMet = condition();
+    for (let i = 0; i < timeoutInMilliseconds / 200 && !isConditionMet; i++) {
+      if (!isConditionMet) {
+        await sleep(timeoutInMilliseconds / 200);
+      } else {
+        break;
+      }
+      isConditionMet = condition();
+    }
+    return isConditionMet;
   };
 
   // src/jupyter/api.tsx
@@ -23126,9 +23138,9 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       const id = getRandomId();
       msg["id"] = id;
       console.log("Sending", msg["type"]);
-      for (let i = 0; i < NUM_TRIES_FOR_COMM_CREATION && (this.commContainer === void 0 || this._send === void 0); i++) {
-        await sleep(MAX_WAIT_FOR_COMM_CREATION / NUM_TRIES_FOR_COMM_CREATION);
-      }
+      await sleepUntilTrueOrTimeout(() => {
+        return this.commContainer !== void 0 && this._send !== void 0;
+      }, MAX_WAIT_FOR_COMM_CREATION);
       if (this.commContainer === void 0 || this._send === void 0) {
         console.error(`Cannot send ${msg["type"]}, as comm was never defined`);
         return;
@@ -37715,7 +37727,7 @@ fig.write_html("${props.graphTabName}.html")`
         setUIState: props.setUIState,
         notCloseable: true
       }
-    ), /* @__PURE__ */ import_react159.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react159.default.createElement("p", null, "Mito was unable to connect to your Python kernel. This is probably because Mito is installed incorrectly."), /* @__PURE__ */ import_react159.default.createElement(Spacer_default, { px: 15 }), /* @__PURE__ */ import_react159.default.createElement("p", null, "To fix your installation, please ensure you have followed our ", /* @__PURE__ */ import_react159.default.createElement("a", { href: DOCUMENTATION_LINK_INSTALL, target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react159.default.createElement("span", { className: "text-body-1-link" }, "installation instructions."))), /* @__PURE__ */ import_react159.default.createElement(Spacer_default, { px: 15 }), /* @__PURE__ */ import_react159.default.createElement(GetSupportButton_default, { userProfile: props.userProfile, setUIState: props.setUIState, width: "block" })));
+    ), /* @__PURE__ */ import_react159.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react159.default.createElement("p", null, "Mito was unable to connect to your Python kernel. This is probably because Mito is installed incorrectly."), /* @__PURE__ */ import_react159.default.createElement(Spacer_default, { px: 15 }), /* @__PURE__ */ import_react159.default.createElement("p", null, "To fix your installation, please ensure you have followed our ", /* @__PURE__ */ import_react159.default.createElement("a", { href: DOCUMENTATION_LINK_INSTALL, target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react159.default.createElement("span", { className: "text-body-1-link" }, "installation instructions."))), /* @__PURE__ */ import_react159.default.createElement(Spacer_default, { px: 15 }), /* @__PURE__ */ import_react159.default.createElement("p", null, "If you are still receiving this error message, join our slack to get support!"), /* @__PURE__ */ import_react159.default.createElement(Spacer_default, { px: 15 }), /* @__PURE__ */ import_react159.default.createElement(GetSupportButton_default, { userProfile: props.userProfile, setUIState: props.setUIState, width: "block" })));
   };
   var CannotCreateCommTaskpane_default = CannotCreateCommTaskpane;
 
@@ -39421,6 +39433,13 @@ fig.write_html("${props.graphTabName}.html")`
     (0, import_react209.useEffect)(() => {
       const updateMitosheetCallCellOnFirstRender = async () => {
         var _a, _b;
+        const commCreated = await sleepUntilTrueOrTimeout(() => {
+          return mitoAPI.commContainer !== void 0 && mitoAPI._send !== void 0;
+        }, MAX_WAIT_FOR_COMM_CREATION);
+        if (!commCreated) {
+          console.error("Comm never created, so not running updateMitosheetCallCellOnFirstRender");
+          return;
+        }
         const args = await getArgs((_a = analysisData2.analysisToReplay) == null ? void 0 : _a.analysisName);
         await mitoAPI.updateArgs(args);
         if (analysisData2.analysisToReplay) {

@@ -76,6 +76,78 @@ function activateMitosheetExtension(
 
             // On lab, we need to open the comm after creating it to have it function
             comm?.open()
+            // Moreover, on Lab, we need to make sure that we can actually get a response if we send a message. 
+            // This is because we can create a comm on the frontend even if there is not backend target currently
+            // registered. In other words, if you have mitosheet rendered in lab, and you refresh the page, then
+            // the comm will be created and opened with nothing on the backend to receive messages. 
+
+            // In this case, we want to have some special way of letting the init() function of the mito API know
+            // that it is getting a comm that is broken because the cell has not been rerun... and simply hiding
+            // the mitosheet, and displaying something different instead.
+
+            // This would, of course, be much easier if we were creating the comm way ahead of time
+
+            /**
+             * The problem is with JupyterLab. When you save a notebook in lab that has a rendered notebook in it, 
+             * the notebook will be saved with the JS output. Thus, when you reopen the notebook, this js code
+             * will reexecute. So: Mito will be rendered, a new frontend object representing the comm will be 
+             * recreated, and (since it's the first time Mito is being rendered) the analysis will be replayed 
+             * from the start (since the backend has already replayed the analysis, this is just a noop).
+             * 
+             * Now, as is, this isn't a huge problem if you literally just refresh the page. The problem comes 
+             * when you restart the kernel, and then refresh the page. Mito renders (again thinking it's the first
+             * time it's been rendered), and tries to create a comm. But since no comm has been registered on the 
+             * backend already, no messages can be received by the backend, or send from the backend. So the 
+             * frontend thinks a comm is created (as Jupyter will happily create a frontend comm even if it doesn't
+             * hook up anywhere). 
+             * 
+             * Thus, we need a way of detecting three distinct cases:
+             * 1.   No comm can be created by the frontend (the install is broken, the extension that creates the comm isn't working)
+             * 2.   A comm can be created, but it has no connection to the backend, becuase the JS has run but the mitosheet.sheet call
+             *      has not been run (the case described in the paragraph above)
+             * 3.   The comm has been created and connects successfully to the backend. 
+             * 
+             * This third case is the one case where we actually have a working mitosheet. In this case, we can 
+             * proceded with things going well.
+             * 
+             * There is additional complexity, due to _when_ the JS that renders the mitosheet actually runs. Specifically,
+             * the JS that renders the mitosheet runs _before_ the window.commands have been set / the extension has been
+             * setup. So we need take special care to wait around, when we're trying to make the comms, and try and make it
+             * for a few seconds.
+             * 
+             * I do not think widgets reappear if you restart the kernel and refresh the page. I think it's literally
+             * for this exact reason. Which is pretty cool. I don't know how they do it -- but probably the widget manager
+             * just doesn't run again until the cell that generates the widget output is literally rerun.
+             * 
+             * Here's my proposed solution:
+             * 1.   We refactor the Mito component to have the useMitoAPI hook to return:
+             *      MitoAPIContainer: {mitoAPI: MitoAPI, creationError: undefined} | {mitoAPI: undefined, creationError: 'no_extension' | 'no_backend_comm_registered'}
+             * 2.   After all the hooks we call in Mito (as we cannot call hooks conditionally), we case to see if the API is defined
+             * 3.   If it is defined, we move forward as normal. If not, we case on the error, and display an NoBackendConnection component. 
+             * 4.   The NoBackendConnection is not a mitosheet, it's just a simple error message, that tells a user how to resolve their
+             *      issue.
+             * 
+             * The details of the useMitoAPI hook:
+             * 1.   It has 3 pieces of state: the mitoAPI (or undefined), the error (or undefined), and ifFinished, which is a boolean
+             *      that tracks if we're given up on creating the comm.
+             * 2.   It creates the MitoAPI sync with no comm. 
+             * 3.   Then, it tries to create the comm. 
+             *          -   If it creates it, it sends a message to the backend and tries to get a echo response -- we should
+             *              be able to do this with the echo code.
+             *              -  If an echo response is received within the timeout, then set isFinished to true, and call init with this
+             *              - If an evho is not recepived by the timeout, then set isFinished to true, and error to 'no_backend_comm_registered'
+             * 4.   If it cannot create the comm, then it isFinished to true, and sets the error to 'no_extension'
+             * 
+             * The code in Mito.tsx that sends messages before the API is created, we handle just by add a dependency of mitoAPI to the effect,
+             * and only running that code if it is defined! That way, it will just run once when the API is finially set... becuase it should
+             * never be switched out in the middle!
+             */
+            if (comm) {
+
+            }
+            
+            comm?.onMsg = 
+            /
             return comm;
         }
     })

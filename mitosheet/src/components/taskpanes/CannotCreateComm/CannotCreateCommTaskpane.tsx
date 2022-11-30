@@ -36,6 +36,10 @@ const CannotCreateCommTaskpane = (props: CannotCreateCommTaskpaneProps): JSX.Ele
                     To fix your installation, please ensure you have followed our <a href={DOCUMENTATION_LINK_INSTALL} target='_blank' rel="noreferrer"><span className="text-body-1-link">installation instructions.</span></a>
                 </p>
                 <Spacer px={15}/>
+                <p>
+                    If you are still receiving this error message, join our slack to get support! 
+                </p>
+                <Spacer px={15}/>
                 <GetSupportButton userProfile={props.userProfile} setUIState={props.setUIState} width='block'/>
             </DefaultTaskpaneBody>
         </DefaultTaskpane>

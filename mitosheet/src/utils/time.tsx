@@ -42,6 +42,23 @@ export const getLastModifiedString = (timestamp: number | null | undefined): str
 }
 
 // A helper function for sleeping for a number of seconds
-export const sleep = async (ms: number): Promise<void> => {
-    await new Promise(resolve => setTimeout(resolve, ms));
+export const sleep = async (timeoutInMilliseconds: number): Promise<void> => {
+    await new Promise(resolve => setTimeout(resolve, timeoutInMilliseconds));
+}
+
+// A helper function for checking a condition once every 200ms for up to timeoutInMilliseconds,
+// and returning if it's true. Otherwise, returns false
+export const sleepUntilTrueOrTimeout = async (condition: () => boolean, timeoutInMilliseconds: number): Promise<boolean> => {
+
+    let isConditionMet = condition();
+    for (let i = 0; (i < timeoutInMilliseconds / 200) && !isConditionMet; i++) {      
+        if (!isConditionMet) {
+            await sleep(timeoutInMilliseconds / 200);
+        } else {
+            break;
+        }
+        isConditionMet = condition();
+    }
+
+    return isConditionMet;
 }

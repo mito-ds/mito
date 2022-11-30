@@ -23,7 +23,7 @@ import '../../css/sitewide/scroll.css';
 import '../../css/sitewide/text.css';
 import '../../css/sitewide/widths.css';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
-import { useMitoAPI } from '../jupyter/api';
+import { MAX_WAIT_FOR_COMM_CREATION, useMitoAPI } from '../jupyter/api';
 import { getArgs, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell } from '../jupyter/jupyterUtils';
 import ConditionalFormattingTaskpane from '../pro/taskpanes/ConditionalFormatting/ConditionalFormattingTaskpane';
 import SetDataframeFormatTaskpane from '../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane';
@@ -70,6 +70,7 @@ import UpgradeToProTaskpane from './taskpanes/UpgradeToPro/UpgradeToProTaskpane'
 import Toolbar from './toolbar/Toolbar';
 import Tour from './tour/Tour';
 import { TourName } from './tour/Tours';
+import { sleepUntilTrueOrTimeout } from '../utils/time';
 
 export type MitoProps = {
     commTargetID: string,
@@ -135,9 +136,13 @@ export const Mito = (props: MitoProps): JSX.Element => {
          * track each time we rerender.
          */
         const updateMitosheetCallCellOnFirstRender = async () => {
-            // The first thing we do is check if there is any connection to the backend. If there
-            // isn't any connection, we don't do anything -- since we can't!
-            // TODO: figure out how to handle this
+            // If we cannot connect to the backend, we don't want to write anything to the cells
+            // and so we wait until the max timeout and then give up
+            const commCreated = await sleepUntilTrueOrTimeout(() => {return mitoAPI.commContainer !== undefined && mitoAPI._send !== undefined}, MAX_WAIT_FOR_COMM_CREATION);
+            if (!commCreated) {
+                console.error("Comm never created, so not running updateMitosheetCallCellOnFirstRender")
+                return;
+            }
 
             // Then, we go and read the arguments to the mitosheet.sheet() call. If there
             // is an analysis to replay, we use this to help lookup the call

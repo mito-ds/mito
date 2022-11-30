@@ -17,7 +17,7 @@ import { useEffect, useState } from "react";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString, isInJupyterLab, isInJupyterNotebook } from "./jupyterUtils";
 import { ModalEnum } from "../components/modals/modals";
 import { TaskpaneType } from "../components/taskpanes/taskpanes";
-import { sleep } from "../utils/time";
+import { sleep, sleepUntilTrueOrTimeout } from "../utils/time";
 
 
 /*
@@ -169,7 +169,7 @@ declare global {
     interface Window { commands: any }
 }
 
-const MAX_WAIT_FOR_COMM_CREATION = 10_000;
+export const MAX_WAIT_FOR_COMM_CREATION = 10_000;
 const NUM_TRIES_FOR_COMM_CREATION = 10;
 
 // Creates a comm that is open and ready to send messages on, and
@@ -316,9 +316,8 @@ export default class MitoAPI {
 
         // If we still haven't created the comm, then we wait for up to MAX_WAIT_FOR_COMM_CREATION 
         // to see if they get defined. Note we check for them being 
-        for (let i = 0; (i < NUM_TRIES_FOR_COMM_CREATION && (this.commContainer === undefined || this._send === undefined)); i++) {
-            await sleep(MAX_WAIT_FOR_COMM_CREATION / NUM_TRIES_FOR_COMM_CREATION);
-        }
+        await sleepUntilTrueOrTimeout(() => {return this.commContainer !== undefined && this._send !== undefined}, MAX_WAIT_FOR_COMM_CREATION);
+
         // If we still aren't defined, then we give up on sending this message
         if (this.commContainer === undefined || this._send === undefined) {
             console.error(`Cannot send ${msg['type']}, as comm was never defined`);
