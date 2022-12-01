@@ -48,16 +48,16 @@ export const sleep = async (timeoutInMilliseconds: number): Promise<void> => {
 
 // A helper function for checking a condition once every 200ms for up to timeoutInMilliseconds,
 // and returning if it's true. Otherwise, returns false
-export const sleepUntilTrueOrTimeout = async (condition: () => boolean, timeoutInMilliseconds: number): Promise<boolean> => {
+export const sleepUntilTrueOrTimeout = async (condition: (() => boolean) | (() => Promise<boolean>), timeoutInMilliseconds: number): Promise<boolean> => {
 
-    let isConditionMet = condition();
+    let isConditionMet = await condition();
     for (let i = 0; (i < timeoutInMilliseconds / 200) && !isConditionMet; i++) {      
         if (!isConditionMet) {
             await sleep(timeoutInMilliseconds / 200);
         } else {
             break;
         }
-        isConditionMet = condition();
+        isConditionMet = await condition();
     }
 
     return isConditionMet;

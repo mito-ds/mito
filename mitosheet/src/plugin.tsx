@@ -5,20 +5,25 @@
 // only our package.json, we can change what packages we import, without 
 // having to change what we import in code. This allows us to support 
 // jlab2 and jlab3
-import {
-    JupyterFrontEnd,
-    JupyterFrontEndPlugin
-} from '@jupyterlab/application';
+import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { ToolbarButton } from '@jupyterlab/apputils';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { mitoJLabIcon } from './components/icons/JLabIcon/MitoIcon';
-import MitoAPI from './jupyter/api';
+import MitoAPI, { LabComm, MAX_WAIT_FOR_COMM_CREATION } from './jupyter/api';
 import {
     getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell
 } from './jupyter/lab/extensionUtils';
 import { containsGeneratedCodeOfAnalysis, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine } from './utils/code';
+import { sleep } from './utils/time';
 
 const addButton = (tracker: INotebookTracker) => {
+    /**
+     * tracker.widgetAdded.connect((slot) => {
+            slot.
+        })
+
+        Does this allow us to do this??? I think perhaps...
+     */
 
     // We try and add the button every 3 seconds for 20 seconds, in case
     // the panel takes a while to load
@@ -69,13 +74,71 @@ function activateMitosheetExtension(
      */
     app.commands.addCommand('mitosheet:create-mitosheet-comm', {
         label: 'Create Comm',
-        execute: (args: any) => {
+        execute: async (args: any): Promise<LabComm | 'non_working_extension_error' | 'no_backend_comm_registered_error' | undefined> => {
             const comm_target_id = args.comm_target_id;
+
+            // TODO: we have to go looking for the specific ID of the kernel that we are in
+            // TODO: this is a bug in the release itself. I think we need to fix this up
+            // by searching through the tracker. We need to get the wedget id from the HTML,
+            // which I think Maarten mentioned
+            
             const currentKernel = tracker.currentWidget?.context.sessionContext?.session?.kernel;
             const comm = currentKernel?.createComm(comm_target_id);
 
-            // On lab, we need to open the comm after creating it to have it function
-            comm?.open()
+            if (!comm) {
+                // Return undefined so we keep trying, as this is likely just that we haven't waited long enough
+                // for the notebook to come into focus
+                return undefined;
+            } else {
+                /**
+                 * If we have successfully made a comm, we need to do a few things:
+                 *  - Open the comm. This is only required on lab, but otherwise you have a comm that 
+                 *    will not function.
+                 *  - Check that the comm is actually getting messages from the backend. For this, we 
+                 *    send an echo message from the backend, when it gets the open message
+                 * 
+                 * The check that we can receive messages ensures that we're not just creating a comm
+                 * on the frontend without any backend connection. This might happen when you restart
+                 * the page. 
+                 * 
+                 * In this case, we return the CommStatus of no_backend, etc
+                 * 
+                 */
+                return new Promise(async (resolve) => {
+                    comm.open();
+                    const originalOnMsg = comm.onMsg;
+                    let resolved = false;
+                    comm.onMsg = (msg) => {
+                        // Wait for the first echo message, and then we know this comm is actually connected
+                        if (msg.content.data.echo) {
+                            console.log("Got echo!")
+                            // First, clear the onMsg from the comm
+                            comm.onMsg = originalOnMsg;
+                            // Then, resolve with this comm
+                            resolved = true;
+                            resolve((comm as unknown) as LabComm);
+                            return;
+                        }
+                    }
+
+                    // Give the onMsg a while to run
+                    await sleep(MAX_WAIT_FOR_COMM_CREATION);
+
+                    console.log("DOne sleeping, with resolved", resolved)
+
+                    // Then, if we already resolved with the comm, then we quit here
+                    if (resolved) {
+                        return;
+                    }
+                    
+                    // Reset the onMsg
+                    comm.onMsg = originalOnMsg;
+
+                    return resolve('no_backend_comm_registered_error');
+                })
+            }
+
+
             // Moreover, on Lab, we need to make sure that we can actually get a response if we send a message. 
             // This is because we can create a comm on the frontend even if there is not backend target currently
             // registered. In other words, if you have mitosheet rendered in lab, and you refresh the page, then
@@ -142,13 +205,6 @@ function activateMitosheetExtension(
              * and only running that code if it is defined! That way, it will just run once when the API is finially set... becuase it should
              * never be switched out in the middle!
              */
-            if (comm) {
-
-            }
-            
-            comm?.onMsg = 
-            /
-            return comm;
         }
     })
 

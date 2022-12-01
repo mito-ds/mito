@@ -291,6 +291,9 @@ def get_mito_backend(
         # Save the comm in the mito widget, so we can use this .send function
         mito_backend.mito_comm = comm
 
+        # Send data to the frontend on creation
+        comm.send({'echo': open_msg['content']['data']})
+
     # Register the comm target - so the callback gets called
     ipython = get_ipython()
     if ipython:
