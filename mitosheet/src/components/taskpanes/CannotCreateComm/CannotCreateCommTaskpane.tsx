@@ -1,6 +1,6 @@
 import React from "react";
 import { DOCUMENTATION_LINK_INSTALL } from "../../../data/documentationLinks";
-import { CommCreationErrorStatus } from "../../../hooks/useMitoAPI";
+import { CommCreationErrorStatus } from "../../../jupyter/comm";
 import { UIState, UserProfile } from "../../../types"
 import GetSupportButton from "../../elements/GetSupportButton";
 import Spacer from "../../layout/Spacer";

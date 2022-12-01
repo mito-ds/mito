@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react"
-import MitoAPI, { getCommContainer } from "../jupyter/api"
+import MitoAPI from "../jupyter/api"
+import { CommCreationStatus, getCommContainer } from "../jupyter/comm"
 import { AnalysisData, SheetData, UIState, UserProfile } from "../types"
-
-export type CommCreationErrorStatus = 'non_working_extension_error' | 'no_backend_comm_registered_error' | 'non_valid_location_error';
-export type CommCreationStatus = 'loading' | 'finished' | CommCreationErrorStatus;
 
 
 export const useMitoAPI = (

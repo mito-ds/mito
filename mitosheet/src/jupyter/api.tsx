@@ -12,10 +12,10 @@ import { FileElement } from "../components/taskpanes/FileImport/FileImportTaskpa
 import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Graph/graphUtils";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
-import { CommCreationErrorStatus } from "../hooks/useMitoAPI";
 import { AnalysisData, BackendPivotParams, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, GraphID, GraphParamsFrontend, MitoError, SheetData, UIState, UserProfile } from "../types";
 import { sleepUntilTrueOrTimeout } from "../utils/time";
-import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString, isInJupyterLab, isInJupyterNotebook } from "./jupyterUtils";
+import { CommContainer, MAX_WAIT_FOR_COMM_CREATION } from "./comm";
+import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "./jupyterUtils";
 
 
 /*
@@ -88,82 +88,10 @@ interface MitoErrorModalResponse {
 
 type MitoResponse = MitoSuccessOrInplaceErrorResponse | MitoErrorModalResponse
 
-/**
- * Note the difference between the Lab and Notebook comm interfaces. 
- * 
- * To work, Lab needs to have .open() called on it before sending any messages,
- * and you set the onMsg handler directly. 
- * 
- * Notebook does not need any .open() to be called, and also requires 
- * the message handler to be passed to as on_msg((msg) => handle it).
- * 
- * We need to take special care to ensure we treat any new comms interface how it 
- * expects to be treated, as they are all likely slighly different.
- */
-export interface LabComm {
-    send: (msg: Record<string, unknown>) => void,
-    onMsg: (msg: Record<string, unknown>) => void,
-    open: () => void;
-}
-interface NotebookComm {
-    send: (msg: Record<string, unknown>) => void,
-    on_msg: (handler: (msg: Record<string, unknown>) => void) => void,
-}
-
-export type CommContainer = {
-    'type': 'lab',
-    'comm': LabComm
-} | {
-    'type': 'notebook',
-    'comm': NotebookComm
-}
 
 declare global {
     interface Window { commands: any }
 }
-
-export const MAX_WAIT_FOR_COMM_CREATION = 10_000;
-
-// Creates a comm that is open and ready to send messages on, and
-// returns it with a label so we know what sort of comm it is
-export const getCommContainer = async (
-    kernelID: string,
-    commTargetID: string,
-): Promise<CommContainer | CommCreationErrorStatus> => {
-    if (isInJupyterNotebook()) {
-        const potentialComm: NotebookComm | undefined = (window as any).Jupyter?.notebook.kernel.comm_manager.new_comm(commTargetID);
-        if (potentialComm === undefined) {
-            return 'non_working_extension_error';
-        }
-        return {
-            'type': 'notebook',
-            'comm': potentialComm
-        };
-    } else if (isInJupyterLab()) {
-        // Potentially returns undefined if the command is not yet started
-        let potentialComm: LabComm | 'non_working_extension_error' | 'no_backend_comm_registered_error' | undefined = undefined;
-        await sleepUntilTrueOrTimeout(async () => {
-            potentialComm = await window.commands?.execute('mitosheet:create-mitosheet-comm', {kernelID: kernelID, commTargetID: commTargetID});
-            return potentialComm !== undefined;
-        }, MAX_WAIT_FOR_COMM_CREATION)
-
-        console.log("Ended with potential comm", potentialComm)
-
-        if (potentialComm === undefined) {
-            return 'non_working_extension_error'
-        } else if (potentialComm === 'non_working_extension_error' || potentialComm === 'no_backend_comm_registered_error') {
-            return potentialComm
-        } else {
-            return {
-                'type': 'lab',
-                'comm': potentialComm
-            };
-        }
-    }
-
-    return 'non_valid_location_error'
-}
-
 
 /*
     The MitoAPI class contains functions for interacting with the Mito backend. 

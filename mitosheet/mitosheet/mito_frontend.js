@@ -23024,37 +23024,88 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     return isConditionMet;
   };
 
-  // src/jupyter/api.tsx
-  var MAX_DELAY = 5 * 6e4;
-  var RETRY_DELAY = 250;
-  var MAX_RETRIES = MAX_DELAY / RETRY_DELAY;
-  var getRandomId = () => {
-    return "_" + Math.random().toString(36).substr(2, 9);
-  };
+  // src/jupyter/comm.tsx
   var MAX_WAIT_FOR_COMM_CREATION = 1e4;
-  var getCommContainer = async (kernelID2, commTargetID2) => {
-    var _a;
-    if (isInJupyterNotebook()) {
-      const potentialComm = (_a = window.Jupyter) == null ? void 0 : _a.notebook.kernel.comm_manager.new_comm(commTargetID2);
-      if (potentialComm === void 0) {
-        return "non_working_extension_error";
+  var getNotebookCommConnectedToBackend = async (comm) => {
+    return new Promise(async (resolve) => {
+      let resolved = false;
+      comm.on_msg((msg) => {
+        if (msg.content.data.echo) {
+          console.log("Got echo!");
+          resolved = true;
+          resolve(true);
+          return;
+        }
+      });
+      await sleep(MAX_WAIT_FOR_COMM_CREATION);
+      if (resolved) {
+        return;
+      }
+      return resolve(false);
+    });
+  };
+  var getNotebookComm = async (commTargetID2) => {
+    var _a, _b, _c, _d;
+    let potentialComm = (_d = (_c = (_b = (_a = window.Jupyter) == null ? void 0 : _a.notebook) == null ? void 0 : _b.kernel) == null ? void 0 : _c.comm_manager) == null ? void 0 : _d.new_comm(commTargetID2);
+    await sleepUntilTrueOrTimeout(async () => {
+      var _a2, _b2, _c2, _d2;
+      potentialComm = (_d2 = (_c2 = (_b2 = (_a2 = window.Jupyter) == null ? void 0 : _a2.notebook) == null ? void 0 : _b2.kernel) == null ? void 0 : _c2.comm_manager) == null ? void 0 : _d2.new_comm(commTargetID2);
+      return potentialComm !== void 0;
+    }, MAX_WAIT_FOR_COMM_CREATION);
+    console.log("Got potential comm", potentialComm);
+    if (potentialComm === void 0) {
+      return "non_working_extension_error";
+    } else {
+      if (!await getNotebookCommConnectedToBackend(potentialComm)) {
+        return "no_backend_comm_registered_error";
       }
       return {
         "type": "notebook",
         "comm": potentialComm
       };
-    } else if (isInJupyterLab()) {
-      let potentialComm = void 0;
-      await sleepUntilTrueOrTimeout(async () => {
-        var _a2;
-        potentialComm = await ((_a2 = window.commands) == null ? void 0 : _a2.execute("mitosheet:create-mitosheet-comm", { kernelID: kernelID2, commTargetID: commTargetID2 }));
-        return potentialComm !== void 0;
-      }, MAX_WAIT_FOR_COMM_CREATION);
-      console.log("Ended with potential comm", potentialComm);
-      if (potentialComm === void 0) {
-        return "non_working_extension_error";
-      } else if (potentialComm === "non_working_extension_error" || potentialComm === "no_backend_comm_registered_error") {
-        return potentialComm;
+    }
+  };
+  var getLabCommConnectedToBackend = async (comm) => {
+    return new Promise(async (resolve) => {
+      const originalOnMsg = comm.onMsg;
+      let resolved = false;
+      comm.onMsg = (msg) => {
+        if (msg.content.data.echo) {
+          console.log("Got echo!");
+          comm.onMsg = originalOnMsg;
+          resolved = true;
+          resolve(true);
+          return;
+        }
+      };
+      await sleep(MAX_WAIT_FOR_COMM_CREATION);
+      if (resolved) {
+        return;
+      }
+      comm.onMsg = originalOnMsg;
+      return resolve(false);
+    });
+  };
+  var getLabComm = async (kernelID2, commTargetID2) => {
+    let potentialComm = void 0;
+    await sleepUntilTrueOrTimeout(async () => {
+      var _a;
+      try {
+        potentialComm = await ((_a = window.commands) == null ? void 0 : _a.execute("mitosheet:create-mitosheet-comm", { kernelID: kernelID2, commTargetID: commTargetID2 }));
+      } catch (e) {
+        console.error(e);
+        return true;
+      }
+      return potentialComm !== void 0 && potentialComm !== "no_backend_comm_registered_error";
+    }, MAX_WAIT_FOR_COMM_CREATION);
+    if (potentialComm === void 0) {
+      return "non_working_extension_error";
+    } else if (potentialComm === "no_backend_comm_registered_error") {
+      return "no_backend_comm_registered_error";
+    } else {
+      potentialComm.open();
+      if (!await getLabCommConnectedToBackend(potentialComm)) {
+        return "no_backend_comm_registered_error";
       } else {
         return {
           "type": "lab",
@@ -23062,7 +23113,22 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         };
       }
     }
+  };
+  var getCommContainer = async (kernelID2, commTargetID2) => {
+    if (isInJupyterNotebook()) {
+      return getNotebookComm(commTargetID2);
+    } else if (isInJupyterLab()) {
+      return getLabComm(kernelID2, commTargetID2);
+    }
     return "non_valid_location_error";
+  };
+
+  // src/jupyter/api.tsx
+  var MAX_DELAY = 5 * 6e4;
+  var RETRY_DELAY = 250;
+  var MAX_RETRIES = MAX_DELAY / RETRY_DELAY;
+  var getRandomId = () => {
+    return "_" + Math.random().toString(36).substr(2, 9);
   };
   var MitoAPI = class {
     constructor(setSheetDataArray, setAnalysisData, setUserProfile, setUIState) {
@@ -40092,7 +40158,6 @@ fig.write_html("${props.graphTabName}.html")`
   style.appendChild(document.createTextNode(css));
   document.head.append(style);
   var div = document.getElementById(divID);
-  console.log("DIV", div, divID);
   import_react_dom2.default.render(
     /* @__PURE__ */ React201.createElement(
       Mito_default,

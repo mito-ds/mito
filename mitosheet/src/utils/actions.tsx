@@ -15,7 +15,7 @@ import { decreasePrecision, FORMAT_DISABLED_MESSAGE, increasePrecision } from ".
 import { writeTextToClipboard, getCopyStringForClipboard } from "./copy";
 import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
 import { DEFAULT_SUPPORT_EMAIL } from "../components/elements/GetSupportButton";
-import { CommCreationStatus } from "../hooks/useMitoAPI";
+import { CommCreationStatus } from "../jupyter/comm";
 
 
 export const getDefaultActionsDisabledMessage = (

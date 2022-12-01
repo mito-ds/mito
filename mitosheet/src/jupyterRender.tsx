@@ -27,7 +27,6 @@ document.head.append(style)
 
 // Then, render the mitosheet to the div id
 const div = document.getElementById(divID);
-console.log("DIV", div, divID);
 ReactDOM.render(
     <Mito
         kernelID={kernelID}

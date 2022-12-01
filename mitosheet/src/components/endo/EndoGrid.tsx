@@ -17,7 +17,7 @@ import { firstNonNullOrUndefined, getColumnIDsArrayFromSheetDataArray } from "./
 import { ensureCellVisible } from "./visibilityUtils";
 import { reconciliateWidthDataArray } from "./widthUtils";
 import FloatingCellEditor from "./celleditor/FloatingCellEditor";
-import { CommCreationStatus } from "../../hooks/useMitoAPI";
+import { CommCreationStatus } from "../../jupyter/comm";
 
 // NOTE: these should match the css
 export const DEFAULT_WIDTH = 123;

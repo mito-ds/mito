@@ -9,12 +9,12 @@ import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application'
 import { ToolbarButton } from '@jupyterlab/apputils';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { mitoJLabIcon } from './components/icons/JLabIcon/MitoIcon';
-import MitoAPI, { LabComm, MAX_WAIT_FOR_COMM_CREATION } from './jupyter/api';
+import MitoAPI from './jupyter/api';
+import { LabComm } from './jupyter/comm';
 import {
     getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell
 } from './jupyter/lab/extensionUtils';
 import { containsGeneratedCodeOfAnalysis, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine } from './utils/code';
-import { sleep } from './utils/time';
 
 const addButton = (tracker: INotebookTracker) => {
     /**
@@ -74,7 +74,7 @@ function activateMitosheetExtension(
      */
     app.commands.addCommand('mitosheet:create-mitosheet-comm', {
         label: 'Create Comm',
-        execute: async (args: any): Promise<LabComm | 'non_working_extension_error' | 'no_backend_comm_registered_error' | undefined> => {
+        execute: async (args: any): Promise<LabComm | 'no_backend_comm_registered_error' | undefined> => {
             const kernelID = args.kernelID;
             const commTargetID = args.commTargetID;
 
@@ -82,61 +82,17 @@ function activateMitosheetExtension(
             const currentNotebook = tracker.find((nb) => {
                 return nb.sessionContext.session?.kernel?.id === kernelID
             });
-                        
-            const comm = currentNotebook?.sessionContext?.session?.kernel?.createComm(commTargetID);
+            const currentKernel = currentNotebook?.sessionContext?.session?.kernel;
 
-            if (!comm) {
-                // Return undefined so we keep trying, as this is likely just that we haven't waited long enough
-                // for the notebook to come into focus
-                return undefined;
-            } else {
-                /**
-                 * If we have successfully made a comm, we need to do a few things:
-                 *  - Open the comm. This is only required on lab, but otherwise you have a comm that 
-                 *    will not function.
-                 *  - Check that the comm is actually getting messages from the backend. For this, we 
-                 *    send an echo message from the backend, when it gets the open message
-                 * 
-                 * The check that we can receive messages ensures that we're not just creating a comm
-                 * on the frontend without any backend connection. This might happen when you restart
-                 * the page. 
-                 * 
-                 * In this case, we return the CommStatus of no_backend, etc
-                 * 
-                 */
-                return new Promise(async (resolve) => {
-                    comm.open();
-                    const originalOnMsg = comm.onMsg;
-                    let resolved = false;
-                    comm.onMsg = (msg) => {
-                        // Wait for the first echo message, and then we know this comm is actually connected
-                        if (msg.content.data.echo) {
-                            console.log("Got echo!")
-                            // First, clear the onMsg from the comm
-                            comm.onMsg = originalOnMsg;
-                            // Then, resolve with this comm
-                            resolved = true;
-                            resolve((comm as unknown) as LabComm);
-                            return;
-                        }
-                    }
-
-                    // Give the onMsg a while to run
-                    await sleep(MAX_WAIT_FOR_COMM_CREATION);
-
-                    console.log("DOne sleeping, with resolved", resolved)
-
-                    // Then, if we already resolved with the comm, then we quit here
-                    if (resolved) {
-                        return;
-                    }
-                    
-                    // Reset the onMsg
-                    comm.onMsg = originalOnMsg;
-
-                    return resolve('no_backend_comm_registered_error');
-                })
+            // If there is no kernel with this ID, then we know the kernel has been restarted, and so 
+            // we tell the user this
+            if (currentKernel === undefined || currentKernel === null) {
+                return 'no_backend_comm_registered_error';
             }
+                        
+            const comm = currentKernel.createComm(commTargetID);
+            return (comm as unknown) as LabComm | undefined;
+        }
 
 
             // Moreover, on Lab, we need to make sure that we can actually get a response if we send a message. 
@@ -205,7 +161,6 @@ function activateMitosheetExtension(
              * and only running that code if it is defined! That way, it will just run once when the API is finially set... becuase it should
              * never be switched out in the middle!
              */
-        }
     })
 
     app.commands.addCommand('mitosheet:write-analysis-to-replay-to-mitosheet-call', {

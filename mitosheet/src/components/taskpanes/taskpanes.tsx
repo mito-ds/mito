@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import { CommCreationErrorStatus } from "../../hooks/useMitoAPI";
+import { CommCreationErrorStatus } from "../../jupyter/comm";
 import { ColumnID, GraphID, GraphSidebarTab } from "../../types"
 import { BackendPivotParams } from "../../types"
 import { FailedReplayData } from "./UpdateImports/UpdateImportsTaskpane";

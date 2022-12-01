@@ -1,5 +1,5 @@
 import React from 'react';
-import { CommCreationStatus } from '../../hooks/useMitoAPI';
+import { CommCreationStatus } from '../../jupyter/comm';
 import MitoAPI from '../../jupyter/api';
 import { SheetData, UIState } from '../../types';
 import TextButton from '../elements/TextButton';

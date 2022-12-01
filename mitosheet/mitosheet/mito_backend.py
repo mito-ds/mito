@@ -311,7 +311,7 @@ def get_current_kernel_id() -> str:
     """
     connection_file = get_connection_file() # path/to/file/kernel-c13462b6-c6a2-4e17-b891-7f7847204df9.json
     file_name: str = os.path.basename(connection_file) # kernel-c13462b6-c6a2-4e17-b891-7f7847204df9.json
-    return file_name.lstrip('kernel-').rstrip('.json')
+    return file_name[len('kernel-'):-len('.json')] 
 
 def sheet(
         *args: Any,
