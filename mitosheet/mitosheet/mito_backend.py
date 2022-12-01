@@ -9,11 +9,13 @@ Main file containing the mito widget.
 """
 import json
 import os
+import re
 import time
 from sysconfig import get_python_version
 from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
+from ipykernel import get_connection_file
 from ipykernel.comm import Comm
 from IPython import get_ipython
 from IPython.display import HTML, DisplayHandle, display
@@ -301,6 +303,15 @@ def get_mito_backend(
 
     return mito_backend
 
+def get_current_kernel_id() -> str:
+    """
+    Return the url of the current jupyter notebook server.
+    
+    Adapted from: https://github.com/jupyter/notebook/issues/3156
+    """
+    connection_file = get_connection_file() # path/to/file/kernel-c13462b6-c6a2-4e17-b891-7f7847204df9.json
+    file_name: str = os.path.basename(connection_file) # kernel-c13462b6-c6a2-4e17-b891-7f7847204df9.json
+    return file_name.lstrip('kernel-').rstrip('.json')
 
 def sheet(
         *args: Any,
@@ -372,8 +383,10 @@ def sheet(
     )
 
     div_id = get_new_id()
+    kernel_id = get_current_kernel_id()
 
-    js_code = js_code_from_file.replace('REPLACE_THIS_WITH_ID', div_id)
+    js_code = js_code_from_file.replace('REPLACE_THIS_WITH_DIV_ID', div_id)
+    js_code = js_code.replace('REPLACE_THIS_WITH_KERNEL_ID', kernel_id)
     js_code = js_code.replace('REPLACE_THIS_WITH_COMM_TARGET_ID', comm_target_id)
     js_code = js_code.replace('REPLACE_THIS_WITH_SHEET_DATA_ARRAY', mito_backend.steps_manager.sheet_data_json)
     js_code = js_code.replace('REPLACE_THIS_WITH_ANALYSIS_DATA', mito_backend.steps_manager.analysis_data_json)

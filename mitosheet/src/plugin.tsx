@@ -75,15 +75,15 @@ function activateMitosheetExtension(
     app.commands.addCommand('mitosheet:create-mitosheet-comm', {
         label: 'Create Comm',
         execute: async (args: any): Promise<LabComm | 'non_working_extension_error' | 'no_backend_comm_registered_error' | undefined> => {
-            const comm_target_id = args.comm_target_id;
+            const kernelID = args.kernelID;
+            const commTargetID = args.commTargetID;
 
-            // TODO: we have to go looking for the specific ID of the kernel that we are in
-            // TODO: this is a bug in the release itself. I think we need to fix this up
-            // by searching through the tracker. We need to get the wedget id from the HTML,
-            // which I think Maarten mentioned
-            
-            const currentKernel = tracker.currentWidget?.context.sessionContext?.session?.kernel;
-            const comm = currentKernel?.createComm(comm_target_id);
+            // First, get the kernel with the correct kernel id
+            const currentNotebook = tracker.find((nb) => {
+                return nb.sessionContext.session?.kernel?.id === kernelID
+            });
+                        
+            const comm = currentNotebook?.sessionContext?.session?.kernel?.createComm(commTargetID);
 
             if (!comm) {
                 // Return undefined so we keep trying, as this is likely just that we haven't waited long enough

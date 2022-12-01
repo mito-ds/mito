@@ -7,7 +7,8 @@ export type CommCreationStatus = 'loading' | 'finished' | CommCreationErrorStatu
 
 
 export const useMitoAPI = (
-    comm_target_id: string,
+    kernelID: string,
+    commTargetID: string,
     setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>,
     setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>,
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile>>,
@@ -44,7 +45,7 @@ export const useMitoAPI = (
          * timeout.
          */
         const init = async () => {
-            const commContainer = await getCommContainer(comm_target_id)
+            const commContainer = await getCommContainer(kernelID, commTargetID)
             if (typeof commContainer === 'string') {
                 setAPICreationStatus(commContainer);
             } else {

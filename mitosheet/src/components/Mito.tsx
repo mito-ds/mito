@@ -72,6 +72,7 @@ import { TourName } from './tour/Tours';
 import { useMitoAPI } from '../hooks/useMitoAPI';
 
 export type MitoProps = {
+    kernelID: string,
     commTargetID: string,
     sheetDataArray: SheetData[],
     analysisData: AnalysisData,
@@ -117,7 +118,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const [currPathParts, setCurrPathParts] = useState<string[]>(['.']);
 
     // Create the Mito API
-    const {mitoAPI, commCreationStatus} = useMitoAPI(props.commTargetID, setSheetDataArray, setAnalysisData, setUserProfile, setUIState)
+    const {mitoAPI, commCreationStatus} = useMitoAPI(props.kernelID, props.commTargetID, setSheetDataArray, setAnalysisData, setUserProfile, setUIState)
     
 
     // If the comm ends up failing to be created, then we open a taskpane that let's

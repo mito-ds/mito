@@ -126,9 +126,12 @@ export const MAX_WAIT_FOR_COMM_CREATION = 10_000;
 
 // Creates a comm that is open and ready to send messages on, and
 // returns it with a label so we know what sort of comm it is
-export const getCommContainer = async (comm_target_id: string): Promise<CommContainer | CommCreationErrorStatus> => {
+export const getCommContainer = async (
+    kernelID: string,
+    commTargetID: string,
+): Promise<CommContainer | CommCreationErrorStatus> => {
     if (isInJupyterNotebook()) {
-        const potentialComm: NotebookComm | undefined = (window as any).Jupyter?.notebook.kernel.comm_manager.new_comm(comm_target_id);
+        const potentialComm: NotebookComm | undefined = (window as any).Jupyter?.notebook.kernel.comm_manager.new_comm(commTargetID);
         if (potentialComm === undefined) {
             return 'non_working_extension_error';
         }
@@ -140,7 +143,7 @@ export const getCommContainer = async (comm_target_id: string): Promise<CommCont
         // Potentially returns undefined if the command is not yet started
         let potentialComm: LabComm | 'non_working_extension_error' | 'no_backend_comm_registered_error' | undefined = undefined;
         await sleepUntilTrueOrTimeout(async () => {
-            potentialComm = await window.commands?.execute('mitosheet:create-mitosheet-comm', {comm_target_id: comm_target_id});
+            potentialComm = await window.commands?.execute('mitosheet:create-mitosheet-comm', {kernelID: kernelID, commTargetID: commTargetID});
             return potentialComm !== undefined;
         }, MAX_WAIT_FOR_COMM_CREATION)
 

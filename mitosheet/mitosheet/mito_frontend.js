@@ -23032,10 +23032,10 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     return "_" + Math.random().toString(36).substr(2, 9);
   };
   var MAX_WAIT_FOR_COMM_CREATION = 1e4;
-  var getCommContainer = async (comm_target_id) => {
+  var getCommContainer = async (kernelID2, commTargetID2) => {
     var _a;
     if (isInJupyterNotebook()) {
-      const potentialComm = (_a = window.Jupyter) == null ? void 0 : _a.notebook.kernel.comm_manager.new_comm(comm_target_id);
+      const potentialComm = (_a = window.Jupyter) == null ? void 0 : _a.notebook.kernel.comm_manager.new_comm(commTargetID2);
       if (potentialComm === void 0) {
         return "non_working_extension_error";
       }
@@ -23047,7 +23047,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       let potentialComm = void 0;
       await sleepUntilTrueOrTimeout(async () => {
         var _a2;
-        potentialComm = await ((_a2 = window.commands) == null ? void 0 : _a2.execute("mitosheet:create-mitosheet-comm", { comm_target_id }));
+        potentialComm = await ((_a2 = window.commands) == null ? void 0 : _a2.execute("mitosheet:create-mitosheet-comm", { kernelID: kernelID2, commTargetID: commTargetID2 }));
         return potentialComm !== void 0;
       }, MAX_WAIT_FOR_COMM_CREATION);
       console.log("Ended with potential comm", potentialComm);
@@ -39394,7 +39394,7 @@ fig.write_html("${props.graphTabName}.html")`
 
   // src/hooks/useMitoAPI.tsx
   var import_react208 = __toESM(require_react());
-  var useMitoAPI = (comm_target_id, setSheetDataArray, setAnalysisData, setUserProfile, setUIState) => {
+  var useMitoAPI = (kernelID2, commTargetID2, setSheetDataArray, setAnalysisData, setUserProfile, setUIState) => {
     const [mitoAPI] = (0, import_react208.useState)(
       () => {
         return new MitoAPI(
@@ -39408,7 +39408,7 @@ fig.write_html("${props.graphTabName}.html")`
     const [apiCreationStatus, setAPICreationStatus] = (0, import_react208.useState)("loading");
     (0, import_react208.useEffect)(() => {
       const init = async () => {
-        const commContainer = await getCommContainer(comm_target_id);
+        const commContainer = await getCommContainer(kernelID2, commTargetID2);
         if (typeof commContainer === "string") {
           setAPICreationStatus(commContainer);
         } else {
@@ -39450,7 +39450,7 @@ fig.write_html("${props.graphTabName}.html")`
     const [highlightPivotTableButton, setHighlightPivotTableButton] = (0, import_react209.useState)(false);
     const [highlightAddColButton, setHighlightAddColButton] = (0, import_react209.useState)(false);
     const [currPathParts, setCurrPathParts] = (0, import_react209.useState)(["."]);
-    const { mitoAPI, commCreationStatus } = useMitoAPI(props.commTargetID, setSheetDataArray, setAnalysisData, setUserProfile, setUIState);
+    const { mitoAPI, commCreationStatus } = useMitoAPI(props.kernelID, props.commTargetID, setSheetDataArray, setAnalysisData, setUserProfile, setUIState);
     (0, import_react209.useEffect)(() => {
       console.log("Effect for error", commCreationStatus);
       if (commCreationStatus === "no_backend_comm_registered_error" || commCreationStatus === "non_valid_location_error" || commCreationStatus === "non_working_extension_error") {
@@ -40085,16 +40085,19 @@ fig.write_html("${props.graphTabName}.html")`
   var analysisData = getAnalysisDataFromString(`REPLACE_THIS_WITH_ANALYSIS_DATA`);
   var userProfile = getUserProfileFromString(`REPLACE_THIS_WITH_USER_PROFILE`);
   var commTargetID = "REPLACE_THIS_WITH_COMM_TARGET_ID";
-  var divID = "REPLACE_THIS_WITH_ID";
+  var divID = "REPLACE_THIS_WITH_DIV_ID";
+  var kernelID = "REPLACE_THIS_WITH_KERNEL_ID";
   var css = `REPLACE_THIS_WITH_CSS`;
   var style = document.createElement("style");
   style.appendChild(document.createTextNode(css));
   document.head.append(style);
   var div = document.getElementById(divID);
+  console.log("DIV", div, divID);
   import_react_dom2.default.render(
     /* @__PURE__ */ React201.createElement(
       Mito_default,
       {
+        kernelID,
         commTargetID,
         sheetDataArray,
         analysisData,

@@ -14,7 +14,8 @@ const userProfile = getUserProfileFromString(`REPLACE_THIS_WITH_USER_PROFILE`);
 // We create a distinct comm channel for each Mito instance, so that they can 
 // each communicate with the backend seperately
 const commTargetID = 'REPLACE_THIS_WITH_COMM_TARGET_ID';
-const divID = 'REPLACE_THIS_WITH_ID';
+const divID = 'REPLACE_THIS_WITH_DIV_ID';
+const kernelID = 'REPLACE_THIS_WITH_KERNEL_ID';
 
 const css = `REPLACE_THIS_WITH_CSS`;
 
@@ -26,8 +27,10 @@ document.head.append(style)
 
 // Then, render the mitosheet to the div id
 const div = document.getElementById(divID);
+console.log("DIV", div, divID);
 ReactDOM.render(
     <Mito
+        kernelID={kernelID}
         commTargetID={commTargetID}
         sheetDataArray={sheetDataArray}
         analysisData={analysisData}
