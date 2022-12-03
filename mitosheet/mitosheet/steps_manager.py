@@ -226,8 +226,20 @@ class StepsManager:
 
         # We also cache some of the sheet data in a form suitable to turn
         # into json, so that we can package it and send it to the front-end
-        # faster and with less work
-        self.saved_sheet_data: List[Dict] = []
+        # faster and with less work. Make sure to cache the starting values
+        # for the saved sheet data
+        self.saved_sheet_data: List[Dict] = dfs_to_array_for_json(
+            self.curr_step.final_defined_state,
+            set(range(len(args))),
+            [],
+            self.curr_step.dfs,
+            self.curr_step.df_names,
+            self.curr_step.df_sources,
+            self.curr_step.column_spreadsheet_code,
+            self.curr_step.column_filters,
+            self.curr_step.column_ids,
+            self.curr_step.df_formats,
+        )
         self.last_step_index_we_wrote_sheet_json_on = 0
 
         # We store the number of update events that have been processed successfully,
@@ -272,6 +284,8 @@ class StepsManager:
         modified_sheet_indexes = get_modified_sheet_indexes(
             self.steps_including_skipped, self.last_step_index_we_wrote_sheet_json_on, self.curr_step_idx
         )
+
+        print("Modified", len(self.curr_step.dfs), modified_sheet_indexes, len(self.saved_sheet_data))
 
         array = dfs_to_array_for_json(
             self.curr_step.final_defined_state,

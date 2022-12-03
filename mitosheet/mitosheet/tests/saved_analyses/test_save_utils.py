@@ -79,7 +79,7 @@ def test_persist_analysis_multi_sheet(b_value, b_formula):
     assert new_mito.dfs[1]['B'].tolist() == [b_value]
     
     assert json.dumps(new_mito.curr_step.column_spreadsheet_code) == json.dumps(curr_step.column_spreadsheet_code)
-    assert json.loads(new_mito.mito_backend.analysis_data_json)['code'] == json.loads(mito.mito_backend.analysis_data_json)['code']
+    assert json.loads(new_mito.analysis_data_json)['code'] == json.loads(mito.analysis_data_json)['code']
 
 
 def test_persist_rename_column():

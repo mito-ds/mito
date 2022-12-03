@@ -155,10 +155,14 @@ class MitoWidgetTestWrapper:
     @property
     def df_formats(self):
         return self.mito_backend.steps_manager.curr_step.df_formats
+    
+    @property
+    def sheet_data_json(self):
+        return self.mito_backend.steps_manager.sheet_data_json
 
     @property
-    def column_format_types(self):
-        return self.mito_backend.steps_manager.curr_step.column_format_types
+    def analysis_data_json(self):
+        return self.mito_backend.steps_manager.analysis_data_json
 
     @check_transpiled_code_after_call
     def add_column(self, sheet_index: int, column_header: str, column_header_index: int=-1) -> bool:

@@ -40154,6 +40154,7 @@ fig.write_html("${props.graphTabName}.html")`
   style.appendChild(document.createTextNode(css));
   document.head.append(style);
   var div = document.getElementById(divID);
+  console.log("Rendering Mitosheet to ", div);
   import_react_dom2.default.render(
     /* @__PURE__ */ React201.createElement(
       Mito_default,

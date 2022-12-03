@@ -131,7 +131,7 @@ def test_can_call_with_indexes():
 def test_sheet_json_holds_all_columns():
     df = pd.DataFrame({i: [1, 2, 3] for i in range(MAX_COLUMNS + 100)})
     mito = create_mito_wrapper_dfs(df)
-    sheet_data = json.loads(mito.mito_backend.sheet_data_json)[0]
+    sheet_data = json.loads(mito.sheet_data_json)[0]
     for i in range(MAX_COLUMNS, MAX_COLUMNS + 100):
         assert sheet_data['columnIDsMap'][str(i)] is not None
         assert sheet_data['columnSpreadsheetCodeMap'][str(i)] is not None
