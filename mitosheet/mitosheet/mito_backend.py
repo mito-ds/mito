@@ -293,8 +293,9 @@ def get_mito_backend(
         # Save the comm in the mito widget, so we can use this .send function
         mito_backend.mito_comm = comm
 
-        # Send data to the frontend on creation
-        comm.send({'echo': open_msg['content']['data']})
+        # Send data to the frontend on creation, so the frontend knows that we have
+        # actually registered the comm on the backend
+        comm.send({'echo': open_msg['content']['data']}) # type: ignore
 
     # Register the comm target - so the callback gets called
     ipython = get_ipython()
@@ -309,8 +310,10 @@ def get_current_kernel_id() -> str:
     
     Adapted from: https://github.com/jupyter/notebook/issues/3156
     """
-    connection_file = get_connection_file() # path/to/file/kernel-c13462b6-c6a2-4e17-b891-7f7847204df9.json
-    file_name: str = os.path.basename(connection_file) # kernel-c13462b6-c6a2-4e17-b891-7f7847204df9.json
+    # path/to/file/kernel-c13462b6-c6a2-4e17-b891-7f7847204df9.json
+    connection_file = get_connection_file() # type: ignore
+    # kernel-c13462b6-c6a2-4e17-b891-7f7847204df9.json
+    file_name: str = os.path.basename(connection_file) 
     return file_name[len('kernel-'):-len('.json')] 
 
 def sheet(

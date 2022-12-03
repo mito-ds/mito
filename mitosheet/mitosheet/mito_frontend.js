@@ -23011,7 +23011,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   var sleep = async (timeoutInMilliseconds) => {
     await new Promise((resolve) => setTimeout(resolve, timeoutInMilliseconds));
   };
-  var sleepUntilTrueOrTimeout = async (condition, timeoutInMilliseconds) => {
+  var waitUntilConditionReturnsTrueOrTimeout = async (condition, timeoutInMilliseconds) => {
     let isConditionMet = await condition();
     for (let i = 0; i < timeoutInMilliseconds / 200 && !isConditionMet; i++) {
       if (!isConditionMet) {
@@ -23027,32 +23027,30 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   // src/jupyter/comm.tsx
   var MAX_WAIT_FOR_COMM_CREATION = 1e4;
   var getNotebookCommConnectedToBackend = async (comm) => {
-    return new Promise(async (resolve) => {
-      let resolved = false;
-      comm.on_msg((msg) => {
-        if (msg.content.data.echo) {
-          console.log("Got echo!");
-          resolved = true;
-          resolve(true);
-          return;
-        }
-      });
-      await sleep(MAX_WAIT_FOR_COMM_CREATION);
-      if (resolved) {
-        return;
-      }
-      return resolve(false);
+    return new Promise((resolve) => {
+      const checkForEcho = async () => {
+        let echoReceived = false;
+        comm.on_msg((msg) => {
+          if (msg.content.data.echo) {
+            echoReceived = true;
+          }
+        });
+        await waitUntilConditionReturnsTrueOrTimeout(() => {
+          return echoReceived;
+        }, MAX_WAIT_FOR_COMM_CREATION);
+        return resolve(echoReceived);
+      };
+      void checkForEcho();
     });
   };
   var getNotebookComm = async (commTargetID2) => {
     var _a, _b, _c, _d;
     let potentialComm = (_d = (_c = (_b = (_a = window.Jupyter) == null ? void 0 : _a.notebook) == null ? void 0 : _b.kernel) == null ? void 0 : _c.comm_manager) == null ? void 0 : _d.new_comm(commTargetID2);
-    await sleepUntilTrueOrTimeout(async () => {
+    await waitUntilConditionReturnsTrueOrTimeout(async () => {
       var _a2, _b2, _c2, _d2;
       potentialComm = (_d2 = (_c2 = (_b2 = (_a2 = window.Jupyter) == null ? void 0 : _a2.notebook) == null ? void 0 : _b2.kernel) == null ? void 0 : _c2.comm_manager) == null ? void 0 : _d2.new_comm(commTargetID2);
       return potentialComm !== void 0;
     }, MAX_WAIT_FOR_COMM_CREATION);
-    console.log("Got potential comm", potentialComm);
     if (potentialComm === void 0) {
       return "non_working_extension_error";
     } else {
@@ -23066,29 +23064,27 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     }
   };
   var getLabCommConnectedToBackend = async (comm) => {
-    return new Promise(async (resolve) => {
-      const originalOnMsg = comm.onMsg;
-      let resolved = false;
-      comm.onMsg = (msg) => {
-        if (msg.content.data.echo) {
-          console.log("Got echo!");
-          comm.onMsg = originalOnMsg;
-          resolved = true;
-          resolve(true);
-          return;
-        }
+    return new Promise((resolve) => {
+      const checkForEcho = async () => {
+        const originalOnMsg = comm.onMsg;
+        let echoReceived = false;
+        comm.onMsg = (msg) => {
+          if (msg.content.data.echo) {
+            echoReceived = true;
+          }
+        };
+        await waitUntilConditionReturnsTrueOrTimeout(() => {
+          return echoReceived;
+        }, MAX_WAIT_FOR_COMM_CREATION);
+        comm.onMsg = originalOnMsg;
+        return resolve(echoReceived);
       };
-      await sleep(MAX_WAIT_FOR_COMM_CREATION);
-      if (resolved) {
-        return;
-      }
-      comm.onMsg = originalOnMsg;
-      return resolve(false);
+      void checkForEcho();
     });
   };
   var getLabComm = async (kernelID2, commTargetID2) => {
     let potentialComm = void 0;
-    await sleepUntilTrueOrTimeout(async () => {
+    await waitUntilConditionReturnsTrueOrTimeout(async () => {
       var _a;
       try {
         potentialComm = await ((_a = window.commands) == null ? void 0 : _a.execute("mitosheet:create-mitosheet-comm", { kernelID: kernelID2, commTargetID: commTargetID2 }));
@@ -23151,7 +23147,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       const id = getRandomId();
       msg["id"] = id;
       console.log(`Sending: {type: ${msg["type"]}, id: ${id}}`);
-      await sleepUntilTrueOrTimeout(() => {
+      await waitUntilConditionReturnsTrueOrTimeout(() => {
         return this.commContainer !== void 0 && this._send !== void 0;
       }, MAX_WAIT_FOR_COMM_CREATION);
       if (this.commContainer === void 0 || this._send === void 0) {
@@ -29559,7 +29555,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     const { startingColumnFormula, arrowKeysScrollInFormula } = getStartingFormula(sheetData, void 0, startingRowIndex, startingColumnIndex, "set_column_formula");
     const startingColumnID = columnID;
     const lastStepSummary = analysisData2.stepSummaryList[analysisData2.stepSummaryList.length - 1];
-    let defaultActionDisabledMessage = getDefaultActionsDisabledMessage(uiState, commCreationStatus);
+    const defaultActionDisabledMessage = getDefaultActionsDisabledMessage(uiState, commCreationStatus);
     const actions = {
       ["add column" /* Add_Column */]: {
         type: "add column" /* Add_Column */,
