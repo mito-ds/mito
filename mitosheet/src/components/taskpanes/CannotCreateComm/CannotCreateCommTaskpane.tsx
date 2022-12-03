@@ -23,7 +23,7 @@ interface CannotCreateCommTaskpaneProps {
 */
 const CannotCreateCommTaskpane = (props: CannotCreateCommTaskpaneProps): JSX.Element => {
 
-    let header: string = ''
+    let header = ''
     let firstLine: React.ReactNode = ''
     let secondLine: React.ReactNode = ''
     if (props.commCreationErrorStatus === 'no_backend_comm_registered_error') {

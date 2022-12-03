@@ -1,4 +1,42 @@
-import { sleep, sleepUntilTrueOrTimeout } from "../utils/time";
+// Copyright (c) Mito
+
+/**
+ * This file handles creating comms within both JupyterLab and Notebooks. There is a fair
+ * bit of complexity here, a we must handle a variety of failure modes. 
+ * 
+ * When you save a notebook in lab that has a rendered notebook in it, 
+ * the notebook will be saved with the JS output. Thus, when you reopen the notebook (from lab or notebook) 
+ * this js code will reexecute. So: Mito will be rendered, a new frontend object representing the comm will be 
+ * recreated, and (since it's the first time Mito is being rendered) the analysis will be replayed 
+ * from the start (since the backend has already replayed the analysis, this is just a noop).
+ * 
+ * Now, as is, this isn't a huge problem if you literally just refresh the page. The problem comes 
+ * when you restart the kernel, and then refresh the page. Mito renders (again thinking it's the first
+ * time it's been rendered), and tries to create a comm. But since no comm has been registered on the 
+ * backend already, no messages can be received by the backend, or send from the backend. So the 
+ * frontend thinks a comm is created (as Jupyter will happily create a frontend comm even if it doesn't
+ * hook up anywhere). 
+ * 
+ * Thus, we need a way of detecting three distinct cases:
+ * 1.   No comm can be created by the frontend (the install is broken, the extension that creates the comm isn't working)
+ * 2.   A comm can be created, but it has no connection to the backend, becuase the JS has run but the mitosheet.sheet call
+ *      has not been run (the case described in the paragraph above)
+ * 3.   The comm has been created and connects successfully to the backend. 
+ * 
+ * This third case is the one case where we actually have a working mitosheet. In this case, we can 
+ * proceded with things going well.
+ * 
+ * There is additional complexity, due to _when_ the JS that renders the mitosheet actually runs. Specifically,
+ * the JS that renders the mitosheet runs _before_ the window.commands have been set / the extension has been
+ * setup. So we need take special care to wait around, when we're trying to make the comms, and try and make it
+ * for a few seconds.
+ * 
+ * We solve this just by a) waiting for a bit before giving up on trying to create the frontend comm, and b)
+ * manually checking that the comm is hooked up to the backend. If either of these conditions are not true, 
+ * we return an error to the user.
+ */
+
+import { sleep, waitUntilConditionReturnsTrueOrTimeout } from "../utils/time";
 import { isInJupyterLab, isInJupyterNotebook } from "./jupyterUtils";
 
 /**
@@ -38,33 +76,26 @@ export type CommCreationStatus = 'loading' | 'finished' | CommCreationErrorStatu
 
 export const getNotebookCommConnectedToBackend = async (comm: NotebookComm): Promise<boolean> => {
 
-    return new Promise(async (resolve) => {
-        let resolved = false;
-        comm.on_msg((msg) => {
-            // Wait for the first echo message, and then we know this comm is actually connected
-            if (msg.content.data.echo) {
-                console.log("Got echo!")
-                // First, clear the onMsg from the comm
-                // TODO!
-                // Then, resolve with this comm
-                resolved = true;
-                resolve(true);
-                return;
-            }
-        })
+    return new Promise((resolve) => {
+        const checkForEcho = async () => {
+            let echoReceived = false;
 
-        // Give the onMsg a while to run
-        await sleep(MAX_WAIT_FOR_COMM_CREATION);
+            comm.on_msg((msg) => {
+                // Wait for the first echo message, and then we know this comm is actually connected
+                if (msg.content.data.echo) {
+                    echoReceived = true;
+                }
+            })
 
-        // Then, if we already resolved with the comm, then we quit here
-        if (resolved) {
-            return;
+            // Give the onMsg a while to run
+            await sleep(MAX_WAIT_FOR_COMM_CREATION);
+
+            // TODO: do we need to on_msg here, I am not sure how
+
+            return resolve(echoReceived);
         }
-        
-        // Reset the onMsg
-        // TODO
 
-        return resolve(false);
+        void checkForEcho();
     })
 }
 
@@ -72,14 +103,10 @@ export const getNotebookCommConnectedToBackend = async (comm: NotebookComm): Pro
 export const getNotebookComm = async (commTargetID: string): Promise<CommContainer | CommCreationErrorStatus> => {
 
     let potentialComm: NotebookComm | undefined = (window as any).Jupyter?.notebook?.kernel?.comm_manager?.new_comm(commTargetID);
-    await sleepUntilTrueOrTimeout(async () => {
+    await waitUntilConditionReturnsTrueOrTimeout(async () => {
         potentialComm = (window as any).Jupyter?.notebook?.kernel?.comm_manager?.new_comm(commTargetID);
         return potentialComm !== undefined;
     }, MAX_WAIT_FOR_COMM_CREATION)
-
-    // TODO: we have to test this here as well, with an echo
-
-    console.log("Got potential comm", potentialComm)
 
     if (potentialComm === undefined) {
         return 'non_working_extension_error';
@@ -97,34 +124,30 @@ export const getNotebookComm = async (commTargetID: string): Promise<CommContain
 
 export const getLabCommConnectedToBackend = async (comm: LabComm): Promise<boolean> => {
 
-    return new Promise(async (resolve) => {
-        const originalOnMsg = comm.onMsg;
-        let resolved = false;
-        comm.onMsg = (msg) => {
-            // Wait for the first echo message, and then we know this comm is actually connected
-            if (msg.content.data.echo) {
-                console.log("Got echo!")
-                // First, clear the onMsg from the comm
-                comm.onMsg = originalOnMsg;
-                // Then, resolve with this comm
-                resolved = true;
-                resolve(true);
-                return;
+    return new Promise((resolve) => {
+        const checkForEcho = async () => {
+            // Save the original onMsg
+            const originalOnMsg = comm.onMsg;
+
+            let echoReceived = false;
+
+            comm.onMsg = (msg) => {
+                // Wait for the first echo message, and then we know this comm is actually connected
+                if (msg.content.data.echo) {
+                    echoReceived = true
+                }
             }
+
+            // Give the onMsg a while to run
+            await sleep(MAX_WAIT_FOR_COMM_CREATION);
+
+            // Reset the onMsg
+            comm.onMsg = originalOnMsg;
+
+            return resolve(echoReceived);
         }
 
-        // Give the onMsg a while to run
-        await sleep(MAX_WAIT_FOR_COMM_CREATION);
-
-        // Then, if we already resolved with the comm, then we quit here
-        if (resolved) {
-            return;
-        }
-        
-        // Reset the onMsg
-        comm.onMsg = originalOnMsg;
-
-        return resolve(false);
+        void checkForEcho();
     })
 }
 
@@ -133,8 +156,7 @@ export const getLabComm = async (kernelID: string, commTargetID: string): Promis
     // Potentially returns undefined if the command is not yet started
     let potentialComm: LabComm | 'no_backend_comm_registered_error' | undefined = undefined;
 
-    // TODO: I hate this abstraction...
-    await sleepUntilTrueOrTimeout(async () => {
+    await waitUntilConditionReturnsTrueOrTimeout(async () => {
         try {
             potentialComm = await window.commands?.execute('mitosheet:create-mitosheet-comm', {kernelID: kernelID, commTargetID: commTargetID});
         } catch (e) {
@@ -142,7 +164,8 @@ export const getLabComm = async (kernelID: string, commTargetID: string): Promis
             console.error(e);
             return true;
         }
-        return potentialComm !== undefined && potentialComm !== 'no_backend_comm_registered_error'; // TODO: we have to keep trying till we get a comm
+        // We don't return true until we get a comm
+        return potentialComm !== undefined && potentialComm !== 'no_backend_comm_registered_error';
     }, MAX_WAIT_FOR_COMM_CREATION)
 
 
@@ -152,19 +175,10 @@ export const getLabComm = async (kernelID: string, commTargetID: string): Promis
         return 'no_backend_comm_registered_error'
     } else {
         /**
-         * If we have successfully made a comm, we need to do a few things:
-         *  - Open the comm. This is only required on lab, but otherwise you have a comm that 
-         *    will not function.
-         *  - Check that the comm is actually getting messages from the backend. For this, we 
-         *    send an echo message from the backend, when it gets the open message
-         * 
-         * The check that we can receive messages ensures that we're not just creating a comm
-         * on the frontend without any backend connection. This might happen when you restart
-         * the page. 
-         * 
-         * In this case, we return the CommStatus of no_backend, etc
+         * If we have successfully made a comm, we need to manually open this comm before we 
+         * use it. This is required on lab, but not on notebook.
          */
-        (potentialComm as LabComm).open() // TODO: why do I have to do this cast?
+        (potentialComm as LabComm).open() // TODO: why do I have to do this cast? Seems like a complier issue
         
         if (!(await getLabCommConnectedToBackend(potentialComm))) {
             return 'no_backend_comm_registered_error'

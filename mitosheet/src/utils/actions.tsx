@@ -66,7 +66,7 @@ export const createActions = (
 
     // If the replay analysis taskpane is open due to a failed replay analysis, we pretty much disable all actions
     // as the user needs to resolve these errors or start a new analysis
-    let defaultActionDisabledMessage: string | undefined = getDefaultActionsDisabledMessage(uiState, commCreationStatus);
+    const defaultActionDisabledMessage: string | undefined = getDefaultActionsDisabledMessage(uiState, commCreationStatus);
 
     /*
         All of the actions that can be taken from the Action Search Bar. 

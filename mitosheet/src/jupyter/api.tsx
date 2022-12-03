@@ -13,7 +13,7 @@ import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Gra
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
 import { AnalysisData, BackendPivotParams, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, GraphID, GraphParamsFrontend, MitoError, SheetData, UIState, UserProfile } from "../types";
-import { sleepUntilTrueOrTimeout } from "../utils/time";
+import { waitUntilConditionReturnsTrueOrTimeout } from "../utils/time";
 import { CommContainer, MAX_WAIT_FOR_COMM_CREATION } from "./comm";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "./jupyterUtils";
 
@@ -147,10 +147,10 @@ export default class MitoAPI {
     }
 
 
-     // NOTE: see comment in useMitoAPI above. We will get rid of this function
-     // when we move away from the widget framework and have a better place to
-     // call async functions
-     async init(commContainer: CommContainer): Promise<void> {
+    // NOTE: see comment in useMitoAPI above. We will get rid of this function
+    // when we move away from the widget framework and have a better place to
+    // call async functions
+    async init(commContainer: CommContainer): Promise<void> {
         this.commContainer = commContainer;
         this._send = commContainer.comm.send;
         if (commContainer.type === 'notebook') {
@@ -182,7 +182,7 @@ export default class MitoAPI {
 
         // If we still haven't created the comm, then we wait for up to MAX_WAIT_FOR_COMM_CREATION 
         // to see if they get defined. Note we check for them being 
-        await sleepUntilTrueOrTimeout(() => {return this.commContainer !== undefined && this._send !== undefined}, MAX_WAIT_FOR_COMM_CREATION);
+        await waitUntilConditionReturnsTrueOrTimeout(() => {return this.commContainer !== undefined && this._send !== undefined}, MAX_WAIT_FOR_COMM_CREATION);
 
         // If we still aren't defined, then we give up on sending this message
         if (this.commContainer === undefined || this._send === undefined) {
