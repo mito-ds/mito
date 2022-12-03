@@ -180,7 +180,7 @@ MITOSHEET_PACKAGE_JSON = """{
     "build:nbextension": "webpack --mode=production",
     "build:labextension": "jupyter labextension build .",
     "build:mito_frontend": "node esbuild.js",
-    "build:all": "npm run build:lib && npm run build:labextension && npm run build:nbextension",
+    "build:all": "npm run build:lib && npm run build:labextension && npm run build:nbextension && npm run build:mito_frontend",
     "build": "npm run build:all",
 
     "watch:lib": "tsc -w",
