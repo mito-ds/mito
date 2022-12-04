@@ -198,7 +198,7 @@ const CellEditor = (props: {
         )
     }
 
-    const onSubmit = async (e: React.FormEvent<HTMLFormElement> | undefined) => {
+    const onSubmit = async (e?: React.FormEvent<HTMLFormElement> | undefined) => {
         // Don't refresh the page
         e?.preventDefault();
 
@@ -268,6 +268,8 @@ const CellEditor = (props: {
     const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         // Don't let the key down go anywhere else
         e.stopPropagation();
+
+        console.log('on key down')
         
         // Keep the event around, so that we can use it in later callbacks
         // and pass it through to callbacks
@@ -275,6 +277,14 @@ const CellEditor = (props: {
 
         // Clear the cell editor error
         setCellEditorError(undefined);
+
+        if (e.key == 'Enter' && !e.shiftKey) {
+            console.log("enter without shift")
+        } 
+
+        if (e.key == 'Enter' && e.shiftKey) {
+            console.log('enter with shift')
+        }
 
         if (KEYS_TO_IGNORE_IF_PRESSED_ALONE.includes(e.key)) {
             return;
@@ -298,6 +308,7 @@ const CellEditor = (props: {
                 after selecting some column headers, we take insert these headers into the formula.
         */
         if (isNavigationKeyPressed(e.key) && !altPressed) {
+            console.log("IN HERE")
             // If the user presses an up or down arrow, and there are suggested headers or functions,
             // then we scroll up and down
             const arrowUp = e.key === 'Up' || e.key === 'ArrowUp';
@@ -431,12 +442,48 @@ const CellEditor = (props: {
                 formula: fullFormula,
                 pendingSelectedColumns: undefined
             })
-        } else if (e.key === 'Enter') {
-            // Prevents the addition of a new line in the text field (not needed in a lot of cases)
-            e.preventDefault();
-            // We just call the onSubmit function directly instead of creating and dispatching a 
-            // Submit event becuase I can't figure out how to do it. 
-            void onSubmit(undefined)
+        }
+    }
+
+    const onKeyUp = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        /*
+            onKeyUp is the only place that we can detect Shift+Enter. For some reason, we
+            cannot catch it in onKeyDown, so we handle the Enter key here.
+        */
+
+        // Don't let the key down go anywhere else
+        e.stopPropagation();
+        
+        // Keep the event around, so that we can use it in later callbacks
+        // and pass it through to callbacks
+        e.persist()
+
+        // Clear the cell editor error
+        setCellEditorError(undefined);
+
+        if (e.key == 'Enter' && e.shiftKey) {
+
+            if (cellEditorTextAreaRef.current === undefined || cellEditorTextAreaRef.current === null) {
+                return
+            }
+
+            const textAreaValue = cellEditorTextAreaRef.current.value
+            const caretLocation = cellEditorTextAreaRef.current.selectionStart
+
+            // If the user presses shift+Enter in the middle of the formula, we add the new line at the start of their selection
+            const newFormula = textAreaValue?.substring(0, caretLocation - 1)  + "\n" + textAreaValue.substring(caretLocation, textAreaValue.length) 
+
+            props.setEditorState({
+                ...props.editorState,
+                formula: newFormula,
+                arrowKeysScrollInFormula: true // TODO: Figure out if users prefer to scroll in formula or sheets after editing
+            })
+        }
+
+        if (e.key == 'Enter' && !e.shiftKey) {
+            // BUG: If the user presses Enter to open the cell editor, this event gets fired and it 
+            // immedietly closes the cell editor..
+            onSubmit()
         }
     }
 
@@ -444,7 +491,6 @@ const CellEditor = (props: {
         <div className='cell-editor'>
             <form
                 className='cell-editor-form'
-                onSubmit={onSubmit}
                 autoComplete='off' // Turn off autocomplete so the html suggestion box doesn't cover Mito's suggestion box.
             >
                 <textarea
@@ -462,8 +508,8 @@ const CellEditor = (props: {
                     }}
                     value={getFullFormula(props.editorState.formula, columnHeader, props.editorState.pendingSelectedColumns)}
                     onKeyDown={onKeyDown}
+                    onKeyUp={onKeyUp}
                     onChange={(e) => {
-
                         const CHARS_TO_REMOVE_SCROLL_IN_FORMULA = [
                             ' ',
                             ',',
