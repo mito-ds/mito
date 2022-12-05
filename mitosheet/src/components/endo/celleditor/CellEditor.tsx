@@ -442,6 +442,8 @@ const CellEditor = (props: {
                 formula: fullFormula,
                 pendingSelectedColumns: undefined
             })
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
         }
     }
 
@@ -470,8 +472,9 @@ const CellEditor = (props: {
             const textAreaValue = cellEditorTextAreaRef.current.value
             const caretLocation = cellEditorTextAreaRef.current.selectionStart
 
-            // If the user presses shift+Enter in the middle of the formula, we add the new line at the start of their selection
-            const newFormula = textAreaValue?.substring(0, caretLocation - 1)  + "\n" + textAreaValue.substring(caretLocation, textAreaValue.length) 
+            // If the user presses shift+Enter in the middle of the formula, we add the new line at the start of their selection and update their cursor
+            const newFormula = textAreaValue?.substring(0, caretLocation)  + "\n" + textAreaValue.substring(caretLocation, textAreaValue.length) 
+            cellEditorTextAreaRef.current.selectionStart = caretLocation + 2
 
             props.setEditorState({
                 ...props.editorState,
