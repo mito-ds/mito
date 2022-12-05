@@ -36,7 +36,7 @@
  * we return an error to the user.
  */
 
-import { sleep, waitUntilConditionReturnsTrueOrTimeout } from "../utils/time";
+import { waitUntilConditionReturnsTrueOrTimeout } from "../utils/time";
 import { isInJupyterLab, isInJupyterNotebook } from "./jupyterUtils";
 
 /**
@@ -88,7 +88,7 @@ export const getNotebookCommConnectedToBackend = async (comm: NotebookComm): Pro
             })
 
             // Give the onMsg a while to run
-            await sleep(MAX_WAIT_FOR_COMM_CREATION);
+            await waitUntilConditionReturnsTrueOrTimeout(() => {return echoReceived}, MAX_WAIT_FOR_COMM_CREATION);
 
             // TODO: do we need to on_msg here, I am not sure how
 
@@ -134,12 +134,12 @@ export const getLabCommConnectedToBackend = async (comm: LabComm): Promise<boole
             comm.onMsg = (msg) => {
                 // Wait for the first echo message, and then we know this comm is actually connected
                 if (msg.content.data.echo) {
-                    echoReceived = true
+                    echoReceived = true;
                 }
             }
 
-            // Give the onMsg a while to run
-            await sleep(MAX_WAIT_FOR_COMM_CREATION);
+            // Give the onMsg a while to run, quiting early if we get an echo
+            await waitUntilConditionReturnsTrueOrTimeout(() => {return echoReceived}, MAX_WAIT_FOR_COMM_CREATION);
 
             // Reset the onMsg
             comm.onMsg = originalOnMsg;
