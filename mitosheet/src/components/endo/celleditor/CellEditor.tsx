@@ -54,6 +54,13 @@ const CellEditor = (props: {
 
     const {columnID, columnHeader} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
 
+    // When we use ctrl+Enter to add a new line to our cell editor, the text area defaults to moving the cursor 
+    // because the cell editor value is updated programatically such that the valuew we are setting it to, does not match
+    // the value that the cell editor expects. We're not able to set the cursor position in the onKeyDown event because 
+    // the updating of the textArea value happens afterwards. So instead, we use the charLocationToSet and a useEffect to 
+    // update the cursor position after the text area's value has been updated.
+    const [charLocationToSet, setCharLocationToSet] = useState<number|undefined>(undefined)
+
     // When we first render the cell editor input, make sure to save it and focus on it
     const setRef = useCallback((unsavedTextAreaAnchor: HTMLTextAreaElement) => {
         if (unsavedTextAreaAnchor !== null) {
@@ -109,6 +116,15 @@ const CellEditor = (props: {
             }
         })
     }, [props.editorState.editingMode])
+
+    useEffect(() => {
+        if (charLocationToSet !== undefined && cellEditorTextAreaRef.current !== null) {
+            cellEditorTextAreaRef.current.setSelectionRange(
+                charLocationToSet, charLocationToSet
+            )
+            setCharLocationToSet(undefined)
+        }
+    }, [props.editorState.formula])
 
     if (columnID === undefined || columnHeader === undefined) {
         return <></>;
@@ -293,7 +309,9 @@ const CellEditor = (props: {
                 (C) navigating in the sheet itself
                 (D) the default case (we do no work), where they are moving inside the editor
             2.  If it's the escape key, we close the cell editor.
-            3.  The user presses any other key. In this case, we just let the input change as 
+            3.  If its the Enter+ctrl key, we add a new line to the text area.
+            4.  If its Enter, submit the cell editor form. 
+            5.  The user presses any other key. In this case, we just let the input change as 
                 normal, but also _take any column headers_ the user may have been selecting
                 and finalize inserting them into the formula. Thus if the user starts typing
                 after selecting some column headers, we take insert these headers into the formula.
@@ -393,28 +411,41 @@ const CellEditor = (props: {
             // 2) Close if escape is pressed
             closeCellEditor()
         } else if (e.key === 'Enter' && ctrlPressed) {
+            /* 
+                By default the textArea does not thing when Enter+ctrl or Enter+Shift are pressed. It only 
+                adds a new character when Enter is pressed alone. 
+            */
+
+            // prevent the default behavior of the Enter key
+            e.preventDefault();
+            
+            // First, reset the suggestion index that is selected back to -1, 
+            // so that noting is selected
+            setSavedSelectedSuggestionIndex(-1)
+
             if (cellEditorTextAreaRef.current === undefined || cellEditorTextAreaRef.current === null) {
                 return
             }
 
-            const textAreaValue = cellEditorTextAreaRef.current.value
+            const currentFormula = props.editorState.formula
             const caretLocation = cellEditorTextAreaRef.current.selectionStart
 
             // If the user presses shift+Enter in the middle of the formula, we add the new line at the start of their selection and update their cursor.
             // Note: We use the unicode representation instead of \n because it doesn't mess up the formula parser
-            const newFormula = textAreaValue.substring(0, caretLocation)  + "\u000A" + textAreaValue.substring(caretLocation, textAreaValue.length)
+            const newFormula = currentFormula.substring(0, caretLocation)  + "\u000A" + currentFormula.substring(caretLocation, currentFormula.length)
             
+            setCharLocationToSet(caretLocation + 1) 
 
             props.setEditorState({
                 ...props.editorState,
                 formula: newFormula,
-                arrowKeysScrollInFormula: true // TODO: Figure out if users prefer to scroll in formula or sheets after editing
+                arrowKeysScrollInFormula: true, // TODO: Figure out if users prefer to scroll in formula or sheets after editing,
+                pendingSelectedColumns: undefined
             })
-
-            cellEditorTextAreaRef.current.setSelectionRange(
-                caretLocation, caretLocation + 1
-            )
         } else if (e.key === 'Enter') {
+            // We prevent default and stop propogation so that this does not also try to add a new line to the cell editor.
+            e.preventDefault();
+            e.stopPropagation();
             onSubmit()
         } else {
             // 3) Case where they press any non-navigation key, except Enter. 
@@ -450,6 +481,8 @@ const CellEditor = (props: {
                 columnHeader,
                 props.editorState.pendingSelectedColumns
             );
+
+            console.log("updating formula")
                 
             props.setEditorState({
                 ...props.editorState,
@@ -458,37 +491,6 @@ const CellEditor = (props: {
             })
         }
     }
-
-    // const onKeyUp = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    //     /*
-    //         onKeyUp is the only place that we can detect Shift+Enter. For some reason, we
-    //         cannot catch it in onKeyDown, so we handle the Enter key here.
-    //     */
-
-    //     if (e.key === 'Enter' && e.shiftKey) {
-    //         if (cellEditorTextAreaRef.current === undefined || cellEditorTextAreaRef.current === null) {
-    //             return
-    //         }
-
-    //         const textAreaValue = cellEditorTextAreaRef.current.value
-    //         const caretLocation = cellEditorTextAreaRef.current.selectionStart
-
-    //         // If the user presses shift+Enter in the middle of the formula, we add the new line at the start of their selection and update their cursor.
-    //         // Note: We use the unicode representation instead of \n because it doesn't mess up the formula parser
-    //         const newFormula = textAreaValue.substring(0, caretLocation)  + "\u000A" + textAreaValue.substring(caretLocation, textAreaValue.length)
-            
-
-    //         props.setEditorState({
-    //             ...props.editorState,
-    //             formula: newFormula,
-    //             arrowKeysScrollInFormula: true // TODO: Figure out if users prefer to scroll in formula or sheets after editing
-    //         })
-
-    //         cellEditorTextAreaRef.current.setSelectionRange(
-    //             caretLocation, caretLocation
-    //         )
-    //     }
-    // }
 
     return (
         <div className='cell-editor'>
