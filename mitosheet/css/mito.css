@@ -40,6 +40,10 @@
     text-decoration: initial;
 }
 
+.rendered_html .mito-container :visited {
+    text-decoration: initial;
+}
+
 /* 
     We override the the overflow behavior on the jupyter-widgets class, which 
     seems to only be applied to the container of the widgets themselves (e.g.

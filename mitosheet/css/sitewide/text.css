@@ -161,6 +161,9 @@
 .text-align-center {
     text-align: center;
 }
+.text-align-center-important {
+    text-align: center !important;
+}
 
 .text-underline {
     text-decoration: underline;

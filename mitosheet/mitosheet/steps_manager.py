@@ -285,8 +285,6 @@ class StepsManager:
             self.steps_including_skipped, self.last_step_index_we_wrote_sheet_json_on, self.curr_step_idx
         )
 
-        print("Modified", len(self.curr_step.dfs), modified_sheet_indexes, len(self.saved_sheet_data))
-
         array = dfs_to_array_for_json(
             self.curr_step.final_defined_state,
             modified_sheet_indexes,

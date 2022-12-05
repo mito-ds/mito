@@ -1257,7 +1257,7 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return undefined},
+            isDisabled: () => {return commCreationStatus !== 'finished' ? defaultActionDisabledMessage : undefined},
             searchTerms: ['update', 'imports', 'replay', 'refresh', 'change'],
             tooltip: "Change imported data to rerun the same edits on new data."
         },

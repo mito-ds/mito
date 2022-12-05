@@ -668,6 +668,9 @@
 .text-align-center {
   text-align: center;
 }
+.text-align-center-important {
+  text-align: center !important;
+}
 .text-underline {
   text-decoration: underline;
 }
@@ -1395,6 +1398,9 @@ a:visited {
 .jp-rendered_html .mito-container a:link,
 a:visited {
   color: initial;
+  text-decoration: initial;
+}
+.rendered_html .mito-container :visited {
   text-decoration: initial;
 }
 .jupyter-widgets {
@@ -2312,7 +2318,7 @@ a:visited {
 }
 .toolbar-dropdown-selector {
   height: 22px;
-  margin-right: 5px;
+  margin-right: 5px !important;
   padding: 2px 3px;
   border-radius: 3px;
   font-family: Roboto;

@@ -26118,7 +26118,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         let right = void 0;
         const columnHeadersHeight = columnHeader === void 0 || isPrimitiveColumnHeader(columnHeader) ? 45 : 45 + (columnHeader.length - 1) * 25;
         const defaultTop = cellInRowRect ? cellInRowRect.y : props.editorState.rowIndex < currentSheetView.startingRowIndex ? 0 : scrollAndRenderedContainerRect.y * 100;
-        top = Math.min(Math.max(0, defaultTop - scrollAndRenderedContainerRect.y) + columnHeadersHeight, scrollAndRenderedContainerRect.height);
+        top = Math.min(Math.max(0, defaultTop - scrollAndRenderedContainerRect.y + 4) + columnHeadersHeight, scrollAndRenderedContainerRect.height);
         if (top >= scrollAndRenderedContainerRect.height - 50) {
           top = void 0;
           bottom = 0;
@@ -30591,7 +30591,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           });
         },
         isDisabled: () => {
-          return void 0;
+          return commCreationStatus !== "finished" ? defaultActionDisabledMessage : void 0;
         },
         searchTerms: ["update", "imports", "replay", "refresh", "change"],
         tooltip: "Change imported data to rerun the same edits on new data."
@@ -31537,7 +31537,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           (_a = openDropdownDivRef.current) == null ? void 0 : _a.click();
         }
       },
-      /* @__PURE__ */ import_react90.default.createElement("div", { className: "tab-content" }, props.tabIDObj.tabType === "graph" && /* @__PURE__ */ import_react90.default.createElement("div", null, /* @__PURE__ */ import_react90.default.createElement(GraphIcon_default, { variant: props.isSelectedTab ? "light" : void 0 })), isRename && /* @__PURE__ */ import_react90.default.createElement(
+      /* @__PURE__ */ import_react90.default.createElement("div", { className: "tab-content" }, props.tabIDObj.tabType === "graph" && /* @__PURE__ */ import_react90.default.createElement("div", { className: "mr-3px" }, /* @__PURE__ */ import_react90.default.createElement(GraphIcon_default, { variant: props.isSelectedTab ? "light" : void 0 })), isRename && /* @__PURE__ */ import_react90.default.createElement(
         "form",
         {
           onSubmit: async (e) => {
@@ -31693,7 +31693,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         }
       },
       /* @__PURE__ */ import_react93.default.createElement(XIcon_default, null)
-    ))), /* @__PURE__ */ import_react93.default.createElement("div", { className: classNames("mito-modal-header-text-div", { "mt-25px": props.setUIState === void 0 }), style: { color: headerColor } }, /* @__PURE__ */ import_react93.default.createElement("p", null, props.header)), props.viewComponent && /* @__PURE__ */ import_react93.default.createElement("div", { className: "mito-modal-message" }, props.viewComponent), /* @__PURE__ */ import_react93.default.createElement("div", { className: "mito-modal-buttons" }, props.buttons))));
+    ))), /* @__PURE__ */ import_react93.default.createElement("div", { className: classNames("mito-modal-header-text-div", { "mt-25px": props.setUIState === void 0 }), style: { color: headerColor } }, /* @__PURE__ */ import_react93.default.createElement("p", { className: "text-align-center-important" }, props.header)), props.viewComponent && /* @__PURE__ */ import_react93.default.createElement("div", { className: "mito-modal-message" }, props.viewComponent), /* @__PURE__ */ import_react93.default.createElement("div", { className: "mito-modal-buttons" }, props.buttons))));
   };
   var DefaultModal_default = DefaultModal;
 
@@ -35607,7 +35607,7 @@ fig.write_html("${props.graphTabName}.html")`
             backgroundColor: graphParams.graphStyling.paper_bgcolor
           }
         },
-        graphOutput === void 0 && /* @__PURE__ */ import_react139.default.createElement("p", { className: "graph-sidebar-welcome-text" }, "To generate a graph, select an axis."),
+        graphOutput === void 0 && /* @__PURE__ */ import_react139.default.createElement("p", { className: "graph-sidebar-welcome-text text-align-center-important" }, "To generate a graph, select an axis."),
         graphOutput !== void 0 && /* @__PURE__ */ import_react139.default.createElement("div", { dangerouslySetInnerHTML: { __html: graphOutput.graphHTML } })
       ), /* @__PURE__ */ import_react139.default.createElement("div", { className: "graph-sidebar-toolbar-container" }, /* @__PURE__ */ import_react139.default.createElement("div", { className: "graph-sidebar-toolbar-content-container" }, /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react139.default.createElement(Col_default, null, /* @__PURE__ */ import_react139.default.createElement("p", { className: "text-header-2" }, selectedGraphSidebarTab === "setup" /* Setup */ && "Setup Graph", selectedGraphSidebarTab === "style" /* Style */ && "Style Graph", selectedGraphSidebarTab === "export" /* Export */ && "Export Graph")), /* @__PURE__ */ import_react139.default.createElement(Col_default, null, /* @__PURE__ */ import_react139.default.createElement(
         XIcon_default,
@@ -37318,7 +37318,7 @@ fig.write_html("${props.graphTabName}.html")`
         disabled: retryButtonDisabled,
         disabledTooltip: retryButtonDisabled ? "Please resolve all errors with above imports." : void 0
       },
-      /* @__PURE__ */ import_react155.default.createElement("p", null, !loadingUpdate ? "Change Imports" : "Changing Imports...")
+      /* @__PURE__ */ import_react155.default.createElement("p", { className: "text-align-center-important" }, !loadingUpdate ? "Change Imports" : "Changing Imports...")
     )));
   };
   var UpdateImportsPostReplayTaskpane_default = UpdateImportsPostReplayTaskpane;
@@ -37431,7 +37431,7 @@ fig.write_html("${props.graphTabName}.html")`
         disabled: retryButtonDisabled,
         disabledTooltip: retryButtonDisabled ? "Please resolve all errors with above imports." : void 0
       },
-      /* @__PURE__ */ import_react156.default.createElement("p", null, !loadingUpdate ? "Retry With Updated Imports" : "Updating Imports...")
+      /* @__PURE__ */ import_react156.default.createElement("p", { className: "text-align-center-important" }, !loadingUpdate ? "Retry With Updated Imports" : "Updating Imports...")
     )))));
   };
   var UpdateImportsPreReplayTaskpane_default = UpdateImportsPreReplayTaskpane;
@@ -38324,6 +38324,7 @@ fig.write_html("${props.graphTabName}.html")`
     return /* @__PURE__ */ import_react182.default.createElement(DefaultPopup_default, { popupLocation: props.popupLocation, className: "ephemeral-message-animation" }, /* @__PURE__ */ import_react182.default.createElement(Row_default, { className: classNames("ephemeral-message-container"), align: "center", suppressTopBottomMargin: true }, /* @__PURE__ */ import_react182.default.createElement("p", { className: classNames("text-body-1", "text-color-white-important", "mr-10px") }, props.message), /* @__PURE__ */ import_react182.default.createElement(
       "div",
       {
+        className: "mt-5px ml-5px",
         onClick: () => closePopup()
       },
       /* @__PURE__ */ import_react182.default.createElement(XIcon_default, { variant: "light" })
