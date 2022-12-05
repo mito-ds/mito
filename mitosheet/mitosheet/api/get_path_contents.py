@@ -128,8 +128,10 @@ def get_path_contents(params: Dict[str, Any]) -> str:
     # to see (as they would otherwise). 
     # Linux, Max == starts with "."
     # Windows == "$"
+    # We also filter out files that start with:
+    # ~$ is used to prefix hidden temporary files that are created when a document is opened in Windows
     dirnames = [d for d in dirnames if (not d.startswith('.') and not d.startswith('$'))]
-    filenames = [f for f in filenames if (not f.startswith('.') and not f.startswith('$'))]
+    filenames = [f for f in filenames if (not f.startswith('.') and not f.startswith('$') and not f.startswith('~$'))]
 
     return json.dumps({
         'path': path,
