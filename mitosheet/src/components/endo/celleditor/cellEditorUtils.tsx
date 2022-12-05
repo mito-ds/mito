@@ -49,7 +49,7 @@ export const getCellEditorInputCurrentSelection = (containerDiv: HTMLDivElement 
             selectionEnd: 0
         };
     } 
-    const cellEditorInput = (cellEditorElement as HTMLInputElement);
+    const cellEditorInput = (cellEditorElement as HTMLTextAreaElement);
 
     return {
         selectionStart: cellEditorInput.selectionStart || 0,
