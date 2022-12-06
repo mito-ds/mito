@@ -1,10 +1,14 @@
 import React, { Component, ReactNode } from "react";
 import MitoAPI from "../../jupyter/api";
 import { DISCORD_INVITE_LINK, SLACK_INVITE_LINK } from "../../data/documentationLinks";
+import { AnalysisData, SheetData, UserProfile } from "../../types";
 
 interface Props {
     children: ReactNode;
     mitoAPI: MitoAPI;
+    userProfile: UserProfile,
+    analyisData: AnalysisData,
+    sheetDataArray: SheetData[]
 }
 
 interface State {
@@ -22,6 +26,11 @@ class ErrorBoundary extends Component<Props, State> {
     }
 
     public componentDidCatch(error: Error): void {
+        console.error("Sheet crashing error", error);
+        console.error("userProfile", this.props.userProfile)
+        console.error("analysisData", this.props.analyisData)
+        console.error("sheetDataArray", this.props.sheetDataArray)
+
         void this.props.mitoAPI.log('frontend_render_failed', {
             'error_name': error.name,
             'error_message': error.message,

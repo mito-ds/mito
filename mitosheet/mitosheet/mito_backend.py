@@ -18,7 +18,7 @@ import pandas as pd
 from ipykernel import get_connection_file
 from ipykernel.comm import Comm
 from IPython import get_ipython
-from IPython.display import HTML, DisplayHandle, display
+from IPython.display import HTML, display
 
 from mitosheet.api import API
 from mitosheet.data_in_mito import DataTypeInMito

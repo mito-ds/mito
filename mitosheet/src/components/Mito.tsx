@@ -230,7 +230,13 @@ export const Mito = (props: MitoProps): JSX.Element => {
         }
 
         const handleRender = async () => {
-            if (analysisData.renderCount === 0) {
+            // We need to get the render count direct from the API, and not trust the analysisData here
+            // because on the first render, we might be displaying outdated data, as the anlaysis has not
+            // been replayed yet. This is a function of not being a widget with constantly synced state 
+            // variables
+            const currentRenderCount = await mitoAPI.getRenderCount();
+
+            if (currentRenderCount === 0) {
                 await updateMitosheetCallCellOnFirstRender();
             }
             // Anytime we render, update the render count
@@ -812,7 +818,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     return (
         <div className="mito-container" data-jp-suppress-context-menu ref={mitoContainerRef} tabIndex={0}>
-            <ErrorBoundary mitoAPI={mitoAPI}>
+            <ErrorBoundary mitoAPI={mitoAPI} analyisData={analysisData} userProfile={userProfile} sheetDataArray={sheetDataArray}>
                 <Toolbar 
                     mitoAPI={mitoAPI}
                     currStepIdx={analysisData.currStepIdx}

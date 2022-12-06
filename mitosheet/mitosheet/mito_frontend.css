@@ -620,6 +620,9 @@
   font-weight: 400;
   color: var(--mito-medium-gray);
 }
+.text-color-mito-purple {
+  color: var(--mito-purple);
+}
 .text-color-white-important {
   color: white !important;
 }

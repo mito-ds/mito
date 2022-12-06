@@ -23453,6 +23453,13 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       }
       return void 0;
     }
+    async getRenderCount() {
+      return await this.send({
+        "event": "api_call",
+        "type": "get_render_count",
+        "params": {}
+      }, {});
+    }
     async _edit(edit_event_type, params, stepID) {
       const result = await this.send({
         "event": "edit_event",
@@ -24049,7 +24056,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         /* @__PURE__ */ import_react27.default.createElement(
           "span",
           {
-            className: classNames("text-color-white-important", "text-overflow-wrap")
+            className: classNames({ "text-color-white-important": props.variant === "dark" }, "text-overflow-wrap")
           },
           props.children
         )
@@ -31171,6 +31178,10 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     }
     componentDidCatch(error) {
       var _a;
+      console.error("Sheet crashing error", error);
+      console.error("userProfile", this.props.userProfile);
+      console.error("analysisData", this.props.analyisData);
+      console.error("sheetDataArray", this.props.sheetDataArray);
       void this.props.mitoAPI.log("frontend_render_failed", {
         "error_name": error.name,
         "error_message": error.message,
@@ -32411,7 +32422,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       await props.mitoAPI.updateSignUp(props.email);
       props.next();
     };
-    return /* @__PURE__ */ import_react101.default.createElement("div", { className: "signup-modal-left-column" }, /* @__PURE__ */ import_react101.default.createElement("div", null, /* @__PURE__ */ import_react101.default.createElement("h1", { className: "mt-0 mb-0 text-header-1" }, "Sign Up for Mito"), /* @__PURE__ */ import_react101.default.createElement("p", { className: "signup-modal-text" }, "We\u2019ll send you periodic product updates and welcome any feedback. And no spam. Duh.")), /* @__PURE__ */ import_react101.default.createElement("form", { className: "signup-modal-email-form", onSubmit }, /* @__PURE__ */ import_react101.default.createElement("h3", { className: "mb-0 text-header-2" }, "Your Email"), /* @__PURE__ */ import_react101.default.createElement(
+    return /* @__PURE__ */ import_react101.default.createElement("div", { className: "signup-modal-left-column" }, /* @__PURE__ */ import_react101.default.createElement("div", null, /* @__PURE__ */ import_react101.default.createElement("h1", { className: "text-header-1", style: { margin: 0 } }, "Sign Up for Mito"), /* @__PURE__ */ import_react101.default.createElement("p", { className: "signup-modal-text" }, "We\u2019ll send you periodic product updates and welcome any feedback. And no spam. Duh.")), /* @__PURE__ */ import_react101.default.createElement("form", { className: "signup-modal-email-form", onSubmit }, /* @__PURE__ */ import_react101.default.createElement("h3", { className: "text-header-2", style: { marginBottom: 0 } }, "Your Email"), /* @__PURE__ */ import_react101.default.createElement(
       Input_default,
       {
         value: props.email,
@@ -32424,7 +32435,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         required: true,
         autoFocus: true
       }
-    ), /* @__PURE__ */ import_react101.default.createElement("label", null, /* @__PURE__ */ import_react101.default.createElement("h3", { className: "mt-10px mb-0 text-header-2" }, FirstQuestion)), /* @__PURE__ */ import_react101.default.createElement(
+    ), /* @__PURE__ */ import_react101.default.createElement("label", null, /* @__PURE__ */ import_react101.default.createElement("h3", { className: "text-header-2", style: { marginTop: "10px", marginBottom: 0 } }, FirstQuestion)), /* @__PURE__ */ import_react101.default.createElement(
       Input_default,
       {
         value: props.firstResponse,
@@ -32434,7 +32445,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         placeholder: FirstPlaceholder,
         required: true
       }
-    ), /* @__PURE__ */ import_react101.default.createElement("div", { className: "mt-10px" }, /* @__PURE__ */ import_react101.default.createElement(
+    ), /* @__PURE__ */ import_react101.default.createElement("div", { className: "mt-10px", style: { marginTop: "10px" } }, /* @__PURE__ */ import_react101.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -32461,7 +32472,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       void props.mitoAPI.updateGoPro();
       props.next();
     };
-    return /* @__PURE__ */ import_react101.default.createElement(import_react101.default.Fragment, null, !enteringProAccessCode && /* @__PURE__ */ import_react101.default.createElement("div", { className: "signup-modal-left-column" }, /* @__PURE__ */ import_react101.default.createElement("div", null, /* @__PURE__ */ import_react101.default.createElement("h1", { className: "mt-0 mb-0 text-header-1" }, isPro ? "You've Signed up for Mito Pro!" : "Want More Power? Consider Mito Pro"), /* @__PURE__ */ import_react101.default.createElement("p", { className: "signup-modal-text" }, isPro ? "Thanks for being a Mito Pro user! Paying for Mito gets you access to advanced functionality and turns off telemetry. In turn, it allows us to fund Mito's development." : "Mito Pro gives you access to advanced functionality, and allows you to turn off telemetry. It also allows us to continue to fund Mito's development!")), !isPro && /* @__PURE__ */ import_react101.default.createElement("div", { className: "signup-modal-buttons mt-10px" }, /* @__PURE__ */ import_react101.default.createElement(
+    return /* @__PURE__ */ import_react101.default.createElement(import_react101.default.Fragment, null, !enteringProAccessCode && /* @__PURE__ */ import_react101.default.createElement("div", { className: "signup-modal-left-column" }, /* @__PURE__ */ import_react101.default.createElement("div", null, /* @__PURE__ */ import_react101.default.createElement("h1", { className: "text-header-1", style: { marginTop: 0, marginBottom: 0 } }, isPro ? "You've Signed up for Mito Pro!" : "Want More Power? Consider Mito Pro"), /* @__PURE__ */ import_react101.default.createElement("p", { className: "signup-modal-text" }, isPro ? "Thanks for being a Mito Pro user! Paying for Mito gets you access to advanced functionality and turns off telemetry. In turn, it allows us to fund Mito's development." : "Mito Pro gives you access to advanced functionality, and allows you to turn off telemetry. It also allows us to continue to fund Mito's development!")), !isPro && /* @__PURE__ */ import_react101.default.createElement("div", { className: "signup-modal-buttons", style: { marginTop: "10px" } }, /* @__PURE__ */ import_react101.default.createElement(
       TextButton_default,
       {
         variant: "light",
@@ -32491,7 +32502,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         autoFocus: true
       },
       /* @__PURE__ */ import_react101.default.createElement(Experiment_default, { analysisData: props.analysisData, experimentID: "title_name", aElement: "No Thanks", bElement: "Skip" })
-    )), isPro && /* @__PURE__ */ import_react101.default.createElement("div", { className: "signup-modal-buttons mt-10px" }, /* @__PURE__ */ import_react101.default.createElement(
+    )), isPro && /* @__PURE__ */ import_react101.default.createElement("div", { className: "signup-modal-buttons", style: { marginTop: "10px" } }, /* @__PURE__ */ import_react101.default.createElement(
       TextButton_default,
       {
         variant: "light",
@@ -32508,7 +32519,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         autoFocus: true
       },
       "Continue"
-    ))), enteringProAccessCode && /* @__PURE__ */ import_react101.default.createElement("div", { className: "signup-modal-left-column" }, /* @__PURE__ */ import_react101.default.createElement("div", null, /* @__PURE__ */ import_react101.default.createElement("h1", { className: "mt-0 mb-0 text-header-1" }, "Access Pro"), /* @__PURE__ */ import_react101.default.createElement("p", { className: "signup-modal-text" }, "Complete the checkout flow. In the Pro documentation, click ", /* @__PURE__ */ import_react101.default.createElement("b", null, "Get Access Code"), " and enter it here."), /* @__PURE__ */ import_react101.default.createElement("label", null, /* @__PURE__ */ import_react101.default.createElement("h3", { className: "mt-5px mb-0 text-header-2" }, "Access Code:")), /* @__PURE__ */ import_react101.default.createElement(
+    ))), enteringProAccessCode && /* @__PURE__ */ import_react101.default.createElement("div", { className: "signup-modal-left-column" }, /* @__PURE__ */ import_react101.default.createElement("div", null, /* @__PURE__ */ import_react101.default.createElement("h1", { className: "text-header-1", style: { marginTop: 0, marginBottom: 0 } }, "Access Pro"), /* @__PURE__ */ import_react101.default.createElement("p", { className: "signup-modal-text" }, "Complete the checkout flow. In the Pro documentation, click ", /* @__PURE__ */ import_react101.default.createElement("b", null, "Get Access Code"), " and enter it here."), /* @__PURE__ */ import_react101.default.createElement("label", null, /* @__PURE__ */ import_react101.default.createElement("h3", { className: "text-header-2", style: { marginTop: "5px", marginBottom: 0 } }, "Access Code:")), /* @__PURE__ */ import_react101.default.createElement(
       Input_default,
       {
         placeholder: "mito-pro-access-code-XXXXXXXXXXXX",
@@ -32522,7 +32533,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           }
         }
       }
-    ), invalidAccessCode && /* @__PURE__ */ import_react101.default.createElement("p", { className: "signup-modal-text signup-modal-text-error" }, "Invalid access code")), /* @__PURE__ */ import_react101.default.createElement("div", { className: "signup-modal-buttons mt-10px" }, /* @__PURE__ */ import_react101.default.createElement(
+    ), invalidAccessCode && /* @__PURE__ */ import_react101.default.createElement("p", { className: "signup-modal-text signup-modal-text-error" }, "Invalid access code")), /* @__PURE__ */ import_react101.default.createElement("div", { className: "signup-modal-buttons", style: { marginTop: "10px" } }, /* @__PURE__ */ import_react101.default.createElement(
       TextButton_default,
       {
         variant: "light",
@@ -32548,7 +32559,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       await props.mitoAPI.updateFeedback("company/organization" /* COMPANY */, props.numUsages, [{ "question": FirstQuestion, "answer": props.firstResponse }]);
       props.next();
     };
-    return /* @__PURE__ */ import_react101.default.createElement("div", { className: "signup-modal-left-column" }, /* @__PURE__ */ import_react101.default.createElement("div", null, /* @__PURE__ */ import_react101.default.createElement("h1", { className: "mt-0 mb-0 text-header-1" }, props.isPro && `Mito Pro is Totally Private`, !props.isPro && `Mito is Built for Privacy`), /* @__PURE__ */ import_react101.default.createElement("p", { className: "signup-modal-text" }, props.isPro && `As a Mito Pro user, no data leaves your computer, ever. Check out our CCPA compliant privacy policy`, !props.isPro && `We make sure none of your private data leaves your computer. Read our CCPA compliant privacy policy`, " ", " ", /* @__PURE__ */ import_react101.default.createElement("a", { href: "https://privacy.trymito.io/privacy-policy", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react101.default.createElement("u", null, "here")), ".")), /* @__PURE__ */ import_react101.default.createElement("div", { className: "signup-modal-buttons mt-10px" }, /* @__PURE__ */ import_react101.default.createElement(
+    return /* @__PURE__ */ import_react101.default.createElement("div", { className: "signup-modal-left-column" }, /* @__PURE__ */ import_react101.default.createElement("div", null, /* @__PURE__ */ import_react101.default.createElement("h1", { className: "text-header-1", style: { marginTop: 0, marginBottom: 0 } }, props.isPro && `Mito Pro is Totally Private`, !props.isPro && `Mito is Built for Privacy`), /* @__PURE__ */ import_react101.default.createElement("p", { className: "signup-modal-text" }, props.isPro && `As a Mito Pro user, no data leaves your computer, ever. Check out our CCPA compliant privacy policy`, !props.isPro && `We make sure none of your private data leaves your computer. Read our CCPA compliant privacy policy`, " ", " ", /* @__PURE__ */ import_react101.default.createElement("a", { href: "https://privacy.trymito.io/privacy-policy", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react101.default.createElement("u", null, "here")), ".")), /* @__PURE__ */ import_react101.default.createElement("div", { className: "signup-modal-buttons", style: { marginTop: "10px" } }, /* @__PURE__ */ import_react101.default.createElement(
       TextButton_default,
       {
         variant: "light",
@@ -39575,7 +39586,8 @@ fig.write_html("${props.graphTabName}.html")`
         }
       };
       const handleRender = async () => {
-        if (analysisData2.renderCount === 0) {
+        const currentRenderCount = await mitoAPI.getRenderCount();
+        if (currentRenderCount === 0) {
           await updateMitosheetCallCellOnFirstRender();
         }
         await mitoAPI.updateRenderCount();
@@ -40070,7 +40082,7 @@ fig.write_html("${props.graphTabName}.html")`
       "mito-default-fullscreen-taskpane-open": graphTaskpaneOpen,
       "mito-default-narrow-taskpane-open": narrowTaskpaneOpen
     });
-    return /* @__PURE__ */ import_react209.default.createElement("div", { className: "mito-container", "data-jp-suppress-context-menu": true, ref: mitoContainerRef, tabIndex: 0 }, /* @__PURE__ */ import_react209.default.createElement(ErrorBoundary_default, { mitoAPI }, /* @__PURE__ */ import_react209.default.createElement(
+    return /* @__PURE__ */ import_react209.default.createElement("div", { className: "mito-container", "data-jp-suppress-context-menu": true, ref: mitoContainerRef, tabIndex: 0 }, /* @__PURE__ */ import_react209.default.createElement(ErrorBoundary_default, { mitoAPI, analyisData: analysisData2, userProfile: userProfile2, sheetDataArray: sheetDataArray2 }, /* @__PURE__ */ import_react209.default.createElement(
       Toolbar_default,
       {
         mitoAPI,
@@ -40155,6 +40167,7 @@ fig.write_html("${props.graphTabName}.html")`
   style.appendChild(document.createTextNode(css));
   document.head.append(style);
   var div = document.getElementById(divID);
+  console.log("Rendering to div", div);
   import_react_dom2.default.render(
     /* @__PURE__ */ React201.createElement(
       Mito_default,
