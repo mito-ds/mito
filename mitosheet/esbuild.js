@@ -5,6 +5,7 @@ esbuild
         entryPoints: ["src/jupyterRender.tsx"],
         outfile: 'mitosheet/mito_frontend.js',
         bundle: true,
+        minify: !process.argv.includes('--watch'), // We only minimize if we're not watching
         plugins: [],
         loader: {
             '.ttf': 'dataurl'
