@@ -124,7 +124,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
     // If the comm ends up failing to be created, then we open a taskpane that let's
     // the user know of this error
     useEffect(() => {
-        console.log("Effect for error", commCreationStatus)
         if (commCreationStatus === 'no_backend_comm_registered_error' || commCreationStatus === 'non_valid_location_error' || commCreationStatus === 'non_working_extension_error') {
             setUIState(prevUIState => {
                 return {
@@ -154,14 +153,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
          * track each time we rerender.
          */
         const updateMitosheetCallCellOnFirstRender = async () => {
-
-            // We onlt want to do all the below (e.g. writing to a code cell) if we 
-            // are working with a valid API
-            if (commCreationStatus !== 'finished') {
-                return;
-            }
-
-
             // Then, we go and read the arguments to the mitosheet.sheet() call. If there
             // is an analysis to replay, we use this to help lookup the call
             const args = await getArgs(analysisData.analysisToReplay?.analysisName);
@@ -236,7 +227,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
             // variables
             const currentRenderCount = await mitoAPI.getRenderCount();
 
-            if (currentRenderCount === 0) {
+            // Note we check this is the first render AND that we have a created comm. This ensures
+            // we only try to send messages when possible
+            if (currentRenderCount === 0 && commCreationStatus === 'finished') {
                 await updateMitosheetCallCellOnFirstRender();
             }
             // Anytime we render, update the render count
