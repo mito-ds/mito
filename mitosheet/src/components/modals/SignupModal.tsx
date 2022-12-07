@@ -145,7 +145,7 @@ const StepTwo = (
                                 : "Want More Power? Consider Mito Pro"
                             }
                         </h1>
-                        <p className='signup-modal-text'>
+                        <p className='signup-modal-text' style={{marginTop: '10px'}}>
                             {isPro 
                                 ? "Thanks for being a Mito Pro user! Paying for Mito gets you access to advanced functionality and turns off telemetry. In turn, it allows us to fund Mito's development." 
                                 : "Mito Pro gives you access to advanced functionality, and allows you to turn off telemetry. It also allows us to continue to fund Mito's development!"
@@ -162,7 +162,7 @@ const StepTwo = (
                                 Back
                             </TextButton>
                             <TextButton
-                                variant='light'
+                                variant='dark'
                                 width='small'
                                 href='https://trymito.io/plans'
                                 target='_blank'
@@ -288,7 +288,7 @@ const StepThree = (
                     {props.isPro && `Mito Pro is Totally Private`}
                     {!props.isPro && `Mito is Built for Privacy`}
                 </h1>
-                <p className='signup-modal-text'>
+                <p className='signup-modal-text' style={{marginTop: '10px'}}>
                     {props.isPro && `As a Mito Pro user, no data leaves your computer, ever. Check out our CCPA compliant privacy policy`}
                     {!props.isPro && `We make sure none of your private data leaves your computer. Read our CCPA compliant privacy policy`}
                     {' '} <a href='https://privacy.trymito.io/privacy-policy' target='_blank' rel="noreferrer"><u>here</u></a>.
