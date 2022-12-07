@@ -71,6 +71,12 @@
 
     /* Set the default font to Roboto */
     font-family: Roboto;
+
+    /* 
+        Set the position to relative to make the overlay base its height and width off of the mito container.
+        Read more here: https://stackoverflow.com/questions/49209970/width-100-of-an-absolute-positioned-element-is-bigger-than-the-parent
+    */
+    position: relative;
 }
 
 
