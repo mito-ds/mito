@@ -32472,7 +32472,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       void props.mitoAPI.updateGoPro();
       props.next();
     };
-    return /* @__PURE__ */ import_react101.default.createElement(import_react101.default.Fragment, null, !enteringProAccessCode && /* @__PURE__ */ import_react101.default.createElement("div", { className: "signup-modal-left-column" }, /* @__PURE__ */ import_react101.default.createElement("div", null, /* @__PURE__ */ import_react101.default.createElement("h1", { className: "text-header-1", style: { marginTop: 0, marginBottom: 0 } }, isPro ? "You've Signed up for Mito Pro!" : "Want More Power? Consider Mito Pro"), /* @__PURE__ */ import_react101.default.createElement("p", { className: "signup-modal-text" }, isPro ? "Thanks for being a Mito Pro user! Paying for Mito gets you access to advanced functionality and turns off telemetry. In turn, it allows us to fund Mito's development." : "Mito Pro gives you access to advanced functionality, and allows you to turn off telemetry. It also allows us to continue to fund Mito's development!")), !isPro && /* @__PURE__ */ import_react101.default.createElement("div", { className: "signup-modal-buttons", style: { marginTop: "10px" } }, /* @__PURE__ */ import_react101.default.createElement(
+    return /* @__PURE__ */ import_react101.default.createElement(import_react101.default.Fragment, null, !enteringProAccessCode && /* @__PURE__ */ import_react101.default.createElement("div", { className: "signup-modal-left-column" }, /* @__PURE__ */ import_react101.default.createElement("div", null, /* @__PURE__ */ import_react101.default.createElement("h1", { className: "text-header-1", style: { marginTop: 0, marginBottom: 0 } }, isPro ? "You've Signed up for Mito Pro!" : "Want More Power? Consider Mito Pro"), /* @__PURE__ */ import_react101.default.createElement("p", { className: "signup-modal-text", style: { marginTop: "10px" } }, isPro ? "Thanks for being a Mito Pro user! Paying for Mito gets you access to advanced functionality and turns off telemetry. In turn, it allows us to fund Mito's development." : "Mito Pro gives you access to advanced functionality, and allows you to turn off telemetry. It also allows us to continue to fund Mito's development!")), !isPro && /* @__PURE__ */ import_react101.default.createElement("div", { className: "signup-modal-buttons", style: { marginTop: "10px" } }, /* @__PURE__ */ import_react101.default.createElement(
       TextButton_default,
       {
         variant: "light",
@@ -32483,7 +32483,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     ), /* @__PURE__ */ import_react101.default.createElement(
       TextButton_default,
       {
-        variant: "light",
+        variant: "dark",
         width: "small",
         href: "https://trymito.io/plans",
         target: "_blank",
@@ -32559,7 +32559,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       await props.mitoAPI.updateFeedback("company/organization" /* COMPANY */, props.numUsages, [{ "question": FirstQuestion, "answer": props.firstResponse }]);
       props.next();
     };
-    return /* @__PURE__ */ import_react101.default.createElement("div", { className: "signup-modal-left-column" }, /* @__PURE__ */ import_react101.default.createElement("div", null, /* @__PURE__ */ import_react101.default.createElement("h1", { className: "text-header-1", style: { marginTop: 0, marginBottom: 0 } }, props.isPro && `Mito Pro is Totally Private`, !props.isPro && `Mito is Built for Privacy`), /* @__PURE__ */ import_react101.default.createElement("p", { className: "signup-modal-text" }, props.isPro && `As a Mito Pro user, no data leaves your computer, ever. Check out our CCPA compliant privacy policy`, !props.isPro && `We make sure none of your private data leaves your computer. Read our CCPA compliant privacy policy`, " ", " ", /* @__PURE__ */ import_react101.default.createElement("a", { href: "https://privacy.trymito.io/privacy-policy", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react101.default.createElement("u", null, "here")), ".")), /* @__PURE__ */ import_react101.default.createElement("div", { className: "signup-modal-buttons", style: { marginTop: "10px" } }, /* @__PURE__ */ import_react101.default.createElement(
+    return /* @__PURE__ */ import_react101.default.createElement("div", { className: "signup-modal-left-column" }, /* @__PURE__ */ import_react101.default.createElement("div", null, /* @__PURE__ */ import_react101.default.createElement("h1", { className: "text-header-1", style: { marginTop: 0, marginBottom: 0 } }, props.isPro && `Mito Pro is Totally Private`, !props.isPro && `Mito is Built for Privacy`), /* @__PURE__ */ import_react101.default.createElement("p", { className: "signup-modal-text", style: { marginTop: "10px" } }, props.isPro && `As a Mito Pro user, no data leaves your computer, ever. Check out our CCPA compliant privacy policy`, !props.isPro && `We make sure none of your private data leaves your computer. Read our CCPA compliant privacy policy`, " ", " ", /* @__PURE__ */ import_react101.default.createElement("a", { href: "https://privacy.trymito.io/privacy-policy", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react101.default.createElement("u", null, "here")), ".")), /* @__PURE__ */ import_react101.default.createElement("div", { className: "signup-modal-buttons", style: { marginTop: "10px" } }, /* @__PURE__ */ import_react101.default.createElement(
       TextButton_default,
       {
         variant: "light",
@@ -39526,7 +39526,6 @@ fig.write_html("${props.graphTabName}.html")`
     const [currPathParts, setCurrPathParts] = (0, import_react209.useState)(["."]);
     const { mitoAPI, commCreationStatus } = useMitoAPI(props.kernelID, props.commTargetID, setSheetDataArray, setAnalysisData, setUserProfile, setUIState);
     (0, import_react209.useEffect)(() => {
-      console.log("Effect for error", commCreationStatus);
       if (commCreationStatus === "no_backend_comm_registered_error" || commCreationStatus === "non_valid_location_error" || commCreationStatus === "non_working_extension_error") {
         setUIState((prevUIState) => {
           return __spreadProps(__spreadValues({}, prevUIState), {
@@ -39544,9 +39543,6 @@ fig.write_html("${props.graphTabName}.html")`
     (0, import_react209.useEffect)(() => {
       const updateMitosheetCallCellOnFirstRender = async () => {
         var _a, _b;
-        if (commCreationStatus !== "finished") {
-          return;
-        }
         const args = await getArgs((_a = analysisData2.analysisToReplay) == null ? void 0 : _a.analysisName);
         await mitoAPI.updateArgs(args);
         if (analysisData2.analysisToReplay) {
@@ -39587,7 +39583,7 @@ fig.write_html("${props.graphTabName}.html")`
       };
       const handleRender = async () => {
         const currentRenderCount = await mitoAPI.getRenderCount();
-        if (currentRenderCount === 0) {
+        if (currentRenderCount === 0 && commCreationStatus === "finished") {
           await updateMitosheetCallCellOnFirstRender();
         }
         await mitoAPI.updateRenderCount();

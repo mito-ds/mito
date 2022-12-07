@@ -1415,6 +1415,7 @@ a:visited {
   flex-direction: column;
   border: 1px solid var(--mito-border);
   font-family: Roboto;
+  position: relative;
 }
 .mito-container:fullscreen .mito-container:-webkit-full-screen {
   height: 100vh;
