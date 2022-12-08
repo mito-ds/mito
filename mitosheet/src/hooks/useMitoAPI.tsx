@@ -24,7 +24,7 @@ export const useMitoAPI = (
         }
     )
 
-    const [apiCreationStatus, setAPICreationStatus] = useState<CommCreationStatus>('loading');
+    const [commCreationStatus, setCommCreationStatus] = useState<CommCreationStatus>('loading');
 
     
     useEffect(() => {
@@ -43,12 +43,12 @@ export const useMitoAPI = (
          * timeout.
          */
         const init = async () => {
-            const commContainer = await getCommContainer(kernelID, commTargetID)
-            if (typeof commContainer === 'string') {
-                setAPICreationStatus(commContainer);
+            const commContainerOrError = await getCommContainer(kernelID, commTargetID)
+            if (typeof commContainerOrError === 'string') { // Check if it it's an error
+                setCommCreationStatus(commContainerOrError);
             } else {
-                void mitoAPI.init(commContainer);
-                setAPICreationStatus('finished');
+                void mitoAPI.init(commContainerOrError);
+                setCommCreationStatus('finished');
             }
         }
 
@@ -57,6 +57,6 @@ export const useMitoAPI = (
 
     return {
         mitoAPI: mitoAPI,
-        commCreationStatus: apiCreationStatus,
+        commCreationStatus: commCreationStatus,
     }
 }

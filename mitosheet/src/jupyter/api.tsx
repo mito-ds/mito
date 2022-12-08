@@ -181,10 +181,10 @@ export default class MitoAPI {
         console.log(`Sending: {type: ${msg['type']}, id: ${id}}`)
 
         // If we still haven't created the comm, then we wait for up to MAX_WAIT_FOR_COMM_CREATION 
-        // to see if they get defined. Note we check for them being 
+        // to see if they get defined
         await waitUntilConditionReturnsTrueOrTimeout(() => {return this.commContainer !== undefined && this._send !== undefined}, MAX_WAIT_FOR_COMM_CREATION);
 
-        // If we still aren't defined, then we give up on sending this message
+        // If the comms still aren't defined, then we give up on sending this message entirely
         if (this.commContainer === undefined || this._send === undefined) {
             console.error(`Cannot send {type: ${msg['type']}, id: ${id}}, as comm was never defined`);
             return;

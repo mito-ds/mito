@@ -39479,22 +39479,22 @@ fig.write_html("${props.graphTabName}.html")`
         );
       }
     );
-    const [apiCreationStatus, setAPICreationStatus] = (0, import_react208.useState)("loading");
+    const [commCreationStatus, setCommCreationStatus] = (0, import_react208.useState)("loading");
     (0, import_react208.useEffect)(() => {
       const init = async () => {
-        const commContainer = await getCommContainer(kernelID2, commTargetID2);
-        if (typeof commContainer === "string") {
-          setAPICreationStatus(commContainer);
+        const commContainerOrError = await getCommContainer(kernelID2, commTargetID2);
+        if (typeof commContainerOrError === "string") {
+          setCommCreationStatus(commContainerOrError);
         } else {
-          void mitoAPI.init(commContainer);
-          setAPICreationStatus("finished");
+          void mitoAPI.init(commContainerOrError);
+          setCommCreationStatus("finished");
         }
       };
       void init();
     }, []);
     return {
       mitoAPI,
-      commCreationStatus: apiCreationStatus
+      commCreationStatus
     };
   };
 
