@@ -1077,7 +1077,7 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useRef(initialValue);
           }
-          function useEffect40(create, deps) {
+          function useEffect41(create, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useEffect(create, deps);
           }
@@ -1647,7 +1647,7 @@
           exports.useCallback = useCallback10;
           exports.useContext = useContext;
           exports.useDebugValue = useDebugValue;
-          exports.useEffect = useEffect40;
+          exports.useEffect = useEffect41;
           exports.useImperativeHandle = useImperativeHandle;
           exports.useLayoutEffect = useLayoutEffect;
           exports.useMemo = useMemo2;
@@ -2461,11 +2461,11 @@
       if (true) {
         (function() {
           "use strict";
-          var React202 = require_react();
+          var React203 = require_react();
           var _assign = require_object_assign();
           var Scheduler = require_scheduler();
           var tracing = require_tracing();
-          var ReactSharedInternals = React202.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+          var ReactSharedInternals = React203.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
           function warn(format) {
             {
               for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -2497,7 +2497,7 @@
               Function.prototype.apply.call(console[level], console, argsWithFormat);
             }
           }
-          if (!React202) {
+          if (!React203) {
             {
               throw Error("ReactDOM was loaded before React. Make sure you load the React package before loading ReactDOM.");
             }
@@ -3833,7 +3833,7 @@
           var didWarnInvalidChild = false;
           function flattenChildren(children) {
             var content = "";
-            React202.Children.forEach(children, function(child) {
+            React203.Children.forEach(children, function(child) {
               if (child == null) {
                 return;
               }
@@ -3844,7 +3844,7 @@
           function validateProps(element, props) {
             {
               if (typeof props.children === "object" && props.children !== null) {
-                React202.Children.forEach(props.children, function(child) {
+                React203.Children.forEach(props.children, function(child) {
                   if (child == null) {
                     return;
                   }
@@ -11047,7 +11047,7 @@
           }
           var fakeInternalInstance = {};
           var isArray = Array.isArray;
-          var emptyRefsObject = new React202.Component().refs;
+          var emptyRefsObject = new React203.Component().refs;
           var didWarnAboutStateAssignmentForComponent;
           var didWarnAboutUninitializedState;
           var didWarnAboutGetSnapshotBeforeUpdateWithoutDidUpdate;
@@ -20644,11 +20644,11 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   });
 
   // src/jupyterRender.tsx
-  var React201 = __toESM(require_react());
+  var React202 = __toESM(require_react());
   var import_react_dom2 = __toESM(require_react_dom());
 
   // src/components/Mito.tsx
-  var import_react209 = __toESM(require_react());
+  var import_react210 = __toESM(require_react());
 
   // src/components/taskpanes/Graph/graphUtils.tsx
   var import_react23 = __toESM(require_react());
@@ -22838,6 +22838,18 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       console.error("Not detected as in Jupyter Notebook or JupyterLab");
     }
   };
+  var writeCodeSnippetToCell = (analysisName, codeSnippet) => {
+    var _a;
+    if (isInJupyterLab()) {
+      (_a = window.commands) == null ? void 0 : _a.execute("mitosheet:write-code-snippet-cell", {
+        analysisName,
+        codeSnippet
+      });
+    } else if (isInJupyterNotebook()) {
+    } else {
+      console.error("Not detected as in Jupyter Notebook or JupyterLab");
+    }
+  };
   var getArgs = (analysisToReplayName) => {
     return new Promise((resolve) => {
       var _a;
@@ -23459,6 +23471,14 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         "type": "get_render_count",
         "params": {}
       }, {});
+    }
+    async getCodeSnippets() {
+      const resultString = await this.send({
+        "event": "api_call",
+        "type": "get_code_snippets",
+        "params": {}
+      }, {});
+      return resultString;
     }
     async _edit(edit_event_type, params, stepID) {
       const result = await this.send({
@@ -24626,7 +24646,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     return getWidthData(sheetData, oldWidths);
   };
   var guessFullWidthOfColumnHeaderOrContent = (sheetData, columnIndex, displayColumnHeader) => {
-    const displayColumnHeaderPx = displayColumnHeader.length * 12 + 15;
+    const displayColumnHeaderPx = displayColumnHeader.length * 10 + 15;
     const dataMaxLength = Math.max(...sheetData.data[columnIndex].columnData.map((el) => String(el).length)) * 8;
     return Math.max(displayColumnHeaderPx, dataMaxLength);
   };
@@ -36270,6 +36290,11 @@ fig.write_html("${props.graphTabName}.html")`
   var PIVOT_COLUMN_TRANSFORM_TITLES = {
     "no-op": "exact time",
     "year": "year",
+    "year-quarter": "year-quarter",
+    "year-month": "year-month",
+    "year-month-day": "year-month-day",
+    "year-month-day-hour": "year-month-day-hour",
+    "year-month-day-hour-minute": "year-month-day-hour-minute",
     "quarter": "quarter",
     "month": "month",
     "week": "week",
@@ -36278,11 +36303,6 @@ fig.write_html("${props.graphTabName}.html")`
     "hour": "hour",
     "minute": "minute",
     "second": "second",
-    "year-month-day-hour-minute": "year-month-day-hour-minute",
-    "year-month-day-hour": "year-month-day-hour",
-    "year-month-day": "year-month-day",
-    "year-month": "year-month",
-    "year-quarter": "year-quarter",
     "month-day": "month-day",
     "day-hour": "day-hour",
     "hour-minute": "hour-minute"
@@ -39157,6 +39177,17 @@ fig.write_html("${props.graphTabName}.html")`
         action: props.actions["catch up" /* Catch_Up */]
       }
     ), /* @__PURE__ */ import_react205.default.createElement(
+      "div",
+      {
+        onClick: () => props.setUIState((prevUIState) => {
+          return __spreadProps(__spreadValues({}, prevUIState), {
+            currOpenModal: { type: "None" /* None */ },
+            currOpenTaskpane: { type: "codeSnippets" /* CODESNIPPETS */ }
+          });
+        })
+      },
+      "Code Snippets"
+    ), /* @__PURE__ */ import_react205.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "STEPS" /* STEPS */,
@@ -39498,14 +39529,39 @@ fig.write_html("${props.graphTabName}.html")`
     };
   };
 
+  // src/components/taskpanes/codeSnippets/CodeSnippetsTaskpane.tsx
+  var import_react209 = __toESM(require_react());
+  var CodeSnippetsTaskpane = (props) => {
+    const [codeSnippets] = useStateFromAPIAsync(
+      "start",
+      () => {
+        return props.mitoAPI.getCodeSnippets();
+      },
+      void 0,
+      []
+    );
+    (0, import_react209.useEffect)(() => {
+      console.log(codeSnippets);
+      writeCodeSnippetToCell(props.analysisData.analysisName, codeSnippets);
+    }, [codeSnippets]);
+    return /* @__PURE__ */ import_react209.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react209.default.createElement(
+      DefaultTaskpaneHeader_default,
+      {
+        header: "codeSnippets",
+        setUIState: props.setUIState
+      }
+    ), /* @__PURE__ */ import_react209.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react209.default.createElement("div", { key: codeSnippets }, /* @__PURE__ */ import_react209.default.createElement("code", null, codeSnippets))));
+  };
+  var CodeSnippetsTaskpane_default = CodeSnippetsTaskpane;
+
   // src/components/Mito.tsx
   var Mito = (props) => {
-    const mitoContainerRef = (0, import_react209.useRef)(null);
-    const [sheetDataArray2, setSheetDataArray] = (0, import_react209.useState)(props.sheetDataArray);
-    const [analysisData2, setAnalysisData] = (0, import_react209.useState)(props.analysisData);
-    const [userProfile2, setUserProfile] = (0, import_react209.useState)(props.userProfile);
-    const [gridState, setGridState] = (0, import_react209.useState)(() => getDefaultGridState(sheetDataArray2, 0));
-    const [uiState, setUIState] = (0, import_react209.useState)({
+    const mitoContainerRef = (0, import_react210.useRef)(null);
+    const [sheetDataArray2, setSheetDataArray] = (0, import_react210.useState)(props.sheetDataArray);
+    const [analysisData2, setAnalysisData] = (0, import_react210.useState)(props.analysisData);
+    const [userProfile2, setUserProfile] = (0, import_react210.useState)(props.userProfile);
+    const [gridState, setGridState] = (0, import_react210.useState)(() => getDefaultGridState(sheetDataArray2, 0));
+    const [uiState, setUIState] = (0, import_react210.useState)({
       loading: [],
       currOpenModal: userProfile2.userEmail == "" && userProfile2.telemetryEnabled ? { type: "SignUp" /* SignUp */ } : userProfile2.shouldUpgradeMitosheet ? { type: "Upgrade" /* Upgrade */ } : { type: "None" /* None */ },
       currOpenTaskpane: { type: "none" /* NONE */ },
@@ -39520,12 +39576,12 @@ fig.write_html("${props.graphTabName}.html")`
         ["top_right" /* TopRight */]: { type: "none" /* None */ }
       }
     });
-    const [editorState, setEditorState] = (0, import_react209.useState)(void 0);
-    const [highlightPivotTableButton, setHighlightPivotTableButton] = (0, import_react209.useState)(false);
-    const [highlightAddColButton, setHighlightAddColButton] = (0, import_react209.useState)(false);
-    const [currPathParts, setCurrPathParts] = (0, import_react209.useState)(["."]);
+    const [editorState, setEditorState] = (0, import_react210.useState)(void 0);
+    const [highlightPivotTableButton, setHighlightPivotTableButton] = (0, import_react210.useState)(false);
+    const [highlightAddColButton, setHighlightAddColButton] = (0, import_react210.useState)(false);
+    const [currPathParts, setCurrPathParts] = (0, import_react210.useState)(["."]);
     const { mitoAPI, commCreationStatus } = useMitoAPI(props.kernelID, props.commTargetID, setSheetDataArray, setAnalysisData, setUserProfile, setUIState);
-    (0, import_react209.useEffect)(() => {
+    (0, import_react210.useEffect)(() => {
       if (commCreationStatus === "no_backend_comm_registered_error" || commCreationStatus === "non_valid_location_error" || commCreationStatus === "non_working_extension_error") {
         setUIState((prevUIState) => {
           return __spreadProps(__spreadValues({}, prevUIState), {
@@ -39537,10 +39593,10 @@ fig.write_html("${props.graphTabName}.html")`
         });
       }
     }, [commCreationStatus]);
-    (0, import_react209.useEffect)(() => {
+    (0, import_react210.useEffect)(() => {
       void mitoAPI.log("mitosheet_rendered");
     }, [mitoAPI]);
-    (0, import_react209.useEffect)(() => {
+    (0, import_react210.useEffect)(() => {
       const updateMitosheetCallCellOnFirstRender = async () => {
         var _a, _b;
         const args = await getArgs((_a = analysisData2.analysisToReplay) == null ? void 0 : _a.analysisName);
@@ -39590,16 +39646,16 @@ fig.write_html("${props.graphTabName}.html")`
       };
       void handleRender();
     }, [mitoAPI, commCreationStatus]);
-    (0, import_react209.useEffect)(() => {
+    (0, import_react210.useEffect)(() => {
       if (analysisData2.renderCount >= 1) {
         writeGeneratedCodeToCell(analysisData2.analysisName, analysisData2.code, userProfile2.telemetryEnabled);
       }
     }, [analysisData2]);
-    (0, import_react209.useEffect)(() => {
+    (0, import_react210.useEffect)(() => {
       plotly_default();
     }, []);
-    const previousNumSheetsRef = (0, import_react209.useRef)(sheetDataArray2.length);
-    (0, import_react209.useEffect)(() => {
+    const previousNumSheetsRef = (0, import_react210.useRef)(sheetDataArray2.length);
+    (0, import_react210.useEffect)(() => {
       const previousNumSheets = previousNumSheetsRef.current;
       setUIState((prevUIState) => {
         const prevSelectedSheetIndex = prevUIState.selectedSheetIndex;
@@ -39615,12 +39671,12 @@ fig.write_html("${props.graphTabName}.html")`
       });
       previousNumSheetsRef.current = sheetDataArray2.length;
     }, [sheetDataArray2]);
-    const previousNumGraphsRef = (0, import_react209.useRef)(Object.keys(analysisData2.graphDataDict || {}).length);
-    const previousGraphIndex = (0, import_react209.useRef)(uiState.selectedGraphID !== void 0 ? Object.keys(analysisData2.graphDataDict || {}).indexOf(uiState.selectedGraphID) : -1);
-    (0, import_react209.useEffect)(() => {
+    const previousNumGraphsRef = (0, import_react210.useRef)(Object.keys(analysisData2.graphDataDict || {}).length);
+    const previousGraphIndex = (0, import_react210.useRef)(uiState.selectedGraphID !== void 0 ? Object.keys(analysisData2.graphDataDict || {}).indexOf(uiState.selectedGraphID) : -1);
+    (0, import_react210.useEffect)(() => {
       previousGraphIndex.current = uiState.selectedGraphID !== void 0 ? Object.keys(analysisData2.graphDataDict || {}).indexOf(uiState.selectedGraphID) : -1;
     }, [uiState.selectedGraphID]);
-    (0, import_react209.useEffect)(() => {
+    (0, import_react210.useEffect)(() => {
       const graphIDs = Object.keys(analysisData2.graphDataDict || {});
       const previousNumGraphs = previousNumGraphsRef.current;
       const newNumGraphs = Object.keys(analysisData2.graphDataDict || {}).length;
@@ -39643,7 +39699,7 @@ fig.write_html("${props.graphTabName}.html")`
       }
       previousNumGraphsRef.current = newNumGraphs;
     }, [Object.keys(analysisData2.graphDataDict || {}).length]);
-    (0, import_react209.useEffect)(() => {
+    (0, import_react210.useEffect)(() => {
       const openEditedPivot = async () => {
         const existingPivotParams = await mitoAPI.getPivotParams(uiState.selectedSheetIndex);
         if (existingPivotParams !== void 0) {
@@ -39669,8 +39725,8 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState(void 0);
       }
     }, [uiState.selectedSheetIndex]);
-    const prevOpenTaskpaneRef = (0, import_react209.useRef)(uiState.currOpenTaskpane.type);
-    (0, import_react209.useEffect)(() => {
+    const prevOpenTaskpaneRef = (0, import_react210.useRef)(uiState.currOpenTaskpane.type);
+    (0, import_react210.useEffect)(() => {
       var _a;
       if (prevOpenTaskpaneRef.current !== "none" /* NONE */ && uiState.currOpenTaskpane.type === "none" /* NONE */) {
         const endoGridContainer = (_a = mitoContainerRef.current) == null ? void 0 : _a.querySelector(".endo-grid-container");
@@ -39687,7 +39743,7 @@ fig.write_html("${props.graphTabName}.html")`
       gridState.selections[gridState.selections.length - 1].startingRowIndex,
       gridState.selections[gridState.selections.length - 1].startingColumnIndex
     );
-    const closeOpenEditingPopups = (0, import_react209.useCallback)((taskpanesToKeepIfOpen) => {
+    const closeOpenEditingPopups = (0, import_react210.useCallback)((taskpanesToKeepIfOpen) => {
       if (EDITING_TASKPANES.includes(uiState.currOpenTaskpane.type) && (taskpanesToKeepIfOpen === void 0 || !taskpanesToKeepIfOpen.includes(uiState.currOpenTaskpane.type))) {
         setUIState((prevUIState) => {
           return __spreadProps(__spreadValues({}, prevUIState), {
@@ -39705,9 +39761,9 @@ fig.write_html("${props.graphTabName}.html")`
     const getCurrentModalComponent = () => {
       switch (uiState.currOpenModal.type) {
         case "None" /* None */:
-          return /* @__PURE__ */ import_react209.default.createElement("div", null);
+          return /* @__PURE__ */ import_react210.default.createElement("div", null);
         case "Error" /* Error */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             ErrorModal_default,
             {
               error: uiState.currOpenModal.error,
@@ -39717,7 +39773,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "ClearAnalysis" /* ClearAnalysis */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             ClearAnalysisModal_default,
             {
               setUIState,
@@ -39725,7 +39781,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "SignUp" /* SignUp */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             SignupModal_default,
             {
               setUIState,
@@ -39737,7 +39793,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "Upgrade" /* Upgrade */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             UpgradeModal_default,
             {
               setUIState,
@@ -39745,7 +39801,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "ErrorReplayAnalysis" /* ErrorReplayedAnalysis */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             ReplayAnalysisModals_default,
             {
               setUIState,
@@ -39759,7 +39815,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "DeleteGraphs" /* DeleteGraphs */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             DeleteGraphsModal_default,
             {
               setUIState,
@@ -39774,7 +39830,7 @@ fig.write_html("${props.graphTabName}.html")`
     const getCurrOpenTaskpane = () => {
       switch (uiState.currOpenTaskpane.type) {
         case "control_panel" /* CONTROL_PANEL */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             ControlPanelTaskpane_default,
             {
               key: "" + columnID + uiState.selectedSheetIndex + uiState.selectedColumnControlPanelTab,
@@ -39794,7 +39850,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "upgrade_to_pro" /* UPGRADE_TO_PRO */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             UpgradeToProTaskpane_default,
             {
               mitoAPI,
@@ -39803,7 +39859,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "download" /* DOWNLOAD */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             DownloadTaskpane_default,
             {
               dfNames,
@@ -39816,7 +39872,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "drop_duplicates" /* DROP_DUPLICATES */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             DropDuplicates_default,
             {
               dfNames,
@@ -39828,7 +39884,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "graph" /* GRAPH */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             GraphSidebar_default,
             {
               graphID: uiState.currOpenTaskpane.graphID,
@@ -39846,7 +39902,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "import files" /* IMPORT_FILES */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             FileImportTaskpane_default,
             {
               mitoAPI,
@@ -39858,7 +39914,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "merge" /* MERGE */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             MergeTaskpane_default,
             {
               selectedSheetIndex: uiState.selectedSheetIndex,
@@ -39869,7 +39925,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "concat" /* CONCAT */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             ConcatTaskpane_default,
             {
               analysisData: analysisData2,
@@ -39879,9 +39935,9 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "none" /* NONE */:
-          return /* @__PURE__ */ import_react209.default.createElement(import_react209.Fragment, null);
+          return /* @__PURE__ */ import_react210.default.createElement(import_react210.Fragment, null);
         case "pivot" /* PIVOT */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             PivotTaskpane_default,
             {
               dfNames,
@@ -39896,7 +39952,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "split_text_to_columns" /* SPLIT_TEXT_TO_COLUMNS */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             SplitTextToColumnsTaskpane_default,
             {
               mitoAPI,
@@ -39909,7 +39965,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "steps" /* STEPS */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             StepsTaskpane_default,
             {
               stepSummaryList: analysisData2.stepSummaryList,
@@ -39919,7 +39975,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "import_first" /* IMPORT_FIRST */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             DefaultEmptyTaskpane_default,
             {
               setUIState,
@@ -39927,7 +39983,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "fill_na" /* FILL_NA */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             FillNaTaskpane_default,
             {
               setUIState,
@@ -39940,7 +39996,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "melt" /* MELT */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             MeltTaskpane_default,
             {
               userProfile: userProfile2,
@@ -39952,7 +40008,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "set_dataframe_format" /* SET_DATAFRAME_FORMAT */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             SetDataframeFormatTaskpane_default,
             {
               userProfile: userProfile2,
@@ -39964,7 +40020,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "ConditionalFormatting" /* CONDITIONALFORMATTING */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             ConditionalFormattingTaskpane_default,
             {
               userProfile: userProfile2,
@@ -39976,7 +40032,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "DataframeImport" /* DATAFRAMEIMPORT */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             DataframeImportTaskpane_default,
             {
               userProfile: userProfile2,
@@ -39988,7 +40044,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "UpdateImports" /* UPDATEIMPORTS */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             UpdateImportsTaskpane_default,
             {
               mitoAPI,
@@ -40002,12 +40058,24 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "CannotCreateComm" /* CANNOTCREATECOMM */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             CannotCreateCommTaskpane_default,
             {
               userProfile: userProfile2,
               setUIState,
               commCreationErrorStatus: uiState.currOpenTaskpane.commCreationErrorStatus
+            }
+          );
+        case "codeSnippets" /* CODESNIPPETS */:
+          return /* @__PURE__ */ import_react210.default.createElement(
+            CodeSnippetsTaskpane_default,
+            {
+              userProfile: userProfile2,
+              analysisData: analysisData2,
+              sheetDataArray: sheetDataArray2,
+              setUIState,
+              mitoAPI,
+              selectedSheetIndex: uiState.selectedSheetIndex
             }
           );
       }
@@ -40016,7 +40084,7 @@ fig.write_html("${props.graphTabName}.html")`
       const popupLocationInfo = uiState.currOpenPopups[popupLocation];
       switch (popupLocationInfo.type) {
         case "ephemeral_message" /* EphemeralMessage */:
-          return /* @__PURE__ */ import_react209.default.createElement(
+          return /* @__PURE__ */ import_react210.default.createElement(
             EphemeralMessage_default,
             {
               message: popupLocationInfo.message,
@@ -40025,7 +40093,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "none" /* None */:
-          return /* @__PURE__ */ import_react209.default.createElement(import_react209.Fragment, null);
+          return /* @__PURE__ */ import_react210.default.createElement(import_react210.Fragment, null);
       }
     };
     const actions = createActions(
@@ -40046,7 +40114,7 @@ fig.write_html("${props.graphTabName}.html")`
     useKeyboardShortcuts(mitoContainerRef, actions, setGridState);
     const getCurrTour = () => {
       if (analysisData2.dataTypeInTool === "none" /* NONE */ || analysisData2.dataTypeInTool === "tutorial" /* TUTORIAL */) {
-        return /* @__PURE__ */ import_react209.default.createElement(import_react209.default.Fragment, null);
+        return /* @__PURE__ */ import_react210.default.createElement(import_react210.default.Fragment, null);
       }
       const toursToDisplay = [];
       if (!userProfile2.receivedTours.includes("Intro" /* INTRO */)) {
@@ -40055,7 +40123,7 @@ fig.write_html("${props.graphTabName}.html")`
       if (editorState !== void 0 && editorState.rowIndex >= 0 && !userProfile2.receivedTours.includes("Column_Formulas" /* COLUMN_FORMULAS */)) {
         toursToDisplay.push("Column_Formulas" /* COLUMN_FORMULAS */);
       }
-      return /* @__PURE__ */ import_react209.default.createElement(import_react209.default.Fragment, null, toursToDisplay.length !== 0 && uiState.currOpenModal.type !== "SignUp" /* SignUp */ && /* @__PURE__ */ import_react209.default.createElement(
+      return /* @__PURE__ */ import_react210.default.createElement(import_react210.default.Fragment, null, toursToDisplay.length !== 0 && uiState.currOpenModal.type !== "SignUp" /* SignUp */ && /* @__PURE__ */ import_react210.default.createElement(
         Tour_default,
         {
           sheetData: sheetDataArray2[uiState.selectedSheetIndex],
@@ -40078,7 +40146,7 @@ fig.write_html("${props.graphTabName}.html")`
       "mito-default-fullscreen-taskpane-open": graphTaskpaneOpen,
       "mito-default-narrow-taskpane-open": narrowTaskpaneOpen
     });
-    return /* @__PURE__ */ import_react209.default.createElement("div", { className: "mito-container", "data-jp-suppress-context-menu": true, ref: mitoContainerRef, tabIndex: 0 }, /* @__PURE__ */ import_react209.default.createElement(ErrorBoundary_default, { mitoAPI, analyisData: analysisData2, userProfile: userProfile2, sheetDataArray: sheetDataArray2 }, /* @__PURE__ */ import_react209.default.createElement(
+    return /* @__PURE__ */ import_react210.default.createElement("div", { className: "mito-container", "data-jp-suppress-context-menu": true, ref: mitoContainerRef, tabIndex: 0 }, /* @__PURE__ */ import_react210.default.createElement(ErrorBoundary_default, { mitoAPI, analyisData: analysisData2, userProfile: userProfile2, sheetDataArray: sheetDataArray2 }, /* @__PURE__ */ import_react210.default.createElement(
       Toolbar_default,
       {
         mitoAPI,
@@ -40098,7 +40166,7 @@ fig.write_html("${props.graphTabName}.html")`
         analysisData: analysisData2,
         sheetIndex: uiState.selectedSheetIndex
       }
-    ), /* @__PURE__ */ import_react209.default.createElement("div", { className: "mito-main-sheet-div", id: "mito-main-sheet-div" }, /* @__PURE__ */ import_react209.default.createElement("div", { className: formulaBarAndSheetClassNames }, /* @__PURE__ */ import_react209.default.createElement(
+    ), /* @__PURE__ */ import_react210.default.createElement("div", { className: "mito-main-sheet-div", id: "mito-main-sheet-div" }, /* @__PURE__ */ import_react210.default.createElement("div", { className: formulaBarAndSheetClassNames }, /* @__PURE__ */ import_react210.default.createElement(
       EndoGrid_default,
       {
         sheetDataArray: sheetDataArray2,
@@ -40114,7 +40182,7 @@ fig.write_html("${props.graphTabName}.html")`
         closeOpenEditingPopups,
         commCreationStatus
       }
-    )), uiState.currOpenTaskpane.type !== "none" /* NONE */ && /* @__PURE__ */ import_react209.default.createElement("div", { className: taskpaneClassNames }, getCurrOpenTaskpane())), getCurrTour(), /* @__PURE__ */ import_react209.default.createElement(
+    )), uiState.currOpenTaskpane.type !== "none" /* NONE */ && /* @__PURE__ */ import_react210.default.createElement("div", { className: taskpaneClassNames }, getCurrOpenTaskpane())), getCurrTour(), /* @__PURE__ */ import_react210.default.createElement(
       Footer_default,
       {
         sheetDataArray: sheetDataArray2,
@@ -40128,7 +40196,7 @@ fig.write_html("${props.graphTabName}.html")`
         mitoContainerRef,
         setEditorState
       }
-    ), getCurrentModalComponent(), /* @__PURE__ */ import_react209.default.createElement(
+    ), getCurrentModalComponent(), /* @__PURE__ */ import_react210.default.createElement(
       BottomLeftPopup_default,
       {
         loading: uiState.loading,
@@ -40140,7 +40208,7 @@ fig.write_html("${props.graphTabName}.html")`
         actions,
         setUIState
       }
-    ), getCurrOpenPopup("top_right" /* TopRight */), analysisData2.currStepIdx !== lastStepSummary.step_idx && /* @__PURE__ */ import_react209.default.createElement(
+    ), getCurrOpenPopup("top_right" /* TopRight */), analysisData2.currStepIdx !== lastStepSummary.step_idx && /* @__PURE__ */ import_react210.default.createElement(
       CatchUpPopup_default,
       {
         fastForward: () => {
@@ -40165,7 +40233,7 @@ fig.write_html("${props.graphTabName}.html")`
   var div = document.getElementById(divID);
   console.log("Rendering to div", div);
   import_react_dom2.default.render(
-    /* @__PURE__ */ React201.createElement(
+    /* @__PURE__ */ React202.createElement(
       Mito_default,
       {
         kernelID,

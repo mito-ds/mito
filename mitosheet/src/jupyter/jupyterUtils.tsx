@@ -83,6 +83,19 @@ export const writeGeneratedCodeToCell = (analysisName: string, code: string[], t
     }
 }
 
+export const writeCodeSnippetToCell = (analysisName: string, codeSnippet: string): void => {
+    if (isInJupyterLab()) {
+        window.commands?.execute('mitosheet:write-code-snippet-cell', {
+            analysisName: analysisName,
+            codeSnippet: codeSnippet,
+        });
+    } else if (isInJupyterNotebook()) {
+        //notebookWriteGeneratedCodeToCell(analysisName, codeSnippet, telemetryEnabled);
+    } else {
+        console.error("Not detected as in Jupyter Notebook or JupyterLab")
+    }
+}
+
 
 export const getArgs = (analysisToReplayName: string | undefined): Promise<string[]> => {
     return new Promise((resolve) => {

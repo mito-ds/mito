@@ -151,11 +151,18 @@ export function getMostLikelyMitosheetCallingCell(tracker: INotebookTracker, ana
 }
 
 export function writeToCell(cell: ICellModel | undefined, code: string): void {
+    console.log('A')
+
     if (cell == undefined) {
         return;
     }
+    console.log('B')
     const value = cell.modelDB.get('value') as IObservableString;
+    console.log('C')
+
     value.text = code;
+    console.log('D')
+
 }
 
 

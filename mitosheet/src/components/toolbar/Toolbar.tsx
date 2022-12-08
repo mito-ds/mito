@@ -24,6 +24,7 @@ import ToolbarRowsDropdown from './ToolbarRowsDropdown.tsx';
 import GetSupportButton from '../elements/GetSupportButton';
 import ToolbarViewDropdown from './ToolbarViewDropdown';
 import { ToolbarButtonType } from './utils';
+import { ModalEnum } from '../modals/modals';
 
 const Toolbar = (
     props: {
@@ -305,6 +306,18 @@ const Toolbar = (
                             action={props.actions[ActionEnum.Catch_Up]}
                         />
                     }
+                    <div 
+                        onClick={() => 
+                            props.setUIState(prevUIState => {
+                                return {
+                                    ...prevUIState,
+                                    currOpenModal: {type: ModalEnum.None},
+                                    currOpenTaskpane: {type: TaskpaneType.CODESNIPPETS},
+                                }
+                            })}
+                    >
+                        Code Snippets
+                    </div>
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.STEPS}
                         action={props.actions[ActionEnum.Steps]}

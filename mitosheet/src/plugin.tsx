@@ -142,6 +142,7 @@ function activateMitosheetExtension(
         label: 'Writes the generated code for a mito analysis to the cell below the mitosheet.sheet() call that generated this analysis. NOTE: this should only be called after the analysis_to_replay has been written in the mitosheet.sheet() call, so this cell can be found correctly.',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         execute: (args: any) => {
+            console.log("IN OLD WRITING")
             const analysisName = args.analysisName as string;
             const codeLines = args.code as string[];
             const telemetryEnabled = args.telemetryEnabled as boolean;
@@ -189,6 +190,80 @@ function activateMitosheetExtension(
                 // And then write to this new cell below, which is now the active cell
                 NotebookActions.insertBelow(notebook);
                 writeToCell(notebook?.activeCell?.model, code);
+            }
+        }
+    })
+
+    app.commands.addCommand('mitosheet:write-code-snippet-cell', {
+        label: 'Writes the generated code for a mito analysis to the cell below the mitosheet.sheet() call that generated this analysis. NOTE: this should only be called after the analysis_to_replay has been written in the mitosheet.sheet() call, so this cell can be found correctly.',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        execute: (args: any) => {
+            console.log("HERE IN NEW WRITING")
+            const analysisName = args.analysisName as string;
+            const codeSnippet = args.codeSnippet as string;
+            console.log(1)
+            
+            // Find the cell that made the mitosheet.sheet call, and if it does not exist, give
+            // up immediately
+            const mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(tracker, analysisName);
+            if (mitosheetCallCellAndIndex === undefined) {
+                return;
+            }
+
+            console.log(2)
+
+
+            const [, mitosheetCallIndex] = mitosheetCallCellAndIndex;
+
+            const notebook = tracker.currentWidget?.content;
+            const cells = notebook?.model?.cells;
+
+            if (notebook === undefined || cells === undefined) {
+                return;
+            }
+
+            console.log(3)
+
+
+            const activeCellIndex = notebook.activeCellIndex;
+
+            const codeCell = getCellAtIndex(cells, mitosheetCallIndex + 1);
+
+            console.log(4)
+
+
+            if (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(getCellText(codeCell), analysisName)) {
+                console.log(5)
+
+                console.log(codeCell, codeSnippet)
+                writeToCell(codeCell, codeSnippet)
+                console.log(6)
+
+            } else {
+                console.log(7)
+
+                // If we cannot write to the cell below, we have to go back a new cell below, 
+                // which can eb a bit of an involve process
+                if (mitosheetCallIndex !== activeCellIndex) {
+                    // We have to move our selection back up to the cell that we 
+                    // make the mitosheet call to 
+                    if (mitosheetCallIndex < activeCellIndex) {
+                        for (let i = 0; i < (activeCellIndex - mitosheetCallIndex); i++) {
+                            NotebookActions.selectAbove(notebook);
+                        }
+                    } else if (mitosheetCallIndex > activeCellIndex) {
+                        for (let i = 0; i < (mitosheetCallIndex - activeCellIndex); i++) {
+                            NotebookActions.selectBelow(notebook);
+                        }
+                    }
+                }
+                console.log(8)
+
+                // And then write to this new cell below, which is now the active cell
+                NotebookActions.insertBelow(notebook);
+                writeToCell(notebook?.activeCell?.model, codeSnippet);
+                console.log(9)
+
             }
         }
     })
