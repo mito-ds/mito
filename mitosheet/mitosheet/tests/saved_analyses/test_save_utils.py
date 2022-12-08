@@ -32,8 +32,8 @@ def test_recover_analysis(b_value, b_formula):
     mito = create_mito_wrapper([1])
     mito.set_formula(b_formula, 0, 'B', add_column=True)
     # We first write out the analysis
-    analysis_name = mito.mito_widget.analysis_name
-    write_analysis(mito.mito_widget.steps_manager)
+    analysis_name = mito.mito_backend.analysis_name
+    write_analysis(mito.mito_backend.steps_manager)
 
     df = pd.DataFrame(data={'A': [1]})
     new_mito = create_mito_wrapper_dfs(df)
@@ -61,8 +61,8 @@ def test_persist_analysis_multi_sheet(b_value, b_formula):
     mito.set_formula(b_formula, 0, 'B', add_column=True)
     mito.set_formula(b_formula, 1, 'B', add_column=True)
     # We first write out the analysis
-    analysis_name = mito.mito_widget.analysis_name
-    write_analysis(mito.mito_widget.steps_manager)
+    analysis_name = mito.mito_backend.analysis_name
+    write_analysis(mito.mito_backend.steps_manager)
 
     df1 = pd.DataFrame(data={'A': [1]})
     df2 = pd.DataFrame(data={'A': [1]})
@@ -79,22 +79,22 @@ def test_persist_analysis_multi_sheet(b_value, b_formula):
     assert new_mito.dfs[1]['B'].tolist() == [b_value]
     
     assert json.dumps(new_mito.curr_step.column_spreadsheet_code) == json.dumps(curr_step.column_spreadsheet_code)
-    assert json.loads(new_mito.mito_widget.analysis_data_json)['code'] == json.loads(mito.mito_widget.analysis_data_json)['code']
+    assert json.loads(new_mito.analysis_data_json)['code'] == json.loads(mito.analysis_data_json)['code']
 
 
 def test_persist_rename_column():
     mito = create_mito_wrapper([1])
     mito.rename_column(0, 'A', 'NEW_COLUMN')
 
-    analysis_name = mito.mito_widget.analysis_name
-    write_analysis(mito.mito_widget.steps_manager)
+    analysis_name = mito.mito_backend.analysis_name
+    write_analysis(mito.mito_backend.steps_manager)
 
     df1 = pd.DataFrame(data={'A': [1]})
 
     new_mito = create_mito_wrapper_dfs(df1)
     new_mito.replay_analysis(analysis_name)
 
-    curr_step = new_mito.mito_widget.steps_manager.curr_step
+    curr_step = new_mito.mito_backend.steps_manager.curr_step
 
     assert curr_step.dfs[0].equals(pd.DataFrame(data={'NEW_COLUMN': [1]}))
 
@@ -102,15 +102,15 @@ def test_persisit_delete_column():
     mito = create_mito_wrapper([1])
     mito.delete_columns(0, 'A')
 
-    analysis_name = mito.mito_widget.analysis_name
-    write_analysis(mito.mito_widget.steps_manager)
+    analysis_name = mito.mito_backend.analysis_name
+    write_analysis(mito.mito_backend.steps_manager)
 
     df1 = pd.DataFrame(data={'A': [1]})
 
     new_mito = create_mito_wrapper_dfs(df1)
     new_mito.replay_analysis(analysis_name)
 
-    curr_step = new_mito.mito_widget.steps_manager.curr_step
+    curr_step = new_mito.mito_backend.steps_manager.curr_step
 
     assert len(curr_step.dfs[0].keys()) == 0
 
@@ -129,7 +129,7 @@ def test_save_analysis_update():
     new_mito = create_mito_wrapper_dfs(df1)
     new_mito.replay_analysis(random_name)
 
-    curr_step = new_mito.mito_widget.steps_manager.curr_step
+    curr_step = new_mito.mito_backend.steps_manager.curr_step
     assert curr_step.dfs[0].keys() == ['B']
 
 def test_save_analysis_update_and_overwrite():
@@ -152,7 +152,7 @@ def test_save_analysis_update_and_overwrite():
     new_mito = create_mito_wrapper_dfs(df1)
     new_mito.replay_analysis(random_name)
 
-    curr_step = new_mito.mito_widget.steps_manager.curr_step
+    curr_step = new_mito.mito_backend.steps_manager.curr_step
     assert len(curr_step.dfs[0].keys()) == 0
 
 
@@ -170,7 +170,7 @@ def test_failed_replay_does_not_add_steps():
     new_mito.replay_analysis(random_name)
 
     # Make sure no step was added
-    assert len(new_mito.mito_widget.steps_manager.steps_including_skipped) == 1
+    assert len(new_mito.mito_backend.steps_manager.steps_including_skipped) == 1
 
 
 
@@ -194,7 +194,7 @@ def test_pivot_by_replays():
     new_mito.replay_analysis(random_name)
 
     # Make sure no step was added
-    steps_manager = new_mito.mito_widget.steps_manager
+    steps_manager = new_mito.mito_backend.steps_manager
     assert len(steps_manager.steps_including_skipped) == 2
     assert steps_manager.steps_including_skipped[1].step_type == 'pivot'
     assert len(steps_manager.curr_step.dfs) == 2
@@ -221,7 +221,7 @@ def test_merge_replays():
     new_mito = create_mito_wrapper_dfs(df1)
     new_mito.replay_analysis(random_name)
 
-    steps_manager = new_mito.mito_widget.steps_manager
+    steps_manager = new_mito.mito_backend.steps_manager
     assert len(steps_manager.steps_including_skipped) == 2
     assert steps_manager.steps_including_skipped[1].step_type == 'merge'
     assert len(steps_manager.curr_step.dfs) == 2

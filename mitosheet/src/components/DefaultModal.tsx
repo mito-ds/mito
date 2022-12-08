@@ -80,7 +80,7 @@ const DefaultModal = (
                         </Row>
                     }
                     <div className={classNames('mito-modal-header-text-div', {'mt-25px': props.setUIState === undefined})} style={{color: headerColor}}>
-                        <p>{props.header}</p>
+                        <p className='text-align-center-important'>{props.header}</p>
                     </div>
                     {props.viewComponent &&
                         <div className="mito-modal-message">

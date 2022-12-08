@@ -17,6 +17,7 @@ import { firstNonNullOrUndefined, getColumnIDsArrayFromSheetDataArray } from "./
 import { ensureCellVisible } from "./visibilityUtils";
 import { reconciliateWidthDataArray } from "./widthUtils";
 import FloatingCellEditor from "./celleditor/FloatingCellEditor";
+import { CommCreationStatus } from "../../jupyter/comm";
 
 // NOTE: these should match the css
 export const DEFAULT_WIDTH = 123;
@@ -87,6 +88,7 @@ function EndoGrid(props: {
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>
     mitoContainerRef: React.RefObject<HTMLDivElement>
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
+    commCreationStatus: CommCreationStatus;
 }): JSX.Element {
 
     // The container for the entire EndoGrid
@@ -684,6 +686,7 @@ function EndoGrid(props: {
                         sheetData={sheetData}
                         mitoAPI={mitoAPI}
                         uiState={props.uiState}
+                        commCreationStatus={props.commCreationStatus}
                     />
                     {/* 
                         This is the div we actually scroll inside. We make it so it's styled

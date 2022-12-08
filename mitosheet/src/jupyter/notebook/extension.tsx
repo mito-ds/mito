@@ -1,6 +1,6 @@
 // Copyright (c) Jupyter Development Team.
 
-import { writeEmptyMitosheetCell } from "./pluginUtils"; 
+import { writeEmptyMitosheetCell } from "./extensionUtils"; 
 
 // This file contains the javascript that is run when the notebook is loaded.
 // It contains some requirejs configuration and the `load_ipython_extension`

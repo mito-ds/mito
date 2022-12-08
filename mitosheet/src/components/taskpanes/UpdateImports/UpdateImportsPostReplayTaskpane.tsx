@@ -157,7 +157,7 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
                     disabled={retryButtonDisabled}
                     disabledTooltip={(retryButtonDisabled) ? "Please resolve all errors with above imports." : undefined}
                 >
-                    <p>
+                    <p className="text-align-center-important">
                         {!loadingUpdate ? "Change Imports" : "Changing Imports..."}
                     </p>
                 </TextButton>

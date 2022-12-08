@@ -100,7 +100,7 @@ const TextButton = (props: TextButtonProps): JSX.Element => {
     if (props.href !== undefined) {
         return (
             <a 
-                className={classNames('text-button', 'text-header-3', 'text-overflow-wrap', widthClass, variantClass, disabledClass, className)}
+                className={classNames('text-button', widthClass, variantClass, disabledClass, className)}
                 /*  
                     Because anchor tags don't handle the disabled keyword, we check that the element
                     is not disabled before taking any action.
@@ -111,7 +111,11 @@ const TextButton = (props: TextButtonProps): JSX.Element => {
                 target={props.target}
                 title={tooltip}
             >
-                {props.children}
+                <span
+                    className={classNames({'text-color-white-important': props.variant === 'dark'}, 'text-overflow-wrap')}
+                >
+                    {props.children}
+                </span>
             </a>
         )
     } else {

@@ -1,21 +1,21 @@
 // Copyright (c) Mito
 
 import { ChecklistID } from "../components/checklists/checklistData";
+import { CSVFileMetadata } from "../components/import/CSVImportConfigScreen";
+import { ExcelFileMetadata } from "../components/import/XLSXImportConfigScreen";
+import { ModalEnum } from "../components/modals/modals";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
 import { SortDirection } from "../components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
 import { GraphObject } from "../components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
 import { UniqueValueCount, UniqueValueSortType } from "../components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
-import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Graph/graphUtils";
-import { CSVFileMetadata } from "../components/import/CSVImportConfigScreen";
 import { FileElement } from "../components/taskpanes/FileImport/FileImportTaskpane";
-import { ExcelFileMetadata } from "../components/import/XLSXImportConfigScreen";
+import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Graph/graphUtils";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
-import { AnalysisData, BackendPivotParams, DataframeFormat, SheetData, UIState, UserProfile } from "../types";
-import { ColumnID, FeedbackID, FilterGroupType, FilterType, GraphID, MitoError, GraphParamsFrontend } from "../types";
-import { useEffect, useState } from "react";
-import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString, isInJupyterLab, isInJupyterNotebook } from "./jupyterUtils";
-import { ModalEnum } from "../components/modals/modals";
+import { AnalysisData, BackendPivotParams, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, GraphID, GraphParamsFrontend, MitoError, SheetData, UIState, UserProfile } from "../types";
+import { waitUntilConditionReturnsTrueOrTimeout } from "../utils/time";
+import { CommContainer, MAX_WAIT_FOR_COMM_CREATION } from "./comm";
+import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "./jupyterUtils";
 
 
 /*
@@ -88,101 +88,10 @@ interface MitoErrorModalResponse {
 
 type MitoResponse = MitoSuccessOrInplaceErrorResponse | MitoErrorModalResponse
 
-export const useMitoAPI = (
-    comm_target_id: string,
-    setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>,
-    setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>,
-    setUserProfile: React.Dispatch<React.SetStateAction<UserProfile>>,
-    setUIState: React.Dispatch<React.SetStateAction<UIState>>
-): MitoAPI => {
 
-    const [mitoAPI] = useState<MitoAPI>(
-        () => {
-            return new MitoAPI(
-                setSheetDataArray,
-                setAnalysisData,
-                setUserProfile,
-                setUIState,
-            )
-        }
-    )
-
-    useEffect(() => {
-        /**
-         * From the render() function of the widget, through the above useState state call, 
-         * there is no where we can do an async call to get the commContainer.
-         * 
-         * As such, for now, while we're inside of the widget logic, we have to do this init
-         * of the API comms seperate from the actual construction of the API in the lines above.
-         * 
-         * This leads to some grossness, where the API we might not have a ._send function that
-         * is defined. We'll be able to address this when we move out of the widget framework, and
-         * can move comm creation up to one of the first thing that happens before the Mitosheet
-         * is even rendered.
-         * 
-         */
-
-        const init = async () => {
-            const commContainer = await getCommContainer(comm_target_id)
-            void mitoAPI.init(commContainer);
-        }
-
-        void init()
-    }, [])
-
-    return mitoAPI;
+declare global {
+    interface Window { commands: any }
 }
-
-/**
- * Note the difference between the Lab and Notebook comm interfaces. 
- * 
- * To work, Lab needs to have .open() called on it before sending any messages,
- * and you set the onMsg handler directly. 
- * 
- * Notebook does not need any .open() to be called, and also requires 
- * the message handler to be passed to as on_msg((msg) => handle it).
- * 
- * We need to take special care to ensure we treat any new comms interface how it 
- * expects to be treated, as they are all likely slighly different.
- */
-interface LabComm {
-    send: (msg: Record<string, unknown>) => void,
-    onMsg: (msg: Record<string, unknown>) => void,
-    open: () => void;
-}
-interface NotebookComm {
-    send: (msg: Record<string, unknown>) => void,
-    on_msg: (handler: (msg: Record<string, unknown>) => void) => void,
-}
-
-type CommComtainer = {
-    'type': 'lab',
-    'comm': LabComm
-} | {
-    'type': 'notebook',
-    'comm': NotebookComm
-}
-
-// Creates a comm that is open and ready to send messages on, and
-// returns it with a label so we know what sort of comm it is
-export const getCommContainer = async (comm_target_id: string): Promise<CommComtainer | undefined> => {
-    if (isInJupyterNotebook()) {
-        const comm: NotebookComm = (window as any).Jupyter?.notebook.kernel.comm_manager.new_comm(comm_target_id);
-        return {
-            'type': 'notebook',
-            'comm': comm
-        };
-    } else if (isInJupyterLab()) {
-        const comm: LabComm = await window.commands?.execute('create-mitosheet-comm', {comm_target_id: comm_target_id});
-        return {
-            'type': 'lab',
-            'comm': comm
-        };
-    }
-
-    return undefined;
-}
-
 
 /*
     The MitoAPI class contains functions for interacting with the Mito backend. 
@@ -216,7 +125,7 @@ export const getCommContainer = async (comm_target_id: string): Promise<CommComt
 export default class MitoAPI {
     _send: ((msg: Record<string, unknown>) => void) | undefined;
     unconsumedResponses: MitoResponse[];
-    commContainer: CommComtainer;
+    commContainer: CommContainer | undefined;
     
     setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>
     setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>
@@ -233,19 +142,15 @@ export default class MitoAPI {
         this.setAnalysisData = setAnalysisData; 
         this.setUserProfile = setUserProfile;
         this.setUIState = setUIState;
-        
-        // Watch for any response
+
         this.unconsumedResponses = [];
     }
+
 
     // NOTE: see comment in useMitoAPI above. We will get rid of this function
     // when we move away from the widget framework and have a better place to
     // call async functions
-    async init(commContainer: CommComtainer | undefined): Promise<void> {
-        if (commContainer === undefined) {
-            // TODO: display an error here. Notably, 
-            return
-        }
+    async init(commContainer: CommContainer): Promise<void> {
         this.commContainer = commContainer;
         this._send = commContainer.comm.send;
         if (commContainer.type === 'notebook') {
@@ -273,19 +178,17 @@ export default class MitoAPI {
         msg['id'] = id;
 
         // NOTE: we keep this here on purpose, so we can always monitor outgoing messages
-        console.log("Sending", msg['type'])
+        console.log(`Sending: {type: ${msg['type']}, id: ${id}}`)
 
-        // Send the message. 
-        // NOTE: see comment in useMitoAPI above. We will get rid of this wait if the comms don't
-        // yet exist, once we move away from the widget framework. For now, it might happen that 
-        // we send a message before the comm is created, but this timeout and wait should be
-        // enough to make this not a problem
-        if (this._send === undefined) {
-            console.log("Send not yet defined, waiting");
-            await new Promise(resolve => setTimeout(resolve, 5000));
-        } 
-        // If we still haven't created the comm, then still return
-        if (this._send === undefined) {return;}
+        // If we still haven't created the comm, then we wait for up to MAX_WAIT_FOR_COMM_CREATION 
+        // to see if they get defined
+        await waitUntilConditionReturnsTrueOrTimeout(() => {return this.commContainer !== undefined && this._send !== undefined}, MAX_WAIT_FOR_COMM_CREATION);
+
+        // If the comms still aren't defined, then we give up on sending this message entirely
+        if (this.commContainer === undefined || this._send === undefined) {
+            console.error(`Cannot send {type: ${msg['type']}, id: ${id}}, as comm was never defined`);
+            return;
+        }
 
         // We notably need to .call so that we can actually bind the comm.send function
         // to the correct `this`. We don't want `this` to be the MitoAPI object running 
@@ -343,7 +246,7 @@ export default class MitoAPI {
         and allow the API to just make a call to a server, and wait on a response
     */
     receiveResponse(rawResponse: Record<string, unknown>): void {
-        const response = (rawResponse as any).content.data as MitoResponse;
+        const response = (rawResponse as any).content.data as MitoResponse; // TODO: turn this into one of the funcitons that checks types, to avoid the echo!
 
         this.unconsumedResponses.push(response);
 
@@ -389,7 +292,7 @@ export default class MitoAPI {
                 // Only try at most MAX_RETRIES times
                 tries++;
                 if (tries > maxRetries) {
-                    console.log('Giving up on waiting');
+                    console.error(`No response on message: {id: ${id}}`);
                     clearInterval(interval);
                     // If we fail, we return an empty response
                     return resolve(undefined)
@@ -407,8 +310,6 @@ export default class MitoAPI {
                     this.unconsumedResponses.splice(index, 1);
 
                     return resolve(response['data'] as Type); // return to end execution
-                } else {
-                    console.log("Still waiting")
                 }
             }, RETRY_DELAY);
         })
@@ -764,6 +665,16 @@ export default class MitoAPI {
             return JSON.parse(resultString);
         }
         return undefined;
+    }
+
+    
+    async getRenderCount(): Promise<number | undefined> {
+
+        return await this.send<number>({
+            'event': 'api_call',
+            'type': 'get_render_count',
+            'params': {}
+        }, {})
     }
 
     // AUTOGENERATED LINE: API GET (DO NOT DELETE)

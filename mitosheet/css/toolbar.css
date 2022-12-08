@@ -40,7 +40,7 @@
 
 .toolbar-dropdown-selector {
   height: 22px;
-  margin-right: 5px;
+  margin-right: 5px !important; /* Needs to important due to margin overwrites by JLab rendering*/
   padding: 2px 3px;
   border-radius: 3px;
   font-family: Roboto;

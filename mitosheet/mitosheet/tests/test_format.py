@@ -20,7 +20,7 @@ def test_sheet_json_displays_floats_correctly():
 
     mito = create_mito_wrapper_dfs(df)
     
-    sheet_data = json.loads(mito.mito_widget.sheet_data_json)[0]
+    sheet_data = json.loads(mito.sheet_data_json)[0]
     assert get_value_helper(sheet_data, 0, 0) == 1.0
     assert get_value_helper(sheet_data, 1, 0) == 2.0
     assert get_value_helper(sheet_data, 2, 0) == 'NaN'
@@ -36,7 +36,7 @@ def test_sheet_json_displays_dates_correctly():
 
     mito = create_mito_wrapper_dfs(df)
     
-    sheet_data = json.loads(mito.mito_widget.get_shared_state_variables()['sheet_data_json'])[0]
+    sheet_data = json.loads(mito.mito_backend.get_shared_state_variables()['sheet_data_json'])[0]
     assert get_value_helper(sheet_data, 0, 1) == '2005-10-25 00:00:00'
     assert get_value_helper(sheet_data, 1, 1) == '2002-10-02 00:00:00'
     assert get_value_helper(sheet_data, 2, 1)== '2001-11-14 00:00:00'
@@ -45,7 +45,7 @@ def test_sheet_displays_dates_with_non_standard_dtype():
     mito = create_mito_wrapper(['2016-01-31T19:29:50.000+0000', '2016-01-31T19:29:50.000+0000'])
     mito.change_column_dtype(0, ['A'], 'datetime')
 
-    sheet_data = json.loads(mito.mito_widget.get_shared_state_variables()['sheet_data_json'])[0]
+    sheet_data = json.loads(mito.mito_backend.get_shared_state_variables()['sheet_data_json'])[0]
     assert get_value_helper(sheet_data, 0, 0) == '2016-01-31 19:29:50'
     assert get_value_helper(sheet_data, 1, 0) == '2016-01-31 19:29:50'
 
@@ -63,7 +63,7 @@ def test_sheet_json_holds_timed_deltas():
 
     mito.set_formula('=dob - dob2', 0, 'time_deltas', True)
     
-    sheet_data = json.loads(mito.mito_widget.get_shared_state_variables()['sheet_data_json'])[0]
+    sheet_data = json.loads(mito.mito_backend.get_shared_state_variables()['sheet_data_json'])[0]
     assert get_value_helper(sheet_data, 0, 2) == '364 days 13:44:45'
     assert get_value_helper(sheet_data, 1, 2) == '-61 days +05:12:00'
     assert get_value_helper(sheet_data, 2, 2) == '122 days 09:45:00'
@@ -82,7 +82,7 @@ def test_sheet_json_holds_timed_deltas_non_standard_dtype():
 
     mito = create_mito_wrapper_dfs(df)
     
-    sheet_data = json.loads(mito.mito_widget.get_shared_state_variables()['sheet_data_json'])[0]
+    sheet_data = json.loads(mito.mito_backend.get_shared_state_variables()['sheet_data_json'])[0]
     assert get_value_helper(sheet_data, 0, 0) == '31 days 00:00:00'
     assert get_value_helper(sheet_data, 1, 0) == '31 days 00:00:00'
     assert get_value_helper(sheet_data, 2, 0) == '31 days 00:00:00'

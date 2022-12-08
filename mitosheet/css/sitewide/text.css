@@ -93,6 +93,9 @@
     also have white text (e.g. the tour). In this case, we
     can override the color with this text
 */
+.text-color-mito-purple {
+    color: var(--mito-purple);
+}
 .text-color-white-important {
     color: white !important;
 }
@@ -160,6 +163,9 @@
 }
 .text-align-center {
     text-align: center;
+}
+.text-align-center-important {
+    text-align: center !important;
 }
 
 .text-underline {
