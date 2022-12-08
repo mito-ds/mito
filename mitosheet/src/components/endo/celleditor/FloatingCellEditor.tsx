@@ -79,7 +79,10 @@ const FloatingCellEditor = (props: {
             // cell editor
             const columnHeadersHeight = columnHeader === undefined || isPrimitiveColumnHeader(columnHeader) ? 45 : (45 + ((columnHeader.length - 1) * 25))
             const defaultTop = cellInRowRect ? cellInRowRect.y : (props.editorState.rowIndex < currentSheetView.startingRowIndex ? 0 : scrollAndRenderedContainerRect.y * 100) // 100 is a random large number to make the mins and maxs work out
-            top = Math.min(Math.max(0, defaultTop - scrollAndRenderedContainerRect.y) + columnHeadersHeight, scrollAndRenderedContainerRect.height);
+            // NOTE: the + 4 in the first expression below we added after stopping being a widget
+            // not sure why we need this adjustment. It's one pixel too high in lab, and one to low in notebook
+            // but this is ok
+            top = Math.min(Math.max(0, defaultTop - scrollAndRenderedContainerRect.y + 4) + columnHeadersHeight, scrollAndRenderedContainerRect.height);
             // If we're too close to the bottom, just snap ot the bottom
             if (top >= scrollAndRenderedContainerRect.height - 50) {
                 top = undefined;

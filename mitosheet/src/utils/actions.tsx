@@ -15,7 +15,28 @@ import { decreasePrecision, FORMAT_DISABLED_MESSAGE, increasePrecision } from ".
 import { writeTextToClipboard, getCopyStringForClipboard } from "./copy";
 import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
 import { DEFAULT_SUPPORT_EMAIL } from "../components/elements/GetSupportButton";
+import { CommCreationStatus } from "../jupyter/comm";
 
+
+export const getDefaultActionsDisabledMessage = (
+    uiState: UIState,
+    commCreationStatus: CommCreationStatus
+): string | undefined => {
+    let defaultActionDisabledMessage: string | undefined = undefined;
+    const disabledDueToReplayAnalysis = uiState.currOpenTaskpane.type === TaskpaneType.UPDATEIMPORTS && uiState.currOpenTaskpane.failedReplayData !== undefined;
+    if (disabledDueToReplayAnalysis) {
+        defaultActionDisabledMessage = 'Please resolve issues with the failed replay analysis before making further edits.';
+    } else if (commCreationStatus === 'loading') {
+        defaultActionDisabledMessage = 'Mito is still trying to connect to the backend. Please wait a moment.';
+    } else if (commCreationStatus === 'non_working_extension_error') {
+        defaultActionDisabledMessage = 'Mito is installed incorrectly. Please fix your installation and try again.';
+    } else if (commCreationStatus === 'non_valid_location_error') {
+        defaultActionDisabledMessage = 'Mito does not currently support this location. Please use Mito in JupyerLab or Jupter Notebooks.';
+    } else if (commCreationStatus === 'no_backend_comm_registered_error') {
+        defaultActionDisabledMessage = 'Kernel has been restarted. Please rerun the cell that created this mitosheet.';
+    }
+    return defaultActionDisabledMessage;
+}
 
 export const createActions = (
     sheetDataArray: SheetData[], 
@@ -29,7 +50,8 @@ export const createActions = (
     mitoAPI: MitoAPI,
     mitoContainerRef: React.RefObject<HTMLDivElement>,
     analysisData: AnalysisData,
-    userProfile: UserProfile
+    userProfile: UserProfile,
+    commCreationStatus: CommCreationStatus
 ): Record<ActionEnum, Action> => {
     // Define variables that we use in many actions
     const sheetIndex = gridState.sheetIndex;
@@ -44,8 +66,7 @@ export const createActions = (
 
     // If the replay analysis taskpane is open due to a failed replay analysis, we pretty much disable all actions
     // as the user needs to resolve these errors or start a new analysis
-    const disabledDueToReplayAnalysis = uiState.currOpenTaskpane.type === TaskpaneType.UPDATEIMPORTS && uiState.currOpenTaskpane.failedReplayData !== undefined;
-    const defaultActionDisabledMessage = disabledDueToReplayAnalysis ? 'Please resolve issues with the failed replay analysis before making further edits.' : undefined;
+    const defaultActionDisabledMessage: string | undefined = getDefaultActionsDisabledMessage(uiState, commCreationStatus);
 
     /*
         All of the actions that can be taken from the Action Search Bar. 
@@ -1236,7 +1257,7 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return undefined},
+            isDisabled: () => {return commCreationStatus !== 'finished' ? defaultActionDisabledMessage : undefined},
             searchTerms: ['update', 'imports', 'replay', 'refresh', 'change'],
             tooltip: "Change imported data to rerun the same edits on new data."
         },

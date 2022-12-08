@@ -398,7 +398,7 @@ def test_test_import_returns_good_data():
                 }
             }]
         }
-    ]}, mito.mito_widget.steps_manager))
+    ]}, mito.mito_backend.steps_manager))
 
     assert result["1"] == 'no such file does not exist.'
     assert result["3"] == 'fake_file does not exist.'
@@ -455,7 +455,7 @@ def test_test_import_correct_index_for_multiple_items_in_one_step():
                 }
             ]
         },
-    ]}, mito.mito_widget.steps_manager))
+    ]}, mito.mito_backend.steps_manager))
 
     assert result["1"] == 'no such file does not exist.'
     assert result["3"] == 'no such file does not exist.'
@@ -487,7 +487,7 @@ def test_update_imports_replays_unchanged_files_correctly_from_steps():
     # Test that all parameters are handled properly from get_imported_files_and_dataframes_from_current_steps
     # by making sure that the dataframes are the same when the import configuration is not changed
     from mitosheet.api.get_imported_files_and_dataframes_from_current_steps import get_imported_files_and_dataframes_from_current_steps
-    import_data = get_imported_files_and_dataframes_from_current_steps({}, mito.mito_widget.steps_manager)
+    import_data = get_imported_files_and_dataframes_from_current_steps({}, mito.mito_backend.steps_manager)
     
     import_data_json = json.loads(import_data)
     assert import_data_json[0]['imports'][0]['params']['file_names'] == [TEST_CSV_FILE]
@@ -535,7 +535,7 @@ def test_update_imports_replays_unchanged_files_correctly_from_analysis_name():
     # Test that all parameters are handled properly from get_imported_files_and_dataframes_from_current_steps
     # by making sure that the dataframes are the same when the import configuration is not changed
     from mitosheet.api.get_imported_files_and_dataframes_from_analysis_name import get_imported_files_and_dataframes_from_analysis_name
-    import_data = get_imported_files_and_dataframes_from_analysis_name({'analysis_name': mito.mito_widget.analysis_name}, mito.mito_widget.steps_manager)
+    import_data = get_imported_files_and_dataframes_from_analysis_name({'analysis_name': mito.mito_backend.analysis_name}, mito.mito_backend.steps_manager)
 
     import_data_json = json.loads(import_data)
     assert import_data_json[0]['imports'][0]['params']['file_names'] == [TEST_CSV_FILE]

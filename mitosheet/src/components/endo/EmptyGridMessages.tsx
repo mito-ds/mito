@@ -1,4 +1,5 @@
 import React from 'react';
+import { CommCreationStatus } from '../../jupyter/comm';
 import MitoAPI from '../../jupyter/api';
 import { SheetData, UIState } from '../../types';
 import TextButton from '../elements/TextButton';
@@ -21,7 +22,12 @@ const GridDataEmptyContainer = (props: {children: React.ReactNode}): JSX.Element
     )
 }
 
-const EmptyGridMessages = (props: {sheetData: SheetData | undefined, setUIState: React.Dispatch<React.SetStateAction<UIState>>, mitoAPI: MitoAPI, uiState: UIState}): JSX.Element => {
+const EmptyGridMessages = (props: {
+    sheetData: SheetData | undefined, 
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>, 
+    mitoAPI: MitoAPI, uiState: UIState,
+    commCreationStatus: CommCreationStatus
+}): JSX.Element => {
 
     return (
         <>
@@ -43,34 +49,35 @@ const EmptyGridMessages = (props: {sheetData: SheetData | undefined, setUIState:
                             }}
                             disabled={
                                 props.uiState.currOpenTaskpane.type === TaskpaneType.IMPORT_FILES ||
-                                (props.uiState.currOpenTaskpane.type === TaskpaneType.UPDATEIMPORTS && props.uiState.currOpenTaskpane.failedReplayData !== undefined)
+                                (props.uiState.currOpenTaskpane.type === TaskpaneType.UPDATEIMPORTS && props.uiState.currOpenTaskpane.failedReplayData !== undefined) ||
+                                props.commCreationStatus !== 'finished'
                             }
                         >
                             Import Files
                         </TextButton>
                     </div>
-                    <p className='mt-5px text-body-1'>
+                    <p className='mt-5px text-body-1' style={{textAlign: 'center'}}>
                         Or import dataframes using the syntax <code>mitosheet.sheet(df1, df2)</code> in the code above.
                     </p>
                 </GridDataEmptyContainer>
             }
             {props.sheetData !== undefined && props.sheetData.numRows === 0 && props.sheetData.numColumns === 0 &&
                 <GridDataEmptyContainer>
-                    <p className='text-body-1'>
+                    <p className='text-body-1' style={{textAlign: 'center'}}>
                         No data in dataframe.
                     </p>
                 </GridDataEmptyContainer>
             }
             {props.sheetData !== undefined && props.sheetData.numRows > 0 && props.sheetData.numColumns === 0 &&
                 <GridDataEmptyContainer>
-                    <p className='text-body-1'>
+                    <p className='text-body-1' style={{textAlign: 'center'}}>
                         No columns in dataframe.
                     </p>
                 </GridDataEmptyContainer>
             }
             {props.sheetData !== undefined && props.sheetData.numRows === 0 && props.sheetData.numColumns > 0 &&
                 <GridDataEmptyContainer>
-                    <p className='text-body-1'>
+                    <p className='text-body-1' style={{textAlign: 'center'}}>
                         No rows in dataframe.
                     </p>
                 </GridDataEmptyContainer>

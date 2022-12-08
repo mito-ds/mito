@@ -7,7 +7,7 @@ import { getFiltersToApply } from "../ControlPanel/FilterAndSortTab/filter/filte
  * We cover the most common cases when string, datetime, 
  * or timedelta columns are present.
  */
- const STRING_AGGREGATIONS = [
+const STRING_AGGREGATIONS = [
     AggregationType.COUNT,
     AggregationType.COUNT_UNIQUE,
 ]

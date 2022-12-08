@@ -17,6 +17,32 @@
     color: var(--mito-purple);
 }
 
+.jp-RenderedHTMLCommon > .mito-container-container {
+    margin-right: -20px;
+}
+/* We overwrite rendering rules that give us problems in HTML output*/
+/* In Lab */
+.jp-RenderedHTMLCommon .mito-container p {
+    margin: initial;
+    text-align: initial;
+}
+.jp-RenderedHTMLCommon .mito-container a:link,a:visited {
+    color: initial;
+    text-decoration: initial;
+}
+/* In Notebook */
+.rendered_html .mito-container p {
+    margin: initial;
+    text-align: initial;
+}
+.jp-rendered_html .mito-container a:link,a:visited {
+    color: initial;
+    text-decoration: initial;
+}
+
+.rendered_html .mito-container :visited {
+    text-decoration: initial;
+}
 
 /* 
     We override the the overflow behavior on the jupyter-widgets class, which 
@@ -45,6 +71,12 @@
 
     /* Set the default font to Roboto */
     font-family: Roboto;
+
+    /* 
+        Set the position to relative to make the overlay base its height and width off of the mito container.
+        Read more here: https://stackoverflow.com/questions/49209970/width-100-of-an-absolute-positioned-element-is-bigger-than-the-parent
+    */
+    position: relative;
 }
 
 

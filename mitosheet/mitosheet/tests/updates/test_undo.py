@@ -42,13 +42,13 @@ def test_undo_saves_in_last_undone_steps():
     mito.add_column(0, 'C')
 
     mito.undo()
-    assert len(mito.mito_widget.steps_manager.undone_step_list_store) == 1
+    assert len(mito.mito_backend.steps_manager.undone_step_list_store) == 1
 
     mito.undo()
-    assert len(mito.mito_widget.steps_manager.undone_step_list_store) == 2
+    assert len(mito.mito_backend.steps_manager.undone_step_list_store) == 2
     # Check reverse order
-    assert mito.mito_widget.steps_manager.undone_step_list_store[0][1][0].params['column_header'] == 'C'
-    assert mito.mito_widget.steps_manager.undone_step_list_store[1][1][0].params['column_header'] == 'B'
+    assert mito.mito_backend.steps_manager.undone_step_list_store[0][1][0].params['column_header'] == 'C'
+    assert mito.mito_backend.steps_manager.undone_step_list_store[1][1][0].params['column_header'] == 'B'
 
     mito.add_column(0, 'B')
-    assert len(mito.mito_widget.steps_manager.undone_step_list_store) == 0
+    assert len(mito.mito_backend.steps_manager.undone_step_list_store) == 0
