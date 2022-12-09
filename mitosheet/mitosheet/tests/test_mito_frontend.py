@@ -11,7 +11,11 @@ from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 STRINGS_TO_TEST = [
     ('Normal'),
     ('space in the text'),
-    ('学	医')
+    ('学	医'),
+    ('this\is\text'),
+    ('\n'),
+    ('\t'),
+    ('\r')
 ]
 
 
