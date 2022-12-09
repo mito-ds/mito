@@ -316,6 +316,19 @@ def get_current_kernel_id() -> str:
     file_name: str = os.path.basename(connection_file) 
     return file_name[len('kernel-'):-len('.json')] 
 
+
+def get_mito_frontend_code(kernel_id: str, comm_target_id: str, div_id: str, mito_backend: MitoBackend) -> str:
+    js_code = js_code_from_file.replace('REPLACE_THIS_WITH_DIV_ID', div_id)
+    js_code = js_code.replace('REPLACE_THIS_WITH_KERNEL_ID', kernel_id)
+    js_code = js_code.replace('REPLACE_THIS_WITH_COMM_TARGET_ID', comm_target_id)
+    # NOTE: we need to turn \ into \\ anywhere it exists, as otherwise
+    js_code = js_code.replace('REPLACE_THIS_WITH_SHEET_DATA_ARRAY', mito_backend.steps_manager.sheet_data_json.replace('\\', '\\\\'))
+    js_code = js_code.replace('REPLACE_THIS_WITH_ANALYSIS_DATA', mito_backend.steps_manager.analysis_data_json.replace('\\', '\\\\'))
+    js_code = js_code.replace('REPLACE_THIS_WITH_USER_PROFILE', mito_backend.get_user_profile_json().replace('\\', '\\\\'))
+    js_code = js_code.replace('REPLACE_THIS_WITH_CSS', css_code_from_file)
+    return js_code
+
+
 def sheet(
         *args: Any,
         analysis_to_replay: Optional[str]=None, # This is the parameter that tracks the analysis that you want to replay (NOTE: requires a frontend to be replayed!)
@@ -388,13 +401,7 @@ def sheet(
     div_id = get_new_id()
     kernel_id = get_current_kernel_id()
 
-    js_code = js_code_from_file.replace('REPLACE_THIS_WITH_DIV_ID', div_id)
-    js_code = js_code.replace('REPLACE_THIS_WITH_KERNEL_ID', kernel_id)
-    js_code = js_code.replace('REPLACE_THIS_WITH_COMM_TARGET_ID', comm_target_id)
-    js_code = js_code.replace('REPLACE_THIS_WITH_SHEET_DATA_ARRAY', mito_backend.steps_manager.sheet_data_json)
-    js_code = js_code.replace('REPLACE_THIS_WITH_ANALYSIS_DATA', mito_backend.steps_manager.analysis_data_json)
-    js_code = js_code.replace('REPLACE_THIS_WITH_USER_PROFILE', mito_backend.get_user_profile_json())
-    js_code = js_code.replace('REPLACE_THIS_WITH_CSS', css_code_from_file)
+    js_code = get_mito_frontend_code(kernel_id, comm_target_id, div_id, mito_backend)
 
     display(HTML(f"""<div id={div_id} class="mito-container-container">
         <script>
