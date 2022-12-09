@@ -321,7 +321,8 @@ def get_mito_frontend_code(kernel_id: str, comm_target_id: str, div_id: str, mit
     js_code = js_code_from_file.replace('REPLACE_THIS_WITH_DIV_ID', div_id)
     js_code = js_code.replace('REPLACE_THIS_WITH_KERNEL_ID', kernel_id)
     js_code = js_code.replace('REPLACE_THIS_WITH_COMM_TARGET_ID', comm_target_id)
-    # NOTE: we need to turn \ into \\ anywhere it exists, as otherwise
+    # NOTE: we need to turn \ into \\ anywhere it exists, as otherwise we might get characters
+    # that are invalid JS, and we get a SyntaxError when trying to render the mitosheet
     js_code = js_code.replace('REPLACE_THIS_WITH_SHEET_DATA_ARRAY', mito_backend.steps_manager.sheet_data_json.replace('\\', '\\\\'))
     js_code = js_code.replace('REPLACE_THIS_WITH_ANALYSIS_DATA', mito_backend.steps_manager.analysis_data_json.replace('\\', '\\\\'))
     js_code = js_code.replace('REPLACE_THIS_WITH_USER_PROFILE', mito_backend.get_user_profile_json().replace('\\', '\\\\'))
