@@ -3,7 +3,7 @@
 import React from 'react';
 import '../../../../css/layout/CollapsibleSection.css';
 import MitoAPI from '../../../jupyter/api';
-import { ColumnIDWithPivotTransform, FrontendPivotParams, PivotColumnTransformation, SheetData } from '../../../types';
+import { ColumnID, ColumnIDWithPivotTransform, FrontendPivotParams, PivotColumnTransformation, SheetData } from '../../../types';
 import { columnIDMapToDisplayHeadersMap, getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import { isDatetimeDtype } from '../../../utils/dtypes';
 import DropdownButton from '../../elements/DropdownButton';
@@ -57,7 +57,7 @@ const PivotTableKeySelection = (props: {
     const columnIdsWithTransforms: ColumnIDWithPivotTransform[] = props.rowOrColumn === 'pivotRowColumnIDsWithTransforms' ? [...props.params.pivotRowColumnIDsWithTransforms] : [...props.params.pivotColumnsColumnIDsWithTransforms];
 
     const pivotTableKeyCards: JSX.Element[] = columnIdsWithTransforms.map(({column_id, transformation}, keyIndex) => {
-        const columnID = columnDtypeMap[column_id];
+        const columnID: ColumnID | undefined = columnDtypeMap[column_id];
 
         const selectAndXIcon = (
             <SelectAndXIconCard 
@@ -92,9 +92,9 @@ const PivotTableKeySelection = (props: {
             />
         )
 
-        if (isDatetimeDtype(columnID)) {
+        if (columnID !== undefined && isDatetimeDtype(columnID)) {
             return (
-                <div className='mito-blue-container mt-4px mb-4px'>
+                <div className='mito-blue-container mt-4px mb-4px' key={keyIndex}>
                     {selectAndXIcon}
                     <Row justify='space-between' align='center'>
                         <Col offset={.25}>

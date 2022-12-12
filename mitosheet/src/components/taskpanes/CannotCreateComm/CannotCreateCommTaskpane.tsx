@@ -36,8 +36,8 @@ const CannotCreateCommTaskpane = (props: CannotCreateCommTaskpaneProps): JSX.Ele
         secondLine = (<>To install Mito in JupyterLab and Jupyter Notebook, follow our <a href={DOCUMENTATION_LINK_INSTALL} target='_blank' rel="noreferrer"><span className="text-body-1-link">installation instructions.</span></a></>)
     } else if (props.commCreationErrorStatus === 'non_working_extension_error') {
         header = 'Invalid installation'
-        firstLine = 'Mito was unable to connect to your Python kernel. This is probably because Mito is installed incorrectly.'
-        secondLine = (<>To fix your installation, please ensure you have followed our <a href={DOCUMENTATION_LINK_INSTALL} target='_blank' rel="noreferrer"><span className="text-body-1-link">installation instructions.</span></a></>)
+        firstLine = 'Try restarting your JupyterLab. Mito was unable to connect to your Python kernel.'
+        secondLine = (<>If this does not resolve this error, please ensure you have followed our <a href={DOCUMENTATION_LINK_INSTALL} target='_blank' rel="noreferrer"><span className="text-body-1-link">installation instructions.</span></a></>)
     }
 
     return (
