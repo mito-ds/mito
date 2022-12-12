@@ -37905,7 +37905,7 @@ fig.write_html("${props.graphTabName}.html")`
       }
     ), codeSnippetsToDisplay.map((codeSnippet, codeSnippetIndex) => {
       const copyToClipboard = () => {
-        writeTextToClipboard(codeSnippet.Code.join("\n"));
+        void writeTextToClipboard(codeSnippet.Code.join("\n"));
         void props.mitoAPI.log("code_snippet_copied", { "Name": codeSnippet.Name });
       };
       const writeToCell2 = () => {

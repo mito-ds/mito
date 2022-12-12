@@ -5,5 +5,5 @@ from mitosheet.api.get_code_snippets import get_code_snippets, DEFAULT_CODE_SNIP
 def test_get_code_snippet():
     mito = create_mito_wrapper_dfs()
 
-    assert get_code_snippets({}, mito.mito_backend.steps_manager) == json.dumps({'code_snippets': DEFAULT_CODE_SNIPPETS})
+    assert get_code_snippets({}, mito.mito_backend.steps_manager) == json.dumps(DEFAULT_CODE_SNIPPETS)
     
