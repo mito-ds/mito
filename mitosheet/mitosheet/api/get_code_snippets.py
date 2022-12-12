@@ -41,7 +41,7 @@ DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
         },
         {
                 "Name": "Read all CSV files from folder", 
-                "Description": "Read the data that is copied to you clipboard into a pandas dataframe",
+                "Description": "Read the CSV files from a folder, and concate them into a single dataframe.",
                 "Code": [
                         "import pandas as pd",
                         "import glob",
