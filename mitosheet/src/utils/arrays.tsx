@@ -28,6 +28,7 @@ export function arraysContainSameValues<T>(array1: T[], array2: T[]): boolean {
 
 function onlyUnique<T>(value: T, index: number, self: T[]): boolean {
     return self.indexOf(value) === index;
+    
 }
 
 /* 

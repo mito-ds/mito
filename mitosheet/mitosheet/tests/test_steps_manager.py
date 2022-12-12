@@ -42,7 +42,7 @@ def test_steps_manager_cell_edit_errors(formula,error_type):
     mito = create_mito_wrapper([123])
     mito.add_column(0, 'B')
     with pytest.raises(MitoError) as e_info:
-        mito.mito_widget.steps_manager.handle_edit_event({
+        mito.mito_backend.steps_manager.handle_edit_event({
             'event': 'edit_event',
             'id': get_new_id(),
             'type': 'set_column_formula_edit',
@@ -61,11 +61,11 @@ def test_overwrites_step_valid():
     mito = create_mito_wrapper([1, 2, 3])
     mito.add_column(0, 'B')
 
-    mito.mito_widget.receive_message(mito.mito_widget, {
+    mito.mito_backend.receive_message({
         'event': 'edit_event',
         'id': get_new_id(),
         'type': 'add_column_edit',
-        'step_id': mito.mito_widget.steps_manager.curr_step.step_id,
+        'step_id': mito.mito_backend.steps_manager.curr_step.step_id,
         'params': {
             'sheet_index': 0,
             'column_header': 'C',
@@ -81,11 +81,11 @@ def test_failed_overwrite_rolls_back_to_previous_state():
     mito = create_mito_wrapper([1, 2, 3])
     mito.add_column(0, 'B')
 
-    mito.mito_widget.receive_message(mito.mito_widget, {
+    mito.mito_backend.receive_message({
         'event': 'edit_event',
         'id': get_new_id(),
         'type': 'add_column_edit',
-        'step_id': mito.mito_widget.steps_manager.curr_step.step_id,
+        'step_id': mito.mito_backend.steps_manager.curr_step.step_id,
         'params': {
             'sheet_index': 1,
             'column_header': 'C',

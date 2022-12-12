@@ -17,6 +17,7 @@ import { firstNonNullOrUndefined, getColumnIDsArrayFromSheetDataArray } from "./
 import { ensureCellVisible } from "./visibilityUtils";
 import { reconciliateWidthDataArray } from "./widthUtils";
 import FloatingCellEditor from "./celleditor/FloatingCellEditor";
+import { CommCreationStatus } from "../../jupyter/comm";
 
 // NOTE: these should match the css
 export const DEFAULT_WIDTH = 123;
@@ -87,6 +88,7 @@ function EndoGrid(props: {
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>
     mitoContainerRef: React.RefObject<HTMLDivElement>
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
+    commCreationStatus: CommCreationStatus;
 }): JSX.Element {
 
     // The container for the entire EndoGrid
@@ -201,6 +203,7 @@ function EndoGrid(props: {
 
 
     const onMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+
         if (editorState !== undefined) {
             // EDITING MODE
 
@@ -496,7 +499,7 @@ function EndoGrid(props: {
             return;
         }
 
-        const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, rowIndex, columnIndex, 'set_column_formula');
+        const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, props.editorState, rowIndex, columnIndex, 'set_column_formula');
 
         setEditorState({
             rowIndex: rowIndex,
@@ -563,7 +566,7 @@ function EndoGrid(props: {
                 setGridState((gridState) => {
                     const lastSelection = gridState.selections[gridState.selections.length - 1]
 
-                    const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, lastSelection.startingRowIndex, lastSelection.startingColumnIndex, 'set_column_formula', e);
+                    const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, undefined, lastSelection.startingRowIndex, lastSelection.startingColumnIndex, 'set_column_formula', e);
                     
                     setEditorState({
                         rowIndex: lastSelection.startingRowIndex,
@@ -683,6 +686,7 @@ function EndoGrid(props: {
                         sheetData={sheetData}
                         mitoAPI={mitoAPI}
                         uiState={props.uiState}
+                        commCreationStatus={props.commCreationStatus}
                     />
                     {/* 
                         This is the div we actually scroll inside. We make it so it's styled

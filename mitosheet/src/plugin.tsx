@@ -5,25 +5,25 @@
 // only our package.json, we can change what packages we import, without 
 // having to change what we import in code. This allows us to support 
 // jlab2 and jlab3
-import { IJupyterWidgetRegistry } from '@jupyter-widgets/base';
+import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
+import { ToolbarButton } from '@jupyterlab/apputils';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
-import { Application, IPlugin } from 'application';
-import { Widget } from "@lumino/widgets";
-import MitoAPI from './jupyter/api';
-import { getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell } from './jupyter/lab/pluginUtils';
-import { containsGeneratedCodeOfAnalysis, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine } from './utils/code';
-import { MODULE_NAME, MODULE_VERSION } from './version';
-import * as widgetExports from './jupyter/widget';
 import { mitoJLabIcon } from './components/icons/JLabIcon/MitoIcon';
-
+import MitoAPI from './jupyter/api';
+import { LabComm } from './jupyter/comm';
 import {
-    ToolbarButton,
-} from '@jupyterlab/apputils';
-
-
-const EXTENSION_ID = 'mitosheet:plugin';
+    getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell
+} from './jupyter/lab/extensionUtils';
+import { containsGeneratedCodeOfAnalysis, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine } from './utils/code';
 
 const addButton = (tracker: INotebookTracker) => {
+    /**
+     * tracker.widgetAdded.connect((slot) => {
+            slot.
+        })
+
+        Does this allow us to do this??? I think perhaps...
+     */
 
     // We try and add the button every 3 seconds for 20 seconds, in case
     // the panel takes a while to load
@@ -39,7 +39,7 @@ const addButton = (tracker: INotebookTracker) => {
                 className: 'toolbar-mito-button-class',
                 icon: mitoJLabIcon,
                 onClick: (): void => {
-                    window.commands?.execute('create-empty-mitosheet');
+                    window.commands?.execute('mitosheet:create-empty-mitosheet');
                 },
                 tooltip: 'Create a blank Mitosheet below the active code cell',
                 label: 'Create New Mitosheet',
@@ -56,36 +56,46 @@ const addButton = (tracker: INotebookTracker) => {
 }
 
 /**
- * The example plugin.
- */
-const mitosheetJupyterLabPlugin: IPlugin<Application<Widget>, void> = ({
-    id: EXTENSION_ID,
-    requires: [IJupyterWidgetRegistry, INotebookTracker],
-    activate: activateWidgetExtension,
-    autoStart: true,
-} as unknown) as IPlugin<Application<Widget>, void>;
-// The "as unknown as ..." typecast above is solely to support JupyterLab 1
-// and 2 in the same codebase and should be removed when we migrate to Lumino.
-
-export default mitosheetJupyterLabPlugin;
-
-/**
  * Activate the widget extension.
  * 
  * This gets executed when Jupyter Lab turns activates the Mito extension, which 
  * happens when the Jupyter Lab server is started. 
  */
-function activateWidgetExtension(
-    app: Application<Widget>,
-    registry: IJupyterWidgetRegistry,
-    tracker: INotebookTracker
+function activateMitosheetExtension(
+    app: JupyterFrontEnd,
+    tracker: INotebookTracker,
 ): void {
 
     // Add the Create New Mitosheet button
     addButton(tracker);
 
+    /**
+     * This command creates a new comm for the mitosheet to talk to the mito backend. 
+     */
+    app.commands.addCommand('mitosheet:create-mitosheet-comm', {
+        label: 'Create Comm',
+        execute: async (args: any): Promise<LabComm | 'no_backend_comm_registered_error' | undefined> => {
+            const kernelID = args.kernelID;
+            const commTargetID = args.commTargetID;
 
-    app.commands.addCommand('write-analysis-to-replay-to-mitosheet-call', {
+            // First, get the kernel with the correct kernel id
+            const currentNotebook = tracker.find((nb) => {
+                return nb.sessionContext.session?.kernel?.id === kernelID
+            });
+            const currentKernel = currentNotebook?.sessionContext?.session?.kernel;
+
+            // If there is no kernel with this ID, then we know the kernel has been restarted, and so 
+            // we tell the user this
+            if (currentKernel === undefined || currentKernel === null) {
+                return 'no_backend_comm_registered_error';
+            }
+                        
+            const comm = currentKernel.createComm(commTargetID);
+            return (comm as unknown) as LabComm | undefined;
+        }
+    })
+
+    app.commands.addCommand('mitosheet:write-analysis-to-replay-to-mitosheet-call', {
         label: 'Given an analysisName, writes it to the mitosheet.sheet() call that created this mitosheet, if it is not already written to this cell.',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         execute: (args: any) => {
@@ -106,7 +116,7 @@ function activateWidgetExtension(
         }
     })
 
-    app.commands.addCommand('overwrite-analysis-to-replay-to-mitosheet-call', {
+    app.commands.addCommand('mitosheet:overwrite-analysis-to-replay-to-mitosheet-call', {
         label: 'Given an oldAnalysisName and newAnalysisName, writes the newAnalysisName to the mitosheet.sheet() call that has the oldAnalysisName.',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         execute: (args: any) => {
@@ -128,7 +138,7 @@ function activateWidgetExtension(
         }
     })
 
-    app.commands.addCommand('write-generated-code-cell', {
+    app.commands.addCommand('mitosheet:write-generated-code-cell', {
         label: 'Writes the generated code for a mito analysis to the cell below the mitosheet.sheet() call that generated this analysis. NOTE: this should only be called after the analysis_to_replay has been written in the mitosheet.sheet() call, so this cell can be found correctly.',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         execute: (args: any) => {
@@ -183,7 +193,7 @@ function activateWidgetExtension(
         }
     })
 
-    app.commands.addCommand('get-args', {
+    app.commands.addCommand('mitosheet:get-args', {
         label: 'Reads the arguments passed to the mitosheet.sheet call.',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         execute: (args: any): string[] => {
@@ -198,7 +208,7 @@ function activateWidgetExtension(
         }
     });
 
-    app.commands.addCommand('create-mitosheet-from-dataframe-output', {
+    app.commands.addCommand('mitosheet:create-mitosheet-from-dataframe-output', {
         label: 'creates a new mitosheet from the dataframe that is printed',
         execute: async (): Promise<void> => {
 
@@ -238,7 +248,7 @@ function activateWidgetExtension(
         }
     });
 
-    app.commands.addCommand('create-empty-mitosheet', {
+    app.commands.addCommand('mitosheet:create-empty-mitosheet', {
         label: 'Creates a new empty mitosheet',
         execute: async (): Promise<void> => {
 
@@ -278,12 +288,12 @@ function activateWidgetExtension(
         focus on it, so the user can just starting typing in it!
     */
     app.commands.addKeyBinding({
-        command: 'focus-on-search',
+        command: 'mitosheet:focus-on-search',
         args: {},
         keys: ['Accel F'],
         selector: '.mito-container'
     });
-    app.commands.addCommand('focus-on-search', {
+    app.commands.addCommand('mitosheet:focus-on-search', {
         label: 'Focuses on search of the currently selected mito notebook',
         execute: async (): Promise<void> => {
             // First, get the mito container that this element is a part of
@@ -298,12 +308,12 @@ function activateWidgetExtension(
     });
 
     app.commands.addKeyBinding({
-        command: 'mito-undo',
+        command: 'mitosheet:mito-undo',
         args: {},
         keys: ['Accel Z'],
         selector: '.mito-container'
     });
-    app.commands.addCommand('mito-undo', {
+    app.commands.addCommand('mitosheet:mito-undo', {
         label: 'Clicks the undo button once',
         execute: async (): Promise<void> => {
             // First, get the mito container that this element is a part of
@@ -316,12 +326,12 @@ function activateWidgetExtension(
     });
 
     app.commands.addKeyBinding({
-        command: 'mito-redo',
+        command: 'mitosheet:mito-redo',
         args: {},
         keys: ['Accel Y'],
         selector: '.mito-container'
     });
-    app.commands.addCommand('mito-redo', {
+    app.commands.addCommand('mitosheet:mito-redo', {
         label: 'Clicks the redo button once',
         execute: async (): Promise<void> => {
             // First, get the mito container that this element is a part of
@@ -343,12 +353,12 @@ function activateWidgetExtension(
         annoying.
     */
     app.commands.addKeyBinding({
-        command: 'do-nothing',
+        command: 'mitosheet:do-nothing',
         args: {},
         keys: ['Shift Enter'],
         selector: '.mito-container'
     });
-    app.commands.addCommand('do-nothing', {
+    app.commands.addCommand('mitosheet:do-nothing', {
         label: 'Does nothing',
         execute: async (): Promise<void> => {
             // Do nothing, doh
@@ -356,9 +366,13 @@ function activateWidgetExtension(
     });
 
     window.commands = app.commands; // So we can write to it elsewhere
-    registry.registerWidget({
-        name: MODULE_NAME,
-        version: MODULE_VERSION,
-        exports: widgetExports,
-    });
 }
+
+const mitosheetJupyterLabPlugin: JupyterFrontEndPlugin<void> = {
+    id: 'mitosheet:plugin',
+    requires: [INotebookTracker],
+    activate: activateMitosheetExtension,
+    autoStart: true,
+};
+
+export default mitosheetJupyterLabPlugin;

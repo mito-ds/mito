@@ -10,7 +10,7 @@ from typing import List
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.transpiler.transpile_utils import (
     column_header_list_to_transpiled_code, column_header_to_transpiled_code)
-from mitosheet.types import ColumnID
+from mitosheet.types import ColumnID, ColumnHeader
 
 LOOKUP = 'lookup'
 UNIQUE_IN_LEFT = 'unique in left'
@@ -38,11 +38,11 @@ class MergeCodeChunk(CodeChunk):
         selected_column_ids_one: List[ColumnID] = self.get_param('selected_column_ids_one') 
         selected_column_ids_two: List[ColumnID] = self.get_param('selected_column_ids_two')
 
-        merge_keys_one = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index_one, list(map(lambda x: x[0], merge_key_column_ids)))
-        merge_keys_two = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index_two, list(map(lambda x: x[1], merge_key_column_ids)))
+        merge_keys_one: List[ColumnHeader] = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index_one, list(map(lambda x: x[0], merge_key_column_ids)))
+        merge_keys_two: List[ColumnHeader] = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index_two, list(map(lambda x: x[1], merge_key_column_ids)))
 
-        selected_column_headers_one = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index_one, selected_column_ids_one)
-        selected_column_headers_two = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index_two, selected_column_ids_two)
+        selected_column_headers_one: List[ColumnHeader] = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index_one, selected_column_ids_one)
+        selected_column_headers_two: List[ColumnHeader] = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index_two, selected_column_ids_two)
 
         # Update df indexes to start at 1
         df_one_name = self.post_state.df_names[sheet_index_one]
@@ -63,10 +63,10 @@ class MergeCodeChunk(CodeChunk):
             temp_df_name = df_two_name
             how_to_use = how
 
-
         # If we are only taking some columns, write the code to drop the ones we don't need!
-        deleted_columns_one = set(self.post_state.dfs[sheet_index_one].keys()).difference(set(selected_column_headers_one))
-        deleted_columns_two = set(self.post_state.dfs[sheet_index_two].keys()).difference(set(selected_column_headers_two))
+        deleted_columns_one = set(self.post_state.dfs[sheet_index_one].keys()).difference(set(selected_column_headers_one).union(set(merge_keys_one)))
+        deleted_columns_two = set(self.post_state.dfs[sheet_index_two].keys()).difference(set(selected_column_headers_two).union(set(merge_keys_two)))
+
         if len(deleted_columns_one) > 0:
             deleted_transpiled_column_header_one_list = column_header_list_to_transpiled_code(deleted_columns_one)
             merge_code.append(

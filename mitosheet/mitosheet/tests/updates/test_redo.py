@@ -19,7 +19,7 @@ def test_redo_redoes_action():
         'B': [0, 0, 0]
     }))
 
-    assert len(mito.mito_widget.steps_manager.undone_step_list_store) == 0
+    assert len(mito.mito_backend.steps_manager.undone_step_list_store) == 0
 
 def test_redo_redoes_action_twice():
     mito = create_mito_wrapper([1, 2, 3])
@@ -36,7 +36,7 @@ def test_redo_redoes_action_twice():
         'C': [0, 0, 0]
     }))
 
-    assert len(mito.mito_widget.steps_manager.undone_step_list_store) == 0
+    assert len(mito.mito_backend.steps_manager.undone_step_list_store) == 0
 
 def test_undo_redo_undo_undo():
     mito = create_mito_wrapper([1, 2, 3])
@@ -53,7 +53,7 @@ def test_undo_redo_undo_undo():
         'C': [0, 0, 0]
     }))
 
-    assert len(mito.mito_widget.steps_manager.undone_step_list_store) == 0
+    assert len(mito.mito_backend.steps_manager.undone_step_list_store) == 0
 
 def test_redo_no_error_when_nothing_to_undo():
     mito = create_mito_wrapper([1, 2, 3])
@@ -63,4 +63,4 @@ def test_redo_no_error_when_nothing_to_undo():
         'A': [1, 2, 3],
     }))
 
-    assert len(mito.mito_widget.steps_manager.undone_step_list_store) == 0
+    assert len(mito.mito_backend.steps_manager.undone_step_list_store) == 0

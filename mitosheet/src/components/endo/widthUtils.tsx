@@ -1,6 +1,7 @@
 import { DEFAULT_WIDTH } from "./EndoGrid";
-import { ColumnID, SheetData, WidthData } from "../../types";
-
+import { ColumnID, GridState, SheetData, WidthData } from "../../types";
+import { getCellDataFromCellIndexes } from "./utils";
+import { getDisplayColumnHeader } from "../../utils/columnHeaders";
 
 /* 
     A helper function for getting the default widthData
@@ -116,4 +117,42 @@ export const reconciliateWidthData = (prevWidthData: WidthData | undefined, oldC
     }
 
     return getWidthData(sheetData, oldWidths);
+}
+
+/*
+    Guess the minimum column width such that the entire column header and each cell is displayed
+    completely withour wrapping.
+
+    Returns a number of pixels 
+*/
+export const guessFullWidthOfColumnHeaderOrContent = (sheetData: SheetData, columnIndex: number, displayColumnHeader: string): number => {
+    // Estimate the column header required width as 10px per character and 15px of spacing 
+    const displayColumnHeaderPx = displayColumnHeader.length * 10 + 15
+
+    // Estimate the data length as 8px per character in the cell with the longest data
+    const dataMaxLength = Math.max(...(sheetData.data[columnIndex].columnData.map(el => String(el).length))) * 8
+
+    // Return the max 
+    return Math.max(displayColumnHeaderPx, dataMaxLength)
+}
+
+
+/*
+    Guesses the full width for all of the passed column Indexes.
+*/
+export const getWidthArrayAtFullWidthForColumnIndexes = (columnIndexes: number[], gridState: GridState, sheetData: SheetData): WidthData[]  => {
+    let widthDataArray = gridState.widthDataArray
+    columnIndexes.forEach(columnIndex => {
+        const columnHeader = getCellDataFromCellIndexes(sheetData, -1, columnIndex).columnHeader;
+
+        if (columnHeader === undefined) {
+            return
+        }
+
+        const displayColumnHeader = getDisplayColumnHeader(columnHeader)
+
+        const fullWidth = guessFullWidthOfColumnHeaderOrContent(sheetData, columnIndex, displayColumnHeader)
+        widthDataArray = changeColumnWidthDataArray(gridState.sheetIndex, widthDataArray, columnIndex, fullWidth)
+    })
+    return widthDataArray
 }

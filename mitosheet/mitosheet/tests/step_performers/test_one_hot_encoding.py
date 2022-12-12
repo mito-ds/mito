@@ -108,7 +108,7 @@ def test_one_hot_encode_twice_error():
     mito.one_hot_encoding(0, 'A')
     mito.one_hot_encoding(0, 'A')
     with pytest.raises(MitoError) as e:
-        mito.mito_widget.handle_edit_event(
+        mito.mito_backend.handle_edit_event(
             {
                 'event': 'edit_event',
                 'id': get_new_id(),

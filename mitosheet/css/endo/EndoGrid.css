@@ -49,7 +49,7 @@
     height: 100%;
     width: 100%;
 
-    text-align: center;
+    text-align: center !important;
     display: flex;
     justify-content: center;
     flex-direction: column;

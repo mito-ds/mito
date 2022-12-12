@@ -80,6 +80,58 @@ def get_enum_from_ts_file(path, enum_name):
     return enum_items
 
 
+def get_string_list_from_type(path, type_name):
+    """
+    Helper function that retuns an type from a TS
+    file, parsed as a list of strings.
+
+    NOTE: this only works for types that are spread
+    out across mulitple lines :-)
+    """
+    with open(path, "r+") as f:
+        all_code_lines = f.readlines()
+
+    # First, we find where the enum starts and ends
+    start_line_index = None
+    end_line_index = None
+    for index, code_line in enumerate(all_code_lines):
+        if f"type {type_name}" in code_line:
+            start_line_index = index
+        elif start_line_index is not None and "}" in code_line:
+            end_line_index = index
+            break
+
+    if start_line_index is None:
+        raise Exception(f"{type_name} is not in {path}, did you move it or rename it?")
+
+    items = []
+    for type_code_line in all_code_lines[start_line_index + 1:]:
+        type_code_line = type_code_line.strip()
+        # Remove starting |
+        if type_code_line.startswith("|"):
+            type_code_line = type_code_line[1:]
+        elif type_code_line.startswith('//'):
+            # If it's a comment, ignore it
+            continue
+        else:
+            # If there isn't one, then quit the loop
+            break
+        
+        value = type_code_line.strip()
+        # If the value is a string and has quotes around it,
+        # take them off
+        if value.startswith("'") or value.startswith('"'):
+            value = value[1:]
+        if value.endswith("'") or value.endswith('"'):
+            value = value[:-1]
+
+        items.append(value)
+
+
+
+    return items
+
+
 def get_constant_from_ts_file(path, constant_name):
     """
     Helper function that retuns an constant from a TS
@@ -214,6 +266,52 @@ def test_update_events_enum_defined():
 
     for UPDATE in UPDATES:
         assert UPDATE['event_type'] in update_types.values()
+        
+def test_pivot_column_transformation_type_defined():
+    pcts = get_string_list_from_type("./src/types.tsx", "PivotColumnTransformation")
+    from mitosheet.step_performers.pivot import (
+        PCT_NO_OP,
+        PCT_DATE_YEAR,
+        PCT_DATE_QUARTER,
+        PCT_DATE_MONTH,
+        PCT_DATE_WEEK,
+        PCT_DATE_DAY_OF_MONTH,
+        PCT_DATE_DAY_OF_WEEK,
+        PCT_DATE_HOUR,
+        PCT_DATE_MINUTE,
+        PCT_DATE_SECOND,
+        PCT_DATE_YEAR_MONTH_DAY_HOUR_MINUTE,
+        PCT_DATE_YEAR_MONTH_DAY_HOUR,
+        PCT_DATE_YEAR_MONTH_DAY,
+        PCT_DATE_YEAR_MONTH,
+        PCT_DATE_YEAR_QUARTER,
+        PCT_DATE_MONTH_DAY,
+        PCT_DATE_DAY_HOUR,
+        PCT_DATE_HOUR_MINUTE,
+    )
+
+    PCTS = [
+        PCT_NO_OP,
+        PCT_DATE_YEAR,
+        PCT_DATE_QUARTER,
+        PCT_DATE_MONTH,
+        PCT_DATE_WEEK,
+        PCT_DATE_DAY_OF_MONTH,
+        PCT_DATE_DAY_OF_WEEK,
+        PCT_DATE_HOUR,
+        PCT_DATE_MINUTE,
+        PCT_DATE_SECOND,
+        PCT_DATE_YEAR_MONTH_DAY_HOUR_MINUTE,
+        PCT_DATE_YEAR_MONTH_DAY_HOUR,
+        PCT_DATE_YEAR_MONTH_DAY,
+        PCT_DATE_YEAR_MONTH,
+        PCT_DATE_YEAR_QUARTER,
+        PCT_DATE_MONTH_DAY,
+        PCT_DATE_DAY_HOUR,
+        PCT_DATE_HOUR_MINUTE,
+    ]
+
+    assert PCTS == pcts
 
 
 def test_update_events_default_import_decimal():

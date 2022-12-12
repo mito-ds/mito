@@ -2,7 +2,7 @@ import React from "react";
 import MitoAPI from "../../../jupyter/api";
 import ExcelFormatSection from "../../../pro/download/ExcelFormatSection";
 import { ExcelExportState, SheetData, UIState, UserProfile } from "../../../types";
-import { toggleInArray } from "../../../utils/arrays";
+import { addIfAbsent, removeIfPresent, toggleInArray } from "../../../utils/arrays";
 import MultiToggleBox from "../../elements/MultiToggleBox";
 import MultiToggleItem from "../../elements/MultiToggleItem";
 import Row from "../../layout/Row";
@@ -26,6 +26,25 @@ const ExcelDownloadConfigSection = (props: {
             <MultiToggleBox
                 width='block'
                 height='small'
+                toggleAllIndexes={(indexesToToggle, newToggle) => {
+                    props.setUIState(prevUiState => {
+                        // We make the assumption that the order of the sheets in the MultiToggleBox
+                        // is the same as the order in the sheet. 
+                        const newSelectedSheetIndexes = [...props.exportState.sheetIndexes]
+                        indexesToToggle.forEach(sheetIndex => {
+                            if (newToggle) {
+                                addIfAbsent(newSelectedSheetIndexes, sheetIndex)
+                            } else {
+                                removeIfPresent(newSelectedSheetIndexes, sheetIndex)
+                            }
+                        })
+                        newSelectedSheetIndexes.sort() // Make sure these are in the right order;
+                        return {
+                            ...prevUiState,
+                            exportConfiguration: {exportType: 'excel', sheetIndexes: newSelectedSheetIndexes}
+                        }
+                    })
+                }}
             >
                 {props.dfNames.map((dfName, index) => {
                     return (

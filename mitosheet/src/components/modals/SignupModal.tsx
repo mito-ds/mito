@@ -45,7 +45,7 @@ const StepOne = (
     return (
         <div className='signup-modal-left-column'>
             <div>
-                <h1 className='mt-0 mb-0 text-header-1'>
+                <h1 className='text-header-1' style={{margin: 0}}>
                     Sign Up for Mito
                 </h1>
                 <p className='signup-modal-text'>
@@ -53,7 +53,7 @@ const StepOne = (
                 </p>
             </div>
             <form className='signup-modal-email-form' onSubmit={onSubmit}>
-                <h3 className='mb-0 text-header-2'>
+                <h3 className='text-header-2' style={{marginBottom: 0}}>
                     Your Email
                 </h3>
                 <Input
@@ -66,7 +66,7 @@ const StepOne = (
                     autoFocus
                 />
                 <label>
-                    <h3 className='mt-10px mb-0 text-header-2'>
+                    <h3 className='text-header-2' style={{marginTop: '10px', marginBottom: 0}}>
                         {FirstQuestion}
                     </h3>
                 </label>
@@ -76,7 +76,7 @@ const StepOne = (
                     placeholder={FirstPlaceholder}
                     required
                 />
-                <div className='mt-10px'>
+                <div className='mt-10px' style={{marginTop: '10px'}}>
                     <TextButton
                         variant='dark'
                         width='large'
@@ -139,13 +139,13 @@ const StepTwo = (
             {!enteringProAccessCode &&
                 <div className='signup-modal-left-column'>
                     <div>
-                        <h1 className='mt-0 mb-0 text-header-1'>
+                        <h1 className='text-header-1' style={{marginTop: 0, marginBottom: 0}}>
                             {isPro 
                                 ? "You've Signed up for Mito Pro!" 
                                 : "Want More Power? Consider Mito Pro"
                             }
                         </h1>
-                        <p className='signup-modal-text'>
+                        <p className='signup-modal-text' style={{marginTop: '10px'}}>
                             {isPro 
                                 ? "Thanks for being a Mito Pro user! Paying for Mito gets you access to advanced functionality and turns off telemetry. In turn, it allows us to fund Mito's development." 
                                 : "Mito Pro gives you access to advanced functionality, and allows you to turn off telemetry. It also allows us to continue to fund Mito's development!"
@@ -153,7 +153,7 @@ const StepTwo = (
                         </p>
                     </div>
                     {!isPro &&
-                        <div className='signup-modal-buttons mt-10px'>
+                        <div className='signup-modal-buttons' style={{marginTop: '10px'}}>
                             <TextButton
                                 variant='light'
                                 width='small'
@@ -162,7 +162,7 @@ const StepTwo = (
                                 Back
                             </TextButton>
                             <TextButton
-                                variant='light'
+                                variant='dark'
                                 width='small'
                                 href='https://trymito.io/plans'
                                 target='_blank'
@@ -184,7 +184,7 @@ const StepTwo = (
                         </div> 
                     }
                     {isPro &&
-                        <div className='signup-modal-buttons mt-10px'>
+                        <div className='signup-modal-buttons' style={{marginTop: '10px'}}>
                             <TextButton
                                 variant='light'
                                 width='small'
@@ -208,14 +208,14 @@ const StepTwo = (
             {enteringProAccessCode &&
                 <div className='signup-modal-left-column'>
                     <div>
-                        <h1 className='mt-0 mb-0 text-header-1'>
+                        <h1 className='text-header-1' style={{marginTop: 0, marginBottom: 0}}>
                             Access Pro
                         </h1>
                         <p className='signup-modal-text'>
                             Complete the checkout flow. In the Pro documentation, click <b>Get Access Code</b> and enter it here.
                         </p>
                         <label>
-                            <h3 className='mt-5px mb-0 text-header-2'>
+                            <h3 className='text-header-2' style={{marginTop: '5px', marginBottom: 0}}>
                                 Access Code:
                             </h3>
                         </label>
@@ -235,7 +235,7 @@ const StepTwo = (
                             </p>
                         }
                     </div>
-                    <div className='signup-modal-buttons mt-10px'>
+                    <div className='signup-modal-buttons' style={{marginTop: '10px'}}>
                         <TextButton
                             variant='light'
                             width='small'
@@ -284,17 +284,17 @@ const StepThree = (
     return (
         <div className='signup-modal-left-column'>
             <div>
-                <h1 className='mt-0 mb-0 text-header-1'>
+                <h1 className='text-header-1' style={{marginTop: 0, marginBottom: 0}}>
                     {props.isPro && `Mito Pro is Totally Private`}
                     {!props.isPro && `Mito is Built for Privacy`}
                 </h1>
-                <p className='signup-modal-text'>
+                <p className='signup-modal-text' style={{marginTop: '10px'}}>
                     {props.isPro && `As a Mito Pro user, no data leaves your computer, ever. Check out our CCPA compliant privacy policy`}
                     {!props.isPro && `We make sure none of your private data leaves your computer. Read our CCPA compliant privacy policy`}
                     {' '} <a href='https://privacy.trymito.io/privacy-policy' target='_blank' rel="noreferrer"><u>here</u></a>.
                 </p>
             </div>
-            <div className='signup-modal-buttons mt-10px'>
+            <div className='signup-modal-buttons' style={{marginTop: '10px'}}>
                 <TextButton
                     variant='light'
                     width='small'

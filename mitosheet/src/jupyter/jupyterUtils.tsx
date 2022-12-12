@@ -16,8 +16,10 @@
  */
 
 
+import { convertBackendtoFrontendGraphParams } from "../components/taskpanes/Graph/graphUtils"
+import { AnalysisData, GraphDataBackend, GraphDataDict, GraphParamsBackend, SheetData, UserProfile } from "../types"
 import MitoAPI from "./api"
-import { notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteGeneratedCodeToCell } from "./notebook/pluginUtils"
+import { notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteGeneratedCodeToCell } from "./notebook/extensionUtils"
 
 
 /**
@@ -42,7 +44,7 @@ export const isInJupyterNotebook = (): boolean => {
 
 export const writeAnalysisToReplayToMitosheetCall = (analysisName: string, mitoAPI: MitoAPI): void => {
     if (isInJupyterLab()) {
-        window.commands?.execute('write-analysis-to-replay-to-mitosheet-call', {
+        window.commands?.execute('mitosheet:write-analysis-to-replay-to-mitosheet-call', {
             analysisName: analysisName,
             mitoAPI: mitoAPI
         });
@@ -54,7 +56,7 @@ export const writeAnalysisToReplayToMitosheetCall = (analysisName: string, mitoA
 }
 export const overwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName: string, newAnalysisName: string, mitoAPI: MitoAPI): void => {
     if (isInJupyterLab()) {
-        window.commands?.execute('overwrite-analysis-to-replay-to-mitosheet-call', {
+        window.commands?.execute('mitosheet:overwrite-analysis-to-replay-to-mitosheet-call', {
             oldAnalysisName: oldAnalysisName,
             newAnalysisName: newAnalysisName,
             mitoAPI: mitoAPI
@@ -69,7 +71,7 @@ export const overwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName: string
 
 export const writeGeneratedCodeToCell = (analysisName: string, code: string[], telemetryEnabled: boolean): void => {
     if (isInJupyterLab()) {
-        window.commands?.execute('write-generated-code-cell', {
+        window.commands?.execute('mitosheet:write-generated-code-cell', {
             analysisName: analysisName,
             code: code,
             telemetryEnabled: telemetryEnabled,
@@ -85,7 +87,7 @@ export const writeGeneratedCodeToCell = (analysisName: string, code: string[], t
 export const getArgs = (analysisToReplayName: string | undefined): Promise<string[]> => {
     return new Promise((resolve) => {
         if (isInJupyterLab()) {
-            window.commands?.execute('get-args', {analysisToReplayName: analysisToReplayName}).then(async (args: string[]) => {
+            window.commands?.execute('mitosheet:get-args', {analysisToReplayName: analysisToReplayName}).then(async (args: string[]) => {
                 return resolve(args);
             })
             return;
@@ -96,4 +98,36 @@ export const getArgs = (analysisToReplayName: string | undefined): Promise<strin
         }
         return resolve([]);
     })
+}
+
+
+
+export const getSheetDataArrayFromString = (sheet_data_json: string): SheetData[] => {
+    return JSON.parse(sheet_data_json);
+}
+
+export const getUserProfileFromString = (user_profile_json: string): UserProfile => {
+    const userProfile = JSON.parse(user_profile_json)
+    if (userProfile['usageTriggeredFeedbackID'] == '') {
+        userProfile['usageTriggeredFeedbackID'] = undefined
+    }
+    return userProfile;
+}
+export const getAnalysisDataFromString = (analysis_data_json: string): AnalysisData =>  {
+    const parsed = JSON.parse(analysis_data_json)
+
+    // Convert the graphData from backend to frontend form.
+    const graphDataDict: GraphDataDict = {} 
+    Object.entries(parsed['graphDataDict']).map(([graphID, graphDataBackend]) => {
+        const graphDataBackendTyped = graphDataBackend as GraphDataBackend
+        const graphParamsBackend: GraphParamsBackend = graphDataBackendTyped['graphParams']
+        const graphParamsFrontend = convertBackendtoFrontendGraphParams(graphParamsBackend)
+        graphDataDict[graphID] = {
+            ...graphDataBackendTyped,
+            graphParams: graphParamsFrontend
+        }
+    })
+
+    parsed['graphDataDict'] = graphDataDict;
+    return parsed;
 }

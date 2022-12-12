@@ -28,7 +28,7 @@ import pandas as pd
 
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.user import initialize_user
-from mitosheet.mito_widget import MitoWidget, sheet
+from mitosheet.mito_backend import MitoBackend, sheet
 from mitosheet.saved_analyses import register_analysis
 from mitosheet.errors import MitoError
 from mitosheet._version import __version__

@@ -105,7 +105,7 @@ def test_params_static():
     
     check_step(
         PivotStepPerformer,
-        7,
+        8,
         'pivot'
     )
 
