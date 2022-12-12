@@ -22789,6 +22789,28 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       writeToCell(activeCell, code);
     }
   };
+  var notebookWriteCodeSnippetCell = (analysisName, code) => {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l;
+    const mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(analysisName);
+    if (mitosheetCallCellAndIndex === void 0) {
+      return;
+    }
+    const [, mitosheetCallIndex] = mitosheetCallCellAndIndex;
+    const cells = (_b = (_a = window.Jupyter) == null ? void 0 : _a.notebook) == null ? void 0 : _b.get_cells();
+    if (cells === void 0) {
+      return;
+    }
+    const codeCell = getCellAtIndex(mitosheetCallIndex + 1);
+    if (isEmptyCell(codeCell)) {
+      writeToCell(codeCell, code);
+    } else {
+      (_d = (_c = window.Jupyter) == null ? void 0 : _c.notebook) == null ? void 0 : _d.select_next();
+      (_f = (_e = window.Jupyter) == null ? void 0 : _e.notebook) == null ? void 0 : _f.insert_cell_below();
+      (_h = (_g = window.Jupyter) == null ? void 0 : _g.notebook) == null ? void 0 : _h.select_next();
+      const activeCell = (_l = (_i = window.Jupyter) == null ? void 0 : _i.notebook) == null ? void 0 : _l.get_cell((_k = (_j = window.Jupyter) == null ? void 0 : _j.notebook) == null ? void 0 : _k.get_anchor_index());
+      writeToCell(activeCell, code);
+    }
+  };
 
   // src/jupyter/jupyterUtils.tsx
   var isInJupyterLab = () => {
@@ -22834,6 +22856,19 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       });
     } else if (isInJupyterNotebook()) {
       notebookWriteGeneratedCodeToCell(analysisName, code, telemetryEnabled);
+    } else {
+      console.error("Not detected as in Jupyter Notebook or JupyterLab");
+    }
+  };
+  var writeCodeSnippetCell = (analysisName, code) => {
+    var _a;
+    if (isInJupyterLab()) {
+      (_a = window.commands) == null ? void 0 : _a.execute("mitosheet:write-code-snippet-cell", {
+        analysisName,
+        code
+      });
+    } else if (isInJupyterNotebook()) {
+      notebookWriteCodeSnippetCell(analysisName, code);
     } else {
       console.error("Not detected as in Jupyter Notebook or JupyterLab");
     }
@@ -37871,7 +37906,11 @@ fig.write_html("${props.graphTabName}.html")`
     ), codeSnippetsToDisplay.map((codeSnippet, codeSnippetIndex) => {
       const copyToClipboard = () => {
         writeTextToClipboard(codeSnippet.Code.join("\n"));
-        void props.mitoAPI.log("copied_code_snippet", { "Name": codeSnippet.Name });
+        void props.mitoAPI.log("code_snippet_copied", { "Name": codeSnippet.Name });
+      };
+      const writeToCell2 = () => {
+        writeCodeSnippetCell(props.analysisData.analysisName, codeSnippet.Code.join("\n"));
+        void props.mitoAPI.log("code_snippet_written_to_cell", { "Name": codeSnippet.Name });
       };
       return /* @__PURE__ */ import_react161.default.createElement(Row_default, { key: codeSnippetIndex, align: "center", justify: "space-between" }, /* @__PURE__ */ import_react161.default.createElement(Col_default, { offsetRight: 0.5 }, /* @__PURE__ */ import_react161.default.createElement(CodeSnippetIcon_default, null)), /* @__PURE__ */ import_react161.default.createElement(Col_default, { span: 20 }, /* @__PURE__ */ import_react161.default.createElement("div", { className: "text-bold" }, codeSnippet.Name), /* @__PURE__ */ import_react161.default.createElement("div", { className: "text-overflow-scroll pb-5px" }, codeSnippet.Description)), /* @__PURE__ */ import_react161.default.createElement(
         Col_default,
@@ -37899,6 +37938,13 @@ fig.write_html("${props.graphTabName}.html")`
           {
             title: "Copy Code Snippet",
             onClick: copyToClipboard
+          }
+        ),
+        /* @__PURE__ */ import_react161.default.createElement(
+          DropdownItem_default,
+          {
+            title: "Write to Notebook",
+            onClick: writeToCell2
           }
         )
       )));

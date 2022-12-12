@@ -193,6 +193,45 @@ function activateMitosheetExtension(
         }
     })
 
+
+    app.commands.addCommand('mitosheet:write-code-snippet-cell', {
+        label: 'Writes the generated code for a mito analysis to the cell below the mitosheet.sheet() call that generated this analysis. NOTE: this should only be called after the analysis_to_replay has been written in the mitosheet.sheet() call, so this cell can be found correctly.',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        execute: (args: any) => {
+            const analysisName = args.analysisName as string;
+            const code = args.code as string;
+            
+            // Find the cell that made the mitosheet.sheet call, and if it does not exist, give up immediately
+            const mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(tracker, analysisName);
+            if (mitosheetCallCellAndIndex === undefined) {
+                return;
+            }
+
+            const [, mitosheetCallIndex] = mitosheetCallCellAndIndex;
+
+            const notebook = tracker.currentWidget?.content;
+            const cells = notebook?.model?.cells;
+
+            if (notebook === undefined || cells === undefined) {
+                return;
+            }
+
+            const codeSnippetCell = getCellAtIndex(cells, mitosheetCallIndex + 2);
+
+            if (isEmptyCell(codeSnippetCell)) {
+                writeToCell(codeSnippetCell, code)
+            } else {
+                // Otherwise, we assume since the user is editing the mitosheet, that this
+                // was called as they have the code cell selected, so we insert two below
+                NotebookActions.selectBelow(notebook);
+                NotebookActions.insertBelow(notebook);
+
+                // And then write to this new cell below, which is now the active cell
+                writeToCell(notebook?.activeCell?.model, code);
+            }
+        }
+    })
+
     app.commands.addCommand('mitosheet:get-args', {
         label: 'Reads the arguments passed to the mitosheet.sheet call.',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

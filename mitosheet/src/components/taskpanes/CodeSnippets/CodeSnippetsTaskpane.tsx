@@ -15,6 +15,7 @@ import Dropdown from "../../elements/Dropdown";
 import DropdownItem from "../../elements/DropdownItem";
 import { writeTextToClipboard } from "../../../utils/copy";
 import CodeSnippetIcon from "../../icons/CodeSnippetIcon";
+import { writeCodeSnippetCell } from "../../../jupyter/jupyterUtils";
 
 
 interface CodeSnippetsTaskpaneProps {
@@ -25,8 +26,6 @@ interface CodeSnippetsTaskpaneProps {
     sheetDataArray: SheetData[];
     selectedSheetIndex: number;
 }
-
-
 
 
 
@@ -65,7 +64,11 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                 {codeSnippetsToDisplay.map((codeSnippet, codeSnippetIndex) => {
                     const copyToClipboard = () => {
                         writeTextToClipboard(codeSnippet.Code.join('\n'))
-                        void props.mitoAPI.log('copied_code_snippet', {'Name': codeSnippet.Name});
+                        void props.mitoAPI.log('code_snippet_copied', {'Name': codeSnippet.Name});
+                    }
+                    const writeToCell = () => {
+                        writeCodeSnippetCell(props.analysisData.analysisName, codeSnippet.Code.join('\n'));
+                        void props.mitoAPI.log('code_snippet_written_to_cell', {'Name': codeSnippet.Name});
                     }
 
                     return (
@@ -99,6 +102,10 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                                     <DropdownItem 
                                         title="Copy Code Snippet" 
                                         onClick={copyToClipboard}
+                                    />
+                                    <DropdownItem 
+                                        title="Write to Notebook" 
+                                        onClick={writeToCell}
                                     />
                                 </Dropdown>}
                             </Col>
