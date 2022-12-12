@@ -171,6 +171,9 @@
 .text-underline {
     text-decoration: underline;
 }
+.text-bold {
+    font-weight: bold;
+}
 
 .text-underline-on-hover:hover {
     text-decoration: underline;
