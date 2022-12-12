@@ -741,7 +741,7 @@ export interface MitoStateUpdaters {
 export interface CSVExportState { exportType: 'csv' }
 export interface ExcelExportState { exportType: 'excel', sheetIndexes: number[] }
 
-export type ToolbarDropdowns = 'Edit' | 'Dataframes' | 'Columns' | 'Rows' | 'Graphs' | 'Format' | 'View' | 'Help';
+export type ToolbarDropdowns = 'Edit' | 'Dataframes' | 'Columns' | 'Rows' | 'Graphs' | 'Format' | 'Code' | 'View' | 'Help';
 
 export enum PopupType {
     EphemeralMessage = 'ephemeral_message',
