@@ -218,6 +218,12 @@ FILTER_TESTS = [
         pd.DataFrame(data={"A": ["1"]}),
     ),
     (
+        pd.DataFrame(data={"A": ["1*", "2", "3", "4", "5", "6"]}),
+        FC_STRING_CONTAINS,
+        "*",
+        pd.DataFrame(data={"A": ["1*"]}),
+    ),
+    (
         pd.DataFrame(data={"A": ["1", "12", "3", "4", "5", "6"]}),
         FC_STRING_CONTAINS,
         "1",
@@ -233,6 +239,12 @@ FILTER_TESTS = [
         pd.DataFrame(data={"A": ["1", "12", "3", "4", "5", "6"]}),
         FC_STRING_DOES_NOT_CONTAIN,
         "1",
+        pd.DataFrame(data={"A": ["3", "4", "5", "6"]}, index=list(range(2, 6))),
+    ),
+    (
+        pd.DataFrame(data={"A": ["1*", "12*", "3", "4", "5", "6"]}),
+        FC_STRING_DOES_NOT_CONTAIN,
+        "*",
         pd.DataFrame(data={"A": ["3", "4", "5", "6"]}, index=list(range(2, 6))),
     ),
     (

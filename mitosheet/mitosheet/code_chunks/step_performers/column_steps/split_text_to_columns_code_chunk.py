@@ -4,11 +4,30 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import List
+from typing import Dict, List
 from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.saved_analyses.schema_utils import is_prev_version
 from mitosheet.sheet_functions.types.utils import is_datetime_dtype, is_string_dtype, is_timedelta_dtype
+from mitosheet.step_performers.graph_steps.graph_utils import param_dict_to_code
 from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_to_transpiled_code
 from mitosheet.types import ColumnHeader, ColumnID
+from mitosheet.user.utils import get_pandas_version
+
+def get_split_param_dict() -> Dict[str, bool]:
+        # Create a dictionary of the params needed to configure the .split function for
+        # split text to columns
+
+        split_param_dict = {
+            'expand': True, 
+        }
+
+        # Regex was added to the split function on pandas 1.4.0. When the delimiter_string is . 
+        # and regex is true (the default), it splits on every character 
+        pandas_version = get_pandas_version()
+        if not is_prev_version(pandas_version, '1.4.0'):
+            split_param_dict['regex'] = False 
+
+        return split_param_dict
 
 
 class SplitTextToColumnsCodeChunk(CodeChunk):
@@ -49,7 +68,10 @@ class SplitTextToColumnsCodeChunk(CodeChunk):
         else:
             string_conversion = ".astype('str')"
 
-        split_column_line = f'{df_name}[{new_transpiled_column_headers}] = {df_name}[{transpiled_column_header}]{string_conversion}.str.split({delimiter_string}, -1, expand=True)'
+        split_param_dict = get_split_param_dict()
+        split_param_code = param_dict_to_code(split_param_dict, as_single_line=True)
+            
+        split_column_line = f'{df_name}[{new_transpiled_column_headers}] = {df_name}[{transpiled_column_header}]{string_conversion}.str.split({delimiter_string}, -1, {split_param_code})'
 
         # Reorder columns 
         reorder_columns_line = f'{df_name} = {df_name}[{df_name}.columns[:{column_idx + 1}].tolist() + {new_transpiled_column_headers} + {df_name}.columns[{column_idx + 1}:-{len(new_column_headers)}].tolist()]'

@@ -10,6 +10,8 @@ import pandas as pd
 import numpy as np
 from mitosheet.types import ColumnHeader
 
+# TAB is used in place of \t in generated code because
+# Jupyter turns \t into a grey arrow, but converts four spaces into a tab.
 TAB = '    '
 NEWLINE_TAB = f'\n{TAB}'
 
@@ -81,5 +83,7 @@ def column_header_map_to_string(column_header_map: Dict[ColumnHeader, ColumnHead
             result += f'{TAB}{column_header_to_transpiled_code(column_header_key)}: {column_header_to_transpiled_code(column_header_value)},\n'
         result = result[:-2] + "\n}" # don't take the last comma and new line
         return result
-    
+
+
+
     
