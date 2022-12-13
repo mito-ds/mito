@@ -72,7 +72,20 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                     }
 
                     return (
-                        <Row key={codeSnippetIndex} align='center' justify="space-between">
+                        <Row 
+                            key={codeSnippetIndex} 
+                            align='center' 
+                            className="highlight-on-hover"
+                            justify="space-between"
+                            onClick={() => {
+                                setOpenDropdownIndex(prevOpenDropdownIndex => {
+                                    if (prevOpenDropdownIndex === codeSnippetIndex) {
+                                        return undefined;
+                                    }
+                                    return codeSnippetIndex;
+                                })
+                            }} 
+                        >
                             <Col offsetRight={.5}>
                                 <CodeSnippetIcon/>
                             </Col>
@@ -81,14 +94,6 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                                 <div className="text-overflow-scroll pb-5px">{codeSnippet.Description}</div>
                             </Col>
                             <Col 
-                                onClick={() => {
-                                    setOpenDropdownIndex(prevOpenDropdownIndex => {
-                                        if (prevOpenDropdownIndex === codeSnippetIndex) {
-                                            return undefined;
-                                        }
-                                        return codeSnippetIndex;
-                                    })
-                                }} 
                                 offset={2}
                             >
                                 <DropdownIcon/>

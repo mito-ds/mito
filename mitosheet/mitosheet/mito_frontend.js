@@ -37912,9 +37912,13 @@ fig.write_html("${props.graphTabName}.html")`
         writeCodeSnippetCell(props.analysisData.analysisName, codeSnippet.Code.join("\n"));
         void props.mitoAPI.log("code_snippet_written_to_cell", { "code_snippet_name": codeSnippet.Name });
       };
-      return /* @__PURE__ */ import_react161.default.createElement(Row_default, { key: codeSnippetIndex, align: "center", justify: "space-between" }, /* @__PURE__ */ import_react161.default.createElement(Col_default, { offsetRight: 0.5 }, /* @__PURE__ */ import_react161.default.createElement(CodeSnippetIcon_default, null)), /* @__PURE__ */ import_react161.default.createElement(Col_default, { span: 20 }, /* @__PURE__ */ import_react161.default.createElement("div", { className: "text-bold" }, codeSnippet.Name), /* @__PURE__ */ import_react161.default.createElement("div", { className: "text-overflow-scroll pb-5px" }, codeSnippet.Description)), /* @__PURE__ */ import_react161.default.createElement(
-        Col_default,
+      return /* @__PURE__ */ import_react161.default.createElement(
+        Row_default,
         {
+          key: codeSnippetIndex,
+          align: "center",
+          className: "highlight-on-hover",
+          justify: "space-between",
           onClick: () => {
             setOpenDropdownIndex((prevOpenDropdownIndex) => {
               if (prevOpenDropdownIndex === codeSnippetIndex) {
@@ -37922,32 +37926,40 @@ fig.write_html("${props.graphTabName}.html")`
               }
               return codeSnippetIndex;
             });
+          }
+        },
+        /* @__PURE__ */ import_react161.default.createElement(Col_default, { offsetRight: 0.5 }, /* @__PURE__ */ import_react161.default.createElement(CodeSnippetIcon_default, null)),
+        /* @__PURE__ */ import_react161.default.createElement(Col_default, { span: 20 }, /* @__PURE__ */ import_react161.default.createElement("div", { className: "text-bold" }, codeSnippet.Name), /* @__PURE__ */ import_react161.default.createElement("div", { className: "text-overflow-scroll pb-5px" }, codeSnippet.Description)),
+        /* @__PURE__ */ import_react161.default.createElement(
+          Col_default,
+          {
+            offset: 2
           },
-          offset: 2
-        },
-        /* @__PURE__ */ import_react161.default.createElement(DropdownIcon_default, null)
-      ), /* @__PURE__ */ import_react161.default.createElement(Col_default, null, /* @__PURE__ */ import_react161.default.createElement(
-        Dropdown_default,
-        {
-          display: codeSnippetIndex === openDropdownIndex,
-          closeDropdown: () => setOpenDropdownIndex(void 0),
-          width: "medium"
-        },
-        /* @__PURE__ */ import_react161.default.createElement(
-          DropdownItem_default,
-          {
-            title: "Copy Code Snippet",
-            onClick: copyToClipboard
-          }
+          /* @__PURE__ */ import_react161.default.createElement(DropdownIcon_default, null)
         ),
-        /* @__PURE__ */ import_react161.default.createElement(
-          DropdownItem_default,
+        /* @__PURE__ */ import_react161.default.createElement(Col_default, null, /* @__PURE__ */ import_react161.default.createElement(
+          Dropdown_default,
           {
-            title: "Write to Notebook",
-            onClick: writeToCell2
-          }
-        )
-      )));
+            display: codeSnippetIndex === openDropdownIndex,
+            closeDropdown: () => setOpenDropdownIndex(void 0),
+            width: "medium"
+          },
+          /* @__PURE__ */ import_react161.default.createElement(
+            DropdownItem_default,
+            {
+              title: "Copy Code Snippet",
+              onClick: copyToClipboard
+            }
+          ),
+          /* @__PURE__ */ import_react161.default.createElement(
+            DropdownItem_default,
+            {
+              title: "Write to Notebook",
+              onClick: writeToCell2
+            }
+          )
+        ))
+      );
     })));
   };
   var CodeSnippetsTaskpane_default = CodeSnippetsTaskpane;

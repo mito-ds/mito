@@ -755,6 +755,11 @@
   width: 100%;
 }
 
+/* css/sitewide/hover.css */
+.highlight-on-hover:hover {
+  background: var(--mito-lightest-purple);
+}
+
 /* css/elements/DropdownItem.css */
 .mito-dropdown-item {
   display: flex;

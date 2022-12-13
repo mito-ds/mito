@@ -22,6 +22,7 @@ import '../../css/sitewide/paddings.css';
 import '../../css/sitewide/scroll.css';
 import '../../css/sitewide/text.css';
 import '../../css/sitewide/widths.css';
+import '../../css/sitewide/hover.css';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { getArgs, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell } from '../jupyter/jupyterUtils';
 import ConditionalFormattingTaskpane from '../pro/taskpanes/ConditionalFormatting/ConditionalFormattingTaskpane';
