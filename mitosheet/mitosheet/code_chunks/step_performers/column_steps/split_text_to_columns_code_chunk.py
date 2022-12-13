@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.sheet_functions.types.utils import is_datetime_dtype, is_string_dtype, is_timedelta_dtype
 from mitosheet.step_performers.graph_steps.graph_utils import param_dict_to_code
@@ -13,11 +13,11 @@ from mitosheet.types import ColumnHeader, ColumnID
 from mitosheet.user.utils import get_pandas_version
 from mitosheet.utils import is_prev_version
 
-def get_split_param_dict() -> Dict[str, Union[bool, int]]:
+def get_split_param_dict() -> Dict[str, Optional[Union[bool, int]]]:
         # Create a dictionary of the params needed to configure the .split function for
         # split text to columns
 
-        split_param_dict = {
+        split_param_dict: Dict[str, Optional[Union[bool, int]]] = {
             'n': -1,
             'expand': True, 
 
