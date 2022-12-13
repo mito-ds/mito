@@ -22977,6 +22977,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         if (!Object.keys(KEYBOARD_SHORTCUTS).includes(e.key) || !e.ctrlKey && !e.metaKey) {
           return;
         }
+        console.log(window.getSelection());
         if (e.key === "c") {
           setGridState((prevGridState) => {
             return __spreadProps(__spreadValues({}, prevGridState), {
@@ -22991,6 +22992,10 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           return;
         }
         if (((_b = document.activeElement) == null ? void 0 : _b.tagName.toLowerCase()) === "input") {
+          return;
+        }
+        const selection = window.getSelection();
+        if ((selection == null ? void 0 : selection.type) !== "None" || selection.anchorNode !== null || selection.focusNode !== null) {
           return;
         }
         e.stopImmediatePropagation();
