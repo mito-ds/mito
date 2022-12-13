@@ -639,6 +639,7 @@ function EndoGrid(props: {
             />
             <div 
                 className='endo-grid-container' 
+                id='endo-grid-container' // This id is used by useKeyboardShortcuts to figure out when to copy data from Endo
                 ref={containerRef}
                 tabIndex={-1} 
                 onMouseDown={onMouseDown} 

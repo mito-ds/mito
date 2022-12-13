@@ -22977,7 +22977,6 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         if (!Object.keys(KEYBOARD_SHORTCUTS).includes(e.key) || !e.ctrlKey && !e.metaKey) {
           return;
         }
-        console.log(window.getSelection());
         if (e.key === "c") {
           setGridState((prevGridState) => {
             return __spreadProps(__spreadValues({}, prevGridState), {
@@ -22994,8 +22993,9 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         if (((_b = document.activeElement) == null ? void 0 : _b.tagName.toLowerCase()) === "input") {
           return;
         }
-        const selection = window.getSelection();
-        if ((selection == null ? void 0 : selection.type) !== "None" || selection.anchorNode !== null || selection.focusNode !== null) {
+        const activeElement = document == null ? void 0 : document.activeElement;
+        console.log(activeElement);
+        if ((activeElement == null ? void 0 : activeElement.id) !== "endo-grid-container") {
           return;
         }
         e.stopImmediatePropagation();
@@ -26645,6 +26645,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       "div",
       {
         className: "endo-grid-container",
+        id: "endo-grid-container",
         ref: containerRef,
         tabIndex: -1,
         onMouseDown,
