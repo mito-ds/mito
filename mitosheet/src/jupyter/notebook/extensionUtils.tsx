@@ -253,6 +253,38 @@ export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines
     }
 }
 
+export const notebookWriteCodeSnippetCell = (analysisName: string, code: string): void => {
+        
+    // Find the cell that made the mitosheet.sheet call, and if it does not exist, give
+    // up immediately
+    const mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(analysisName);
+    if (mitosheetCallCellAndIndex === undefined) {
+        return;
+    }
+
+    const [, mitosheetCallIndex] = mitosheetCallCellAndIndex;
+
+    const cells = (window as any).Jupyter?.notebook?.get_cells();
+
+    if (cells === undefined) {
+        return;
+    }
+
+    const codeCell = getCellAtIndex(mitosheetCallIndex + 1);
+
+    if (isEmptyCell(codeCell)) {
+        writeToCell(codeCell, code)
+    } else {
+        // Otherwise, we assume we have the mitosheet selected, so we select the next one, and then 
+        // insert below so we have new cell below the generated code
+        (window as any).Jupyter?.notebook?.select_next();
+        (window as any).Jupyter?.notebook?.insert_cell_below();
+        (window as any).Jupyter?.notebook?.select_next();
+        const activeCell = (window as any).Jupyter?.notebook?.get_cell((window as any).Jupyter?.notebook?.get_anchor_index());
+        writeToCell(activeCell, code);
+    }
+}
+
 
 
 

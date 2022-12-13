@@ -24,6 +24,7 @@ import ToolbarRowsDropdown from './ToolbarRowsDropdown.tsx';
 import GetSupportButton from '../elements/GetSupportButton';
 import ToolbarViewDropdown from './ToolbarViewDropdown';
 import { ToolbarButtonType } from './utils';
+import ToolbarCodeDropdown from './ToolbarCodeDropdown';
 
 const Toolbar = (
     props: {
@@ -87,6 +88,13 @@ const Toolbar = (
                     </ToolbarMenu>
                     <ToolbarMenu type='Format' uiState={props.uiState} setUIState={props.setUIState}>
                         <ToolbarFormatDropdown
+                            actions={props.actions}
+                            uiState={props.uiState}
+                            setUIState={props.setUIState}
+                        />
+                    </ToolbarMenu>
+                    <ToolbarMenu type='Code' uiState={props.uiState} setUIState={props.setUIState}>
+                        <ToolbarCodeDropdown
                             actions={props.actions}
                             uiState={props.uiState}
                             setUIState={props.setUIState}

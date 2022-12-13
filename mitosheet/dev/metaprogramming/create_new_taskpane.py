@@ -29,7 +29,7 @@ def get_curr_open_taskpane_code(original_step_name: str) -> str:
                     analysisData={OPEN_BRACKET}analysisData{CLOSE_BRACKET}
                     sheetDataArray={OPEN_BRACKET}sheetDataArray{CLOSE_BRACKET}
                     setUIState={OPEN_BRACKET}setUIState{CLOSE_BRACKET}
-                    mitoAPI={OPEN_BRACKET}props.mitoAPI{CLOSE_BRACKET}
+                    mitoAPI={OPEN_BRACKET}mitoAPI{CLOSE_BRACKET}
                     selectedSheetIndex={OPEN_BRACKET}uiState.selectedSheetIndex{CLOSE_BRACKET}
                 />
             )
