@@ -64,11 +64,11 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                 {codeSnippetsToDisplay.map((codeSnippet, codeSnippetIndex) => {
                     const copyToClipboard = () => {
                         void writeTextToClipboard(codeSnippet.Code.join('\n'))
-                        void props.mitoAPI.log('code_snippet_copied', {'Name': codeSnippet.Name});
+                        void props.mitoAPI.log('code_snippet_copied', {'code_snippet_name': codeSnippet.Name});
                     }
                     const writeToCell = () => {
                         writeCodeSnippetCell(props.analysisData.analysisName, codeSnippet.Code.join('\n'));
-                        void props.mitoAPI.log('code_snippet_written_to_cell', {'Name': codeSnippet.Name});
+                        void props.mitoAPI.log('code_snippet_written_to_cell', {'code_snippet_name': codeSnippet.Name});
                     }
 
                     return (

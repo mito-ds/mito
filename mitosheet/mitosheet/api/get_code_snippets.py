@@ -13,7 +13,7 @@ DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
                 'Name': 'Calculate correlation matrix',
                 'Description': 'Compute pairwise correlation of columns, excluding NA/null values.',
                 'Code': [
-                        "df.corr()" 
+                        "REPLACE_WITH_DATAFRAME_NAME.corr()" 
                 ]
         },
         {
@@ -25,7 +25,7 @@ DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
                                 "outlook = win32com.client.Dispatch('outlook.application')",
                                 "mail = outlook.CreateItem(0)",
                                 "mail.To = ['REPLACE_WITH_EMAIL_1', 'REPLACE_WITH_EMAIL_2']",
-                                "mail.HTMLBody = REPLACE_WITH_DF_NAME.to_html()",
+                                "mail.HTMLBody = REPLACE_WITH_DATAFRAME_NAME.to_html()",
                                 "",
                                 "# Send the email",
                                 "mail.Send()"
@@ -56,8 +56,6 @@ DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
                 "Name": "Find differences between dataframes", 
                 "Description": "Subtract one dataframe from another by row",
                 "Code": [
-                        "REPLACE_WITH_DATAFRAME_1 = pd.DataFrame({'A': [1]})",
-                        "REPLACE_WITH_DATAFRAME_2 = pd.DataFrame({'A': [2]})",
                         "df3 = REPLACE_WITH_DATAFRAME_1 - REPLACE_WITH_DATAFRAME_2",
                         "mitosheet.sheet(df3)"
                 ]

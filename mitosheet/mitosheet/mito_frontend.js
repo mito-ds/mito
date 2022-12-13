@@ -37906,11 +37906,11 @@ fig.write_html("${props.graphTabName}.html")`
     ), codeSnippetsToDisplay.map((codeSnippet, codeSnippetIndex) => {
       const copyToClipboard = () => {
         void writeTextToClipboard(codeSnippet.Code.join("\n"));
-        void props.mitoAPI.log("code_snippet_copied", { "Name": codeSnippet.Name });
+        void props.mitoAPI.log("code_snippet_copied", { "code_snippet_name": codeSnippet.Name });
       };
       const writeToCell2 = () => {
         writeCodeSnippetCell(props.analysisData.analysisName, codeSnippet.Code.join("\n"));
-        void props.mitoAPI.log("code_snippet_written_to_cell", { "Name": codeSnippet.Name });
+        void props.mitoAPI.log("code_snippet_written_to_cell", { "code_snippet_name": codeSnippet.Name });
       };
       return /* @__PURE__ */ import_react161.default.createElement(Row_default, { key: codeSnippetIndex, align: "center", justify: "space-between" }, /* @__PURE__ */ import_react161.default.createElement(Col_default, { offsetRight: 0.5 }, /* @__PURE__ */ import_react161.default.createElement(CodeSnippetIcon_default, null)), /* @__PURE__ */ import_react161.default.createElement(Col_default, { span: 20 }, /* @__PURE__ */ import_react161.default.createElement("div", { className: "text-bold" }, codeSnippet.Name), /* @__PURE__ */ import_react161.default.createElement("div", { className: "text-overflow-scroll pb-5px" }, codeSnippet.Description)), /* @__PURE__ */ import_react161.default.createElement(
         Col_default,
