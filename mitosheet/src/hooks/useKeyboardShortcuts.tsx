@@ -59,6 +59,14 @@ export const useKeyboardShortcuts = (mitoContainerRef: React.RefObject<HTMLDivEl
                 return;
             }
 
+            // If this is a copy, and the user is has some other selection on the page, we don't want to override
+            // that copy, as they are most trying to copy the text they have selected
+            const selectedText = window.getSelection()?.toString();
+            if (e.key === 'c' && selectedText !== undefined && selectedText !== '') {
+                return;
+            }
+
+
             // Because JupyterLab has some other event listeners that do weird things with
             // key presses, we stop this from going elsewhere
             e.stopImmediatePropagation();
