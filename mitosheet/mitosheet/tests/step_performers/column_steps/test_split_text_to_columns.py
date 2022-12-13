@@ -40,6 +40,18 @@ SPLIT_TEXT_TO_COLUMNS_TESTS = [
     (
         pd.DataFrame({'A': ['1,2-3\t4 5/6']}),
         'A',
+        ['.'],
+        pd.DataFrame({'A': ['1,2-3\t4 5/6'], 'A-split-0-1': ['1,2-3\t4 5/6']})
+    ),
+    (
+        pd.DataFrame({'A': ['1.2-3.4 5/6']}),
+        'A',
+        ['.'],
+        pd.DataFrame({'A': ['1.2-3.4 5/6'], 'A-split-0-1': ['1'], 'A-split-1-1': ['2-3'], 'A-split-2-1': ['4 5/6']})
+    ),
+    (
+        pd.DataFrame({'A': ['1,2-3\t4 5/6']}),
+        'A',
         ['/'],
         pd.DataFrame({'A': ['1,2-3\t4 5/6'], 'A-split-0-1': ['1,2-3\t4 5'], 'A-split-1-1': ['6']})
     ),

@@ -43,8 +43,8 @@ FILTER_FORMAT_STRING_DICT = {
     FC_NUMBER_LOWEST: '{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].nsmallest({value}, keep=\'all\'))',
     FC_NUMBER_HIGHEST: '{df_name}[{transpiled_column_header}].isin({df_name}[{transpiled_column_header}].nlargest({value}, keep=\'all\'))',
     # STRINGS
-    FC_STRING_CONTAINS: "{df_name}[{transpiled_column_header}].str.contains({value}, na=False)",
-    FC_STRING_DOES_NOT_CONTAIN: "~{df_name}[{transpiled_column_header}].str.contains({value}, na=False)",
+    FC_STRING_CONTAINS: "{df_name}[{transpiled_column_header}].str.contains({value}, na=False, regex=False)",
+    FC_STRING_DOES_NOT_CONTAIN: "~{df_name}[{transpiled_column_header}].str.contains({value}, na=False, regex=False)",
     FC_STRING_EXACTLY: "{df_name}[{transpiled_column_header}] == {value}",
     FC_STRING_NOT_EXACTLY: "{df_name}[{transpiled_column_header}] != {value}",
     FC_STRING_STARTS_WITH: "{df_name}[{transpiled_column_header}].str.startswith({value}, na=False)",

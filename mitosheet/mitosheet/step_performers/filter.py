@@ -179,9 +179,9 @@ def get_applied_filter(
 
     # Then string
     if condition == FC_STRING_CONTAINS:
-        return df[column_header].str.contains(value, na=False)
+        return df[column_header].str.contains(value, na=False, regex=False)
     elif condition == FC_STRING_DOES_NOT_CONTAIN:
-        return ~df[column_header].str.contains(value, na=False)
+        return ~df[column_header].str.contains(value, na=False, regex=False)
     elif condition == FC_STRING_STARTS_WITH:
         return df[column_header].str.startswith(value, na=False)
     elif condition == FC_STRING_ENDS_WITH:
