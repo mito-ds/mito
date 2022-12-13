@@ -22994,7 +22994,6 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           return;
         }
         const activeElement = document == null ? void 0 : document.activeElement;
-        console.log(activeElement);
         if ((activeElement == null ? void 0 : activeElement.id) !== "endo-grid-container") {
           return;
         }

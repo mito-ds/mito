@@ -60,10 +60,7 @@ export const useKeyboardShortcuts = (mitoContainerRef: React.RefObject<HTMLDivEl
             }
 
             // Then if the keyboard shortcut is copy, we only overwrite the default behavior if endo data is selected.
-            // We're able to hackily determine if endo data is selected by checking if the selection type is 'None', and the anchor node and focus node
-            // are null. This is probably a result of us not crossing our t's in Endo so we might need to update this approach in the future.
             const activeElement = document?.activeElement
-            console.log(activeElement)
             if (activeElement?.id !== 'endo-grid-container') {
                 return
             }
