@@ -81,6 +81,7 @@
   --mito-border: #C4C4C4;
   --mito-sheet-text-gray: #404040;
   --mito-red: #CF0000;
+  --mito-green: #10710D;
 }
 
 /* css/sitewide/cursor.css */
@@ -640,6 +641,9 @@
 }
 .text-color-error-important {
   color: var(--mito-red) !important;
+}
+.text-color-success {
+  color: var(--mito-green);
 }
 .text-unselectable {
   -webkit-touch-callout: none;

@@ -37879,12 +37879,20 @@ fig.write_html("${props.graphTabName}.html")`
   var CodeSnippetIcon_default = CodeSnippetIcon;
 
   // src/components/taskpanes/CodeSnippets/CodeSnippetsTaskpane.tsx
+  var CONFIRMATION_TEXT_COPIED = "Copied code snippet to clipboard. Paste it in a code cell below.";
+  var CONFIRMATION_TEXT_CODE_WRITTEN = "Code snippet written to code cell below. Scroll down to see it.";
   var CodeSnippetsTaskpane = (props) => {
     const [allCodeSnippets] = useStateFromAPIAsync([], () => {
       return props.mitoAPI.getCodeSnippets();
     }, void 0, []);
     const [searchString, setSearchString] = (0, import_react161.useState)("");
     const [openDropdownIndex, setOpenDropdownIndex] = (0, import_react161.useState)(void 0);
+    const [confirmationText, setConfirmationText] = (0, import_react161.useState)(void 0);
+    useDebouncedEffect(() => {
+      if (confirmationText !== void 0) {
+        setConfirmationText(void 0);
+      }
+    }, [confirmationText], 3e3);
     const codeSnippetsToDisplay = allCodeSnippets.filter((codeSnippet) => {
       return fuzzyMatch(codeSnippet.Name, searchString) > 0.75 || fuzzyMatch(codeSnippet.Description, searchString) > 0.75 || fuzzyMatch(codeSnippet.Code.join(" "), searchString) > 0.75;
     });
@@ -37903,12 +37911,14 @@ fig.write_html("${props.graphTabName}.html")`
         },
         placeholder: "Search for a code snippet by name or content"
       }
-    ), codeSnippetsToDisplay.map((codeSnippet, codeSnippetIndex) => {
+    ), confirmationText !== void 0 && /* @__PURE__ */ import_react161.default.createElement("p", { className: "text-color-success" }, confirmationText), codeSnippetsToDisplay.map((codeSnippet, codeSnippetIndex) => {
       const copyToClipboard = () => {
+        setConfirmationText(CONFIRMATION_TEXT_COPIED);
         void writeTextToClipboard(codeSnippet.Code.join("\n"));
         void props.mitoAPI.log("code_snippet_copied", { "code_snippet_name": codeSnippet.Name });
       };
       const writeToCell2 = () => {
+        setConfirmationText(CONFIRMATION_TEXT_CODE_WRITTEN);
         writeCodeSnippetCell(props.analysisData.analysisName, codeSnippet.Code.join("\n"));
         void props.mitoAPI.log("code_snippet_written_to_cell", { "code_snippet_name": codeSnippet.Name });
       };

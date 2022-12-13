@@ -16,6 +16,7 @@ import DropdownItem from "../../elements/DropdownItem";
 import { writeTextToClipboard } from "../../../utils/copy";
 import CodeSnippetIcon from "../../icons/CodeSnippetIcon";
 import { writeCodeSnippetCell } from "../../../jupyter/jupyterUtils";
+import { useDebouncedEffect } from "../../../hooks/useDebouncedEffect";
 
 
 interface CodeSnippetsTaskpaneProps {
@@ -27,7 +28,8 @@ interface CodeSnippetsTaskpaneProps {
     selectedSheetIndex: number;
 }
 
-
+const CONFIRMATION_TEXT_COPIED = 'Copied code snippet to clipboard. Paste it in a code cell below.'
+const CONFIRMATION_TEXT_CODE_WRITTEN = 'Code snippet written to code cell below. Scroll down to see it.'
 
 /* 
     This is the CodeSnippets taskpane.
@@ -39,6 +41,14 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
 
     const [searchString, setSearchString] = useState('');
     const [openDropdownIndex, setOpenDropdownIndex] = useState<number | undefined>(undefined);
+    const [confirmationText, setConfirmationText] = useState<string | undefined>(undefined)
+
+    // Remove the confirmation text after 3 seconds
+    useDebouncedEffect(() => {
+        if (confirmationText !== undefined) {
+            setConfirmationText(undefined)
+        }
+    }, [confirmationText], 3000)
 
     const codeSnippetsToDisplay = allCodeSnippets.filter(codeSnippet => {
         return (fuzzyMatch(codeSnippet.Name, searchString) > .75)
@@ -61,12 +71,19 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                     }}
                     placeholder='Search for a code snippet by name or content'
                 />
+                {confirmationText !== undefined && 
+                    <p className="text-color-success">
+                        {confirmationText}
+                    </p>
+                }
                 {codeSnippetsToDisplay.map((codeSnippet, codeSnippetIndex) => {
                     const copyToClipboard = () => {
+                        setConfirmationText(CONFIRMATION_TEXT_COPIED)
                         void writeTextToClipboard(codeSnippet.Code.join('\n'))
                         void props.mitoAPI.log('code_snippet_copied', {'code_snippet_name': codeSnippet.Name});
                     }
                     const writeToCell = () => {
+                        setConfirmationText(CONFIRMATION_TEXT_CODE_WRITTEN)
                         writeCodeSnippetCell(props.analysisData.analysisName, codeSnippet.Code.join('\n'));
                         void props.mitoAPI.log('code_snippet_written_to_cell', {'code_snippet_name': codeSnippet.Name});
                     }
