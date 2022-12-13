@@ -12,8 +12,7 @@ import pytest
 import pandas as pd
 import sys
 
-from mitosheet.saved_analyses.schema_utils import is_prev_version
-
+from mitosheet.utils import is_prev_version
 
 pandas_pre_1_only = pytest.mark.skipif(
     pd.__version__.startswith('1.'), 

@@ -324,3 +324,22 @@ class NpEncoder(json.JSONEncoder):
         if isinstance(obj, pd.Timedelta):
             return str(obj)
         return super(NpEncoder, self).default(obj)
+
+
+def is_prev_version(curr_version: str, benchmark_version: str) -> bool:
+    """
+    Returns True if the curr_version is previous to the benchmark_version
+    Note that this assumes semantic versioning with x.y.z!
+    """
+    curr_version_parts = curr_version.split('.')
+    benchmark_version_parts = benchmark_version.split('.')
+
+    for old_version_part, benchmark_version_part in zip(curr_version_parts, benchmark_version_parts):
+        if int(old_version_part) > int(benchmark_version_part):
+            # E.g. if we have 0.2.11 and 0.1.11, we want to return early as it's clearly not older!
+            return False
+
+        if int(old_version_part) < int(benchmark_version_part):
+            return True
+
+    return False

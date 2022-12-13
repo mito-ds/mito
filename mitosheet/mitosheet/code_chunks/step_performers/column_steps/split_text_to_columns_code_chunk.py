@@ -4,28 +4,32 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Dict, List
+from typing import Dict, List, Union
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.saved_analyses.schema_utils import is_prev_version
 from mitosheet.sheet_functions.types.utils import is_datetime_dtype, is_string_dtype, is_timedelta_dtype
 from mitosheet.step_performers.graph_steps.graph_utils import param_dict_to_code
 from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_to_transpiled_code
 from mitosheet.types import ColumnHeader, ColumnID
 from mitosheet.user.utils import get_pandas_version
+from mitosheet.utils import is_prev_version
 
-def get_split_param_dict() -> Dict[str, bool]:
+def get_split_param_dict() -> Dict[str, Union[bool, int]]:
         # Create a dictionary of the params needed to configure the .split function for
         # split text to columns
 
         split_param_dict = {
+            'n': -1,
             'expand': True, 
+
         }
 
         # Regex was added to the split function on pandas 1.4.0. When the delimiter_string is . 
-        # and regex is true (the default), it splits on every character 
+        # and regex is true (the default), it splits on every character. Setting regex=None:
+        # If None and pat length is 1, treats pat as a literal string => . won't match on everything
+        # If None and pat length is not 1, treats pat as a regular expression => splitting on ',|\t' will split on all commas and tabs
         pandas_version = get_pandas_version()
         if not is_prev_version(pandas_version, '1.4.0'):
-            split_param_dict['regex'] = False 
+            split_param_dict['regex'] = None 
 
         return split_param_dict
 
@@ -71,7 +75,7 @@ class SplitTextToColumnsCodeChunk(CodeChunk):
         split_param_dict = get_split_param_dict()
         split_param_code = param_dict_to_code(split_param_dict, as_single_line=True)
             
-        split_column_line = f'{df_name}[{new_transpiled_column_headers}] = {df_name}[{transpiled_column_header}]{string_conversion}.str.split({delimiter_string}, -1, {split_param_code})'
+        split_column_line = f'{df_name}[{new_transpiled_column_headers}] = {df_name}[{transpiled_column_header}]{string_conversion}.str.split({delimiter_string}, {split_param_code})'
 
         # Reorder columns 
         reorder_columns_line = f'{df_name} = {df_name}[{df_name}.columns[:{column_idx + 1}].tolist() + {new_transpiled_column_headers} + {df_name}.columns[{column_idx + 1}:-{len(new_column_headers)}].tolist()]'

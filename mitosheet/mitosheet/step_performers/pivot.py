@@ -24,6 +24,7 @@ from mitosheet.types import (ColumnHeader, ColumnHeaderWithFilter,
                              ColumnHeaderWithPivotTransform, ColumnID,
                              ColumnIDWithFilter, ColumnIDWithPivotTransform)
 from mitosheet.array_utils import deduplicate_array
+from mitosheet.utils import is_prev_version
 
 
 
@@ -232,7 +233,6 @@ def add_transform_columns_to_dataframe(df: pd.DataFrame, column_headers_with_tra
         if transformation == PCT_DATE_MONTH:
             df[new_column_header] = df[column_header].dt.month
         if transformation == PCT_DATE_WEEK:
-            from mitosheet.saved_analyses.schema_utils import is_prev_version
             if is_prev_version(pd.__version__, '1.0.0'):
                 df[new_column_header] = df[column_header].dt.week
             else:

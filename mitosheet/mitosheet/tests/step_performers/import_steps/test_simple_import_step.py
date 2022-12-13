@@ -10,9 +10,9 @@ import pytest
 import pandas as pd
 import os
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL, DEFAULT_DELIMETER, DEFAULT_ENCODING, DEFAULT_SKIPROWS
-from mitosheet.saved_analyses.schema_utils import is_prev_version
 
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.utils import is_prev_version
 
 TEST_FILE_PATHS = [
     'test_file.csv',

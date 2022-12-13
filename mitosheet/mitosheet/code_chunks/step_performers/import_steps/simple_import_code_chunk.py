@@ -10,6 +10,7 @@ import pandas as pd
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+from mitosheet.utils import is_prev_version
 
 # Note: These defaults must be the same as the pandas.read_csv defaults
 DEFAULT_ENCODING = 'utf-8'
@@ -19,7 +20,6 @@ DEFAULT_SKIPROWS = 0
 DEFAULT_ERROR_BAD_LINES = True
 
 def get_read_csv_params(delimeter: str, encoding: str, decimal: Optional[str], skiprows: Optional[int], error_bad_lines: Optional[bool]) -> Dict[str, Any]:
-    from mitosheet.saved_analyses.schema_utils import is_prev_version
     params: Dict[str, Any] = {}
 
     if encoding != DEFAULT_ENCODING:

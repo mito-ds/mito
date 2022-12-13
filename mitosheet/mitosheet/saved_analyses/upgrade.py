@@ -17,8 +17,7 @@ from copy import copy
 from typing import Any, Callable, Dict, List, Optional
 
 from mitosheet._version import __version__, package_name
-from mitosheet.saved_analyses.schema_utils import (
-    is_prev_version, upgrade_saved_analysis_format_to_steps_data)
+from mitosheet.saved_analyses.schema_utils import (upgrade_saved_analysis_format_to_steps_data)
 from mitosheet.saved_analyses.step_upgraders.add_column import \
     upgrade_add_column_1_to_add_column_2
 from mitosheet.saved_analyses.step_upgraders.change_column_dtype import (
@@ -51,6 +50,7 @@ from mitosheet.saved_analyses.step_upgraders.simple_import import \
 from mitosheet.saved_analyses.step_upgraders.sort import upgrade_sort_1_to_2
 from mitosheet.saved_analyses.step_upgraders.utils_rename_column_headers import \
     INITIAL_BULK_OLD_RENAME_STEP
+from mitosheet.utils import is_prev_version
 
 """
 STEP_UPGRADES_FUNCTION_MAPPING mapping contains a mapping of all steps that need to be upgraded. A step

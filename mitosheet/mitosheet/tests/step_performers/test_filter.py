@@ -489,7 +489,7 @@ def test_transpile_filter():
     mito.filter(0, "name", "And", FC_STRING_CONTAINS, "Nate")
 
     assert mito.transpiled_code == [
-        "df1 = df1[df1['name'].str.contains('Nate', na=False)]",
+        "df1 = df1[df1['name'].str.contains('Nate', na=False, regex=False)]",
     ]
 
 
@@ -499,7 +499,7 @@ def test_transpile_filter_string_does_not_contain():
     mito.filter(0, "name", "And", FC_STRING_DOES_NOT_CONTAIN, "Nate")
 
     assert mito.transpiled_code == [
-        "df1 = df1[~df1['name'].str.contains('Nate', na=False)]",
+        "df1 = df1[~df1['name'].str.contains('Nate', na=False, regex=False)]",
     ]
 
 
@@ -529,7 +529,7 @@ def test_transpile_double_filter_and():
     )
 
     assert mito.transpiled_code == [
-        "df1 = df1[(df1['name'].str.contains('e', na=False)) & (df1['name'] == 'Nate')]",
+        "df1 = df1[(df1['name'].str.contains('e', na=False, regex=False)) & (df1['name'] == 'Nate')]",
     ]
 
 
@@ -547,7 +547,7 @@ def test_transpile_double_filter_or():
     )
 
     assert mito.transpiled_code == [
-        "df1 = df1[(df1['name'].str.contains('e', na=False)) | (df1['name'] == 'Nate')]",
+        "df1 = df1[(df1['name'].str.contains('e', na=False, regex=False)) | (df1['name'] == 'Nate')]",
     ]
 
 
