@@ -22973,7 +22973,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   var useKeyboardShortcuts = (mitoContainerRef, actions, setGridState) => {
     useDebouncedEffect(() => {
       const checkKeyboardShortCut = (e) => {
-        var _a, _b;
+        var _a, _b, _c;
         if (!Object.keys(KEYBOARD_SHORTCUTS).includes(e.key) || !e.ctrlKey && !e.metaKey) {
           return;
         }
@@ -22991,6 +22991,10 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           return;
         }
         if (((_b = document.activeElement) == null ? void 0 : _b.tagName.toLowerCase()) === "input") {
+          return;
+        }
+        const selectedText = (_c = window.getSelection()) == null ? void 0 : _c.toString();
+        if (e.key === "c" && selectedText !== void 0 && selectedText !== "") {
           return;
         }
         e.stopImmediatePropagation();
@@ -37939,7 +37943,7 @@ fig.write_html("${props.graphTabName}.html")`
           }
         },
         /* @__PURE__ */ import_react161.default.createElement(Col_default, { offsetRight: 0.5 }, /* @__PURE__ */ import_react161.default.createElement(CodeSnippetIcon_default, null)),
-        /* @__PURE__ */ import_react161.default.createElement(Col_default, { span: 20 }, /* @__PURE__ */ import_react161.default.createElement("div", { className: "text-bold" }, codeSnippet.Name), /* @__PURE__ */ import_react161.default.createElement("div", { className: "text-overflow-scroll pb-5px" }, codeSnippet.Description)),
+        /* @__PURE__ */ import_react161.default.createElement(Col_default, { span: 20 }, /* @__PURE__ */ import_react161.default.createElement("div", { className: "text-bold" }, codeSnippet.Name), /* @__PURE__ */ import_react161.default.createElement("div", { className: "text-overflow-wrap pb-5px" }, codeSnippet.Description)),
         /* @__PURE__ */ import_react161.default.createElement(
           Col_default,
           {

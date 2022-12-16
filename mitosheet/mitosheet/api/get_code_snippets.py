@@ -10,6 +10,7 @@ from mitosheet.types import CodeSnippet, StepsManagerType
 
 DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
         {
+                'Id': 'mito-code-snippet:calculate-correlation-matrix',
                 'Name': 'Calculate correlation matrix',
                 'Description': 'Compute pairwise correlation of columns, excluding NA/null values.',
                 'Code': [
@@ -17,6 +18,7 @@ DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
                 ]
         },
         {
+                'Id': 'mito-code-snippet:send-email-using-outlook',
                 "Name": "Send email using Outlook (Windows)", 
                 "Description": "Automatically send email with embedded dataframe",
                 "Code": [
@@ -32,6 +34,7 @@ DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
                 ],
         },
         {
+                'Id': 'mito-code-snippet:create-dataframe-from-clipboard',
                 'Name': 'Create dataframe from clipboard',
                 'Description': 'Read the data that is copied to you clipboard into a pandas dataframe',
                 'Code': [
@@ -40,6 +43,7 @@ DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
                 ]
         },
         {
+                'Id': 'mito-code-snippet:read-csv-files-from-folder',
                 "Name": "Read all CSV files from folder", 
                 "Description": "Read the CSV files from a folder, and concate them into a single dataframe.",
                 "Code": [
@@ -53,6 +57,7 @@ DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
                 ]
         },
         {
+                'Id': 'mito-code-snippet:diff-between-dataframe',
                 "Name": "Find differences between dataframes", 
                 "Description": "Subtract one dataframe from another by row",
                 "Code": [

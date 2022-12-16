@@ -92,6 +92,7 @@ if sys.version_info[:3] > (3, 8, 0):
         transformation: PivotColumnTransformation
 
     class CodeSnippet(TypedDict):
+        Id: str
         Name: str
         Description: str
         Code: List[str]

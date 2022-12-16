@@ -108,7 +108,7 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                             </Col>
                             <Col span={20}>
                                 <div className="text-bold">{codeSnippet.Name}</div>
-                                <div className="text-overflow-scroll pb-5px">{codeSnippet.Description}</div>
+                                <div className="text-overflow-wrap pb-5px">{codeSnippet.Description}</div>
                             </Col>
                             <Col 
                                 offset={2}

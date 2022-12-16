@@ -974,6 +974,7 @@ export type RecursivePartial<T> = {
 };
 
 export interface CodeSnippet {
+    'Id': string,
     'Name': string,
     'Description': string,
     'Code': string[]
