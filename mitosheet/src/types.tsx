@@ -655,7 +655,8 @@ interface Experiment {
 
 export enum MitoEnterpriseConfigKey {
     MEC_VERSION = 'MITO_CONFIG_VERSION',
-    SUPPORT_EMAIL = 'MITO_CONFIG_SUPPORT_EMAIL'
+    SUPPORT_EMAIL = 'MITO_CONFIG_SUPPORT_EMAIL',
+    CODE_SNIPPETS_SUPPORT_EMAIL = 'MITO_CODE_SNIPPETS_SUPPORT_EMAIL'
 }
 
 
@@ -723,6 +724,7 @@ export interface UserProfile {
     mitoConfig: {
         [MitoEnterpriseConfigKey.MEC_VERSION]: number | undefined
         [MitoEnterpriseConfigKey.SUPPORT_EMAIL]: string
+        [MitoEnterpriseConfigKey.CODE_SNIPPETS_SUPPORT_EMAIL]: string
     };
 }
 

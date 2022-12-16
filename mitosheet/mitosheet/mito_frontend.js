@@ -37971,6 +37971,18 @@ fig.write_html("${props.graphTabName}.html")`
               title: "Write to Notebook",
               onClick: writeToCell2
             }
+          ),
+          /* @__PURE__ */ import_react161.default.createElement(
+            DropdownItem_default,
+            {
+              title: "Get Support",
+              onClick: () => {
+                var _a;
+                const openLocation = props.userProfile.mitoConfig["MITO_CODE_SNIPPETS_SUPPORT_EMAIL" /* CODE_SNIPPETS_SUPPORT_EMAIL */] === DEFAULT_SUPPORT_EMAIL ? SLACK_INVITE_LINK : `mailto:${props.userProfile.mitoConfig["MITO_CODE_SNIPPETS_SUPPORT_EMAIL" /* CODE_SNIPPETS_SUPPORT_EMAIL */]}?subject=Mito Code Snippet Support. ID ${codeSnippet.Id}`;
+                window.open(openLocation);
+                void ((_a = props.mitoAPI) == null ? void 0 : _a.log("clicked_code_snippet_get_support_button"));
+              }
+            }
           )
         ))
       );
