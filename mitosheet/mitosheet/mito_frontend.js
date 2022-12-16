@@ -24626,7 +24626,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     return getWidthData(sheetData, oldWidths);
   };
   var guessFullWidthOfColumnHeaderOrContent = (sheetData, columnIndex, displayColumnHeader) => {
-    const displayColumnHeaderPx = displayColumnHeader.length * 12 + 15;
+    const displayColumnHeaderPx = displayColumnHeader.length * 10 + 15;
     const dataMaxLength = Math.max(...sheetData.data[columnIndex].columnData.map((el) => String(el).length)) * 8;
     return Math.max(displayColumnHeaderPx, dataMaxLength);
   };
@@ -36270,6 +36270,11 @@ fig.write_html("${props.graphTabName}.html")`
   var PIVOT_COLUMN_TRANSFORM_TITLES = {
     "no-op": "exact time",
     "year": "year",
+    "year-quarter": "year-quarter",
+    "year-month": "year-month",
+    "year-month-day": "year-month-day",
+    "year-month-day-hour": "year-month-day-hour",
+    "year-month-day-hour-minute": "year-month-day-hour-minute",
     "quarter": "quarter",
     "month": "month",
     "week": "week",
@@ -36278,11 +36283,6 @@ fig.write_html("${props.graphTabName}.html")`
     "hour": "hour",
     "minute": "minute",
     "second": "second",
-    "year-month-day-hour-minute": "year-month-day-hour-minute",
-    "year-month-day-hour": "year-month-day-hour",
-    "year-month-day": "year-month-day",
-    "year-month": "year-month",
-    "year-quarter": "year-quarter",
     "month-day": "month-day",
     "day-hour": "day-hour",
     "hour-minute": "hour-minute"
@@ -36324,8 +36324,8 @@ fig.write_html("${props.graphTabName}.html")`
           selectableValues: Object.keys(columnIDsMap)
         }
       );
-      if (isDatetimeDtype(columnID)) {
-        return /* @__PURE__ */ import_react145.default.createElement("div", { className: "mito-blue-container mt-4px mb-4px" }, selectAndXIcon, /* @__PURE__ */ import_react145.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react145.default.createElement(Col_default, { offset: 0.25 }, /* @__PURE__ */ import_react145.default.createElement(LabelAndTooltip_default, { tooltip: GROUP_DATE_BY_TOOLTIP }, "group date by")), /* @__PURE__ */ import_react145.default.createElement(Col_default, { offsetRight: 3 }, /* @__PURE__ */ import_react145.default.createElement(
+      if (columnID !== void 0 && isDatetimeDtype(columnID)) {
+        return /* @__PURE__ */ import_react145.default.createElement("div", { className: "mito-blue-container mt-4px mb-4px", key: keyIndex }, selectAndXIcon, /* @__PURE__ */ import_react145.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react145.default.createElement(Col_default, { offset: 0.25 }, /* @__PURE__ */ import_react145.default.createElement(LabelAndTooltip_default, { tooltip: GROUP_DATE_BY_TOOLTIP }, "group date by")), /* @__PURE__ */ import_react145.default.createElement(Col_default, { offsetRight: 3 }, /* @__PURE__ */ import_react145.default.createElement(
           Select_default,
           {
             value: transformation,
@@ -37782,8 +37782,8 @@ fig.write_html("${props.graphTabName}.html")`
       secondLine = /* @__PURE__ */ import_react158.default.createElement(import_react158.default.Fragment, null, "To install Mito in JupyterLab and Jupyter Notebook, follow our ", /* @__PURE__ */ import_react158.default.createElement("a", { href: DOCUMENTATION_LINK_INSTALL, target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react158.default.createElement("span", { className: "text-body-1-link" }, "installation instructions.")));
     } else if (props.commCreationErrorStatus === "non_working_extension_error") {
       header = "Invalid installation";
-      firstLine = "Mito was unable to connect to your Python kernel. This is probably because Mito is installed incorrectly.";
-      secondLine = /* @__PURE__ */ import_react158.default.createElement(import_react158.default.Fragment, null, "To fix your installation, please ensure you have followed our ", /* @__PURE__ */ import_react158.default.createElement("a", { href: DOCUMENTATION_LINK_INSTALL, target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react158.default.createElement("span", { className: "text-body-1-link" }, "installation instructions.")));
+      firstLine = "Try restarting your JupyterLab. Mito was unable to connect to your Python kernel.";
+      secondLine = /* @__PURE__ */ import_react158.default.createElement(import_react158.default.Fragment, null, "If this does not resolve this error, please ensure you have followed our ", /* @__PURE__ */ import_react158.default.createElement("a", { href: DOCUMENTATION_LINK_INSTALL, target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react158.default.createElement("span", { className: "text-body-1-link" }, "installation instructions.")));
     }
     return /* @__PURE__ */ import_react158.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react158.default.createElement(
       DefaultTaskpaneHeader_default,
