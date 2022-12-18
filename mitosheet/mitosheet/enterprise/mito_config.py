@@ -13,7 +13,7 @@ from mitosheet.telemetry.telemetry_utils import log
 # the environment variables from previous mito_config_versions.
 MITO_CONFIG_KEY_VERSION = 'MITO_CONFIG_VERSION'
 MITO_CONFIG_KEY_SUPPORT_EMAIL = 'MITO_CONFIG_SUPPORT_EMAIL'
-MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL = 'MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL'
+MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL = 'MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL'
 
 # The default values to use if the mec does not define them
 DEFAULT_MITO_CONFIG_SUPPORT_EMAIL = 'founders@sagacollab.com'
@@ -38,7 +38,7 @@ def upgrade_mec_1_to_2(mec: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]
     return {
         MITO_CONFIG_KEY_VERSION: '2',
         MITO_CONFIG_KEY_SUPPORT_EMAIL: mec[MITO_CONFIG_KEY_SUPPORT_EMAIL],
-        MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL: None
+        MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL: None
     }
 
 # When updating the MEC_VERSION, add a function here 
@@ -68,7 +68,7 @@ def upgrade_mito_enterprise_configuration(mec: Optional[Dict[str, Any]]) -> Opti
 # To do so we store them as a list here. 
 MEC_VERSION_KEYS = {
     '1': [MITO_CONFIG_KEY_VERSION, MITO_CONFIG_KEY_SUPPORT_EMAIL],
-    '2': [MITO_CONFIG_KEY_VERSION, MITO_CONFIG_KEY_SUPPORT_EMAIL, MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL]
+    '2': [MITO_CONFIG_KEY_VERSION, MITO_CONFIG_KEY_SUPPORT_EMAIL, MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL]
 }
 
 def create_mec_from_environment_variables() -> Optional[Dict[str, Any]]:
@@ -113,9 +113,9 @@ class MitoConfig:
         return self.mec[MITO_CONFIG_KEY_SUPPORT_EMAIL]
 
     def _get_code_snippets_support_email(self) -> str:
-        if self.mec is None or self.mec[MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL] is None:
+        if self.mec is None or self.mec[MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL] is None:
             return DEFAULT_MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL
-        return self.mec[MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL]
+        return self.mec[MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL]
 
     # Add new mito configuration options here ...
 
@@ -123,6 +123,6 @@ class MitoConfig:
         return {
             MITO_CONFIG_KEY_VERSION: self._get_version(),
             MITO_CONFIG_KEY_SUPPORT_EMAIL: self._get_support_email(),
-            MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL: self._get_code_snippets_support_email()
+            MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL: self._get_code_snippets_support_email()
         }
 
