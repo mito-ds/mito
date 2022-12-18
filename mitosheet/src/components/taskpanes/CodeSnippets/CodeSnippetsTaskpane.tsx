@@ -120,7 +120,6 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                             <Col>
                                 {<Dropdown 
                                     display={codeSnippetIndex === openDropdownIndex} 
-                                    closeDropdown={() => setOpenDropdownIndex(undefined)}
                                     width='medium'
                                 >
                                     <DropdownItem 

@@ -21144,6 +21144,9 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         }
       }, 200);
     } else if (escapeDown) {
+      if (onEscape === void 0) {
+        return;
+      }
       onEscape();
     }
   };
@@ -21153,6 +21156,9 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     useCallOnAnyClick((eventTarget) => {
       var _a;
       if (!props.display) {
+        return;
+      }
+      if (props.closeDropdown === void 0) {
         return;
       }
       props.closeDropdown();
@@ -37955,7 +37961,6 @@ fig.write_html("${props.graphTabName}.html")`
           Dropdown_default,
           {
             display: codeSnippetIndex === openDropdownIndex,
-            closeDropdown: () => setOpenDropdownIndex(void 0),
             width: "medium"
           },
           /* @__PURE__ */ import_react161.default.createElement(
