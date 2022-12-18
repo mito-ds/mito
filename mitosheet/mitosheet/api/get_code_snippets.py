@@ -7,6 +7,11 @@
 import json
 from typing import Any, Dict, List
 from mitosheet.types import CodeSnippet, StepsManagerType
+import os
+import requests as req
+
+MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION = 'MITO_CONFIG_CODE_SNIPPETS_VERSION'
+MITO_CONFIG_KEY_CODE_SNIPPETS_URL = 'MITO_CONFIG_CODE_SNIPPETS_URL'
 
 DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
         {
@@ -68,4 +73,21 @@ DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
 ]
 
 def get_code_snippets(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
-    return json.dumps(DEFAULT_CODE_SNIPPETS)
+        # If code snippet environment variables are set, then use them to get the code snippets. 
+        mito_config_code_snippets_version = os.environ.get(MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION)
+        mito_config_code_snippets_url = os.environ.get(MITO_CONFIG_KEY_CODE_SNIPPETS_URL)
+        if mito_config_code_snippets_version == '1' and mito_config_code_snippets_url is not None:
+                
+                # Request the code snippets from the url
+                response = req.get(mito_config_code_snippets_url, verify=False)
+
+                if response.status_code == 200:
+                        # Parse the respone body into JSON 
+                        code_snippets = response.json()
+                        return json.dumps(code_snippets)
+                else:
+                        # Helpful info for debugging with the API is not threaded.
+                        print("Error accessing the code snippets data from the URL. Response status code: ", response.status_code)
+
+        # Otherwise, use the default code snippets. 
+        return json.dumps(DEFAULT_CODE_SNIPPETS)
