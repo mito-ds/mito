@@ -58,7 +58,6 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
             || fuzzyMatch(codeSnippet.Code.join(' '), searchString) > .75
     })
 
-
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
@@ -135,7 +134,7 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                                     <DropdownItem
                                         title='Get Support'
                                         onClick={() => {
-                                            const openLocation = props.userProfile.mitoConfig[MitoEnterpriseConfigKey.CODE_SNIPPETS_SUPPORT_EMAIL] === DEFAULT_SUPPORT_EMAIL ? SLACK_INVITE_LINK : `mailto:${props.userProfile.mitoConfig[MitoEnterpriseConfigKey.CODE_SNIPPETS_SUPPORT_EMAIL]}?subject=Mito Code Snippet Support. ID ${codeSnippet.Id}`
+                                            const openLocation = props.userProfile.mitoConfig[MitoEnterpriseConfigKey.CODE_SNIPPETS_SUPPORT_EMAIL] === DEFAULT_SUPPORT_EMAIL ? SLACK_INVITE_LINK : `mailto:${props.userProfile.mitoConfig[MitoEnterpriseConfigKey.CODE_SNIPPETS_SUPPORT_EMAIL]}?subject=Mito Code Snippet Support: ID ${codeSnippet.Id}`
                                             window.open(openLocation)
                                             void props.mitoAPI?.log('clicked_code_snippet_get_support_button')
                                         }}
