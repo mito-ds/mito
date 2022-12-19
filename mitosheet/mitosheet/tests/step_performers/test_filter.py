@@ -71,7 +71,7 @@ FILTER_TESTS = [
         pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
         FC_NUMBER_EXACTLY,
         10,
-        pd.DataFrame(columns=["A"], dtype="int"),
+        pd.DataFrame(columns=["A"], dtype="float"),
     ),
     (
         pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
@@ -83,7 +83,7 @@ FILTER_TESTS = [
         pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
         FC_NUMBER_GREATER,
         10,
-        pd.DataFrame(columns=["A"], dtype="int"),
+        pd.DataFrame(columns=["A"], dtype="float"),
     ),
     (
         pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
@@ -101,7 +101,7 @@ FILTER_TESTS = [
         pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
         FC_NUMBER_GREATER_THAN_OR_EQUAL,
         10,
-        pd.DataFrame(columns=["A"], dtype="int"),
+        pd.DataFrame(columns=["A"], dtype="float"),
     ),
     (
         pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
@@ -119,7 +119,7 @@ FILTER_TESTS = [
         pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
         FC_NUMBER_LESS,
         0,
-        pd.DataFrame(columns=["A"], dtype="int"),
+        pd.DataFrame(columns=["A"], dtype="float"),
     ),
     (
         pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
@@ -137,7 +137,7 @@ FILTER_TESTS = [
         pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
         FC_NUMBER_LESS_THAN_OR_EQUAL,
         0,
-        pd.DataFrame(columns=["A"], dtype="int"),
+        pd.DataFrame(columns=["A"], dtype="float"),
     ),
     (
         pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
