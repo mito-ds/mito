@@ -14,6 +14,7 @@ import time
 from sysconfig import get_python_version
 from typing import Any, Dict, List, Optional, Union
 
+import numpy as np
 import pandas as pd
 from ipykernel import get_connection_file
 from ipykernel.comm import Comm
@@ -38,7 +39,7 @@ from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES,
                                     UJ_RECEIVED_CHECKLISTS, UJ_RECEIVED_TOURS,
                                     UJ_USER_EMAIL)
 from mitosheet.user.utils import get_pandas_version, is_pro, is_running_test
-from mitosheet.utils import get_new_id, get_valid_json_for_frontend
+from mitosheet.utils import get_new_id
 
 
 class MitoBackend():
@@ -100,7 +101,7 @@ class MitoBackend():
         }
 
     def get_user_profile_json(self) -> str:
-        return get_valid_json_for_frontend(json.dumps({
+        return json.dumps({
             # Dynamic, update each time
             'userEmail': get_user_field(UJ_USER_EMAIL),
             'receivedTours': get_user_field(UJ_RECEIVED_TOURS),
@@ -114,7 +115,7 @@ class MitoBackend():
             'shouldUpgradeMitosheet': self.should_upgrade_mitosheet,
             'numUsages': self.num_usages,
             'mitoConfig': self.mito_config.get_mito_config()
-        }))
+        })
 
 
     def handle_edit_event(self, event: Dict[str, Any]) -> None:
@@ -321,12 +322,19 @@ def get_mito_frontend_code(kernel_id: str, comm_target_id: str, div_id: str, mit
     js_code = js_code_from_file.replace('REPLACE_THIS_WITH_DIV_ID', div_id)
     js_code = js_code.replace('REPLACE_THIS_WITH_KERNEL_ID', kernel_id)
     js_code = js_code.replace('REPLACE_THIS_WITH_COMM_TARGET_ID', comm_target_id)
-    # NOTE: we need to turn \ into \\ anywhere it exists, as otherwise we might get characters
-    # that are invalid JS, and we get a SyntaxError when trying to render the mitosheet
-    js_code = js_code.replace('REPLACE_THIS_WITH_SHEET_DATA_ARRAY', mito_backend.steps_manager.sheet_data_json)
-    js_code = js_code.replace('REPLACE_THIS_WITH_ANALYSIS_DATA', mito_backend.steps_manager.analysis_data_json)
-    js_code = js_code.replace('REPLACE_THIS_WITH_USER_PROFILE', mito_backend.get_user_profile_json())
     js_code = js_code.replace('REPLACE_THIS_WITH_CSS', css_code_from_file)
+    # NOTE: we encode these as utf8 encoded byte arrays, so that we can avoid having to do complicated things with 
+    # replacing \t, etc
+    def to_uint8_arr(string: str):
+        return np.frombuffer(string.encode("utf8"), dtype=np.uint8).tolist()
+    
+    js_code = js_code.replace('sheetDataBytes = new Uint8Array([]);', f'sheetDataBytes = new Uint8Array({to_uint8_arr(mito_backend.steps_manager.sheet_data_json)});')
+    js_code = js_code.replace('analysisDataBytes = new Uint8Array([]);', f'analysisDataBytes = new Uint8Array({to_uint8_arr(mito_backend.steps_manager.analysis_data_json)});')
+    js_code = js_code.replace('userProfileBytes = new Uint8Array([]);', f'userProfileBytes = new Uint8Array({to_uint8_arr(mito_backend.get_user_profile_json())});')
+
+    with open('out.txt', 'w+') as f:
+        f.write(js_code)
+
     return js_code
 
 

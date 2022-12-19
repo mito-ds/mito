@@ -9,23 +9,29 @@ from mitosheet.steps_manager import StepsManager
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 
 
+# See here: https://www.tutorialspoint.com/json_simple/json_simple_escape_characters.htm
 STRINGS_TO_TEST = [
+    ('	'),
     ('Normal'),
     ('space in the text'),
     ('学	医'),
-    ('this\is\text'),
+    ('this is \\text'),
     ('\n'),
     ('\t'),
     ('\r'),
     ('`'),
+    ("'"),
+    ('"'),
+    ('&'),
+    ('\b'),
+    ('\f'),
 ]
 
 
 def write_test_code(file: str, string: str):
     df = pd.DataFrame({'A': [string]})
-    steps_manager = StepsManager([df])
-    code = '''var sheetDataArray = getSheetDataArrayFromString(`REPLACE_THIS_WITH_SHEET_DATA_ARRAY`);'''
-    code = code.replace('REPLACE_THIS_WITH_SHEET_DATA_ARRAY', steps_manager.sheet_data_json)
+    mito = create_mito_wrapper_dfs(df)
+    code = get_mito_frontend_code('a', 'a', 'a', mito.mito_backend)
     with open(file, 'w+') as f:
         f.write(code)
 
