@@ -40,7 +40,9 @@ from mitosheet.telemetry.telemetry_utils import log_event_processed
 MAX_QUEUED_API_CALLS = 3
 
 # NOTE: BE CAREFUL WITH THIS. When in development mode, you can set it to False
-# so the API calls are handled in the main thread, to make printing easy
+# so the API calls are handled in the main thread, to make printing easy.
+# In newer versions of JupyterLab, to see these print statements:
+# View > Show Log Console > in the console set Log Level to Debug
 THREADED = True
 
 
