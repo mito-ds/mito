@@ -325,6 +325,12 @@ class NpEncoder(json.JSONEncoder):
             return str(obj)
         return super(NpEncoder, self).default(obj)
 
+# When we are sending a JSON object to the frontend by writing as a JS variable, we need
+# to take special care to not mess up the JS string. Specifically, we need to 
+def get_valid_json_for_frontend(json_string: str) -> str:
+    return json_string \
+        .replace('`', r'\`') # Escape any quote ending characters, as they mess things up 
+
 
 def is_prev_version(curr_version: str, benchmark_version: str) -> bool:
     """

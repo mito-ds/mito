@@ -22,7 +22,7 @@ from mitosheet.step_performers.pivot import PCT_NO_OP
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code, column_header_list_to_transpiled_code
 from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat, GraphID, MultiLevelColumnHeader, ColumnIDWithFilter, ColumnHeaderWithFilter, ColumnHeaderWithPivotTransform, ColumnIDWithPivotTransform
-from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id
+from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id, get_valid_json_for_frontend
 
 
 def check_transpiled_code_after_call(func):
@@ -94,7 +94,8 @@ def check_dataframes_equal(test_wrapper):
 
     # We then check that the sheet data json that is saved by the widget, which 
     # notably uses caching, does not get incorrectly cached and is written correctly
-    assert test_wrapper.mito_backend.get_shared_state_variables()['sheet_data_json'] == json.dumps(dfs_to_array_for_json(
+    sheet_data_json = test_wrapper.mito_backend.get_shared_state_variables()['sheet_data_json']
+    assert sheet_data_json == get_valid_json_for_frontend(json.dumps(dfs_to_array_for_json(
         test_wrapper.mito_backend.steps_manager.curr_step.final_defined_state, 
         set(i for i in range(len(test_wrapper.mito_backend.steps_manager.curr_step.dfs))),
         [],
@@ -105,7 +106,11 @@ def check_dataframes_equal(test_wrapper):
         test_wrapper.mito_backend.steps_manager.curr_step.column_filters,
         test_wrapper.mito_backend.steps_manager.curr_step.column_ids,
         test_wrapper.mito_backend.steps_manager.curr_step.df_formats
-    ), cls=NpEncoder)
+    ), cls=NpEncoder))
+
+    # Do a load to make sure it still parses
+    print(sheet_data_json)
+    json.loads(sheet_data_json)
 
 
 class MitoWidgetTestWrapper:

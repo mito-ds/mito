@@ -28,7 +28,7 @@ from mitosheet.step_performers.import_steps.simple_import import \
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.updates import UPDATES
 from mitosheet.user.utils import is_pro, is_running_test
-from mitosheet.utils import (NpEncoder, dfs_to_array_for_json, get_new_id,
+from mitosheet.utils import (NpEncoder, dfs_to_array_for_json, get_new_id, get_valid_json_for_frontend,
                              is_default_df_names)
 from mitosheet.updates.update_existing_imports import UPDATE_EXISTING_IMPORTS_UPDATE_EVENT
 
@@ -301,11 +301,11 @@ class StepsManager:
         self.saved_sheet_data = array
         self.last_step_index_we_wrote_sheet_json_on = self.curr_step_idx
 
-        return json.dumps(array, cls=NpEncoder).replace('\\', '\\\\').replace('`', r'\`')
+        return get_valid_json_for_frontend(json.dumps(array, cls=NpEncoder))
 
     @property
     def analysis_data_json(self):
-        return json.dumps(
+        return get_valid_json_for_frontend(json.dumps(
             {
                 "analysisName": self.analysis_name,
                 "analysisToReplay": {
@@ -322,7 +322,7 @@ class StepsManager:
                 'lastResult': self.curr_step.execution_data['result'] if 'result' in self.curr_step.execution_data else None,
                 'experiment': self.experiment,
             }
-        ).replace('\\', '\\\\').replace('`', r'\`')
+        ))
 
     @property
     def step_summary_list(self) -> List:

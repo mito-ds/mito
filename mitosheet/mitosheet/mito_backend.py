@@ -38,7 +38,7 @@ from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES,
                                     UJ_RECEIVED_CHECKLISTS, UJ_RECEIVED_TOURS,
                                     UJ_USER_EMAIL)
 from mitosheet.user.utils import get_pandas_version, is_pro, is_running_test
-from mitosheet.utils import get_new_id
+from mitosheet.utils import get_new_id, get_valid_json_for_frontend
 
 
 class MitoBackend():
@@ -100,7 +100,7 @@ class MitoBackend():
         }
 
     def get_user_profile_json(self) -> str:
-        return json.dumps({
+        return get_valid_json_for_frontend(json.dumps({
             # Dynamic, update each time
             'userEmail': get_user_field(UJ_USER_EMAIL),
             'receivedTours': get_user_field(UJ_RECEIVED_TOURS),
@@ -114,7 +114,7 @@ class MitoBackend():
             'shouldUpgradeMitosheet': self.should_upgrade_mitosheet,
             'numUsages': self.num_usages,
             'mitoConfig': self.mito_config.get_mito_config()
-        }).replace('\\', '\\\\')
+        }))
 
 
     def handle_edit_event(self, event: Dict[str, Any]) -> None:
