@@ -19,7 +19,7 @@ MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL = 'MITO_CONFIG_CODE_SNIPPETS_SUPPORT
 DEFAULT_MITO_CONFIG_SUPPORT_EMAIL = 'founders@sagacollab.com'
 DEFAULT_MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL = 'founders@sagacollab.com'
 
-def upgrade_mec_1_to_2(mec: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+def upgrade_mec_1_to_2(mec: Dict[str, Any]) -> Dict[str, Any]:
     """
     Converts mec of shape:
     {
