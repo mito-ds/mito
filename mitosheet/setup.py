@@ -121,7 +121,8 @@ if name == 'mitosheet2':
                 'pytest',
                 'flake8',
                 'types-chardet',
-                'mypy'
+                'types-requests',
+                'mypy',
             ],
             'deploy': [
                 'wheel', 
@@ -227,6 +228,7 @@ elif name == 'mitosheet' or name == 'mitosheet3' or name == 'mitosheet-private':
                 'pytest',
                 'flake8',
                 'types-chardet',
+                'types-requests',
                 'mypy'
             ],
             'deploy': [
