@@ -3,11 +3,14 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
+import subprocess
 import sys
 from typing import Any, Dict
 
 import atheris
 import pandas as pd
+
+from mitosheet.mito_backend import get_mito_frontend_code
 
 with atheris.instrument_imports():
     import mitosheet
@@ -176,10 +179,23 @@ NUM_EVENTS = 20
 def TestMito(data):
     import random
     fdp = atheris.FuzzedDataProvider(data)
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [random.randint(0, 100) for _ in range(50)], 'B': [random.randint(0, 100) for _ in range(50)]}))
 
-    for _ in range(NUM_EVENTS):
-        send_random_event(mito, fdp)
+    df = pd.DataFrame({'A': [string]})
+    mito = create_mito_wrapper_dfs(df)
+    frontend_code = get_mito_frontend_code('1', '2', '3', mito.mito_backend)
+    
+    file = 'tests/out.js'
+    with open(file, 'w+') as f:
+        f.write(frontend_code)
+
+    p = subprocess.Popen(['node', file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (_, err) = p.communicate()
+    p.wait()
+
+    # we want to make sure that there are no failures in parsing, that it runs up to the 
+    # ReferenceError: document is not defined 
+    assert 'SyntaxError' not in err.decode('utf-8') 
+    assert 'ReferenceError' in err.decode('utf-8')
 
     print("NUM STEPS:", len(mito.steps_including_skipped))
 

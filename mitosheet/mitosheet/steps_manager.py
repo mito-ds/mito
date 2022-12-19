@@ -301,7 +301,7 @@ class StepsManager:
         self.saved_sheet_data = array
         self.last_step_index_we_wrote_sheet_json_on = self.curr_step_idx
 
-        return json.dumps(array, cls=NpEncoder)
+        return json.dumps(array, cls=NpEncoder).replace('\\', '\\\\').replace('`', r'\`')
 
     @property
     def analysis_data_json(self):
@@ -322,7 +322,7 @@ class StepsManager:
                 'lastResult': self.curr_step.execution_data['result'] if 'result' in self.curr_step.execution_data else None,
                 'experiment': self.experiment,
             }
-        )
+        ).replace('\\', '\\\\').replace('`', r'\`')
 
     @property
     def step_summary_list(self) -> List:
