@@ -104,7 +104,7 @@ class MitoConfig:
 
     def _get_version(self) -> str:
         if self.mec is None or self.mec[MITO_CONFIG_KEY_VERSION] is None:
-            return '1' # NOTE: update this to be the most recent version, when we bump the version
+            return '2' # NOTE: update this to be the most recent version, when we bump the version
         return self.mec[MITO_CONFIG_KEY_VERSION]
 
     def _get_support_email(self) -> str:
