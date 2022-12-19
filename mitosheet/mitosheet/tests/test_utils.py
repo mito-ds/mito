@@ -109,7 +109,6 @@ def check_dataframes_equal(test_wrapper):
     ), cls=NpEncoder))
 
     # Do a load to make sure it still parses
-    print(sheet_data_json)
     json.loads(sheet_data_json)
 
 
