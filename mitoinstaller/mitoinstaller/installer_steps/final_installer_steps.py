@@ -7,7 +7,6 @@ import time
 
 import analytics
 from mitoinstaller.create_startup_file import create_startup_file
-from mitoinstaller.experiments.experiment_utils import is_variant_a
 from mitoinstaller.installer_steps.installer_step import InstallerStep
 from mitoinstaller.jupyter_utils import get_prefered_jupyter_env_variable
 from mitoinstaller.starter_notebook import (MITO_STARTER_NOTEBOOK_PATH,
