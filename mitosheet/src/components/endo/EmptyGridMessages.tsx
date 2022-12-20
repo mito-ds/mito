@@ -57,7 +57,7 @@ const EmptyGridMessages = (props: {
                         </TextButton>
                     </div>
                     <p className='mt-5px text-body-1' style={{textAlign: 'center'}}>
-                        Or import dataframes using the syntax <code>mitosheet.sheet(df1, df2)</code> in the code above.
+                        Or import dfs using the syntax <code>mitosheet.sheet(df1, df2)</code> in the code above.
                     </p>
                 </GridDataEmptyContainer>
             }
