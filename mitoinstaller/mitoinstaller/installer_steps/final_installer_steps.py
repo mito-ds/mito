@@ -27,8 +27,9 @@ def replace_process_with_jupyter():
         return
 
     if ('--turn-off-jupyter-launch' in sys.argv):
+        print("Not starting Jupyter due to --turn-off-jupyter-launch")
         return 
-        
+
     # Get the prefered jupyter to launch, which we saved before
     prefered_jupyter = get_prefered_jupyter_env_variable()
 
