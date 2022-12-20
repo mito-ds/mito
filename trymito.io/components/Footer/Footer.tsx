@@ -73,6 +73,9 @@ const Footer = (): JSX.Element => {
                         Company
                     </ol>
                     <li className='text-nav'>
+                        <a href='https://blog.trymito.io'>Blog</a>
+                    </li>
+                    <li className='text-nav'>
                         <a href='https://trymito.notion.site/Jobs-Mito-f7becf2466044c6199866addfbf45cba' target="_blank" rel="noreferrer">Jobs</a>
                     </li>
                     <li className='text-nav'>
