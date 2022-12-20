@@ -180,7 +180,7 @@ def TestMito(data):
     import random
     fdp = atheris.FuzzedDataProvider(data)
 
-    df = pd.DataFrame({'A': [string]})
+    df = pd.DataFrame({'A': []})
     mito = create_mito_wrapper_dfs(df)
     frontend_code = get_mito_frontend_code('1', '2', '3', mito.mito_backend)
     
