@@ -7,7 +7,6 @@ import time
 
 import analytics
 from mitoinstaller.create_startup_file import create_startup_file
-from mitoinstaller.experiments.experiment_utils import is_variant_a
 from mitoinstaller.installer_steps.installer_step import InstallerStep
 from mitoinstaller.jupyter_utils import get_prefered_jupyter_env_variable
 from mitoinstaller.starter_notebook import (MITO_STARTER_NOTEBOOK_PATH,
@@ -25,6 +24,11 @@ def replace_process_with_jupyter():
     """
     if is_running_test():
         return
+
+    if ('--no-jupyter-launch' in sys.argv):
+        print("Not starting Jupyter due to --no-jupyter-launch")
+        return 
+
     # Get the prefered jupyter to launch, which we saved before
     prefered_jupyter = get_prefered_jupyter_env_variable()
 
