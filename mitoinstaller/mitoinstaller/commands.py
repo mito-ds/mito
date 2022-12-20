@@ -114,6 +114,9 @@ def install_pip_packages(*packages: str, test_pypi: bool=False, user_install: bo
     if '--no-cache-dir' in sys.argv:
         sys_call.append('--no-cache-dir')
 
+    if '--turn-off-jupyter-launch' in sys.argv:
+        sys_call.append('--turn-off-jupyter-launch')
+
     for package in packages:
         sys_call.append(package)
     sys_call.append('--upgrade')
