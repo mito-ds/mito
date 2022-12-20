@@ -14,10 +14,10 @@ def test_defaults_to_lab(venv: VirtualEnvironment):
     assert out.strip() == 'lab'
 
 def test_does_not_launch_jupyter(venv: VirtualEnvironment):
-    # Note that this test only ensures that adding the param '--turn-off-jupyter-launch' does not 
+    # Note that this test only ensures that adding the param '--no-jupyter-launch' does not 
     # completely break the installation, but it does not test that it prevents jupyter from launching
     venv.run_python_module_command(['pip', 'install', '-r', 'requirements.txt'])    
-    venv.run_python_module_command(['mitoinstaller', 'install', '--turn-off-jupyter-launch'])
+    venv.run_python_module_command(['mitoinstaller', 'install', '--no-jupyter-launch'])
 
     mitosheet_version = venv.get_package_version('mitosheet')
     jlab_version = venv.get_package_version('jupyterlab')
