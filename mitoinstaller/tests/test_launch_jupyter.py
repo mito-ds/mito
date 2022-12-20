@@ -1,5 +1,4 @@
 
-from mitoinstaller.jupyter_utils import get_prefered_jupyter_env_variable, is_jupyter_lab_running, is_jupyter_notebook_running
 from tests.conftest import VirtualEnvironment
 
 def test_detects_notebook_as_prefered(venv: VirtualEnvironment):
