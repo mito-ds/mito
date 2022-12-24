@@ -23512,8 +23512,10 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         "params": {}
       }, {});
       if (resultString !== void 0 && resultString !== "") {
+        console.log(resultString);
         return JSON.parse(resultString);
       }
+      console.log(void 0);
       return void 0;
     }
     async _edit(edit_event_type, params, stepID) {
@@ -24578,7 +24580,15 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         header: props.header !== void 0 ? props.header : "Import data first",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react35.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react35.default.createElement("p", { className: "text-body-1 text-overflow-wrap" }, props.message ? props.message : "Before performing that action, you need to import data into Mito.", props.suppressImportLink !== true && /* @__PURE__ */ import_react35.default.createElement(import_react35.default.Fragment, null, " ", /* @__PURE__ */ import_react35.default.createElement("span", { className: "text-body-1-link", onClick: openImportTaskpane }, "Click here to import data.")))));
+    ), /* @__PURE__ */ import_react35.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react35.default.createElement(
+      "p",
+      {
+        className: classNames("text-body-1", "text-overflow-wrap", { "text-color-error": props.errorMessage }),
+        style: { whiteSpace: "pre-wrap" }
+      },
+      props.message ? props.message : "Before performing that action, you need to import data into Mito.",
+      props.suppressImportLink !== true && /* @__PURE__ */ import_react35.default.createElement(import_react35.default.Fragment, null, " ", /* @__PURE__ */ import_react35.default.createElement("span", { className: "text-body-1-link", onClick: openImportTaskpane }, "Click here to import data."))
+    )));
   };
   var DefaultEmptyTaskpane_default = DefaultEmptyTaskpane;
 
@@ -37892,7 +37902,7 @@ fig.write_html("${props.graphTabName}.html")`
   var CONFIRMATION_TEXT_COPIED = "Copied code snippet to clipboard. Paste it in a code cell below.";
   var CONFIRMATION_TEXT_CODE_WRITTEN = "Code snippet written to code cell below. Scroll down to see it.";
   var CodeSnippetsTaskpane = (props) => {
-    const [allCodeSnippets] = useStateFromAPIAsync([], () => {
+    const [codeSnippetAPIResult] = useStateFromAPIAsync(void 0, () => {
       return props.mitoAPI.getCodeSnippets();
     }, void 0, []);
     const [searchString, setSearchString] = (0, import_react161.useState)("");
@@ -37903,7 +37913,20 @@ fig.write_html("${props.graphTabName}.html")`
         setConfirmationText(void 0);
       }
     }, [confirmationText], 3e3);
-    const codeSnippetsToDisplay = allCodeSnippets.filter((codeSnippet) => {
+    if ((codeSnippetAPIResult == null ? void 0 : codeSnippetAPIResult.status) === "error") {
+      console.log(codeSnippetAPIResult.error_message);
+      return /* @__PURE__ */ import_react161.default.createElement(
+        DefaultEmptyTaskpane_default,
+        {
+          setUIState: props.setUIState,
+          header: "Error loading code snippets",
+          message: codeSnippetAPIResult.error_message,
+          errorMessage: true,
+          suppressImportLink: true
+        }
+      );
+    }
+    const codeSnippetsToDisplay = codeSnippetAPIResult == null ? void 0 : codeSnippetAPIResult.code_snippets.filter((codeSnippet) => {
       return fuzzyMatch(codeSnippet.Name, searchString) > 0.75 || fuzzyMatch(codeSnippet.Description, searchString) > 0.75 || fuzzyMatch(codeSnippet.Code.join(" "), searchString) > 0.75;
     });
     return /* @__PURE__ */ import_react161.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react161.default.createElement(
@@ -37921,7 +37944,7 @@ fig.write_html("${props.graphTabName}.html")`
         },
         placeholder: "Search for a code snippet by name or content"
       }
-    ), confirmationText !== void 0 && /* @__PURE__ */ import_react161.default.createElement("p", { className: "text-color-success" }, confirmationText), codeSnippetsToDisplay.map((codeSnippet, codeSnippetIndex) => {
+    ), confirmationText !== void 0 && /* @__PURE__ */ import_react161.default.createElement("p", { className: "text-color-success" }, confirmationText), codeSnippetsToDisplay == null ? void 0 : codeSnippetsToDisplay.map((codeSnippet, codeSnippetIndex) => {
       const copyToClipboard = () => {
         setConfirmationText(CONFIRMATION_TEXT_COPIED);
         void writeTextToClipboard(codeSnippet.Code.join("\n"));
@@ -37991,7 +38014,7 @@ fig.write_html("${props.graphTabName}.html")`
           )
         ))
       );
-    })));
+    }), codeSnippetAPIResult === void 0 && /* @__PURE__ */ import_react161.default.createElement("p", null, "Loading code snippets ", /* @__PURE__ */ import_react161.default.createElement(LoadingDots_default, null))));
   };
   var CodeSnippetsTaskpane_default = CodeSnippetsTaskpane;
 

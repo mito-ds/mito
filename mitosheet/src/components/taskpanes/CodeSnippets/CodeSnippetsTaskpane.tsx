@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import MitoAPI from "../../../jupyter/api";
-import { AnalysisData, CodeSnippet, MitoEnterpriseConfigKey, SheetData, UIState, UserProfile } from "../../../types"
+import { AnalysisData, CodeSnippetAPIResult, MitoEnterpriseConfigKey, SheetData, UIState, UserProfile } from "../../../types"
 
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
@@ -19,6 +19,8 @@ import { writeCodeSnippetCell } from "../../../jupyter/jupyterUtils";
 import { useDebouncedEffect } from "../../../hooks/useDebouncedEffect";
 import { DEFAULT_SUPPORT_EMAIL } from "../../elements/GetSupportButton";
 import { SLACK_INVITE_LINK } from "../../../data/documentationLinks";
+import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
+import LoadingDots from "../../elements/LoadingDots";
 
 
 interface CodeSnippetsTaskpaneProps {
@@ -37,7 +39,7 @@ const CONFIRMATION_TEXT_CODE_WRITTEN = 'Code snippet written to code cell below.
     This is the CodeSnippets taskpane.
 */
 const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => {
-    const [allCodeSnippets] = useStateFromAPIAsync<CodeSnippet[], []>([], () => {
+    const [codeSnippetAPIResult] = useStateFromAPIAsync<CodeSnippetAPIResult | undefined, []>(undefined, () => {
         return props.mitoAPI.getCodeSnippets();
     }, undefined, [])
 
@@ -52,7 +54,20 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
         }
     }, [confirmationText], 3000)
 
-    const codeSnippetsToDisplay = allCodeSnippets.filter(codeSnippet => {
+    if (codeSnippetAPIResult?.status === 'error') {
+        console.log(codeSnippetAPIResult.error_message)
+        return (
+            <DefaultEmptyTaskpane 
+                setUIState={props.setUIState}
+                header={"Error loading code snippets"}
+                message={codeSnippetAPIResult.error_message}
+                errorMessage
+                suppressImportLink={true}
+            />
+        )
+    }
+
+    const codeSnippetsToDisplay = codeSnippetAPIResult?.code_snippets.filter(codeSnippet => {
         return (fuzzyMatch(codeSnippet.Name, searchString) > .75)
             || fuzzyMatch(codeSnippet.Description, searchString) > .75
             || fuzzyMatch(codeSnippet.Code.join(' '), searchString) > .75
@@ -78,7 +93,7 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                         {confirmationText}
                     </p>
                 }
-                {codeSnippetsToDisplay.map((codeSnippet, codeSnippetIndex) => {
+                {codeSnippetsToDisplay?.map((codeSnippet, codeSnippetIndex) => {
                     const copyToClipboard = () => {
                         setConfirmationText(CONFIRMATION_TEXT_COPIED)
                         void writeTextToClipboard(codeSnippet.Code.join('\n'))
@@ -143,6 +158,11 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                         </Row>
                     )
                 })}
+                {codeSnippetAPIResult === undefined && 
+                    <p>
+                        Loading code snippets <LoadingDots />
+                    </p>
+                }
             </DefaultTaskpaneBody>
         </DefaultTaskpane>
     )

@@ -981,3 +981,14 @@ export interface CodeSnippet {
     'Description': string,
     'Code': string[]
 }
+
+export type CodeSnippetAPIResult = 
+    | {
+        'status': 'success',
+        'code_snippets': CodeSnippet[]
+    }
+    | {
+        'status': 'error',
+        'error_message': string
+    }
+

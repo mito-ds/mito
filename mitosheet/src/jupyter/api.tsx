@@ -12,7 +12,7 @@ import { FileElement } from "../components/taskpanes/FileImport/FileImportTaskpa
 import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Graph/graphUtils";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
-import { AnalysisData, BackendPivotParams, CodeSnippet, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, GraphID, GraphParamsFrontend, MitoError, SheetData, UIState, UserProfile } from "../types";
+import { AnalysisData, BackendPivotParams, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, GraphID, GraphParamsFrontend, MitoError, SheetData, UIState, UserProfile } from "../types";
 import { waitUntilConditionReturnsTrueOrTimeout } from "../utils/time";
 import { CommContainer, MAX_WAIT_FOR_COMM_CREATION } from "./comm";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "./jupyterUtils";
@@ -678,7 +678,7 @@ export default class MitoAPI {
     }
 
     
-    async getCodeSnippets(): Promise<CodeSnippet[] | undefined> {
+    async getCodeSnippets(): Promise<CodeSnippetAPIResult | undefined> {
 
         const resultString = await this.send<string>({
             'event': 'api_call',
@@ -687,8 +687,10 @@ export default class MitoAPI {
         }, {})
 
         if (resultString !== undefined && resultString !== '') {
+            console.log(resultString)
             return JSON.parse(resultString);
         }
+        console.log(undefined)
         return undefined;
     }
 
