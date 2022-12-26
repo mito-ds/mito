@@ -29448,7 +29448,6 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   var DOCUMENTATION_LINK_TUTORIAL = "https://docs.trymito.io/getting-started/tutorial";
   var DOCUMENTATION_LINK_SPREADSHEET_FORMULAS = "https://docs.trymito.io/how-to/interacting-with-your-data";
   var DISCORD_INVITE_LINK = "https://discord.gg/XdJSZyejJU";
-  var SLACK_INVITE_LINK = "https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg";
 
   // src/utils/copy.tsx
   var getCopyStringForValue = (value, columnDtype, columnFormatType) => {
@@ -29567,7 +29566,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         className: props.className,
         variant: "dark",
         width: props.width || "medium",
-        href: props.userProfile.mitoConfig["MITO_CONFIG_SUPPORT_EMAIL" /* SUPPORT_EMAIL */] === DEFAULT_SUPPORT_EMAIL ? SLACK_INVITE_LINK : `mailto:${props.userProfile.mitoConfig["MITO_CONFIG_SUPPORT_EMAIL" /* SUPPORT_EMAIL */]}?subject=Mito support request`,
+        href: props.userProfile.mitoConfig["MITO_CONFIG_SUPPORT_EMAIL" /* SUPPORT_EMAIL */] === DEFAULT_SUPPORT_EMAIL ? DISCORD_INVITE_LINK : `mailto:${props.userProfile.mitoConfig["MITO_CONFIG_SUPPORT_EMAIL" /* SUPPORT_EMAIL */]}?subject=Mito support request`,
         target: "_blank",
         onClick: () => {
           var _a;
@@ -30058,7 +30057,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         actionFunction: () => {
           setEditorState(void 0);
           if (userProfile2.mitoConfig["MITO_CONFIG_SUPPORT_EMAIL" /* SUPPORT_EMAIL */] === DEFAULT_SUPPORT_EMAIL) {
-            window.open(SLACK_INVITE_LINK, "_blank");
+            window.open(DISCORD_INVITE_LINK, "_blank");
           } else {
             window.open(`mailto:${userProfile2.mitoConfig["MITO_CONFIG_SUPPORT_EMAIL" /* SUPPORT_EMAIL */]}?subject=Mito support request`);
           }
@@ -30067,7 +30066,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           return void 0;
         },
         searchTerms: ["help", "contact", "support", "slack", "discord"],
-        tooltip: "Join our Slack for more help."
+        tooltip: "Join our Discord for more help."
       },
       ["import dropdown" /* Import_Dropdown */]: {
         type: "import dropdown" /* Import_Dropdown */,
@@ -31259,7 +31258,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     }
     render() {
       if (this.state.hasError) {
-        return /* @__PURE__ */ import_react84.default.createElement("p", { className: "text-body-1 text-color-red p-10px" }, "Looks like Mito had an error! Sorry about that. Rerun the Jupyter Cell above, and join our ", /* @__PURE__ */ import_react84.default.createElement("a", { className: "text-body-1-link", href: SLACK_INVITE_LINK, target: "_blank", rel: "noreferrer" }, "Slack"), " or ", /* @__PURE__ */ import_react84.default.createElement("a", { className: "text-body-1-link", href: DISCORD_INVITE_LINK, target: "_blank", rel: "noreferrer" }, "Discord"), " for support if this error occurs again.");
+        return /* @__PURE__ */ import_react84.default.createElement("p", { className: "text-body-1 text-color-red p-10px" }, "Looks like Mito had an error! Sorry about that. Rerun the Jupyter Cell above, and join our ", /* @__PURE__ */ import_react84.default.createElement("a", { className: "text-body-1-link", href: DISCORD_INVITE_LINK, target: "_blank", rel: "noreferrer" }, "Discord"), " for support if this error occurs again.");
       }
       return this.props.children;
     }
