@@ -5,7 +5,7 @@
 # Distributed under the terms of the Modified BSD License.
 
 import os
-from mitosheet.enterprise.mito_config import DEFAULT_MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL, DEFAULT_MITO_CONFIG_SUPPORT_EMAIL, MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL, MITO_CONFIG_KEY_SUPPORT_EMAIL, MITO_CONFIG_KEY_VERSION, MitoConfig
+from mitosheet.enterprise.mito_config import DEFAULT_MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL, DEFAULT_MITO_CONFIG_SUPPORT_EMAIL, MITO_CONFIG_KEY_CODE_SNIPPETS, MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL, MITO_CONFIG_KEY_CODE_SNIPPETS_URL, MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION, MITO_CONFIG_KEY_SUPPORT_EMAIL, MITO_CONFIG_KEY_VERSION, MitoConfig
 
 def delete_env_var_if_exists(env_var: str) -> None: 
     """
@@ -21,6 +21,8 @@ def delete_all_mito_config_environment_variables() -> None:
     delete_env_var_if_exists(MITO_CONFIG_KEY_VERSION)
     delete_env_var_if_exists(MITO_CONFIG_KEY_SUPPORT_EMAIL)
     delete_env_var_if_exists(MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL)
+    delete_env_var_if_exists(MITO_CONFIG_KEY_CODE_SNIPPETS_URL)
+    delete_env_var_if_exists(MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION)
 
 def test_keys_did_not_change():
     # We must not change these keys so we can still read old 
@@ -40,7 +42,11 @@ def test_none_works():
     assert mito_config_dict == {
         MITO_CONFIG_KEY_VERSION: '2',
         MITO_CONFIG_KEY_SUPPORT_EMAIL: DEFAULT_MITO_CONFIG_SUPPORT_EMAIL,
-        MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL: DEFAULT_MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL
+        MITO_CONFIG_KEY_CODE_SNIPPETS: {
+            MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION : '1',
+            MITO_CONFIG_KEY_CODE_SNIPPETS_URL: None,
+            MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL: DEFAULT_MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL
+        }
     }
 
 def test_none_config_version_key_is_string():
@@ -56,13 +62,19 @@ def test_version_2_works():
     os.environ[MITO_CONFIG_KEY_VERSION] = "2"
     os.environ[MITO_CONFIG_KEY_SUPPORT_EMAIL] = "aaron@sagacollab.com"
     os.environ[MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL] = "jake@sagacollab.com"
+    os.environ[MITO_CONFIG_KEY_CODE_SNIPPETS_URL] = "url"
+    os.environ[MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION] = "1"
 
     # Test reading environment variables works properly
     mito_config = MitoConfig()
     assert mito_config.get_mito_config() == {
         MITO_CONFIG_KEY_VERSION: '2',
         MITO_CONFIG_KEY_SUPPORT_EMAIL: 'aaron@sagacollab.com',
-        MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL: "jake@sagacollab.com"
+        MITO_CONFIG_KEY_CODE_SNIPPETS: {
+            MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION : '1',
+            MITO_CONFIG_KEY_CODE_SNIPPETS_URL: 'url',
+            MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL: "jake@sagacollab.com"
+        }
     }    
 
     # Delete the environmnet variables for the next test
@@ -75,10 +87,15 @@ def test_mito_config_update_version_1_to_2():
     
     # Test reading environment variables works properly
     mito_config = MitoConfig()
+    print(mito_config.get_mito_config())
     assert mito_config.get_mito_config() == {
         MITO_CONFIG_KEY_VERSION: '2',
         MITO_CONFIG_KEY_SUPPORT_EMAIL: 'aaron@sagacollab.com',
-        MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL: DEFAULT_MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL
+        MITO_CONFIG_KEY_CODE_SNIPPETS: {
+            MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION : '1',
+            MITO_CONFIG_KEY_CODE_SNIPPETS_URL: None,
+            MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL: DEFAULT_MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL
+        }
     }    
 
     # Delete the environmnet variables for the next test

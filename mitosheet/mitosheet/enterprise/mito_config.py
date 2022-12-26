@@ -37,30 +37,30 @@ def upgrade_mec_1_to_2(mec: Dict[str, Any]) -> Dict[str, Any]:
     {
         'MITO_CONFIG_VERSION': '2',
         'MITO_CONFIG_SUPPORT_EMAIL': 'support@mito.com',
-        'MITO_CONFIG_CODE_SNIPPETS: {
-            'MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL': None,
-            'MITO_CONFIG_CODE_SNIPPETS_VERSION': None,
-            'MITO_CONFIG_CODE_SNIPPETS_URL': None
-        }
+        'MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL': None,
+        'MITO_CONFIG_CODE_SNIPPETS_VERSION': None,
+        'MITO_CONFIG_CODE_SNIPPETS_URL': None
     }
     """
     return {
         MITO_CONFIG_KEY_VERSION: '2',
         MITO_CONFIG_KEY_SUPPORT_EMAIL: mec[MITO_CONFIG_KEY_SUPPORT_EMAIL],
-        MITO_CONFIG_KEY_CODE_SNIPPETS: {
-            MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL: None,
-            MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION: None,
-            MITO_CONFIG_KEY_CODE_SNIPPETS_URL: None
-        }
+        MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL: None,
+        MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION: None,
+        MITO_CONFIG_KEY_CODE_SNIPPETS_URL: None
     }
 
-# When updating the MEC_VERSION, add a function here 
-# to update the previous mec to the new version. For example, 
-# if mec_version='3', mec_upgrade_functions should look like:
-# {
-#    '1': upgrade_mec_1_to_2,
-#    '2': upgrade_mec_2_to_3
-# }
+"""
+When updating the MEC_VERSION, add a function here to update the previous mec to the new version. For example, 
+if mec_version='3', mec_upgrade_functions should look like:
+{
+   '1': upgrade_mec_1_to_2,
+   '2': upgrade_mec_2_to_3
+}
+These upgrade functions make sure that all of the keys are defined so that the functions below can set the correct
+default values and format the mec properly
+"""
+
 mec_upgrade_functions: Dict[str, Any] = {
     '1': upgrade_mec_1_to_2
 }
@@ -132,11 +132,12 @@ class MitoConfig:
         return self.mec[MITO_CONFIG_KEY_SUPPORT_EMAIL]
 
     def _get_code_snippets_version(self) -> str:
+        print(self.mec)
         if self.mec is None or self.mec[MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION] is None:
             return '1'
         return self.mec[MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION]
 
-    def _get_code_snippets_url(self) -> str:
+    def _get_code_snippets_url(self) -> Optional[str]:
         if self.mec is None or self.mec[MITO_CONFIG_KEY_CODE_SNIPPETS_URL] is None:
             return None
         return self.mec[MITO_CONFIG_KEY_CODE_SNIPPETS_URL]

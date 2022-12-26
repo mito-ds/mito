@@ -136,8 +136,14 @@ def get_custom_code_snippets(mito_config_code_snippets_url: str) -> str:
                         'code_snippets': CACHED_CUSTOM_CODE_SNIPPETS
                 })
         
-        # Request the code snippets from the url
-        response = req.get(mito_config_code_snippets_url, verify=False)
+        try:
+                # Request the code snippets from the url
+                response = req.get(mito_config_code_snippets_url, verify=False)
+        except Exception as e: 
+                return json.dumps({
+                        'status': 'error',
+                        'error_message': f"Error accessing the code snippets data from the URL. {e}" , 
+                })
 
         if response.status_code == 200:
                 # Parse the respone body into JSON 

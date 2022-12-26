@@ -3,6 +3,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
+from typing import List
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL, DEFAULT_DELIMETER, DEFAULT_ENCODING, DEFAULT_ERROR_BAD_LINES, DEFAULT_SKIPROWS
 from mitosheet.data_in_mito import DataTypeInMito
 from mitosheet.enterprise.mito_config import DEFAULT_MITO_CONFIG_SUPPORT_EMAIL, MitoConfig
@@ -162,6 +163,14 @@ def get_constant_from_ts_file(path, constant_name):
 
     return value
 
+def get_keys_recursive(dictionary, _keys: List[str]):
+    keys = _keys
+    for key, value in dictionary.items():
+        keys.append(key)
+        if type(value) is dict:
+            return get_keys_recursive(value, keys)
+    return keys
+
 
 def test_date_type_in_mito_match():
     data_type_in_mito = get_enum_from_ts_file("./src/types.tsx", "DataTypeInMito")
@@ -250,7 +259,9 @@ def test_graph_safety_filter_cutoff_matches():
 
 def test_mito_enterprise_keys_match():
     mito_enterprise_config_keys = get_enum_from_ts_file("./src/types.tsx", "MitoEnterpriseConfigKey")
-    assert set(mito_enterprise_config_keys.values()) == set(MitoConfig().get_mito_config().keys())
+    mito_config = MitoConfig().get_mito_config()
+    keys = get_keys_recursive(mito_config, [])
+    assert set(mito_enterprise_config_keys.values()) == set(keys)
 
 def test_user_profile_defaults_matches():
     user_profile_support_email = get_constant_from_ts_file(
