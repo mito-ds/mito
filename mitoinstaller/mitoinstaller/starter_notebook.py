@@ -13,7 +13,7 @@ MITO_STARTER_NOTEBOOK_CONTENTS = {
    "source": [
     "# Run this cell to render a mitosheet\n",
     "# See mito's documentation here: https://docs.trymito.io/how-to/creating-a-mitosheet\n",
-    "# Join our Slack for support here: https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg\n"
+    "# Join our Discord for support here: https://discord.com/invite/XdJSZyejJU\n"
     "\n",
     "import mitosheet\n",
     "mitosheet.sheet()"
