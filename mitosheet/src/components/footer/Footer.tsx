@@ -9,6 +9,7 @@ import MitoAPI from '../../jupyter/api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import PlusIcon from '../icons/PlusIcon';
 import { EditorState, GraphDataDict, GridState, SheetData, UIState } from '../../types';
+import { classNames } from '../../utils/classNames';
 
 type FooterProps = {
     sheetDataArray: SheetData[];
@@ -44,7 +45,7 @@ function Footer(props: FooterProps): JSX.Element {
     return (
         <div className='footer'>
             <div
-                className='footer-add-button'
+                className={classNames('footer-add-button', 'cursor-pointer')}
                 onClick={() => {
                     if (disabledDueToReplayAnalysis) {
                         return;

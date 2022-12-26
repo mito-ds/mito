@@ -86,7 +86,7 @@
 
 /* css/sitewide/cursor.css */
 .cursor-pointer {
-  cursor: pointer;
+  cursor: pointer !important;
 }
 .cursor-default {
   cursor: default;
@@ -2340,6 +2340,7 @@ a:visited {
   font-family: Roboto;
   box-sizing: border-box;
   color: var(--mito-legacy-gray);
+  cursor: pointer;
 }
 .toolbar-dropdown-selector-selected {
   background: var(--mito-light-purple);

@@ -46,7 +46,9 @@
   font-family: Roboto;
   box-sizing: border-box;
   color: var(--mito-legacy-gray);
+  cursor: pointer;
 }
+
 
 .toolbar-dropdown-selector-selected {
   background: var(--mito-light-purple);

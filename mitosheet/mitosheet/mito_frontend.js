@@ -29564,7 +29564,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     return /* @__PURE__ */ import_react81.default.createElement(
       TextButton_default,
       {
-        className: props.className,
+        className: classNames(props.className, "cursor-pointer"),
         variant: "dark",
         width: props.width || "medium",
         href: props.userProfile.mitoConfig["MITO_CONFIG_SUPPORT_EMAIL" /* SUPPORT_EMAIL */] === DEFAULT_SUPPORT_EMAIL ? SLACK_INVITE_LINK : `mailto:${props.userProfile.mitoConfig["MITO_CONFIG_SUPPORT_EMAIL" /* SUPPORT_EMAIL */]}?subject=Mito support request`,
@@ -31582,7 +31582,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     return /* @__PURE__ */ import_react90.default.createElement(
       "div",
       {
-        className: classNames("tab", { "tab-graph": props.tabIDObj.tabType === "graph" }, { "tab-selected": props.isSelectedTab }),
+        className: classNames("tab", { "tab-graph": props.tabIDObj.tabType === "graph" }, { "tab-selected": props.isSelectedTab }, "cursor-pointer"),
         onClick: () => {
           if (props.tabIDObj.tabType === "graph") {
             props.setEditorState(void 0);
@@ -31699,7 +31699,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     return /* @__PURE__ */ import_react92.default.createElement("div", { className: "footer" }, /* @__PURE__ */ import_react92.default.createElement(
       "div",
       {
-        className: "footer-add-button",
+        className: classNames("footer-add-button", "cursor-pointer"),
         onClick: () => {
           if (disabledDueToReplayAnalysis) {
             return;
@@ -38656,7 +38656,7 @@ fig.write_html("${props.graphTabName}.html")`
     return /* @__PURE__ */ import_react190.default.createElement(
       "div",
       {
-        className: classNames("text-button", "text-button-variant-dark", "plan-button"),
+        className: classNames("text-button", "text-button-variant-dark", "plan-button", "cursor-pointer"),
         onClick: () => {
           if (disabledDueToReplayAnalysis) {
             return;
