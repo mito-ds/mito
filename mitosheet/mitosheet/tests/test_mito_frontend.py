@@ -28,7 +28,7 @@ STRINGS_TO_TEST = [
 ]
 
 
-def write_test_code(file: str, string: str):
+def write_test_code(file: str, string: str) -> None:
     df = pd.DataFrame({'A': [string]})
     mito = create_mito_wrapper_dfs(df)
     code = get_mito_frontend_code('a', 'a', 'a', mito.mito_backend)
