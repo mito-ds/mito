@@ -29583,7 +29583,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         className: props.className,
         variant: "dark",
         width: props.width || "medium",
-        href: props.userProfile.mitoConfig["MITO_CONFIG_SUPPORT_EMAIL" /* SUPPORT_EMAIL */] === DEFAULT_SUPPORT_EMAIL ? SLACK_INVITE_LINK : `mailto:${props.userProfile.mitoConfig["MITO_CONFIG_SUPPORT_EMAIL" /* SUPPORT_EMAIL */]}?subject=Mito support request`,
+        href: props.userProfile.mitoConfig.MITO_CONFIG_SUPPORT_EMAIL === DEFAULT_SUPPORT_EMAIL ? SLACK_INVITE_LINK : `mailto:${props.userProfile.mitoConfig.MITO_CONFIG_SUPPORT_EMAIL}?subject=Mito support request`,
         target: "_blank",
         onClick: () => {
           var _a;
@@ -30073,10 +30073,10 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         longTitle: "Help",
         actionFunction: () => {
           setEditorState(void 0);
-          if (userProfile2.mitoConfig["MITO_CONFIG_SUPPORT_EMAIL" /* SUPPORT_EMAIL */] === DEFAULT_SUPPORT_EMAIL) {
+          if (userProfile2.mitoConfig.MITO_CONFIG_SUPPORT_EMAIL === DEFAULT_SUPPORT_EMAIL) {
             window.open(SLACK_INVITE_LINK, "_blank");
           } else {
-            window.open(`mailto:${userProfile2.mitoConfig["MITO_CONFIG_SUPPORT_EMAIL" /* SUPPORT_EMAIL */]}?subject=Mito support request`);
+            window.open(`mailto:${userProfile2.mitoConfig.MITO_CONFIG_SUPPORT_EMAIL}?subject=Mito support request`);
           }
         },
         isDisabled: () => {
@@ -38005,7 +38005,7 @@ fig.write_html("${props.graphTabName}.html")`
               title: "Get Support",
               onClick: () => {
                 var _a;
-                const openLocation = props.userProfile.mitoConfig["MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL" /* CODE_SNIPPETS_SUPPORT_EMAIL */] === DEFAULT_SUPPORT_EMAIL ? SLACK_INVITE_LINK : `mailto:${props.userProfile.mitoConfig["MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL" /* CODE_SNIPPETS_SUPPORT_EMAIL */]}?subject=Mito Code Snippet Support: ID ${codeSnippet.Id}`;
+                const openLocation = props.userProfile.mitoConfig.MITO_CONFIG_CODE_SNIPPETS.MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL === DEFAULT_SUPPORT_EMAIL ? SLACK_INVITE_LINK : `mailto:${props.userProfile.mitoConfig.MITO_CONFIG_CODE_SNIPPETS.MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL}?subject=Mito Code Snippet Support: ID ${codeSnippet.Id}`;
                 window.open(openLocation);
                 void ((_a = props.mitoAPI) == null ? void 0 : _a.log("clicked_code_snippet_get_support_button"));
               }

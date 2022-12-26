@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import MitoAPI from "../../../jupyter/api";
-import { AnalysisData, CodeSnippetAPIResult, MitoEnterpriseConfigKey, SheetData, UIState, UserProfile } from "../../../types"
+import { AnalysisData, CodeSnippetAPIResult, SheetData, UIState, UserProfile } from "../../../types"
 
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
@@ -132,7 +132,7 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                                 <DropdownIcon/>
                             </Col>
                             <Col>
-                                {<Dropdown 
+                                <Dropdown 
                                     display={codeSnippetIndex === openDropdownIndex} 
                                     width='medium'
                                 >
@@ -147,12 +147,12 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                                     <DropdownItem
                                         title='Get Support'
                                         onClick={() => {
-                                            const openLocation = props.userProfile.mitoConfig[MitoEnterpriseConfigKey.CODE_SNIPPETS_SUPPORT_EMAIL] === DEFAULT_SUPPORT_EMAIL ? SLACK_INVITE_LINK : `mailto:${props.userProfile.mitoConfig[MitoEnterpriseConfigKey.CODE_SNIPPETS_SUPPORT_EMAIL]}?subject=Mito Code Snippet Support: ID ${codeSnippet.Id}`
+                                            const openLocation = props.userProfile.mitoConfig.MITO_CONFIG_CODE_SNIPPETS.MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL === DEFAULT_SUPPORT_EMAIL ? SLACK_INVITE_LINK : `mailto:${props.userProfile.mitoConfig.MITO_CONFIG_CODE_SNIPPETS.MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL}?subject=Mito Code Snippet Support: ID ${codeSnippet.Id}`
                                             window.open(openLocation)
                                             void props.mitoAPI?.log('clicked_code_snippet_get_support_button')
                                         }}
                                     />
-                                </Dropdown>}
+                                </Dropdown>
                             </Col>
                         </Row>
                     )

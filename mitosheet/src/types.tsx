@@ -656,7 +656,10 @@ interface Experiment {
 export enum MitoEnterpriseConfigKey {
     MEC_VERSION = 'MITO_CONFIG_VERSION',
     SUPPORT_EMAIL = 'MITO_CONFIG_SUPPORT_EMAIL',
-    CODE_SNIPPETS_SUPPORT_EMAIL = 'MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL'
+    CODE_SNIPPETS = 'MITO_CONFIG_CODE_SNIPPETS', 
+    CODE_SNIPPETS_SUPPORT_EMAIL = 'MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL',
+    CODE_SNIPPETS_VERSION = 'MITO_CONFIG_CODE_SNIPPETS_VERSION',
+    CODE_SNIPPETS_URL = 'MITO_CONFIG_CODE_SNIPPETS_URL',
 }
 
 
@@ -724,7 +727,11 @@ export interface UserProfile {
     mitoConfig: {
         [MitoEnterpriseConfigKey.MEC_VERSION]: number | undefined
         [MitoEnterpriseConfigKey.SUPPORT_EMAIL]: string
-        [MitoEnterpriseConfigKey.CODE_SNIPPETS_SUPPORT_EMAIL]: string
+        [MitoEnterpriseConfigKey.CODE_SNIPPETS]: {
+            [MitoEnterpriseConfigKey.CODE_SNIPPETS_VERSION]: string | undefined,
+            [MitoEnterpriseConfigKey.CODE_SNIPPETS_URL]: string | undefined
+            [MitoEnterpriseConfigKey.CODE_SNIPPETS_SUPPORT_EMAIL]: string
+        }
     };
 }
 

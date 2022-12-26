@@ -165,7 +165,7 @@ class StepsManager:
     and parameters stay the same and are append-only.
     """
 
-    def __init__(self, args: Collection[Union[pd.DataFrame, str]], analysis_to_replay: Optional[str]=None):
+    def __init__(self, args: Collection[Union[pd.DataFrame, str]], mito_config: Dict[str, str], analysis_to_replay: Optional[str]=None):
         """
         When initalizing the StepsManager, we also do preprocessing
         of the arguments that were passed to the mitosheet.
@@ -254,6 +254,9 @@ class StepsManager:
 
         # We store the experiment that is currently being run for this user
         self.experiment = get_current_experiment()
+
+        # We store the mito_config variables here so that we can use them in the api
+        self.mito_config = mito_config
 
     @property
     def curr_step(self) -> Step:

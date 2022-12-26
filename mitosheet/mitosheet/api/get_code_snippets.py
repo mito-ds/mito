@@ -5,14 +5,11 @@
 # Distributed under the terms of the GPL License.
 
 import json
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
+from mitosheet.enterprise.mito_config import MITO_CONFIG_KEY_CODE_SNIPPETS, MITO_CONFIG_KEY_CODE_SNIPPETS_URL, MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION
 from mitosheet.types import CodeSnippet, StepsManagerType
-import os
 import requests as req
-from mitosheet.transpiler.transpile_utils import TAB, NEWLINE_TAB, NEWLINE
-
-MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION = 'MITO_CONFIG_CODE_SNIPPETS_VERSION'
-MITO_CONFIG_KEY_CODE_SNIPPETS_URL = 'MITO_CONFIG_CODE_SNIPPETS_URL'
+from mitosheet.transpiler.transpile_utils import NEWLINE_TAB, NEWLINE
 
 DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
         {
@@ -117,7 +114,7 @@ def get_code_snippets_format_error(code_snippets) -> str:
                         error = True
                 if not error:
                         for line in code:
-                                if type(code) != str:
+                                if type(line) != str:
                                         error = True
                                         break
 
@@ -130,32 +127,21 @@ def get_code_snippets_format_error(code_snippets) -> str:
 # Global variable used to cache the custom code snippets so that when users
 # open the code snippets taskpane multiple times in the same mito instantiation, 
 # we can display the custom code snippets without querying the url each time.
-CACHED_CUSTOM_CODE_SNIPPETS = None
-
-def show_custom_code_snippets() -> bool:
-        # If code snippet environment variables are set, then use them to get the code snippets. 
-        mito_config_code_snippets_version = os.environ.get(MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION)
-        mito_config_code_snippets_url = os.environ.get(MITO_CONFIG_KEY_CODE_SNIPPETS_URL)
-        
-        return mito_config_code_snippets_version == '1' and mito_config_code_snippets_url is not None
-
-def get_custom_code_snippets() -> str:
+CACHED_CUSTOM_CODE_SNIPPETS: Optional[List[CodeSnippet]] = None
+def get_custom_code_snippets(mito_config_code_snippets_url: str) -> str:
         global CACHED_CUSTOM_CODE_SNIPPETS
         if CACHED_CUSTOM_CODE_SNIPPETS is not None:
                 return json.dumps({
                         'status': 'success',
                         'code_snippets': CACHED_CUSTOM_CODE_SNIPPETS
                 })
-
-        # If we have not already loaded the custom code snippets, load them from the url and validate them.
-        mito_config_code_snippets_url = os.environ.get(MITO_CONFIG_KEY_CODE_SNIPPETS_URL)
         
         # Request the code snippets from the url
         response = req.get(mito_config_code_snippets_url, verify=False)
 
         if response.status_code == 200:
                 # Parse the respone body into JSON 
-                code_snippets = DEFAULT_CODE_SNIPPETS #response.json()
+                code_snippets = response.json()
                 code_snippet_format_error = get_code_snippets_format_error(code_snippets)
 
                 if code_snippet_format_error == '':
@@ -179,11 +165,16 @@ def get_custom_code_snippets() -> str:
 
 
 def get_code_snippets(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
-        if show_custom_code_snippets():
-                return get_custom_code_snippets()
+        mito_config_code_snippets = steps_manager.mito_config[MITO_CONFIG_KEY_CODE_SNIPPETS]
+        mito_config_code_snippets_version = mito_config_code_snippets[MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION]
+        mito_config_code_snippets_url = mito_config_code_snippets[MITO_CONFIG_KEY_CODE_SNIPPETS_URL]
+
+        if mito_config_code_snippets_version == '1' and mito_config_code_snippets_url is not None:
+                return get_custom_code_snippets(mito_config_code_snippets_url)
                 
         # Otherwise, use the default code snippets. 
         return json.dumps({
                 'status': 'success',
                 'code_snippets': DEFAULT_CODE_SNIPPETS
         })
+
