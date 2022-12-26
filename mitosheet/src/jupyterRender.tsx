@@ -5,7 +5,9 @@ import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileF
 
 // We replace the following byte arrays with the real byte arrays of the utf8 encoded
 // JSON for the sheet data array, etc. We pass this encoded because the JSON parsing
-// when we don't gets really complicated trying to replace \t, etc
+// when we don't gets really complicated trying to replace \t, etc.
+// Do not edit the following lines without updating the get_mito_frontend_code which searches 
+// for this code exactly to replace it.
 const sheetDataBytes = new Uint8Array([]);
 const analysisDataBytes = new Uint8Array([]);
 const userProfileBytes = new Uint8Array([]);
