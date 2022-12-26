@@ -71,7 +71,7 @@ FILTER_TESTS = [
         pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
         FC_NUMBER_EXACTLY,
         10,
-        pd.DataFrame(columns=["A"], dtype="int"),
+        pd.DataFrame(columns=["A"], dtype="float"),
     ),
     (
         pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
@@ -83,7 +83,7 @@ FILTER_TESTS = [
         pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
         FC_NUMBER_GREATER,
         10,
-        pd.DataFrame(columns=["A"], dtype="int"),
+        pd.DataFrame(columns=["A"], dtype="float"),
     ),
     (
         pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
@@ -101,7 +101,7 @@ FILTER_TESTS = [
         pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
         FC_NUMBER_GREATER_THAN_OR_EQUAL,
         10,
-        pd.DataFrame(columns=["A"], dtype="int"),
+        pd.DataFrame(columns=["A"], dtype="float"),
     ),
     (
         pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
@@ -119,7 +119,7 @@ FILTER_TESTS = [
         pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
         FC_NUMBER_LESS,
         0,
-        pd.DataFrame(columns=["A"], dtype="int"),
+        pd.DataFrame(columns=["A"], dtype="float"),
     ),
     (
         pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
@@ -137,7 +137,7 @@ FILTER_TESTS = [
         pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
         FC_NUMBER_LESS_THAN_OR_EQUAL,
         0,
-        pd.DataFrame(columns=["A"], dtype="int"),
+        pd.DataFrame(columns=["A"], dtype="float"),
     ),
     (
         pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),
@@ -218,6 +218,12 @@ FILTER_TESTS = [
         pd.DataFrame(data={"A": ["1"]}),
     ),
     (
+        pd.DataFrame(data={"A": ["1*", "2", "3", "4", "5", "6"]}),
+        FC_STRING_CONTAINS,
+        "*",
+        pd.DataFrame(data={"A": ["1*"]}),
+    ),
+    (
         pd.DataFrame(data={"A": ["1", "12", "3", "4", "5", "6"]}),
         FC_STRING_CONTAINS,
         "1",
@@ -233,6 +239,12 @@ FILTER_TESTS = [
         pd.DataFrame(data={"A": ["1", "12", "3", "4", "5", "6"]}),
         FC_STRING_DOES_NOT_CONTAIN,
         "1",
+        pd.DataFrame(data={"A": ["3", "4", "5", "6"]}, index=list(range(2, 6))),
+    ),
+    (
+        pd.DataFrame(data={"A": ["1*", "12*", "3", "4", "5", "6"]}),
+        FC_STRING_DOES_NOT_CONTAIN,
+        "*",
         pd.DataFrame(data={"A": ["3", "4", "5", "6"]}, index=list(range(2, 6))),
     ),
     (
@@ -477,7 +489,7 @@ def test_transpile_filter():
     mito.filter(0, "name", "And", FC_STRING_CONTAINS, "Nate")
 
     assert mito.transpiled_code == [
-        "df1 = df1[df1['name'].str.contains('Nate', na=False)]",
+        "df1 = df1[df1['name'].str.contains('Nate', na=False, regex=False)]",
     ]
 
 
@@ -487,7 +499,7 @@ def test_transpile_filter_string_does_not_contain():
     mito.filter(0, "name", "And", FC_STRING_DOES_NOT_CONTAIN, "Nate")
 
     assert mito.transpiled_code == [
-        "df1 = df1[~df1['name'].str.contains('Nate', na=False)]",
+        "df1 = df1[~df1['name'].str.contains('Nate', na=False, regex=False)]",
     ]
 
 
@@ -517,7 +529,7 @@ def test_transpile_double_filter_and():
     )
 
     assert mito.transpiled_code == [
-        "df1 = df1[(df1['name'].str.contains('e', na=False)) & (df1['name'] == 'Nate')]",
+        "df1 = df1[(df1['name'].str.contains('e', na=False, regex=False)) & (df1['name'] == 'Nate')]",
     ]
 
 
@@ -535,7 +547,7 @@ def test_transpile_double_filter_or():
     )
 
     assert mito.transpiled_code == [
-        "df1 = df1[(df1['name'].str.contains('e', na=False)) | (df1['name'] == 'Nate')]",
+        "df1 = df1[(df1['name'].str.contains('e', na=False, regex=False)) | (df1['name'] == 'Nate')]",
     ]
 
 

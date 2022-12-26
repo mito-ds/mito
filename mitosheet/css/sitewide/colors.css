@@ -26,4 +26,7 @@
 
     /* Color for errors */
     --mito-red: #CF0000;
+
+    /* Color for success message */
+    --mito-green: #10710D;
 }

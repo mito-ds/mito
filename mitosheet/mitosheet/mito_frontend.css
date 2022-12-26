@@ -81,11 +81,12 @@
   --mito-border: #C4C4C4;
   --mito-sheet-text-gray: #404040;
   --mito-red: #CF0000;
+  --mito-green: #10710D;
 }
 
 /* css/sitewide/cursor.css */
 .cursor-pointer {
-  cursor: pointer;
+  cursor: pointer !important;
 }
 .cursor-default {
   cursor: default;
@@ -641,6 +642,9 @@
 .text-color-error-important {
   color: var(--mito-red) !important;
 }
+.text-color-success {
+  color: var(--mito-green);
+}
 .text-unselectable {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -676,6 +680,9 @@
 }
 .text-underline {
   text-decoration: underline;
+}
+.text-bold {
+  font-weight: bold;
 }
 .text-underline-on-hover:hover {
   text-decoration: underline;
@@ -750,6 +757,11 @@
 }
 .w-100p {
   width: 100%;
+}
+
+/* css/sitewide/hover.css */
+.highlight-on-hover:hover {
+  background: var(--mito-lightest-purple);
 }
 
 /* css/elements/DropdownItem.css */
@@ -2323,11 +2335,12 @@ a:visited {
 .toolbar-dropdown-selector {
   height: 22px;
   margin-right: 5px !important;
-  padding: 2px 3px;
+  padding: 0px 3px;
   border-radius: 3px;
   font-family: Roboto;
   box-sizing: border-box;
   color: var(--mito-legacy-gray);
+  cursor: pointer;
 }
 .toolbar-dropdown-selector-selected {
   background: var(--mito-light-purple);

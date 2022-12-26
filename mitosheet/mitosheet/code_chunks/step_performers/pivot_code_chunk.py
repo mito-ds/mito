@@ -19,6 +19,7 @@ from mitosheet.transpiler.transpile_utils import (
 from mitosheet.types import (ColumnHeader, ColumnHeaderWithFilter,
                              ColumnHeaderWithPivotTransform,
                              ColumnIDWithFilter, ColumnIDWithPivotTransform)
+from mitosheet.utils import is_prev_version
 
 USE_INPLACE_PIVOT = tuple([int(i) for i in pd.__version__.split('.')]) < (1, 5, 0)
 
@@ -244,7 +245,6 @@ def get_code_for_transform_columns(df_name: str, column_headers_with_transforms:
         if transformation == PCT_DATE_MONTH:
             code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.month')
         if transformation == PCT_DATE_WEEK:
-            from mitosheet.saved_analyses.schema_utils import is_prev_version
             if is_prev_version(pd.__version__, '1.0.0'):
                 code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.week')
             else:

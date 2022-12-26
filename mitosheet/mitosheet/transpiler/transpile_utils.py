@@ -9,7 +9,10 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Union
 import pandas as pd
 import numpy as np
 from mitosheet.types import ColumnHeader
+from mitosheet.utils import is_prev_version
 
+# TAB is used in place of \t in generated code because
+# Jupyter turns \t into a grey arrow, but converts four spaces into a tab.
 TAB = '    '
 NEWLINE_TAB = f'\n{TAB}'
 
@@ -43,7 +46,6 @@ def column_header_to_transpiled_code(column_header: ColumnHeader) -> str:
         return f'({column_header_parts_joined})'
 
     # We must handle np.nan first because isinstance(np.nan, float) evaluates to True
-    from mitosheet.saved_analyses.schema_utils import is_prev_version
     if not is_prev_version(pd.__version__, '1.0.0') and column_header is np.nan:
         return 'pd.np.nan'
     elif isinstance(column_header, int) or isinstance(column_header, float) or isinstance(column_header, bool):
@@ -81,5 +83,55 @@ def column_header_map_to_string(column_header_map: Dict[ColumnHeader, ColumnHead
             result += f'{TAB}{column_header_to_transpiled_code(column_header_key)}: {column_header_to_transpiled_code(column_header_value)},\n'
         result = result[:-2] + "\n}" # don't take the last comma and new line
         return result
+
+
+def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line: bool=False) -> str:
+    """
+    Takes a potentially nested params dictonary and turns it into a
+    code string that we can use in the graph generated code.
+
+    level should be 0 if we are at the highest level dict, and otherwise
+    should increment by 1 anytime we enter a new subdictonary.
+    """
+
+    # Make sure we handle as a single line properly
+    if as_single_line:
+        TAB_CONSTANT = ''
+        NEWLINE_CONSTANT = ''
+    else:
+        TAB_CONSTANT = TAB
+        NEWLINE_CONSTANT = '\n'
+
+    if level == 0:
+        code = f"{NEWLINE_CONSTANT}"
+    else:
+        code = f"dict({NEWLINE_CONSTANT}"
+
+    value_num = 0
+    for key, value in param_dict.items():
+        if isinstance(value, dict):
+            # Recurse on this nested param dictonary
+            code_chunk = f"{key} = {param_dict_to_code(value, level=level + 1)}"
+        else:
+            # We use this slighly misnamed function to make sure values get transpiled right
+            code_chunk = f"{key}={column_header_to_transpiled_code(value)}"
+        
+        # If we're not on the first value in this dict, we need to add a 
+        # command new line after the last value
+        if value_num != 0:
+            code += f", {NEWLINE_CONSTANT}"
+
+        value_num += 1
+
+        # Add spacing before the param
+        code += f"{TAB_CONSTANT * (level + 1)}"
+
+        code += f"{code_chunk}"
+
+    if level == 0:
+        code += f"{NEWLINE_CONSTANT}"
+    else:
+        # Make sure to close the dict
+        code += f"{NEWLINE_CONSTANT}{TAB_CONSTANT * (level)})"
     
-    
+    return code

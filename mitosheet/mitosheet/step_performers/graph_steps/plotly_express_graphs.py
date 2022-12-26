@@ -21,9 +21,8 @@ from mitosheet.step_performers.graph_steps.graph_utils import (
     STRIP,
     VIOLIN,
     get_graph_title,
-    param_dict_to_code,
 )
-from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import param_dict_to_code
 from mitosheet.types import ColumnHeader
 
 DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT = '#FFFFFF'

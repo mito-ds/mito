@@ -91,8 +91,14 @@ if sys.version_info[:3] > (3, 8, 0):
         column_header: ColumnHeader
         transformation: PivotColumnTransformation
 
+    class CodeSnippet(TypedDict):
+        Name: str
+        Description: str
+        Code: List[str]
+
 else:
     ColumnIDWithFilter = Any # type:ignore
     ColumnHeaderWithFilter = Any # type:ignore
     ColumnIDWithPivotTransform = Any # type:ignore
     ColumnHeaderWithPivotTransform = Any # type:ignore
+    CodeSnippet = Any # type:ignore

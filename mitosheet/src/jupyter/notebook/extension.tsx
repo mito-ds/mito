@@ -28,7 +28,7 @@ if (window.require) {
 // Try to add a button
 (window as any).Jupyter?.toolbar.add_buttons_group([{
     id : 'mito-toolbar-button-id', // Since we're unable to set the className, we use the id for styling
-    label : 'Create New Mitosheet',
+    label : 'New Mitosheet',
     title: 'Create a blank Mitosheet below the active code cell',
     icon: 'fa-regular fa-table', // For now we use a font awesome icon, since we can't load our icon -- this is what Jupyter suggests
     callback : () => {

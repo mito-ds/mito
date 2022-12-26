@@ -16,43 +16,22 @@ import {
 } from './jupyter/lab/extensionUtils';
 import { containsGeneratedCodeOfAnalysis, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine } from './utils/code';
 
-const addButton = (tracker: INotebookTracker) => {
-    /**
-     * tracker.widgetAdded.connect((slot) => {
-            slot.
-        })
+const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
 
-        Does this allow us to do this??? I think perhaps...
-     */
-
-    // We try and add the button every 3 seconds for 20 seconds, in case
-    // the panel takes a while to load
-    let buttonLoaded = false;
-
-    for (let i = 0; i < 20; i += 3) {
-        setTimeout(() => {
-            if (buttonLoaded) {
-                return 
-            }
-
-            const button = new ToolbarButton({
-                className: 'toolbar-mito-button-class',
-                icon: mitoJLabIcon,
-                onClick: (): void => {
-                    window.commands?.execute('mitosheet:create-empty-mitosheet');
-                },
-                tooltip: 'Create a blank Mitosheet below the active code cell',
-                label: 'Create New Mitosheet',
-            });
-
-            const panel = tracker.currentWidget;
-
-            if (panel && !buttonLoaded) {
-                panel.toolbar.insertAfter('cellType', 'Create Mito Button', button);
-                buttonLoaded = true;
-            } 
-        }, i * 1000)
-    }
+    // Whenever there is a new notebook, we add a new button to it's toolbar
+    tracker.widgetAdded.connect((_, newNotebook) => {
+        const button = new ToolbarButton({
+            className: 'toolbar-mito-button-class',
+            icon: mitoJLabIcon,
+            onClick: (): void => {
+                window.commands?.execute('mitosheet:create-empty-mitosheet');
+            },
+            tooltip: 'Create a blank Mitosheet below the active code cell',
+            label: 'New Mitosheet',
+        });
+        
+        newNotebook.toolbar.insertAfter('cellType', 'Create Mito Button', button);
+    })
 }
 
 /**
@@ -67,7 +46,7 @@ function activateMitosheetExtension(
 ): void {
 
     // Add the Create New Mitosheet button
-    addButton(tracker);
+    registerMitosheetToolbarButtonAdder(tracker);
 
     /**
      * This command creates a new comm for the mitosheet to talk to the mito backend. 
@@ -188,6 +167,45 @@ function activateMitosheetExtension(
                 }
                 // And then write to this new cell below, which is now the active cell
                 NotebookActions.insertBelow(notebook);
+                writeToCell(notebook?.activeCell?.model, code);
+            }
+        }
+    })
+
+
+    app.commands.addCommand('mitosheet:write-code-snippet-cell', {
+        label: 'Writes the generated code for a mito analysis to the cell below the mitosheet.sheet() call that generated this analysis. NOTE: this should only be called after the analysis_to_replay has been written in the mitosheet.sheet() call, so this cell can be found correctly.',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        execute: (args: any) => {
+            const analysisName = args.analysisName as string;
+            const code = args.code as string;
+            
+            // Find the cell that made the mitosheet.sheet call, and if it does not exist, give up immediately
+            const mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(tracker, analysisName);
+            if (mitosheetCallCellAndIndex === undefined) {
+                return;
+            }
+
+            const [, mitosheetCallIndex] = mitosheetCallCellAndIndex;
+
+            const notebook = tracker.currentWidget?.content;
+            const cells = notebook?.model?.cells;
+
+            if (notebook === undefined || cells === undefined) {
+                return;
+            }
+
+            const codeSnippetCell = getCellAtIndex(cells, mitosheetCallIndex + 2);
+
+            if (isEmptyCell(codeSnippetCell)) {
+                writeToCell(codeSnippetCell, code)
+            } else {
+                // Otherwise, we assume since the user is editing the mitosheet, that this
+                // was called as they have the code cell selected, so we insert two below
+                NotebookActions.selectBelow(notebook);
+                NotebookActions.insertBelow(notebook);
+
+                // And then write to this new cell below, which is now the active cell
                 writeToCell(notebook?.activeCell?.model, code);
             }
         }

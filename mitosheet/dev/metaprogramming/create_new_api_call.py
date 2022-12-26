@@ -29,7 +29,9 @@ def get_api_call_python_code_result_params(result_params: Dict[str, str]) -> str
     for name in result_params:
         result_params_code += f'    \'{name}\': None,'
 
-    return result_params_code
+    return f"""{OPEN_BRACKET}
+        {result_params_code}
+    {CLOSE_BRACKET}"""
 
 def get_api_call_python_code(name: str, params: Dict[str, str], result_params: Dict[str, str]) -> str:
     return f"""#!/usr/bin/env python
@@ -48,9 +50,7 @@ def {name}(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
 
     # TODO: Implement the call
 
-    return json.dumps({OPEN_BRACKET}
-        {get_api_call_python_code_result_params(result_params)}
-    {CLOSE_BRACKET})
+    return json.dumps({get_api_call_python_code_result_params(result_params)})
 """
 
 def write_to_api_py_file(name: str) -> None:
@@ -60,18 +60,18 @@ def write_to_api_py_file(name: str) -> None:
         code = f.read()
         code = code.replace(API_PY_IMPORT_MARKER, f"from mitosheet.api.{name} import {name}\n{API_PY_IMPORT_MARKER}")
         code = code.replace(API_PY_CALL_MARKER, f"""elif event["type"] == "{name}":
-            result = {name}(params, steps_manager)\n    {API_PY_CALL_MARKER}""")
+                result = {name}(params, steps_manager)\n        {API_PY_CALL_MARKER}""")
 
     with open(path_to_api_py, 'w') as f:
         f.write(code)
 
 def get_typescript_api_code(name: str, params: Dict[str, str], result_params: Dict[str, str]) -> str:
     ts_function_name = "get" + "".join([s.title() for (idx, s) in enumerate(name.split('_')) if idx != 0])
-    params_type = F"{OPEN_BRACKET}{get_api_function_params(params)}{CLOSE_BRACKET}"
+    input_params = F"params: {OPEN_BRACKET}{get_api_function_params(params)}{CLOSE_BRACKET}" if len(params) > 0 else ''
     result_params_type = F"{OPEN_BRACKET}{get_api_function_params(result_params)}{CLOSE_BRACKET}"
 
     return f"""
-    async {ts_function_name}(params: {params_type}): Promise<{result_params_type} | undefined> {OPEN_BRACKET}
+    async {ts_function_name}({input_params}): Promise<{result_params_type} | undefined> {OPEN_BRACKET}
 
         const resultString = await this.send<string>({OPEN_BRACKET}
             'event': 'api_call',

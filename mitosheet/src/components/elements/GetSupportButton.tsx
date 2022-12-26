@@ -1,7 +1,8 @@
 import React from 'react'
-import { SLACK_INVITE_LINK } from '../../data/documentationLinks';
+import { DISCORD_INVITE_LINK } from '../../data/documentationLinks';
 import MitoAPI from '../../jupyter/api';
 import { MitoEnterpriseConfigKey, UIState, UserProfile } from '../../types';
+import { classNames } from '../../utils/classNames';
 import { ModalEnum } from '../modals/modals';
 import { Width } from './sizes.d';
 import TextButton from './TextButton';
@@ -24,10 +25,10 @@ const GetSupportButton = (props: GetSupportButtonProps): JSX.Element => {
 
     return (
         <TextButton 
-            className={props.className}
+            className={classNames(props.className, 'cursor-pointer')}
             variant='dark'
             width={props.width || 'medium'}
-            href={props.userProfile.mitoConfig[MitoEnterpriseConfigKey.SUPPORT_EMAIL] === DEFAULT_SUPPORT_EMAIL ? SLACK_INVITE_LINK : `mailto:${props.userProfile.mitoConfig[MitoEnterpriseConfigKey.SUPPORT_EMAIL]}?subject=Mito support request`}
+            href={props.userProfile.mitoConfig[MitoEnterpriseConfigKey.SUPPORT_EMAIL] === DEFAULT_SUPPORT_EMAIL ? DISCORD_INVITE_LINK : `mailto:${props.userProfile.mitoConfig[MitoEnterpriseConfigKey.SUPPORT_EMAIL]}?subject=Mito support request`}
             target='_blank'
             onClick={() => {
                 props.setUIState((prevUIState) => {

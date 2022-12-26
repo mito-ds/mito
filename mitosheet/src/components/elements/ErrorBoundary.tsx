@@ -1,6 +1,6 @@
 import React, { Component, ReactNode } from "react";
 import MitoAPI from "../../jupyter/api";
-import { DISCORD_INVITE_LINK, SLACK_INVITE_LINK } from "../../data/documentationLinks";
+import { DISCORD_INVITE_LINK } from "../../data/documentationLinks";
 import { AnalysisData, SheetData, UserProfile } from "../../types";
 
 interface Props {
@@ -42,7 +42,7 @@ class ErrorBoundary extends Component<Props, State> {
         if (this.state.hasError) {
             return (
                 <p className='text-body-1 text-color-red p-10px'>
-                    Looks like Mito had an error! Sorry about that. Rerun the Jupyter Cell above, and join our <a className='text-body-1-link' href={SLACK_INVITE_LINK} target='_blank' rel="noreferrer">Slack</a> or <a className='text-body-1-link' href={DISCORD_INVITE_LINK} target='_blank' rel="noreferrer">Discord</a> for support if this error occurs again.
+                    Looks like Mito had an error! Sorry about that. Rerun the Jupyter Cell above, and join our <a className='text-body-1-link' href={DISCORD_INVITE_LINK} target='_blank' rel="noreferrer">Discord</a> for support if this error occurs again.
                 </p>
             )
         }

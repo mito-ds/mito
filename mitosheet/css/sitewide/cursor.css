@@ -1,7 +1,7 @@
 
 
 .cursor-pointer {
-    cursor: pointer;
+    cursor: pointer !important;
 }
 
 .cursor-default {

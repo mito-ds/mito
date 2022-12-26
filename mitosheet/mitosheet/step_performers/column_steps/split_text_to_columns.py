@@ -4,21 +4,18 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from copy import deepcopy
-import random
-import string
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
-import uuid
 
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.column_steps.split_text_to_columns_code_chunk import SplitTextToColumnsCodeChunk
-from mitosheet.column_headers import try_make_new_header_valid_if_multi_index_headers
+from mitosheet.code_chunks.step_performers.column_steps.split_text_to_columns_code_chunk import SplitTextToColumnsCodeChunk, get_split_param_dict
 from mitosheet.sheet_functions.types.utils import is_datetime_dtype, is_timedelta_dtype
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import add_columns_to_df, get_param
 from mitosheet.types import ColumnHeader, ColumnID
+
 
 class SplitTextToColumnsStepPerformer(StepPerformer):
     """""
@@ -50,13 +47,16 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
         delimiter_string = '|'.join(delimiters)
         # Actually execute the column reordering
         pandas_start_time = perf_counter() 
+            
+        split_param_dict = get_split_param_dict()
+
         # Create the dataframe of new columns. We do this first, so that we know how many columns get created.
         if is_datetime_dtype(str(post_state.dfs[sheet_index][column_header].dtype)):
-            new_columns_df = final_df[column_header].dt.strftime('%Y-%m-%d %X').str.split(delimiter_string, -1, expand=True)
+            new_columns_df = final_df[column_header].dt.strftime('%Y-%m-%d %X').str.split(delimiter_string, **split_param_dict)
         elif is_timedelta_dtype(str(post_state.dfs[sheet_index][column_header].dtype)):
-            new_columns_df = final_df[column_header].apply(lambda x: str(x)).str.split(delimiter_string, -1, expand=True)
+            new_columns_df = final_df[column_header].apply(lambda x: str(x)).str.split(delimiter_string, **split_param_dict)
         else:
-            new_columns_df = final_df[column_header].astype('str').str.split(delimiter_string, -1, expand=True)
+            new_columns_df = final_df[column_header].astype('str').str.split(delimiter_string, **split_param_dict)
 
         # Create the new column headers and ensure they are unique
         # Note: We create the new_column_header_suffix on the frontend so that it is saved in the step parameters, which allows us

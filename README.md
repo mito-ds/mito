@@ -1,8 +1,8 @@
-# ![Mito Logo](https://www.trymito.io/_next/image?url=%2FMito.svg&w=128&q=75) Mito Monorepo 
+# ![Mito Logo](https://www.trymito.io/_next/image?url=%2FMito.svg&w=128&q=75) Mito Monorepo
 
 [![Deploy mitosheet and mitoinstaller](https://github.com/mito-ds/monorepo/actions/workflows/deploy-mitosheet-mitoinstaller.yml/badge.svg)](https://github.com/mito-ds/monorepo/actions/workflows/deploy-mitosheet-mitoinstaller.yml) ![PyPI - Downloads](https://img.shields.io/pypi/dm/mitosheet)
 
-Mito is a spreadsheet that lives inside your JupyterLab notebooks. It allows you to edit Pandas dataframes like an Excel file, and generates Python code that corresponds to each of your edits. 
+Mito is a spreadsheet that lives inside your JupyterLab notebooks. It allows you to edit Pandas dataframes like an Excel file, and generates Python code that corresponds to each of your edits.
 
 <p align="center">
   <img src="https://www.trymito.io/short-demo.gif">
@@ -18,11 +18,22 @@ Mito aims to be the _first_ tool in your data science toolkit and supports:
 - Column summary statistics
 - And much more!
 
-Mito is an open source tool (look around...), and will always be built by and for our community. See our [plans page](https://www.trymito.io/plans) for more detail about our features, and consider purchasing Mito Pro to help fund development. 
+Mito is an open source tool (look around...), and will always be built by and for our community. See our [plans page](https://www.trymito.io/plans) for more detail about our features, and consider purchasing Mito Pro to help fund development.
 
 ## ⚡️ Quick start
 
-To get started, follow the install instructions [here](https://docs.trymito.io/getting-started/installing-mito). 
+To get started, open a terminal, command prompt, or Anaconda Prompt. Then, download the Mito installer:
+
+```
+python -m pip install mitoinstaller
+```
+
+Then, run the installer. This command may take a few moments to run:
+```
+python -m mitoinstaller install
+```
+
+This will install Mito for classic Jupyter Notebooks and JupyterLab 3.0. More detailed installation instructions can also be found [here](https://docs.trymito.io/getting-started/installing-mito).
 
 If you're interested in Mito Pro, see our [plans page](https://www.trymito.io/plans).
 
@@ -48,7 +59,7 @@ This repo is the monorepo for the Mito project, and so contains the `mitosheet` 
 
 ## Mitosheet
 
-To see the code for the `mitosheet` package, see the `mitosheet` folder. 
+To see the code for the `mitosheet` package, see the `mitosheet` folder.
 
 ### Testing
 
@@ -66,7 +77,7 @@ To see the `mitoinstaller` package, see the `mitoinstaller` folder.
 
 ## Trymito.io
 
-To see the code for our website, see the `trymito.io` folder. 
+To see the code for our website, see the `trymito.io` folder.
 
 ## Docs
 

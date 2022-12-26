@@ -19,7 +19,7 @@
 import { convertBackendtoFrontendGraphParams } from "../components/taskpanes/Graph/graphUtils"
 import { AnalysisData, GraphDataBackend, GraphDataDict, GraphParamsBackend, SheetData, UserProfile } from "../types"
 import MitoAPI from "./api"
-import { notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteGeneratedCodeToCell } from "./notebook/extensionUtils"
+import { notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteCodeSnippetCell, notebookWriteGeneratedCodeToCell } from "./notebook/extensionUtils"
 
 
 /**
@@ -84,6 +84,21 @@ export const writeGeneratedCodeToCell = (analysisName: string, code: string[], t
 }
 
 
+
+export const writeCodeSnippetCell = (analysisName: string, code: string): void => {
+    if (isInJupyterLab()) {
+        window.commands?.execute('mitosheet:write-code-snippet-cell', {
+            analysisName: analysisName,
+            code: code,
+        });
+    } else if (isInJupyterNotebook()) {
+        notebookWriteCodeSnippetCell(analysisName, code);
+    } else {
+        console.error("Not detected as in Jupyter Notebook or JupyterLab")
+    }
+}
+
+
 export const getArgs = (analysisToReplayName: string | undefined): Promise<string[]> => {
     return new Promise((resolve) => {
         if (isInJupyterLab()) {
@@ -103,6 +118,9 @@ export const getArgs = (analysisToReplayName: string | undefined): Promise<strin
 
 
 export const getSheetDataArrayFromString = (sheet_data_json: string): SheetData[] => {
+    if (sheet_data_json.length === 0) {
+        return []
+    }
     return JSON.parse(sheet_data_json);
 }
 
