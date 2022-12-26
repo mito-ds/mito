@@ -227,7 +227,7 @@ def exit_after_error() -> None:
 
     # Then, print a final error message
     full_error = '\n\nSorry, looks like we hit a problem.' + \
-        '\nWe\'re happy to help you fix it ASAP. Just hop on our Slack, and and post in the install-help channel. We\'ll get you sorted in a few minutes:\n\n\t https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg\n'
+        '\nWe\'re happy to help you fix it ASAP. Just hop on our Discord, and and post in the install-help channel. We\'ll get you sorted in a few minutes:\n\n\t https://discord.com/invite/XdJSZyejJU\n'
 
     print(colored(full_error, 'red'), flush=True)
     # We have to use this function as this may run within a thread
