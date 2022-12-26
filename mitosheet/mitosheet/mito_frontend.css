@@ -2335,7 +2335,7 @@ a:visited {
 .toolbar-dropdown-selector {
   height: 22px;
   margin-right: 5px !important;
-  padding: 2px 3px;
+  padding: 0px 3px;
   border-radius: 3px;
   font-family: Roboto;
   box-sizing: border-box;
