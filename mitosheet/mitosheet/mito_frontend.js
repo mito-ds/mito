@@ -22890,6 +22890,9 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     });
   };
   var getSheetDataArrayFromString = (sheet_data_json) => {
+    if (sheet_data_json.length === 0) {
+      return [];
+    }
     return JSON.parse(sheet_data_json);
   };
   var getUserProfileFromString = (user_profile_json) => {
@@ -40375,9 +40378,12 @@ fig.write_html("${props.graphTabName}.html")`
   var Mito_default = Mito;
 
   // src/jupyterRender.tsx
-  var sheetDataArray = getSheetDataArrayFromString(`REPLACE_THIS_WITH_SHEET_DATA_ARRAY`);
-  var analysisData = getAnalysisDataFromString(`REPLACE_THIS_WITH_ANALYSIS_DATA`);
-  var userProfile = getUserProfileFromString(`REPLACE_THIS_WITH_USER_PROFILE`);
+  var sheetDataBytes = new Uint8Array([]);
+  var analysisDataBytes = new Uint8Array([]);
+  var userProfileBytes = new Uint8Array([]);
+  var sheetDataArray = getSheetDataArrayFromString(new TextDecoder().decode(sheetDataBytes));
+  var analysisData = getAnalysisDataFromString(new TextDecoder().decode(analysisDataBytes));
+  var userProfile = getUserProfileFromString(new TextDecoder().decode(userProfileBytes));
   var commTargetID = "REPLACE_THIS_WITH_COMM_TARGET_ID";
   var divID = "REPLACE_THIS_WITH_DIV_ID";
   var kernelID = "REPLACE_THIS_WITH_KERNEL_ID";
