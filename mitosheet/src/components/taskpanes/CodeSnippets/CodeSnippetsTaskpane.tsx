@@ -55,7 +55,6 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
     }, [confirmationText], 3000)
 
     if (codeSnippetAPIResult?.status === 'error') {
-        console.log(codeSnippetAPIResult.error_message)
         return (
             <DefaultEmptyTaskpane 
                 setUIState={props.setUIState}

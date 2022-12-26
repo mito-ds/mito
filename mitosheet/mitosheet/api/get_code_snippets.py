@@ -74,10 +74,6 @@ DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
 ]
 
 def get_code_snippets_format_error(code_snippets) -> str:
-        # TODO: I don't think I can return an error from the API, so instead, we can update the API to either return the code snippets or an error message
-        # The errors could be:
-        # 1. The errors created here
-        # 2. The failed request error. 
         """
         Version 1 of code snippets has the following type:
         [
@@ -98,48 +94,35 @@ def get_code_snippets_format_error(code_snippets) -> str:
         correct_code_snippets_type = f"[{{{NEWLINE_TAB}Id: str, {NEWLINE_TAB}Name: str, {NEWLINE_TAB}Description: str, {NEWLINE_TAB}Code: List[str]{NEWLINE}}}]"
 
         if type(code_snippets) != list:
-                return f"Custom code snippets has type {type(code_snippets)}, but should be a list of objects with keys -> {correct_code_snippets_type}"
+                return f"Custom code snippets has type {type(code_snippets)}, but should be have the format: {correct_code_snippets_type}"
         
-        test = [{
-                'Id': 2,
-                'Description': 'THIS IS A LOT OF TEXT. HOW IS IT FORMATTED THIS IS A LOT OF TEXT. HOW IS IT FORMATTED THIS IS A LOT OF TEXT. HOW IS IT FORMATTED THIS IS A LOT OF TEXT. HOW IS IT FORMATTED THIS IS A LOT OF TEXT. HOW IS IT FORMATTED THIS IS A LOT OF TEXT. HOW IS IT FORMATTED THIS IS A LOT OF TEXT. HOW IS IT FORMATTED THIS IS A LOT OF TEXT. HOW IS IT FORMATTED THIS IS A LOT OF TEXT. HOW IS IT FORMATTED THIS IS A LOT OF TEXT. HOW IS IT FORMATTED THIS IS A LOT OF TEXT. HOW IS IT FORMATTED THIS IS A LOT OF TEXT. HOW IS IT FORMATTED THIS IS A LOT OF TEXT. HOW IS IT FORMATTED THIS IS A LOT OF TEXT. HOW IS IT FORMATTED THIS IS A LOT OF TEXT. HOW IS IT FORMATTED THIS IS A LOT OF TEXT. HOW IS IT FORMATTED THIS IS A LOT OF TEXT. HOW IS IT FORMATTTHIS IS A LOT OF TEXT. HOW IS IT FORMATTED THIS IS A LOT OF TEXT. HOW IS IT FORMATTED THIS IS A LOT OF TEXT. HOW IS IT FORMATTED THIS IS A LOT OF TEXT. HOW IS IT FORMATTED THIS IS A LOT OF TEXT. HOW IS IT FORMATTED THIS IS A LOT OF TEXT. HOW IS IT FORMATTED THIS IS A LOT OF TEXT. HOW IS IT FORMATT THIS IS A LOT OF TEXT. HOW IS IT FORMATTED THIS IS A LOT OF TEXT. HOW IS IT FORMATTED THIS IS A LOT OF TEXT. HOW IS IT FORMATTED THIS IS A LOT OF TEXT. HOW IS IT FORMATTEDED THIS IS A LOT OF TEXT. HOW IS IT FORMATTEDED THIS IS A LOT OF TEXT. HOW IS IT FORMATTED',
-                'Code': ['123', 5]
-        }]
-        code_snippets: List[CodeSnippet] = test
         for code_snippet in code_snippets:
                 if type(code_snippet) != dict:
-                        return f"At least one of the code snippets has type {type(code_snippet)}, but should be an object with keys -> {correct_code_snippets_type}"
+                        return f"Custom code snippets should have the format: {correct_code_snippets_type} {NEWLINE}{NEWLINE}But this code snippet was included: {code_snippet}"
+
 
                 id = code_snippet.get('Id', None)
                 name = code_snippet.get('Name', None)
                 description = code_snippet.get('Description', None)
                 code = code_snippet.get('Code', None)
 
-                errors = []
-                if id is None:
-                        errors.append('Id does not exist in code snippet')
-                if id is not None and type(id) != str:
-                        errors.append('Id is not a string')
-                if name is None:
-                        errors.append('Name does not exist in code snippet')
-                if name is not None and type(name) != str:
-                        errors.append('Name is not a stirng')
-                if description is None:
-                        errors.append('Description does not exist in code snippet')
-                if description is not None and type(description) != str:
-                        errors.append('Description is not a string')
-                if code is None:
-                        errors.append("Code does not exist in code snippet")
-                if code is not None and type(code) != list:
-                        errors.append("Code is not a list")
-                if code is not None and type(code) == list:
+                error = False
+                if id is None or type(id) != str:
+                        error = True
+                if name is None or type(name) != str:
+                        error = True
+                if description is None or type(name) != str:
+                        error = True
+                if code is None or type(code) != list:
+                        error = True
+                if not error:
                         for line in code:
                                 if type(code) != str:
-                                        errors.append("each line of code is not a string")
+                                        error = True
                                         break
 
-                incorrectly_formatted_values = (f'{NEWLINE} - ').join(errors)
-                return f"Custom code snippets should have the format: {correct_code_snippets_type} {NEWLINE}{NEWLINE}But this code snippet was included: {code_snippet}"
+                if error:
+                        return f"Custom code snippets should have the format: {correct_code_snippets_type} {NEWLINE}{NEWLINE}But this code snippet was included: {code_snippet}"
 
         return ''
 
@@ -157,33 +140,23 @@ def show_custom_code_snippets() -> bool:
         return mito_config_code_snippets_version == '1' and mito_config_code_snippets_url is not None
 
 def get_custom_code_snippets() -> str:
-        print(3)
         global CACHED_CUSTOM_CODE_SNIPPETS
-
-        print(CACHED_CUSTOM_CODE_SNIPPETS)
         if CACHED_CUSTOM_CODE_SNIPPETS is not None:
-                print(CACHED_CUSTOM_CODE_SNIPPETS)
                 return json.dumps({
                         'status': 'success',
                         'code_snippets': CACHED_CUSTOM_CODE_SNIPPETS
                 })
 
-        print(4)
-
         # If we have not already loaded the custom code snippets, load them from the url and validate them.
         mito_config_code_snippets_url = os.environ.get(MITO_CONFIG_KEY_CODE_SNIPPETS_URL)
-
-        print(5)
         
         # Request the code snippets from the url
         response = req.get(mito_config_code_snippets_url, verify=False)
-        print(response)
 
         if response.status_code == 200:
                 # Parse the respone body into JSON 
                 code_snippets = DEFAULT_CODE_SNIPPETS #response.json()
                 code_snippet_format_error = get_code_snippets_format_error(code_snippets)
-
 
                 if code_snippet_format_error == '':
                         # Cache the code snippets so we don't need to request them from the url next time
@@ -199,22 +172,17 @@ def get_custom_code_snippets() -> str:
                         })
 
         else:
-                # Helpful info for debugging with the API is not threaded.
                 return json.dumps({
                         'status': 'error',
-                        'error_message': "Error accessing the code snippets data from the URL. Response status code:" , 
+                        'error_message': f"Error accessing the code snippets data from the URL. Response status code: {response.status_code}" , 
                 })
 
 
 def get_code_snippets(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
-        print(1)
-
         if show_custom_code_snippets():
-                print(2)
                 return get_custom_code_snippets()
                 
         # Otherwise, use the default code snippets. 
-        print('return default')
         return json.dumps({
                 'status': 'success',
                 'code_snippets': DEFAULT_CODE_SNIPPETS

@@ -37914,7 +37914,6 @@ fig.write_html("${props.graphTabName}.html")`
       }
     }, [confirmationText], 3e3);
     if ((codeSnippetAPIResult == null ? void 0 : codeSnippetAPIResult.status) === "error") {
-      console.log(codeSnippetAPIResult.error_message);
       return /* @__PURE__ */ import_react161.default.createElement(
         DefaultEmptyTaskpane_default,
         {
