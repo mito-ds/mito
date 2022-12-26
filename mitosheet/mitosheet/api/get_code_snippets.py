@@ -70,7 +70,7 @@ DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
         } 
 ]
 
-def get_code_snippets_format_error(code_snippets) -> str:
+def get_code_snippets_format_error(code_snippets: Any) -> str:
         """
         Version 1 of code snippets has the following type:
         [
@@ -171,7 +171,7 @@ def get_custom_code_snippets(mito_config_code_snippets_url: str) -> str:
 
 
 def get_code_snippets(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
-        mito_config_code_snippets = steps_manager.mito_config[MITO_CONFIG_KEY_CODE_SNIPPETS]
+        mito_config_code_snippets: Dict[str, Optional[str]] = steps_manager.mito_config[MITO_CONFIG_KEY_CODE_SNIPPETS]
         mito_config_code_snippets_version = mito_config_code_snippets[MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION]
         mito_config_code_snippets_url = mito_config_code_snippets[MITO_CONFIG_KEY_CODE_SNIPPETS_URL]
 

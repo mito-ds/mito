@@ -165,7 +165,7 @@ class StepsManager:
     and parameters stay the same and are append-only.
     """
 
-    def __init__(self, args: Collection[Union[pd.DataFrame, str]], mito_config: Dict[str, str], analysis_to_replay: Optional[str]=None):
+    def __init__(self, args: Collection[Union[pd.DataFrame, str]], mito_config: Dict[str, Any], analysis_to_replay: Optional[str]=None):
         """
         When initalizing the StepsManager, we also do preprocessing
         of the arguments that were passed to the mitosheet.

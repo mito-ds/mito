@@ -147,7 +147,7 @@ class MitoConfig:
             return DEFAULT_MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL
         return self.mec[MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL]
 
-    def _get_code_snippets(self) -> Dict[str, str]:
+    def _get_code_snippets(self) -> Dict[str, Optional[str]]:
         return {
             MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION: self._get_code_snippets_version(),
             MITO_CONFIG_KEY_CODE_SNIPPETS_URL: self._get_code_snippets_url(),
