@@ -11,7 +11,7 @@ import { fuzzyMatch } from "../../../utils/strings";
 import Row from "../../layout/Row";
 import Col from "../../layout/Col";
 import DropdownIcon from "../../icons/DropdownIcon";
-import Dropdown from "../../elements/Dropdown";
+import Dropdown, { DROPDOWN_IGNORE_CLICK_CLASS } from "../../elements/Dropdown";
 import DropdownItem from "../../elements/DropdownItem";
 import { writeTextToClipboard } from "../../../utils/copy";
 import CodeSnippetIcon from "../../icons/CodeSnippetIcon";
@@ -21,6 +21,7 @@ import { DEFAULT_SUPPORT_EMAIL } from "../../elements/GetSupportButton";
 import { SLACK_INVITE_LINK } from "../../../data/documentationLinks";
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 import LoadingDots from "../../elements/LoadingDots";
+import { classNames } from "../../../utils/classNames";
 
 
 interface CodeSnippetsTaskpaneProps {
@@ -108,7 +109,7 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                         <Row 
                             key={codeSnippetIndex} 
                             align='center' 
-                            className="highlight-on-hover"
+                            className={classNames("highlight-on-hover", DROPDOWN_IGNORE_CLICK_CLASS)} // Use DROPDOWN_IGNORE_CLICK_CLASS to avoid race condition with dropdowns opening themselves when clicked on
                             justify="space-between"
                             onClick={() => {
                                 setOpenDropdownIndex(prevOpenDropdownIndex => {
@@ -135,6 +136,7 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                                 <Dropdown 
                                     display={codeSnippetIndex === openDropdownIndex} 
                                     width='medium'
+                                    closeDropdown={() => {setOpenDropdownIndex(undefined)}}
                                 >
                                     <DropdownItem 
                                         title="Copy Code Snippet" 

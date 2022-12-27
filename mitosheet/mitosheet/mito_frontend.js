@@ -21144,9 +21144,6 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         }
       }, 200);
     } else if (escapeDown) {
-      if (onEscape === void 0) {
-        return;
-      }
       onEscape();
     }
   };
@@ -21156,9 +21153,6 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     useCallOnAnyClick((eventTarget) => {
       var _a;
       if (!props.display) {
-        return;
-      }
-      if (props.closeDropdown === void 0) {
         return;
       }
       props.closeDropdown();
@@ -37959,7 +37953,7 @@ fig.write_html("${props.graphTabName}.html")`
         {
           key: codeSnippetIndex,
           align: "center",
-          className: "highlight-on-hover",
+          className: classNames("highlight-on-hover", DROPDOWN_IGNORE_CLICK_CLASS),
           justify: "space-between",
           onClick: () => {
             setOpenDropdownIndex((prevOpenDropdownIndex) => {
@@ -37983,7 +37977,10 @@ fig.write_html("${props.graphTabName}.html")`
           Dropdown_default,
           {
             display: codeSnippetIndex === openDropdownIndex,
-            width: "medium"
+            width: "medium",
+            closeDropdown: () => {
+              setOpenDropdownIndex(void 0);
+            }
           },
           /* @__PURE__ */ import_react161.default.createElement(
             DropdownItem_default,

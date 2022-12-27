@@ -60,11 +60,13 @@ interface DropdownProps {
     */
     display: boolean;
     /** 
-        * @param closeDropdown - The function to used to close the dropdown when the user clicks. For a single dropdown, you 
-        * probably want to provide a closeDropdown function. But when there are multiple dropdowns and the you want to ensure that 
-        * only one is open at a time, the parent component of the dropdowns can handle closing the dropdown instead to avoid race conditions.
+        * @param closeDropdown - The function to used to close the dropdown when the user clicks.
     */
-    closeDropdown?: () => void;
+    closeDropdown: () => void;
+    /**
+        * @param [classToIgnoreCloseDropdown] - Optional class that if clicked, does not trigger the closeDropdown function
+    */
+    classToIgnoreCloseDropdown?: string;
     /**
         * @param [searchable] - When True, a search input field is displayed. Defaults to False
      */
@@ -126,7 +128,7 @@ export const handleKeyboardInDropdown = (
     e: React.KeyboardEvent<HTMLInputElement>, 
     numDropdownItems: number, 
     setSelectedIndex: React.Dispatch<React.SetStateAction<number>>,
-    onEscape?: () => void
+    onEscape: () => void
 ): void => {
 
     const keyUp = e.key === 'Up' || e.key === 'ArrowUp';
@@ -185,9 +187,6 @@ export const handleKeyboardInDropdown = (
     } else if (escapeDown) {
         // If the user presses escape on the input, then close the 
         // whole dropdown
-        if (onEscape === undefined) {
-            return
-        }
         onEscape();
     }
 }
@@ -214,10 +213,6 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
     */
     useCallOnAnyClick((eventTarget: EventTarget | null | undefined) => {
         if (!props.display) {
-            return;
-        }
-
-        if (props.closeDropdown === undefined) {
             return;
         }
 
