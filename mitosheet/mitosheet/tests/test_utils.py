@@ -94,7 +94,8 @@ def check_dataframes_equal(test_wrapper):
 
     # We then check that the sheet data json that is saved by the widget, which 
     # notably uses caching, does not get incorrectly cached and is written correctly
-    assert test_wrapper.mito_backend.get_shared_state_variables()['sheet_data_json'] == json.dumps(dfs_to_array_for_json(
+    sheet_data_json = test_wrapper.mito_backend.get_shared_state_variables()['sheet_data_json']
+    assert sheet_data_json == json.dumps(dfs_to_array_for_json(
         test_wrapper.mito_backend.steps_manager.curr_step.final_defined_state, 
         set(i for i in range(len(test_wrapper.mito_backend.steps_manager.curr_step.dfs))),
         [],

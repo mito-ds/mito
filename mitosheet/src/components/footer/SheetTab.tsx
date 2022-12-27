@@ -127,7 +127,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
 
     return (
         <div 
-            className={classNames('tab', {'tab-graph': props.tabIDObj.tabType === 'graph'}, {'tab-selected': props.isSelectedTab})} 
+            className={classNames('tab', {'tab-graph': props.tabIDObj.tabType === 'graph'}, {'tab-selected': props.isSelectedTab}, 'cursor-pointer')} 
             onClick={() => {
 
                 if (props.tabIDObj.tabType === 'graph') {

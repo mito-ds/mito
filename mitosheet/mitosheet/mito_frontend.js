@@ -22890,6 +22890,9 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     });
   };
   var getSheetDataArrayFromString = (sheet_data_json) => {
+    if (sheet_data_json.length === 0) {
+      return [];
+    }
     return JSON.parse(sheet_data_json);
   };
   var getUserProfileFromString = (user_profile_json) => {
@@ -29572,10 +29575,10 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     return /* @__PURE__ */ import_react81.default.createElement(
       TextButton_default,
       {
-        className: props.className,
+        className: classNames(props.className, "cursor-pointer"),
         variant: "dark",
         width: props.width || "medium",
-        href: props.userProfile.mitoConfig.MITO_CONFIG_SUPPORT_EMAIL === DEFAULT_SUPPORT_EMAIL ? SLACK_INVITE_LINK : `mailto:${props.userProfile.mitoConfig.MITO_CONFIG_SUPPORT_EMAIL}?subject=Mito support request`,
+        href: props.userProfile.mitoConfig.MITO_CONFIG_SUPPORT_EMAIL === DEFAULT_SUPPORT_EMAIL ? DISCORD_INVITE_LINK : `mailto:${props.userProfile.mitoConfig.MITO_CONFIG_SUPPORT_EMAIL}?subject=Mito support request`,
         target: "_blank",
         onClick: () => {
           var _a;
@@ -30066,7 +30069,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         actionFunction: () => {
           setEditorState(void 0);
           if (userProfile2.mitoConfig.MITO_CONFIG_SUPPORT_EMAIL === DEFAULT_SUPPORT_EMAIL) {
-            window.open(SLACK_INVITE_LINK, "_blank");
+            window.open(DISCORD_INVITE_LINK, "_blank");
           } else {
             window.open(`mailto:${userProfile2.mitoConfig.MITO_CONFIG_SUPPORT_EMAIL}?subject=Mito support request`);
           }
@@ -30075,7 +30078,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           return void 0;
         },
         searchTerms: ["help", "contact", "support", "slack", "discord"],
-        tooltip: "Join our Slack for more help."
+        tooltip: "Join our Discord for more help."
       },
       ["import dropdown" /* Import_Dropdown */]: {
         type: "import dropdown" /* Import_Dropdown */,
@@ -31267,7 +31270,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     }
     render() {
       if (this.state.hasError) {
-        return /* @__PURE__ */ import_react84.default.createElement("p", { className: "text-body-1 text-color-red p-10px" }, "Looks like Mito had an error! Sorry about that. Rerun the Jupyter Cell above, and join our ", /* @__PURE__ */ import_react84.default.createElement("a", { className: "text-body-1-link", href: SLACK_INVITE_LINK, target: "_blank", rel: "noreferrer" }, "Slack"), " or ", /* @__PURE__ */ import_react84.default.createElement("a", { className: "text-body-1-link", href: DISCORD_INVITE_LINK, target: "_blank", rel: "noreferrer" }, "Discord"), " for support if this error occurs again.");
+        return /* @__PURE__ */ import_react84.default.createElement("p", { className: "text-body-1 text-color-red p-10px" }, "Looks like Mito had an error! Sorry about that. Rerun the Jupyter Cell above, and join our ", /* @__PURE__ */ import_react84.default.createElement("a", { className: "text-body-1-link", href: DISCORD_INVITE_LINK, target: "_blank", rel: "noreferrer" }, "Discord"), " for support if this error occurs again.");
       }
       return this.props.children;
     }
@@ -31590,7 +31593,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     return /* @__PURE__ */ import_react90.default.createElement(
       "div",
       {
-        className: classNames("tab", { "tab-graph": props.tabIDObj.tabType === "graph" }, { "tab-selected": props.isSelectedTab }),
+        className: classNames("tab", { "tab-graph": props.tabIDObj.tabType === "graph" }, { "tab-selected": props.isSelectedTab }, "cursor-pointer"),
         onClick: () => {
           if (props.tabIDObj.tabType === "graph") {
             props.setEditorState(void 0);
@@ -31707,7 +31710,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     return /* @__PURE__ */ import_react92.default.createElement("div", { className: "footer" }, /* @__PURE__ */ import_react92.default.createElement(
       "div",
       {
-        className: "footer-add-button",
+        className: classNames("footer-add-button", "cursor-pointer"),
         onClick: () => {
           if (disabledDueToReplayAnalysis) {
             return;
@@ -38690,7 +38693,7 @@ fig.write_html("${props.graphTabName}.html")`
     return /* @__PURE__ */ import_react190.default.createElement(
       "div",
       {
-        className: classNames("text-button", "text-button-variant-dark", "plan-button"),
+        className: classNames("text-button", "text-button-variant-dark", "plan-button", "cursor-pointer"),
         onClick: () => {
           if (disabledDueToReplayAnalysis) {
             return;
@@ -40409,9 +40412,12 @@ fig.write_html("${props.graphTabName}.html")`
   var Mito_default = Mito;
 
   // src/jupyterRender.tsx
-  var sheetDataArray = getSheetDataArrayFromString(`REPLACE_THIS_WITH_SHEET_DATA_ARRAY`);
-  var analysisData = getAnalysisDataFromString(`REPLACE_THIS_WITH_ANALYSIS_DATA`);
-  var userProfile = getUserProfileFromString(`REPLACE_THIS_WITH_USER_PROFILE`);
+  var sheetDataBytes = new Uint8Array([]);
+  var analysisDataBytes = new Uint8Array([]);
+  var userProfileBytes = new Uint8Array([]);
+  var sheetDataArray = getSheetDataArrayFromString(new TextDecoder().decode(sheetDataBytes));
+  var analysisData = getAnalysisDataFromString(new TextDecoder().decode(analysisDataBytes));
+  var userProfile = getUserProfileFromString(new TextDecoder().decode(userProfileBytes));
   var commTargetID = "REPLACE_THIS_WITH_COMM_TARGET_ID";
   var divID = "REPLACE_THIS_WITH_DIV_ID";
   var kernelID = "REPLACE_THIS_WITH_KERNEL_ID";

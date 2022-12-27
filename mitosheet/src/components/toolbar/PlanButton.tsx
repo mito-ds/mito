@@ -19,7 +19,7 @@ const PlanButton = (props: PlanButtonProps): JSX.Element => {
 
     return (
         <div 
-            className={classNames('text-button', 'text-button-variant-dark', 'plan-button')}
+            className={classNames('text-button', 'text-button-variant-dark', 'plan-button', 'cursor-pointer')}
             onClick={() => {
                 
                 if (disabledDueToReplayAnalysis) {
