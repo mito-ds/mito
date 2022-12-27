@@ -679,7 +679,6 @@ export default class MitoAPI {
 
     
     async getCodeSnippets(): Promise<CodeSnippetAPIResult | undefined> {
-
         const resultString = await this.send<string>({
             'event': 'api_call',
             'type': 'get_code_snippets',
@@ -687,10 +686,8 @@ export default class MitoAPI {
         }, {})
 
         if (resultString !== undefined && resultString !== '') {
-            console.log(resultString)
             return JSON.parse(resultString);
         }
-        console.log(undefined)
         return undefined;
     }
 

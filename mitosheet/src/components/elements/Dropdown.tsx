@@ -64,10 +64,6 @@ interface DropdownProps {
     */
     closeDropdown: () => void;
     /**
-        * @param [classToIgnoreCloseDropdown] - Optional class that if clicked, does not trigger the closeDropdown function
-    */
-    classToIgnoreCloseDropdown?: string;
-    /**
         * @param [searchable] - When True, a search input field is displayed. Defaults to False
      */
     searchable?: boolean;

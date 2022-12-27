@@ -160,7 +160,7 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                     )
                 })}
                 {codeSnippetAPIResult === undefined && 
-                    <p>
+                    <p className="mt-20px">
                         Loading code snippets <LoadingDots />
                     </p>
                 }

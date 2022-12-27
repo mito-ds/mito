@@ -87,7 +87,6 @@ def test_mito_config_update_version_1_to_2():
     
     # Test reading environment variables works properly
     mito_config = MitoConfig()
-    print(mito_config.get_mito_config())
     assert mito_config.get_mito_config() == {
         MITO_CONFIG_KEY_VERSION: '2',
         MITO_CONFIG_KEY_SUPPORT_EMAIL: 'aaron@sagacollab.com',

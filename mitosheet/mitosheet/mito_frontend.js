@@ -23506,10 +23506,8 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         "params": {}
       }, {});
       if (resultString !== void 0 && resultString !== "") {
-        console.log(resultString);
         return JSON.parse(resultString);
       }
-      console.log(void 0);
       return void 0;
     }
     async _edit(edit_event_type, params, stepID) {
@@ -38010,7 +38008,7 @@ fig.write_html("${props.graphTabName}.html")`
           )
         ))
       );
-    }), codeSnippetAPIResult === void 0 && /* @__PURE__ */ import_react161.default.createElement("p", null, "Loading code snippets ", /* @__PURE__ */ import_react161.default.createElement(LoadingDots_default, null))));
+    }), codeSnippetAPIResult === void 0 && /* @__PURE__ */ import_react161.default.createElement("p", { className: "mt-20px" }, "Loading code snippets ", /* @__PURE__ */ import_react161.default.createElement(LoadingDots_default, null))));
   };
   var CodeSnippetsTaskpane_default = CodeSnippetsTaskpane;
 

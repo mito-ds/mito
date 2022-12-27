@@ -5,11 +5,16 @@
 # Distributed under the terms of the GPL License.
 
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 from mitosheet.enterprise.mito_config import MITO_CONFIG_KEY_CODE_SNIPPETS, MITO_CONFIG_KEY_CODE_SNIPPETS_URL, MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION
 from mitosheet.types import CodeSnippet, StepsManagerType
 import requests as req
 from mitosheet.transpiler.transpile_utils import NEWLINE_TAB, NEWLINE
+
+# Global variable used to cache the custom code snippets so that when users
+# open the code snippets taskpane multiple times in the same mito instantiation, 
+# we can display the custom code snippets without querying the url each time.
+CACHED_CUSTOM_CODE_SNIPPETS: Optional[List[CodeSnippet]] = None
 
 DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
         {
@@ -70,8 +75,23 @@ DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
         } 
 ]
 
+def create_error_return_obj(erorr_message: str) -> str:
+        return json.dumps({
+                'status': 'error',
+                'error_message': erorr_message
+        })
+def create_success_return_obj(code_snippets: List[CodeSnippet]) -> str:
+        return json.dumps({
+                'status': 'success',
+                'code_snippets': code_snippets 
+        })
+
+
 def get_code_snippets_format_error(code_snippets: Any) -> str:
         """
+        Makes sure that the code snippets are properly formatted. Returns '' if they are properly formatted,
+        and otherwise returns a helpful error message. 
+
         Version 1 of code snippets has the following type:
         [
                 {
@@ -124,50 +144,36 @@ def get_code_snippets_format_error(code_snippets: Any) -> str:
         return ''
 
 
-# Global variable used to cache the custom code snippets so that when users
-# open the code snippets taskpane multiple times in the same mito instantiation, 
-# we can display the custom code snippets without querying the url each time.
-CACHED_CUSTOM_CODE_SNIPPETS: Optional[List[CodeSnippet]] = None
 def get_custom_code_snippets(mito_config_code_snippets_url: str) -> str:
+
+        # If there are cached custom code snippets, use them
         global CACHED_CUSTOM_CODE_SNIPPETS
         if CACHED_CUSTOM_CODE_SNIPPETS is not None:
-                return json.dumps({
-                        'status': 'success',
-                        'code_snippets': CACHED_CUSTOM_CODE_SNIPPETS
-                })
-        
+                return create_success_return_obj(CACHED_CUSTOM_CODE_SNIPPETS)
+
+        # Otherwise, try to load code snippets from the URL
         try:
                 # Request the code snippets from the url
                 response = req.get(mito_config_code_snippets_url, verify=False)
         except Exception as e: 
-                return json.dumps({
-                        'status': 'error',
-                        'error_message': f"Error accessing the code snippets data from the URL. {e}" , 
-                })
+                return create_error_return_obj(f"Error accessing the code snippets data from the URL. {e}" )
+
 
         if response.status_code == 200:
                 # Parse the respone body into JSON 
                 code_snippets = response.json()
+
+                # Validate that the code snippets are properly formatted
                 code_snippet_format_error = get_code_snippets_format_error(code_snippets)
 
                 if code_snippet_format_error == '':
                         # Cache the code snippets so we don't need to request them from the url next time
                         CACHED_CUSTOM_CODE_SNIPPETS = code_snippets
-                        return json.dumps({
-                                'status': 'success',
-                                'code_snippets': code_snippets
-                        })
+                        return create_success_return_obj(code_snippets)
                 else:
-                        return json.dumps({
-                                'status': 'error',
-                                'error_message': code_snippet_format_error
-                        })
-
+                        return create_error_return_obj(code_snippet_format_error)
         else:
-                return json.dumps({
-                        'status': 'error',
-                        'error_message': f"Error accessing the code snippets data from the URL. Response status code: {response.status_code}" , 
-                })
+                return create_error_return_obj(f"Error accessing the code snippets data from the URL. Response status code: {response.status_code}")
 
 
 def get_code_snippets(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
@@ -179,8 +185,5 @@ def get_code_snippets(params: Dict[str, Any], steps_manager: StepsManagerType) -
                 return get_custom_code_snippets(mito_config_code_snippets_url)
                 
         # Otherwise, use the default code snippets. 
-        return json.dumps({
-                'status': 'success',
-                'code_snippets': DEFAULT_CODE_SNIPPETS
-        })
+        return create_success_return_obj(DEFAULT_CODE_SNIPPETS)
 

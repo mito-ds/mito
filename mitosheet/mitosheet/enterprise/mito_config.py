@@ -6,7 +6,6 @@
 
 from typing import Any, Dict, Optional
 import os
-
 from mitosheet.telemetry.telemetry_utils import log
 
 # Note: Do not change these keys, we need them for looking up 
@@ -57,8 +56,8 @@ if mec_version='3', mec_upgrade_functions should look like:
    '1': upgrade_mec_1_to_2,
    '2': upgrade_mec_2_to_3
 }
-These upgrade functions make sure that all of the keys are defined so that the functions below can set the correct
-default values and format the mec properly
+To keep things simple for now, these upgrade functions just make sure that all of the keys are defined so 
+that the functions below can set the correct default values and format the mec properly.
 """
 
 mec_upgrade_functions: Dict[str, Any] = {
