@@ -2,7 +2,7 @@
 # coding: utf-8
 
 # Copyright (c) Saga Inc.
-# Distributed under the terms of the GPL License.
+# Distributed under the terms of the The Mito Enterprise license.
 
 from typing import Any, Dict, Optional
 import os

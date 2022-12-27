@@ -4,17 +4,10 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-import json
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
+from mitosheet.enterprise.api.code_snippets_utils import get_custom_code_snippets
 from mitosheet.enterprise.mito_config import MITO_CONFIG_KEY_CODE_SNIPPETS, MITO_CONFIG_KEY_CODE_SNIPPETS_URL, MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION
 from mitosheet.types import CodeSnippet, StepsManagerType
-import requests as req
-from mitosheet.transpiler.transpile_utils import NEWLINE_TAB, NEWLINE
-
-# Global variable used to cache the custom code snippets so that when users
-# open the code snippets taskpane multiple times in the same mito instantiation, 
-# we can display the custom code snippets without querying the url each time.
-CACHED_CUSTOM_CODE_SNIPPETS: Optional[List[CodeSnippet]] = None
 
 DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
         {
@@ -75,107 +68,6 @@ DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
         } 
 ]
 
-def create_error_return_obj(erorr_message: str) -> str:
-        return json.dumps({
-                'status': 'error',
-                'error_message': erorr_message
-        })
-def create_success_return_obj(code_snippets: List[CodeSnippet]) -> str:
-        return json.dumps({
-                'status': 'success',
-                'code_snippets': code_snippets 
-        })
-
-
-def get_code_snippets_format_error(code_snippets: Any) -> str:
-        """
-        Makes sure that the code snippets are properly formatted. Returns '' if they are properly formatted,
-        and otherwise returns a helpful error message. 
-
-        Version 1 of code snippets has the following type:
-        [
-                {
-                        Id: str
-                        Name: str
-                        Description: str
-                        Code: List[str]
-                },
-                {
-                        Id: str
-                        Name: str
-                        Description: str
-                        Code: List[str]
-                },
-        ]
-        """
-        correct_code_snippets_type = f"[{{{NEWLINE_TAB}Id: str, {NEWLINE_TAB}Name: str, {NEWLINE_TAB}Description: str, {NEWLINE_TAB}Code: List[str]{NEWLINE}}}]"
-
-        if type(code_snippets) != list:
-                return f"Custom code snippets has type {type(code_snippets)}, but should be have the format: {correct_code_snippets_type}"
-        
-        for code_snippet in code_snippets:
-                if type(code_snippet) != dict:
-                        return f"Custom code snippets should have the format: {correct_code_snippets_type} {NEWLINE}{NEWLINE}But this code snippet was included: {code_snippet}"
-
-
-                id = code_snippet.get('Id', None)
-                name = code_snippet.get('Name', None)
-                description = code_snippet.get('Description', None)
-                code = code_snippet.get('Code', None)
-
-                error = False
-                if id is None or type(id) != str:
-                        error = True
-                if name is None or type(name) != str:
-                        error = True
-                if description is None or type(name) != str:
-                        error = True
-                if code is None or type(code) != list:
-                        error = True
-                if not error:
-                        for line in code:
-                                if type(line) != str:
-                                        error = True
-                                        break
-
-                if error:
-                        return f"Custom code snippets should have the format: {correct_code_snippets_type} {NEWLINE}{NEWLINE}But this code snippet was included: {code_snippet}"
-
-        return ''
-
-
-def get_custom_code_snippets(mito_config_code_snippets_url: str) -> str:
-
-        # If there are cached custom code snippets, use them
-        global CACHED_CUSTOM_CODE_SNIPPETS
-        if CACHED_CUSTOM_CODE_SNIPPETS is not None:
-                return create_success_return_obj(CACHED_CUSTOM_CODE_SNIPPETS)
-
-        # Otherwise, try to load code snippets from the URL
-        try:
-                # Request the code snippets from the url
-                response = req.get(mito_config_code_snippets_url, verify=False)
-        except Exception as e: 
-                return create_error_return_obj(f"Error accessing the code snippets data from the URL. {e}" )
-
-
-        if response.status_code == 200:
-                # Parse the respone body into JSON 
-                code_snippets = response.json()
-
-                # Validate that the code snippets are properly formatted
-                code_snippet_format_error = get_code_snippets_format_error(code_snippets)
-
-                if code_snippet_format_error == '':
-                        # Cache the code snippets so we don't need to request them from the url next time
-                        CACHED_CUSTOM_CODE_SNIPPETS = code_snippets
-                        return create_success_return_obj(code_snippets)
-                else:
-                        return create_error_return_obj(code_snippet_format_error)
-        else:
-                return create_error_return_obj(f"Error accessing the code snippets data from the URL. Response status code: {response.status_code}")
-
-
 def get_code_snippets(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
         mito_config_code_snippets: Dict[str, Optional[str]] = steps_manager.mito_config[MITO_CONFIG_KEY_CODE_SNIPPETS]
         mito_config_code_snippets_version = mito_config_code_snippets[MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION]
@@ -185,5 +77,6 @@ def get_code_snippets(params: Dict[str, Any], steps_manager: StepsManagerType) -
                 return get_custom_code_snippets(mito_config_code_snippets_url)
                 
         # Otherwise, use the default code snippets. 
+        from mitosheet.enterprise.api.code_snippets_utils import create_success_return_obj
         return create_success_return_obj(DEFAULT_CODE_SNIPPETS)
 

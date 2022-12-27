@@ -3,7 +3,7 @@
 # coding: utf-8
 
 # Copyright (c) Saga Inc.
-# Distributed under the terms of the GPL License.
+# Distributed under the terms of The Mito Enterprise license.
 
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
