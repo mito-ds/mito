@@ -53,7 +53,7 @@ def test_get_code_snippets_incorrectly_formatted_code_snippets():
     delete_all_mito_config_environment_variables()
     
 # Test modelled off: https://github.com/csernazs/pytest-httpserver/blob/master/tests/test_json_matcher.py
-def test_json_matcher(httpserver: HTTPServer):
+def test_get_code_snippets_from_url_success(httpserver: HTTPServer) -> None:
     string_code_snippets = json.dumps(TEST_CODE_SNIPPETS)
 
     # Set up server to send response with code snippets 
