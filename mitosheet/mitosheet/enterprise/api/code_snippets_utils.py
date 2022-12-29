@@ -14,13 +14,13 @@ from mitosheet.types import CodeSnippet
 # Global variable used to cache the custom code snippets so that when users
 # open the code snippets taskpane multiple times in the same mito instantiation, 
 # we can display the custom code snippets without querying the url each time.
-CACHED_CUSTOM_CODE_SNIPPETS: Optional[List[CodeSnippet]] = None
+cached_custom_code_snippets: Optional[List[CodeSnippet]] = None
 
 # Helper functions for generating the proper return type
-def create_error_return_obj(erorr_message: str) -> str:
+def create_error_return_obj(error_message: str) -> str:
     return json.dumps({
             'status': 'error',
-            'error_message': erorr_message
+            'error_message': error_message
     })
 def create_success_return_obj(code_snippets: List[CodeSnippet]) -> str:
     return json.dumps({
@@ -28,7 +28,7 @@ def create_success_return_obj(code_snippets: List[CodeSnippet]) -> str:
             'code_snippets': code_snippets 
     })
 
-def get_code_snippets_format_error(code_snippets: Any) -> str:
+def get_code_snippets_format_error(code_snippets: Any) -> Optional[str]:
     """
     Makes sure that the code snippets are properly formatted. Returns '' if they are properly formatted,
     and otherwise returns a helpful error message. 
@@ -49,13 +49,13 @@ def get_code_snippets_format_error(code_snippets: Any) -> str:
             },
     ]
     """
-    correct_code_snippets_type = f"[{{{NEWLINE_TAB}Id: str, {NEWLINE_TAB}Name: str, {NEWLINE_TAB}Description: str, {NEWLINE_TAB}Code: List[str]{NEWLINE}}}]"
+    correct_code_snippets_type = f"List[{{{NEWLINE_TAB}Id: str, {NEWLINE_TAB}Name: str, {NEWLINE_TAB}Description: str, {NEWLINE_TAB}Code: List[str]{NEWLINE}}}]"
 
-    if type(code_snippets) != list:
+    if not isinstance(code_snippets, list):
         return f"Custom code snippets has type {type(code_snippets)}, but should be have the format: {correct_code_snippets_type}"
     
     for code_snippet in code_snippets:
-        if type(code_snippet) != dict:
+        if not isinstance(code_snippet, dict):
             return f"Custom code snippets should have the format: {correct_code_snippets_type} {NEWLINE}{NEWLINE}But this code snippet was included: {code_snippet}"
 
 
@@ -65,24 +65,25 @@ def get_code_snippets_format_error(code_snippets: Any) -> str:
         code = code_snippet.get('Code', None)
 
         error = False
-        if id is None or type(id) != str:
+        if id is None or not isinstance(id, str):
             error = True
-        if name is None or type(name) != str:
+        if name is None or not isinstance(name, str):
             error = True
-        if description is None or type(name) != str:
+        if description is None or not isinstance(description, str):
             error = True
-        if code is None or type(code) != list:
+        if code is None or not isinstance(code, list):
             error = True
         if not error:
             for line in code:
-                    if type(line) != str:
-                            error = True
-                            break
+                if not isinstance(line, str):
+                    print(5)
+                    error = True
+                    break
 
         if error:
             return f"Custom code snippets should have the format: {correct_code_snippets_type} {NEWLINE}{NEWLINE}But this code snippet was included: {code_snippet}"
 
-    return ''
+    return None
 
 def get_custom_code_snippets(mito_config_code_snippets_url: str) -> str:
     """
@@ -90,9 +91,9 @@ def get_custom_code_snippets(mito_config_code_snippets_url: str) -> str:
     """
 
     # If there are cached custom code snippets, use them
-    global CACHED_CUSTOM_CODE_SNIPPETS
-    if CACHED_CUSTOM_CODE_SNIPPETS is not None:
-        return create_success_return_obj(CACHED_CUSTOM_CODE_SNIPPETS)
+    global cached_custom_code_snippets
+    if cached_custom_code_snippets is not None:
+        return create_success_return_obj(cached_custom_code_snippets)
 
     # Try to load code snippets from the URL
     try:
@@ -103,16 +104,16 @@ def get_custom_code_snippets(mito_config_code_snippets_url: str) -> str:
     if response.status_code != 200: 
         return create_error_return_obj(f"Error accessing the code snippets data from the URL. Response status code: {response.status_code}")
 
-    # Parse the respone body into JSON 
+    # Parse the response body into JSON 
     code_snippets = response.json()
 
     # Validate that the code snippets are properly formatted
     code_snippet_format_error = get_code_snippets_format_error(code_snippets)
 
-    if code_snippet_format_error != '':
+    if code_snippet_format_error is not None:
         return create_error_return_obj(code_snippet_format_error)
     
     # Cache the code snippets so we don't need to request them from the url next time
-    CACHED_CUSTOM_CODE_SNIPPETS = code_snippets
+    cached_custom_code_snippets = code_snippets
     return create_success_return_obj(code_snippets)
         

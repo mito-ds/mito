@@ -69,10 +69,9 @@ DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
 ]
 
 def get_code_snippets(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
-        mito_config_code_snippets: Dict[str, Optional[str]] = steps_manager.mito_config[MITO_CONFIG_KEY_CODE_SNIPPETS]
-        mito_config_code_snippets_version = mito_config_code_snippets[MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION]
-        mito_config_code_snippets_url = mito_config_code_snippets[MITO_CONFIG_KEY_CODE_SNIPPETS_URL]
-
+        mito_config = steps_manager.mito_config
+        mito_config_code_snippets_version = mito_config.get_code_snippets_version()
+        mito_config_code_snippets_url = mito_config.get_code_snippets_url()
         if mito_config_code_snippets_version == '1' and mito_config_code_snippets_url is not None:
                 return get_custom_code_snippets(mito_config_code_snippets_url)
                 

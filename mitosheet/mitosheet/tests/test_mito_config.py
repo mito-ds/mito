@@ -5,7 +5,7 @@
 # Distributed under the terms of the Modified BSD License.
 
 import os
-from mitosheet.enterprise.mito_config import DEFAULT_MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL, DEFAULT_MITO_CONFIG_SUPPORT_EMAIL, MITO_CONFIG_KEY_CODE_SNIPPETS, MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL, MITO_CONFIG_KEY_CODE_SNIPPETS_URL, MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION, MITO_CONFIG_KEY_SUPPORT_EMAIL, MITO_CONFIG_KEY_VERSION, MitoConfig
+from mitosheet.enterprise.mito_config import DEFAULT_MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL, DEFAULT_MITO_CONFIG_SUPPORT_EMAIL, MEC_VERSION_KEYS, MITO_CONFIG_KEY_CODE_SNIPPETS, MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL, MITO_CONFIG_KEY_CODE_SNIPPETS_URL, MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION, MITO_CONFIG_KEY_SUPPORT_EMAIL, MITO_CONFIG_KEY_VERSION, MitoConfig
 
 def delete_env_var_if_exists(env_var: str) -> None: 
     """
@@ -18,11 +18,10 @@ def delete_all_mito_config_environment_variables() -> None:
     """
     Deletes all of the MITO CONFIG environment variables that are used in the MEC
     """
-    delete_env_var_if_exists(MITO_CONFIG_KEY_VERSION)
-    delete_env_var_if_exists(MITO_CONFIG_KEY_SUPPORT_EMAIL)
-    delete_env_var_if_exists(MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL)
-    delete_env_var_if_exists(MITO_CONFIG_KEY_CODE_SNIPPETS_URL)
-    delete_env_var_if_exists(MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION)
+    lists_of_vars = MEC_VERSION_KEYS.values()
+    for list_of_vars in lists_of_vars:
+        for var in list_of_vars:
+            delete_env_var_if_exists(var)
 
 def test_keys_did_not_change():
     # We must not change these keys so we can still read old 

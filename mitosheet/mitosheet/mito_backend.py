@@ -61,7 +61,7 @@ class MitoBackend():
         self.mito_config = MitoConfig() # type: ignore
             
         # Set up the state container to hold private widget state
-        self.steps_manager = StepsManager(args, mito_config=self.mito_config.get_mito_config(), analysis_to_replay=analysis_to_replay)
+        self.steps_manager = StepsManager(args, mito_config=self.mito_config, analysis_to_replay=analysis_to_replay)
 
         # And the api
         self.api = API(self.steps_manager, self)
@@ -115,7 +115,7 @@ class MitoBackend():
             'isLocalDeployment': self.is_local_deployment,
             'shouldUpgradeMitosheet': self.should_upgrade_mitosheet,
             'numUsages': self.num_usages,
-            'mitoConfig': self.steps_manager.mito_config
+            'mitoConfig': self.steps_manager.mito_config.get_mito_config()
         })
 
 

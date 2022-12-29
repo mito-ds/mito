@@ -13,6 +13,7 @@ from typing import Any, Collection, Dict, List, Optional, Set, Tuple, Union
 import pandas as pd
 
 from mitosheet.data_in_mito import DataTypeInMito, get_data_type_in_mito
+from mitosheet.enterprise.mito_config import MitoConfig
 from mitosheet.experiments.experiment_utils import get_current_experiment
 from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
 from mitosheet.telemetry.telemetry_utils import log
@@ -165,7 +166,7 @@ class StepsManager:
     and parameters stay the same and are append-only.
     """
 
-    def __init__(self, args: Collection[Union[pd.DataFrame, str]], mito_config: Dict[str, Any], analysis_to_replay: Optional[str]=None):
+    def __init__(self, args: Collection[Union[pd.DataFrame, str]], mito_config: MitoConfig, analysis_to_replay: Optional[str]=None):
         """
         When initalizing the StepsManager, we also do preprocessing
         of the arguments that were passed to the mitosheet.

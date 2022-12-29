@@ -120,44 +120,44 @@ class MitoConfig:
         if self.mec is not None:
             log('loaded_mito_enterprise_config')
 
-    def _get_version(self) -> str:
+    def get_version(self) -> str:
         if self.mec is None or self.mec[MITO_CONFIG_KEY_VERSION] is None:
             return '2' # NOTE: update this to be the most recent version, when we bump the version
         return self.mec[MITO_CONFIG_KEY_VERSION]
 
-    def _get_support_email(self) -> str:
+    def get_support_email(self) -> str:
         if self.mec is None or self.mec[MITO_CONFIG_KEY_SUPPORT_EMAIL] is None:
             return DEFAULT_MITO_CONFIG_SUPPORT_EMAIL
         return self.mec[MITO_CONFIG_KEY_SUPPORT_EMAIL]
 
-    def _get_code_snippets_version(self) -> str:
+    def get_code_snippets_version(self) -> str:
         if self.mec is None or self.mec[MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION] is None:
             return '1'
         return self.mec[MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION]
 
-    def _get_code_snippets_url(self) -> Optional[str]:
+    def get_code_snippets_url(self) -> Optional[str]:
         if self.mec is None or self.mec[MITO_CONFIG_KEY_CODE_SNIPPETS_URL] is None:
             return None
         return self.mec[MITO_CONFIG_KEY_CODE_SNIPPETS_URL]
 
-    def _get_code_snippets_support_email(self) -> str:
+    def get_code_snippets_support_email(self) -> str:
         if self.mec is None or self.mec[MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL] is None:
             return DEFAULT_MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL
         return self.mec[MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL]
 
-    def _get_code_snippets(self) -> Dict[str, Optional[str]]:
+    def get_code_snippets(self) -> Dict[str, Optional[str]]:
         return {
-            MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION: self._get_code_snippets_version(),
-            MITO_CONFIG_KEY_CODE_SNIPPETS_URL: self._get_code_snippets_url(),
-            MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL: self._get_code_snippets_support_email(),
+            MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION: self.get_code_snippets_version(),
+            MITO_CONFIG_KEY_CODE_SNIPPETS_URL: self.get_code_snippets_url(),
+            MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL: self.get_code_snippets_support_email(),
         }
 
     # Add new mito configuration options here ...
 
     def get_mito_config(self) -> Dict[str, Any]:
         return {
-            MITO_CONFIG_KEY_VERSION: self._get_version(),
-            MITO_CONFIG_KEY_SUPPORT_EMAIL: self._get_support_email(),
-            MITO_CONFIG_KEY_CODE_SNIPPETS: self._get_code_snippets()
+            MITO_CONFIG_KEY_VERSION: self.get_version(),
+            MITO_CONFIG_KEY_SUPPORT_EMAIL: self.get_support_email(),
+            MITO_CONFIG_KEY_CODE_SNIPPETS: self.get_code_snippets()
         }
 
