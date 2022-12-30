@@ -132,7 +132,7 @@ class MitoConfig:
 
     def get_code_snippets_version(self) -> str:
         if self.mec is None or self.mec[MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION] is None:
-            return '1'
+            return None
         return self.mec[MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION]
 
     def get_code_snippets_url(self) -> Optional[str]:

@@ -8,6 +8,7 @@ import json
 from token import NEWLINE
 from typing import Any, List, Optional
 import requests
+from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.transpiler.transpile_utils import NEWLINE_TAB
 from mitosheet.types import CodeSnippet
 
@@ -58,7 +59,6 @@ def get_code_snippets_format_error(code_snippets: Any) -> Optional[str]:
         if not isinstance(code_snippet, dict):
             return f"Custom code snippets should have the format: {correct_code_snippets_type} {NEWLINE}{NEWLINE}But this code snippet was included: {code_snippet}"
 
-
         id = code_snippet.get('Id', None)
         name = code_snippet.get('Name', None)
         description = code_snippet.get('Description', None)
@@ -76,7 +76,6 @@ def get_code_snippets_format_error(code_snippets: Any) -> Optional[str]:
         if not error:
             for line in code:
                 if not isinstance(line, str):
-                    print(5)
                     error = True
                     break
 
@@ -98,11 +97,15 @@ def get_custom_code_snippets(mito_config_code_snippets_url: str) -> str:
     # Try to load code snippets from the URL
     try:
         response = requests.get(mito_config_code_snippets_url, verify=False)
-    except Exception as e: 
-        return create_error_return_obj(f"Error accessing the code snippets data from the URL. {e}" )
+    except Exception as e:
+        error_message = f"Error accessing the code snippets data from the URL. {e}" 
+        log('get_code_snippet_error', {'get_code_snippet_error_reason': error_message})
+        return create_error_return_obj(error_message)
 
     if response.status_code != 200: 
-        return create_error_return_obj(f"Error accessing the code snippets data from the URL. Response status code: {response.status_code}")
+        error_message = f"Error accessing the code snippets data from the URL. Response status code: {response.status_code}"
+        log('get_code_snippet_error', {'get_code_snippet_error_reason': error_message})
+        return create_error_return_obj(error_message)
 
     # Parse the response body into JSON 
     code_snippets = response.json()
@@ -111,9 +114,12 @@ def get_custom_code_snippets(mito_config_code_snippets_url: str) -> str:
     code_snippet_format_error = get_code_snippets_format_error(code_snippets)
 
     if code_snippet_format_error is not None:
+        # Note: We do not log the code_snippet_format_error because it contains user-defined code snippets
+        log('get_code_snippet_error', {'get_code_snippet_error_reason': 'code_snippet_format_error'})
         return create_error_return_obj(code_snippet_format_error)
     
     # Cache the code snippets so we don't need to request them from the url next time
     cached_custom_code_snippets = code_snippets
+    log('using custom code snippets')
     return create_success_return_obj(code_snippets)
         

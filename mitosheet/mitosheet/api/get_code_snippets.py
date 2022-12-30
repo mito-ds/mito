@@ -4,9 +4,9 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Any, Dict, List, Optional
-from mitosheet.enterprise.api.code_snippets_utils import get_custom_code_snippets
-from mitosheet.enterprise.mito_config import MITO_CONFIG_KEY_CODE_SNIPPETS, MITO_CONFIG_KEY_CODE_SNIPPETS_URL, MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION
+from typing import Any, Dict, List
+from mitosheet.enterprise.api.code_snippets_utils import create_error_return_obj, create_success_return_obj, get_custom_code_snippets
+from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.types import CodeSnippet, StepsManagerType
 
 DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
@@ -72,10 +72,21 @@ def get_code_snippets(params: Dict[str, Any], steps_manager: StepsManagerType) -
         mito_config = steps_manager.mito_config
         mito_config_code_snippets_version = mito_config.get_code_snippets_version()
         mito_config_code_snippets_url = mito_config.get_code_snippets_url()
+        mito_config_code_snippets_support_email = mito_config.get_code_snippets_support_email()
+
         if mito_config_code_snippets_version == '1' and mito_config_code_snippets_url is not None:
                 return get_custom_code_snippets(mito_config_code_snippets_url)
-                
+
+        # Give the user a helpful error message if they don't have the correct environment variables set. 
+        if mito_config_code_snippets_version != '1' and mito_config_code_snippets_url is not None:
+                log('get_code_snippet_error', {'get_code_snippet_error_reason': 'mito_config_code_snippet_version not set'})
+                return create_error_return_obj(f"The code snippet environment variables are configured improperly. The MITO_CONFIG_CODE_SNIPPETS_URL environment variable is set, but the MITO_CONFIG_CODE_SNIPPETS_VERSION environment variable is not set to a valid version (ie: '1'). Reach out to support for help: {mito_config_code_snippets_support_email}")
+
+        # Give the user a helpful error message if they don't have the correct environment variables set. 
+        if mito_config_code_snippets_version == '1' and mito_config_code_snippets_url is None:
+                log('get_code_snippet_error', {'get_code_snippet_error_reason': 'mito_config_code_snippets_url not set'})
+                return create_error_return_obj(f"The code snippet environment variables are configured improperly. The MITO_CONFIG_CODE_SNIPPETS_VERSION environment variable is set, but the MITO_CONFIG_CODE_SNIPPETS_URL environment variable is not set. Reach out to support for help: {mito_config_code_snippets_support_email}")
+   
         # Otherwise, use the default code snippets. 
-        from mitosheet.enterprise.api.code_snippets_utils import create_success_return_obj
         return create_success_return_obj(DEFAULT_CODE_SNIPPETS)
 
