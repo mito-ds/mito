@@ -203,6 +203,25 @@ class PivotCodeChunk(CodeChunk):
             return self._combine_right_with_pivot_code_chunk(other_code_chunk)
         return None
 
+    def combine_left(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:
+        # Because overwriting a pivot overwrites all the edits on that pivot table
+        # we can optimize out any edits that are before the pivot 
+        # NOTE: if we start carrying edits on pivots forward, we should remove this 
+        # optimization
+
+        destination_sheet_index = self.get_param('destination_sheet_index')
+        edited_sheet_indexes = other_code_chunk.get_edited_sheet_indexes()
+
+        if edited_sheet_indexes is not None and len(edited_sheet_indexes) == 1 and edited_sheet_indexes[0] == destination_sheet_index:
+            return PivotCodeChunk(
+                other_code_chunk.prev_state,
+                self.post_state,
+                deepcopy(self.params),
+                deepcopy(self.execution_data)
+            )
+
+        return None
+
     def get_created_sheet_indexes(self) -> Optional[List[int]]:
         destination_sheet_index = self.get_param('destination_sheet_index')
         if destination_sheet_index is None:
