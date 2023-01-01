@@ -35,6 +35,9 @@ class CodeChunk:
         self.params = params
         self.execution_data = execution_data
 
+    def __repr__(self) -> str:
+        return self.__class__.__name__
+
     def get_display_name(self) -> str:
         """Returns a short name to display for this CodeChunk"""
         raise NotImplementedError('Implement in subclass')
