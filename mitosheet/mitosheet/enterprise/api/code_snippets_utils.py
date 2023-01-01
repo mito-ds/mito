@@ -5,11 +5,10 @@
 # Distributed under the terms of The Mito Enterprise license.
 
 import json
-from token import NEWLINE
 from typing import Any, List, Optional
 import requests
 from mitosheet.telemetry.telemetry_utils import log
-from mitosheet.transpiler.transpile_utils import NEWLINE_TAB
+from mitosheet.transpiler.transpile_utils import NEWLINE, NEWLINE_TAB
 from mitosheet.types import CodeSnippet
 
 # Global variable used to cache the custom code snippets so that when users
