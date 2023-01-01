@@ -130,7 +130,7 @@ class MitoConfig:
             return DEFAULT_MITO_CONFIG_SUPPORT_EMAIL
         return self.mec[MITO_CONFIG_KEY_SUPPORT_EMAIL]
 
-    def get_code_snippets_version(self) -> str:
+    def get_code_snippets_version(self) -> Optional[str]:
         if self.mec is None or self.mec[MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION] is None:
             return None
         return self.mec[MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION]
