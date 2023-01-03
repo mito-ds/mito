@@ -838,7 +838,7 @@ def test_pivot_transform(original_df, pivot_rows, pivot_columns, values, pivoted
 def test_pivot_transform_with_filter_source_column():
     df = pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000', '1-2-2000', '2-1-2001', '2-2-2001']), 'value': [1, 2, 3, 4]})
     mito = create_mito_wrapper_dfs(df)
-    pivot_rows_with_transforms: List[ColumnHeaderWithPivotTransform] = [{'column_header': 'date', 'transformation': PCT_DATE_YEAR}]
+    pivot_rows_with_transforms = [{'column_header': 'date', 'transformation': PCT_DATE_YEAR}]
     mito.pivot_sheet(0, pivot_rows_with_transforms, [], {'value': ['sum']}, pivot_filters=[
         {
             'column_header': 'date', 
@@ -929,3 +929,4 @@ def test_pivot_with_rename_works_then_edit_optimized_properly():
     mito.rename_dataframe(1, 'NEW')
     mito.pivot_sheet(0, ['date'], [], {'value': ['sum']}, destination_sheet_index=1)
     assert len(mito.optimized_code_chunks) == 1
+

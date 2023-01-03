@@ -380,33 +380,35 @@ def get_entire_filter_string(state: State, sheet_index: int, operator: str, filt
 
 class FilterCodeChunk(CodeChunk):
 
+    def __init__(self, prev_state: State, post_state: State, params: Dict[str, Any], execution_data: Optional[Dict[str, Any]]):
+        super().__init__(prev_state, post_state, params, execution_data)
+        self.sheet_index: int = params['sheet_index']
+        self.column_id: ColumnID = params['column_id']
+        self.operator: str = params['operator']
+        self.filters: List[Dict[str, Any]] = params['filters']
+
+        self.df_name = self.post_state.df_names[self.sheet_index]
+
+
     def get_display_name(self) -> str:
         return 'Filtered'
     
     def get_description_comment(self) -> str:
-        sheet_index = self.get_param('sheet_index')
-        column_id = self.get_param('column_id')
-        column_header = self.post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
+        column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
         return f'Filtered {column_header}'
 
     def get_code(self) -> List[str]:
-        sheet_index: int = self.get_param('sheet_index')
-        column_id: ColumnID = self.get_param('column_id')
-        operator: str = self.get_param('operator')
-        filters: List[Dict[str, Any]] = self.get_param('filters')
-
-        df_name = self.post_state.df_names[sheet_index]
 
         entire_filter_string = get_entire_filter_string(
-            self.post_state, sheet_index, operator, filters, column_id
+            self.post_state, self.sheet_index, self.operator, self.filters, self.column_id
         )
 
         if entire_filter_string is None:
             return []
         else:
             return [
-                f"{df_name} = {df_name}[{entire_filter_string}]",
+                f"{self.df_name} = {self.df_name}[{entire_filter_string}]",
             ]
 
     def get_edited_sheet_indexes(self) -> List[int]:
-        return [self.get_param('sheet_index')]
+        return [self.sheet_index]

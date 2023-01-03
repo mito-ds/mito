@@ -85,11 +85,11 @@ def get_right_combine_with_column_delete_code_chunk(
 
 
     # If the sheet indexes don't match, bail
-    if code_chunk.get_param(sheet_index_key) != delete_columns_code_chunk.get_param('sheet_index'):
+    if code_chunk.params[sheet_index_key] != delete_columns_code_chunk.sheet_index:
         return None
 
-    column_id = code_chunk.get_param(column_id_key)
-    deleted_column_ids = delete_columns_code_chunk.get_param('column_ids')
+    column_id = code_chunk.params[column_id_key]
+    deleted_column_ids = delete_columns_code_chunk.column_ids
 
     if column_id in deleted_column_ids:
         new_deleted_column_ids = copy(deleted_column_ids)

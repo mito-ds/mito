@@ -4,8 +4,9 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.state import State
 
 
 class EmptyCodeChunk(CodeChunk):
@@ -18,11 +19,16 @@ class EmptyCodeChunk(CodeChunk):
     these steps in the code optimization process.
     """
 
+    def __init__(self, prev_state: State, post_state: State, params: Dict[str, Any], execution_data: Optional[Dict[str, Any]]):
+        super().__init__(prev_state, post_state, params, execution_data)
+        self.display_name: str = params['display_name']
+        self.description_comment: str = params['description_comment']
+
     def get_display_name(self) -> str:
-        return self.get_param('display_name')
+        return self.display_name
     
     def get_description_comment(self) -> str:
-        return self.get_param('description_comment')
+        return self.description_comment
 
     def get_code(self) -> List[str]:
         return []

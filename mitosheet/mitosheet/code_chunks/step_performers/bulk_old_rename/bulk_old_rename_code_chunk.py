@@ -19,7 +19,7 @@ class BulkOldRenameCodeChunk(CodeChunk):
         return f'Renamed headers for compatibility with previous Mito versions'
 
     def get_code(self) -> List[str]:
-        column_header_renames_list = self.get_execution_data('column_header_renames_list')
+        column_header_renames_list = self.execution_data['column_header_renames_list'] if self.execution_data is not None else []
 
         code = []
         for sheet_index, df_name in enumerate(self.post_state.df_names):

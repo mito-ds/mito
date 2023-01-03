@@ -54,22 +54,6 @@ class CodeChunk:
     # data that you're allowed to reference, and then check this when you create
     # the step, for strong typing!
 
-    def get_param(self, key: str) -> Any:
-        """
-        Gets a value from the params passed to this CodeChunk
-        """
-        if key in self.params:
-            return self.params[key]
-        return None
-
-    def get_execution_data(self, key: str) -> Any:
-        """
-        Gets a value from the execution_data passed to this CodeChunk
-        """
-        if self.execution_data and key in self.execution_data:
-            return self.execution_data[key]
-        return None
-
     def params_match(self, other_code_chunk: "CodeChunk", param_keys: List[str]) -> bool:
         """
         Given a different code chunk, and a list of keys to check, returns True if
@@ -77,7 +61,7 @@ class CodeChunk:
         CodeChunks are compatible for combination.
         """
         for key in param_keys:
-            if self.get_param(key) != other_code_chunk.get_param(key):
+            if self.params[key] != other_code_chunk.params[key]:
                 return False
         return True
 
