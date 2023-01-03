@@ -24,11 +24,11 @@ SNOWFLAKEIMPORT_TESTS = [
         ]
     ),
 ]
-@pytest.mark.parametrize("input_dfs, connection_info, query_params, output_dfs", SNOWFLAKEIMPORT_TESTS)
-def test_snowflakeimport(input_dfs, connection_info, query_params, output_dfs):
+@pytest.mark.parametrize("input_dfs, snowflake_credentials, query_params, output_dfs", SNOWFLAKEIMPORT_TESTS)
+def test_snowflakeimport(input_dfs, snowflake_credentials, query_params, output_dfs):
     mito = create_mito_wrapper_dfs(*input_dfs)
 
-    mito.snowflakeimport(connection_info, query_params)
+    mito.snowflakeimport(snowflake_credentials, query_params)
 
     assert len(mito.dfs) == len(output_dfs)
     for actual, expected in zip(mito.dfs, output_dfs):

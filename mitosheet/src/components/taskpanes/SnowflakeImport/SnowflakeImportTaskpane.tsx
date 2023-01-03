@@ -32,26 +32,47 @@ interface SnowflakeImportTaskpaneProps {
     selectedSheetIndex: number;
 }
 
-export type ConnectionInfo = {type: 'username/password', username: string, password: string, account: string};
-type QueryParams = {warehouse: string, database: string, schema: string, table: string, columns: string[], limit: number};
+export type SnowflakeCredentials = {type: 'username/password', username: string, password: string, account: string};
+
+export type SnowflakeConnection = {
+    // TODO: These should be allowed to be undefined
+    warehouse: string, 
+    database: string, 
+    schema: string,
+}
+
+export type SnowflakeQueryParams = {
+	table: string,
+	columns: string[],
+	limit: number | undefined
+}
+
+export type SnowflakeConfigOptions = {
+	warehouses: string[],
+	databases: string[],
+	schemas: string[],
+	tables: string[]
+	columns: string[]
+}
 
 interface SnowflakeImportParams {
-    connection_info: ConnectionInfo,
-    query_params: QueryParams,
+    credentials: SnowflakeCredentials,
+    connection: SnowflakeConnection,
+    query_params: SnowflakeQueryParams,
 }
 const getDefaultParams = (): SnowflakeImportParams | undefined => {
     return {
-        connection_info: {type: 'username/password', username: '', password: '', account: ''},
-        query_params: {warehouse: '', database: '', schema: '', table: '', columns: [], limit: 0},
+        credentials: {type: 'username/password', username: '', password: '', account: ''},
+        connection: {warehouse: '', database: '', schema: ''},
+        query_params: {table: '', columns: [], limit: undefined},
     }
 }
 
 export type ConnectionResult = {
     type: 'success',
-    warehouses: string[],    
-    databases: string[],    
-    schemas: string[],    
-    tables: string[],
+    config_options: SnowflakeConfigOptions,
+    connection: SnowflakeConnection
+    query_params: SnowflakeQueryParams
 } | {
     type: 'error',
     error_message: string
@@ -84,7 +105,9 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
         setParams((prevParams) => {
             return updateObjectWithPartialObject(prevParams, {'query_params': {'columns': columns}});
         })
-    }, [params?.query_params.warehouse || '', params?.query_params.warehouse || '', params?.query_params.warehouse || '', params?.query_params.warehouse || ''])
+    }, [params?.connection.warehouse || '', params?.connection.warehouse || '', params?.connection.warehouse || '', params?.connection.warehouse || ''])
+
+    // TODO: The line above should certainly not be all warehouse. Figure out what is going on there!!
 
     if (params === undefined) {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
@@ -105,11 +128,11 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         </Col>
                         <Col>
                             <Input 
-                                value={params.connection_info.username} 
+                                value={params.credentials.username} 
                                 onChange={(e) => {
                                     const newUsername = e.target.value;
                                     setParams((prevParams) => {
-                                        return updateObjectWithPartialObject(prevParams, {'connection_info': {'username': newUsername}});
+                                        return updateObjectWithPartialObject(prevParams, {'credentials': {'username': newUsername}});
                                     })
                                 }}/>
                         </Col>
@@ -120,12 +143,12 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         </Col>
                         <Col>
                             <Input 
-                                value={params.connection_info.password} 
+                                value={params.credentials.password} 
                                 type='password'
                                 onChange={(e) => {
                                     const newUsername = e.target.value;
                                     setParams((prevParams) => {
-                                        return updateObjectWithPartialObject(prevParams, {'connection_info': {'password': newUsername}});
+                                        return updateObjectWithPartialObject(prevParams, {'credentials': {'password': newUsername}});
                                     })
                                 }}/>
                         </Col>
@@ -136,34 +159,30 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         </Col>
                         <Col>
                             <Input 
-                                value={params.connection_info.account} 
+                                value={params.credentials.account} 
                                 onChange={(e) => {
                                     const newUsername = e.target.value;
                                     setParams((prevParams) => {
-                                        return updateObjectWithPartialObject(prevParams, {'connection_info': {'account': newUsername}});
+                                        return updateObjectWithPartialObject(prevParams, {'credentials': {'account': newUsername}});
                                     })
                                 }}/>
                         </Col>
                     </Row>
+                    {/* TODO: Make pressing enter if they have not yet connected submit this button? */}
                     <TextButton
-                        disabled={params.connection_info.username.length === 0 || params.connection_info.password.length === 0 || params.connection_info.account.length === 0}
+                        disabled={params.credentials.username.length === 0 || params.credentials.password.length === 0 || params.credentials.account.length === 0}
                         disabledTooltip='Please fill out the username, password, and account fields below.'
                         onClick={async () => {
-                            const snowflakeConnection = await props.mitoAPI.getSnowflakeConnection({connection_info: params.connection_info});
+                            const snowflakeConnection = await props.mitoAPI.getSnowflakeConnection({credentials: params.credentials});
                             setConnectionResult(snowflakeConnection);
 
-                            
-
                             if (snowflakeConnection?.type === 'success') {
-                                // Update the params to select the first warehouse, database, schema, table
-                                // TODO: check if they are empty
                                 setParams((prevParams) => {
-                                    return updateObjectWithPartialObject(prevParams, {query_params: {
-                                        warehouse: snowflakeConnection.warehouses[0],
-                                        database: snowflakeConnection.databases[0],
-                                        schema: snowflakeConnection.schemas[0],
-                                        table: snowflakeConnection.tables[0],
-                                    }})
+                                    return {
+                                        ...prevParams,
+                                        connection: snowflakeConnection.connection,
+                                        query_params: snowflakeConnection.query_params
+                                    }
                                 })
 
                                 // If the user connects successful, we close the connection window
@@ -190,14 +209,14 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         <Col>
                             <Select
                                 width="medium"
-                                value={params.query_params.warehouse}
+                                value={params.connection.warehouse}
                                 onChange={(newWarehouse) => {
                                     setParams((prevParams) => {
-                                        return updateObjectWithPartialObject(prevParams, {'query_params': {'warehouse': newWarehouse}});
+                                        return updateObjectWithPartialObject(prevParams, {'connection': {'warehouse': newWarehouse}});
                                     })
                                 }}
                             >
-                                {connectionResult?.type === 'success' ? connectionResult.warehouses.map((warehouse) => {
+                                {connectionResult?.type === 'success' ? connectionResult.config_options.warehouses.map((warehouse) => {
                                     return (
                                         <DropdownItem id={warehouse} title={warehouse}/>
                                     )
@@ -212,14 +231,14 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         <Col>
                             <Select
                                 width="medium"
-                                value={params.query_params.database}
+                                value={params.connection.database}
                                 onChange={(newDatabase) => {
                                     setParams((prevParams) => {
-                                        return updateObjectWithPartialObject(prevParams, {'query_params': {'database': newDatabase}});
+                                        return updateObjectWithPartialObject(prevParams, {'connection': {'database': newDatabase}});
                                     })
                                 }}
                             >
-                                {connectionResult?.type === 'success' ? connectionResult.databases.map((database) => {
+                                {connectionResult?.type === 'success' ? connectionResult.config_options.databases.map((database) => {
                                     return (
                                         <DropdownItem id={database} title={database}/>
                                     )
@@ -234,14 +253,14 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         <Col>
                             <Select
                                 width="medium"
-                                value={params.query_params.schema}
+                                value={params.connection.schema}
                                 onChange={(newSchema) => {
                                     setParams((prevParams) => {
-                                        return updateObjectWithPartialObject(prevParams, {'query_params': {'schema': newSchema}});
+                                        return updateObjectWithPartialObject(prevParams, {'connection': {'schema': newSchema}});
                                     })
                                 }}
                             >
-                                {connectionResult?.type === 'success' ? connectionResult.schemas.map((schema) => {
+                                {connectionResult?.type === 'success' ? connectionResult.config_options.schemas.map((schema) => {
                                     return (
                                         <DropdownItem id={schema} title={schema}/>
                                     )
@@ -263,7 +282,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                     })
                                 }}
                             >
-                                {connectionResult?.type === 'success' ? connectionResult.tables.map((table) => {
+                                {connectionResult?.type === 'success' ? connectionResult.config_options.tables.map((table) => {
                                     return (
                                         <DropdownItem id={table} title={table}/>
                                     )
@@ -275,39 +294,42 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                 <Row justify="start">
                     <p className="text-header-3">Columns to Import</p>
                 </Row>
-                <MultiToggleBox
-                    toggleAllIndexes={(indexesToToggle) => {
-                        setParams(prevParams => {
-                            const newColumns = [...prevParams.query_params.columns];
-                            const columnsToToggle = indexesToToggle.map(index => columns[index]);
-                            columnsToToggle.forEach(sheetName => {
-                                toggleInArray(newColumns, sheetName);
+                {connectionResult?.type === 'success' &&
+                    <MultiToggleBox
+                        toggleAllIndexes={(indexesToToggle) => {
+                            setParams(prevParams => {
+                                const newColumns = [...prevParams.query_params.columns];
+                                const columnsToToggle = indexesToToggle.map(index => columns[index]);
+                                columnsToToggle.forEach(sheetName => {
+                                    toggleInArray(newColumns, sheetName);
+                                })
+
+                                return updateObjectWithPartialObject(prevParams, {'query_params': {'columns': newColumns}});
                             })
+                        }}
+                    >
+                        {connectionResult.config_options.columns.map((column, index) => {
+                            const isToggled = params.query_params.columns.includes(column);
+                            return (
+                                <MultiToggleItem 
+                                    title={column} 
+                                    toggled={isToggled} 
+                                    onToggle={() => {
+                                        setParams((prevParams) => {
+                                            const newColumns = [...prevParams.query_params.columns];
+                                            toggleInArray(newColumns, column);
 
-                            return updateObjectWithPartialObject(prevParams, {'query_params': {'columns': newColumns}});
-                        })
-                    }}
-                >
-                    {columns.map((column, index) => {
-                        const isToggled = params.query_params.columns.includes(column);
-                        return (
-                            <MultiToggleItem 
-                                title={column} 
-                                toggled={isToggled} 
-                                onToggle={() => {
-                                    setParams((prevParams) => {
-                                        const newColumns = [...prevParams.query_params.columns];
-                                        toggleInArray(newColumns, column);
+                                            return updateObjectWithPartialObject(prevParams, {'query_params': {'columns': newColumns}})
+                                        })
+                                    }} 
+                                    index={index}
+                                />
+                            )
+                        })}
 
-                                        return updateObjectWithPartialObject(prevParams, {'query_params': {'columns': newColumns}})
-                                    })
-                                }} 
-                                index={index}
-                            />
-                        )
-                    })}
-
-                </MultiToggleBox>
+                    </MultiToggleBox>
+                }
+                
                 {/* TODO: add the user input for query_params of type Any */}
 
             </DefaultTaskpaneBody>

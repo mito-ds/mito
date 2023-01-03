@@ -10,7 +10,7 @@ import { GraphObject } from "../components/taskpanes/ControlPanel/SummaryStatsTa
 import { UniqueValueCount, UniqueValueSortType } from "../components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
 import { FileElement } from "../components/taskpanes/FileImport/FileImportTaskpane";
 import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Graph/graphUtils";
-import { ConnectionInfo, ConnectionResult } from "../components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
+import { ConnectionResult, SnowflakeCredentials } from "../components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
 import { AnalysisData, BackendPivotParams, CodeSnippet, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, GraphID, GraphParamsFrontend, MitoError, SheetData, UIState, UserProfile } from "../types";
@@ -694,7 +694,7 @@ export default class MitoAPI {
     }
 
     
-    async getSnowflakeConnection(params: {connection_info: ConnectionInfo}): Promise<ConnectionResult | undefined> {
+    async getSnowflakeConnection(params: {credentials: SnowflakeCredentials}): Promise<ConnectionResult | undefined> {
 
         const resultString = await this.send<string>({
             'event': 'api_call',

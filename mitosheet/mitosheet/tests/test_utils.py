@@ -484,7 +484,7 @@ class MitoWidgetTestWrapper:
     @check_transpiled_code_after_call
     def snowflakeimport(
             self, 
-            connection_info: Any,
+            snowflake_credentials: Any,
             query_params: Any,
         ) -> bool:
 
@@ -498,7 +498,7 @@ class MitoWidgetTestWrapper:
                 'type': 'snowflakeimport_edit',
                 'step_id': get_new_id(),
                 'params': {
-                    'connection_info': connection_info,
+                    'snowflake_credentials': snowflake_credentials,
                     'query_params': query_params,
                     
                 }

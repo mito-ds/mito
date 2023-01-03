@@ -14,18 +14,18 @@ class SnowflakeImportCodeChunk(CodeChunk):
         return 'Import from Snowflake'
     
     def get_description_comment(self) -> str:
-        connection_info: Any = self.get_param('connection_info')
+        snowflake_credentials: Any = self.get_param('snowflake_credentials')
         query_params: Any = self.get_param('query_params')
         
         return "Imported dataframe from Snowflake"
 
     def get_code(self) -> List[str]:
-        connection_info: Any = self.get_param('connection_info')
+        snowflake_credentials: Any = self.get_param('snowflake_credentials')
         query_params: Any = self.get_param('query_params')
 
-        username = connection_info['username']
-        password = connection_info['password']
-        account = connection_info['account']
+        username = snowflake_credentials['username']
+        password = snowflake_credentials['password']
+        account = snowflake_credentials['account']
         
 
         # TODO: actually generate the code here!

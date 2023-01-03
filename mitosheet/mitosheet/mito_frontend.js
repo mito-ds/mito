@@ -38030,8 +38030,9 @@ fig.write_html("${props.graphTabName}.html")`
   var import_react162 = __toESM(require_react());
   var getDefaultParams7 = () => {
     return {
-      connection_info: { type: "username/password", username: "", password: "", account: "" },
-      query_params: { warehouse: "", database: "", schema: "", table: "", columns: [], limit: 0 }
+      credentials: { type: "username/password", username: "", password: "", account: "" },
+      connection: { warehouse: "", database: "", schema: "" },
+      query_params: { table: "", columns: [], limit: void 0 }
     };
   };
   var SnowflakeImportTaskpane = (props) => {
@@ -38053,7 +38054,7 @@ fig.write_html("${props.graphTabName}.html")`
       setParams((prevParams) => {
         return updateObjectWithPartialObject(prevParams, { "query_params": { "columns": columns2 } });
       });
-    }, [(params == null ? void 0 : params.query_params.warehouse) || "", (params == null ? void 0 : params.query_params.warehouse) || "", (params == null ? void 0 : params.query_params.warehouse) || "", (params == null ? void 0 : params.query_params.warehouse) || ""]);
+    }, [(params == null ? void 0 : params.connection.warehouse) || "", (params == null ? void 0 : params.connection.warehouse) || "", (params == null ? void 0 : params.connection.warehouse) || "", (params == null ? void 0 : params.connection.warehouse) || ""]);
     if (params === void 0) {
       return /* @__PURE__ */ import_react162.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
     }
@@ -38066,53 +38067,51 @@ fig.write_html("${props.graphTabName}.html")`
     ), /* @__PURE__ */ import_react162.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react162.default.createElement(CollapsibleSection_default, { title: "Connection", open: openConnectionSection }, /* @__PURE__ */ import_react162.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react162.default.createElement(Col_default, null, "Username"), /* @__PURE__ */ import_react162.default.createElement(Col_default, null, /* @__PURE__ */ import_react162.default.createElement(
       Input_default,
       {
-        value: params.connection_info.username,
+        value: params.credentials.username,
         onChange: (e) => {
           const newUsername = e.target.value;
           setParams((prevParams) => {
-            return updateObjectWithPartialObject(prevParams, { "connection_info": { "username": newUsername } });
+            return updateObjectWithPartialObject(prevParams, { "credentials": { "username": newUsername } });
           });
         }
       }
     ))), /* @__PURE__ */ import_react162.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react162.default.createElement(Col_default, null, "Password"), /* @__PURE__ */ import_react162.default.createElement(Col_default, null, /* @__PURE__ */ import_react162.default.createElement(
       Input_default,
       {
-        value: params.connection_info.password,
+        value: params.credentials.password,
         type: "password",
         onChange: (e) => {
           const newUsername = e.target.value;
           setParams((prevParams) => {
-            return updateObjectWithPartialObject(prevParams, { "connection_info": { "password": newUsername } });
+            return updateObjectWithPartialObject(prevParams, { "credentials": { "password": newUsername } });
           });
         }
       }
     ))), /* @__PURE__ */ import_react162.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react162.default.createElement(Col_default, null, "Account"), /* @__PURE__ */ import_react162.default.createElement(Col_default, null, /* @__PURE__ */ import_react162.default.createElement(
       Input_default,
       {
-        value: params.connection_info.account,
+        value: params.credentials.account,
         onChange: (e) => {
           const newUsername = e.target.value;
           setParams((prevParams) => {
-            return updateObjectWithPartialObject(prevParams, { "connection_info": { "account": newUsername } });
+            return updateObjectWithPartialObject(prevParams, { "credentials": { "account": newUsername } });
           });
         }
       }
     ))), /* @__PURE__ */ import_react162.default.createElement(
       TextButton_default,
       {
-        disabled: params.connection_info.username.length === 0 || params.connection_info.password.length === 0 || params.connection_info.account.length === 0,
+        disabled: params.credentials.username.length === 0 || params.credentials.password.length === 0 || params.credentials.account.length === 0,
         disabledTooltip: "Please fill out the username, password, and account fields below.",
         onClick: async () => {
-          const snowflakeConnection = await props.mitoAPI.getSnowflakeConnection({ connection_info: params.connection_info });
+          const snowflakeConnection = await props.mitoAPI.getSnowflakeConnection({ credentials: params.credentials });
           setConnectionResult(snowflakeConnection);
           if ((snowflakeConnection == null ? void 0 : snowflakeConnection.type) === "success") {
             setParams((prevParams) => {
-              return updateObjectWithPartialObject(prevParams, { query_params: {
-                warehouse: snowflakeConnection.warehouses[0],
-                database: snowflakeConnection.databases[0],
-                schema: snowflakeConnection.schemas[0],
-                table: snowflakeConnection.tables[0]
-              } });
+              return __spreadProps(__spreadValues({}, prevParams), {
+                connection: snowflakeConnection.connection,
+                query_params: snowflakeConnection.query_params
+              });
             });
             setOpenConnectionSection(false);
           }
@@ -38124,42 +38123,42 @@ fig.write_html("${props.graphTabName}.html")`
       Select_default,
       {
         width: "medium",
-        value: params.query_params.warehouse,
+        value: params.connection.warehouse,
         onChange: (newWarehouse) => {
           setParams((prevParams) => {
-            return updateObjectWithPartialObject(prevParams, { "query_params": { "warehouse": newWarehouse } });
+            return updateObjectWithPartialObject(prevParams, { "connection": { "warehouse": newWarehouse } });
           });
         }
       },
-      (connectionResult == null ? void 0 : connectionResult.type) === "success" ? connectionResult.warehouses.map((warehouse) => {
+      (connectionResult == null ? void 0 : connectionResult.type) === "success" ? connectionResult.config_options.warehouses.map((warehouse) => {
         return /* @__PURE__ */ import_react162.default.createElement(DropdownItem_default, { id: warehouse, title: warehouse });
       }) : []
     ))), /* @__PURE__ */ import_react162.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react162.default.createElement(Col_default, null, "Database"), /* @__PURE__ */ import_react162.default.createElement(Col_default, null, /* @__PURE__ */ import_react162.default.createElement(
       Select_default,
       {
         width: "medium",
-        value: params.query_params.database,
+        value: params.connection.database,
         onChange: (newDatabase) => {
           setParams((prevParams) => {
-            return updateObjectWithPartialObject(prevParams, { "query_params": { "database": newDatabase } });
+            return updateObjectWithPartialObject(prevParams, { "connection": { "database": newDatabase } });
           });
         }
       },
-      (connectionResult == null ? void 0 : connectionResult.type) === "success" ? connectionResult.databases.map((database) => {
+      (connectionResult == null ? void 0 : connectionResult.type) === "success" ? connectionResult.config_options.databases.map((database) => {
         return /* @__PURE__ */ import_react162.default.createElement(DropdownItem_default, { id: database, title: database });
       }) : []
     ))), /* @__PURE__ */ import_react162.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react162.default.createElement(Col_default, null, "Schema"), /* @__PURE__ */ import_react162.default.createElement(Col_default, null, /* @__PURE__ */ import_react162.default.createElement(
       Select_default,
       {
         width: "medium",
-        value: params.query_params.schema,
+        value: params.connection.schema,
         onChange: (newSchema) => {
           setParams((prevParams) => {
-            return updateObjectWithPartialObject(prevParams, { "query_params": { "schema": newSchema } });
+            return updateObjectWithPartialObject(prevParams, { "connection": { "schema": newSchema } });
           });
         }
       },
-      (connectionResult == null ? void 0 : connectionResult.type) === "success" ? connectionResult.schemas.map((schema) => {
+      (connectionResult == null ? void 0 : connectionResult.type) === "success" ? connectionResult.config_options.schemas.map((schema) => {
         return /* @__PURE__ */ import_react162.default.createElement(DropdownItem_default, { id: schema, title: schema });
       }) : []
     ))), /* @__PURE__ */ import_react162.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react162.default.createElement(Col_default, null, "Table"), /* @__PURE__ */ import_react162.default.createElement(Col_default, null, /* @__PURE__ */ import_react162.default.createElement(
@@ -38173,10 +38172,10 @@ fig.write_html("${props.graphTabName}.html")`
           });
         }
       },
-      (connectionResult == null ? void 0 : connectionResult.type) === "success" ? connectionResult.tables.map((table) => {
+      (connectionResult == null ? void 0 : connectionResult.type) === "success" ? connectionResult.config_options.tables.map((table) => {
         return /* @__PURE__ */ import_react162.default.createElement(DropdownItem_default, { id: table, title: table });
       }) : []
-    )))), /* @__PURE__ */ import_react162.default.createElement(Row_default, { justify: "start" }, /* @__PURE__ */ import_react162.default.createElement("p", { className: "text-header-3" }, "Columns to Import")), /* @__PURE__ */ import_react162.default.createElement(
+    )))), /* @__PURE__ */ import_react162.default.createElement(Row_default, { justify: "start" }, /* @__PURE__ */ import_react162.default.createElement("p", { className: "text-header-3" }, "Columns to Import")), (connectionResult == null ? void 0 : connectionResult.type) === "success" && /* @__PURE__ */ import_react162.default.createElement(
       MultiToggleBox_default,
       {
         toggleAllIndexes: (indexesToToggle) => {
@@ -38190,7 +38189,7 @@ fig.write_html("${props.graphTabName}.html")`
           });
         }
       },
-      columns.map((column, index) => {
+      connectionResult.config_options.columns.map((column, index) => {
         const isToggled = params.query_params.columns.includes(column);
         return /* @__PURE__ */ import_react162.default.createElement(
           MultiToggleItem_default,

@@ -30,7 +30,7 @@ class SnowflakeImportStepPerformer(StepPerformer):
 
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
-        connection_info: Any = get_param(params, 'connection_info')
+        snowflake_credentials: Any = get_param(params, 'snowflake_credentials')
         query_params: Any = get_param(params, 'query_params')
         
 
