@@ -36,13 +36,13 @@ export type SnowflakeCredentials = {type: 'username/password', username: string,
 
 export type SnowflakeConnection = {
     // TODO: These should be allowed to be undefined
-    warehouse: string, 
-    database: string, 
-    schema: string,
+    warehouse: string | undefined, 
+    database: string | undefined, 
+    schema: string | undefined,
 }
 
 export type SnowflakeQueryParams = {
-	table: string,
+	table: string | undefined,
 	columns: string[],
 	limit: number | undefined
 }
@@ -55,7 +55,7 @@ export type SnowflakeConfigOptions = {
 	columns: string[]
 }
 
-interface SnowflakeImportParams {
+export interface SnowflakeImportParams {
     credentials: SnowflakeCredentials,
     connection: SnowflakeConnection,
     query_params: SnowflakeQueryParams,
@@ -63,8 +63,8 @@ interface SnowflakeImportParams {
 const getDefaultParams = (): SnowflakeImportParams | undefined => {
     return {
         credentials: {type: 'username/password', username: '', password: '', account: ''},
-        connection: {warehouse: '', database: '', schema: ''},
-        query_params: {table: '', columns: [], limit: undefined},
+        connection: {warehouse: undefined, database: undefined, schema: undefined},
+        query_params: {table: undefined, columns: [], limit: undefined},
     }
 }
 
@@ -173,7 +173,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         disabled={params.credentials.username.length === 0 || params.credentials.password.length === 0 || params.credentials.account.length === 0}
                         disabledTooltip='Please fill out the username, password, and account fields below.'
                         onClick={async () => {
-                            const snowflakeConnection = await props.mitoAPI.getSnowflakeConnection({credentials: params.credentials});
+                            const snowflakeConnection = await props.mitoAPI.getSnowflakeConnection(params);
                             setConnectionResult(snowflakeConnection);
 
                             if (snowflakeConnection?.type === 'success') {
@@ -209,7 +209,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         <Col>
                             <Select
                                 width="medium"
-                                value={params.connection.warehouse}
+                                value={params.connection.warehouse || 'None available'}
                                 onChange={(newWarehouse) => {
                                     setParams((prevParams) => {
                                         return updateObjectWithPartialObject(prevParams, {'connection': {'warehouse': newWarehouse}});
@@ -231,7 +231,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         <Col>
                             <Select
                                 width="medium"
-                                value={params.connection.database}
+                                value={params.connection.database || 'None available'}
                                 onChange={(newDatabase) => {
                                     setParams((prevParams) => {
                                         return updateObjectWithPartialObject(prevParams, {'connection': {'database': newDatabase}});
@@ -253,7 +253,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         <Col>
                             <Select
                                 width="medium"
-                                value={params.connection.schema}
+                                value={params.connection.schema || 'None available'}
                                 onChange={(newSchema) => {
                                     setParams((prevParams) => {
                                         return updateObjectWithPartialObject(prevParams, {'connection': {'schema': newSchema}});
@@ -275,7 +275,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         <Col>
                             <Select
                                 width="medium"
-                                value={params.query_params.table}
+                                value={params.query_params.table || 'None available'}
                                 onChange={(newTable) => {
                                     setParams((prevParams) => {
                                         return updateObjectWithPartialObject(prevParams, {'query_params': {'table': newTable}});

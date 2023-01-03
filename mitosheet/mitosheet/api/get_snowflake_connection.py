@@ -5,16 +5,18 @@
 # Distributed under the terms of the GPL License.
 
 import json
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from mitosheet.types import StepsManagerType
 import snowflake.connector
 
 
 def get_snowflake_connection(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
-        credentials: Any = params['credentials']
+        credentials: Dict[str, str] = params['credentials']
         username = credentials['username']
         password = credentials['password']
         account = credentials['account']
+        
+
 
         # if username != 'u' or password != 'p' or account != 'a':
         #         return json.dumps({
@@ -28,27 +30,55 @@ def get_snowflake_connection(params: Dict[str, Any], steps_manager: StepsManager
                 account=account,
         )
 
+
+        connection: Dict[str, str] = params['connection']
+        query_params: Dict[str, str] = params['query_params']
+        _warehouse = connection.get('warehouse')
+        _database = connection.get('database') 
+        _schema = connection.get('schema')
+        _table = query_params.get('table')
+        _columns = query_params.get('columns')
+        limit = query_params.get('limit')
+
+        print('starting')
+        print('_warehouse: ', _warehouse)
+
+        warehouse = _warehouse if _warehouse is not None else get_default_warehouse(ctx)
+        print('warehouse: ', warehouse)
+        database = _database if _database is not None else get_default_database(ctx)
+        print('database: ', database)
+        schema = _schema if _schema is not None else get_default_schemas(ctx, database)
+        print('schema: ', schema)
+        table = _table if _table is not None else get_default_table(ctx, database, schema)
+        print('table: ', table)
+        columns = _columns if _columns is not None else get_columns(ctx, table)
+        print('columns: ', columns)
+
+
         warehouses = get_warehouses(ctx)
         databases = get_databases(ctx)
+        schemas = get_schemas(ctx, database)
+        tables = get_tables(ctx, database, schema)
+        columns = get_columns(ctx, database, schema, table)
 
         return json.dumps({
                 'type': 'success',    
                 'config_options': {
                         'warehouses': warehouses,    
                         'databases': databases,    
-                        'schemas': ['schema1', 'schema2', 'schema3'],    
-                        'tables': ['table1', 'table2', 'table3'],
-                        'columns': ['column1', 'column2', 'column3']
+                        'schemas': schemas,    
+                        'tables': tables,
+                        'columns': columns
                 },
                 'connection': {
-                        'warehouse': warehouses[0], # Handle if empty
-                        'database': databases[0], # Handle if empty
-                        'schema': 'schema1', #Handle if empty
+                        'warehouse': warehouse,
+                        'database': database,
+                        'schema': schema
                 },
                 'query_params': {
-                        'table': 'table1',
-                        'columns': ['column1', 'column2', 'column3'],
-                        'limit': 1  
+                        'table': table,
+                        'columns': columns,
+                        'limit': limit 
                 }
         })
                 
@@ -65,8 +95,54 @@ def get_databases(ctx) -> List[str]:
         databases = cur.fetchall()
         return [db[1] for db in databases]
 
-def get_schemas(ctx, database: str) -> List[str]:
+def get_schemas(ctx, database: Optional[str]) -> List[str]:
         # List all of the schemas in a particular database available to the user
         cur = ctx.cursor().execute(f'SHOW SCHEMAS in {database}')
         schemas = cur.fetchall()
         return [s[1] for s in schemas]
+
+def get_tables(ctx, database: Optional[str], schema: Optional[str]) -> List[str]:
+        if database is None or schema is None:
+                return None
+
+        # List all of the tables in a schema
+        cur = ctx.cursor().execute(f'SHOW TABLES in {database}.{schema}')
+        tables = cur.fetchall()
+        return [table[1] for table in tables]
+
+def get_columns(ctx, database: Optional[str], schema: Optional[str], table: Optional[str]) -> List[str]:
+        if database is None or schema is None or table is None:
+                return []
+        # List all of the columns in a table 
+        cur = ctx.cursor().execute(f'SHOW COLUMNS in {database}.{schema}.{table}')
+        columns = cur.fetchall()
+        return [column[2] for column in columns]
+
+def get_default_warehouse(ctx) -> Optional[str]:
+        # TODO: Update this function to check if the user has a default warehouse and use it 
+        warehouses = get_warehouses(ctx)
+        return warehouses[0] if warehouses is not None and len(warehouses) > 0 else None 
+
+def get_default_database(ctx) -> Optional[str]:
+        # TODO: Update this function to check if the user has a default database and use it
+        databases = get_databases(ctx)
+        return databases[0] if databases is not None and len(databases) > 0 else None 
+
+def get_default_schemas(ctx, database: Optional[str]) -> Optional[str]:
+        # We can't be sure that there will be a database, so we need to take 
+        # extra care to handle the None case
+        if database is None:
+                return None
+
+        # TODO: Update this function to check if the user has a default schema and use it
+        schemas = get_schemas(ctx, database)
+        return schemas[0] if schemas is not None and len(schemas) > 0 else None 
+
+def get_default_table(ctx, database: Optional[str], schema: Optional[str]) -> Optional[str]:
+        if database is None or schema is None:
+                return None
+
+        # TODO: Update this function to check if the user has a default schema and use it
+        tables = get_tables(ctx, database, schema)
+        return tables[0] if tables is not None and len(tables) > 0 else None
+

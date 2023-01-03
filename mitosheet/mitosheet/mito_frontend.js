@@ -38031,8 +38031,8 @@ fig.write_html("${props.graphTabName}.html")`
   var getDefaultParams7 = () => {
     return {
       credentials: { type: "username/password", username: "", password: "", account: "" },
-      connection: { warehouse: "", database: "", schema: "" },
-      query_params: { table: "", columns: [], limit: void 0 }
+      connection: { warehouse: void 0, database: void 0, schema: void 0 },
+      query_params: { table: void 0, columns: [], limit: void 0 }
     };
   };
   var SnowflakeImportTaskpane = (props) => {
@@ -38104,7 +38104,7 @@ fig.write_html("${props.graphTabName}.html")`
         disabled: params.credentials.username.length === 0 || params.credentials.password.length === 0 || params.credentials.account.length === 0,
         disabledTooltip: "Please fill out the username, password, and account fields below.",
         onClick: async () => {
-          const snowflakeConnection = await props.mitoAPI.getSnowflakeConnection({ credentials: params.credentials });
+          const snowflakeConnection = await props.mitoAPI.getSnowflakeConnection(params);
           setConnectionResult(snowflakeConnection);
           if ((snowflakeConnection == null ? void 0 : snowflakeConnection.type) === "success") {
             setParams((prevParams) => {
@@ -38123,7 +38123,7 @@ fig.write_html("${props.graphTabName}.html")`
       Select_default,
       {
         width: "medium",
-        value: params.connection.warehouse,
+        value: params.connection.warehouse || "None available",
         onChange: (newWarehouse) => {
           setParams((prevParams) => {
             return updateObjectWithPartialObject(prevParams, { "connection": { "warehouse": newWarehouse } });
@@ -38137,7 +38137,7 @@ fig.write_html("${props.graphTabName}.html")`
       Select_default,
       {
         width: "medium",
-        value: params.connection.database,
+        value: params.connection.database || "None available",
         onChange: (newDatabase) => {
           setParams((prevParams) => {
             return updateObjectWithPartialObject(prevParams, { "connection": { "database": newDatabase } });
@@ -38151,7 +38151,7 @@ fig.write_html("${props.graphTabName}.html")`
       Select_default,
       {
         width: "medium",
-        value: params.connection.schema,
+        value: params.connection.schema || "None available",
         onChange: (newSchema) => {
           setParams((prevParams) => {
             return updateObjectWithPartialObject(prevParams, { "connection": { "schema": newSchema } });
@@ -38165,7 +38165,7 @@ fig.write_html("${props.graphTabName}.html")`
       Select_default,
       {
         width: "medium",
-        value: params.query_params.table,
+        value: params.query_params.table || "None available",
         onChange: (newTable) => {
           setParams((prevParams) => {
             return updateObjectWithPartialObject(prevParams, { "query_params": { "table": newTable } });
