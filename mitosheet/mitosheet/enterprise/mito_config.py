@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the The Mito Enterprise license.
 
-from typing import Any, Dict, Final, Optional, Union
+from typing import Any, Dict, Optional
 import os
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.types import CodeSnippetEnvVars
