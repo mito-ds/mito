@@ -4,9 +4,10 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the The Mito Enterprise license.
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 import os
 from mitosheet.telemetry.telemetry_utils import log
+from mitosheet.types import CodeSnippetEnvVarsDefined
 
 # Note: Do not change these keys, we need them for looking up 
 # the environment variables from previous mito_config_versions.
@@ -130,26 +131,45 @@ class MitoConfig:
             return DEFAULT_MITO_CONFIG_SUPPORT_EMAIL
         return self.mec[MITO_CONFIG_KEY_SUPPORT_EMAIL]
 
-    def get_code_snippets_version(self) -> Optional[str]:
+    def _get_code_snippets_version(self) -> Optional[str]:
         if self.mec is None or self.mec[MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION] is None:
             return None
         return self.mec[MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION]
 
-    def get_code_snippets_url(self) -> Optional[str]:
+    def _get_code_snippets_url(self) -> Optional[str]:
         if self.mec is None or self.mec[MITO_CONFIG_KEY_CODE_SNIPPETS_URL] is None:
             return None
         return self.mec[MITO_CONFIG_KEY_CODE_SNIPPETS_URL]
 
-    def get_code_snippets_support_email(self) -> str:
+    def _get_code_snippets_support_email(self) -> str:
         if self.mec is None or self.mec[MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL] is None:
-            return DEFAULT_MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL
+            return None
         return self.mec[MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL]
 
-    def get_code_snippets(self) -> Dict[str, Optional[str]]:
+    def get_code_snippets(self) -> Optional[CodeSnippetEnvVarsDefined]:
+        code_snippets_version = self._get_code_snippets_version()
+        code_snippets_url = self._get_code_snippets_url()
+        code_snippets_support_email = self._get_code_snippets_support_email()
+
+        if code_snippets_version is None and code_snippets_url is None:
+            return None
+
+        if code_snippets_version != '1':
+            log('mito_config_error', {'mito_config_error_reason': 'mito_config_code_snippet_version not set'})
+            raise ValueError(
+                "The code snippet environment variables are configured improperly. The MITO_CONFIG_CODE_SNIPPETS_URL environment variable is set, but the MITO_CONFIG_CODE_SNIPPETS_VERSION environment variable is not set to '1'.)"
+            )
+
+        if code_snippets_url is None:
+            log('mito_config_error', {'mito_config_error_reason': 'mito_config_code_snippets_url not set'})
+            raise ValueError(
+                "The code snippet environment variables are configured improperly. The MITO_CONFIG_CODE_SNIPPETS_VERSION environment variable is set, but the MITO_CONFIG_CODE_SNIPPETS_URL environment variable is not set."
+            )  
+
         return {
-            MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION: self.get_code_snippets_version(),
-            MITO_CONFIG_KEY_CODE_SNIPPETS_URL: self.get_code_snippets_url(),
-            MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL: self.get_code_snippets_support_email(),
+            MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION: code_snippets_version,
+            MITO_CONFIG_KEY_CODE_SNIPPETS_URL: code_snippets_url, 
+            MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL: code_snippets_support_email
         }
 
     # Add new mito configuration options here ...

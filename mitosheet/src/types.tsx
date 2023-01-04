@@ -725,13 +725,13 @@ export interface UserProfile {
     shouldUpgradeMitosheet: boolean;
     numUsages: number;
     mitoConfig: {
-        [MitoEnterpriseConfigKey.MEC_VERSION]: number | undefined
+        [MitoEnterpriseConfigKey.MEC_VERSION]: number | undefined | null
         [MitoEnterpriseConfigKey.SUPPORT_EMAIL]: string
         [MitoEnterpriseConfigKey.CODE_SNIPPETS]: {
-            [MitoEnterpriseConfigKey.CODE_SNIPPETS_VERSION]: string | undefined,
-            [MitoEnterpriseConfigKey.CODE_SNIPPETS_URL]: string | undefined
-            [MitoEnterpriseConfigKey.CODE_SNIPPETS_SUPPORT_EMAIL]: string
-        }
+            [MitoEnterpriseConfigKey.CODE_SNIPPETS_VERSION]: string,
+            [MitoEnterpriseConfigKey.CODE_SNIPPETS_URL]: string
+            [MitoEnterpriseConfigKey.CODE_SNIPPETS_SUPPORT_EMAIL]: string | undefined | null
+        } | null | undefined
     };
 }
 

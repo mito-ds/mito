@@ -17,8 +17,7 @@ import { writeTextToClipboard } from "../../../utils/copy";
 import CodeSnippetIcon from "../../icons/CodeSnippetIcon";
 import { writeCodeSnippetCell } from "../../../jupyter/jupyterUtils";
 import { useDebouncedEffect } from "../../../hooks/useDebouncedEffect";
-import { DEFAULT_SUPPORT_EMAIL } from "../../elements/GetSupportButton";
-import { SLACK_INVITE_LINK } from "../../../data/documentationLinks";
+import { DISCORD_INVITE_LINK } from "../../../data/documentationLinks";
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 import LoadingDots from "../../elements/LoadingDots";
 import { classNames } from "../../../utils/classNames";
@@ -105,6 +104,12 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                         void props.mitoAPI.log('code_snippet_written_to_cell', {'code_snippet_name': codeSnippet.Name});
                     }
 
+                    let openLocation = DISCORD_INVITE_LINK
+                    const codeSnippetSupportEmail = props.userProfile.mitoConfig.MITO_CONFIG_CODE_SNIPPETS?.MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL
+                    if (codeSnippetSupportEmail !== undefined && codeSnippetSupportEmail !== null) {
+                        openLocation = `mailto:${codeSnippetSupportEmail}?subject=Mito Code Snippet Support: ID ${codeSnippet.Id}`
+                    }
+                    
                     return (
                         <Row 
                             key={codeSnippetIndex} 
@@ -149,7 +154,6 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                                     <DropdownItem
                                         title='Get Support'
                                         onClick={() => {
-                                            const openLocation = props.userProfile.mitoConfig.MITO_CONFIG_CODE_SNIPPETS.MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL === DEFAULT_SUPPORT_EMAIL ? SLACK_INVITE_LINK : `mailto:${props.userProfile.mitoConfig.MITO_CONFIG_CODE_SNIPPETS.MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL}?subject=Mito Code Snippet Support: ID ${codeSnippet.Id}`
                                             window.open(openLocation)
                                             void props.mitoAPI?.log('clicked_code_snippet_get_support_button')
                                         }}

@@ -119,6 +119,6 @@ def get_custom_code_snippets(mito_config_code_snippets_url: str) -> str:
     
     # Cache the code snippets so we don't need to request them from the url next time
     cached_custom_code_snippets = code_snippets
-    log('using custom code snippets')
+    log('using_custom_code_snippets')
     return create_success_return_obj(code_snippets)
         

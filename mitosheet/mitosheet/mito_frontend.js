@@ -29459,7 +29459,6 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   var DOCUMENTATION_LINK_TUTORIAL = "https://docs.trymito.io/getting-started/tutorial";
   var DOCUMENTATION_LINK_SPREADSHEET_FORMULAS = "https://docs.trymito.io/how-to/interacting-with-your-data";
   var DISCORD_INVITE_LINK = "https://discord.gg/XdJSZyejJU";
-  var SLACK_INVITE_LINK = "https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg";
 
   // src/utils/copy.tsx
   var getCopyStringForValue = (value, columnDtype, columnFormatType) => {
@@ -37939,6 +37938,7 @@ fig.write_html("${props.graphTabName}.html")`
         placeholder: "Search for a code snippet by name or content"
       }
     ), confirmationText !== void 0 && /* @__PURE__ */ import_react161.default.createElement("p", { className: "text-color-success" }, confirmationText), codeSnippetsToDisplay == null ? void 0 : codeSnippetsToDisplay.map((codeSnippet, codeSnippetIndex) => {
+      var _a;
       const copyToClipboard = () => {
         setConfirmationText(CONFIRMATION_TEXT_COPIED);
         void writeTextToClipboard(codeSnippet.Code.join("\n"));
@@ -37949,6 +37949,11 @@ fig.write_html("${props.graphTabName}.html")`
         writeCodeSnippetCell(props.analysisData.analysisName, codeSnippet.Code.join("\n"));
         void props.mitoAPI.log("code_snippet_written_to_cell", { "code_snippet_name": codeSnippet.Name });
       };
+      let openLocation = DISCORD_INVITE_LINK;
+      const codeSnippetSupportEmail = (_a = props.userProfile.mitoConfig.MITO_CONFIG_CODE_SNIPPETS) == null ? void 0 : _a.MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL;
+      if (codeSnippetSupportEmail !== void 0 && codeSnippetSupportEmail !== null) {
+        openLocation = `mailto:${codeSnippetSupportEmail}?subject=Mito Code Snippet Support: ID ${codeSnippet.Id}`;
+      }
       return /* @__PURE__ */ import_react161.default.createElement(
         Row_default,
         {
@@ -38002,10 +38007,9 @@ fig.write_html("${props.graphTabName}.html")`
             {
               title: "Get Support",
               onClick: () => {
-                var _a;
-                const openLocation = props.userProfile.mitoConfig.MITO_CONFIG_CODE_SNIPPETS.MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL === DEFAULT_SUPPORT_EMAIL ? SLACK_INVITE_LINK : `mailto:${props.userProfile.mitoConfig.MITO_CONFIG_CODE_SNIPPETS.MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL}?subject=Mito Code Snippet Support: ID ${codeSnippet.Id}`;
+                var _a2;
                 window.open(openLocation);
-                void ((_a = props.mitoAPI) == null ? void 0 : _a.log("clicked_code_snippet_get_support_button"));
+                void ((_a2 = props.mitoAPI) == null ? void 0 : _a2.log("clicked_code_snippet_get_support_button"));
               }
             }
           )

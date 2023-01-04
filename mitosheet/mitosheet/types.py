@@ -97,6 +97,11 @@ if sys.version_info[:3] > (3, 8, 0):
         Description: str
         Code: List[str]
 
+    class CodeSnippetEnvVarsDefined(TypedDict):
+        MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION: str
+        MITO_CONFIG_KEY_CODE_SNIPPETS_URL: str
+        MITO_CONFIG_KEY_CODE_SNIPPETS_SUPPORT_EMAIL: str
+
 else:
     ColumnIDWithFilter = Any # type:ignore
     ColumnHeaderWithFilter = Any # type:ignore
