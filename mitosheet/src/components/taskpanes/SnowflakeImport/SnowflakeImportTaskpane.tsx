@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
 import MitoAPI from "../../../jupyter/api";
@@ -93,8 +93,10 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
     )
     const [openConnectionSection, setOpenConnectionSection] = useState(true);
     const [connectionResult, setConnectionResult] = useState<ConnectionResult | undefined>(undefined);
+    const [credentialsValidated, setCredentialsValidated] = useState(false)
 
     const [columns] = useStateFromAPIAsync<ColumnID[], string>([], (warehouse: string, database: string, schema: string, table: string) => {
+        console.log("RUNNING THIS TOO")
         if (warehouse !== '' && database !== '' && schema !== ''&& table !== '') {
             return props.mitoAPI.getSnowflakeColumns({warehouse: warehouse, database: database, schema: schema, table: table});
         } else {
@@ -107,7 +109,41 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
         })
     }, [params?.connection.warehouse || '', params?.connection.warehouse || '', params?.connection.warehouse || '', params?.connection.warehouse || ''])
 
-    // TODO: The line above should certainly not be all warehouse. Figure out what is going on there!!
+    useEffect(() => {
+        // If they have not yet validated their credentials, then 
+        // don't look for changes each time. This also prevents the useEffect from 
+        // running on first render :) 
+        if (credentialsValidated) {
+            getConnectionResult()
+        }
+    }, [params?.connection.warehouse, params?.connection.database, params?.connection.schema, params?.query_params.table])
+
+    const getConnectionResult = async () => {
+        if (params === undefined) {
+            // TODO: Revist this
+            return 
+        }
+
+        const snowflakeConnection = await props.mitoAPI.getSnowflakeConnection(params);
+
+        console.log(snowflakeConnection)
+        setConnectionResult(snowflakeConnection);
+
+        if (snowflakeConnection?.type === 'success') {
+            setParams((prevParams) => {
+                return {
+                    ...prevParams,
+                    connection: snowflakeConnection.connection,
+                    query_params: snowflakeConnection.query_params
+                }
+            })
+
+            setCredentialsValidated(true)
+
+            // If the user connects successful, we close the connection window
+            setOpenConnectionSection(false);
+        }
+    }
 
     if (params === undefined) {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
@@ -172,23 +208,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                     <TextButton
                         disabled={params.credentials.username.length === 0 || params.credentials.password.length === 0 || params.credentials.account.length === 0}
                         disabledTooltip='Please fill out the username, password, and account fields below.'
-                        onClick={async () => {
-                            const snowflakeConnection = await props.mitoAPI.getSnowflakeConnection(params);
-                            setConnectionResult(snowflakeConnection);
-
-                            if (snowflakeConnection?.type === 'success') {
-                                setParams((prevParams) => {
-                                    return {
-                                        ...prevParams,
-                                        connection: snowflakeConnection.connection,
-                                        query_params: snowflakeConnection.query_params
-                                    }
-                                })
-
-                                // If the user connects successful, we close the connection window
-                                setOpenConnectionSection(false);
-                            }
-                        }}
+                        onClick={() => getConnectionResult()}
                         variant='dark'
                     >
                         Connect to Snowflake

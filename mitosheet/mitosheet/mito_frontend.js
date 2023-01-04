@@ -1077,7 +1077,7 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useRef(initialValue);
           }
-          function useEffect41(create, deps) {
+          function useEffect42(create, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useEffect(create, deps);
           }
@@ -1647,7 +1647,7 @@
           exports.useCallback = useCallback10;
           exports.useContext = useContext;
           exports.useDebugValue = useDebugValue;
-          exports.useEffect = useEffect41;
+          exports.useEffect = useEffect42;
           exports.useImperativeHandle = useImperativeHandle;
           exports.useLayoutEffect = useLayoutEffect;
           exports.useMemo = useMemo2;
@@ -37008,6 +37008,7 @@ fig.write_html("${props.graphTabName}.html")`
       });
     }, [props.startingColumnID]);
     (0, import_react151.useEffect)(() => {
+      console.log("USE EFFECT RAN");
       void loadSplitTextToColumnsPreview();
     }, [params]);
     async function loadSplitTextToColumnsPreview() {
@@ -38044,7 +38045,9 @@ fig.write_html("${props.graphTabName}.html")`
     );
     const [openConnectionSection, setOpenConnectionSection] = (0, import_react162.useState)(true);
     const [connectionResult, setConnectionResult] = (0, import_react162.useState)(void 0);
+    const [credentialsValidated, setCredentialsValidated] = (0, import_react162.useState)(false);
     const [columns] = useStateFromAPIAsync([], (warehouse, database, schema, table) => {
+      console.log("RUNNING THIS TOO");
       if (warehouse !== "" && database !== "" && schema !== "" && table !== "") {
         return props.mitoAPI.getSnowflakeColumns({ warehouse, database, schema, table });
       } else {
@@ -38055,6 +38058,29 @@ fig.write_html("${props.graphTabName}.html")`
         return updateObjectWithPartialObject(prevParams, { "query_params": { "columns": columns2 } });
       });
     }, [(params == null ? void 0 : params.connection.warehouse) || "", (params == null ? void 0 : params.connection.warehouse) || "", (params == null ? void 0 : params.connection.warehouse) || "", (params == null ? void 0 : params.connection.warehouse) || ""]);
+    (0, import_react162.useEffect)(() => {
+      if (credentialsValidated) {
+        getConnectionResult();
+      }
+    }, [params == null ? void 0 : params.connection.warehouse, params == null ? void 0 : params.connection.database, params == null ? void 0 : params.connection.schema, params == null ? void 0 : params.query_params.table]);
+    const getConnectionResult = async () => {
+      if (params === void 0) {
+        return;
+      }
+      const snowflakeConnection = await props.mitoAPI.getSnowflakeConnection(params);
+      console.log(snowflakeConnection);
+      setConnectionResult(snowflakeConnection);
+      if ((snowflakeConnection == null ? void 0 : snowflakeConnection.type) === "success") {
+        setParams((prevParams) => {
+          return __spreadProps(__spreadValues({}, prevParams), {
+            connection: snowflakeConnection.connection,
+            query_params: snowflakeConnection.query_params
+          });
+        });
+        setCredentialsValidated(true);
+        setOpenConnectionSection(false);
+      }
+    };
     if (params === void 0) {
       return /* @__PURE__ */ import_react162.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
     }
@@ -38103,19 +38129,7 @@ fig.write_html("${props.graphTabName}.html")`
       {
         disabled: params.credentials.username.length === 0 || params.credentials.password.length === 0 || params.credentials.account.length === 0,
         disabledTooltip: "Please fill out the username, password, and account fields below.",
-        onClick: async () => {
-          const snowflakeConnection = await props.mitoAPI.getSnowflakeConnection(params);
-          setConnectionResult(snowflakeConnection);
-          if ((snowflakeConnection == null ? void 0 : snowflakeConnection.type) === "success") {
-            setParams((prevParams) => {
-              return __spreadProps(__spreadValues({}, prevParams), {
-                connection: snowflakeConnection.connection,
-                query_params: snowflakeConnection.query_params
-              });
-            });
-            setOpenConnectionSection(false);
-          }
-        },
+        onClick: () => getConnectionResult(),
         variant: "dark"
       },
       "Connect to Snowflake"

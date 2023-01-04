@@ -16,7 +16,9 @@ def get_snowflake_connection(params: Dict[str, Any], steps_manager: StepsManager
         password = credentials['password']
         account = credentials['account']
         
-
+        username = 'aarondia'
+        password = 'qatfAw-wekxo0-mutrah'
+        account = 'tudbfdr-bc32847'
 
         # if username != 'u' or password != 'p' or account != 'a':
         #         return json.dumps({
@@ -30,7 +32,6 @@ def get_snowflake_connection(params: Dict[str, Any], steps_manager: StepsManager
                 account=account,
         )
 
-
         connection: Dict[str, str] = params['connection']
         query_params: Dict[str, str] = params['query_params']
         _warehouse = connection.get('warehouse')
@@ -43,6 +44,12 @@ def get_snowflake_connection(params: Dict[str, Any], steps_manager: StepsManager
         print('starting')
         print('_warehouse: ', _warehouse)
 
+
+        # NOTE: These checks are not correct. This only works the first time. Consider this example.
+        # You validate your credentials and it gets all the default values and sets them in the query. 
+        # You then switch the database. The connection.schema is now still defined, but it does not belong to the 
+        # new database. So instead of just checking that its not none, we need to recognize that the database changed and
+        # then refresh everything beneath that.
         warehouse = _warehouse if _warehouse is not None else get_default_warehouse(ctx)
         print('warehouse: ', warehouse)
         database = _database if _database is not None else get_default_database(ctx)
