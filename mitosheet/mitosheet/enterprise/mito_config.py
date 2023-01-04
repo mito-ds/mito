@@ -166,8 +166,6 @@ class MitoConfig:
                 "The code snippet environment variables are configured improperly. The MITO_CONFIG_CODE_SNIPPETS_VERSION environment variable is set, but the MITO_CONFIG_CODE_SNIPPETS_URL environment variable is not set."
             )  
 
-        # Note: Since typed dicts aren't smart enough to recognize constants are the correct key, 
-        # instead of using constants, we rely on type help from the TypedDict for the code snippets
         code_snippets = CodeSnippetEnvVars({
             MITO_CONFIG_CODE_SNIPPETS_VERSION: code_snippets_version,
             MITO_CONFIG_CODE_SNIPPETS_URL: code_snippets_url, 
