@@ -166,11 +166,11 @@ class MitoConfig:
                 "The code snippet environment variables are configured improperly. The MITO_CONFIG_CODE_SNIPPETS_VERSION environment variable is set, but the MITO_CONFIG_CODE_SNIPPETS_URL environment variable is not set."
             )  
 
-        code_snippets = CodeSnippetEnvVars({
+        code_snippets: CodeSnippetEnvVars = {
             'MITO_CONFIG_CODE_SNIPPETS_VERSION': code_snippets_version,
             'MITO_CONFIG_CODE_SNIPPETS_URL': code_snippets_url, 
             'MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL': code_snippets_support_email 
-        })
+        }
         return code_snippets
 
     # Add new mito configuration options here ...
