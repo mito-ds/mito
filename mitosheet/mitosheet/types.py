@@ -107,3 +107,4 @@ else:
     ColumnIDWithPivotTransform = Any # type:ignore
     ColumnHeaderWithPivotTransform = Any # type:ignore
     CodeSnippet = Any # type:ignore
+    CodeSnippetEnvVars = Any # type:ignore
