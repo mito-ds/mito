@@ -6,7 +6,7 @@
 from typing import Any, List, Dict
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL, DEFAULT_DELIMETER, DEFAULT_ENCODING, DEFAULT_ERROR_BAD_LINES, DEFAULT_SKIPROWS
 from mitosheet.data_in_mito import DataTypeInMito
-from mitosheet.enterprise.mito_config import DEFAULT_MITO_CONFIG_SUPPORT_EMAIL, MitoConfig
+from mitosheet.enterprise.mito_config import DEFAULT_MITO_CONFIG_SUPPORT_EMAIL, MEC_VERSION_KEYS, MitoConfig
 from mitosheet.state import (
     DATAFRAME_SOURCE_DUPLICATED,
     DATAFRAME_SOURCE_IMPORTED,
@@ -259,8 +259,13 @@ def test_graph_safety_filter_cutoff_matches():
 
 def test_mito_enterprise_keys_match():
     mito_enterprise_config_keys = get_enum_from_ts_file("./src/types.tsx", "MitoEnterpriseConfigKey")
+
+    # Since the MitoConfig is not set, we'll get none of the nested keys in the 
+    # CodeSnippets object, so we use the MitoConfig and the MEC_VERSION_KEYS to 
+    # get everything we need to test! 
     mito_config = MitoConfig().get_mito_config()
     keys = get_keys_recursive(mito_config, [])
+    keys = keys + MEC_VERSION_KEYS['2']
     assert set(mito_enterprise_config_keys.values()) == set(keys)
 
 def test_user_profile_defaults_matches():

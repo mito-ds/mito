@@ -6,7 +6,6 @@
 
 from typing import Any, Dict, List
 from mitosheet.enterprise.api.code_snippets_utils import create_success_return_obj, get_custom_code_snippets
-from mitosheet.enterprise.mito_config import MITO_CONFIG_KEY_CODE_SNIPPETS_URL, MITO_CONFIG_KEY_CODE_SNIPPETS_VERSION
 from mitosheet.types import CodeSnippet, StepsManagerType
 
 DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
@@ -74,7 +73,7 @@ def get_code_snippets(params: Dict[str, Any], steps_manager: StepsManagerType) -
         if code_snippets_envs is None: 
                 return create_success_return_obj(DEFAULT_CODE_SNIPPETS)
 
-        mito_config_code_snippets_url = code_snippets_envs[MITO_CONFIG_KEY_CODE_SNIPPETS_URL]
+        mito_config_code_snippets_url = code_snippets_envs["MITO_CONFIG_CODE_SNIPPETS_URL"]
 
         return get_custom_code_snippets(mito_config_code_snippets_url)
         

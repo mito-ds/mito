@@ -300,7 +300,7 @@ def get_mito_backend(
         comm.send({'echo': open_msg['content']['data']}) # type: ignore
 
     # Register the comm target - so the callback gets called
-    ipython = get_ipython()
+    ipython = get_ipython() # type: ignore
     if ipython:
         ipython.kernel.comm_manager.register_target(comm_target_id, on_comm_creation)
 
@@ -414,4 +414,4 @@ def sheet(
         <script>
             {js_code}
         </script>
-    </div>"""))
+    </div>""")) # type: ignore
