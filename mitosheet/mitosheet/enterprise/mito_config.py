@@ -11,14 +11,14 @@ from mitosheet.types import CodeSnippetEnvVars
 
 # Note: Do not change these keys, we need them for looking up 
 # the environment variables from previous mito_config_versions.
-MITO_CONFIG_VERSION: Final = 'MITO_CONFIG_VERSION'
-MITO_CONFIG_SUPPORT_EMAIL: Final = 'MITO_CONFIG_SUPPORT_EMAIL'
-MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL: Final = 'MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL' 
-MITO_CONFIG_CODE_SNIPPETS_VERSION: Final  = 'MITO_CONFIG_CODE_SNIPPETS_VERSION' 
-MITO_CONFIG_CODE_SNIPPETS_URL: Final = 'MITO_CONFIG_CODE_SNIPPETS_URL'
+MITO_CONFIG_VERSION = 'MITO_CONFIG_VERSION'
+MITO_CONFIG_SUPPORT_EMAIL = 'MITO_CONFIG_SUPPORT_EMAIL'
+MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL = 'MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL' 
+MITO_CONFIG_CODE_SNIPPETS_VERSION  = 'MITO_CONFIG_CODE_SNIPPETS_VERSION' 
+MITO_CONFIG_CODE_SNIPPETS_URL = 'MITO_CONFIG_CODE_SNIPPETS_URL'
 
 # Note: The below keys can change since they are not set by the user.
-MITO_CONFIG_CODE_SNIPPETS: Final = 'MITO_CONFIG_CODE_SNIPPETS'
+MITO_CONFIG_CODE_SNIPPETS = 'MITO_CONFIG_CODE_SNIPPETS'
 
 # The default values to use if the mec does not define them
 DEFAULT_MITO_CONFIG_SUPPORT_EMAIL = 'founders@sagacollab.com'
@@ -167,9 +167,9 @@ class MitoConfig:
             )  
 
         code_snippets = CodeSnippetEnvVars({
-            MITO_CONFIG_CODE_SNIPPETS_VERSION: code_snippets_version,
-            MITO_CONFIG_CODE_SNIPPETS_URL: code_snippets_url, 
-            MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL: code_snippets_support_email 
+            'MITO_CONFIG_CODE_SNIPPETS_VERSION': code_snippets_version,
+            'MITO_CONFIG_CODE_SNIPPETS_URL': code_snippets_url, 
+            'MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL': code_snippets_support_email 
         })
         return code_snippets
 
