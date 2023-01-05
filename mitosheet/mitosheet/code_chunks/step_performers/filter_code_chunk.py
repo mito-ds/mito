@@ -380,12 +380,12 @@ def get_entire_filter_string(state: State, sheet_index: int, operator: str, filt
 
 class FilterCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, params: Dict[str, Any], execution_data: Optional[Dict[str, Any]]):
-        super().__init__(prev_state, post_state, params, execution_data)
-        self.sheet_index: int = params['sheet_index']
-        self.column_id: ColumnID = params['column_id']
-        self.operator: str = params['operator']
-        self.filters: List[Dict[str, Any]] = params['filters']
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, operator: str, filters: List[Dict[str, Any]]):
+        super().__init__(prev_state, post_state)
+        self.sheet_index: int = sheet_index
+        self.column_id: ColumnID = column_id
+        self.operator: str = operator
+        self.filters: List[Dict[str, Any]] = filters
 
         self.df_name = self.post_state.df_names[self.sheet_index]
 

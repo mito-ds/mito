@@ -12,10 +12,10 @@ from mitosheet.types import ColumnID
 
 class PromoteRowToHeaderCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, params: Dict[str, Any], execution_data: Optional[Dict[str, Any]]):
-        super().__init__(prev_state, post_state, params, execution_data)
-        self.sheet_index: int = params['sheet_index']
-        self.index: Any = params['index']
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, index: Any):
+        super().__init__(prev_state, post_state)
+        self.sheet_index = sheet_index
+        self.index = index
 
         self.df_name = self.post_state.df_names[self.sheet_index]
 

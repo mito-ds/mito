@@ -13,10 +13,10 @@ from mitosheet.state import State
 
 class DataframeDeleteCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, params: Dict[str, Any], execution_data: Optional[Dict[str, Any]]):
-        super().__init__(prev_state, post_state, params, execution_data)
-        self.sheet_indexes: List[int] = params['sheet_indexes']
-        self.old_dataframe_names: List[str] = params['old_dataframe_names']
+    def __init__(self, prev_state: State, post_state: State, sheet_indexes: List[int], old_dataframe_names: List[str]):
+        super().__init__(prev_state, post_state)
+        self.sheet_indexes = sheet_indexes
+        self.old_dataframe_names = old_dataframe_names
 
     def get_display_name(self) -> str:
         return 'Deleted Dataframe'
@@ -48,11 +48,8 @@ class DataframeDeleteCodeChunk(CodeChunk):
         return DataframeDeleteCodeChunk(
             self.prev_state,
             other_code_chunk.post_state,
-            {
-                'sheet_indexes': sheet_indexes,
-                'old_dataframe_names': old_dataframe_names,
-            },
-            {}
+            sheet_indexes,
+            old_dataframe_names
         )
 
 
@@ -74,7 +71,7 @@ class DataframeDeleteCodeChunk(CodeChunk):
 
         if created_sheet_indexes is not None and set(deleted_sheet_indexes) == set(created_sheet_indexes):
             # If all we did was create the dfs we deleted, we can just return a no op
-            return NoOpCodeChunk(other_code_chunk.prev_state, self.post_state, {}, {})
+            return NoOpCodeChunk(other_code_chunk.prev_state, self.post_state)
             
         elif created_sheet_indexes is not None and set(deleted_sheet_indexes).issuperset(set(created_sheet_indexes)):
             # If the set we are deleting is a superset of the the dataframes that we created
@@ -93,11 +90,8 @@ class DataframeDeleteCodeChunk(CodeChunk):
             return DataframeDeleteCodeChunk(
                 other_code_chunk.prev_state,
                 self.post_state,
-                {
-                    'sheet_indexes': new_deleted_sheet_indexes,
-                    'old_dataframe_names': new_old_dataframe_names,
-                },
-                {}
+                new_deleted_sheet_indexes,
+                new_old_dataframe_names,
             )
 
         sheet_indexes_edited = other_code_chunk.get_edited_sheet_indexes()

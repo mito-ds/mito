@@ -56,7 +56,7 @@ class TransposeStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            TransposeCodeChunk(prev_state, post_state, params, execution_data)
+            TransposeCodeChunk(prev_state, post_state, get_param(params, 'sheet_index'))
         ]
 
     @classmethod

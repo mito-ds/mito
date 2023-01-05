@@ -24,11 +24,11 @@ from mitosheet.transpiler.transpile_utils import \
 
 class AddColumnCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, params: Dict[str, Any], execution_data: Optional[Dict[str, Any]]):
-        super().__init__(prev_state, post_state, params, execution_data)
-        self.sheet_index: int = params['sheet_index']
-        self.column_header: str = params['column_header']
-        self.column_header_index: int = execution_data['column_header_index'] if execution_data is not None else 0
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_header: str, column_header_index: int):
+        super().__init__(prev_state, post_state)
+        self.sheet_index = sheet_index
+        self.column_header = column_header
+        self.column_header_index = column_header_index
 
         self.column_id = self.post_state.column_ids.get_column_id_by_header(self.sheet_index, self.column_header)
         self.df_name: str = self.post_state.df_names[self.sheet_index]
@@ -64,9 +64,7 @@ class AddColumnCodeChunk(CodeChunk):
         if added_column_id in deleted_column_ids and len(deleted_column_ids) == 1:
             return NoOpCodeChunk(
                 self.prev_state, 
-                other_code_chunk.post_state, 
-                {},
-                other_code_chunk.execution_data # TODO: this is out of date, but we don't use it!
+                other_code_chunk.post_state
             )
         elif added_column_id in deleted_column_ids:
             new_deleted_column_ids = copy(deleted_column_ids)
@@ -75,11 +73,8 @@ class AddColumnCodeChunk(CodeChunk):
             return DeleteColumnsCodeChunk(
                 self.prev_state,
                 other_code_chunk.post_state,
-                {
-                    'sheet_index': sheet_index,
-                    'column_ids': new_deleted_column_ids
-                },
-                other_code_chunk.execution_data
+                sheet_index,
+                new_deleted_column_ids
             )
         
         return None
@@ -99,11 +94,9 @@ class AddColumnCodeChunk(CodeChunk):
             return AddColumnCodeChunk(
                 self.prev_state,
                 other_code_chunk.post_state,
-                {
-                    'sheet_index': self.sheet_index,
-                    'column_header': new_column_header,
-                },
-                self.execution_data
+                self.sheet_index,
+                new_column_header,
+                self.column_header_index 
             )
         else:
             # We'd prefer to keep all the renames together in this case, although
@@ -124,12 +117,10 @@ class AddColumnCodeChunk(CodeChunk):
         return AddColumnSetFormulaCodeChunk(
             self.prev_state,
             other_code_chunk.post_state,
-            {
-                'sheet_index': self.sheet_index,
-                'column_id': added_column_id,
-                'column_header': self.column_header
-            },
-            self.execution_data
+            self.sheet_index,
+            added_column_id,
+            self.column_header,
+            self.column_header_index
         )
 
     def combine_right(self, other_code_chunk: CodeChunk) -> Optional[CodeChunk]:

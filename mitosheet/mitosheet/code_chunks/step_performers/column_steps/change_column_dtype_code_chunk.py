@@ -136,14 +136,14 @@ def get_conversion_code(state: State, sheet_index: int, column_id: ColumnID, old
 
 class ChangeColumnDtypeCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, params: Dict[str, Any], execution_data: Optional[Dict[str, Any]]):
-        super().__init__(prev_state, post_state, params, execution_data)
-        self.sheet_index: int = params['sheet_index']
-        self.column_ids: List[ColumnID] = params['column_ids']
-        self.old_dtypes: Dict[ColumnID, str] = params['old_dtypes']
-        self.new_dtype: str = params['new_dtype']
-        self.changed_column_ids: List[ColumnID] = execution_data['changed_column_ids'] if execution_data is not None else []
-        self.datetime_formats: Optional[Dict[ColumnID, Optional[str]]] = execution_data.get('datetime_formats', None) if execution_data is not None else None
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_ids: List[ColumnID], old_dtypes: Dict[ColumnID, str], new_dtype: str, changed_column_ids: List[ColumnID], datetime_formats: Optional[Dict[ColumnID, Optional[str]]]):
+        super().__init__(prev_state, post_state)
+        self.sheet_index: int = sheet_index
+        self.column_ids: List[ColumnID] = column_ids
+        self.old_dtypes: Dict[ColumnID, str] = old_dtypes
+        self.new_dtype: str = new_dtype
+        self.changed_column_ids: List[ColumnID] = changed_column_ids
+        self.datetime_formats: Optional[Dict[ColumnID, Optional[str]]] = datetime_formats
 
         self.df_name = self.post_state.df_names[self.sheet_index]
 

@@ -11,11 +11,11 @@ from mitosheet.state import State
 
 class DataframeRenameCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, params: Dict[str, Any], execution_data: Optional[Dict[str, Any]]):
-        super().__init__(prev_state, post_state, params, execution_data)
-        self.sheet_index: int = params['sheet_index']
-        self.old_dataframe_name: str = params['old_dataframe_name']
-        self.new_dataframe_name: str = params['new_dataframe_name']
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, old_dataframe_name: str, new_dataframe_name: str):
+        super().__init__(prev_state, post_state)
+        self.sheet_index = sheet_index
+        self.old_dataframe_name = old_dataframe_name
+        self.new_dataframe_name = new_dataframe_name
 
     def get_display_name(self) -> str:
         return 'Renamed Dataframe'

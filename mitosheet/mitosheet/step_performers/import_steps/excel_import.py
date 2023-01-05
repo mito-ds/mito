@@ -72,7 +72,15 @@ class ExcelImportStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            ExcelImportCodeChunk(prev_state, post_state, params, execution_data)
+            ExcelImportCodeChunk(
+                prev_state, 
+                post_state, 
+                get_param(params, 'file_name'),
+                get_param(params, 'sheet_names'),
+                get_param(params, 'has_headers'),
+                get_param(params, 'skiprows'),
+                get_param(params, 'decimal')
+            )
         ]
 
     @classmethod

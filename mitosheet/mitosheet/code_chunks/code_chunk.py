@@ -27,13 +27,9 @@ class CodeChunk:
     def __init__(self, 
         prev_state: State,
         post_state: State,
-        params: Dict[str, Any], 
-        execution_data: Optional[Dict[str, Any]]
     ):
         self.prev_state = prev_state
         self.post_state = post_state
-        self.params = params
-        self.execution_data = execution_data
 
     def __repr__(self) -> str:
         return self.__class__.__name__
@@ -61,7 +57,7 @@ class CodeChunk:
         CodeChunks are compatible for combination.
         """
         for key in param_keys:
-            if self.params[key] != other_code_chunk.params[key]:
+            if self.__dict__[key] != other_code_chunk.__dict__[key]:
                 return False
         return True
 

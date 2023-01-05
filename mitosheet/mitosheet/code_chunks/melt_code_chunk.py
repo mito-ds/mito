@@ -12,12 +12,12 @@ from mitosheet.types import ColumnID
 
 class MeltCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, params: Dict[str, Any], execution_data: Optional[Dict[str, Any]]):
-        super().__init__(prev_state, post_state, params, execution_data)
-        self.sheet_index: int = params['sheet_index']
-        self.id_var_column_ids: List[ColumnID] = params['id_var_column_ids']
-        self.value_var_column_ids: List[ColumnID] = params['value_var_column_ids']
-        self.include_value_vars: bool = execution_data['include_value_vars'] if execution_data is not None else True
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, id_var_column_ids: List[ColumnID], value_var_column_ids: List[ColumnID], include_value_vars: bool):
+        super().__init__(prev_state, post_state)
+        self.sheet_index = sheet_index
+        self.id_var_column_ids = id_var_column_ids
+        self.value_var_column_ids = value_var_column_ids
+        self.include_value_vars = include_value_vars
 
         self.df_name = self.post_state.df_names[self.sheet_index]
         self.new_df_name = self.post_state.df_names[-1]

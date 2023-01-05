@@ -15,16 +15,17 @@ from mitosheet.parser import parse_formula
 from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import \
     column_header_to_transpiled_code
+from mitosheet.types import ColumnHeader, ColumnID
 
 
 class AddColumnSetFormulaCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, params: Dict[str, Any], execution_data: Optional[Dict[str, Any]]):
-        super().__init__(prev_state, post_state, params, execution_data)
-        self.sheet_index = params['sheet_index']
-        self.column_id = params['column_id']
-        self.column_header = params['column_header']
-        self.column_header_index = execution_data['column_header_index'] if execution_data is not None else -1
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, column_header: ColumnHeader, column_header_index: int):
+        super().__init__(prev_state, post_state)
+        self.sheet_index = sheet_index
+        self.column_id = column_id
+        self.column_header = column_header
+        self.column_header_index = column_header_index
 
         self.df_name = self.post_state.df_names[self.sheet_index]
 
@@ -67,8 +68,6 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
             return NoOpCodeChunk(
                 self.prev_state, 
                 other_code_chunk.post_state, 
-                {},
-                other_code_chunk.execution_data # NOTE: this is out of date, but we don't use it!
             )
         elif added_column_id in deleted_column_ids:
             new_deleted_column_ids = copy(deleted_column_ids)
@@ -77,11 +76,8 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
             return DeleteColumnsCodeChunk(
                 self.prev_state,
                 other_code_chunk.post_state,
-                {
-                    'sheet_index': self.sheet_index,
-                    'column_ids': new_deleted_column_ids
-                },
-                other_code_chunk.execution_data
+                self.sheet_index,
+                new_deleted_column_ids
             )
         
         return None
@@ -97,12 +93,10 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
             return AddColumnSetFormulaCodeChunk(
                 self.prev_state,
                 other_code_chunk.post_state,
-                {
-                    'sheet_index': self.sheet_index,
-                    'column_id': self.column_id,
-                    'column_header': column_ids_to_new_column_headers[added_column_id],
-                },
-                self.execution_data # We need execution data here
+                self.sheet_index,
+                self.column_id,
+                column_ids_to_new_column_headers[added_column_id],
+                self.column_header_index
             )
 
         return None

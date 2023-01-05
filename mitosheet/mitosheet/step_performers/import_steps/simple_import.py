@@ -136,7 +136,16 @@ class SimpleImportStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            SimpleImportCodeChunk(prev_state, post_state, params, execution_data)
+            SimpleImportCodeChunk(
+                prev_state, 
+                post_state, 
+                get_param(params, 'file_names'), 
+                get_param(execution_data if execution_data is not None else {}, 'file_delimeters'), 
+                get_param(execution_data if execution_data is not None else {}, 'file_encodings'), 
+                get_param(execution_data if execution_data is not None else {}, 'file_decimals'), 
+                get_param(execution_data if execution_data is not None else {}, 'file_skiprows'), 
+                get_param(execution_data if execution_data is not None else {}, 'file_error_bad_lines')
+            )
         ]
     
     @classmethod

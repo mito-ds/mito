@@ -12,15 +12,16 @@ from mitosheet.code_chunks.code_chunk_utils import get_right_combine_with_column
 from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnsCodeChunk
 from mitosheet.parser import parse_formula
 from mitosheet.state import State
+from mitosheet.types import ColumnID
 
 
 class SetColumnFormulaCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, params: Dict[str, Any], execution_data: Optional[Dict[str, Any]]):
-        super().__init__(prev_state, post_state, params, execution_data)
-        self.sheet_index = params['sheet_index']
-        self.column_id = params['column_id']
-        self.new_formula = params['new_formula']
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, new_formula: str):
+        super().__init__(prev_state, post_state)
+        self.sheet_index = sheet_index
+        self.column_id = column_id
+        self.new_formula = new_formula
 
         self.df_name = self.post_state.df_names[self.sheet_index]
 

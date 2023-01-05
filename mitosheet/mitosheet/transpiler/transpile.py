@@ -49,7 +49,7 @@ def transpile(
     # We also make sure to include all the post_processing code chunks, which are those
     # code chunks that are always at the end of the dataframe
     for postprocessing_code_chunk in POSTPROCESSING_CODE_CHUNKS:
-        all_code_chunks.append(postprocessing_code_chunk(steps_manager.curr_step.initial_defined_state, steps_manager.curr_step.final_defined_state, {}, {}))
+        all_code_chunks.append(postprocessing_code_chunk(steps_manager.curr_step.initial_defined_state, steps_manager.curr_step.final_defined_state))
 
     for code_chunk in all_code_chunks:
         comment = '# ' + code_chunk.get_description_comment()

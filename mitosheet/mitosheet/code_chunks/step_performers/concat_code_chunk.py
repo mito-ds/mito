@@ -12,11 +12,11 @@ from mitosheet.state import State
 
 class ConcatCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, params: Dict[str, Any], execution_data: Optional[Dict[str, Any]]):
-        super().__init__(prev_state, post_state, params, execution_data)
-        self.join: str = params['join']
-        self.ignore_index: bool = params['ignore_index']
-        self.sheet_indexes: List[int] = params['sheet_indexes']
+    def __init__(self, prev_state: State, post_state: State, join: str, ignore_index: bool, sheet_indexes: List[int]):
+        super().__init__(prev_state, post_state)
+        self.join = join
+        self.ignore_index = ignore_index
+        self.sheet_indexes = sheet_indexes
 
         self.df_names_to_concat = [self.post_state.df_names[sheet_index] for sheet_index in self.sheet_indexes]
         self.new_df_name = self.post_state.df_names[len(self.post_state.df_names) - 1]

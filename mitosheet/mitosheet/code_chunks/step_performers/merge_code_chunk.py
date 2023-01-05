@@ -20,14 +20,15 @@ UNIQUE_IN_RIGHT = 'unique in right'
 
 class MergeCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, params: Dict[str, Any], execution_data: Optional[Dict[str, Any]]):
-        super().__init__(prev_state, post_state, params, execution_data)
-        self.how: str = params['how'] 
-        self.sheet_index_one: int = params['sheet_index_one'] 
-        self.sheet_index_two: int = params['sheet_index_two'] 
-        self.merge_key_column_ids: List[List[ColumnID]] = params['merge_key_column_ids'] 
-        self.selected_column_ids_one: List[ColumnID] = params['selected_column_ids_one'] 
-        self.selected_column_ids_two: List[ColumnID] = params['selected_column_ids_two']
+
+    def __init__(self, prev_state: State, post_state: State, how: str, sheet_index_one: int, sheet_index_two: int, merge_key_column_ids: List[List[ColumnID]], selected_column_ids_one: List[ColumnID], selected_column_ids_two: List[ColumnID]):
+        super().__init__(prev_state, post_state)
+        self.how: str = how 
+        self.sheet_index_one: int = sheet_index_one 
+        self.sheet_index_two: int = sheet_index_two 
+        self.merge_key_column_ids: List[List[ColumnID]] = merge_key_column_ids 
+        self.selected_column_ids_one: List[ColumnID] = selected_column_ids_one 
+        self.selected_column_ids_two: List[ColumnID] = selected_column_ids_two
 
         self.df_one_name = self.post_state.df_names[self.sheet_index_one]
         self.df_two_name = self.post_state.df_names[self.sheet_index_two]
@@ -45,7 +46,6 @@ class MergeCodeChunk(CodeChunk):
 
         selected_column_headers_one: List[ColumnHeader] = self.prev_state.column_ids.get_column_headers_by_ids(self.sheet_index_one, self.selected_column_ids_one)
         selected_column_headers_two: List[ColumnHeader] = self.prev_state.column_ids.get_column_headers_by_ids(self.sheet_index_two, self.selected_column_ids_two)
-
 
         if len(merge_keys_one) == 0 and len(merge_keys_two) == 0:
             return [f'{self.df_new_name} = pd.DataFrame()']

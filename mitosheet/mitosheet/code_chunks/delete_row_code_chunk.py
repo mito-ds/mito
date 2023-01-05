@@ -12,10 +12,10 @@ from mitosheet.transpiler.transpile_utils import column_header_list_to_transpile
 
 class DeleteRowCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, params: Dict[str, Any], execution_data: Optional[Dict[str, Any]]):
-        super().__init__(prev_state, post_state, params, execution_data)
-        self.sheet_index: int = params['sheet_index']
-        self.labels: List[Any] = params['labels']
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, labels: List[Any]):
+        super().__init__(prev_state, post_state)
+        self.sheet_index = sheet_index
+        self.labels = labels
 
         self.df_name = self.post_state.df_names[self.sheet_index]
 
@@ -42,11 +42,8 @@ class DeleteRowCodeChunk(CodeChunk):
         return DeleteRowCodeChunk(
             self.prev_state,
             other_code_chunk.post_state,
-            {
-                'sheet_index': self.sheet_index,
-                'labels': all_labels
-            },
-            other_code_chunk.execution_data
+            self.sheet_index,
+            all_labels
         )
 
     def combine_right(self, other_code_chunk: CodeChunk) -> Optional[CodeChunk]:

@@ -4,6 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
+from copy import deepcopy
 from typing import Any, Dict, List, Optional
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
@@ -19,10 +20,10 @@ class EmptyCodeChunk(CodeChunk):
     these steps in the code optimization process.
     """
 
-    def __init__(self, prev_state: State, post_state: State, params: Dict[str, Any], execution_data: Optional[Dict[str, Any]]):
-        super().__init__(prev_state, post_state, params, execution_data)
-        self.display_name: str = params['display_name']
-        self.description_comment: str = params['description_comment']
+    def __init__(self, prev_state: State, post_state: State, display_name: str, description_comment: str):
+        super().__init__(prev_state, post_state)
+        self.display_name = display_name
+        self.description_comment = description_comment
 
     def get_display_name(self) -> str:
         return self.display_name
@@ -36,9 +37,6 @@ class EmptyCodeChunk(CodeChunk):
     def combine_right(self, other_code_chunk: CodeChunk) -> Optional[CodeChunk]:
         # We just return the other code chunk, while also updating the prev_state. To avoid
         # causing issues by modifying data, we make a copy of this object
-        return type(other_code_chunk)(
-            self.prev_state,
-            other_code_chunk.post_state,
-            other_code_chunk.params,
-            other_code_chunk.execution_data
-        )
+        new_other_code_chunk = deepcopy(other_code_chunk)
+        new_other_code_chunk.prev_state = self.prev_state
+        return new_other_code_chunk

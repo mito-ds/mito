@@ -16,10 +16,10 @@ from mitosheet.types import ColumnHeader, ColumnID
 
 class RenameColumnsCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, params: Dict[str, Any], execution_data: Optional[Dict[str, Any]]):
-        super().__init__(prev_state, post_state, params, execution_data)
-        self.sheet_index: int = params['sheet_index']
-        self.column_ids_to_new_column_headers: Dict[ColumnID, str] = params['column_ids_to_new_column_headers']
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_ids_to_new_column_headers: Dict[ColumnID, str]):
+        super().__init__(prev_state, post_state)
+        self.sheet_index = sheet_index
+        self.column_ids_to_new_column_headers = column_ids_to_new_column_headers
 
     def get_display_name(self) -> str:
         return 'Renamed columns'
@@ -54,11 +54,8 @@ class RenameColumnsCodeChunk(CodeChunk):
         return RenameColumnsCodeChunk(
             self.prev_state,
             other_code_chunk.post_state,
-            {
-                'sheet_index': self.sheet_index,
-                'column_ids_to_new_column_headers': new_rename_dict
-            },
-            other_code_chunk.execution_data
+            self.sheet_index,
+            new_rename_dict
         )
     
     def _combine_right_with_delete_columns_code_chunk(self, other_code_chunk: "DeleteColumnsCodeChunk") -> Optional[CodeChunk]:
@@ -75,8 +72,8 @@ class RenameColumnsCodeChunk(CodeChunk):
             return DeleteColumnsCodeChunk(
                 self.prev_state,
                 other_code_chunk.post_state,
-                other_code_chunk.params,
-                other_code_chunk.execution_data
+                other_code_chunk.sheet_index,
+                other_code_chunk.column_ids,
             )
         
         return None

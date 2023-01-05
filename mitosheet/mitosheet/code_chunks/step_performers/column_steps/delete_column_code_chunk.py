@@ -24,10 +24,10 @@ else:
 
 class DeleteColumnsCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, params: Dict[str, Any], execution_data: Optional[Dict[str, Any]]):
-        super().__init__(prev_state, post_state, params, execution_data)
-        self.sheet_index: int = params['sheet_index']
-        self.column_ids: List[ColumnID] = params['column_ids']
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_ids: List[ColumnID]):
+        super().__init__(prev_state, post_state)
+        self.sheet_index = sheet_index
+        self.column_ids = column_ids
 
         self.df_name = self.post_state.df_names[self.sheet_index]
 
@@ -66,11 +66,8 @@ class DeleteColumnsCodeChunk(CodeChunk):
         return DeleteColumnsCodeChunk(
             self.prev_state,
             other_code_chunk.post_state,
-            {
-                'sheet_index': self.sheet_index,
-                'column_ids': new_column_ids
-            },
-            other_code_chunk.execution_data
+            self.sheet_index,
+            new_column_ids
         )
 
     def combine_right(self, other_code_chunk: CodeChunk) -> Optional[CodeChunk]:
@@ -90,8 +87,8 @@ class DeleteColumnsCodeChunk(CodeChunk):
             return DeleteColumnsCodeChunk(
                 other_code_chunk.prev_state,
                 self.post_state,
-                self.params,
-                self.execution_data
+                self.sheet_index,
+                self.column_ids
             )
 
         return None
@@ -113,21 +110,14 @@ class DeleteColumnsCodeChunk(CodeChunk):
                 return NoOpCodeChunk(
                     other_code_chunk.prev_state,
                     self.post_state,
-                    {},
-                    {}
                 )
             else:
                 # Otherwise, just delete what else is deleted in this step
-                new_params = {
-                    **self.params,
-                    'column_ids': new_column_ids
-                }
-
                 return DeleteColumnsCodeChunk(
                     other_code_chunk.prev_state,
                     self.post_state,
-                    new_params,
-                    self.execution_data
+                    self.sheet_index,
+                    new_column_ids
                 )
 
         return None
@@ -154,8 +144,8 @@ class DeleteColumnsCodeChunk(CodeChunk):
             return DeleteColumnsCodeChunk(
                 other_code_chunk.prev_state,
                 self.post_state,
-                self.params,
-                self.execution_data
+                self.sheet_index,
+                self.column_ids
             )
         
         # Otherwise, we don't optimize

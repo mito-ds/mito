@@ -21,14 +21,14 @@ from mitosheet.types import ColumnID
 
 class SetCellValueCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, params: Dict[str, Any], execution_data: Optional[Dict[str, Any]]):
-        super().__init__(prev_state, post_state, params, execution_data)
-        self.sheet_index: int = params['sheet_index']
-        self.column_id: ColumnID = params['column_id']
-        self.row_index: Any = params['row_index']
-        self.old_value: Any = params['old_value']
-        self.new_value: Any = params['new_value']
-        self.type_corrected_new_value: Optional[Any] = execution_data['type_corrected_new_value'] if (execution_data is not None and 'type_corrected_new_value' in execution_data) else None
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, row_index: Any, old_value: Any, new_value: Any, type_corrected_new_value: Optional[Any]):
+        super().__init__(prev_state, post_state)
+        self.sheet_index = sheet_index
+        self.column_id = column_id
+        self.row_index = row_index
+        self.old_value = old_value
+        self.new_value = new_value
+        self.type_corrected_new_value = type_corrected_new_value
 
         self.df_name = self.post_state.df_names[self.sheet_index]
 

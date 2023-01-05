@@ -12,11 +12,11 @@ from mitosheet.types import ColumnHeader, ColumnID
 
 class OneHotEncodingCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, params: Dict[str, Any], execution_data: Optional[Dict[str, Any]]):
-        super().__init__(prev_state, post_state, params, execution_data)
-        self.sheet_index: int = params['sheet_index']
-        self.column_id: ColumnID = params['column_id']
-        self.new_column_headers: List[ColumnHeader] = execution_data['new_column_headers'] if execution_data is not None else []
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, new_column_headers: List[ColumnHeader]):
+        super().__init__(prev_state, post_state)
+        self.sheet_index = sheet_index
+        self.column_id = column_id
+        self.new_column_headers = new_column_headers
 
     def get_display_name(self) -> str:
         return 'One Hot Encoding'

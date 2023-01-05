@@ -77,7 +77,13 @@ class OneHotEncodingStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            OneHotEncodingCodeChunk(prev_state, post_state, params, execution_data)
+            OneHotEncodingCodeChunk(
+                prev_state, 
+                post_state, 
+                get_param(params, 'sheet_index'), 
+                get_param(params, 'column_id'), 
+                get_param(execution_data if execution_data is not None else {}, 'new_column_headers')
+            )
         ]
 
     @classmethod

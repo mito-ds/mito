@@ -13,11 +13,11 @@ from mitosheet.types import ColumnID
 
 class SortCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, params: Dict[str, Any], execution_data: Optional[Dict[str, Any]]):
-        super().__init__(prev_state, post_state, params, execution_data)
-        self.sheet_index: int = params['sheet_index']
-        self.column_id: ColumnID = params['column_id']
-        self.sort_direction: str = params['sort_direction']
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, sort_direction: str):
+        super().__init__(prev_state, post_state)
+        self.sheet_index = sheet_index
+        self.column_id = column_id
+        self.sort_direction = sort_direction
 
         self.df_name = self.post_state.df_names[self.sheet_index]
 

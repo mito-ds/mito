@@ -5,12 +5,18 @@
 # Distributed under the terms of the GPL License.
 
 import json
-from typing import List
+from typing import Dict, List
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.state import State
+from mitosheet.types import ColumnHeader
 
 
 class BulkOldRenameCodeChunk(CodeChunk):
+
+    def __init__(self, prev_state: State, post_state: State, column_header_renames_list: List[Dict[ColumnHeader, ColumnHeader]]):
+        super().__init__(prev_state, post_state)
+        self.column_header_renames_list = column_header_renames_list
 
     def get_display_name(self) -> str:
         return 'Bulk rename'
@@ -19,11 +25,10 @@ class BulkOldRenameCodeChunk(CodeChunk):
         return f'Renamed headers for compatibility with previous Mito versions'
 
     def get_code(self) -> List[str]:
-        column_header_renames_list = self.execution_data['column_header_renames_list'] if self.execution_data is not None else []
 
         code = []
         for sheet_index, df_name in enumerate(self.post_state.df_names):
-            renames = column_header_renames_list[sheet_index]
+            renames = self.column_header_renames_list[sheet_index]
             if len(renames) == 0:
                 continue
 

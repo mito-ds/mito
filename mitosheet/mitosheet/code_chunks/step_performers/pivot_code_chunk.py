@@ -79,16 +79,30 @@ def build_args_code(
 
 class PivotCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, params: Dict[str, Any], execution_data: Optional[Dict[str, Any]]):
-        super().__init__(prev_state, post_state, params, execution_data)
-        self.sheet_index: int = params['sheet_index']
-        self.destination_sheet_index: Optional[int] = params['destination_sheet_index'] if 'destination_sheet_index' in params else None
-        self.pivot_rows_column_ids_with_transforms: List[ColumnIDWithPivotTransform] = params['pivot_rows_column_ids_with_transforms']
-        self.pivot_columns_column_ids_with_transforms: List[ColumnIDWithPivotTransform] = params['pivot_columns_column_ids_with_transforms']
-        self.pivot_filters_ids: List[ColumnIDWithFilter] = params['pivot_filters']
-        self.values_column_ids_map: Dict[ColumnID, Collection[str]] = params['values_column_ids_map']
-        self.flatten_column_headers: Optional[bool] = params['flatten_column_headers']
-        self.was_series: Optional[bool] = execution_data['was_series'] if execution_data is not None else False
+    
+
+    def __init__(
+        self, 
+        prev_state: State, 
+        post_state: State, 
+        sheet_index: int,
+        destination_sheet_index: Optional[int],
+        pivot_rows_column_ids_with_transforms: List[ColumnIDWithPivotTransform],
+        pivot_columns_column_ids_with_transforms: List[ColumnIDWithPivotTransform],
+        pivot_filters: List[ColumnIDWithFilter],
+        values_column_ids_map: Dict[ColumnID, Collection[str]],
+        flatten_column_headers: Optional[bool],
+        was_series: Optional[bool]
+    ):
+        super().__init__(prev_state, post_state)
+        self.sheet_index = sheet_index
+        self.destination_sheet_index = destination_sheet_index
+        self.pivot_rows_column_ids_with_transforms = pivot_rows_column_ids_with_transforms
+        self.pivot_columns_column_ids_with_transforms = pivot_columns_column_ids_with_transforms
+        self.pivot_filters_ids = pivot_filters
+        self.values_column_ids_map = values_column_ids_map
+        self.flatten_column_headers = flatten_column_headers
+        self.was_series = was_series
 
         self.old_df_name = self.post_state.df_names[self.sheet_index]
         if self.destination_sheet_index is None:
@@ -184,8 +198,14 @@ class PivotCodeChunk(CodeChunk):
             return PivotCodeChunk(
                 self.prev_state,
                 pivot_code_chunk.post_state,
-                pivot_code_chunk.params,
-                pivot_code_chunk.execution_data
+                pivot_code_chunk.sheet_index,
+                pivot_code_chunk.destination_sheet_index,
+                pivot_code_chunk.pivot_rows_column_ids_with_transforms,
+                pivot_code_chunk.pivot_columns_column_ids_with_transforms,
+                pivot_code_chunk.pivot_filters_ids,
+                pivot_code_chunk.values_column_ids_map,
+                pivot_code_chunk.flatten_column_headers,
+                pivot_code_chunk.was_series
             )
 
         # If one of the pivots if creating the code chunk that the new one is overwriting, then we can optimize
@@ -195,8 +215,14 @@ class PivotCodeChunk(CodeChunk):
             return PivotCodeChunk(
                 self.prev_state,
                 pivot_code_chunk.post_state,
-                pivot_code_chunk.params,
-                pivot_code_chunk.execution_data
+                pivot_code_chunk.sheet_index,
+                pivot_code_chunk.destination_sheet_index,
+                pivot_code_chunk.pivot_rows_column_ids_with_transforms,
+                pivot_code_chunk.pivot_columns_column_ids_with_transforms,
+                pivot_code_chunk.pivot_filters_ids,
+                pivot_code_chunk.values_column_ids_map,
+                pivot_code_chunk.flatten_column_headers,
+                pivot_code_chunk.was_series
             )
 
         return None
@@ -219,8 +245,14 @@ class PivotCodeChunk(CodeChunk):
             return PivotCodeChunk(
                 other_code_chunk.prev_state,
                 self.post_state,
-                deepcopy(self.params),
-                deepcopy(self.execution_data)
+                self.sheet_index,
+                self.destination_sheet_index,
+                self.pivot_rows_column_ids_with_transforms,
+                self.pivot_columns_column_ids_with_transforms,
+                self.pivot_filters_ids,
+                self.values_column_ids_map,
+                self.flatten_column_headers,
+                self.was_series
             )
 
         return None

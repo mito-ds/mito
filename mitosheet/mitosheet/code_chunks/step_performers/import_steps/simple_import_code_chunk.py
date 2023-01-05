@@ -55,14 +55,15 @@ def generate_read_csv_code(file_name: str, df_name: str, delimeter: str, encodin
 
 class SimpleImportCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, params: Dict[str, Any], execution_data: Optional[Dict[str, Any]]):
-        super().__init__(prev_state, post_state, params, execution_data)
-        self.file_names: List[str] = params['file_names']
-        self.file_delimeters: List[str] = execution_data['file_delimeters'] if execution_data is not None else []
-        self.file_encodings: List[str] = execution_data['file_encodings'] if execution_data is not None else []
-        self.file_decimals: List[str] = execution_data['file_decimals'] if execution_data is not None else []
-        self.file_skiprows: List[int] = execution_data['file_skiprows'] if execution_data is not None else []
-        self.file_error_bad_lines: List[bool] = execution_data['file_error_bad_lines'] if execution_data is not None else []
+    
+    def __init__(self, prev_state: State, post_state: State, file_names: List[str], file_delimeters: List[str], file_encodings: List[str], file_decimals: List[str], file_skiprows: List[int], file_error_bad_lines: List[bool]):
+        super().__init__(prev_state, post_state)
+        self.file_names = file_names
+        self.file_delimeters = file_delimeters
+        self.file_encodings = file_encodings
+        self.file_decimals = file_decimals
+        self.file_skiprows = file_skiprows
+        self.file_error_bad_lines = file_error_bad_lines
 
     def get_display_name(self) -> str:
         return 'Imported'
@@ -107,14 +108,12 @@ class SimpleImportCodeChunk(CodeChunk):
         return SimpleImportCodeChunk(
             self.prev_state,
             other_code_chunk.post_state,
-            {'file_names': file_names},
-            {
-                'file_delimeters': new_file_delimeters,
-                'file_encodings': new_file_encodings,
-                'file_decimals': new_file_decimals,
-                'file_skiprows': new_file_skiprows,
-                'file_error_bad_lines': new_error_bad_lines
-            }
+            file_names,
+            new_file_delimeters,
+            new_file_encodings,
+            new_file_decimals,
+            new_file_skiprows,
+            new_error_bad_lines
         )
 
     def combine_right(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:

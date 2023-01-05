@@ -16,10 +16,10 @@ class DataframeImportCodeChunk(CodeChunk):
     so we make it it's own code chunk
     """
 
-    def __init__(self, prev_state: State, post_state: State, params: Dict[str, Any], execution_data: Optional[Dict[str, Any]]):
-        super().__init__(prev_state, post_state, params, execution_data)
-        self.display_name = params['display_name']
-        self.description_comment = params['description_comment']
+    def __init__(self, prev_state: State, post_state: State, display_name: str, description_comment: str):
+        super().__init__(prev_state, post_state)
+        self.display_name = display_name
+        self.description_comment = description_comment
 
     def get_display_name(self) -> str:
         return self.display_name
