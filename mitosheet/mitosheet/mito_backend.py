@@ -56,11 +56,12 @@ class MitoBackend():
         """
         # Call the DOMWidget constructor to set up the widget properly
         super(MitoBackend, self).__init__()
+
+        # Setup the MitoConfig class
+        self.mito_config = MitoConfig() # type: ignore
             
         # Set up the state container to hold private widget state
-        self.steps_manager = StepsManager(args, analysis_to_replay=analysis_to_replay)
-
-        self.mito_config = MitoConfig() # type: ignore
+        self.steps_manager = StepsManager(args, mito_config=self.mito_config, analysis_to_replay=analysis_to_replay)
 
         # And the api
         self.api = API(self.steps_manager, self)
@@ -114,7 +115,7 @@ class MitoBackend():
             'isLocalDeployment': self.is_local_deployment,
             'shouldUpgradeMitosheet': self.should_upgrade_mitosheet,
             'numUsages': self.num_usages,
-            'mitoConfig': self.mito_config.get_mito_config()
+            'mitoConfig': self.steps_manager.mito_config.get_mito_config()
         })
 
 
@@ -299,7 +300,7 @@ def get_mito_backend(
         comm.send({'echo': open_msg['content']['data']}) # type: ignore
 
     # Register the comm target - so the callback gets called
-    ipython = get_ipython()
+    ipython = get_ipython() # type: ignore
     if ipython:
         ipython.kernel.comm_manager.register_target(comm_target_id, on_comm_creation)
 
@@ -413,4 +414,4 @@ def sheet(
         <script>
             {js_code}
         </script>
-    </div>"""))
+    </div>""")) # type: ignore

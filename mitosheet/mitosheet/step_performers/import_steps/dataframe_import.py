@@ -31,7 +31,7 @@ def get_variable_with_name_from_caller(variable_name: str) -> Optional[Any]:
     This is useful so that we can test this function (e.g. pytest does not run in
     an ipython environment).
     """
-    ipython = get_ipython()
+    ipython = get_ipython() # type: ignore
     if ipython is not None:
         return ipython.ev(variable_name)
 

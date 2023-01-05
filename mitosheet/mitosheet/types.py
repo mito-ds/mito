@@ -70,7 +70,6 @@ ConditionalFormattingResult = Dict[str, Union[
 PivotColumnTransformation = str
 
 
-
 import sys
 if sys.version_info[:3] > (3, 8, 0):
     from typing import TypedDict
@@ -92,9 +91,15 @@ if sys.version_info[:3] > (3, 8, 0):
         transformation: PivotColumnTransformation
 
     class CodeSnippet(TypedDict):
+        Id: str
         Name: str
         Description: str
         Code: List[str]
+
+    class CodeSnippetEnvVars(TypedDict):
+        MITO_CONFIG_CODE_SNIPPETS_VERSION: str
+        MITO_CONFIG_CODE_SNIPPETS_URL: str
+        MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL: Optional[str]
 
 else:
     ColumnIDWithFilter = Any # type:ignore
@@ -102,3 +107,4 @@ else:
     ColumnIDWithPivotTransform = Any # type:ignore
     ColumnHeaderWithPivotTransform = Any # type:ignore
     CodeSnippet = Any # type:ignore
+    CodeSnippetEnvVars = Any # type:ignore

@@ -60,7 +60,7 @@ interface DropdownProps {
     */
     display: boolean;
     /** 
-        * @param closeDropdown - The function to used to close the dropdown when the user clicks
+        * @param closeDropdown - The function to used to close the dropdown when the user clicks.
     */
     closeDropdown: () => void;
     /**
@@ -124,7 +124,7 @@ export const handleKeyboardInDropdown = (
     e: React.KeyboardEvent<HTMLInputElement>, 
     numDropdownItems: number, 
     setSelectedIndex: React.Dispatch<React.SetStateAction<number>>,
-    onEscape: () => void,
+    onEscape: () => void
 ): void => {
 
     const keyUp = e.key === 'Up' || e.key === 'ArrowUp';

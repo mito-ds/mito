@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import MitoAPI from "../../../jupyter/api";
-import { AnalysisData, CodeSnippet, SheetData, UIState, UserProfile } from "../../../types"
+import { AnalysisData, CodeSnippetAPIResult, SheetData, UIState, UserProfile } from "../../../types"
 
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
@@ -11,12 +11,16 @@ import { fuzzyMatch } from "../../../utils/strings";
 import Row from "../../layout/Row";
 import Col from "../../layout/Col";
 import DropdownIcon from "../../icons/DropdownIcon";
-import Dropdown from "../../elements/Dropdown";
+import Dropdown, { DROPDOWN_IGNORE_CLICK_CLASS } from "../../elements/Dropdown";
 import DropdownItem from "../../elements/DropdownItem";
 import { writeTextToClipboard } from "../../../utils/copy";
 import CodeSnippetIcon from "../../icons/CodeSnippetIcon";
 import { writeCodeSnippetCell } from "../../../jupyter/jupyterUtils";
 import { useDebouncedEffect } from "../../../hooks/useDebouncedEffect";
+import { DISCORD_INVITE_LINK } from "../../../data/documentationLinks";
+import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
+import LoadingDots from "../../elements/LoadingDots";
+import { classNames } from "../../../utils/classNames";
 
 
 interface CodeSnippetsTaskpaneProps {
@@ -35,7 +39,7 @@ const CONFIRMATION_TEXT_CODE_WRITTEN = 'Code snippet written to code cell below.
     This is the CodeSnippets taskpane.
 */
 const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => {
-    const [allCodeSnippets] = useStateFromAPIAsync<CodeSnippet[], []>([], () => {
+    const [codeSnippetAPIResult] = useStateFromAPIAsync<CodeSnippetAPIResult | undefined, []>(undefined, () => {
         return props.mitoAPI.getCodeSnippets();
     }, undefined, [])
 
@@ -50,12 +54,23 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
         }
     }, [confirmationText], 3000)
 
-    const codeSnippetsToDisplay = allCodeSnippets.filter(codeSnippet => {
+    if (codeSnippetAPIResult?.status === 'error') {
+        return (
+            <DefaultEmptyTaskpane 
+                setUIState={props.setUIState}
+                header={"Error loading code snippets"}
+                message={codeSnippetAPIResult.error_message}
+                errorMessage
+                suppressImportLink={true}
+            />
+        )
+    }
+
+    const codeSnippetsToDisplay = codeSnippetAPIResult?.code_snippets.filter(codeSnippet => {
         return (fuzzyMatch(codeSnippet.Name, searchString) > .75)
             || fuzzyMatch(codeSnippet.Description, searchString) > .75
             || fuzzyMatch(codeSnippet.Code.join(' '), searchString) > .75
     })
-
 
     return (
         <DefaultTaskpane>
@@ -71,12 +86,13 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                     }}
                     placeholder='Search for a code snippet by name or content'
                 />
+                
                 {confirmationText !== undefined && 
                     <p className="text-color-success">
                         {confirmationText}
                     </p>
                 }
-                {codeSnippetsToDisplay.map((codeSnippet, codeSnippetIndex) => {
+                {codeSnippetsToDisplay?.map((codeSnippet, codeSnippetIndex) => {
                     const copyToClipboard = () => {
                         setConfirmationText(CONFIRMATION_TEXT_COPIED)
                         void writeTextToClipboard(codeSnippet.Code.join('\n'))
@@ -88,11 +104,17 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                         void props.mitoAPI.log('code_snippet_written_to_cell', {'code_snippet_name': codeSnippet.Name});
                     }
 
+                    let openLocation = DISCORD_INVITE_LINK
+                    const codeSnippetSupportEmail = props.userProfile.mitoConfig.MITO_CONFIG_CODE_SNIPPETS?.MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL
+                    if (codeSnippetSupportEmail !== undefined && codeSnippetSupportEmail !== null) {
+                        openLocation = `mailto:${codeSnippetSupportEmail}?subject=Mito Code Snippet Support: ID ${codeSnippet.Id}`
+                    }
+                    
                     return (
                         <Row 
                             key={codeSnippetIndex} 
                             align='center' 
-                            className="highlight-on-hover"
+                            className={classNames("highlight-on-hover", DROPDOWN_IGNORE_CLICK_CLASS)} // Use DROPDOWN_IGNORE_CLICK_CLASS to avoid race condition with dropdowns opening themselves when clicked on
                             justify="space-between"
                             onClick={() => {
                                 setOpenDropdownIndex(prevOpenDropdownIndex => {
@@ -108,7 +130,7 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                             </Col>
                             <Col span={20}>
                                 <div className="text-bold">{codeSnippet.Name}</div>
-                                <div className="text-overflow-scroll pb-5px">{codeSnippet.Description}</div>
+                                <div className="text-overflow-wrap pb-5px">{codeSnippet.Description}</div>
                             </Col>
                             <Col 
                                 offset={2}
@@ -116,10 +138,10 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                                 <DropdownIcon/>
                             </Col>
                             <Col>
-                                {<Dropdown 
+                                <Dropdown 
                                     display={codeSnippetIndex === openDropdownIndex} 
-                                    closeDropdown={() => setOpenDropdownIndex(undefined)}
                                     width='medium'
+                                    closeDropdown={() => {setOpenDropdownIndex(undefined)}}
                                 >
                                     <DropdownItem 
                                         title="Copy Code Snippet" 
@@ -129,11 +151,23 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                                         title="Write to Notebook" 
                                         onClick={writeToCell}
                                     />
-                                </Dropdown>}
+                                    <DropdownItem
+                                        title='Get Support'
+                                        onClick={() => {
+                                            window.open(openLocation)
+                                            void props.mitoAPI?.log('clicked_code_snippet_get_support_button')
+                                        }}
+                                    />
+                                </Dropdown>
                             </Col>
                         </Row>
                     )
                 })}
+                {codeSnippetAPIResult === undefined && 
+                    <p className="mt-20px">
+                        Loading code snippets <LoadingDots />
+                    </p>
+                }
             </DefaultTaskpaneBody>
         </DefaultTaskpane>
     )

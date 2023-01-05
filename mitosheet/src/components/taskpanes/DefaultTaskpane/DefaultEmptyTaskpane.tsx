@@ -3,6 +3,7 @@
 import React from 'react';
 import "../../../../css/taskpanes/DefaultTaskpane.css";
 import { UIState } from '../../../types';
+import { classNames } from '../../../utils/classNames';
 import { TaskpaneType } from '../taskpanes';
 import DefaultTaskpane from './DefaultTaskpane';
 import DefaultTaskpaneBody from './DefaultTaskpaneBody';
@@ -20,6 +21,7 @@ const DefaultEmptyTaskpane = (
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
         header?: string,
         message?: string,
+        errorMessage?: boolean
         suppressImportLink?: boolean
     }): JSX.Element => {
 
@@ -39,7 +41,10 @@ const DefaultEmptyTaskpane = (
                 setUIState={props.setUIState}   
             />
             <DefaultTaskpaneBody>
-                <p className='text-body-1 text-overflow-wrap'>
+                <p 
+                    className={classNames('text-body-1', 'text-overflow-wrap', {'text-color-error': props.errorMessage})}
+                    style={{whiteSpace:'pre-wrap'}} // So we handle new line and tabs correctly
+                >
                     {props.message ? props.message : 'Before performing that action, you need to import data into Mito.'}
                     {props.suppressImportLink !== true && 
                         <>
