@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
-import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
 import MitoAPI from "../../../jupyter/api";
-import { AnalysisData, ColumnID, SheetData, StepType, UIState, UserProfile } from "../../../types";
+import { AnalysisData, SheetData, StepType, UIState, UserProfile } from "../../../types";
 import { toggleInArray } from "../../../utils/arrays";
 
 import { classNames } from "../../../utils/classNames";
@@ -35,7 +34,6 @@ interface SnowflakeImportTaskpaneProps {
 export type SnowflakeCredentials = {type: 'username/password', username: string, password: string, account: string};
 
 export type SnowflakeConnection = {
-    // TODO: These should be allowed to be undefined
     warehouse: string | undefined, 
     database: string | undefined, 
     schema: string | undefined,
@@ -60,6 +58,7 @@ export interface SnowflakeImportParams {
     connection: SnowflakeConnection,
     query_params: SnowflakeQueryParams,
 }
+
 const getDefaultParams = (): SnowflakeImportParams | undefined => {
     return {
         credentials: {type: 'username/password', username: '', password: '', account: ''},
@@ -91,42 +90,33 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
             props.mitoAPI,
             props.analysisData,
     )
+    
     const [openConnectionSection, setOpenConnectionSection] = useState(true);
     const [connectionResult, setConnectionResult] = useState<ConnectionResult | undefined>(undefined);
-    const [credentialsValidated, setCredentialsValidated] = useState(false)
+    const [liveUpdateNumber, setLiveUpdateNumber] = useState(0) 
 
-    const [columns] = useStateFromAPIAsync<ColumnID[], string>([], (warehouse: string, database: string, schema: string, table: string) => {
-        console.log("RUNNING THIS TOO")
-        if (warehouse !== '' && database !== '' && schema !== ''&& table !== '') {
-            return props.mitoAPI.getSnowflakeColumns({warehouse: warehouse, database: database, schema: schema, table: table});
-        } else {
-            return new Promise((resolve) => resolve([]));
-        }
-    }, (columns) => {
-        // TODO: we need to only refresh this when the actual initial params
-        setParams((prevParams) => {
-            return updateObjectWithPartialObject(prevParams, {'query_params': {'columns': columns}});
-        })
-    }, [params?.connection.warehouse || '', params?.connection.warehouse || '', params?.connection.warehouse || '', params?.connection.warehouse || ''])
+    const liveUpdateParams = (newParams: SnowflakeImportParams): void => {
+        setParams(newParams)
+        setLiveUpdateNumber(old => old + 1)
+    }
 
     useEffect(() => {
-        // If they have not yet validated their credentials, then 
-        // don't look for changes each time. This also prevents the useEffect from 
-        // running on first render :) 
-        if (credentialsValidated) {
-            getConnectionResult()
+        if (liveUpdateNumber === 0) {
+            // Don't run on first render
+            return
         }
-    }, [params?.connection.warehouse, params?.connection.database, params?.connection.schema, params?.query_params.table])
+        getConnectionResult()
+    }, [liveUpdateNumber])
 
     const getConnectionResult = async () => {
         if (params === undefined) {
-            // TODO: Revist this
+            // We don't expect this to ever happen because of the UI restrictions
             return 
         }
 
         const snowflakeConnection = await props.mitoAPI.getSnowflakeConnection(params);
 
-        console.log(snowflakeConnection)
+        //console.log(snowflakeConnection)
         setConnectionResult(snowflakeConnection);
 
         if (snowflakeConnection?.type === 'success') {
@@ -137,8 +127,6 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                     query_params: snowflakeConnection.query_params
                 }
             })
-
-            setCredentialsValidated(true)
 
             // If the user connects successful, we close the connection window
             setOpenConnectionSection(false);
@@ -253,9 +241,26 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                 width="medium"
                                 value={params.connection.database || 'None available'}
                                 onChange={(newDatabase) => {
-                                    setParams((prevParams) => {
-                                        return updateObjectWithPartialObject(prevParams, {'connection': {'database': newDatabase}});
-                                    })
+                                    if (newDatabase === params['connection']['database']) {
+                                        return 
+                                    }
+                                    
+                                    const paramsCopy: SnowflakeImportParams = {...params}
+                                    const newParams = {
+                                        ...paramsCopy, 
+                                        'connection': {
+                                            ...paramsCopy.connection,
+                                            'database': newDatabase,
+                                            'schema': undefined
+                                        },
+                                        'query_params': {
+                                            'table': undefined,
+                                            'columns': [],
+                                            'limit': undefined
+                                        }
+                                    }
+                                    
+                                    liveUpdateParams(newParams)
                                 }}
                             >
                                 {connectionResult?.type === 'success' ? connectionResult.config_options.databases.map((database) => {
@@ -275,9 +280,25 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                 width="medium"
                                 value={params.connection.schema || 'None available'}
                                 onChange={(newSchema) => {
-                                    setParams((prevParams) => {
-                                        return updateObjectWithPartialObject(prevParams, {'connection': {'schema': newSchema}});
-                                    })
+                                    if (newSchema === params['connection']['schema']) {
+                                        return 
+                                    }
+                                    
+                                    const paramsCopy: SnowflakeImportParams = {...params}
+                                    const newParams = {
+                                        ...paramsCopy, 
+                                        'connection': {
+                                            ...paramsCopy.connection,
+                                            'schema': newSchema
+                                        },
+                                        'query_params': {
+                                            'table': undefined,
+                                            'columns': [],
+                                            'limit': undefined // TODO: Maybe don't reset the limit??
+                                        }
+                                    }
+                                    
+                                    liveUpdateParams(newParams)
                                 }}
                             >
                                 {connectionResult?.type === 'success' ? connectionResult.config_options.schemas.map((schema) => {
@@ -297,9 +318,21 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                 width="medium"
                                 value={params.query_params.table || 'None available'}
                                 onChange={(newTable) => {
-                                    setParams((prevParams) => {
-                                        return updateObjectWithPartialObject(prevParams, {'query_params': {'table': newTable}});
-                                    })
+                                    if (newTable === params['query_params']['table']) {
+                                        return 
+                                    }
+                                    
+                                    const paramsCopy: SnowflakeImportParams = {...params}
+                                    const newParams = {
+                                        ...paramsCopy, 
+                                        'query_params': {
+                                            'table': newTable,
+                                            'columns': [],
+                                            'limit': undefined // TODO: Maybe don't reset the limit??
+                                        }
+                                    }
+                                    
+                                    liveUpdateParams(newParams)
                                 }}
                             >
                                 {connectionResult?.type === 'success' ? connectionResult.config_options.tables.map((table) => {
@@ -319,7 +352,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         toggleAllIndexes={(indexesToToggle) => {
                             setParams(prevParams => {
                                 const newColumns = [...prevParams.query_params.columns];
-                                const columnsToToggle = indexesToToggle.map(index => columns[index]);
+                                const columnsToToggle = indexesToToggle.map(index => connectionResult.config_options.columns[index]);
                                 columnsToToggle.forEach(sheetName => {
                                     toggleInArray(newColumns, sheetName);
                                 })

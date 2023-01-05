@@ -96,9 +96,35 @@ if sys.version_info[:3] > (3, 8, 0):
         Description: str
         Code: List[str]
 
+
+    class SnowflakeCredentials(TypedDict):
+        type: str
+        username: str
+        password: str 
+        account: str
+
+    class SnowflakeConnection(TypedDict):
+        warehouse: Optional[str] 
+        database: Optional[str]
+        schema: Optional[str]
+
+    class SnowflakeQueryParams(TypedDict):
+        table: Optional[str] 
+        columns: List[str]
+        limit: Optional[int]
+
+    class SnowflakeImportParams(TypedDict):
+        credentials: SnowflakeCredentials
+        connection: SnowflakeConnection
+        query_params: SnowflakeQueryParams
+
 else:
     ColumnIDWithFilter = Any # type:ignore
     ColumnHeaderWithFilter = Any # type:ignore
     ColumnIDWithPivotTransform = Any # type:ignore
     ColumnHeaderWithPivotTransform = Any # type:ignore
     CodeSnippet = Any # type:ignore
+    SnowflakeCredentials = Any # type:ignore
+    SnowflakeConnection = Any # type:ignore
+    SnowflakeQueryParams = Any # type:ignore
+    SnowflakeImportParams = Any # type:ignore

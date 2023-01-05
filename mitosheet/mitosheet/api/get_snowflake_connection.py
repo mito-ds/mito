@@ -5,13 +5,19 @@
 # Distributed under the terms of the GPL License.
 
 import json
-from typing import Any, Dict, List, Optional
-from mitosheet.types import StepsManagerType
+from typing import Any, Dict, List, Optional, Tuple
+from mitosheet.types import SnowflakeConnection, SnowflakeCredentials, SnowflakeImportParams, SnowflakeQueryParams, StepsManagerType
 import snowflake.connector
 
+def get_snowflake_connection(params: SnowflakeImportParams, steps_manager: StepsManagerType) -> str:
+        # Save the params
+        global previous_snowflake_import_params
+        previous_snowflake_import_params = params
 
-def get_snowflake_connection(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
-        credentials: Dict[str, str] = params['credentials']
+        credentials: SnowflakeCredentials = params['credentials']
+        connection: SnowflakeConnection = params['connection']
+        query_params: SnowflakeQueryParams = params['query_params']
+
         username = credentials['username']
         password = credentials['password']
         account = credentials['account']
@@ -32,8 +38,6 @@ def get_snowflake_connection(params: Dict[str, Any], steps_manager: StepsManager
                 account=account,
         )
 
-        connection: Dict[str, str] = params['connection']
-        query_params: Dict[str, str] = params['query_params']
         _warehouse = connection.get('warehouse')
         _database = connection.get('database') 
         _schema = connection.get('schema')
@@ -41,8 +45,8 @@ def get_snowflake_connection(params: Dict[str, Any], steps_manager: StepsManager
         _columns = query_params.get('columns')
         limit = query_params.get('limit')
 
-        print('starting')
-        print('_warehouse: ', _warehouse)
+        warehouse = _warehouse if _warehouse is not None else get_default_warehouse(ctx)
+        print('warehouse: ', warehouse)
 
 
         # NOTE: These checks are not correct. This only works the first time. Consider this example.
@@ -50,16 +54,12 @@ def get_snowflake_connection(params: Dict[str, Any], steps_manager: StepsManager
         # You then switch the database. The connection.schema is now still defined, but it does not belong to the 
         # new database. So instead of just checking that its not none, we need to recognize that the database changed and
         # then refresh everything beneath that.
-        warehouse = _warehouse if _warehouse is not None else get_default_warehouse(ctx)
-        print('warehouse: ', warehouse)
         database = _database if _database is not None else get_default_database(ctx)
         print('database: ', database)
         schema = _schema if _schema is not None else get_default_schemas(ctx, database)
         print('schema: ', schema)
         table = _table if _table is not None else get_default_table(ctx, database, schema)
         print('table: ', table)
-        columns = _columns if _columns is not None else get_columns(ctx, table)
-        print('columns: ', columns)
 
 
         warehouses = get_warehouses(ctx)
@@ -120,6 +120,7 @@ def get_tables(ctx, database: Optional[str], schema: Optional[str]) -> List[str]
 def get_columns(ctx, database: Optional[str], schema: Optional[str], table: Optional[str]) -> List[str]:
         if database is None or schema is None or table is None:
                 return []
+
         # List all of the columns in a table 
         cur = ctx.cursor().execute(f'SHOW COLUMNS in {database}.{schema}.{table}')
         columns = cur.fetchall()

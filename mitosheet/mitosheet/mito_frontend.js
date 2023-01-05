@@ -38045,30 +38045,22 @@ fig.write_html("${props.graphTabName}.html")`
     );
     const [openConnectionSection, setOpenConnectionSection] = (0, import_react162.useState)(true);
     const [connectionResult, setConnectionResult] = (0, import_react162.useState)(void 0);
-    const [credentialsValidated, setCredentialsValidated] = (0, import_react162.useState)(false);
-    const [columns] = useStateFromAPIAsync([], (warehouse, database, schema, table) => {
-      console.log("RUNNING THIS TOO");
-      if (warehouse !== "" && database !== "" && schema !== "" && table !== "") {
-        return props.mitoAPI.getSnowflakeColumns({ warehouse, database, schema, table });
-      } else {
-        return new Promise((resolve) => resolve([]));
-      }
-    }, (columns2) => {
-      setParams((prevParams) => {
-        return updateObjectWithPartialObject(prevParams, { "query_params": { "columns": columns2 } });
-      });
-    }, [(params == null ? void 0 : params.connection.warehouse) || "", (params == null ? void 0 : params.connection.warehouse) || "", (params == null ? void 0 : params.connection.warehouse) || "", (params == null ? void 0 : params.connection.warehouse) || ""]);
+    const [liveUpdateNumber, setLiveUpdateNumber] = (0, import_react162.useState)(0);
+    const liveUpdateParams = (newParams) => {
+      setParams(newParams);
+      setLiveUpdateNumber((old) => old + 1);
+    };
     (0, import_react162.useEffect)(() => {
-      if (credentialsValidated) {
-        getConnectionResult();
+      if (liveUpdateNumber === 0) {
+        return;
       }
-    }, [params == null ? void 0 : params.connection.warehouse, params == null ? void 0 : params.connection.database, params == null ? void 0 : params.connection.schema, params == null ? void 0 : params.query_params.table]);
+      getConnectionResult();
+    }, [liveUpdateNumber]);
     const getConnectionResult = async () => {
       if (params === void 0) {
         return;
       }
       const snowflakeConnection = await props.mitoAPI.getSnowflakeConnection(params);
-      console.log(snowflakeConnection);
       setConnectionResult(snowflakeConnection);
       if ((snowflakeConnection == null ? void 0 : snowflakeConnection.type) === "success") {
         setParams((prevParams) => {
@@ -38077,7 +38069,6 @@ fig.write_html("${props.graphTabName}.html")`
             query_params: snowflakeConnection.query_params
           });
         });
-        setCredentialsValidated(true);
         setOpenConnectionSection(false);
       }
     };
@@ -38153,9 +38144,22 @@ fig.write_html("${props.graphTabName}.html")`
         width: "medium",
         value: params.connection.database || "None available",
         onChange: (newDatabase) => {
-          setParams((prevParams) => {
-            return updateObjectWithPartialObject(prevParams, { "connection": { "database": newDatabase } });
+          if (newDatabase === params["connection"]["database"]) {
+            return;
+          }
+          const paramsCopy = __spreadValues({}, params);
+          const newParams = __spreadProps(__spreadValues({}, paramsCopy), {
+            "connection": __spreadProps(__spreadValues({}, paramsCopy.connection), {
+              "database": newDatabase,
+              "schema": void 0
+            }),
+            "query_params": {
+              "table": void 0,
+              "columns": [],
+              "limit": void 0
+            }
           });
+          liveUpdateParams(newParams);
         }
       },
       (connectionResult == null ? void 0 : connectionResult.type) === "success" ? connectionResult.config_options.databases.map((database) => {
@@ -38167,9 +38171,21 @@ fig.write_html("${props.graphTabName}.html")`
         width: "medium",
         value: params.connection.schema || "None available",
         onChange: (newSchema) => {
-          setParams((prevParams) => {
-            return updateObjectWithPartialObject(prevParams, { "connection": { "schema": newSchema } });
+          if (newSchema === params["connection"]["schema"]) {
+            return;
+          }
+          const paramsCopy = __spreadValues({}, params);
+          const newParams = __spreadProps(__spreadValues({}, paramsCopy), {
+            "connection": __spreadProps(__spreadValues({}, paramsCopy.connection), {
+              "schema": newSchema
+            }),
+            "query_params": {
+              "table": void 0,
+              "columns": [],
+              "limit": void 0
+            }
           });
+          liveUpdateParams(newParams);
         }
       },
       (connectionResult == null ? void 0 : connectionResult.type) === "success" ? connectionResult.config_options.schemas.map((schema) => {
@@ -38181,9 +38197,18 @@ fig.write_html("${props.graphTabName}.html")`
         width: "medium",
         value: params.query_params.table || "None available",
         onChange: (newTable) => {
-          setParams((prevParams) => {
-            return updateObjectWithPartialObject(prevParams, { "query_params": { "table": newTable } });
+          if (newTable === params["query_params"]["table"]) {
+            return;
+          }
+          const paramsCopy = __spreadValues({}, params);
+          const newParams = __spreadProps(__spreadValues({}, paramsCopy), {
+            "query_params": {
+              "table": newTable,
+              "columns": [],
+              "limit": void 0
+            }
           });
+          liveUpdateParams(newParams);
         }
       },
       (connectionResult == null ? void 0 : connectionResult.type) === "success" ? connectionResult.config_options.tables.map((table) => {
@@ -38195,7 +38220,7 @@ fig.write_html("${props.graphTabName}.html")`
         toggleAllIndexes: (indexesToToggle) => {
           setParams((prevParams) => {
             const newColumns = [...prevParams.query_params.columns];
-            const columnsToToggle = indexesToToggle.map((index) => columns[index]);
+            const columnsToToggle = indexesToToggle.map((index) => connectionResult.config_options.columns[index]);
             columnsToToggle.forEach((sheetName) => {
               toggleInArray(newColumns, sheetName);
             });
