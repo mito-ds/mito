@@ -9,6 +9,13 @@ from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.types import SnowflakeConnection, SnowflakeCredentials, SnowflakeImportParams, SnowflakeQueryParams, StepsManagerType
 import snowflake.connector
 
+def _get_snowflake_connection(username: str, password: str, account: str) -> Any:
+        return snowflake.connector.connect(
+                user=username,
+                password=password,
+                account=account,
+        )
+
 def get_snowflake_connection(params: SnowflakeImportParams, steps_manager: StepsManagerType) -> str:
         # Save the params
         global previous_snowflake_import_params
@@ -32,11 +39,8 @@ def get_snowflake_connection(params: SnowflakeImportParams, steps_manager: Steps
         #                 'error_message': 'Invalid authentication information. Please try again.'
         #         })
 
-        ctx = snowflake.connector.connect(
-                user=username,
-                password=password,
-                account=account,
-        )
+        ctx = _get_snowflake_connection(username, password, account)
+        
 
         _warehouse = connection.get('warehouse')
         _database = connection.get('database') 
@@ -56,7 +60,7 @@ def get_snowflake_connection(params: SnowflakeImportParams, steps_manager: Steps
         # then refresh everything beneath that.
         database = _database if _database is not None else get_default_database(ctx)
         print('database: ', database)
-        schema = _schema if _schema is not None else get_default_schemas(ctx, database)
+        schema = _schema if _schema is not None else get_default_schema(ctx, database)
         print('schema: ', schema)
         table = _table if _table is not None else get_default_table(ctx, database, schema)
         print('table: ', table)
@@ -136,7 +140,7 @@ def get_default_database(ctx) -> Optional[str]:
         databases = get_databases(ctx)
         return databases[0] if databases is not None and len(databases) > 0 else None 
 
-def get_default_schemas(ctx, database: Optional[str]) -> Optional[str]:
+def get_default_schema(ctx, database: Optional[str]) -> Optional[str]:
         # We can't be sure that there will be a database, so we need to take 
         # extra care to handle the None case
         if database is None:
