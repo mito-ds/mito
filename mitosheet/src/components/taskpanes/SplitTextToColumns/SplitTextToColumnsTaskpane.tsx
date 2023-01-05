@@ -94,7 +94,6 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
     }, [props.startingColumnID])
 
     useEffect(() => {
-        console.log("USE EFFECT RAN")
         void loadSplitTextToColumnsPreview()
     }, [params])
     

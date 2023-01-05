@@ -23526,17 +23526,6 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       }
       return void 0;
     }
-    async getSnowflakeColumns(params) {
-      const resultString = await this.send({
-        "event": "api_call",
-        "type": "get_snowflake_columns",
-        "params": params
-      }, {});
-      if (resultString !== void 0 && resultString !== "") {
-        return JSON.parse(resultString);
-      }
-      return void 0;
-    }
     async _edit(edit_event_type, params, stepID) {
       const result = await this.send({
         "event": "edit_event",
@@ -37008,7 +36997,6 @@ fig.write_html("${props.graphTabName}.html")`
       });
     }, [props.startingColumnID]);
     (0, import_react151.useEffect)(() => {
-      console.log("USE EFFECT RAN");
       void loadSplitTextToColumnsPreview();
     }, [params]);
     async function loadSplitTextToColumnsPreview() {
