@@ -21052,6 +21052,11 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           if (props.widthOnFocus !== void 0) {
             setWidth(props.widthOnFocus);
           }
+          if (props.selectTextOnFocus) {
+            setTimeout(() => {
+              e.target.select();
+            }, 50);
+          }
         },
         onBlur: (e) => {
           if (props.onBlur !== void 0) {
@@ -34419,7 +34424,8 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
               });
             });
           }
-        }
+        },
+        selectTextOnFocus: true
       }
     ))), /* @__PURE__ */ import_react125.default.createElement(Row_default, { justify: "space-between", align: "center", title: ENCODING_TOOLTIP }, /* @__PURE__ */ import_react125.default.createElement(Col_default, null, /* @__PURE__ */ import_react125.default.createElement(LabelAndTooltip_default, { tooltip: ENCODING_TOOLTIP }, "Encoding")), /* @__PURE__ */ import_react125.default.createElement(Col_default, null, /* @__PURE__ */ import_react125.default.createElement(
       Select_default,
@@ -34470,7 +34476,8 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
               skiprows: [newSkiprowsNumber]
             });
           });
-        }
+        },
+        selectTextOnFocus: true
       }
     ))), /* @__PURE__ */ import_react125.default.createElement(Row_default, { justify: "space-between", align: "center", title: ERROR_BAD_LINES_TOOLTIP }, /* @__PURE__ */ import_react125.default.createElement(Col_default, null, /* @__PURE__ */ import_react125.default.createElement(LabelAndTooltip_default, { tooltip: ERROR_BAD_LINES_TOOLTIP }, "Skip Invalid Lines")), /* @__PURE__ */ import_react125.default.createElement(Col_default, null, /* @__PURE__ */ import_react125.default.createElement(Toggle_default, { value: !currentErrorBadLines, onChange: () => {
       props.setParams((prevParams) => {

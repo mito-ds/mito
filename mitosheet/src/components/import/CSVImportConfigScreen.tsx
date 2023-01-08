@@ -295,6 +295,7 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                                     })
                                 }
                             }}
+                            selectTextOnFocus
                         />
                     </Col>
                 </Row>
@@ -373,6 +374,7 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                                     }
                                 })
                             }}
+                            selectTextOnFocus
                         />
                     </Col>
                 </Row>
