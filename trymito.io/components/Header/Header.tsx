@@ -36,6 +36,9 @@ const Header = (): JSX.Element => {
                   <Link href='/security'>Security</Link>
                 </li>
                 <li className='text-nav'>
+                  <Link href='https://blog.trymito.io'>Blog</Link>
+                </li>
+                <li className='text-nav'>
                   <a href='https://docs.trymito.io' target="_blank" rel="noreferrer">Docs</a>
                 </li>
               </ul>
@@ -89,6 +92,9 @@ const Header = (): JSX.Element => {
                 </li>
                 <li className='text-nav'>
                   <Link href='/security'>Security</Link>
+                </li>
+                <li className='text-nav'>
+                  <Link href='https://blog.trymito.io'>Blog</Link>
                 </li>
                 <li className='text-nav'>
                   <a href='https://docs.trymito.io' target="_blank" rel="noreferrer">Docs</a>
