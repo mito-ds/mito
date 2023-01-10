@@ -11,11 +11,12 @@ import snowflake.connector
 
 def _validate_snowflake_credentials(username: str, password: str, account: str) -> Any:
         try:
-            snowflake.connector.connect(
+            ctx = snowflake.connector.connect(
                     user=username,
                     password=password,
                     account=account,
             )
+            ctx.close() #type: ignore
             return True
         except:
             return False

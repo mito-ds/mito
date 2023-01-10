@@ -1,4 +1,6 @@
+from ast import Dict
 import json
+from typing import Any, Optional, Union, List
 from mitosheet.api.get_snowflake_connection import get_snowflake_connection
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 from mitosheet.api.get_code_snippets import get_code_snippets, DEFAULT_CODE_SNIPPETS
@@ -18,7 +20,7 @@ TEST_DEFAULT_SNOWFLAKE_CONNECTION = {
     'schema': None
 }
 
-TEST_DEFAULT_SNOWFLAKE_QUERY_PARAMS = {
+TEST_DEFAULT_SNOWFLAKE_QUERY_PARAMS = { # type: ignore
     'table': None,
     'columns': [],
     'limit': None,

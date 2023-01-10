@@ -17,9 +17,6 @@ def _get_snowflake_connection(username: str, password: str, account: str) -> Any
         )
 
 def get_snowflake_connection(params: SnowflakeImportParams, steps_manager: StepsManagerType) -> str:
-        # Save the params
-        global previous_snowflake_import_params
-        previous_snowflake_import_params = params
 
         credentials: SnowflakeCredentials = params['credentials']
         connection: SnowflakeConnection = params['connection']
@@ -71,34 +68,34 @@ def get_snowflake_connection(params: SnowflakeImportParams, steps_manager: Steps
         })
                 
 
-def get_warehouses(ctx) -> List[str]:
+def get_warehouses(ctx: Any) -> List[str]:
         # List all of the warehouses available to the user
         cur = ctx.cursor().execute('SHOW WAREHOUSES')
         warehouses = cur.fetchall()
         return [wh[0] for wh in warehouses]
 
-def get_databases(ctx) -> List[str]:
+def get_databases(ctx: Any) -> List[str]:
         # List all of the databases available to the user
         cur = ctx.cursor().execute('SHOW DATABASES')
         databases = cur.fetchall()
         return [db[1] for db in databases]
 
-def get_schemas(ctx, database: Optional[str]) -> List[str]:
+def get_schemas(ctx: Any, database: Optional[str]) -> List[str]:
         # List all of the schemas in a particular database available to the user
         cur = ctx.cursor().execute(f'SHOW SCHEMAS in {database}')
         schemas = cur.fetchall()
         return [s[1] for s in schemas]
 
-def get_tables(ctx, database: Optional[str], schema: Optional[str]) -> List[str]:
+def get_tables(ctx: Any, database: Optional[str], schema: Optional[str]) -> List[str]:
         if database is None or schema is None:
-                return None
+                return []
 
         # List all of the tables in a schema
         cur = ctx.cursor().execute(f'SHOW TABLES in {database}.{schema}')
         tables = cur.fetchall()
         return [table[1] for table in tables]
 
-def get_columns(ctx, database: Optional[str], schema: Optional[str], table: Optional[str]) -> List[str]:
+def get_columns(ctx: Any, database: Optional[str], schema: Optional[str], table: Optional[str]) -> List[str]:
         if database is None or schema is None or table is None:
                 return []
 
@@ -107,17 +104,17 @@ def get_columns(ctx, database: Optional[str], schema: Optional[str], table: Opti
         columns = cur.fetchall()
         return [column[2] for column in columns]
 
-def get_default_warehouse(ctx) -> Optional[str]:
+def get_default_warehouse(ctx: Any) -> Optional[str]:
         # TODO: Update this function to check if the user has a default warehouse and use it 
         warehouses = get_warehouses(ctx)
         return warehouses[0] if warehouses is not None and len(warehouses) > 0 else None 
 
-def get_default_database(ctx) -> Optional[str]:
+def get_default_database(ctx: Any) -> Optional[str]:
         # TODO: Update this function to check if the user has a default database and use it
         databases = get_databases(ctx)
         return databases[0] if databases is not None and len(databases) > 0 else None 
 
-def get_default_schema(ctx, database: Optional[str]) -> Optional[str]:
+def get_default_schema(ctx: Any, database: Optional[str]) -> Optional[str]:
         # We can't be sure that there will be a database, so we need to take 
         # extra care to handle the None case
         if database is None:
@@ -127,7 +124,7 @@ def get_default_schema(ctx, database: Optional[str]) -> Optional[str]:
         schemas = get_schemas(ctx, database)
         return schemas[0] if schemas is not None and len(schemas) > 0 else None 
 
-def get_default_table(ctx, database: Optional[str], schema: Optional[str]) -> Optional[str]:
+def get_default_table(ctx: Any, database: Optional[str], schema: Optional[str]) -> Optional[str]:
         if database is None or schema is None:
                 return None
 

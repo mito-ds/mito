@@ -491,8 +491,7 @@ class MitoWidgetTestWrapper:
 
         
 
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
