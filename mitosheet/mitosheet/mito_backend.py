@@ -14,6 +14,7 @@ import time
 from sysconfig import get_python_version
 from typing import Any, Dict, List, Optional, Union
 
+import numpy as np
 import pandas as pd
 from ipykernel import get_connection_file
 from ipykernel.comm import Comm
@@ -55,11 +56,12 @@ class MitoBackend():
         """
         # Call the DOMWidget constructor to set up the widget properly
         super(MitoBackend, self).__init__()
+
+        # Setup the MitoConfig class
+        self.mito_config = MitoConfig() # type: ignore
             
         # Set up the state container to hold private widget state
-        self.steps_manager = StepsManager(args, analysis_to_replay=analysis_to_replay)
-
-        self.mito_config = MitoConfig() # type: ignore
+        self.steps_manager = StepsManager(args, mito_config=self.mito_config, analysis_to_replay=analysis_to_replay)
 
         # And the api
         self.api = API(self.steps_manager, self)
@@ -113,7 +115,7 @@ class MitoBackend():
             'isLocalDeployment': self.is_local_deployment,
             'shouldUpgradeMitosheet': self.should_upgrade_mitosheet,
             'numUsages': self.num_usages,
-            'mitoConfig': self.mito_config.get_mito_config()
+            'mitoConfig': self.steps_manager.mito_config.get_mito_config()
         })
 
 
@@ -298,7 +300,7 @@ def get_mito_backend(
         comm.send({'echo': open_msg['content']['data']}) # type: ignore
 
     # Register the comm target - so the callback gets called
-    ipython = get_ipython()
+    ipython = get_ipython() # type: ignore
     if ipython:
         ipython.kernel.comm_manager.register_target(comm_target_id, on_comm_creation)
 
@@ -321,12 +323,16 @@ def get_mito_frontend_code(kernel_id: str, comm_target_id: str, div_id: str, mit
     js_code = js_code_from_file.replace('REPLACE_THIS_WITH_DIV_ID', div_id)
     js_code = js_code.replace('REPLACE_THIS_WITH_KERNEL_ID', kernel_id)
     js_code = js_code.replace('REPLACE_THIS_WITH_COMM_TARGET_ID', comm_target_id)
-    # NOTE: we need to turn \ into \\ anywhere it exists, as otherwise we might get characters
-    # that are invalid JS, and we get a SyntaxError when trying to render the mitosheet
-    js_code = js_code.replace('REPLACE_THIS_WITH_SHEET_DATA_ARRAY', mito_backend.steps_manager.sheet_data_json.replace('\\', '\\\\'))
-    js_code = js_code.replace('REPLACE_THIS_WITH_ANALYSIS_DATA', mito_backend.steps_manager.analysis_data_json.replace('\\', '\\\\'))
-    js_code = js_code.replace('REPLACE_THIS_WITH_USER_PROFILE', mito_backend.get_user_profile_json().replace('\\', '\\\\'))
     js_code = js_code.replace('REPLACE_THIS_WITH_CSS', css_code_from_file)
+    # NOTE: we encode these as utf8 encoded byte arrays, so that we can avoid having to do complicated things with 
+    # replacing \t, etc, which is required because JSON.parse limits what characters are valid in strings (bah humbug)
+    def to_uint8_arr(string: str) -> List[int]:
+        return np.frombuffer(string.encode("utf8"), dtype=np.uint8).tolist()
+    
+    js_code = js_code.replace('sheetDataBytes = new Uint8Array([]);', f'sheetDataBytes = new Uint8Array({to_uint8_arr(mito_backend.steps_manager.sheet_data_json)});')
+    js_code = js_code.replace('analysisDataBytes = new Uint8Array([]);', f'analysisDataBytes = new Uint8Array({to_uint8_arr(mito_backend.steps_manager.analysis_data_json)});')
+    js_code = js_code.replace('userProfileBytes = new Uint8Array([]);', f'userProfileBytes = new Uint8Array({to_uint8_arr(mito_backend.get_user_profile_json())});')
+
     return js_code
 
 
@@ -408,4 +414,4 @@ def sheet(
         <script>
             {js_code}
         </script>
-    </div>"""))
+    </div>""")) # type: ignore

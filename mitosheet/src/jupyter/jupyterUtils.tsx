@@ -118,6 +118,9 @@ export const getArgs = (analysisToReplayName: string | undefined): Promise<strin
 
 
 export const getSheetDataArrayFromString = (sheet_data_json: string): SheetData[] => {
+    if (sheet_data_json.length === 0) {
+        return []
+    }
     return JSON.parse(sheet_data_json);
 }
 

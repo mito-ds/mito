@@ -656,7 +656,11 @@ interface Experiment {
 
 export enum MitoEnterpriseConfigKey {
     MEC_VERSION = 'MITO_CONFIG_VERSION',
-    SUPPORT_EMAIL = 'MITO_CONFIG_SUPPORT_EMAIL'
+    SUPPORT_EMAIL = 'MITO_CONFIG_SUPPORT_EMAIL',
+    CODE_SNIPPETS = 'MITO_CONFIG_CODE_SNIPPETS', 
+    CODE_SNIPPETS_SUPPORT_EMAIL = 'MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL',
+    CODE_SNIPPETS_VERSION = 'MITO_CONFIG_CODE_SNIPPETS_VERSION',
+    CODE_SNIPPETS_URL = 'MITO_CONFIG_CODE_SNIPPETS_URL',
 }
 
 
@@ -722,8 +726,13 @@ export interface UserProfile {
     shouldUpgradeMitosheet: boolean;
     numUsages: number;
     mitoConfig: {
-        [MitoEnterpriseConfigKey.MEC_VERSION]: number | undefined
+        [MitoEnterpriseConfigKey.MEC_VERSION]: number | undefined | null
         [MitoEnterpriseConfigKey.SUPPORT_EMAIL]: string
+        [MitoEnterpriseConfigKey.CODE_SNIPPETS]: {
+            [MitoEnterpriseConfigKey.CODE_SNIPPETS_VERSION]: string,
+            [MitoEnterpriseConfigKey.CODE_SNIPPETS_URL]: string
+            [MitoEnterpriseConfigKey.CODE_SNIPPETS_SUPPORT_EMAIL]: string | undefined | null
+        } | null | undefined
     };
 }
 
@@ -976,7 +985,19 @@ export type RecursivePartial<T> = {
 };
 
 export interface CodeSnippet {
+    'Id': string,
     'Name': string,
     'Description': string,
     'Code': string[]
 }
+
+export type CodeSnippetAPIResult = 
+    | {
+        'status': 'success',
+        'code_snippets': CodeSnippet[]
+    }
+    | {
+        'status': 'error',
+        'error_message': string
+    }
+

@@ -904,3 +904,28 @@ def test_pivot_not_optimizes_with_pivot_with_no_destination_sheet():
     assert mito.dfs[2].equals(pd.DataFrame({'date': ['1-1-2000'], 'value sum': [6]}))
 
     assert len(mito.optimized_code_chunks) == 2
+
+def test_pivot_optimizes_edits_to_just_pivot_table_after_redoing_pivot():
+    df = pd.DataFrame(data={'date': ['1-1-2000', '1-1-2000', '1-1-2000'], 'value': [2, 2, 2]})
+    mito = create_mito_wrapper_dfs(df)
+    mito.pivot_sheet(0, ['date'], [], {'value': ['sum']})
+    mito.add_column(1, 'A', -1)
+    mito.set_formula('=10', 1, 'A', add_column=False)
+    mito.filter(1, 'A', 'And', FC_NUMBER_EXACTLY, 10)
+    mito.sort(1, 'A', 'descending')
+    mito.rename_column(1, 'A', 'B')
+    mito.change_column_dtype(1, ['B'], 'float')
+    mito.delete_columns(1, ['B'])
+    mito.delete_row(1, [0])
+    mito.pivot_sheet(0, ['date'], [], {'value': ['sum']}, destination_sheet_index=1)
+
+    assert len(mito.optimized_code_chunks) == 1
+
+
+def test_pivot_with_rename_works_then_edit_optimized_properly():
+    df = pd.DataFrame(data={'date': ['1-1-2000', '1-1-2000', '1-1-2000'], 'value': [2, 2, 2]})
+    mito = create_mito_wrapper_dfs(df)
+    mito.pivot_sheet(0, ['date'], [], {'value': ['sum']})
+    mito.rename_dataframe(1, 'NEW')
+    mito.pivot_sheet(0, ['date'], [], {'value': ['sum']}, destination_sheet_index=1)
+    assert len(mito.optimized_code_chunks) == 1

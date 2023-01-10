@@ -4,12 +4,13 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-import json
 from typing import Any, Dict, List
+from mitosheet.enterprise.api.code_snippets_utils import create_success_return_obj, get_custom_code_snippets
 from mitosheet.types import CodeSnippet, StepsManagerType
 
 DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
         {
+                'Id': 'mito-code-snippet:calculate-correlation-matrix',
                 'Name': 'Calculate correlation matrix',
                 'Description': 'Compute pairwise correlation of columns, excluding NA/null values.',
                 'Code': [
@@ -17,6 +18,7 @@ DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
                 ]
         },
         {
+                'Id': 'mito-code-snippet:send-email-using-outlook',
                 "Name": "Send email using Outlook (Windows)", 
                 "Description": "Automatically send email with embedded dataframe",
                 "Code": [
@@ -32,6 +34,7 @@ DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
                 ],
         },
         {
+                'Id': 'mito-code-snippet:create-dataframe-from-clipboard',
                 'Name': 'Create dataframe from clipboard',
                 'Description': 'Read the data that is copied to you clipboard into a pandas dataframe',
                 'Code': [
@@ -40,6 +43,7 @@ DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
                 ]
         },
         {
+                'Id': 'mito-code-snippet:read-csv-files-from-folder',
                 "Name": "Read all CSV files from folder", 
                 "Description": "Read the CSV files from a folder, and concate them into a single dataframe.",
                 "Code": [
@@ -53,6 +57,7 @@ DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
                 ]
         },
         {
+                'Id': 'mito-code-snippet:diff-between-dataframe',
                 "Name": "Find differences between dataframes", 
                 "Description": "Subtract one dataframe from another by row",
                 "Code": [
@@ -63,4 +68,13 @@ DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
 ]
 
 def get_code_snippets(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
-    return json.dumps(DEFAULT_CODE_SNIPPETS)
+        code_snippets_envs = steps_manager.mito_config.get_code_snippets()
+
+        if code_snippets_envs is None: 
+                return create_success_return_obj(DEFAULT_CODE_SNIPPETS)
+
+        mito_config_code_snippets_url = code_snippets_envs["MITO_CONFIG_CODE_SNIPPETS_URL"]
+
+        return get_custom_code_snippets(mito_config_code_snippets_url)
+        
+

@@ -122,9 +122,11 @@ if name == 'mitosheet2':
                 'pytest-mock',
                 'flake8',
                 'types-chardet',
-                'mypy',
                 'python-dotenv',
                 '"snowflake-connector-python[pandas]"'
+                'types-requests',
+                'mypy',
+                'pytest_httpserver'
             ],
             'deploy': [
                 'wheel', 
@@ -231,9 +233,11 @@ elif name == 'mitosheet' or name == 'mitosheet3' or name == 'mitosheet-private':
                 'pytest-mock',
                 'flake8',
                 'types-chardet',
-                'mypy',
                 'python-dotenv',
                 '"snowflake-connector-python[pandas]"'
+                'types-requests',
+                'mypy',
+                'pytest_httpserver'
             ],
             'deploy': [
                 'wheel', 

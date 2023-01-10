@@ -17,7 +17,7 @@ def get_df_names() -> Dict[str, pd.DataFrame]:
     from io import StringIO 
     import sys
 
-    ipython = get_ipython()
+    ipython = get_ipython() # type: ignore
 
     class Capturing(list):
         def __enter__(self):

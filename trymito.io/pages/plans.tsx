@@ -212,7 +212,7 @@ const TRANSFORMATION_FEATURES: Feature[] = [
     }
   },
   {
-    feature: 'ML Prep Transforms',
+    feature: 'Custom Code Snippets',
     planSupport: {
       'Open Source': false,
       'Pro': false,

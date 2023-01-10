@@ -5,6 +5,7 @@
 # Distributed under the terms of the GPL License.
 import pandas as pd
 import pytest
+from mitosheet.enterprise.mito_config import MitoConfig
 
 from mitosheet.utils import get_new_id
 from mitosheet.errors import MitoError
@@ -17,12 +18,15 @@ def test_create_steps_manager():
     df1 = pd.DataFrame(data={'A': [123]})
     df2 = pd.DataFrame(data={'A': [123]})
 
-    steps_manager = StepsManager([df1, df2])
+    mito_config = MitoConfig()
+
+    steps_manager = StepsManager([df1, df2], mito_config.get_mito_config())
     assert steps_manager.curr_step_idx == 0
     assert steps_manager.curr_step.step_type == 'initialize'
     assert steps_manager.curr_step.column_spreadsheet_code == [{'A': ''}, {'A': ''}]
     assert steps_manager.curr_step.dfs[0].equals(df1)
     assert steps_manager.curr_step.dfs[1].equals(df2)
+    assert steps_manager.mito_config == mito_config.get_mito_config()
 
 # We assume only column A exists
 CELL_EDIT_ERRORS = [

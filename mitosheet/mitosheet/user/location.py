@@ -11,7 +11,7 @@ def is_in_google_colab() -> bool:
     # From: https://discourse.jupyter.org/t/find-out-if-my-code-runs-inside-a-notebook-or-jupyter-lab/6935/19
     try:
         from IPython.core.getipython import get_ipython
-        return 'google.colab' in str(get_ipython())
+        return 'google.colab' in str(get_ipython()) # type: ignore
     except:
         return False
 
@@ -53,7 +53,7 @@ def is_notebook() -> bool:
     except:
         return False
     try:
-        shell = get_ipython().__class__.__name__
+        shell = get_ipython().__class__.__name__ # type: ignore
         if shell == 'ZMQInteractiveShell':
             return True   # Jupyter notebook or qtconsole
         elif shell == 'TerminalInteractiveShell':

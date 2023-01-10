@@ -38,7 +38,7 @@ interface InputProps {
 
     /**
         * @param [onClick] - Function to be called with mouse is pressed 
-     */
+    */
     onClick?: (e: React.MouseEvent) => void;
 
     /**
@@ -100,6 +100,11 @@ interface InputProps {
         * @param [onEscape] - Function to be called when the escape key is pressed
     */
     onEscape?: () => void
+
+    /** 
+        * @param [selectTextOnFocus] - Select all of the text when clicked. Helpful, for example, if there is only a space in the input  
+    */
+    selectTextOnFocus?: boolean
 }
 
 /**
@@ -171,6 +176,13 @@ const Input = (props: InputProps): JSX.Element => {
                     }
                     if (props.widthOnFocus !== undefined) {
                         setWidth(props.widthOnFocus)
+                    }
+                    if (props.selectTextOnFocus) {
+                        // Select the entire text after a very short delay as to 
+                        // not compete with the onClick.
+                        setTimeout(() => {
+                            e.target.select();
+                        }, 50)
                     }
                 }}
                 onBlur={(e) => {

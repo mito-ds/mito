@@ -7,9 +7,9 @@ import { ModalEnum } from "../components/modals/modals";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
 import { getDefaultGraphParams } from "../components/taskpanes/Graph/graphUtils";
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
-import { SLACK_INVITE_LINK } from "../data/documentationLinks";
+import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../data/function_documentation";
-import { Action, DFSource, EditorState, GridState, SheetData, UIState, ActionEnum, AnalysisData, DataframeFormat, UserProfile, MitoEnterpriseConfigKey } from "../types"
+import { Action, DFSource, EditorState, GridState, SheetData, UIState, ActionEnum, AnalysisData, DataframeFormat, UserProfile } from "../types"
 import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { decreasePrecision, FORMAT_DISABLED_MESSAGE, increasePrecision } from "./format";
 import { writeTextToClipboard, getCopyStringForClipboard } from "./copy";
@@ -594,17 +594,17 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
 
-                // Open slack
-                if (userProfile.mitoConfig[MitoEnterpriseConfigKey.SUPPORT_EMAIL] === DEFAULT_SUPPORT_EMAIL) {
-                    window.open(SLACK_INVITE_LINK, '_blank')
+                // Open Discord
+                if (userProfile.mitoConfig.MITO_CONFIG_SUPPORT_EMAIL === DEFAULT_SUPPORT_EMAIL) {
+                    window.open(DISCORD_INVITE_LINK, '_blank')
                 } else {
-                    window.open(`mailto:${userProfile.mitoConfig[MitoEnterpriseConfigKey.SUPPORT_EMAIL]}?subject=Mito support request`)
+                    window.open(`mailto:${userProfile.mitoConfig.MITO_CONFIG_SUPPORT_EMAIL}?subject=Mito support request`)
                 }
                 
             },
             isDisabled: () => {return undefined},
             searchTerms: ['help', 'contact', 'support', 'slack', 'discord'],
-            tooltip: "Join our Slack for more help."
+            tooltip: "Join our Discord for more help."
         },
         [ActionEnum.Import_Dropdown]: {
             type: ActionEnum.Import_Dropdown,

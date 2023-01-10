@@ -21052,6 +21052,11 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           if (props.widthOnFocus !== void 0) {
             setWidth(props.widthOnFocus);
           }
+          if (props.selectTextOnFocus) {
+            setTimeout(() => {
+              e.target.select();
+            }, 50);
+          }
         },
         onBlur: (e) => {
           if (props.onBlur !== void 0) {
@@ -22895,6 +22900,9 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     });
   };
   var getSheetDataArrayFromString = (sheet_data_json) => {
+    if (sheet_data_json.length === 0) {
+      return [];
+    }
     return JSON.parse(sheet_data_json);
   };
   var getUserProfileFromString = (user_profile_json) => {
@@ -24601,7 +24609,15 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         header: props.header !== void 0 ? props.header : "Import data first",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react35.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react35.default.createElement("p", { className: "text-body-1 text-overflow-wrap" }, props.message ? props.message : "Before performing that action, you need to import data into Mito.", props.suppressImportLink !== true && /* @__PURE__ */ import_react35.default.createElement(import_react35.default.Fragment, null, " ", /* @__PURE__ */ import_react35.default.createElement("span", { className: "text-body-1-link", onClick: openImportTaskpane }, "Click here to import data.")))));
+    ), /* @__PURE__ */ import_react35.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react35.default.createElement(
+      "p",
+      {
+        className: classNames("text-body-1", "text-overflow-wrap", { "text-color-error": props.errorMessage }),
+        style: { whiteSpace: "pre-wrap" }
+      },
+      props.message ? props.message : "Before performing that action, you need to import data into Mito.",
+      props.suppressImportLink !== true && /* @__PURE__ */ import_react35.default.createElement(import_react35.default.Fragment, null, " ", /* @__PURE__ */ import_react35.default.createElement("span", { className: "text-body-1-link", onClick: openImportTaskpane }, "Click here to import data."))
+    )));
   };
   var DefaultEmptyTaskpane_default = DefaultEmptyTaskpane;
 
@@ -29477,7 +29493,6 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   var DOCUMENTATION_LINK_TUTORIAL = "https://docs.trymito.io/getting-started/tutorial";
   var DOCUMENTATION_LINK_SPREADSHEET_FORMULAS = "https://docs.trymito.io/how-to/interacting-with-your-data";
   var DISCORD_INVITE_LINK = "https://discord.gg/XdJSZyejJU";
-  var SLACK_INVITE_LINK = "https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg";
 
   // src/utils/copy.tsx
   var getCopyStringForValue = (value, columnDtype, columnFormatType) => {
@@ -29593,10 +29608,10 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     return /* @__PURE__ */ import_react81.default.createElement(
       TextButton_default,
       {
-        className: props.className,
+        className: classNames(props.className, "cursor-pointer"),
         variant: "dark",
         width: props.width || "medium",
-        href: props.userProfile.mitoConfig["MITO_CONFIG_SUPPORT_EMAIL" /* SUPPORT_EMAIL */] === DEFAULT_SUPPORT_EMAIL ? SLACK_INVITE_LINK : `mailto:${props.userProfile.mitoConfig["MITO_CONFIG_SUPPORT_EMAIL" /* SUPPORT_EMAIL */]}?subject=Mito support request`,
+        href: props.userProfile.mitoConfig.MITO_CONFIG_SUPPORT_EMAIL === DEFAULT_SUPPORT_EMAIL ? DISCORD_INVITE_LINK : `mailto:${props.userProfile.mitoConfig.MITO_CONFIG_SUPPORT_EMAIL}?subject=Mito support request`,
         target: "_blank",
         onClick: () => {
           var _a;
@@ -30086,17 +30101,17 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         longTitle: "Help",
         actionFunction: () => {
           setEditorState(void 0);
-          if (userProfile2.mitoConfig["MITO_CONFIG_SUPPORT_EMAIL" /* SUPPORT_EMAIL */] === DEFAULT_SUPPORT_EMAIL) {
-            window.open(SLACK_INVITE_LINK, "_blank");
+          if (userProfile2.mitoConfig.MITO_CONFIG_SUPPORT_EMAIL === DEFAULT_SUPPORT_EMAIL) {
+            window.open(DISCORD_INVITE_LINK, "_blank");
           } else {
-            window.open(`mailto:${userProfile2.mitoConfig["MITO_CONFIG_SUPPORT_EMAIL" /* SUPPORT_EMAIL */]}?subject=Mito support request`);
+            window.open(`mailto:${userProfile2.mitoConfig.MITO_CONFIG_SUPPORT_EMAIL}?subject=Mito support request`);
           }
         },
         isDisabled: () => {
           return void 0;
         },
         searchTerms: ["help", "contact", "support", "slack", "discord"],
-        tooltip: "Join our Slack for more help."
+        tooltip: "Join our Discord for more help."
       },
       ["import dropdown" /* Import_Dropdown */]: {
         type: "import dropdown" /* Import_Dropdown */,
@@ -31307,7 +31322,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     }
     render() {
       if (this.state.hasError) {
-        return /* @__PURE__ */ import_react84.default.createElement("p", { className: "text-body-1 text-color-red p-10px" }, "Looks like Mito had an error! Sorry about that. Rerun the Jupyter Cell above, and join our ", /* @__PURE__ */ import_react84.default.createElement("a", { className: "text-body-1-link", href: SLACK_INVITE_LINK, target: "_blank", rel: "noreferrer" }, "Slack"), " or ", /* @__PURE__ */ import_react84.default.createElement("a", { className: "text-body-1-link", href: DISCORD_INVITE_LINK, target: "_blank", rel: "noreferrer" }, "Discord"), " for support if this error occurs again.");
+        return /* @__PURE__ */ import_react84.default.createElement("p", { className: "text-body-1 text-color-red p-10px" }, "Looks like Mito had an error! Sorry about that. Rerun the Jupyter Cell above, and join our ", /* @__PURE__ */ import_react84.default.createElement("a", { className: "text-body-1-link", href: DISCORD_INVITE_LINK, target: "_blank", rel: "noreferrer" }, "Discord"), " for support if this error occurs again.");
       }
       return this.props.children;
     }
@@ -31630,7 +31645,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     return /* @__PURE__ */ import_react90.default.createElement(
       "div",
       {
-        className: classNames("tab", { "tab-graph": props.tabIDObj.tabType === "graph" }, { "tab-selected": props.isSelectedTab }),
+        className: classNames("tab", { "tab-graph": props.tabIDObj.tabType === "graph" }, { "tab-selected": props.isSelectedTab }, "cursor-pointer"),
         onClick: () => {
           if (props.tabIDObj.tabType === "graph") {
             props.setEditorState(void 0);
@@ -31747,7 +31762,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     return /* @__PURE__ */ import_react92.default.createElement("div", { className: "footer" }, /* @__PURE__ */ import_react92.default.createElement(
       "div",
       {
-        className: "footer-add-button",
+        className: classNames("footer-add-button", "cursor-pointer"),
         onClick: () => {
           if (disabledDueToReplayAnalysis) {
             return;
@@ -34457,7 +34472,8 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
               });
             });
           }
-        }
+        },
+        selectTextOnFocus: true
       }
     ))), /* @__PURE__ */ import_react125.default.createElement(Row_default, { justify: "space-between", align: "center", title: ENCODING_TOOLTIP }, /* @__PURE__ */ import_react125.default.createElement(Col_default, null, /* @__PURE__ */ import_react125.default.createElement(LabelAndTooltip_default, { tooltip: ENCODING_TOOLTIP }, "Encoding")), /* @__PURE__ */ import_react125.default.createElement(Col_default, null, /* @__PURE__ */ import_react125.default.createElement(
       Select_default,
@@ -34508,7 +34524,8 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
               skiprows: [newSkiprowsNumber]
             });
           });
-        }
+        },
+        selectTextOnFocus: true
       }
     ))), /* @__PURE__ */ import_react125.default.createElement(Row_default, { justify: "space-between", align: "center", title: ERROR_BAD_LINES_TOOLTIP }, /* @__PURE__ */ import_react125.default.createElement(Col_default, null, /* @__PURE__ */ import_react125.default.createElement(LabelAndTooltip_default, { tooltip: ERROR_BAD_LINES_TOOLTIP }, "Skip Invalid Lines")), /* @__PURE__ */ import_react125.default.createElement(Col_default, null, /* @__PURE__ */ import_react125.default.createElement(Toggle_default, { value: !currentErrorBadLines, onChange: () => {
       props.setParams((prevParams) => {
@@ -37934,7 +37951,7 @@ fig.write_html("${props.graphTabName}.html")`
   var CONFIRMATION_TEXT_COPIED = "Copied code snippet to clipboard. Paste it in a code cell below.";
   var CONFIRMATION_TEXT_CODE_WRITTEN = "Code snippet written to code cell below. Scroll down to see it.";
   var CodeSnippetsTaskpane = (props) => {
-    const [allCodeSnippets] = useStateFromAPIAsync([], () => {
+    const [codeSnippetAPIResult] = useStateFromAPIAsync(void 0, () => {
       return props.mitoAPI.getCodeSnippets();
     }, void 0, []);
     const [searchString, setSearchString] = (0, import_react161.useState)("");
@@ -37945,7 +37962,19 @@ fig.write_html("${props.graphTabName}.html")`
         setConfirmationText(void 0);
       }
     }, [confirmationText], 3e3);
-    const codeSnippetsToDisplay = allCodeSnippets.filter((codeSnippet) => {
+    if ((codeSnippetAPIResult == null ? void 0 : codeSnippetAPIResult.status) === "error") {
+      return /* @__PURE__ */ import_react161.default.createElement(
+        DefaultEmptyTaskpane_default,
+        {
+          setUIState: props.setUIState,
+          header: "Error loading code snippets",
+          message: codeSnippetAPIResult.error_message,
+          errorMessage: true,
+          suppressImportLink: true
+        }
+      );
+    }
+    const codeSnippetsToDisplay = codeSnippetAPIResult == null ? void 0 : codeSnippetAPIResult.code_snippets.filter((codeSnippet) => {
       return fuzzyMatch(codeSnippet.Name, searchString) > 0.75 || fuzzyMatch(codeSnippet.Description, searchString) > 0.75 || fuzzyMatch(codeSnippet.Code.join(" "), searchString) > 0.75;
     });
     return /* @__PURE__ */ import_react161.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react161.default.createElement(
@@ -37963,7 +37992,8 @@ fig.write_html("${props.graphTabName}.html")`
         },
         placeholder: "Search for a code snippet by name or content"
       }
-    ), confirmationText !== void 0 && /* @__PURE__ */ import_react161.default.createElement("p", { className: "text-color-success" }, confirmationText), codeSnippetsToDisplay.map((codeSnippet, codeSnippetIndex) => {
+    ), confirmationText !== void 0 && /* @__PURE__ */ import_react161.default.createElement("p", { className: "text-color-success" }, confirmationText), codeSnippetsToDisplay == null ? void 0 : codeSnippetsToDisplay.map((codeSnippet, codeSnippetIndex) => {
+      var _a;
       const copyToClipboard = () => {
         setConfirmationText(CONFIRMATION_TEXT_COPIED);
         void writeTextToClipboard(codeSnippet.Code.join("\n"));
@@ -37974,12 +38004,17 @@ fig.write_html("${props.graphTabName}.html")`
         writeCodeSnippetCell(props.analysisData.analysisName, codeSnippet.Code.join("\n"));
         void props.mitoAPI.log("code_snippet_written_to_cell", { "code_snippet_name": codeSnippet.Name });
       };
+      let openLocation = DISCORD_INVITE_LINK;
+      const codeSnippetSupportEmail = (_a = props.userProfile.mitoConfig.MITO_CONFIG_CODE_SNIPPETS) == null ? void 0 : _a.MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL;
+      if (codeSnippetSupportEmail !== void 0 && codeSnippetSupportEmail !== null) {
+        openLocation = `mailto:${codeSnippetSupportEmail}?subject=Mito Code Snippet Support: ID ${codeSnippet.Id}`;
+      }
       return /* @__PURE__ */ import_react161.default.createElement(
         Row_default,
         {
           key: codeSnippetIndex,
           align: "center",
-          className: "highlight-on-hover",
+          className: classNames("highlight-on-hover", DROPDOWN_IGNORE_CLICK_CLASS),
           justify: "space-between",
           onClick: () => {
             setOpenDropdownIndex((prevOpenDropdownIndex) => {
@@ -37991,7 +38026,7 @@ fig.write_html("${props.graphTabName}.html")`
           }
         },
         /* @__PURE__ */ import_react161.default.createElement(Col_default, { offsetRight: 0.5 }, /* @__PURE__ */ import_react161.default.createElement(CodeSnippetIcon_default, null)),
-        /* @__PURE__ */ import_react161.default.createElement(Col_default, { span: 20 }, /* @__PURE__ */ import_react161.default.createElement("div", { className: "text-bold" }, codeSnippet.Name), /* @__PURE__ */ import_react161.default.createElement("div", { className: "text-overflow-scroll pb-5px" }, codeSnippet.Description)),
+        /* @__PURE__ */ import_react161.default.createElement(Col_default, { span: 20 }, /* @__PURE__ */ import_react161.default.createElement("div", { className: "text-bold" }, codeSnippet.Name), /* @__PURE__ */ import_react161.default.createElement("div", { className: "text-overflow-wrap pb-5px" }, codeSnippet.Description)),
         /* @__PURE__ */ import_react161.default.createElement(
           Col_default,
           {
@@ -38003,8 +38038,10 @@ fig.write_html("${props.graphTabName}.html")`
           Dropdown_default,
           {
             display: codeSnippetIndex === openDropdownIndex,
-            closeDropdown: () => setOpenDropdownIndex(void 0),
-            width: "medium"
+            width: "medium",
+            closeDropdown: () => {
+              setOpenDropdownIndex(void 0);
+            }
           },
           /* @__PURE__ */ import_react161.default.createElement(
             DropdownItem_default,
@@ -38019,10 +38056,21 @@ fig.write_html("${props.graphTabName}.html")`
               title: "Write to Notebook",
               onClick: writeToCell2
             }
+          ),
+          /* @__PURE__ */ import_react161.default.createElement(
+            DropdownItem_default,
+            {
+              title: "Get Support",
+              onClick: () => {
+                var _a2;
+                window.open(openLocation);
+                void ((_a2 = props.mitoAPI) == null ? void 0 : _a2.log("clicked_code_snippet_get_support_button"));
+              }
+            }
           )
         ))
       );
-    })));
+    }), codeSnippetAPIResult === void 0 && /* @__PURE__ */ import_react161.default.createElement("p", { className: "mt-20px" }, "Loading code snippets ", /* @__PURE__ */ import_react161.default.createElement(LoadingDots_default, null))));
   };
   var CodeSnippetsTaskpane_default = CodeSnippetsTaskpane;
 
@@ -38942,7 +38990,7 @@ fig.write_html("${props.graphTabName}.html")`
     return /* @__PURE__ */ import_react191.default.createElement(
       "div",
       {
-        className: classNames("text-button", "text-button-variant-dark", "plan-button"),
+        className: classNames("text-button", "text-button-variant-dark", "plan-button", "cursor-pointer"),
         onClick: () => {
           if (disabledDueToReplayAnalysis) {
             return;
@@ -40680,9 +40728,12 @@ fig.write_html("${props.graphTabName}.html")`
   var Mito_default = Mito;
 
   // src/jupyterRender.tsx
-  var sheetDataArray = getSheetDataArrayFromString(`REPLACE_THIS_WITH_SHEET_DATA_ARRAY`);
-  var analysisData = getAnalysisDataFromString(`REPLACE_THIS_WITH_ANALYSIS_DATA`);
-  var userProfile = getUserProfileFromString(`REPLACE_THIS_WITH_USER_PROFILE`);
+  var sheetDataBytes = new Uint8Array([]);
+  var analysisDataBytes = new Uint8Array([]);
+  var userProfileBytes = new Uint8Array([]);
+  var sheetDataArray = getSheetDataArrayFromString(new TextDecoder().decode(sheetDataBytes));
+  var analysisData = getAnalysisDataFromString(new TextDecoder().decode(analysisDataBytes));
+  var userProfile = getUserProfileFromString(new TextDecoder().decode(userProfileBytes));
   var commTargetID = "REPLACE_THIS_WITH_COMM_TARGET_ID";
   var divID = "REPLACE_THIS_WITH_DIV_ID";
   var kernelID = "REPLACE_THIS_WITH_KERNEL_ID";
