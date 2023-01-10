@@ -123,7 +123,7 @@ if name == 'mitosheet2':
                 'flake8',
                 'types-chardet',
                 'python-dotenv',
-                '"snowflake-connector-python[pandas]"'
+                'snowflake-connector-python[pandas]'
                 'types-requests',
                 'mypy',
                 'pytest_httpserver'
@@ -234,7 +234,7 @@ elif name == 'mitosheet' or name == 'mitosheet3' or name == 'mitosheet-private':
                 'flake8',
                 'types-chardet',
                 'python-dotenv',
-                '"snowflake-connector-python[pandas]"'
+                'snowflake-connector-python[pandas]'
                 'types-requests',
                 'mypy',
                 'pytest_httpserver'
