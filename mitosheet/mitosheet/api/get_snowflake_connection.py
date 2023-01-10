@@ -29,12 +29,6 @@ def get_snowflake_connection(params: SnowflakeImportParams, steps_manager: Steps
         password = credentials['password']
         account = credentials['account']
 
-        # if username != 'u' or password != 'p' or account != 'a':
-        #         return json.dumps({
-        #                 'type': 'error',    
-        #                 'error_message': 'Invalid authentication information. Please try again.'
-        #         })
-
         ctx = _get_snowflake_connection(username, password, account)
 
         _warehouse = connection.get('warehouse')

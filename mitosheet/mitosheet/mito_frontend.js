@@ -23526,6 +23526,17 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       }
       return void 0;
     }
+    async validateSnowflakeCredentials(params) {
+      const resultString = await this.send({
+        "event": "api_call",
+        "type": "validate_snowflake_credentials",
+        "params": params
+      }, {});
+      if (resultString !== void 0 && resultString !== "") {
+        return JSON.parse(resultString);
+      }
+      return void 0;
+    }
     async _edit(edit_event_type, params, stepID) {
       const result = await this.send({
         "event": "edit_event",
@@ -38031,7 +38042,7 @@ fig.write_html("${props.graphTabName}.html")`
       props.mitoAPI,
       props.analysisData
     );
-    const [openConnectionSection, setOpenConnectionSection] = (0, import_react162.useState)(true);
+    const [openCredentialsSection, setOpenCredentialsSection] = (0, import_react162.useState)(true);
     const [connectionResult, setConnectionResult] = (0, import_react162.useState)(void 0);
     const [liveUpdateNumber, setLiveUpdateNumber] = (0, import_react162.useState)(0);
     const liveUpdateParams = (newParams) => {
@@ -38057,19 +38068,31 @@ fig.write_html("${props.graphTabName}.html")`
             query_params: snowflakeConnection.query_params
           });
         });
-        setOpenConnectionSection(false);
+        setOpenCredentialsSection(false);
       }
     };
     if (params === void 0) {
       return /* @__PURE__ */ import_react162.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
     }
+    const validateSnowflakeCredentials = async () => {
+      if (params === void 0) {
+        return;
+      }
+      const validateSnowflakeCredentialsResult = await props.mitoAPI.validateSnowflakeCredentials(params.credentials);
+      console.log(validateSnowflakeCredentialsResult);
+      if ((validateSnowflakeCredentialsResult == null ? void 0 : validateSnowflakeCredentialsResult.type) === "success") {
+        setOpenCredentialsSection(false);
+      } else {
+        setOpenCredentialsSection(true);
+      }
+    };
     return /* @__PURE__ */ import_react162.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react162.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: "Import from Snowflake",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react162.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react162.default.createElement(CollapsibleSection_default, { title: "Connection", open: openConnectionSection }, /* @__PURE__ */ import_react162.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react162.default.createElement(Col_default, null, "Username"), /* @__PURE__ */ import_react162.default.createElement(Col_default, null, /* @__PURE__ */ import_react162.default.createElement(
+    ), /* @__PURE__ */ import_react162.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react162.default.createElement(CollapsibleSection_default, { title: "Connection", open: openCredentialsSection }, /* @__PURE__ */ import_react162.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react162.default.createElement(Col_default, null, "Username"), /* @__PURE__ */ import_react162.default.createElement(Col_default, null, /* @__PURE__ */ import_react162.default.createElement(
       Input_default,
       {
         value: params.credentials.username,
@@ -38108,7 +38131,7 @@ fig.write_html("${props.graphTabName}.html")`
       {
         disabled: params.credentials.username.length === 0 || params.credentials.password.length === 0 || params.credentials.account.length === 0,
         disabledTooltip: "Please fill out the username, password, and account fields below.",
-        onClick: () => getConnectionResult(),
+        onClick: () => validateSnowflakeCredentials(),
         variant: "dark"
       },
       "Connect to Snowflake"

@@ -31,6 +31,8 @@ interface SnowflakeImportTaskpaneProps {
     selectedSheetIndex: number;
 }
 
+export type SnowflakeCredentialsValidityCheckResult = {type: 'success'} | {type: 'error', 'error_message': string}
+
 export type SnowflakeCredentials = {type: 'username/password', username: string, password: string, account: string};
 
 export type SnowflakeConnection = {
@@ -91,7 +93,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
             props.analysisData,
     )
     
-    const [openConnectionSection, setOpenConnectionSection] = useState(true);
+    const [openCredentialsSection, setOpenCredentialsSection] = useState(true);
     const [connectionResult, setConnectionResult] = useState<ConnectionResult | undefined>(undefined);
     const [liveUpdateNumber, setLiveUpdateNumber] = useState(0) 
 
@@ -129,12 +131,31 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
             })
 
             // If the user connects successful, we close the connection window
-            setOpenConnectionSection(false);
+            setOpenCredentialsSection(false);
         }
     }
 
     if (params === undefined) {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
+    }
+
+
+    // TODO: Wrap this in a function to handle a loading indicator and actually waiting for results properly
+    const validateSnowflakeCredentials = async () => {
+        if (params === undefined) {
+            // We don't expect this to ever happen because of the UI restrictions
+            return 
+        }
+
+        const validateSnowflakeCredentialsResult = await props.mitoAPI.validateSnowflakeCredentials(params.credentials)
+        console.log(validateSnowflakeCredentialsResult)
+
+        if (validateSnowflakeCredentialsResult?.type === 'success') {
+            setOpenCredentialsSection(false)
+        } else {
+            // Display error message too
+            setOpenCredentialsSection(true)
+        }
     }
 
     
@@ -145,7 +166,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                 setUIState={props.setUIState}           
             />
             <DefaultTaskpaneBody>
-                <CollapsibleSection title='Connection' open={openConnectionSection}>
+                <CollapsibleSection title='Connection' open={openCredentialsSection}>
                     <Row justify="space-between">
                         <Col>
                             Username
@@ -196,7 +217,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                     <TextButton
                         disabled={params.credentials.username.length === 0 || params.credentials.password.length === 0 || params.credentials.account.length === 0}
                         disabledTooltip='Please fill out the username, password, and account fields below.'
-                        onClick={() => getConnectionResult()}
+                        onClick={() => validateSnowflakeCredentials()}
                         variant='dark'
                     >
                         Connect to Snowflake

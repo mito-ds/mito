@@ -10,7 +10,7 @@ import { GraphObject } from "../components/taskpanes/ControlPanel/SummaryStatsTa
 import { UniqueValueCount, UniqueValueSortType } from "../components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
 import { FileElement } from "../components/taskpanes/FileImport/FileImportTaskpane";
 import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Graph/graphUtils";
-import { ConnectionResult, SnowflakeImportParams } from "../components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
+import { ConnectionResult, SnowflakeCredentials, SnowflakeCredentialsValidityCheckResult, SnowflakeImportParams } from "../components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
 import { AnalysisData, BackendPivotParams, CodeSnippet, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, GraphID, GraphParamsFrontend, MitoError, SheetData, UIState, UserProfile } from "../types";
@@ -699,6 +699,20 @@ export default class MitoAPI {
         const resultString = await this.send<string>({
             'event': 'api_call',
             'type': 'get_snowflake_connection',
+            'params': params
+        }, {})
+
+        if (resultString !== undefined && resultString !== '') {
+            return JSON.parse(resultString);
+        }
+        return undefined;
+    }
+
+    async validateSnowflakeCredentials(params: SnowflakeCredentials): Promise<SnowflakeCredentialsValidityCheckResult | undefined> {
+
+        const resultString = await this.send<string>({
+            'event': 'api_call',
+            'type': 'validate_snowflake_credentials',
             'params': params
         }, {})
 
