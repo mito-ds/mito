@@ -566,6 +566,20 @@ def make_operator_type_error(operator: str, arg_one_type: str, arg_two_type: str
         to_fix
     )
 
+
+def make_invalid_range_error(range: str, error_modal: bool) -> MitoError:
+    """
+    Helper function for creating a invalid_range_error.
+
+    Occurs when the user does not 
+    """
+    return MitoError(
+        'invalid_range_error',
+        'Invalid Range',
+        f'{range} is not in the format A1:B3. Please update the range to this format.',
+        error_modal=error_modal
+    )
+
 def get_recent_traceback() -> str:
     """
     Helper function that returns the most recent traceback, with the file paths

@@ -10,53 +10,96 @@ Contains tests for Excel Range Import
 import os
 import pandas as pd
 import pytest
-from mitosheet.excel_utils import get_row_and_col_index_from_cell_address
+from mitosheet.errors import MitoError
+from mitosheet.excel_utils import get_row_and_col_index_from_cell_address, get_row_and_col_indexes_from_range
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+import pandas
+from openpyxl import load_workbook
 
-TEST_FILE = "test_file.xlsx"
-TEST_SHEET = 'sheet1'
+from mitosheet.utils import get_new_id
+
+TEST_FILE_PATH = "test_file.xlsx"
+TEST_SHEET_NAME = 'sheet1'
 TEST_DF_1 = pd.DataFrame({'header 1': [1], 'header 2': [2]})
 TEST_DF_2 = pd.DataFrame({'header 100': [1], 'header 200': [2]})
+TEST_DF_3 = pd.DataFrame({'header 100': [100, 200, 300], 'header 200': [200, 300, 400]})
+
+
+def write_df_to_file(file_path: str, sheet_name: str, df: pd.DataFrame, range: str) -> None:
+    ((startcol, startrow), _) = get_row_and_col_indexes_from_range(range)
+
+    if os.path.exists(file_path):
+
+        book = load_workbook(file_path)
+        writer = pandas.ExcelWriter(file_path, engine='openpyxl') 
+        writer.book = book
+
+        ## ExcelWriter for some reason uses writer.sheets to access the sheet.
+        ## If you leave it empty it will not know that sheet Main is already there
+        ## and will create a new sheet.
+
+        #writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+
+        df.to_excel(writer, sheet_name=sheet_name, startrow=startrow, startcol=startcol, index=False)  
+
+        writer.close()
+    else:
+        # Write an Excel file
+        with pd.ExcelWriter(file_path) as writer:
+            df.to_excel(writer, sheet_name=sheet_name, startrow=startrow, startcol=startcol, index=False)  
+
 
 EXCEL_RANGE_IMPORT_TESTS = [
     (
-        {'dataframe_1': {'type': 'range', 'range': 'A1:B2'}},
+        [{'type': 'range', 'df_name': 'dataframe_1', 'range': 'A1:B2'}],
         [TEST_DF_1]
     ),
     (
-        {'dataframe_1': {'type': 'range', 'range': 'A1:B2'}, 'dataframe_2': {'type': 'range', 'range': 'A4:B5'}},
+        [{'type': 'range', 'df_name': 'dataframe_1', 'range': 'A1:B100'}],
+        [TEST_DF_1]
+    ),
+    (
+        [{'type': 'range', 'df_name': 'dataframe_1', 'range': 'B2:A1'}],
+        [TEST_DF_1]
+    ),
+    (
+        [{'type': 'range', 'df_name': 'dataframe_1', 'range': 'A1:B4'}],
+        [TEST_DF_3]
+    ),
+    (
+        [{'type': 'range', 'df_name': 'dataframe_1', 'range': 'A1:B2'}, {'type': 'range', 'df_name': 'dataframe_2',  'range': 'A4:B5'}],
         [TEST_DF_1, TEST_DF_2]
     ),
     (
-        {'a bad dataframe name': {'type': 'range', 'range': 'A1:B2'}, '97 also bad': {'type': 'range', 'range': 'A4:B5'}},
+        [{'type': 'range', 'df_name': 'a bad dataframe name', 'range': 'A1:B2'}, {'type': 'range', 'df_name': '97 also bad', 'range': 'A4:B5'}],
         [TEST_DF_1, TEST_DF_2]
     ),
 ]
 @pytest.mark.parametrize("imports, dfs", EXCEL_RANGE_IMPORT_TESTS)
 def test_excel_range_import(imports, dfs):
+
     # Write an Excel file
-    with pd.ExcelWriter(TEST_FILE) as writer:
-        print(imports)
-        for index, (_, range_import) in enumerate(imports.items()):
-            (startrow, startcol) = get_row_and_col_index_from_cell_address(range_import['range'].split(':')[0])
-            dfs[index].to_excel(writer, sheet_name=TEST_SHEET, startrow=startrow, startcol=startcol, index=False)  
+    for index, range_import in enumerate(imports):
+        write_df_to_file(TEST_FILE_PATH, TEST_SHEET_NAME, dfs[index], range_import['range'])
 
     mito = create_mito_wrapper_dfs()
 
-    mito.excel_range_import(TEST_FILE, TEST_SHEET, imports)
+    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, imports)
 
     assert len(mito.dfs) == len(imports)
     for actual, expected in zip(mito.dfs, dfs):
+        print(actual)
+        print(expected)
         assert actual.equals(expected)
 
-    os.remove(TEST_FILE)
+    os.remove(TEST_FILE_PATH)
 
 
 def test_import_with_defined_name_works():
     mito = create_mito_wrapper_dfs(TEST_DF_1)
-    TEST_DF_2.to_excel(TEST_FILE, sheet_name=TEST_SHEET, index=False)
+    TEST_DF_2.to_excel(TEST_FILE_PATH, sheet_name=TEST_SHEET_NAME, index=False)
 
-    mito.excel_range_import(TEST_FILE, TEST_SHEET, {'df1': {'type': 'range', 'range': 'A1:B2'}})
+    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df1', 'range': 'A1:B2'}])
 
     assert len(mito.dfs) == 2
     assert TEST_DF_1.equals(mito.dfs[0])
@@ -64,3 +107,16 @@ def test_import_with_defined_name_works():
 
     # Make sure all names are unique
     assert len(set(mito.df_names)) == len(mito.df_names)
+
+    os.remove(TEST_FILE_PATH)
+
+INVALID_RANGES = [
+    'A',
+    'A:C'
+]
+@pytest.mark.parametrize("r", INVALID_RANGES)
+def test_invalid_ranges_error(r):
+    with pytest.raises(MitoError) as e_info:
+        get_row_and_col_indexes_from_range(r)
+
+    assert 'Invalid Range' in str(e_info) 
