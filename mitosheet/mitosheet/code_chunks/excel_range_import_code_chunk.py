@@ -28,12 +28,12 @@ class ExcelRangeImportCodeChunk(CodeChunk):
 
     def get_code(self) -> List[str]:
         code = ['import pandas as pd']
-        for range_import in self.range_imports:
+        for index, range_import in enumerate(self.range_imports):
             ((start_col_index, start_row_index), (end_col_index, end_row_index)) = get_row_and_col_indexes_from_range(range_import['range'])
             nrows = end_row_index - start_row_index
             usecols = get_column_from_column_index(start_col_index) + ':' + get_column_from_column_index(end_col_index)
             
-            df_name = range_import['df_name']
+            df_name = self.post_state.df_names[len(self.prev_state.df_names) + index]
             code.append(
                 f'{df_name} = pd.read_excel(\'{self.file_name}\', sheet_name=\'{self.sheet_name}\', skiprows={start_row_index}, nrows={nrows}, usecols=\'{usecols}\')'
             )
