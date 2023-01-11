@@ -49,8 +49,6 @@ class ExcelRangeImportStepPerformer(StepPerformer):
             nrows = end_row_index - start_row_index
             usecols = get_column_from_column_index(start_col_index) + ':' + get_column_from_column_index(end_col_index)
 
-            print("NUMBER OF ROWS", nrows)
-
             df = pd.read_excel(file_name, sheet_name=sheet_name, skiprows=start_row_index, nrows=nrows, usecols=usecols)
             final_df_name = get_valid_dataframe_name(post_state.df_names, range_import['df_name'])
             post_state.add_df_to_state(

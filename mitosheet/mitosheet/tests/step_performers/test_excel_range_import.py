@@ -15,6 +15,8 @@ from mitosheet.excel_utils import get_row_and_col_index_from_cell_address, get_r
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 import pandas
 from openpyxl import load_workbook
+from mitosheet.tests.decorators import pandas_post_1_only, pandas_post_1_4_only, python_post_3_6_only
+
 
 from mitosheet.utils import get_new_id
 
@@ -79,6 +81,8 @@ EXCEL_RANGE_IMPORT_TESTS = [
         [TEST_DF_1, TEST_DF_2]
     ),
 ]
+@pandas_post_1_only
+@python_post_3_6_only
 @pytest.mark.parametrize("imports, dfs", EXCEL_RANGE_IMPORT_TESTS)
 def test_excel_range_import(imports, dfs):
 
@@ -92,13 +96,12 @@ def test_excel_range_import(imports, dfs):
 
     assert len(mito.dfs) == len(imports)
     for actual, expected in zip(mito.dfs, dfs):
-        print(actual)
-        print(expected)
         assert actual.equals(expected)
 
     os.remove(TEST_FILE_PATH)
 
-
+@pandas_post_1_only
+@python_post_3_6_only
 def test_import_with_defined_name_works():
     mito = create_mito_wrapper_dfs(TEST_DF_1)
     TEST_DF_2.to_excel(TEST_FILE_PATH, sheet_name=TEST_SHEET_NAME, index=False)
@@ -118,6 +121,8 @@ INVALID_RANGES = [
     'A',
     'A:C'
 ]
+@pandas_post_1_only
+@python_post_3_6_only
 @pytest.mark.parametrize("r", INVALID_RANGES)
 def test_invalid_ranges_error(r):
     with pytest.raises(MitoError) as e_info:
