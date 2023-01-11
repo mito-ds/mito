@@ -52,15 +52,29 @@ def get_code_chunk_name_and_import_statement(original_step_name: str) -> Tuple[s
         f'from mitosheet.code_chunks.{step_name}_code_chunk import {code_chunk_name}'
     )
 
-def get_params_getter_code(params: Dict[str, str], on_self: bool=False) -> str:
+def get_params_getter_code(params: Dict[str, str], on_self: bool=False, just_getter: bool=False) -> str:
     params_code = ""
 
     for param_name, param_type in params.items():
+        if just_getter:
+            params_code += f'                get_param(params, \'{param_name}\'),\n'
         if not on_self:
             params_code += f'{param_name}: {param_type} = get_param(params, \'{param_name}\')\n        '
         else:
             params_code += f'{param_name}: {param_type} = self.get_param(\'{param_name}\')\n        '
 
+    return params_code
+
+def get_params_code_chunk_init_param_code(params: Dict[str, str]) -> str:
+    params_code = ""
+    for param_name, param_type in params.items():
+        params_code += f'{param_name}: {param_type}, '
+    return params_code.strip(', ')
+
+def get_params_code_chunk_init_set_code(params: Dict[str, str]) -> str:
+    params_code = ""
+    for param_name in params:
+        params_code += f'        self.{param_name} = {param_name}\n'
     return params_code
 
 def get_step_performer_code(original_step_name: str, params: Dict[str, str]) -> str:
@@ -129,7 +143,11 @@ class {step_performer_name}(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            {code_chunk_name}(prev_state, post_state, params, execution_data)
+            {code_chunk_name}(
+                prev_state, 
+                post_state, 
+{get_params_getter_code(params, just_getter=True)}
+            )
         ]
 
     @classmethod
@@ -139,7 +157,6 @@ class {step_performer_name}(StepPerformer):
 
 def get_code_chunk_code(original_step_name: str, params: Dict[str, str]) -> str:
     (code_chunk_name, _) = get_code_chunk_name_and_import_statement(original_step_name) 
-    params_code = get_params_getter_code(params, on_self=True)
 
     return f"""
 #!/usr/bin/env python
@@ -150,24 +167,25 @@ def get_code_chunk_code(original_step_name: str, params: Dict[str, str]) -> str:
 from typing import List
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.types import ColumnID
+from mitosheet.state import State
 
 class {code_chunk_name}(CodeChunk):
+
+    def __init__(self, prev_state: State, post_state: State, {get_params_code_chunk_init_param_code(params)}):
+        super().__init__(prev_state, post_state)
+{get_params_code_chunk_init_set_code(params)}
+
 
     def get_display_name(self) -> str:
         return '{original_step_name}'
     
     def get_description_comment(self) -> str:
-        {params_code}
         return "TODO"
 
     def get_code(self) -> List[str]:
-        {params_code}
-
         # TODO: actually generate the code here!
-
         return []
 
-    
     def get_edited_sheet_indexes(self) -> List[int]:
         return [] # TODO: return this here!
     """
@@ -212,13 +230,13 @@ def get_id_to_header_code(params: Dict[str, str]) -> str:
     id_to_header_code = ""
     for param_name, param_type in params.items():
         if param_type == 'ColumnID':
-            id_to_header_code += f"""{param_name} =self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(
+            id_to_header_code += f"""{param_name} =self.mito_backend.steps_manager.curr_step.column_ids.get_column_id_by_header(
             sheet_index,
             {param_name.replace('_id', '_header')}
         )\n"""
         if param_type == 'List[ColumnID]':
             id_to_header_code += f"""{param_name} = [
-            self.mito_widget.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index, column_header)
+            self.mito_backend.steps_manager.curr_step.column_ids.get_column_id_by_header(sheet_index, column_header)
             for column_header in {param_name.replace('_id', '_header')}
         ]\n"""
     return id_to_header_code
@@ -243,8 +261,7 @@ def get_test_util_function_code(original_step_name: str, params: Dict[str, str])
 
         {id_to_header_code}
 
-        return self.mito_widget.receive_message(
-            self.mito_widget,
+        return self.mito_backend.receive_message(
             {OPEN_BRACKET}
                 'event': 'edit_event',
                 'id': get_new_id(),

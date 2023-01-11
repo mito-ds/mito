@@ -74,6 +74,7 @@ def check_dataframes_equal(test_wrapper):
     )
 
     import mitosheet
+    print(code)
     try:
         exec(code, 
             {
@@ -91,6 +92,7 @@ def check_dataframes_equal(test_wrapper):
         print(get_recent_traceback())
         print("\nCode:")
         print(code)
+        raise
 
     # We then check that the sheet data json that is saved by the widget, which 
     # notably uses caching, does not get incorrectly cached and is written correctly
@@ -477,6 +479,30 @@ class MitoWidgetTestWrapper:
                 'step_id': get_new_id(),
                 'params': {
                     'df_names': df_names,
+                }
+            }
+        )
+    
+
+    @check_transpiled_code_after_call
+    def excel_range_import(
+            self, 
+            file_name: str,
+            sheet_name: str,
+            range_imports: Any,
+        ) -> bool:
+
+        return self.mito_backend.receive_message(
+            {
+                'event': 'edit_event',
+                'id': get_new_id(),
+                'type': 'excel_range_import_edit',
+                'step_id': get_new_id(),
+                'params': {
+                    'file_name': file_name,
+                    'sheet_name': sheet_name,
+                    'range_imports': range_imports,
+                    
                 }
             }
         )

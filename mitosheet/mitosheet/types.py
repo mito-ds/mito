@@ -90,6 +90,11 @@ if sys.version_info[:3] > (3, 8, 0):
         column_header: ColumnHeader
         transformation: PivotColumnTransformation
 
+    class ExcelRangeImport(TypedDict):
+        type: str
+        df_name: str
+        range: str
+
     class CodeSnippet(TypedDict):
         Id: str
         Name: str
@@ -106,5 +111,6 @@ else:
     ColumnHeaderWithFilter = Any # type:ignore
     ColumnIDWithPivotTransform = Any # type:ignore
     ColumnHeaderWithPivotTransform = Any # type:ignore
+    ExcelRangeImport = Any # type:ignore
     CodeSnippet = Any # type:ignore
     CodeSnippetEnvVars = Any # type:ignore
