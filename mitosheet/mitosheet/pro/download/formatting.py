@@ -5,19 +5,6 @@ from mitosheet.state import (NUMBER_FORMAT_ACCOUNTING,
 from mitosheet.types import StepsManagerType
 
 
-def get_excel_range_from_column_index(col_index: int) -> str:
-    """
-    Number to Excel-style column name, e.g., 1 = A:A, 26 = Z:Z, 27 = AA:AA, 703 = AAA:AAA.
-    """
-    # Add 1 because Mito 0 indexes columns
-    col_index = col_index + 1
-    name = ''
-    while col_index > 0:
-        col_index, r = divmod (col_index - 1, 26)
-        name = chr(r + ord('A')) + name
-    return name + ':' + name
-
-
 def add_formatting_to_excel_sheet(
         writer: pd.ExcelWriter, 
         steps_manager: StepsManagerType, 

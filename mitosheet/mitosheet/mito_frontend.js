@@ -24477,6 +24477,30 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   var import_react35 = __toESM(require_react());
 
   // src/components/taskpanes/taskpanes.tsx
+  var TaskpaneType = /* @__PURE__ */ ((TaskpaneType2) => {
+    TaskpaneType2["CONTROL_PANEL"] = "control_panel";
+    TaskpaneType2["DOWNLOAD"] = "download";
+    TaskpaneType2["DROP_DUPLICATES"] = "drop_duplicates";
+    TaskpaneType2["GRAPH"] = "graph";
+    TaskpaneType2["IMPORT_FILES"] = "import files";
+    TaskpaneType2["MERGE"] = "merge";
+    TaskpaneType2["CONCAT"] = "concat";
+    TaskpaneType2["NONE"] = "none";
+    TaskpaneType2["PIVOT"] = "pivot";
+    TaskpaneType2["STEPS"] = "steps";
+    TaskpaneType2["SPLIT_TEXT_TO_COLUMNS"] = "split_text_to_columns";
+    TaskpaneType2["UPGRADE_TO_PRO"] = "upgrade_to_pro";
+    TaskpaneType2["IMPORT_FIRST"] = "import_first";
+    TaskpaneType2["FILL_NA"] = "fill_na";
+    TaskpaneType2["MELT"] = "melt";
+    TaskpaneType2["SET_DATAFRAME_FORMAT"] = "set_dataframe_format";
+    TaskpaneType2["CONDITIONALFORMATTING"] = "ConditionalFormatting";
+    TaskpaneType2["DATAFRAMEIMPORT"] = "DataframeImport";
+    TaskpaneType2["UPDATEIMPORTS"] = "UpdateImports";
+    TaskpaneType2["CANNOTCREATECOMM"] = "CannotCreateComm";
+    TaskpaneType2["CODESNIPPETS"] = "CodeSnippets";
+    return TaskpaneType2;
+  })(TaskpaneType || {});
   var EDITING_TASKPANES = [
     "pivot" /* PIVOT */,
     "merge" /* MERGE */,
@@ -30686,6 +30710,25 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         },
         searchTerms: ["CodeSnippets"],
         tooltip: "CodeSnippets"
+      },
+      ["Excel_Range_Import" /* EXCEL_RANGE_IMPORT */]: {
+        type: "Excel_Range_Import" /* EXCEL_RANGE_IMPORT */,
+        shortTitle: "Excel Range Import",
+        longTitle: "Excel Range Import",
+        actionFunction: () => {
+          setEditorState(void 0);
+          setUIState((prevUIState) => {
+            return __spreadProps(__spreadValues({}, prevUIState), {
+              currOpenTaskpane: { type: TaskpaneType.EXCEL_RANGE_IMPORT },
+              selectedTabType: "data"
+            });
+          });
+        },
+        isDisabled: () => {
+          return void 0;
+        },
+        searchTerms: ["Excel Range Import"],
+        tooltip: "Excel Range Import"
       },
       ["abs" /* ABS */]: getSpreadsheetFormulaAction(
         "abs" /* ABS */,
