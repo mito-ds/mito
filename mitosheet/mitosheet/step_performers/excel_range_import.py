@@ -23,7 +23,7 @@ from mitosheet.utils import get_valid_dataframe_name
 
 class ExcelRangeImportStepPerformer(StepPerformer):
     """
-    Allows you to excel range import.
+    Allows you to import multiple ranges from a single excel sheet.
     """
 
     @classmethod
@@ -49,24 +49,20 @@ class ExcelRangeImportStepPerformer(StepPerformer):
             nrows = end_row_index - start_row_index
             usecols = get_column_from_column_index(start_col_index) + ':' + get_column_from_column_index(end_col_index)
 
-            print("USING", usecols)
-
             df = pd.read_excel(file_name, sheet_name=sheet_name, skiprows=start_row_index, nrows=nrows, usecols=usecols)
             final_df_name = get_valid_dataframe_name(post_state.df_names, df_name)
             post_state.add_df_to_state(
                 df,
                 DATAFRAME_SOURCE_IMPORTED,
-                # TODO: handle if there are duplicate names
                 df_name=final_df_name
             )
 
         pandas_processing_time = perf_counter() - pandas_start_time
 
-
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
             'result': {
-                # TODO: fill in the result
+                # TODO: fill in the result, when we make the frontend
             }
         }
 

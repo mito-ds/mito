@@ -44,11 +44,11 @@ const getDefaultParams = (
 const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Element => {
 
     const {params} = useSendEditOnClick<ExcelRangeImportParams, undefined>(
-            () => getDefaultParams(props.file_name, props.sheet_name),
-            StepType.ExcelRangeImport, 
-            props.mitoAPI,
-            props.analysisData,
-        )
+        () => getDefaultParams(props.file_name, props.sheet_name),
+        StepType.ExcelRangeImport, 
+        props.mitoAPI,
+        props.analysisData,
+    )
 
     if (params === undefined) {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>

@@ -4,6 +4,8 @@ from mitosheet.state import (NUMBER_FORMAT_ACCOUNTING,
                              NUMBER_FORMAT_PERCENTAGE, NUMBER_FORMAT_PLAIN_TEXT, NUMBER_FORMAT_SCIENTIFIC_NOTATION)
 from mitosheet.types import StepsManagerType
 
+from mitosheet.excel_utils import get_excel_range_from_column_index
+
 
 def add_formatting_to_excel_sheet(
         writer: pd.ExcelWriter, 
