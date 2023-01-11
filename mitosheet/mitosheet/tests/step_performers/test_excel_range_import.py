@@ -29,7 +29,6 @@ TEST_DF_3 = pd.DataFrame({'header 100': [100, 200, 300], 'header 200': [200, 300
 
 
 def write_df_to_file(file_path: str, sheet_name: str, df: pd.DataFrame, range: str) -> None:
-    ((startcol, startrow), _) = get_row_and_col_indexes_from_range(range)
 
     if os.path.exists(file_path):
 
@@ -88,8 +87,10 @@ EXCEL_RANGE_IMPORT_TESTS = [
 def test_excel_range_import(imports, dfs):
 
     # Write an Excel file
-    for index, range_import in enumerate(imports):
-        write_df_to_file(TEST_FILE_PATH, TEST_SHEET_NAME, dfs[index], range_import['range'])
+    with pd.ExcelWriter(TEST_FILE_PATH) as writer:
+        for index, range_import in enumerate(imports):
+            ((startcol, startrow), _) = get_row_and_col_indexes_from_range(range_import['range'])
+            dfs[index].to_excel(writer, sheet_name=TEST_SHEET_NAME, startrow=startrow, startcol=startcol, index=False)  
 
     mito = create_mito_wrapper_dfs()
 
