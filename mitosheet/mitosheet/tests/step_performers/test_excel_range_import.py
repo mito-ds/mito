@@ -55,7 +55,11 @@ EXCEL_RANGE_IMPORT_TESTS = [
         [TEST_DF_1]
     ),
     (
-        [{'type': 'range', 'df_name': 'dataframe_1', 'range': 'A1:B100'}],
+        [{'type': 'range', 'df_name': 'dataframe_1', 'range': 'AA100:AB101'}],
+        [TEST_DF_1]
+    ),
+    (
+        [{'type': 'range', 'df_name': 'dataframe_1', 'range': 'A1:G100'}],
         [TEST_DF_1]
     ),
     (
