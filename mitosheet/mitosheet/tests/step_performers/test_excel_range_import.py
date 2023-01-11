@@ -28,29 +28,6 @@ TEST_DF_2 = pd.DataFrame({'header 100': [1], 'header 200': [2]})
 TEST_DF_3 = pd.DataFrame({'header 100': [100, 200, 300], 'header 200': [200, 300, 400]})
 
 
-def write_df_to_file(file_path: str, sheet_name: str, df: pd.DataFrame, range: str) -> None:
-
-    if os.path.exists(file_path):
-
-        book = load_workbook(file_path)
-        writer = pandas.ExcelWriter(file_path, engine='openpyxl') 
-        writer.book = book
-
-        ## ExcelWriter for some reason uses writer.sheets to access the sheet.
-        ## If you leave it empty it will not know that sheet Main is already there
-        ## and will create a new sheet.
-
-        #writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-
-        df.to_excel(writer, sheet_name=sheet_name, startrow=startrow, startcol=startcol, index=False)  
-
-        writer.close()
-    else:
-        # Write an Excel file
-        with pd.ExcelWriter(file_path) as writer:
-            df.to_excel(writer, sheet_name=sheet_name, startrow=startrow, startcol=startcol, index=False)  
-
-
 EXCEL_RANGE_IMPORT_TESTS = [
     (
         [{'type': 'range', 'df_name': 'dataframe_1', 'range': 'A1:B2'}],
