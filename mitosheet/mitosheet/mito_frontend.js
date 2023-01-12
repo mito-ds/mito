@@ -38116,10 +38116,17 @@ fig.write_html("${props.graphTabName}.html")`
       setAvailableSnowflakeOptionsAndDefaults(availableSnowflakeOptionsAndDefaults2);
       if ((availableSnowflakeOptionsAndDefaults2 == null ? void 0 : availableSnowflakeOptionsAndDefaults2.type) === "success") {
         setParams((prevParams) => {
+          const defaultConnectionValues = availableSnowflakeOptionsAndDefaults2.default_connection_values;
           return __spreadProps(__spreadValues({}, prevParams), {
-            connection: availableSnowflakeOptionsAndDefaults2.connection
+            connection: {
+              "warehouse": defaultConnectionValues.warehouse === null ? void 0 : defaultConnectionValues.warehouse,
+              "database": defaultConnectionValues.database === null ? void 0 : defaultConnectionValues.database,
+              "schema": defaultConnectionValues.schema === null ? void 0 : defaultConnectionValues.schema,
+              "table": defaultConnectionValues.table === null ? void 0 : defaultConnectionValues.table
+            }
           });
         });
+        console.log(7);
         setOpenCredentialsSection(false);
       }
     };
@@ -38130,13 +38137,7 @@ fig.write_html("${props.graphTabName}.html")`
       if (params === void 0) {
         return;
       }
-      const validateSnowflakeCredentialsResult = await props.mitoAPI.validateSnowflakeCredentials(params.credentials);
-      console.log(validateSnowflakeCredentialsResult);
-      if ((validateSnowflakeCredentialsResult == null ? void 0 : validateSnowflakeCredentialsResult.type) === "success") {
-        setOpenCredentialsSection(false);
-      } else {
-        setOpenCredentialsSection(true);
-      }
+      return await props.mitoAPI.validateSnowflakeCredentials(params.credentials);
     };
     return /* @__PURE__ */ import_react162.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react162.default.createElement(
       DefaultTaskpaneHeader_default,
@@ -38151,7 +38152,11 @@ fig.write_html("${props.graphTabName}.html")`
         onChange: (e) => {
           const newUsername = e.target.value;
           setParams((prevParams) => {
-            return updateObjectWithPartialObject(prevParams, { "credentials": { "username": newUsername } });
+            return __spreadProps(__spreadValues({}, prevParams), {
+              credentials: __spreadProps(__spreadValues({}, prevParams.credentials), {
+                username: newUsername
+              })
+            });
           });
         }
       }
@@ -38161,9 +38166,13 @@ fig.write_html("${props.graphTabName}.html")`
         value: params.credentials.password,
         type: "password",
         onChange: (e) => {
-          const newUsername = e.target.value;
+          const newPassword = e.target.value;
           setParams((prevParams) => {
-            return updateObjectWithPartialObject(prevParams, { "credentials": { "password": newUsername } });
+            return __spreadProps(__spreadValues({}, prevParams), {
+              credentials: __spreadProps(__spreadValues({}, prevParams.credentials), {
+                password: newPassword
+              })
+            });
           });
         }
       }
@@ -38172,9 +38181,13 @@ fig.write_html("${props.graphTabName}.html")`
       {
         value: params.credentials.account,
         onChange: (e) => {
-          const newUsername = e.target.value;
+          const newAccount = e.target.value;
           setParams((prevParams) => {
-            return updateObjectWithPartialObject(prevParams, { "credentials": { "account": newUsername } });
+            return __spreadProps(__spreadValues({}, prevParams), {
+              credentials: __spreadProps(__spreadValues({}, prevParams.credentials), {
+                account: newAccount
+              })
+            });
           });
         }
       }
@@ -38183,9 +38196,11 @@ fig.write_html("${props.graphTabName}.html")`
       {
         disabled: params.credentials.username.length === 0 || params.credentials.password.length === 0 || params.credentials.account.length === 0,
         disabledTooltip: "Please fill out the username, password, and account fields below.",
-        onClick: () => {
-          void validateSnowflakeCredentials();
-          getAvailableOptionsAndDefaults(params);
+        onClick: async () => {
+          console.log(1);
+          const validateSnowflakeCredentialsResult = await validateSnowflakeCredentials();
+          console.log(validateSnowflakeCredentialsResult);
+          await _getAvailableOptionsAndDefaults();
         },
         variant: "dark"
       },
@@ -38197,7 +38212,11 @@ fig.write_html("${props.graphTabName}.html")`
         value: params.connection.warehouse || "None available",
         onChange: (newWarehouse) => {
           setParams((prevParams) => {
-            return updateObjectWithPartialObject(prevParams, { "connection": { "warehouse": newWarehouse } });
+            return __spreadProps(__spreadValues({}, prevParams), {
+              connection: __spreadProps(__spreadValues({}, prevParams.connection), {
+                warehouse: newWarehouse
+              })
+            });
           });
         }
       },
@@ -38217,10 +38236,10 @@ fig.write_html("${props.graphTabName}.html")`
           const newParams = __spreadProps(__spreadValues({}, paramsCopy), {
             "connection": __spreadProps(__spreadValues({}, paramsCopy.connection), {
               "database": newDatabase,
-              "schema": void 0
+              "schema": void 0,
+              "table": void 0
             }),
             "query_params": {
-              "table": void 0,
               "columns": [],
               "limit": void 0
             }
@@ -38243,10 +38262,10 @@ fig.write_html("${props.graphTabName}.html")`
           const paramsCopy = __spreadValues({}, params);
           const newParams = __spreadProps(__spreadValues({}, paramsCopy), {
             "connection": __spreadProps(__spreadValues({}, paramsCopy.connection), {
-              "schema": newSchema
+              "schema": newSchema,
+              "table": void 0
             }),
             "query_params": {
-              "table": void 0,
               "columns": [],
               "limit": void 0
             }
@@ -38268,8 +38287,10 @@ fig.write_html("${props.graphTabName}.html")`
           }
           const paramsCopy = __spreadValues({}, params);
           const newParams = __spreadProps(__spreadValues({}, paramsCopy), {
+            "conection": __spreadProps(__spreadValues({}, paramsCopy.connection), {
+              "table": newTable
+            }),
             "query_params": {
-              "table": newTable,
               "columns": [],
               "limit": void 0
             }
@@ -38290,7 +38311,11 @@ fig.write_html("${props.graphTabName}.html")`
             columnsToToggle.forEach((sheetName) => {
               toggleInArray(newColumns, sheetName);
             });
-            return updateObjectWithPartialObject(prevParams, { "query_params": { "columns": newColumns } });
+            return __spreadProps(__spreadValues({}, prevParams), {
+              query_params: __spreadProps(__spreadValues({}, prevParams.query_params), {
+                columns: newColumns
+              })
+            });
           });
         }
       },
@@ -38306,7 +38331,11 @@ fig.write_html("${props.graphTabName}.html")`
               setParams((prevParams) => {
                 const newColumns = [...prevParams.query_params.columns];
                 toggleInArray(newColumns, column);
-                return updateObjectWithPartialObject(prevParams, { "query_params": { "columns": newColumns } });
+                return __spreadProps(__spreadValues({}, prevParams), {
+                  query_params: __spreadProps(__spreadValues({}, prevParams.query_params), {
+                    columns: newColumns
+                  })
+                });
               });
             },
             index

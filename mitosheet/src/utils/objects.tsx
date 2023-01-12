@@ -25,7 +25,6 @@ function recurseObjectAssign(target: Record<string, any>, source: Record<string,
         }
     })
 
-    
     return target;
 
 }
@@ -33,6 +32,9 @@ function recurseObjectAssign(target: Record<string, any>, source: Record<string,
 /**
  * Given an object an a partial object, will update the object with the partial object.
  * Works with nested objects.
+ * 
+ * Note: There is a bug here where if a key in the object only has undefined values, it will be dropped 
+ * while making a copy of the original object. Read more here: https://stackoverflow.com/questions/26540706/preserving-undefined-that-json-stringify-otherwise-removes
  */
 export function updateObjectWithPartialObject<T>(obj: T, update: RecursivePartial<T>): T {
     const newParams: T = JSON.parse(JSON.stringify(obj));
