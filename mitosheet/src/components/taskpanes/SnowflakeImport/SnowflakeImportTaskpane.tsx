@@ -91,7 +91,7 @@ export type AvailableSnowflakeOptionsAndDefaults = {
 const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Element => {
 
     //loading, edit, editApplied
-    const {params, setParams} = useSendEditOnClick<SnowflakeImportParams, undefined>(
+    const {params, setParams, edit} = useSendEditOnClick<SnowflakeImportParams, undefined>(
             () => getDefaultParams(),
             StepType.SnowflakeImport, 
             props.mitoAPI,
@@ -404,52 +404,68 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                     <p className="text-header-3">Columns to Import</p>
                 </Row>
                 {availableSnowflakeOptionsAndDefaults?.type === 'success' &&
-                    <MultiToggleBox
-                        toggleAllIndexes={(indexesToToggle) => {
-                            setParams(prevParams => {
-                                const newColumns = [...prevParams.query_params.columns];
-                                const columnsToToggle = indexesToToggle.map(index => availableSnowflakeOptionsAndDefaults.config_options.columns[index]);
-                                columnsToToggle.forEach(sheetName => {
-                                    toggleInArray(newColumns, sheetName);
-                                })
+                    <>
+                        <MultiToggleBox
+                            toggleAllIndexes={(indexesToToggle) => {
+                                setParams(prevParams => {
+                                    const newColumns = [...prevParams.query_params.columns];
+                                    const columnsToToggle = indexesToToggle.map(index => availableSnowflakeOptionsAndDefaults.config_options.columns[index]);
+                                    columnsToToggle.forEach(sheetName => {
+                                        toggleInArray(newColumns, sheetName);
+                                    });
 
-                                return {
-                                    ...prevParams, 
-                                    query_params: {
-                                        ...prevParams.query_params,
-                                        columns: newColumns
-                                    }
-                                }
-                            })
-                        }}
-                    >
-                        {availableSnowflakeOptionsAndDefaults.config_options.columns.map((column, index) => {
-                            const isToggled = params.query_params.columns.includes(column);
-                            return (
-                                <MultiToggleItem 
-                                    key={column}
-                                    title={column} 
-                                    toggled={isToggled} 
-                                    onToggle={() => {
-                                        setParams((prevParams) => {
-                                            const newColumns = [...prevParams.query_params.columns];
-                                            toggleInArray(newColumns, column);
+                                    return {
+                                        ...prevParams,
+                                        query_params: {
+                                            ...prevParams.query_params,
+                                            columns: newColumns
+                                        }
+                                    };
+                                });
+                            } }
+                        >
+                            {availableSnowflakeOptionsAndDefaults.config_options.columns.map((column, index) => {
+                                const isToggled = params.query_params.columns.includes(column);
+                                return (
+                                    <MultiToggleItem
+                                        key={column}
+                                        title={column}
+                                        toggled={isToggled}
+                                        onToggle={() => {
+                                            setParams((prevParams) => {
+                                                const newColumns = [...prevParams.query_params.columns];
+                                                toggleInArray(newColumns, column);
 
-                                            return {
-                                                ...prevParams, 
-                                                query_params: {
-                                                    ...prevParams.query_params,
-                                                    columns: newColumns
-                                                }
-                                            }
-                                        })
-                                    }} 
-                                    index={index}
-                                />
-                            )
-                        })}
+                                                return {
+                                                    ...prevParams,
+                                                    query_params: {
+                                                        ...prevParams.query_params,
+                                                        columns: newColumns
+                                                    }
+                                                };
+                                            });
+                                        } }
+                                        index={index} />
+                                );
+                            })}
 
-                    </MultiToggleBox>
+                        </MultiToggleBox>
+                        <TextButton
+                            disabled={
+                                params.credentials.username.length === 0 || 
+                                params.credentials.password.length === 0 || 
+                                params.credentials.account.length === 0 || 
+                                params.connection.warehouse === undefined || 
+                                params.connection.database === undefined || 
+                                params.connection.schema === undefined ||
+                                params.connection.table === undefined 
+                            }
+                            disabledTooltip='Fields missing from the query. TODO: Cleanup'
+                            onClick={() => edit()}
+                            variant='dark'
+                        >
+                        </TextButton>
+                    </>
                 }
                 
                 {/* TODO: add the user input for query_params of type Any */}

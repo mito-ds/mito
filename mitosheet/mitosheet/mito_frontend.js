@@ -38089,9 +38089,9 @@ fig.write_html("${props.graphTabName}.html")`
     };
   };
   var SnowflakeImportTaskpane = (props) => {
-    const { params, setParams } = useSendEditOnClick_default(
+    const { params, setParams, edit } = useSendEditOnClick_default(
       () => getDefaultParams7(),
-      "snowflakeimport" /* SnowflakeImport */,
+      "snowflake_import" /* SnowflakeImport */,
       props.mitoAPI,
       props.analysisData
     );
@@ -38301,7 +38301,7 @@ fig.write_html("${props.graphTabName}.html")`
       (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.tables.map((table) => {
         return /* @__PURE__ */ import_react162.default.createElement(DropdownItem_default, { key: table, id: table, title: table });
       }) : []
-    )))), /* @__PURE__ */ import_react162.default.createElement(Row_default, { justify: "start" }, /* @__PURE__ */ import_react162.default.createElement("p", { className: "text-header-3" }, "Columns to Import")), (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" && /* @__PURE__ */ import_react162.default.createElement(
+    )))), /* @__PURE__ */ import_react162.default.createElement(Row_default, { justify: "start" }, /* @__PURE__ */ import_react162.default.createElement("p", { className: "text-header-3" }, "Columns to Import")), (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" && /* @__PURE__ */ import_react162.default.createElement(import_react162.default.Fragment, null, /* @__PURE__ */ import_react162.default.createElement(
       MultiToggleBox_default,
       {
         toggleAllIndexes: (indexesToToggle) => {
@@ -38342,7 +38342,15 @@ fig.write_html("${props.graphTabName}.html")`
           }
         );
       })
-    )));
+    ), /* @__PURE__ */ import_react162.default.createElement(
+      TextButton_default,
+      {
+        disabled: params.credentials.username.length === 0 || params.credentials.password.length === 0 || params.credentials.account.length === 0 || params.connection.warehouse === void 0 || params.connection.database === void 0 || params.connection.schema === void 0 || params.connection.table === void 0,
+        disabledTooltip: "Fields missing from the query. TODO: Cleanup",
+        onClick: () => edit(),
+        variant: "dark"
+      }
+    ))));
   };
   var SnowflakeImportTaskpane_default = SnowflakeImportTaskpane;
 
@@ -38722,7 +38730,7 @@ fig.write_html("${props.graphTabName}.html")`
       case "dataframe_import" /* DataframeImport */: {
         return "Dataframe Import";
       }
-      case "snowflakeimport" /* SnowflakeImport */: {
+      case "snowflake_import" /* SnowflakeImport */: {
         return "Snowflake Import";
       }
       case "excel_range_import" /* ExcelRangeImport */: {

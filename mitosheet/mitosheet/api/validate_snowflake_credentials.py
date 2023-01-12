@@ -51,7 +51,7 @@ def validate_snowflake_credentials(params: SnowflakeCredentials, steps_manager: 
     account = params['account']
 
     # TODO: Remove before mering into dev
-    # username, password, account = PYTEST_SNOWFLAKE_USERNAME, PYTEST_SNOWFLAKE_PASSWORD, PYTEST_SNOWFLAKE_ACCOUNT # type: ignore
+    username, password, account = PYTEST_SNOWFLAKE_USERNAME, PYTEST_SNOWFLAKE_PASSWORD, PYTEST_SNOWFLAKE_ACCOUNT # type: ignore
 
     is_valid = _validate_snowflake_credentials(username, password, account)
 

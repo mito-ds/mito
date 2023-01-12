@@ -49,7 +49,7 @@ def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_m
         account = credentials['account']
 
         # TODO: Remove before merging into dev
-        # username, password, account = PYTEST_SNOWFLAKE_USERNAME, PYTEST_SNOWFLAKE_PASSWORD, PYTEST_SNOWFLAKE_ACCOUNT # type: ignore
+        username, password, account = PYTEST_SNOWFLAKE_USERNAME, PYTEST_SNOWFLAKE_PASSWORD, PYTEST_SNOWFLAKE_ACCOUNT # type: ignore
 
         ctx = _get_snowflake_connection(username, password, account)
 

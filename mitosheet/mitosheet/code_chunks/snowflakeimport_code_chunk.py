@@ -6,7 +6,8 @@
 # Distributed under the terms of the GPL License.
 from typing import Any, List
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.types import ColumnID
+from mitosheet.transpiler.transpile_utils import TAB
+from mitosheet.types import ColumnID, SnowflakeConnection, SnowflakeCredentials, SnowflakeQueryParams
 
 class SnowflakeImportCodeChunk(CodeChunk):
 
@@ -20,27 +21,41 @@ class SnowflakeImportCodeChunk(CodeChunk):
         return "Imported dataframe from Snowflake"
 
     def get_code(self) -> List[str]:
-        snowflake_credentials: Any = self.get_param('snowflake_credentials')
-        query_params: Any = self.get_param('query_params')
+        credentials: SnowflakeCredentials = self.get_param('credentials')
+        connection: SnowflakeConnection = self.get_param('connection')
+        query_params: SnowflakeQueryParams = self.get_param('query_params')
 
-        username = snowflake_credentials['username']
-        password = snowflake_credentials['password']
-        account = snowflake_credentials['account']
-        
+        username = credentials['username']
+        password = credentials['password']
+        account = credentials['account']
+        warehouse = connection['warehouse']
+        database = connection['database']
+        schema = connection['schema']
+        table = connection['table']
 
-        # TODO: actually generate the code here!
+        sql_query = create_query(table, query_params)
 
         return [
-            'import snowflake.connector'
+            'import snowflake.connector',
             'ctx = snowflake.connector.connect(',
-            f'user={username},' # TODO: add tabs
-            f'password={password}',
-            f'account={account}'
-            ')'
+            f'{TAB}user=\'{username}\',',
+            f'{TAB}password=\'{password}\',',
+            f'{TAB}account=\'{account}\',',
+            f'{TAB}warehouse=\'{warehouse}\',',
+            f'{TAB}database=\'{database}\',',
+            f'{TAB}schema=\'{schema}\',',
+            ')',
+            '',
 
-            'pd.read.sql("SELECT * FROM PYTHON.PUBLIC.DEMO", connection)' # TODO: actually generate the SQL select here
+            'cur = ctx.cursor()',
+            f'cur.execute(\'{sql_query}\')',
+            'df = cur.fetch_pandas_all()',
+            '',
+            'ctx.close()'
         ]
 
     def get_created_sheet_indexes(self) -> List[int]:
         return [len(self.post_state.dfs)]
         
+def create_query(table: str, query_params: SnowflakeQueryParams) -> str:
+    return f'SELECT {", ".join(query_params["columns"])} FROM {table}'
