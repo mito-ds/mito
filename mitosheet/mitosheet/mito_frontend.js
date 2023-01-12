@@ -23526,7 +23526,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     async getSnowflakeConnection(params) {
       const resultString = await this.send({
         "event": "api_call",
-        "type": "get_snowflake_connection",
+        "type": "get_available_snowflake_options_and_defaults",
         "params": params
       }, {});
       if (resultString !== void 0 && resultString !== "") {
@@ -38079,8 +38079,8 @@ fig.write_html("${props.graphTabName}.html")`
   var getDefaultParams7 = () => {
     return {
       credentials: { type: "username/password", username: "", password: "", account: "" },
-      connection: { warehouse: void 0, database: void 0, schema: void 0 },
-      query_params: { table: void 0, columns: [], limit: void 0 }
+      connection: { warehouse: void 0, database: void 0, schema: void 0, table: void 0 },
+      query_params: { columns: [], limit: void 0 }
     };
   };
   var SnowflakeImportTaskpane = (props) => {
@@ -38093,7 +38093,7 @@ fig.write_html("${props.graphTabName}.html")`
     const [openCredentialsSection, setOpenCredentialsSection] = (0, import_react162.useState)(true);
     const [connectionResult, setConnectionResult] = (0, import_react162.useState)(void 0);
     const [liveUpdateNumber, setLiveUpdateNumber] = (0, import_react162.useState)(0);
-    const liveUpdateParams = (newParams) => {
+    const getAvailableOptionsAndDefaults = (newParams) => {
       setParams(newParams);
       setLiveUpdateNumber((old) => old + 1);
     };
@@ -38101,9 +38101,9 @@ fig.write_html("${props.graphTabName}.html")`
       if (liveUpdateNumber === 0) {
         return;
       }
-      getConnectionResult();
+      _getAvailableOptionsAndDefaults();
     }, [liveUpdateNumber]);
-    const getConnectionResult = async () => {
+    const _getAvailableOptionsAndDefaults = async () => {
       if (params === void 0) {
         return;
       }
@@ -38179,7 +38179,10 @@ fig.write_html("${props.graphTabName}.html")`
       {
         disabled: params.credentials.username.length === 0 || params.credentials.password.length === 0 || params.credentials.account.length === 0,
         disabledTooltip: "Please fill out the username, password, and account fields below.",
-        onClick: () => validateSnowflakeCredentials(),
+        onClick: () => {
+          validateSnowflakeCredentials();
+          getAvailableOptionsAndDefaults(params);
+        },
         variant: "dark"
       },
       "Connect to Snowflake"
@@ -38218,7 +38221,7 @@ fig.write_html("${props.graphTabName}.html")`
               "limit": void 0
             }
           });
-          liveUpdateParams(newParams);
+          getAvailableOptionsAndDefaults(newParams);
         }
       },
       (connectionResult == null ? void 0 : connectionResult.type) === "success" ? connectionResult.config_options.databases.map((database) => {
@@ -38244,7 +38247,7 @@ fig.write_html("${props.graphTabName}.html")`
               "limit": void 0
             }
           });
-          liveUpdateParams(newParams);
+          getAvailableOptionsAndDefaults(newParams);
         }
       },
       (connectionResult == null ? void 0 : connectionResult.type) === "success" ? connectionResult.config_options.schemas.map((schema) => {
@@ -38254,9 +38257,9 @@ fig.write_html("${props.graphTabName}.html")`
       Select_default,
       {
         width: "medium",
-        value: params.query_params.table || "None available",
+        value: params.connection.table || "None available",
         onChange: (newTable) => {
-          if (newTable === params["query_params"]["table"]) {
+          if (newTable === params["connection"]["table"]) {
             return;
           }
           const paramsCopy = __spreadValues({}, params);
@@ -38267,7 +38270,7 @@ fig.write_html("${props.graphTabName}.html")`
               "limit": void 0
             }
           });
-          liveUpdateParams(newParams);
+          getAvailableOptionsAndDefaults(newParams);
         }
       },
       (connectionResult == null ? void 0 : connectionResult.type) === "success" ? connectionResult.config_options.tables.map((table) => {

@@ -1,7 +1,7 @@
 from ast import Dict
 import json
 from typing import Any, Optional, Union, List
-from mitosheet.api.get_snowflake_connection import get_snowflake_connection
+from mitosheet.api.get_available_snowflake_options_and_defaults import get_snowflake_connection
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 from mitosheet.api.get_code_snippets import get_code_snippets, DEFAULT_CODE_SNIPPETS
 from mitosheet.types import SnowflakeImportParams
@@ -17,11 +17,11 @@ TEST_SNOWFLAKE_CREDENTIALS = {
 TEST_DEFAULT_SNOWFLAKE_CONNECTION = {
     'warehouse': None, 
     'database': None, 
-    'schema': None
+    'schema': None,
+    'table': None,
 }
 
 TEST_DEFAULT_SNOWFLAKE_QUERY_PARAMS = { # type: ignore
-    'table': None,
     'columns': [],
     'limit': None,
 }
@@ -118,10 +118,10 @@ def test_slow_function_mocked_api_call(mocker):
         'connection': {
                 'warehouse': WH_1,
                 'database': DB_1,
-                'schema': S_1
+                'schema': S_1,
+                'table': T_1,
         },
         'query_params': {
-                'table': T_1,
                 'columns': [C_1, C_2],
                 'limit': None 
         }

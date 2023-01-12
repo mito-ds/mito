@@ -39,10 +39,10 @@ export type SnowflakeConnection = {
     warehouse: string | undefined, 
     database: string | undefined, 
     schema: string | undefined,
+    table: string | undefined
 }
 
 export type SnowflakeQueryParams = {
-	table: string | undefined,
 	columns: string[],
 	limit: number | undefined
 }
@@ -64,8 +64,8 @@ export interface SnowflakeImportParams {
 const getDefaultParams = (): SnowflakeImportParams | undefined => {
     return {
         credentials: {type: 'username/password', username: '', password: '', account: ''},
-        connection: {warehouse: undefined, database: undefined, schema: undefined},
-        query_params: {table: undefined, columns: [], limit: undefined},
+        connection: {warehouse: undefined, database: undefined, schema: undefined, table: undefined},
+        query_params: {columns: [], limit: undefined},
     }
 }
 
@@ -97,7 +97,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
     const [connectionResult, setConnectionResult] = useState<ConnectionResult | undefined>(undefined);
     const [liveUpdateNumber, setLiveUpdateNumber] = useState(0) 
 
-    const liveUpdateParams = (newParams: SnowflakeImportParams): void => {
+    const getAvailableOptionsAndDefaults = (newParams: SnowflakeImportParams): void => {
         setParams(newParams)
         setLiveUpdateNumber(old => old + 1)
     }
@@ -107,10 +107,10 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
             // Don't run on first render
             return
         }
-        getConnectionResult()
+        _getAvailableOptionsAndDefaults()
     }, [liveUpdateNumber])
 
-    const getConnectionResult = async () => {
+    const _getAvailableOptionsAndDefaults = async () => {
         if (params === undefined) {
             // We don't expect this to ever happen because of the UI restrictions
             return 
@@ -217,7 +217,10 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                     <TextButton
                         disabled={params.credentials.username.length === 0 || params.credentials.password.length === 0 || params.credentials.account.length === 0}
                         disabledTooltip='Please fill out the username, password, and account fields below.'
-                        onClick={() => validateSnowflakeCredentials()}
+                        onClick={() => {
+                            validateSnowflakeCredentials()
+                            getAvailableOptionsAndDefaults(params)
+                        }}
                         variant='dark'
                     >
                         Connect to Snowflake
@@ -281,7 +284,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                         }
                                     }
                                     
-                                    liveUpdateParams(newParams)
+                                    getAvailableOptionsAndDefaults(newParams)
                                 }}
                             >
                                 {connectionResult?.type === 'success' ? connectionResult.config_options.databases.map((database) => {
@@ -319,7 +322,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                         }
                                     }
                                     
-                                    liveUpdateParams(newParams)
+                                    getAvailableOptionsAndDefaults(newParams)
                                 }}
                             >
                                 {connectionResult?.type === 'success' ? connectionResult.config_options.schemas.map((schema) => {
@@ -337,9 +340,9 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         <Col>
                             <Select
                                 width="medium"
-                                value={params.query_params.table || 'None available'}
+                                value={params.connection.table || 'None available'}
                                 onChange={(newTable) => {
-                                    if (newTable === params['query_params']['table']) {
+                                    if (newTable === params['connection']['table']) {
                                         return 
                                     }
                                     
@@ -353,7 +356,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                         }
                                     }
                                     
-                                    liveUpdateParams(newParams)
+                                    getAvailableOptionsAndDefaults(newParams)
                                 }}
                             >
                                 {connectionResult?.type === 'success' ? connectionResult.config_options.tables.map((table) => {

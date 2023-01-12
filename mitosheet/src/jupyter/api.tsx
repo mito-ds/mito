@@ -697,7 +697,7 @@ export default class MitoAPI {
 
         const resultString = await this.send<string>({
             'event': 'api_call',
-            'type': 'get_snowflake_connection',
+            'type': 'get_available_snowflake_options_and_defaults',
             'params': params
         }, {})
 

@@ -8,6 +8,15 @@ import json
 from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.types import SnowflakeConnection, SnowflakeCredentials, SnowflakeImportParams, SnowflakeQueryParams, StepsManagerType
 import snowflake.connector
+import os
+from dotenv import load_dotenv
+
+# Load the .env file so we can access our pytest, read-only snowflake credentials
+load_dotenv()
+
+PYTEST_SNOWFLAKE_USERNAME = os.getenv('PYTEST_SNOWFLAKE_USERNAME')
+PYTEST_SNOWFLAKE_PASSWORD = os.getenv('PYTEST_SNOWFLAKE_PASSWORD')
+PYTEST_SNOWFLAKE_ACCOUNT = os.getenv('PYTEST_SNOWFLAKE_ACCOUNT')
 
 def _get_snowflake_connection(username: str, password: str, account: str) -> Any:
         return snowflake.connector.connect(
@@ -16,7 +25,7 @@ def _get_snowflake_connection(username: str, password: str, account: str) -> Any
                 account=account,
         )
 
-def get_snowflake_connection(params: SnowflakeImportParams, steps_manager: StepsManagerType) -> str:
+def get_available_snowflake_options_and_defaults(params: SnowflakeImportParams, steps_manager: StepsManagerType) -> str:
 
         credentials: SnowflakeCredentials = params['credentials']
         connection: SnowflakeConnection = params['connection']
@@ -26,12 +35,14 @@ def get_snowflake_connection(params: SnowflakeImportParams, steps_manager: Steps
         password = credentials['password']
         account = credentials['account']
 
+        username, password, account = PYTEST_SNOWFLAKE_USERNAME, PYTEST_SNOWFLAKE_PASSWORD, PYTEST_SNOWFLAKE_ACCOUNT
+
         ctx = _get_snowflake_connection(username, password, account)
 
         _warehouse = connection.get('warehouse')
         _database = connection.get('database') 
         _schema = connection.get('schema')
-        _table = query_params.get('table')
+        _table = connection.get('table')
         _columns = query_params.get('columns')
         limit = query_params.get('limit')
 
@@ -58,10 +69,10 @@ def get_snowflake_connection(params: SnowflakeImportParams, steps_manager: Steps
                 'connection': {
                         'warehouse': warehouse,
                         'database': database,
-                        'schema': schema
+                        'schema': schema,
+                        'table': table,
                 },
                 'query_params': {
-                        'table': table,
                         'columns': columns,
                         'limit': limit 
                 }
