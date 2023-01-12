@@ -7,7 +7,6 @@
 import json
 from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.types import SnowflakeConnection, SnowflakeCredentials, SnowflakeImportParams, SnowflakeQueryParams, StepsManagerType
-import snowflake.connector
 import os
 from dotenv import load_dotenv
 

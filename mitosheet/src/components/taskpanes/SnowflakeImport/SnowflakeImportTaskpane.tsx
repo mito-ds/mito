@@ -107,7 +107,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
             // Don't run on first render
             return
         }
-        _getAvailableOptionsAndDefaults()
+        void _getAvailableOptionsAndDefaults()
     }, [liveUpdateNumber])
 
     const _getAvailableOptionsAndDefaults = async () => {
@@ -218,7 +218,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         disabled={params.credentials.username.length === 0 || params.credentials.password.length === 0 || params.credentials.account.length === 0}
                         disabledTooltip='Please fill out the username, password, and account fields below.'
                         onClick={() => {
-                            validateSnowflakeCredentials()
+                            void validateSnowflakeCredentials()
                             getAvailableOptionsAndDefaults(params)
                         }}
                         variant='dark'

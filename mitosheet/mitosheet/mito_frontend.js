@@ -38103,7 +38103,7 @@ fig.write_html("${props.graphTabName}.html")`
       if (liveUpdateNumber === 0) {
         return;
       }
-      _getAvailableOptionsAndDefaults();
+      void _getAvailableOptionsAndDefaults();
     }, [liveUpdateNumber]);
     const _getAvailableOptionsAndDefaults = async () => {
       if (params === void 0) {
@@ -38182,7 +38182,7 @@ fig.write_html("${props.graphTabName}.html")`
         disabled: params.credentials.username.length === 0 || params.credentials.password.length === 0 || params.credentials.account.length === 0,
         disabledTooltip: "Please fill out the username, password, and account fields below.",
         onClick: () => {
-          validateSnowflakeCredentials();
+          void validateSnowflakeCredentials();
           getAvailableOptionsAndDefaults(params);
         },
         variant: "dark"
