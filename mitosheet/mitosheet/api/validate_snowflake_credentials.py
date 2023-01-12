@@ -49,7 +49,7 @@ def validate_snowflake_credentials(params: SnowflakeCredentials, steps_manager: 
     password = params['password']
     account = params['account']
 
-    username, password, account = PYTEST_SNOWFLAKE_USERNAME, PYTEST_SNOWFLAKE_PASSWORD, PYTEST_SNOWFLAKE_ACCOUNT
+    username, password, account = PYTEST_SNOWFLAKE_USERNAME, PYTEST_SNOWFLAKE_PASSWORD, PYTEST_SNOWFLAKE_ACCOUNT # type: ignore
 
     is_valid = _validate_snowflake_credentials(username, password, account)
 

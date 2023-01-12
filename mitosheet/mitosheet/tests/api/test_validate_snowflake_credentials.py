@@ -3,6 +3,7 @@ from mitosheet.api.validate_snowflake_credentials import validate_snowflake_cred
 from unittest.mock import MagicMock
 import os
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.decorators import python_post_3_6_only
 from dotenv import load_dotenv
 
 # Load the .env file so we can access our pytest, read-only snowflake credentials
@@ -19,6 +20,7 @@ TEST_SNOWFLAKE_CREDENTIALS = {
     'account': PYTEST_SNOWFLAKE_ACCOUNT
 }
 
+@python_post_3_6_only
 def test_valid_credentials(mocker):
     mocker.patch(
         'mitosheet.api.validate_snowflake_credentials._validate_snowflake_credentials',
@@ -35,6 +37,7 @@ def test_valid_credentials(mocker):
 
     assert expected_return == response
 
+@python_post_3_6_only
 def test_invalid_credentials(mocker):
     mocker.patch(
         'mitosheet.api.validate_snowflake_credentials._validate_snowflake_credentials',
@@ -48,6 +51,7 @@ def test_invalid_credentials(mocker):
 
     assert 'error' == response_obj['type']
 
+@python_post_3_6_only
 def test_valid_credentials_integration_test(): 
     mito = create_mito_wrapper_dfs()
 

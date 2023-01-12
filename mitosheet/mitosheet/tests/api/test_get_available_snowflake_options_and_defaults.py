@@ -1,9 +1,7 @@
-from ast import Dict
 import json
-from typing import Any, Optional, Union, List
-from mitosheet.api.get_available_snowflake_options_and_defaults import get_snowflake_connection
+from mitosheet.api.get_available_snowflake_options_and_defaults import get_available_snowflake_options_and_defaults
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
-from mitosheet.api.get_code_snippets import get_code_snippets, DEFAULT_CODE_SNIPPETS
+from mitosheet.tests.decorators import python_post_3_6_only
 from mitosheet.types import SnowflakeImportParams
 from unittest.mock import MagicMock
 
@@ -40,59 +38,60 @@ C_2 = 'c_2'
 
 def patch_functions(mocker):
     mocker.patch(
-        'mitosheet.api.get_snowflake_connection._get_snowflake_connection',
+        'mitosheet.api.get_available_snowflake_options_and_defaults._get_snowflake_connection',
         return_value=5
     )
     mocker.patch(
-        'mitosheet.api.get_snowflake_connection.get_default_warehouse',
+        'mitosheet.api.get_available_snowflake_options_and_defaults.get_default_warehouse',
         return_value=WH_1
     )
     mocker.patch(
-        'mitosheet.api.get_snowflake_connection.get_default_database',
+        'mitosheet.api.get_available_snowflake_options_and_defaults.get_default_database',
         return_value=DB_1
     )
     mocker.patch(
-        'mitosheet.api.get_snowflake_connection.get_default_schema',
+        'mitosheet.api.get_available_snowflake_options_and_defaults.get_default_schema',
         return_value=S_1
     )
     mocker.patch(
-        'mitosheet.api.get_snowflake_connection.get_default_table',
+        'mitosheet.api.get_available_snowflake_options_and_defaults.get_default_table',
         return_value=T_1
     )
     mocker.patch(
-        'mitosheet.api.get_snowflake_connection.get_warehouses',
+        'mitosheet.api.get_available_snowflake_options_and_defaults.get_warehouses',
         return_value=[WH_1, WH_2]
     )
     mocker.patch(
-        'mitosheet.api.get_snowflake_connection.get_databases',
+        'mitosheet.api.get_available_snowflake_options_and_defaults.get_databases',
         return_value=[DB_1, DB_2]
     )
     mocker.patch(
-        'mitosheet.api.get_snowflake_connection.get_schemas',
+        'mitosheet.api.get_available_snowflake_options_and_defaults.get_schemas',
         return_value=[S_1, S_2]
     )
     mocker.patch(
-        'mitosheet.api.get_snowflake_connection.get_tables',
+        'mitosheet.api.get_available_snowflake_options_and_defaults.get_tables',
         return_value=[T_1, T_2]
     )
     mocker.patch(
-        'mitosheet.api.get_snowflake_connection.get_columns',
+        'mitosheet.api.get_available_snowflake_options_and_defaults.get_columns',
         return_value=[C_1, C_2]
     )
     mocker.patch(
-        'mitosheet.api.get_snowflake_connection._get_snowflake_connection',
+        'mitosheet.api.get_available_snowflake_options_and_defaults._get_snowflake_connection',
         return_value=5
     )
     mocker.patch(
-        'mitosheet.api.get_snowflake_connection._get_snowflake_connection',
+        'mitosheet.api.get_available_snowflake_options_and_defaults._get_snowflake_connection',
         return_value=5
     )
     mocker.patch(
-        'mitosheet.api.get_snowflake_connection._get_snowflake_connection',
+        'mitosheet.api.get_available_snowflake_options_and_defaults._get_snowflake_connection',
         return_value=5
     )
     
 
+@python_post_3_6_only
 def test_slow_function_mocked_api_call(mocker):
     patch_functions(mocker)
 
@@ -104,7 +103,7 @@ def test_slow_function_mocked_api_call(mocker):
         'query_params': TEST_DEFAULT_SNOWFLAKE_QUERY_PARAMS
     }
 
-    response = get_snowflake_connection(snowflake_import_params, mito.mito_backend.steps_manager)
+    response = get_available_snowflake_options_and_defaults(snowflake_import_params, mito.mito_backend.steps_manager)
 
     expected_return = json.dumps({
         'type': 'success',    

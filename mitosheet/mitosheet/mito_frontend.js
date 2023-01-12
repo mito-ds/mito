@@ -38200,7 +38200,7 @@ fig.write_html("${props.graphTabName}.html")`
         }
       },
       (connectionResult == null ? void 0 : connectionResult.type) === "success" ? connectionResult.config_options.warehouses.map((warehouse) => {
-        return /* @__PURE__ */ import_react162.default.createElement(DropdownItem_default, { id: warehouse, title: warehouse });
+        return /* @__PURE__ */ import_react162.default.createElement(DropdownItem_default, { key: warehouse, id: warehouse, title: warehouse });
       }) : []
     ))), /* @__PURE__ */ import_react162.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react162.default.createElement(Col_default, null, "Database"), /* @__PURE__ */ import_react162.default.createElement(Col_default, null, /* @__PURE__ */ import_react162.default.createElement(
       Select_default,
@@ -38227,7 +38227,7 @@ fig.write_html("${props.graphTabName}.html")`
         }
       },
       (connectionResult == null ? void 0 : connectionResult.type) === "success" ? connectionResult.config_options.databases.map((database) => {
-        return /* @__PURE__ */ import_react162.default.createElement(DropdownItem_default, { id: database, title: database });
+        return /* @__PURE__ */ import_react162.default.createElement(DropdownItem_default, { key: database, id: database, title: database });
       }) : []
     ))), /* @__PURE__ */ import_react162.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react162.default.createElement(Col_default, null, "Schema"), /* @__PURE__ */ import_react162.default.createElement(Col_default, null, /* @__PURE__ */ import_react162.default.createElement(
       Select_default,
@@ -38253,7 +38253,7 @@ fig.write_html("${props.graphTabName}.html")`
         }
       },
       (connectionResult == null ? void 0 : connectionResult.type) === "success" ? connectionResult.config_options.schemas.map((schema) => {
-        return /* @__PURE__ */ import_react162.default.createElement(DropdownItem_default, { id: schema, title: schema });
+        return /* @__PURE__ */ import_react162.default.createElement(DropdownItem_default, { key: schema, id: schema, title: schema });
       }) : []
     ))), /* @__PURE__ */ import_react162.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react162.default.createElement(Col_default, null, "Table"), /* @__PURE__ */ import_react162.default.createElement(Col_default, null, /* @__PURE__ */ import_react162.default.createElement(
       Select_default,
@@ -38276,7 +38276,7 @@ fig.write_html("${props.graphTabName}.html")`
         }
       },
       (connectionResult == null ? void 0 : connectionResult.type) === "success" ? connectionResult.config_options.tables.map((table) => {
-        return /* @__PURE__ */ import_react162.default.createElement(DropdownItem_default, { id: table, title: table });
+        return /* @__PURE__ */ import_react162.default.createElement(DropdownItem_default, { key: table, id: table, title: table });
       }) : []
     )))), /* @__PURE__ */ import_react162.default.createElement(Row_default, { justify: "start" }, /* @__PURE__ */ import_react162.default.createElement("p", { className: "text-header-3" }, "Columns to Import")), (connectionResult == null ? void 0 : connectionResult.type) === "success" && /* @__PURE__ */ import_react162.default.createElement(
       MultiToggleBox_default,
@@ -38297,6 +38297,7 @@ fig.write_html("${props.graphTabName}.html")`
         return /* @__PURE__ */ import_react162.default.createElement(
           MultiToggleItem_default,
           {
+            key: column,
             title: column,
             toggled: isToggled,
             onToggle: () => {

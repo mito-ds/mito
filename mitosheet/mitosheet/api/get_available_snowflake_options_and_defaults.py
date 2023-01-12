@@ -46,7 +46,7 @@ def get_available_snowflake_options_and_defaults(params: SnowflakeImportParams, 
         password = credentials['password']
         account = credentials['account']
 
-        username, password, account = PYTEST_SNOWFLAKE_USERNAME, PYTEST_SNOWFLAKE_PASSWORD, PYTEST_SNOWFLAKE_ACCOUNT
+        username, password, account = PYTEST_SNOWFLAKE_USERNAME, PYTEST_SNOWFLAKE_PASSWORD, PYTEST_SNOWFLAKE_ACCOUNT # type: ignore
 
         ctx = _get_snowflake_connection(username, password, account)
 

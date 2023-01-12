@@ -112,9 +112,9 @@ if sys.version_info[:3] > (3, 8, 0):
         warehouse: Optional[str] 
         database: Optional[str]
         schema: Optional[str]
+        table: Optional[str] 
 
     class SnowflakeQueryParams(TypedDict):
-        table: Optional[str] 
         columns: List[str]
         limit: Optional[int]
 
@@ -122,6 +122,7 @@ if sys.version_info[:3] > (3, 8, 0):
         credentials: SnowflakeCredentials
         connection: SnowflakeConnection
         query_params: SnowflakeQueryParams
+        
     class CodeSnippetEnvVars(TypedDict):
         MITO_CONFIG_CODE_SNIPPETS_VERSION: str
         MITO_CONFIG_CODE_SNIPPETS_URL: str

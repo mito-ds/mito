@@ -250,7 +250,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                             >
                                 {connectionResult?.type === 'success' ? connectionResult.config_options.warehouses.map((warehouse) => {
                                     return (
-                                        <DropdownItem id={warehouse} title={warehouse}/>
+                                        <DropdownItem key={warehouse} id={warehouse} title={warehouse}/>
                                     )
                                 }) : []}
                             </Select>
@@ -289,7 +289,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                             >
                                 {connectionResult?.type === 'success' ? connectionResult.config_options.databases.map((database) => {
                                     return (
-                                        <DropdownItem id={database} title={database}/>
+                                        <DropdownItem key={database} id={database} title={database}/>
                                     )
                                 }) : []}
                             </Select>
@@ -327,7 +327,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                             >
                                 {connectionResult?.type === 'success' ? connectionResult.config_options.schemas.map((schema) => {
                                     return (
-                                        <DropdownItem id={schema} title={schema}/>
+                                        <DropdownItem key={schema} id={schema} title={schema}/>
                                     )
                                 }) : []}
                             </Select>
@@ -361,7 +361,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                             >
                                 {connectionResult?.type === 'success' ? connectionResult.config_options.tables.map((table) => {
                                     return (
-                                        <DropdownItem id={table} title={table}/>
+                                        <DropdownItem key={table} id={table} title={table}/>
                                     )
                                 }) : []}
                             </Select>
@@ -389,6 +389,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                             const isToggled = params.query_params.columns.includes(column);
                             return (
                                 <MultiToggleItem 
+                                    key={column}
                                     title={column} 
                                     toggled={isToggled} 
                                     onToggle={() => {
