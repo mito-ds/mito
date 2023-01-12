@@ -23523,11 +23523,14 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       }
       return void 0;
     }
-    async getSnowflakeConnection(params) {
+    async getAvailableSnowflakeOptionsAndDefaults(snowflakeCredentials, snowflakeConnection) {
       const resultString = await this.send({
         "event": "api_call",
         "type": "get_available_snowflake_options_and_defaults",
-        "params": params
+        "params": {
+          "credentials": snowflakeCredentials,
+          "connection": snowflakeConnection
+        }
       }, {});
       if (resultString !== void 0 && resultString !== "") {
         return JSON.parse(resultString);
@@ -38093,7 +38096,7 @@ fig.write_html("${props.graphTabName}.html")`
       props.analysisData
     );
     const [openCredentialsSection, setOpenCredentialsSection] = (0, import_react162.useState)(true);
-    const [connectionResult, setConnectionResult] = (0, import_react162.useState)(void 0);
+    const [availableSnowflakeOptionsAndDefaults, setAvailableSnowflakeOptionsAndDefaults] = (0, import_react162.useState)(void 0);
     const [liveUpdateNumber, setLiveUpdateNumber] = (0, import_react162.useState)(0);
     const getAvailableOptionsAndDefaults = (newParams) => {
       setParams(newParams);
@@ -38109,13 +38112,12 @@ fig.write_html("${props.graphTabName}.html")`
       if (params === void 0) {
         return;
       }
-      const snowflakeConnection = await props.mitoAPI.getSnowflakeConnection(params);
-      setConnectionResult(snowflakeConnection);
-      if ((snowflakeConnection == null ? void 0 : snowflakeConnection.type) === "success") {
+      const availableSnowflakeOptionsAndDefaults2 = await props.mitoAPI.getAvailableSnowflakeOptionsAndDefaults(params.credentials, params.connection);
+      setAvailableSnowflakeOptionsAndDefaults(availableSnowflakeOptionsAndDefaults2);
+      if ((availableSnowflakeOptionsAndDefaults2 == null ? void 0 : availableSnowflakeOptionsAndDefaults2.type) === "success") {
         setParams((prevParams) => {
           return __spreadProps(__spreadValues({}, prevParams), {
-            connection: snowflakeConnection.connection,
-            query_params: snowflakeConnection.query_params
+            connection: availableSnowflakeOptionsAndDefaults2.connection
           });
         });
         setOpenCredentialsSection(false);
@@ -38188,7 +38190,7 @@ fig.write_html("${props.graphTabName}.html")`
         variant: "dark"
       },
       "Connect to Snowflake"
-    ), connectionResult !== void 0 && /* @__PURE__ */ import_react162.default.createElement("div", { className: classNames({ "text-color-error": connectionResult.type === "error", "text-color-success": connectionResult.type === "success" }) }, connectionResult.type === "success" && "Successfully connected to Snowflake instance.", connectionResult.type === "error" && connectionResult.error_message)), /* @__PURE__ */ import_react162.default.createElement(Spacer_default, { px: 20 }), /* @__PURE__ */ import_react162.default.createElement(CollapsibleSection_default, { title: "Connection Location", open: (connectionResult == null ? void 0 : connectionResult.type) === "success" }, /* @__PURE__ */ import_react162.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react162.default.createElement(Col_default, null, "Warehouse"), /* @__PURE__ */ import_react162.default.createElement(Col_default, null, /* @__PURE__ */ import_react162.default.createElement(
+    ), availableSnowflakeOptionsAndDefaults !== void 0 && /* @__PURE__ */ import_react162.default.createElement("div", { className: classNames({ "text-color-error": availableSnowflakeOptionsAndDefaults.type === "error", "text-color-success": availableSnowflakeOptionsAndDefaults.type === "success" }) }, availableSnowflakeOptionsAndDefaults.type === "success" && "Successfully connected to Snowflake instance.", availableSnowflakeOptionsAndDefaults.type === "error" && availableSnowflakeOptionsAndDefaults.error_message)), /* @__PURE__ */ import_react162.default.createElement(Spacer_default, { px: 20 }), /* @__PURE__ */ import_react162.default.createElement(CollapsibleSection_default, { title: "Connection Location", open: (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" }, /* @__PURE__ */ import_react162.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react162.default.createElement(Col_default, null, "Warehouse"), /* @__PURE__ */ import_react162.default.createElement(Col_default, null, /* @__PURE__ */ import_react162.default.createElement(
       Select_default,
       {
         width: "medium",
@@ -38199,7 +38201,7 @@ fig.write_html("${props.graphTabName}.html")`
           });
         }
       },
-      (connectionResult == null ? void 0 : connectionResult.type) === "success" ? connectionResult.config_options.warehouses.map((warehouse) => {
+      (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.warehouses.map((warehouse) => {
         return /* @__PURE__ */ import_react162.default.createElement(DropdownItem_default, { key: warehouse, id: warehouse, title: warehouse });
       }) : []
     ))), /* @__PURE__ */ import_react162.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react162.default.createElement(Col_default, null, "Database"), /* @__PURE__ */ import_react162.default.createElement(Col_default, null, /* @__PURE__ */ import_react162.default.createElement(
@@ -38226,7 +38228,7 @@ fig.write_html("${props.graphTabName}.html")`
           getAvailableOptionsAndDefaults(newParams);
         }
       },
-      (connectionResult == null ? void 0 : connectionResult.type) === "success" ? connectionResult.config_options.databases.map((database) => {
+      (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.databases.map((database) => {
         return /* @__PURE__ */ import_react162.default.createElement(DropdownItem_default, { key: database, id: database, title: database });
       }) : []
     ))), /* @__PURE__ */ import_react162.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react162.default.createElement(Col_default, null, "Schema"), /* @__PURE__ */ import_react162.default.createElement(Col_default, null, /* @__PURE__ */ import_react162.default.createElement(
@@ -38252,7 +38254,7 @@ fig.write_html("${props.graphTabName}.html")`
           getAvailableOptionsAndDefaults(newParams);
         }
       },
-      (connectionResult == null ? void 0 : connectionResult.type) === "success" ? connectionResult.config_options.schemas.map((schema) => {
+      (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.schemas.map((schema) => {
         return /* @__PURE__ */ import_react162.default.createElement(DropdownItem_default, { key: schema, id: schema, title: schema });
       }) : []
     ))), /* @__PURE__ */ import_react162.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react162.default.createElement(Col_default, null, "Table"), /* @__PURE__ */ import_react162.default.createElement(Col_default, null, /* @__PURE__ */ import_react162.default.createElement(
@@ -38275,16 +38277,16 @@ fig.write_html("${props.graphTabName}.html")`
           getAvailableOptionsAndDefaults(newParams);
         }
       },
-      (connectionResult == null ? void 0 : connectionResult.type) === "success" ? connectionResult.config_options.tables.map((table) => {
+      (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.tables.map((table) => {
         return /* @__PURE__ */ import_react162.default.createElement(DropdownItem_default, { key: table, id: table, title: table });
       }) : []
-    )))), /* @__PURE__ */ import_react162.default.createElement(Row_default, { justify: "start" }, /* @__PURE__ */ import_react162.default.createElement("p", { className: "text-header-3" }, "Columns to Import")), (connectionResult == null ? void 0 : connectionResult.type) === "success" && /* @__PURE__ */ import_react162.default.createElement(
+    )))), /* @__PURE__ */ import_react162.default.createElement(Row_default, { justify: "start" }, /* @__PURE__ */ import_react162.default.createElement("p", { className: "text-header-3" }, "Columns to Import")), (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" && /* @__PURE__ */ import_react162.default.createElement(
       MultiToggleBox_default,
       {
         toggleAllIndexes: (indexesToToggle) => {
           setParams((prevParams) => {
             const newColumns = [...prevParams.query_params.columns];
-            const columnsToToggle = indexesToToggle.map((index) => connectionResult.config_options.columns[index]);
+            const columnsToToggle = indexesToToggle.map((index) => availableSnowflakeOptionsAndDefaults.config_options.columns[index]);
             columnsToToggle.forEach((sheetName) => {
               toggleInArray(newColumns, sheetName);
             });
@@ -38292,7 +38294,7 @@ fig.write_html("${props.graphTabName}.html")`
           });
         }
       },
-      connectionResult.config_options.columns.map((column, index) => {
+      availableSnowflakeOptionsAndDefaults.config_options.columns.map((column, index) => {
         const isToggled = params.query_params.columns.includes(column);
         return /* @__PURE__ */ import_react162.default.createElement(
           MultiToggleItem_default,

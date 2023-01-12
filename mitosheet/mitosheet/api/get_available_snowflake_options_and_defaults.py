@@ -30,7 +30,7 @@ def _get_snowflake_connection(username: str, password: str, account: str) -> Any
                 account=account,
         )
 
-def get_available_snowflake_options_and_defaults(params: SnowflakeImportParams, steps_manager: StepsManagerType) -> str:
+def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
 
         if not SNOWFLAKE_CONNECTOR_IMPORTED: 
                 return json.dumps({
@@ -40,7 +40,6 @@ def get_available_snowflake_options_and_defaults(params: SnowflakeImportParams, 
 
         credentials: SnowflakeCredentials = params['credentials']
         connection: SnowflakeConnection = params['connection']
-        query_params: SnowflakeQueryParams = params['query_params']
 
         username = credentials['username']
         password = credentials['password']
@@ -54,8 +53,6 @@ def get_available_snowflake_options_and_defaults(params: SnowflakeImportParams, 
         _database = connection.get('database') 
         _schema = connection.get('schema')
         _table = connection.get('table')
-        _columns = query_params.get('columns')
-        limit = query_params.get('limit')
 
         warehouse = _warehouse if _warehouse is not None else get_default_warehouse(ctx)
         database = _database if _database is not None else get_default_database(ctx)
@@ -77,16 +74,12 @@ def get_available_snowflake_options_and_defaults(params: SnowflakeImportParams, 
                         'tables': tables,
                         'columns': columns
                 },
-                'connection': {
+                'default_connection_values': {
                         'warehouse': warehouse,
                         'database': database,
                         'schema': schema,
                         'table': table,
                 },
-                'query_params': {
-                        'columns': columns,
-                        'limit': limit 
-                }
         })
                 
 

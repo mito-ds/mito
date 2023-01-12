@@ -73,7 +73,6 @@ export type ConnectionResult = {
     type: 'success',
     config_options: SnowflakeConfigOptions,
     connection: SnowflakeConnection
-    query_params: SnowflakeQueryParams
 } | {
     type: 'error',
     error_message: string
@@ -94,7 +93,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
     )
     
     const [openCredentialsSection, setOpenCredentialsSection] = useState(true);
-    const [connectionResult, setConnectionResult] = useState<ConnectionResult | undefined>(undefined);
+    const [availableSnowflakeOptionsAndDefaults, setAvailableSnowflakeOptionsAndDefaults] = useState<ConnectionResult | undefined>(undefined);
     const [liveUpdateNumber, setLiveUpdateNumber] = useState(0) 
 
     const getAvailableOptionsAndDefaults = (newParams: SnowflakeImportParams): void => {
@@ -116,17 +115,15 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
             return 
         }
 
-        const snowflakeConnection = await props.mitoAPI.getSnowflakeConnection(params);
+        const availableSnowflakeOptionsAndDefaults = await props.mitoAPI.getAvailableSnowflakeOptionsAndDefaults(params.credentials, params.connection);
 
-        //console.log(snowflakeConnection)
-        setConnectionResult(snowflakeConnection);
+        setAvailableSnowflakeOptionsAndDefaults(availableSnowflakeOptionsAndDefaults);
 
-        if (snowflakeConnection?.type === 'success') {
+        if (availableSnowflakeOptionsAndDefaults?.type === 'success') {
             setParams((prevParams) => {
                 return {
                     ...prevParams,
-                    connection: snowflakeConnection.connection,
-                    query_params: snowflakeConnection.query_params
+                    connection: availableSnowflakeOptionsAndDefaults.connection,
                 }
             })
 
@@ -225,15 +222,15 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                     >
                         Connect to Snowflake
                     </TextButton>
-                    {connectionResult !== undefined &&
-                        <div className={(classNames({'text-color-error': connectionResult.type === 'error', 'text-color-success': connectionResult.type === 'success'}))}>
-                            {connectionResult.type === 'success' && "Successfully connected to Snowflake instance."}
-                            {connectionResult.type === 'error' && connectionResult.error_message}
+                    {availableSnowflakeOptionsAndDefaults !== undefined &&
+                        <div className={(classNames({'text-color-error': availableSnowflakeOptionsAndDefaults.type === 'error', 'text-color-success': availableSnowflakeOptionsAndDefaults.type === 'success'}))}>
+                            {availableSnowflakeOptionsAndDefaults.type === 'success' && "Successfully connected to Snowflake instance."}
+                            {availableSnowflakeOptionsAndDefaults.type === 'error' && availableSnowflakeOptionsAndDefaults.error_message}
                         </div>
                     }
                 </CollapsibleSection>
                 <Spacer px={20}/>
-                <CollapsibleSection title="Connection Location" open={connectionResult?.type === 'success'}>
+                <CollapsibleSection title="Connection Location" open={availableSnowflakeOptionsAndDefaults?.type === 'success'}>
                     <Row justify="space-between">
                         <Col>
                             Warehouse
@@ -248,7 +245,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                     })
                                 }}
                             >
-                                {connectionResult?.type === 'success' ? connectionResult.config_options.warehouses.map((warehouse) => {
+                                {availableSnowflakeOptionsAndDefaults?.type === 'success' ? availableSnowflakeOptionsAndDefaults.config_options.warehouses.map((warehouse) => {
                                     return (
                                         <DropdownItem key={warehouse} id={warehouse} title={warehouse}/>
                                     )
@@ -287,7 +284,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                     getAvailableOptionsAndDefaults(newParams)
                                 }}
                             >
-                                {connectionResult?.type === 'success' ? connectionResult.config_options.databases.map((database) => {
+                                {availableSnowflakeOptionsAndDefaults?.type === 'success' ? availableSnowflakeOptionsAndDefaults.config_options.databases.map((database) => {
                                     return (
                                         <DropdownItem key={database} id={database} title={database}/>
                                     )
@@ -325,7 +322,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                     getAvailableOptionsAndDefaults(newParams)
                                 }}
                             >
-                                {connectionResult?.type === 'success' ? connectionResult.config_options.schemas.map((schema) => {
+                                {availableSnowflakeOptionsAndDefaults?.type === 'success' ? availableSnowflakeOptionsAndDefaults.config_options.schemas.map((schema) => {
                                     return (
                                         <DropdownItem key={schema} id={schema} title={schema}/>
                                     )
@@ -359,7 +356,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                     getAvailableOptionsAndDefaults(newParams)
                                 }}
                             >
-                                {connectionResult?.type === 'success' ? connectionResult.config_options.tables.map((table) => {
+                                {availableSnowflakeOptionsAndDefaults?.type === 'success' ? availableSnowflakeOptionsAndDefaults.config_options.tables.map((table) => {
                                     return (
                                         <DropdownItem key={table} id={table} title={table}/>
                                     )
@@ -371,12 +368,12 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                 <Row justify="start">
                     <p className="text-header-3">Columns to Import</p>
                 </Row>
-                {connectionResult?.type === 'success' &&
+                {availableSnowflakeOptionsAndDefaults?.type === 'success' &&
                     <MultiToggleBox
                         toggleAllIndexes={(indexesToToggle) => {
                             setParams(prevParams => {
                                 const newColumns = [...prevParams.query_params.columns];
-                                const columnsToToggle = indexesToToggle.map(index => connectionResult.config_options.columns[index]);
+                                const columnsToToggle = indexesToToggle.map(index => availableSnowflakeOptionsAndDefaults.config_options.columns[index]);
                                 columnsToToggle.forEach(sheetName => {
                                     toggleInArray(newColumns, sheetName);
                                 })
@@ -385,7 +382,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                             })
                         }}
                     >
-                        {connectionResult.config_options.columns.map((column, index) => {
+                        {availableSnowflakeOptionsAndDefaults.config_options.columns.map((column, index) => {
                             const isToggled = params.query_params.columns.includes(column);
                             return (
                                 <MultiToggleItem 

@@ -19,11 +19,6 @@ TEST_DEFAULT_SNOWFLAKE_CONNECTION = {
     'table': None,
 }
 
-TEST_DEFAULT_SNOWFLAKE_QUERY_PARAMS = { # type: ignore
-    'columns': [],
-    'limit': None,
-}
-
 WH_1 = 'wh_1'
 WH_2 = 'wh_2'
 DB_1 = 'db_1'
@@ -39,7 +34,7 @@ C_2 = 'c_2'
 def patch_functions(mocker):
     mocker.patch(
         'mitosheet.api.get_available_snowflake_options_and_defaults._get_snowflake_connection',
-        return_value=5
+        return_value="place_holder_not_needed_since_we_mock_all_returns"
     )
     mocker.patch(
         'mitosheet.api.get_available_snowflake_options_and_defaults.get_default_warehouse',
@@ -90,17 +85,15 @@ def patch_functions(mocker):
         return_value=5
     )
     
-
 @python_post_3_6_only
-def test_slow_function_mocked_api_call(mocker):
+def test_success_return_type(mocker):
     patch_functions(mocker)
 
     mito = create_mito_wrapper_dfs()
 
     snowflake_import_params: SnowflakeImportParams = {
         'credentials': TEST_SNOWFLAKE_CREDENTIALS,
-        'connection': TEST_DEFAULT_SNOWFLAKE_CONNECTION,
-        'query_params': TEST_DEFAULT_SNOWFLAKE_QUERY_PARAMS
+        'connection': TEST_DEFAULT_SNOWFLAKE_CONNECTION
     }
 
     response = get_available_snowflake_options_and_defaults(snowflake_import_params, mito.mito_backend.steps_manager)
@@ -114,17 +107,44 @@ def test_slow_function_mocked_api_call(mocker):
                 'tables': [T_1, T_2],
                 'columns': [C_1, C_2]
         },
-        'connection': {
+        'default_connection_values': {
                 'warehouse': WH_1,
                 'database': DB_1,
                 'schema': S_1,
                 'table': T_1,
         },
-        'query_params': {
-                'columns': [C_1, C_2],
-                'limit': None 
-        }
-})
+    })
 
     assert expected_return == response
 
+@python_post_3_6_only
+def test_integration_success(mocker):
+    mito = create_mito_wrapper_dfs()
+
+    connection = {
+        'warehouse': 'COMPUTE_WH',
+        'database': 'PYTESTDATABASE',
+        'schema': 'PYTESTSCHEMA',
+        'table': 'SIMPLE_PYTEST_TABLE',
+    }
+
+    params = {
+        'credentials': TEST_SNOWFLAKE_CREDENTIALS,
+        'connection': connection
+    }
+
+    response = get_available_snowflake_options_and_defaults(params, mito.mito_backend.steps_manager)
+
+    expected_return = json.dumps({
+        'type': 'success',    
+        'config_options': {
+                'warehouses': ['COMPUTE_WH'],    
+                'databases': ['PYTESTDATABASE', 'SNOWFLAKE', 'SNOWFLAKE_SAMPLE_DATA'],    
+                'schemas': ['INFORMATION_SCHEMA', 'PYTESTSCHEMA'],
+                'tables': ['SIMPLE_PYTEST_TABLE'],
+                'columns': ['COLUMNA', 'COLUMNB']
+        },
+        'default_connection_values': connection
+    })
+
+    assert expected_return == response
