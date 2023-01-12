@@ -91,7 +91,7 @@ def test_success_return_type(mocker):
 
     mito = create_mito_wrapper_dfs()
 
-    snowflake_import_params: SnowflakeImportParams = {
+    snowflake_import_params = {
         'credentials': TEST_SNOWFLAKE_CREDENTIALS,
         'connection': TEST_DEFAULT_SNOWFLAKE_CONNECTION
     }

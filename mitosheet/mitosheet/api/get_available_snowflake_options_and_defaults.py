@@ -10,6 +10,9 @@ from mitosheet.types import SnowflakeConnection, SnowflakeCredentials, Snowflake
 import os
 from dotenv import load_dotenv
 
+# The snowflake-connector-python package is only available in Python > 3.6 
+# and is not distributed with the mitosheet package, so we make sure to 
+# note assume that the import will succeed. 
 try:
     import snowflake.connector
     SNOWFLAKE_CONNECTOR_IMPORTED = True
@@ -45,7 +48,8 @@ def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_m
         password = credentials['password']
         account = credentials['account']
 
-        username, password, account = PYTEST_SNOWFLAKE_USERNAME, PYTEST_SNOWFLAKE_PASSWORD, PYTEST_SNOWFLAKE_ACCOUNT # type: ignore
+        # TODO: Remove before merging into dev
+        # username, password, account = PYTEST_SNOWFLAKE_USERNAME, PYTEST_SNOWFLAKE_PASSWORD, PYTEST_SNOWFLAKE_ACCOUNT # type: ignore
 
         ctx = _get_snowflake_connection(username, password, account)
 

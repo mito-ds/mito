@@ -10,13 +10,14 @@ from mitosheet.types import SnowflakeCredentials, StepsManagerType
 import os
 from dotenv import load_dotenv
 
+# The snowflake-connector-python package is only available in Python > 3.6 
+# and is not distributed with the mitosheet package, so we make sure to 
+# note assume that the import will succeed. 
 try:
     import snowflake.connector
     SNOWFLAKE_CONNECTOR_IMPORTED = True
 except ImportError:
     SNOWFLAKE_CONNECTOR_IMPORTED = False
-
-
 
 # Load the .env file so we can access our pytest, read-only snowflake credentials
 load_dotenv()
@@ -49,7 +50,8 @@ def validate_snowflake_credentials(params: SnowflakeCredentials, steps_manager: 
     password = params['password']
     account = params['account']
 
-    username, password, account = PYTEST_SNOWFLAKE_USERNAME, PYTEST_SNOWFLAKE_PASSWORD, PYTEST_SNOWFLAKE_ACCOUNT # type: ignore
+    # TODO: Remove before mering into dev
+    # username, password, account = PYTEST_SNOWFLAKE_USERNAME, PYTEST_SNOWFLAKE_PASSWORD, PYTEST_SNOWFLAKE_ACCOUNT # type: ignore
 
     is_valid = _validate_snowflake_credentials(username, password, account)
 
