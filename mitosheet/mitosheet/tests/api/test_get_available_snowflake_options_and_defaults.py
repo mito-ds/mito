@@ -1,15 +1,24 @@
 import json
+import os
+from dotenv import load_dotenv
 from mitosheet.api.get_available_snowflake_options_and_defaults import get_available_snowflake_options_and_defaults
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 from mitosheet.tests.decorators import python_post_3_6_only
 from mitosheet.types import SnowflakeImportParams
 from unittest.mock import MagicMock
 
+# Load the .env file so we can access our pytest, read-only snowflake credentials
+load_dotenv()
+
+PYTEST_SNOWFLAKE_USERNAME = os.getenv('PYTEST_SNOWFLAKE_USERNAME')
+PYTEST_SNOWFLAKE_PASSWORD = os.getenv('PYTEST_SNOWFLAKE_PASSWORD')
+PYTEST_SNOWFLAKE_ACCOUNT = os.getenv('PYTEST_SNOWFLAKE_ACCOUNT')
+
 TEST_SNOWFLAKE_CREDENTIALS = {
     'type': 'username/password', 
-    'username': 'test_username', 
-    'password': 'test_password', 
-    'account': 'test_account'
+    'username': PYTEST_SNOWFLAKE_USERNAME, 
+    'password': PYTEST_SNOWFLAKE_PASSWORD, 
+    'account': PYTEST_SNOWFLAKE_ACCOUNT
 }
 
 TEST_DEFAULT_SNOWFLAKE_CONNECTION = {
