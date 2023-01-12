@@ -31,7 +31,8 @@ from mitosheet.step_performers import (
     ExcelImportStepPerformer,
     DropDuplicatesStepPerformer,
     GraphStepPerformer,
-    ConcatStepPerformer
+    ConcatStepPerformer,
+    ExcelRangeImportStepPerformer
 )
 from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
 from mitosheet.step_performers.delete_row import DeleteRowStepPerformer
@@ -272,4 +273,10 @@ def test_params_static():
         'dataframe_import'
     )
 
-    assert len(STEP_PERFORMERS) == 32
+    check_step(
+        ExcelRangeImportStepPerformer,
+        1,
+        'excel_range_import'
+    )
+
+    assert len(STEP_PERFORMERS) == 33

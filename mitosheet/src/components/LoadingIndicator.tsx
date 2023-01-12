@@ -121,6 +121,9 @@ const getDisplayMessageForMessageType = (messageType: StepType | UpdateType): st
         case StepType.SnowflakeImport: {
             return 'Snowflake Import'
         }
+        case StepType.ExcelRangeImport: {
+            return 'Excel Range Import'
+        }
         case UpdateType.Undo: {
             return 'Undoing previous edit'
         }

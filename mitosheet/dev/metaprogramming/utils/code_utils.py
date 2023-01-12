@@ -27,7 +27,7 @@ def get_default_typescript_value_for_param(param_name: str, param_type: str) -> 
     if param_type == 'int' or param_type == 'float':
         return '0'
     elif param_type == 'str':
-        return 'Random String'
+        return '"Random String"'
     elif param_type == 'bool':
         return 'true'
     elif param_type == 'ColumnID':
