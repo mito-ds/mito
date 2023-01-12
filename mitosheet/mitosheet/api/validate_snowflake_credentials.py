@@ -7,10 +7,16 @@
 import json
 from typing import Any
 from mitosheet.types import SnowflakeCredentials, StepsManagerType
-import snowflake.connector
 import os
-
 from dotenv import load_dotenv
+
+try:
+    import snowflake.connector
+    SNOWFLAKE_CONNECTOR_IMPORTED = True
+except ImportError:
+    SNOWFLAKE_CONNECTOR_IMPORTED = False
+
+
 
 # Load the .env file so we can access our pytest, read-only snowflake credentials
 load_dotenv()
@@ -32,6 +38,12 @@ def _validate_snowflake_credentials(username: str, password: str, account: str) 
             return False
 
 def validate_snowflake_credentials(params: SnowflakeCredentials, steps_manager: StepsManagerType) -> str:
+
+    if not SNOWFLAKE_CONNECTOR_IMPORTED: 
+        return json.dumps({
+            'type': 'error',    
+            'error_message': 'snowflake-connector-python not accessible. Ensure it is installed.'
+        })
 
     username = params['username']
     password = params['password']

@@ -11,6 +11,12 @@ import snowflake.connector
 import os
 from dotenv import load_dotenv
 
+try:
+    import snowflake.connector
+    SNOWFLAKE_CONNECTOR_IMPORTED = True
+except ImportError:
+    SNOWFLAKE_CONNECTOR_IMPORTED = False
+
 # Load the .env file so we can access our pytest, read-only snowflake credentials
 load_dotenv()
 
@@ -26,6 +32,12 @@ def _get_snowflake_connection(username: str, password: str, account: str) -> Any
         )
 
 def get_available_snowflake_options_and_defaults(params: SnowflakeImportParams, steps_manager: StepsManagerType) -> str:
+
+        if not SNOWFLAKE_CONNECTOR_IMPORTED: 
+                return json.dumps({
+                        'type': 'error',    
+                        'error_message': 'snowflake-connector-python not accessible. Ensure it is installed.'
+                })
 
         credentials: SnowflakeCredentials = params['credentials']
         connection: SnowflakeConnection = params['connection']
