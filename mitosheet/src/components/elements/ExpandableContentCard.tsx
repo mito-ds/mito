@@ -24,8 +24,12 @@ interface ExpandableContentCardProps {
     
 }
 
-const ExpandableContentCard = (props: ExpandableContentCardProps): JSX.Element => {
 
+/**
+ * This element is useful when you want a list of collapsible cards that contain user editable
+ * content - check out the conditional formatting and excel range import for examples.
+ */
+const ExpandableContentCard = (props: ExpandableContentCardProps): JSX.Element => {
 
     const XElement = (
         <Col title='Delete conditional formatting rule'>

@@ -38089,7 +38089,7 @@ fig.write_html("${props.graphTabName}.html")`
     };
   };
   var ExcelRangeImportTaskpane = (props) => {
-    const { params, setParams, edit } = useSendEditOnClick_default(
+    const { params, setParams, edit, error } = useSendEditOnClick_default(
       () => getDefaultParams7(props.file_path, props.sheet_name),
       "excel_range_import" /* ExcelRangeImport */,
       props.mitoAPI,
@@ -38105,7 +38105,7 @@ fig.write_html("${props.graphTabName}.html")`
         header: "Excel Range Import",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react163.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react163.default.createElement("p", { className: "text-body-3 text-overflow-wrap" }, "Import ranges from ", /* @__PURE__ */ import_react163.default.createElement("span", { className: "text-bold" }, props.sheet_name), " in ", /* @__PURE__ */ import_react163.default.createElement("span", { className: "text-bold" }, getBaseOfPath(props.file_path)), "."), /* @__PURE__ */ import_react163.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement("p", { className: "text-header-3" }, "Range Imports")), /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement(
+    ), /* @__PURE__ */ import_react163.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react163.default.createElement("p", { className: "text-body-3 text-overflow-wrap" }, "Import ranges from ", /* @__PURE__ */ import_react163.default.createElement("span", { className: "text-bold" }, props.sheet_name), " in ", /* @__PURE__ */ import_react163.default.createElement("span", { className: "text-bold" }, getBaseOfPath(props.file_path)), "."), /* @__PURE__ */ import_react163.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement("p", { className: "text-header-3" }, "Range Imports")), /* @__PURE__ */ import_react163.default.createElement(Col_default, { span: 4 }, /* @__PURE__ */ import_react163.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -38119,13 +38119,14 @@ fig.write_html("${props.graphTabName}.html")`
           });
           setExpandedIndex(0);
         },
-        width: "small"
+        width: "block"
       },
       "+ Add"
-    ))), params.range_imports.map((range_import, index) => {
+    ))), error !== void 0 && /* @__PURE__ */ import_react163.default.createElement("p", { className: "text-color-error" }, error), params.range_imports.map((range_import, index) => {
       return /* @__PURE__ */ import_react163.default.createElement(
         ExpandableContentCard_default,
         {
+          key: index,
           title: range_import.df_name === "" ? "Unnamed dataframe" : `Importing ${range_import.df_name}`,
           subtitle: range_import.range === "" ? "Unselected Range" : `Range ${range_import.range}`,
           expandedTitle: "Edit Range Import",

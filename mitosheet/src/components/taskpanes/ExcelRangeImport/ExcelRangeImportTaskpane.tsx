@@ -48,11 +48,12 @@ const getDefaultParams = (
 
 
 /* 
-    This is the Excel Range Import taskpane.
+    This is the Excel Range Import taskpane, which allows a user to import
+    multiple ranges from a single taskpane.
 */
 const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Element => {
 
-    const {params, setParams, edit} = useSendEditOnClick<ExcelRangeImportParams, undefined>(
+    const {params, setParams, edit, error} = useSendEditOnClick<ExcelRangeImportParams, undefined>(
         () => getDefaultParams(props.file_path, props.sheet_name),
         StepType.ExcelRangeImport, 
         props.mitoAPI,
@@ -65,7 +66,6 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
     }
     
-
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
@@ -80,7 +80,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                             Range Imports
                         </p>
                     </Col>
-                    <Col>
+                    <Col span={4}>
                         <TextButton 
                             variant="dark"
                             onClick={() => {
@@ -94,15 +94,19 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                 })
                                 setExpandedIndex(0); // expand it!
                             }}
-                            width='small'
+                            width='block'
                         >
                             + Add
                         </TextButton>
                     </Col>
                 </Row>
+                {error !== undefined && 
+                    <p className="text-color-error">{error}</p>
+                }
                 {params.range_imports.map((range_import, index) => {
                     return (
                         <ExpandableContentCard
+                            key={index}
                             title={range_import.df_name === '' ? 'Unnamed dataframe' : `Importing ${range_import.df_name}`}
                             subtitle={range_import.range === '' ? 'Unselected Range' : `Range ${range_import.range}`}
                             
