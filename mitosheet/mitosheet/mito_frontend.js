@@ -38158,6 +38158,7 @@ fig.write_html("${props.graphTabName}.html")`
         /* @__PURE__ */ import_react163.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement("p", null, "Dataframe Name")), /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement(
           Input_default,
           {
+            autoFocus: true,
             placeholder: "company_ids",
             value: range_import.df_name,
             onChange: (e) => {

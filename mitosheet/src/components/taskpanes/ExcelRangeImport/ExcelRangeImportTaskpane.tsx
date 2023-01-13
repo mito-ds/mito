@@ -144,6 +144,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                 </Col>
                                 <Col>
                                     <Input
+                                        autoFocus
                                         placeholder="company_ids"
                                         value={range_import.df_name}
                                         onChange={(e) => {
