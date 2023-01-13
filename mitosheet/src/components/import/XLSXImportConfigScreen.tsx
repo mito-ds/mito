@@ -277,7 +277,14 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
                             </Col>
                         </Row>
                     }
-                    {params.sheet_names.length === 1 && 
+                    {/** 
+                     * For now, we let users import specific ranges from a sheet if they have a single
+                     * excel sheet selected. This is not a great interface, but it's fine for now.
+                     * 
+                     * We also disable this if this is an update, for now. This is not a concern as no one
+                     * ever uses the update. 
+                     */}
+                    {!props.isUpdate && params.sheet_names.length === 1 && 
                         <p
                             onClick={() => {
                                 props.setUIState((prevUIState) => {

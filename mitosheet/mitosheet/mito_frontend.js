@@ -34797,7 +34797,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         const decimalTitle = decimalCharToTitle[decimalCharacter];
         return /* @__PURE__ */ import_react130.default.createElement(DropdownItem_default, { key: decimalTitle, title: decimalTitle, id: decimalCharacter });
       })
-    ))), params.sheet_names.length === 1 && /* @__PURE__ */ import_react130.default.createElement(
+    ))), !props.isUpdate && params.sheet_names.length === 1 && /* @__PURE__ */ import_react130.default.createElement(
       "p",
       {
         onClick: () => {
@@ -37311,8 +37311,10 @@ fig.write_html("${props.graphTabName}.html")`
       return /* @__PURE__ */ import_react155.default.createElement("div", null, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Imported "), " ", getSimpleNameSpan(dataframeCreationData.params.sheet_names[0]), " ", /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "from "), " ", getFileNameSpanFromFilePath(dataframeCreationData.params.file_name));
     } else if (dataframeCreationData.step_type === "simple_import") {
       return /* @__PURE__ */ import_react155.default.createElement("div", null, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Imported "), " ", getFileNameSpanFromFilePath(dataframeCreationData.params.file_names[0]));
-    } else {
+    } else if (dataframeCreationData.step_type === "dataframe_import") {
       return /* @__PURE__ */ import_react155.default.createElement("div", null, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Imported "), " ", getSimpleNameSpan(dataframeCreationData.params.df_names[0]));
+    } else {
+      return /* @__PURE__ */ import_react155.default.createElement("div", null, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Imported "), " ", getSimpleNameSpan(dataframeCreationData.params.range_imports[0].df_name), " ", /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "from "), " ", getFileNameSpanFromFilePath(dataframeCreationData.params.file_path));
     }
   };
   var getUpdateImportCardSubtitle = (updatedDataframeCreationData, invalidImportMessage, isUpdated) => {
@@ -37326,8 +37328,10 @@ fig.write_html("${props.graphTabName}.html")`
       return /* @__PURE__ */ import_react155.default.createElement("div", { className: "mt-3px" }, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Update to "), " ", getSimpleNameSpan(updatedDataframeCreationData.params.sheet_names[0]), " ", /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "from "), " ", getFileNameSpanFromFilePath(updatedDataframeCreationData.params.file_name));
     } else if (updatedDataframeCreationData.step_type === "simple_import") {
       return /* @__PURE__ */ import_react155.default.createElement("div", { className: "mt-3px" }, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Update to "), " ", getFileNameSpanFromFilePath(updatedDataframeCreationData.params.file_names[0]));
-    } else {
+    } else if (updatedDataframeCreationData.step_type === "dataframe_import") {
       return /* @__PURE__ */ import_react155.default.createElement("div", { className: "mt-3px" }, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Update to "), " ", getSimpleNameSpan(updatedDataframeCreationData.params.df_names[0]));
+    } else {
+      return /* @__PURE__ */ import_react155.default.createElement("div", { className: "mt-3px" }, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Update to "), " ", getSimpleNameSpan(updatedDataframeCreationData.params.range_imports[0].df_name), " ", /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "from "), " ", getFileNameSpanFromFilePath(updatedDataframeCreationData.params.file_path));
     }
   };
   var UpdateImportCard = (props) => {

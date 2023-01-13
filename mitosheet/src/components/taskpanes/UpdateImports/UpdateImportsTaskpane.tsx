@@ -6,6 +6,7 @@ import CSVImportConfigScreen, { CSVImportParams } from "../../import/CSVImportCo
 import { DataframeImportParams } from "../../import/DataframeImportScreen";
 import FileBrowser from "../../import/FileBrowser/FileBrowser";
 import XLSXImportConfigScreen, { ExcelImportParams } from "../../import/XLSXImportConfigScreen";
+import { ExcelRangeImportParams } from "../ExcelRangeImport/ExcelRangeImportTaskpane";
 import { getDefaultCSVParams } from "../FileImport/CSVImportConfigTaskpane";
 import { FileElement, ImportState } from "../FileImport/FileImportTaskpane";
 import { getDefaultXLSXParams } from "../FileImport/XLSXImportConfigTaskpane";
@@ -37,7 +38,10 @@ export type DataframeCreationData = {
 } | {
     step_type: 'dataframe_import',
     params: DataframeImportParams
-};
+} | {
+    step_type: 'excel_range_import',
+    params: ExcelRangeImportParams
+}
 
 
 export interface StepImportData {

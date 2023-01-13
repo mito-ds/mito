@@ -29,7 +29,7 @@ interface ExcelRangeImportTaskpaneProps {
 
 export type ExcelRangeImport = {type: 'range', df_name: string, range: string};
 
-interface ExcelRangeImportParams {
+export interface ExcelRangeImportParams {
     file_path: string,
     sheet_name: string,
     range_imports: ExcelRangeImport[],
