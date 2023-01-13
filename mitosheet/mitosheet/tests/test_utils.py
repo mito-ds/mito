@@ -485,19 +485,21 @@ class MitoWidgetTestWrapper:
     
 
     @check_transpiled_code_after_call
-    def snowflakeimport(
+    def snowflake_import(
             self, 
-            snowflake_credentials: Any,
+            credentials: Any,
+            connection: Any,
             query_params: Any,
         ) -> bool:
         return self.mito_backend.receive_message(
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
-                'type': 'snowflakeimport_edit',
+                'type': 'snowflake_import_edit',
                 'step_id': get_new_id(),
                 'params': {
-                    'snowflake_credentials': snowflake_credentials,
+                    'credentials': credentials,
+                    'connection': connection,
                     'query_params': query_params,
                 }
             }
@@ -521,7 +523,6 @@ class MitoWidgetTestWrapper:
                     'file_name': file_name,
                     'sheet_name': sheet_name,
                     'range_imports': range_imports,
-                    
                 }
             }
         )

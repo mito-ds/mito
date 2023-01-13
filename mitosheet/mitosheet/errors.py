@@ -494,7 +494,7 @@ def make_invalid_promote_row_to_header(error_modal: bool=True) -> MitoError:
 
 def make_invalid_simple_import_error(error_modal: bool=False) -> MitoError:
     """
-    Helper function for creating a invalid_simple_import_error.
+    Helper function for creating an invalid_simple_import_error.
 
     Occurs when a user tries to simple import and it fails
     """
@@ -505,6 +505,19 @@ def make_invalid_simple_import_error(error_modal: bool=False) -> MitoError:
         "Cannot Determine File Data",
         to_fix,
         error_modal=error_modal
+    )
+
+def make_invalid_snowflake_import_error() -> MitoError:
+    """
+    Helper function for creating an invalid_snowflake_import_error.
+
+    Occures when the user tries to simple import and it fails.
+    """
+    return MitoError(
+        'invalid_snowflake_import_error',
+        'Cannot Query Database',
+        'We were unable to execute that query. Reach out to support for help.',
+        False
     )
 
 def make_file_not_found_error(file_name: str) -> MitoError:

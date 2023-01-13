@@ -12,12 +12,13 @@ import os
 from dotenv import load_dotenv
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.snowflakeimport_code_chunk import SnowflakeImportCodeChunk, create_query
+from mitosheet.errors import make_invalid_range_error, make_invalid_snowflake_import_error
 
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
-from mitosheet.types import ColumnID, SnowflakeConnection, SnowflakeCredentials, SnowflakeImportParams, SnowflakeQueryParams
-from mitosheet.utils import get_first_unused_dataframe_name, get_valid_dataframe_name
+from mitosheet.types import SnowflakeConnection, SnowflakeCredentials, SnowflakeImportParams, SnowflakeQueryParams
+from mitosheet.utils import get_valid_dataframe_name
 
 # The snowflake-connector-python package is only available in Python > 3.6 
 # and is not distributed with the mitosheet package, so we make sure to 
@@ -70,23 +71,32 @@ class SnowflakeImportStepPerformer(StepPerformer):
 
         # TODO: Remove before mering into dev
         # username, password, account = PYTEST_SNOWFLAKE_USERNAME, PYTEST_SNOWFLAKE_PASSWORD, PYTEST_SNOWFLAKE_ACCOUNT # type: ignore
-
-        try:
+        
+        try: 
+            # First try to establish the connection
             ctx = snowflake.connector.connect(
                 user=username,
                 password=password,
                 account=account,
                 warehouse=connection['warehouse'],
                 database=connection['database'],
-                schema=connection['schema'],
+                schema=connection['schema']
             )
-
+        except: 
+            # When we do the frontend, we can figure out exactly what we want to raise here
+            raise make_invalid_snowflake_import_error()
+        
+        try:
+            # Second execute the query
             cur = ctx.cursor()
             sql_query = create_query(table, query_params)
             cur.execute(sql_query)
             df = cur.fetch_pandas_all()
+        except: 
+            raise make_invalid_snowflake_import_error()
         finally:
-            ctx.close()
+           # If we've created the connection, then make sure to close it
+           ctx.close()
 
         new_df_name = get_valid_dataframe_name(post_state.df_names , table)
         post_state.add_df_to_state(
