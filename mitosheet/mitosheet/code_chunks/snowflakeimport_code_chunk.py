@@ -52,7 +52,6 @@ class SnowflakeImportCodeChunk(CodeChunk):
             f'{TAB}schema=\'{schema}\',',
             ')',
             '',
-
             'cur = ctx.cursor()',
             f'cur.execute(\'{sql_query}\')',
             f'{self.post_state.df_names[len(self.post_state.df_names) - 1]} = cur.fetch_pandas_all()',

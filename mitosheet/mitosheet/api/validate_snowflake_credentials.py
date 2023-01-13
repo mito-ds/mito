@@ -19,13 +19,6 @@ try:
 except ImportError:
     SNOWFLAKE_CONNECTOR_IMPORTED = False
 
-# Load the .env file so we can access our pytest, read-only snowflake credentials
-load_dotenv()
-
-PYTEST_SNOWFLAKE_USERNAME = os.getenv('PYTEST_SNOWFLAKE_USERNAME')
-PYTEST_SNOWFLAKE_PASSWORD = os.getenv('PYTEST_SNOWFLAKE_PASSWORD')
-PYTEST_SNOWFLAKE_ACCOUNT = os.getenv('PYTEST_SNOWFLAKE_ACCOUNT')
-
 def _validate_snowflake_credentials(username: str, password: str, account: str) -> Any:
         try:
             ctx = snowflake.connector.connect(
@@ -49,9 +42,6 @@ def validate_snowflake_credentials(params: SnowflakeCredentials, steps_manager: 
     username = params['username']
     password = params['password']
     account = params['account']
-
-    # TODO: Remove before mering into dev
-    username, password, account = PYTEST_SNOWFLAKE_USERNAME, PYTEST_SNOWFLAKE_PASSWORD, PYTEST_SNOWFLAKE_ACCOUNT # type: ignore
 
     is_valid = _validate_snowflake_credentials(username, password, account)
 

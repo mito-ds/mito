@@ -29,12 +29,11 @@ try:
 except ImportError:
     SNOWFLAKE_CONNECTOR_IMPORTED = False
 
-# Load the .env file so we can access our pytest, read-only snowflake credentials
-load_dotenv()
-
-PYTEST_SNOWFLAKE_USERNAME = os.getenv('PYTEST_SNOWFLAKE_USERNAME')
-PYTEST_SNOWFLAKE_PASSWORD = os.getenv('PYTEST_SNOWFLAKE_PASSWORD')
-PYTEST_SNOWFLAKE_ACCOUNT = os.getenv('PYTEST_SNOWFLAKE_ACCOUNT')
+# When in development, load the .env file so we can access our pytest snowflake credentials:
+# load_dotenv()
+# PYTEST_SNOWFLAKE_USERNAME = os.getenv('PYTEST_SNOWFLAKE_USERNAME')
+# PYTEST_SNOWFLAKE_PASSWORD = os.getenv('PYTEST_SNOWFLAKE_PASSWORD')
+# PYTEST_SNOWFLAKE_ACCOUNT = os.getenv('PYTEST_SNOWFLAKE_ACCOUNT')
 
 class SnowflakeImportStepPerformer(StepPerformer):
     """
@@ -60,7 +59,7 @@ class SnowflakeImportStepPerformer(StepPerformer):
         query_params: SnowflakeQueryParams = get_param(params, 'query_params')
 
         # We make a new state to modify it
-        post_state = prev_state.copy() # TODO: update the deep copies
+        post_state = prev_state.copy()
 
         pandas_start_time = perf_counter()
 
@@ -71,9 +70,6 @@ class SnowflakeImportStepPerformer(StepPerformer):
         database = connection['database']
         schema = connection['schema']
         table = connection['table']
-
-        # TODO: Remove before mering into dev
-        # username, password, account = PYTEST_SNOWFLAKE_USERNAME, PYTEST_SNOWFLAKE_PASSWORD, PYTEST_SNOWFLAKE_ACCOUNT # type: ignore
 
         if warehouse is None or database is None or schema is None or table is None:
             raise make_invalid_snowflake_import_error()
