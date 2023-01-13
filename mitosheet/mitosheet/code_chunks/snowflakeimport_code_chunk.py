@@ -33,6 +33,12 @@ class SnowflakeImportCodeChunk(CodeChunk):
         schema = connection['schema']
         table = connection['table']
 
+        if warehouse is None or database is None or schema is None or table is None:
+            # This is a flaw of the type system. Usually we would just assume that these are 
+            # not None. So technically we should have one set of params for the API where the table
+            # is Optional[str] and then a second set for the step performer where the table is str
+            return []
+
         sql_query = create_query(table, query_params)
 
         return [

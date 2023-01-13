@@ -50,7 +50,7 @@ class SnowflakeImportStepPerformer(StepPerformer):
         return 'snowflake_import'
 
     @classmethod
-    def execute(cls, prev_state: State, params: SnowflakeImportParams) -> Tuple[State, Optional[Dict[str, Any]]]:
+    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         # TODO: We don't want to send these credentials because then they get saved to the analysis!!
         # Instead, we can save them in the api call and read them in here. That is a weird flow because it 
         # means the step has dependencies on the api call and the order of operations in a way we've never had before. 
@@ -67,10 +67,16 @@ class SnowflakeImportStepPerformer(StepPerformer):
         username = credentials['username']
         password = credentials['password']
         account = credentials['account']
+        warehouse = connection['warehouse']
+        database = connection['database']
+        schema = connection['schema']
         table = connection['table']
 
         # TODO: Remove before mering into dev
         # username, password, account = PYTEST_SNOWFLAKE_USERNAME, PYTEST_SNOWFLAKE_PASSWORD, PYTEST_SNOWFLAKE_ACCOUNT # type: ignore
+
+        if warehouse is None or database is None or schema is None or table is None:
+            raise make_invalid_snowflake_import_error()
         
         try: 
             # First try to establish the connection
@@ -78,9 +84,9 @@ class SnowflakeImportStepPerformer(StepPerformer):
                 user=username,
                 password=password,
                 account=account,
-                warehouse=connection['warehouse'],
-                database=connection['database'],
-                schema=connection['schema']
+                warehouse=warehouse,
+                database=database,
+                schema=schema
             )
         except: 
             # When we do the frontend, we can figure out exactly what we want to raise here
@@ -96,9 +102,9 @@ class SnowflakeImportStepPerformer(StepPerformer):
             raise make_invalid_snowflake_import_error()
         finally:
            # If we've created the connection, then make sure to close it
-           ctx.close()
+           ctx.close() # type: ignore
 
-        new_df_name = get_valid_dataframe_name(post_state.df_names , table)
+        new_df_name = get_valid_dataframe_name(post_state.df_names, table)
         post_state.add_df_to_state(
             df, 
             DATAFRAME_SOURCE_IMPORTED, 

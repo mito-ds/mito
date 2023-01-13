@@ -283,7 +283,7 @@ def test_params_static():
     check_step(
         SnowflakeImportStepPerformer,
         1,
-        'snowflakeimport'
+        'snowflake_import'
     )
 
     assert len(STEP_PERFORMERS) == 34
