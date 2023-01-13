@@ -36,7 +36,7 @@ class ExcelRangeImportStepPerformer(StepPerformer):
 
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
-        file_name: str = get_param(params, 'file_name')
+        file_path: str = get_param(params, 'file_path')
         sheet_name: str = get_param(params, 'sheet_name')
         range_imports: List[ExcelRangeImport] = get_param(params, 'range_imports')
         
@@ -49,7 +49,7 @@ class ExcelRangeImportStepPerformer(StepPerformer):
             nrows = end_row_index - start_row_index
             usecols = get_column_from_column_index(start_col_index) + ':' + get_column_from_column_index(end_col_index)
 
-            df = pd.read_excel(file_name, sheet_name=sheet_name, skiprows=start_row_index, nrows=nrows, usecols=usecols)
+            df = pd.read_excel(file_path, sheet_name=sheet_name, skiprows=start_row_index, nrows=nrows, usecols=usecols)
             final_df_name = get_valid_dataframe_name(post_state.df_names, range_import['df_name'])
             post_state.add_df_to_state(
                 df,
@@ -78,7 +78,7 @@ class ExcelRangeImportStepPerformer(StepPerformer):
             ExcelRangeImportCodeChunk(
                 prev_state, 
                 post_state, 
-                get_param(params, 'file_name'),
+                get_param(params, 'file_path'),
                 get_param(params, 'sheet_name'),
                 get_param(params, 'range_imports')
             )

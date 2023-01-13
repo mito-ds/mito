@@ -23,6 +23,7 @@ import DefaultTaskpaneBody from '../taskpanes/DefaultTaskpane/DefaultTaskpaneBod
 import DefaultTaskpaneFooter from '../taskpanes/DefaultTaskpane/DefaultTaskpaneFooter';
 import DefaultTaskpaneHeader from '../taskpanes/DefaultTaskpane/DefaultTaskpaneHeader';
 import { Decimal, decimalCharToTitle, DECIMAL_TOOLTIP, DEFAULT_DECIMAL, SKIP_ROWS_TOOLTIP } from './CSVImportConfigScreen';
+import { TaskpaneType } from '../taskpanes/taskpanes';
 
 
 interface XLSXImportConfigScreenProps {
@@ -275,6 +276,24 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
                                 </Select>
                             </Col>
                         </Row>
+                    }
+                    {params.sheet_names.length === 1 && 
+                        <p
+                            onClick={() => {
+                                props.setUIState((prevUIState) => {
+                                    return {
+                                        ...prevUIState,
+                                        currOpenTaskpane: {
+                                            type: TaskpaneType.EXCEL_RANGE_IMPORT,
+                                            file_path: props.filePath,
+                                            sheet_name: params.sheet_names[0]
+                                        }
+                                    }
+                                })
+                            }}
+                        >
+                            Want to import multiple ranges from {params.sheet_names[0]}? <span className='text-underline'>Click here.</span>
+                        </p>
                     }
                     {/* 
                         We note that we might have to adjust these size checks, depending

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import MitoAPI from "../../../jupyter/api";
 import { AnalysisData, SheetData, StepType, UIState, UserProfile } from "../../../types"
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
@@ -8,6 +8,13 @@ import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
+import Row from "../../layout/Row";
+import TextButton from "../../elements/TextButton";
+import Col from "../../layout/Col";
+import ExpandableContentCard from "../../elements/ExpandableContentCard";
+import Input from "../../elements/Input";
+import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
+import { getBaseOfPath } from "../UpdateImports/updateImportsUtils";
 
 
 interface ExcelRangeImportTaskpaneProps {
@@ -16,24 +23,26 @@ interface ExcelRangeImportTaskpaneProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     analysisData: AnalysisData;
     sheetDataArray: SheetData[];
-    file_name: string;
+    file_path: string;
     sheet_name: string;
 }
 
+export type ExcelRangeImport = {type: 'range', df_name: string, range: string};
+
 interface ExcelRangeImportParams {
-    file_name: string,
+    file_path: string,
     sheet_name: string,
-    range_imports: Record<string, {type: 'range', range: string}>,
+    range_imports: ExcelRangeImport[],
 }
 const getDefaultParams = (
-    file_name: string,
+    file_path: string,
     sheet_name: string
 ): ExcelRangeImportParams | undefined => {
 
     return {
-        file_name: file_name,
+        file_path: file_path,
         sheet_name: sheet_name,
-        range_imports: {},
+        range_imports: [{'type': 'range', 'df_name': '', 'range': ''}],
     }
 }
 
@@ -43,12 +52,14 @@ const getDefaultParams = (
 */
 const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Element => {
 
-    const {params} = useSendEditOnClick<ExcelRangeImportParams, undefined>(
-        () => getDefaultParams(props.file_name, props.sheet_name),
+    const {params, setParams, edit} = useSendEditOnClick<ExcelRangeImportParams, undefined>(
+        () => getDefaultParams(props.file_path, props.sheet_name),
         StepType.ExcelRangeImport, 
         props.mitoAPI,
         props.analysisData,
     )
+    const [expandedIndex, setExpandedIndex] = useState(0);
+
 
     if (params === undefined) {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
@@ -62,10 +73,130 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                 setUIState={props.setUIState}           
             />
             <DefaultTaskpaneBody>
-                
-                {/* TODO: add the user input for range_imports of type Any */}
+                <p className="text-body-3 text-overflow-wrap">Import ranges from <span className="text-bold">{props.sheet_name}</span> in <span className="text-bold">{getBaseOfPath(props.file_path)}</span>.</p>
+                <Row justify="space-between">
+                    <Col>
+                        <p className="text-header-3">
+                            Range Imports
+                        </p>
+                    </Col>
+                    <Col>
+                        <TextButton 
+                            variant="dark"
+                            onClick={() => {
+                                setParams((prevParams) => {
+                                    const newRangeImports = [...prevParams.range_imports];
+                                    newRangeImports.unshift({'type': 'range', 'df_name': '', 'range': ''}) // add to the start
+                                    return {
+                                        ...prevParams,
+                                        range_imports: newRangeImports
+                                    }
+                                })
+                                setExpandedIndex(0); // expand it!
+                            }}
+                            width='small'
+                        >
+                            + Add
+                        </TextButton>
+                    </Col>
+                </Row>
+                {params.range_imports.map((range_import, index) => {
+                    return (
+                        <ExpandableContentCard
+                            title={range_import.df_name === '' ? 'Unnamed dataframe' : `Importing ${range_import.df_name}`}
+                            subtitle={range_import.range === '' ? 'Unselected Range' : `Range ${range_import.range}`}
+                            
+                            expandedTitle='Edit Range Import'
 
+                            isExpanded={index === expandedIndex}
+                            setExpanded={(newIsExpanded) => {
+                                if (newIsExpanded) {
+                                    setExpandedIndex(index);
+                                } else {
+                                    setExpandedIndex(-1);
+                                }
+                            }}
+
+                            onDelete={() => {
+                                setParams((prevParams) => {
+                                    const newRangeImports = [...prevParams.range_imports];
+                                    newRangeImports.splice(index, 1);
+                                    return {
+                                        ...prevParams,
+                                        range_imports: newRangeImports
+                                    }
+                                })
+
+                                if (expandedIndex >= index) {
+                                    setExpandedIndex(expandedIndex - 1);
+                                }
+                            }}
+                        >
+                            <Row justify="space-between">
+                                <Col>
+                                    <p>
+                                        Dataframe Name
+                                    </p>
+                                </Col>
+                                <Col>
+                                    <Input
+                                        placeholder="company_ids"
+                                        value={range_import.df_name}
+                                        onChange={(e) => {
+                                            const newDfName = e.target.value;
+                                            setParams((prevParams) => {
+                                                const newRangeImports = [...prevParams.range_imports];
+                                                newRangeImports[index].df_name = newDfName;
+                                                return {
+                                                    ...prevParams,
+                                                    range_imports: newRangeImports
+                                                }
+                                            })
+                                        }}
+                                    />
+                                </Col>
+                            </Row>
+                            <Row justify="space-between">
+                                <Col>
+                                    <p>
+                                        Excel Range
+                                    </p>
+                                </Col>
+                                <Col>
+                                    <Input
+                                        placeholder="A10:C100"
+                                        value={range_import.range}
+                                        onChange={(e) => {
+                                            const newRange = e.target.value;
+                                            setParams((prevParams) => {
+                                                const newRangeImports = [...prevParams.range_imports];
+                                                newRangeImports[index].range = newRange;
+                                                return {
+                                                    ...prevParams,
+                                                    range_imports: newRangeImports
+                                                }
+                                            })
+                                        }}
+                                    />
+                                </Col>
+                            </Row>
+
+                        </ExpandableContentCard>
+                    )
+                })}
             </DefaultTaskpaneBody>
+            <DefaultTaskpaneFooter>
+                <TextButton
+                    variant='dark'
+                    width='block'
+                    onClick={() => {
+                        edit();
+                    }}
+                    disabled={params.range_imports.length === 0}
+                >
+                    Import Ranges
+                </TextButton>
+            </DefaultTaskpaneFooter>
         </DefaultTaskpane>
     )
 }

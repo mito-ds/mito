@@ -4,18 +4,20 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from typing import Any, List, Optional
+from typing import List, Optional
+
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.excel_utils import get_column_from_column_index, get_row_and_col_indexes_from_range
-from mitosheet.types import ColumnID
+from mitosheet.excel_utils import (get_column_from_column_index,
+                                   get_row_and_col_indexes_from_range)
 from mitosheet.state import State
 from mitosheet.types import ExcelRangeImport
 
+
 class ExcelRangeImportCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, file_name: str, sheet_name: str, range_imports: List[ExcelRangeImport]):
+    def __init__(self, prev_state: State, post_state: State, file_path: str, sheet_name: str, range_imports: List[ExcelRangeImport]):
         super().__init__(prev_state, post_state, {}, {})
-        self.file_name = file_name
+        self.file_path = file_path
         self.sheet_name = sheet_name
         self.range_imports = range_imports
 
@@ -24,7 +26,7 @@ class ExcelRangeImportCodeChunk(CodeChunk):
     
     def get_description_comment(self) -> str:
         
-        return f"Imported {len(self.range_imports)} dataframes from {self.sheet_name} in {self.file_name}"
+        return f"Imported {len(self.range_imports)} dataframes from {self.sheet_name} in {self.file_path}"
 
     def get_code(self) -> List[str]:
         code = ['import pandas as pd']
@@ -35,7 +37,7 @@ class ExcelRangeImportCodeChunk(CodeChunk):
             
             df_name = self.post_state.df_names[len(self.prev_state.df_names) + index]
             code.append(
-                f'{df_name} = pd.read_excel(\'{self.file_name}\', sheet_name=\'{self.sheet_name}\', skiprows={start_row_index}, nrows={nrows}, usecols=\'{usecols}\')'
+                f'{df_name} = pd.read_excel(\'{self.file_path}\', sheet_name=\'{self.sheet_name}\', skiprows={start_row_index}, nrows={nrows}, usecols=\'{usecols}\')'
             )
 
         return code
