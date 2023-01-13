@@ -49,7 +49,7 @@ class SnowflakeImportCodeChunk(CodeChunk):
 
             'cur = ctx.cursor()',
             f'cur.execute(\'{sql_query}\')',
-            'df = cur.fetch_pandas_all()',
+            f'{self.post_state.df_names[len(self.post_state.df_names) - 1]} = cur.fetch_pandas_all()',
             '',
             'ctx.close()'
         ]

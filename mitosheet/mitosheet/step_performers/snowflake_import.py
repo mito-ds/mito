@@ -17,7 +17,7 @@ from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
 from mitosheet.types import ColumnID, SnowflakeConnection, SnowflakeCredentials, SnowflakeImportParams, SnowflakeQueryParams
-from mitosheet.utils import get_first_unused_dataframe_name
+from mitosheet.utils import get_first_unused_dataframe_name, get_valid_dataframe_name
 
 # The snowflake-connector-python package is only available in Python > 3.6 
 # and is not distributed with the mitosheet package, so we make sure to 
@@ -50,7 +50,11 @@ class SnowflakeImportStepPerformer(StepPerformer):
 
     @classmethod
     def execute(cls, prev_state: State, params: SnowflakeImportParams) -> Tuple[State, Optional[Dict[str, Any]]]:
-        credentials: SnowflakeCredentials = get_param(params, 'credentials')
+        # TODO: We don't want to send these credentials because then they get saved to the analysis!!
+        # Instead, we can save them in the api call and read them in here. That is a weird flow because it 
+        # means the step has dependencies on the api call and the order of operations in a way we've never had before. 
+        # When the user reruns the analysis, if there is a snowflake_import, we need to have them reautnethicate first (?)
+        credentials: SnowflakeCredentials = get_param(params, 'credentials') 
         connection: SnowflakeConnection = get_param(params, 'connection')
         query_params: SnowflakeQueryParams = get_param(params, 'query_params')
 
@@ -62,28 +66,29 @@ class SnowflakeImportStepPerformer(StepPerformer):
         username = credentials['username']
         password = credentials['password']
         account = credentials['account']
+        table = connection['table']
 
         # TODO: Remove before mering into dev
-        username, password, account = PYTEST_SNOWFLAKE_USERNAME, PYTEST_SNOWFLAKE_PASSWORD, PYTEST_SNOWFLAKE_ACCOUNT # type: ignore
+        # username, password, account = PYTEST_SNOWFLAKE_USERNAME, PYTEST_SNOWFLAKE_PASSWORD, PYTEST_SNOWFLAKE_ACCOUNT # type: ignore
 
         try:
             ctx = snowflake.connector.connect(
-                    user=username,
-                    password=password,
-                    account=account,
-                    warehouse=connection['warehouse'],
-                    database=connection['database'],
-                    schema=connection['schema'],
+                user=username,
+                password=password,
+                account=account,
+                warehouse=connection['warehouse'],
+                database=connection['database'],
+                schema=connection['schema'],
             )
 
             cur = ctx.cursor()
-            sql_query = create_query(connection['table'], query_params)
+            sql_query = create_query(table, query_params)
             cur.execute(sql_query)
             df = cur.fetch_pandas_all()
         finally:
             ctx.close()
 
-        new_df_name = get_first_unused_dataframe_name(post_state.df_names , f"df{len(post_state.df_names) + 1}")
+        new_df_name = get_valid_dataframe_name(post_state.df_names , table)
         post_state.add_df_to_state(
             df, 
             DATAFRAME_SOURCE_IMPORTED, 
