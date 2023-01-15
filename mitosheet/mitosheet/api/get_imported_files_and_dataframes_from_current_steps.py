@@ -9,7 +9,7 @@ import os
 from typing import Any, Dict, List, Optional
 
 import pandas as pd
-from mitosheet.step_performers.excel_range_import import ExcelRangeImportStepPerformer
+from mitosheet.step_performers.import_steps.excel_range_import import ExcelRangeImportStepPerformer
 from mitosheet.types import StepsManagerType
 from mitosheet.step_performers.import_steps.simple_import import SimpleImportStepPerformer
 from mitosheet.step_performers.import_steps.excel_import import ExcelImportStepPerformer

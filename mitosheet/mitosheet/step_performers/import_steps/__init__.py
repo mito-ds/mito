@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from mitosheet.step_performers.excel_range_import import \
+from mitosheet.step_performers.import_steps.excel_range_import import \
     ExcelRangeImportStepPerformer
 from mitosheet.step_performers.import_steps.dataframe_import import \
     DataframeImportStepPerformer

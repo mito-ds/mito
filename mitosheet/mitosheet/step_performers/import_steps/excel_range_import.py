@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import pandas as pd
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.excel_range_import_code_chunk import \
+from mitosheet.code_chunks.step_performers.import_steps.excel_range_import_code_chunk import \
     ExcelRangeImportCodeChunk
 from mitosheet.excel_utils import get_column_from_column_index, get_row_and_col_indexes_from_range
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State

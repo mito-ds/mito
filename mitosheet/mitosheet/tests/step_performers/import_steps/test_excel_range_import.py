@@ -9,10 +9,8 @@ Contains tests for Excel Range Import
 
 import os
 
-import pandas
 import pandas as pd
 import pytest
-from openpyxl import load_workbook
 
 from mitosheet.errors import MitoError
 from mitosheet.excel_utils import get_row_and_col_indexes_from_range
