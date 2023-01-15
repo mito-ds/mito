@@ -487,7 +487,7 @@ class MitoWidgetTestWrapper:
     @check_transpiled_code_after_call
     def excel_range_import(
             self, 
-            file_name: str,
+            file_path: str,
             sheet_name: str,
             range_imports: Any,
         ) -> bool:
@@ -499,7 +499,7 @@ class MitoWidgetTestWrapper:
                 'type': 'excel_range_import_edit',
                 'step_id': get_new_id(),
                 'params': {
-                    'file_name': file_name,
+                    'file_path': file_path,
                     'sheet_name': sheet_name,
                     'range_imports': range_imports,
                     
