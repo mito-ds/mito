@@ -107,10 +107,12 @@ def get_table_range_from_upper_left_corner_value(file_path: str, sheet_name: str
 
     # Then we find find where the rows are defined to
     max_found_col_index = None
-    for row in sheet.iter_rows(min_row=max_found_row_index + 1, max_row=max_found_row_index + 1, min_col=min_found_col_index + 1):
+    for row in sheet.iter_rows(min_row=max_found_row_index, max_row=max_found_row_index, min_col=min_found_col_index + 1):
+        print(row)
         for cell in row:
+            print("cell", cell, cell.value)
             if cell.value is None:
-                max_found_col_index = cell.column
+                max_found_col_index = cell.column - 2 # one b/c it is one indexes, and one b/c this is one past the end
                 break
     
     # Similarly, if we don't find any empty value in the defined cells, we set the max_col index

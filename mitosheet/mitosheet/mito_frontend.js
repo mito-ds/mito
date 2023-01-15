@@ -38089,7 +38089,7 @@ fig.write_html("${props.graphTabName}.html")`
     return {
       file_path,
       sheet_name,
-      range_imports: [{ "type": "range", "df_name": "", "range": "" }]
+      range_imports: [{ "type": "range", "df_name": "", "value": "" }]
     };
   };
   var ExcelRangeImportTaskpane = (props) => {
@@ -38116,7 +38116,7 @@ fig.write_html("${props.graphTabName}.html")`
         onClick: () => {
           setParams((prevParams) => {
             const newRangeImports = [...prevParams.range_imports];
-            newRangeImports.unshift({ "type": "range", "df_name": "", "range": "" });
+            newRangeImports.unshift({ "type": "range", "df_name": "", "value": "" });
             return __spreadProps(__spreadValues({}, prevParams), {
               range_imports: newRangeImports
             });
@@ -38132,7 +38132,7 @@ fig.write_html("${props.graphTabName}.html")`
         {
           key: index,
           title: range_import.df_name === "" ? "Unnamed dataframe" : `Importing ${range_import.df_name}`,
-          subtitle: range_import.range === "" ? "Unselected Range" : `Range ${range_import.range}`,
+          subtitle: range_import.value === "" ? "Unselected Range" : `Range ${range_import.value}`,
           expandedTitle: "Edit Range Import",
           isExpanded: index === expandedIndex,
           setExpanded: (newIsExpanded) => {
@@ -38158,6 +38158,7 @@ fig.write_html("${props.graphTabName}.html")`
         /* @__PURE__ */ import_react163.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement("p", null, "Dataframe Name")), /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement(
           Input_default,
           {
+            width: "medium",
             autoFocus: true,
             placeholder: "company_ids",
             value: range_import.df_name,
@@ -38173,16 +38174,50 @@ fig.write_html("${props.graphTabName}.html")`
             }
           }
         ))),
+        /* @__PURE__ */ import_react163.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement("p", null, "Locate Dataframe By")), /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement(
+          Select_default,
+          {
+            width: "medium",
+            value: range_import.type,
+            onChange: (newType) => {
+              setParams((prevParams) => {
+                const newRangeImports = [...prevParams.range_imports];
+                newRangeImports[index].type = newType;
+                return __spreadProps(__spreadValues({}, prevParams), {
+                  range_imports: newRangeImports
+                });
+              });
+            }
+          },
+          /* @__PURE__ */ import_react163.default.createElement(
+            DropdownItem_default,
+            {
+              title: "Exact Range",
+              id: "range",
+              subtext: "Specify the exact range to import as a sheet."
+            }
+          ),
+          /* @__PURE__ */ import_react163.default.createElement(
+            DropdownItem_default,
+            {
+              title: "Upper Left Corner",
+              id: "upper left corner value",
+              subtext: "Give the value in the upper left corner of the table to import, and Mito will automatically determine the bounds of the table."
+            }
+          )
+        ))),
         /* @__PURE__ */ import_react163.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement("p", null, "Excel Range")), /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement(
           Input_default,
           {
-            placeholder: "A10:C100",
-            value: range_import.range,
+            width: "medium",
+            placeholder: range_import.type === "range" ? "A10:C100" : "cell value",
+            value: range_import.value,
             onChange: (e) => {
-              const newRange = e.target.value;
+              const newValue = e.target.value;
               setParams((prevParams) => {
                 const newRangeImports = [...prevParams.range_imports];
-                newRangeImports[index].range = newRange;
+                const newRangeImport = newRangeImports[index];
+                newRangeImport.value = newValue;
                 return __spreadProps(__spreadValues({}, prevParams), {
                   range_imports: newRangeImports
                 });

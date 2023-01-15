@@ -502,7 +502,6 @@ class MitoWidgetTestWrapper:
                     'file_path': file_path,
                     'sheet_name': sheet_name,
                     'range_imports': range_imports,
-                    
                 }
             }
         )

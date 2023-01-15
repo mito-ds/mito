@@ -15,6 +15,8 @@ import ExpandableContentCard from "../../elements/ExpandableContentCard";
 import Input from "../../elements/Input";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import { getBaseOfPath } from "../UpdateImports/updateImportsUtils";
+import Select from "../../elements/Select";
+import DropdownItem from "../../elements/DropdownItem";
 
 
 interface ExcelRangeImportTaskpaneProps {
@@ -27,7 +29,8 @@ interface ExcelRangeImportTaskpaneProps {
     sheet_name: string;
 }
 
-export type ExcelRangeImport = {type: 'range', df_name: string, range: string};
+export type ExcelRangeImportType = 'range' | 'upper left corner value';
+export type ExcelRangeImport = {type: ExcelRangeImportType, df_name: string, value: string};
 
 export interface ExcelRangeImportParams {
     file_path: string,
@@ -42,7 +45,7 @@ const getDefaultParams = (
     return {
         file_path: file_path,
         sheet_name: sheet_name,
-        range_imports: [{'type': 'range', 'df_name': '', 'range': ''}],
+        range_imports: [{'type': 'range', 'df_name': '', 'value': ''}],
     }
 }
 
@@ -86,7 +89,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                             onClick={() => {
                                 setParams((prevParams) => {
                                     const newRangeImports = [...prevParams.range_imports];
-                                    newRangeImports.unshift({'type': 'range', 'df_name': '', 'range': ''}) // add to the start
+                                    newRangeImports.unshift({'type': 'range', 'df_name': '', 'value': ''}) // add to the start
                                     return {
                                         ...prevParams,
                                         range_imports: newRangeImports
@@ -108,7 +111,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                         <ExpandableContentCard
                             key={index}
                             title={range_import.df_name === '' ? 'Unnamed dataframe' : `Importing ${range_import.df_name}`}
-                            subtitle={range_import.range === '' ? 'Unselected Range' : `Range ${range_import.range}`}
+                            subtitle={range_import.value === '' ? 'Unselected Range' : `Range ${range_import.value}`}
                             
                             expandedTitle='Edit Range Import'
 
@@ -144,6 +147,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                 </Col>
                                 <Col>
                                     <Input
+                                        width="medium"
                                         autoFocus
                                         placeholder="company_ids"
                                         value={range_import.df_name}
@@ -164,18 +168,55 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                             <Row justify="space-between">
                                 <Col>
                                     <p>
+                                        Locate Dataframe By
+                                    </p>
+                                </Col>
+                                <Col>
+                                    <Select
+                                        width="medium"
+                                        value={range_import.type}
+                                        onChange={(newType) => {
+                                            setParams((prevParams) => {
+                                                const newRangeImports = [...prevParams.range_imports];
+                                                newRangeImports[index].type = newType as ExcelRangeImportType;
+                                                return {
+                                                    ...prevParams,
+                                                    range_imports: newRangeImports
+                                                }
+                                            })
+                                        }}
+                                    >
+                                        <DropdownItem
+                                            title='Exact Range'
+                                            id='range'
+                                            subtext="Specify the exact range to import as a sheet."
+                                        />
+                                        <DropdownItem
+                                            title="Upper Left Corner"
+                                            id='upper left corner value'
+                                            subtext="Give the value in the upper left corner of the table to import, and Mito will automatically determine the bounds of the table."
+                                        />
+                                        
+                                    </Select>
+                                </Col>
+                            </Row>
+                            <Row justify="space-between">
+                                <Col>
+                                    <p>
                                         Excel Range
                                     </p>
                                 </Col>
                                 <Col>
                                     <Input
-                                        placeholder="A10:C100"
-                                        value={range_import.range}
+                                        width="medium"
+                                        placeholder={range_import.type === 'range' ? "A10:C100" : 'cell value'}
+                                        value={range_import.value}
                                         onChange={(e) => {
-                                            const newRange = e.target.value;
+                                            const newValue = e.target.value;
                                             setParams((prevParams) => {
                                                 const newRangeImports = [...prevParams.range_imports];
-                                                newRangeImports[index].range = newRange;
+                                                const newRangeImport = newRangeImports[index];
+                                                newRangeImport.value = newValue;
                                                 return {
                                                     ...prevParams,
                                                     range_imports: newRangeImports
