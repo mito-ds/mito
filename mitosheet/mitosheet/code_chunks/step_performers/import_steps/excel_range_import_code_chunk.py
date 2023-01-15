@@ -8,7 +8,7 @@ from typing import List, Optional
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.excel_utils import (get_column_from_column_index,
-                                   get_row_and_col_indexes_from_range)
+                                   get_col_and_row_indexes_from_range)
 from mitosheet.state import State
 from mitosheet.types import ExcelRangeImport
 
@@ -31,7 +31,7 @@ class ExcelRangeImportCodeChunk(CodeChunk):
     def get_code(self) -> List[str]:
         code = ['import pandas as pd']
         for index, range_import in enumerate(self.range_imports):
-            ((start_col_index, start_row_index), (end_col_index, end_row_index)) = get_row_and_col_indexes_from_range(range_import['range'])
+            ((start_col_index, start_row_index), (end_col_index, end_row_index)) = get_col_and_row_indexes_from_range(range_import['range'])
             nrows = end_row_index - start_row_index
             usecols = get_column_from_column_index(start_col_index) + ':' + get_column_from_column_index(end_col_index)
             

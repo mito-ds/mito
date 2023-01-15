@@ -13,7 +13,7 @@ import pandas as pd
 import pytest
 
 from mitosheet.errors import MitoError
-from mitosheet.excel_utils import get_row_and_col_indexes_from_range
+from mitosheet.excel_utils import get_col_and_row_indexes_from_range, get_table_range_from_upper_left_corner_value
 from mitosheet.tests.decorators import (pandas_post_1_2_only,
                                         python_post_3_6_only)
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
@@ -21,8 +21,9 @@ from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 TEST_FILE_PATH = "test_file.xlsx"
 TEST_SHEET_NAME = 'sheet1'
 TEST_DF_1 = pd.DataFrame({'header 1': [1], 'header 2': [2]})
-TEST_DF_2 = pd.DataFrame({'header 100': [1], 'header 200': [2]})
-TEST_DF_3 = pd.DataFrame({'header 100': [100, 200, 300], 'header 200': [200, 300, 400]})
+TEST_DF_2 = pd.DataFrame({'header 100': [3], 'header 200': [4]})
+TEST_DF_3 = pd.DataFrame({'header 101': [100, 200, 300], 'header 201': [200, 300, 400]})
+TEST_DF_4 = pd.DataFrame({'header 102': ['abc', 'def'], 'header 202': ['hig', 'jkl']})
 
 
 EXCEL_RANGE_IMPORT_TESTS = [
@@ -63,7 +64,7 @@ def test_excel_range_import(imports, dfs):
     # Write an Excel file
     with pd.ExcelWriter(TEST_FILE_PATH) as writer:
         for index, range_import in enumerate(imports):
-            ((startcol, startrow), _) = get_row_and_col_indexes_from_range(range_import['range'])
+            ((startcol, startrow), _) = get_col_and_row_indexes_from_range(range_import['range'])
             dfs[index].to_excel(writer, sheet_name=TEST_SHEET_NAME, startrow=startrow, startcol=startcol, index=False)  
 
     mito = create_mito_wrapper_dfs()
@@ -102,6 +103,59 @@ INVALID_RANGES = [
 @pytest.mark.parametrize("r", INVALID_RANGES)
 def test_invalid_ranges_error(r):
     with pytest.raises(MitoError) as e_info:
-        get_row_and_col_indexes_from_range(r)
+        get_col_and_row_indexes_from_range(r)
 
     assert 'Invalid Range' in str(e_info) 
+
+
+
+EXCEL_UPPER_LEFT_CORNER_DETECTION_TESTS = [
+    (
+        ['A1:B2'],
+        [TEST_DF_1]
+    ),
+    (
+        ['AA100:AB101'],
+        [TEST_DF_1]
+    ),
+    (
+        ['A1:B4'],
+        [TEST_DF_3]
+    ),
+    (
+        ['A1:B3'],
+        [TEST_DF_4]
+    ),
+    # Test two, seperated by a row
+    (
+        ['A1:B2', 'A4:B5'],
+        [TEST_DF_1, TEST_DF_2]
+    ),
+    # Test two, seperated by a col
+    (
+        ['A1:B2', 'D1:E2'],
+        [TEST_DF_1, TEST_DF_2]
+    ),
+    # Test two, seperated by a row and col
+    (
+        ['A1:B2', 'D4:E5'],
+        [TEST_DF_1, TEST_DF_2]
+    ),
+]
+@pandas_post_1_2_only
+@python_post_3_6_only
+@pytest.mark.parametrize("ranges, dfs", EXCEL_UPPER_LEFT_CORNER_DETECTION_TESTS)
+def test_excel_range_upper_left_detection_works(ranges, dfs):
+
+    # Write an Excel file
+    with pd.ExcelWriter(TEST_FILE_PATH) as writer:
+        for r, df in zip(ranges, dfs):
+            ((startcol, startrow), _) = get_col_and_row_indexes_from_range(r)
+            df.to_excel(writer, sheet_name=TEST_SHEET_NAME, startrow=startrow, startcol=startcol, index=False)  
+
+
+    for r, df in zip(ranges, dfs):
+        upper_left_value = df.iloc[0, 0]
+        assert r == get_table_range_from_upper_left_corner_value(TEST_FILE_PATH, TEST_SHEET_NAME, upper_left_value)
+
+    os.remove(TEST_FILE_PATH)

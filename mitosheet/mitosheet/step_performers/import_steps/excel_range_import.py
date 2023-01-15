@@ -13,7 +13,7 @@ import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.import_steps.excel_range_import_code_chunk import \
     ExcelRangeImportCodeChunk
-from mitosheet.excel_utils import get_column_from_column_index, get_row_and_col_indexes_from_range
+from mitosheet.excel_utils import get_column_from_column_index, get_col_and_row_indexes_from_range
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
@@ -45,7 +45,7 @@ class ExcelRangeImportStepPerformer(StepPerformer):
         pandas_start_time = perf_counter()
 
         for range_import in range_imports:
-            ((start_col_index, start_row_index), (end_col_index, end_row_index)) = get_row_and_col_indexes_from_range(range_import['range'])
+            ((start_col_index, start_row_index), (end_col_index, end_row_index)) = get_col_and_row_indexes_from_range(range_import['range'])
             nrows = end_row_index - start_row_index
             usecols = get_column_from_column_index(start_col_index) + ':' + get_column_from_column_index(end_col_index)
 
