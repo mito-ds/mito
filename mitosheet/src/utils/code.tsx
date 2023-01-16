@@ -10,6 +10,8 @@ export function getCodeString(
         return '';
     }
 
+    console.log("Code", code);
+
     let finalCode = '';
 
     // When joining code, we do not add blank line between comments
@@ -33,10 +35,10 @@ export function getCodeString(
     // simply not calling a func w/ the analysis name
     if (telemetryEnabled) {
         return `from mitosheet import *; register_analysis("${analysisName}");
-    ${finalCode}`
+${finalCode}`
     } else {
         return `from mitosheet import *; # Analysis Name:${analysisName};
-    ${finalCode}`
+${finalCode}`
     }
 }
 

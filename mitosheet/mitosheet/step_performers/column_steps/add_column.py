@@ -71,7 +71,13 @@ class AddColumnStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            AddColumnCodeChunk(prev_state, post_state, params, execution_data)
+            AddColumnCodeChunk(
+                prev_state, 
+                post_state, 
+                get_param(params, 'sheet_index'),    
+                get_param(params, 'column_header'),
+                execution_data.get('column_header_index', 0) if execution_data is not None else 0  
+            )
         ]
 
     @classmethod

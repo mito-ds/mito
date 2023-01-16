@@ -300,11 +300,11 @@ class SetDataframeFormatCodeChunk(CodeChunk):
     def get_description_comment(self) -> str:
         return f'Formatted dataframes. View these styling objects to see the formatted dataframe'
 
-    def get_code(self) -> List[str]:
+    def get_code(self) -> Tuple[List[str], List[str]]:
         code = []
         for sheet_index in range(len(self.post_state.df_formats)):
             dataframe_format_code = get_dataframe_format_code(self.post_state, sheet_index)
             if dataframe_format_code is not None:
                 code.append(dataframe_format_code)
         
-        return code
+        return code, []

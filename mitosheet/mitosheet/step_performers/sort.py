@@ -84,7 +84,13 @@ class SortStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            SortCodeChunk(prev_state, post_state, params, execution_data)
+            SortCodeChunk(
+                prev_state, 
+                post_state, 
+                get_param(params, 'sheet_index'),
+                get_param(params, 'column_id'),
+                get_param(params, 'sort_direction')
+            )
         ]
 
     @classmethod

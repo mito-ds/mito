@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.types import ColumnID
 from mitosheet.state import State
@@ -136,22 +136,25 @@ def get_conversion_code(state: State, sheet_index: int, column_id: ColumnID, old
 
 class ChangeColumnDtypeCodeChunk(CodeChunk):
 
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_ids: List[ColumnID], old_dtypes: Dict[ColumnID, str], new_dtype: str, changed_column_ids: List[ColumnID], datetime_formats: Optional[Dict[ColumnID, Optional[str]]]):
+        super().__init__(prev_state, post_state)
+        self.sheet_index: int = sheet_index
+        self.column_ids: List[ColumnID] = column_ids
+        self.old_dtypes: Dict[ColumnID, str] = old_dtypes
+        self.new_dtype: str = new_dtype
+        self.changed_column_ids: List[ColumnID] = changed_column_ids
+        self.datetime_formats: Optional[Dict[ColumnID, Optional[str]]] = datetime_formats
+
+        self.df_name = self.post_state.df_names[self.sheet_index]
+
     def get_display_name(self) -> str:
         return 'Changed dtype'
     
     def get_description_comment(self) -> str:
-        sheet_index: int = self.get_param('sheet_index')
-        new_dtype: str = self.get_param('new_dtype')
-        changed_column_ids: List[ColumnID] = self.get_execution_data('changed_column_ids')
-        column_headers = self.post_state.column_ids.get_column_headers_by_ids(sheet_index, changed_column_ids)
-        return f'Changed {", ".join([str(ch) for ch in column_headers])} to dtype {new_dtype}'
+        column_headers = self.post_state.column_ids.get_column_headers_by_ids(self.sheet_index, self.changed_column_ids)
+        return f'Changed {", ".join([str(ch) for ch in column_headers])} to dtype {self.new_dtype}'
 
-    def get_code(self) -> List[str]:
-        sheet_index = self.get_param('sheet_index')
-        column_ids = self.get_param('column_ids')
-        old_dtypes = self.get_param('old_dtypes')
-        new_dtype = self.get_param('new_dtype')
-        datetime_formats = self.get_execution_data('datetime_formats')
+    def get_code(self) -> Tuple[List[str], List[str]]:
 
         # Note: we can't actually group all the headers together in one conversion, and not every dtype can be converted
         # to the target dtype in the same way. Even if they have the same old_dtype, this still might not work in the case
@@ -159,18 +162,15 @@ class ChangeColumnDtypeCodeChunk(CodeChunk):
         # dense and complex code), so we avoid it for now.
 
         code = []
-        for column_id in column_ids:
-            old_dtype = old_dtypes[column_id]
+        for column_id in self.column_ids:
+            old_dtype = self.old_dtypes[column_id]
 
-            conversion_code = get_conversion_code(self.post_state, sheet_index, column_id, old_dtype, new_dtype, datetime_formats)
+            conversion_code = get_conversion_code(self.post_state, self.sheet_index, column_id, old_dtype, self.new_dtype, self.datetime_formats)
             if conversion_code is not None:
                 code.append(conversion_code)
         
-        # If we have pandas included, then add pandas to the transpiled code
-        if any('pd.to_datetime' in line for line in code):
-            code.insert(0, 'import pandas as pd')
-
-        return code
+        # If we have pandas included, then add pandas as an import
+        return code, ['import pandas as pd'] if any('pd.to_datetime' in line for line in code) else []
 
     def get_edited_sheet_indexes(self) -> List[int]:
-        return [self.get_param('sheet_index')]
+        return [self.sheet_index]

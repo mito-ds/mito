@@ -56,7 +56,12 @@ class DeleteRowStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            DeleteRowCodeChunk(prev_state, post_state, params, execution_data)
+            DeleteRowCodeChunk(
+                prev_state, 
+                post_state, 
+                get_param(params, 'sheet_index'),
+                get_param(params, 'labels')
+            )
         ]
 
     @classmethod

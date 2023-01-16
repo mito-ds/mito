@@ -85,7 +85,16 @@ class MergeStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            MergeCodeChunk(prev_state, post_state, params, execution_data)
+            MergeCodeChunk(
+                prev_state, 
+                post_state, 
+                get_param(params, 'how'),
+                get_param(params, 'sheet_index_one'),
+                get_param(params, 'sheet_index_two'),
+                get_param(params, 'merge_key_column_ids'),
+                get_param(params, 'selected_column_ids_one'),
+                get_param(params, 'selected_column_ids_two'),
+            )
         ]
     
     @classmethod

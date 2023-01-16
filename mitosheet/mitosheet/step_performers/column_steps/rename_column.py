@@ -83,7 +83,7 @@ class RenameColumnStepPerformer(StepPerformer):
     ) -> List[CodeChunk]:
         if params['new_column_header'] == '':
             # If the new column header is an empty string, it's a noop
-            return [NoOpCodeChunk(prev_state, post_state, {}, {})]
+            return [NoOpCodeChunk(prev_state, post_state)]
 
 
         return [
@@ -93,13 +93,10 @@ class RenameColumnStepPerformer(StepPerformer):
                 # We construct a rename for mulitple columns, as this is the most 
                 # convenient way to allow us to combine multiple renames
                 # into one
+                params['sheet_index'],
                 {
-                    'sheet_index': params['sheet_index'],
-                    'column_ids_to_new_column_headers': {
-                        params['column_id']: params['new_column_header']
-                    },
-                }, 
-                execution_data
+                    params['column_id']: params['new_column_header']
+                },
             )
         ]
     
