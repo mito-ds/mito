@@ -34,7 +34,7 @@ def check_transpiled_code_after_call(func):
     return wrapper
 
 
-def check_dataframes_equal(test_wrapper: "MitoWidgetTestWrapper"):
+def check_dataframes_equal(test_wrapper: "MitoWidgetTestWrapper") -> None:
     """
     Tests that the dataframes in the widget state container equal
     to those that are the result of the executed code. 
